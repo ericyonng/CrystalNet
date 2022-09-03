@@ -24,7 +24,7 @@
 
 # 构建状态
 
-**Linux**: [![Build](https://travis-ci.com/ericyonng/FrightenStone.svg?branch=master)](http://travis-ci.com)
+**Linux**: [![Build](https://app.travis-ci.com/ericyonng/CrystalNet.svg?branch=main)](http://travis-ci.com)
 
 **Windows**: [![Build status](https://ci.appveyor.com/api/projects/status/0jarbeono1kve7dx?svg=true)](https://ci.appveyor.com/project/ericyonng/crystalnet)
 
