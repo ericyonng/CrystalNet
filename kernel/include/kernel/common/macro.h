@@ -288,7 +288,7 @@ private:                                                                        
 #endif
 
 #undef ASSERT
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS && defined(_DEBUG)
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
     #ifdef _DEBUG
         #define ASSERT(x) (x)?true:(POP_BOX(#x))
     #else
