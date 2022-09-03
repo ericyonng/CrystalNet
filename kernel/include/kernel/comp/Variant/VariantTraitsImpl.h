@@ -1,0 +1,55 @@
+/*!
+ *  MIT License
+ *  
+ *  Copyright (c) 2020 ericyonng<120453674@qq.com>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ * 
+ * Date: 2022-01-29 20:34:21
+ * Author: Eric Yonng
+ * Description: 
+*/
+
+#ifdef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_VARIANT_VARIANT_TRAITS_H__
+
+KERNEL_BEGIN
+
+ALWAYS_INLINE bool VariantTraits::ne(const Variant &left, const Variant &right)
+{
+    return !VariantTraits::eq(left, right);
+}
+
+ALWAYS_INLINE bool VariantTraits::gt(const Variant &left, const Variant &right)
+{
+    return right < left;
+}
+
+ALWAYS_INLINE bool VariantTraits::le(const Variant &left, const Variant &right)
+{
+    return !(right < left);
+}
+
+ALWAYS_INLINE bool VariantTraits::ge(const Variant &left, const Variant &right)
+{
+    return !(left < right);
+}
+
+KERNEL_END
+
+#endif
