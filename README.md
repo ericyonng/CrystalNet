@@ -26,7 +26,7 @@
 
 **Linux**: [![Build](https://app.travis-ci.com/ericyonng/CrystalNet.svg?branch=main)](http://travis-ci.com)
 
-**Windows**: [![Build status](https://ci.appveyor.com/api/projects/status/0jarbeono1kve7dx?svg=true)](https://ci.appveyor.com/project/ericyonng/crystalnet)
+**Windows**: [![Build status](https://ci.appveyor.com/api/projects/status/5ikkrcubaax0vq84?svg=true)](https://ci.appveyor.com/project/ericyonng/crystalnet)
 
 --------
 
