@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "com_title.proto";
+
+/// Opcode:
+message TitleInfoReq
+{
+
+}
+
+/// Opcode:
+message TitleInfoRes
+{
+    sint32 errCode = 1;
+    repeated TitleInfo titleList = 2;
+}

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "com_player.proto";
+
+/// Opcode:
+message PlayerDataReq
+{
+    optional string account = 1;
+    optional string pwd = 2;
+}
+
+/// Opcode:
+message PlayerDataRes
+{
+    optional sint32 errCode = 1;
+    optional PlayerData playerData = 2;
+    optional string loginToken = 3;
+}
+
+/// Opcode:
+message ModifyPlayerNameReq
+{
+    optional string newName = 1;
+}
+
+/// Opcode:
+message ModifyPlayerNameRes
+{
+    optional sint32 errCode = 1;
+}
+
+/// Opcode:
+message PlayerDataNty
+{
+    optional PlayerData playerData = 1;
+}

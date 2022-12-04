@@ -1,0 +1,81 @@
+/*!
+ *  MIT License
+ *  
+ *  Copyright (c) 2020 ericyonng<120453674@qq.com>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ * 
+ * Date: 2022-09-18 21:25:51
+ * Author: Eric Yonng
+ * Description: 
+*/
+
+#include <pch.h>
+#include <service/TestService/Comps/BaseComps/SessionMgrComp/Defs/ServiceSession/ServiceSession.h>
+#include <service/TestService/Comps/BaseComps/SessionMgrComp/Defs/ServiceSession/Impl/ServiceSessionInfo.h>
+#include <service/TestService/Comps/BaseComps/SessionMgrComp/Impl/SessionMgr.h>
+
+SERVICE_BEGIN
+POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceSession);
+
+ServiceSession::ServiceSession(SessionMgr *sessionMgr)
+:_sessionInfo(ServiceSessionInfo::NewThreadLocal_ServiceSessionInfo())
+,_sessionMgr(sessionMgr)
+{
+
+}
+
+ServiceSession::~ServiceSession()
+{
+    _Clear();
+}
+
+void ServiceSession::Release()
+{
+    ServiceSession::DeleteThreadLocal_ServiceSession(this);
+}
+
+void ServiceSession:: SetSessionInfo(const ServiceSessionInfo &sessionInfo)
+{
+    *_sessionInfo = sessionInfo;
+}
+
+UInt64 ServiceSession::GetSessionId() const
+{
+    return _sessionInfo->_sessionId;
+}
+
+KERNEL_NS::LibString ServiceSession::ToString() const
+{
+    KERNEL_NS::LibString info;
+    info.AppendFormat("[%s]", _sessionInfo->ToString().c_str());
+    return info;
+}
+
+
+void ServiceSession::_Clear()
+{
+    if(LIKELY(_sessionInfo))
+    {
+        ServiceSessionInfo::DeleteThreadLocal_ServiceSessionInfo(_sessionInfo);
+        _sessionInfo = NULL;
+    }
+}
+
+SERVICE_END
