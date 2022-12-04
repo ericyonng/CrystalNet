@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtoPackage", "ProtoPackage\ProtoPackage.csproj", "{00E2CD51-F432-4A20-8C1E-D406DEE79BEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Google.Protobuf", "Google.Protobuf\Google.Protobuf.csproj", "{2984BF53-7C1A-40E4-8A82-A1F6D4BCBF8E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{00E2CD51-F432-4A20-8C1E-D406DEE79BEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00E2CD51-F432-4A20-8C1E-D406DEE79BEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00E2CD51-F432-4A20-8C1E-D406DEE79BEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00E2CD51-F432-4A20-8C1E-D406DEE79BEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2984BF53-7C1A-40E4-8A82-A1F6D4BCBF8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2984BF53-7C1A-40E4-8A82-A1F6D4BCBF8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2984BF53-7C1A-40E4-8A82-A1F6D4BCBF8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2984BF53-7C1A-40E4-8A82-A1F6D4BCBF8E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+/// Opcode:
+message TestOpcodeReq
+{
+    optional bytes content = 1;
+}
+
+/// Opcode:
+message TestOpcodeRes
+{
+    optional bytes content = 1;
+}
+
+/// Opcode:
+message TestOpcode2Req
+{
+    optional sint32 id = 1;
+    optional string content = 2;
+}
+
+message TestOpcodeInfo
+{
+    optional sint32 errCode = 1;
+    optional string errMsg = 2;
+}
+
+/// Opcode:
+message TestOpcode2Res
+{
+	optional int32 id_info = 1;
+    optional TestOpcodeInfo testInfo = 2;
+}

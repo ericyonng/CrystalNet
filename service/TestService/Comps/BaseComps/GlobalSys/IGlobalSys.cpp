@@ -1,0 +1,296 @@
+/*!
+ *  MIT License
+ *  
+ *  Copyright (c) 2020 ericyonng<120453674@qq.com>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ * 
+ * Date: 2022-09-18 19:53:40
+ * Author: Eric Yonng
+ * Description: 
+*/
+
+#include <pch.h>
+#include <service/TestService/Comps/BaseComps/GlobalSys/IGlobalSys.h>
+#include <service/TestService/Comps/BaseComps/SessionMgrComp/SessionMgr.h>
+#include <service/TestService/MyTestService.h>
+
+SERVICE_BEGIN
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(IGlobalSys);
+
+IGlobalSys::IGlobalSys()
+{
+}
+
+IGlobalSys::~IGlobalSys()
+{
+    _Clear();
+}
+
+Int64 IGlobalSys::Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const
+{
+    const ISessionMgr *sessionMgr = GetGlobalSys<ISessionMgr>();
+    auto session = sessionMgr->GetSession(sessionId);
+    if(UNLIKELY(!session))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu"), sessionId);
+        return -1;
+    }
+
+    auto sessionInfo = session->GetSessionInfo();
+    auto service = IGlobalSys::GetCurrentService();
+    auto serviceProxy = service->GetServiceProxy();
+    const auto packetId = packet->GetPacketId();
+    serviceProxy->TcpSendMsg(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId, packet);
+
+    return packetId;
+}
+
+void IGlobalSys::Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) const
+{
+    auto sessionMgr = GetGlobalSys<ISessionMgr>();
+    auto session = sessionMgr->GetSession(sessionId);
+    if(UNLIKELY(!session))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu"), sessionId);
+        return;
+    }
+    
+    auto sessionInfo = session->GetSessionInfo();
+    auto service = IGlobalSys::GetCurrentService();
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->TcpSendMsg(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId, packets);
+}
+
+Int64 IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
+{
+    auto service = IGlobalSys::GetCurrentService();
+
+    auto sessionMgr = service->GetComp<ISessionMgr>();
+    auto session = sessionMgr->GetSession(sessionId);
+    if(UNLIKELY(!session))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu"), sessionId);
+        return -1;
+    }
+
+    auto sessionInfo = session->GetSessionInfo();
+    auto newCoderFactory = sessionInfo->_protocolStack->GetCoderFactory(opcode);
+    if(UNLIKELY(!newCoderFactory))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("bad opcode:%d, sessionInfo:%s"), opcode, sessionInfo->ToString().c_str());
+        return -1;
+    }
+
+    auto newCoder = newCoderFactory->Create(&coder);
+    auto newPacket = KERNEL_NS::LibPacket::New_LibPacket();
+    newPacket->SetSessionId(sessionId);
+    newPacket->SetLocalAddr(sessionInfo->_localAddr);
+    newPacket->SetRemoteAddr(sessionInfo->_remoteAddr);
+    newPacket->SetPacketId((packetId > 0) ? packetId : sessionMgr->NewPacketId(sessionId));
+    newPacket->SetOpcode(opcode);
+    newPacket->SetCoder(newCoder);
+    const auto newPacketId = newPacket->GetPacketId();
+    Send(sessionId, newPacket);
+
+    return newPacketId;
+}
+
+
+void IGlobalSys::CloseSession(UInt64 sessionId) const
+{
+    const ISessionMgr *sessionMgr = GetGlobalSys<ISessionMgr>();
+    auto session = sessionMgr->GetSession(sessionId);
+    if(UNLIKELY(!session))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu"), sessionId);
+        return;
+    }
+
+    auto sessionInfo = session->GetSessionInfo();
+    auto service = IGlobalSys::GetCurrentService();
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->TcpCloseSession(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId);
+}
+
+void IGlobalSys::CloseSessionBy(const KERNEL_NS::LibString &ip) const
+{
+    // TODO:找到ip的所有session 关闭
+}
+
+void IGlobalSys::AddWhite(const KERNEL_NS::LibString &ip, Int32 level)
+{
+    auto service = IGlobalSys::GetCurrentService();
+    if(ip.empty() || !KERNEL_NS::SocketUtil::IsIp(ip))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("invalid ip:%s"), ip.c_str());
+        return;
+    }
+
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->AddWhite(ip, level);
+}
+
+void IGlobalSys::AddBlack(const KERNEL_NS::LibString &ip, Int32 level)
+{
+    auto service = IGlobalSys::GetCurrentService();
+    if(ip.empty() || !KERNEL_NS::SocketUtil::IsIp(ip))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("invalid ip:%s"), ip.c_str());
+        return;
+    }
+
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->AddBlack(ip, level);
+}
+
+void IGlobalSys::EraseWhite(const KERNEL_NS::LibString &ip, Int32 level)
+{
+    auto service = IGlobalSys::GetCurrentService();
+    if(ip.empty() || !KERNEL_NS::SocketUtil::IsIp(ip))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("invalid ip:%s"), ip.c_str());
+        return;
+    }
+
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->EraseWhite(ip, level);
+}
+
+void IGlobalSys::EraseBlack(const KERNEL_NS::LibString &ip, Int32 level)
+{
+    auto service = IGlobalSys::GetCurrentService();
+    if(ip.empty() || !KERNEL_NS::SocketUtil::IsIp(ip))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("invalid ip:%s"), ip.c_str());
+        return;
+    }
+
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->EraseBlack(ip, level);
+}
+
+void IGlobalSys::AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
+{
+    auto service = IGlobalSys::GetCurrentService();
+    if(ips.empty())
+        return;
+
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->AddWhite(ips, level);
+}
+
+void IGlobalSys::AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
+{
+    auto service = IGlobalSys::GetCurrentService();
+    if(ips.empty())
+        return;
+
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->AddBlack(ips, level);
+}
+
+void IGlobalSys::EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
+{
+    auto service = IGlobalSys::GetCurrentService();
+    if(ips.empty())
+        return;
+
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->EraseWhite(ips, level);
+}
+
+void IGlobalSys::EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
+{
+    auto service = IGlobalSys::GetCurrentService();
+    if (ips.empty())
+        return;
+
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->EraseBlack(ips, level);
+}
+
+void IGlobalSys::ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level)
+{
+    auto service = IGlobalSys::GetCurrentService();
+    if(controlInfoList.empty())
+        return;
+
+    auto ipRuleMgr = service->GetComp<KERNEL_NS::IpRuleMgr>();
+    for(auto ctrlInfo : controlInfoList)
+    {
+        if(!KERNEL_NS::SocketUtil::IsIp(ctrlInfo->_ip))
+            continue;
+
+        for(auto ctrlFlag : ctrlInfo->_controlFlow)
+        {
+            if (ctrlFlag == KERNEL_NS::IpControlInfo::ADD_WHITE)
+                ipRuleMgr->PushWhite(ctrlInfo->_ip);
+            else if (ctrlFlag == KERNEL_NS::IpControlInfo::ADD_BLACK)
+                ipRuleMgr->PushBlack(ctrlInfo->_ip);
+            else if (ctrlFlag == KERNEL_NS::IpControlInfo::ERASE_WHITE)
+                ipRuleMgr->EraseWhite(ctrlInfo->_ip);
+            else if(ctrlFlag == KERNEL_NS::IpControlInfo::ERASE_BLACK)
+                ipRuleMgr->EraseBlack(ctrlInfo->_ip);
+        }
+
+        if(!ipRuleMgr->Check(ctrlInfo->_ip))
+        {
+            g_Log->Info(LOGFMT_OBJ_TAG("ip check fail ip:%s"), ctrlInfo->_ip.c_str());
+            CloseSessionBy(ctrlInfo->_ip);
+        }
+    }
+    auto serviceProxy = service->GetServiceProxy();
+    serviceProxy->ControlIpPipline(controlInfoList, level);
+}
+
+
+Int32 IGlobalSys::_OnSysInit()
+{
+    SetEventMgr(GetService()->GetEventMgr());
+
+    auto st = _OnGlobalSysInit();
+    if(st != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("global sys init fail %s"), ToString().c_str());
+        return st;
+    }
+
+    return Status::Success;
+}
+
+void IGlobalSys::_OnSysClose() 
+{
+    _Clear();
+
+    _OnGlobalSysClose();
+}
+
+void IGlobalSys::_OnGlobalSysClose()
+{
+
+}
+
+void IGlobalSys::_Clear()
+{
+
+}
+
+SERVICE_END

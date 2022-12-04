@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message TitleInfo
+{
+    sint32 titleCfgId = 1;  // 配置
+    sint64 expiredTs = 2;   // 过期时间
+}

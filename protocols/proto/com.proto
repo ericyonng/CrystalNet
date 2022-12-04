@@ -1,0 +1,70 @@
+
+syntax = "proto3";
+
+// 属性类型枚举
+message CreatureAttrKey
+{
+    enum ENUM
+    {
+        BEGIN = 0;  // 开始
+        Atk = 1; // 攻击
+        Def = 2; // 防御
+        HpLmt = 3; //生命上限
+        HpRcv = 4; // 生命回复
+        Cure = 5; // 治疗
+        AngerLmt = 6; // 怒气上限
+        AngerRcv = 7; // 怒气恢复
+        Anger = 8; // 当前怒气
+        Hp = 9; // 当前生命
+        MoveSpd = 10; // 移动速度
+        ActSpd = 11; // 攻击速度(动画速度)
+        MMoveSpd = 12; // 骑乘移动速度
+        MActSpd = 13; // 骑乘动画速率
+        ExtraHp = 14; // 额外生命
+        VMoveSpd = 15; // 载具移动速度
+        //VActSpd = 16; // 载具动画速率
+        BuffHp = 17; // Buff血量
+        BuffHpLmt = 18; // Buff血量上限
+        BuffHpBloodSpeed = 19; // Buff流血速度
+
+        Crit = 101; // 暴击
+        Res = 102; // 抗暴
+        Hit = 103; // 精准
+        Prr = 104; // 格挡
+        Ddg = 105; // 闪避
+        Crid = 106; // 暴伤
+        Crrd = 107; // 暴伤减免
+        Critv = 108; // 暴击率
+        Resv = 109; // 抗暴率
+        Hitv = 110; // 精准率
+        Prrv = 111; // 格挡率
+        Ddgv = 112; // 闪避率
+
+        AtkAdd = 151; // 攻击加成比
+        DefAdd = 152; // 防御加成比
+        HpLmtAdd = 153; // 生命上限加成比
+
+        Pedm = 201; // 近战伤害加成
+        Prdm = 202; // 近战伤害抵抗
+        Medm = 203; // 魔法伤害加成
+        Mrdm = 204; // 魔法伤害抵抗
+        Sedm = 205; // 穿透伤害加成
+        Srdm = 206; // 穿透伤害抵抗
+        Ardm = 210; // 所有抵抗增加
+        
+        Lv = 251; // 当前等级
+        AwakeLv = 252; // 觉醒等级
+        ExpLmt = 253; // 升级所需经验
+        Exp = 254; // 当前经验
+
+        ExpMul = 255; // 经验加成(百分比), 只影响杀怪
+        ExpAdd = 256; // 经验加成(固定值)
+        GoldMul = 257; // 银币加成(百分比)
+        DoubleExp = 258; // 双倍经验
+
+        VipLv = 270; // vip等级
+
+        Forces = 299; // 战力
+
+    }
+}

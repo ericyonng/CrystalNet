@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message PlayerData
+{
+    optional string account = 1;
+    optional sint64 playerId = 2;
+    optional sint32 sex = 3;
+    optional string name = 4;
+}
