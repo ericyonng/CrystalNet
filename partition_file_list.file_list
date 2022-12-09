@@ -1,0 +1,6 @@
+./3rd/protobuf/lib/libprotocd.lib
+./3rd/protobuf/lib/libprotocd.a
+./3rd/protobuf/lib/libprotobufd.lib
+./3rd/kernel/libCrystalKernel.a
+./3rd/kernel/libCrystalKernel_debug.lib
+./3rd/kernel/libCrystalKernel_debug.a
