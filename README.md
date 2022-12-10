@@ -72,7 +72,7 @@
 * 对于core，请不要使用try catch去处理异常，让系统输出core_dump的因为linux 的core_dump可以输出比较全面的崩溃时的数据，而如果仅仅在try catch去使用backtrace打印堆栈信息，是有缺陷的无法还原崩溃时的信息，导致解决错误的困难
 * gcc 需要支持8.3及以上，建议切换到tencent os 3 因为默认支持gcc 8.3
 * CXX11 ABI兼容性 请设置编译选项:D_GLIBCXX_USE_CXX11_ABI=1 放弃兼容gcc 5.x以下版本
-* 由于github单文件100MB 限制的原因，对3rd/kernel 3rd/protobuf/lib 两个目录库文件进行了压缩，请自行解压后当各自目录使用，谢谢！
+* 由于github单文件100MB 限制的原因，对3rd/kernel 3rd/protobuf/lib 两个目录库超过100MB文件进行了partition拆分，编译时会自动合并
 
 # 依赖
 
