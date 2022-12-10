@@ -1393,7 +1393,7 @@ Int32 SocketUtil::SyncSend(SOCKET handle, const void *buf, Int64 len, int flags,
         // 缓冲区满不可写
         if(errno == EWOULDBLOCK || errno == EAGAIN)
         {
-            g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "sync send SockError_EAGAIN_OR_EWOULDBLOCK error errno = [%d, %s]"), errno, SystemUtil::GetErrString(errno).c_str());
+            // g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "sync send SockError_EAGAIN_OR_EWOULDBLOCK error errno = [%d, %s]"), errno, SystemUtil::GetErrString(errno).c_str());
             return Status::SockError_EAGAIN_OR_EWOULDBLOCK;
         }
 
