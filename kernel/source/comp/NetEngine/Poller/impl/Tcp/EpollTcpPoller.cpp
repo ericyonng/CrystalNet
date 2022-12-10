@@ -1290,7 +1290,7 @@ void EpollTcpPoller::_OnDirtySessionWrite(LibDirtyHelper<void *, UInt32> *dirtyH
 void EpollTcpPoller::_OnDirtySessionRead(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params)
 {
     auto epollTcpSession = KernelCastTo<EpollTcpSession>(session);
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("dirty read session:%s"), epollTcpSession->ToString().c_str());
+    // g_Log->NetDebug(LOGFMT_OBJ_TAG("dirty read session:%s"), epollTcpSession->ToString().c_str());
     epollTcpSession->OnRecv();
 }
 

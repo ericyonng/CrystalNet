@@ -100,7 +100,9 @@ VER="$1"
 	echo "modify file describe quantity at system level"	
 	sudo sed -i "/fs.file-max/d" ${SYSCTL_CONF_PATH}
 	sudo echo -e "fs.file-max=1024000 \n" >> ${SYSCTL_CONF_PATH}	
-	
+
+	# 扩展随机端口范围
+	sudo echo -e "net.ipv4.ip_local_port_range = 1024 65535\n" >> ${SYSCTL_CONF_PATH}
 	# 生效
 	sudo sysctl -p
 else
