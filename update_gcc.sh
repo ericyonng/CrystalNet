@@ -38,3 +38,4 @@ export CXX=/opt/rh/devtoolset-8/root/bin/g++
 
 # 8.3的库
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/gcc-8.3.0/lib64
+echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/gcc-8.3.0/lib64" >>~/.bashrc
