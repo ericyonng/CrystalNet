@@ -41,7 +41,6 @@ static bool PartitionFile(const KERNEL_NS::LibString &filePath, Int64 partitionS
         return false;
     }
 
-
     const auto fileSize = KERNEL_NS::FileUtil::GetFileSizeEx(filePath.c_str());
     const auto fileCount = static_cast<Int32>(fileSize / partitionSize + (((fileSize % partitionSize) > 0) ? 1 : 0));
 
@@ -86,7 +85,6 @@ static bool PartitionFile(const KERNEL_NS::LibString &filePath, Int64 partitionS
         
         if(!dest)
         {
-
             auto destFilePath = filePath + KERNEL_NS::LibString().AppendFormat(".part%d", partNo);
             g_Log->Custom("[... ...] %s", KERNEL_NS::DirectoryUtil::GetFileNameInPath(destFilePath).c_str());
             dest = KERNEL_NS::FileUtil::OpenFile(destFilePath.c_str(), true);
@@ -290,6 +288,7 @@ void FileTool::Run(int argc, char const *argv[])
 
             for (auto& handleFilePath : lines)
             {
+                handleFilePath.strip();
                 if (handleFilePath.empty())
                     continue;
 
