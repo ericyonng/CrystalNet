@@ -64,7 +64,7 @@ public:
     virtual void TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, KERNEL_NS::LibPacket *packet) final;
     virtual void TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *packets) final;
     virtual void TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) final;
-    virtual void TcpCloseSession(UInt64 pollerId, Int32 level, UInt64 sessionId) final;
+    virtual void TcpCloseSession(UInt64 pollerId, UInt64 fromeService, Int32 level, UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite) final;
 
     // ip
     void AddWhite(const KERNEL_NS::LibString &ip, Int32 level = 0);

@@ -114,7 +114,7 @@ Int64 IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &
 }
 
 
-void IGlobalSys::CloseSession(UInt64 sessionId) const
+void IGlobalSys::CloseSession(UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite) const
 {
     const ISessionMgr *sessionMgr = GetGlobalSys<ISessionMgr>();
     auto session = sessionMgr->GetSession(sessionId);
@@ -127,12 +127,7 @@ void IGlobalSys::CloseSession(UInt64 sessionId) const
     auto sessionInfo = session->GetSessionInfo();
     auto service = IGlobalSys::GetCurrentService();
     auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->TcpCloseSession(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId);
-}
-
-void IGlobalSys::CloseSessionBy(const KERNEL_NS::LibString &ip) const
-{
-    // TODO:找到ip的所有session 关闭
+    serviceProxy->TcpCloseSession(sessionInfo->_pollerId, GetService()->GetServiceId(), sessionInfo->_priorityLevel, sessionId, closeMillisecondTime, forbidRead, forbidWrite);
 }
 
 void IGlobalSys::AddWhite(const KERNEL_NS::LibString &ip, Int32 level)
@@ -250,13 +245,8 @@ void IGlobalSys::ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &c
             else if(ctrlFlag == KERNEL_NS::IpControlInfo::ERASE_BLACK)
                 ipRuleMgr->EraseBlack(ctrlInfo->_ip);
         }
-
-        if(!ipRuleMgr->Check(ctrlInfo->_ip))
-        {
-            g_Log->Info(LOGFMT_OBJ_TAG("ip check fail ip:%s"), ctrlInfo->_ip.c_str());
-            CloseSessionBy(ctrlInfo->_ip);
-        }
     }
+
     auto serviceProxy = service->GetServiceProxy();
     serviceProxy->ControlIpPipline(controlInfoList, level);
 }

@@ -94,7 +94,7 @@ public:
     void PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList);
     void PostSend(UInt64 pollerId, Int32 level, UInt64 sessionId, LibPacket *packet);
     void PostSend(UInt64 pollerId, Int32 level, UInt64 sessionId, LibList<LibPacket *> *packets);
-    void PostCloseSession(UInt64 pollerId, Int32 level, UInt64 sessionId);
+    void PostCloseSession(UInt64 pollerId, UInt64 fromeService, Int32 level, UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite);
     void PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList);
 
     void OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo);

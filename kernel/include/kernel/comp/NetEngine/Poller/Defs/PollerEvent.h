@@ -204,6 +204,8 @@ struct KERNEL_EXPORT CloseSessionEvent : public PollerEvent
     UInt32 _priorityLevel;
     Int64 _closeMillisecondTime;  // 指定关闭时间戳 延迟关闭一般是为了保证底层消息的正常到达远端
     UInt64 _stub;
+    bool _forbidRead;
+    bool _forbidWrite;
 };
 
 // 根据serviceId关闭所有session

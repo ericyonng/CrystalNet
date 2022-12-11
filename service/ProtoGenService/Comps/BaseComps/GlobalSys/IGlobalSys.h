@@ -77,10 +77,9 @@ public:
   
   /*
   * 关闭会话
+  * @param(closeMillisecondTime):关闭会话的时间戳, 0表示没有延迟立即关闭
   */
-  void CloseSession(UInt64 sessionId) const;
-  void CloseSessionBy(const KERNEL_NS::LibString &ip) const;
-  
+  void CloseSession(UInt64 sessionId, Int64 closeMillisecondTime = 0, bool forbidRead = true, bool forbidWrite = true) const;
 
   /*
   * ip 黑白名单控制
