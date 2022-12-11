@@ -210,9 +210,9 @@ void ServiceProxy::TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, co
 }
 
 
-void ServiceProxy::TcpCloseSession(UInt64 pollerId, Int32 level, UInt64 sessionId)
+void ServiceProxy::TcpCloseSession(UInt64 pollerId, UInt64 fromeService, Int32 level, UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite)
 {
-    _tcpPollerMgr->PostCloseSession(pollerId, level, sessionId);
+    _tcpPollerMgr->PostCloseSession(pollerId, fromeService, level, sessionId, closeMillisecondTime, forbidRead, forbidWrite);
     // g_Log->Info(LOGFMT_OBJ_TAG("post close session sessionId:%llu"), sessionId);
 }
 

@@ -188,6 +188,8 @@ CloseSessionEvent::CloseSessionEvent()
 ,_priorityLevel(0)
 ,_closeMillisecondTime(0)
 ,_stub(0)
+,_forbidRead(false)
+,_forbidWrite(false)
 {
 
 }
@@ -206,6 +208,8 @@ LibString CloseSessionEvent::ToString() const
         .AppendFormat("_priorityLevel:%u, ", _priorityLevel)
         .AppendFormat("_closeMillisecondTime:%lld, ", _closeMillisecondTime)
         .AppendFormat("_stub:%llu, ", _stub)
+        .AppendFormat("_forbidRead:%s, ", _forbidRead ? "true" : "false")
+        .AppendFormat("_forbidWrite:%s, ", _forbidWrite ? "true" : "false")
         ;
     return info;
 }

@@ -220,10 +220,15 @@ void IocpTcpPoller::PostConnect(Int32 level, LibConnectInfo *connectInfo)
     _poller->Push(level, ev);
 }
 
-void IocpTcpPoller::PostCloseSession(Int32 level, UInt64 sessionId)
+void IocpTcpPoller::PostCloseSession(UInt64 fromServiceId, Int32 level,  UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite)
 {
     auto closeEv = CloseSessionEvent::New_CloseSessionEvent();
     closeEv->_sessionId = sessionId;
+    closeEv->_closeMillisecondTime = closeMillisecondTime;
+    closeEv->_forbidRead = forbidRead;
+    closeEv->_forbidWrite = forbidWrite;
+    closeEv->_fromServiceId = fromServiceId;
+    closeEv->_priorityLevel = level;
     _poller->Push(level, closeEv);
 }
 
@@ -1233,7 +1238,7 @@ void IocpTcpPoller::_OnCloseSession(PollerEvent *ev)
         return;
     }
 
-    _ControlCloseSession(session, CloseSessionInfo::LOCAL_FORCE_CLOSE, closeSessionEv->_closeMillisecondTime, closeSessionEv->_stub);
+    _ControlCloseSession(session, CloseSessionInfo::LOCAL_FORCE_CLOSE, closeSessionEv->_closeMillisecondTime, closeSessionEv->_stub, closeSessionEv->_forbidRead, closeSessionEv->_forbidWrite);
 }
 
 void IocpTcpPoller::_OnAddListen(PollerEvent *ev)

@@ -80,9 +80,7 @@ public:
   /*
   * 关闭会话
   */
-  void CloseSession(UInt64 sessionId) const;
-  void CloseSessionBy(const KERNEL_NS::LibString &ip) const;
-  
+  void CloseSession(UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite) const;
 
   /*
   * ip 黑白名单控制
