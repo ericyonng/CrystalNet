@@ -183,6 +183,9 @@ Int32 LibIocp::WaitForCompletion(IoEvent &ioEvent, Int32 &errorCode, ULong milli
             ASSERT(grRet == FALSE && "library internal error, in GetQueuedCompletionStatus()!");
 #endif
         }
+
+        auto wsaErr = SystemUtil::GetErrNo(true);
+        const auto &wsaErrString = SystemUtil::GetErrString(wsaErr);
         
         if(ERROR_NETNAME_DELETED == error)
         {
@@ -235,8 +238,11 @@ Int32 LibIocp::WaitForCompletion(IoEvent &ioEvent, Int32 &errorCode, ULong milli
 //             return Status::Ignore;
 //         }
 
-        g_Log->NetError(LOGFMT_OBJ_TAG("WaitForMessage other error error<%d> io event:%s")
+
+        g_Log->NetError(LOGFMT_OBJ_TAG("WaitForMessage other error error<%d>, wsaErr:<%d, %s> io event:%s")
                           , error
+                          , wsaErr
+                          , wsaErrString.c_str()
                           , ioEvent.ToString().c_str());
                           
         errorCode = Status::IOCP_WaitOtherError;
