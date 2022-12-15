@@ -66,10 +66,26 @@ void TestService::Run(int argc, char const *argv[])
                 KERNEL_NS::SystemUtil::ThreadSleep(0);
 
             KERNEL_NS::KernelUtil::OnSignalClose();
+
+            printf("\npress q to quit.\n");
+            while(true)
+            {
+                auto v = getchar();
+                if(v == 'q')
+                    break;
+            }
         }
         else
         {
             KERNEL_NS::KernelUtil::OnAbnormalClose();
+
+            printf("\npress q to quit.\n");
+            while(true)
+            {
+                auto v = getchar();
+                if(v == 'q')
+                    break;
+            }
         }
 #else
         app->WillClose();
@@ -81,6 +97,14 @@ void TestService::Run(int argc, char const *argv[])
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestService, "application close finished."));
 
         KERNEL_NS::KernelUtil::OnSignalClose();
+
+        printf("\npress q to quit.\n");
+        while(true)
+        {
+            auto v = getchar();
+            if(v == 'q')
+                break;
+        }
 #endif
         
     };

@@ -214,5 +214,12 @@ void TestInst::Run(int argc, char const *argv[])
     // TestRegex::Run(argc, argv);
 
     KERNEL_NS::KernelUtil::Destroy();
-    getchar();
+    
+    printf("\npress q to quit.\n");
+    while(true)
+    {
+        auto v = getchar();
+        if(v == 'q')
+            break;
+    }
 }
