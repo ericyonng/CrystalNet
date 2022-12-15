@@ -63,24 +63,16 @@ public:
         }
     }
 
-    SmartPtr(const SmartPtr<ObjType, delMethod> &obj)
-        :_ptr(obj._ptr)
-        ,_ref(obj._ref)
-        ,_del(obj._del)
-        
+    SmartPtr(const SmartPtr<ObjType, delMethod> &obj)        
+        :_ptr(NULL)
+        ,_ref(NULL)
     {
-        if(LIKELY(_ref))
-            ++(*_ref);
+        _CopyFrom(obj);
     }
 
     SmartPtr(SmartPtr<ObjType, delMethod> &&obj)
-        :_ptr(obj._ptr)
-        ,_ref(obj._ref)
-        ,_del(obj._del)
     {
-        obj._ptr = NULL;
-        obj._ref = NULL;
-        obj._del.Cancel();
+        _MoveFrom(obj);
     }
 
     ~SmartPtr()
@@ -92,6 +84,13 @@ public:
     // 引用计数不为1时,pop返回NULL,因为还有其他智能指针hold住了ObjType,还是有可能被其他智能指针释放，故而无法彻底弹出
     ObjType *pop(IDelegate<void, void *&> **popDelegate = NULL)
     {
+        // 还有引用不可抛出去
+        if(_ref && *_ref > 1)
+        {
+            CRYSTAL_TRACE("ptr is hold by other smartptr objtype:%s, ref:%llu", typeid(ObjType).name(), *_ref);
+            return NULL;
+        }
+
         ObjType *ptr = _ptr;
         _ptr = NULL;
 
@@ -108,14 +107,7 @@ public:
         if(UNLIKELY(!_ref))
             return ptr;
 
-        // 还有引用不可抛出去
-        if(*_ref > 1)
-        {
-            CRYSTAL_TRACE("ptr is hold by other smartptr objtype:%s, ref:%llu", typeid(ObjType).name(), *_ref);
-            return NULL;
-        }
-
-        *_ref = 0;
+        CRYSTAL_DELETE_SAFE(_ref);
         return ptr;
     }
 
@@ -125,6 +117,9 @@ public:
         if(UNLIKELY(!_ref || (*_ref == 0)))
         {
             _del.Cancel();
+
+            CRYSTAL_DELETE_SAFE(_ref);
+
             return;
         }
 
@@ -163,29 +158,14 @@ public:
     
     SmartPtr<ObjType, delMethod> &operator =(const SmartPtr<ObjType, delMethod> &other)
     {
-        if(_ptr == other._ptr)
-            return *this;
-
-        Release();
-        _ptr = other._ptr;
-        _ref = other._ref;
-        _del = other._del;
-
-        if(LIKELY(_ref))
-            ++(*_ref);
+        _CopyFrom(const SmartPtr<ObjType, delMethod> &other);
 
         return *this;
     }
 
     SmartPtr<ObjType, delMethod> &operator =(SmartPtr<ObjType, delMethod> &&ptr)
     {
-        if(_ptr == ptr._ptr)
-            return *this;
-        
-        Release();
-        _ptr = ptr._ptr;
-        _ref = ptr._ref;
-        _del.Takeover(ptr._del.pop());
+        _MoveFrom(ptr);
 
         return *this;
     }
@@ -299,6 +279,45 @@ public:
     UInt64 GetRefCount() const
     {
         return _ref ? *_ref : 0;
+    }
+
+private:
+    void _CopyFrom(const SmartPtr<ObjType, delMethod> &other)
+    {
+        if(this == &other)
+            return;
+
+        // 内部地址一样说明已经拷贝给当前智能指针过了
+        if (_ptr == other._ptr)
+            return;
+
+        Release();
+
+        _ptr = other._ptr;
+        _ref = other._ref;
+        _del = other._del;
+
+        // 引用计数更新
+        if(LIKELY(_ptr))
+            ++(*_ref);
+    }
+
+    void _MoveFrom(SmartPtr<ObjType, delMethod> &obj)
+    {
+        if(this == &obj)
+            return;
+
+        if(_ptr != obj._ptr)
+        {
+            Release();
+        }
+
+        _ptr = ptr._ptr;
+        _ref = ptr._ref;
+        _del.Takeover(ptr._del.pop());
+
+        ptr._ptr = NULL;
+        ptr._ref = NULL;
     }
 
 protected:

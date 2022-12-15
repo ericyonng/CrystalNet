@@ -439,8 +439,10 @@ void TcpPollerMgr::PostIpControl(Int32 level, const std::list<IpControlInfo *> &
         iter.second->PostIpControl(level, controlList);
 }
 
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
 void TcpPollerMgr::OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo)
 {
+
     auto pollerCluster = _GetPollerCluster(PollerFeature::DATA_TRANSFER);
     if(UNLIKELY(!pollerCluster))
     {
@@ -466,6 +468,7 @@ void TcpPollerMgr::OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo)
     
     poller->PostNewSession(newSessionInfo->_priorityLevel, newSessionInfo);
 }
+#endif
 
 void TcpPollerMgr::OnAcceptedSuc(BuildSessionInfo *newSessionInfo)
 {
