@@ -504,6 +504,7 @@ void EpollTcpPoller::_OnWrite(PollerEvent *ev)
             LibPacket::Delete_LibPacket(packet);
             packet = NULL;
         });
+        LibList<LibPacket *>::Delete_LibList(packets);
     });
 
     auto session = _GetSession(sendEv->_sessionId);

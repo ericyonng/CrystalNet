@@ -19,7 +19,7 @@ if errorlevel 1 (
     exit 1
 ) else (
     echo Succcess to generate Visual Studio solution and project files
-    echo Solution file path: build/%choose%/fs_%choose%.sln
+    echo Solution file path: build/%choose%/CrystalNet_%choose%.sln
 	Rem cancel support c++17
 	Rem win_premake5.exe --file=fixcpp17_forwin.lua %choose%
    if "%1"=="" (
