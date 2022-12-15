@@ -97,7 +97,10 @@ public:
     void PostCloseSession(UInt64 pollerId, UInt64 fromeService, Int32 level, UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite);
     void PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList);
 
-    void OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo);
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        void OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo);
+    #endif
+    
     void OnAcceptedSuc(BuildSessionInfo *newSessionInfo);
 
     void QuitAllSessions(UInt64 serviceId);
