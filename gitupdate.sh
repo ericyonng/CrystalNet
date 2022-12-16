@@ -16,7 +16,7 @@ fi
 REMOTE_NAME=$(git remote)
 
 # 重置到FETCH_HEAD
-if [ -n "$2"]
+if [ -n "$2" ]
 then
     if [ $2 = 1 ]
     then
