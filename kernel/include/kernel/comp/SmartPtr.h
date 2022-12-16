@@ -312,12 +312,12 @@ private:
             Release();
         }
 
-        _ptr = ptr._ptr;
-        _ref = ptr._ref;
-        _del.Takeover(ptr._del.pop());
+        _ptr = obj._ptr;
+        _ref = obj._ref;
+        _del.Takeover(obj._del.pop());
 
-        ptr._ptr = NULL;
-        ptr._ref = NULL;
+        obj._ptr = NULL;
+        obj._ref = NULL;
     }
 
 protected:
