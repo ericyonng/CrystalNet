@@ -158,7 +158,7 @@ public:
     
     SmartPtr<ObjType, delMethod> &operator =(const SmartPtr<ObjType, delMethod> &other)
     {
-        _CopyFrom(const SmartPtr<ObjType, delMethod> &other);
+        _CopyFrom(other);
 
         return *this;
     }
