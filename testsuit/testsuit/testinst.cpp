@@ -76,6 +76,7 @@
 #include <testsuit/testinst/TestProtobuf.h>
 #include <testsuit/testinst/TestPopen.h>
 #include <testsuit/testinst/TestRegex.h>
+#include <testsuit/testinst/TestDestructor.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -205,13 +206,15 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
-    TestService::Run(argc, argv);
+    // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     //TestList::Run();
     // TestDirectoryUtil::Run();
     // TestProtobuf::Run();
     // TestPopen::Run();
     // TestRegex::Run(argc, argv);
+
+    TestDestructor::Run();
 
     KERNEL_NS::KernelUtil::Destroy();
     

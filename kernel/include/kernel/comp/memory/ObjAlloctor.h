@@ -201,7 +201,10 @@ ALWAYS_INLINE void ObjAlloctor<ObjType>::Delete(ObjType *ptr)
     
     // 先析构后释放
     if(LIKELY(memoryBlock->_ref == 1))
-        ptr->~ObjType();
+    {
+        Destructor::Invoke(ptr);
+        // ptr->~ObjType();
+    }
 
     _alloctor.Lock();
     _alloctor.Free(ptr);
