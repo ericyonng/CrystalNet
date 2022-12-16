@@ -50,5 +50,6 @@
 #include <kernel/common/tempcompile.h>
 #include <kernel/common/LibObject.h>
 #include <kernel/common/KernelExternTemplate.h>
+#include <kernel/common/Destructor.h>
 
 #endif
