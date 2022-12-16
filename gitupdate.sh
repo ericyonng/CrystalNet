@@ -6,7 +6,7 @@ SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 # 远程分支名
 #REMOTE_BRANCH_NAME="master"
-REMOTE_BRANCH_NAME="Develop"
+REMOTE_BRANCH_NAME="main"
 if [ -n "$1" ]
 then
     REMOTE_BRANCH_NAME="$1"
@@ -16,7 +16,15 @@ fi
 REMOTE_NAME=$(git remote)
 
 # 重置到FETCH_HEAD
-# git reset --hard FETCH_HEAD
+if [ -n "$2"]
+then
+    if [ $2 = 1 ]
+    then
+        echo "will reset git to last pull point."
+        git reset --hard FETCH_HEAD
+    fi
+fi
+
 # 更新
 git pull $REMOTE_NAME $REMOTE_BRANCH_NAME
 # 恢复脚本文件权限
