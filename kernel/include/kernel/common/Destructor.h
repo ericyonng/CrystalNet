@@ -56,6 +56,12 @@ private:
     }
 
     template<typename T>
+    static void _Invoke(T *ptr, const TypeAdapter<LibDataType::POINTER_TYPE> *)
+    {
+        // 指针类型不需要析构
+    }
+
+    template<typename T>
     static void _Invoke(T *ptr, const TypeAdapter<LibDataType::CLASS_TYPE> *)
     {
         ptr->~T();
