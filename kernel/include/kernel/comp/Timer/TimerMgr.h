@@ -249,6 +249,7 @@ inline void TimerMgr::_UnRegister(TimeData *timeData)
 inline void TimerMgr::_Destroy(TimeData *timeData)
 {
     timeData->_isScheduing = false;
+    timeData->_owner = NULL;
     _expireQueue.erase(timeData);
     _allTimeData.erase(timeData);
     timeData->Release();
