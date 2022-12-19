@@ -77,6 +77,9 @@ function set_common_options()
     if ENABLE_PERFORMANCE_RECORD ~= 0 then
         defines("CRYSTAL_NET_PORFORMANCE_RECORD")
     end
+	filter {"language:c++", "system:windows" }
+        defines("_WINSOCK_DEPRECATED_NO_WARNINGS")
+    filter {}
 end
 
 -- lib include实现
