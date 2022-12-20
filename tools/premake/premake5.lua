@@ -90,6 +90,7 @@ function include_libfs(do_post_build, add_protobuflib)
 				-- openssl
 		ROOT_DIR .. "/3rd/openssl/include/",
 		ROOT_DIR .. "/3rd/protobuf/include/",
+		ROOT_DIR .. "/3rd/miniz/include/",
     }
 
 	libdirs { 
@@ -97,6 +98,7 @@ function include_libfs(do_post_build, add_protobuflib)
         ROOT_DIR .. "3rd/",
         ROOT_DIR .. "3rd/kernel/",
 		ROOT_DIR .. "/3rd/protobuf/lib/",
+		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
 	}
 
     -- files
@@ -175,12 +177,14 @@ function include_libfs(do_post_build, add_protobuflib)
             links {
                 "libprotobufd",
                 "libprotocd",
+                "miniz",
             }
         filter {}
         filter { "system:windows", "configurations:release*" }
             links {
                 "libprotobuf",
                 "libprotoc",
+                "miniz",
             }
         filter {}
 
@@ -188,12 +192,14 @@ function include_libfs(do_post_build, add_protobuflib)
         links {
             "protobufd:static",
             "protocd:static",
+            "miniz:static",
         }
         filter {}
         filter { "system:not windows", "configurations:release*" }
             links {
                 "protobuf:static",
                 "protoc:static",
+                "miniz:static",
             }
         filter {}
     end

@@ -45,5 +45,7 @@
 #pragma pop_macro("min")
 #pragma pop_macro("max")
 
+#include <3rd/miniz/include/miniz/miniz.h>
+
 #endif
 
