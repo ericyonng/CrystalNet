@@ -178,6 +178,7 @@
         "hash_map": "cpp",
         "hash_set": "cpp",
         "*.inc": "cpp",
-        "cstdarg": "cpp"
+        "cstdarg": "cpp",
+        "variant": "cpp"
     }
 }

@@ -32,5 +32,6 @@
 #pragma once
 
 #include <service_common/config/xml/xml.h>
+#include <service_common/config/xlsx/xlsx.h>
 
 #endif
