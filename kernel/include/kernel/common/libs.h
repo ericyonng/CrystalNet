@@ -71,6 +71,8 @@
 #include <sstream>  // stringstream
 #include <float.h>
 #include <functional>
+#include <memory>
+
 // #include <yvals_core.h> // 使用_NODISCARD
 
 
