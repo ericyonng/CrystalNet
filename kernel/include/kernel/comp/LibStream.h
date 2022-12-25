@@ -64,6 +64,7 @@ public:
     void Attach(Byte8 *buffer, Int64 bytes, Int64 readPos = 0, Int64 writePos = 0);
     template<typename OtherBuildType>
     void Attach(const LibStream<OtherBuildType> &stream);
+    Byte8 *Pop();
     // 接管
     void TakeOver(LibStream<BuildType> &stream);
     void TakeOver(LibStream<BuildType> &&stream);
@@ -366,6 +367,17 @@ ALWAYS_INLINE void LibStream<BuildType>::Attach(const LibStream<OtherBuildType> 
 {
     this->Attach(const_cast<Byte8 *>(other.GetBuffer()), other.GetBufferSize(), other.GetReadBytes(), other.GetWriteBytes());
 }
+
+template<typename BuildType>
+ALWAYS_INLINE Byte8 *LibStream<BuildType>::Pop()
+{
+    auto buffer = _buff;
+    _buffer = NULL;
+    Clear();
+
+    return buffer;
+}
+
 
 template<typename BuildType>
 ALWAYS_INLINE void LibStream<BuildType>::TakeOver(LibStream<BuildType> &stream)

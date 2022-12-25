@@ -21,27 +21,16 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-01-08 04:29:08
+ * Date: 2022-12-25 13:21:38
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <kernel/comp/Cpu/LibCpuCounter.h>
+#include <kernel/comp/Pipline/IPipe.h>
 
 KERNEL_BEGIN
 
-UInt64 LibCpuFrequency::_countPerSecond = 0; 
-UInt64 LibCpuFrequency::_countPerMillisecond = 0; 
-UInt64 LibCpuFrequency::_countPerMicroSecond = 0; 
-UInt64 LibCpuFrequency::_countPerNanoSecond = 0; 
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuSlice);
-
-
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuCounter);
-
-
+POOL_CREATE_OBJ_DEFAULT_IMPL(IPipe);
 
 KERNEL_END

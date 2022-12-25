@@ -118,7 +118,6 @@ public:
     // 事件循环接口
     bool PrepareLoop();
     void EventLoop();
-    void OnEventLoopFrame();
     void OnLoopEnd();
     void WakeupEventLoop();
     void QuitLoop();
@@ -134,7 +133,7 @@ private:
     void _Clear();
 
 private:
-  UInt64 _maxPieceTimeInMicroseconds;                       // 每个事务时间片 
+  LibCpuSlice _maxPieceTime;                                 // 每个事务时间片
   std::atomic<UInt64> _workThreadId;                        // 事件处理线程id
   std::atomic_bool _isWorking;                              // 是否在处理事件
   std::atomic_bool _isEnable;                               // 销毁的时候是disable

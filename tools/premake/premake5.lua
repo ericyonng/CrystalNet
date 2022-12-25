@@ -429,9 +429,9 @@ project "testsuit"
     symbols "On"
 
     -- dependents
-    -- dependson {
-    --     "CrystalKernel",
-    -- }
+    dependson {
+        "CrystalKernel",
+    }
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "testsuit/testsuit_pch/pch.cpp")
 
@@ -521,9 +521,9 @@ project "client"
     symbols "On"
 
     -- dependents
-    -- dependson {
-    --     "CrystalKernel",
-    -- }
+    dependson {
+        "CrystalKernel",
+    }
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "client/client_pch/pch.cpp")
 
@@ -614,9 +614,9 @@ project "protogentool"
     symbols "On"
 
     -- dependents
-    -- dependson {
-    --     "CrystalKernel",
-    -- }
+    dependson {
+        "CrystalKernel",
+    }
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "ProtoGen/protogen_pch/pch.cpp")
 
@@ -701,9 +701,9 @@ project "filetool"
     symbols "On"
 
     -- dependents
-    -- dependson {
-    --     "CrystalKernel",
-    -- }
+    dependson {
+        "CrystalKernel",
+    }
 
     enable_precompileheader("pch.h", ROOT_DIR .. "file_tool/file_tool_pch/pch.cpp")
 

@@ -78,6 +78,7 @@
 #include <testsuit/testinst/TestRegex.h>
 #include <testsuit/testinst/TestDestructor.h>
 #include <testsuit/testinst/TestAlloc.h>
+#include <testsuit/testinst/TestPipeline.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -216,6 +217,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestRegex::Run(argc, argv);
     // TestDestructor::Run();
     // TestAlloc::Run();
+    TestPipeline::Run();
 
     KERNEL_NS::KernelUtil::Destroy();
     

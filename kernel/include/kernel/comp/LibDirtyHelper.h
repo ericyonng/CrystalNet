@@ -191,7 +191,7 @@ public:
     bool IsInPurge() const;
     UInt64 GetLoaded() const;
     // 脏标记需要在回调中移除,否则一直在
-    void Purge(const LibCpuCounter &performance, UInt64 pieceTimeInPrecision, LibString *errorLog = NULL);
+    void Purge(const LibCpuCounter &deadline, LibString *errorLog = NULL);
 
 private:
     void _AfterPurge();
@@ -399,7 +399,7 @@ inline bool LibDirtyHelper<KeyType, MaskValue>::HasDirty() const
 }
 
 template<typename KeyType, typename MaskValue>
-inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &performance, UInt64 pieceTimeInMicroseconds, LibString *errorLog)
+inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &deadline, LibString *errorLog)
 {
     ++_inPurge;
     LibCpuCounter performanceTemp;
@@ -431,7 +431,7 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &perfo
                 mask->ClearFlag(i);
             }
 
-            if(UNLIKELY(performanceTemp.Update().ElapseMicroseconds(performance) >=  pieceTimeInMicroseconds))
+            if(UNLIKELY(performanceTemp.Update() >=  deadline))
             {
                 isTimeout = true;
                 break;
@@ -450,7 +450,7 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &perfo
         }
 
         // 片超时
-        if(UNLIKELY(isTimeout || (performanceTemp.Update().ElapseMicroseconds(performance) >=  pieceTimeInMicroseconds)))
+        if(UNLIKELY(isTimeout || (performanceTemp.Update() >=  deadline)))
             break;
     }
 

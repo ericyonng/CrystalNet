@@ -21,27 +21,21 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-01-08 04:29:08
+ * Date: 2022-12-25 12:30:08
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Cpu/LibCpuCounter.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_PIPELINE_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_PIPELINE_H__
 
-KERNEL_BEGIN
+#pragma once
 
-UInt64 LibCpuFrequency::_countPerSecond = 0; 
-UInt64 LibCpuFrequency::_countPerMillisecond = 0; 
-UInt64 LibCpuFrequency::_countPerMicroSecond = 0; 
-UInt64 LibCpuFrequency::_countPerNanoSecond = 0; 
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuSlice);
-
+#include <kernel/comp/Pipline/IPipe.h>
+#include <kernel/comp/Pipline/PipeType.h>
+#include <kernel/comp/Pipline/MemoryPipe.h>
+#include <kernel/comp/Pipline/FilePipe.h>
+#include <kernel/comp/Pipline/PipeFactory.h>
 
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuCounter);
-
-
-
-KERNEL_END
+#endif

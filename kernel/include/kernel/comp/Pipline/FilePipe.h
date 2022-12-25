@@ -21,27 +21,65 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-01-08 04:29:08
+ * Date: 2022-12-25 13:44:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Cpu/LibCpuCounter.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_FILE_PIPE_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_FILE_PIPE_H__
+
+#pragma once
+
+#include <kernel/comp/Pipline/IPipe.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/Delegate/Delegate.h>
 
 KERNEL_BEGIN
 
-UInt64 LibCpuFrequency::_countPerSecond = 0; 
-UInt64 LibCpuFrequency::_countPerMillisecond = 0; 
-UInt64 LibCpuFrequency::_countPerMicroSecond = 0; 
-UInt64 LibCpuFrequency::_countPerNanoSecond = 0; 
+class KERNEL_EXPORT FilePipe : public IPipe
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IPipe, FilePipe);
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuSlice);
+public:
+    FilePipe();
+    ~FilePipe();
 
+    virtual void Release();
+    void SetRelease(std::function<void()> &&func);
 
+    bool Init(const LibString &file);
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuCounter);
+    virtual void SetPipeName(const LibString &name);
+    virtual LibString GetPipeName() const;
+    virtual Int32 Open();
+    virtual bool Write(const Byte8 *buffer, Int64 &sz);
+    virtual bool Read(Byte8 *buffer, Int64 &count);
+    virtual void Flush();
+    virtual void Close();
 
+    Int64 GetWriteBytes() const;
+    Int64 GetReadBytes() const;
 
+private:
+    LibString _file;
+    FILE *_fp;
+    Int64 _writePos;
+    Int64 _readPos;
+
+    IDelegate<void> *_release;
+};
+
+ALWAYS_INLINE Int64 FilePipe::GetWriteBytes() const
+{
+    return _writePos;
+}
+
+ALWAYS_INLINE Int64 FilePipe::GetReadBytes() const
+{
+    return _readPos;
+}
 
 KERNEL_END
+
+#endif

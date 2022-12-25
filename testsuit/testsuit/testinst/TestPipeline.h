@@ -21,27 +21,15 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-01-08 04:29:08
+ * Date: 2022-12-25 17:38:21
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Cpu/LibCpuCounter.h>
+#pragma once
 
-KERNEL_BEGIN
-
-UInt64 LibCpuFrequency::_countPerSecond = 0; 
-UInt64 LibCpuFrequency::_countPerMillisecond = 0; 
-UInt64 LibCpuFrequency::_countPerMicroSecond = 0; 
-UInt64 LibCpuFrequency::_countPerNanoSecond = 0; 
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuSlice);
-
-
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuCounter);
-
-
-
-KERNEL_END
+class TestPipeline
+{
+public:
+    static void Run();
+};

@@ -63,8 +63,8 @@ private:
 template<typename ObjType>
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(DelegateWithParamsTask, ObjType);
 
-template<typename ObjType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(DelegateWithParamsTask, ObjType);
+// template<typename ObjType>
+// POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(DelegateWithParamsTask, ObjType);
 
 template<typename ObjType>
 inline DelegateWithParamsTask<ObjType>::DelegateWithParamsTask(ObjType *obj, IDelegate<void, ObjType *, Variant *> *callback, Variant *params)
