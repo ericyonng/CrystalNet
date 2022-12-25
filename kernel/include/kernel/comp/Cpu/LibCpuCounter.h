@@ -322,7 +322,6 @@ ALWAYS_INLINE bool LibCpuCounter::operator !=(const LibCpuCounter &other) const
 
 ALWAYS_INLINE LibCpuSlice LibCpuCounter::operator -(const LibCpuCounter &other) const
 {
-    LibCpuCounter newCounter = *this;
     if(UNLIKELY(_count < other._count))
         return LibCpuSlice(other._count - _count);
 

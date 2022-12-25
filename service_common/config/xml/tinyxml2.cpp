@@ -2189,22 +2189,11 @@ void XMLDocument::Clear()
         _unlinked.Giveup(0);
     }
 
-#ifdef TINYXML2_DEBUG
-    const bool hadError = Error();
-#endif
     ClearError();
 
     delete [] _charBuffer;
     _charBuffer = 0;
 	_parsingDepth = 0;
-
-#if 0
-    _textPool.Trace( "text" );
-    _elementPool.Trace( "element" );
-    _commentPool.Trace( "comment" );
-    _attributePool.Trace( "attribute" );
-#endif
-
 }
 
 
