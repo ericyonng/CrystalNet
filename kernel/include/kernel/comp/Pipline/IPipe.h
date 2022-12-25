@@ -21,27 +21,44 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-01-08 04:29:08
+ * Date: 2022-12-25 12:31:23
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Cpu/LibCpuCounter.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_IPIPE_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_IPIPE_H__
+
+#pragma once
+
+#include <kernel/kernel_inc.h>
+#include <kernel/comp/memory/memory.h>
 
 KERNEL_BEGIN
 
-UInt64 LibCpuFrequency::_countPerSecond = 0; 
-UInt64 LibCpuFrequency::_countPerMillisecond = 0; 
-UInt64 LibCpuFrequency::_countPerMicroSecond = 0; 
-UInt64 LibCpuFrequency::_countPerNanoSecond = 0; 
+class KERNEL_EXPORT IPipe
+{
+    POOL_CREATE_OBJ_DEFAULT(IPipe);
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuSlice);
+public:
+    IPipe(Int32 pipeType) :_pipeType(pipeType) {}
+    virtual ~IPipe() {}
 
+    virtual void Release() = 0;
+    virtual void SetPipeName(const LibString &name) = 0;
+    virtual LibString GetPipeName() const = 0;
+    virtual Int32 Open() = 0;
+    virtual bool Write(const Byte8 *buffer, Int64 &sz) = 0;
+    virtual bool Read(Byte8 *buffer, Int64 &count) = 0;
+    virtual void Flush() {}
+    virtual void Close() = 0;
 
+    Int32 GetPipeType() const { return _pipeType; }
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuCounter);
-
-
+private:
+    Int32 _pipeType;
+};
 
 KERNEL_END
+
+#endif

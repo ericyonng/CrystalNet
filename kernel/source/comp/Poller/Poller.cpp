@@ -78,7 +78,7 @@ KERNEL_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(Poller);
 
 Poller::Poller()
-:_maxPieceTimeInMicroseconds(8 * TimeDefs::MICRO_SECOND_PER_MILLI_SECOND)  // 经验值8ms
+:_maxPieceTime(LibCpuSlice::FromMilliseconds(8))  // 经验值8ms
 ,_workThreadId{0}
 ,_isWorking{false}
 ,_isEnable{true}
@@ -171,7 +171,7 @@ LibString Poller::ToString() const
     LibString info;
     info.AppendFormat("%s", CompObject::ToString().c_str());
 
-    info.AppendFormat("_maxPieceTimeInMicroseconds:%llu, ", _maxPieceTimeInMicroseconds)
+    info.AppendFormat("_maxPieceTimeInMicroseconds:%llu, ", _maxPieceTime.GetTotalCount())
         .AppendFormat("_workThreadId:%llu, ", _workThreadId.load())
         .AppendFormat("_isWorking:%d, ", _isWorking.load())
         .AppendFormat("_isEnable:%d, ", _isEnable.load())
@@ -195,7 +195,7 @@ UInt64 Poller::CalcLoadScore() const
 
 void Poller::SetMaxPieceTime(const TimeSlice &piece)
 {
-    _maxPieceTimeInMicroseconds = static_cast<UInt64>(piece.GetTotalMicroSeconds());
+    _maxPieceTime.SetMicroseconds(static_cast<UInt64>(piece.GetTotalMicroSeconds()));
 }
 
 bool Poller::PrepareLoop()
@@ -235,9 +235,13 @@ void Poller::EventLoop()
 
     g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
 
-    LibCpuCounter performance;
-    LibCpuCounter performaceStart;
-    LibCpuCounter performanceTemp;
+    LibCpuCounter deadline;
+    LibCpuCounter nowCounter;
+
+    #ifdef _DEBUG
+     LibCpuCounter performaceStart;
+    #endif
+
     const UInt64 pollerId = GetId();
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
@@ -251,7 +255,6 @@ void Poller::EventLoop()
             _eventGuard.Unlock();
         }
         
-        const auto curTime = TimeUtil::GetMicroTimestamp();
 
         // 队列有消息就合并
         if(!_eventsList->IsEmpty())
@@ -260,15 +263,23 @@ void Poller::EventLoop()
 
         // WORKING START
         _isWorking = true;
-        performaceStart = performance.Update().GetCurCount();
+
+        deadline.Update() += _maxPieceTime;
+        #ifdef _DEBUG
+         performaceStart = deadline;
+        #endif
 
         // 处理事件
         Int32 idx = 0;
         Int32 loopCount = 0;
-        UInt64 curConsumeEventsCount = 0;
+
+        #ifdef _DEBUG
+         UInt64 curConsumeEventsCount = 0;
+        #endif
+
         for (;;)
         {
-            idx = loopCount % priorityQueueSize;
+            idx = loopCount++ % priorityQueueSize;
 
             // 切换不同优先级消息队列
             auto sunList = priorityEvents[idx];
@@ -282,14 +293,16 @@ void Poller::EventLoop()
                     _eventHandler->Invoke(data);
                 data->Release();
                 sunList->Erase(node);
-                ++curConsumeEventsCount;
+
+                #ifdef _DEBUG
+                 ++curConsumeEventsCount;
+                #endif
+
                 --eventsAmount;
             }
 
-            ++loopCount;
-
             // 片超时
-            if(UNLIKELY(performanceTemp.Update().ElapseMicroseconds(performance) >=  _maxPieceTimeInMicroseconds))
+            if(UNLIKELY(nowCounter.Update() >=  deadline))
                 break;
 
             // 消费完成
@@ -300,20 +313,20 @@ void Poller::EventLoop()
         _handlingEventCount = eventsAmount;
 
         // 脏处理
-        performance.Update();
-        _dirtyHelper->Purge(performance, _maxPieceTimeInMicroseconds, &errLog);
+        _dirtyHelper->Purge(nowCounter.Update(), &errLog);
         if(UNLIKELY(!errLog.empty()))
             g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
 
         // 处理定时器
+        const auto curTime = TimeUtil::GetMicroTimestamp();
         _timerMgr->Drive(curTime);
 
         // 当前帧性能信息记录
         #ifdef _DEBUG
-            const UInt64 elapseTime = performanceTemp.Update().ElapseMicroseconds(performaceStart);
+            const auto &elapseTime = nowCounter.Update() - performaceStart;
             g_Log->Debug(LOGFMT_OBJ_TAG("poller performance poller id:%llu, \n"
                                         "_maxPieceTimeInMicroseconds:%lld, threadId:%llu, use microseconds:%llu, curConsumeEventsCount:%llu")
-                                        , pollerId, _maxPieceTimeInMicroseconds, _workThreadId.load(), elapseTime, curConsumeEventsCount);
+                                        , pollerId, _maxPieceTime.GetTotalMicroseconds(), _workThreadId.load(), elapseTime.GetTotalMicroseconds(), curConsumeEventsCount);
         #endif
 
         // WORKING END
@@ -338,108 +351,6 @@ void Poller::EventLoop()
     });
 
     g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
-}
-
-void Poller::OnEventLoopFrame()
-{
-   std::vector<LibList<PollerEvent *, _Build::MT> *> priorityEvents;
-    const Int32 priorityQueueSize = _eventsList->GetMaxLevel() + 1;
-    priorityEvents.resize(priorityQueueSize);
-    for(Int32 idx = 0; idx < priorityQueueSize; ++idx)
-        priorityEvents[idx] = LibList<PollerEvent *, _Build::MT>::New_LibList();
-
-    // 部分数据准备
-    LibString errLog;
-
-    _isWorking = false;
-
-    // 将数据先merge到待处理
-    UInt64 eventsAmount = _eventsList->MergeTailAllTo(priorityEvents);
-
-    g_Log->Info(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
-
-    LibCpuCounter performance;
-    LibCpuCounter performaceStart;
-    LibCpuCounter performanceTemp;
-    const UInt64 pollerId = GetId();
-
-    // 队列有消息就合并
-    if(!_eventsList->IsEmpty())
-        eventsAmount += _eventsList->MergeTailAllTo(priorityEvents);
-
-    // WORKING START
-    _isWorking = true;
-    performaceStart = performance.Update().GetCurCount();
-
-    // 处理事件
-    Int32 idx = 0;
-    Int32 loopCount = 0;
-    UInt64 curConsumeEventsCount = 0;
-    for (;;)
-    {
-        idx = loopCount % priorityQueueSize;
-
-        // 切换不同优先级消息队列
-        auto sunList = priorityEvents[idx];
-        auto node = sunList->Begin();
-        if(LIKELY(node))
-        {
-            auto data = node->_data;
-
-            // 事件处理
-            if(LIKELY(_eventHandler))
-                _eventHandler->Invoke(data);
-            data->Release();
-            sunList->Erase(node);
-            ++curConsumeEventsCount;
-            --eventsAmount;
-        }
-
-        ++loopCount;
-
-        // 片超时
-        if(UNLIKELY(performanceTemp.Update().ElapseMicroseconds(performance) >=  _maxPieceTimeInMicroseconds))
-            break;
-
-        // 消费完成
-        if(eventsAmount == 0)
-            break;
-    }
-
-    // 脏处理
-    performance.Update();
-    _dirtyHelper->Purge(performance, _maxPieceTimeInMicroseconds, &errLog);
-    if(UNLIKELY(!errLog.empty()))
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
-
-    // 处理定时器
-    _timerMgr->Drive(TimeUtil::GetMicroTimestamp());
-
-    // 当前帧性能信息记录
-    const UInt64 elapseTime = performanceTemp.Update().ElapseMicroseconds(performaceStart);
-    g_Log->Debug(LOGFMT_OBJ_TAG("poller performance poller id:%llu, \n"
-                                "_maxPieceTimeInMicroseconds:%lld, threadId:%llu, elapseNanoseconds:%llu, curConsumeEventsCount:%llu")
-                                , pollerId, _maxPieceTimeInMicroseconds, _workThreadId.load(), elapseTime, curConsumeEventsCount);
-
-    // WORKING END
-    _isWorking = false;
-
-    // GET EVENTS
-    eventsAmount += _eventsList->MergeTailAllTo(priorityEvents);
-
-    const auto leftElemCount = GetPriorityEvenetsQueueElemCount(priorityEvents);
-    if(leftElemCount != 0)
-        g_Log->Warn(LOGFMT_OBJ_TAG("has unhandled events left:%llu, poller info:%s"), leftElemCount, ToString().c_str());
-    
-    ContainerUtil::DelContainer(priorityEvents, [this](LibList<PollerEvent *, _Build::MT> *evList){
-        ContainerUtil::DelContainer(*evList, [this](PollerEvent *ev){
-            g_Log->Warn(LOGFMT_OBJ_TAG("event type:%d, not handled when poller will closed."), ev->_type);
-            ev->Release();
-        });
-        LibList<PollerEvent *, _Build::MT>::Delete_LibList(evList);
-    });
-
-    g_Log->Info(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
 }
 
 void Poller::OnLoopEnd()

@@ -128,7 +128,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 //     g_cpuFeature->Init();
 
     // cpu frequancy
-    LibCpuCounter::InitFrequancy();
+    LibCpuFrequency::InitFrequancy();
 
     // sock error init
     SockErrorMsgUtil::Init();

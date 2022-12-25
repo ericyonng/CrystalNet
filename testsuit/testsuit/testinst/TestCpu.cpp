@@ -40,8 +40,12 @@ void TestCpu::Run()
             , cpuFeature.GetVendor().c_str(), cpuFeature.GetBrand().c_str(), cpuFeature.RDTSCP());
 
     const auto &endCounter = KERNEL_NS::LibCpuCounter().Update();
+    const auto &slice = endCounter - counter;
+    auto endCounter2 = endCounter;
+    endCounter2 -= slice;
+
     const auto elapseMicroseconds = endCounter.ElapseMicroseconds(counter);
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCpu, "elapseMicroseconds:%llu, counter start:%llu, counter end:%llu")
-        , elapseMicroseconds, counter.GetCurCount(), endCounter.GetCurCount());
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCpu, "elapseMicroseconds:%llu, slice:%llu, counter start:%llu, counter end:%llu, endCounter2 == counter:%d")
+        , elapseMicroseconds, slice.GetTotalMicroseconds(), counter.GetCurCount(), endCounter.GetCurCount(), endCounter2 == counter);
 
 }

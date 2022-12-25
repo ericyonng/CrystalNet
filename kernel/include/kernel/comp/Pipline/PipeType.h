@@ -21,27 +21,31 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-01-08 04:29:08
+ * Date: 2022-12-25 19:28:41
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Cpu/LibCpuCounter.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_PIPE_TYPE_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_PIPE_TYPE_H__
+
+#pragma once
+
+#include <kernel/kernel_inc.h>
 
 KERNEL_BEGIN
 
-UInt64 LibCpuFrequency::_countPerSecond = 0; 
-UInt64 LibCpuFrequency::_countPerMillisecond = 0; 
-UInt64 LibCpuFrequency::_countPerMicroSecond = 0; 
-UInt64 LibCpuFrequency::_countPerNanoSecond = 0; 
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuSlice);
-
-
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuCounter);
-
-
+class KERNEL_EXPORT PipeType
+{
+public:
+    enum ENUMS
+    {
+        UNKNOWN = 0,    // 未知
+        MEMORY = 1,     // 内存管道
+        FILE = 2,       // 文件管道
+    };
+};
 
 KERNEL_END
+
+#endif

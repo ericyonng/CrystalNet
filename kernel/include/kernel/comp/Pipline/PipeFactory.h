@@ -21,27 +21,62 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-01-08 04:29:08
+ * Date: 2022-12-25 19:30:49
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Cpu/LibCpuCounter.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_PIPE_FACTORY_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PIPELINE_PIPE_FACTORY_H__
+
+#pragma once
+
+#include <kernel/kernel_inc.h>
+#include <kernel/comp/Pipline/PipeType.h>
+#include <kernel/comp/Pipline/MemoryPipe.h>
+#include <kernel/comp/Pipline/FilePipe.h>
 
 KERNEL_BEGIN
 
-UInt64 LibCpuFrequency::_countPerSecond = 0; 
-UInt64 LibCpuFrequency::_countPerMillisecond = 0; 
-UInt64 LibCpuFrequency::_countPerMicroSecond = 0; 
-UInt64 LibCpuFrequency::_countPerNanoSecond = 0; 
+class IPipe;
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuSlice);
+class KERNEL_EXPORT PipeFactory
+{
+public:
+    template<typename BuildType>
+    static IPipe *Create(Int32 pipeType, std::function<bool(IPipe *pipe)> &&initFunc)
+    {
+        IPipe *pipe = NULL;
+        switch (pipeType)
+        {
+        case PipeType::MEMORY:
+        {
+            pipe = MemoryPipe<BuildType>::NewByAdapter_MemoryPipe(BuildType::V);
+        }
+        break;
+        case PipeType::FILE:
+        {
+            pipe = FilePipe::NewByAdapter_FilePipe(BuildType::V);
+        }
+        break;
+        default:
+            break;
+        }
 
+        if(LIKELY(pipe))
+        {
+            if(UNLIKELY(!initFunc(pipe)))
+            {
+                pipe->Release();
+                return NULL;
+            }
+        }
 
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuCounter);
-
-
+        return pipe;
+    }
+};
 
 KERNEL_END
+
+#endif
+

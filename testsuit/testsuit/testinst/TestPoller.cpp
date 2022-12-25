@@ -82,7 +82,7 @@ public:
         // timer->Schedule(500);
 
         g_Log->Info(LOGFMT_OBJ_TAG("event loop..."));
-        poller->OnEventLoopFrame();
+        // poller->OnEventLoopFrame();
         g_Log->Info(LOGFMT_OBJ_TAG("finish loop..."));
 
         g_Log->Info(LOGFMT_OBJ_TAG("on working end..."));
