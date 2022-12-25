@@ -253,7 +253,7 @@ ALWAYS_INLINE UInt64 LibCpuCounter::ElapseCount(const LibCpuCounter &start) cons
 #if CRYSTAL_TARGET_PLATFORM_LINUX
 ALWAYS_INLINE UInt64 LibCpuCounter::ElapseNanoseconds(const LibCpuCounter &start) const
 {
-    return (_count - start._count) / _countPerNanoSecond;
+    return (_count - start._count) / LibCpuFrequency::_countPerNanoSecond;
 }
 #else
 ALWAYS_INLINE UInt64 LibCpuCounter::ElapseNanoseconds(const LibCpuCounter &start) const

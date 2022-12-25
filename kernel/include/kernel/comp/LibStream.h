@@ -372,7 +372,7 @@ template<typename BuildType>
 ALWAYS_INLINE Byte8 *LibStream<BuildType>::Pop()
 {
     auto buffer = _buff;
-    _buffer = NULL;
+    _buff = NULL;
     Clear();
 
     return buffer;
