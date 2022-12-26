@@ -26,8 +26,8 @@
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_IMPL_TCP_IOCP_TCP_SESSION_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_IMPL_TCP_IOCP_TCP_SESSION_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_IMPL_UDP_IOCP_UDP_SESSION_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_IMPL_UDP_IOCP_UDP_SESSION_H__
 
 #pragma once
 
@@ -43,13 +43,13 @@ class LibPacket;
 class IServiceProxy;
 class IPollerMgr;
 
-class KERNEL_EXPORT IocpTcpSession : public LibSession
+class KERNEL_EXPORT IocpUdpSession : public LibSession
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(LibSession, IocpTcpSession);
+    POOL_CREATE_OBJ_DEFAULT_P1(LibSession, IocpUdpSession);
 
 public:
-    IocpTcpSession(UInt64 sessionId, bool isLinker, bool isConnectToRemote);
-    ~IocpTcpSession();
+    IocpUdpSession(UInt64 sessionId, bool isLinker, bool isConnectToRemote);
+    ~IocpUdpSession();
 
     virtual void Close() override;
     void SetDirtyHelper(LibDirtyHelper<void *, UInt32> *dirtyHelper);
