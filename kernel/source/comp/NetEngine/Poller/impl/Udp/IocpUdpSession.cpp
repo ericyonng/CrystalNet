@@ -47,7 +47,7 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IocpTcpSession);
 
-IocpTcpSession::IocpTcpSession(UInt64 sessionId, bool isLinker, bool isConnectToRemote)
+IocpUdpSession::IocpUdpSession(UInt64 sessionId, bool isLinker, bool isConnectToRemote)
 :LibSession(sessionId, isLinker, isConnectToRemote)
 ,_dirtyHelper(NULL)
 ,_serviceProxy(NULL)
@@ -57,18 +57,18 @@ IocpTcpSession::IocpTcpSession(UInt64 sessionId, bool isLinker, bool isConnectTo
 
 }
 
-IocpTcpSession::~IocpTcpSession()
+IocpUdpSession::~IocpUdpSession()
 {
     _Destroy();
 }
 
-void IocpTcpSession::Close()
+void IocpUdpSession::Close()
 {
     _Destroy();
     LibSession::Close();
 }
 
-void IocpTcpSession::SendPackets(LibList<LibPacket *> *packets)
+void IocpUdpSession::SendPackets(LibList<LibPacket *> *packets)
 {
     _dirtyHelper->Clear(this, PollerDirty::WRITE);
     if(UNLIKELY(!CanSend()))
@@ -108,7 +108,7 @@ void IocpTcpSession::SendPackets(LibList<LibPacket *> *packets)
     _PostSendStream(stream);
 }
 
-void IocpTcpSession::OnSend(IoEvent &io)
+void IocpUdpSession::OnSend(IoEvent &io)
 {
     _waitingForPostSendBack = false;
 
@@ -253,7 +253,7 @@ void IocpTcpSession::OnSend(IoEvent &io)
     _PostSendStream(newStream);
 }
 
-void IocpTcpSession::OnRecv(IoEvent &io)
+void IocpUdpSession::OnRecv(IoEvent &io)
 {
     auto ioData = io._ioData;
     IoData::DeleteThreadLocal_IoData(ioData);
@@ -262,7 +262,7 @@ void IocpTcpSession::OnRecv(IoEvent &io)
     ContinueRecv();
 }
 
-void IocpTcpSession::ContinueRecv()
+void IocpUdpSession::ContinueRecv()
 {
     _dirtyHelper->Clear(this, PollerDirty::READ);
 
@@ -425,7 +425,7 @@ void IocpTcpSession::ContinueRecv()
     }
 }
 
-LibString IocpTcpSession::ToString() const
+LibString IocpUdpSession::ToString() const
 {
     LibString str;
     str.AppendFormat("%s", LibSession::ToString().c_str())
@@ -434,7 +434,7 @@ LibString IocpTcpSession::ToString() const
     return str;
 }
 
-void IocpTcpSession::_OnRecved()
+void IocpUdpSession::_OnRecved()
 {
    LibList<LibList<LibPacket *> *, _Build::TL> *recvPacketsBatch = LibList<LibList<LibPacket *> *, _Build::TL>::NewThreadLocal_LibList();
 
@@ -528,12 +528,12 @@ void IocpTcpSession::_OnRecved()
     LibList<LibList<LibPacket *> *, _Build::TL>::DeleteThreadLocal_LibList(recvPacketsBatch);
 }
 
-void IocpTcpSession::_Destroy()
+void IocpUdpSession::_Destroy()
 {
 
 }
 
-LibStreamTL *IocpTcpSession::_PacketsToBin()
+LibStreamTL *IocpUdpSession::_PacketsToBin()
 {
     bool sockCacheFull = false;
     const auto oldAmount = _sendPacketList->GetAmount();
@@ -549,7 +549,7 @@ LibStreamTL *IocpTcpSession::_PacketsToBin()
     return _PacketsToBin(newSteam);
 }
 
-LibStreamTL *IocpTcpSession::_PacketsToBin(LibStreamTL *&stream)
+LibStreamTL *IocpUdpSession::_PacketsToBin(LibStreamTL *&stream)
 {
     Int64 enableBytes = -1;
     if(LIKELY(_handleSendBytesPerFrameLimit))
@@ -604,7 +604,7 @@ LibStreamTL *IocpTcpSession::_PacketsToBin(LibStreamTL *&stream)
     return stream;
 }
 
-void IocpTcpSession::_PostSendStream(LibStreamTL *&newStream)
+void IocpUdpSession::_PostSendStream(LibStreamTL *&newStream)
 {
     if (UNLIKELY(newStream->GetReadableSize() == 0))
     {
@@ -676,7 +676,7 @@ void IocpTcpSession::_PostSendStream(LibStreamTL *&newStream)
     //                 , ToString().c_str(), newStream ? newStream->GetReadableSize() : 0, _lastSendLeft ? _lastSendLeft->GetReadableSize() : 0, _sendPacketList->GetAmount());
 }
 
-void IocpTcpSession::_MaskClose(Int32 reason)
+void IocpUdpSession::_MaskClose(Int32 reason)
 {
     auto param = _dirtyHelper->MaskDirty(this, PollerDirty::CLOSE, true);
     param->BecomeDict()[1] = reason;
