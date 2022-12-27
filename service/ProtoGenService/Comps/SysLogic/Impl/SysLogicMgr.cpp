@@ -41,6 +41,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(SysLogicMgr);
 
 SysLogicMgr::SysLogicMgr()
 :_detectLink(NULL)
+,_closeServiceStub(INVALID_LISTENER_STUB)
 {
 
 }
@@ -57,6 +58,7 @@ void SysLogicMgr::Release()
 
 Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
 , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg
+, Int32 sessionCount
 , UInt32 priorityLevel, Int32 sessionType, Int32 family) const
 {
     // 1.校验ip
@@ -89,12 +91,23 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
     option._sockSendBufferSize = 0;
     option._sockRecvBufferSize = 0;
     option._sessionBufferCapicity = config._sessionBufferCapicity;
-    option._sessionRecvPacketSpeedLimit = config._sessionRecvPacketSpeedLimit;
-    option._sessionRecvPacketSpeedTimeUnitMs = config._sessionRecvPacketSpeedTimeUnitMs;
+
+    if(sessionType == SessionType::INNER)
+    {
+        option._sessionRecvPacketSpeedLimit = 0;
+        option._sessionRecvPacketSpeedTimeUnitMs = 0;
+    }
+    else
+    {
+        option._sessionRecvPacketSpeedLimit = config._sessionRecvPacketSpeedLimit;
+        option._sessionRecvPacketSpeedTimeUnitMs = config._sessionRecvPacketSpeedTimeUnitMs;
+    }
+
     option._sessionRecvPacketStackLimit = config._sessionRecvPacketStackLimit;
+
     option._forbidRecv = true;
     option._sessionType = sessionType;
-    serviceProxy->TcpAddListen(service->GetServiceId(), priorityLevel, family, ip, port, stub, option);
+    serviceProxy->TcpAddListen(service->GetServiceId(), priorityLevel, family, ip, port, sessionCount, stub, option);
 
     // 回调
     if(delg)
@@ -148,9 +161,21 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 r
     option._sockSendBufferSize = 0;
     option._sockRecvBufferSize = 0;
     option._sessionBufferCapicity = config._sessionBufferCapicity;
-    option._sessionRecvPacketSpeedLimit = config._sessionRecvPacketSpeedLimit;
-    option._sessionRecvPacketSpeedTimeUnitMs = config._sessionRecvPacketSpeedTimeUnitMs;
+
+    
+    if(sessionType == SessionType::INNER)
+    {
+        option._sessionRecvPacketSpeedLimit = 0;
+        option._sessionRecvPacketSpeedTimeUnitMs = 0;
+    }
+    else
+    {
+        option._sessionRecvPacketSpeedLimit = config._sessionRecvPacketSpeedLimit;
+        option._sessionRecvPacketSpeedTimeUnitMs = config._sessionRecvPacketSpeedTimeUnitMs;
+    }
+    
     option._sessionRecvPacketStackLimit = config._sessionRecvPacketStackLimit;
+
     option._forbidRecv = false;
     option._sessionType = sessionType;
     serviceProxy->TcpAsynConnect(service->GetServiceId(), stub, priorityLevel, family, remoteIp, remotePort, option, stack, retryTimes, periodMs, localIp, localPort);
@@ -161,6 +186,9 @@ Int32 SysLogicMgr::_OnGlobalSysInit()
 {
     _detectLink = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _detectLink->SetTimeOutHandler(this, &SysLogicMgr::_OnDetectLinkTimer);
+
+
+    _closeServiceStub = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &SysLogicMgr::_CloseServiceEvent);
 
     return Status::Success;
 }
@@ -181,6 +209,7 @@ Int32 SysLogicMgr::_OnHostStart()
                                 , stub
                                 , this
                                 , &SysLogicMgr::_OnAddListenRes
+                                , addrInfo->_listenSessionCount
                                 , addrInfo->_priorityLevel
                                 , addrInfo->_sessionType
                                 , addrInfo->_af);
@@ -199,7 +228,7 @@ Int32 SysLogicMgr::_OnHostStart()
     if(centerAddr && !centerAddr->_remoteIp.empty())
     {
         UInt64 stub = 0;
-        auto st = AsynTcpConnect(centerAddr->_remoteIp
+        auto st = ISysLogicMgr::AsynTcpConnect(centerAddr->_remoteIp
         , centerAddr->_remotePort
         , stub
         , this
@@ -207,8 +236,8 @@ Int32 SysLogicMgr::_OnHostStart()
         , centerAddr->_localIp
         , centerAddr->_localPort
         , NULL
-        , 0
-        , 0
+        , 3
+        , 12000
         ,  PriorityLevelDefine::INNER
         ,  SessionType::INNER
         , KERNEL_NS::SocketUtil::IsIpv4(centerAddr->_remoteIp) ? AF_INET : AF_INET6);
@@ -226,11 +255,11 @@ Int32 SysLogicMgr::_OnHostStart()
     for(Int32 idx = 0; idx < leftTargetCount; ++idx)
     {
         auto addr = serviceConfig->_connectAddrGroup[idx];
-        if(addr || addr->_remoteIp.empty())
+        if(!addr || addr->_remoteIp.empty())
             continue;
 
         UInt64 stub = 0;
-        auto st = AsynTcpConnect(addr->_remoteIp
+        auto st = ISysLogicMgr::AsynTcpConnect(addr->_remoteIp
         , addr->_remotePort
         , stub
         , this
@@ -251,7 +280,7 @@ Int32 SysLogicMgr::_OnHostStart()
 
         _unhandledContectAddr.insert(std::make_pair(stub, addr));
     }
-    
+
     // 4.启动定时器检测
     _detectLink->Schedule(1000);
 
@@ -261,6 +290,11 @@ Int32 SysLogicMgr::_OnHostStart()
 void SysLogicMgr::_OnGlobalSysClose()
 {
     _Clear();
+
+    if (_closeServiceStub != INVALID_LISTENER_STUB)
+    {
+        GetEventMgr()->RemoveListenerX(_closeServiceStub);
+    }
 }
 
 void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
@@ -273,7 +307,9 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
         g_Log->Warn(LOGFMT_OBJ_TAG("connect to %s..."), iter.second->ToString().c_str());
 
     if(_unhandledListenAddr.empty() && _unhandledContectAddr.empty())
+    {
         timer->Cancel();
+    }
 }
 
 void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params)
@@ -321,7 +357,7 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
         // 失败要重新连接
         auto addr = iter->second;
         stub = 0;
-        auto st = AsynTcpConnect(addr->_remoteIp
+        auto st = ISysLogicMgr::AsynTcpConnect(addr->_remoteIp
         , addr->_remotePort
         , stub
         , this
@@ -365,6 +401,11 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
     g_Log->Info(LOGFMT_OBJ_TAG("connect suc:%s"), addrInfo->ToString().c_str());
 
     _unhandledContectAddr.erase(iter);
+}
+
+void SysLogicMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
+{
+    g_Log->Info(LOGFMT_OBJ_TAG("service will close."));
 }
 
 void SysLogicMgr::_Clear()

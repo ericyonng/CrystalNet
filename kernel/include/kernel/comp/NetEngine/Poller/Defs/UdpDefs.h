@@ -21,42 +21,17 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-04-19 22:23:44
+ * Date: 2022-12-27 09:42:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_DEFS_UDP_DEFS_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_DEFS_UDP_DEFS_H__
 
-KERNEL_BEGIN
+#pragma once
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(PollerConfig);
+// 连接
 
-PollerConfig::PollerConfig()
-:_blackWhiteListFlag(0)
-,_maxSessionQuantity(0)
-{
+#endif
 
-}
-
-LibString PollerConfig::ToString() const
-{
-    LibString info;
-    info.AppendFormat("_blackWhiteListFlag:%u, 0x%x\n", _blackWhiteListFlag, _blackWhiteListFlag)
-        .AppendFormat("_maxSessionQuantity:%llu\n", _maxSessionQuantity)
-        .AppendFormat("tcp poller config:%s", _tcpPollerConfig.ToString().c_str())
-        ;
-
-    return info;
-}
-
-void PollerConfig::Copy(const PollerConfig &cfg)
-{
-    _blackWhiteListFlag = cfg._blackWhiteListFlag;
-    _maxSessionQuantity = cfg._maxSessionQuantity;
-    _tcpPollerConfig.Copy(cfg._tcpPollerConfig);
-    // _udpPollerConfig.Copy(cfg._udpPollerConfig);
-}
-
-KERNEL_END

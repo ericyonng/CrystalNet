@@ -255,7 +255,7 @@ TcpPollerMgr::PollerClusterType *TcpPollerMgr::_GetPollerCluster(Int32 pollerFea
     return iter == _pollerFeatureRefPollerCluster.end() ? NULL : iter->second;
 }
 
-TcpPollerMgr::TcpPoller *TcpPollerMgr::_SelectLowerLoaderPoller(TcpPollerMgr::PollerClusterType *cluster)
+TcpPollerMgr::TcpPoller *TcpPollerMgr::_SelectLowerLoaderPoller(TcpPollerMgr::PollerClusterType *cluster, const std::set<TcpPollerMgr::TcpPoller *> &excludes)
 {
     TcpPollerMgr::TcpPoller *finalPoller = (*cluster)[0];
     const Int32 clusterCount = static_cast<Int32>(cluster->size());
@@ -263,6 +263,12 @@ TcpPollerMgr::TcpPoller *TcpPollerMgr::_SelectLowerLoaderPoller(TcpPollerMgr::Po
     for(Int32 idx = 0; idx < clusterCount; ++idx)
     {
         auto poller = (*cluster)[idx];
+        if(!poller)
+            continue;
+
+        if(excludes.find(poller) != excludes.end())
+            continue;
+
         UInt64 curLoaderScore = 0;
         if(poller && (curLoaderScore = poller->CalcLoadScore()) < loaderScore)
         {
@@ -327,7 +333,8 @@ void TcpPollerMgr::PostConnect(LibConnectInfo *connectInfo)
         return;
     }
 
-    auto poller = _SelectLowerLoaderPoller(pollerCluster);
+    std::set<TcpPollerMgr::TcpPoller *> excludes;
+    auto poller = _SelectLowerLoaderPoller(pollerCluster, excludes);
     if(UNLIKELY(!poller))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("have no linker poller cluster connect info:%s"), connectInfo->ToString().c_str());
@@ -348,15 +355,20 @@ void TcpPollerMgr::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
         return;
     }
 
-    auto poller = _SelectLowerLoaderPoller(pollerCluster);
-    if(UNLIKELY(!poller))
+    std::set<TcpPollerMgr::TcpPoller *> excludes;
+    for(Int32 idx = 0; idx < listenInfo->_sessionCount; ++idx)
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("have no linker poller cluster listen info:%s"), listenInfo->ToString().c_str());
-        LibListenInfo::Delete_LibListenInfo(listenInfo);
-        return;
-    }
+        auto poller = _SelectLowerLoaderPoller(pollerCluster, excludes);
+        if(UNLIKELY(!poller))
+        {
+            g_Log->NetError(LOGFMT_OBJ_TAG("have no linker poller cluster listen info:%s"), listenInfo->ToString().c_str());
+            LibListenInfo::Delete_LibListenInfo(listenInfo);
+            return;
+        }
 
-    poller->PostAddlisten(level, listenInfo);
+        excludes.insert(poller);
+        poller->PostAddlisten(level, listenInfo);
+    }
 }
 
 void TcpPollerMgr::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList)
@@ -372,18 +384,26 @@ void TcpPollerMgr::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &
         return;
     }
 
-    auto poller = _SelectLowerLoaderPoller(pollerCluster);
-    if(UNLIKELY(!poller))
+    std::set<TcpPollerMgr::TcpPoller *> excludes;
+    for(auto listenInfo : listenInfoList)
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("have no linker poller cluster listen size:%llu"), static_cast<UInt64>(listenInfoList.size()));
-        ContainerUtil::DelContainer(listenInfoList, [](LibListenInfo *&listenInfo){
-            LibListenInfo::Delete_LibListenInfo(listenInfo);
-            listenInfo = NULL;
-        });
-        return;
-    }
+        for(Int32 idx = 0; idx < listenInfo->_sessionCount; ++idx)
+        {
+            auto poller = _SelectLowerLoaderPoller(pollerCluster, excludes);
+            if(UNLIKELY(!poller))
+            {
+                g_Log->NetError(LOGFMT_OBJ_TAG("have no linker poller cluster listen size:%llu"), static_cast<UInt64>(listenInfoList.size()));
+                ContainerUtil::DelContainer(listenInfoList, [](LibListenInfo *&listenInfo){
+                    LibListenInfo::Delete_LibListenInfo(listenInfo);
+                    listenInfo = NULL;
+                });
+                break;
+            }
 
-    poller->PostAddlistenList(level, listenInfoList);
+            excludes.insert(poller);
+            poller->PostAddlisten(level, listenInfo);
+        }
+    }
 }
 
 void TcpPollerMgr::PostSend(UInt64 pollerId, Int32 level, UInt64 sessionId, LibPacket *packet)
@@ -453,7 +473,8 @@ void TcpPollerMgr::OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo)
         return;
     }
 
-    auto poller = _SelectLowerLoaderPoller(pollerCluster);
+    std::set<TcpPollerMgr::TcpPoller *> excludes;
+    auto poller = _SelectLowerLoaderPoller(pollerCluster, excludes);
     if(UNLIKELY(!poller))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("_SelectLowerLoaderPoller fail have no data transfer poller cluster newSessionInfo:%s"), newSessionInfo->ToString().c_str());
@@ -482,7 +503,8 @@ void TcpPollerMgr::OnAcceptedSuc(BuildSessionInfo *newSessionInfo)
         return;
     }
 
-    auto poller = _SelectLowerLoaderPoller(pollerCluster);
+    std::set<TcpPollerMgr::TcpPoller *> excludes;
+    auto poller = _SelectLowerLoaderPoller(pollerCluster, excludes);
     if(UNLIKELY(!poller))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("_SelectLowerLoaderPoller fail have no data transfer poller cluster newSessionInfo:%s"), newSessionInfo->ToString().c_str());

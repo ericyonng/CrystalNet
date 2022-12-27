@@ -34,6 +34,7 @@
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/memory/memory.h>
 #include <kernel/comp/NetEngine/Poller/Defs/TcpPollerConfig.h>
+#include <kernel/comp/NetEngine/Poller/Defs/UdpPollerConfig.h>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
@@ -51,6 +52,8 @@ struct KERNEL_EXPORT PollerConfig
     UInt32 _blackWhiteListFlag;         // 黑白名单模式
     UInt64 _maxSessionQuantity;
     TcpPollerConfig _tcpPollerConfig;   // tcp poller配置
+
+    // UdpPollerConfig _udpPollerConfig;   // upd poller 配置
 };
 
 KERNEL_END

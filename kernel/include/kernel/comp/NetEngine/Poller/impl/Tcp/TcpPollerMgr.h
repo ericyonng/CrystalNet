@@ -115,7 +115,7 @@ protected:
 private:
     TcpPoller *_CreatePoller(const TcpPollerInstConfig *cfg);
     TcpPollerMgr::PollerClusterType *_GetPollerCluster(Int32 pollerFeature);
-    TcpPollerMgr::TcpPoller *_SelectLowerLoaderPoller(TcpPollerMgr::PollerClusterType *cluster);
+    TcpPollerMgr::TcpPoller *_SelectLowerLoaderPoller(TcpPollerMgr::PollerClusterType *cluster, const std::set<TcpPollerMgr::TcpPoller *> &excludes);
 
     bool IsAllReady() const;
     bool IsAllDown() const;

@@ -55,17 +55,20 @@ public:
   Int32 AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
                     , UInt64 &stub, ObjType *obj
                     , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params)
+                    , Int32 sessionCount = 1
                     , UInt32 priorityLevel = PriorityLevelDefine::OUTER1
                     , Int32 sessionType = SessionType::OUTER
                     , Int32 family = AF_INET) const;
 
   Int32 AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
   , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg
+  , Int32 sessionCount = 1
   , UInt32 priorityLevel = PriorityLevelDefine::OUTER1
   , Int32 sessionType = SessionType::OUTER
   , Int32 family = AF_INET) const;
 
   Int32 AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port, UInt64 &stub
+  , Int32 sessionCount = 1
   , UInt32 priorityLevel = PriorityLevelDefine::OUTER1
   , Int32 sessionType = SessionType::OUTER
   , Int32 family = AF_INET) const;
@@ -73,32 +76,9 @@ public:
   /*
   * 连接远程
   */
- template<typename ObjType>
-  Int32 AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-  , ObjType *obj, void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params) /* 连接成功回调 */
-  , const KERNEL_NS::LibString &localIp = ""
-  , UInt16 localPort = 0
-  , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
-  , Int32 retryTimes = 0    /* 超时重试次数 */
-  , Int64 periodMs = 0  /* 超时时间 */
-  , UInt32 priorityLevel = PriorityLevelDefine::INNER /* 消息队列优先级 */
-  , Int32 sessionType = SessionType::INNER /* 会话类型 */
-  , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
-  ) const;
 
   Int32 AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
   , KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *callback
-  , const KERNEL_NS::LibString &localIp = ""
-  , UInt16 localPort = 0
-  , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
-  , Int32 retryTimes = 0    /* 超时重试次数 */
-  , Int64 periodMs = 0  /* 超时时间 */
-  , UInt32 priorityLevel = PriorityLevelDefine::INNER /* 消息队列优先级 */
-  , Int32 sessionType = SessionType::INNER /* 会话类型 */
-  , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
-  ) const;
-
-    Int32 AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
   , const KERNEL_NS::LibString &localIp = ""
   , UInt16 localPort = 0
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
@@ -118,7 +98,7 @@ protected:
 
     void _OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params);
     void _OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params);
-
+    void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
 private:
     void _Clear();
 
@@ -126,18 +106,21 @@ private:
     std::unordered_map<UInt64, AddrConfig *> _unhandledListenAddr;
     std::unordered_map<UInt64, AddrConfig *> _unhandledContectAddr;
     KERNEL_NS::LibTimer *_detectLink;
+
+    KERNEL_NS::ListenerStub _closeServiceStub;
 };
 
 template<typename ObjType>
 ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
                 , UInt64 &stub, ObjType *obj
                 , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params)
+                , Int32 sessionCount
                 , UInt32 priorityLevel
                 , Int32 sessionType
                 , Int32 family) const
 {
     auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
-    auto st = AddTcpListen(ip, port, stub, delg, priorityLevel, sessionType, family);
+    auto st = AddTcpListen(ip, port, stub, delg, sessionCount, priorityLevel, sessionType, family);
     if(st != Status::Success)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail st:%d, ip:%s, port:%hu, sessionType:%d, family:%d"), st, ip.c_str(), port, sessionType, family);
@@ -148,49 +131,9 @@ ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UI
     return st;
 }
 
-ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port, UInt64 &stub, UInt32 priorityLevel, Int32 sessionType, Int32 family) const
+ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, UInt32 priorityLevel, Int32 sessionType, Int32 family) const
 {
-    return AddTcpListen(ip, port, stub, NULL, priorityLevel, sessionType, family);
+    return AddTcpListen(ip, port, stub, NULL, sessionCount, priorityLevel, sessionType, family);
 }
-
- template<typename ObjType>
-ALWAYS_INLINE Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-, ObjType *obj, void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params) /* 连接成功回调 */
-, const KERNEL_NS::LibString &localIp
-, UInt16 localPort
-, KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
-, Int32 retryTimes   /* 超时重试次数 */
-, Int64 periodMs  /* 超时时间 */
-, UInt32 priorityLevel /* 消息队列优先级 */
-, Int32 sessionType /* 会话类型 */
-, Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
-) const
-{
-    auto deleg = KERNEL_NS::DelegateFactory::Create(obj, handler);
-    auto st = AsynTcpConnect(remoteIp, remotePort, stub, deleg, localIp, localPort, stack, retryTimes, periodMs, priorityLevel, sessionType, family);
-    if(st != Status::Success)
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("connect fail remote ip:%s, remote port:%hu"), remoteIp.c_str(), remotePort);
-        deleg->Release();
-        return st;
-    }
-
-    return Status::Success;
-}
-
-ALWAYS_INLINE Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-, const KERNEL_NS::LibString &localIp
-, UInt16 localPort
-, KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
-, Int32 retryTimes    /* 超时重试次数 */
-, Int64 periodMs   /* 超时时间 */
-, UInt32 priorityLevel /* 消息队列优先级 */
-, Int32 sessionType /* 会话类型 */
-, Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
-) const
-{
-    return AsynTcpConnect(remoteIp, remotePort, stub, NULL, localIp, localPort, stack, retryTimes, periodMs, priorityLevel, sessionType, family);
-}
-
 
 SERVICE_END
