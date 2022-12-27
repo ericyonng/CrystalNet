@@ -53,6 +53,7 @@ struct KERNEL_EXPORT LibListenInfo
     UInt64 _stub;           // 业务层生成并会原样返回
     UInt32 _priorityLevel;  // 优先级别
     Int32 _protocolType;    // ProtocolType
+    Int32 _sessionCount;    // 监听同一个端口创建多少个会话
 
     SessionOption _sessionOption;   // 会话选项
 };

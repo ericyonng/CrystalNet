@@ -68,11 +68,12 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
     KERNEL_NS::LibString localIp;
     UInt16 localPort = 0;
     KERNEL_NS::LibString remoteIp;
+    Int32 listenSessionCount = 1;
     UInt16 remotePort = 0;
     for(auto &endianInfo : sepLocalAndRemote)
     {
         const auto &endianPartGroup = endianInfo.Split(elemSep);
-        if(endianPartGroup.size() != 3)
+        if(endianPartGroup.size() < 3)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("addr parse error: endian part group not match endian format, configContent:%s, endianInfo:%s"), configContent.c_str(), endianInfo.c_str());
             return false;
@@ -102,6 +103,19 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
                 }
 
                 localPort = KERNEL_NS::StringUtil::StringToUInt16(endianPartGroup[2].c_str());
+            }
+
+            // 监听同一个端口会话数量
+            if(!endianPartGroup[3].empty())
+            {
+                if(!endianPartGroup[3].isdigit())
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("listen session count not digit, configContent:%s, listen session count:%s")
+                    , configContent.c_str(), endianPartGroup[3].c_str());
+                    return false;
+                }
+
+                listenSessionCount = KERNEL_NS::StringUtil::StringToInt32(endianPartGroup[3].c_str());
             }
             continue;
         }
@@ -151,6 +165,7 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
         _localPort = localPort;
         _remoteIp = remoteIp;
         _remotePort = remotePort;
+        _listenSessionCount = listenSessionCount;
 
         _af = KERNEL_NS::SocketUtil::IsIpv4(localIp) ? AF_INET : AF_INET6;
 
@@ -170,6 +185,8 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
     {
         _localIp = localIp;
         _localPort = localPort;
+        _listenSessionCount = listenSessionCount;
+
         _af = KERNEL_NS::SocketUtil::IsIpv4(localIp) ? AF_INET : AF_INET6;
         _sessionType = SessionType::INNER;
         auto iter = portRefSessinType.find(_localPort);

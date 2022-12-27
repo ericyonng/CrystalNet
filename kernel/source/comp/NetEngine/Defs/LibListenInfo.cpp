@@ -39,6 +39,8 @@ LibListenInfo::LibListenInfo()
 ,_serviceId(0)
 ,_stub(0)
 ,_priorityLevel(0)
+,_protocolType(0)
+,_sessionCount(0)
 {
 
 }
@@ -52,6 +54,8 @@ LibString LibListenInfo::ToString() const
     .AppendFormat("_serviceId:%llu, ",  _serviceId)
     .AppendFormat("_stub:%llu, ",  _stub)
     .AppendFormat("_priorityLevel:%u, ",  _priorityLevel)
+    .AppendFormat("_protocolType:%u, ",  _protocolType)
+    .AppendFormat("_sessionCount:%u, ",  _sessionCount)
     .AppendFormat("_sessionOption:%s, ",  _sessionOption.ToString().c_str())
     ;
 

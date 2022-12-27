@@ -508,6 +508,60 @@ Int32 Application::_ReadBaseConfigs()
         }
     }
 
+    // udp poller 相关配置
+    // auto &udpPollerConfig = _pollerConfig._udpPollerConfig;
+    // {        
+    //     {// linker相关配置
+    //         auto newPollerFeatureConfig = KERNEL_NS::UdpPollerFeatureConfig::New_UdpPollerFeatureConfig(&udpPollerConfig, KERNEL_NS::PollerFeature::LINKER);
+    //         newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._linkInOutPollerAmount);
+    //         udpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(KERNEL_NS::PollerFeature::LINKER, newPollerFeatureConfig));
+
+    //         // 创建配置
+    //         auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
+    //         for(Int32 idx = 0; idx < _kernelConfig._linkInOutPollerAmount; ++idx)
+    //         {
+    //             auto newInstConfig = KERNEL_NS::UdpPollerInstConfig::New_UdpPollerInstConfig(newPollerFeatureConfig, static_cast<UInt32>(idx + 1));
+    //             newInstConfig->_handleRecvBytesPerFrameLimit = _kernelConfig._maxRecvBytesPerFrame;
+    //             newInstConfig->_handleSendBytesPerFrameLimit = _kernelConfig._maxSendBytesPerFrame;
+    //             newInstConfig->_handleAcceptPerFrameLimit = _kernelConfig._maxAcceptCountPerFrame;
+    //             newInstConfig->_maxPieceTimeInMicroseconds = _kernelConfig._maxPieceTimeInMicroSecPerFrame;
+    //             newInstConfig->_maxSleepMilliseconds = _kernelConfig._maxPollerScanMilliseconds;
+    //             newInstConfig->_maxPriorityLevel = _kernelConfig._maxPollerMsgPriorityLevel;
+    //             newInstConfig->_pollerInstMonitorPriorityLevel = _kernelConfig._pollerMonitorEventPriorityLevel;
+    //             newInstConfig->_bufferCapacity = _kernelConfig._sessionBufferCapicity;
+    //             newInstConfig->_sessionRecvPacketSpeedLimit = _kernelConfig._sessionRecvPacketSpeedLimit;
+    //             newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = _kernelConfig._sessionRecvPacketSpeedTimeUnitMs;
+    //             newInstConfig->_sessionRecvPacketStackLimit = _kernelConfig._sessionRecvPacketStackLimit;
+    //             pollerInstConfigs[idx] = newInstConfig;
+    //         }
+    //     }
+       
+    //     {// transfer相关配置
+    //         auto newPollerFeatureConfig = KERNEL_NS::UdpPollerFeatureConfig::New_UdpPollerFeatureConfig(&udpPollerConfig, KERNEL_NS::PollerFeature::DATA_TRANSFER);
+    //         newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._dataTransferPollerAmount);
+    //         udpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(KERNEL_NS::PollerFeature::DATA_TRANSFER, newPollerFeatureConfig));
+
+    //         // 创建配置
+    //         auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
+    //         for(Int32 idx = 0; idx < _kernelConfig._dataTransferPollerAmount; ++idx)
+    //         {
+    //             auto newInstConfig = KERNEL_NS::UdpPollerInstConfig::New_UdpPollerInstConfig(newPollerFeatureConfig,  static_cast<UInt32>(idx + 1));
+    //             newInstConfig->_handleRecvBytesPerFrameLimit = _kernelConfig._maxRecvBytesPerFrame;
+    //             newInstConfig->_handleSendBytesPerFrameLimit = _kernelConfig._maxSendBytesPerFrame;
+    //             newInstConfig->_handleAcceptPerFrameLimit = _kernelConfig._maxAcceptCountPerFrame;
+    //             newInstConfig->_maxPieceTimeInMicroseconds = _kernelConfig._maxPieceTimeInMicroSecPerFrame;
+    //             newInstConfig->_maxSleepMilliseconds = _kernelConfig._maxPollerScanMilliseconds;
+    //             newInstConfig->_maxPriorityLevel = _kernelConfig._maxPollerMsgPriorityLevel;
+    //             newInstConfig->_pollerInstMonitorPriorityLevel = _kernelConfig._pollerMonitorEventPriorityLevel;
+    //             newInstConfig->_bufferCapacity = _kernelConfig._sessionBufferCapicity;
+    //             newInstConfig->_sessionRecvPacketSpeedLimit = _kernelConfig._sessionRecvPacketSpeedLimit;
+    //             newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = _kernelConfig._sessionRecvPacketSpeedTimeUnitMs;
+    //             newInstConfig->_sessionRecvPacketStackLimit = _kernelConfig._sessionRecvPacketStackLimit;
+    //             pollerInstConfigs[idx] = newInstConfig;
+    //         }
+    //     }
+    // }
+
     {// application config
         {// 程序别名
             KERNEL_NS::LibString cache;

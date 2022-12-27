@@ -42,6 +42,7 @@ public:
     static bool HasMessage(const KERNEL_NS::LibString &lineData);
     // 检查message名
     static bool CheckValidMessage(const KERNEL_NS::LibString &messageName);
+    static bool CheckValidName(Byte8 ch);
     // 有没有注解
     static bool HasAnnotation(const KERNEL_NS::LibString &lineData);
 

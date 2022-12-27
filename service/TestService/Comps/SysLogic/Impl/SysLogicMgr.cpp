@@ -58,6 +58,7 @@ void SysLogicMgr::Release()
 
 Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
 , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg
+, Int32 sessionCount
 , UInt32 priorityLevel, Int32 sessionType, Int32 family) const
 {
     // 1.校验ip
@@ -106,7 +107,7 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
 
     option._forbidRecv = true;
     option._sessionType = sessionType;
-    serviceProxy->TcpAddListen(service->GetServiceId(), priorityLevel, family, ip, port, stub, option);
+    serviceProxy->TcpAddListen(service->GetServiceId(), priorityLevel, family, ip, port, sessionCount, stub, option);
 
     // 回调
     if(delg)
@@ -208,6 +209,7 @@ Int32 SysLogicMgr::_OnHostStart()
                                 , stub
                                 , this
                                 , &SysLogicMgr::_OnAddListenRes
+                                , addrInfo->_listenSessionCount
                                 , addrInfo->_priorityLevel
                                 , addrInfo->_sessionType
                                 , addrInfo->_af);

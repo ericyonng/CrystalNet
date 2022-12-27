@@ -59,7 +59,7 @@ public:
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
 
     // service => kernel
-    virtual void TcpAddListen(UInt64 fromServiceId, Int32 level, Int32 family, const KERNEL_NS::LibString &ip, UInt16 port, UInt64 stub, const KERNEL_NS::SessionOption &sessionOption) final;
+    virtual void TcpAddListen(UInt64 fromServiceId, Int32 level, Int32 family, const KERNEL_NS::LibString &ip, UInt16 port, Int32 sessionCount, UInt64 stub, const KERNEL_NS::SessionOption &sessionOption) final;
     virtual void TcpAsynConnect(UInt64 fromServiceId, UInt64 stub, Int32 level, UInt16 family, const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, const KERNEL_NS::SessionOption &sessionOption, KERNEL_NS::IProtocolStack *protocolStack = NULL, Int32 retryTimes = 3, Int64 periodMs = 5000, const KERNEL_NS::LibString &localIp = "", UInt16 localPort = 0) final;
     virtual void TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, KERNEL_NS::LibPacket *packet) final;
     virtual void TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *packets) final;

@@ -56,6 +56,7 @@ void PollerConfig::Copy(const PollerConfig &cfg)
     _blackWhiteListFlag = cfg._blackWhiteListFlag;
     _maxSessionQuantity = cfg._maxSessionQuantity;
     _tcpPollerConfig.Copy(cfg._tcpPollerConfig);
+    // _udpPollerConfig.Copy(cfg._udpPollerConfig);
 }
 
 KERNEL_END

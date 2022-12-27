@@ -94,7 +94,7 @@ KERNEL_NS::IProtocolStack *ServiceProxy::GetProtocolStack(KERNEL_NS::LibSession 
     return service->GetProtocolStack(session);
 }
 
-void ServiceProxy::TcpAddListen(UInt64 fromServiceId, Int32 level, Int32 family, const KERNEL_NS::LibString &ip, UInt16 port, UInt64 stub, const KERNEL_NS::SessionOption &sessionOption)
+void ServiceProxy::TcpAddListen(UInt64 fromServiceId, Int32 level, Int32 family, const KERNEL_NS::LibString &ip, UInt16 port, Int32 sessionCount, UInt64 stub, const KERNEL_NS::SessionOption &sessionOption)
 {
     auto service = _GetService(fromServiceId);
     if(UNLIKELY(!service))
@@ -111,6 +111,7 @@ void ServiceProxy::TcpAddListen(UInt64 fromServiceId, Int32 level, Int32 family,
     listenInfo->_stub = stub;
     listenInfo->_priorityLevel = level;
     listenInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
+    listenInfo->_sessionCount = sessionCount;
     listenInfo->_sessionOption = sessionOption;
     g_Log->Info(LOGFMT_OBJ_TAG("add listen info:%s"), listenInfo->ToString().c_str());
     _tcpPollerMgr->PostAddlisten(level, listenInfo);
