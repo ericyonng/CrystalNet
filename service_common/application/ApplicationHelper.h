@@ -21,24 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-06-27 00:58:21
+ * Date: 2023-01-01 22:02:30
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <testsuit/testinst/TestService.h>
-#include <service/TestService/service.h>
+#ifndef __CRYSTAL_NET_SERVICE_COMMON_APPLICATION_APPLICATION_HELPER_H__
+#define __CRYSTAL_NET_SERVICE_COMMON_APPLICATION_APPLICATION_HELPER_H__
 
-void TestService::Run(int argc, char const *argv[])
+#pragma once
+
+#include <service_common/common/common.h>
+#include <kernel/kernel.h>
+
+SERVICE_COMMON_BEGIN
+
+class Application;
+class IServiceFactory;
+
+class ApplicationHelper
 {
-    KERNEL_NS::SmartPtr<SERVICE_COMMON_NS::Application, KERNEL_NS::AutoDelMethods::CustomDelete> app = SERVICE_COMMON_NS::Application::New_Application();
-    app.SetClosureDelegate([](void *ptr)
-    {
-        auto p = KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::Application>(ptr);
-        SERVICE_COMMON_NS::Application::Delete_Application(p);
-        ptr = NULL;
-    });
+public:
+    static Int32 Start(Application *app,  IServiceFactory *serviceFactory, int argc, char const *argv[], const KERNEL_NS::LibString &configPath, const KERNEL_NS::LibString &memoryIniConfig = KERNEL_NS::LibString());
+};
 
-    SERVICE_COMMON_NS::ApplicationHelper::Start(app.AsSelf(), SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "./ini/service.ini");
-}
+SERVICE_COMMON_END
+
+#endif
