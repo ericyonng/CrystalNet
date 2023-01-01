@@ -28,7 +28,6 @@
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/BaseComps/BaseComps.h>
 #include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
 #include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
 #include <service/ProtoGenService/Comps/Exporter/Exporter.h>

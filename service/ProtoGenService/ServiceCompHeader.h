@@ -32,8 +32,3 @@
 #include <service_common/ServiceCommon.h>
 #include <service/common/common.h>
 #include <service/ProtoGenService/Common/ServiceCommon.h>
-#include <service/ProtoGenService/SessionType.h>
-#include <service/ProtoGenService/PriorityLevelDefine.h>
-#include <service/ProtoGenService/ServiceConfig.h>
-#include <service/ProtoGenService/Comps/BaseComps/Event/Event.h>
-#include <service/ProtoGenService/Comps/BaseComps/GlobalSys/GlobalSys.h>

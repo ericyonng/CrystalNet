@@ -30,8 +30,6 @@
 
 // TODO:业务组件
 #include <service/ProtoGenService/Comps/Comps.h>
-#include <service/ProtoGenService/SessionType.h>
-#include <service/ProtoGenService/ServiceConfig.h>
 
 // #include <protocols/protocols.h>
 #include <service/ProtoGenService/ServiceFactory.h>

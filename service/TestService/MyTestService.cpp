@@ -30,8 +30,6 @@
 
 // TODO:业务组件
 #include <service/TestService/Comps/Comps.h>
-#include <service/TestService/SessionType.h>
-#include <service/TestService/ServiceConfig.h>
 
 #include <protocols/protocols.h>
 #include <service/TestService/ServiceFactory.h>
