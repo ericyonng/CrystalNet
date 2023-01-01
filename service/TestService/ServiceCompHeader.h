@@ -32,8 +32,3 @@
 #include <service_common/ServiceCommon.h>
 #include <service/common/common.h>
 #include <service/TestService/Common/ServiceCommon.h>
-#include <service/TestService/SessionType.h>
-#include <service/TestService/PriorityLevelDefine.h>
-#include <service/TestService/ServiceConfig.h>
-#include <service/TestService/Comps/BaseComps/Event/Event.h>
-#include <service/TestService/Comps/BaseComps/GlobalSys/GlobalSys.h>

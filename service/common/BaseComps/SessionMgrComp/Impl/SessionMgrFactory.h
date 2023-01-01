@@ -21,14 +21,31 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-09-18 22:03:56
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+#include <kernel/kernel.h>
+#include <service/common/macro.h>
+
+SERVICE_BEGIN
+
+class SessionMgrFactory : public KERNEL_NS::CompFactory
+{
+    // 创建factory对象时候使用创建的方法类型
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+    static KERNEL_NS::CompFactory *FactoryCreate();
+
+    virtual void Release() override;
+
+public:
+    virtual KERNEL_NS::CompObject *Create() const;
+};
+
+SERVICE_END
 

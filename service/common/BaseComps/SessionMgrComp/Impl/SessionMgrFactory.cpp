@@ -21,14 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-09-18 22:37:25
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <service/common/BaseComps/SessionMgrComp/Impl/SessionMgr.h>
+#include <service/common/BaseComps/SessionMgrComp/Impl/SessionMgrFactory.h>
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+SERVICE_BEGIN
 
+KERNEL_NS::CompFactory *SessionMgrFactory::FactoryCreate()
+{
+    return KERNEL_NS::ObjPoolWrap<SessionMgrFactory>::NewByAdapter(_buildType.V);
+}
+
+void SessionMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<SessionMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
+
+KERNEL_NS::CompObject *SessionMgrFactory::Create() const
+{
+    return SessionMgr::NewByAdapter_SessionMgr(_buildType.V);
+}
+
+SERVICE_END

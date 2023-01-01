@@ -21,14 +21,13 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-08-28 05:21:53
  * Author: Eric Yonng
- * Description: 
+ * Description: 只有GlobalSys才有建表，持久化的组件,其他的子系统都要依附GlobalSys,
+ * 例如PlayerMgr是一个GlobalSys, 它的表是Player.sql, 它管理所有的PlayerSys, 以及其的持久化
+ * 每个GlobalSys的组件可以自己定制持久化策略等，否则使用默认
 */
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
-
+#include <service/common/BaseComps/GlobalSys/IGlobalSys.h>

@@ -21,14 +21,14 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-08-28 05:11:11
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+#include <service/common/BaseComps/Event/Event.h>
+#include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
 

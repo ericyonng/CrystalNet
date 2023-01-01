@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <service/TestService/Comps/BaseComps/BaseComps.h>
+#include <service/common/BaseComps/BaseComps.h>
 #include <service/TestService/Comps/MyServiceComp/MyServiceComp.h>
 #include <service/TestService/Comps/PlayerSys/PlayerSys.h>
 #include <service/TestService/Comps/StubHandle/StubHandle.h>

@@ -21,14 +21,53 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-09-18 20:36:56
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/SessionType.h>
+#include <service/common/PriorityLevelDefine.h>
+#include <service/common/ServiceConfig.h>
+#include <service/common/BaseComps/Event/Event.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
 
+SERVICE_BEGIN
+
+class SessionMgr;
+struct ServiceSessionInfo;
+
+class ServiceSession
+{
+    POOL_CREATE_OBJ_DEFAULT(ServiceSession);
+
+public:
+    ServiceSession(SessionMgr *sessionMgr);
+    ~ServiceSession();
+
+    virtual void Release();
+
+    void SetSessionInfo(const ServiceSessionInfo &sessionInfo);
+    UInt64 GetSessionId() const;
+    const ServiceSessionInfo *GetSessionInfo() const;
+
+    KERNEL_NS::LibString ToString() const;
+
+private:
+    void _Clear();
+
+private:
+    ServiceSessionInfo *_sessionInfo;
+    SessionMgr *_sessionMgr;
+};
+
+ALWAYS_INLINE  const ServiceSessionInfo *ServiceSession::GetSessionInfo() const
+{
+    return _sessionInfo;
+}
+
+SERVICE_END

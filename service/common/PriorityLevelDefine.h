@@ -21,14 +21,56 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-08-23 23:58:35
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+#include <service/common/macro.h>
+
+SERVICE_BEGIN
+
+class PriorityLevelDefine
+{
+public:
+    enum ENUMS : UInt32
+    {
+        INNER = 0,      // 内部节点
+        DB = 1,         // db节点
+
+        // 3个外部可以负载均衡
+        OUTER_LEVEL_BEGIN = 2,  // 外部
+        OUTER1 = 2,       // 外部1 
+        OUTER2 = 3,       // 外部2
+        OUTER3 = 4,       // 外部3
+        OUTER_LEVEL_END = 4,    // 外部
+    };
+
+    enum TYPE_ENUMS
+    {
+        INNER_TYPE = 0,      // 内部类型
+        DB_TYPE,            // 数据库类型
+        OUTER_TYPE,         // 面向外部类型
+    };
+
+    static UInt32 StringToPriorityLevel(const KERNEL_NS::LibString &levelStr)
+    {
+        if(levelStr == "INNER")
+            return PriorityLevelDefine::INNER;
+        if(levelStr == "DB")
+            return PriorityLevelDefine::DB;
+        if(levelStr == "OUTER1")
+            return PriorityLevelDefine::OUTER1;
+        if(levelStr == "OUTER2")
+            return PriorityLevelDefine::OUTER2;
+        if(levelStr == "OUTER3")
+            return PriorityLevelDefine::OUTER3;
+        
+        return PriorityLevelDefine::OUTER1;
+    }
+};
+
+SERVICE_END
 

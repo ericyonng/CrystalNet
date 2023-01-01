@@ -21,14 +21,16 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-09-30 13:14:05
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <service/common/BaseComps/SessionMgrComp/Defs/ServiceSession/Impl/ServiceSessionInfo.h>
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+SERVICE_BEGIN
 
+POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceSessionInfo);
+
+SERVICE_END

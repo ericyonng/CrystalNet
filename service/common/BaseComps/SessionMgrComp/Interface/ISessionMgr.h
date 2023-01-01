@@ -21,14 +21,34 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-08-28 05:13:07
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/macro.h>
+#include <service/common/status.h>
+#include <service/common/Params.h>
+#include <service/common/AppAlias.h>
+#include <service/common/PriorityLevelDefine.h>
+#include <service/common/ServiceConfig.h>
+#include <service/common/SessionType.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
 
+SERVICE_BEGIN
+class ServiceSession;
+
+class ISessionMgr : public IGlobalSys
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ISessionMgr);
+public:
+    virtual ServiceSession *GetSession(UInt64 sessionId) = 0;
+    virtual const ServiceSession *GetSession(UInt64 sessionId) const = 0;
+    virtual Int64 NewPacketId(UInt64 sessionId) = 0;
+};
+
+SERVICE_END

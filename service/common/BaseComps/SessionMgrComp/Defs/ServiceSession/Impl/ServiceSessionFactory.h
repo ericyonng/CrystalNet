@@ -21,14 +21,25 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-09-18 20:39:27
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+#include <kernel/kernel.h>
+#include <service/common/macro.h>
 
+SERVICE_BEGIN
+
+class ServiceSession;
+class SessionMgr;
+
+class ServiceSessionFactory
+{
+public:
+    static ServiceSession *Create(SessionMgr *sessionMgr);
+};
+
+SERVICE_END

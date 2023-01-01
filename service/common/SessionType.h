@@ -21,14 +21,56 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-08-24 00:21:09
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+#include <service/common/macro.h>
+#include <service_common/ServiceCommon.h>
 
+SERVICE_BEGIN
+
+// 除非指定，否则默认都是外部session
+class SessionType
+{
+    // 按照位与来判断
+public:
+    enum ENUMS
+    {
+        UNKNOWN = -1,       // 未知的
+        BEGIN = 0,
+        OUTER = BEGIN,      // 外部的，可以以此辨别是否要提高安全性等考虑
+        INNER = 1,      // 内部的通信 包括db，各个节点间等
+        END,
+    };
+
+    static Int32 TurnFromProtocolStackType(Int32 stackType)
+    {
+        switch (stackType)
+        {
+        case SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL_INNER:
+            return SessionType::INNER;
+        case SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL_OUTER:
+            return SessionType::OUTER;
+        default:
+            break;
+        }
+
+        return SessionType::UNKNOWN;
+    }
+
+    static Int32 SessionStringToSessionType(const KERNEL_NS::LibString &sessionType)
+    {
+        if(sessionType == "OUTER")
+            return SessionType::OUTER;
+        if(sessionType == "INNER")
+            return SessionType::INNER;
+
+        return SessionType::UNKNOWN;
+    }
+};
+
+SERVICE_END

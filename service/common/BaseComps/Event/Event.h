@@ -21,14 +21,12 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2022-08-28 05:16:22
  * Author: Eric Yonng
- * Description: 
+ * Description: 事件的定义,全局的事件管理器,事件管理器到事件管理器的事件转发等
 */
 
 #pragma once
 
-#include <service/ProtoGenService/Comps/StubHandle/StubHandle.h>
-#include <service/ProtoGenService/Comps/SysLogic/SysLogic.h>
-#include <service/ProtoGenService/Comps/Exporter/Exporter.h>
+#include <service/common/BaseComps/Event/Defs/EventEnums.h>
 

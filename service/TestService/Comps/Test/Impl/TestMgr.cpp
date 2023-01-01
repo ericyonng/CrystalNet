@@ -29,7 +29,6 @@
 #include <pch.h>
 #include <service/TestService/Comps/Test/Impl/TestMgrFactory.h>
 
-#include <service/TestService/Comps/BaseComps/SessionMgrComp/SessionMgr.h>
 #include <service/TestService/MyTestService.h>
 #include <service/TestService/Comps/Test/Defs/TestDefs.h>
 #include <service/TestService/Comps/SysLogic/SysLogic.h>
