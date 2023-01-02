@@ -29,6 +29,7 @@
  * 2.填写Params枚举，参数类型，以及参数含义
  * 3.以上为了接入事件时不必去找事件派发地方的参数，面向EventEnums文档极大方便了事件事件
  * 4.参数只增加不删除，避免逻辑错误
+ * 5.这里是公共的事件定义，每个特定的service的事件从 EVENT_COMMON_END + 1开始
 */
 
 #pragma once
@@ -131,5 +132,7 @@ namespace EventEnums
 
         SERVICE_COMMON_SESSION_READY,   // 公共会话准备就绪
         SERVICE_EVENT_END = 200,
+
+        EVENT_COMMON_END = 65536,       // 公共事件集结束
     };
 };

@@ -29,3 +29,4 @@
 #pragma once
 
 #include <service/TestService/Common/DirtyType.h>
+#include <service/TestService/Common/EventEnums.h>
