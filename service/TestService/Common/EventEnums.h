@@ -21,12 +21,20 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-18 20:36:33
+ * Date: 2023-01-02 16:18:00
  * Author: Eric Yonng
- * Description: 
+ * Description: TestService 事件集开始
 */
 
 #pragma once
 
-#include <service/TestService/Common/DirtyType.h>
-#include <service/TestService/Common/EventEnums.h>
+#include <service/common/common.h>
+
+namespace EventEnums
+{
+    enum 
+    {
+        TEST_SERVICE_EVENT_BEGIN = EventEnums::EVENT_COMMON_END + 1,
+        
+    };
+}
