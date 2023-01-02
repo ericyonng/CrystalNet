@@ -53,6 +53,9 @@ public:
      );
 
     static Int32 GetNetCardList(Int32 family, std::vector<sockaddr_in> &addrList, Int32 sockType = IPUtilDef::SOCK_TYPE_SOCK_STREAM);
+
+    // netCardNo是用于选择域名返回的ip列表，用于dns负载均衡，可以从多个ip总选择一个
+    static Int32 GetIpByHostName(const LibString &hostName, LibString &ip, Int32 netCardNo = 0, bool isToBind = true, bool isStreamSock = true, bool isIpv4 = true);
 };
 
 inline Int32 IPUtil::GetLocalIP(LibString &ip, Int32 netCardNo, bool isToBind, bool isStreamSock, bool isIpv4)
@@ -79,85 +82,6 @@ inline Int32 IPUtil::GetLocalIP(LibString &ip, Int32 netCardNo, bool isToBind, b
     return Status::Success;
 }
 
-
-inline Int32 IPUtil::GetIPByDomain(
-    const char *domain                          // 域名或主机名
-    , const char *service                       // 端口号“80”等、服务名 如"ftp", "http"等
-    , LibString &ipAddrString                   // 输出ip
-    , Int32 netCardNo                           // 网卡序号若获取的是本地的地址，为选择网址列表的某一个网址
-    , Int32 eFlags                              // IPUtilDef::AI_FLAGS_TYPE 各个位的组合
-                                                // 默认AI_PASSIVE 即用于bind绑定 不设置则用于connect
-
-    , IPUtilDef::SOCK_TYPE eSockType            // IPUtilDef::SOCK_TYPE_SOCK_STREAM /* 默认流数据
-    , IPUtilDef::FAMILY_TYPE eFamily            // IPUtilDef::FAMILY_TYPE_AF_INET /* 默认ipv4 */
-    , IPUtilDef::PROTOCOL_TYPE eProtocol        // IPUtilDef::PROTOCOL_TYPE_IPPROTO_IP 默认任意协议 即ip协议 
-    )
-{
-    // 不可同时为NULL
-    if(UNLIKELY(!domain && !service))
-        return Status::IPUtil_ParamError;
-
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    BUFFER64 ipcache = {};
-#endif
-    
-    // 获取地址的参数设置
-    struct addrinfo hints = {0};
-    hints.ai_family = eFamily;
-    hints.ai_flags = eFlags;
-    hints.ai_protocol = eProtocol;
-    hints.ai_socktype = eSockType;
-    struct addrinfo *netCardRes = NULL;
-    if(getaddrinfo(domain, service, &hints, &netCardRes) != 0)
-    {
-        throw std::logic_error("getaddrinfo failed");
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-        perror("getaddrinfo fail");
-#endif
-        return Status::IPUtil_GetAddrInfoFailed;
-    }
-
-    // 遍历网卡
-    Int32 cnt = 0;
-    struct sockaddr_in *addr = NULL;
-    struct addrinfo *cur = NULL;
-    for(cur = netCardRes; cur != NULL; cur = cur->ai_next)
-    {
-        addr = (struct sockaddr_in *)cur->ai_addr;
-        if(!addr)
-            continue;
-
-        if(netCardNo != cnt)
-        {
-            ++cnt;
-            continue;
-        }
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-        ipAddrString.AppendFormat("%d.%d.%d.%d"
-                , (*addr).sin_addr.S_un.S_un_b.s_b1
-                , (*addr).sin_addr.S_un.S_un_b.s_b2
-                , (*addr).sin_addr.S_un.S_un_b.s_b3
-                , (*addr).sin_addr.S_un.S_un_b.s_b4);
-#else
-
-        
-        if(inet_ntop(eFamily, &(addr->sin_addr.s_addr), ipcache, sizeof(ipcache)) == NULL)
-        {
-            perror("inet_ntop fail");
-            continue;
-        }
-
-        ipAddrString.AppendFormat("%s", ipcache);
-#endif
-        freeaddrinfo(netCardRes);
-        return Status::Success;
-    }
-
-    // 释放资源
-    freeaddrinfo(netCardRes);
-    return Status::IPUtil_NotFound;
-}
 
 inline Int32 IPUtil::GetNetCardList(Int32 family, std::vector<sockaddr_in> &addrList, Int32 sockType)
 {
@@ -191,6 +115,25 @@ inline Int32 IPUtil::GetNetCardList(Int32 family, std::vector<sockaddr_in> &addr
 
     // 释放资源
     freeaddrinfo(netCardRes);
+    return Status::Success;
+}
+
+ALWAYS_INLINE Int32 IPUtil::GetIpByHostName(const LibString &hostName, LibString &ip, Int32 netCardNo, bool isToBind, bool isStreamSock, bool isIpv4)
+{
+    //获取ip
+    auto ret = GetIPByDomain(hostName.c_str()
+                             , NULL
+                             , ip
+                             , netCardNo
+                             , isToBind ? IPUtilDef::AI_FLAGS_TYPE_AI_PASSIVE : IPUtilDef::AI_FLAGS_TYPE_NONE
+                             , isStreamSock ? IPUtilDef::SOCK_TYPE_SOCK_STREAM : IPUtilDef::SOCK_TYPE_SOCK_DGRAM
+                             , isIpv4 ? IPUtilDef::FAMILY_TYPE_AF_INET : IPUtilDef::FAMILY_TYPE_AF_INET6
+                             , IPUtilDef::PROTOCOL_TYPE_IPPROTO_IP
+    );
+
+    if(ret != Status::Success)
+        return ret;
+
     return Status::Success;
 }
 
