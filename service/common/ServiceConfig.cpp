@@ -35,7 +35,7 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(AddrConfig);
 
-bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::unordered_map<UInt16, Int32> &portRefSessinType, bool isStreamSock, bool toIpv4FromHostName)
+bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::unordered_map<UInt16, Int32> &portRefSessinType, bool isStreamSock)
 {
     // Local,127.0.0.1,3901-Remote,127.0.0.1,3901/INNER
     const KERNEL_NS::LibString inclineSep = "@";
@@ -43,6 +43,8 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
     const KERNEL_NS::LibString elemSep = ",";
     const KERNEL_NS::LibString localSign = "local";
     const KERNEL_NS::LibString remoteSign = "remote";
+    const KERNEL_NS::LibString hostNameSep = "'";
+    const KERNEL_NS::LibString ipv6Flag = "ipv6";
     
     UInt32 priorityLevel = PriorityLevelDefine::INNER;
 
@@ -86,8 +88,17 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
             {
                 if(!KERNEL_NS::SocketUtil::IsIp(endianPartGroup[1]))
                 {
+                    bool toIpv4 = true;
+                    auto hostNameParts = endianPartGroup[1].Split(hostNameSep);
+                    if((hostNameParts.size() > 1) && !hostNameParts[1].empty())
+                    {
+                        auto flagPart = hostNameParts[1].strip().tolower();
+                        if(flagPart == ipv6Flag)
+                            toIpv4 = false;
+                    }
+
                     // 看是不是域名
-                    auto err = KERNEL_NS::IPUtil::GetIpByHostName(endianPartGroup[1], localIp, 0, true, isStreamSock, toIpv4FromHostName);
+                    auto err = KERNEL_NS::IPUtil::GetIpByHostName(hostNameParts[0].strip(), localIp, 0, true, isStreamSock, toIpv4);
                     if(err != Status::Success)
                     {
                         g_Log->Warn(LOGFMT_OBJ_TAG("invalid ip: configContent:%s, ip:%s"), configContent.c_str(), endianPartGroup[1].c_str());
@@ -136,7 +147,16 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
             {
                 if(!KERNEL_NS::SocketUtil::IsIp(endianPartGroup[1]))
                 {
-                    auto err = KERNEL_NS::IPUtil::GetIpByHostName(endianPartGroup[1], remoteIp, 0, true, isStreamSock, toIpv4FromHostName);
+                    bool toIpv4 = true;
+                    auto hostNameParts = endianPartGroup[1].Split(hostNameSep);
+                    if((hostNameParts.size() > 1) && !hostNameParts[1].empty())
+                    {
+                        auto flagPart = hostNameParts[1].strip().tolower();
+                        if(flagPart == ipv6Flag)
+                            toIpv4 = false;
+                    }
+
+                    auto err = KERNEL_NS::IPUtil::GetIpByHostName(hostNameParts[0].strip(), remoteIp, 0, true, isStreamSock, toIpv4);
                     if(err != Status::Success)
                     {
                         g_Log->Warn(LOGFMT_OBJ_TAG("invalid ip: configContent:%s, ip:%s"), configContent.c_str(), endianPartGroup[1].c_str());
@@ -263,7 +283,6 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
         }
     }
 
-    bool hasIpv6 = false;
     {// 监听地址配置
         KERNEL_NS::LibString listenAddrs;
         const KERNEL_NS::LibString sepAddrs = "|";
@@ -282,8 +301,6 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
                         return false;
                     }
 
-                    if(addrConfig->_af == AF_INET6)
-                        hasIpv6 = true;
                     _listenAddrs.push_back(addrConfig);
                 }
             }
@@ -295,7 +312,7 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
         if(ini->ReadStr(seg.c_str(), "CenterTcpAddr", centerAddr))
         {
             _centerAddr = AddrConfig::New_AddrConfig();
-            if(!_centerAddr->Parse(centerAddr, _portRefSessionType, true, !hasIpv6))
+            if(!_centerAddr->Parse(centerAddr, _portRefSessionType, true))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail centerAddr:%s"), centerAddr.c_str());
                 _centerAddr->Release();
@@ -317,7 +334,7 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
                 for(auto &addrInfo : addrGroup)
                 {
                     auto addrConfig = AddrConfig::New_AddrConfig();
-                    if(!addrConfig->Parse(addrInfo, _portRefSessionType, true, !hasIpv6))
+                    if(!addrConfig->Parse(addrInfo, _portRefSessionType, true))
                     {
                         g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail addrInfo:%s, connectAddrs:%s"), addrInfo.c_str(), connectAddrs.c_str());
                         addrConfig->Release();

@@ -59,7 +59,7 @@ Int32 IPUtil::GetIPByDomain(
     struct addrinfo *netCardRes = NULL;
     if(getaddrinfo(domain, service, &hints, &netCardRes) != 0)
     {
-        throw std::logic_error("getaddrinfo failed");
+        // throw std::logic_error("getaddrinfo failed");
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         perror("getaddrinfo fail");
 #endif

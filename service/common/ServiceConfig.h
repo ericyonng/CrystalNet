@@ -50,7 +50,7 @@ struct AddrConfig
 
     }
 
-    bool Parse(const KERNEL_NS::LibString &configContent, const std::unordered_map<UInt16, Int32> &portRefSessinType, bool isStreamSock = true, bool toIpv4FromHostName = true);
+    bool Parse(const KERNEL_NS::LibString &configContent, const std::unordered_map<UInt16, Int32> &portRefSessinType, bool isStreamSock = true);
 
     static AddrConfig *Create()
     {
