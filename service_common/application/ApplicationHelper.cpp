@@ -71,25 +71,13 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
 
             KERNEL_NS::KernelUtil::OnSignalClose();
 
-            printf("\npress q to quit.\n");
-            while(true)
-            {
-                auto v = getchar();
-                if(v == 'q')
-                    break;
-            }
+            printf("\napplication quit finish.\n");
         }
         else
         {
             KERNEL_NS::KernelUtil::OnAbnormalClose();
+            printf("\napplication quit finish.\n");
 
-            printf("\npress q to quit.\n");
-            while(true)
-            {
-                auto v = getchar();
-                if(v == 'q')
-                    break;
-            }
         }
 #else
         app->WillClose();
@@ -102,13 +90,13 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
 
         KERNEL_NS::KernelUtil::OnSignalClose();
 
-        printf("\npress q to quit.\n");
-        while(true)
-        {
-            auto v = getchar();
-            if(v == 'q')
-                break;
-        }
+        printf("\napplication quit finish.\n");
+        // while(true)
+        // {
+        //     auto v = getchar();
+        //     if(v == 'q')
+        //         break;
+        // }
 #endif
         
     };
