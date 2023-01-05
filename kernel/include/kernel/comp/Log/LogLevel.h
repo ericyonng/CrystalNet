@@ -89,6 +89,7 @@ public:
         LEVEL_ID = 4,       // 配置日志等级的等级id
         ENABLE_REAL_TIME = 5,   // 开启实时着盘
         PRINT_STACK_TRACE_BACK = 6,   // 打印堆栈
+        NEED_WRITE_FILE = 7,   // 是否需要着盘写入日志文件
     };
 };
 
