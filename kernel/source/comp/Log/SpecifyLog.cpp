@@ -74,18 +74,21 @@ Int32 SpecifyLog::Init(const LibString &rootDirName, const LogConfig *cfg)
     LibString logName = rootDirName + _config->_logFileName + _config->_extName;
 
     // 2.创建日志文件
-    _logFile = LibLogFile::New_LibLogFile();
-    // CRYSTAL_TRACE("will create log file:%s", logName.c_str());
-    bool isFileExist = true;
-    if(!_logFile->Open(logName.c_str(), &isFileExist, true, "ab+", true))
+    if(cfg->_needWriteFile)
     {
-        ASSERT(!"LOG FILE OPEN FAIL");
-        return Status::Log_CreateLogFileFail;
-    }
+        _logFile = LibLogFile::New_LibLogFile();
+        // CRYSTAL_TRACE("will create log file:%s", logName.c_str());
+        bool isFileExist = true;
+        if(!_logFile->Open(logName.c_str(), &isFileExist, true, "ab+", true))
+        {
+            ASSERT(!"LOG FILE OPEN FAIL");
+            return Status::Log_CreateLogFileFail;
+        }
 
-    // 3.备份旧日志
-    // _logFile->PartitionFile(!isFileExist);
-    _logFile->UpdateLastPassDayTime();
+        // 3.备份旧日志
+        // _logFile->PartitionFile(!isFileExist);
+        _logFile->UpdateLastPassDayTime();
+    }
 
     // CRYSTAL_TRACE("init log file suc [%s]", cfg->_logFileName.c_str());
 
@@ -106,7 +109,7 @@ Int32 SpecifyLog::Start()
         return Status::NotInit;
     }
 
-    if (!_logFile->IsOpen())
+    if (_logFile && !_logFile->IsOpen())
     {
         printf("%s file not open .........\n", _logFile->GetFileName().c_str());
         return Status::Failed;
@@ -195,6 +198,10 @@ void SpecifyLog::CloseAndReopen()
 
 void SpecifyLog::_OnThreadWriteLog()
 {
+    // 不需要写日志
+    if(UNLIKELY(!_logFile))
+        return;
+
     _logLck.Lock();
     if(_logData->empty())
     {
@@ -276,6 +283,7 @@ void SpecifyLog::_OnThreadWriteLog()
 
 const LibString &SpecifyLog::GetLogName() const
 {
-    return _logFile->GetFileName();
+    static const LibString emptyLog;
+    return _logFile ? _logFile->GetFileName() : emptyLog;
 }
 KERNEL_END

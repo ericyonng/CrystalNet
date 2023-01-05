@@ -197,6 +197,9 @@ bool LogIniCfgMgr::Init(const Byte8 *iniFileName, const LibString &fromMemory, c
                         // 开启打印堆栈
                         newLevelCfg->_printStackTraceBack = (StringUtil::StringToInt32(cfgStrings[LogLevelValue::PRINT_STACK_TRACE_BACK].c_str()) != 0);
 
+                        // 是否需要写入文件
+                        newLevelCfg->_needWriteFile = (StringUtil::StringToInt32(cfgStrings[LogLevelValue::NEED_WRITE_FILE].strip().c_str()) != 0);
+
                         _levelIdxRefCfg[idx] = newLevelCfg;
                     }
 
@@ -308,6 +311,16 @@ bool LogIniCfgMgr::Init(const Byte8 *iniFileName, const LibString &fromMemory, c
                 if(cfg && cfg->_enable)
                 {
                     newLogCfg->_isEnable = true;
+                    break;
+                }
+            }
+
+            // 只要有一个级别的日志需要写文件那么就需要写文件
+            for(auto cfg:levelIdxRefCfgs )
+            {
+                if(cfg && cfg->_needWriteFile)
+                {
+                    newLogCfg->_needWriteFile = true;
                     break;
                 }
             }

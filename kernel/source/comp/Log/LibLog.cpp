@@ -471,7 +471,8 @@ void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
     LibString logNameList;
     for(auto &log:*logs)
     {
-        logNameList.AppendFormat("%s|", log->GetLogName().c_str());
+        if(!log->GetLogName().empty())
+            logNameList.AppendFormat("%s|", log->GetLogName().c_str());
     }
 
     UInt64 intervalMs = static_cast<UInt64>(_logTimerIntervalMs);

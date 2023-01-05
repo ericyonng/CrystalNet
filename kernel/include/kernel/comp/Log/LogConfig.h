@@ -47,6 +47,7 @@ struct KERNEL_EXPORT LogLevelCfg
     Int32 _bgColor = 0;                 // 背景色 默认黑色
     bool _enableRealTime = false;       // 是否开启实时着盘
     bool _printStackTraceBack = false;  // 开启打印堆栈信息
+    bool _needWriteFile = true;         // 是否需要写入文件
 };
 
 struct KERNEL_EXPORT LogConfig
@@ -59,6 +60,7 @@ struct KERNEL_EXPORT LogConfig
     Int64 _maxFileSize = 0;                             // 文件最大大小 
     Int32 _threadRelationId;                            // 线程相关性id
     bool _isEnable = false;                             // 只要有一个级别的日志开启则为true
+    bool _needWriteFile = false;                        // 只要有一个级别的日志需要写文件那么就需要着盘写文件
 };
 
 KERNEL_END

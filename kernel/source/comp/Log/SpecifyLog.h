@@ -139,13 +139,16 @@ inline void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
         _OutputToConsole(levelCfg, logData->_logInfo);
 
     // 4.将日志数据放入队列
-    _logLck.Lock();
-    _logData->push_back(logData);
-    _logLck.Unlock();
+    if(levelCfg._needWriteFile)
+    {
+        _logLck.Lock();
+        _logData->push_back(logData);
+        _logLck.Unlock();
 
-    // // 4.实时写日志
-    if(UNLIKELY(levelCfg._enableRealTime))
-        _wakeupFlush->Sinal();
+        // 实时写日志
+        if(UNLIKELY(levelCfg._enableRealTime))
+            _wakeupFlush->Sinal();
+    }
 
     // 6.日志后hook
     auto afterHookList = _afterHook[levelCfg._level];
