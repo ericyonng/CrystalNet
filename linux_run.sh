@@ -15,14 +15,14 @@ VER="$1"
 		# debug版本的可执行文件
 		for binName in $DEBUG_BINS
 		do
-		    nohup ${RUN_PATH}/$binName >myout.file 2>&1 &
+		    nohup ${RUN_PATH}/$binName > ${RUN_PATH}/$binName.nohup 2>&1 &
 			echo "$binName run sucess"
 		done
 	else
 		# release版本的可执行文件
 		for binName in $RELEASE_BINS
 		do
-            nohup ${RUN_PATH}/$binName >myout.file 2>&1 &
+            nohup ${RUN_PATH}/$binName > ${RUN_PATH}/$binName.nohup 2>&1 &
 			echo "$binName run sucess"
 		done
 	fi
@@ -30,7 +30,7 @@ else
 		# release版本的可执行文件
 	for binName in $RELEASE_BINS
 	do
-        nohup ${RUN_PATH}/$binName >myout.file 2>&1 &
+        nohup ${RUN_PATH}/$binName > ${RUN_PATH}/$binName.nohup 2>&1 &
 		echo "$binName run sucess"
 	done
 fi
