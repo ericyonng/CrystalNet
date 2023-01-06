@@ -48,7 +48,7 @@ SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 # install szrz
 # yum -y install lrzsz
 # 依赖uuid
-sudo yum -y install libuuid-devel
+# sudo yum -y install libuuid-devel
 
 # install uuid soft package
 # yum -y install openssl

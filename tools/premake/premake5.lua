@@ -91,6 +91,7 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "/3rd/openssl/include/",
 		ROOT_DIR .. "/3rd/protobuf/include/",
 		ROOT_DIR .. "/3rd/miniz/include/",
+		ROOT_DIR .. "/3rd/uuid/include/",
     }
 
 	libdirs { 
@@ -99,6 +100,7 @@ function include_libfs(do_post_build, add_protobuflib)
         ROOT_DIR .. "3rd/kernel/",
 		ROOT_DIR .. "/3rd/protobuf/lib/",
 		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
+		ROOT_DIR .. "3rd/uuid/libs",
 	}
 
     -- files
@@ -116,7 +118,6 @@ function include_libfs(do_post_build, add_protobuflib)
         }
 		links {
 		    "rt",
-            "uuid",
 			"pthread",
             "dl",
         }
@@ -126,11 +127,13 @@ function include_libfs(do_post_build, add_protobuflib)
     filter { "system:not windows", "configurations:debug*" }
         links {
             "CrystalKernel_debug:static",
+            "uuid_debug:static",
         }
     filter {}
     filter { "system:not windows", "configurations:release*" }
         links {
             "CrystalKernel:static",
+            "uuid:static",
         }
     filter {}
 
@@ -281,6 +284,7 @@ project "CrystalKernel"
 		"../../kernel/include/",
 		"../../kernel/kernel_pch/",
         ROOT_DIR .. "/3rd/openssl/include/",
+        ROOT_DIR .. "/3rd/uuid/include/",
      }
 	 
     -- files
@@ -304,19 +308,23 @@ project "CrystalKernel"
     filter { "system:linux", "configurations:debug*"}
         libdirs { 
             ROOT_DIR .. "/3rd/openssl/linux/lib/debug/",
+            ROOT_DIR .. "3rd/uuid/libs/",
         }
         links {
             "crypto:static",
             "ssl:static",
+            "uuid_debug:static",
         }
     filter {}
     filter { "system:linux", "configurations:release*"}
         libdirs { 
             ROOT_DIR .. "/3rd/openssl/linux/lib/release/",
+            ROOT_DIR .. "3rd/uuid/libs/",
         }
         links {
             "crypto:static",
             "ssl:static",
+            "uuid:static",
         }
     filter {}
 	
@@ -337,7 +345,6 @@ project "CrystalKernel"
 		}
         links {
             "rt",
-            "uuid",
 			"pthread",
 			"dl",
         }
