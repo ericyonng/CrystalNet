@@ -21,6 +21,7 @@ then
     if [ $2 = 1 ]
     then
         echo "will reset git to last pull point."
+        git clean -f
         git reset --hard FETCH_HEAD
     fi
 fi
