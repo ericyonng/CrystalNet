@@ -92,4 +92,6 @@
     
 #endif
 
+#include <3rd/miniz/include/miniz/miniz.h>
+
 #endif

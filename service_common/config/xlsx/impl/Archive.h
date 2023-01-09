@@ -46,6 +46,8 @@
 //     Archive(const Archive &rhs) = delete;
 //     ~Archive();
 
+//     bool Uncompress();
+
 //     SERVICE_COMMON_NS::XMLDocument *get_xml_document(const std::string& doc_path);
 
 //     std::vector<sheet_desc> get_all_sheet_relation();

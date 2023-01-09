@@ -173,6 +173,7 @@ public:
     void ToHexView(LibString &target) const; 
     bool FromHexString(const LibString &hexString);
     void Swap(LibString &&str);
+    void Swap(LibString &str);
     void CompressString();                  // 去除字符串末尾的\0压缩空间只对0结尾的字符串有效
     const LibString &RemoveZeroTail();      // 移除容器中尾部的0
     const LibString &RemoveHeadZero();      // 移除容器中首部的0
@@ -898,6 +899,13 @@ ALWAYS_INLINE bool LibString::FromHexString(const LibString &hexString)
 }
 
 ALWAYS_INLINE void LibString::Swap(LibString &&str)
+{
+    if (UNLIKELY(this == &str))
+        return;
+    _raw.swap(str._raw);
+}
+
+ALWAYS_INLINE void LibString::Swap(LibString &str)
 {
     if (UNLIKELY(this == &str))
         return;
