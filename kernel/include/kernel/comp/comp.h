@@ -74,6 +74,7 @@
 #include <kernel/comp/LibDirtyHelper.h>
 #include <kernel/comp/LibList.h>
 #include <kernel/comp/Pipline/pipeline.h>
+#include <kernel/comp/Archive/archive.h>
 
 // 复杂组件
 #include <kernel/comp/Utils/Utils.h>

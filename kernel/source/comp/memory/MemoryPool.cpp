@@ -196,6 +196,15 @@ void *MemoryPool::Alloc(UInt64 bytes)
 
 void *MemoryPool::Realloc(void *ptr, UInt64 bytes)
 {
+    if(UNLIKELY(ptr == NULL))
+        return Alloc(bytes);
+
+    if(UNLIKELY(bytes == 0))
+    {
+        Free(ptr);
+        return NULL;
+    }
+
     // 1.判断是否在内存池中
     MemoryBlock *block = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(ptr) - _memoryBlockHeadSizeAfterAlign);
     if(LIKELY(block->_isInAlloctor))
@@ -275,6 +284,15 @@ void *MemoryPool::AllocThreadLocal(UInt64 bytes)
 
 void *MemoryPool::ReallocThreadLocal(void *ptr, UInt64 bytes)
 {
+    if(UNLIKELY(ptr == NULL))
+        return AllocThreadLocal(bytes);
+
+    if(UNLIKELY(bytes == 0))
+    {
+        FreeThreadLocal(ptr);
+        return NULL;
+    }
+
 // 1.判断是否在内存池中
     MemoryBlock *block = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(ptr) - _memoryBlockHeadSizeAfterAlign);
     
