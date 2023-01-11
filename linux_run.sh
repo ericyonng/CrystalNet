@@ -3,35 +3,31 @@
 #!/usr/bin/env bash
 
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
-DEBUG_BINS=("testsuit_debug")
-RELEASE_BINS=("testsuit")
 RUN_PATH=${SCRIPT_PATH}/output/gmake
 
+if [ $# -lt 1 ]
+then
+	echo "lack of exe name."
+	exit 1
+fi
+
+RUN_NAME="testsuit"
 if [ -n "$1" ]
+then
+	RUN_NAME=$1
+fi
+
+if [ -n "$2" ]
 then
 VER="$1"
 	if [ $VER = "debug" ]
-	then
-		# debug版本的可执行文件
-		for binName in $DEBUG_BINS
-		do
-		    nohup ${RUN_PATH}/$binName > ${RUN_PATH}/$binName.nohup 2>&1 &
-			echo "$binName run sucess"
-		done
-	else
-		# release版本的可执行文件
-		for binName in $RELEASE_BINS
-		do
-            nohup ${RUN_PATH}/$binName > ${RUN_PATH}/$binName.nohup 2>&1 &
-			echo "$binName run sucess"
-		done
+		RUN_NAME="${RUN_NAME}_debug"
 	fi
-else
-		# release版本的可执行文件
-	for binName in $RELEASE_BINS
-	do
-        nohup ${RUN_PATH}/$binName > ${RUN_PATH}/$binName.nohup 2>&1 &
-		echo "$binName run sucess"
-	done
 fi
+
+echo "will run process:${RUN_NAME}"
+
+nohup ${RUN_PATH}/${RUN_NAME} > ${RUN_PATH}/${RUN_NAME}.nohup 2>&1 &
+
+echo "run process success."
 
