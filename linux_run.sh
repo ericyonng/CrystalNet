@@ -19,7 +19,7 @@ fi
 
 if [ -n "$2" ]
 then
-VER="$1"
+VER="$2"
 	if [ $VER = "debug" ]
 		RUN_NAME="${RUN_NAME}_debug"
 	fi
