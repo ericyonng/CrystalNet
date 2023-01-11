@@ -21,6 +21,7 @@ if [ -n "$2" ]
 then
 VER="$2"
 	if [ $VER = "debug" ]
+	then
 		RUN_NAME="${RUN_NAME}_debug"
 	fi
 fi
