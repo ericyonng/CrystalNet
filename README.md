@@ -90,13 +90,13 @@
 
   * 运行
 
-    linux_run.sh debug// 表示运行debug版本，
+    start.sh/stop.sh 运行或者关闭
 
-    linux_run.sh // 表示运行release版本
+    或者：linux_run.sh testsuit
 
 * Windows
   * 构建：winsolution_build.bat （选择vs2115, vs2017, vs2019, vs2022生成solution），请使用指定版本vs编译
-  * vs编译后自行制作脚本运行
+  * start.bat/stop.bat 运行或者关闭
 
 # 环境构建
 
