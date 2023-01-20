@@ -53,7 +53,7 @@ function set_common_options()
     -- rdynamic coredump符号
     filter { "language:c++", "system:not windows" }
         buildoptions {
-            "-std=c++11 -Winvalid-pch -DLINUX -Wall -rdynamic -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
+            "-std=c++11 -Winvalid-pch -DLINUX -Wall -rdynamic --whole-archive -la -Wl -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
         }
     filter {}
 	filter { "configurations:debug*", "language:c++", "system:not windows" }
@@ -368,11 +368,12 @@ project "CrystalKernel"
 --            "-fvisibility=hidden -std=c++17",
 --        }
 --    filter {}
-    filter { "system:not windows" }
-        buildoptions {
-            "-fvisibility=hidden",
-        }
-    filter {}
+    -- hidden是隐藏符号，符号不会导出
+    -- filter { "system:not windows" }
+    --     buildoptions {
+    --         "-fvisibility=hidden",
+    --     }
+    -- filter {}
 	
     -- optimize
     set_optimize_opts()
