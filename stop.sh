@@ -23,3 +23,17 @@ do
     echo "stop process $pid"
     kill 2 $pid
 done
+
+for pid in $PID_LIST
+do
+    echo "wait pid:${pid} close..."
+    while [ -n "$(ps -p $pid | sed '1d')" ]
+    do
+        echo "wait pid:${pid} close..."
+        sleep 1
+    done
+
+    echo "pid:${pid}, has closed."
+done
+
+echo "all process has closed."
