@@ -21,16 +21,15 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-12-16 13:04:00
+ * Date: 2023-01-23 18:30:52
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_CONFIG_CONFIG_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_CONFIG_CONFIG_H__
+#include <pch.h>
+#include <kernel/comp/xlsx/xlsx_workbook.h>
 
-#pragma once
 
-#include <service_common/config/xlsx/xlsx.h>
+KERNEL_BEGIN
 
-#endif
+KERNEL_END

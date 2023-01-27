@@ -27,13 +27,14 @@
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_CONFIG_XML_TINY_XML2_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_CONFIG_XML_TINY_XML2_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_XML_TINYXML2_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_XML_TINYXML2_H__
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/common/common.h>
+#include <kernel/kernel_inc.h>
+#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/Utils/AllocUtil.h>
 
 #if defined(ANDROID_NDK) || defined(__BORLANDC__) || defined(__QNXNTO__)
 #   include <ctype.h>
@@ -111,7 +112,7 @@ static const int TIXML2_PATCH_VERSION = 0;
 // so there needs to be a limit in place.
 static const int TINYXML2_MAX_ELEMENT_DEPTH = 100;
 
-SERVICE_COMMON_BEGIN
+KERNEL_BEGIN
 
 class XMLDocument;
 class XMLElement;
@@ -130,7 +131,7 @@ class XMLPrinter;
 
     Isn't clear why is needed; but seems to fix #719
 */
-class StrPair
+class KERNEL_EXPORT StrPair
 {
 public:
     enum Mode {
@@ -398,7 +399,7 @@ private:
 
 	@sa XMLNode::Accept()
 */
-class XMLVisitor
+class KERNEL_EXPORT XMLVisitor
 {
 public:
     virtual ~XMLVisitor() {}
@@ -468,7 +469,7 @@ enum XMLError {
 /*
 	Utility functionality.
 */
-class XMLUtil
+class KERNEL_EXPORT XMLUtil
 {
 public:
     static const char* SkipWhiteSpace( const char* p, int* curLineNumPtr )	{
@@ -591,7 +592,7 @@ private:
 
 	@endverbatim
 */
-class XMLNode
+class KERNEL_EXPORT XMLNode
 {
     friend class XMLDocument;
     friend class XMLElement;
@@ -907,7 +908,7 @@ private:
 	you generally want to leave it alone, but you can change the output mode with
 	SetCData() and query it with CData().
 */
-class XMLText : public XMLNode
+class KERNEL_EXPORT XMLText : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -947,7 +948,7 @@ private:
 
 
 /** An XML Comment. */
-class XMLComment : public XMLNode
+class KERNEL_EXPORT XMLComment : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -986,7 +987,7 @@ private:
 	The text of the declaration isn't interpreted. It is parsed
 	and written as a string.
 */
-class XMLDeclaration : public XMLNode
+class KERNEL_EXPORT XMLDeclaration : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -1021,7 +1022,7 @@ private:
 
 	DTD tags get thrown into XMLUnknowns.
 */
-class XMLUnknown : public XMLNode
+class KERNEL_EXPORT XMLUnknown : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -1056,7 +1057,7 @@ private:
 	@note The attributes are not XMLNodes. You may only query the
 	Next() attribute in a list.
 */
-class XMLAttribute
+class KERNEL_EXPORT XMLAttribute
 {
     friend class XMLElement;
 public:
@@ -1179,7 +1180,7 @@ private:
 	and can contain other elements, text, comments, and unknowns.
 	Elements also contain an arbitrary number of attributes.
 */
-class XMLElement : public XMLNode
+class KERNEL_EXPORT XMLElement : public XMLNode
 {
     friend class XMLDocument;
 public:
@@ -1633,7 +1634,7 @@ enum Whitespace {
 	All Nodes are connected and allocated to a Document.
 	If the Document is deleted, all its Nodes are also deleted.
 */
-class XMLDocument : public XMLNode
+class KERNEL_EXPORT XMLDocument : public XMLNode
 {
     friend class XMLElement;
     // Gives access to SetError and Push/PopDepth, but over-access for everything else.
@@ -1967,7 +1968,7 @@ inline NodeType* XMLDocument::CreateUnlinkedNode()
 
 	See also XMLConstHandle, which is the same as XMLHandle, but operates on const objects.
 */
-class XMLHandle
+class KERNEL_EXPORT XMLHandle
 {
 public:
     /// Create a handle from any node (at any depth of the tree.) This can be a null pointer.
@@ -2048,7 +2049,7 @@ private:
 	A variant of the XMLHandle class for working with const XMLNodes and Documents. It is the
 	same in all regards, except for the 'const' qualifiers. See XMLHandle for API.
 */
-class XMLConstHandle
+class KERNEL_EXPORT XMLConstHandle
 {
 public:
     explicit XMLConstHandle( const XMLNode* node ) : _node( node ) {
@@ -2152,7 +2153,7 @@ private:
 	printer.CloseElement();
 	@endverbatim
 */
-class XMLPrinter : public XMLVisitor
+class KERNEL_EXPORT XMLPrinter : public XMLVisitor
 {
 public:
     /** Construct the printer. If the FILE* is specified,
@@ -2289,7 +2290,7 @@ private:
 };
 
 
-SERVICE_COMMON_END
+KERNEL_END
 
 #if defined(_MSC_VER)
 #   pragma warning(pop)

@@ -21,16 +21,31 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-12-16 13:04:00
+ * Date: 2023-01-23 17:01:47
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_CONFIG_CONFIG_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_CONFIG_CONFIG_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_XLSX_XLSX_CELL_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_XLSX_XLSX_CELL_H__
 
 #pragma once
 
-#include <service_common/config/xlsx/xlsx.h>
+#include <kernel/kernel_inc.h>
+#include <kernel/comp/memory/memory.h>
+
+KERNEL_BEGIN
+
+class KERNEL_EXPORT XlsxCell
+{
+    POOL_CREATE_OBJ_DEFAULT(XlsxCell);
+    
+public:
+    static constexpr Int32 ROW_BEGIN = 1;
+    static constexpr Int32 COLUMN_BEGIN = 1;
+};
+
+
+KERNEL_END
 
 #endif

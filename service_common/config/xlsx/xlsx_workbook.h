@@ -85,7 +85,7 @@
 // 			:string_arena(4 * 1024)
 // 		{
 // 			archive_content = in_archive;
-	
+	   
 // 			in_archive->get_shared_string_view(string_arena, shared_string);
 // 			shared_string.insert(shared_string.begin(), std::string_view());
 // 			for (std::uint32_t i = 0; i < shared_string.size(); i++)

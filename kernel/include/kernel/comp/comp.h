@@ -75,6 +75,8 @@
 #include <kernel/comp/LibList.h>
 #include <kernel/comp/Pipline/pipeline.h>
 #include <kernel/comp/Archive/archive.h>
+#include <kernel/comp/xml/xml.h>
+#include <kernel/comp/xlsx/xlsx.h>
 
 // 复杂组件
 #include <kernel/comp/Utils/Utils.h>

@@ -54,6 +54,7 @@ public:
     const LibString &GetFilePath() const;
 
     const std::unordered_map<LibString, std::pair<Byte8 *, UInt64>> &GetContent() const;
+    const std::pair<Byte8 *, UInt64> &GetContentBy(const LibString  &docPath) const;
 
 private:
     bool _init;
@@ -78,6 +79,14 @@ ALWAYS_INLINE const LibString &ArchiveFile::GetFilePath() const
 ALWAYS_INLINE const std::unordered_map<LibString, std::pair<Byte8 *, UInt64>> &ArchiveFile::GetContent() const
 {
     return _fileRefContent;
+}
+
+const std::pair<Byte8 *, UInt64> &ArchiveFile::GetContentBy(const LibString  &docPath) const
+{
+    static const std::pair<Byte8 *, UInt64> s_empty = std::pair<Byte8 *, UInt64>{NULL, 0};
+
+    auto iter = _fileRefContent.find(docPath);
+    return iter == _fileRefContent.end() ? s_empty : iter->second;
 }
 
 

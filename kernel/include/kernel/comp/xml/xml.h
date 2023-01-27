@@ -26,11 +26,11 @@
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_CONFIG_XML_XML_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_CONFIG_XML_XML_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_XML_XML_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_XML_XML_H__
 
 #pragma once
 
-#include <service_common/config/xml/tinyxml2.h>
+#include <kernel/comp/xml/tinyxml2.h>
 
 #endif
