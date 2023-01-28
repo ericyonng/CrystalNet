@@ -259,8 +259,8 @@ ALWAYS_INLINE bool XlsxWorkbook<WorksheetType>::Parse(const LibString &xlsxPath)
         const UInt64 sz = static_cast<UInt64>(_allSheetRelations.size());
         for(UInt64 idx = 0; idx < sz; ++idx)
         {
-            std::vector<std::tuple<UInt64, UInt64, UInt64>> *cells;
-            if(!_ParseCells(idx, cells))
+            std::vector<std::tuple<UInt64, UInt64, UInt64>> *cells = NULL;
+            if(!_ParseCells(idx + 1, cells))
                 g_Log->Warn(LOGFMT_OBJ_TAG("have no cells in this sheet:%llu, achive:%s"), idx, _achive->GetFilePath().c_str());
         }
     }
@@ -270,8 +270,8 @@ ALWAYS_INLINE bool XlsxWorkbook<WorksheetType>::Parse(const LibString &xlsxPath)
         const UInt64 sz = static_cast<UInt64>(_allSheetRelations.size());
         for(UInt64 idx = 0; idx < sz; ++idx)
         {
-            std::vector<std::tuple<UInt64, UInt64, UInt64>> *cells;
-            if(!_ParseCells(idx, cells))
+            std::vector<std::tuple<UInt64, UInt64, UInt64>> *cells = NULL;
+            if(!_ParseCells(idx + 1, cells))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("have no cells in this sheet:%llu, achive:%s"), idx, _achive->GetFilePath().c_str());
                 continue;
