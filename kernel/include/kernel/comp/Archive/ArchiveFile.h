@@ -81,7 +81,7 @@ ALWAYS_INLINE const std::unordered_map<LibString, std::pair<Byte8 *, UInt64>> &A
     return _fileRefContent;
 }
 
-const std::pair<Byte8 *, UInt64> &ArchiveFile::GetContentBy(const LibString  &docPath) const
+ALWAYS_INLINE const std::pair<Byte8 *, UInt64> &ArchiveFile::GetContentBy(const LibString  &docPath) const
 {
     static const std::pair<Byte8 *, UInt64> s_empty = std::pair<Byte8 *, UInt64>{NULL, 0};
 
