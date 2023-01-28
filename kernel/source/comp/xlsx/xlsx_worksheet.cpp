@@ -31,5 +31,44 @@
 
 KERNEL_BEGIN
 
+POOL_CREATE_OBJ_DEFAULT_IMPL(Worksheet);
+
+Worksheet::Worksheet(void *workbook, const LibString &sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &allCells)
+:_workbook(workbook)
+,_sheetName(sheetName)
+,_sheetId(sheetId)
+,_allCells(allCells)
+{
+
+}
+
+LibString Worksheet::LoadCells()
+{
+    _rowColumnRefShareStringIdx.clear();
+    _maxRow = 0;
+    _maxColumn = 0;
+    for(const auto &cellItem : _allCells)
+    {
+        UInt64 rowId = std::get<0>(cellItem);
+        _maxRow = std::max<UInt64>(rowId, _maxRow);
+        UInt64 columnId = std::get<1>(cellItem);
+        _maxColumn = std::max<UInt64>(_maxColumn, columnId);
+    }
+
+    _rowColumnRefShareStringIdx.reserve(_maxRow + 1);
+    _rowColumnRefShareStringIdx.emplace_back();
+    for (UInt64 idx = 0; idx < _maxRow; ++idx)
+        _rowColumnRefShareStringIdx.emplace_back(_maxColumn + 1);
+
+    for (const auto &cellItem : _allCells)
+    {
+        UInt64 rowId = std::get<0>(cellItem);
+        UInt64 columnId = std::get<1>(cellItem);
+        UInt64 ssIdx = std::get<2>(cellItem);
+        _rowColumnRefShareStringIdx[rowId][columnId] = ssIdx;
+    }
+
+    return _AfterLoaded();
+}
 
 KERNEL_END

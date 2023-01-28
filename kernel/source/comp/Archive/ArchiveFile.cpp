@@ -84,7 +84,7 @@ bool ArchiveFile::ExtractToMem(const LibString &archivePathName)
     if(UNLIKELY(_init))
         return true;
 
-    SmartPtr<FILE, AutoDelMethods::CustomDelete> fp = FileUtil::OpenFile(archivePathName.c_str());
+    SmartPtr<FILE, AutoDelMethods::CustomDelete> fp = FileUtil::OpenFile(archivePathName.c_str(), false, "rb");
     if(!fp)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("open archive file fail :%s"), archivePathName.c_str());

@@ -37,26 +37,19 @@
 
 KERNEL_BEGIN
 
-template<class WorkbookType>
-class Worksheet
+class KERNEL_EXPORT Worksheet
 {
-    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(Worksheet, WorkbookType);
+    POOL_CREATE_OBJ_DEFAULT(Worksheet);
 
 public:
-    Worksheet(WorkbookType *workbook, const LibString &sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &allCells)
-    :_workbook(workbook)
-    ,_sheetName(sheetName)
-    ,_sheetId(sheetId)
-    ,_allCells(allCells)
-    {
-
-    }
+    Worksheet(void *workbook, const LibString &sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &allCells);
 
     LibString LoadCells();
 
     const LibString &GetSheetName() const;
     UInt64 GetMaxRow() const;
     UInt64 GetMaxColumn() const;
+    template<typename WorkbookType>
     const WorkbookType *GetWorkbook() const;
 
     const std::vector<std::vector<UInt64>> &GetAllSharedStringIdxs() const;
@@ -70,7 +63,7 @@ protected:
     }
     
 protected:
-    WorkbookType *_workbook;
+    void *_workbook;
     LibString _sheetName;
     UInt64 _sheetId;
     const std::vector<std::tuple<UInt64, UInt64, UInt64>> &_allCells;
@@ -81,75 +74,33 @@ protected:
     std::vector<std::vector<UInt64>> _rowColumnRefShareStringIdx;
 };
 
-template<class WorkbookType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(Worksheet, WorkbookType);
-
-template<class WorkbookType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(Worksheet, WorkbookType);
-
-
-template<class WorkbookType>
-ALWAYS_INLINE LibString Worksheet<WorkbookType>::LoadCells()
-{
-    _rowColumnRefShareStringIdx.clear();
-    _maxRow = 0;
-    _maxColumn = 0;
-    for(const auto &cellItem : _allCells)
-    {
-        UInt64 rowId = std::get<0>(cellItem);
-        _maxRow = std::max<UInt64>(rowId, _maxRow);
-        UInt64 columnId = std::get<1>(cellItem);
-        _maxColumn = std::max<UInt64>(_maxColumn, columnId);
-    }
-
-    _rowColumnRefShareStringIdx.reserve(_maxRow + 1);
-    _rowColumnRefShareStringIdx.emplace_back();
-    for (UInt64 idx = 0; idx < _maxRow; ++idx)
-        _rowColumnRefShareStringIdx.emplace_back(_maxColumn + 1);
-
-    for (const auto &cellItem : _allCells)
-    {
-        UInt64 rowId = std::get<0>(cellItem);
-        UInt64 columnId = std::get<1>(cellItem);
-        UInt64 ssIdx = std::get<2>(cellItem);
-        _rowColumnRefShareStringIdx[rowId][columnId] = ssIdx;
-    }
-
-    return _AfterLoaded();
-}
-
-template<class WorkbookType>
-ALWAYS_INLINE const LibString &Worksheet<WorkbookType>::GetSheetName() const
+ALWAYS_INLINE const LibString &Worksheet::GetSheetName() const
 {
     return _sheetName;
 }
 
-template<class WorkbookType>
-ALWAYS_INLINE UInt64 Worksheet<WorkbookType>::GetMaxRow() const
+ALWAYS_INLINE UInt64 Worksheet::GetMaxRow() const
 {
     return _maxRow;
 }
 
-template<class WorkbookType>
-ALWAYS_INLINE UInt64 Worksheet<WorkbookType>::GetMaxColumn() const
+ALWAYS_INLINE UInt64 Worksheet::GetMaxColumn() const
 {
     return _maxColumn;
 }
 
-template<class WorkbookType>
-ALWAYS_INLINE const WorkbookType *Worksheet<WorkbookType>::GetWorkbook() const
+template<typename WorkbookType>
+ALWAYS_INLINE const WorkbookType *Worksheet::GetWorkbook() const
 {
-    return _workbook;
+    return reinterpret_cast<WorkbookType *>(_workbook);
 }
 
-template<class WorkbookType>
-ALWAYS_INLINE const std::vector<std::vector<UInt64>> &Worksheet<WorkbookType>::GetAllSharedStringIdxs() const
+ALWAYS_INLINE const std::vector<std::vector<UInt64>> &Worksheet::GetAllSharedStringIdxs() const
 {
     return _rowColumnRefShareStringIdx;
 }
 
-template<class WorkbookType>
-ALWAYS_INLINE const std::vector<UInt64> &Worksheet<WorkbookType>::GetRowSharedStringIdxs(UInt64 rowId) const
+ALWAYS_INLINE const std::vector<UInt64> &Worksheet::GetRowSharedStringIdxs(UInt64 rowId) const
 {
     static const std::vector<UInt64> s_empty;
     if(UNLIKELY(rowId >= static_cast<UInt64>(_rowColumnRefShareStringIdx.size())))
@@ -160,8 +111,7 @@ ALWAYS_INLINE const std::vector<UInt64> &Worksheet<WorkbookType>::GetRowSharedSt
     return _rowColumnRefShareStringIdx[rowId];
 }
 
-template<class WorkbookType>
-ALWAYS_INLINE bool Worksheet<WorkbookType>::GetCellShareStringIndex(UInt64 rowId, UInt64 columnId, UInt64 &shareStringIdx) const
+ALWAYS_INLINE bool Worksheet::GetCellShareStringIndex(UInt64 rowId, UInt64 columnId, UInt64 &shareStringIdx) const
 {
     const auto &columnShareIdxs = GetRowSharedStringIdxs(rowId);
     if(UNLIKELY(columnShareIdxs.empty()))
