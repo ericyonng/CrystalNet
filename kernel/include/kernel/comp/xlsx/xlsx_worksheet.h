@@ -104,7 +104,7 @@ ALWAYS_INLINE LibString Worksheet<WorkbookType>::LoadCells()
 
     _rowColumnRefShareStringIdx.reserve(_maxRow + 1);
     _rowColumnRefShareStringIdx.emplace_back();
-    for (UInt64 idx = 0; i < _maxRow; ++idx)
+    for (UInt64 idx = 0; idx < _maxRow; ++idx)
         _rowColumnRefShareStringIdx.emplace_back(_maxColumn + 1);
 
     for (const auto &cellItem : _allCells)
