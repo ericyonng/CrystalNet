@@ -88,6 +88,8 @@ public:
     const TcpPoller *GetPoller(UInt64 pollerId) const;
     const std::unordered_map<UInt64, TcpPoller *> &GetAllPollers() const;
 
+    virtual void DefaultMaskReady(bool isReady){}
+
 public:
     void PostConnect(LibConnectInfo *connectInfo);
     void PostAddlisten(Int32 level, LibListenInfo *listenInfo);

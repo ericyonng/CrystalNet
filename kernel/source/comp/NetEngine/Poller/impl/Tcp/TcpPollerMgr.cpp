@@ -153,6 +153,8 @@ Int32 TcpPollerMgr::_OnStart()
         }
     }
 
+    MaskReady(true);
+
     g_Log->NetInfo(LOGFMT_OBJ_TAG("tcp poller mgr start suc."));
     return Status::Success;
 }
@@ -181,6 +183,8 @@ void TcpPollerMgr::_OnClose()
     // 等待所有结束
     for(;!IsAllDown();)
         SystemUtil::ThreadSleep(1000);
+
+    MaskReady(false);
 
     _Clear();
     CompObject::_OnClose();

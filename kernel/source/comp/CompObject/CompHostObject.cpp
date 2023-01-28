@@ -430,13 +430,13 @@ void CompHostObject::_OnWillCloseComps()
         comp->WillClose();
     }
 
-    // 等待所有组件结束
-    CompObject *comp = NULL;
-    for(;!IsAllCompsDown(comp);)
-    {
-        SystemUtil::ThreadSleep(1);
-        g_Log->Warn(LOGFMT_OBJ_TAG("wait for all comps down current not down comp:%s"), comp->GetObjName().c_str());
-    }
+    // 等待所有组件结束 TODO:有些组件需要等待有些组件不需要等待，由具体的逻辑自行阻塞
+    // CompObject *comp = NULL;
+    // for(;!IsAllCompsDown(comp);)
+    // {
+    //     SystemUtil::ThreadSleep(1);
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("wait for all comps down current not down comp:%s"), comp->GetObjName().c_str());
+    // }
 }
 
 void CompHostObject::_CloseComps()

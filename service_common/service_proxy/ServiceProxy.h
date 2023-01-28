@@ -95,6 +95,9 @@ private:
     // 清理资源
     void _Clear();
 
+    // 决绝消息到service
+    void RejectPostMsgToService(UInt64 serviceId);
+
     IService *_GetService(UInt64 serviceId);
     const IService *_GetService(UInt64 serviceId) const;
 
@@ -108,6 +111,7 @@ private:
     std::vector<KERNEL_NS::LibString> _activeServices;              // 激活的服务
     std::atomic<UInt64> _maxServiceId;                              // 分配serviceId
     std::atomic<UInt64> _closeServiceNum;                           // 服务关闭个数
+    std::unordered_map<UInt64, std::atomic_bool> _serviceIdRefRejectPostMsgStatus;  // 拒绝投递消息
 
     KERNEL_NS::TcpPollerMgr *_tcpPollerMgr;
     KERNEL_NS::IPollerMgr *_pollerMgr;
@@ -216,6 +220,13 @@ ALWAYS_INLINE void ServiceProxy::EraseBlack(const std::list<KERNEL_NS::LibString
 ALWAYS_INLINE void ServiceProxy::ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level)
 {
     _tcpPollerMgr->PostIpControl(level, controlInfoList);
+}
+
+ALWAYS_INLINE void ServiceProxy::RejectPostMsgToService(UInt64 serviceId)
+{
+    _guard.Lock();
+    _serviceIdRefRejectPostMsgStatus[serviceId] = true;
+    _guard.Unlock();
 }
 
 ALWAYS_INLINE IService *ServiceProxy::_GetService(UInt64 serviceId)

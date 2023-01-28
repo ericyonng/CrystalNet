@@ -58,6 +58,14 @@ void ServiceProxy::Release()
 
 void ServiceProxy::PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::PollerEvent *msg)
 {
+    auto iter = _serviceIdRefRejectPostMsgStatus.find(serviceId);
+    if(UNLIKELY(iter->second))
+    {
+        g_Log->Debug(LOGFMT_OBJ_TAG("reject post msg serviceId:%llu, msg:%s"), serviceId, msg->ToString().c_str());
+        msg->Release();
+        return;
+    }
+
     // service一定会等session全部退出
     auto service = _GetService(serviceId);
     if(UNLIKELY(!service))
@@ -336,6 +344,7 @@ void ServiceProxy::_Clear()
     service->SetServiceName(serviceName);
 
     _guard.Lock();
+    _serviceIdRefRejectPostMsgStatus.insert(std::make_pair(serviceId, false));
     _idRefService.insert(std::make_pair(serviceId, service));
     _guard.Unlock();
 
@@ -412,6 +421,9 @@ void ServiceProxy::_Clear()
     service->Close();
 
     ++_closeServiceNum;
+
+    // 拒绝投递消息到service
+    RejectPostMsgToService(serviceId);
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s close finish"), service->IntroduceInfo().c_str());
 
