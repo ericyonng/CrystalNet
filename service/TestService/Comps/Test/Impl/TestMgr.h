@@ -82,6 +82,7 @@ private:
     Int32 _testSendIntervalMs;      // 发送时间间隔
     Int32 _testSendPackCountOnce;   // 一次发送多少个包
     Int32 _testSendPackageBytes;    // 一次发送的包内容至少多少个字节
+    Int64 _testSendPackTimeoutMilliseconds; // 发包超时时间
 
     // 需要发送数据包的会话
     std::unordered_map<UInt64, SessionAnalyzeInfo *> _sessionIdRefAnalyzeInfo;

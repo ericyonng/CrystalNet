@@ -54,6 +54,9 @@ TestMgr::TestMgr()
 ,_targetAddrConfig(AddrConfig::NewThreadLocal_AddrConfig())
 ,_testSendMode(0)
 ,_testSendIntervalMs(0)
+,_testSendPackCountOnce(0)
+,_testSendPackageBytes(0)
+,_testSendPackTimeoutMilliseconds(0)
 {
 
 }
@@ -179,7 +182,7 @@ void TestMgr::_OnTestOpcodeRes(KERNEL_NS::LibPacket *&packet)
         packetAnalyzeInfo->_counter.Update();
         Send(packet->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req, packet->GetPacketId());
 
-        packetAnalyzeInfo->_expireTimer->Schedule(10000);
+        packetAnalyzeInfo->_expireTimer->Schedule(_testSendPackTimeoutMilliseconds);
     }
     else
     {// 移除分析数据
@@ -276,7 +279,7 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
 
                 packetAnalyzeInfo->_expireTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
                 packetAnalyzeInfo->_expireTimer->SetTimeOutHandler(KERNEL_CREATE_CLOSURE_DELEGATE(packetExpire, void, KERNEL_NS::LibTimer *));
-                packetAnalyzeInfo->_expireTimer->Schedule(10000);
+                packetAnalyzeInfo->_expireTimer->Schedule(_testSendPackTimeoutMilliseconds);
 
                 packetAnalyzeInfo->_packetId = packetId;
                 analyzeInfo->_packetIdRefAnalyzeInfo.insert(std::make_pair(packetId, packetAnalyzeInfo));
@@ -452,6 +455,17 @@ Int32 TestMgr::_ReadTestConfigs()
             return Status::ConfigError;
         }
         _testSendPackageBytes = static_cast<Int32>(value);
+    }
+
+    {// 发包超时时间
+        Int64 value = 0;
+        if(!ini->CheckReadInt(serviceName.c_str(), "TestSendPackageTimeoutMilliseconds", value))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("check read TestSendPackageTimeoutMilliseconds config fail service name:%s"), serviceName.c_str());
+            return Status::ConfigError;
+        }
+
+        _testSendPackTimeoutMilliseconds = value;
     }
 
     return Status::Success;
