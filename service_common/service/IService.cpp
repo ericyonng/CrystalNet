@@ -142,6 +142,10 @@ Int32 IService::_OnCompsCreated()
     _poller->SetEventHandler(this, &IService::_OnMsg);
 
     auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
+    if(UNLIKELY(defObj->_poller))
+        g_Log->Warn(LOGFMT_OBJ_TAG("poller already existes int current thread please check:%p, will assign new poller:%p, thread id:%llu")
+        , defObj->_poller, _poller, defObj->_threadId);
+
     defObj->_poller = _poller;
     defObj->_pollerTimerMgr = _poller->GetTimerMgr();
 

@@ -54,7 +54,7 @@ public:
 public:
     // 在线程中启动
     void Launch(IDelegate<void> *wakeupThreadCb);
-    void Drive(Int64 cuTimeMicroseconds);
+    void Drive();
     void Close();
 
     // 注册
@@ -67,8 +67,6 @@ public:
     TimeData *NewTimeData(LibTimer *timer);
     // 定时器销毁
     void OnTimerDestroy(TimeData *timeData);
-    // 微妙
-    const Int64 GetNowMicroSecond() const;
     // 获取即将处理的时间间隔时间 单位ms -1 表示没有
     Int64 GetTimeoutIntervalRecently(Int64 nowMs) const;
 
@@ -109,7 +107,7 @@ private:
     IDelegate<void> *_wakeupCb;
 };
 
-inline void TimerMgr::Register(TimeData *timeData, Int64 newExpireTime, Int64 newPeriod)
+ALWAYS_INLINE void TimerMgr::Register(TimeData *timeData, Int64 newExpireTime, Int64 newPeriod)
 {
     if (_driving > 0)
     {
@@ -120,7 +118,7 @@ inline void TimerMgr::Register(TimeData *timeData, Int64 newExpireTime, Int64 ne
     _Register(timeData, newPeriod, newExpireTime);
 }
 
-inline void TimerMgr::UnRegister(TimeData *timeData)
+ALWAYS_INLINE void TimerMgr::UnRegister(TimeData *timeData)
 {
     if(_driving > 0)
     {
@@ -131,19 +129,19 @@ inline void TimerMgr::UnRegister(TimeData *timeData)
     _UnRegister(timeData);
 }
 
-inline Int64 TimerMgr::GetCurFrameTime() const
+ALWAYS_INLINE Int64 TimerMgr::GetCurFrameTime() const
 {
     return _curTime;
 }
 
-inline TimeData *TimerMgr::NewTimeData(LibTimer *timer)
+ALWAYS_INLINE TimeData *TimerMgr::NewTimeData(LibTimer *timer)
 {
     auto newData = TimeData::NewThreadLocal_TimeData(++_curMaxId, timer);
     _allTimeData.insert(newData);
     return newData;
 }
 
-inline void TimerMgr::OnTimerDestroy(TimeData *timeData)
+ALWAYS_INLINE void TimerMgr::OnTimerDestroy(TimeData *timeData)
 {
     if(_driving > 0)
     {
@@ -154,7 +152,7 @@ inline void TimerMgr::OnTimerDestroy(TimeData *timeData)
     _Destroy(timeData);
 }
 
-inline Int64 TimerMgr::GetTimeoutIntervalRecently(Int64 nowMs) const
+ALWAYS_INLINE Int64 TimerMgr::GetTimeoutIntervalRecently(Int64 nowMs) const
 {
     if(UNLIKELY(_allTimeData.empty()))
         return -1;
@@ -164,7 +162,7 @@ inline Int64 TimerMgr::GetTimeoutIntervalRecently(Int64 nowMs) const
     return diff > 0 ? diff : 0;    
 }
 
-inline UInt64 TimerMgr::GetTimerLoaded() const
+ALWAYS_INLINE UInt64 TimerMgr::GetTimerLoaded() const
 {
     return _allTimeData.size();
 }
@@ -174,12 +172,12 @@ ALWAYS_INLINE bool TimerMgr::HasExpired() const
     return _hasExpired;
 }
 
-inline void TimerMgr::_BeforeDrive()
+ALWAYS_INLINE void TimerMgr::_BeforeDrive()
 {
     ++_driving;
 }
 
-inline void TimerMgr::_AfterDrive()
+ALWAYS_INLINE void TimerMgr::_AfterDrive()
 {
     if(--_driving > 0)
         return;
@@ -214,7 +212,7 @@ inline void TimerMgr::_AfterDrive()
     }
 }
 
-inline void TimerMgr::_AsynRegister(TimeData *timeData, Int64 newPeriod, Int64 newExpiredTime)
+ALWAYS_INLINE void TimerMgr::_AsynRegister(TimeData *timeData, Int64 newPeriod, Int64 newExpiredTime)
 {
     auto asynData = timeData->_asynData;
     asynData->MaskRegister(newExpiredTime, newPeriod);
@@ -223,7 +221,7 @@ inline void TimerMgr::_AsynRegister(TimeData *timeData, Int64 newPeriod, Int64 n
     _asynDirty.insert(asynData);
 }
 
-inline void TimerMgr::_Register(TimeData *timeData, Int64 newPeriod, Int64 newExpiredTime)
+ALWAYS_INLINE void TimerMgr::_Register(TimeData *timeData, Int64 newPeriod, Int64 newExpiredTime)
 {
     timeData->_period = newPeriod;
     timeData->_expiredTime = newExpiredTime;
@@ -232,7 +230,7 @@ inline void TimerMgr::_Register(TimeData *timeData, Int64 newPeriod, Int64 newEx
     _expireQueue.insert(timeData);
 }
 
-inline void TimerMgr::_AsynUnRegister(TimeData *timeData)
+ALWAYS_INLINE void TimerMgr::_AsynUnRegister(TimeData *timeData)
 {
     auto asynData = timeData->_asynData;
     timeData->_isScheduing = false;
@@ -240,13 +238,13 @@ inline void TimerMgr::_AsynUnRegister(TimeData *timeData)
     _asynDirty.insert(asynData);
 }
 
-inline void TimerMgr::_UnRegister(TimeData *timeData)
+ALWAYS_INLINE void TimerMgr::_UnRegister(TimeData *timeData)
 {
     timeData->_isScheduing = false;
     _expireQueue.erase(timeData);
 }
 
-inline void TimerMgr::_Destroy(TimeData *timeData)
+ALWAYS_INLINE void TimerMgr::_Destroy(TimeData *timeData)
 {
     timeData->_isScheduing = false;
     timeData->_owner = NULL;
@@ -255,19 +253,19 @@ inline void TimerMgr::_Destroy(TimeData *timeData)
     timeData->Release();
 }
 
-inline void TimerMgr::_AsynDestroy(TimeData *timeData)
+ALWAYS_INLINE void TimerMgr::_AsynDestroy(TimeData *timeData)
 {
     timeData->_isScheduing = false;
     timeData->_asynData->MaskDestroy();
     _asynDirty.insert(timeData->_asynData);
 }
 
-inline bool TimerMgr::_IsInTimerThread()
+ALWAYS_INLINE bool TimerMgr::_IsInTimerThread()
 {
     return _launchThreadId == SystemUtil::GetCurrentThreadId();
 }
 
-inline void TimerMgr::_WakeupMgrThread()
+ALWAYS_INLINE void TimerMgr::_WakeupMgrThread()
 {
     if(_wakeupCb)
         _wakeupCb->Invoke();

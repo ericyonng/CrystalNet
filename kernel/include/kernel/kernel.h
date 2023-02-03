@@ -34,9 +34,8 @@
 // 导出接口宏
 #include<kernel/kernel_export.h>
 
-// 导出
-// 导出接口
-#if !defined(CRYSTAL_NET_STATIC_KERNEL_LIB) && !defined(CRYSTAL_NET_KERNEL_LIB)
+// 导入接口
+#ifdef CRYSTAL_NET_IMPORT_KERNEL_LIB
     // 第三方库导出
     // #include <3rd/tiny-utf8/include/tinyutf8.h>
     // 公共资源

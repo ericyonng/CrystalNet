@@ -210,7 +210,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
-    // TestService::Run(argc, argv);
+    TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     //TestList::Run();
     // TestDirectoryUtil::Run();
@@ -221,7 +221,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestAlloc::Run();
     // TestPipeline::Run();
     // TestArchive::Run();
-    TestXlsx::Run();
+    // TestXlsx::Run();
 
     KERNEL_NS::KernelUtil::Destroy();
     

@@ -70,11 +70,12 @@ void TimerMgr::Launch(IDelegate<void> *wakeupThreadCb)
     _wakeupCb = wakeupThreadCb;
 }
 
-void TimerMgr::Drive(Int64 cuTimeMicroseconds)
+void TimerMgr::Drive()
 {
     _BeforeDrive();
 
-    _curTime = cuTimeMicroseconds;
+    if(LIKELY(_expireQueue.empty() == false))
+        _curTime = TimeUtil::GetMicroTimestamp();
 
     for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
     {

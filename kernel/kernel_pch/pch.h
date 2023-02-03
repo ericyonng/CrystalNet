@@ -32,7 +32,7 @@
 
 #pragma once
 
-#ifndef CRYSTAL_NET_NO_KERNEL_LIB
+#ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
 
 #define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN

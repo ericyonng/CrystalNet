@@ -219,7 +219,7 @@ workspace ("CrystalNet_" .. _ACTION)
     -- target directory define
     targetdir (OUTPUT_DIR)
 
-	defines { "CRYSTAL_NET_NO_KERNEL_LIB" }
+	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
     filter { "system:windows", "language:c++" }
         defines { "_SCL_SECURE_NO_DEPRECATE" }
         defines { "_CRT_SECURE_NO_DEPRECATE" }
@@ -297,7 +297,6 @@ project "CrystalKernel"
 		--"../../3rd/tiny-utf8/lib/*.cpp",
     }
 
-	-- defines { "CRYSTAL_NET_KERNEL_LIB" }
 	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
     libdirs { 
         ROOT_DIR .. "3rd/openssL/staticlib/$(Configuration)/lib/",
@@ -441,6 +440,9 @@ project "testsuit"
         "CrystalKernel",
     }
 
+    -- 导入内核接口
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
 	enable_precompileheader("pch.h", ROOT_DIR .. "testsuit/testsuit_pch/pch.cpp")
 
 	includedirs {
@@ -469,11 +471,6 @@ project "testsuit"
         "../../testsuit/**.h",
         "../../testsuit/**.cpp",
     }
-
-    -- windows下不需要kernel dll
-    filter{ "system:windows"}		
-	    defines { "CRYSTAL_NET_NO_KERNEL_LIB" }
-    filter{}
 
     filter{ "system:windows"}		
         libdirs { 
@@ -533,6 +530,9 @@ project "client"
         "CrystalKernel",
     }
 
+    -- 导入内核接口
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
 	enable_precompileheader("pch.h", ROOT_DIR .. "client/client_pch/pch.cpp")
 
 	includedirs {
@@ -564,7 +564,7 @@ project "client"
 
     -- windows下不需要kernel dll
     filter{ "system:windows"}		
-	    defines { "CRYSTAL_NET_NO_KERNEL_LIB" }
+	    defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
     filter{}
 
     filter{ "system:windows"}		
@@ -626,6 +626,9 @@ project "protogentool"
         "CrystalKernel",
     }
 
+    -- 导入内核接口
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
 	enable_precompileheader("pch.h", ROOT_DIR .. "ProtoGen/protogen_pch/pch.cpp")
 
 	includedirs {
@@ -653,7 +656,7 @@ project "protogentool"
     }
 
     -- 工具不需要动态库连接
-	defines { "CRYSTAL_NET_NO_KERNEL_LIB" }
+	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
 
     filter{ "system:windows"}		
         libdirs { 
@@ -712,6 +715,9 @@ project "filetool"
     dependson {
         "CrystalKernel",
     }
+    
+    -- 导入内核接口
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
 
     enable_precompileheader("pch.h", ROOT_DIR .. "file_tool/file_tool_pch/pch.cpp")
 
@@ -740,7 +746,7 @@ project "filetool"
     }
 
     -- 工具不需要动态库连接
-    defines { "CRYSTAL_NET_NO_KERNEL_LIB" }
+    defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
 
     filter{ "system:windows"}		
         libdirs { 

@@ -103,7 +103,7 @@ void TestTimer::Run()
     while (true)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1);
-        timerMgr.Drive(KERNEL_NS::TimeUtil::GetMicroTimestamp());
+        timerMgr.Drive();
     }
     
 }

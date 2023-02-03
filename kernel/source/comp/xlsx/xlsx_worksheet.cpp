@@ -31,9 +31,9 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(Worksheet);
+POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxSheet);
 
-Worksheet::Worksheet(void *workbook, const LibString &sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &allCells)
+XlsxSheet::XlsxSheet(void *workbook, const LibString &sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &allCells)
 :_workbook(workbook)
 ,_sheetName(sheetName)
 ,_sheetId(sheetId)
@@ -42,7 +42,7 @@ Worksheet::Worksheet(void *workbook, const LibString &sheetName, UInt64 sheetId,
 
 }
 
-LibString Worksheet::LoadCells()
+LibString XlsxSheet::LoadCells()
 {
     _rowColumnRefShareStringIdx.clear();
     _maxRow = 0;

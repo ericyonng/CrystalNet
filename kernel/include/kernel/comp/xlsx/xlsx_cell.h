@@ -33,8 +33,11 @@
 
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/memory/memory.h>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
+
+class XlsxSheet;
 
 class KERNEL_EXPORT XlsxCell
 {
@@ -43,6 +46,15 @@ class KERNEL_EXPORT XlsxCell
 public:
     static constexpr Int32 ROW_BEGIN = 1;
     static constexpr Int32 COLUMN_BEGIN = 1;
+
+    explicit XlsxCell(XlsxSheet *sheet);
+    virtual ~XlsxCell();
+
+protected:
+    UInt64 _row;
+    UInt64 _column;
+    LibString _content;
+    XlsxSheet *_owner;
 };
 
 

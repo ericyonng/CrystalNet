@@ -29,13 +29,13 @@
 #include <pch.h>
 #include <testsuit/testinst/TestXlsx.h>
 
-class MyWorksheet : public KERNEL_NS::Worksheet
+class MyWorksheet : public KERNEL_NS::XlsxSheet
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(Worksheet, MyWorksheet);
+    POOL_CREATE_OBJ_DEFAULT_P1(XlsxSheet, MyWorksheet);
 
 public:
     MyWorksheet(KERNEL_NS::XlsxWorkbook<MyWorksheet> *workbook, KERNEL_NS::LibString sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &cells)
-    :KERNEL_NS::Worksheet(workbook, sheetName, sheetId, cells)
+    :KERNEL_NS::XlsxSheet(workbook, sheetName, sheetId, cells)
     {
 
     }

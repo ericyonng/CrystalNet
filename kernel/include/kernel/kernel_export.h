@@ -36,35 +36,43 @@
 
 #include <kernel/common/compile.h>
 
+// 使用动态库导出符号定义宏
 #undef KERNEL_EXTERN_DEFINE
 #ifndef KERNEL_EXPORT
     #ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
-        #ifdef CRYSTAL_NET_KERNEL_LIB
-            #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-                #define KERNEL_EXPORT _declspec(dllexport)
-                #define KERNEL_EXTERN_DEFINE 
-            #else
-                #define KERNEL_EXPORT __attribute__((__visibility__("default")))  // default 是默认导出符号（linux下）
-                #define KERNEL_EXTERN_DEFINE extern
-            #endif
+        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+            #define KERNEL_EXPORT _declspec(dllexport)
+            #define KERNEL_EXTERN_DEFINE 
         #else
-            #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-                #define KERNEL_EXPORT _declspec(dllimport)
-                #define KERNEL_EXTERN_DEFINE extern
-
-            #else
-                #define KERNEL_EXPORT  __attribute__((__visibility__("default")))  // default 是默认导出符号（linux下）
-                #define KERNEL_EXTERN_DEFINE extern
-            #endif
+            #define KERNEL_EXPORT __attribute__((__visibility__("default")))  // default 是默认导出符号（linux下）
+            #define KERNEL_EXTERN_DEFINE extern
         #endif
+    #else
+        // 静态库不需要导出
+        #define KERNEL_EXPORT
+        #define KERNEL_EXTERN_DEFINE extern
     #endif
-    
 #endif
 
-// 不需要kernel库
-#ifdef CRYSTAL_NET_NO_KERNEL_LIB
-    #undef KERNEL_EXPORT
-    #define KERNEL_EXPORT 
+// 当前模块在导入接口
+#ifdef CRYSTAL_NET_IMPORT_KERNEL_LIB
+    // 动态库的导入
+    #ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
+        #undef KERNEL_EXPORT
+        #undef KERNEL_EXTERN_DEFINE
+        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+            #define KERNEL_EXPORT _declspec(dllimport)
+            #define KERNEL_EXTERN_DEFINE extern
+        #else
+            #define KERNEL_EXPORT  __attribute__((__visibility__("default")))  // default 是默认导出符号（linux下）
+            #define KERNEL_EXTERN_DEFINE extern
+        #endif
+    #else
+        // 静态库没有导入特性
+        #ifndef KERNEL_EXPORT
+            #define KERNEL_EXPORT 
+        #endif
+    #endif
 #endif
 
 // #pragma warning(disable:4251) // 模版类造成的警告

@@ -47,6 +47,7 @@ KERNEL_BEGIN
 class LibString;
 class ArchiveFile;
 class XMLDocument;
+class XlsxSheet;
 
 template<typename WorksheetType>
 class XlsxWorkbook
@@ -106,6 +107,8 @@ private:
     std::vector<WorksheetType *> _sheets;
     std::unordered_map<LibString, WorksheetType *> _sheetNameRefSheet;
     std::unordered_map<LibString, UInt64> _sheetNameRefSheetRelationVectorIndex;
+
+    std::unordered_map<LibString, XlsxSheet *> _sheetIdRefSheet;   // xlsx中的sheetId
 };
 
 template<typename WorksheetType>

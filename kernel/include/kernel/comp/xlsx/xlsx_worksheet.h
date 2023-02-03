@@ -37,12 +37,14 @@
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT Worksheet
+class XlsxCell;
+
+class KERNEL_EXPORT XlsxSheet
 {
-    POOL_CREATE_OBJ_DEFAULT(Worksheet);
+    POOL_CREATE_OBJ_DEFAULT(XlsxSheet);
 
 public:
-    Worksheet(void *workbook, const LibString &sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &allCells);
+    XlsxSheet(void *workbook, const LibString &sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &allCells);
 
     LibString LoadCells();
 
@@ -72,35 +74,39 @@ protected:
 
     // 行 列 映射 数据的索引
     std::vector<std::vector<UInt64>> _rowColumnRefShareStringIdx;
+
+    // 单元格数据
+    std::unordered_map<UInt64, std::unordered_map<UInt64, XlsxCell *>> _rowRefColumnRefCells;
+    std::unordered_map<UInt64, std::unordered_map<UInt64, XlsxCell *>> _columnRefRowRefCells;
 };
 
-ALWAYS_INLINE const LibString &Worksheet::GetSheetName() const
+ALWAYS_INLINE const LibString &XlsxSheet::GetSheetName() const
 {
     return _sheetName;
 }
 
-ALWAYS_INLINE UInt64 Worksheet::GetMaxRow() const
+ALWAYS_INLINE UInt64 XlsxSheet::GetMaxRow() const
 {
     return _maxRow;
 }
 
-ALWAYS_INLINE UInt64 Worksheet::GetMaxColumn() const
+ALWAYS_INLINE UInt64 XlsxSheet::GetMaxColumn() const
 {
     return _maxColumn;
 }
 
 template<typename WorkbookType>
-ALWAYS_INLINE const WorkbookType *Worksheet::GetWorkbook() const
+ALWAYS_INLINE const WorkbookType *XlsxSheet::GetWorkbook() const
 {
     return reinterpret_cast<WorkbookType *>(_workbook);
 }
 
-ALWAYS_INLINE const std::vector<std::vector<UInt64>> &Worksheet::GetAllSharedStringIdxs() const
+ALWAYS_INLINE const std::vector<std::vector<UInt64>> &XlsxSheet::GetAllSharedStringIdxs() const
 {
     return _rowColumnRefShareStringIdx;
 }
 
-ALWAYS_INLINE const std::vector<UInt64> &Worksheet::GetRowSharedStringIdxs(UInt64 rowId) const
+ALWAYS_INLINE const std::vector<UInt64> &XlsxSheet::GetRowSharedStringIdxs(UInt64 rowId) const
 {
     static const std::vector<UInt64> s_empty;
     if(UNLIKELY(rowId >= static_cast<UInt64>(_rowColumnRefShareStringIdx.size())))
@@ -111,7 +117,7 @@ ALWAYS_INLINE const std::vector<UInt64> &Worksheet::GetRowSharedStringIdxs(UInt6
     return _rowColumnRefShareStringIdx[rowId];
 }
 
-ALWAYS_INLINE bool Worksheet::GetCellShareStringIndex(UInt64 rowId, UInt64 columnId, UInt64 &shareStringIdx) const
+ALWAYS_INLINE bool XlsxSheet::GetCellShareStringIndex(UInt64 rowId, UInt64 columnId, UInt64 &shareStringIdx) const
 {
     const auto &columnShareIdxs = GetRowSharedStringIdxs(rowId);
     if(UNLIKELY(columnShareIdxs.empty()))

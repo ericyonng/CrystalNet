@@ -318,8 +318,7 @@ void Poller::EventLoop()
             g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
 
         // 处理定时器
-        const auto curTime = TimeUtil::GetMicroTimestamp();
-        _timerMgr->Drive(curTime);
+        _timerMgr->Drive();
 
         // 当前帧性能信息记录
         #ifdef _DEBUG

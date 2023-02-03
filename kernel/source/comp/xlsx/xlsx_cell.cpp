@@ -28,9 +28,23 @@
 
 #include <pch.h>
 #include <kernel/comp/xlsx/xlsx_cell.h>
+#include <kernel/comp/xlsx/xlsx_worksheet.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxCell);
+
+XlsxCell::XlsxCell(XlsxSheet *sheet)
+:_row(ROW_BEGIN)
+,_column(COLUMN_BEGIN)
+,_owner(sheet)
+{
+
+}
+
+XlsxCell::~XlsxCell()
+{
+    
+}
 
 KERNEL_END
