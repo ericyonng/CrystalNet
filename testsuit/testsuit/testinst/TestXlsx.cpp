@@ -57,7 +57,7 @@ void TestXlsx::Run()
 {
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestXlsx, "CUR dir:%s"), KERNEL_NS::SystemUtil::GetCurProgRootPath().c_str());
 
-    auto path = KERNEL_NS::SystemUtil::GetCurProgRootPath() + "config.xlsx";
+    auto path = KERNEL_NS::SystemUtil::GetCurProgRootPath() + "test.xlsx";
     auto workbook = KERNEL_NS::XlsxWorkbook<MyWorksheet>::NewThreadLocal_XlsxWorkbook(true);
     workbook->Parse(path);
     KERNEL_NS::XlsxWorkbook<MyWorksheet>::DeleteThreadLocal_XlsxWorkbook(workbook);
