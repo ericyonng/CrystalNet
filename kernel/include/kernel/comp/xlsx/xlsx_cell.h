@@ -50,7 +50,7 @@ public:
     explicit XlsxCell(XlsxSheet *sheet);
     virtual ~XlsxCell();
 
-protected:
+public:
     UInt64 _row;
     UInt64 _column;
     LibString _content;

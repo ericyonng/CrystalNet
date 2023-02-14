@@ -29,36 +29,12 @@
 #include <pch.h>
 #include <testsuit/testinst/TestXlsx.h>
 
-class MyWorksheet : public KERNEL_NS::XlsxSheet
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(XlsxSheet, MyWorksheet);
-
-public:
-    MyWorksheet(KERNEL_NS::XlsxWorkbook<MyWorksheet> *workbook, KERNEL_NS::LibString sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &cells)
-    :KERNEL_NS::XlsxSheet(workbook, sheetName, sheetId, cells)
-    {
-
-    }
-
-    static MyWorksheet *FactoryCreate(KERNEL_NS::XlsxWorkbook<MyWorksheet> *workbook, KERNEL_NS::LibString sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &cells)
-    {
-        return MyWorksheet::NewThreadLocal_MyWorksheet(workbook, sheetName, sheetId, cells);
-    }
-
-    static void FactoryRelease(MyWorksheet *sheet)
-    {
-        MyWorksheet::DeleteThreadLocal_MyWorksheet(sheet);
-    }
-};
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(MyWorksheet);
-
 void TestXlsx::Run()
 {
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestXlsx, "CUR dir:%s"), KERNEL_NS::SystemUtil::GetCurProgRootPath().c_str());
 
     auto path = KERNEL_NS::SystemUtil::GetCurProgRootPath() + "test.xlsx";
-    auto workbook = KERNEL_NS::XlsxWorkbook<MyWorksheet>::NewThreadLocal_XlsxWorkbook(true);
+    auto workbook = KERNEL_NS::XlsxWorkbook::NewThreadLocal_XlsxWorkbook(true);
     workbook->Parse(path);
-    KERNEL_NS::XlsxWorkbook<MyWorksheet>::DeleteThreadLocal_XlsxWorkbook(workbook);
+    KERNEL_NS::XlsxWorkbook::DeleteThreadLocal_XlsxWorkbook(workbook);
 }

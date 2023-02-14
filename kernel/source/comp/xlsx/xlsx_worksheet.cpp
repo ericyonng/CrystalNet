@@ -28,47 +28,66 @@
 
 #include <pch.h>
 #include <kernel/comp/xlsx/xlsx_worksheet.h>
+#include <kernel/comp/xlsx/xlsx_cell.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxSheet);
 
-XlsxSheet::XlsxSheet(void *workbook, const LibString &sheetName, UInt64 sheetId, const std::vector<std::tuple<UInt64, UInt64, UInt64>> &allCells)
+XlsxSheet::XlsxSheet(XlsxWorkbook *workbook, const LibString &sheetName, UInt64 sheetId)
 :_workbook(workbook)
 ,_sheetName(sheetName)
 ,_sheetId(sheetId)
-,_allCells(allCells)
+,_maxRow(0)
+,_maxColumn(0)
 {
 
 }
 
-LibString XlsxSheet::LoadCells()
+void XlsxSheet::AddCell(UInt64 rowId, UInt64 columnId, const LibString &content)
 {
-    _rowColumnRefShareStringIdx.clear();
-    _maxRow = 0;
-    _maxColumn = 0;
-    for(const auto &cellItem : _allCells)
+    auto cell = XlsxCell::New_XlsxCell(this);
+    cell->_row = rowId;
+    cell->_column = columnId;
+    cell->_content = content;
+    cell->_owner = this;
+
+    if(_maxRow < cell->_row)
+        _maxRow = cell->_row;
+    if(_maxColumn < cell->_column)
+        _maxColumn = cell->_column;
+
     {
-        UInt64 rowId = std::get<0>(cellItem);
-        _maxRow = std::max<UInt64>(rowId, _maxRow);
-        UInt64 columnId = std::get<1>(cellItem);
-        _maxColumn = std::max<UInt64>(_maxColumn, columnId);
+        auto iter = _rowRefColumnRefCells.find(cell->_row);
+        if(iter == _rowRefColumnRefCells.end())
+            iter = _rowRefColumnRefCells.insert(std::make_pair(cell->_row, std::unordered_map<UInt64, XlsxCell *>())).first;
+        auto &columnRefCells = iter->second;
+
+        columnRefCells.insert(std::make_pair(cell->_column, cell));
     }
 
-    _rowColumnRefShareStringIdx.reserve(_maxRow + 1);
-    _rowColumnRefShareStringIdx.emplace_back();
-    for (UInt64 idx = 0; idx < _maxRow; ++idx)
-        _rowColumnRefShareStringIdx.emplace_back(_maxColumn + 1);
-
-    for (const auto &cellItem : _allCells)
     {
-        UInt64 rowId = std::get<0>(cellItem);
-        UInt64 columnId = std::get<1>(cellItem);
-        UInt64 ssIdx = std::get<2>(cellItem);
-        _rowColumnRefShareStringIdx[rowId][columnId] = ssIdx;
-    }
+        auto iter = _columnRefRowRefCells.find(cell->_column);
+        if(iter == _columnRefRowRefCells.end())
+            iter = _columnRefRowRefCells.insert(std::make_pair(cell->_column, std::unordered_map<UInt64, XlsxCell *>())).first;
 
-    return _AfterLoaded();
+        auto &rowRefCells = iter->second;
+        rowRefCells.insert(std::make_pair(cell->_row, cell));
+    }
+}
+
+void XlsxSheet::Clear()
+{
+   ContainerUtil::DelContainer(_rowRefColumnRefCells, [](std::unordered_map<UInt64, XlsxCell *> &dict){
+        ContainerUtil::DelContainer(dict, [](XlsxCell *ptr){
+            XlsxCell::Delete_XlsxCell(ptr);
+        });
+   });
+
+   _columnRefRowRefCells.clear();
+   _maxRow = 0;
+   _maxColumn = 0;
 }
 
 KERNEL_END
