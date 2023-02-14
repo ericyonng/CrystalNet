@@ -2,14 +2,19 @@
 
   ```shell
   sudo yum install java-11-openjdk
+  java -version
+  # 若java版本是低于11的请执行
+  mv /usr/bin/java /usr/bin/java.back
+  ln -sv /usr/lib/jvm/java-11-openjdk-11.0.18.0.10-2.tl3.x86_64/bin/java /usr/bin/java
   ```
 
 * jenkins安装
 
   ```shell
+  sudo yum upgrade
   sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat/jenkins.repo
   sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key
-  sudo yum upgrade
+  
   sudo yum install jenkins
   ```
 
@@ -27,6 +32,13 @@
   #找到 candidates= 这一行 向最近的添加一行java sdk路径
   candidates="
   /usr/lib/jvm/java-11-openjdk-11.0.16.0.8-1.el7_9.x86_64/bin/java
+  
+  # 添加java相关路径：
+  /usr/lib/jvm/jre-11/bin/java
+  /usr/lib/jvm/jre-11-openjdk/bin/java
+  /usr/bin/java
+  /usr/lib/jvm/java-11-openjdk-11.0.18.0.10-1.el7_9.x86_64/bin/java
+  
   
   # 保存并重启jenkins
   service jenkins restart
