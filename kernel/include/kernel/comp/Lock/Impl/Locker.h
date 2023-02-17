@@ -57,7 +57,7 @@ protected:
     LockerHandle _handle;
 };
 
-inline void Locker::Lock()
+ALWAYS_INLINE void Locker::Lock()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     ::EnterCriticalSection(&(_handle));
@@ -66,7 +66,7 @@ inline void Locker::Lock()
 #endif
 }
 
-inline void Locker::Unlock()
+ALWAYS_INLINE void Locker::Unlock()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     ::LeaveCriticalSection(&(_handle));
@@ -75,7 +75,7 @@ inline void Locker::Unlock()
 #endif
 }
 
-inline bool Locker::TryLock()
+ALWAYS_INLINE bool Locker::TryLock()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     return ::TryEnterCriticalSection(&(_handle));

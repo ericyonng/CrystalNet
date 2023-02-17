@@ -61,7 +61,7 @@ private:
 
 };
 
-inline SpinLock::~SpinLock()
+ALWAYS_INLINE SpinLock::~SpinLock()
 {
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         pthread_spin_destroy(&_handle);
@@ -70,7 +70,7 @@ inline SpinLock::~SpinLock()
     #endif
 }
 
-inline void SpinLock::Lock()
+ALWAYS_INLINE void SpinLock::Lock()
 {
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         pthread_spin_lock(&_handle);
@@ -79,7 +79,7 @@ inline void SpinLock::Lock()
     #endif
 }
 
-inline void SpinLock::Unlock()
+ALWAYS_INLINE void SpinLock::Unlock()
 {
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         pthread_spin_unlock(&_handle);
@@ -88,7 +88,7 @@ inline void SpinLock::Unlock()
     #endif
 }
 
-inline bool SpinLock::TryLock()
+ALWAYS_INLINE bool SpinLock::TryLock()
 {
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         return pthread_spin_trylock(&_handle) == 0;

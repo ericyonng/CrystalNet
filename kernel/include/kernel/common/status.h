@@ -70,6 +70,7 @@ namespace Status
         CoderFail = 24,                                         // 编码失败
         PreparePollerFail = 25,                                 // 准备poller失败
         PollerFail = 26,                                        // poller失败
+        DummyHandle = 27,                                       // 伪处理
         
 
         // SOCKET[500, 599]

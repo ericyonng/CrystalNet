@@ -76,17 +76,17 @@ private:
 
 };
 
-inline bool ConditionLocker::HasWaiter()
+ALWAYS_INLINE bool ConditionLocker::HasWaiter()
 {
     return _waitNum > 0;
 }
 
-inline void ConditionLocker::ResetSinalFlag()
+ALWAYS_INLINE void ConditionLocker::ResetSinalFlag()
 {
     _isSinal = false;
 }
 
-inline bool ConditionLocker::IsSinal() const
+ALWAYS_INLINE bool ConditionLocker::IsSinal() const
 {
     return _isSinal;
 }

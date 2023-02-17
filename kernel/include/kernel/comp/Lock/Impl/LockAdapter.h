@@ -49,20 +49,20 @@ template<>
 class KERNEL_EXPORT LockAdapter<LockType::SpinLock>
 {
 public:
-    void Lock() {  _raw.Lock();}
-    void Unlock() { _raw.Unlock();}
-    bool TryLock() { return _raw.TryLock();}
+    ALWAYS_INLINE void Lock() {  _raw.Lock();}
+    ALWAYS_INLINE void Unlock() { _raw.Unlock();}
+    ALWAYS_INLINE bool TryLock() { return _raw.TryLock();}
 
-    Int32 Wait() { return Status::Failed;}
-    Int32 TimeWait(UInt64 second, UInt64 microSec) { return Status::Failed;}
-    Int32 TimeWait(UInt64 milliSecond) { return Status::Failed;}
+    ALWAYS_INLINE Int32 Wait() { return Status::Failed;}
+    ALWAYS_INLINE Int32 TimeWait(UInt64 second, UInt64 microSec) { return Status::Failed;}
+    ALWAYS_INLINE Int32 TimeWait(UInt64 milliSecond) { return Status::Failed;}
 
-    bool Sinal() { return false;}
-    bool HasWaiter() { return false;}
-    void Broadcast() { }
-    void ResetSinal() { }
-    void ResetSinalFlag()  { }
-    bool IsSinal() const { return false;}
+    ALWAYS_INLINE bool Sinal() { return false;}
+    ALWAYS_INLINE bool HasWaiter() { return false;}
+    ALWAYS_INLINE void Broadcast() { }
+    ALWAYS_INLINE void ResetSinal() { }
+    ALWAYS_INLINE void ResetSinalFlag()  { }
+    ALWAYS_INLINE bool IsSinal() const { return false;}
 
 private:
     SpinLock _raw;
@@ -74,20 +74,20 @@ template<>
 class KERNEL_EXPORT LockAdapter<LockType::MutexLock>
 {
 public:
-     void Lock() { _raw.Lock();}
-     void Unlock() { _raw.Unlock();}
-     bool TryLock() { return _raw.TryLock();}
+     ALWAYS_INLINE void Lock() { _raw.Lock();}
+     ALWAYS_INLINE void Unlock() { _raw.Unlock();}
+     ALWAYS_INLINE bool TryLock() { return _raw.TryLock();}
 
-     Int32 Wait() { return Status::Failed;}
-     Int32 TimeWait(UInt64 second, UInt64 microSec) { return Status::Failed;}
-     Int32 TimeWait(UInt64 milliSecond) { return Status::Failed;}
+     ALWAYS_INLINE Int32 Wait() { return Status::Failed;}
+     ALWAYS_INLINE Int32 TimeWait(UInt64 second, UInt64 microSec) { return Status::Failed;}
+     ALWAYS_INLINE Int32 TimeWait(UInt64 milliSecond) { return Status::Failed;}
 
-     bool Sinal() { return false;}
-     bool HasWaiter() { return false;}
-     void Broadcast() { }
-     void ResetSinal() { }
-     void ResetSinalFlag() { }
-     bool IsSinal() const { return false; }
+     ALWAYS_INLINE bool Sinal() { return false;}
+     ALWAYS_INLINE bool HasWaiter() { return false;}
+     ALWAYS_INLINE void Broadcast() { }
+     ALWAYS_INLINE void ResetSinal() { }
+     ALWAYS_INLINE void ResetSinalFlag() { }
+     ALWAYS_INLINE bool IsSinal() const { return false; }
  
 private:
     Locker _raw;
@@ -98,20 +98,20 @@ template<>
 class KERNEL_EXPORT LockAdapter<LockType::ConditionLock>
 {
 public:
-    void Lock() { _raw.Lock();}
-    void Unlock()  { _raw.Unlock();}
-    bool TryLock() { return _raw.TryLock();}
+    ALWAYS_INLINE void Lock() { _raw.Lock();}
+    ALWAYS_INLINE void Unlock()  { _raw.Unlock();}
+    ALWAYS_INLINE bool TryLock() { return _raw.TryLock();}
 
-    Int32 Wait() { return _raw.Wait();}
-    Int32 TimeWait(UInt64 second, UInt64 microSec) { return _raw.TimeWait(second, microSec);}
-    Int32 TimeWait(UInt64 milliSecond) { return _raw.TimeWait(milliSecond); }
+    ALWAYS_INLINE Int32 Wait() { return _raw.Wait();}
+    ALWAYS_INLINE Int32 TimeWait(UInt64 second, UInt64 microSec) { return _raw.TimeWait(second, microSec);}
+    ALWAYS_INLINE Int32 TimeWait(UInt64 milliSecond) { return _raw.TimeWait(milliSecond); }
 
-    bool Sinal() { return _raw.Sinal();}
-    bool HasWaiter() { return _raw.HasWaiter();}
-    void Broadcast() { _raw.Broadcast();}
-    void ResetSinal() {  _raw.ResetSinal(); }
-    void ResetSinalFlag() { _raw.ResetSinalFlag(); }
-    bool IsSinal() const { return _raw.IsSinal();}
+    ALWAYS_INLINE bool Sinal() { return _raw.Sinal();}
+    ALWAYS_INLINE bool HasWaiter() { return _raw.HasWaiter();}
+    ALWAYS_INLINE void Broadcast() { _raw.Broadcast();}
+    ALWAYS_INLINE void ResetSinal() {  _raw.ResetSinal(); }
+    ALWAYS_INLINE void ResetSinalFlag() { _raw.ResetSinalFlag(); }
+    ALWAYS_INLINE bool IsSinal() const { return _raw.IsSinal();}
 
 private:
     ConditionLocker _raw;
@@ -122,20 +122,20 @@ template<>
 class KERNEL_EXPORT LockAdapter<LockType::DummyLock>
 {
 public:
-    void Lock()  { }
-    void Unlock()  { }
-    bool TryLock()  { return false;}
+    ALWAYS_INLINE void Lock()  { }
+    ALWAYS_INLINE void Unlock()  { }
+    ALWAYS_INLINE bool TryLock()  { return true;}
 
-    Int32 Wait() { return Status::Failed;}
-    Int32 TimeWait(UInt64 second, UInt64 microSec) { return Status::Failed;}
-    Int32 TimeWait(UInt64 milliSecond) { return Status::Failed; }
+    ALWAYS_INLINE Int32 Wait() { return Status::DummyHandle;}
+    ALWAYS_INLINE Int32 TimeWait(UInt64 second, UInt64 microSec) { return Status::DummyHandle;}
+    ALWAYS_INLINE Int32 TimeWait(UInt64 milliSecond) { return Status::DummyHandle; }
 
-    bool Sinal() { return false;}
-    bool HasWaiter() { return false;}
-    void Broadcast() { }
-    void ResetSinal() { }
-    void ResetSinalFlag()  { }
-    bool IsSinal() const { return false;}
+    ALWAYS_INLINE bool Sinal() { return true;}
+    ALWAYS_INLINE bool HasWaiter() { return false;}
+    ALWAYS_INLINE void Broadcast() { }
+    ALWAYS_INLINE void ResetSinal() { }
+    ALWAYS_INLINE void ResetSinalFlag()  { }
+    ALWAYS_INLINE bool IsSinal() const { return false;}
     
 private:
 };
