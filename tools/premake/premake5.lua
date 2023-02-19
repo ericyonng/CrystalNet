@@ -794,3 +794,94 @@ if IS_WINDOWS == false then
 	print("builddir = " .. BUILD_DIR)
 end
 
+
+
+-- core library testsuite compile setting
+project "ConfigExporter"
+    -- language, kind
+    language "c++"
+    kind "ConsoleApp"
+	
+    -- symbols
+	debugdir(DEBUG_DIR)
+    symbols "On"
+
+    -- dependents
+    dependson {
+        "CrystalKernel",
+    }
+
+    -- 导入内核接口
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
+	enable_precompileheader("pch.h", ROOT_DIR .. "ConfigExporter/ConfigExporter_pch/pch.cpp")
+
+	includedirs {
+	    "../../",
+		"../../kernel/include/",
+		"../../ConfigExporter/",
+		"../../ConfigExporter/ConfigExporter_pch/",
+    }
+	
+	-- 设置通用选项
+    set_common_options()
+	
+    -- files
+    files {
+        "../../protocols/**.h",
+		"../../protocols/**.cc",
+		"../../protocols/**.cpp",
+		"../../service/common/**.h",
+		"../../service/common/**.cpp",
+		"../../service/ConfigExporter/**.h",
+		"../../service/ConfigExporter/**.cpp",
+		"../../service_common/**.h",
+        "../../service_common/**.cpp",
+        "../../ConfigExporter/**.h",
+        "../../ConfigExporter/**.cpp",
+    }
+
+    -- 工具不需要动态库连接
+	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
+    filter{ "system:windows"}		
+        libdirs { 
+            ROOT_DIR .. "3rd/"
+        }
+    filter{}
+
+    filter { "system:windows" }
+        links {
+            "ws2_32",
+            "Mswsock",
+            "DbgHelp",
+        }
+    filter{}
+
+	-- links
+    libdirs { OUTPUT_DIR }	
+	include_libfs(true, true)
+
+    -- debug target suffix define
+    filter { "configurations:debug*" }
+        targetsuffix "_debug"
+    filter {}
+
+    -- enable multithread compile
+    -- enable_multithread_comp("C++14")
+	enable_multithread_comp()
+
+    -- warnings
+    filter { "system:not windows" }
+        disablewarnings {
+            "invalid-source-encoding",
+        }
+    filter {}
+
+    -- optimize
+    set_optimize_opts()
+	
+	-- set post build commands.
+    filter { "system:windows" }
+        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", WIN_ROOT_DIR, _ACTION))
+    filter {}
