@@ -296,14 +296,20 @@ public:
     // strip operation: strip left. 去首部连续字符
     LibString &lstrip(const LibString &chars = LibString());
     LibString lstrip(const LibString &chars = LibString()) const;
+    LibString &lstripString(const LibString &str);
+    LibString lstripString(const LibString &str) const;
 
     // strip operation: strip right. 去尾部连续字符
     LibString &rstrip(const LibString &chars = LibString());
     LibString rstrip(const LibString &chars = LibString()) const;
+    LibString &rstripString(const LibString &str);
+    LibString rstripString(const LibString &str) const;
 
     // strip operation: 去除首尾字符
     LibString &strip(const LibString &chars = LibString());
     LibString strip(const LibString &chars = LibString()) const;
+    LibString &stripString(const LibString &str);
+    LibString stripString(const LibString &str) const;
 
     LibString DragAfter(const LibString &start) const;
     LibString DragBefore(const LibString &start) const;
@@ -1266,6 +1272,16 @@ ALWAYS_INLINE LibString LibString::lstrip(const LibString &chars) const
 {
     LibString copyThis(*this);
     return copyThis.lstrip(chars);
+}
+
+ALWAYS_INLINE LibString &LibString::lstripString(const LibString &str)
+{
+    
+}
+
+ALWAYS_INLINE LibString LibString::lstripString(const LibString &str) const
+{
+
 }
 
 ALWAYS_INLINE LibString &LibString::rstrip(const LibString &chars)

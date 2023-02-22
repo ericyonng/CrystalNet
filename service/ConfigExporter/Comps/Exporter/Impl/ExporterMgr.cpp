@@ -21,7 +21,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-19 02:24:42
+ * Date: 2023-02-19 22:12:07
  * Author: Eric Yonng
  * Description: 
 */
@@ -60,15 +60,81 @@ Int32 ExporterMgr::_OnGlobalSysInit()
 {
     _RegisterEvents();
 
+    auto nextFrame = [this](KERNEL_NS::LibTimer *t)
+    {
+
+    };
+
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->SetTimeOutHandler(this, &ExporterMgr::_OnExporter);
+    timer->Schedule(0);
+
     // 1.读取所有配置表数据
     // 2.读取表头
     // 3.生成配置
+
     return Status::Success;
 }
 
 void ExporterMgr::_OnGlobalSysClose()
 {
     _Clear();
+}
+
+void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
+{
+    bool genSuc = false;
+    auto app = GetApp();
+    const auto &appArgs = app->GetAppArgs();
+    
+    // ConfigExporter --source_path=xxx.xlsx --target_XX_path= --target_XX_path=
+
+    // target字典
+    std::unordered_map<KERNEL_NS::LibString, KERNEL_NS::LibString> targetTypeRefPath;
+    KERNEL_NS::LibString sourcePath;
+
+    const Int32 argCount = static_cast<Int32>(appArgs.size());
+    for(Int32 idx = 0; idx < argCount; ++idx)
+    {
+        const auto &arg = appArgs[idx];
+        auto kv = arg.Split("=");
+        if(kv.empty())
+            continue;
+
+        if(kv.size() < 2)
+            continue;
+
+        auto &k = kv[0];
+        k.strip();
+        auto &v = kv[0];
+        if(k.empty())
+            continue;
+
+        v.strip();
+
+        auto &raw = k.GetRaw();
+        if(raw.find("--source_path") != std::string::npos)
+            sourcePath = v;
+        else if(raw.find("--target_") != std::string::npos)
+        {
+            raw.find("")
+        }
+    }
+    do
+    {
+        g_Log->Custom("[CONFIG GEN] START.");
+
+        // 1.读取所有配置数据
+        
+        g_Log->Custom("[CONFIG GEN] END.");
+
+    }while (false);
+
+    // 4.关闭app
+    Int32 err = genSuc ? Status::Success : Status::Failed;
+    GetServiceProxy()->CloseApp(err);
+    
+    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
 }
 
 void ExporterMgr::_Clear()

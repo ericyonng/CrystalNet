@@ -21,43 +21,32 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-02-19 22:12:07
+ * Date: 2023-02-21 11:03:07
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
-
-#include <service/ConfigExporter/Comps/Exporter/Interface/IExporterMgr.h>
+#include <pch.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/ConfigInfo.h>
 
 SERVICE_BEGIN
 
-class ExporterMgr : public IExporterMgr
+POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigFieldInfo);
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigTableInfo);
+
+ConfigFieldInfo::ConfigFieldInfo(const ConfigTableInfo *owner)
+:_owner(owner)
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IExporterMgr, ExporterMgr);
 
-public:
-    ExporterMgr();
-    ~ExporterMgr();
+}
 
-    void Release() override;
+ConfigTableInfo::~ConfigTableInfo()
+{
+    KERNEL_NS::ContainerUtil::DelContainer(_fieldInfos, [](ConfigFieldInfo *ptr){
+        ConfigFieldInfo::Delete_ConfigFieldInfo(ptr);
+    });
+}
 
-public:
-    virtual KERNEL_NS::LibString ToString() const override;
-
-protected:
-    Int32 _OnGlobalSysInit() override;
-    void _OnGlobalSysClose() override;
-
-    void _OnExporter(KERNEL_NS::LibTimer *t);
-
-private:
-    void _Clear();
-
-    void _RegisterEvents();
-    void _UnRegisterEvents();
-
-private:
-};
 
 SERVICE_END

@@ -21,43 +21,53 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-02-19 22:12:07
+ * Date: 2023-02-21 11:03:07
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ConfigExporter/Comps/Exporter/Interface/IExporterMgr.h>
+#include <service/ConfigExporter/ServiceCompHeader.h>
 
 SERVICE_BEGIN
 
-class ExporterMgr : public IExporterMgr
+class ConfigTableInfo;
+
+// 字段信息
+class ConfigFieldInfo
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IExporterMgr, ExporterMgr);
+    POOL_CREATE_OBJ_DEFAULT(ConfigFieldInfo);
 
 public:
-    ExporterMgr();
-    ~ExporterMgr();
+    ConfigFieldInfo(const ConfigTableInfo *owner);
+    ~ConfigFieldInfo(){}
 
-    void Release() override;
+    const ConfigTableInfo *_owner;
+
+    KERNEL_NS::LibString _ownType;      // C, S等类别
+    KERNEL_NS::LibString _fieldName;    // 字段名
+    KERNEL_NS::LibString _dataType;     // 数据类型
+    KERNEL_NS::LibString _check;        // 校验
+    KERNEL_NS::LibString _flags;        // 字段功能标志
+    KERNEL_NS::LibString _defaultValue; // 默认值
+    KERNEL_NS::LibString _desc;         // 描述信息
+};
+
+// 表信息
+class ConfigTableInfo
+{
+    POOL_CREATE_OBJ_DEFAULT(ConfigTableInfo);
 
 public:
-    virtual KERNEL_NS::LibString ToString() const override;
+    ConfigTableInfo(){}
 
-protected:
-    Int32 _OnGlobalSysInit() override;
-    void _OnGlobalSysClose() override;
-
-    void _OnExporter(KERNEL_NS::LibTimer *t);
-
-private:
-    void _Clear();
-
-    void _RegisterEvents();
-    void _UnRegisterEvents();
-
-private:
+    ~ConfigTableInfo();
+    KERNEL_NS::LibString _ownType;              // C, S等类别
+    KERNEL_NS::LibString _wholeSheetName;       // 页签名 xxx | tableClass
+    KERNEL_NS::LibString _tableClassName;       // 表类型名 tableClass
+    std::vector<ConfigFieldInfo *> _fieldInfos; // 字段信息
+    std::set<KERNEL_NS::LibString> _fieldNames; // 字段名 用于校验字段名
 };
 
 SERVICE_END
