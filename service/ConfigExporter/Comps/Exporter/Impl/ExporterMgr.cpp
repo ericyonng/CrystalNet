@@ -93,33 +93,33 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
     std::unordered_map<KERNEL_NS::LibString, KERNEL_NS::LibString> targetTypeRefPath;
     KERNEL_NS::LibString sourcePath;
 
-    const Int32 argCount = static_cast<Int32>(appArgs.size());
-    for(Int32 idx = 0; idx < argCount; ++idx)
-    {
-        const auto &arg = appArgs[idx];
-        auto kv = arg.Split("=");
-        if(kv.empty())
-            continue;
+    // const Int32 argCount = static_cast<Int32>(appArgs.size());
+    // for(Int32 idx = 0; idx < argCount; ++idx)
+    // {
+    //     const auto &arg = appArgs[idx];
+    //     auto kv = arg.Split("=");
+    //     if(kv.empty())
+    //         continue;
 
-        if(kv.size() < 2)
-            continue;
+    //     if(kv.size() < 2)
+    //         continue;
 
-        auto &k = kv[0];
-        k.strip();
-        auto &v = kv[0];
-        if(k.empty())
-            continue;
+    //     auto &k = kv[0];
+    //     k.strip();
+    //     auto &v = kv[0];
+    //     if(k.empty())
+    //         continue;
 
-        v.strip();
+    //     v.strip();
 
-        auto &raw = k.GetRaw();
-        if(raw.find("--source_path") != std::string::npos)
-            sourcePath = v;
-        else if(raw.find("--target_") != std::string::npos)
-        {
-            raw.find("")
-        }
-    }
+    //     auto &raw = k.GetRaw();
+    //     if(raw.find("--source_path") != std::string::npos)
+    //         sourcePath = v;
+    //     else if(raw.find("--target_") != std::string::npos)
+    //     {
+    //         raw.find("")
+    //     }
+    // }
     do
     {
         g_Log->Custom("[CONFIG GEN] START.");
