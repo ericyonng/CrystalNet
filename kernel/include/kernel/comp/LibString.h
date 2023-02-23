@@ -1276,12 +1276,42 @@ ALWAYS_INLINE LibString LibString::lstrip(const LibString &chars) const
 
 ALWAYS_INLINE LibString &LibString::lstripString(const LibString &str)
 {
-    
+    if (str.empty())
+    {
+        return *this;
+    }
+
+    std::string &thisRaw = _raw;
+    size_type stripTo = 0;
+    const size_type thisSize = static_cast<size_type>(thisRaw.size());
+    const size_type sliceSize = static_cast<size_type>(str.size());
+    for (size_type i = 0; i < thisSize; i += 1)
+    {
+        if(sliceSize > (thisSize - i))
+            break;
+
+        auto pos = thisRaw.find(str._raw, i);
+        if(pos == i)
+        {
+            stripTo = pos + sliceSize;
+            i = stripTo - 1;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    if (stripTo != 0)
+        thisRaw.erase(0, stripTo);
+
+    return *this;
 }
 
 ALWAYS_INLINE LibString LibString::lstripString(const LibString &str) const
 {
-
+    auto copyThis = *this;
+    return copyThis.lstripString(str);
 }
 
 ALWAYS_INLINE LibString &LibString::rstrip(const LibString &chars)
@@ -1327,6 +1357,46 @@ ALWAYS_INLINE LibString LibString::rstrip(const LibString &chars) const
     return copyThis.rstrip(chars);
 }
 
+ALWAYS_INLINE LibString &LibString::rstripString(const LibString &str)
+{
+ if (str.empty())
+    {
+        return *this;
+    }
+
+    std::string &thisRaw = _raw;
+    const Int64 thisSize = static_cast<Int64>(thisRaw.size());
+    Int64 stripTo = thisSize;
+    const Int64 sliceSize = static_cast<Int64>(str.size());
+    for (Int64 i = thisSize - 1; i >= 0; i -= 1)
+    {
+        if(sliceSize > i + 1)
+            break;
+
+        auto pos = thisRaw.rfind(str._raw, i);
+        if(pos == ((i + 1) - sliceSize))
+        {
+            stripTo = static_cast<Int64>(pos);
+            i = stripTo;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    if (stripTo != thisSize)
+        thisRaw.erase(stripTo);
+
+    return *this;
+}
+
+ALWAYS_INLINE LibString LibString::rstripString(const LibString &str) const
+{
+    auto copyThis = *this;
+    return copyThis.rstripString(str);
+}
+
 ALWAYS_INLINE LibString &LibString::strip(const LibString &chars)
 {
     return this->lstrip(chars).rstrip(chars);
@@ -1336,6 +1406,17 @@ ALWAYS_INLINE LibString LibString::strip(const LibString &chars) const
 {
     _ThisType copyThis(*this);
     return copyThis.lstrip(chars).rstrip(chars);
+}
+
+ALWAYS_INLINE LibString &LibString::stripString(const LibString &str)
+{
+    return this->lstripString(str).rstripString(str);
+}
+
+ALWAYS_INLINE LibString LibString::stripString(const LibString &str) const
+{
+    _ThisType copyThis(*this);
+    return copyThis.lstripString(str).rstripString(str);
 }
 
 ALWAYS_INLINE bool LibString::isalpha(const char &c)

@@ -45,70 +45,101 @@ public:
     }
 };
 
-
 void TestString::Run()
 {
-    KERNEL_NS::LibString str;
+    // 测试strip
+    KERNEL_NS::LibString str = "123aaabbb789";
+    // KERNEL_NS::LibString str = "123123aaabbb789";
+    str.lstripString("123");
+    str.lstripString("1234");
+    str.rstripString("89");
+    str.rstripString("bb");
 
-    str.AppendFormat("hello world %d", 123)
-        .AppendFormat("bigger world %s", "haliluya")
-        .AppendFormat("dklakd %d %f %s %hu %x", 77, 1.5, "coder", 168, 169);
+    KERNEL_NS::LibString str2 = "123aaabb789789";
+    str2.rstripString("789");
+    KERNEL_NS::LibString str3 = "123aaabb789b789";
+    str3.rstripString("789");
 
-    TestStringObj testObj;
+    KERNEL_NS::LibString str4 = "789789";
+    str4.rstripString("789");
 
-    str.Append(testObj, 125566, "dkafkajdklfj", true);
+    KERNEL_NS::LibString str5 = "78789";
+    str5.rstripString("789");
 
-    str.findreplace(KERNEL_NS::LibString("bigger"), KERNEL_NS::LibString("hello"));
+    KERNEL_NS::LibString str6 = "789789";
+    str6.lstripString("789");
 
-    const auto &results = str.Split("hello");
-    for(auto &piece:results)
-    {
-        std::cout <<piece << std::endl;
-    }
+    KERNEL_NS::LibString str7 = "7897";
+    str7.lstripString("789");
 
-    std::ifstream stream;
-    BUFFER512 utf8str = {0};
-    stream.open("./utf8.txt", std::ios_base::binary);
-    stream.read(utf8str, 512);
-
-    KERNEL_NS::LibString utf8LibStr;
-    utf8LibStr = utf8str;
-
-    // UInt64 len = utf8LibStr.length_with_utf8();
-    auto utf8Piece = utf8LibStr.substr_with_utf8(1, 2);
-    utf8Piece.GetRaw().push_back(0);
-    BUFFER512 utf82;
-    const Byte8 * ptr = utf8Piece.c_str();
-    UInt64 loopCnt = 0;
-    while (true)
-    {
-        ++loopCnt;
-        if(*ptr == 0)
-            break;
-        ++ptr;
-    }
-    KERNEL_NS::LibString::_These theseStr;
-    utf8LibStr.split_utf8_string(2, theseStr);
-
-    KERNEL_NS::LibString::_These scatterStr;
-    utf8LibStr.scatter_utf8_string(scatterStr, 10);
-
-    strcpy(utf82, utf8Piece.c_str());
-
-    std::cout << str << std::endl;
-    std::cout << "utf8LibStr = "<< utf8LibStr << std::endl;
-    std::cout << "utf82 = "<< utf82 << std::endl;
-
-    KERNEL_NS::LibString splitSrc ="kslfjalsdjf;lasdjfk dd";
-    KERNEL_NS::LibString::_These dest;
-    KERNEL_NS::StringUtil::SplitString(splitSrc, KERNEL_NS::LibString(), dest);
-    std::cout<< "split count = "<< dest.size() << std::endl;
-    for(auto &piece:dest)
-        std::cout << piece << std::endl;
-    
-    // 测试appendformat
-    // 测试append()
-    // 测试findreplace
-    // 测试split
-    // 测试utf8接口
+    KERNEL_NS::LibString str8 = "7897b0055789789";
+    str8.stripString("789");
 }
+
+
+// void TestString::Run()
+// {
+//     KERNEL_NS::LibString str;
+
+//     str.AppendFormat("hello world %d", 123)
+//         .AppendFormat("bigger world %s", "haliluya")
+//         .AppendFormat("dklakd %d %f %s %hu %x", 77, 1.5, "coder", 168, 169);
+
+//     TestStringObj testObj;
+
+//     str.Append(testObj, 125566, "dkafkajdklfj", true);
+
+//     str.findreplace(KERNEL_NS::LibString("bigger"), KERNEL_NS::LibString("hello"));
+
+//     const auto &results = str.Split("hello");
+//     for(auto &piece:results)
+//     {
+//         std::cout <<piece << std::endl;
+//     }
+
+//     std::ifstream stream;
+//     BUFFER512 utf8str = {0};
+//     stream.open("./utf8.txt", std::ios_base::binary);
+//     stream.read(utf8str, 512);
+
+//     KERNEL_NS::LibString utf8LibStr;
+//     utf8LibStr = utf8str;
+
+//     // UInt64 len = utf8LibStr.length_with_utf8();
+//     auto utf8Piece = utf8LibStr.substr_with_utf8(1, 2);
+//     utf8Piece.GetRaw().push_back(0);
+//     BUFFER512 utf82;
+//     const Byte8 * ptr = utf8Piece.c_str();
+//     UInt64 loopCnt = 0;
+//     while (true)
+//     {
+//         ++loopCnt;
+//         if(*ptr == 0)
+//             break;
+//         ++ptr;
+//     }
+//     KERNEL_NS::LibString::_These theseStr;
+//     utf8LibStr.split_utf8_string(2, theseStr);
+
+//     KERNEL_NS::LibString::_These scatterStr;
+//     utf8LibStr.scatter_utf8_string(scatterStr, 10);
+
+//     strcpy(utf82, utf8Piece.c_str());
+
+//     std::cout << str << std::endl;
+//     std::cout << "utf8LibStr = "<< utf8LibStr << std::endl;
+//     std::cout << "utf82 = "<< utf82 << std::endl;
+
+//     KERNEL_NS::LibString splitSrc ="kslfjalsdjf;lasdjfk dd";
+//     KERNEL_NS::LibString::_These dest;
+//     KERNEL_NS::StringUtil::SplitString(splitSrc, KERNEL_NS::LibString(), dest);
+//     std::cout<< "split count = "<< dest.size() << std::endl;
+//     for(auto &piece:dest)
+//         std::cout << piece << std::endl;
+    
+//     // 测试appendformat
+//     // 测试append()
+//     // 测试findreplace
+//     // 测试split
+//     // 测试utf8接口
+// }
