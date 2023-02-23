@@ -1359,7 +1359,7 @@ ALWAYS_INLINE LibString LibString::rstrip(const LibString &chars) const
 
 ALWAYS_INLINE LibString &LibString::rstripString(const LibString &str)
 {
- if (str.empty())
+    if (str.empty())
     {
         return *this;
     }
@@ -1374,7 +1374,7 @@ ALWAYS_INLINE LibString &LibString::rstripString(const LibString &str)
             break;
 
         auto pos = thisRaw.rfind(str._raw, i);
-        if(pos == ((i + 1) - sliceSize))
+        if(pos == static_cast<size_type>((i + 1) - sliceSize))
         {
             stripTo = static_cast<Int64>(pos);
             i = stripTo;
