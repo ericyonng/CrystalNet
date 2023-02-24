@@ -429,13 +429,23 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
             continue;
         }
 
-        auto handler = _GetMsgHandler(packet->GetOpcode());
+        const auto opcode = packet->GetOpcode();
+        auto handler = _GetMsgHandler(opcode);
         if(UNLIKELY(!handler))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("a packet with unknown opcode handler packet:%s"), packet->ToString().c_str());
             packet->ReleaseUsingPool();
             continue;
         }
+
+        const auto sessionId = packet->GetSessionId();
+        const auto packetId = packet->GetPacketId();
+        const auto getContent = [sessionId, packetId, opcode](){
+            const auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
+            return KERNEL_NS::LibString().AppendFormat(PR_FMT("sessionId:%llu, packetid:%lld, opcode:%d,[%s],  ")
+                , sessionId, packetId, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.");
+        };
+        PERFORMANCE_RECORD_DEF(pr, getContent, 5);
 
         handler->Invoke(packet);
         if(LIKELY(packet))

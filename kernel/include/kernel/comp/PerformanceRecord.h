@@ -43,9 +43,14 @@ KERNEL_BEGIN
 
 #undef PERFORMANCE_RECORD_DEF
 
+#undef PR_FMT
+#define PR_FMT(CONTENT_FMT) "%s:%d %s "CONTENT_FMT, __FILE__,__LINE__,__FUNCTION__
+
 #ifdef CRYSTAL_NET_PORFORMANCE_RECORD
 
-#define PERFORMANCE_RECORD_DEF(PR, CONTENT) KERNEL_NS::PerformanceRecord PR = KERNEL_NS::PerformanceRecord(CONTENT, __FUNCTION__, __FILE__, __LINE__)
+// 耗时超过OUTPUT_LOG_MS_LINE 会输出日志
+#define PERFORMANCE_RECORD_DEF(PR, GET_CONTENT, OUTPUT_LOG_MS_LINE) KERNEL_NS::PerformanceRecord PR = KERNEL_NS::PerformanceRecord(GET_CONTENT, OUTPUT_LOG_MS_LINE)
+
 
 class KERNEL_EXPORT PerformanceRecord
 {
@@ -55,24 +60,26 @@ private:
     explicit PerformanceRecord() {}
 
 public:
-    PerformanceRecord(const LibString &content, const Byte8 *func, const Byte8 *fileName, Int32 line);
+    PerformanceRecord(const std::function<KERNEL_NS::LibString()> &getContentFun, UInt64 outputLogMsLine);
 
     ~PerformanceRecord();
 
 private:
-    LibString _content;
+    std::function<KERNEL_NS::LibString()> _getContent;
     LibCpuCounter _start;
+    UInt64 _outputLogMsLine;
 };
 
-ALWAYS_INLINE PerformanceRecord::PerformanceRecord(const LibString &content, const Byte8 *func, const Byte8 *fileName, Int32 line)
+ALWAYS_INLINE PerformanceRecord::PerformanceRecord(const std::function<KERNEL_NS::LibString()> &getContentFun, UInt64 outputLogMsLine)
+:_getContent(getContentFun)
 {
-    _content.AppendFormat("%s[%d]-%s, %s", fileName, line, func, content.c_str());
+    _outputLogMsLine = outputLogMsLine;
     _start.Update();
 }
 
 #else
 
-#define PERFORMANCE_RECORD_DEF(PR, CONTENT) 
+#define PERFORMANCE_RECORD_DEF(PR, GET_CONTENT, OUTPUT_LOG_MS_LINE) 
 
 #endif
 
