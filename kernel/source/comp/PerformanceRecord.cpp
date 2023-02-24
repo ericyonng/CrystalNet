@@ -28,24 +28,12 @@
 
 #include <pch.h>
 #include <kernel/comp/PerformanceRecord.h>
-#include <kernel/comp/Log/log.h>
-#include <kernel/comp/LibTime.h>
+
 
 KERNEL_BEGIN
 
 #ifdef CRYSTAL_NET_PORFORMANCE_RECORD
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(PerformanceRecord);
-
-PerformanceRecord::~PerformanceRecord()
-{
-    const auto ms = LibCpuCounter().Update().ElapseMilliseconds(_start);
-    if(LIKELY(_outputLogMsLine > ms))
-        return;
-
-    g_Log->Warn(LOGFMT_OBJ_TAG("[PERFORMANCE RECORD]:%s, cost:%llu (ms).")
-                ,_getContent().c_str(), ms);
-}
 
 #endif
 
