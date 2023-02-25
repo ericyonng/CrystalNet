@@ -67,7 +67,7 @@ public:
     KERNEL_NS::LibString _wholeSheetName;       // 页签名 xxx | tableClass
     KERNEL_NS::LibString _tableClassName;       // 表类型名 tableClass
     std::vector<ConfigFieldInfo *> _fieldInfos; // 字段信息
-    std::set<KERNEL_NS::LibString> _fieldNames; // 字段名 用于校验字段名
+    std::unordered_set<KERNEL_NS::LibString> _fieldNames; // 字段名 用于校验字段名
 };
 
 SERVICE_END

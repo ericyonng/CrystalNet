@@ -167,6 +167,7 @@ public:
     void resize(UInt64 bytes);
     std::string &GetRaw();
     const std::string &GetRaw() const;
+    bool Contain(const LibString &piece) const;
 
     LibString ToHexString() const;    
     void ToHexString(LibString &target) const;   
@@ -795,6 +796,11 @@ ALWAYS_INLINE std::string &LibString::GetRaw()
 ALWAYS_INLINE const std::string &LibString::GetRaw() const
 {
     return _raw;
+}
+
+ALWAYS_INLINE  bool LibString::Contain(const LibString &piece) const
+{
+    return _raw.find(piece._raw) != std::string::npos;
 }
 
 ALWAYS_INLINE LibString LibString::ToHexString() const

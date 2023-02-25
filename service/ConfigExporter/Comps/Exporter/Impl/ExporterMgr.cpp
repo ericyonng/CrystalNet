@@ -60,11 +60,6 @@ Int32 ExporterMgr::_OnGlobalSysInit()
 {
     _RegisterEvents();
 
-    auto nextFrame = [this](KERNEL_NS::LibTimer *t)
-    {
-
-    };
-
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     timer->SetTimeOutHandler(this, &ExporterMgr::_OnExporter);
     timer->Schedule(0);
@@ -87,39 +82,91 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
     auto app = GetApp();
     const auto &appArgs = app->GetAppArgs();
     
-    // ConfigExporter --source_path=xxx.xlsx --target_XX_path= --target_XX_path=
+    // ConfigExporter --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/
 
     // target字典
-    std::unordered_map<KERNEL_NS::LibString, KERNEL_NS::LibString> targetTypeRefPath;
-    KERNEL_NS::LibString sourcePath;
+    KERNEL_NS::LibString sourceDir;
+    KERNEL_NS::LibString targetDir;
+    KERNEL_NS::LibString dataDir;
+    std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> configTypeRefLangTypes;
 
-    // const Int32 argCount = static_cast<Int32>(appArgs.size());
-    // for(Int32 idx = 0; idx < argCount; ++idx)
-    // {
-    //     const auto &arg = appArgs[idx];
-    //     auto kv = arg.Split("=");
-    //     if(kv.empty())
-    //         continue;
+    const Int32 argCount = static_cast<Int32>(appArgs.size());
+    for(Int32 idx = 0; idx < argCount; ++idx)
+    {
+        const auto &arg = appArgs[idx];
+        auto kv = arg.Split("=");
+        if(kv.empty())
+            continue;
 
-    //     if(kv.size() < 2)
-    //         continue;
+        if(kv.size() < 2)
+            continue;
 
-    //     auto &k = kv[0];
-    //     k.strip();
-    //     auto &v = kv[0];
-    //     if(k.empty())
-    //         continue;
+        auto &k = kv[0];
+        k.strip();
+        KERNEL_NS::LibString &v = kv[1];
+        if(k.empty())
+            continue;
 
-    //     v.strip();
+        v.strip();
 
-    //     auto &raw = k.GetRaw();
-    //     if(raw.find("--source_path") != std::string::npos)
-    //         sourcePath = v;
-    //     else if(raw.find("--target_") != std::string::npos)
-    //     {
-    //         raw.find("")
-    //     }
-    // }
+        // 生成的语言版本
+        if(k == "--lang")
+        {
+            auto configTypeRefLangsArr = v.Split("|");
+            if(!configTypeRefLangsArr.empty())
+            {
+                for(auto &configTypeRefLangs : configTypeRefLangsArr)
+                {
+                    configTypeRefLangs.strip();
+                    if(configTypeRefLangs.empty())
+                        continue;
+                    
+                    auto configTypeLangPieces = configTypeRefLangs.Split(":");
+                    if(configTypeLangPieces.empty())
+                        continue;
+
+                    if(configTypeLangPieces.size() < 2)
+                        continue;
+
+                    auto &configType = configTypeLangPieces[0];
+                    auto &langsStr = configTypeLangPieces[1];
+                    configType.strip();
+                    langsStr.strip();
+                    if(configType.empty() || langsStr.empty())
+                        continue;
+
+                    auto langsPieces = langsStr.Split(",");
+                    if(langsPieces.empty())
+                        continue;
+
+                    auto iter = configTypeRefLangTypes.find(configType);
+                    if(iter == configTypeRefLangTypes.end())
+                        iter = configTypeRefLangTypes.insert(std::make_pair(configType, std::unordered_set<KERNEL_NS::LibString>())).first;
+                    auto &langsSet = iter->second; 
+
+                    for(auto &lang : langsPieces)
+                        langsSet.insert(lang);    
+                }
+            }
+        }
+        else if(k == "--source_dir")
+        {
+            sourceDir = v;
+        }
+        else if(k == "target_dir")
+        {
+            targetDir = v;
+        }
+        else if(k == "--data")
+        {
+            dataDir = v;
+        }
+        else
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("unknown param:k:%s, v:%s"), k.c_str(), v.c_str());
+        }
+    }
+    
     do
     {
         g_Log->Custom("[CONFIG GEN] START.");
