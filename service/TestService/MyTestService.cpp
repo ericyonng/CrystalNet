@@ -443,7 +443,7 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
         const auto getContent = [sessionId, packetId, opcode](){
             const auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
             return KERNEL_NS::LibString().AppendFormat(PR_FMT("sessionId:%llu, packetid:%lld, opcode:%d,[%s],  ")
-                , sessionId, packetId, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.");
+                , sessionId, packetId, opcode, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.");
         };
         PERFORMANCE_RECORD_DEF(pr, getContent, 5);
 
