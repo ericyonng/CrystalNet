@@ -90,6 +90,7 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
     KERNEL_NS::LibString dataDir;
     std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> configTypeRefLangTypes;
 
+    // 1.传入的参数
     const Int32 argCount = static_cast<Int32>(appArgs.size());
     for(Int32 idx = 0; idx < argCount; ++idx)
     {
@@ -166,6 +167,8 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
             g_Log->Warn(LOGFMT_OBJ_TAG("unknown param:k:%s, v:%s"), k.c_str(), v.c_str());
         }
     }
+
+    // 2.加载xlsx文件
     
     do
     {
