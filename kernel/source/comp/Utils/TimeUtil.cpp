@@ -34,7 +34,7 @@ KERNEL_BEGIN
 
 std::atomic<Int32> __g_timezone{0};
 Int64 TimeUtil::_systemTimeBegin = 0;
-LibCpuCounter TimeUtil::_cpuBegin;
+UInt64 TimeUtil::_cpuBegin = 0;
 
 void TimeUtil::SetTimeZone()
 {

@@ -84,7 +84,7 @@ public:
     
 private:
     static Int64 _systemTimeBegin;      // 系统启动时间戳
-    static LibCpuCounter _cpuBegin;    // 系统启动时的tsc
+    static UInt64 _cpuBegin;    // 系统启动时的tsc
 };
 
 ALWAYS_INLINE bool TimeUtil::IsLeapYear(Int32 year)
@@ -228,15 +228,15 @@ ALWAYS_INLINE UInt64 TimeUtil::GetCpuCounterFrequancy()
 
 ALWAYS_INLINE void TimeUtil::InitFastTime()
 {
-    _cpuBegin.Update();
+    _cpuBegin = KERNEL_NS::CrystalRdTsc();
     _systemTimeBegin = TimeUtil::GetMicroTimestamp();
 }
 
 ALWAYS_INLINE Int64 TimeUtil::GetFastMicroTimestamp()
 {
-    const auto &nowCpu = LibCpuCounter().Update();
-    const auto &slice = LibCpuSlice(nowCpu.GetCurCount() - _cpuBegin.GetCurCount());
-    return _systemTimeBegin + static_cast<Int64>(slice.GetTotalMicroseconds());
+    const auto nowCpu = KERNEL_NS::CrystalRdTsc();
+    const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerMicroSecond);
+    return _systemTimeBegin + cpuSlice;
 }
 
 KERNEL_END

@@ -66,6 +66,7 @@ void TestTime::Run()
     std::cout << "test GetClockRealTime :" << KERNEL_NS::TimeUtil::GetClockRealTime() << std::endl;
     std::cout << "test GetClockMonotonicTime :" << KERNEL_NS::TimeUtil::GetClockMonotonicSysRunTime() << std::endl;
     std::cout << "test GetMicroTimestamp :" << KERNEL_NS::TimeUtil::GetMicroTimestamp() << std::endl;
+    std::cout << "test GetFastMicroTimestamp :" << KERNEL_NS::TimeUtil::GetFastMicroTimestamp() << std::endl;
     std::cout << "test GetChronoMicroTimestamp :" << KERNEL_NS::TimeUtil::GetChronoMicroTimestamp() << std::endl;
     std::cout << "test GetClockRealTimeCoarse :" << KERNEL_NS::TimeUtil::GetClockRealTimeCoarse() << std::endl;
 
@@ -86,7 +87,7 @@ void TestTime::Run()
     endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
     std::cout << " GetFastMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
-    
+
     beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
     for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
         KERNEL_NS::TimeUtil::GetChronoMicroTimestamp();
