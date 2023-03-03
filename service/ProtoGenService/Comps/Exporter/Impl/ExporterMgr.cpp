@@ -1440,6 +1440,7 @@ bool ExporterMgr::_ScanProtos()
 
     auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(traverseCallback, bool, const KERNEL_NS::FindFileInfo &, bool &);
     KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_protoPath, delg);
+    delg->Release();
 
     g_Log->Custom("SCAN PROTOS IN PROTO PATH:%s END", _protoPath.c_str());
 

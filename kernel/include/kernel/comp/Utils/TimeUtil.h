@@ -32,6 +32,7 @@
 #pragma once
 
 #include <kernel/kernel_inc.h>
+#include <kernel/comp/Cpu/LibCpuCounter.h>
 
 KERNEL_BEGIN
 
@@ -77,15 +78,21 @@ public:
     static UInt64 RdTscTickNum();   // 消除cpuid调用的影响,再测量起始的时候使用
     static UInt64 GetCpuCounterFrequancy(); // 内含初始化函数(若没有初始化则初始化tsc_hz)(先执行__cpuid指令, 再执行rdtsc, 再执行clock_gettime, 执行1000000的循环后再执行clock_gettime计算时间, 再执行一次rdtsc, 再执行__cpuid再用时间戳差计算tsc_hz)
 
+    // 基于rdtsc
+    static void InitFastTime();
+    static Int64 GetFastMicroTimestamp();
+    
 private:
+    static Int64 _systemTimeBegin;      // 系统启动时间戳
+    static LibCpuCounter _cpuBegin;    // 系统启动时的tsc
 };
 
-inline bool TimeUtil::IsLeapYear(Int32 year)
+ALWAYS_INLINE bool TimeUtil::IsLeapYear(Int32 year)
 {
     return ( (((year % 4) == 0) && ((year % 100) != 0)) || ((year % 400) == 0));
 }
 
-inline Int64 TimeUtil::GetHandwareSysRunTime()
+ALWAYS_INLINE Int64 TimeUtil::GetHandwareSysRunTime()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     return GetMicroTimestamp();
@@ -97,7 +104,7 @@ inline Int64 TimeUtil::GetHandwareSysRunTime()
 #endif
 }
 
-inline Int64 TimeUtil::GetClockRealTime()
+ALWAYS_INLINE Int64 TimeUtil::GetClockRealTime()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     return GetMicroTimestamp();
@@ -109,7 +116,7 @@ inline Int64 TimeUtil::GetClockRealTime()
 #endif
 }
 
-inline Int64 TimeUtil::GetClockRealTimeCoarse()
+ALWAYS_INLINE Int64 TimeUtil::GetClockRealTimeCoarse()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     return GetMicroTimestamp();
@@ -121,7 +128,7 @@ inline Int64 TimeUtil::GetClockRealTimeCoarse()
 #endif
 }
 
-inline Int64 TimeUtil::GetClockMonotonicSysRunTime()
+ALWAYS_INLINE Int64 TimeUtil::GetClockMonotonicSysRunTime()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     return GetMicroTimestamp();
@@ -134,12 +141,12 @@ inline Int64 TimeUtil::GetClockMonotonicSysRunTime()
 }
 
 // 通用时间,高性能
-inline Int64 TimeUtil::GetMicroTimestamp()
+ALWAYS_INLINE Int64 TimeUtil::GetMicroTimestamp()
 {
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     // 第二个参数返回时区
     struct timeval timeVal;
-    gettimeofday(&timeVal, NULL);
+    ::gettimeofday(&timeVal, NULL);
 
     return (Int64)timeVal.tv_sec * TimeDefs::MICRO_SECOND_PER_SECOND + timeVal.tv_usec;
 
@@ -156,12 +163,12 @@ inline Int64 TimeUtil::GetMicroTimestamp()
 #endif
 }
 
-inline Int64 TimeUtil::GetChronoMicroTimestamp()
+ALWAYS_INLINE Int64 TimeUtil::GetChronoMicroTimestamp()
 {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock().now().time_since_epoch()).count() / TimeDefs::RESOLUTION_PER_MICROSECOND;
 }
 
-inline Int64 TimeUtil::GetSystemElapseNanoseconds()
+ALWAYS_INLINE Int64 TimeUtil::GetSystemElapseNanoseconds()
 {
     #if CRYSTAL_TARGET_PLATFORM_LINUX
         struct timespec tp;
@@ -177,7 +184,7 @@ inline Int64 TimeUtil::GetSystemElapseNanoseconds()
     #endif
 }
 
-inline Int64 TimeUtil::GetProcessElapseNanoseconds()
+ALWAYS_INLINE Int64 TimeUtil::GetProcessElapseNanoseconds()
 {
     #if CRYSTAL_TARGET_PLATFORM_LINUX
         struct timespec tp;
@@ -193,7 +200,7 @@ inline Int64 TimeUtil::GetProcessElapseNanoseconds()
     #endif
 }
 
-inline Int64 TimeUtil::GetThreadElapseNanoseconds()
+ALWAYS_INLINE Int64 TimeUtil::GetThreadElapseNanoseconds()
 {
     #if CRYSTAL_TARGET_PLATFORM_LINUX
         struct timespec tp;
@@ -209,14 +216,27 @@ inline Int64 TimeUtil::GetThreadElapseNanoseconds()
     #endif
 }
 
-inline UInt64 TimeUtil::RdTscTickNum()
+ALWAYS_INLINE UInt64 TimeUtil::RdTscTickNum()
 {
     return KERNEL_NS::CrystalRdTsc();
 }
 
-inline UInt64 TimeUtil::GetCpuCounterFrequancy()
+ALWAYS_INLINE UInt64 TimeUtil::GetCpuCounterFrequancy()
 {
     return KERNEL_NS::CrystalGetCpuCounterFrequancy();
+}
+
+ALWAYS_INLINE void TimeUtil::InitFastTime()
+{
+    _cpuBegin.Update();
+    _systemTimeBegin = TimeUtil::GetMicroTimestamp();
+}
+
+ALWAYS_INLINE Int64 TimeUtil::GetFastMicroTimestamp()
+{
+    const auto &nowCpu = LibCpuCounter().Update();
+    const auto &slice = LibCpuSlice(nowCpu.GetCurCount() - _cpuBegin.GetCurCount());
+    return _systemTimeBegin + static_cast<Int64>(slice.GetTotalMicroseconds());
 }
 
 KERNEL_END

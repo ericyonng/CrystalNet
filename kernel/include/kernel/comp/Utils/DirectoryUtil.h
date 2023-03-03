@@ -63,6 +63,10 @@ public:
     static bool TraverseDirRecursively(const LibString &dir
     , IDelegate<bool, const FindFileInfo &, bool &> *stepCallback);
 
+    template<typename CallbackType>
+    static bool TraverseDirRecursively(const LibString &dir
+    , CallbackType &&cb);
+
     static bool IsDirExists(const LibString &dir);
 
 private:
@@ -90,6 +94,15 @@ inline LibString DirectoryUtil::GetFileDirInPath(const char *path)
 inline bool DirectoryUtil::_CreateSubDir(const LibString &subDir)
 {
     return _CreateSubDir(subDir.GetRaw());
+}
+
+template<typename CallbackType>
+ALWAYS_INLINE bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
+, CallbackType &&cb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(std::forward(cb), bool, const FindFileInfo &, bool &);
+    TraverseDirRecursively(dir, delg);
+    delg->Release();
 }
 
 KERNEL_END

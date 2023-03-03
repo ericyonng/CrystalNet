@@ -39,4 +39,5 @@ void TestDirectoryUtil::Run()
 
     auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(callback, bool, const KERNEL_NS::FindFileInfo &, bool &);
     KERNEL_NS::DirectoryUtil::TraverseDirRecursively("./ini", delg);
+    delg->Release();
 }

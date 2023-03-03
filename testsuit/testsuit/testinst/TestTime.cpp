@@ -81,6 +81,14 @@ void TestTime::Run()
 
     beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
     for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+        KERNEL_NS::TimeUtil::GetFastMicroTimestamp();
+
+    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+
+    std::cout << " GetFastMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+    
+    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
         KERNEL_NS::TimeUtil::GetChronoMicroTimestamp();
 
     endTime = KERNEL_NS::LibTime::NowMilliTimestamp();

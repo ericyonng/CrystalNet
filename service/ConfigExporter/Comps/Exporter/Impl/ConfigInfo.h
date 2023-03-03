@@ -70,4 +70,20 @@ public:
     std::unordered_set<KERNEL_NS::LibString> _fieldNames; // 字段名 用于校验字段名
 };
 
+// meta文件内容(用于判断xlsx是否发生了变更)
+class ConfigMetaInfo
+{
+public:
+    POOL_CREATE_OBJ_DEFAULT(ConfigMetaInfo);
+
+    ConfigMetaInfo(){}
+    ~ConfigMetaInfo(){}
+
+    KERNEL_NS::LibString _metaRootPath;     // meta所在目录
+    KERNEL_NS::LibString _metaFileName;     // meta文件名
+
+    KERNEL_NS::LibString _xlsxFileName;     // xlsx文件名
+    KERNEL_NS::LibString _lastMd5;           // 最后一次的md5值
+};
+
 SERVICE_END

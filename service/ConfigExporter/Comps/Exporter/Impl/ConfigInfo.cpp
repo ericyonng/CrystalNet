@@ -35,6 +35,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigFieldInfo);
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigTableInfo);
 
+POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigMetaInfo);
+
 ConfigFieldInfo::ConfigFieldInfo(const ConfigTableInfo *owner)
 :_owner(owner)
 {

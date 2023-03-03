@@ -82,12 +82,13 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
     auto app = GetApp();
     const auto &appArgs = app->GetAppArgs();
     
-    // ConfigExporter --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/
+    // ConfigExporter --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/ --meta=/xxx/
 
     // target字典
     KERNEL_NS::LibString sourceDir;
     KERNEL_NS::LibString targetDir;
     KERNEL_NS::LibString dataDir;
+    KERNEL_NS::LibString metaDir;
     std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> configTypeRefLangTypes;
 
     // 1.传入的参数
@@ -162,23 +163,90 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
         {
             dataDir = v;
         }
+        else if(k == "--meta")
+        {
+            metaDir = v;
+        }
         else
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("unknown param:k:%s, v:%s"), k.c_str(), v.c_str());
         }
     }
-
-    // 2.加载xlsx文件
     
+    // 1.加载meta
+    
+    // 1.扫描所有xlsx文件以页签的配置类型名为key生成需要处理文件的字典
     do
     {
-        g_Log->Custom("[CONFIG GEN] START.");
+        if(configTypeRefLangTypes.empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("have no lang types"));
+            break;
+        }
 
-        // 1.读取所有配置数据
+        if(sourceDir.empty() || targetDir.empty() || dataDir.empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("sourceDir:%s, targetDir:%s, dataDir:%s error."));
+            break;
+        }
+
+        // auto nowTs = KERNEL_NS::LibTime::Now();
+        // auto traverseCallback = [this, &nowTs] (const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentPathContinue) -> bool {
+
+    //     bool isContinue = true;
+    //     do
+    //     {
+    //         // 过滤目录
+    //         if(KERNEL_NS::FileUtil::IsDir(fileInfo))
+    //             break;
+
+    //         // 过滤非xlsx文件
+    //         if(KERNEL_NS::FileUtil::ExtractFileExtension(fileInfo._fileName) != KERNEL_NS::LibString(".xlsx"))
+    //             break;
+
+    //         KERNEL_NS::LibString xlsxRootPath = fileInfo._rootPath;
+    //         if(fileInfo._rootPath.at(fileInfo._rootPath.length() - 1) != '/')
+    //             xlsxRootPath.AppendFormat("/");
+
+    //         const auto &fullFilePath = xlsxRootPath + fileInfo._fileName;
+
+    //         // 拿pbcache中的缓存数据
+    //         auto iterPbCacheFile = _pbCacheContent->_protoPathRefFileInfo.find(fullFilePath);
+    //         if(iterPbCacheFile != _pbCacheContent->_protoPathRefFileInfo.end())
+    //         {
+    //             auto pbCacheFile = iterPbCacheFile->second;
+    //             // 修改时间没变则不需要重新解析
+    //             if(!_forceGenAll)
+    //             {
+    //                 if(pbCacheFile->_modifyTime == fileInfo._modifyTime)
+    //                     break;
+    //             }
+    //         }
+
+    //         // md5有变化才会被扫描到
+    //         if(!_ScanAProto(fileInfo, fullFilePath, isParentPathContinue))
+    //         {
+    //             isContinue = false;
+    //             break;
+    //         }
+
+    //     } while (false);
         
-        g_Log->Custom("[CONFIG GEN] END.");
+    //     return isContinue;
+    // };
 
-    }while (false);
+    // auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(traverseCallback, bool, const KERNEL_NS::FindFileInfo &, bool &);
+
+    //     // 2.加载xlsx文件
+    //     // KERNEL_NS::DirectoryUtil::TraverseDirRecursively(sourceDir, )
+
+    //     g_Log->Custom("[CONFIG GEN] START.");
+
+    //     // 1.读取所有配置数据
+        
+    //     g_Log->Custom("[CONFIG GEN] END.");
+
+     }while (false);
 
     // 4.关闭app
     Int32 err = genSuc ? Status::Success : Status::Failed;

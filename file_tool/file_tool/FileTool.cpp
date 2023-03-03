@@ -156,7 +156,9 @@ static bool MergeFile(const KERNEL_NS::LibString &target)
         return isContinue;
     };
 
-    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dir, KERNEL_CREATE_CLOSURE_DELEGATE(travel, bool, const KERNEL_NS::FindFileInfo &, bool &));
+    auto delg =  KERNEL_CREATE_CLOSURE_DELEGATE(travel, bool, const KERNEL_NS::FindFileInfo &, bool &);
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(dir, delg);
+    delg->Release();
     
     if(!hasPartFile)
     {

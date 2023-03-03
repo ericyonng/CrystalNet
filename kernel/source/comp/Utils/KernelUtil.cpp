@@ -130,6 +130,9 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     // cpu frequancy
     LibCpuFrequency::InitFrequancy();
 
+    // 初始化系统高性能时间
+    TimeUtil::InitFastTime();
+
     // sock error init
     SockErrorMsgUtil::Init();
 
