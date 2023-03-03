@@ -127,7 +127,7 @@ KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalNativeRdTsc()
 {
 #if CRYSTAL_TARGET_PLATFORM_LINUX
     UInt32 low, high;
-    __asm__ volatile ("rdtsc" : "=a"(low), "d"(high));
+    __asm__ volatile ("rdtsc" : "=a"(low), "=d"(high));
 
     return (low) | ((UInt64)(high) << 32);
 #endif
