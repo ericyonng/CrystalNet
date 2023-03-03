@@ -86,7 +86,7 @@ private:
 
 inline void LibTimer::Schedule(Int64 milliSec)
 {
-    Schedule(TimeUtil::GetMicroTimestamp(), milliSec);
+    Schedule(TimeUtil::GetFastMicroTimestamp(), milliSec);
 }
 
 inline bool LibTimer::IsScheduling() const

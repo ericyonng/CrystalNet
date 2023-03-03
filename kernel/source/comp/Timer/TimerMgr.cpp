@@ -75,7 +75,7 @@ void TimerMgr::Drive()
     _BeforeDrive();
 
     if(LIKELY(_expireQueue.empty() == false))
-        _curTime = TimeUtil::GetMicroTimestamp();
+        _curTime = TimeUtil::GetFastMicroTimestamp();
 
     for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
     {

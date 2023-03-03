@@ -241,7 +241,7 @@ ALWAYS_INLINE bool GuidUtil::InitSnowflakeBaseSysTime(SnowflakeInfo &historyInfo
     }
 
     // 起始时间不能大于当前时间
-    const UInt64 nowTime = static_cast<UInt64>(TimeUtil::GetMicroTimestamp());
+    const UInt64 nowTime = static_cast<UInt64>(TimeUtil::GetFastMicroTimestamp());
     if(startMicroSecondTime > nowTime)
         return false;
 
@@ -262,7 +262,7 @@ ALWAYS_INLINE UInt64 GuidUtil::SnowflakeBaseSysTime(SnowflakeInfo &snowflakeInfo
     // GetMicroTimestamp 耗时比较大 TODO:
     const UInt64 timePart = snowflakeInfo._lastTime;
     const UInt64 startMicroTime = snowflakeInfo._startMicroSecondTime;
-    UInt64 nowMicro = static_cast<UInt64>(TimeUtil::GetMicroTimestamp()) - startMicroTime;
+    UInt64 nowMicro = static_cast<UInt64>(TimeUtil::GetFastMicroTimestamp()) - startMicroTime;
     UInt64 nowMilli = nowMicro / microSecPerMilli;
     const bool willOverSeq = ((snowflakeInfo._lastSeq + 1) & maskInfo._seqBitsLimitMask) == 0;
 
@@ -274,7 +274,7 @@ ALWAYS_INLINE UInt64 GuidUtil::SnowflakeBaseSysTime(SnowflakeInfo &snowflakeInfo
         {
             CRYSTAL_TRACE("system time back nowMicro = [%llu] _lastTime = [%llu]", nowMicro, snowflakeInfo._lastTime);
             SystemUtil::ThreadSleep(0, needNowTimeMicroAtLeast - nowMicro);
-            nowMicro = static_cast<UInt64>(TimeUtil::GetMicroTimestamp()) - startMicroTime;
+            nowMicro = static_cast<UInt64>(TimeUtil::GetFastMicroTimestamp()) - startMicroTime;
             nowMilli = nowMicro / microSecPerMilli;
             // std::cout << "system time back nowMicro = " << nowMicro << std::endl;
             // std::cout << "system time back _lastTime = " << snowflakeInfo._lastTime << std::endl;
@@ -296,7 +296,7 @@ ALWAYS_INLINE UInt64 GuidUtil::SnowflakeBaseSysTime(SnowflakeInfo &snowflakeInfo
             {
                 CRYSTAL_TRACE("system time back nowMicro = [%llu] _lastTime = [%llu]", nowMicro, snowflakeInfo._lastTime);
                 SystemUtil::ThreadSleep(0, needNowTimeMicroAtLeast - nowMicro);
-                nowMicro = static_cast<UInt64>(TimeUtil::GetMicroTimestamp()) - startMicroTime;
+                nowMicro = static_cast<UInt64>(TimeUtil::GetFastMicroTimestamp()) - startMicroTime;
                 nowMilli = nowMicro / microSecPerMilli;
                 // std::cout << "system time back nowMicro = " << nowMicro << std::endl;
                 // std::cout << "system time back _lastTime = " << snowflakeInfo._lastTime << std::endl;

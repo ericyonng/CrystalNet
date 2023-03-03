@@ -180,7 +180,7 @@ LibTime LibTime::FromTimeStruct(const tm &timeStruct, int milliSecond, int micro
 
 const LibTime &LibTime::UpdateAppendTime(const TimeSlice &addSliceBaseOnNowTime)
 {
-    _rawTime = TimeUtil::GetMicroTimestamp() + addSliceBaseOnNowTime.GetTotalMicroSeconds();
+    _rawTime = TimeUtil::GetFastMicroTimestamp() + addSliceBaseOnNowTime.GetTotalMicroSeconds();
     // _rawTime = std::chrono::system_clock::now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond
     //     + addSliceBaseOnNowTime.GetTotalMicroSeconds();
     _UpdateTimeStructs();
@@ -189,7 +189,7 @@ const LibTime &LibTime::UpdateAppendTime(const TimeSlice &addSliceBaseOnNowTime)
 
 const LibTime &LibTime::UpdateAppendTime(Int64 addMicroSecBaseOnNowTime)
 {
-    _rawTime = TimeUtil::GetMicroTimestamp() + addMicroSecBaseOnNowTime;
+    _rawTime = TimeUtil::GetFastMicroTimestamp() + addMicroSecBaseOnNowTime;
     // _rawTime = std::chrono::system_clock::now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond
     //     + addMicroSecBaseOnNowTime;
     _UpdateTimeStructs();

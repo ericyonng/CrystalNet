@@ -32,6 +32,8 @@
 
 SERVICE_BEGIN
 
+class ConfigMetaInfo;
+
 class ExporterMgr : public IExporterMgr
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IExporterMgr, ExporterMgr);
@@ -51,6 +53,8 @@ protected:
 
     void _OnExporter(KERNEL_NS::LibTimer *t);
 
+    bool _ScanMeta(const KERNEL_NS::LibString &metaDir, const KERNEL_NS::LibString &xlsxBasePath);
+
 private:
     void _Clear();
 
@@ -58,6 +62,7 @@ private:
     void _UnRegisterEvents();
 
 private:
+    std::unordered_map<KERNEL_NS::LibString, ConfigMetaInfo *> _metaNameRefConfigMetaInfo;
 };
 
 SERVICE_END

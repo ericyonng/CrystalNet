@@ -55,11 +55,11 @@ public:
 
     // return(bool):是否继续遍历
     // callback: 
-    // return(bool):是否继续遍历, 
+    // return(bool):是否继续遍历当前目录, 
     // FileAttr::ENUMS:文件类型, 
     // const _finddata_t &: 文件属性
     // const LibString &:文件所在目录路径, 
-    // bool &:父目录需不需要继续搜索 
+    // bool &:父目录需不需要继续搜索 当前目录所在的上级目录是否需要继续遍历
     static bool TraverseDirRecursively(const LibString &dir
     , IDelegate<bool, const FindFileInfo &, bool &> *stepCallback);
 
@@ -81,17 +81,17 @@ private:
 #endif
 };
 
-inline LibString DirectoryUtil::GetFileNameInPath(const char *path)
+ALWAYS_INLINE LibString DirectoryUtil::GetFileNameInPath(const char *path)
 {
     return GetFileNameInPath(LibString(path));
 }
 
-inline LibString DirectoryUtil::GetFileDirInPath(const char *path)
+ALWAYS_INLINE LibString DirectoryUtil::GetFileDirInPath(const char *path)
 {
     return GetFileDirInPath(LibString(path));
 }
 
-inline bool DirectoryUtil::_CreateSubDir(const LibString &subDir)
+ALWAYS_INLINE bool DirectoryUtil::_CreateSubDir(const LibString &subDir)
 {
     return _CreateSubDir(subDir.GetRaw());
 }

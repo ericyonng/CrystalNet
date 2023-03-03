@@ -33,24 +33,24 @@ KERNEL_BEGIN
 // Inline
 inline LibTime LibTime::Now()
 {
-    return LibTime(TimeUtil::GetMicroTimestamp());
+    return LibTime(TimeUtil::GetFastMicroTimestamp());
 }
 
 inline Int64 LibTime::NowTimestamp()
 {
-    return TimeUtil::GetMicroTimestamp() / TimeDefs::MICRO_SECOND_PER_SECOND;
+    return TimeUtil::GetFastMicroTimestamp() / TimeDefs::MICRO_SECOND_PER_SECOND;
     // return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 }
 
 inline Int64 LibTime::NowMilliTimestamp()
 {
-    return TimeUtil::GetMicroTimestamp() / TimeDefs::MICRO_SECOND_PER_MILLI_SECOND;
+    return TimeUtil::GetFastMicroTimestamp() / TimeDefs::MICRO_SECOND_PER_MILLI_SECOND;
     // return (std::chrono::system_clock().now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond) / LibTime::_microSecondPerMilliSecond;
 }
 
 inline Int64 LibTime::NowMicroTimestamp()
 {
-    return TimeUtil::GetMicroTimestamp();
+    return TimeUtil::GetFastMicroTimestamp();
     // syscall(SYS_clock_gettime, CLOCK_MONOTONIC_RAW, &monotonic_time)
     // return (std::chrono::system_clock().now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond);
 }
@@ -72,7 +72,7 @@ inline Int64 LibTime::GetMicroTimestamp() const
 
 inline const LibTime &LibTime::UpdateTime()
 {
-    _rawTime = TimeUtil::GetMicroTimestamp();
+    _rawTime = TimeUtil::GetFastMicroTimestamp();
     // _rawTime = std::chrono::system_clock::now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond;
     _UpdateTimeStructs();
     return *this;

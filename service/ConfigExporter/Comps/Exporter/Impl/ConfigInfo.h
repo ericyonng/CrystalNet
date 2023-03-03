@@ -80,6 +80,7 @@ public:
     ~ConfigMetaInfo(){}
 
     KERNEL_NS::LibString _metaRootPath;     // meta所在目录
+    KERNEL_NS::LibString _relationPath;     // meta文件相对于 meta路径的相对路径
     KERNEL_NS::LibString _metaFileName;     // meta文件名
 
     KERNEL_NS::LibString _xlsxFileName;     // xlsx文件名

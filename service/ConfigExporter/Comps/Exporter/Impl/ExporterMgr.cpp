@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgr.h>
 #include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgrFactory.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/ConfigInfo.h>
 
 SERVICE_BEGIN
 
@@ -173,7 +174,6 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
         }
     }
     
-    // 1.加载meta
     
     // 1.扫描所有xlsx文件以页签的配置类型名为key生成需要处理文件的字典
     do
@@ -181,14 +181,25 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
         if(configTypeRefLangTypes.empty())
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("have no lang types"));
+            genSuc = false;
             break;
         }
 
-        if(sourceDir.empty() || targetDir.empty() || dataDir.empty())
+        if(sourceDir.empty() || targetDir.empty() || dataDir.empty() || metaDir.empty())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("sourceDir:%s, targetDir:%s, dataDir:%s error."));
+            g_Log->Warn(LOGFMT_OBJ_TAG("sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
+                        , sourceDir.c_str(), targetDir.c_str(), dataDir.c_str(), metaDir.c_str());
+            genSuc = false;
             break;
         }
+
+        if(!_ScanMeta(metaDir, sourceDir))
+        {
+            genSuc = false;
+            break;
+        }
+
+       
 
         // auto nowTs = KERNEL_NS::LibTime::Now();
         // auto traverseCallback = [this, &nowTs] (const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentPathContinue) -> bool {
@@ -255,9 +266,153 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
     KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
 }
 
+// 测试点: 加载meta成功, meta中没有对应的xlsx文件名, 或者xlsx文件不存在则清理meta， md5为空则清理meta
+// 注意:xlsx所在路径相对于xlsx的base路径的相对路径与meta文件相对于meta base 路径的相对路径是一致的
+bool ExporterMgr::_ScanMeta(const KERNEL_NS::LibString &metaDir, const KERNEL_NS::LibString &xlsxBasePath)
+{
+    bool isSuc = true;
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(&metaDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
+        
+        bool isContinue = true;
+        do
+        {
+            // 过滤目录
+            if(KERNEL_NS::FileUtil::IsDir(fileInfo))
+                break;
+
+            // 过滤非meta
+            if(KERNEL_NS::FileUtil::ExtractFileExtension(fileInfo._fileName) != KERNEL_NS::LibString(".meta"))
+                break;
+
+            KERNEL_NS::LibString fullPath = fileInfo._rootPath;
+            if(fileInfo._rootPath.at(fileInfo._rootPath.length() - 1) != '/')
+                fullPath.AppendFormat("/");
+
+            const auto &fullFilePath = fullPath + fileInfo._fileName;
+
+            // 拿pbcache中的缓存数据
+            auto newMeta = ConfigMetaInfo::New_ConfigMetaInfo();
+            auto ptr = KERNEL_NS::FileUtil::OpenFile(fullFilePath.c_str());
+            if(!ptr)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("open meta file fail:%s"), fullFilePath.c_str());
+                isContinue = false;
+                isParentDirContinue = false;
+                isSuc = false;
+                break;
+            }
+
+            KERNEL_NS::SmartPtr<FILE> fp(ptr);
+            fp.SetClosureDelegate([](void *p){
+                auto ptr = reinterpret_cast<FILE *>(p);
+                KERNEL_NS::FileUtil::CloseFile(*ptr);
+            });
+
+            newMeta->_metaRootPath = fileInfo._rootPath;
+            newMeta->_metaFileName = fileInfo._fileName;
+            newMeta->_relationPath = fileInfo._rootPath - metaDir;
+            _metaNameRefConfigMetaInfo.insert(std::make_pair(fullFilePath, newMeta));
+
+            std::vector<KERNEL_NS::LibString> lines;
+            KERNEL_NS::FileUtil::ReadUtf8File(*fp, lines);
+            if(lines.empty())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("meta file have no any content:%s"), fullFilePath.c_str());
+                isContinue = false;
+                isParentDirContinue = false;
+                isSuc = false;
+                break;
+            }
+
+            // 填充内容
+            for(auto &content : lines)
+            {
+                auto kv = content.Split(":");
+                if(kv.empty() || (kv.size() < 2))
+                    continue;
+
+                auto k = kv[0].strip();
+                auto v = kv[1].strip();
+                if(k == "XlsxFile")
+                {
+                    if(v.empty())
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("bad meta file content:%s, file:%s"), content.c_str(), fullFilePath.c_str());
+                        break;
+                    }
+
+                    newMeta->_xlsxFileName = v;
+                }
+                else if(k == "Md5")
+                {
+                    if(v.empty())
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("bad meta file content:%s, file:%s"), content.c_str(), fullFilePath.c_str());
+                        break;
+                    }
+
+                    newMeta->_lastMd5 = v;
+                }
+            }
+        } while (false);
+        
+        return isContinue;
+    });
+
+    // 不存在的xlsx需要清理掉, 清理无效的meta文件
+    for(auto iter = _metaNameRefConfigMetaInfo.begin(); iter != _metaNameRefConfigMetaInfo.end();)
+    {
+        auto metaInfo = iter->second;
+        const auto metaFilePath = metaInfo->_metaRootPath + metaInfo->_metaFileName;
+        // 1.没有对应的xlsx文件或者对应的文件不存在则删除meta
+        if(metaInfo->_xlsxFileName.empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("have no xlsx file, will remove meta file, metaFilePath:%s.")
+                    , xlsxFullPath.c_str(), metaFilePath.c_str()); 
+
+            KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
+            ConfigMetaInfo::Delete_ConfigMetaInfo(metaInfo);
+            iter = _metaNameRefConfigMetaInfo.erase(iter);
+            continue;
+        }
+        else
+        {
+            const auto xlsxFullPath = xlsxBasePath + metaInfo->_relationPath + metaInfo->_xlsxFileName;
+            if(!KERNEL_NS::FileUtil::IsFileExist(xlsxFullPath.c_str()))
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("xlsx file not found:%s, will remove meta file, metaFilePath:%s.")
+                    , xlsxFullPath.c_str(), metaFilePath.c_str());    
+            }
+
+            ConfigMetaInfo::Delete_ConfigMetaInfo(metaInfo);
+            KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
+            iter = _metaNameRefConfigMetaInfo.erase(iter);
+
+            continue;
+        }
+        
+        // 2.md5是空的则删除meta文件
+        if(metaInfo->_lastMd5.empty())
+        {
+            ConfigMetaInfo::Delete_ConfigMetaInfo(metaInfo);
+            KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
+            iter = _metaNameRefConfigMetaInfo.erase(iter);
+            continue;
+        }
+
+        ++iter;
+    }
+
+    return isSuc;
+}
+
 void ExporterMgr::_Clear()
 {
     _UnRegisterEvents();
+
+    KERNEL_NS::ContainerUtil::DelContainer(_metaNameRefConfigMetaInfo, [](ConfigMetaInfo *ptr){
+        ConfigMetaInfo::Delete_ConfigMetaInfo(ptr);
+    });
 }
 
 void ExporterMgr::_RegisterEvents()
