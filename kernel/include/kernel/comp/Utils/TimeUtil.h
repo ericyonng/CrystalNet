@@ -228,13 +228,13 @@ ALWAYS_INLINE UInt64 TimeUtil::GetCpuCounterFrequancy()
 
 ALWAYS_INLINE void TimeUtil::InitFastTime()
 {
-    _cpuBegin = KERNEL_NS::CrystalRdTsc();
+    _cpuBegin = KERNEL_NS::CrystalNativeRdTsc();
     _systemTimeBegin = TimeUtil::GetMicroTimestamp();
 }
 
 ALWAYS_INLINE Int64 TimeUtil::GetFastMicroTimestamp()
 {
-    const auto nowCpu = KERNEL_NS::CrystalRdTsc();
+    const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
     const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerMicroSecond);
     return _systemTimeBegin + cpuSlice;
 }

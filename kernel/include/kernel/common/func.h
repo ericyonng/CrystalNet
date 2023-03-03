@@ -122,6 +122,23 @@ KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalRdTsc()
 #endif
 }
 
+// 序列化的rdtsc
+KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalNativeRdTsc()
+{
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+    UInt32 low, high;
+    __asm__ volatile ("rdtsc", "=a"(low), "d"(high));
+
+    return (low) | ((UInt64)(high) << 32);
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    LARGE_INTEGER li;
+    ::QueryPerformanceCounter(&li);
+    return static_cast<UInt64>(li.QuadPart);
+#endif
+}
+
 // 获取rdtsc frequancy 一个程序只需要get一次即可
 KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalGetCpuCounterFrequancy()
 {
