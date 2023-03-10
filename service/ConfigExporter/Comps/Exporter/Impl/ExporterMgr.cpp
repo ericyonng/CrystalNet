@@ -199,7 +199,6 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
             break;
         }
 
-       
 
         // auto nowTs = KERNEL_NS::LibTime::Now();
         // auto traverseCallback = [this, &nowTs] (const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentPathContinue) -> bool {
