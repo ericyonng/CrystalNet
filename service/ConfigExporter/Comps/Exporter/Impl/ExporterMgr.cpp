@@ -85,13 +85,6 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
     
     // ConfigExporter --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/ --meta=/xxx/
 
-    // target字典
-    KERNEL_NS::LibString sourceDir;
-    KERNEL_NS::LibString targetDir;
-    KERNEL_NS::LibString dataDir;
-    KERNEL_NS::LibString metaDir;
-    std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> configTypeRefLangTypes;
-
     // 1.传入的参数
     const Int32 argCount = static_cast<Int32>(appArgs.size());
     for(Int32 idx = 0; idx < argCount; ++idx)
@@ -142,9 +135,9 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
                     if(langsPieces.empty())
                         continue;
 
-                    auto iter = configTypeRefLangTypes.find(configType);
-                    if(iter == configTypeRefLangTypes.end())
-                        iter = configTypeRefLangTypes.insert(std::make_pair(configType, std::unordered_set<KERNEL_NS::LibString>())).first;
+                    auto iter = _configTypeRefLangTypes.find(configType);
+                    if(iter == _configTypeRefLangTypes.end())
+                        iter = _configTypeRefLangTypes.insert(std::make_pair(configType, std::unordered_set<KERNEL_NS::LibString>())).first;
                     auto &langsSet = iter->second; 
 
                     for(auto &lang : langsPieces)
@@ -154,19 +147,19 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
         }
         else if(k == "--source_dir")
         {
-            sourceDir = v;
+            _sourceDir = v;
         }
         else if(k == "target_dir")
         {
-            targetDir = v;
+            _targetDir = v;
         }
         else if(k == "--data")
         {
-            dataDir = v;
+            _dataDir = v;
         }
         else if(k == "--meta")
         {
-            metaDir = v;
+            _metaDir = v;
         }
         else
         {
@@ -178,27 +171,38 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
     // 1.扫描所有xlsx文件以页签的配置类型名为key生成需要处理文件的字典
     do
     {
-        if(configTypeRefLangTypes.empty())
+        if(_configTypeRefLangTypes.empty())
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("have no lang types"));
             genSuc = false;
             break;
         }
 
-        if(sourceDir.empty() || targetDir.empty() || dataDir.empty() || metaDir.empty())
+        if(_sourceDir.empty() || _targetDir.empty() || _dataDir.empty() || _metaDir.empty())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
-                        , sourceDir.c_str(), targetDir.c_str(), dataDir.c_str(), metaDir.c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
+                        , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
             genSuc = false;
             break;
         }
 
-        if(!_ScanMeta(metaDir, sourceDir))
+        // 扫描meta文件
+        if(!_ScanMeta())
         {
+            g_Log->Warn(LOGFMT_OBJ_TAG("_ScanMeta fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
+                        , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
             genSuc = false;
             break;
         }
 
+        // 扫描xlsx文件
+        if(!_ScanXlsx())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("_ScanXlsx fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
+                        , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+            genSuc = false;
+            break;
+        }
 
         // auto nowTs = KERNEL_NS::LibTime::Now();
         // auto traverseCallback = [this, &nowTs] (const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentPathContinue) -> bool {
@@ -267,10 +271,10 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
 
 // 测试点: 加载meta成功, meta中没有对应的xlsx文件名, 或者xlsx文件不存在则清理meta， md5为空则清理meta
 // 注意:xlsx所在路径相对于xlsx的base路径的相对路径与meta文件相对于meta base 路径的相对路径是一致的
-bool ExporterMgr::_ScanMeta(const KERNEL_NS::LibString &metaDir, const KERNEL_NS::LibString &xlsxBasePath)
+bool ExporterMgr::_ScanMeta()
 {
     bool isSuc = true;
-    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(&metaDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_metaDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
         
         bool isContinue = true;
         do
@@ -301,7 +305,7 @@ bool ExporterMgr::_ScanMeta(const KERNEL_NS::LibString &metaDir, const KERNEL_NS
                 break;
             }
 
-            KERNEL_NS::SmartPtr<FILE> fp(ptr);
+            KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp(ptr);
             fp.SetClosureDelegate([](void *p){
                 auto ptr = reinterpret_cast<FILE *>(p);
                 KERNEL_NS::FileUtil::CloseFile(*ptr);
@@ -309,7 +313,7 @@ bool ExporterMgr::_ScanMeta(const KERNEL_NS::LibString &metaDir, const KERNEL_NS
 
             newMeta->_metaRootPath = fileInfo._rootPath;
             newMeta->_metaFileName = fileInfo._fileName;
-            newMeta->_relationPath = fileInfo._rootPath - metaDir;
+            newMeta->_relationPath = fileInfo._rootPath - _metaDir;
             _metaNameRefConfigMetaInfo.insert(std::make_pair(fullFilePath, newMeta));
 
             std::vector<KERNEL_NS::LibString> lines;
@@ -367,7 +371,7 @@ bool ExporterMgr::_ScanMeta(const KERNEL_NS::LibString &metaDir, const KERNEL_NS
         if(metaInfo->_xlsxFileName.empty())
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("have no xlsx file, will remove meta file, metaFilePath:%s.")
-                    , xlsxFullPath.c_str(), metaFilePath.c_str()); 
+                    , metaFilePath.c_str()); 
 
             KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
             ConfigMetaInfo::Delete_ConfigMetaInfo(metaInfo);
@@ -376,7 +380,7 @@ bool ExporterMgr::_ScanMeta(const KERNEL_NS::LibString &metaDir, const KERNEL_NS
         }
         else
         {
-            const auto xlsxFullPath = xlsxBasePath + metaInfo->_relationPath + metaInfo->_xlsxFileName;
+            const auto xlsxFullPath = _sourceDir + metaInfo->_relationPath + metaInfo->_xlsxFileName;
             if(!KERNEL_NS::FileUtil::IsFileExist(xlsxFullPath.c_str()))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("xlsx file not found:%s, will remove meta file, metaFilePath:%s.")
@@ -404,6 +408,41 @@ bool ExporterMgr::_ScanMeta(const KERNEL_NS::LibString &metaDir, const KERNEL_NS
 
     return isSuc;
 }
+
+bool ExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERNEL_NS::LibString &xlsxFile) const
+{
+    // 1.拿到metafile 若没有metafile说明需要导出
+    auto meta = _GetMetaFile(metaFile);
+    if(!meta)
+    {
+        return true;
+    }
+
+    // 2.生成xlsxfile的md5
+    KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(xlsxFile.c_str()); 
+    if(!fp)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("open file fail file:%s"), xlsxFile.c_str());
+        return false;
+    }
+
+    fp.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<FILE *>(p);
+        KERNEL_NS::FileUtil::CloseFile(*ptr);
+    });
+
+    KERNEL_NS::LibString md5;
+    if(!KERNEL_NS::LibDigest::MakeFileMd5(xlsxFile, md5))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("MakeFileMd5 fail file:%s"), xlsxFile.c_str());
+        return false;
+    }
+    md5 = KERNEL_NS::LibBase64::Encode(md5);
+
+    // 3.若xlsxfile的md5和metafile的不同则说明需要导出
+    return md5 != meta->_lastMd5;
+}
+
 
 void ExporterMgr::_Clear()
 {

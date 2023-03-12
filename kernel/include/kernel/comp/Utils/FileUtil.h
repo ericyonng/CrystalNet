@@ -230,7 +230,7 @@ inline bool FileUtil::CopyFile(FILE &src, FILE &dest)
     return true;
 }
 
-inline UInt64 FileUtil::ReadFile(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
+ALWAYS_INLINE UInt64 FileUtil::ReadFile(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
 {
     if(!buffer || !bufferSize)
         return 0;

@@ -53,7 +53,17 @@ protected:
 
     void _OnExporter(KERNEL_NS::LibTimer *t);
 
-    bool _ScanMeta(const KERNEL_NS::LibString &metaDir, const KERNEL_NS::LibString &xlsxBasePath);
+    // 扫描meta文件
+    bool _ScanMeta();
+
+    // 扫描xlsx文件
+    bool _ScanXlsx();
+
+    // 是否需要导出
+    bool _IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERNEL_NS::LibString &xlsxFile) const;
+
+    // meta file
+    const ConfigMetaInfo *_GetMetaFile(const KERNEL_NS::LibString &metaFile) const;
 
 private:
     void _Clear();
@@ -62,7 +72,21 @@ private:
     void _UnRegisterEvents();
 
 private:
+    // target字典
+    KERNEL_NS::LibString _sourceDir;
+    KERNEL_NS::LibString _targetDir;
+    KERNEL_NS::LibString _dataDir;
+    KERNEL_NS::LibString _metaDir;
+    std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> _configTypeRefLangTypes;
+
     std::unordered_map<KERNEL_NS::LibString, ConfigMetaInfo *> _metaNameRefConfigMetaInfo;
 };
+
+ALWAYS_INLINE  const ConfigMetaInfo *ExporterMgr::_GetMetaFile(const KERNEL_NS::LibString &metaFile) const
+{
+    auto iter = _metaNameRefConfigMetaInfo.find(metaFile);
+    return iter == _metaNameRefConfigMetaInfo.end() ? NULL : iter->second;
+}
+
 
 SERVICE_END

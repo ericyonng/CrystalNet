@@ -100,6 +100,7 @@ void TestEncrypt::Run()
     }
 
     // sha 摘要族
+    KERNEL_NS::LibString testFile = "./testEncrypt.txt";
     {
         KERNEL_NS::LibString str = "dlkajjd+++sdfjk//dfklsjl11";
 
@@ -134,6 +135,11 @@ void TestEncrypt::Run()
             multiSeg = KERNEL_NS::LibBase64::Encode(multiSeg);
             std::cout << "MakeMd5 digest base64:" << digest << std::endl;
             std::cout << "MakeMd5 multi seg digest base64:" << multiSeg << std::endl;
+
+            KERNEL_NS::LibString testMultiSeg;
+            KERNEL_NS::LibDigest::MakeFileMd5(testFile, testMultiSeg);
+            testMultiSeg = KERNEL_NS::LibBase64::Encode(testMultiSeg);
+            std::cout << "MakeFileMd5 testMultiSeg digest base64:" << testMultiSeg << ", result:" << (testMultiSeg == multiSeg) <<  std::endl;
         }
 
         // sha1
@@ -169,6 +175,11 @@ void TestEncrypt::Run()
             std::cout << "MakeSha1 multiSeg base64:" << multiSeg << std::endl;
             digest = KERNEL_NS::LibBase64::Decode(digest);
             std::cout << "sha1 base decode is the same with raw:" << (digest == raw) << std::endl;
+
+            KERNEL_NS::LibString testMultiSeg;
+            KERNEL_NS::LibDigest::MakeFileSha1(testFile, testMultiSeg);
+            testMultiSeg = KERNEL_NS::LibBase64::Encode(testMultiSeg);
+            std::cout << "MakeFileSha1 testMultiSeg digest base64:" << testMultiSeg << ", result:" << (testMultiSeg == multiSeg) << std::endl;
         }
 
         // sha224
@@ -201,6 +212,11 @@ void TestEncrypt::Run()
             multiSeg = KERNEL_NS::LibBase64::Encode(multiSeg);
             std::cout << "MakeSha224 digest base64:" << digest << std::endl;
             std::cout << "MakeSha224 digest base64:" << multiSeg << std::endl;
+
+            KERNEL_NS::LibString testMultiSeg;
+            KERNEL_NS::LibDigest::MakeFileSha224(testFile, testMultiSeg);
+            testMultiSeg = KERNEL_NS::LibBase64::Encode(testMultiSeg);
+            std::cout << "MakeFileSha224 testMultiSeg digest base64:" << testMultiSeg << ", result:" << (testMultiSeg == multiSeg) << std::endl;
         }
 
         // sha256
@@ -233,6 +249,11 @@ void TestEncrypt::Run()
             multiSeg = KERNEL_NS::LibBase64::Encode(multiSeg);
             std::cout << "MakeSha256 digest base64:" << digest << std::endl;
             std::cout << "MakeSha256 multiSeg base64:" << multiSeg << std::endl;
+
+            KERNEL_NS::LibString testMultiSeg;
+            KERNEL_NS::LibDigest::MakeFileSha256(testFile, testMultiSeg);
+            testMultiSeg = KERNEL_NS::LibBase64::Encode(testMultiSeg);
+            std::cout << "MakeFileSha256 testMultiSeg digest base64:" << testMultiSeg << ", result:" << (testMultiSeg == multiSeg) << std::endl;
         }
 
         // sha384
@@ -264,6 +285,11 @@ void TestEncrypt::Run()
             digest = KERNEL_NS::LibBase64::Encode(digest);
             multiSeg = KERNEL_NS::LibBase64::Encode(multiSeg);
             std::cout << "MakeSha384 digest base64:" << digest << std::endl;
+
+            KERNEL_NS::LibString testMultiSeg;
+            KERNEL_NS::LibDigest::MakeFileSha384(testFile, testMultiSeg);
+            testMultiSeg = KERNEL_NS::LibBase64::Encode(testMultiSeg);
+            std::cout << "MakeFileSha384 testMultiSeg digest base64:" << testMultiSeg << ", result:" << (testMultiSeg == multiSeg) << std::endl;
         }
 
         // sha512
@@ -296,6 +322,11 @@ void TestEncrypt::Run()
             multiSeg = KERNEL_NS::LibBase64::Encode(multiSeg);
             std::cout << "MakeSha512 digest base64:" << digest << std::endl;
             std::cout << "MakeSha512 multiSeg base64:" << multiSeg << std::endl;
+
+            KERNEL_NS::LibString testMultiSeg;
+            KERNEL_NS::LibDigest::MakeFileSha512(testFile, testMultiSeg);
+            testMultiSeg = KERNEL_NS::LibBase64::Encode(testMultiSeg);
+            std::cout << "MakeFileSha512 testMultiSeg digest base64:" << testMultiSeg << ", result:" << (testMultiSeg == multiSeg) << std::endl;
         }
 
     }

@@ -63,6 +63,7 @@ public:
     static bool MakeMd5Continue(MD5_CTX &ctx, const Byte8 *src, UInt64 len);
     static bool MakeMd5Final(MD5_CTX &ctx, LibString &digest);
     static void MakeMd5Clean(MD5_CTX &ctx);
+    static bool MakeFileMd5(const LibString &file, LibString &md5);
 
     static LibString MakeSha1(const LibString &src);
     static bool MakeSha1(const LibString &src, LibString &digest);
@@ -71,6 +72,7 @@ public:
     static bool MakeSha1Continue(SHA_CTX &ctx, const Byte8 *src, UInt64 len);
     static bool MakeSha1Final(SHA_CTX &ctx, LibString &digest);
     static void MakeSha1Clean(SHA_CTX &ctx);
+    static bool MakeFileSha1(const LibString &file, LibString &sha1Out);
 
     static LibString MakeSha224(const LibString &src);
     static bool MakeSha224(const LibString &src, LibString &digest);
@@ -79,6 +81,7 @@ public:
     static bool MakeSha224Continue(SHA256_CTX &ctx, const Byte8 *src, UInt64 len);
     static bool MakeSha224Final(SHA256_CTX &ctx, LibString &digest);
     static void MakeSha224Clean(SHA256_CTX &ctx);
+    static bool MakeFileSha224(const LibString &file, LibString &result);
     
     static LibString MakeSha256(const LibString &src);
     static bool MakeSha256(const LibString &src, LibString &digest);
@@ -87,6 +90,7 @@ public:
     static bool MakeSha256Continue(SHA256_CTX &ctx, const Byte8 *src, UInt64 len);
     static bool MakeSha256Final(SHA256_CTX &ctx, LibString &digest);
     static void MakeSha256Clean(SHA256_CTX &ctx);
+    static bool MakeFileSha256(const LibString &file, LibString &result);
     
     static LibString MakeSha384(const LibString &src);
     static bool MakeSha384(const LibString &src, LibString &digest);
@@ -95,6 +99,7 @@ public:
     static bool MakeSha384Continue(SHA512_CTX &ctx, const Byte8 *src, UInt64 len);
     static bool MakeSha384Final(SHA512_CTX &ctx, LibString &digest);
     static void MakeSha384Clean(SHA512_CTX &ctx);
+    static bool MakeFileSha384(const LibString &file, LibString &result);
     
     static LibString MakeSha512(const LibString &src);
     static bool MakeSha512(const LibString &src, LibString &digest);
@@ -103,6 +108,7 @@ public:
     static bool MakeSha512Continue(SHA512_CTX &ctx, const Byte8 *src, UInt64 len);
     static bool MakeSha512Final(SHA512_CTX &ctx, LibString &digest);
     static void MakeSha512Clean(SHA512_CTX &ctx);
+    static bool MakeFileSha512(const LibString &file, LibString &result);
 };
 
 ALWAYS_INLINE LibString LibDigest::MakeMd5(const LibString &src)
@@ -194,6 +200,7 @@ ALWAYS_INLINE void LibDigest::MakeMd5Clean(MD5_CTX &ctx)
 {
     OPENSSL_cleanse(&ctx, sizeof(ctx));
 }
+
 
 ALWAYS_INLINE LibString LibDigest::MakeSha1(const LibString &src)
 {
