@@ -47,6 +47,7 @@ public:
     virtual void Release() = 0;
     virtual void SetArg(void *arg) { _arg = arg; }
     virtual void *GetArg() { return _arg; }
+    virtual bool CanReDo() {return false; }
 
     ITask() { _arg = NULL; }
     virtual ~ITask() {}

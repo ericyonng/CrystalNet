@@ -69,7 +69,14 @@ void LibThread::LibThreadHandlerLogic(void *param)
 
             isEmpty = false;
             task->Run();
-            task->Release();
+            if(LIKELY(!task->CanReDo() || !enableAddTask))
+                task->Release();
+            else
+            {
+                taskLck.Lock();
+                taskList.push_back(task);
+                taskLck.Unlock();
+            }
             continue;
         }
         else

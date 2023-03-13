@@ -58,6 +58,27 @@ public:
     }
 };
 
+class TestThreadTask3 : public KERNEL_NS::ITask
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(ITask, TestThreadTask3);
+
+public:
+    TestThreadTask3() {}
+    virtual void Release()
+    {
+        TestThreadTask3::Delete_TestThreadTask3(this);
+    }
+    virtual bool CanReDo() {return true; }
+
+    void Run()
+    {
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThreadTask3, "test redo TestThreadTask3"));
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+    }
+};
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(TestThreadTask3);
+
 class TestThreadTask2
 {
 public:
@@ -96,6 +117,28 @@ public:
         CRYSTAL_DELETE(this);
     }
 };
+
+class TestThreadTPoolask3 : public KERNEL_NS::ITask
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(ITask, TestThreadTPoolask3);
+
+public:
+    TestThreadTPoolask3() {}
+
+    virtual void Release()
+    {
+        TestThreadTPoolask3::Delete_TestThreadTPoolask3(this);
+    }
+    virtual bool CanReDo() {return true; }
+
+    void Run()
+    {
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThreadTask3, "test redo pool TestThreadTPoolask3"));
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+    }
+};
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(TestThreadTPoolask3);
 
 static void ThreadPoolRun2(KERNEL_NS::LibThreadPool *pool)
 {
@@ -157,20 +200,28 @@ void TestThread::Run()
     libThead3.AddTask(KERNEL_NS::DelegateFactory::Create(&TestThreadTask2::Run));
     libThead4.AddTask(KERNEL_NS::DelegateFactory::Create(&TestThreadTask2::Run));
 
-    libThead.Start();
-    libThead2.Start();
-    libThead3.Start();
-    libThead4.Start();
+    KERNEL_NS::LibThread thread5;
+    TestThreadTask3 *task3 = TestThreadTask3::New_TestThreadTask3();
+    thread5.AddTask(task3);
+
+
+    // libThead.Start();
+    // libThead2.Start();
+    // libThead3.Start();
+    // libThead4.Start();
+    thread5.Start();
 
     getchar();
     libThead.HalfClose();
     libThead2.HalfClose();
     libThead3.HalfClose();
     libThead4.HalfClose();
+    thread5.HalfClose();
     libThead.FinishClose();
     libThead2.FinishClose();
     libThead3.FinishClose();
     libThead4.FinishClose();
+    thread5.FinishClose();
     std::cout << "end thread test" << std::endl;
 
     // 线程池
@@ -182,22 +233,24 @@ void TestThread::Run()
         pool.Start();
 
         ThreadPoolTask1 *task1 = new ThreadPoolTask1;
+        TestThreadTPoolask3 *task2 = TestThreadTPoolask3::New_TestThreadTPoolask3();
 
         // 只添加任务不启动线程工作 队列是有序的
-        pool.AddTask(task1, true, 0);
-        pool.AddTask(&ThreadPoolRun2, true, 0);
-        pool.AddTask(&ThreadPoolRun3, true, 0);
-        pool.AddTask(&ThreadPoolRun4, true, 0);
-        pool.AddTask(&ThreadPoolRun5, true, 0);
+        // pool.AddTask(task1, true, 0);
+        // pool.AddTask(&ThreadPoolRun2, true, 0);
+        // pool.AddTask(&ThreadPoolRun3, true, 0);
+        // pool.AddTask(&ThreadPoolRun4, true, 0);
+        // pool.AddTask(&ThreadPoolRun5, true, 0);
+        pool.AddTask(task2);
 
         // 添加5个工作线程 多线程是乱序执行的,所以打印的顺序不能保证
         pool.AddThreads(5);
 
         // 只唤醒
-        pool.AddTask(&ThreadPoolRun2, false, 0);
-        pool.AddTask(&ThreadPoolRun3, false, 0);
-        pool.AddTask(&ThreadPoolRun4, false, 0);
-        pool.AddTask(&ThreadPoolRun5, false, 0);
+        // pool.AddTask(&ThreadPoolRun2, false, 0);
+        // pool.AddTask(&ThreadPoolRun3, false, 0);
+        // pool.AddTask(&ThreadPoolRun4, false, 0);
+        // pool.AddTask(&ThreadPoolRun5, false, 0);
         getchar();
 
         if(pool.HalfClose())

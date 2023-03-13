@@ -171,7 +171,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestMemoryAlloctor::Run();
     // TestMemoryPool::Run();
     // TestObjAlloctor::Run();
-    // // TestThread::Run();
+    TestThread::Run();
 
     // //TestGarbageCollector::Run();
     // TestLibString::Run();
@@ -190,7 +190,7 @@ void TestInst::Run(int argc, char const *argv[])
     // //TestRttiUtil::Run();
     // //TestContainerUtil::Run();
     // // TestSystemUtil::Run();
-    TestEncrypt::Run();
+    // TestEncrypt::Run();
     // TestFile::Run();
     // TestLog::Run();
     // TestStream::Run();

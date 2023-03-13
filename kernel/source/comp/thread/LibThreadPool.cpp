@@ -69,6 +69,7 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
     std::atomic<Int32> &waitNum = pool->_waitNum;
     std::atomic<Int32> &curTotalNum = pool->_curTotalNum;
     std::list<ITask *> &taskList = pool->_tasks;
+    std:: atomic_bool &isEnableTask = pool->_isEnableTask;
 
     // 当前线程id
     const auto threadId = SystemUtil::GetCurrentThreadId();
@@ -87,7 +88,14 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
 
             isEmpty = false;
             task->Run();
-            task->Release();
+            if(LIKELY(!task->CanReDo() || !isEnableTask.load()))
+                task->Release();
+            else
+            {
+                taskLck.Lock();
+                taskList.push_back(task);
+                taskLck.Unlock();
+            }
             continue;
         }
         taskLck.Unlock();
