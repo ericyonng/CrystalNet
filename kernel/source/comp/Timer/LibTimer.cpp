@@ -57,7 +57,9 @@ LibTimer::LibTimer(TimerMgr *mgr)
 
 LibTimer::~LibTimer()
 {
-    _mgr->OnTimerDestroy(_data);
+    if(LIKELY(_data))
+        _mgr->OnTimerDestroy(_data);
+        
     CRYSTAL_DELETE_SAFE(_timeroutHandler);
     CRYSTAL_DELETE_SAFE(_cancelHandler);
     _data = NULL;
@@ -101,7 +103,5 @@ void LibTimer::ClearParams()
 {
     _data->_params->BecomeNil();
 }
-
-
 
 KERNEL_END

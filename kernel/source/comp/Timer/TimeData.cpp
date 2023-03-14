@@ -52,6 +52,11 @@ TimeData::TimeData(Int64 id, LibTimer *timer)
 
 TimeData::~TimeData()
 {
+    if(_owner)
+        _owner->GiveupTimerData();
+
+    _owner = NULL;
+    _isScheduing = false;
     AsynTimeData::DeleteThreadLocal_AsynTimeData(_asynData);
     _asynData = NULL;
     Variant::Delete_Variant(_params);

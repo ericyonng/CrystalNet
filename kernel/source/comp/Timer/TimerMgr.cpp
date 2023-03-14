@@ -74,35 +74,40 @@ void TimerMgr::Drive()
 {
     _BeforeDrive();
 
-    if(LIKELY(_expireQueue.empty() == false))
-        _curTime = TimeUtil::GetFastMicroTimestamp();
-
-    for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
+    if(LIKELY(!_expireQueue.empty()))
     {
-        // 未过期的为止
-        auto timeData = *iter;
-        if(timeData->_expiredTime > _curTime)
-            break;
-
-        if(timeData->_isScheduing)
+        _curTime = TimeUtil::GetFastMicroTimestamp();
+        LibList<TimeData *, _Build::TL> *timeDataList = LibList<TimeData *, _Build::TL>::NewThreadLocal_LibList();
+        for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
         {
-            timeData->_owner->OnTimeOut();
+            // 未过期的为止
+            auto timeData = *iter;
+            if(timeData->_expiredTime > _curTime)
+                break;
 
-            // 如果没有添加则重新计时
-            if(timeData->_isScheduing && !timeData->_asynData->IsMaskRegister())
-               _AsynRegister(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+            timeDataList->PushBack(timeData);
+            iter = _expireQueue.erase(iter);
         }
 
-        iter = _expireQueue.erase(iter);
+        for(auto node = timeDataList->Begin(); node;)
+        {
+            auto timeData = node->_data;
+            if(timeData->_isScheduing)
+            {
+                timeData->_owner->OnTimeOut();
 
-        // 已经消耗超时 不做帧超时检测，这样会导致可能有些定时器无法得到执行
-        // #if CRYSTAL_TARGET_PLATFORM_LINUX
-        // if(UNLIKELY(performanceTemp.Update().ElapseMicroseconds(performance) >= pieceTimeInMicroseconds))
-        //     break;
-        // #else
-        // if(UNLIKELY(performanceTemp.Update().ElapseMicroseconds(performance) >= pieceTimeInMicroseconds))
-        //     break;
-        // #endif
+                if(LIKELY(timeData->_owner))
+                {
+                    // 重新被调度
+                    if(timeData->_isScheduing)
+                        _Register(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+                }
+            }
+
+            node = timeDataList->Erase(node);
+        }
+
+        LibList<TimeData *, _Build::TL>::DeleteThreadLocal_LibList(timeDataList);
     }
 
     _AfterDrive();

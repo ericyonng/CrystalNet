@@ -55,6 +55,7 @@ public:
     void Schedule(Int64 milliSec);
     void Schedule(Int64 startTime, Int64 milliSecPeriod);
     bool IsScheduling() const;
+    void GiveupTimerData();
 
     // 设置超时回调
     template<typename ObjType>
@@ -84,30 +85,35 @@ private:
     IDelegate<void, LibTimer *> *_cancelHandler;
 };
 
-inline void LibTimer::Schedule(Int64 milliSec)
+ALWAYS_INLINE void LibTimer::Schedule(Int64 milliSec)
 {
     Schedule(TimeUtil::GetFastMicroTimestamp(), milliSec);
 }
 
-inline bool LibTimer::IsScheduling() const
+ALWAYS_INLINE bool LibTimer::IsScheduling() const
 {
     return _data->_isScheduing;
 }
 
+ALWAYS_INLINE void LibTimer::GiveupTimerData()
+{
+    _data = NULL;
+}
+
 template<typename ObjType>
-inline void LibTimer::SetTimeOutHandler(ObjType *obj, void (ObjType::*handler)(LibTimer *))
+ALWAYS_INLINE void LibTimer::SetTimeOutHandler(ObjType *obj, void (ObjType::*handler)(LibTimer *))
 {
     CRYSTAL_DELETE_SAFE(_timeroutHandler);
     _timeroutHandler = DelegateFactory::Create(obj, handler);
 }
 
-inline void LibTimer::SetTimeOutHandler(void (*handler)(LibTimer *))
+ALWAYS_INLINE void LibTimer::SetTimeOutHandler(void (*handler)(LibTimer *))
 {
     CRYSTAL_DELETE_SAFE(_timeroutHandler);
     _timeroutHandler = DelegateFactory::Create(handler);
 }
 
-inline void LibTimer::SetTimeOutHandler(IDelegate<void, LibTimer *> *delg)
+ALWAYS_INLINE void LibTimer::SetTimeOutHandler(IDelegate<void, LibTimer *> *delg)
 {
     CRYSTAL_DELETE_SAFE(_timeroutHandler);
     _timeroutHandler = delg;
@@ -115,40 +121,40 @@ inline void LibTimer::SetTimeOutHandler(IDelegate<void, LibTimer *> *delg)
 
 // 设置cancel回调
 template<typename ObjType>
-inline void LibTimer::SetCancelHandler(ObjType *obj, void (ObjType::*handler)(LibTimer *))
+ALWAYS_INLINE void LibTimer::SetCancelHandler(ObjType *obj, void (ObjType::*handler)(LibTimer *))
 {
     CRYSTAL_DELETE_SAFE(_cancelHandler);
     _cancelHandler = DelegateFactory::Create(obj, handler);
 }
 
-inline void LibTimer::SetCancelHandler(void (*handler)(LibTimer *))
+ALWAYS_INLINE void LibTimer::SetCancelHandler(void (*handler)(LibTimer *))
 {
     CRYSTAL_DELETE_SAFE(_cancelHandler);
     _cancelHandler = DelegateFactory::Create(handler);
 }
 
-inline void LibTimer::SetCancelHandler(IDelegate<void, LibTimer *> *delg)
+ALWAYS_INLINE void LibTimer::SetCancelHandler(IDelegate<void, LibTimer *> *delg)
 {
     CRYSTAL_DELETE_SAFE(_cancelHandler);
     _cancelHandler = delg;
 }
 
-inline void LibTimer::OnTimeOut()
+ALWAYS_INLINE void LibTimer::OnTimeOut()
 {
     _timeroutHandler->Invoke(this);
 }
 
-inline TimerMgr *LibTimer::GetMgr()
+ALWAYS_INLINE TimerMgr *LibTimer::GetMgr()
 {
     return _mgr;
 }
 
-inline Variant &LibTimer::GetParams()
+ALWAYS_INLINE Variant &LibTimer::GetParams()
 {
     return *_data->_params;
 }
 
-inline void LibTimer::MoveParams(Variant *params)
+ALWAYS_INLINE void LibTimer::MoveParams(Variant *params)
 {
     _data->MoveParams(params);
 }

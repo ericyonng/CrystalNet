@@ -361,6 +361,9 @@ void Poller::OnLoopEnd()
     if(LIKELY(_dirtyHelper))
         _dirtyHelper->Destroy();
 
+    if(LIKELY(_timerMgr))
+        _timerMgr->Close();
+
     g_Log->Info(LOGFMT_OBJ_TAG("poller loop end poller info:%s"), ToString().c_str());
 }
 
