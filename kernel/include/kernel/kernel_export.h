@@ -40,7 +40,7 @@
 #undef KERNEL_EXTERN_DEFINE
 #ifndef KERNEL_EXPORT
     #ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
-        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        #ifdef _WIN32
             #define KERNEL_EXPORT _declspec(dllexport)
             #define KERNEL_EXTERN_DEFINE 
         #else
@@ -60,7 +60,7 @@
     #ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
         #undef KERNEL_EXPORT
         #undef KERNEL_EXTERN_DEFINE
-        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        #ifdef _WIN32
             #define KERNEL_EXPORT _declspec(dllimport)
             #define KERNEL_EXTERN_DEFINE extern
         #else

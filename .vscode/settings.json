@@ -179,6 +179,7 @@
         "hash_set": "cpp",
         "*.inc": "cpp",
         "cstdarg": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "simple_api.h": "c"
     }
 }
