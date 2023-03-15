@@ -45,6 +45,7 @@ struct ProfileEvent : public KERNEL_NS::PollerEvent
         ProfileEvent::Delete_ProfileEvent(this);
     }
     
+    Int64 _putDataTime = 0;
     Int32 _messageId = 0;
     Int32 _requestId = 0;
     Int64 _dispatchMs = 0;
@@ -153,8 +154,6 @@ private:
     // 事件处理
     virtual void _OnMsg(KERNEL_NS::PollerEvent *ev)
     {
-        g_Log->Debug(LOGFMT_OBJ_TAG("event coming:%s"), ev->ToString().c_str());
-
         if(ev->_type == EventType::ACTION)
         {
             auto actionEv = ev->CastTo<KERNEL_NS::ActionPollerEvent>();
@@ -171,8 +170,9 @@ private:
 
     void _HandleProfile(ProfileEvent *ev)
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("profile message id:%d, requestId:%d, message handle cost:%lld(ms), from gw recv request to gw recv response cost :%lld(ms), gw send request to gs cost:%lld(ms), gs send response to gw cost:%lld(ms)")
-                    , ev->_messageId, ev->_requestId, ev->_dispatchMs
+        const auto timeMs = KERNEL_NS::LibTime::FromMilliSeconds(ev->_putDataTime);
+        g_Log->Info(LOGFMT_OBJ_TAG("put profile time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, message handle cost:%lld(ms), from gw recv request to gw recv response cost :%lld(ms), gw send request to gs cost:%lld(ms), gs send response to gw cost:%lld(ms)")
+                    , ev->_putDataTime, timeMs.ToStringOfMillSecondPrecision().c_str(), ev->_messageId, ev->_requestId, ev->_dispatchMs
                     , (ev->_gwRecvResponseTime - ev->_gwRecvRequestTime)
                     ,  (ev->_gsRecvRequestTime - ev->_gwSendRequestTime)
                     , (ev->_gwRecvResponseTime - ev->_gsSendResponseTime));
@@ -379,12 +379,13 @@ void Log(const char *content, Int32 contentSize)
     g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "%s"), str.c_str());
 }
 
-void PushProfile(int messageId, int requestId, Int64 dispatchMs
+void PushProfile(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
 , Int64 gwRecvRequestTime, Int64 gwSendRequestTime
 , Int64 gsRecvRequestTime, Int64 gsHandlerRequestTime
 , Int64 gsSendResponseTime, Int64 gwRecvResponseTime)
 {
     auto ev = ProfileEvent::New_ProfileEvent();
+    ev->_putDataTime = nowTime;
     ev->_messageId = messageId;
     ev->_requestId = requestId;
     ev->_dispatchMs = dispatchMs;
