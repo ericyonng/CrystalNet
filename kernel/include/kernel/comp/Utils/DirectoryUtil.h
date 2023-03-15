@@ -100,7 +100,7 @@ template<typename CallbackType>
 ALWAYS_INLINE bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
 , CallbackType &&cb)
 {
-    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(std::forward(cb), bool, const FindFileInfo &, bool &);
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, bool, const FindFileInfo &, bool &);
     auto isContinue = TraverseDirRecursively(dir, delg);
     delg->Release();
     return isContinue;
