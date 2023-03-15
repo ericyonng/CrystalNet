@@ -148,6 +148,7 @@ void TestInst::Run(int argc, char const *argv[])
 
     CRYSTAL_TRACE("test started.\n");
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "system test started."));
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "nihao:你好.shabi " u8" 🌍 olleH"));
 
 // 
 //     KERNEL_NS::AllocUtil::GetStaticTemplateObjNoFree<Int32>([]()->Int32 * {

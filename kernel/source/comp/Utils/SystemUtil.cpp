@@ -117,7 +117,7 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
         Byte8  pathName[MAX_PATH] = {0};
         if(isCurrentProcess)
         {
-            if(UNLIKELY(!GetModuleFileName(NULL, pathName, MAX_PATH)))
+            if(UNLIKELY(!GetModuleFileNameA(NULL, pathName, MAX_PATH)))
                 return Status::SystemUtil_GetModuleFileNameFailed;
 
             processPath.AppendData(pathName, MAX_PATH);
@@ -136,7 +136,7 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
         if(GetProcAddress(hModule, "QueryFullProcessImageNameA"))
         {
             DWORD dwProcPathLen = MAX_PATH / sizeof(Byte8);
-            if(!QueryFullProcessImageName(hProc, 0, pathName, &dwProcPathLen))
+            if(!QueryFullProcessImageNameA(hProc, 0, pathName, &dwProcPathLen))
                 return Status::SystemUtil_QueryFullProcessImageNameFailed;
 
             processPath.AppendData(pathName, MAX_PATH);
@@ -144,18 +144,18 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
         }
 
         // 获取进程带驱动器名的路径（驱动器名：\\Device\\HardwareVolume1）
-        if(!::GetProcessImageFileName(hProc, pathName, MAX_PATH))
+        if(!::GetProcessImageFileNameA(hProc, pathName, MAX_PATH))
             return Status::SystemUtil_GetProcessImageFileNameFailed;
 
         // 遍历确认驱动器名对应的盘符名
         Byte8   volNameDev[MAX_PATH] = {0};
         Byte8   volName[MAX_PATH] = {0};
-        _tcscat_s(volName, MAX_PATH, TEXT("A:"));
+        strcat_s(volName, MAX_PATH, "A:");
         bool isFound = false;
-        for(; *volName <= _T('Z'); (*volName)++)
+        for(; *volName <= 'Z'; (*volName)++)
         {
             // 获取盘符
-            if(!QueryDosDevice(volName, volNameDev, MAX_PATH))
+            if(!QueryDosDeviceA(volName, volNameDev, MAX_PATH))
             {
                 auto lastError = GetLastError();
                 if(lastError == 2)
@@ -165,7 +165,7 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
             }
 
             // 确认是否驱动器名一样
-            if(_tcsncmp(pathName, volNameDev, _tcslen(volNameDev)) == 0)
+            if(strncmp(pathName, volNameDev, ::strlen(volNameDev)) == 0)
             {
                 isFound = true;
                 break;
@@ -175,8 +175,8 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
         if(!isFound)
             return Status::SystemUtil_GetDriveError;
 
-        processPath.AppendData(volName, _tcslen(volName));
-        processPath.AppendData(pathName + _tcslen(volNameDev), _tcslen(pathName) - _tcslen(volNameDev));
+        processPath.AppendData(volName, ::strlen(volName));
+        processPath.AppendData(pathName + ::strlen(volNameDev), ::strlen(pathName) - ::strlen(volNameDev));
     } while(0);
 
     if(hModule)

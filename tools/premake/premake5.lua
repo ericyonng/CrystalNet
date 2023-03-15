@@ -256,6 +256,9 @@ workspace ("CrystalNet_" .. _ACTION)
     filter { "language:c++" }
         characterset "MBCS"
     filter {}
+    -- filter { "language:c++" }
+    --     characterset "Unicode"
+    -- filter {}
 
     -- disable some warnings
     filter { "system:windows", "language:c++" }
