@@ -253,6 +253,8 @@ public:
         if(_isDestroy.exchange(true))
             return;
 
+        _host->GetComp<KERNEL_NS::Poller>()->QuitLoop();
+        
         if(_thread->HalfClose())
             _thread->FinishClose();
 
