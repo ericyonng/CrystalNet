@@ -135,7 +135,7 @@ private:
         KERNEL_NS::TimeSlice span(0, 0, 8);
         poller->SetMaxPriorityLevel(2);
         poller->SetMaxPieceTime(span);
-        poller->SetMaxSleepMilliseconds(1);
+        poller->SetMaxSleepMilliseconds(20);
         poller->SetEventHandler(this, &SimpleApiHost::_OnMsg);
 
         auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
@@ -171,7 +171,7 @@ private:
 
     void _HandleProfile(ProfileEvent *ev)
     {
-        g_Log->Custom("profile message id:%d, requestId:%d, message handle cost:%lld(ms), from gw recv request to gw recv response cost :%lld(ms), gw send request to gs cost:%lld(ms), gs send response to gw cost:%lld(ms)"
+        g_Log->Info(LOGFMT_OBJ_TAG("profile message id:%d, requestId:%d, message handle cost:%lld(ms), from gw recv request to gw recv response cost :%lld(ms), gw send request to gs cost:%lld(ms), gs send response to gw cost:%lld(ms)")
                     , ev->_messageId, ev->_requestId, ev->_dispatchMs
                     , (ev->_gwRecvResponseTime - ev->_gwRecvRequestTime)
                     ,  (ev->_gsRecvRequestTime - ev->_gwSendRequestTime)
@@ -254,7 +254,7 @@ public:
             return;
 
         _host->GetComp<KERNEL_NS::Poller>()->QuitLoop();
-        
+
         if(_thread->HalfClose())
             _thread->FinishClose();
 
@@ -290,6 +290,7 @@ private:
 
 static KERNEL_NS::SmartPtr<SimpleApiInstance> s_SimpleApi = NULL;
 static KERNEL_NS::Locker s_Lock;
+static KERNEL_NS::Poller *s_poller = NULL;
 
 int Init(bool needSignalHandle)
 {
@@ -315,6 +316,7 @@ int Init(bool needSignalHandle)
         return err;
     }
 
+    s_poller = s_SimpleApi->GetHost()->GetComp<KERNEL_NS::Poller>();
     s_Lock.Unlock();
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "simple api init suc."));
@@ -392,5 +394,5 @@ void PushProfile(int messageId, int requestId, Int64 dispatchMs
     ev->_gsHandlerRequestTime = gsHandlerRequestTime;
     ev->_gsSendResponseTime = gsSendResponseTime;
     ev->_gwRecvResponseTime = gwRecvResponseTime;
-    s_SimpleApi->GetHost()->GetComp<KERNEL_NS::Poller>()->Push(0, ev);
+    s_poller->Push(0, ev);
 }
