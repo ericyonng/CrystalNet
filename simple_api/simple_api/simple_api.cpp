@@ -18,14 +18,39 @@ public:
     }
 };
 
+// 事件
 class EventType
 {
 public:
     enum ENUMS
     {
         ACTION = 1, // action事件
+        PROFILE = 2,    // profile
     };
 };
+
+struct ProfileEvent : public KERNEL_NS::PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, ProfileEvent);
+
+    ProfileEvent()
+    :KERNEL_NS::PollerEvent(EventType::PROFILE)
+    {
+
+    }
+
+
+    virtual void Release()
+    {
+        ProfileEvent::Delete_ProfileEvent(this);
+    }
+    
+    Int32 _messageId = 0;
+    Int64 _dispatchMs = 0;
+    Int64 _fromReqUtilResponse = 0;
+};
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(ProfileEvent);
 
 class SimpleApiHost : public KERNEL_NS::CompHostObject
 {
@@ -55,6 +80,7 @@ public:
 
     void EventLoop()
     {
+        g_Log->Info(LOGFMT_OBJ_TAG("start event loop."));
         auto poller = GetComp<KERNEL_NS::Poller>();
         if(!poller->PrepareLoop())
         {
@@ -118,12 +144,23 @@ private:
         return Status::Success;
     }
 
+    // 事件处理
     virtual void _OnMsg(KERNEL_NS::PollerEvent *ev)
     {
+        g_Log->Debug(LOGFMT_OBJ_TAG("event coming:%s"), ev->ToString().c_str());
+
         if(ev->_type == EventType::ACTION)
         {
             auto actionEv = ev->CastTo<KERNEL_NS::ActionPollerEvent>();
             actionEv->_action->Invoke();
+            return;
+        }
+
+        if(ev->_type == EventType::PROFILE)
+        {
+            auto profileEv = ev->CastTo<ProfileEvent>();
+            g_Log->Custom("profile message id:%d, dispatch ms:%lld(ms), from request util response :%lld(ms)"
+                        , profileEv->_messageId, profileEv->_dispatchMs, profileEv->_fromReqUtilResponse);
             return;
         }
     }
@@ -265,11 +302,14 @@ int Init()
 
     s_Lock.Unlock();
 
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "simple api init suc."));
+
     return Status::Success;
 }
 
 void Destroy()
 {
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "simple api will destroy suc."));
     s_Lock.Lock();
     do
     {
@@ -280,6 +320,7 @@ void Destroy()
     } while (false);
 
     s_Lock.Unlock();
+
 }
 
 
@@ -321,4 +362,12 @@ void Log(const char *content, Int32 contentSize)
     g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "%s"), str.c_str());
 }
 
+void PushProfile(int messageId, Int64 dispatchMs, Int64 fromReqUtilResponse)
+{
+    auto ev = ProfileEvent::New_ProfileEvent();
+    ev->_messageId = messageId;
+    ev->_dispatchMs = dispatchMs;
+    ev->_fromReqUtilResponse = fromReqUtilResponse;
+    s_SimpleApi->GetHost()->GetComp<KERNEL_NS::Poller>()->Push(0, ev);
+}
 
