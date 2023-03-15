@@ -46,7 +46,7 @@ class KERNEL_EXPORT KernelUtil
 {
 public:
     // 框架初始化与销毁
-    static Int32 Init(ILogFactory * logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent = LibString(), const LibString &consoleContent = LibString());
+    static Int32 Init(ILogFactory * logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent = LibString(), const LibString &consoleContent = LibString(), bool needSignalHandle = true);
     static void Start();
     static void Destroy();
     static void OnSignalClose();

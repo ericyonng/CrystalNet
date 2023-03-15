@@ -51,7 +51,7 @@ static std::vector<KERNEL_NS::IDelegate<void> *> s_signalCloseHandler;
 
 KERNEL_BEGIN
 
-Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent, const LibString &consoleContent)
+Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent, const LibString &consoleContent, bool needSignalHandle)
 {
     // 转入后台
     KERNEL_NS::LibString rootDir = KERNEL_NS::SystemUtil::GetCurProgRootPath();
@@ -183,17 +183,23 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     #endif
 
     // 异常信号处理
-    err = SignalHandleUtil::Init();
-    if(err != Status::Success)
+    if(needSignalHandle)
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "signal handle util fail err:%d"), err);
-        return err;
+        err = SignalHandleUtil::Init();
+        if(err != Status::Success)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "signal handle util fail err:%d"), err);
+            return err;
+        }
     }
 
     // 信号处理任务
 // #if CRYSTAL_TARGET_PLATFORM_LINUX
-    auto signalCloseHandler = DelegateFactory::Create(&KernelUtil::_OnSinalOccur);
-    SignalHandleUtil::PushAllConcernSignalTask(signalCloseHandler);
+    if(needSignalHandle)
+    {
+        auto signalCloseHandler = DelegateFactory::Create(&KernelUtil::_OnSinalOccur);
+        SignalHandleUtil::PushAllConcernSignalTask(signalCloseHandler);
+    }
 // #endif
 
     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel inited root path:%s."), rootDir.c_str());
