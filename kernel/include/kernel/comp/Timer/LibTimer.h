@@ -62,6 +62,8 @@ public:
     void SetTimeOutHandler(ObjType *obj, void (ObjType::*handler)(LibTimer *));
     void SetTimeOutHandler(void (*handler)(LibTimer *));
     void SetTimeOutHandler(IDelegate<void, LibTimer *> *delg);
+    template<typename LambdaType>
+    void SetTimeOutHandler(LambdaType &&lambdaType);
     // 设置cancel回调
     template<typename ObjType>
     void SetCancelHandler(ObjType *obj, void (ObjType::*handler)(LibTimer *));
@@ -117,6 +119,13 @@ ALWAYS_INLINE void LibTimer::SetTimeOutHandler(IDelegate<void, LibTimer *> *delg
 {
     CRYSTAL_DELETE_SAFE(_timeroutHandler);
     _timeroutHandler = delg;
+}
+
+template<typename LambdaType>
+ALWAYS_INLINE void LibTimer::SetTimeOutHandler(LambdaType &&lambdaType)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lambdaType, void, LibTimer *);
+    SetTimeOutHandler(delg);
 }
 
 // 设置cancel回调

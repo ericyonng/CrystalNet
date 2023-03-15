@@ -33,6 +33,7 @@
 
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/memory/memory.h>
+#include <kernel/comp/Delegate/Delegate.h>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
@@ -58,6 +59,34 @@ struct KERNEL_EXPORT PollerEvent
     virtual LibString ToString() const;
 
     Int32 _type;
+};
+
+// TODO:添加poller闭包的支持，可以使得外部在poller所在线程执行一些事情而不必另外添加事件支持
+
+struct KERNEL_EXPORT ActionPollerEvent : public PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, ActionPollerEvent);
+
+    ActionPollerEvent(Int32 type)
+    :PollerEvent(type)
+    ,_action(NULL)
+    {
+
+    }
+
+    ~ActionPollerEvent()
+    {
+        if(_action)
+            _action->Release();
+
+        _action = NULL;
+    }
+
+    virtual void Release() override;
+    virtual LibString ToString() const override;
+
+
+    IDelegate<void> *_action;
 };
 
 KERNEL_END

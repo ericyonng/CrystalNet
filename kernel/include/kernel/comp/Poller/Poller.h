@@ -115,6 +115,10 @@ public:
     void Push(Int32 level, PollerEvent *ev);
     void Push(Int32 level, LibList<PollerEvent *> *evList);
 
+    void Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action);
+    template<typename LamvadaType>
+    void Push(Int32 level, Int32 specifyActionType, LamvadaType &&lambdaType);
+
     // 事件循环接口
     bool PrepareLoop();
     void EventLoop();
@@ -266,6 +270,28 @@ ALWAYS_INLINE void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
     _eventsList->PushQueue(level, evList);
     LibList<PollerEvent *>::Delete_LibList(evList);
     WakeupEventLoop();
+}
+
+ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action)
+{
+    if(UNLIKELY(!_isEnable))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying poller obj id:%llu"), GetId());
+        action->Release();
+        return;
+    }
+
+    auto ev = ActionPollerEvent::New_ActionPollerEvent(specifyActionType);
+    ev->_action = action;
+    _eventsList->PushQueue(level, ev);
+    WakeupEventLoop();
+}
+
+template<typename LamvadaType>
+ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, LamvadaType &&lambdaType)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lambdaType, void);
+    Push(level, specifyActionType, delg);
 }
 
 ALWAYS_INLINE void Poller::WakeupEventLoop()

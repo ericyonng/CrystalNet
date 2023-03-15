@@ -32,6 +32,7 @@
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(PollerEvent);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ActionPollerEvent);
 
 PollerEvent::PollerEvent(Int32 type)
     :_type(type)
@@ -47,6 +48,19 @@ PollerEvent::~PollerEvent()
 LibString PollerEvent::ToString() const
 {
     return LibString().AppendFormat("poller event type:%d, obj nam:%s", _type, RttiUtil::GetByObj(this));
+}
+
+void ActionPollerEvent::Release()
+{
+    ActionPollerEvent::Delete_ActionPollerEvent(this);
+}
+
+LibString ActionPollerEvent::ToString() const 
+{
+    LibString info;
+    info.AppendFormat("%s\n", PollerEvent::ToString().c_str());
+
+    return info;
 }
 
 KERNEL_END
