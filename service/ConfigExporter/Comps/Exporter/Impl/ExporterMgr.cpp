@@ -409,6 +409,11 @@ bool ExporterMgr::_ScanMeta()
     return isSuc;
 }
 
+bool ExporterMgr::_ScanXlsx()
+{
+    return true;
+}
+
 bool ExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERNEL_NS::LibString &xlsxFile) const
 {
     // 1.拿到metafile 若没有metafile说明需要导出
