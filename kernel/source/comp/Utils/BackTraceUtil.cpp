@@ -388,7 +388,7 @@ Int32 BackTraceUtil::_InitSymbol()
     {
         const UInt64 err = GetLastError();
         s_BackTraceLog->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::BackTraceUtil, "SymInitialize fail error[%llu]"), err);
-        return Status::CrashHandleUtil_SymInitializeFail;
+        // return Status::CrashHandleUtil_SymInitializeFail;
     }
 
     return Status::Success;

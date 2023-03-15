@@ -46,8 +46,14 @@ struct ProfileEvent : public KERNEL_NS::PollerEvent
     }
     
     Int32 _messageId = 0;
+    Int32 _requestId = 0;
     Int64 _dispatchMs = 0;
-    Int64 _fromReqUtilResponse = 0;
+    Int64 _gwRecvRequestTime = 0;
+    Int64 _gwSendRequestTime = 0;
+    Int64 _gsRecvRequestTime = 0;
+    Int64 _gsHandlerRequestTime = 0;
+    Int64 _gsSendResponseTime = 0;
+    Int64 _gwRecvResponseTime = 0;
 };
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ProfileEvent);
@@ -158,11 +164,18 @@ private:
 
         if(ev->_type == EventType::PROFILE)
         {
-            auto profileEv = ev->CastTo<ProfileEvent>();
-            g_Log->Custom("profile message id:%d, dispatch ms:%lld(ms), from request util response :%lld(ms)"
-                        , profileEv->_messageId, profileEv->_dispatchMs, profileEv->_fromReqUtilResponse);
+            _HandleProfile(ev->CastTo<ProfileEvent>());
             return;
         }
+    }
+
+    void _HandleProfile(ProfileEvent *ev)
+    {
+        g_Log->Custom("profile message id:%d, requestId:%d, message handle cost:%lld(ms), from gw recv request to gw recv response cost :%lld(ms), gw send request to gs cost:%lld(ms), gs send response to gw cost:%lld(ms)"
+                    , ev->_messageId, ev->_requestId, ev->_dispatchMs
+                    , (ev->_gwRecvResponseTime - ev->_gwRecvRequestTime)
+                    ,  (ev->_gsRecvRequestTime - ev->_gwSendRequestTime)
+                    , (ev->_gwRecvResponseTime - ev->_gsSendResponseTime));
     }
 
 private:
@@ -183,7 +196,7 @@ public:
         Destroy();
     }
 
-    Int32 Init()
+    Int32 Init(bool needSignalHandle)
     {
         if(_isInit.exchange(true))
         {
@@ -195,7 +208,7 @@ public:
         KERNEL_NS::LibString logIniPath;
         logIniPath = programPath + "/ini/";
         KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
-        Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), s_logIniContent, s_consoleIniContent);
+        Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), s_logIniContent, s_consoleIniContent, needSignalHandle);
         if(err != Status::Success)
         {
             CRYSTAL_TRACE("kernel init fail err:%d", err);
@@ -276,7 +289,7 @@ private:
 static KERNEL_NS::SmartPtr<SimpleApiInstance> s_SimpleApi = NULL;
 static KERNEL_NS::Locker s_Lock;
 
-int Init()
+int Init(bool needSignalHandle)
 {
     s_Lock.Lock();
     if(s_SimpleApi)
@@ -286,7 +299,7 @@ int Init()
     }
 
     s_SimpleApi = new SimpleApiInstance;
-    auto err = s_SimpleApi->Init();
+    auto err = s_SimpleApi->Init(needSignalHandle);
     if(err != Status::Success)
     {
         s_Lock.Unlock();
@@ -362,12 +375,20 @@ void Log(const char *content, Int32 contentSize)
     g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "%s"), str.c_str());
 }
 
-void PushProfile(int messageId, Int64 dispatchMs, Int64 fromReqUtilResponse)
+void PushProfile(int messageId, int requestId, Int64 dispatchMs
+, Int64 gwRecvRequestTime, Int64 gwSendRequestTime
+, Int64 gsRecvRequestTime, Int64 gsHandlerRequestTime
+, Int64 gsSendResponseTime, Int64 gwRecvResponseTime)
 {
     auto ev = ProfileEvent::New_ProfileEvent();
     ev->_messageId = messageId;
+    ev->_requestId = requestId;
     ev->_dispatchMs = dispatchMs;
-    ev->_fromReqUtilResponse = fromReqUtilResponse;
+    ev->_gwRecvRequestTime = gwRecvRequestTime;
+    ev->_gwSendRequestTime = gwSendRequestTime;
+    ev->_gsRecvRequestTime = gsRecvRequestTime;
+    ev->_gsHandlerRequestTime = gsHandlerRequestTime;
+    ev->_gsSendResponseTime = gsSendResponseTime;
+    ev->_gwRecvResponseTime = gwRecvResponseTime;
     s_SimpleApi->GetHost()->GetComp<KERNEL_NS::Poller>()->Push(0, ev);
 }
-
