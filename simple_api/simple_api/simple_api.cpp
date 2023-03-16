@@ -53,6 +53,7 @@ struct ProfileEvent : public KERNEL_NS::PollerEvent
     Int64 _gwSendRequestTime = 0;
     Int64 _gwPrepareTurnRequestToRpcTime = 0;
     Int64 _gsRecvRequestTime = 0;
+    Int64 _gsDispatchRequestTime = 0;
     Int64 _gsHandlerRequestTime = 0;
     Int64 _gsSendResponseTime = 0;
     Int64 _gwRecvResponseTime = 0;
@@ -171,13 +172,46 @@ private:
 
     void _HandleProfile(ProfileEvent *ev)
     {
+        // gw 收到request 到gw 发送response延迟
+        const auto fromGwRecvRequestToGwSendResponse = ev->_putDataTime - ev->_gwRecvRequestTime;
+
+        // rpc 之前收到消息到准备发送rpc的延迟
+        const auto diffFromGwRecvRequestToGwSendRequest = ev->_gwSendRequestTime - ev->_gwRecvRequestTime;
+
+        // gw发出request到gs 收到request延迟
+        const auto fromGwSendRpcToGsRecvRequest = ev->_gsRecvRequestTime - ev->_gwPrepareTurnRequestToRpcTime;
+
+        // gs 收到request 到gs dispatch request时间 这部分时间是在gs的队列中
+        const auto fromGsRecvRequestToGsDispatch = ev->_gsDispatchRequestTime - ev->_gsRecvRequestTime;
+
+        // gs handle 时间
+        const auto gsHandlerTime = ev->_dispatchMs;
+
+        // gs 发送response到gw收到response延迟
+        const auto fromGsSendResponseToGwRecvResponse = ev->_gwRecvResponseTime - ev->_gsSendResponseTime;
+
+        // gw 收到response到gw发送response延迟
+        const auto fromGwRecvResponseToGwSendResponse = ev->_putDataTime - ev->_gwRecvResponseTime;
+
         const auto timeMs = KERNEL_NS::LibTime::FromMilliSeconds(ev->_putDataTime);
-        g_Log->Info(LOGFMT_OBJ_TAG("put profile time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, message handle cost:%lld(ms), from gw recv request to gw recv response cost :%lld(ms), cost%lld(ms) from gw recv request to prepare send request to gs by rpc. gw send request to gs cost:%lld(ms), gs send response to gw cost:%lld(ms)")
-                    , ev->_putDataTime, timeMs.ToStringOfMillSecondPrecision().c_str(), ev->_messageId, ev->_requestId, ev->_dispatchMs
-                    , (ev->_gwRecvResponseTime - ev->_gwRecvRequestTime)            // 6
-                    , (ev->_gwPrepareTurnRequestToRpcTime - ev->_gwRecvRequestTime) // 7
-                    ,  (ev->_gsRecvRequestTime - ev->_gwSendRequestTime)
-                    , (ev->_gwRecvResponseTime - ev->_gsSendResponseTime));
+        g_Log->Info(LOGFMT_OBJ_TAG("put profile time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
+                                    " gw recv req => gw send response to client total cost:%lld(ms),"
+                                    " gw recv req => gw prepare send req rpc to gs cost:%lld(ms),"
+                                    " gw prepare send req to gs => gs recv req cost%lld(ms)."
+                                    "gs recv req => gs dispatch req(in gs queue time) cost:%lld(ms)."
+                                    "gs handle req time:%lld(ms)."
+                                    "gs send response => gw recv response cost:%lld(ms)."
+                                    "gw recv response => gw send response(in gw response queue time) cost:%lld(ms).")
+                    , ev->_putDataTime, timeMs.ToStringOfMillSecondPrecision().c_str(), ev->_messageId, ev->_requestId 
+                    , fromGwRecvRequestToGwSendResponse
+                    , diffFromGwRecvRequestToGwSendRequest
+                    , fromGwSendRpcToGsRecvRequest
+                    , fromGsRecvRequestToGsDispatch
+                    , gsHandlerTime
+                    , fromGsSendResponseToGwRecvResponse
+                    , fromGwRecvResponseToGwSendResponse
+                    );
+
     }
 
 private:
@@ -383,7 +417,7 @@ void Log(const char *content, Int32 contentSize)
 
 void PushProfile(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
 , Int64 gwRecvRequestTime, Int64 gwSendRequestTime, Int64 gwPrepareTurnRequestToRpcTime
-, Int64 gsRecvRequestTime, Int64 gsHandlerRequestTime
+, Int64 gsRecvRequestTime, Int64 gsDispatchRequestTime, Int64 gsHandlerRequestTime
 , Int64 gsSendResponseTime, Int64 gwRecvResponseTime)
 {
     auto ev = ProfileEvent::New_ProfileEvent();
@@ -395,6 +429,7 @@ void PushProfile(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
     ev->_gwSendRequestTime = gwSendRequestTime;
     ev->_gwPrepareTurnRequestToRpcTime = gwPrepareTurnRequestToRpcTime;
     ev->_gsRecvRequestTime = gsRecvRequestTime;
+    ev->_gsDispatchRequestTime = gsDispatchRequestTime;
     ev->_gsHandlerRequestTime = gsHandlerRequestTime;
     ev->_gsSendResponseTime = gsSendResponseTime;
     ev->_gwRecvResponseTime = gwRecvResponseTime;
