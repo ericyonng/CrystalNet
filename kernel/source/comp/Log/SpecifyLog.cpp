@@ -30,6 +30,8 @@
 #include <kernel/source/comp/Log/SpecifyLog.h>
 #include <kernel/comp/File/File.h>
 #include <kernel/comp/Utils/FileUtil.h>
+#include <kernel/comp/Utils/StringUtil.h>
+#include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/thread/thread.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/Log/LogData.h>
@@ -70,8 +72,9 @@ Int32 SpecifyLog::Init(const LibString &rootDirName, const LogConfig *cfg)
     _beforeHook.resize(refLevelCount);
     _afterHook.resize(refLevelCount);
 
-    // 1.文件名
-    LibString logName = rootDirName + _config->_logFileName + _config->_extName;
+    // 1.文件名 = 路径 + 文件名 + pidStr
+    const auto pidStr = StringUtil::Num2Str(SystemUtil::GetCurProcessId());
+    LibString logName = rootDirName + _config->_logFileName + "_" + pidStr + _config->_extName;
 
     // 2.创建日志文件
     if(cfg->_needWriteFile)
