@@ -131,6 +131,14 @@ public:
     // 执行命令并返回执行过程中产生的输出
     static bool Exec(const LibString &cmd, Int32 &err, LibString &outputInfo);
 
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    // 设置资源信息
+    static Int32 SetProcessFileDescriptLimit(Int32 resourceId, Int64 softLimit, Int64 hardLimit, LibString &errInfo);
+    
+    // 获取资源信息
+    static Int32 GetProcessFileDescriptLimit(Int32 resourceId, Int64 &softLimit, Int64 &hardLimit, LibString &errInfo);
+    #endif
+
 private:
 };
 

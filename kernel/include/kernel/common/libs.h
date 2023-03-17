@@ -123,6 +123,8 @@
     #include <netdb.h>
     #include <signal.h>
     #include<sys/param.h>
+
+    // 资源
     #include <sys/resource.h>
     #include <netinet/tcp.h>
     #include <netinet/in.h>

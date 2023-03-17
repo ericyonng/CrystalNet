@@ -51,7 +51,7 @@ static std::vector<KERNEL_NS::IDelegate<void> *> s_signalCloseHandler;
 
 KERNEL_BEGIN
 
-Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent, const LibString &consoleContent, bool needSignalHandle)
+Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent, const LibString &consoleContent, bool needSignalHandle, Int64 fileSoftLimit, Int64 fileHardLimit)
 {
     // 转入后台
     KERNEL_NS::LibString rootDir = KERNEL_NS::SystemUtil::GetCurProgRootPath();
@@ -73,6 +73,29 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
         CRYSTAL_TRACE("system endian type:%s not little endian system, kernel only support little endian!", LibEndianType::ToString(LibEndian::GetLocalMachineEndianType()));
         return Status::SystemUtil_NotLittleEndian;
     }
+
+    // 设置最大文件描述符数量
+    Int64 oldSoftLimit = 0;
+    Int64 oldHardLimit = 0;
+
+    Int32 err = Status::Success;
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    KERNEL_NS::LibString limitErr;
+    err = KERNEL_NS::SystemUtil::GetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, oldSoftLimit, oldHardLimit, limitErr);
+    if(err != Status::Success)
+    {
+        CRYSTAL_TRACE("GetProcessFileDescriptLimit fail %d, %s", err, limitErr.c_str());
+        return Status::Failed;
+    }
+
+    err = KERNEL_NS::SystemUtil::SetProcessFileDescriptLimit(KERNEL_NS::LinuxRlimitId::E_RLIMIT_NOFILE, fileSoftLimit, fileHardLimit, limitErr);
+    if(err != Status::Success)
+    {
+        CRYSTAL_TRACE("SetProcessFileDescriptLimit fail %d, %s, oldSoftLimit:%lld, oldHardLimit:%lld, will set soft limit:%lld, will set hard limit:%lld"
+                , err, limitErr.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit);
+        return Status::Failed;
+    }
+    #endif
 
     // ini 文件路径
     LibString iniRoot;
@@ -104,7 +127,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     KERNEL_NS::LibThreadGlobalId::GenId();
     // 全局内存池 先于所有对象创建
     g_MemoryPool = KERNEL_NS::MemoryPool::GetDefaultInstance();
-    auto err = g_MemoryPool->Init();
+    err = g_MemoryPool->Init();
     if (err != Status::Success)
     {
         CRYSTAL_TRACE("memory pool init fail err = [%d]", err);
@@ -202,7 +225,8 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     }
 // #endif
 
-    g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel inited root path:%s."), rootDir.c_str());
+    g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel inited root path:%s, old file soft limit:%lld, old file hard limit:%lld, new file soft limit:%lld, new file hard limit:%lld.")
+                , rootDir.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit);
 
     return Status::Success;
 }

@@ -613,5 +613,42 @@ bool SystemUtil::Exec(const LibString &cmd, Int32 &err, LibString &outputInfo)
     return true;
 }
 
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+
+Int32 SystemUtil::SetProcessFileDescriptLimit(Int32 resourceId, Int64 softLimit, Int64 hardLimit, LibString &errInfo)
+{
+    rlimit limitInfo;
+    limitInfo.rlim_cur = static_cast<rlim_t>(softLimit);
+    limitInfo.rlim_max = static_cast<rlim_t>(hardLimit);
+    Int32 err = ::setrlimit(resourceId, &limitInfo);
+    if(err != 0)
+    {
+        err = GetErrNo();
+        errInfo = GetErrString(err);
+        return err;
+    }
+
+    return Status::Success;
+}
+
+Int32 SystemUtil::GetProcessFileDescriptLimit(Int32 resourceId, Int64 &softLimit, Int64 &hardLimit, LibString &errInfo)
+{
+    rlimit limitInfo;
+    ::memset(&limitInfo, 0, sizeof(limitInfo));
+    Int32 err = ::getrlimit(resourceId, &limitInfo);
+    if(err != 0)
+    {
+        err = GetErrNo();
+        errInfo = GetErrString(err);
+        return err;
+    }
+
+    softLimit = limitInfo.rlim_cur;
+    hardLimit = limitInfo.rlim_max;
+
+    return Status::Success;
+}
+#endif
+
 KERNEL_END
 
