@@ -617,10 +617,10 @@ bool SystemUtil::Exec(const LibString &cmd, Int32 &err, LibString &outputInfo)
 
 Int32 SystemUtil::SetProcessFileDescriptLimit(Int32 resourceId, Int64 softLimit, Int64 hardLimit, LibString &errInfo)
 {
-    rlimit limitInfo;
+    rlimit64 limitInfo;
     limitInfo.rlim_cur = static_cast<rlim_t>(softLimit);
     limitInfo.rlim_max = static_cast<rlim_t>(hardLimit);
-    Int32 err = ::setrlimit(resourceId, &limitInfo);
+    Int32 err = ::setrlimit64(resourceId, &limitInfo);
     if(err != 0)
     {
         err = GetErrNo();
@@ -633,9 +633,9 @@ Int32 SystemUtil::SetProcessFileDescriptLimit(Int32 resourceId, Int64 softLimit,
 
 Int32 SystemUtil::GetProcessFileDescriptLimit(Int32 resourceId, Int64 &softLimit, Int64 &hardLimit, LibString &errInfo)
 {
-    rlimit limitInfo;
+    rlimit64 limitInfo;
     ::memset(&limitInfo, 0, sizeof(limitInfo));
-    Int32 err = ::getrlimit(resourceId, &limitInfo);
+    Int32 err = ::getrlimit64(resourceId, &limitInfo);
     if(err != 0)
     {
         err = GetErrNo();
@@ -643,8 +643,8 @@ Int32 SystemUtil::GetProcessFileDescriptLimit(Int32 resourceId, Int64 &softLimit
         return err;
     }
 
-    softLimit = limitInfo.rlim_cur;
-    hardLimit = limitInfo.rlim_max;
+    softLimit = static_cast<Int64>(limitInfo.rlim_cur);
+    hardLimit = static_cast<Int64>(limitInfo.rlim_max);
 
     return Status::Success;
 }
