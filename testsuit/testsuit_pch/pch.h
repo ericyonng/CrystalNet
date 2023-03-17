@@ -41,6 +41,7 @@
 #endif
 
 #include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
 #include <3rd/3rd.h>
 
 #endif

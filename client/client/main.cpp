@@ -53,6 +53,11 @@ int main(int argc, char const *argv[])
     printf("/*           Hello Crystal Net Client!        */\n");
     printf("/*********************************************/!\n\n");
 
+    SERVICE_COMMON_NS::ParamsInfo params;
+    KERNEL_NS::LibString errParamsInfo;
+    KERNEL_NS::LibString sucParamsInfo;
+    Int32 paramNum = SERVICE_COMMON_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
+
     LogFactory logFactory;
     KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
     KERNEL_NS::LibString logIniPath;
@@ -66,7 +71,7 @@ int main(int argc, char const *argv[])
     }
 
     KERNEL_NS::KernelUtil::Start();
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started."));
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started. \nsucParamsInfo:\n%s, errParamsInfo:\n%s."), sucParamsInfo.c_str(), errParamsInfo.c_str());
 
     Client::Run(argc, argv);
 

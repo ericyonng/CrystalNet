@@ -21,25 +21,16 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-12-09 01:21:28
+ * Date: 2023-03-17 23:23:14
  * Author: Eric Yonng
  * Description: 
 */
-
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
+#ifndef __CRYSTAL_NET_SERVICE_COMMON_PARAMS_PARAMS_H__
+#define __CRYSTAL_NET_SERVICE_COMMON_PARAMS_PARAMS_H__
 
 #pragma once
 
-#include <service_common/common/common.h>
-#include <service_common/protocol/protocol.h>
-#include <service_common/service/service.h>
-#include <service_common/service_proxy/ServiceProxyInc.h>
-#include <service_common/poller/PollerInc.h>
-#include <service_common/application/Application.h>
-#include <service_common/application/ApplicationHelper.h>
-#include <service_common/DB/db.h>
-#include <service_common/params/params.h>
-// #include <service_common/config/config.h>
+#include <service_common/params/params_info.h>
+#include <service_common/params/params_handler.h>
 
 #endif
