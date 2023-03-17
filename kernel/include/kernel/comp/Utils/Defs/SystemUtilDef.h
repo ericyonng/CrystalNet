@@ -114,7 +114,6 @@ class KERNEL_EXPORT LinuxRlimitId
 public:
    static const constexpr Int32 E_RLIMIT_AS = RLIMIT_AS;
    static const constexpr Int32 E_RLIMIT_CORE = RLIMIT_CORE;
-   static const constexpr Int32 E_RLIMIT_CORE = RLIMIT_CORE;
 
     static const constexpr Int32 E_RLIMIT_CPU = RLIMIT_CPU;
     static const constexpr Int32 E_RLIMIT_DATA = RLIMIT_DATA;
@@ -122,7 +121,6 @@ public:
     static const constexpr Int32 E_RLIMIT_LOCKS = RLIMIT_LOCKS;
     static const constexpr Int32 E_RLIMIT_MEMLOCK = RLIMIT_MEMLOCK;
     static const constexpr Int32 E_RLIMIT_NOFILE = RLIMIT_NOFILE;      // 限制文件描述符打开最大数量（当前进程）
-    static const constexpr Int32 E_RLIMIT_NPROC = RLIMIT_NPROC;
     static const constexpr Int32 E_RLIMIT_NPROC = RLIMIT_NPROC;
     static const constexpr Int32 E_RLIMIT_RSS = RLIMIT_RSS;
     static const constexpr Int32 E_RLIMIT_RTPRIO = RLIMIT_RTPRIO;
