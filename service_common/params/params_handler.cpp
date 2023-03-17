@@ -43,8 +43,6 @@ Int32 ParamsHandler::GetParams(int argc, char const *argv[], ParamsInfo &paramIn
 
     // 1.传入的参数
     const Int32 argCount = static_cast<Int32>(args.size());
-    Int64 fileSoft = -1;
-    Int64 fileHard = -1;
     for(Int32 idx = 0; idx < argCount; ++idx)
     {
         const auto &arg = args[idx];
