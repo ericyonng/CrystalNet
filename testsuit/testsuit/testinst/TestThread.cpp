@@ -140,52 +140,52 @@ public:
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestThreadTPoolask3);
 
-static void ThreadPoolRun2(KERNEL_NS::LibThreadPool *pool)
-{
-    auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
-    KERNEL_NS::LibString info;
-    info.AppendFormat("ThreadPoolRun2 thread id[%llu] pool[%s]\n"
-        , tlsDef->_threadId, pool->ToString().c_str());
+// static void ThreadPoolRun2(KERNEL_NS::LibThreadPool *pool)
+// {
+//     auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
+//     KERNEL_NS::LibString info;
+//     info.AppendFormat("ThreadPoolRun2 thread id[%llu] pool[%s]\n"
+//         , tlsDef->_threadId, pool->ToString().c_str());
 
-    KERNEL_NS::SystemUtil::LockConsole();
-    KERNEL_NS::SystemUtil::OutputToConsole(info);
-    KERNEL_NS::SystemUtil::UnlockConsole();
-}
+//     KERNEL_NS::SystemUtil::LockConsole();
+//     KERNEL_NS::SystemUtil::OutputToConsole(info);
+//     KERNEL_NS::SystemUtil::UnlockConsole();
+// }
 
-static void ThreadPoolRun3(KERNEL_NS::LibThreadPool *pool)
-{
-    auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
-    KERNEL_NS::LibString info;
-    info.AppendFormat("ThreadPoolRun3 thread id[%llu]\n", tlsDef->_threadId);
+// static void ThreadPoolRun3(KERNEL_NS::LibThreadPool *pool)
+// {
+//     auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
+//     KERNEL_NS::LibString info;
+//     info.AppendFormat("ThreadPoolRun3 thread id[%llu]\n", tlsDef->_threadId);
 
-    KERNEL_NS::SystemUtil::LockConsole();
-    KERNEL_NS::SystemUtil::OutputToConsole(info);
-    KERNEL_NS::SystemUtil::UnlockConsole();
-}
+//     KERNEL_NS::SystemUtil::LockConsole();
+//     KERNEL_NS::SystemUtil::OutputToConsole(info);
+//     KERNEL_NS::SystemUtil::UnlockConsole();
+// }
 
-static void ThreadPoolRun4(KERNEL_NS::LibThreadPool *pool)
-{
-    auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
-    KERNEL_NS::LibString info;
-    info.AppendFormat("ThreadPoolRun4 thread id[%llu] pool[%s]\n"
-        , tlsDef->_threadId, pool->ToString().c_str());
+// static void ThreadPoolRun4(KERNEL_NS::LibThreadPool *pool)
+// {
+//     auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
+//     KERNEL_NS::LibString info;
+//     info.AppendFormat("ThreadPoolRun4 thread id[%llu] pool[%s]\n"
+//         , tlsDef->_threadId, pool->ToString().c_str());
 
-    KERNEL_NS::SystemUtil::LockConsole();
-    KERNEL_NS::SystemUtil::OutputToConsole(info);
-    KERNEL_NS::SystemUtil::UnlockConsole();
-}
+//     KERNEL_NS::SystemUtil::LockConsole();
+//     KERNEL_NS::SystemUtil::OutputToConsole(info);
+//     KERNEL_NS::SystemUtil::UnlockConsole();
+// }
 
-static void ThreadPoolRun5(KERNEL_NS::LibThreadPool *pool)
-{
-    auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
-    KERNEL_NS::LibString info;
-    info.AppendFormat("ThreadPoolRun5 thread id[%llu] pool[%s]\n"
-        , tlsDef->_threadId, pool->ToString().c_str());
+// static void ThreadPoolRun5(KERNEL_NS::LibThreadPool *pool)
+// {
+//     auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
+//     KERNEL_NS::LibString info;
+//     info.AppendFormat("ThreadPoolRun5 thread id[%llu] pool[%s]\n"
+//         , tlsDef->_threadId, pool->ToString().c_str());
 
-    KERNEL_NS::SystemUtil::LockConsole();
-    KERNEL_NS::SystemUtil::OutputToConsole(info);
-    KERNEL_NS::SystemUtil::UnlockConsole();
-}
+//     KERNEL_NS::SystemUtil::LockConsole();
+//     KERNEL_NS::SystemUtil::OutputToConsole(info);
+//     KERNEL_NS::SystemUtil::UnlockConsole();
+// }
 
 void TestThread::Run()
 {
@@ -232,7 +232,7 @@ void TestThread::Run()
         pool.Init(0, 12);
         pool.Start();
 
-        ThreadPoolTask1 *task1 = new ThreadPoolTask1;
+        // ThreadPoolTask1 *task1 = new ThreadPoolTask1;
         TestThreadTPoolask3 *task2 = TestThreadTPoolask3::New_TestThreadTPoolask3();
 
         // 只添加任务不启动线程工作 队列是有序的

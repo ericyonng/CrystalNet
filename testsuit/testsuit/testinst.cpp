@@ -152,7 +152,7 @@ void TestInst::Run(int argc, char const *argv[])
     // // TODO:analyze argv参数 使用lua分析
 
     CRYSTAL_TRACE("test started.\n");
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "system test started.\nsucParamsInfo:\n%s, errParamsInfo:\n%s."), sucParamsInfo.c_str(), errParamsInfo.c_str());
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "system test started paramNum:%d.\nsucParamsInfo:\n%s, errParamsInfo:\n%s."), paramNum, sucParamsInfo.c_str(), errParamsInfo.c_str());
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "nihao:你好.shabi " u8" 🌍 olleH"));
 
 // 

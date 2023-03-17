@@ -618,8 +618,23 @@ bool SystemUtil::Exec(const LibString &cmd, Int32 &err, LibString &outputInfo)
 Int32 SystemUtil::SetProcessFileDescriptLimit(Int32 resourceId, Int64 softLimit, Int64 hardLimit, LibString &errInfo)
 {
     rlimit64 limitInfo;
-    limitInfo.rlim_cur = static_cast<rlim_t>(softLimit);
-    limitInfo.rlim_max = static_cast<rlim_t>(hardLimit);
+    ::memset(&limitInfo, 0, sizeof(limitInfo));
+
+    if(softLimit < 0 && hardLimit < 0)
+    {
+        return Status::Success;
+    }
+    
+    if(softLimit > 0)
+    {
+        limitInfo.rlim_cur = static_cast<rlim_t>(softLimit);
+    }
+
+    if(hardLimit > 0)
+    {
+        limitInfo.rlim_max = static_cast<rlim_t>(hardLimit);
+    }
+
     Int32 err = ::setrlimit64(resourceId, &limitInfo);
     if(err != 0)
     {
