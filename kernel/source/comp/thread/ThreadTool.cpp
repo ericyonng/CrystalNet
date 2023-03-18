@@ -48,7 +48,8 @@ void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId,
     sprintf(reason, "%s thread id = [%llu]", tlsMemPoolReason, defTls->_threadId);
     TlsUtil::CreateMemoryPool(reason);
 
-    g_Log->Sys(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread init suc thread id:[%llu], tlsMemPoolReason:%s."), threadId, tlsMemPoolReason ? tlsMemPoolReason : "None");
+    if(LIKELY(g_Log))
+        g_Log->Sys(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread init suc thread id:[%llu], tlsMemPoolReason:%s."), threadId, tlsMemPoolReason ? tlsMemPoolReason : "None");
 }
 
 void ThreadTool::OnDestroy()
