@@ -244,7 +244,7 @@ public:
         KERNEL_NS::LibString logIniPath;
         logIniPath = programPath + "/ini/";
         KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
-        Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), s_logIniContent, s_consoleIniContent, needSignalHandle);
+        Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), s_logIniContent, s_consoleIniContent, needSignalHandle, -1, -1);
         if(err != Status::Success)
         {
             CRYSTAL_TRACE("kernel init fail err:%d", err);
