@@ -30,6 +30,7 @@
 #include <kernel/comp/thread/ThreadTool.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Tls/Tls.h>
+#include <kernel/comp/Log/log.h>
 
 KERNEL_BEGIN
 
@@ -46,6 +47,8 @@ void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId,
     reason[0] = 0;
     sprintf(reason, "%s thread id = [%llu]", tlsMemPoolReason, defTls->_threadId);
     TlsUtil::CreateMemoryPool(reason);
+
+    g_Log->Sys(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread init suc thread id:[%llu], tlsMemPoolReason:%s."), threadId, tlsMemPoolReason ? tlsMemPoolReason : "None");
 }
 
 void ThreadTool::OnDestroy()
