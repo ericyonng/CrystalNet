@@ -329,8 +329,8 @@ bool XlsxExporterMgr::_ScanXlsx()
             if(KERNEL_NS::FileUtil::IsDir(fileInfo))
                 break;
 
-            // 过滤非meta
-            if(KERNEL_NS::FileUtil::ExtractFileExtension(fileInfo._fileName) != KERNEL_NS::LibString(".meta"))
+            // 过滤非xlsx
+            if(KERNEL_NS::FileUtil::ExtractFileExtension(fileInfo._fileName) != KERNEL_NS::LibString(".xlsx"))
                 break;
 
             KERNEL_NS::LibString fullPath = fileInfo._rootPath;
@@ -338,71 +338,18 @@ bool XlsxExporterMgr::_ScanXlsx()
                 fullPath.AppendFormat("/");
 
             const auto &fullFilePath = fullPath + fileInfo._fileName;
+            
+            const auto fileNameWithoutExtention = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileInfo._fileName);
 
-            // 拿pbcache中的缓存数据
-            auto newMeta = XlsxConfigMetaInfo::New_XlsxConfigMetaInfo();
-            auto ptr = KERNEL_NS::FileUtil::OpenFile(fullFilePath.c_str());
-            if(!ptr)
+            const auto &relationDir = fullPath - _sourceDir;
+            const auto metaFilePath = _metaDir + relationDir + fileNameWithoutExtention;
+
+            // 需不需要导出
+            if(!_IsNeedExport(metaFilePath, fullFilePath))
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("open meta file fail:%s"), fullFilePath.c_str());
-                isContinue = false;
-                isParentDirContinue = false;
-                isSuc = false;
                 break;
             }
 
-            KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp(ptr);
-            fp.SetClosureDelegate([](void *p){
-                auto ptr = reinterpret_cast<FILE *>(p);
-                KERNEL_NS::FileUtil::CloseFile(*ptr);
-            });
-
-            newMeta->_metaRootPath = fileInfo._rootPath;
-            newMeta->_metaFileName = fileInfo._fileName;
-            newMeta->_relationPath = fileInfo._rootPath - _metaDir;
-            _metaNameRefConfigMetaInfo.insert(std::make_pair(fullFilePath, newMeta));
-
-            std::vector<KERNEL_NS::LibString> lines;
-            KERNEL_NS::FileUtil::ReadUtf8File(*fp, lines);
-            if(lines.empty())
-            {
-                g_Log->Warn(LOGFMT_OBJ_TAG("meta file have no any content:%s"), fullFilePath.c_str());
-                isContinue = false;
-                isParentDirContinue = false;
-                isSuc = false;
-                break;
-            }
-
-            // 填充内容
-            for(auto &content : lines)
-            {
-                auto kv = content.Split(":");
-                if(kv.empty() || (kv.size() < 2))
-                    continue;
-
-                auto k = kv[0].strip();
-                auto v = kv[1].strip();
-                if(k == "XlsxFile")
-                {
-                    if(v.empty())
-                    {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("bad meta file content:%s, file:%s"), content.c_str(), fullFilePath.c_str());
-                        break;
-                    }
-
-                    newMeta->_xlsxFileName = v;
-                }
-                else if(k == "Md5")
-                {
-                    if(v.empty())
-                    {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("bad meta file content:%s, file:%s"), content.c_str(), fullFilePath.c_str());
-                        break;
-                    }
-
-                    newMeta->_lastMd5 = v;
-                }
-            }
         } while (false);
         
         return isContinue;
