@@ -84,4 +84,42 @@ Int32 ParamsHandler::GetParams(int argc, char const *argv[], ParamsInfo &paramIn
     return paramsNum;
 }
 
+Int32 ParamsHandler::GetParams(const std::vector<KERNEL_NS::LibString> &params, KERNEL_NS::LibString &susParamsInfo, KERNEL_NS::LibString &warnParamsInfo
+    , std::function<bool(const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)> &&cb, Byte8 kvSepChar)
+{
+    Int32 paramsNum = 0;
+    const Int32 argCount = static_cast<Int32>(params.size());
+    for(Int32 idx = 0; idx < argCount; ++idx)
+    {
+        const auto &arg = params[idx];
+        auto kv = arg.Split(kvSepChar);
+        if(kv.empty())
+            continue;
+
+        if(kv.size() < 2)
+            continue;
+
+        auto &k = kv[0];
+        k.strip();
+        KERNEL_NS::LibString &v = kv[1];
+        if(k.empty())
+            continue;
+
+        v.strip();
+
+        if(cb(k, v))
+        {
+            ++paramsNum;
+            susParamsInfo.AppendFormat("key:%s, value:%s\n", k.c_str(), v.c_str());
+        }
+        else
+        {
+            warnParamsInfo.AppendFormat("key:%s, value:%s\n", k.c_str(), v.c_str());
+        }
+    }
+
+    return paramsNum;
+}
+
+
 SERVICE_COMMON_END

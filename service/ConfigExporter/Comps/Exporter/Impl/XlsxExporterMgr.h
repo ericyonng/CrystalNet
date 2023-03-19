@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <service/ConfigExporter/Comps/XlsxExporter/Interface/IXlsxExporterMgr.h>
+#include <service/ConfigExporter/Comps/Exporter/Interface/IXlsxExporterMgr.h>
 
 SERVICE_BEGIN
 
@@ -44,14 +44,14 @@ public:
 
     void Release() override;
 
+    virtual Int32 ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> &params) override;
+
 public:
     virtual KERNEL_NS::LibString ToString() const override;
 
 protected:
     Int32 _OnGlobalSysInit() override;
     void _OnGlobalSysClose() override;
-
-    void _OnExporter(KERNEL_NS::LibTimer *t);
 
     // 扫描meta文件
     bool _ScanMeta();

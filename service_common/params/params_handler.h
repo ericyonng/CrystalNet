@@ -43,7 +43,40 @@ class ParamsHandler
 public:
     // return 返回解析出来的参数数量
     static Int32 GetParams(int argc, char const *argv[], ParamsInfo &paramInfo, KERNEL_NS::LibString &susParamsInfo, KERNEL_NS::LibString &warnParamsInfo);
+
+    // 参数格式：exe_prog --config=release --xxx="dadfa dafas", 
+    // @param(cb) :key:键, value:值, return:返回键值对解析是否成功, 成功会添加到susParamsInfo, 不成功会添加到warnParamsInfo
+    // @return(Int32):返回成功解析的参数个数
+    static Int32 GetParams(int argc, char const *argv[], KERNEL_NS::LibString &susParamsInfo, KERNEL_NS::LibString &warnParamsInfo
+    , std::function<bool(const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)> &&cb, Byte8 kvSepChar = '=');
+
+    // 参数格式：exe_prog --config=release --xxx="dadfa dafas", 
+    // @param(cb) :key:键, value:值, return:返回键值对解析是否成功, 成功会添加到susParamsInfo, 不成功会添加到warnParamsInfo
+    // @return(Int32):返回成功解析的参数个数
+    static Int32 GetParams(const std::vector<KERNEL_NS::LibString> &params, KERNEL_NS::LibString &susParamsInfo, KERNEL_NS::LibString &warnParamsInfo
+    , std::function<bool(const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)> &&cb, Byte8 kvSepChar = '=');
+
+    static Int32 GetParams(const std::vector<KERNEL_NS::LibString> &params, std::function<bool(const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)> &&cb, Byte8 kvSepChar = '=');
 };
+
+ALWAYS_INLINE Int32 ParamsHandler::GetParams(int argc, char const *argv[], KERNEL_NS::LibString &susParamsInfo, KERNEL_NS::LibString &warnParamsInfo
+    , std::function<bool(const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)> &&cb, Byte8 kvSepChar)
+{
+     // 传入的参数
+    std::vector<KERNEL_NS::LibString> args;
+    for(Int32 idx = 0; idx < argc; ++idx)
+        args.push_back(KERNEL_NS::LibString(argv[idx]));
+
+    return ParamsHandler::GetParams(args, susParamsInfo, warnParamsInfo, std::forward<decltype(cb)>(cb), kvSepChar);
+}
+
+ALWAYS_INLINE Int32 ParamsHandler::GetParams(const std::vector<KERNEL_NS::LibString> &params, std::function<bool(const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)> &&cb, Byte8 kvSepChar)
+{
+    KERNEL_NS::LibString susParamsInfo;
+    KERNEL_NS::LibString warnParamsInfo;
+
+    return ParamsHandler::GetParams(params, susParamsInfo, warnParamsInfo, std::forward<decltype(cb)>(cb), kvSepChar);
+}
 
 SERVICE_COMMON_END
 

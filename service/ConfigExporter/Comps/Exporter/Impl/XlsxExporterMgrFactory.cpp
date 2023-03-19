@@ -21,14 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2023-02-19 22:12:07
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxExporterMgr.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxExporterMgrFactory.h>
 
-#include <service/ConfigExporter/Comps/StubHandle/StubHandle.h>
-#include <service/ConfigExporter/Comps/SysLogic/SysLogic.h>
-#include <service/ConfigExporter/Comps/Exporter/exporter.h>
+SERVICE_BEGIN
 
+KERNEL_NS::CompFactory *XlsxExporterMgrFactory::FactoryCreate()
+{
+    return KERNEL_NS::ObjPoolWrap<XlsxExporterMgrFactory>::NewByAdapter(_buildType.V);
+}
+
+void XlsxExporterMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<XlsxExporterMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
+
+KERNEL_NS::CompObject *XlsxExporterMgrFactory::Create() const
+{
+    return XlsxExporterMgr::NewByAdapter_XlsxExporterMgr(_buildType.V);
+}
+
+SERVICE_END

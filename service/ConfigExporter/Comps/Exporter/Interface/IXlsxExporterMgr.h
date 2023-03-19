@@ -21,14 +21,23 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2023-02-19 22:12:07
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ConfigExporter/Comps/StubHandle/StubHandle.h>
-#include <service/ConfigExporter/Comps/SysLogic/SysLogic.h>
-#include <service/ConfigExporter/Comps/Exporter/exporter.h>
+#include <service/ConfigExporter/ServiceCompHeader.h>
 
+SERVICE_BEGIN
+
+class IXlsxExporterMgr : public IGlobalSys
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IXlsxExporterMgr);
+
+public:
+    virtual Int32 ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> &params) = 0;
+};
+
+SERVICE_END

@@ -27,9 +27,9 @@
 */
 
 #include <pch.h>
-#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxExporterMgr.h>
-#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxExporterMgrFactory.h>
-#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxConfigInfo.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxExporterMgr.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxExporterMgrFactory.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxConfigInfo.h>
 
 SERVICE_BEGIN
 
@@ -61,10 +61,6 @@ Int32 XlsxExporterMgr::_OnGlobalSysInit()
 {
     _RegisterEvents();
 
-    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-    timer->SetTimeOutHandler(this, &XlsxExporterMgr::_OnExporter);
-    timer->Schedule(0);
-
     // 1.读取所有配置表数据
     // 2.读取表头
     // 3.生成配置
@@ -77,38 +73,18 @@ void XlsxExporterMgr::_OnGlobalSysClose()
     _Clear();
 }
 
-void XlsxExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
+Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> &params)
 {
-    bool genSuc = false;
-    auto app = GetApp();
-    const auto &appArgs = app->GetAppArgs();
-    
     // ConfigExporter --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/ --meta=/xxx/
-
-    // 1.传入的参数
-    const Int32 argCount = static_cast<Int32>(appArgs.size());
-    for(Int32 idx = 0; idx < argCount; ++idx)
+    // 4.解析参数
+    for(auto &iter : params)
     {
-        const auto &arg = appArgs[idx];
-        auto kv = arg.Split("=");
-        if(kv.empty())
-            continue;
+        auto &key = iter.first;
+        auto &value = iter.second;
 
-        if(kv.size() < 2)
-            continue;
-
-        auto &k = kv[0];
-        k.strip();
-        KERNEL_NS::LibString &v = kv[1];
-        if(k.empty())
-            continue;
-
-        v.strip();
-
-        // 生成的语言版本
-        if(k == "--lang")
-        {
-            auto configTypeRefLangsArr = v.Split("|");
+        if(key == "--lang")
+        {// 生成的语言版本
+            auto configTypeRefLangsArr = value.Split("|");
             if(!configTypeRefLangsArr.empty())
             {
                 for(auto &configTypeRefLangs : configTypeRefLangsArr)
@@ -145,130 +121,62 @@ void XlsxExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
                 }
             }
         }
-        else if(k == "--source_dir")
+        else if(key == "--source_dir")
         {
-            _sourceDir = v;
+            _sourceDir = value;
         }
-        else if(k == "target_dir")
+        else if(key == "--target_dir")
         {
-            _targetDir = v;
+            _targetDir = value;
         }
-        else if(k == "--data")
+        else if(key == "--data")
         {
-            _dataDir = v;
+            _dataDir = value;
         }
-        else if(k == "--meta")
+        else if(key == "--meta")
         {
-            _metaDir = v;
+            _metaDir = value;
         }
         else
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("unknown param:k:%s, v:%s"), k.c_str(), v.c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("unknown param:k:%s, v:%s"), key.c_str(), value.c_str());
         }
     }
     
-    
-    // 1.扫描所有xlsx文件以页签的配置类型名为key生成需要处理文件的字典
-    do
+    // 必须指定语言版本
+    if(_configTypeRefLangTypes.empty())
     {
-        if(_configTypeRefLangTypes.empty())
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("have no lang types"));
-            genSuc = false;
-            break;
-        }
+        g_Log->Warn(LOGFMT_OBJ_TAG("have no lang types"));
+        return Status::ParamError;
+    }
 
-        if(_sourceDir.empty() || _targetDir.empty() || _dataDir.empty() || _metaDir.empty())
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
-                        , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
-            genSuc = false;
-            break;
-        }
+    // 参数都不可缺省
+    if(_sourceDir.empty() || _targetDir.empty() || _dataDir.empty() || _metaDir.empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
+                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        return Status::ParamError;
+    }
 
-        // 扫描meta文件
-        if(!_ScanMeta())
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("_ScanMeta fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
-                        , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
-            genSuc = false;
-            break;
-        }
+    // 扫描meta文件
+    if(!_ScanMeta())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("_ScanMeta fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
+                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        return Status::Failed;
+    }
 
-        // 扫描xlsx文件
-        if(!_ScanXlsx())
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("_ScanXlsx fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
-                        , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
-            genSuc = false;
-            break;
-        }
+    // 扫描xlsx文件
+    if(!_ScanXlsx())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("_ScanXlsx fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
+                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        return Status::Failed;
+    }
 
-        // auto nowTs = KERNEL_NS::LibTime::Now();
-        // auto traverseCallback = [this, &nowTs] (const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentPathContinue) -> bool {
-
-    //     bool isContinue = true;
-    //     do
-    //     {
-    //         // 过滤目录
-    //         if(KERNEL_NS::FileUtil::IsDir(fileInfo))
-    //             break;
-
-    //         // 过滤非xlsx文件
-    //         if(KERNEL_NS::FileUtil::ExtractFileExtension(fileInfo._fileName) != KERNEL_NS::LibString(".xlsx"))
-    //             break;
-
-    //         KERNEL_NS::LibString xlsxRootPath = fileInfo._rootPath;
-    //         if(fileInfo._rootPath.at(fileInfo._rootPath.length() - 1) != '/')
-    //             xlsxRootPath.AppendFormat("/");
-
-    //         const auto &fullFilePath = xlsxRootPath + fileInfo._fileName;
-
-    //         // 拿pbcache中的缓存数据
-    //         auto iterPbCacheFile = _pbCacheContent->_protoPathRefFileInfo.find(fullFilePath);
-    //         if(iterPbCacheFile != _pbCacheContent->_protoPathRefFileInfo.end())
-    //         {
-    //             auto pbCacheFile = iterPbCacheFile->second;
-    //             // 修改时间没变则不需要重新解析
-    //             if(!_forceGenAll)
-    //             {
-    //                 if(pbCacheFile->_modifyTime == fileInfo._modifyTime)
-    //                     break;
-    //             }
-    //         }
-
-    //         // md5有变化才会被扫描到
-    //         if(!_ScanAProto(fileInfo, fullFilePath, isParentPathContinue))
-    //         {
-    //             isContinue = false;
-    //             break;
-    //         }
-
-    //     } while (false);
-        
-    //     return isContinue;
-    // };
-
-    // auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(traverseCallback, bool, const KERNEL_NS::FindFileInfo &, bool &);
-
-    //     // 2.加载xlsx文件
-    //     // KERNEL_NS::DirectoryUtil::TraverseDirRecursively(sourceDir, )
-
-    //     g_Log->Custom("[CONFIG GEN] START.");
-
-    //     // 1.读取所有配置数据
-        
-    //     g_Log->Custom("[CONFIG GEN] END.");
-
-     }while (false);
-
-    // 4.关闭app
-    Int32 err = genSuc ? Status::Success : Status::Failed;
-    GetServiceProxy()->CloseApp(err);
-    
-    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    return Status::Success;
 }
-
+   
 // 测试点: 加载meta成功, meta中没有对应的xlsx文件名, 或者xlsx文件不存在则清理meta， md5为空则清理meta
 // 注意:xlsx所在路径相对于xlsx的base路径的相对路径与meta文件相对于meta base 路径的相对路径是一致的
 bool XlsxExporterMgr::_ScanMeta()

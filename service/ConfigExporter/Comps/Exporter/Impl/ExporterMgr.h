@@ -28,15 +28,36 @@
 
 #pragma once
 
-#include <service/ConfigExporter/ServiceCompHeader.h>
+#include <service/ConfigExporter/Comps/Exporter/Interface/IExporterMgr.h>
 
 SERVICE_BEGIN
 
-class IXlsxExporterMgr : public IGlobalSys
+class ExporterMgr : public IExporterMgr
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IXlsxExporterMgr);
+    POOL_CREATE_OBJ_DEFAULT_P1(IExporterMgr, ExporterMgr);
 
 public:
+    ExporterMgr();
+    ~ExporterMgr();
+
+    void Release() override;
+
+public:
+    virtual KERNEL_NS::LibString ToString() const override;
+
+protected:
+    Int32 _OnGlobalSysInit() override;
+    void _OnGlobalSysClose() override;
+
+    void _OnExporter(KERNEL_NS::LibTimer *t);
+
+private:
+    void _Clear();
+
+    void _RegisterEvents();
+    void _UnRegisterEvents();
+
+private:
 };
 
 SERVICE_END

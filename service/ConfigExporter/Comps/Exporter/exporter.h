@@ -21,14 +21,14 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2023-02-19 19:52:14
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/ConfigExporter/Comps/StubHandle/StubHandle.h>
-#include <service/ConfigExporter/Comps/SysLogic/SysLogic.h>
-#include <service/ConfigExporter/Comps/Exporter/exporter.h>
-
+#include <service/ConfigExporter/Comps/Exporter/Interface/IXlsxExporterMgr.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxExporterMgrFactory.h>
+#include <service/ConfigExporter/Comps/Exporter/Interface/IExporterMgr.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgrFactory.h>

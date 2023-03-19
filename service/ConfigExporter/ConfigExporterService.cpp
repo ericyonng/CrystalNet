@@ -105,8 +105,10 @@ void ConfigExporterService::_OnServiceRegisterComps()
     
      // 系统逻辑管理
     RegisterComp<SysLogicMgrFactory>();
+    
     // 导表
     RegisterComp<XlsxExporterMgrFactory>();
+    RegisterComp<ExporterMgrFactory>();
 }
 
 Int32 ConfigExporterService::_OnServiceInit()
