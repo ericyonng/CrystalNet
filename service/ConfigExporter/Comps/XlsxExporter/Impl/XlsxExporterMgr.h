@@ -28,19 +28,19 @@
 
 #pragma once
 
-#include <service/ConfigExporter/Comps/Exporter/Interface/IExporterMgr.h>
+#include <service/ConfigExporter/Comps/XlsxExporter/Interface/IXlsxExporterMgr.h>
 
 SERVICE_BEGIN
 
-class ConfigMetaInfo;
+class XlsxConfigMetaInfo;
 
-class ExporterMgr : public IExporterMgr
+class XlsxExporterMgr : public IXlsxExporterMgr
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IExporterMgr, ExporterMgr);
+    POOL_CREATE_OBJ_DEFAULT_P1(IXlsxExporterMgr, XlsxExporterMgr);
 
 public:
-    ExporterMgr();
-    ~ExporterMgr();
+    XlsxExporterMgr();
+    ~XlsxExporterMgr();
 
     void Release() override;
 
@@ -63,7 +63,7 @@ protected:
     bool _IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERNEL_NS::LibString &xlsxFile) const;
 
     // meta file
-    const ConfigMetaInfo *_GetMetaFile(const KERNEL_NS::LibString &metaFile) const;
+    const XlsxConfigMetaInfo *_GetMetaFile(const KERNEL_NS::LibString &metaFile) const;
 
 private:
     void _Clear();
@@ -79,10 +79,10 @@ private:
     KERNEL_NS::LibString _metaDir;
     std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> _configTypeRefLangTypes;
 
-    std::unordered_map<KERNEL_NS::LibString, ConfigMetaInfo *> _metaNameRefConfigMetaInfo;
+    std::unordered_map<KERNEL_NS::LibString, XlsxConfigMetaInfo *> _metaNameRefConfigMetaInfo;
 };
 
-ALWAYS_INLINE  const ConfigMetaInfo *ExporterMgr::_GetMetaFile(const KERNEL_NS::LibString &metaFile) const
+ALWAYS_INLINE  const XlsxConfigMetaInfo *XlsxExporterMgr::_GetMetaFile(const KERNEL_NS::LibString &metaFile) const
 {
     auto iter = _metaNameRefConfigMetaInfo.find(metaFile);
     return iter == _metaNameRefConfigMetaInfo.end() ? NULL : iter->second;

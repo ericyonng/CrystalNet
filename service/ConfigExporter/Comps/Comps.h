@@ -30,5 +30,5 @@
 
 #include <service/ConfigExporter/Comps/StubHandle/StubHandle.h>
 #include <service/ConfigExporter/Comps/SysLogic/SysLogic.h>
-#include <service/ConfigExporter/Comps/Exporter/exporter.h>
+#include <service/ConfigExporter/Comps/XlsxExporter/exporter.h>
 

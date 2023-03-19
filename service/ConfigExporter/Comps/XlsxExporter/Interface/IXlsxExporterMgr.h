@@ -26,25 +26,17 @@
  * Description: 
 */
 
-#include <pch.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgr.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgrFactory.h>
+#pragma once
+
+#include <service/ConfigExporter/ServiceCompHeader.h>
 
 SERVICE_BEGIN
 
-KERNEL_NS::CompFactory *ExporterMgrFactory::FactoryCreate()
+class IXlsxExporterMgr : public IGlobalSys
 {
-    return KERNEL_NS::ObjPoolWrap<ExporterMgrFactory>::NewByAdapter(_buildType.V);
-}
+    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IXlsxExporterMgr);
 
-void ExporterMgrFactory::Release()
-{
-    KERNEL_NS::ObjPoolWrap<ExporterMgrFactory>::DeleteByAdapter(_buildType.V, this);
-}
-
-KERNEL_NS::CompObject *ExporterMgrFactory::Create() const
-{
-    return ExporterMgr::NewByAdapter_ExporterMgr(_buildType.V);
-}
+public:
+};
 
 SERVICE_END

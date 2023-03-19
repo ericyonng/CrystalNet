@@ -28,15 +28,23 @@
 
 #pragma once
 
-#include <service/ConfigExporter/ServiceCompHeader.h>
+
+#include <service/ConfigExporter/ServiceCompFactoryHeader.h>
 
 SERVICE_BEGIN
 
-class IExporterMgr : public IGlobalSys
+class XlsxExporterMgrFactory : public KERNEL_NS::CompFactory
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IExporterMgr);
-
+    // 创建factory对象时候使用创建的方法类型
 public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+    static KERNEL_NS::CompFactory *FactoryCreate();
+
+    virtual void Release() override;
+    
+public:
+    virtual KERNEL_NS::CompObject *Create() const;
 };
 
 SERVICE_END

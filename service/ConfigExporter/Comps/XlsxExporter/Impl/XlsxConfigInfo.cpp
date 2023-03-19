@@ -21,12 +21,34 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-02-19 19:52:14
+ * Date: 2023-02-21 11:03:07
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxConfigInfo.h>
 
-#include <service/ConfigExporter/Comps/Exporter/Interface/IExporterMgr.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgrFactory.h>
+SERVICE_BEGIN
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxConfigFieldInfo);
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxConfigTableInfo);
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxConfigMetaInfo);
+
+XlsxConfigFieldInfo::XlsxConfigFieldInfo(const XlsxConfigTableInfo *owner)
+:_owner(owner)
+{
+
+}
+
+XlsxConfigTableInfo::~XlsxConfigTableInfo()
+{
+    KERNEL_NS::ContainerUtil::DelContainer(_fieldInfos, [](XlsxConfigFieldInfo *ptr){
+        XlsxConfigFieldInfo::Delete_XlsxConfigFieldInfo(ptr);
+    });
+}
+
+
+SERVICE_END

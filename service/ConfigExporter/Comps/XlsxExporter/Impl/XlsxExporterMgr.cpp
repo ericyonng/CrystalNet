@@ -27,42 +27,42 @@
 */
 
 #include <pch.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgr.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgrFactory.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/ConfigInfo.h>
+#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxExporterMgr.h>
+#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxExporterMgrFactory.h>
+#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxConfigInfo.h>
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(IExporterMgr);
+POOL_CREATE_OBJ_DEFAULT_IMPL(IXlsxExporterMgr);
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ExporterMgr);
+POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxExporterMgr);
 
-ExporterMgr::ExporterMgr()
+XlsxExporterMgr::XlsxExporterMgr()
 {
 
 }
 
-ExporterMgr::~ExporterMgr()
+XlsxExporterMgr::~XlsxExporterMgr()
 {
     _Clear();
 }
 
-void ExporterMgr::Release()
+void XlsxExporterMgr::Release()
 {
-    ExporterMgr::DeleteByAdapter_ExporterMgr(ExporterMgrFactory::_buildType.V, this);
+    XlsxExporterMgr::DeleteByAdapter_XlsxExporterMgr(XlsxExporterMgrFactory::_buildType.V, this);
 }
 
-KERNEL_NS::LibString ExporterMgr::ToString() const
+KERNEL_NS::LibString XlsxExporterMgr::ToString() const
 {
-    return IExporterMgr::ToString();
+    return IXlsxExporterMgr::ToString();
 }
 
-Int32 ExporterMgr::_OnGlobalSysInit() 
+Int32 XlsxExporterMgr::_OnGlobalSysInit() 
 {
     _RegisterEvents();
 
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-    timer->SetTimeOutHandler(this, &ExporterMgr::_OnExporter);
+    timer->SetTimeOutHandler(this, &XlsxExporterMgr::_OnExporter);
     timer->Schedule(0);
 
     // 1.读取所有配置表数据
@@ -72,18 +72,18 @@ Int32 ExporterMgr::_OnGlobalSysInit()
     return Status::Success;
 }
 
-void ExporterMgr::_OnGlobalSysClose()
+void XlsxExporterMgr::_OnGlobalSysClose()
 {
     _Clear();
 }
 
-void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
+void XlsxExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
 {
     bool genSuc = false;
     auto app = GetApp();
     const auto &appArgs = app->GetAppArgs();
     
-    // ConfigExporter --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/ --meta=/xxx/
+    // ConfigExporter --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/ --meta=/xxx/
 
     // 1.传入的参数
     const Int32 argCount = static_cast<Int32>(appArgs.size());
@@ -271,7 +271,7 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
 
 // 测试点: 加载meta成功, meta中没有对应的xlsx文件名, 或者xlsx文件不存在则清理meta， md5为空则清理meta
 // 注意:xlsx所在路径相对于xlsx的base路径的相对路径与meta文件相对于meta base 路径的相对路径是一致的
-bool ExporterMgr::_ScanMeta()
+bool XlsxExporterMgr::_ScanMeta()
 {
     bool isSuc = true;
     KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_metaDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
@@ -294,7 +294,7 @@ bool ExporterMgr::_ScanMeta()
             const auto &fullFilePath = fullPath + fileInfo._fileName;
 
             // 拿pbcache中的缓存数据
-            auto newMeta = ConfigMetaInfo::New_ConfigMetaInfo();
+            auto newMeta = XlsxConfigMetaInfo::New_XlsxConfigMetaInfo();
             auto ptr = KERNEL_NS::FileUtil::OpenFile(fullFilePath.c_str());
             if(!ptr)
             {
@@ -374,7 +374,7 @@ bool ExporterMgr::_ScanMeta()
                     , metaFilePath.c_str()); 
 
             KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
-            ConfigMetaInfo::Delete_ConfigMetaInfo(metaInfo);
+            XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(metaInfo);
             iter = _metaNameRefConfigMetaInfo.erase(iter);
             continue;
         }
@@ -387,7 +387,7 @@ bool ExporterMgr::_ScanMeta()
                     , xlsxFullPath.c_str(), metaFilePath.c_str());    
             }
 
-            ConfigMetaInfo::Delete_ConfigMetaInfo(metaInfo);
+            XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(metaInfo);
             KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
             iter = _metaNameRefConfigMetaInfo.erase(iter);
 
@@ -397,7 +397,7 @@ bool ExporterMgr::_ScanMeta()
         // 2.md5是空的则删除meta文件
         if(metaInfo->_lastMd5.empty())
         {
-            ConfigMetaInfo::Delete_ConfigMetaInfo(metaInfo);
+            XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(metaInfo);
             KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
             iter = _metaNameRefConfigMetaInfo.erase(iter);
             continue;
@@ -409,12 +409,101 @@ bool ExporterMgr::_ScanMeta()
     return isSuc;
 }
 
-bool ExporterMgr::_ScanXlsx()
+bool XlsxExporterMgr::_ScanXlsx()
 {
+    bool isSuc = true;
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_metaDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
+        
+        bool isContinue = true;
+        do
+        {
+            // 过滤目录
+            if(KERNEL_NS::FileUtil::IsDir(fileInfo))
+                break;
+
+            // 过滤非meta
+            if(KERNEL_NS::FileUtil::ExtractFileExtension(fileInfo._fileName) != KERNEL_NS::LibString(".meta"))
+                break;
+
+            KERNEL_NS::LibString fullPath = fileInfo._rootPath;
+            if(fileInfo._rootPath.at(fileInfo._rootPath.length() - 1) != '/')
+                fullPath.AppendFormat("/");
+
+            const auto &fullFilePath = fullPath + fileInfo._fileName;
+
+            // 拿pbcache中的缓存数据
+            auto newMeta = XlsxConfigMetaInfo::New_XlsxConfigMetaInfo();
+            auto ptr = KERNEL_NS::FileUtil::OpenFile(fullFilePath.c_str());
+            if(!ptr)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("open meta file fail:%s"), fullFilePath.c_str());
+                isContinue = false;
+                isParentDirContinue = false;
+                isSuc = false;
+                break;
+            }
+
+            KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp(ptr);
+            fp.SetClosureDelegate([](void *p){
+                auto ptr = reinterpret_cast<FILE *>(p);
+                KERNEL_NS::FileUtil::CloseFile(*ptr);
+            });
+
+            newMeta->_metaRootPath = fileInfo._rootPath;
+            newMeta->_metaFileName = fileInfo._fileName;
+            newMeta->_relationPath = fileInfo._rootPath - _metaDir;
+            _metaNameRefConfigMetaInfo.insert(std::make_pair(fullFilePath, newMeta));
+
+            std::vector<KERNEL_NS::LibString> lines;
+            KERNEL_NS::FileUtil::ReadUtf8File(*fp, lines);
+            if(lines.empty())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("meta file have no any content:%s"), fullFilePath.c_str());
+                isContinue = false;
+                isParentDirContinue = false;
+                isSuc = false;
+                break;
+            }
+
+            // 填充内容
+            for(auto &content : lines)
+            {
+                auto kv = content.Split(":");
+                if(kv.empty() || (kv.size() < 2))
+                    continue;
+
+                auto k = kv[0].strip();
+                auto v = kv[1].strip();
+                if(k == "XlsxFile")
+                {
+                    if(v.empty())
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("bad meta file content:%s, file:%s"), content.c_str(), fullFilePath.c_str());
+                        break;
+                    }
+
+                    newMeta->_xlsxFileName = v;
+                }
+                else if(k == "Md5")
+                {
+                    if(v.empty())
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("bad meta file content:%s, file:%s"), content.c_str(), fullFilePath.c_str());
+                        break;
+                    }
+
+                    newMeta->_lastMd5 = v;
+                }
+            }
+        } while (false);
+        
+        return isContinue;
+    });
+
     return true;
 }
 
-bool ExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERNEL_NS::LibString &xlsxFile) const
+bool XlsxExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERNEL_NS::LibString &xlsxFile) const
 {
     // 1.拿到metafile 若没有metafile说明需要导出
     auto meta = _GetMetaFile(metaFile);
@@ -449,21 +538,21 @@ bool ExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERN
 }
 
 
-void ExporterMgr::_Clear()
+void XlsxExporterMgr::_Clear()
 {
     _UnRegisterEvents();
 
-    KERNEL_NS::ContainerUtil::DelContainer(_metaNameRefConfigMetaInfo, [](ConfigMetaInfo *ptr){
-        ConfigMetaInfo::Delete_ConfigMetaInfo(ptr);
+    KERNEL_NS::ContainerUtil::DelContainer(_metaNameRefConfigMetaInfo, [](XlsxConfigMetaInfo *ptr){
+        XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(ptr);
     });
 }
 
-void ExporterMgr::_RegisterEvents()
+void XlsxExporterMgr::_RegisterEvents()
 {
 
 }
 
-void ExporterMgr::_UnRegisterEvents()
+void XlsxExporterMgr::_UnRegisterEvents()
 {
 
 }

@@ -32,18 +32,18 @@
 
 SERVICE_BEGIN
 
-class ConfigTableInfo;
+class XlsxConfigTableInfo;
 
 // 字段信息
-class ConfigFieldInfo
+class XlsxConfigFieldInfo
 {
-    POOL_CREATE_OBJ_DEFAULT(ConfigFieldInfo);
+    POOL_CREATE_OBJ_DEFAULT(XlsxConfigFieldInfo);
 
 public:
-    ConfigFieldInfo(const ConfigTableInfo *owner);
-    ~ConfigFieldInfo(){}
+    XlsxConfigFieldInfo(const XlsxConfigTableInfo *owner);
+    ~XlsxConfigFieldInfo(){}
 
-    const ConfigTableInfo *_owner;
+    const XlsxConfigTableInfo *_owner;
 
     KERNEL_NS::LibString _ownType;      // C, S等类别
     KERNEL_NS::LibString _fieldName;    // 字段名
@@ -55,29 +55,29 @@ public:
 };
 
 // 表信息
-class ConfigTableInfo
+class XlsxConfigTableInfo
 {
-    POOL_CREATE_OBJ_DEFAULT(ConfigTableInfo);
+    POOL_CREATE_OBJ_DEFAULT(XlsxConfigTableInfo);
 
 public:
-    ConfigTableInfo(){}
+    XlsxConfigTableInfo(){}
 
-    ~ConfigTableInfo();
+    ~XlsxConfigTableInfo();
     KERNEL_NS::LibString _ownType;              // C, S等类别
     KERNEL_NS::LibString _wholeSheetName;       // 页签名 xxx | tableClass
     KERNEL_NS::LibString _tableClassName;       // 表类型名 tableClass
-    std::vector<ConfigFieldInfo *> _fieldInfos; // 字段信息
+    std::vector<XlsxConfigFieldInfo *> _fieldInfos; // 字段信息
     std::unordered_set<KERNEL_NS::LibString> _fieldNames; // 字段名 用于校验字段名
 };
 
 // meta文件内容(用于判断xlsx是否发生了变更)
-class ConfigMetaInfo
+class XlsxConfigMetaInfo
 {
 public:
-    POOL_CREATE_OBJ_DEFAULT(ConfigMetaInfo);
+    POOL_CREATE_OBJ_DEFAULT(XlsxConfigMetaInfo);
 
-    ConfigMetaInfo(){}
-    ~ConfigMetaInfo(){}
+    XlsxConfigMetaInfo(){}
+    ~XlsxConfigMetaInfo(){}
 
     KERNEL_NS::LibString _metaRootPath;     // meta所在目录
     KERNEL_NS::LibString _relationPath;     // meta文件相对于 meta路径的相对路径

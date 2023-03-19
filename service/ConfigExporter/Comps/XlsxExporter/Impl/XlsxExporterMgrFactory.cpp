@@ -21,34 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-02-21 11:03:07
+ * Date: 2023-02-19 22:12:07
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/ConfigInfo.h>
+#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxExporterMgr.h>
+#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxExporterMgrFactory.h>
 
 SERVICE_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigFieldInfo);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigTableInfo);
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigMetaInfo);
-
-ConfigFieldInfo::ConfigFieldInfo(const ConfigTableInfo *owner)
-:_owner(owner)
+KERNEL_NS::CompFactory *XlsxExporterMgrFactory::FactoryCreate()
 {
-
+    return KERNEL_NS::ObjPoolWrap<XlsxExporterMgrFactory>::NewByAdapter(_buildType.V);
 }
 
-ConfigTableInfo::~ConfigTableInfo()
+void XlsxExporterMgrFactory::Release()
 {
-    KERNEL_NS::ContainerUtil::DelContainer(_fieldInfos, [](ConfigFieldInfo *ptr){
-        ConfigFieldInfo::Delete_ConfigFieldInfo(ptr);
-    });
+    KERNEL_NS::ObjPoolWrap<XlsxExporterMgrFactory>::DeleteByAdapter(_buildType.V, this);
 }
 
+KERNEL_NS::CompObject *XlsxExporterMgrFactory::Create() const
+{
+    return XlsxExporterMgr::NewByAdapter_XlsxExporterMgr(_buildType.V);
+}
 
 SERVICE_END

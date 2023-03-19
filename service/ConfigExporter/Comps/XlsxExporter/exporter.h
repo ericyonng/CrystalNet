@@ -21,30 +21,12 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-02-19 22:12:07
+ * Date: 2023-02-19 19:52:14
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-
-#include <service/ConfigExporter/ServiceCompFactoryHeader.h>
-
-SERVICE_BEGIN
-
-class ExporterMgrFactory : public KERNEL_NS::CompFactory
-{
-    // 创建factory对象时候使用创建的方法类型
-public:
-    static constexpr KERNEL_NS::_Build::TL _buildType{};
-
-    static KERNEL_NS::CompFactory *FactoryCreate();
-
-    virtual void Release() override;
-    
-public:
-    virtual KERNEL_NS::CompObject *Create() const;
-};
-
-SERVICE_END
+#include <service/ConfigExporter/Comps/XlsxExporter/Interface/IXlsxExporterMgr.h>
+#include <service/ConfigExporter/Comps/XlsxExporter/Impl/XlsxExporterMgrFactory.h>
