@@ -95,6 +95,9 @@ public:
 	static UInt64 CalcUtf8CharBytes(U8 ctrlChar);
 
 	static void MergerMultiLine(const std::vector<LibString> &lines, LibString &target);
+
+	// 校验标准名字:英文, 数字, 下划线, 且首字母非数字, name 长度为0也是非法
+	static bool CheckGeneralName(const LibString &name);
 };
 
 inline size_t StringUtil::snprintf(std::string &str, const char *format, va_list ap)
@@ -1058,6 +1061,31 @@ ALWAYS_INLINE void StringUtil::MergerMultiLine(const std::vector<LibString> &lin
 	}
 }
 
+ALWAYS_INLINE bool StringUtil::CheckGeneralName(const LibString &name)
+{
+	if(name.empty())
+	{
+		return false;
+	}
+
+	// 英文,数值,下划线
+	const auto len = static_cast<Int32>(name.size());
+	for(Int32 idx = 0; idx < len; ++idx)
+	{
+		const auto ch = name[idx];
+		if(!KERNEL_NS::LibString::isalpha(ch) && !KERNEL_NS::LibString::isdigit(ch) && ch != '_')
+		{
+			return false;
+		}
+	}
+
+	// 首字母不能是数值
+	if(KERNEL_NS::LibString::isdigit(name[0]))
+		return false;
+
+
+	return true;
+}
 
 KERNEL_END
 

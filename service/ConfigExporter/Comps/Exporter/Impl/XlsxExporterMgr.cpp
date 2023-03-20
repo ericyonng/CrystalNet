@@ -174,6 +174,15 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
         return Status::Failed;
     }
 
+    // 导出配置
+    if(!_DoExportConfigs())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("_DoExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error."), 
+                    _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        return Status::Failed;
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("export xlsx success."));
     return Status::Success;
 }
    
@@ -320,7 +329,7 @@ bool XlsxExporterMgr::_ScanMeta()
 bool XlsxExporterMgr::_ScanXlsx()
 {
     bool isSuc = true;
-    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_metaDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_sourceDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
         
         bool isContinue = true;
         do
@@ -344,16 +353,81 @@ bool XlsxExporterMgr::_ScanXlsx()
             const auto &relationDir = fullPath - _sourceDir;
             const auto metaFilePath = _metaDir + relationDir + fileNameWithoutExtention;
 
+            KERNEL_NS::SmartPtr<KERNEL_NS::XlsxWorkbook, KERNEL_NS::AutoDelMethods::CustomDelete> xlsxBook = KERNEL_NS::XlsxWorkbook::NewThreadLocal_XlsxWorkbook(true);
+            xlsxBook.SetClosureDelegate([](void *p){
+                auto ptr = reinterpret_cast<KERNEL_NS::XlsxWorkbook *>(p);
+                KERNEL_NS::XlsxWorkbook::DeleteThreadLocal_XlsxWorkbook(ptr);
+            });
+
+            if(!xlsxBook->Parse(fullFilePath))
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("parse xlsx fail:%s"), fullFilePath.c_str());
+                isParentDirContinue = false;
+                isContinue = false;
+                isSuc = false;
+                break;
+            }
+
+            auto &allSheet = xlsxBook->GetAllSheets();
+            if(allSheet.empty())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("have no any sheet:xlsx path:%s "), fullFilePath.c_str());
+                break;
+            }
+                
+            bool checkSuc = true;
+            for(auto &iter : allSheet)
+            {
+                auto sheet = iter.second;
+                auto &sheetName = sheet->GetSheetName();
+                const auto &configTypeName = GetConfigTypeName(sheetName);
+                if(!KERNEL_NS::StringUtil::CheckGeneralName(configTypeName))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("bad sheet config type: xlsx file path:%s, sheet name:%s, config type name:%s"), fullFilePath.c_str(), sheetName.c_str(), configTypeName.c_str());
+                    isContinue = false;
+                    isParentDirContinue = false;
+                    checkSuc = false;
+                    isSuc = false;
+                    break;
+                }
+
+                auto iter = _configTypeRefSheets.find(configTypeName);
+                if(iter == _configTypeRefSheets.end())
+                    iter = _configTypeRefSheets.insert(std::make_pair(configTypeName, std::set<KERNEL_NS::XlsxSheet *>())).first;
+
+                iter->second.insert(sheet);
+            }
+
+            if(!checkSuc)
+                break;
+
+            _xlsxFileRefWorkbook.insert(std::make_pair(fullFilePath, xlsxBook.pop()));
+
             // 需不需要导出
             if(!_IsNeedExport(metaFilePath, fullFilePath))
             {
                 break;
             }
 
+            // 要导出的配置类型汇总
+            for(auto &iter : allSheet)
+            {
+                auto sheet = iter.second;
+                auto &sheetName = sheet->GetSheetName();
+                const auto &configTypeName = GetConfigTypeName(sheetName);
+                _needExportConfigType.insert(configTypeName);
+            }
+
         } while (false);
         
         return isContinue;
     });
+
+    if(!isSuc)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("scan xlsx fail source path:%s."), _sourceDir.c_str());
+        return false;
+    }
 
     return true;
 }
@@ -392,6 +466,10 @@ bool XlsxExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const 
     return md5 != meta->_lastMd5;
 }
 
+bool XlsxExporterMgr::_DoExportConfigs()
+{
+    return true;
+}
 
 void XlsxExporterMgr::_Clear()
 {

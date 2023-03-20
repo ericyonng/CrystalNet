@@ -62,8 +62,14 @@ protected:
     // 是否需要导出
     bool _IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERNEL_NS::LibString &xlsxFile) const;
 
+    // 导出配置
+    bool _DoExportConfigs();
+    
     // meta file
     const XlsxConfigMetaInfo *_GetMetaFile(const KERNEL_NS::LibString &metaFile) const;
+
+    // 通过sheet name 获取configType
+    KERNEL_NS::LibString GetConfigTypeName(const KERNEL_NS::LibString &sheetName) const;
 
 private:
     void _Clear();
@@ -80,6 +86,10 @@ private:
     std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> _configTypeRefLangTypes;
 
     std::unordered_map<KERNEL_NS::LibString, XlsxConfigMetaInfo *> _metaNameRefConfigMetaInfo;
+
+    std::set<KERNEL_NS::LibString> _needExportConfigType;     // 需要导出的配置
+    std::unordered_map<KERNEL_NS::LibString, std::set<KERNEL_NS::XlsxSheet *>> _configTypeRefSheets;  // 配置类型与xlsx 用于合并同类配置
+    std::unordered_map<KERNEL_NS::LibString, KERNEL_NS::XlsxWorkbook *> _xlsxFileRefWorkbook;   // 所有的配置xlsx
 };
 
 ALWAYS_INLINE  const XlsxConfigMetaInfo *XlsxExporterMgr::_GetMetaFile(const KERNEL_NS::LibString &metaFile) const
@@ -87,6 +97,19 @@ ALWAYS_INLINE  const XlsxConfigMetaInfo *XlsxExporterMgr::_GetMetaFile(const KER
     auto iter = _metaNameRefConfigMetaInfo.find(metaFile);
     return iter == _metaNameRefConfigMetaInfo.end() ? NULL : iter->second;
 }
+
+// sheetname: xxx名字|xxx类型名(英文, 数字, 下划线, 首字母非数字)
+ALWAYS_INLINE KERNEL_NS::LibString XlsxExporterMgr::GetConfigTypeName(const KERNEL_NS::LibString &sheetName) const
+{
+    const auto &parts = sheetName.Split('|');
+    if(parts.size() < 2)
+    {
+        return parts[0];
+    }
+
+    return parts[1];
+}
+
 
 
 SERVICE_END

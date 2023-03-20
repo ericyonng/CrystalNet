@@ -55,6 +55,9 @@ public:
     void AddCell(UInt64 rowId, UInt64 columnId, const LibString &content);
     void Clear();
 
+    const std::unordered_map<UInt64, XlsxCell *> &GetRowCells(UInt64 rowId) const;
+    const XlsxCell *GetCell(UInt64 rowId, UInt64 columnId) const;
+
 protected:
     XlsxWorkbook *_workbook;
     const LibString _sheetName;
@@ -86,6 +89,25 @@ ALWAYS_INLINE UInt64 XlsxSheet::GetMaxColumn() const
 ALWAYS_INLINE const XlsxWorkbook *XlsxSheet::GetWorkbook() const
 {
     return _workbook;
+}
+
+ALWAYS_INLINE const std::unordered_map<UInt64, XlsxCell *> &XlsxSheet::GetRowCells(UInt64 rowId) const
+{
+    static const std::unordered_map<UInt64, XlsxCell *> s_empty;
+    auto iter = _rowRefColumnRefCells.find(rowId);
+    if(iter == _rowRefColumnRefCells.end())
+    {
+        return s_empty;
+    }
+
+    return iter->second;
+}
+
+ALWAYS_INLINE const XlsxCell *XlsxSheet::GetCell(UInt64 rowId, UInt64 columnId) const
+{
+    auto &rowDatas = GetRowCells(rowId);
+    auto iter = rowDatas.find(columnId);
+    return iter == rowDatas.end() ? NULL : iter->second;
 }
 
 KERNEL_END

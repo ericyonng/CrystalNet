@@ -68,6 +68,9 @@ public:
     const LibString &GetWorkbookFileName() const;
     const LibString &GetWorkbookPath() const;
 
+    const std::unordered_map<LibString, XlsxSheet *> &GetAllSheets() const;
+    const XlsxSheet *GetSheet(const LibString &sheetName) const;
+
 private:
     bool _ParseAllSharedStrings(const ArchiveFile &achive, std::vector<LibString> &allSharedString);
     // tuple:<sheet_name, sheet_id, relation_id>
@@ -109,6 +112,17 @@ ALWAYS_INLINE const LibString &XlsxWorkbook::GetWorkbookFileName() const
 ALWAYS_INLINE const LibString &XlsxWorkbook::GetWorkbookPath() const
 {
     return _workBookPath;
+}
+
+ALWAYS_INLINE const std::unordered_map<LibString, XlsxSheet *> &XlsxWorkbook::GetAllSheets() const
+{
+    return _sheetNameRefSheet;
+}
+
+ALWAYS_INLINE const XlsxSheet *XlsxWorkbook::GetSheet(const LibString &sheetName) const
+{
+    auto iter = _sheetNameRefSheet.find(sheetName);
+    return iter == _sheetNameRefSheet.end() ? NULL : iter->second;   
 }
 
 ALWAYS_INLINE std::pair<UInt64, UInt64> XlsxWorkbook::_ParseRowColumnFrom(const LibString &tupleString) const
