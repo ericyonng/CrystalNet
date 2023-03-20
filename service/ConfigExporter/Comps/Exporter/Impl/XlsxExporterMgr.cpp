@@ -182,6 +182,9 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
         return Status::Failed;
     }
 
+    // 更新meta文件
+    
+
     g_Log->Info(LOGFMT_OBJ_TAG("export xlsx success."));
     return Status::Success;
 }
@@ -418,6 +421,8 @@ bool XlsxExporterMgr::_ScanXlsx()
                 _needExportConfigType.insert(configTypeName);
             }
 
+            _dirtyXlsxFiles.insert(fullFilePath);
+
         } while (false);
         
         return isContinue;
@@ -468,7 +473,22 @@ bool XlsxExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const 
 
 bool XlsxExporterMgr::_DoExportConfigs()
 {
+    for(auto &configType : _needExportConfigType)
+    {
+        auto iterSheets = _configTypeRefSheets.find(configType);
+        auto &sheets = iterSheets->second;
+        for(auto &sheet : sheets)
+        {
+            // TODO:
+        }
+    }
+
     return true;
+}
+
+bool XlsxExporterMgr::_UpdateMetas()
+{
+
 }
 
 void XlsxExporterMgr::_Clear()
