@@ -70,6 +70,8 @@ public:
     template<typename ObjType>
     bool AddTask(ObjType *obj, void (ObjType::*callback)(LibThread *));
     bool AddTask(void (*callback)(LibThread *));
+
+    bool AddTask2(void (*callback)(LibThread *,  Variant *), Variant *params);
     bool AddTask2(IDelegate<void, LibThread *, Variant *> *callback, Variant *params);
     template<typename ObjType>
     bool AddTask2(ObjType *obj, void (ObjType::*callback)(LibThread *, Variant *), Variant *params);
@@ -267,6 +269,20 @@ inline bool LibThread::AddTask(void (*callback)(LibThread *))
         return false;
     }
     
+    return true;
+}
+
+inline bool LibThread::AddTask2(void (*callback)(LibThread *,  Variant *), Variant *params)
+{
+    auto *deleg = DelegateFactory::Create(callback);
+    if(!UNLIKELY(AddTask2(deleg, params)))
+    {
+        CRYSTAL_RELEASE_SAFE(deleg);
+        if(params)
+           Variant::Delete_Variant(params);
+        return false;
+    }
+
     return true;
 }
 

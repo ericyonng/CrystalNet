@@ -93,7 +93,11 @@ public:
     bool AddTask(ObjType *obj, void (ObjType::*callback)(LibThreadPool *), bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
     bool AddTask(void (*callback)(LibThreadPool *), bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
     
-
+    bool AddTask2(void (*callback)(LibThreadPool *,  Variant *), Variant *params, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
+    bool AddTask2(IDelegate<void, LibThreadPool *, Variant *> *callback, Variant *params, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
+    template<typename ObjType>
+    bool AddTask2(ObjType *obj, void (ObjType::*callback)(LibThreadPool *, Variant *), Variant *params, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
+    
     // // 线程执行函数
 protected:
     static void _LibThreadHandlerLogic(void *param);
@@ -340,6 +344,75 @@ inline bool LibThreadPool::AddTask(void (*callback)(LibThreadPool *), bool force
     }
 
     return true;   
+}
+
+inline bool LibThreadPool::AddTask2(void (*callback)(LibThreadPool *,  Variant *), Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+{
+    auto *deleg = DelegateFactory::Create(callback);
+    if(!UNLIKELY(AddTask2(deleg, params)))
+    {
+        CRYSTAL_RELEASE_SAFE(deleg);
+        if(params)
+           Variant::Delete_Variant(params);
+        return false;
+    }
+
+    return true;
+}
+
+inline bool LibThreadPool::AddTask2(IDelegate<void, LibThreadPool *, Variant *> *callback, Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+{
+    if(UNLIKELY(!_isEnableTask.load() || _isDestroy.load()))
+        return false;
+
+    DelegateWithParamsTask<LibThreadPool> *newTask = DelegateWithParamsTask<LibThreadPool>::New_DelegateWithParamsTask(this, callback, params);
+    _lck.Lock();
+    _tasks.push_back(newTask);
+    _lck.Unlock();
+
+    // 唤醒
+    if(_waitNum.load() > 0 && !forceNewThread)    // 
+    {
+        _wakeupAndWait.Sinal();
+        return true;
+    }
+
+    // 是否需要创建线程来执行任务
+    if(UNLIKELY(numOfThreadToCreateIfNeed <= 0))
+        return true;
+
+    _wakeupAndWait.Lock();
+    const Int32 curTotalNum = _curTotalNum.load();
+    const Int32 maxNum = _maxNum.load();
+    const Int32 diffNum = maxNum - curTotalNum;
+    numOfThreadToCreateIfNeed = diffNum > numOfThreadToCreateIfNeed ? numOfThreadToCreateIfNeed : diffNum;
+
+    // 超过最大线程数
+    if(UNLIKELY(curTotalNum + numOfThreadToCreateIfNeed > maxNum))
+    {
+        _wakeupAndWait.Unlock();
+        return false;
+    }
+
+    _CreateThread(numOfThreadToCreateIfNeed, _unixStackSize);
+    _wakeupAndWait.Unlock();
+
+    return true;
+}
+
+template<typename ObjType>
+inline bool LibThreadPool::AddTask2(ObjType *obj, void (ObjType::*callback)(LibThreadPool *, Variant *), Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+{
+    IDelegate<void, LibThread *, Variant *> *deleg = DelegateFactory::Create(obj, callback);
+    if(UNLIKELY(!AddTask2(deleg, params, forceNewThread, numOfThreadToCreateIfNeed)))
+    {
+        CRYSTAL_RELEASE_SAFE(deleg);
+        if(params)
+            Variant::Delete_Variant(params);
+        return false;
+    }
+
+    return true;
 }
 
 inline bool LibThreadPool::_CreateThread(Int32 numToCreate, UInt64 unixStackSize)
