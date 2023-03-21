@@ -480,6 +480,11 @@ bool XlsxExporterMgr::_DoExportConfigs()
         for(auto &sheet : sheets)
         {
             // TODO:
+            const auto maxRowId = sheet->GetMaxRow();
+            for(UInt64 idx = KERNEL_NS::XlsxCell::ROW_BEGIN; idx <= maxRowId; ++idx)
+            {
+                auto &rowCells = sheet->GetRowCells(idx);
+            }
         }
     }
 
