@@ -94,6 +94,8 @@ private:
     std::set<KERNEL_NS::LibString> _dirtyXlsxFiles;             // 脏配置表,会生成新的meta文件
     std::unordered_map<KERNEL_NS::LibString, std::set<KERNEL_NS::XlsxSheet *>> _configTypeRefSheets;  // 配置类型与xlsx 用于合并同类配置
     std::unordered_map<KERNEL_NS::LibString, KERNEL_NS::XlsxWorkbook *> _xlsxFileRefWorkbook;   // 所有的配置xlsx
+
+    std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> _configTypeRefXlsxConfigTableInfo;    // 每个配置类型对应的配置信息
 };
 
 ALWAYS_INLINE  const XlsxConfigMetaInfo *XlsxExporterMgr::_GetMetaFile(const KERNEL_NS::LibString &metaFile) const

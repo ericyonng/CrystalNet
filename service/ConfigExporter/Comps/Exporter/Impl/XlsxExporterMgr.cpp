@@ -481,6 +481,10 @@ bool XlsxExporterMgr::_DoExportConfigs()
         {
             // TODO:
             const auto maxRowId = sheet->GetMaxRow();
+            auto configTableInfo = XlsxConfigTableInfo::New_XlsxConfigTableInfo();
+            configTableInfo->_wholeSheetName = sheet->GetSheetName();
+            configTableInfo->_tableClassName = configType;
+            
             for(UInt64 idx = KERNEL_NS::XlsxCell::ROW_BEGIN; idx <= maxRowId; ++idx)
             {
                 auto &rowCells = sheet->GetRowCells(idx);
@@ -493,7 +497,7 @@ bool XlsxExporterMgr::_DoExportConfigs()
 
 bool XlsxExporterMgr::_UpdateMetas()
 {
-
+    return true;
 }
 
 void XlsxExporterMgr::_Clear()

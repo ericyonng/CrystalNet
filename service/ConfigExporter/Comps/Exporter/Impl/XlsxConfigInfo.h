@@ -68,6 +68,9 @@ public:
     KERNEL_NS::LibString _tableClassName;       // 表类型名 tableClass
     std::vector<XlsxConfigFieldInfo *> _fieldInfos; // 字段信息
     std::unordered_set<KERNEL_NS::LibString> _fieldNames; // 字段名 用于校验字段名
+
+    std::vector<KERNEL_NS::LibString> _functionBarColumn;   // 功能列（表的第一列）
+    std::vector<std::vector<KERNEL_NS::LibString>> _values; // 数据
 };
 
 // meta文件内容(用于判断xlsx是否发生了变更)
