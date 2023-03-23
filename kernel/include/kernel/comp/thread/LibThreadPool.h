@@ -349,7 +349,7 @@ inline bool LibThreadPool::AddTask(void (*callback)(LibThreadPool *), bool force
 inline bool LibThreadPool::AddTask2(void (*callback)(LibThreadPool *,  Variant *), Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 {
     auto *deleg = DelegateFactory::Create(callback);
-    if(!UNLIKELY(AddTask2(deleg, params)))
+    if(!UNLIKELY(AddTask2(deleg, params, forceNewThread, numOfThreadToCreateIfNeed)))
     {
         CRYSTAL_RELEASE_SAFE(deleg);
         if(params)
@@ -403,7 +403,7 @@ inline bool LibThreadPool::AddTask2(IDelegate<void, LibThreadPool *, Variant *> 
 template<typename ObjType>
 inline bool LibThreadPool::AddTask2(ObjType *obj, void (ObjType::*callback)(LibThreadPool *, Variant *), Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 {
-    IDelegate<void, LibThread *, Variant *> *deleg = DelegateFactory::Create(obj, callback);
+    IDelegate<void, LibThreadPool *, Variant *> *deleg = DelegateFactory::Create(obj, callback);
     if(UNLIKELY(!AddTask2(deleg, params, forceNewThread, numOfThreadToCreateIfNeed)))
     {
         CRYSTAL_RELEASE_SAFE(deleg);
