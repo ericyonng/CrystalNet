@@ -193,12 +193,17 @@ private:
         // gw 收到response到gw发送response延迟
         const auto fromGwRecvResponseToGwSendResponse = ev->_putDataTime - ev->_gwRecvResponseTime;
 
+        const KERNEL_NS::LibTime gsDispatchTime = KERNEL_NS::LibTime::FromMilliSeconds(ev->_gsDispatchRequestTime);
+        const KERNEL_NS::LibTime gsHandledTime = KERNEL_NS::LibTime::FromMilliSeconds(ev->_gsHandlerRequestTime);
+
         const auto timeMs = KERNEL_NS::LibTime::FromMilliSeconds(ev->_putDataTime);
         g_Log->Info(LOGFMT_OBJ_TAG("put profile time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
                                     " gw recv req => gw send response to client total cost:%lld(ms),"
                                     " gw recv req => gw prepare send req rpc to gs cost:%lld(ms),"
                                     " gw prepare send req to gs => gs recv req cost%lld(ms)."
                                     "gs recv req => gs dispatch req(in gs queue time) cost:%lld(ms)."
+                                    "gs start dispatch time time:%lld(ms) %s."
+                                    "gs handled time:%lld(ms) %s."
                                     "gs handle req time:%lld(ms)."
                                     "gs send response => gw recv response cost:%lld(ms)."
                                     "gw recv response => gw send response(in gw response queue time) cost:%lld(ms).")
@@ -207,6 +212,10 @@ private:
                     , diffFromGwRecvRequestToGwSendRequest
                     , fromGwSendRpcToGsRecvRequest
                     , fromGsRecvRequestToGsDispatch
+                    , ev->_gsDispatchRequestTime
+                    , gsDispatchTime.ToStringOfMillSecondPrecision().c_str()
+                    , ev->_gsHandlerRequestTime
+                    , gsHandledTime.ToStringOfMillSecondPrecision().c_str()
                     , gsHandlerTime
                     , fromGsSendResponseToGwRecvResponse
                     , fromGwRecvResponseToGwSendResponse
