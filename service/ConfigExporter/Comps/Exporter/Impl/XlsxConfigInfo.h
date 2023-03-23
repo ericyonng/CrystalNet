@@ -70,7 +70,7 @@ public:
     std::unordered_set<KERNEL_NS::LibString> _fieldNames; // 字段名 用于校验字段名
 
     std::vector<KERNEL_NS::LibString> _functionBarColumn;   // 功能列（表的第一列）
-    std::vector<std::vector<KERNEL_NS::LibString>> _values; // 数据
+    std::vector<std::vector<KERNEL_NS::LibString>> _values; // 数据 value[行id][列id]
 };
 
 // meta文件内容(用于判断xlsx是否发生了变更)

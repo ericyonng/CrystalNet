@@ -16,6 +16,10 @@ extern SIMPLE_API_EXPORT void PushProfile(Int64 nowTime, int messageId, int requ
 , Int64 gsRecvRequestTime, Int64 gsDispatchRequestTime, Int64 gsHandlerRequestTime
 , Int64 gsSendResponseTime, Int64 gwRecvResponseTime);
 
+extern SIMPLE_API_EXPORT void PushProfile2(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
+, Int64 gwRecvMsgTime, Int64 gwPrepareRpcTime, Int64 gsRecvRpcTime
+, Int64 gsDispatchMsgTime, Int64 gsHandledTime);
+
 #ifdef __cplusplus
 }
 #endif

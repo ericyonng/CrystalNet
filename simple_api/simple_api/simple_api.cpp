@@ -195,12 +195,13 @@ private:
 
         const KERNEL_NS::LibTime gsDispatchTime = KERNEL_NS::LibTime::FromMilliSeconds(ev->_gsDispatchRequestTime);
         const KERNEL_NS::LibTime gsHandledTime = KERNEL_NS::LibTime::FromMilliSeconds(ev->_gsHandlerRequestTime);
+        const KERNEL_NS::LibTime gsRecvRequestTime = KERNEL_NS::LibTime::FromMilliSeconds(ev->_gsRecvRequestTime);
 
         const auto timeMs = KERNEL_NS::LibTime::FromMilliSeconds(ev->_putDataTime);
         g_Log->Info(LOGFMT_OBJ_TAG("put profile time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
                                     " gw recv req => gw send response to client total cost:%lld(ms),"
                                     " gw recv req => gw prepare send req rpc to gs cost:%lld(ms),"
-                                    " gw prepare send req to gs => gs recv req cost%lld(ms)."
+                                    " gw prepare send req to gs => gs recv req cost%lld(ms) recv request time date:%s, timestamp:%lld."
                                     "gs recv req => gs dispatch req(in gs queue time) cost:%lld(ms)."
                                     "gs start dispatch time time:%lld(ms) %s."
                                     "gs handled time:%lld(ms) %s."
@@ -211,6 +212,8 @@ private:
                     , fromGwRecvRequestToGwSendResponse
                     , diffFromGwRecvRequestToGwSendRequest
                     , fromGwSendRpcToGsRecvRequest
+                    , gsRecvRequestTime.ToStringOfMillSecondPrecision().c_str()
+                    ,ev->_gsRecvRequestTime
                     , fromGsRecvRequestToGsDispatch
                     , ev->_gsDispatchRequestTime
                     , gsDispatchTime.ToStringOfMillSecondPrecision().c_str()
@@ -443,4 +446,53 @@ void PushProfile(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
     ev->_gsSendResponseTime = gsSendResponseTime;
     ev->_gwRecvResponseTime = gwRecvResponseTime;
     s_poller->Push(0, ev);
+}
+
+void PushProfile2(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
+, Int64 gwRecvMsgTime, Int64 gwPrepareRpcTime, Int64 gsRecvRpcTime
+, Int64 gsDispatchMsgTime, Int64 gsHandledTime)
+{
+    s_poller->Push(0, EventType::ACTION, [nowTime, messageId, requestId, dispatchMs, gwRecvMsgTime, gwPrepareRpcTime, gsRecvRpcTime, gsDispatchMsgTime, gsHandledTime](){
+        
+        // gw 收到消息 到gw 发送response延迟
+        const auto fromGwRecvMsgToGsHandledMsgTime = nowTime - gwRecvMsgTime;
+
+        // gw 收到消息 到 gw 发送rpc时间
+        const auto diffFromGwRecvMsgToGwSendRpc = gwPrepareRpcTime - gwRecvMsgTime;
+
+        // gw发送rpc 到 gs收到rpc
+        const auto fromGwSendRpcToGsRecvRpc = gsRecvRpcTime - gwPrepareRpcTime;
+
+        // gs 收到rpc 到gs 开始处理消息
+        const auto fromGsRecvRpcToGsDispatch = gsDispatchMsgTime - gsRecvRpcTime;
+
+        // gs handle 时间
+        const auto gsHandlerTime = gsHandledTime - gsDispatchMsgTime;
+
+        const KERNEL_NS::LibTime gsRecvMsgTime = KERNEL_NS::LibTime::FromMilliSeconds(gsRecvRpcTime);
+        const KERNEL_NS::LibTime gsDispatchTime = KERNEL_NS::LibTime::FromMilliSeconds(gsDispatchMsgTime);
+        const KERNEL_NS::LibTime gsHandledMsgTime = KERNEL_NS::LibTime::FromMilliSeconds(gsHandledTime);
+        const auto timeMs = KERNEL_NS::LibTime::FromMilliSeconds(nowTime);
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "put profile 2 time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
+                                    " gw recv msg => gs handled msg cost:%lld(ms),"
+                                    " gw recv msg => gw prepare send rpc to gs cost:%lld(ms),"
+                                    " gw prepare send msg to gs => gs recv msg cost%lld(ms), gs recv msg time date:%s, timestamp:%lld."
+                                    "gs recv msg => gs dispatch msg(in gs queue time) cost:%lld(ms), gs dispatch msg time date:%s, timestamp:%lld."
+                                    "gs handled time date:%s, timestamp:%lld."
+                                    "gs handle msg cost time:%lld(ms).")
+                    ,nowTime, timeMs.ToStringOfMillSecondPrecision().c_str(), messageId, requestId 
+                    , fromGwRecvMsgToGsHandledMsgTime
+                    , diffFromGwRecvMsgToGwSendRpc
+                    , fromGwSendRpcToGsRecvRpc
+                    , gsRecvMsgTime.ToStringOfMillSecondPrecision().c_str()
+                    , gsRecvRpcTime
+                    , fromGsRecvRpcToGsDispatch
+                    , gsDispatchTime.ToStringOfMillSecondPrecision().c_str()
+                    ,gsDispatchMsgTime
+                    , gsHandledMsgTime.ToStringOfMillSecondPrecision().c_str()
+                    , gsHandledTime
+                    , gsHandlerTime
+                    );
+    });
 }
