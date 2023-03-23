@@ -33,6 +33,7 @@
 SERVICE_BEGIN
 
 class XlsxConfigMetaInfo;
+class XlsxConfigTableInfo;
 
 class XlsxExporterMgr : public IXlsxExporterMgr
 {
