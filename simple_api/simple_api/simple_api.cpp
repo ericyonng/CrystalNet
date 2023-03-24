@@ -45,6 +45,7 @@ struct ProfileEvent : public KERNEL_NS::PollerEvent
         ProfileEvent::Delete_ProfileEvent(this);
     }
     
+    Int32 _playerId = 0;
     Int64 _putDataTime = 0;
     Int32 _messageId = 0;
     Int32 _requestId = 0;
@@ -198,7 +199,7 @@ private:
         const KERNEL_NS::LibTime gsRecvRequestTime = KERNEL_NS::LibTime::FromMilliSeconds(ev->_gsRecvRequestTime);
 
         const auto timeMs = KERNEL_NS::LibTime::FromMilliSeconds(ev->_putDataTime);
-        g_Log->Info(LOGFMT_OBJ_TAG("put profile time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
+        g_Log->Info(LOGFMT_OBJ_TAG("put profile playerId:%d time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
                                     " gw recv req => gw send response to client total cost:%lld(ms),"
                                     " gw recv req => gw prepare send req rpc to gs cost:%lld(ms),"
                                     " gw prepare send req to gs => gs recv req cost%lld(ms) recv request time date:%s, timestamp:%lld."
@@ -208,7 +209,7 @@ private:
                                     "gs handle req time:%lld(ms)."
                                     "gs send response => gw recv response cost:%lld(ms)."
                                     "gw recv response => gw send response(in gw response queue time) cost:%lld(ms).")
-                    , ev->_putDataTime, timeMs.ToStringOfMillSecondPrecision().c_str(), ev->_messageId, ev->_requestId 
+                    , ev->_playerId, ev->_putDataTime, timeMs.ToStringOfMillSecondPrecision().c_str(), ev->_messageId, ev->_requestId 
                     , fromGwRecvRequestToGwSendResponse
                     , diffFromGwRecvRequestToGwSendRequest
                     , fromGwSendRpcToGsRecvRequest
@@ -427,12 +428,13 @@ void SimpleApiLog(const char *content, Int32 contentSize)
     g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "%s"), str.c_str());
 }
 
-void SimpleApiPushProfile(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
+void SimpleApiPushProfile(Int32 playerId, Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
 , Int64 gwRecvRequestTime, Int64 gwSendRequestTime, Int64 gwPrepareTurnRequestToRpcTime
 , Int64 gsRecvRequestTime, Int64 gsDispatchRequestTime, Int64 gsHandlerRequestTime
 , Int64 gsSendResponseTime, Int64 gwRecvResponseTime)
 {
     auto ev = ProfileEvent::New_ProfileEvent();
+    ev->_playerId = playerId;
     ev->_putDataTime = nowTime;
     ev->_messageId = messageId;
     ev->_requestId = requestId;
@@ -448,11 +450,11 @@ void SimpleApiPushProfile(Int64 nowTime, int messageId, int requestId, Int64 dis
     s_poller->Push(0, ev);
 }
 
-void SimpleApiPushProfile2(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
+void SimpleApiPushProfile2(Int32 playerId, Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
 , Int64 gwRecvMsgTime, Int64 gwPrepareRpcTime, Int64 gsRecvRpcTime
 , Int64 gsDispatchMsgTime, Int64 gsHandledTime)
 {
-    s_poller->Push(0, EventType::ACTION, [nowTime, messageId, requestId, dispatchMs, gwRecvMsgTime, gwPrepareRpcTime, gsRecvRpcTime, gsDispatchMsgTime, gsHandledTime](){
+    s_poller->Push(0, EventType::ACTION, [playerId, nowTime, messageId, requestId, dispatchMs, gwRecvMsgTime, gwPrepareRpcTime, gsRecvRpcTime, gsDispatchMsgTime, gsHandledTime](){
         
         // gw 收到消息 到gw 发送response延迟
         const auto fromGwRecvMsgToGsHandledMsgTime = nowTime - gwRecvMsgTime;
@@ -474,14 +476,14 @@ void SimpleApiPushProfile2(Int64 nowTime, int messageId, int requestId, Int64 di
         const KERNEL_NS::LibTime gsHandledMsgTime = KERNEL_NS::LibTime::FromMilliSeconds(gsHandledTime);
         const auto timeMs = KERNEL_NS::LibTime::FromMilliSeconds(nowTime);
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "put profile 2 time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "put profile 2 playerId:%d time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
                                     " gw recv msg => gs handled msg cost:%lld(ms),"
                                     " gw recv msg => gw prepare send rpc to gs cost:%lld(ms),"
                                     " gw prepare send msg to gs => gs recv msg cost%lld(ms), gs recv msg time date:%s, timestamp:%lld."
                                     "gs recv msg => gs dispatch msg(in gs queue time) cost:%lld(ms), gs dispatch msg time date:%s, timestamp:%lld."
                                     "gs handled time date:%s, timestamp:%lld."
                                     "gs handle msg cost time:%lld(ms).")
-                    ,nowTime, timeMs.ToStringOfMillSecondPrecision().c_str(), messageId, requestId 
+                    ,playerId, nowTime, timeMs.ToStringOfMillSecondPrecision().c_str(), messageId, requestId 
                     , fromGwRecvMsgToGsHandledMsgTime
                     , diffFromGwRecvMsgToGwSendRpc
                     , fromGwSendRpcToGsRecvRpc
@@ -497,11 +499,11 @@ void SimpleApiPushProfile2(Int64 nowTime, int messageId, int requestId, Int64 di
     });
 }
 
-void SimpleApiPushProfile3(Int64 nowTime, int messageId, int requestId
+void SimpleApiPushProfile3(Int32 playerId, Int64 nowTime, int messageId, int requestId
 , Int64 gwRecvMsgTime, Int64 gwPrepareRpcTime, Int64 gsRecvRpcTime
 , Int64 gsDispatchMsgTime, Int64 asynOverDispatchTime)
 {
-    s_poller->Push(0, EventType::ACTION, [nowTime, messageId, requestId, gwRecvMsgTime, gwPrepareRpcTime, gsRecvRpcTime, gsDispatchMsgTime, asynOverDispatchTime](){
+    s_poller->Push(0, EventType::ACTION, [playerId, nowTime, messageId, requestId, gwRecvMsgTime, gwPrepareRpcTime, gsRecvRpcTime, gsDispatchMsgTime, asynOverDispatchTime](){
         
         // gw 收到消息 到gw 发送response延迟
         const auto fromGwRecvMsgToGsHandledMsgTime = nowTime - gwRecvMsgTime;
@@ -523,14 +525,14 @@ void SimpleApiPushProfile3(Int64 nowTime, int messageId, int requestId
         const KERNEL_NS::LibTime gsOverDispatch = KERNEL_NS::LibTime::FromMilliSeconds(asynOverDispatchTime);
         const auto timeMs = KERNEL_NS::LibTime::FromMilliSeconds(nowTime);
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "put profile 3 time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "put profile 3 playerId:%d time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
                                     " gw recv msg => gs async over dispatch cost:%lld(ms),"
                                     " gw recv msg => gw prepare send rpc to gs cost:%lld(ms),"
                                     " gw prepare send msg to gs => gs recv msg cost%lld(ms), gs recv msg time date:%s, timestamp:%lld."
                                     "gs recv msg => gs dispatch msg(in gs queue time) cost:%lld(ms), gs dispatch msg time date:%s, timestamp:%lld."
                                     "gs over dispatch time date:%s, timestamp:%lld."
                                     "gs from dispatch to over dispatch cost time:%lld(ms).")
-                    ,nowTime, timeMs.ToStringOfMillSecondPrecision().c_str(), messageId, requestId 
+                    ,playerId, nowTime, timeMs.ToStringOfMillSecondPrecision().c_str(), messageId, requestId 
                     , fromGwRecvMsgToGsHandledMsgTime
                     , diffFromGwRecvMsgToGwSendRpc
                     , fromGwSendRpcToGsRecvRpc
