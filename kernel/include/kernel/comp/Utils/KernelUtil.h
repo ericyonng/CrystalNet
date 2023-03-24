@@ -58,6 +58,11 @@ private:
     static void _OnSinalOccur();
 };
 
+// 必须导出才能让static dynamic lib共享
+extern KERNEL_EXPORT std::atomic_bool g_KernelInit;
+extern KERNEL_EXPORT std::atomic_bool s_KernelStart;
+extern KERNEL_EXPORT std::atomic_bool s_KernelDestroy;
+
 KERNEL_END
 
 extern KERNEL_EXPORT KERNEL_NS::LibCpuInfo *g_cpu;
