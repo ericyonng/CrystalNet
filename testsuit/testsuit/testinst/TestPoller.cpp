@@ -316,36 +316,160 @@ static void HelloWorldEventWork(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *var
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "quit hello world request..."));
 }
 
+// void TestPoller::Run()
+// {
+//     HostObjFactory hostObjFactory;
+
+//     auto& libListNodePool = KERNEL_NS::ListNode<KERNEL_NS::PollerEvent *>::GetAlloctor__ListNodeobjAlloctor();
+//     libListNodePool._againstLazy = 100;
+//     auto& tlsLibListNodePool = KERNEL_NS::ListNode<KERNEL_NS::PollerEvent *>::GetThreadLocalAlloctor__ListNodeobjAlloctor();
+//     tlsLibListNodePool._againstLazy = 100;
+    
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "libListNodePool:%p, againstLazy:%d, tlsLibListNodePool:%p, againstLazy:%d")
+//                         , &libListNodePool, libListNodePool._againstLazy, &tlsLibListNodePool, tlsLibListNodePool._againstLazy);
+
+//     auto hostObj = hostObjFactory.Create();
+//     auto newThread = new KERNEL_NS::LibThread;
+
+//     auto newVar = KERNEL_NS::Variant::New_Variant();
+//     newVar->BecomePtr() = hostObj;
+//     auto delg = KERNEL_NS::DelegateFactory::Create(&HelloWorldEventWork);
+//     newThread->AddTask2(delg, newVar);
+
+//     hostObj->Init();
+//     hostObj->Start();
+
+//     newThread->Start();
+
+//     getchar();
+
+//     newThread->HalfClose();
+//     newThread->FinishClose();
+    
+//     hostObj->WillClose();
+//     hostObj->Close();
+// }
+
+KERNEL_NS::SmartPtr<KERNEL_NS::Poller, KERNEL_NS::AutoDelMethods::Release> s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
+
+// 测试性能
+std::atomic<Int64> g_genNum{0};
+std::atomic<Int64> g_consumNum{0};
+
+static const Int32 g_maxConcurrentLevel = 4;
+
+static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
+{
+    g_Log->Debug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::Poller, "recv event:%s"), ev->ToString().c_str());
+    ++g_consumNum;
+}
+
+struct AcEvent : public KERNEL_NS::PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AcEvent);
+
+    AcEvent()
+    :KERNEL_NS::PollerEvent(1)
+    {
+
+    }
+
+    virtual void Release()
+    {
+        AcEvent::Delete_AcEvent(this);
+    }
+
+};
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(AcEvent);
+
+static void _OnPoller(KERNEL_NS::LibThread *t)
+{
+    auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
+    defObj->_poller = s_Poller;
+    defObj->_pollerTimerMgr = s_Poller->GetTimerMgr();
+
+    if(!s_Poller->PrepareLoop())
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "prepare loop fail."));
+        return;
+    }
+
+    s_Poller->EventLoop();
+    s_Poller->OnLoopEnd();
+
+}
+
+static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
+{
+    Int32 idx = param->AsInt32();
+    while (!t->IsDestroy())
+    {
+        auto ev = AcEvent::New_AcEvent();
+        ++g_genNum;
+        s_Poller->Push(idx, ev);
+    }
+} 
+
+static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
+{
+    while (!t->IsDestroy())
+    {
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        const Int64 genNum = g_genNum;
+        const Int64 comsumNum = g_consumNum;
+        const Int64 backlogNum = s_Poller->GetEventAmount();
+        g_genNum -= genNum;
+        g_consumNum -= comsumNum;
+
+        g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
+    }
+}
+
 void TestPoller::Run()
 {
-    HostObjFactory hostObjFactory;
+    s_Poller->SetMaxPriorityLevel(8);
+    s_Poller->SetEventHandler(KERNEL_NS::DelegateFactory::Create(&_OnPollerEvent));
 
-    auto& libListNodePool = KERNEL_NS::ListNode<KERNEL_NS::PollerEvent *>::GetAlloctor__ListNodeobjAlloctor();
-    libListNodePool._againstLazy = 100;
-    auto& tlsLibListNodePool = KERNEL_NS::ListNode<KERNEL_NS::PollerEvent *>::GetThreadLocalAlloctor__ListNodeobjAlloctor();
-    tlsLibListNodePool._againstLazy = 100;
-    
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "libListNodePool:%p, againstLazy:%d, tlsLibListNodePool:%p, againstLazy:%d")
-                        , &libListNodePool, libListNodePool._againstLazy, &tlsLibListNodePool, tlsLibListNodePool._againstLazy);
+    auto err = s_Poller->Init();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "init poller fail."));
+        return;
+    }
 
-    auto hostObj = hostObjFactory.Create();
-    auto newThread = new KERNEL_NS::LibThread;
+    err = s_Poller->Start();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "start poller fail."));
+        return;
+    }
 
-    auto newVar = KERNEL_NS::Variant::New_Variant();
-    newVar->BecomePtr() = hostObj;
-    auto delg = KERNEL_NS::DelegateFactory::Create(&HelloWorldEventWork);
-    newThread->AddTask2(delg, newVar);
+    KERNEL_NS::LibThread *pollerThread = new KERNEL_NS::LibThread;
+    pollerThread->AddTask(&_OnPoller);
+    pollerThread->Start();
 
-    hostObj->Init();
-    hostObj->Start();
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool, KERNEL_NS::AutoDelMethods::Release> pool = new KERNEL_NS::LibThreadPool;
+    pool->Init(0, g_maxConcurrentLevel + 2);
 
-    newThread->Start();
+    for(Int32 idx=0; idx <g_maxConcurrentLevel; ++idx)
+    {
+        KERNEL_NS::Variant *var=KERNEL_NS::Variant::New_Variant();
+        *var = idx;
+        pool->AddTask2(&_OnTask, var, false, 0);
+    }
 
-    getchar();
+    pool->AddTask2(&_OnMonitor, NULL, false, 0);
 
-    newThread->HalfClose();
-    newThread->FinishClose();
-    
-    hostObj->WillClose();
-    hostObj->Close();
+    pool->Start();
+
+    pool->HalfClose();
+
+    s_Poller->QuitLoop();
+    pollerThread->HalfClose();
+
+    pool->FinishClose();
+    pollerThread->FinishClose();
+
+    // 测试poller性能
 }

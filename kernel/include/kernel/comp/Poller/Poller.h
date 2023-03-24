@@ -78,6 +78,9 @@ public:
     // worker线程id
     UInt64 GetWorkerThreadId() const;
 
+    // 消息队列数量
+    Int64 GetEventAmount() const;
+
     // 获取脏助手
    LibDirtyHelper<void *, UInt32> *GetDirtyHelper();
    const LibDirtyHelper<void *, UInt32> *GetDirtyHelper() const;
@@ -153,6 +156,7 @@ private:
   IDelegate<void, PollerEvent *> *_eventHandler;            // 事件处理回调
   ConditionLocker _eventGuard;                              // 空闲挂起等待
   ConcurrentPriorityQueue<PollerEvent *> *_eventsList;      // 优先级事件队列
+  std::atomic<Int64> _eventAmountLeft;
   std::atomic<UInt64> _handlingEventCount;
 };
 
@@ -164,6 +168,11 @@ ALWAYS_INLINE bool Poller::IsEnable() const
 ALWAYS_INLINE UInt64 Poller::GetWorkerThreadId() const
 {
     return _workThreadId;
+}
+
+ALWAYS_INLINE Int64 Poller::GetEventAmount() const
+{
+    return _eventAmountLeft;
 }
 
 ALWAYS_INLINE LibDirtyHelper<void *, UInt32> *Poller::GetDirtyHelper()
@@ -249,6 +258,7 @@ ALWAYS_INLINE void Poller::Push(Int32 level, PollerEvent *ev)
         return;
     }
     
+    ++_eventAmountLeft;
     _eventsList->PushQueue(level, ev);
     WakeupEventLoop();
 }
@@ -267,6 +277,7 @@ ALWAYS_INLINE void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
         return;
     }
 
+    _eventAmountLeft += static_cast<Int64>(evList->GetAmount());
     _eventsList->PushQueue(level, evList);
     LibList<PollerEvent *>::Delete_LibList(evList);
     WakeupEventLoop();
@@ -283,6 +294,7 @@ ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<
 
     auto ev = ActionPollerEvent::New_ActionPollerEvent(specifyActionType);
     ev->_action = action;
+    ++_eventAmountLeft;
     _eventsList->PushQueue(level, ev);
     WakeupEventLoop();
 }

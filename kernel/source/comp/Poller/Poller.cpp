@@ -91,6 +91,7 @@ Poller::Poller()
 ,_onEventWorkerCloseHandler(NULL)
 ,_eventHandler(NULL)
 ,_eventsList(ConcurrentPriorityQueue<PollerEvent *>::New_ConcurrentPriorityQueue())
+,_eventAmountLeft{0}
 ,_handlingEventCount{0}
 {
     // auto defObj = TlsUtil::GetDefTls();
@@ -293,7 +294,8 @@ void Poller::EventLoop()
                     _eventHandler->Invoke(data);
                 data->Release();
                 sunList->Erase(node);
-
+                --_eventAmountLeft;
+                
                 #ifdef _DEBUG
                  ++curConsumeEventsCount;
                 #endif
