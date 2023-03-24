@@ -35,6 +35,7 @@
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/DirectoryUtil.h>
+#include <kernel/comp/SmartPtr.h>
 
 #undef LOG_INI_COMMON_SEG
 #define LOG_INI_COMMON_SEG "Common"
@@ -125,7 +126,7 @@ bool LogIniCfgMgr::Init(const Byte8 *iniFileName, const LibString &fromMemory, c
         // 获取当前程序绝对路径
         LibString path;
         SystemUtil::GetProgramPath(true, path);
-        auto colorMgr = ConsoleConfigMgr::GetInstance();
+        SmartPtr<ConsoleConfigMgr> colorMgr = new ConsoleConfigMgr;
         colorMgr->Init("ConsoleConfig.ini", (DirectoryUtil::GetFileDirInPath(path) + ROOT_DIR_INI_SUB_DIR).c_str(), consoleConfigContent);
 
         auto &fgColor = colorMgr->GetFrontColor();

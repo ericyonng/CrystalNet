@@ -48,11 +48,23 @@ KERNEL_NS::LibString g_LogIniName;
 KERNEL_NS::LibString g_LogIniRootPath;
 
 static std::vector<KERNEL_NS::IDelegate<void> *> s_signalCloseHandler;
+static std::atomic_bool s_KernelInit{false};
+static std::atomic_bool s_KernelStart{false};
+static std::atomic_bool s_KernelDestroy{false};
 
 KERNEL_BEGIN
 
 Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent, const LibString &consoleContent, bool needSignalHandle, Int64 fileSoftLimit, Int64 fileHardLimit)
 {
+    if(s_KernelInit.exchange(true))
+    {
+        CRYSTAL_TRACE("kernel is init before logIniName:%s iniPath:%s", logIniName ? logIniName:"NONE", iniPath ? iniPath:"NONE");
+        return Status::Success;
+    }
+
+    s_KernelStart = false;
+    s_KernelDestroy = false;
+
     // 转入后台
     KERNEL_NS::LibString rootDir = KERNEL_NS::SystemUtil::GetCurProgRootPath();
     // CRYSTAL_TRACE("kernel current root dir:%s", rootDir.c_str());
@@ -233,6 +245,14 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
 void KernelUtil::Start()
 {
+    if(s_KernelStart.exchange(true))
+    {
+        CRYSTAL_TRACE("kernel start before.");
+        return;
+    }
+
+    s_KernelDestroy = false;
+
     // 日志启动
     g_Log->Start();
     // 启动垃圾回收线程
@@ -245,6 +265,12 @@ void KernelUtil::Start()
 
 void KernelUtil::Destroy()
 {
+    if(s_KernelDestroy.exchange(true))
+    {
+        CRYSTAL_TRACE("kernel destroy before.");
+        return;
+    }
+
     if(LIKELY(g_Log))
     {
         g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "will destroy kernel log addr:[%p], log IsStart[%d], memory pool addr:[%p], Statistics addr:[%p]...")
