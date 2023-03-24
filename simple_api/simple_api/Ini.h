@@ -109,7 +109,7 @@ static const KERNEL_NS::LibString s_logIniContent =
 "LogTimerIntervalMs=1000\n"
 "MaxFileSizeMB=256\n"
 "IsEnableLog=1\n"
-"LogPath=1,\n"
+"LogPath=1,./SimpleApi/\n"
 "\n"
 "[LogLevel]\n"
 "\nDebug           = 1,0,0,White|Black,1,0,0,1\n"

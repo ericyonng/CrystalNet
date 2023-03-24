@@ -340,7 +340,7 @@ static KERNEL_NS::SmartPtr<SimpleApiInstance> s_SimpleApi = NULL;
 static KERNEL_NS::Locker s_Lock;
 static KERNEL_NS::Poller *s_poller = NULL;
 
-int Init(bool needSignalHandle)
+int SimpleApiInit(bool needSignalHandle)
 {
     s_Lock.Lock();
     if(s_SimpleApi)
@@ -372,7 +372,7 @@ int Init(bool needSignalHandle)
     return Status::Success;
 }
 
-void Destroy()
+void SimpleApiDestroy()
 {
     g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "simple api will destroy suc."));
     s_Lock.Lock();
@@ -389,7 +389,7 @@ void Destroy()
 }
 
 
-void SetCppmonitor(void(*MonitorCb)(), int period)
+void SimpleApiSetCppmonitor(void(*MonitorCb)(), int period)
 {
     static KERNEL_NS::LibTimer *s_timer = NULL;
     auto &timer = s_timer;
@@ -420,14 +420,14 @@ void SetCppmonitor(void(*MonitorCb)(), int period)
     s_Lock.Unlock();
 }
 
-void Log(const char *content, Int32 contentSize)
+void SimpleApiLog(const char *content, Int32 contentSize)
 {
     KERNEL_NS::LibString str;
     str.AppendData(content, contentSize);
     g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "%s"), str.c_str());
 }
 
-void PushProfile(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
+void SimpleApiPushProfile(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
 , Int64 gwRecvRequestTime, Int64 gwSendRequestTime, Int64 gwPrepareTurnRequestToRpcTime
 , Int64 gsRecvRequestTime, Int64 gsDispatchRequestTime, Int64 gsHandlerRequestTime
 , Int64 gsSendResponseTime, Int64 gwRecvResponseTime)
@@ -448,7 +448,7 @@ void PushProfile(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
     s_poller->Push(0, ev);
 }
 
-void PushProfile2(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
+void SimpleApiPushProfile2(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
 , Int64 gwRecvMsgTime, Int64 gwPrepareRpcTime, Int64 gsRecvRpcTime
 , Int64 gsDispatchMsgTime, Int64 gsHandledTime)
 {
@@ -493,6 +493,55 @@ void PushProfile2(Int64 nowTime, int messageId, int requestId, Int64 dispatchMs
                     , gsHandledMsgTime.ToStringOfMillSecondPrecision().c_str()
                     , gsHandledTime
                     , gsHandlerTime
+                    );
+    });
+}
+
+void SimpleApiPushProfile3(Int64 nowTime, int messageId, int requestId
+, Int64 gwRecvMsgTime, Int64 gwPrepareRpcTime, Int64 gsRecvRpcTime
+, Int64 gsDispatchMsgTime, Int64 asynOverDispatchTime)
+{
+    s_poller->Push(0, EventType::ACTION, [nowTime, messageId, requestId, gwRecvMsgTime, gwPrepareRpcTime, gsRecvRpcTime, gsDispatchMsgTime, asynOverDispatchTime](){
+        
+        // gw 收到消息 到gw 发送response延迟
+        const auto fromGwRecvMsgToGsHandledMsgTime = nowTime - gwRecvMsgTime;
+
+        // gw 收到消息 到 gw 发送rpc时间
+        const auto diffFromGwRecvMsgToGwSendRpc = gwPrepareRpcTime - gwRecvMsgTime;
+
+        // gw发送rpc 到 gs收到rpc
+        const auto fromGwSendRpcToGsRecvRpc = gsRecvRpcTime - gwPrepareRpcTime;
+
+        // gs 收到rpc 到gs 开始处理消息
+        const auto fromGsRecvRpcToGsDispatch = gsDispatchMsgTime - gsRecvRpcTime;
+
+        // gs handle 时间
+        const auto overDispatchTime = asynOverDispatchTime - gsDispatchMsgTime;
+
+        const KERNEL_NS::LibTime gsRecvMsgTime = KERNEL_NS::LibTime::FromMilliSeconds(gsRecvRpcTime);
+        const KERNEL_NS::LibTime gsDispatchTime = KERNEL_NS::LibTime::FromMilliSeconds(gsDispatchMsgTime);
+        const KERNEL_NS::LibTime gsOverDispatch = KERNEL_NS::LibTime::FromMilliSeconds(asynOverDispatchTime);
+        const auto timeMs = KERNEL_NS::LibTime::FromMilliSeconds(nowTime);
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(SimpleApiInstance, "put profile 3 time:%lld(ms timestamp) %s, profile message id:%d, requestId:%d, "
+                                    " gw recv msg => gs async over dispatch cost:%lld(ms),"
+                                    " gw recv msg => gw prepare send rpc to gs cost:%lld(ms),"
+                                    " gw prepare send msg to gs => gs recv msg cost%lld(ms), gs recv msg time date:%s, timestamp:%lld."
+                                    "gs recv msg => gs dispatch msg(in gs queue time) cost:%lld(ms), gs dispatch msg time date:%s, timestamp:%lld."
+                                    "gs over dispatch time date:%s, timestamp:%lld."
+                                    "gs from dispatch to over dispatch cost time:%lld(ms).")
+                    ,nowTime, timeMs.ToStringOfMillSecondPrecision().c_str(), messageId, requestId 
+                    , fromGwRecvMsgToGsHandledMsgTime
+                    , diffFromGwRecvMsgToGwSendRpc
+                    , fromGwSendRpcToGsRecvRpc
+                    , gsRecvMsgTime.ToStringOfMillSecondPrecision().c_str()
+                    , gsRecvRpcTime
+                    , fromGsRecvRpcToGsDispatch
+                    , gsDispatchTime.ToStringOfMillSecondPrecision().c_str()
+                    ,gsDispatchMsgTime
+                    , gsOverDispatch.ToStringOfMillSecondPrecision().c_str()
+                    , asynOverDispatchTime
+                    , overDispatchTime
                     );
     });
 }

@@ -441,10 +441,11 @@ project "testsuit"
     -- dependents
     dependson {
         "CrystalKernel",
+        "simple_api",
     }
 
     -- 导入内核接口
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB"}
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "testsuit/testsuit_pch/pch.cpp")
 
@@ -453,6 +454,7 @@ project "testsuit"
 		"../../kernel/include/",
 		"../../testsuit/",
 		"../../testsuit/testsuit_pch/",
+		"../../simple_api/",
     }
 	
 	-- 设置通用选项
@@ -492,6 +494,31 @@ project "testsuit"
 	-- links
     libdirs { OUTPUT_DIR }	
 	include_libfs(true, true)
+
+    -- links(windows)
+    filter { "system:windows", "configurations:debug*" }
+        links {
+            "simple_api_debug"
+        }
+    filter {}
+    filter { "system:windows", "configurations:release*" }
+        links {
+            "simple_api"
+        }
+    filter {}
+
+    -- links(not windows)
+    filter { "system:not windows", "configurations:debug*" }
+        links {
+            "simple_api_debug",
+        }
+    filter {}
+    filter { "system:not windows", "configurations:release*" }
+        links {
+            "simple_api"
+        }
+    filter {}
+
 
     -- debug target suffix define
     filter { "configurations:debug*" }

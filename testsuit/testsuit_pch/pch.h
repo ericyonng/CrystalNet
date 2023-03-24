@@ -43,6 +43,7 @@
 #include <kernel/kernel.h>
 #include <service_common/ServiceCommon.h>
 #include <3rd/3rd.h>
+#include <simple_api/simple_api.h>
 
 #endif
 
