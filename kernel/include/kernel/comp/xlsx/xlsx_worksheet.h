@@ -56,6 +56,7 @@ public:
     void Clear();
 
     const std::unordered_map<UInt64, XlsxCell *> &GetRowCells(UInt64 rowId) const;
+    const std::unordered_map<UInt64, XlsxCell *> &GetColumnCells(UInt64 columnId) const;
     const XlsxCell *GetCell(UInt64 rowId, UInt64 columnId) const;
 
 protected:
@@ -96,6 +97,18 @@ ALWAYS_INLINE const std::unordered_map<UInt64, XlsxCell *> &XlsxSheet::GetRowCel
     static const std::unordered_map<UInt64, XlsxCell *> s_empty;
     auto iter = _rowRefColumnRefCells.find(rowId);
     if(iter == _rowRefColumnRefCells.end())
+    {
+        return s_empty;
+    }
+
+    return iter->second;
+}
+
+ALWAYS_INLINE const std::unordered_map<UInt64, XlsxCell *> &XlsxSheet::GetColumnCells(UInt64 columnId) const
+{
+    static const std::unordered_map<UInt64, XlsxCell *> s_empty;
+    auto iter = _columnRefRowRefCells.find(columnId);
+    if(iter == _columnRefRowRefCells.end())
     {
         return s_empty;
     }

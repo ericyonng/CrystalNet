@@ -43,12 +43,83 @@ XlsxConfigFieldInfo::XlsxConfigFieldInfo(const XlsxConfigTableInfo *owner)
 
 }
 
+XlsxConfigFieldInfo::XlsxConfigFieldInfo(const XlsxConfigFieldInfo &other)
+{
+    _owner = other._owner;
+    _ownType = other._ownType;
+    _fieldName = other._fieldName;
+    _dataType = other._dataType;
+    _check = other._check;
+    _flags = other._flags;
+    _defaultValue = other._defaultValue;
+    _desc = other._desc;
+}
+
+XlsxConfigFieldInfo &XlsxConfigFieldInfo::operator=(const XlsxConfigFieldInfo &other)
+{
+    _owner = other._owner;
+    _ownType = other._ownType;
+    _fieldName = other._fieldName;
+    _dataType = other._dataType;
+    _check = other._check;
+    _flags = other._flags;
+    _defaultValue = other._defaultValue;
+    _desc = other._desc;
+}
+
+
+XlsxConfigTableInfo::XlsxConfigTableInfo(const XlsxConfigTableInfo &other)
+{
+    _ownType = other._ownType;
+    _wholeSheetName = other._wholeSheetName;
+    _tableClassName = other._tableClassName;
+    _fieldNames = other._fieldNames;
+    _rowIdRefFunctionBarColumn = other._rowIdRefFunctionBarColumn;
+    _values = other._values;    // 需要根据不同的ownType移除不同的内容
+
+    // _fieldInfos
+    for(auto &fieldInfo : other._fieldInfos)
+    {
+        auto newInfo = XlsxConfigFieldInfo::New_XlsxConfigFieldInfo(this);
+        *newInfo = *fieldInfo;
+
+        _fieldInfos.push_back(newInfo);
+    }
+}
+
 XlsxConfigTableInfo::~XlsxConfigTableInfo()
 {
     KERNEL_NS::ContainerUtil::DelContainer(_fieldInfos, [](XlsxConfigFieldInfo *ptr){
         XlsxConfigFieldInfo::Delete_XlsxConfigFieldInfo(ptr);
     });
 }
+
+XlsxConfigTableInfo &XlsxConfigTableInfo::operator=(const XlsxConfigTableInfo &other)
+{
+    KERNEL_NS::ContainerUtil::DelContainer(_fieldInfos, [](XlsxConfigFieldInfo *ptr){
+        XlsxConfigFieldInfo::Delete_XlsxConfigFieldInfo(ptr);
+    });
+
+    _ownType = other._ownType;
+    _wholeSheetName = other._wholeSheetName;
+    _tableClassName = other._tableClassName;
+    _fieldNames = other._fieldNames;
+    _rowIdRefFunctionBarColumn = other._rowIdRefFunctionBarColumn;
+    _values = other._values;    // 需要根据不同的ownType移除不同的内容
+
+    // _fieldInfos
+    for(auto &fieldInfo : other._fieldInfos)
+    {
+        auto newInfo = XlsxConfigFieldInfo::New_XlsxConfigFieldInfo(this);
+        *newInfo = *fieldInfo;
+
+        _fieldInfos.push_back(newInfo);
+    }
+}
+
+
+const KERNEL_NS::LibString ConfigTableDefine::SINGLE_DISABLE_FLAG = "#";
+const KERNEL_NS::LibString ConfigTableDefine::MULTI_DISABLE_FLAG = "###";
 
 
 SERVICE_END

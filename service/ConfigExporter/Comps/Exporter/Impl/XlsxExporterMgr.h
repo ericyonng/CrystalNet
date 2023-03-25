@@ -91,7 +91,7 @@ private:
 
     std::unordered_map<KERNEL_NS::LibString, XlsxConfigMetaInfo *> _metaNameRefConfigMetaInfo;
 
-    std::set<KERNEL_NS::LibString> _needExportConfigType;     // 需要导出的配置
+    std::set<KERNEL_NS::LibString> _needExportConfigType;     // 需要导出的配置 sheet 标签指定的配置
     std::set<KERNEL_NS::LibString> _dirtyXlsxFiles;             // 脏配置表,会生成新的meta文件
     std::unordered_map<KERNEL_NS::LibString, std::set<KERNEL_NS::XlsxSheet *>> _configTypeRefSheets;  // 配置类型与xlsx 用于合并同类配置
     std::unordered_map<KERNEL_NS::LibString, KERNEL_NS::XlsxWorkbook *> _xlsxFileRefWorkbook;   // 所有的配置xlsx

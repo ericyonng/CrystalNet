@@ -41,7 +41,11 @@ class XlsxConfigFieldInfo
 
 public:
     XlsxConfigFieldInfo(const XlsxConfigTableInfo *owner);
+    XlsxConfigFieldInfo(const XlsxConfigFieldInfo &other);
+
     ~XlsxConfigFieldInfo(){}
+
+    XlsxConfigFieldInfo &operator=(const XlsxConfigFieldInfo &other);
 
     const XlsxConfigTableInfo *_owner;
 
@@ -61,16 +65,20 @@ class XlsxConfigTableInfo
 
 public:
     XlsxConfigTableInfo(){}
+    XlsxConfigTableInfo(const XlsxConfigTableInfo &other);
 
     ~XlsxConfigTableInfo();
+
+    XlsxConfigTableInfo &operator=(const XlsxConfigTableInfo &other);
+
     KERNEL_NS::LibString _ownType;              // C, S等类别
     KERNEL_NS::LibString _wholeSheetName;       // 页签名 xxx | tableClass
     KERNEL_NS::LibString _tableClassName;       // 表类型名 tableClass
     std::vector<XlsxConfigFieldInfo *> _fieldInfos; // 字段信息
     std::unordered_set<KERNEL_NS::LibString> _fieldNames; // 字段名 用于校验字段名
 
-    std::vector<KERNEL_NS::LibString> _functionBarColumn;   // 功能列（表的第一列）
-    std::vector<std::vector<KERNEL_NS::LibString>> _values; // 数据 value[行id][列id]
+    std::unordered_map<UInt64, KERNEL_NS::LibString> _rowIdRefFunctionBarColumn;   // 功能列（表的第一列）
+    std::unordered_map<UInt64, std::unordered_map<UInt64, KERNEL_NS::LibString>> _values; // 数据 value[行id][列id]
 };
 
 // meta文件内容(用于判断xlsx是否发生了变更)
@@ -88,6 +96,23 @@ public:
 
     KERNEL_NS::LibString _xlsxFileName;     // xlsx文件名
     KERNEL_NS::LibString _lastMd5;           // 最后一次的md5值
+};
+
+class ConfigTableDefine
+{
+public:
+    static constexpr UInt64 HEADER_ROW_NUMBER = 7;      // 表头7行
+    static constexpr UInt64 OWN_TYPE = 1;          // 所属版本
+    static constexpr UInt64 FIELD_NAME = 2;        // 字段名
+    static constexpr UInt64 DATA_TYPE = 3;         // 数据类型
+    static constexpr UInt64 CHECK = 4;             // 校验
+    static constexpr UInt64 FLAGS = 5;             // 字段功能标志
+    static constexpr UInt64 DEFAULT_VALUE = 6;     // 字段功能标志
+    static constexpr UInt64 DESC = 7;              // 字段功能标志
+
+    static const KERNEL_NS::LibString SINGLE_DISABLE_FLAG;        // 注释单行 #
+    static const KERNEL_NS::LibString MULTI_DISABLE_FLAG;        // 注释多行 ###
+    static constexpr Byte8 OWN_TYPE_SEP = '|';        // own type的分隔符
 };
 
 SERVICE_END
