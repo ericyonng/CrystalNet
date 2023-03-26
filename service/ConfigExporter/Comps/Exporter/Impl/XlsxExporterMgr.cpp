@@ -100,24 +100,24 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
                     if(configTypeLangPieces.size() < 2)
                         continue;
 
-                    auto &configType = configTypeLangPieces[0];
+                    auto &ownType = configTypeLangPieces[0];
                     auto &langsStr = configTypeLangPieces[1];
-                    configType.strip();
+                    ownType.strip();
                     langsStr.strip();
-                    if(configType.empty() || langsStr.empty())
+                    if(ownType.empty() || langsStr.empty())
                         continue;
 
                     auto langsPieces = langsStr.Split(",");
                     if(langsPieces.empty())
                         continue;
 
-                    auto iter = _configTypeRefLangTypes.find(configType);
-                    if(iter == _configTypeRefLangTypes.end())
-                        iter = _configTypeRefLangTypes.insert(std::make_pair(configType, std::unordered_set<KERNEL_NS::LibString>())).first;
+                    auto iter = _ownTypeRefLangTypes.find(ownType);
+                    if(iter == _ownTypeRefLangTypes.end())
+                        iter = _ownTypeRefLangTypes.insert(std::make_pair(ownType, std::unordered_set<KERNEL_NS::LibString>())).first;
                     auto &langsSet = iter->second; 
 
                     for(auto &lang : langsPieces)
-                        langsSet.insert(lang);    
+                        langsSet.insert(lang.strip());    
                 }
             }
         }
@@ -144,7 +144,7 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
     }
     
     // 必须指定语言版本
-    if(_configTypeRefLangTypes.empty())
+    if(_ownTypeRefLangTypes.empty())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("have no lang types"));
         return Status::ParamError;
@@ -174,7 +174,14 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
         return Status::Failed;
     }
 
-    // 导出配置
+    // 分析配置
+    if(!_AnalyzeExportConfigs())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("_AnalyzeExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error."), 
+                    _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        return Status::Failed;
+    }
+
     if(!_DoExportConfigs())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("_DoExportConfigs fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error."), 
@@ -185,7 +192,7 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
     // 更新meta文件
     
 
-    g_Log->Info(LOGFMT_OBJ_TAG("export xlsx success."));
+    g_Log->Custom("export xlsx success.");
     return Status::Success;
 }
    
@@ -193,6 +200,8 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
 // 注意:xlsx所在路径相对于xlsx的base路径的相对路径与meta文件相对于meta base 路径的相对路径是一致的
 bool XlsxExporterMgr::_ScanMeta()
 {
+    g_Log->Custom("start scan meta files...");
+
     bool isSuc = true;
     KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_metaDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
         
@@ -326,11 +335,19 @@ bool XlsxExporterMgr::_ScanMeta()
         ++iter;
     }
 
-    return isSuc;
+    if(!isSuc)
+    {
+        return false;
+    }
+
+    g_Log->Custom("scan meta files success...");
+    return true;
 }
 
 bool XlsxExporterMgr::_ScanXlsx()
 {
+    g_Log->Custom("start scan xlsx files source dir:%s...", _sourceDir.c_str());
+
     bool isSuc = true;
     KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_sourceDir, [this, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
         
@@ -354,7 +371,7 @@ bool XlsxExporterMgr::_ScanXlsx()
             const auto fileNameWithoutExtention = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fileInfo._fileName);
 
             const auto &relationDir = fullPath - _sourceDir;
-            const auto metaFilePath = _metaDir + relationDir + fileNameWithoutExtention;
+            const auto metaFilePath = _metaDir + relationDir + fileNameWithoutExtention + ".meta";
 
             KERNEL_NS::SmartPtr<KERNEL_NS::XlsxWorkbook, KERNEL_NS::AutoDelMethods::CustomDelete> xlsxBook = KERNEL_NS::XlsxWorkbook::NewThreadLocal_XlsxWorkbook(true);
             xlsxBook.SetClosureDelegate([](void *p){
@@ -387,6 +404,17 @@ bool XlsxExporterMgr::_ScanXlsx()
                 if(!KERNEL_NS::StringUtil::CheckGeneralName(configTypeName))
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("bad sheet config type: xlsx file path:%s, sheet name:%s, config type name:%s"), fullFilePath.c_str(), sheetName.c_str(), configTypeName.c_str());
+                    isContinue = false;
+                    isParentDirContinue = false;
+                    checkSuc = false;
+                    isSuc = false;
+                    break;
+                }
+
+                // 首字母必须是英文且需要大写
+                if(configTypeName[0] < 'A' || configTypeName[0] > 'Z')
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("bad first word:%c, must be upper. bad sheet config type: xlsx file path:%s, sheet name:%s, config type name:%s"), configTypeName[0], fullFilePath.c_str(), sheetName.c_str(), configTypeName.c_str());
                     isContinue = false;
                     isParentDirContinue = false;
                     checkSuc = false;
@@ -434,6 +462,10 @@ bool XlsxExporterMgr::_ScanXlsx()
         return false;
     }
 
+    g_Log->Custom("scan xlsx files success, xlsx file number:%llu, dirty file number:%llu, config type number:%llu, dirty config type number:%llu."
+                , static_cast<UInt64>(_xlsxFileRefWorkbook.size()), static_cast<UInt64>(_dirtyXlsxFiles.size())
+                , static_cast<UInt64>(_configTypeRefSheets.size()),  static_cast<UInt64>(_needExportConfigType.size()));
+
     return true;
 }
 
@@ -471,8 +503,37 @@ bool XlsxExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const 
     return md5 != meta->_lastMd5;
 }
 
-bool XlsxExporterMgr::_DoExportConfigs()
+bool XlsxExporterMgr::_IsOwnTypeNeedExport(const KERNEL_NS::LibString &ownType) const
 {
+    if(_ownTypeRefLangTypes.empty())
+        return false;
+
+    if(ownType.empty())
+        return false;
+
+    auto parts = ownType.Split(ConfigTableDefine::OWN_TYPE_SEP);
+    if(parts.empty())
+        return false;
+
+    bool needExport = false;
+    for(auto ownType : parts)
+    {
+        ownType.strip();
+        auto iter = _ownTypeRefLangTypes.find(ownType);
+        if(iter != _ownTypeRefLangTypes.end())
+        {
+            needExport = true;
+            break;
+        }
+    }
+
+    return needExport;
+}
+
+bool XlsxExporterMgr::_AnalyzeExportConfigs()
+{
+    g_Log->Custom("start analyze export configs...");
+
     // 收集ownType的config table
     std::unordered_map<KERNEL_NS::LibString, std::set<XlsxConfigTableInfo *>> ownTypeRefConfigs;
 
@@ -486,6 +547,183 @@ bool XlsxExporterMgr::_DoExportConfigs()
         delete ptr;
     });
 
+    g_Log->Custom("prepare xlsx config structure and datas...");
+
+    if(!_PrepareConfigStructAndDatas(ownTypeRefConfigs, configTables.AsSelf()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("_PrepareConfigStructAndDatas fail."));
+        return false;
+    }
+
+    // 将configTables 按照ownType分类导出配置结构与数据
+    g_Log->Custom("sort config tables with own type, then merge structure and datas...");
+    for(auto &iterConfigTables : ownTypeRefConfigs)
+    {
+        const auto ownType = iterConfigTables.first;
+        for(auto configTable : iterConfigTables.second)
+        {
+            auto iterConfigRefConfigTables = _ownTypeRefConfigTypeRefXlsxConfigTableInfo.find(ownType);
+            if(iterConfigRefConfigTables == _ownTypeRefConfigTypeRefXlsxConfigTableInfo.end())
+                iterConfigRefConfigTables = _ownTypeRefConfigTypeRefXlsxConfigTableInfo.insert(std::make_pair(ownType, std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *>())).first;
+
+            auto &configTypeRefConfigTables = iterConfigRefConfigTables->second;
+            auto iterConfigTable = configTypeRefConfigTables.find(configTable->_tableClassName);
+            XlsxConfigTableInfo *newConfigTable = NULL;
+            if(iterConfigTable == configTypeRefConfigTables.end())
+            {// 初次建立表数据
+                // 解析所有属于ownType的字段
+                newConfigTable = XlsxConfigTableInfo::New_XlsxConfigTableInfo();
+                newConfigTable->_wholeSheetName = configTable->_wholeSheetName;
+                newConfigTable->_tableClassName = configTable->_tableClassName;
+                newConfigTable->_xlsxPath = configTable->_xlsxPath;
+                newConfigTable->_rowIdRefFunctionBarColumn = configTable->_rowIdRefFunctionBarColumn;
+                newConfigTable->_values = configTable->_values;
+                configTypeRefConfigTables.insert(std::make_pair(configTable->_tableClassName, newConfigTable));
+
+                // 定义移除列
+                auto removeColumnFunc = [&newConfigTable](UInt64 columnId)
+                {
+                    for(auto iter = newConfigTable->_values.begin(); iter != newConfigTable->_values.end(); ++iter)
+                        iter->erase(columnId);
+                };
+
+                // 生成只有ownType的字段
+                if(!configTable->_fieldInfos.empty())
+                    newConfigTable->_fieldInfos.resize(configTable->_fieldInfos.size());
+
+                for(auto filedInfo : configTable->_fieldInfos)
+                {
+                    if(!filedInfo)
+                    {
+                        continue;
+                    }
+
+                    if(filedInfo->_ownType.empty())
+                    {
+                        continue;
+                    }
+
+                    auto ownTypes = filedInfo->_ownType.Split(ConfigTableDefine::OWN_TYPE_SEP);
+                    if(ownTypes.empty())
+                    {
+                        removeColumnFunc(filedInfo->_columnId);
+                        continue;
+                    }
+
+                    // 是不是ownType的字段
+                    auto iterOwn = std::find_if(ownTypes.begin(), ownTypes.end(), [&ownType](const KERNEL_NS::LibString &item){
+                        return item == ownType;
+                    });
+
+                    if(iterOwn == ownTypes.end())
+                    {
+                        removeColumnFunc(filedInfo->_columnId);
+                        continue;
+                    }
+
+                    auto newFieldInfo = XlsxConfigFieldInfo::New_XlsxConfigFieldInfo(*filedInfo);
+                    newFieldInfo->_owner = newConfigTable;
+                    newConfigTable->_fieldInfos[newFieldInfo->_columnId] = newFieldInfo;
+                    newConfigTable->_fieldNames.insert(newFieldInfo->_fieldName);
+                }
+            }
+            else
+            {// 已经存在config 说明需要合并(多文件，或者多页签,配表)
+                // 需要先保证表头的一致性
+                newConfigTable = iterConfigTable->second;
+                KERNEL_NS::LibString errInfo;
+                if(!newConfigTable->CheckHeaderSame(configTable, errInfo))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("config table:%s header not the same errInfo:%s")
+                                , newConfigTable->_tableClassName.c_str(), errInfo.c_str());
+                    return false;
+                }
+
+                newConfigTable->_xlsxPath.AppendFormat(";\n%s", configTable->_xlsxPath.c_str());
+                newConfigTable->_wholeSheetName.AppendFormat(";%s", configTable->_wholeSheetName.c_str());
+
+                // 合并两表数据
+                for(auto &rowValues : configTable->_values)
+                {
+                    bool isInsertLineFirst = true;
+                    for(auto &iter : rowValues)
+                    {
+                        const auto otherColumnId = iter.first;
+                        auto otherFiledInfo = configTable->_fieldInfos[otherColumnId];
+                        if(!otherFiledInfo)
+                        {
+                            continue;
+                        }
+
+                        auto ownTypes = otherFiledInfo->_ownType.Split(ConfigTableDefine::OWN_TYPE_SEP);
+                        if(ownTypes.empty())
+                        {
+                            continue;
+                        }
+
+                        // 是不是ownType的字段
+                        auto iterOwn = std::find_if(ownTypes.begin(), ownTypes.end(), [&ownType](const KERNEL_NS::LibString &item){
+                            return item == ownType;
+                        });
+
+                        if(iterOwn == ownTypes.end())
+                        {
+                            continue;
+                        }
+
+                        if(isInsertLineFirst)
+                        {
+                            newConfigTable->_values.push_back(std::unordered_map<UInt64, KERNEL_NS::LibString>());
+                            isInsertLineFirst = false;
+                        }
+
+                        auto &configTableLine = newConfigTable->_values.back();
+                        configTableLine.insert(std::make_pair(otherColumnId, iter.second));
+                    }
+                }
+            }
+        }
+    }
+
+    // 移除没有任何字段的配置
+    for(auto iterConfigTypeRefConfigTable = _ownTypeRefConfigTypeRefXlsxConfigTableInfo.begin(); 
+        iterConfigTypeRefConfigTable != _ownTypeRefConfigTypeRefXlsxConfigTableInfo.end();)
+    {
+        auto &configTypeRefConfigTable = iterConfigTypeRefConfigTable->second;
+        for(auto iterConfigTable = configTypeRefConfigTable.begin(); iterConfigTable != configTypeRefConfigTable.end();)
+        {
+            auto configTable = iterConfigTable->second;
+            if(configTable->_fieldNames.empty())
+            {
+                g_Log->Custom("xlsx path:%s config type:%s have no any field of own type:%s, will not be exported."
+                            , configTable->_xlsxPath.c_str(), iterConfigTable->first.c_str(), iterConfigTypeRefConfigTable->first.c_str());
+
+                XlsxConfigTableInfo::Delete_XlsxConfigTableInfo(configTable);
+                iterConfigTable = configTypeRefConfigTable.erase(iterConfigTable);
+            }
+            else
+            {
+                ++iterConfigTable;
+            }
+        }
+
+        if(configTypeRefConfigTable.empty())
+        {
+            iterConfigTypeRefConfigTable = _ownTypeRefConfigTypeRefXlsxConfigTableInfo.erase(iterConfigTypeRefConfigTable);
+        }
+        else
+        {
+            ++iterConfigTypeRefConfigTable;
+        }
+    }
+
+    g_Log->Custom("analyze export configs success.");
+
+    return true;
+}
+
+bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS::LibString, std::set<XlsxConfigTableInfo *>> &ownTypeRefConfigs, std::set<XlsxConfigTableInfo *> *configTables) const
+{
     // 生成XlsxConfigTableInfo
     for(auto &configType : _needExportConfigType)
     {
@@ -504,6 +742,7 @@ bool XlsxExporterMgr::_DoExportConfigs()
 
             configTableInfo->_wholeSheetName = sheet->GetSheetName();
             configTableInfo->_tableClassName = configType;
+            configTableInfo->_xlsxPath = workbook->GetWorkbookPath();
 
             // 解析第一列功能区
             auto &firstColumnCells = sheet->GetColumnCells(KERNEL_NS::XlsxCell::COLUMN_BEGIN);
@@ -520,10 +759,11 @@ bool XlsxExporterMgr::_DoExportConfigs()
 
             // 解析表头
             const UInt64 maxColumnId = sheet->GetMaxColumn();
-            configTableInfo->_fieldInfos.resize(maxColumnId);
+            configTableInfo->_fieldInfos.resize(maxColumnId + 1);
             for(UInt64 idx = KERNEL_NS::XlsxCell::COLUMN_BEGIN + 1; idx <= maxColumnId; ++idx)
             {
                 auto newConfigFieldInfo = XlsxConfigFieldInfo::New_XlsxConfigFieldInfo(configTableInfo);
+                newConfigFieldInfo->_columnId = idx;
                 configTableInfo->_fieldInfos[idx] = newConfigFieldInfo;
 
                 auto &fieldsColumnCells = sheet->GetColumnCells(idx);
@@ -553,20 +793,22 @@ bool XlsxExporterMgr::_DoExportConfigs()
                 // 表头字段解析
                 for(UInt64 rowId = KERNEL_NS::XlsxCell::ROW_BEGIN; rowId <= ConfigTableDefine::HEADER_ROW_NUMBER; ++rowId)
                 {
-                    auto iterRowCell = fieldsColumnCells.find(rowId);
-                    if(iterRowCell == fieldsColumnCells.end())
-                    {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
-                                        , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
-                        return false;
-                    }
-
-                    auto cell = iterRowCell->second;
-                    switch (cell->_row)
+                    switch (rowId)
                     {
                         case ConfigTableDefine::OWN_TYPE:
                         {
+                            auto iterRowCell = fieldsColumnCells.find(rowId);
+                            if(iterRowCell == fieldsColumnCells.end())
+                            {// 可以缺省
+                                // g_Log->Warn(LOGFMT_OBJ_TAG("have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
+                                //                 , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                continue;
+                            }
+
+                            auto cell = iterRowCell->second;
+
                             newConfigFieldInfo->_ownType = cell->_content;
+                            newConfigFieldInfo->_ownType.strip();
 
                             // 分解ownType
                             auto ownTypes = newConfigFieldInfo->_ownType.Split(ConfigTableDefine::OWN_TYPE_SEP);
@@ -577,8 +819,8 @@ bool XlsxExporterMgr::_DoExportConfigs()
                                     ownType.strip();
 
                                     // 只导出需要导出的版本
-                                    auto iterConfig = _configTypeRefLangTypes.find(ownType);
-                                    if(iterConfig != _configTypeRefLangTypes.end())
+                                    auto iterConfig = _ownTypeRefLangTypes.find(ownType);
+                                    if(iterConfig != _ownTypeRefLangTypes.end())
                                     {
                                         auto iterOwnTypeConfigs = ownTypeRefConfigs.find(ownType);
                                         if(iterOwnTypeConfigs == ownTypeRefConfigs.end())
@@ -591,6 +833,15 @@ bool XlsxExporterMgr::_DoExportConfigs()
                         break;
                         case ConfigTableDefine::FIELD_NAME:
                         {
+                            auto iterRowCell = fieldsColumnCells.find(rowId);
+                            if(iterRowCell == fieldsColumnCells.end())
+                            {// 不可缺省
+                                g_Log->Warn(LOGFMT_OBJ_TAG("FIELD_NAME have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
+                                                , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                return false;
+                            }
+
+                            auto cell = iterRowCell->second;
                             if(cell->_content.empty())
                             {
                                 g_Log->Error(LOGFMT_OBJ_TAG("lack of field name sheet name:%s, xlsx path:%s")
@@ -599,10 +850,28 @@ bool XlsxExporterMgr::_DoExportConfigs()
                             }
 
                             newConfigFieldInfo->_fieldName = cell->_content;
+                            newConfigFieldInfo->_fieldName.strip();
+
+                            if(!KERNEL_NS::StringUtil::CheckGeneralName(newConfigFieldInfo->_fieldName))
+                            {
+                                g_Log->Error(LOGFMT_OBJ_TAG("illigal field name:%s sheet name:%s, xlsx path:%s")
+                                            ,newConfigFieldInfo->_fieldName.c_str(), sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                return false;
+                            }
+
                         }
                         break;
                         case ConfigTableDefine::DATA_TYPE:
                         {
+                            auto iterRowCell = fieldsColumnCells.find(rowId);
+                            if(iterRowCell == fieldsColumnCells.end())
+                            {// 不可缺省
+                                g_Log->Warn(LOGFMT_OBJ_TAG("DATA_TYPE have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
+                                                , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                return false;
+                            }
+
+                            auto cell = iterRowCell->second;
                             if(cell->_content.empty())
                             {
                                 g_Log->Error(LOGFMT_OBJ_TAG("lack of data type sheet name:%s, xlsx path:%s")
@@ -610,32 +879,82 @@ bool XlsxExporterMgr::_DoExportConfigs()
                                 return false;
                             }
                             newConfigFieldInfo->_dataType = cell->_content;
+                            newConfigFieldInfo->_dataType.strip();
                         }
                         break;
                         case ConfigTableDefine::CHECK:
                         {
+                            auto iterRowCell = fieldsColumnCells.find(rowId);
+                            if(iterRowCell == fieldsColumnCells.end())
+                            {// 可以缺省
+                                // g_Log->Warn(LOGFMT_OBJ_TAG("DATA_TYPE have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
+                                //                 , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                continue;
+                            }
+
+                            auto cell = iterRowCell->second;
                             newConfigFieldInfo->_check = cell->_content;
+                            newConfigFieldInfo->_check.strip();
                         }
                         break;
                         case ConfigTableDefine::FLAGS:
                         {
+                            auto iterRowCell = fieldsColumnCells.find(rowId);
+                            if(iterRowCell == fieldsColumnCells.end())
+                            {// 可以缺省
+                                // g_Log->Warn(LOGFMT_OBJ_TAG("DATA_TYPE have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
+                                //                 , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                continue;
+                            }
+
+                            auto cell = iterRowCell->second;
                             newConfigFieldInfo->_flags = cell->_content;
+                            newConfigFieldInfo->_flags.strip();
                         }
                         break;
                         case ConfigTableDefine::DEFAULT_VALUE:
                         {
+                            auto iterRowCell = fieldsColumnCells.find(rowId);
+                            if(iterRowCell == fieldsColumnCells.end())
+                            {// 可以缺省
+                                // g_Log->Warn(LOGFMT_OBJ_TAG("DATA_TYPE have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
+                                //                 , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                continue;
+                            }
+
+                            auto cell = iterRowCell->second;
                             newConfigFieldInfo->_defaultValue = cell->_content;
+                            newConfigFieldInfo->_defaultValue.strip();
                         }
                         break;
                         case ConfigTableDefine::DESC:
                         {
+                            auto iterRowCell = fieldsColumnCells.find(rowId);
+                            if(iterRowCell == fieldsColumnCells.end())
+                            {// 可以缺省
+                                // g_Log->Warn(LOGFMT_OBJ_TAG("DATA_TYPE have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
+                                //                 , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                continue;
+                            }
+
+                            auto cell = iterRowCell->second;
                             newConfigFieldInfo->_desc = cell->_content;
                         }
                         break;
                         default:
                         {
-                            g_Log->Warn(LOGFMT_OBJ_TAG("unknown config header line row id:%llu, columnId:%llu sheetName:%s, xlsx path:%s")
-                                        , cell->_row, cell->_column, sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                            KERNEL_NS::XlsxCell *cell = NULL;
+                            auto iterRowCell = fieldsColumnCells.find(rowId);
+                            if(iterRowCell != fieldsColumnCells.end())
+                            {// 可以缺省
+                                // g_Log->Warn(LOGFMT_OBJ_TAG("DATA_TYPE have no row cell rowId:%llu, column:%llu, sheet name:%s, xlsx path:%s")
+                                //                 , rowId, idx, sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                                cell = iterRowCell->second;
+                            }
+
+                            g_Log->Warn(LOGFMT_OBJ_TAG("unknown config header line row id:%llu, columnId:%llu content:%s sheetName:%s, xlsx path:%s")
+                                        , rowId, idx, (cell ? cell->_content.c_str() : ""), sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                            return false;
                         }
                         break;
                     }
@@ -670,24 +989,124 @@ bool XlsxExporterMgr::_DoExportConfigs()
                 if(isMultiDisableLine)
                     continue;
 
-                auto iter = configTableInfo->_values.find(idx);
-                if(iter == configTableInfo->_values.end())
-                    iter = configTableInfo->_values.insert(std::make_pair(idx, std::unordered_map<UInt64, KERNEL_NS::LibString>())).first;
+                configTableInfo->_values.push_back(std::unordered_map<UInt64, KERNEL_NS::LibString>());
+                auto &finalLine = configTableInfo->_values.back();
 
                 // 行数据
-                auto &columnRefValue = iter->second;
-                for(auto iterCell : rowCells)
+                for(UInt64 scanColumn = KERNEL_NS::XlsxCell::COLUMN_BEGIN + 1; scanColumn <= maxColumnId; ++scanColumn)
                 {
-                    auto cell = iterCell.second;
-                    columnRefValue.insert(std::make_pair(cell->_column, cell->_content));
+                    auto fieldInfo = configTableInfo->_fieldInfos[scanColumn];
+                    if(!fieldInfo)
+                    {
+                        continue;
+                    }
+
+                    if(!_IsOwnTypeNeedExport(fieldInfo->_ownType))
+                    {
+                        continue;
+                    }
+
+                    auto iterCell = rowCells.find(scanColumn);
+                    if(iterCell == rowCells.end())
+                    {// 使用默认值
+                        finalLine.insert(std::make_pair(scanColumn, fieldInfo->_defaultValue));
+                    }
+                    else
+                    {
+                        if(iterCell->second->_content.empty())
+                        {// 默认值
+                            finalLine.insert(std::make_pair(scanColumn, fieldInfo->_defaultValue));
+                        }
+                        else
+                        {
+                            finalLine.insert(std::make_pair(scanColumn, iterCell->second->_content));
+                        }
+                    }
                 }
             }
 
-            configTables->insert(configTableInfo.pop());
+            // 过滤空表 第一列是特殊功能区
+            if(maxColumnId >= KERNEL_NS::XlsxCell::COLUMN_BEGIN + 1)
+                configTables->insert(configTableInfo.pop());
         }
     }
 
-    // TODO: ownTypeRefConfigs 导出表
+    return true;
+}
+
+bool XlsxExporterMgr::_DoExportConfigs() const
+{
+    // 要么全部生成,要么都不生成没有生成一半的, 所以在导出的代码结构和数据需要先缓存在内存或者先生成出临时文件，成功后再转成正式文件
+    for(auto iterOwnType : _ownTypeRefConfigTypeRefXlsxConfigTableInfo)
+    {
+        auto &configTypeRefConfigTable = iterOwnType.second;
+        auto iterLang = _ownTypeRefLangTypes.find(iterOwnType.first);
+        if(iterLang == _ownTypeRefLangTypes.end())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("skip ownType:%s export."), iterOwnType.first.c_str());
+            continue;
+        }
+
+        auto &langs = iterLang->second;
+        for(auto &lang : langs)
+        {
+            const auto &lowwerLang = lang.tolower();
+            if(lowwerLang == "c++" || lowwerLang == "cpp" || lowwerLang == "cxx")
+            {// 导出c++代码和数据
+                if(!_ExportCppCode(configTypeRefConfigTable))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("export cpp code fail."));
+                    return false;
+                }
+
+                if(!_ExportCppDatas(configTypeRefConfigTable))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("export cpp data fail."));
+                    return false;
+                }
+
+            }
+            else if(lowwerLang == "csharp" || lowwerLang == "c#")
+            {// 导出csharp代码和数据
+                if(!_ExportCSharpCode(configTypeRefConfigTable))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("export csharp code fail."));
+                    return false;
+                }
+
+                if(!_ExportCSharpDatas(configTypeRefConfigTable))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("export csharp data fail."));
+                    return false;
+                }
+            }
+            else
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("unknown language type export:%s"), lang.c_str());
+            }
+        }
+    }
+
+    return true;
+}
+
+bool XlsxExporterMgr::_ExportCppCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
+{
+    return true;
+}
+
+bool XlsxExporterMgr::_ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
+{
+    return true;
+}
+
+bool XlsxExporterMgr::_ExportCppDatas(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
+{
+    return true;
+}
+
+bool XlsxExporterMgr::_ExportCSharpDatas(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
+{
     return true;
 }
 
@@ -700,8 +1119,22 @@ void XlsxExporterMgr::_Clear()
 {
     _UnRegisterEvents();
 
+    _ownTypeRefLangTypes.clear();
     KERNEL_NS::ContainerUtil::DelContainer(_metaNameRefConfigMetaInfo, [](XlsxConfigMetaInfo *ptr){
         XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(ptr);
+    });
+    _needExportConfigType.clear();
+    _dirtyXlsxFiles.clear();
+
+    _configTypeRefSheets.clear();
+    KERNEL_NS::ContainerUtil::DelContainer(_xlsxFileRefWorkbook, [](KERNEL_NS::XlsxWorkbook *ptr){
+        KERNEL_NS::XlsxWorkbook::DeleteThreadLocal_XlsxWorkbook(ptr);
+    });
+
+    KERNEL_NS::ContainerUtil::DelContainer(_ownTypeRefConfigTypeRefXlsxConfigTableInfo, [](std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefTable){
+        KERNEL_NS::ContainerUtil::DelContainer(configTypeRefTable, [](XlsxConfigTableInfo *ptr){
+            XlsxConfigTableInfo::Delete_XlsxConfigTableInfo(ptr);
+        });
     });
 }
 

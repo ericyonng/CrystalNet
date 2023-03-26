@@ -32,5 +32,7 @@
 #pragma once
 
 #include <service_common/config/xlsx/xlsx.h>
+#include <service_common/config/IConfigMgr.h>
+#include <service_common/config/IConfigLoder.h>
 
 #endif

@@ -56,6 +56,7 @@ public:
     KERNEL_NS::LibString _flags;        // 字段功能标志
     KERNEL_NS::LibString _defaultValue; // 默认值
     KERNEL_NS::LibString _desc;         // 描述信息
+    UInt64 _columnId;                   // 列id
 };
 
 // 表信息
@@ -71,14 +72,16 @@ public:
 
     XlsxConfigTableInfo &operator=(const XlsxConfigTableInfo &other);
 
-    KERNEL_NS::LibString _ownType;              // C, S等类别
+    bool CheckHeaderSame(const XlsxConfigTableInfo *other, KERNEL_NS::LibString &errInfo) const;
+
     KERNEL_NS::LibString _wholeSheetName;       // 页签名 xxx | tableClass
     KERNEL_NS::LibString _tableClassName;       // 表类型名 tableClass
+    KERNEL_NS::LibString _xlsxPath;             // xls路径, 如果多个xlsx则会用;并换行拼接
     std::vector<XlsxConfigFieldInfo *> _fieldInfos; // 字段信息
     std::unordered_set<KERNEL_NS::LibString> _fieldNames; // 字段名 用于校验字段名
 
     std::unordered_map<UInt64, KERNEL_NS::LibString> _rowIdRefFunctionBarColumn;   // 功能列（表的第一列）
-    std::unordered_map<UInt64, std::unordered_map<UInt64, KERNEL_NS::LibString>> _values; // 数据 value[行id][列id]
+    std::vector<std::unordered_map<UInt64, KERNEL_NS::LibString>> _values; // 数据 value[行id][列id]
 };
 
 // meta文件内容(用于判断xlsx是否发生了变更)

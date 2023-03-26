@@ -21,25 +21,42 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-12-09 01:21:28
+ * Date: 2023-03-26 22:40:36
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
+#ifndef __CRYSTAL_NET_SERVICE_COMMON_CONFIG_ICONFIG_MGR_H__
+#define __CRYSTAL_NET_SERVICE_COMMON_CONFIG_ICONFIG_MGR_H__
 
 #pragma once
 
 #include <service_common/common/common.h>
-#include <service_common/protocol/protocol.h>
-#include <service_common/service/service.h>
-#include <service_common/service_proxy/ServiceProxyInc.h>
-#include <service_common/poller/PollerInc.h>
-#include <service_common/application/Application.h>
-#include <service_common/application/ApplicationHelper.h>
-#include <service_common/DB/db.h>
-#include <service_common/params/params.h>
-#include <service_common/config/config.h>
+#include <kernel/kernel.h>
+
+SERVICE_COMMON_BEGIN
+
+class IConfigMgr : public KERNEL_NS::CompObject
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IConfigMgr);
+
+public:
+    IConfigMgr();
+    ~IConfigMgr();
+
+    // virtual KERNEL_NS::LibString ToString() const override;
+    // virtual void Clear() override;
+
+    virtual Int32 Load() = 0;
+    virtual Int32 Reload() = 0;
+    virtual const std::vector<KERNEL_NS::LibString> &GetAllConfigFiles() const = 0;
+    virtual std::vector<KERNEL_NS::LibString> GetAllConfigFileMd5() const = 0;
+
+protected:
+    // virtual void _OnClose() override;
+    // void _Clear();
+};
+
+SERVICE_COMMON_END
 
 #endif

@@ -130,7 +130,7 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
             break;
         }
 
-        g_Log->Info(LOGFMT_OBJ_TAG("config:%s, export success."));
+        g_Log->Custom("config:%s, export success.", iterConfig->second.c_str());
     }while(false);
 
     // 4.关闭app

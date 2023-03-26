@@ -135,9 +135,9 @@
 // }
 
 // 测试性能
-std::atomic<Int64> g_genNum{0};
-std::atomic<Int64> g_consumNum{0};
-std::atomic<Int64> g_backLogNum{0};
+static std::atomic<Int64> g_genNum{0};
+static std::atomic<Int64> g_consumNum{0};
+static std::atomic<Int64> g_backLogNum{0};
 
 static KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::LibString *> *g_concurrentQueue = NULL;
 static const Int32 g_maxConcurrentLevel = 4;

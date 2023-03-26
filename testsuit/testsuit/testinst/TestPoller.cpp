@@ -353,8 +353,8 @@ static void HelloWorldEventWork(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *var
 KERNEL_NS::SmartPtr<KERNEL_NS::Poller, KERNEL_NS::AutoDelMethods::Release> s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
 
 // 测试性能
-std::atomic<Int64> g_genNum{0};
-std::atomic<Int64> g_consumNum{0};
+static std::atomic<Int64> g_genNum{0};
+static std::atomic<Int64> g_consumNum{0};
 
 static const Int32 g_maxConcurrentLevel = 4;
 

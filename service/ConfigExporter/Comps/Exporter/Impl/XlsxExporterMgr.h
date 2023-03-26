@@ -63,9 +63,21 @@ protected:
     // 是否需要导出
     bool _IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERNEL_NS::LibString &xlsxFile) const;
 
-    // 导出配置
-    bool _DoExportConfigs();
+    bool _IsOwnTypeNeedExport(const KERNEL_NS::LibString &ownType) const;
 
+    // 分析配置结构和数据
+    bool _AnalyzeExportConfigs();
+    bool _PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS::LibString, std::set<XlsxConfigTableInfo *>> &ownTypeRefConfigs, std::set<XlsxConfigTableInfo *> *configTables) const;
+
+    // 导出配置代码
+    bool _DoExportConfigs() const;
+    bool _ExportCppCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
+    bool _ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
+
+    // 导出配置数据
+    bool _ExportCppDatas(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
+    bool _ExportCSharpDatas(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
+    
     // 更新meta文件
     bool _UpdateMetas();
 
@@ -87,7 +99,7 @@ private:
     KERNEL_NS::LibString _targetDir;
     KERNEL_NS::LibString _dataDir;
     KERNEL_NS::LibString _metaDir;
-    std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> _configTypeRefLangTypes;
+    std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> _ownTypeRefLangTypes;
 
     std::unordered_map<KERNEL_NS::LibString, XlsxConfigMetaInfo *> _metaNameRefConfigMetaInfo;
 
@@ -96,7 +108,7 @@ private:
     std::unordered_map<KERNEL_NS::LibString, std::set<KERNEL_NS::XlsxSheet *>> _configTypeRefSheets;  // 配置类型与xlsx 用于合并同类配置
     std::unordered_map<KERNEL_NS::LibString, KERNEL_NS::XlsxWorkbook *> _xlsxFileRefWorkbook;   // 所有的配置xlsx
 
-    std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> _configTypeRefXlsxConfigTableInfo;    // 每个配置类型对应的配置信息
+    std::map<KERNEL_NS::LibString, std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *>> _ownTypeRefConfigTypeRefXlsxConfigTableInfo;    // 每个配置类型对应的配置信息
 };
 
 ALWAYS_INLINE  const XlsxConfigMetaInfo *XlsxExporterMgr::_GetMetaFile(const KERNEL_NS::LibString &metaFile) const

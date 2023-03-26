@@ -43,7 +43,7 @@ void TestSimpleApi::Run()
         for(Int32 idx = 0; idx < TestCount; ++idx)
         {
             const auto &nowTime = KERNEL_NS::LibTime::Now();
-            SimpleApiPushProfile(nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            SimpleApiPushProfile(0, nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         auto cpuCountEnd = KERNEL_NS::LibCpuCounter::Current();
         auto slice = (cpuCountEnd - cpuCountBegin);
@@ -56,7 +56,7 @@ void TestSimpleApi::Run()
         for(Int32 idx = 0; idx < TestCount; ++idx)
         {
             const auto &nowTime = KERNEL_NS::LibTime::Now();
-            SimpleApiPushProfile2(nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0, 0);
+            SimpleApiPushProfile2(0, nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0, 0);
         }
         auto cpuCountEnd = KERNEL_NS::LibCpuCounter::Current();
         auto slice = (cpuCountEnd - cpuCountBegin);
@@ -69,7 +69,7 @@ void TestSimpleApi::Run()
         for(Int32 idx = 0; idx < TestCount; ++idx)
         {
             const auto &nowTime = KERNEL_NS::LibTime::Now();
-            SimpleApiPushProfile3(nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0);
+            SimpleApiPushProfile3(0, nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0);
         }
         auto cpuCountEnd = KERNEL_NS::LibCpuCounter::Current();
         auto slice = (cpuCountEnd - cpuCountBegin);

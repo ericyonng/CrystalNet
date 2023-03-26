@@ -21,25 +21,55 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-12-09 01:21:28
+ * Date: 2023-03-26 22:07:26
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
+#ifndef __CRYSTAL_NET_SERVICE_COMMON_CONFIG_ICONFIG_LOADER_H__
+#define __CRYSTAL_NET_SERVICE_COMMON_CONFIG_ICONFIG_LOADER_H__
 
 #pragma once
 
 #include <service_common/common/common.h>
-#include <service_common/protocol/protocol.h>
-#include <service_common/service/service.h>
-#include <service_common/service_proxy/ServiceProxyInc.h>
-#include <service_common/poller/PollerInc.h>
-#include <service_common/application/Application.h>
-#include <service_common/application/ApplicationHelper.h>
-#include <service_common/DB/db.h>
-#include <service_common/params/params.h>
-#include <service_common/config/config.h>
+#include <kernel/kernel.h>
+
+SERVICE_COMMON_BEGIN
+
+class IConfigMgr;
+
+class IConfigLoader : public KERNEL_NS::CompHostObject
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IConfigLoader);
+
+public:
+    IConfigLoader();
+    virtual ~IConfigLoader();
+
+    virtual KERNEL_NS::LibString ToString() const override;
+
+    virtual Int32 Load();
+    virtual Int32 Reload(std::vector<const IConfigMgr *> &changes);
+
+    // virtual void OnRegisterComps() = 0;
+    // virtual void Release() = 0;
+
+   template<typename ConfigMgrType>
+   const ConfigMgrType *GetConfigMgr() const;
+
+protected:
+    virtual Int32 _OnHostInit() { return Status::Success; }
+    virtual Int32 _OnHostStart() override { return Status::Success; }
+    virtual void _OnHostClose() {}
+};
+
+template<typename ConfigMgrType>
+ALWAYS_INLINE const ConfigMgrType *IConfigLoader::GetConfigMgr() const
+{
+    return GetComp<ConfigMgrType>();
+}
+
+SERVICE_COMMON_END
 
 #endif
+
