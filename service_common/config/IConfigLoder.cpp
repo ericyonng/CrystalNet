@@ -77,7 +77,7 @@ Int32 IConfigLoader::Reload(std::vector<const IConfigMgr *> &changes)
     for(auto &comp : allComps)
     {
         auto configMgr = comp->CastTo<IConfigMgr>();
-        const auto &oldMd5s = configMgr->GetAllConfigFileMd5();
+        const auto oldMd5s = configMgr->GetConfigDataMd5();
         auto err = configMgr->Reload();
         if(err != Status::Success)
         {
@@ -85,25 +85,9 @@ Int32 IConfigLoader::Reload(std::vector<const IConfigMgr *> &changes)
             return err;
         }
 
-        const auto &newMd5s = configMgr->GetAllConfigFileMd5();
-        if(oldMd5s.size() != newMd5s.size())
-        {
+        const auto newMd5s = configMgr->GetConfigDataMd5();
+        if(oldMd5s != newMd5s)
             changes.push_back(configMgr);
-        }
-        else
-        {
-            const Int32 md5Count = static_cast<Int32>(oldMd5s.size());
-            for(Int32 idx = 0; idx < md5Count; ++idx)
-            {
-                auto &oldMd5 = oldMd5s[idx];
-                auto &newMd5 = newMd5s[idx];
-                if(oldMd5 != newMd5)
-                {
-                    changes.push_back(configMgr);
-                    break;
-                }
-            }
-        }
     }
 
     g_Log->Info(LOGFMT_OBJ_TAG("config loader reload configs success config mgr number:%llu, changes number:%llu.")
