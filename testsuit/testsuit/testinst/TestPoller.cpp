@@ -463,6 +463,8 @@ void TestPoller::Run()
 
     pool->Start();
 
+    getchar();
+
     pool->HalfClose();
 
     s_Poller->QuitLoop();
