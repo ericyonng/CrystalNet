@@ -82,7 +82,6 @@ Poller::Poller()
 ,_workThreadId{0}
 ,_isEnable{true}
 ,_isQuitLoop{false}
-,_waitingNotQuit{0}
 ,_maxSleepMilliseconds(1)
 ,_loopDetectTimeout(1000)   // 默认1000次循环检查一次
 ,_timerMgr(TimerMgr::New_TimerMgr())
@@ -239,18 +238,21 @@ void Poller::EventLoop()
     const UInt64 pollerId = GetId();
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
-    while (!_isQuitLoop || (_eventAmountLeft != 0) || (_waitingNotQuit > 0) || _dirtyHelper->HasDirty())
+    for(;;)
     {
         // 没有事件且没有脏处理则等待
         if((_eventAmountLeft == 0) && !_dirtyHelper->HasDirty() && !_timerMgr->HasExpired())
         {
+            if(UNLIKELY(_isQuitLoop))
+                break;
+                
             _eventGuard.Lock();
             _eventGuard.TimeWait(maxSleepMilliseconds);
             _eventGuard.Unlock();
         }
 
         // 队列有消息就合并
-        if(_eventAmountLeft != 0)
+        if(LIKELY(_eventAmountLeft != 0))
             _eventsList->MergeTailAllTo(priorityEvents);
 
         deadline.Update() += _maxPieceTime;
@@ -300,7 +302,7 @@ void Poller::EventLoop()
             }
 
             // 消费完成
-            if(_eventAmountLeft == 0)
+            if(UNLIKELY(_eventAmountLeft == 0))
                 break;
         }
 

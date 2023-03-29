@@ -132,7 +132,6 @@ public:
     void OnLoopEnd();
     void WakeupEventLoop();
     void QuitLoop();
-    void MakeWaitingNotQuit(bool isWaiting = true);
 
 protected:
     virtual Int32 _OnInit() override;
@@ -148,7 +147,6 @@ private:
   std::atomic<UInt64> _workThreadId;                        // 事件处理线程id
   std::atomic_bool _isEnable;                               // 销毁的时候是disable
   std::atomic_bool _isQuitLoop;                               // 是否关闭
-  std::atomic<Int32> _waitingNotQuit;                         // 是否等待且不退出
   UInt64 _maxSleepMilliseconds;                             // poller等待的最大时长一般毫秒级即可
   Int32 _loopDetectTimeout;                                 // n次循环检测一次超时
 
@@ -329,18 +327,6 @@ ALWAYS_INLINE void Poller::QuitLoop()
     _isQuitLoop = true;
     WakeupEventLoop();
 }
-
-ALWAYS_INLINE void Poller::MakeWaitingNotQuit(bool isWaiting)
-{
-    if(isWaiting)
-    {
-        ++_waitingNotQuit;
-        return;
-    }
-
-    --_waitingNotQuit;
-}
-
 
 KERNEL_END
 

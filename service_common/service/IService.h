@@ -80,7 +80,6 @@ public:
     void OnLoopEnd();
     void Push(Int32 level, KERNEL_NS::PollerEvent *ev);
     void Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList);
-    void MakePollerWaitingAndNotQuit(bool isWaiting = true);
 
     // 网络线程调用
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) = 0;
@@ -249,11 +248,6 @@ ALWAYS_INLINE void IService::Push(Int32 level, KERNEL_NS::PollerEvent *ev)
 ALWAYS_INLINE void IService::Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList)
 {
     _poller->Push(level, evList);
-}
-
-ALWAYS_INLINE void IService::MakePollerWaitingAndNotQuit(bool isWaiting)
-{
-    _poller->MakeWaitingNotQuit(isWaiting);
 }
 
 template<typename ObjType>
