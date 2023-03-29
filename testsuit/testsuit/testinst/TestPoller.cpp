@@ -360,7 +360,7 @@ static const Int32 g_maxConcurrentLevel = 4;
 
 static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
 {
-    g_Log->Debug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::Poller, "recv event:%s"), ev->ToString().c_str());
+    // g_Log->Debug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::Poller, "recv event:%s"), ev->ToString().c_str());
     ++g_consumNum;
 }
 
@@ -456,10 +456,10 @@ void TestPoller::Run()
     {
         KERNEL_NS::Variant *var=KERNEL_NS::Variant::New_Variant();
         *var = idx;
-        pool->AddTask2(&_OnTask, var, false, 0);
+        pool->AddTask2(&_OnTask, var, true, 1);
     }
 
-    pool->AddTask2(&_OnMonitor, NULL, false, 0);
+    pool->AddTask2(&_OnMonitor, NULL, true, 1);
 
     pool->Start();
 

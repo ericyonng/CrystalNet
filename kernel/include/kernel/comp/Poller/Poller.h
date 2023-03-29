@@ -110,6 +110,10 @@ public:
     void SetMaxPriorityLevel(Int32 level);
     Int32 GetMaxPriorityLevel() const;
 
+    // n次循环检查一次超时
+    void SetLoopDetectTimeout(Int32 loopCount);
+    Int32 GetLoopDetectTimeout() const;
+
     // 获取定时器
     TimerMgr *GetTimerMgr();
     const TimerMgr *GetTimerMgr() const;
@@ -142,11 +146,11 @@ private:
 private:
   LibCpuSlice _maxPieceTime;                                 // 每个事务时间片
   std::atomic<UInt64> _workThreadId;                        // 事件处理线程id
-  std::atomic_bool _isWorking;                              // 是否在处理事件
   std::atomic_bool _isEnable;                               // 销毁的时候是disable
   std::atomic_bool _isQuitLoop;                               // 是否关闭
   std::atomic<Int32> _waitingNotQuit;                         // 是否等待且不退出
   UInt64 _maxSleepMilliseconds;                             // poller等待的最大时长一般毫秒级即可
+  Int32 _loopDetectTimeout;                                 // n次循环检测一次超时
 
   TimerMgr *_timerMgr;                                      // 定时器管理
   LibDirtyHelper<void *, UInt32> *_dirtyHelper;             // 事件脏标记
@@ -157,7 +161,6 @@ private:
   ConditionLocker _eventGuard;                              // 空闲挂起等待
   ConcurrentPriorityQueue<PollerEvent *> *_eventsList;      // 优先级事件队列
   std::atomic<Int64> _eventAmountLeft;
-  std::atomic<UInt64> _handlingEventCount;
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -237,6 +240,16 @@ ALWAYS_INLINE void Poller::SetMaxPriorityLevel(Int32 level)
 ALWAYS_INLINE Int32 Poller::GetMaxPriorityLevel() const
 {
     return _eventsList->GetMaxLevel();
+}
+
+ALWAYS_INLINE void Poller::SetLoopDetectTimeout(Int32 loopCount)
+{
+    _loopDetectTimeout = loopCount;
+}
+
+ALWAYS_INLINE Int32 Poller::GetLoopDetectTimeout() const
+{
+    return _loopDetectTimeout;
 }
 
 ALWAYS_INLINE TimerMgr *Poller::GetTimerMgr()

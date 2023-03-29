@@ -80,11 +80,11 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(Poller);
 Poller::Poller()
 :_maxPieceTime(LibCpuSlice::FromMilliseconds(8))  // 经验值8ms
 ,_workThreadId{0}
-,_isWorking{false}
 ,_isEnable{true}
 ,_isQuitLoop{false}
 ,_waitingNotQuit{0}
 ,_maxSleepMilliseconds(1)
+,_loopDetectTimeout(1000)   // 默认1000次循环检查一次
 ,_timerMgr(TimerMgr::New_TimerMgr())
 ,_dirtyHelper(LibDirtyHelper<void *, UInt32>::New_LibDirtyHelper())
 ,_prepareEventWorkerHandler(NULL)
@@ -92,7 +92,6 @@ Poller::Poller()
 ,_eventHandler(NULL)
 ,_eventsList(ConcurrentPriorityQueue<PollerEvent *>::New_ConcurrentPriorityQueue())
 ,_eventAmountLeft{0}
-,_handlingEventCount{0}
 {
     // auto defObj = TlsUtil::GetDefTls();
     // if(UNLIKELY(defObj->_poller))
@@ -121,7 +120,6 @@ Int32 Poller::_OnInit()
         return ret;
     }
 
-    _isWorking = false;
     _isQuitLoop = false;
     _workThreadId = 0;
     _eventsList->Init();
@@ -174,7 +172,6 @@ LibString Poller::ToString() const
 
     info.AppendFormat("_maxPieceTimeInMicroseconds:%llu, ", _maxPieceTime.GetTotalCount())
         .AppendFormat("_workThreadId:%llu, ", _workThreadId.load())
-        .AppendFormat("_isWorking:%d, ", _isWorking.load())
         .AppendFormat("_isEnable:%d, ", _isEnable.load())
         .AppendFormat("_isClosed:%d, ", _isQuitLoop.load())
         .AppendFormat("timer loaded:%llu, ", _timerMgr ? _timerMgr->GetTimerLoaded() : 0)
@@ -189,7 +186,8 @@ UInt64 Poller::CalcLoadScore() const
 {
     const UInt64 timerLoaded = _timerMgr->GetTimerLoaded();
     const UInt64 dirtyLoaded = _dirtyHelper->GetLoaded();
-    const UInt64 eventsLoaded = _eventsList->GetAmount() + _handlingEventCount;
+    Int64 eventsLoaded = _eventAmountLeft;
+    eventsLoaded = (eventsLoaded <= 0) ? 0 : eventsLoaded;
 
     return static_cast<UInt64>((timerLoaded * TIMER_LOADED + dirtyLoaded * DIRTY_LOADED + eventsLoaded * EVENTS_LOADED) / ((TIMER_LOADED + DIRTY_LOADED + EVENTS_LOADED) * 1.0 + 1));
 }
@@ -221,18 +219,13 @@ bool Poller::PrepareLoop()
 void Poller::EventLoop()
 {
     std::vector<LibList<PollerEvent *, _Build::MT> *> priorityEvents;
-    const Int32 priorityQueueSize = _eventsList->GetMaxLevel() + 1;
+    const Int64 priorityQueueSize = static_cast<Int64>(_eventsList->GetMaxLevel() + 1);
     priorityEvents.resize(priorityQueueSize);
-    for(Int32 idx = 0; idx < priorityQueueSize; ++idx)
+    for(Int32 idx = 0; idx < static_cast<Int32>(priorityQueueSize); ++idx)
         priorityEvents[idx] = LibList<PollerEvent *, _Build::MT>::New_LibList();
 
     // 部分数据准备
     LibString errLog;
-
-    _isWorking = false;
-
-    // 将数据先merge到待处理
-    UInt64 eventsAmount = _eventsList->MergeTailAllTo(priorityEvents);
 
     g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
 
@@ -246,24 +239,19 @@ void Poller::EventLoop()
     const UInt64 pollerId = GetId();
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
-    while (!_isQuitLoop || (eventsAmount != 0) || (_waitingNotQuit > 0) || _dirtyHelper->HasDirty())
+    while (!_isQuitLoop || (_eventAmountLeft != 0) || (_waitingNotQuit > 0) || _dirtyHelper->HasDirty())
     {
         // 没有事件且没有脏处理则等待
-        if((eventsAmount == 0) && !_dirtyHelper->HasDirty() && !_timerMgr->HasExpired())
+        if((_eventAmountLeft == 0) && !_dirtyHelper->HasDirty() && !_timerMgr->HasExpired())
         {
             _eventGuard.Lock();
             _eventGuard.TimeWait(maxSleepMilliseconds);
             _eventGuard.Unlock();
         }
-        
 
         // 队列有消息就合并
-        if(!_eventsList->IsEmpty())
-            eventsAmount += _eventsList->MergeTailAllTo(priorityEvents);
-        _handlingEventCount = eventsAmount;
-
-        // WORKING START
-        _isWorking = true;
+        if(_eventAmountLeft != 0)
+            _eventsList->MergeTailAllTo(priorityEvents);
 
         deadline.Update() += _maxPieceTime;
         #ifdef _DEBUG
@@ -271,13 +259,14 @@ void Poller::EventLoop()
         #endif
 
         // 处理事件
-        Int32 idx = 0;
-        Int32 loopCount = 0;
+        Int64 idx = 0;
+        Int64 loopCount = 0;
 
         #ifdef _DEBUG
          UInt64 curConsumeEventsCount = 0;
         #endif
 
+        Int32 detectTimeoutLoopCount = _loopDetectTimeout;
         for (;;)
         {
             idx = loopCount++ % priorityQueueSize;
@@ -295,32 +284,40 @@ void Poller::EventLoop()
                 data->Release();
                 sunList->Erase(node);
                 --_eventAmountLeft;
-                
+
                 #ifdef _DEBUG
                  ++curConsumeEventsCount;
                 #endif
-
-                --eventsAmount;
             }
 
             // 片超时
-            if(UNLIKELY(nowCounter.Update() >=  deadline))
-                break;
+            if(--detectTimeoutLoopCount <= 0)
+            {
+                detectTimeoutLoopCount = _loopDetectTimeout;
+
+                if(UNLIKELY(nowCounter.Update() >=  deadline))
+                    break;
+            }
 
             // 消费完成
-            if(eventsAmount == 0)
+            if(_eventAmountLeft == 0)
                 break;
         }
 
-        _handlingEventCount = eventsAmount;
-
         // 脏处理
-        _dirtyHelper->Purge(nowCounter.Update(), &errLog);
-        if(UNLIKELY(!errLog.empty()))
-            g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
+        if(UNLIKELY(_dirtyHelper->HasDirty()))
+        {
+            _dirtyHelper->Purge(nowCounter.Update(), &errLog);
+            if(UNLIKELY(!errLog.empty()))
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
+                errLog.clear();
+            }
+        }
 
         // 处理定时器
-        _timerMgr->Drive();
+        if(UNLIKELY(_timerMgr->HasExpired()))
+            _timerMgr->Drive();
 
         // 当前帧性能信息记录
         #ifdef _DEBUG
@@ -330,13 +327,6 @@ void Poller::EventLoop()
                                         , pollerId, _maxPieceTime.GetTotalMicroseconds(), _workThreadId.load(), elapseTime.GetTotalMicroseconds(), curConsumeEventsCount);
         #endif
 
-        // WORKING END
-        _isWorking = false;
-
-        // GET EVENTS
-        eventsAmount += _eventsList->MergeTailAllTo(priorityEvents);
-
-        _handlingEventCount = eventsAmount;
     }
 
     const auto leftElemCount = GetPriorityEvenetsQueueElemCount(priorityEvents);
@@ -372,7 +362,6 @@ void Poller::OnLoopEnd()
 void Poller::_Clear()
 {
     _isEnable = false;
-    _isWorking = false;
     _isQuitLoop = false;
 
     // 清理设置的tls资源
