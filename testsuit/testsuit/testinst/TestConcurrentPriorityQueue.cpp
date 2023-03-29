@@ -31,6 +31,8 @@
  * 消费速速:13697359/s
  * 平均积压:< 8627
  * 
+ * ComsumerTask2:2189356/s
+ * 
 */
 
 #include <pch.h>
@@ -256,7 +258,7 @@ void TestConcurrentPriorityQueue::Run()
         pool->AddTask2(GenTask, var, false, 0);
     }
 
-    pool->AddTask2(ComsumerTask2, NULL, false, 0);
+    pool->AddTask2(ComsumerTask, NULL, false, 0);
     pool->AddTask2(MonitorTask, NULL, false, 0);
 
     pool->Start(true, g_maxConcurrentLevel + 2);
