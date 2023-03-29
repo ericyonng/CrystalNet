@@ -65,7 +65,7 @@ public:
     */
     void Init(Int32 minNum, Int32 maxNum, UInt64 unixStackSize = THREAD_DEF_STACK_SIZE);
     // 启动线程池
-    bool Start();
+    bool Start(bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
     // = HalfClose + FinishClose
     void Close();
     // 半关闭 返回值用于判断是否可执行FinishClose
@@ -150,7 +150,7 @@ inline void LibThreadPool::Init(Int32 minNum, Int32 maxNum, UInt64 unixStackSize
     _unixStackSize = unixStackSize;
 }
 
-inline bool LibThreadPool::Start()
+inline bool LibThreadPool::Start(bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 {
     if(!_isInit.load())
     {
@@ -164,6 +164,33 @@ inline bool LibThreadPool::Start()
     const auto minNum = _minNum.load();
     if(minNum)
       _CreateThread(minNum, _unixStackSize);
+
+    // 唤醒
+    if(_waitNum.load() > 0 && !forceNewThread)
+    {
+        _wakeupAndWait.Sinal();
+        return true;
+    }
+
+    // 是否需要创建线程来执行任务
+    if(UNLIKELY(numOfThreadToCreateIfNeed <= 0))
+        return true;
+
+    _wakeupAndWait.Lock();
+    const Int32 curTotalNum = _curTotalNum.load();
+    const Int32 maxNum = _maxNum.load();
+    const Int32 diffNum = maxNum - curTotalNum;
+    numOfThreadToCreateIfNeed = diffNum > numOfThreadToCreateIfNeed ? numOfThreadToCreateIfNeed : diffNum;
+
+    // 超过最大线程数
+    if(UNLIKELY(curTotalNum + numOfThreadToCreateIfNeed > maxNum))
+    {
+        _wakeupAndWait.Unlock();
+        return false;
+    }
+
+    _CreateThread(numOfThreadToCreateIfNeed, _unixStackSize);
+    _wakeupAndWait.Unlock();
 
     return true;
 }
