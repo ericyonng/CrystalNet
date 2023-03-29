@@ -291,7 +291,7 @@ void Poller::EventLoop()
             }
 
             // 片超时
-            if(--detectTimeoutLoopCount <= 0)
+            if(UNLIKELY(--detectTimeoutLoopCount <= 0))
             {
                 detectTimeoutLoopCount = _loopDetectTimeout;
 
