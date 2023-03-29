@@ -259,7 +259,8 @@ void Poller::EventLoop()
         #endif
 
         // 处理事件
-        Int32 loopCount = 0;
+        Int64 idx = 0;
+        Int64 loopCount = 0;
 
         #ifdef _DEBUG
          UInt64 curConsumeEventsCount = 0;
@@ -268,8 +269,10 @@ void Poller::EventLoop()
         Int32 detectTimeoutLoopCount = _loopDetectTimeout;
         for (;;)
         {
+            idx = loopCount++ % priorityQueueSize;
+
             // 切换不同优先级消息队列
-            auto sunList = priorityEvents[loopCount++];
+            auto sunList = priorityEvents[idx];
             auto node = sunList->Begin();
             if(LIKELY(node))
             {
@@ -299,9 +302,6 @@ void Poller::EventLoop()
             // 消费完成
             if(_eventAmountLeft == 0)
                 break;
-
-            if(UNLIKELY(loopCount >= priorityQueueSize))
-                loopCount = 0;
         }
 
         // 脏处理
