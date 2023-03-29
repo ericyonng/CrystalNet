@@ -49,6 +49,7 @@ public:
     virtual KERNEL_NS::LibString ToString() const override;
 
     virtual Int32 Load();
+    // reload只支持不改变页签名或新增页签，只变更数据
     virtual Int32 Reload(std::vector<const IConfigMgr *> &changes);
 
     // virtual void OnRegisterComps() = 0;

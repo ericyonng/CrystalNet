@@ -50,7 +50,7 @@ public:
     virtual Int32 Load() = 0;
     virtual Int32 Reload() = 0;
     virtual const std::vector<KERNEL_NS::LibString> &GetAllConfigFiles() const = 0;
-    virtual std::vector<KERNEL_NS::LibString> GetAllConfigFileMd5() const = 0;
+    virtual const KERNEL_NS::LibString &GetConfigDataMd5() const = 0;
 
 protected:
     // virtual void _OnClose() override;
