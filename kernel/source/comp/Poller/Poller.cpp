@@ -47,14 +47,14 @@ static ALWAYS_INLINE bool IsPriorityEvenetsQueueEmpty(const std::vector<KERNEL_N
     return true;
 }
 
-static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
+static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
 {
-    if(UNLIKELY(queue.empty()))
+    if(UNLIKELY(queue.IsEmpty()))
         return 0;
 
     UInt64 count = 0;
-    for(auto &evList:queue)
-        count += evList->GetAmount();
+    for(auto node = queue.Begin(); node; node = node->_next)
+        count += node->_data->GetAmount();
 
     return count;
 }
@@ -217,11 +217,10 @@ bool Poller::PrepareLoop()
 
 void Poller::EventLoop()
 {
-    std::vector<LibList<PollerEvent *, _Build::MT> *> priorityEvents;
+    LibList<LibList<PollerEvent *, _Build::MT> *> *priorityEvents = LibList<LibList<PollerEvent *, _Build::MT> *>::New_LibList();
     const Int64 priorityQueueSize = static_cast<Int64>(_eventsList->GetMaxLevel() + 1);
-    priorityEvents.resize(priorityQueueSize);
-    for(Int32 idx = 0; idx < static_cast<Int32>(priorityQueueSize); ++idx)
-        priorityEvents[idx] = LibList<PollerEvent *, _Build::MT>::New_LibList();
+    for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
+        priorityEvents->PushBack(LibList<PollerEvent *, _Build::MT>::New_LibList());
 
     // 部分数据准备
     LibString errLog;
@@ -256,9 +255,6 @@ void Poller::EventLoop()
             _eventsList->MergeTailAllTo(priorityEvents);
 
         // 处理事件
-        Int64 idx = 0;
-        Int64 loopCount = 0;
-
         #ifdef _DEBUG
          UInt64 curConsumeEventsCount = 0;
         #endif
@@ -269,13 +265,10 @@ void Poller::EventLoop()
          performaceStart = deadline;
         #endif
 
-        for (;;)
+        for (auto listNode = priorityEvents->Begin(); LIKELY(_eventAmountLeft > 0);)
         {
-            idx = loopCount++ % priorityQueueSize;
-
             // 切换不同优先级消息队列
-            auto sunList = priorityEvents[idx];
-            auto node = sunList->Begin();
+            auto node = listNode->_data->Begin();
             if(LIKELY(node))
             {
                 auto data = node->_data;
@@ -284,7 +277,7 @@ void Poller::EventLoop()
                 if(LIKELY(_eventHandler))
                     _eventHandler->Invoke(data);
                 data->Release();
-                sunList->Erase(node);
+                listNode->_data->Erase(node);
                 --_eventAmountLeft;
 
                 #ifdef _DEBUG
@@ -292,6 +285,8 @@ void Poller::EventLoop()
                 #endif
             }
 
+            listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
+            
             // 片超时
             if(UNLIKELY(--detectTimeoutLoopCount <= 0))
             {
@@ -300,10 +295,6 @@ void Poller::EventLoop()
                 if(UNLIKELY(nowCounter.Update() >=  deadline))
                     break;
             }
-
-            // 消费完成
-            if(UNLIKELY(_eventAmountLeft == 0))
-                break;
         }
 
         // 脏处理
@@ -331,17 +322,19 @@ void Poller::EventLoop()
 
     }
 
-    const auto leftElemCount = GetPriorityEvenetsQueueElemCount(priorityEvents);
+    const auto leftElemCount = GetPriorityEvenetsQueueElemCount(*priorityEvents);
     if(leftElemCount != 0)
         g_Log->Warn(LOGFMT_OBJ_TAG("has unhandled events left:%llu, poller info:%s"), leftElemCount, ToString().c_str());
     
-    ContainerUtil::DelContainer(priorityEvents, [this](LibList<PollerEvent *, _Build::MT> *evList){
+    ContainerUtil::DelContainer(*priorityEvents, [this](LibList<PollerEvent *, _Build::MT> *evList){
         ContainerUtil::DelContainer(*evList, [this](PollerEvent *ev){
             g_Log->Warn(LOGFMT_OBJ_TAG("event type:%d, not handled when poller will closed."), ev->_type);
             ev->Release();
         });
         LibList<PollerEvent *, _Build::MT>::Delete_LibList(evList);
     });
+    LibList<LibList<PollerEvent *, _Build::MT> *>::Delete_LibList(priorityEvents);
+    priorityEvents = NULL;
 
     g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
 }
