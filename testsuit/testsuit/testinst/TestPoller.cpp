@@ -350,7 +350,7 @@ static void HelloWorldEventWork(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *var
 //     hostObj->Close();
 // }
 
-KERNEL_NS::SmartPtr<KERNEL_NS::Poller, KERNEL_NS::AutoDelMethods::Release> s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
+static KERNEL_NS::SmartPtr<KERNEL_NS::Poller, KERNEL_NS::AutoDelMethods::Release> s_Poller;
 
 // 测试性能
 static std::atomic<Int64> g_genNum{0};
@@ -428,6 +428,7 @@ static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
 
 void TestPoller::Run()
 {
+    s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
     s_Poller->SetMaxPriorityLevel(8);
     s_Poller->SetEventHandler(KERNEL_NS::DelegateFactory::Create(&_OnPollerEvent));
 
