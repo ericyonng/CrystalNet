@@ -259,8 +259,8 @@ void Poller::EventLoop()
          UInt64 curConsumeEventsCount = 0;
         #endif
 
-        Int32 detectTimeoutLoopCount = _loopDetectTimeout;
-        deadline.Update() += _maxPieceTime;
+        // Int32 detectTimeoutLoopCount = _loopDetectTimeout;
+        // deadline.Update() += _maxPieceTime;
         #ifdef _DEBUG
          performaceStart = deadline;
         #endif
@@ -288,13 +288,13 @@ void Poller::EventLoop()
             listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
             
             // 片超时
-            if(UNLIKELY(--detectTimeoutLoopCount <= 0))
-            {
-                detectTimeoutLoopCount = _loopDetectTimeout;
+            // if(UNLIKELY(--detectTimeoutLoopCount <= 0))
+            // {
+            //     detectTimeoutLoopCount = _loopDetectTimeout;
 
-                if(UNLIKELY(nowCounter.Update() >=  deadline))
-                    break;
-            }
+            //     if(UNLIKELY(nowCounter.Update() >=  deadline))
+            //         break;
+            // }
         }
 
         // 脏处理
