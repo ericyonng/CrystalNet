@@ -62,17 +62,32 @@ int main(int argc, char const *argv[])
 
     KERNEL_NS::KernelUtil::Start();
 
-    KERNEL_NS::LibString susParamsInfo, warnParamsInfo;
+    bool isErr = false;
     KERNEL_NS::LibString targetFile;
-    auto count = SERVICE_COMMON_NS::ParamsHandler::GetParams(argc, argv, susParamsInfo, warnParamsInfo, [&targetFile](const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value){
-        if(key == "--file")
+    bool isFirstParam = true;
+    auto count = SERVICE_COMMON_NS::ParamsHandler::GetStandardParams(argc, argv, [&targetFile, &isErr, &isFirstParam](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam){
+        // 只解析第一个非空参数
+        if(isFirstParam)
         {
-            targetFile = value;
-            return true;
+            isFirstParam = false;
+            return false;
         }
 
-        return false;
+        if(targetFile.empty() && !param.empty())
+        {
+            targetFile = param;
+
+            // 其他参数都丢弃
+            leftParam.clear();
+        }
+
+        return true;
     });
+
+    if(isErr)
+    {
+        return Status::Failed;
+    }
 
     if(!KERNEL_NS::FileUtil::IsFileExist(targetFile.c_str()))
     {

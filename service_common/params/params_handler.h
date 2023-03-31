@@ -57,6 +57,9 @@ public:
     , std::function<bool(const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)> &&cb, Byte8 kvSepChar = '=');
 
     static Int32 GetParams(const std::vector<KERNEL_NS::LibString> &params, std::function<bool(const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)> &&cb, Byte8 kvSepChar = '=');
+    
+    static Int32 GetStandardParams(int argc, char const *argv[], std::function<bool(const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam)> &&cb);
+    static Int32 GetStandardParams(const std::vector<KERNEL_NS::LibString> &params, std::function<bool(const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam)> &&cb);
 };
 
 ALWAYS_INLINE Int32 ParamsHandler::GetParams(int argc, char const *argv[], KERNEL_NS::LibString &susParamsInfo, KERNEL_NS::LibString &warnParamsInfo
@@ -76,6 +79,16 @@ ALWAYS_INLINE Int32 ParamsHandler::GetParams(const std::vector<KERNEL_NS::LibStr
     KERNEL_NS::LibString warnParamsInfo;
 
     return ParamsHandler::GetParams(params, susParamsInfo, warnParamsInfo, std::forward<decltype(cb)>(cb), kvSepChar);
+}
+
+ALWAYS_INLINE Int32 ParamsHandler::GetStandardParams(int argc, char const *argv[], std::function<bool(const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam)> &&cb)
+{
+    // 传入的参数
+    std::vector<KERNEL_NS::LibString> args;
+    for(Int32 idx = 0; idx < argc; ++idx)
+        args.push_back(KERNEL_NS::LibString(argv[idx]).strip());
+
+    return GetStandardParams(args, std::forward<decltype(cb)>(cb));
 }
 
 SERVICE_COMMON_END

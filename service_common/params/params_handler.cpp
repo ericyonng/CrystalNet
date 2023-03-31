@@ -121,5 +121,24 @@ Int32 ParamsHandler::GetParams(const std::vector<KERNEL_NS::LibString> &params, 
     return paramsNum;
 }
 
+Int32 ParamsHandler::GetStandardParams(const std::vector<KERNEL_NS::LibString> &params, std::function<bool(const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam)> &&cb)
+{
+    Int32 paramsNum = 0;
+    auto temp = params;
+    while (!temp.empty())
+    {
+        auto headParam = temp[0];
+        headParam.strip();
+
+        temp.erase(temp.begin());
+        if(cb(headParam, temp))
+        {
+            ++paramsNum;
+        }
+    }
+
+    return paramsNum;
+}
+
 
 SERVICE_COMMON_END
