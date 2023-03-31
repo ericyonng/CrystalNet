@@ -237,6 +237,7 @@ void Poller::EventLoop()
     const UInt64 pollerId = GetId();
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
+    UInt64 mergeNumber = 0;
     for(;;)
     {
         // 没有事件且没有脏处理则等待
@@ -252,20 +253,20 @@ void Poller::EventLoop()
 
         // 队列有消息就合并
         if(LIKELY(_eventAmountLeft != 0))
-            _eventsList->MergeTailAllTo(priorityEvents);
+            mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
 
         // 处理事件
         #ifdef _DEBUG
          UInt64 curConsumeEventsCount = 0;
         #endif
 
-        // Int32 detectTimeoutLoopCount = _loopDetectTimeout;
-        // deadline.Update() += _maxPieceTime;
+        Int32 detectTimeoutLoopCount = _loopDetectTimeout;
+        deadline.Update() += _maxPieceTime;
         #ifdef _DEBUG
          performaceStart = deadline;
         #endif
 
-        for (auto listNode = priorityEvents->Begin(); LIKELY(_eventAmountLeft > 0);)
+        for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber != 0);)
         {
             // 切换不同优先级消息队列
             auto node = listNode->_data->Begin();
@@ -279,6 +280,7 @@ void Poller::EventLoop()
                 data->Release();
                 listNode->_data->Erase(node);
                 --_eventAmountLeft;
+                --mergeNumber;
 
                 #ifdef _DEBUG
                  ++curConsumeEventsCount;
@@ -288,13 +290,13 @@ void Poller::EventLoop()
             listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
             
             // 片超时
-            // if(UNLIKELY(--detectTimeoutLoopCount <= 0))
-            // {
-            //     detectTimeoutLoopCount = _loopDetectTimeout;
+            if(UNLIKELY(--detectTimeoutLoopCount <= 0))
+            {
+                detectTimeoutLoopCount = _loopDetectTimeout;
 
-            //     if(UNLIKELY(nowCounter.Update() >=  deadline))
-            //         break;
-            // }
+                if(UNLIKELY(nowCounter.Update() >=  deadline))
+                    break;
+            }
         }
 
         // 脏处理

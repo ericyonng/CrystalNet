@@ -199,10 +199,9 @@ ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::SwapAll(L
         return;
     }
 
-    ListNode<LibList<Elem, BuildType> *> queueNode = *queuesOut->Begin();
+    auto curNode = queuesOut->Begin();
     for(Int32 idx = 0; idx <= _maxLevel; ++idx)
     {
-        ListNode<LibList<Elem, BuildType> *> *curNode = queueNode._next ? queueNode._next->_pre : queuesOut->End();
         _guards[idx]->Lock();
         auto queue = _levelQueue[idx];
         _elemAmount -= queue->GetAmount();
@@ -210,7 +209,7 @@ ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::SwapAll(L
         _levelQueue[idx] = curNode->_data;
         curNode->_data = queue;
         _guards[idx]->Unlock();
-        ++queueNode;
+        curNode = (curNode->_next != NULL) ? curNode->_next : queuesOut->Begin();
     }
 }
 
@@ -267,18 +266,17 @@ ALWAYS_INLINE UInt64 ConcurrentPriorityQueue<Elem, BuildType, LockType>::MergeTa
         return 0;
     }
 
-    ListNode<LibList<Elem, BuildType> *> queueNode = *queuesOut->Begin();
+    ListNode<LibList<Elem, BuildType> *> *curNode = queuesOut->Begin();
     UInt64 mergeCount = 0;
     for(Int32 idx = 0; idx <= _maxLevel; ++idx)
     {
-        ListNode<LibList<Elem, BuildType> *> *curNode = queueNode._next ? queueNode._next->_pre : queuesOut->End();
         _guards[idx]->Lock();
         const auto queuAmount = _levelQueue[idx]->GetAmount();
         _elemAmount -= queuAmount;
         mergeCount += queuAmount;
         curNode->_data->MergeTail(_levelQueue[idx]);
         _guards[idx]->Unlock();
-        ++queueNode;
+        curNode = (curNode->_next != NULL) ? curNode->_next : queuesOut->Begin();
     }
 
     return mergeCount;

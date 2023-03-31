@@ -291,7 +291,7 @@ void TestConcurrentPriorityQueue::Run()
 
     // pool->AddTask2(ComsumerTask2, NULL, false, 0);
     // pool->AddTask2(ComsumerTask, NULL, false, 0);
-    pool->AddTask2(ComsumerTask3, NULL, false, 0);
+    pool->AddTask2(ComsumerTask2, NULL, false, 0);
     pool->AddTask2(MonitorTask, NULL, false, 0);
 
     pool->Start(true, g_maxConcurrentLevel + 2);
