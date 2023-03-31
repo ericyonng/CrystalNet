@@ -86,10 +86,15 @@ int main(int argc, char const *argv[])
 
     if(count == 0)
         return Status::Success;
-        
+
     if(isErr)
     {
         return Status::Failed;
+    }
+
+    if(targetFile.empty())
+    {
+        return Status::Success;
     }
 
     if(!KERNEL_NS::FileUtil::IsFileExist(targetFile.c_str()))
