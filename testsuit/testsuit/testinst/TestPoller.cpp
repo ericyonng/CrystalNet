@@ -403,11 +403,12 @@ static void _OnPoller(KERNEL_NS::LibThread *t)
 static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
 {
     Int32 idx = param->AsInt32();
+    KERNEL_NS::Poller *poller = s_Poller.AsSelf();
     while (!t->IsDestroy())
     {
         auto ev = AcEvent::New_AcEvent();
         ++g_genNum;
-        s_Poller->Push(idx, ev);
+        poller->Push(idx, ev);
     }
 } 
 
@@ -429,7 +430,7 @@ static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
 void TestPoller::Run()
 {
     s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
-    s_Poller->SetMaxPriorityLevel(8);
+    s_Poller->SetMaxPriorityLevel(g_maxConcurrentLevel);
     s_Poller->SetEventHandler(KERNEL_NS::DelegateFactory::Create(&_OnPollerEvent));
 
     auto err = s_Poller->Init();
@@ -453,16 +454,16 @@ void TestPoller::Run()
     KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool, KERNEL_NS::AutoDelMethods::Release> pool = new KERNEL_NS::LibThreadPool;
     pool->Init(0, g_maxConcurrentLevel + 2);
 
-    for(Int32 idx=0; idx <g_maxConcurrentLevel; ++idx)
+    for(Int32 idx=1; idx <=g_maxConcurrentLevel; ++idx)
     {
         KERNEL_NS::Variant *var=KERNEL_NS::Variant::New_Variant();
         *var = idx;
-        pool->AddTask2(&_OnTask, var, true, 1);
+        pool->AddTask2(&_OnTask, var, false, 0);
     }
 
-    pool->AddTask2(&_OnMonitor, NULL, true, 1);
+    pool->AddTask2(&_OnMonitor, NULL, false, 0);
 
-    pool->Start();
+    pool->Start(true, g_maxConcurrentLevel + 1);
 
     getchar();
 

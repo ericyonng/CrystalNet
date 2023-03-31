@@ -245,7 +245,7 @@ void Poller::EventLoop()
         {
             if(UNLIKELY(_isQuitLoop))
                 break;
-                
+
             _eventGuard.Lock();
             _eventGuard.TimeWait(maxSleepMilliseconds);
             _eventGuard.Unlock();
@@ -254,11 +254,6 @@ void Poller::EventLoop()
         // 队列有消息就合并
         if(LIKELY(_eventAmountLeft != 0))
             _eventsList->MergeTailAllTo(priorityEvents);
-
-        deadline.Update() += _maxPieceTime;
-        #ifdef _DEBUG
-         performaceStart = deadline;
-        #endif
 
         // 处理事件
         Int64 idx = 0;
@@ -269,6 +264,11 @@ void Poller::EventLoop()
         #endif
 
         Int32 detectTimeoutLoopCount = _loopDetectTimeout;
+        deadline.Update() += _maxPieceTime;
+        #ifdef _DEBUG
+         performaceStart = deadline;
+        #endif
+
         for (;;)
         {
             idx = loopCount++ % priorityQueueSize;

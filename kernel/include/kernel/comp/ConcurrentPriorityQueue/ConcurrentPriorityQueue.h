@@ -64,6 +64,7 @@ public:
     void SwapAll(LibList<LibList<Elem, BuildType> *, BuildType> *&queuesOut);
     // queuesOut 外部必须要提前创建好,内部只采用交换,提高性能 且BuildType请保持与list一致
     void SwapAll(std::vector<LibList<Elem, BuildType> *> &queuesOut);
+    void SwapAllOutIfEmpty(std::vector<LibList<Elem, BuildType> *> &queuesOut);
     // queuesOut 外部必须要提前创建好,内部只采用交换,提高性能 且BuildType请保持与list一致
     UInt64 MergeTailAllTo(LibList<LibList<Elem, BuildType> *, BuildType> *&queuesOut);
     // queuesOut 外部必须要提前创建好,内部只采用交换,提高性能 且BuildType请保持与list一致
@@ -228,6 +229,29 @@ ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::SwapAll(s
         auto queue = _levelQueue[idx];
         _elemAmount -= queue->GetAmount();
         _elemAmount += queuesOut[idx]->GetAmount();
+        _levelQueue[idx] = queuesOut[idx];
+        queuesOut[idx] = queue;
+        _guards[idx]->Unlock();
+    }
+}
+
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::SwapAllOutIfEmpty(std::vector<LibList<Elem, BuildType> *> &queuesOut)
+{
+    if(UNLIKELY(static_cast<Int32>(queuesOut.size()) != _maxLevel + 1))
+    {
+        ASSERT(false);
+        return;
+    }
+
+    for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+    {
+        if(UNLIKELY(!queuesOut[idx]->IsEmpty()))
+            continue;
+
+        _guards[idx]->Lock();
+        auto queue = _levelQueue[idx];
+        _elemAmount -= queue->GetAmount();
         _levelQueue[idx] = queuesOut[idx];
         queuesOut[idx] = queue;
         _guards[idx]->Unlock();

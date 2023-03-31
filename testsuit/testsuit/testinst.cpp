@@ -197,7 +197,7 @@ void TestInst::Run(int argc, char const *argv[])
     // //TestRttiUtil::Run();
     // //TestContainerUtil::Run();
     // // TestSystemUtil::Run();
-    TestEncrypt::Run();
+    // TestEncrypt::Run();
     // TestFile::Run();
     // TestLog::Run();
     // TestStream::Run();
@@ -215,7 +215,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
-    // TestPoller::Run();
+    TestPoller::Run();
     // TestMemoryAssist::Run();
     // TestService::Run(argc, argv);
     // TestInlineStatic::Run();

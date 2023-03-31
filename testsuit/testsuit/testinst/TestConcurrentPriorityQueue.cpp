@@ -222,6 +222,37 @@ static void ComsumerTask2(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *va
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "GEN TASK finish."));
 }
 
+static void ComsumerTask3(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
+{
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "ComsumerTask"));
+
+    std::vector<KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT> *> cache;
+    for(Int32 idx = 0; idx <= g_maxConcurrentLevel; ++idx)
+        cache.push_back(KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT>::New_LibList());
+
+    while (!pool->IsDestroy())
+    {
+        g_concurrentQueue->SwapAllOutIfEmpty(cache);
+
+        for(auto list:cache)
+        {
+            if(!list || list->IsEmpty())
+                continue;
+
+            for(auto node = list->Begin(); node;)
+            {
+                auto data = node->_data;
+                ++g_consumNum;
+
+                CRYSTAL_DELETE(data);
+                node = list->Erase(node);
+            }
+        }
+    }
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "GEN TASK finish."));
+}
+
 static void MonitorTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
 {
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "MonitorTask"));
@@ -258,7 +289,9 @@ void TestConcurrentPriorityQueue::Run()
         pool->AddTask2(GenTask, var, false, 0);
     }
 
-    pool->AddTask2(ComsumerTask, NULL, false, 0);
+    // pool->AddTask2(ComsumerTask2, NULL, false, 0);
+    // pool->AddTask2(ComsumerTask, NULL, false, 0);
+    pool->AddTask2(ComsumerTask3, NULL, false, 0);
     pool->AddTask2(MonitorTask, NULL, false, 0);
 
     pool->Start(true, g_maxConcurrentLevel + 2);
