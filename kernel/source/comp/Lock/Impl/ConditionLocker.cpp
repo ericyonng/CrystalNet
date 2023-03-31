@@ -32,6 +32,7 @@
 #include <kernel/comp/Lock/Defs/MetaLocker.h>
 #include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Utils/TimeUtil.h>
 
 KERNEL_BEGIN
 
@@ -39,30 +40,16 @@ KERNEL_BEGIN
 // nsec是时刻中的纳秒部分，注意溢出
 static inline void FixAbsTime(UInt64 milliSecond, struct timespec &abstime)
 {
-    Int64 nanoSecInc = static_cast<Int64>(milliSecond * TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
-    clock_gettime(CLOCK_REALTIME, &abstime);
-    Int64 curNanoSecPart = static_cast<Int64>(abstime.tv_nsec + nanoSecInc); 
-
-    // 纳秒部分溢出1秒
-    abstime.tv_sec += curNanoSecPart / TimeDefs::NANO_SECOND_PER_SECOND;
-    curNanoSecPart %= TimeDefs::NANO_SECOND_PER_SECOND;
-    abstime.tv_nsec = static_cast<Int64>(curNanoSecPart);
+    const auto nanotimestamp = TimeUtil::GetFastNanoTimestamp() + static_cast<Int64>(milliSecond * TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
+    abstime.tv_sec = nanotimestamp / TimeDefs::NANO_SECOND_PER_SECOND;
+    abstime.tv_nsec = nanotimestamp % TimeDefs::NANO_SECOND_PER_SECOND;
 }
 
 static inline void FixAbsTime(UInt64 second, UInt64 microSec, struct timespec &abstime)
 {
-    // Int64 secInc = second + microSec / TimeDefs::MICRO_SECOND_PER_SECOND;
-    // Int64 nanoSecInc = microSec % TimeDefs::MICRO_SECOND_PER_SECOND * 1000;
-
-    Int64 nanoSecInc = microSec * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
-    ::clock_gettime(CLOCK_REALTIME, &abstime);
-    abstime.tv_sec += second;
-    Int64 curNanoSecPart = static_cast<Int64>(abstime.tv_nsec + nanoSecInc);
-
-    // 纳秒部分溢出1秒
-    abstime.tv_sec += curNanoSecPart / TimeDefs::NANO_SECOND_PER_SECOND;
-    curNanoSecPart %= TimeDefs::NANO_SECOND_PER_SECOND;
-    abstime.tv_nsec = static_cast<Int64>(curNanoSecPart);
+    const auto nanotimestamp = TimeUtil::GetFastNanoTimestamp() + static_cast<Int64>(microSec * TimeDefs::NANO_SECOND_PER_MICRO_SECOND) + static_cast<Int64>(second * TimeDefs::NANO_SECOND_PER_SECOND)
+    abstime.tv_sec += nanotimestamp / TimeDefs::NANO_SECOND_PER_SECOND;
+    abstime.tv_nsec = nanotimestamp % TimeDefs::NANO_SECOND_PER_SECOND;
 }
 #endif
 

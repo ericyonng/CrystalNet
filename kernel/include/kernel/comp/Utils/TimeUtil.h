@@ -81,6 +81,7 @@ public:
     // 基于rdtsc
     static void InitFastTime();
     static Int64 GetFastMicroTimestamp();
+    static Int64 GetFastNanoTimestamp();
     
 private:
     static Int64 _systemTimeBegin;      // 系统启动时间戳
@@ -238,6 +239,14 @@ ALWAYS_INLINE Int64 TimeUtil::GetFastMicroTimestamp()
     const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerMicroSecond);
     return _systemTimeBegin + cpuSlice;
 }
+
+ALWAYS_INLINE Int64 TimeUtil::GetFastNanoTimestamp()
+{
+    const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
+    const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerNanoSecond);
+    return _systemTimeBegin + cpuSlice;
+}
+
 
 KERNEL_END
 
