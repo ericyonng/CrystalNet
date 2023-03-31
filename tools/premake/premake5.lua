@@ -1030,8 +1030,6 @@ project "md5tool"
         "../../protocols/**.cpp",
         "../../service/common/**.h",
         "../../service/common/**.cpp",
-        "../../service/ConfigExporter/**.h",
-        "../../service/ConfigExporter/**.cpp",
         "../../service_common/**.h",
         "../../service_common/**.cpp",
         "../../md5tool/**.h",
