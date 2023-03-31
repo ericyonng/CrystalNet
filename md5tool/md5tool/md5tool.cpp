@@ -84,6 +84,9 @@ int main(int argc, char const *argv[])
         return true;
     });
 
+    if(count == 0)
+        return Status::Success;
+        
     if(isErr)
     {
         return Status::Failed;
