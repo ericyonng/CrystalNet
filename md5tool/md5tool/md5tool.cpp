@@ -45,23 +45,8 @@ public:
     }
 };
 
-int main(int argc, char const *argv[])
+static Int32 Run(int argc, char const *argv[])
 {
-    // 1.初始化内核
-    LogFactory logFactory;
-    KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
-    KERNEL_NS::LibString logIniPath;
-    logIniPath = programPath + "/ini/";
-    KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
-    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), s_logIniContent, s_consoleIniContent);
-    if(err != Status::Success)
-    {
-        CRYSTAL_TRACE("kernel init fail err:%d", err);
-        return Status::Failed;
-    }
-
-    KERNEL_NS::KernelUtil::Start();
-
     bool isErr = false;
     KERNEL_NS::LibString targetFile;
     bool isFirstParam = true;
@@ -111,6 +96,28 @@ int main(int argc, char const *argv[])
     KERNEL_NS::LibString hexStr;
     KERNEL_NS::StringUtil::ToHexString(md5Out, hexStr);
     std::cout << hexStr << std::endl;
+
+    return Status::Success;
+}
+
+int main(int argc, char const *argv[])
+{
+    // 1.初始化内核
+    LogFactory logFactory;
+    KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+    KERNEL_NS::LibString logIniPath;
+    logIniPath = programPath + "/ini/";
+    KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
+    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), s_logIniContent, s_consoleIniContent);
+    if(err != Status::Success)
+    {
+        CRYSTAL_TRACE("kernel init fail err:%d", err);
+        return Status::Failed;
+    }
+
+    KERNEL_NS::KernelUtil::Start();
+
+    err = Run(argc, argv);
 
     KERNEL_NS::KernelUtil::Destroy();
 
