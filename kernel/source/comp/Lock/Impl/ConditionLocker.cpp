@@ -48,7 +48,7 @@ static inline void FixAbsTime(UInt64 milliSecond, struct timespec &abstime)
 static inline void FixAbsTime(UInt64 second, UInt64 microSec, struct timespec &abstime)
 {
     const auto nanotimestamp = TimeUtil::GetFastNanoTimestamp() + static_cast<Int64>(microSec * TimeDefs::NANO_SECOND_PER_MICRO_SECOND) + static_cast<Int64>(second * TimeDefs::NANO_SECOND_PER_SECOND);
-    abstime.tv_sec += nanotimestamp / TimeDefs::NANO_SECOND_PER_SECOND;
+    abstime.tv_sec = nanotimestamp / TimeDefs::NANO_SECOND_PER_SECOND;
     abstime.tv_nsec = nanotimestamp % TimeDefs::NANO_SECOND_PER_SECOND;
 }
 #endif
