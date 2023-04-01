@@ -293,18 +293,25 @@ inline Int64 FileUtil::WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToW
 
     clearerr(&fp);
     Int64 idx = 0;
-    while(dataLenToWrite != 0)
+    while(dataLenToWrite > 0)
     {
-        if(LIKELY(fwrite(buffer + idx, 1, 1, &fp) == 1))
+        auto handleBytes = static_cast<Int64>(::fwrite(buffer + idx, dataLenToWrite, 1, &fp));
+        if(LIKELY(handleBytes == dataLenToWrite))
         {
-            --dataLenToWrite;
-            ++idx;
+            dataLenToWrite = 0;
+            break;
         }
         else
         {
-            break;
+            dataLenToWrite -= handleBytes;
+            idx += handleBytes;
         }
     }
+
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    if(UNLIKELY(dataLenToWrite < 0))
+        perror("fwrite error buffer:%p, dataLenToWrite:%lld", buffer, dataLenToWrite);
+    #endif
 
 //     if(dataLenToWrite != cnt)
 //         printf("write error!");

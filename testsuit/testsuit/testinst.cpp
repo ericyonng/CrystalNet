@@ -209,13 +209,13 @@ void TestInst::Run(int argc, char const *argv[])
     // TestBackTrace::Run();
     // //TestDaemon::Run();
     // TestEvent::Run();
-    TestConcurrentPriorityQueue::Run();
+    // TestConcurrentPriorityQueue::Run();
     // CRYSTAL_TRACE("test inst finish.");
     // TestBlackWhiteList::Run();
     // TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
-    // TestPoller::Run();
+    TestPoller::Run();
     // TestMemoryAssist::Run();
     // TestService::Run(argc, argv);
     // TestInlineStatic::Run();

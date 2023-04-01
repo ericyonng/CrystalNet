@@ -356,7 +356,7 @@ static KERNEL_NS::SmartPtr<KERNEL_NS::Poller, KERNEL_NS::AutoDelMethods::Release
 static std::atomic<Int64> g_genNum{0};
 static std::atomic<Int64> g_consumNum{0};
 
-static const Int32 g_maxConcurrentLevel = 1;
+static const Int32 g_maxConcurrentLevel = 4;
 
 static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
 {
