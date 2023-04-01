@@ -59,6 +59,18 @@ static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const KERNEL_NS::Li
     return count;
 }
 
+static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
+{
+    if(UNLIKELY(queue.empty()))
+        return 0;
+
+    UInt64 count = 0;
+    for(auto node : queue)
+        count += node->GetAmount();
+
+    return count;
+}
+
 static ALWAYS_INLINE void MergePriorityEvenetsQueue(std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &from,std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &to)
 {
     if(UNLIKELY(from.empty()))
@@ -337,6 +349,86 @@ void Poller::EventLoop()
     });
     LibList<LibList<PollerEvent *, _Build::MT> *>::Delete_LibList(priorityEvents);
     priorityEvents = NULL;
+
+    g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
+}
+
+void Poller::QuickEventLoop()
+{
+    std::vector<LibList<PollerEvent *, _Build::MT> *> priorityEvents;
+    const Int64 priorityQueueSize = static_cast<Int64>(_eventsList->GetMaxLevel() + 1);
+    for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
+        priorityEvents.push_back(LibList<PollerEvent *, _Build::MT>::New_LibList());
+
+    // 部分数据准备
+    LibString errLog;
+
+    g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
+
+    LibCpuCounter deadline;
+    LibCpuCounter nowCounter;
+
+    #ifdef _DEBUG
+     LibCpuCounter performaceStart;
+    #endif
+
+    const UInt64 pollerId = GetId();
+    const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
+
+    UInt64 mergeNumber = 0;
+    for(;;)
+    {
+        // 没有事件且没有脏处理则等待
+        if(_eventAmountLeft == 0)
+        {
+            if(UNLIKELY(_isQuitLoop))
+                break;
+
+            _eventGuard.Lock();
+            _eventGuard.TimeWait(maxSleepMilliseconds);
+            _eventGuard.Unlock();
+        }
+
+        // 队列有消息就合并
+        if(LIKELY(_eventAmountLeft != 0))
+            mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
+
+        // 处理事件
+        #ifdef _DEBUG
+         UInt64 curConsumeEventsCount = 0;
+        #endif
+
+        for (auto eventList :  priorityEvents)
+        {
+            for(auto dataNode = eventList->Begin(); dataNode; )
+            {
+                auto data = dataNode->_data;
+                // 事件处理
+                if(LIKELY(_eventHandler))
+                    _eventHandler->Invoke(data);
+                --_eventAmountLeft;
+                --mergeNumber;
+                data->Release();
+                dataNode = eventList->Erase(dataNode);
+                
+                #ifdef _DEBUG
+                 ++curConsumeEventsCount;
+                #endif
+            }
+        }
+    }
+
+    const auto leftElemCount = GetPriorityEvenetsQueueElemCount(priorityEvents);
+    if(leftElemCount != 0)
+        g_Log->Warn(LOGFMT_OBJ_TAG("has unhandled events left:%llu, poller info:%s"), leftElemCount, ToString().c_str());
+    
+    ContainerUtil::DelContainer(priorityEvents, [this](LibList<PollerEvent *, _Build::MT> *evList){
+        ContainerUtil::DelContainer(*evList, [this](PollerEvent *ev){
+            g_Log->Warn(LOGFMT_OBJ_TAG("event type:%d, not handled when poller will closed."), ev->_type);
+            ev->Release();
+        });
+        LibList<PollerEvent *, _Build::MT>::Delete_LibList(evList);
+    });
 
     g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
 }

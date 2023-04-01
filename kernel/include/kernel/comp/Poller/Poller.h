@@ -129,6 +129,7 @@ public:
     // 事件循环接口
     bool PrepareLoop();
     void EventLoop();
+    void QuickEventLoop();
     void OnLoopEnd();
     void WakeupEventLoop();
     void QuitLoop();
