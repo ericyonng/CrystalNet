@@ -232,7 +232,7 @@ ALWAYS_INLINE LibCpuCounter LibCpuCounter::Current()
 ALWAYS_INLINE LibCpuCounter &LibCpuCounter::Update()
 {
     #if CRYSTAL_TARGET_PLATFORM_LINUX
-        _count = KERNEL_NS::CrystalRdTsc();
+        _count = KERNEL_NS::CrystalNativeRdTsc();
     #endif
 
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
