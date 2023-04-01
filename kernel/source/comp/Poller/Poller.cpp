@@ -386,11 +386,13 @@ void Poller::QuickEventLoop()
             _eventGuard.Lock();
             _eventGuard.TimeWait(maxSleepMilliseconds);
             _eventGuard.Unlock();
-        }
 
-        // 队列有消息就合并
-        if(LIKELY(_eventAmountLeft != 0))
             mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
+        }
+        else
+        {
+            mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
+        }
 
         // 处理事件
         #ifdef _DEBUG

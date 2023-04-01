@@ -475,5 +475,7 @@ void TestPoller::Run()
     pool->FinishClose();
     pollerThread->FinishClose();
 
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test poller finished."));
+
     // 测试poller性能
 }

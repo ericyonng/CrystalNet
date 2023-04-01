@@ -272,7 +272,7 @@ ALWAYS_INLINE void Poller::Push(Int32 level, PollerEvent *ev)
     
     ++_eventAmountLeft;
     _eventsList->PushQueue(level, ev);
-    WakeupEventLoop();
+    // WakeupEventLoop();
 }
 
 ALWAYS_INLINE void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
@@ -292,7 +292,7 @@ ALWAYS_INLINE void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
     _eventAmountLeft += static_cast<Int64>(evList->GetAmount());
     _eventsList->PushQueue(level, evList);
     LibList<PollerEvent *>::Delete_LibList(evList);
-    WakeupEventLoop();
+    // WakeupEventLoop();
 }
 
 ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action)
@@ -308,7 +308,7 @@ ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<
     ev->_action = action;
     ++_eventAmountLeft;
     _eventsList->PushQueue(level, ev);
-    WakeupEventLoop();
+    // WakeupEventLoop();
 }
 
 template<typename LamvadaType>
