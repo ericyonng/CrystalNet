@@ -372,7 +372,6 @@ void Poller::QuickEventLoop()
      LibCpuCounter performaceStart;
     #endif
 
-    const UInt64 pollerId = GetId();
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
     UInt64 mergeNumber = 0;
