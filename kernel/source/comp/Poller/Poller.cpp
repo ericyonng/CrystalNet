@@ -375,29 +375,10 @@ void Poller::QuickEventLoop()
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
     UInt64 mergeNumber = 0;
-    for(;;)
+    for(;!_isQuitLoop;)
     {
-        // 没有事件且没有脏处理则等待
-        if(_eventAmountLeft == 0)
-        {
-            if(UNLIKELY(_isQuitLoop))
-                break;
 
-            _eventGuard.Lock();
-            _eventGuard.TimeWait(maxSleepMilliseconds);
-            _eventGuard.Unlock();
-
-            mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
-        }
-        else
-        {
-            mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
-        }
-
-        // 处理事件
-        #ifdef _DEBUG
-         UInt64 curConsumeEventsCount = 0;
-        #endif
+        mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
 
         for (auto eventList :  priorityEvents)
         {
@@ -411,10 +392,6 @@ void Poller::QuickEventLoop()
                 --mergeNumber;
                 data->Release();
                 dataNode = eventList->Erase(dataNode);
-                
-                #ifdef _DEBUG
-                 ++curConsumeEventsCount;
-                #endif
             }
         }
     }
