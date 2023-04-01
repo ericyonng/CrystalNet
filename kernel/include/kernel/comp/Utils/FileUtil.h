@@ -310,7 +310,7 @@ inline Int64 FileUtil::WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToW
 
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     if(UNLIKELY(dataLenToWrite < 0))
-        perror("fwrite error buffer:%p, dataLenToWrite:%lld", buffer, dataLenToWrite);
+        perror("fwrite error ");
     #endif
 
 //     if(dataLenToWrite != cnt)
