@@ -431,7 +431,7 @@ void TestPoller::Run()
 {
     s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
     s_Poller->SetMaxPriorityLevel(g_maxConcurrentLevel);
-    s_Poller->SetEventHandler(KERNEL_NS::DelegateFactory::Create(&_OnPollerEvent));
+    s_Poller->SetEventHandler(&_OnPollerEvent);
 
     auto err = s_Poller->Init();
     if(err != Status::Success)

@@ -53,6 +53,8 @@ class KERNEL_EXPORT Poller : public CompObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, Poller);
 
+    typedef void (*PollerHandler)(PollerEvent *);
+
 public:
     enum LoadRateDefault
     {
@@ -99,6 +101,8 @@ public:
     void SetEventHandler(IDelegate<void, PollerEvent *> *handler);
     template<typename ObjType>
     void SetEventHandler(ObjType *obj, void (ObjType::*handler)(PollerEvent *ev));
+
+    void SetEventHandler(void (*f)(PollerEvent *));
 
     // 设置poller事件循环休眠时最大等待时长
     void SetMaxSleepMilliseconds(UInt64 maxMilliseconds);
@@ -157,6 +161,7 @@ private:
   IDelegate<bool, Poller *> *_prepareEventWorkerHandler;    // 事件处理线程初始准备
   IDelegate<void, Poller *> *_onEventWorkerCloseHandler;    // 事件处理线程结束销毁
   IDelegate<void, PollerEvent *> *_eventHandler;            // 事件处理回调
+  PollerHandler _quickEventHandler;                         // 事件处理回调
   ConditionLocker _eventGuard;                              // 空闲挂起等待
   ConcurrentPriorityQueue<PollerEvent *> *_eventsList;      // 优先级事件队列
   std::atomic<Int64> _eventAmountLeft;
@@ -224,6 +229,11 @@ ALWAYS_INLINE void Poller::SetEventHandler(ObjType *obj, void (ObjType::*handler
 {
     auto delg = DelegateFactory::Create(obj, handler);
     SetEventHandler(delg);
+}
+
+ALWAYS_INLINE void Poller::SetEventHandler(void (*f)(PollerEvent *))
+{
+    _quickEventHandler = f;
 }
 
 ALWAYS_INLINE void Poller::SetMaxSleepMilliseconds(UInt64 maxMilliseconds)

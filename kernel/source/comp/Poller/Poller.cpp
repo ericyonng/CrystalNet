@@ -101,6 +101,7 @@ Poller::Poller()
 ,_prepareEventWorkerHandler(NULL)
 ,_onEventWorkerCloseHandler(NULL)
 ,_eventHandler(NULL)
+,_quickEventHandler(NULL)
 ,_eventsList(ConcurrentPriorityQueue<PollerEvent *>::New_ConcurrentPriorityQueue())
 ,_eventAmountLeft{0}
 {
@@ -385,8 +386,9 @@ void Poller::QuickEventLoop()
             {
                 auto data = dataNode->_data;
                 // 事件处理
-                if(LIKELY(_eventHandler))
-                    _eventHandler->Invoke(data);
+                if(LIKELY(_quickEventHandler))
+                    (*_quickEventHandler)(data);
+                    
                 --_eventAmountLeft;
                 data->Release();
                 dataNode = eventList->Erase(dataNode);
