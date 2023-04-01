@@ -292,31 +292,18 @@ inline Int64 FileUtil::WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToW
 //         return 0;
 
     clearerr(&fp);
-    Int64 idx = 0;
-    while(dataLenToWrite > 0)
+    auto handle = static_cast<Int64>(::fwrite(buffer, dataLenToWrite, 1, &fp));
+    if(LIKELY(handle != 1))
     {
-        auto handleBytes = static_cast<Int64>(::fwrite(buffer + idx, dataLenToWrite, 1, &fp));
-        if(LIKELY(handleBytes == dataLenToWrite))
-        {
-            dataLenToWrite = 0;
-            break;
-        }
-        else
-        {
-            dataLenToWrite -= handleBytes;
-            idx += handleBytes;
-        }
+        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+            perror("fwrite fail");
+        #endif
+        return 0;
     }
-
-    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    if(UNLIKELY(dataLenToWrite < 0))
-        perror("fwrite error ");
-    #endif
 
 //     if(dataLenToWrite != cnt)
 //         printf("write error!");
-
-    return idx;
+    return dataLenToWrite;
 }
 
 inline Int64 FileUtil::WriteFile(FILE &fp, const LibString &bitData)
