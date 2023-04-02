@@ -316,9 +316,9 @@ bool ConditionLocker::Sinal()
     {// 保证只有一个Sinal调用者进入 , sinal 为false说明,wait那边把sinal置为false,或者没有waiter
 
         // 有waiter情况下 _waitNum必定大于0
+        Lock();
         if(LIKELY(_waitNum > 0))
         {
-            Lock();
             int ret = pthread_cond_signal(&_ev);
             if(ret != 0)
             {
@@ -327,8 +327,8 @@ bool ConditionLocker::Sinal()
                 Unlock();
                 return false;
             }
-            Unlock();
         }
+        Unlock();
     }
 
     return _isSinal.load();
