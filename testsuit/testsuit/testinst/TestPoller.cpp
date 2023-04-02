@@ -460,7 +460,7 @@ void TestPoller::Run()
     g_concurrentQueue = KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *>::New_ConcurrentPriorityQueue();
     s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
     s_Poller->SetMaxPriorityLevel(g_maxConcurrentLevel);
-    s_Poller->SetEventHandler(&_OnPollerEvent);
+    s_Poller->SetEventHandler(KERNEL_NS::DelegateFactory::Create(&_OnPollerEvent));
     g_concurrentQueue->SetMaxLevel(g_maxConcurrentLevel);
     g_concurrentQueue->Init();
 
