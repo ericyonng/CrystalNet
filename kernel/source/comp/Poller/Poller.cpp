@@ -104,6 +104,7 @@ Poller::Poller()
 ,_quickEventHandler(NULL)
 ,_eventsList(ConcurrentPriorityQueue<PollerEvent *>::New_ConcurrentPriorityQueue())
 ,_eventAmountLeft{0}
+,_consumEventCount{0}
 {
     // auto defObj = TlsUtil::GetDefTls();
     // if(UNLIKELY(defObj->_poller))
@@ -386,10 +387,11 @@ void Poller::QuickEventLoop()
             {
                 auto data = dataNode->_data;
                 // 事件处理
-                if(LIKELY(_quickEventHandler))
-                    (*_quickEventHandler)(data);
-                    
+                // if(LIKELY(_quickEventHandler))
+                //     (*_quickEventHandler)(data);
+
                 --_eventAmountLeft;
+                ++_consumEventCount;
                 data->Release();
                 dataNode = eventList->Erase(dataNode);
             }

@@ -418,10 +418,9 @@ static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
         const Int64 genNum = g_genNum;
-        const Int64 comsumNum = g_consumNum;
+        const Int64 comsumNum = s_Poller->GetAndResetConsumCount();
         const Int64 backlogNum = s_Poller->GetEventAmount();
         g_genNum -= genNum;
-        g_consumNum -= comsumNum;
 
         g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
     }

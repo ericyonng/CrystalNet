@@ -82,6 +82,8 @@ public:
 
     // 消息队列数量
     Int64 GetEventAmount() const;
+    // 获得消费的数量
+    Int64 GetAndResetConsumCount();
 
     // 获取脏助手
    LibDirtyHelper<void *, UInt32> *GetDirtyHelper();
@@ -165,6 +167,7 @@ private:
   ConditionLocker _eventGuard;                              // 空闲挂起等待
   ConcurrentPriorityQueue<PollerEvent *> *_eventsList;      // 优先级事件队列
   std::atomic<Int64> _eventAmountLeft;
+  std::atomic<Int64> _consumEventCount;
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -181,6 +184,14 @@ ALWAYS_INLINE Int64 Poller::GetEventAmount() const
 {
     return _eventAmountLeft;
 }
+
+ALWAYS_INLINE Int64 Poller::GetAndResetConsumCount()
+{
+    const Int64 consumCount = _consumEventCount;
+    _consumEventCount -= consumCount;
+    return consumCount;
+}
+
 
 ALWAYS_INLINE LibDirtyHelper<void *, UInt32> *Poller::GetDirtyHelper()
 {
