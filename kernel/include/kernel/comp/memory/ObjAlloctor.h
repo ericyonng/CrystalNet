@@ -172,18 +172,22 @@ template<typename ObjType>
 template<typename... Args>
 ALWAYS_INLINE ObjType *ObjAlloctor<ObjType>::New(Args &&... args)
 {
-    _alloctor.Lock();
-    auto ptr = _alloctor.Alloc(_objSize);
-    _alloctor.Unlock();
-    return ::new(ptr)ObjType(std::forward<Args>(args)...);
+    // TODO:跨线程的因为性能问题暂时使用系统分配
+    return new ObjType(std::forward<Args>(args)...);
+    // _alloctor.Lock();
+    // auto ptr = _alloctor.Alloc(_objSize);
+    // _alloctor.Unlock();
+    // return ::new(ptr)ObjType(std::forward<Args>(args)...);
 }
 
 template<typename ObjType>
 ALWAYS_INLINE ObjType *ObjAlloctor<ObjType>::NewNoConstruct()
 {
-    _alloctor.Lock();
-    auto ptr = _alloctor.Alloc(_objSize);
-    _alloctor.Unlock();
+    // TODO:跨线程的因为性能问题暂时使用系统分配
+    auto ptr = ::malloc(_objSize);
+    // _alloctor.Lock();
+    // auto ptr = _alloctor.Alloc(_objSize);
+    // _alloctor.Unlock();
     return  reinterpret_cast<ObjType *>(ptr);
 }
 
@@ -197,32 +201,39 @@ ALWAYS_INLINE ObjType *ObjAlloctor<ObjType>::NewByPtr(void *ptr, Args&&... args)
 template<typename ObjType>
 ALWAYS_INLINE void ObjAlloctor<ObjType>::Delete(ObjType *ptr)
 {
-    auto memoryBlock = _alloctor.GetMemoryBlockBy(ptr);
-    
-    // 先析构后释放
-    if(LIKELY(memoryBlock->_ref == 1))
-    {
-        Destructor::Invoke(ptr);
-        // ptr->~ObjType();
-    }
+    // TODO:跨线程的因为性能问题暂时使用系统分配
+    Destructor::Invoke(ptr);
+    ::free(ptr);
 
-    _alloctor.Lock();
-    _alloctor.Free(ptr);
-    _alloctor.Unlock();
+    // auto memoryBlock = _alloctor.GetMemoryBlockBy(ptr);
+    
+    // // 先析构后释放
+    // if(LIKELY(memoryBlock->_ref == 1))
+    // {
+    //     Destructor::Invoke(ptr);
+    //     // ptr->~ObjType();
+    // }
+
+    // _alloctor.Lock();
+    // _alloctor.Free(ptr);
+    // _alloctor.Unlock();
 }
 
 template<typename ObjType>
 ALWAYS_INLINE void ObjAlloctor<ObjType>::DeleteNoDestructor(void *ptr)
 {
-    _alloctor.Lock();
-    _alloctor.Free(ptr);
-    _alloctor.Unlock();
+    // TODO:跨线程的因为性能问题暂时使用系统分配
+    ::free(ptr);
+
+    // _alloctor.Lock();
+    // _alloctor.Free(ptr);
+    // _alloctor.Unlock();
 }
 
 template<typename ObjType>
 ALWAYS_INLINE void ObjAlloctor<ObjType>::AddRef(void *ptr)
 {
-    _alloctor.AddRef(ptr);
+    // _alloctor.AddRef(ptr);
 }
 
 template<typename ObjType>

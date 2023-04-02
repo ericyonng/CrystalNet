@@ -173,97 +173,104 @@ void MemoryPool::Destroy()
 
 void *MemoryPool::Alloc(UInt64 bytes)
 {
+    // TODO:多线程性能关系暂时使用系统分配
+    return ::malloc(bytes);
    // 判断是否内存池可分配
-    if(LIKELY(bytes <= _maxAllockBlockBytes))
-    {
-        MemoryAlloctor *alloctor = _bytesPosRefAlloctors[bytes];
-        alloctor->Lock();
-        void *ptr = alloctor->Alloc(bytes);
-        alloctor->Unlock();
-        return ptr;
-    }
+    // if(LIKELY(bytes <= _maxAllockBlockBytes))
+    // {
+    //     MemoryAlloctor *alloctor = _bytesPosRefAlloctors[bytes];
+    //     alloctor->Lock();
+    //     void *ptr = alloctor->Alloc(bytes);
+    //     alloctor->Unlock();
+    //     return ptr;
+    // }
 
-    // 非内存池分配
-    const UInt64 alignBytes = __MEMORY_ALIGN__(bytes + _memoryBlockHeadSizeAfterAlign);
+    // // 非内存池分配
+    // const UInt64 alignBytes = __MEMORY_ALIGN__(bytes + _memoryBlockHeadSizeAfterAlign);
 
-    Byte8 *cache = reinterpret_cast<Byte8 *>(::malloc(alignBytes));
-    MemoryBlock *block = reinterpret_cast<MemoryBlock *>(cache);
+    // Byte8 *cache = reinterpret_cast<Byte8 *>(::malloc(alignBytes));
+    // MemoryBlock *block = reinterpret_cast<MemoryBlock *>(cache);
 
-    WRITE_MEMORY_BLOCK(block, 1, NULL, NULL, bytes, false);
+    // WRITE_MEMORY_BLOCK(block, 1, NULL, NULL, bytes, false);
 
-    return  cache + _memoryBlockHeadSizeAfterAlign;
+    // return  cache + _memoryBlockHeadSizeAfterAlign;
 }
 
 void *MemoryPool::Realloc(void *ptr, UInt64 bytes)
 {
-    if(UNLIKELY(ptr == NULL))
-        return Alloc(bytes);
+    // TODO:多线程性能关系暂时使用系统分配
+    return ::realloc(ptr, bytes);
+    // if(UNLIKELY(ptr == NULL))
+    //     return Alloc(bytes);
 
-    if(UNLIKELY(bytes == 0))
-    {
-        Free(ptr);
-        return NULL;
-    }
+    // if(UNLIKELY(bytes == 0))
+    // {
+    //     Free(ptr);
+    //     return NULL;
+    // }
 
-    // 1.判断是否在内存池中
-    MemoryBlock *block = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(ptr) - _memoryBlockHeadSizeAfterAlign);
-    if(LIKELY(block->_isInAlloctor))
-    {
-        // 分配新内存，并迁移数据
-        MemoryBuffer *buffer = block->_buffer;
-        MemoryAlloctor *alloctor = buffer->_alloctor;
+    // // 1.判断是否在内存池中
+    // MemoryBlock *block = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(ptr) - _memoryBlockHeadSizeAfterAlign);
+    // if(LIKELY(block->_isInAlloctor))
+    // {
+    //     // 分配新内存，并迁移数据
+    //     MemoryBuffer *buffer = block->_buffer;
+    //     MemoryAlloctor *alloctor = buffer->_alloctor;
 
-        // 剩余空间不够需要重新分配
-        if(LIKELY((buffer->_blockSize - _memoryBlockHeadSizeAfterAlign) < bytes))
-        {
-            auto newCache = Alloc(bytes);
+    //     // 剩余空间不够需要重新分配
+    //     if(LIKELY((buffer->_blockSize - _memoryBlockHeadSizeAfterAlign) < bytes))
+    //     {
+    //         auto newCache = Alloc(bytes);
 
-            // 三目运算符比if性能高
-            ::memcpy(newCache, ptr, block->_realUseBytes);
+    //         // 三目运算符比if性能高
+    //         ::memcpy(newCache, ptr, block->_realUseBytes);
 
-            alloctor->Lock();
-            alloctor->Free(ptr);
-            alloctor->Unlock();
-            return newCache;
-        }
+    //         alloctor->Lock();
+    //         alloctor->Free(ptr);
+    //         alloctor->Unlock();
+    //         return newCache;
+    //     }
 
-        // 原来空间够用就重新利用
-        block->_realUseBytes = bytes;
-        return ptr;
-    }
+    //     // 原来空间够用就重新利用
+    //     block->_realUseBytes = bytes;
+    //     return ptr;
+    // }
     
-    const UInt64 alignBytes = __MEMORY_ALIGN__(bytes + _memoryBlockHeadSizeAfterAlign);
+    // const UInt64 alignBytes = __MEMORY_ALIGN__(bytes + _memoryBlockHeadSizeAfterAlign);
 
-    auto oldBlock = block;
-    auto oldRef = block->_ref;
-    Byte8 *newCache = reinterpret_cast<Byte8 *>(::realloc(block, alignBytes));
-    block = reinterpret_cast<MemoryBlock *>(newCache);
-    WRITE_MEMORY_BLOCK(block, (oldBlock == block ? oldRef : 1), NULL, NULL, bytes, false);
+    // auto oldBlock = block;
+    // auto oldRef = block->_ref;
+    // Byte8 *newCache = reinterpret_cast<Byte8 *>(::realloc(block, alignBytes));
+    // block = reinterpret_cast<MemoryBlock *>(newCache);
+    // WRITE_MEMORY_BLOCK(block, (oldBlock == block ? oldRef : 1), NULL, NULL, bytes, false);
 
-    return  newCache + _memoryBlockHeadSizeAfterAlign;
+    // return  newCache + _memoryBlockHeadSizeAfterAlign;
 }
 
 void MemoryPool::AddRef(void *ptr)
 {
-    MemoryBlock *block = reinterpret_cast<MemoryBlock*>(reinterpret_cast<Byte8 *>(ptr) - _memoryBlockHeadSizeAfterAlign);
+    // TODO:多线程性能关系暂时使用系统分配
+    // MemoryBlock *block = reinterpret_cast<MemoryBlock*>(reinterpret_cast<Byte8 *>(ptr) - _memoryBlockHeadSizeAfterAlign);
 
-    ++block->_ref;
+    // ++block->_ref;
 }
 
 void MemoryPool::Free(void *ptr)
 {
-    MemoryBlock *block = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(ptr) - _memoryBlockHeadSizeAfterAlign);
-    if(LIKELY(block->_isInAlloctor))
-    {
-        auto alloctor = block->_buffer->_alloctor;
-        alloctor->Lock();
-        alloctor->Free(ptr);
-        alloctor->Unlock();
-    }
-    else if(--block->_ref == 0)
-    {
-        ::free(block);
-    }
+    // TODO:多线程性能关系暂时使用系统分配
+    ::free(ptr);
+    // MemoryBlock *block = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(ptr) - _memoryBlockHeadSizeAfterAlign);
+    // if(LIKELY(block->_isInAlloctor))
+    // {
+    //     auto alloctor = block->_buffer->_alloctor;
+    //     alloctor->Lock();
+    //     alloctor->Free(ptr);
+    //     alloctor->Unlock();
+    // }
+    // else if(--block->_ref == 0)
+    // {
+    //     ::free(block);
+    // }
 }
 
 void *MemoryPool::AllocThreadLocal(UInt64 bytes)

@@ -335,7 +335,6 @@ void Poller::EventLoop()
                                         "_maxPieceTimeInMicroseconds:%lld, threadId:%llu, use microseconds:%llu, curConsumeEventsCount:%llu")
                                         , pollerId, _maxPieceTime.GetTotalMicroseconds(), _workThreadId.load(), elapseTime.GetTotalMicroseconds(), curConsumeEventsCount);
         #endif
-
     }
 
     const auto leftElemCount = GetPriorityEvenetsQueueElemCount(*priorityEvents);

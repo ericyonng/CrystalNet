@@ -377,7 +377,7 @@ struct AcEvent : public KERNEL_NS::PollerEvent
 
     virtual void Release()
     {
-        delete this;
+        AcEvent::Delete_AcEvent(this);
     }
 
 };
@@ -430,7 +430,7 @@ static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
     KERNEL_NS::Poller *poller = s_Poller.AsSelf();
     while (!t->IsDestroy())
     {
-        auto ev = new AcEvent();
+        auto ev = AcEvent::New_AcEvent();
         ++g_genNum;
         poller->Push(idx, ev);
         // g_concurrentQueue->PushQueue(idx, &((new KERNEL_NS::LibString())->AppendFormat("hello idx:%d", idx)));
