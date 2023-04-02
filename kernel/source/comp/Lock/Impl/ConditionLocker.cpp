@@ -40,14 +40,16 @@ KERNEL_BEGIN
 // nsec是时刻中的纳秒部分，注意溢出
 static inline void FixAbsTime(UInt64 milliSecond, struct timespec &abstime)
 {
-    const auto nanotimestamp = TimeUtil::GetFastNanoTimestamp() + static_cast<Int64>(milliSecond * TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
+    ::clock_gettime(CLOCK_REALTIME, &abstime);
+    const auto nanotimestamp = static_cast<Int64>(abstime.tv_sec) *TimeDefs::NANO_SECOND_PER_SECOND + static_cast<Int64>(abstime.tv_nsec) + static_cast<Int64>(milliSecond) * TimeDefs::NANO_SECOND_PER_MILLI_SECOND;
     abstime.tv_sec = nanotimestamp / TimeDefs::NANO_SECOND_PER_SECOND;
     abstime.tv_nsec = nanotimestamp % TimeDefs::NANO_SECOND_PER_SECOND;
 }
 
 static inline void FixAbsTime(UInt64 second, UInt64 microSec, struct timespec &abstime)
 {
-    const auto nanotimestamp = TimeUtil::GetFastNanoTimestamp() + static_cast<Int64>(microSec * TimeDefs::NANO_SECOND_PER_MICRO_SECOND) + static_cast<Int64>(second * TimeDefs::NANO_SECOND_PER_SECOND);
+    ::clock_gettime(CLOCK_REALTIME, &abstime);
+    const auto nanotimestamp = static_cast<Int64>(abstime.tv_sec) *TimeDefs::NANO_SECOND_PER_SECOND + static_cast<Int64>(abstime.tv_nsec) + static_cast<Int64>(second) * TimeDefs::NANO_SECOND_PER_SECOND + static_cast<Int64>(microSec) * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
     abstime.tv_sec = nanotimestamp / TimeDefs::NANO_SECOND_PER_SECOND;
     abstime.tv_nsec = nanotimestamp % TimeDefs::NANO_SECOND_PER_SECOND;
 }
