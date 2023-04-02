@@ -24,6 +24,11 @@
  * Date: 2022-06-27 00:58:21
  * Author: Eric Yonng
  * Description: 
+ * 测试结果：
+ * 单个service可以承载25wqps, 2000人, 发包频率:100qps 每个人(service 配置:32核64G)
+ * 所以框架建议：
+ * Gateway需要多个service承载,若要达到1w连接, 需要5个线程
+ * GameServer 采用多进程模型, 每个点2000个人
 */
 
 #include <pch.h>
