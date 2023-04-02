@@ -351,6 +351,7 @@ static void HelloWorldEventWork(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *var
 // }
 
 static KERNEL_NS::SmartPtr<KERNEL_NS::Poller, KERNEL_NS::AutoDelMethods::Release> s_Poller;
+static KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *> *g_concurrentQueue = NULL;
 
 // 测试性能
 static std::atomic<Int64> g_genNum{0};
@@ -376,7 +377,7 @@ struct AcEvent : public KERNEL_NS::PollerEvent
 
     virtual void Release()
     {
-        AcEvent::Delete_AcEvent(this);
+        delete this;
     }
 
 };
@@ -389,15 +390,38 @@ static void _OnPoller(KERNEL_NS::LibThread *t)
     defObj->_poller = s_Poller;
     defObj->_pollerTimerMgr = s_Poller->GetTimerMgr();
 
-    if(!s_Poller->PrepareLoop())
+    std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> priorityEvents;
+    const Int64 priorityQueueSize = static_cast<Int64>(g_concurrentQueue->GetMaxLevel() + 1);
+    for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
+        priorityEvents.push_back(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList());
+
+    // if(!s_Poller->PrepareLoop())
+    // {
+    //     g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "prepare loop fail."));
+    //     return;
+    // }
+
+    // s_Poller->QuickEventLoop();
+    // s_Poller->OnLoopEnd();
+
+    while(!t->IsDestroy())
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "prepare loop fail."));
-        return;
+        g_concurrentQueue->MergeTailAllTo(priorityEvents);
+        for(auto list:priorityEvents)
+        {
+            if(!list || list->IsEmpty())
+                continue;
+
+            for(auto node = list->Begin(); node;)
+            {
+                auto data = node->_data;
+                ++g_consumNum;
+
+                data->Release();
+                node = list->Erase(node);
+            }
+        }
     }
-
-    s_Poller->QuickEventLoop();
-    s_Poller->OnLoopEnd();
-
 }
 
 static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
@@ -406,9 +430,12 @@ static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
     KERNEL_NS::Poller *poller = s_Poller.AsSelf();
     while (!t->IsDestroy())
     {
-        auto ev = AcEvent::New_AcEvent();
+        // auto ev = AcEvent::New_AcEvent();
+        // ++g_genNum;
+        // poller->Push(idx, ev);
+        // g_concurrentQueue->PushQueue(idx, &((new KERNEL_NS::LibString())->AppendFormat("hello idx:%d", idx)));
+        g_concurrentQueue->PushQueue(idx, new AcEvent());
         ++g_genNum;
-        poller->Push(idx, ev);
     }
 } 
 
@@ -418,9 +445,10 @@ static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
         const Int64 genNum = g_genNum;
-        const Int64 comsumNum = s_Poller->GetAndResetConsumCount();
-        const Int64 backlogNum = s_Poller->GetEventAmount();
+        const Int64 comsumNum = g_consumNum;
+        const Int64 backlogNum = static_cast<Int64>(g_concurrentQueue->GetAmount());
         g_genNum -= genNum;
+        g_consumNum -= comsumNum;
 
         g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
     }
@@ -428,9 +456,12 @@ static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
 
 void TestPoller::Run()
 {
+    g_concurrentQueue = KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *>::New_ConcurrentPriorityQueue();
     s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
     s_Poller->SetMaxPriorityLevel(g_maxConcurrentLevel);
     s_Poller->SetEventHandler(&_OnPollerEvent);
+    g_concurrentQueue->SetMaxLevel(g_maxConcurrentLevel);
+    g_concurrentQueue->Init();
 
     auto err = s_Poller->Init();
     if(err != Status::Success)
