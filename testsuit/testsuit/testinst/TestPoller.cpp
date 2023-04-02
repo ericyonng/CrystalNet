@@ -401,7 +401,7 @@ static void _OnPoller(KERNEL_NS::LibThread *t)
         return;
     }
 
-    s_Poller->QuickEventLoop();
+    s_Poller->EventLoop();
     s_Poller->OnLoopEnd();
 
     // while(!t->IsDestroy())
