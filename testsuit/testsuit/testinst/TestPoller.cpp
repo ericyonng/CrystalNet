@@ -506,6 +506,10 @@ void TestPoller::Run()
     pool->FinishClose();
     pollerThread->FinishClose();
 
+    s_Poller.Release();
+    g_concurrentQueue->Destroy();
+    KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *>::Delete_ConcurrentPriorityQueue(g_concurrentQueue);
+    
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test poller finished."));
 
     // 测试poller性能
