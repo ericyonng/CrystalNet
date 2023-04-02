@@ -235,6 +235,14 @@ ALWAYS_INLINE void TimeUtil::InitFastTime()
 
 ALWAYS_INLINE Int64 TimeUtil::GetFastMicroTimestamp()
 {
+// #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+//     const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
+//     const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerMicroSecond);
+//     return _systemTimeBegin + cpuSlice;
+// #else
+//     return GetMicroTimestamp();
+// #endif
+
     const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
     const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerMicroSecond);
     return _systemTimeBegin + cpuSlice;
@@ -242,6 +250,14 @@ ALWAYS_INLINE Int64 TimeUtil::GetFastMicroTimestamp()
 
 ALWAYS_INLINE Int64 TimeUtil::GetFastNanoTimestamp()
 {
+// #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+//     const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
+//     const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerNanoSecond);
+//     return _systemTimeBegin + cpuSlice;
+// #else
+//     return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+// #endif
+
     const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
     const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerNanoSecond);
     return _systemTimeBegin + cpuSlice;

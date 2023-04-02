@@ -325,8 +325,7 @@ void Poller::EventLoop()
         }
 
         // 处理定时器
-        if(UNLIKELY(_timerMgr->HasExpired()))
-            _timerMgr->Drive();
+        _timerMgr->Drive();
 
         // 当前帧性能信息记录
         #ifdef _DEBUG

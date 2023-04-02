@@ -24,6 +24,7 @@
  * Date: 2022-09-12 18:36:48
  * Author: Eric Yonng
  * Description: 
+ * linux下 生产者 4, 消费者1情况下测得poller qps:380w/s
 */
 #include <pch.h>
 #include <testsuit/testinst/TestPoller.h>
@@ -509,7 +510,7 @@ void TestPoller::Run()
     s_Poller.Release();
     g_concurrentQueue->Destroy();
     KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *>::Delete_ConcurrentPriorityQueue(g_concurrentQueue);
-    
+
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test poller finished."));
 
     // 测试poller性能
