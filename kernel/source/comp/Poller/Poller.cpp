@@ -387,8 +387,8 @@ void Poller::QuickEventLoop()
             {
                 auto data = dataNode->_data;
                 // 事件处理
-                // if(LIKELY(_quickEventHandler))
-                //     (*_quickEventHandler)(data);
+                if(LIKELY(_quickEventHandler))
+                    (*_quickEventHandler)(data);
 
                 --_eventAmountLeft;
                 ++_consumEventCount;

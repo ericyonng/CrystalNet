@@ -390,38 +390,38 @@ static void _OnPoller(KERNEL_NS::LibThread *t)
     defObj->_poller = s_Poller;
     defObj->_pollerTimerMgr = s_Poller->GetTimerMgr();
 
-    std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> priorityEvents;
-    const Int64 priorityQueueSize = static_cast<Int64>(g_concurrentQueue->GetMaxLevel() + 1);
-    for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
-        priorityEvents.push_back(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList());
+    // std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> priorityEvents;
+    // const Int64 priorityQueueSize = static_cast<Int64>(g_concurrentQueue->GetMaxLevel() + 1);
+    // for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
+    //     priorityEvents.push_back(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList());
 
-    // if(!s_Poller->PrepareLoop())
-    // {
-    //     g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "prepare loop fail."));
-    //     return;
-    // }
-
-    // s_Poller->QuickEventLoop();
-    // s_Poller->OnLoopEnd();
-
-    while(!t->IsDestroy())
+    if(!s_Poller->PrepareLoop())
     {
-        g_concurrentQueue->MergeTailAllTo(priorityEvents);
-        for(auto list:priorityEvents)
-        {
-            if(!list || list->IsEmpty())
-                continue;
-
-            for(auto node = list->Begin(); node;)
-            {
-                auto data = node->_data;
-                ++g_consumNum;
-
-                data->Release();
-                node = list->Erase(node);
-            }
-        }
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "prepare loop fail."));
+        return;
     }
+
+    s_Poller->QuickEventLoop();
+    s_Poller->OnLoopEnd();
+
+    // while(!t->IsDestroy())
+    // {
+    //     g_concurrentQueue->MergeTailAllTo(priorityEvents);
+    //     for(auto list:priorityEvents)
+    //     {
+    //         if(!list || list->IsEmpty())
+    //             continue;
+
+    //         for(auto node = list->Begin(); node;)
+    //         {
+    //             auto data = node->_data;
+    //             ++g_consumNum;
+
+    //             data->Release();
+    //             node = list->Erase(node);
+    //         }
+    //     }
+    // }
 }
 
 static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
@@ -430,23 +430,24 @@ static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
     KERNEL_NS::Poller *poller = s_Poller.AsSelf();
     while (!t->IsDestroy())
     {
-        // auto ev = AcEvent::New_AcEvent();
-        // ++g_genNum;
-        // poller->Push(idx, ev);
+        auto ev = new AcEvent();
+        ++g_genNum;
+        poller->Push(idx, ev);
         // g_concurrentQueue->PushQueue(idx, &((new KERNEL_NS::LibString())->AppendFormat("hello idx:%d", idx)));
-        g_concurrentQueue->PushQueue(idx, new AcEvent());
+        // g_concurrentQueue->PushQueue(idx, new AcEvent());
         ++g_genNum;
     }
 } 
 
 static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
 {
+    KERNEL_NS::Poller *poller = s_Poller.AsSelf();
     while (!t->IsDestroy())
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
         const Int64 genNum = g_genNum;
         const Int64 comsumNum = g_consumNum;
-        const Int64 backlogNum = static_cast<Int64>(g_concurrentQueue->GetAmount());
+        const Int64 backlogNum = static_cast<Int64>(poller->GetEventAmount());
         g_genNum -= genNum;
         g_consumNum -= comsumNum;
 
