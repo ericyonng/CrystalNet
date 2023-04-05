@@ -316,6 +316,10 @@ public:
     LibString DragBefore(const LibString &start) const;
     LibString DragRange(const LibString &startStr, const LibString &endStr) const;
 
+    LibString lsub(const LibString &flagStr) const;
+    LibString rsub(const LibString &flagStr) const;
+    LibString sub(const LibString &leftStr, const LibString &rightStr) const;
+
     // isalpha/isupper/islower 是否字母
     static bool isalpha(const char &c);
     static bool isalpha(const LibString &s);
@@ -342,6 +346,8 @@ public:
     // tolower/toupper operations. 请确保是英文字符串 isalpha
     LibString tolower() const;
     LibString toupper() const;
+    LibString FirstCharToUpper() const;
+    LibString FirstCharToLower() const;
 
     // escape support: escape string
     _ThisType &escape(const _ThisType &willbeEscapeChars, const _Elem &escapeChar);
@@ -1454,6 +1460,29 @@ ALWAYS_INLINE LibString LibString::DragRange(const LibString &startStr, const Li
     return cache.DragBefore(endStr);
 }
 
+ALWAYS_INLINE LibString LibString::lsub(const LibString &flagStr) const
+{
+    auto pos = _raw.find_first_of(flagStr.GetRaw(), 0);
+    if(pos == std::string::npos)
+        return LibString();
+
+    return _raw.substr(pos + flagStr.size());
+}
+
+ALWAYS_INLINE LibString LibString::rsub(const LibString &flagStr) const
+{
+    auto pos = _raw.rfind(flagStr.GetRaw());
+    if(pos == std::string::npos)
+        return LibString();
+
+    return _raw.substr(0, pos);
+}
+
+ALWAYS_INLINE LibString LibString::sub(const LibString &leftStr, const LibString &rightStr) const
+{
+    return lsub(leftStr).rsub(rightStr);
+}
+
 ALWAYS_INLINE bool LibString::isalpha(const LibString &s)
 {
     if(s.empty())
@@ -1639,6 +1668,40 @@ ALWAYS_INLINE LibString LibString::toupper() const
             upperRaw[i] = buf[i];
 
     return upper;
+}
+
+ALWAYS_INLINE LibString LibString::FirstCharToUpper() const
+{
+    const _Elem *buf = this->data();
+    const size_type size = this->size();
+    if(size == 0)
+        return *this;
+
+    _ThisType upper;
+    std::string &upperRaw = upper._raw;
+    upper = *this;
+
+    if(buf[0] >= 0x41 && buf[0] <= 0x7a)
+        upperRaw[0] = buf[0] - 0x20;
+
+    return upper;
+}
+
+ALWAYS_INLINE LibString LibString::FirstCharToLower() const
+{
+    const _Elem *buf = this->data();
+    const size_type size = this->size();
+    if(size == 0)
+        return *this;
+
+    _ThisType upper;
+    std::string &upperRaw = upper._raw;
+    upper = *this;
+
+    if(buf[0] >= 0x61 && buf[0] <= 0x5A)
+        upperRaw[0] = buf[0] + 0x20;
+
+    return upper;   
 }
 
 // escape support: escape string

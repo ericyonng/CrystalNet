@@ -35,6 +35,8 @@
     #include <kernel/kernel.h>
     #include <service_common/config/config.h>
     
+    SERVICE_BEGIN
+
     class ExampleConfig
     {
     	POOL_CREATE_OBJ_DEFAULT(ExampleConfig);
@@ -99,6 +101,8 @@
         	return ExampleConfigMgr::NewByAdapter_ExampleConfigMgr(_buildType.V);
         }
     };
+    
+    SERVICE_END
     
     #endif
     

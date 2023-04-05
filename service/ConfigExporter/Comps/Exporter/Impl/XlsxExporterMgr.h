@@ -72,6 +72,8 @@ protected:
     // 导出配置代码
     bool _DoExportConfigs() const;
     bool _ExportCppCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
+    bool _ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const;
+    bool _ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const;
     bool _ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
 
     // 导出配置数据

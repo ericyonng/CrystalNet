@@ -95,6 +95,7 @@ public:
 	static UInt64 CalcUtf8CharBytes(U8 ctrlChar);
 
 	static void MergerMultiLine(const std::vector<LibString> &lines, LibString &target);
+	static void SepMultiLine(const LibString &multiLine, std::vector<LibString> &lines);
 
 	// 校验标准名字:英文, 数字, 下划线, 且首字母非数字, name 长度为0也是非法
 	static bool CheckGeneralName(const LibString &name);
@@ -1059,6 +1060,11 @@ ALWAYS_INLINE void StringUtil::MergerMultiLine(const std::vector<LibString> &lin
 		if(idx != (maxLine - 1))
 			target.AppendFormat("\n");
 	}
+}
+
+ALWAYS_INLINE void StringUtil::SepMultiLine(const LibString &multiLine, std::vector<LibString> &lines)
+{
+	lines = multiLine.Split("\n");
 }
 
 ALWAYS_INLINE bool StringUtil::CheckGeneralName(const LibString &name)

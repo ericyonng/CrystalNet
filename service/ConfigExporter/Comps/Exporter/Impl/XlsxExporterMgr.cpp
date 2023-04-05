@@ -30,6 +30,7 @@
 #include <service/ConfigExporter/Comps/Exporter/Impl/XlsxExporterMgr.h>
 #include <service/ConfigExporter/Comps/Exporter/Impl/XlsxExporterMgrFactory.h>
 #include <service/ConfigExporter/Comps/Exporter/Impl/XlsxConfigInfo.h>
+#include <service/ConfigExporter/Comps/Exporter/Impl/DataTypeHelper.h>
 
 SERVICE_BEGIN
 
@@ -1092,7 +1093,251 @@ bool XlsxExporterMgr::_DoExportConfigs() const
 
 bool XlsxExporterMgr::_ExportCppCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
 {
+    for(auto iter : configTypeRefConfigTableInfo)
+    {
+        if(!_ExportCppCode(iter.second))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("export cpp:%s fail."), iter.second->_tableClassName.c_str());
+            return false;
+        }
+    }
+
     return true;
+}
+
+bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const
+{
+    // 变量定义
+    const auto className = configInfo->_tableClassName + "Config";
+    const auto mgrClassName = className + "Mgr";
+    const auto mgrFactoryClassName = mgrClassName + "Factory";
+    std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> fieldNameRefDataType;
+
+    // 生成文件头注释
+    {
+        fileContent.AppendFormat("// Generate by %s, Dont modify it!!!\n", GetApp()->GetAppName().c_str());
+
+        // 文件路径
+        const auto multiLinePaths = configInfo->_xlsxPath.Split("\n");
+        for(auto &path : multiLinePaths)
+            fileContent.AppendFormat("// file path:%s\n", path.c_str());
+
+        // 页签名
+        const auto multiLineSheet = configInfo->_wholeSheetName.Split("\n");
+        for(auto &sheet : multiLineSheet)
+            fileContent.AppendFormat("// sheet name:%s\n", sheet.c_str());
+    }
+
+    // 文件宏
+    KERNEL_NS::LibString macroStr;
+    macroStr.AppendFormat("__CONFIG_%s_CONFIG_H__", configInfo->_tableClassName.toupper().c_str());
+
+    {
+
+        fileContent.AppendFormat("#ifndef %s\n", macroStr.c_str());
+        fileContent.AppendFormat("#define %s\n", macroStr.c_str());
+
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("#pragma once\n");
+        fileContent.AppendFormat("\n");
+
+        fileContent.AppendFormat("#include <kernel/kernel.h>\n");
+        fileContent.AppendFormat("#include <service_common/config/config.h>\n");
+        fileContent.AppendFormat("\n");
+
+        fileContent.AppendFormat("SERVICE_BEGIN\n");
+    }
+
+    {// 配置类
+        fileContent.AppendFormat("class %s\n", className.c_str());
+        fileContent.AppendFormat("{\n");
+        
+        fileContent.AppendFormat("    POOL_CREATE_OBJ_DEFAULT(%s);\n", className.c_str());
+        fileContent.AppendFormat("\n");
+
+        // 构造析构
+        fileContent.AppendFormat("public:\n");
+        fileContent.AppendFormat("    %s();\n", className.c_str());
+        fileContent.AppendFormat("    ~%s();\n", className.c_str());
+        fileContent.AppendFormat("\n");
+
+        // 序列化反序列化接口
+        fileContent.AppendFormat("    bool Parse(const KERNEL_NS::LibString &lineData);\n");
+        fileContent.AppendFormat("    void Serialize(KERNEL_NS::LibString &lineData) const;\n");
+        fileContent.AppendFormat("\n");
+
+        // 成员变量
+        fileContent.AppendFormat("public:\n");
+
+        // 解析成员变量元素
+        for(auto fieldInfo :  configInfo->_fieldInfos)
+        {
+            if(fieldInfo == NULL)
+                continue;
+
+            KERNEL_NS::LibString dataType;
+            KERNEL_NS::LibString errInfo;
+            if(!DataTypeHelper::Parse(fieldInfo->_dataType, dataType, errInfo))
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("parse data type fail config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s errInfo:%s")
+                        ,  configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                        , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str(), errInfo.c_str());
+
+                return false;
+            }
+
+            fieldNameRefDataType.insert(std::make_pair(fieldInfo->_fieldName, dataType));
+
+            if(!fieldInfo->_desc.empty())
+            {
+                fileContent.AppendFormat("%s _%s;    // %s\n", dataType.c_str(), fieldInfo->_fieldName.c_str(), fieldInfo->_desc.c_str());
+            }
+            else
+            {
+                fileContent.AppendFormat("%s _%s;\n", dataType.c_str(), fieldInfo->_fieldName.c_str(), fieldInfo->_desc.c_str());
+            }
+        }
+
+        fileContent.AppendFormat("\n");
+
+        fileContent.AppendFormat("};\n");
+    }
+    
+    {// 配置管理类
+        fileContent.AppendFormat("\n");
+
+
+        fileContent.AppendFormat("class %s : public SERVICE_COMMON_NS::IConfigMgr\n", mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    POOL_CREATE_OBJ_DEFAULT_P1(IConfigMgr, %s)\n", mgrClassName.c_str());
+        fileContent.AppendFormat("    (%s)\n", mgrClassName.c_str());
+        fileContent.AppendFormat("    ~(%s)\n", mgrClassName.c_str());
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    virtual void Clear() override;\n");
+        fileContent.AppendFormat("    virtual KERNEL_NS::LibString ToString() const override;\n");
+        fileContent.AppendFormat("    virtual Int32 Load() override;\n");
+        fileContent.AppendFormat("    virtual Int32 Reload() override;\n");
+        fileContent.AppendFormat("    virtual const std::vector<KERNEL_NS::LibString> &GetAllConfigFiles() const override;\n");
+        fileContent.AppendFormat("    virtual const KERNEL_NS::LibString & GetConfigDataMd5() const override;\n");
+        fileContent.AppendFormat("    const std::vector<%s *> &GetAllConfigs() const;\n", className.c_str());
+
+
+        {// 索引方法
+            for(auto fieldInfo : configInfo->_fieldInfos)
+            {
+                if(!fieldInfo)
+                {
+                    continue;
+                }
+
+                if(!fieldInfo->_flags.empty())
+                {
+                    auto flags = fieldInfo->_flags.Split("|");
+                    for(auto flag : flags)
+                    {
+                        flag.strip();
+                        flag = flag.tolower();
+                        const auto &fieldName = fieldInfo->_fieldName.FirstCharToUpper();
+                        auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
+                        if(flag == "unique")
+                        {// 唯一索引
+                            fileContent.AppendFormat("    const %s * GetConfigBy%s(const %s &key) const;\n"
+                                        , className.c_str(), fieldName.c_str(), iterDataType->second.c_str());
+                        }
+                        else if(flag == "index")
+                        {// 普通索引
+                            fileContent.AppendFormat("    const std::vector<%s *> &GetConfigsBy%s(const %s &key) const;\n"
+                                        , className.c_str(), fieldName.c_str(), iterDataType->second.c_str());
+                        }
+                    }
+                }
+            }
+        }
+
+        fileContent.AppendFormat("private:\n");
+        fileContent.AppendFormat("    virtual void _OnClose() override;\n");
+        fileContent.AppendFormat("    void _Clear();\n");
+
+        {// 数据成员
+            fileContent.AppendFormat("private:\n");
+            fileContent.AppendFormat("    std::vector<%s *> _configs;\n", className.c_str());
+            fileContent.AppendFormat("    std::vector<KERNEL_NS::LibString> _configFiles;\n");
+            fileContent.AppendFormat("    KERNEL_NS::LibString _dataFile;\n");
+            fileContent.AppendFormat("    KERNEL_NS::LibString _dataMd5;\n");
+
+            // 索引字典
+            for(auto fieldInfo : configInfo->_fieldInfos)
+            {
+                if(!fieldInfo)
+                {
+                    continue;
+                }
+
+                if(!fieldInfo->_flags.empty())
+                {
+                    auto flags = fieldInfo->_flags.Split("|");
+                    for(auto flag : flags)
+                    {
+                        flag.strip();
+                        flag = flag.tolower();
+                        const auto &fieldName = fieldInfo->_fieldName.FirstCharToLower();
+                        auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
+                        if(flag == "unique")
+                        {// 唯一索引
+                            fileContent.AppendFormat("    std::unordered_map<%s, %s *> _%sRefConfig;\n"
+                                        , iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+                        }
+                        else if(flag == "index")
+                        {// 普通索引
+                            fileContent.AppendFormat("    std::unordered_map<%s, std::vector<%s *>> _%sRefConfigs;\n"
+                                        , iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+                        }
+                    }
+                }
+            }
+        }
+
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("};\n");
+        fileContent.AppendFormat("\n");
+    }
+
+    {// 配置管理类工厂
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("class %s : public KERNEL_NS::CompFactory\n", mgrFactoryClassName.c_str());
+        fileContent.AppendFormat("public:\n");
+        fileContent.AppendFormat("    static constexpr _Build::MT _buildType{};\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    static KERNEL_NS::CompFactory *FactoryCreate()\n");
+        fileContent.AppendFormat("    {\n");
+        fileContent.AppendFormat("        return KERNEL_NS::ObjPoolWrap<%s>::NewByAdapter(_buildType.V);\n", mgrFactoryClassName.c_str());
+        fileContent.AppendFormat("    }\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    virtual void Release()\n");
+        fileContent.AppendFormat("    {\n");
+        fileContent.AppendFormat("        KERNEL_NS::ObjPoolWrap<%s>::DeleteByAdapter(_buildType.V, this);\n", mgrFactoryClassName.c_str());
+        fileContent.AppendFormat("    }\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    virtual CompObject *Create() const\n");
+        fileContent.AppendFormat("    {\n");
+        fileContent.AppendFormat("        return %s::NewByAdapter_%s(_buildType.V);\n", mgrClassName.c_str(), mgrClassName.c_str());
+        fileContent.AppendFormat("    }\n");
+        fileContent.AppendFormat("};\n");
+        fileContent.AppendFormat("\n");
+    }
+
+    {// 文件宏末尾
+        fileContent.AppendFormat("SERVICE_END\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("#endif // %s\n", macroStr.c_str());
+    }
+
+    return true;
+}
+
+bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const
+{
+
 }
 
 bool XlsxExporterMgr::_ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
@@ -1102,6 +1347,11 @@ bool XlsxExporterMgr::_ExportCSharpCode(const std::map<KERNEL_NS::LibString, Xls
 
 bool XlsxExporterMgr::_ExportCppDatas(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
 {
+    
+    // 每一行数据都是文本数据
+    // 每个单元格的数据前缀：column_id_datalen:xxx|
+    // column_前缀，列id，数据长度:数据|column_前缀,....
+    // column_1_10:1010105555|column_2_10:aaaaaaaaaa|...
     return true;
 }
 
