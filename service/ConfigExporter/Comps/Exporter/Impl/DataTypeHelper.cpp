@@ -372,5 +372,15 @@ bool DataTypeHelper::IsSimpleType(const KERNEL_NS::LibString &typeStr)
     return false;
 }
 
+bool DataTypeHelper::IsArray(const KERNEL_NS::LibString &typeStr)
+{
+    return typeStr.GetRaw().substr(0, 5) == "array";
+}
+
+bool DataTypeHelper::IsDict(const KERNEL_NS::LibString &typeStr)
+{
+    return typeStr.GetRaw().substr(0, 5) == "dict";
+}
+
 
 SERVICE_END

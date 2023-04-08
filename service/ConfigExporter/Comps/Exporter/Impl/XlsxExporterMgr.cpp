@@ -961,6 +961,51 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                     }
                 }
             }
+
+            // 字典/数组默认值遵守json格式
+            for(auto fieldInfo : configTableInfo->_fieldInfos)
+            {
+                if(!fieldInfo)
+                    continue;
+
+                if(DataTypeHelper::IsArray(fieldInfo->_dataType))
+                {
+                    if(!fieldInfo->_defaultValue.empty())
+                    {
+                        fieldInfo->_defaultValue = "[]";
+                        continue;
+                    }
+
+                    const auto jsonArray = nlohmann::json::parse(fieldInfo->_defaultValue.c_str(), NULL, false);
+                    if(!jsonArray.is_array())
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("bad default value, default value must be json array, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s")
+                                        , fieldInfo->_fieldName.c_str(), fieldInfo->_columnId, fieldInfo->_defaultValue.c_str(),  sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                if(DataTypeHelper::IsDict(fieldInfo->_dataType))
+                {
+                    if(!fieldInfo->_defaultValue.empty())
+                    {
+                        fieldInfo->_defaultValue = "{}";
+                        continue;
+                    }
+
+                    const auto jsonObject = nlohmann::json::parse(fieldInfo->_defaultValue.c_str(), NULL, false);
+                    if(!jsonObject.is_object())
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("bad default value, default value must be json object, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s")
+                                        , fieldInfo->_fieldName.c_str(), fieldInfo->_columnId, fieldInfo->_defaultValue.c_str(),  sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                        return false;
+                    }
+
+                    continue;
+                }
+            }
             
             // 解析表数据
             bool isMultiDisableLine = false;

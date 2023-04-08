@@ -358,7 +358,7 @@ static KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *> *g_concurren
 static std::atomic<Int64> g_genNum{0};
 static std::atomic<Int64> g_consumNum{0};
 
-static const Int32 g_maxConcurrentLevel = 4;
+static const Int32 g_maxConcurrentLevel = 1;
 
 static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
 {
@@ -452,7 +452,7 @@ static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
         g_genNum -= genNum;
         g_consumNum -= comsumNum;
 
-        g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
+        g_Log->Monitor("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
     }
 }
 

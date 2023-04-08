@@ -4,6 +4,7 @@
 
   * cpp 数据文档结构
 
+    * 第一行是列的顺序串，需要对其进行校验避免解析数据时候串了
     * 每一行数据都是文本数据
   
     * 每个单元格的数据前缀：column_id_datalen:xxx|
@@ -122,13 +123,91 @@
     
     bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     {
-    
+      // 数据使用json序列化的文本
+    	// column_前缀，列id，数据长度:数据|column_前缀,....
+    	// column_1_10:1010105555|column_2_10:aaaaaaaaaa|...
+      Int32 startFindPos = 0;
+    	do
+    	{
+    		auto pos = lineData.GetRaw().find_first_of("column_", startFindPos);
+    		if(pos == std::string::npos)
+    			break;
+    			
+    		auto headerTailPos = lineData.GetRaw().find_first_of(":");
+    		if(headerTailPos == std::string::npos)
+    		{
+    			g_Log->Error(LOGFMT_OBJ_TAG("bad line data not find : symbol after column_ line data:%s"), lineData.c_str());
+    			return false;
+    		}
+    		
+    		// 解析数据
+    		const KERNEL_NS::LibString headerInfo = lineData.GetRaw().sub(pos, headerTailPos - pos);
+    		const auto headParts = headerInfo.Split('_');
+    		if(headParts.empty())
+    		{
+    			g_Log->Error(LOGFMT_OBJ_TAG("bad line data not find sep symbol:_ in header info line data:%s, pos:%d, headerTailPos:%d"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos));
+    			return false;
+    		}
+    		
+    		if(headParts.size() != 3)
+    		{
+    			g_Log->Error(LOGFMT_OBJ_TAG("bad line data header parts amount error line data:%s, pos:%d, headerTailPos:%d"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos));
+    			return false;
+    		}
+
+        // 数据长度
+        const auto &lenInfo = headParts[2];
+        if(lenInfo.length() == 0)
+        {
+    			g_Log->Error(LOGFMT_OBJ_TAG("bad line data header len info line data:%s, pos:%d, headerTailPos:%d"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos));
+          return false;
+        }
+
+        const Int32 dataLen = KERNEL_NS::StringUtil::StringToInt32(lenInfo.c_str());
+        const auto dataEndPos = headerTailPos + static_cast<decltype(headerTailPos)>(dataLen) - 1;
+        KERNEL_NS::LibString dataPart = lineData.GetRaw().sub(headerTailPos + 1, dataEndPos - headerTailPos);
+
+        // 解析数据 通过column_id找到fieldInfo然后解析出_{fieldName} = 
+        KERNEL_NS::LibString errInfo;
+        if(!DataTypeHelper::Assign(_{xxx}, dataPart, errInfo)
+        {
+    			g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:%s, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), xxx, dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          return false;
+        }
+        
+        
+
+    			
+    	}while(true);
     }
     
     void ExampleConfig::Serialize(KERNEL_NS::LibString &lineData) const
     {
     
     }
+    
+    POOL_CREATE_OBJ_DEFAULT_IMPL(ExampleConfigMgr);
+    
+    ExampleConfigMgr::ExampleConfigMgr()
+    {
+    
+    }
+    
+    ExampleConfigMgr::~ExampleConfigMgr()
+    {
+    	_Clear();
+    }
+    
+    void ExampleConfigMgr::Clear()
+    {
+    	_Clear();
+    }
+    
+    KERNEL_NS::LibString ExampleConfigMgr::ToString() const
+    {
+    	return GetObjName();
+    }
+    
     ```
     
   * 
