@@ -1140,7 +1140,7 @@ bool XlsxExporterMgr::_ExportCppCode(const std::map<KERNEL_NS::LibString, XlsxCo
 {
     for(auto iter : configTypeRefConfigTableInfo)
     {
-        if(!_ExportCppCode(iter.second))
+        if(!_ExportCppCodeHeader(iter.second))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("export cpp:%s fail."), iter.second->_tableClassName.c_str());
             return false;
