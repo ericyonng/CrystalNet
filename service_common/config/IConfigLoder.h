@@ -51,6 +51,8 @@ public:
     virtual Int32 Load();
     // reload只支持不改变页签名或新增页签，只变更数据
     virtual Int32 Reload(std::vector<const IConfigMgr *> &changes);
+    template<typename ConfigMgrType>
+    Int32 ReloadConfigMgr(bool &isChanged);
 
     // virtual void OnRegisterComps() = 0;
     // virtual void Release() = 0;
@@ -58,14 +60,46 @@ public:
    template<typename ConfigMgrType>
    const ConfigMgrType *GetConfigMgr() const;
 
+    void SetBasePath(const KERNEL_NS::LibString &basePath);
+    const KERNEL_NS::LibString &GetBasePath() const;
+
 protected:
     virtual Int32 _OnHostInit() { return Status::Success; }
     virtual Int32 _OnHostStart() override { return Status::Success; }
     virtual void _OnHostClose() {}
+
+   template<typename ConfigMgrType>
+   ConfigMgrType *_GetConfigMgr();
+   Int32 _ReloadConfigMgr(IConfigMgr *configMgr, bool &isChanged);
+
+private:
+    KERNEL_NS::LibString _basePath;
 };
 
 template<typename ConfigMgrType>
 ALWAYS_INLINE const ConfigMgrType *IConfigLoader::GetConfigMgr() const
+{
+    return GetComp<ConfigMgrType>();
+}
+
+ALWAYS_INLINE void IConfigLoader::SetBasePath(const KERNEL_NS::LibString &basePath)
+{
+    _basePath = basePath;
+}
+
+const KERNEL_NS::LibString &IConfigLoader::GetBasePath() const
+{
+    return _basePath;
+}
+
+template<typename ConfigMgrType>
+ALWAYS_INLINE Int32 IConfigLoader::ReloadConfigMgr(bool &isChanged)
+{
+    return _ReloadConfigMgr(_GetConfigMgr<ConfigMgrType>(), isChanged);
+}
+
+template<typename ConfigMgrType>
+ALWAYS_INLINE ConfigMgrType *IConfigLoader::_GetConfigMgr()
 {
     return GetComp<ConfigMgrType>();
 }

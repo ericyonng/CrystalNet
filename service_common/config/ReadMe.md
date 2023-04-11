@@ -78,7 +78,6 @@
     	std::vector<ExampleConfig *> _configs;
     	std::vector<KERNEL_NS::LibString> _configFiles;
     
-    	KERNEL_NS::LibString _dataFile;		// 数据
     	KERNEL_NS::LibString _dataMd5;		// 数据的md5 加载的时候计算md5
     };
     
@@ -194,14 +193,23 @@
     
     void ExampleConfig::Serialize(KERNEL_NS::LibString &lineData) const
     {
-    
+       {// Id
+        KERNEL_NS::LibString data;
+        DataTypeHelper::ToString(_Id, data);
+        lineData.AppendFormat("column_%d_%d:%s|", 1, static_cast<Int32>(data.size()), data.c_str());
+       }
+
+       {// Type
+        KERNEL_NS::LibString data;
+        DataTypeHelper::ToString(_Type, data);
+        lineData.AppendFormat("column_%d_%d:%s|", 2, static_cast<Int32>(data.size()), data.c_str());
+       }
     }
     
     POOL_CREATE_OBJ_DEFAULT_IMPL(ExampleConfigMgr);
     
     ExampleConfigMgr::ExampleConfigMgr()
     {
-    
     }
     
     ExampleConfigMgr::~ExampleConfigMgr()
@@ -219,6 +227,78 @@
     	return GetObjName();
     }
     
+    Int32 ExampleConfigMgr::Load()
+    {
+      const auto basePath = GetLoader()->GetBasePath();
+      const auto wholePath = basePath + "/" + "xxx/xxx.data";
+      KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(wholePath.c_str(), false, "rb");
+      if(!fp)
+      {
+        g_Log->Error(LOGFMT_OBJ_TAG("data file not found wholePath:%s"), wholePath.c_str());
+        return Status::Fail;
+      }
+
+      fp.SetClosureDelegate([](void *p){
+        auto fpPtr = reinterpret_cast<FILE *>(p);
+        KERNEL_NS::FileUtil::CloseFile(*fpPtr);
+      });
+
+      Int32 line = 0;
+      while(true)
+      {
+        KERNEL_NS::LibString lineData;
+        auto readBytes = KERNEL_NS::FileUtil::ReadUtf8OneLine(*fp, lineData);
+        if(readBytes == 0)
+          break;
+
+          ++line;
+          KERNEL_NS::SmartPtr<ExampleConfig, KERNEL_NS::AutoDelMethods::CustomDelete> config = ExampleConfig::New_ExampleConfig();
+          config.SetClosureDelegate([](void *p){
+            auto ptr = reinterpret_cast<ExampleConfig *>(p);
+            ExampleConfig::Delete_ExampleConfig(ptr);
+          });
+
+          if(!config->Parse(lineData))
+          {
+            g_Log->Warn(LOGFMT_OBJ_TAG("parse ExampleConfig fail data path:%s line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
+            return Status::Fail;
+          }
+
+          auto newConfig = config.AsSelf();
+
+          {
+            auto iter = _idRefConfig.find(config->_Id);
+            if(iter != _idRefConfig.end())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("parse ExampleConfig fail duplicate key of Id data path:%s line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
+                return Status::Fail;
+            }
+            _idRefConfig.insert(std::make_pair(config->_Id, newConfig));
+          }
+
+          _configs.push_back(config.pop());
+      }
+    }
+
+    Int32 ExampleConfigMgr::Reload()
+    {
+      // 发生错误支持回退
+    }
+
+    const std::vector<KERNEL_NS::LibString> &ExampleConfigMgr::GetAllConfigFiles() const
+    {
+
+    }
+    
+    const KERNEL_NS::LibString &ExampleConfigMgr::GetConfigDataMd5() const
+    {
+
+    }
+    	
+    const std::vector<ExampleConfig *> &ExampleConfigMgr::GetAllConfigs() const
+    {
+
+    }
     ```
     
   * 

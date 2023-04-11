@@ -36,6 +36,8 @@
 
 SERVICE_COMMON_BEGIN
 
+class IConfigLoader;
+
 class IConfigMgr : public KERNEL_NS::CompObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IConfigMgr);
@@ -52,10 +54,17 @@ public:
     virtual const std::vector<KERNEL_NS::LibString> &GetAllConfigFiles() const = 0;
     virtual const KERNEL_NS::LibString &GetConfigDataMd5() const = 0;
 
+    const IConfigLoader *GetLoader() const;
+
 protected:
     // virtual void _OnClose() override;
     // void _Clear();
 };
+
+ALWAYS_INLINE const IConfigLoader *IConfigMgr::GetLoader() const
+{
+    return GetOwner()->CastTo<IConfigLoader>();
+}
 
 SERVICE_COMMON_END
 

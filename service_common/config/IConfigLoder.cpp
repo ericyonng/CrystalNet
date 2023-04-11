@@ -77,16 +77,16 @@ Int32 IConfigLoader::Reload(std::vector<const IConfigMgr *> &changes)
     for(auto &comp : allComps)
     {
         auto configMgr = comp->CastTo<IConfigMgr>();
-        const auto oldMd5s = configMgr->GetConfigDataMd5();
-        auto err = configMgr->Reload();
+        bool isChanged = false;
+        const auto configString = configMgr->ToString();
+        auto err = ReloadConfigMgr(configMgr, isChanged);
         if(err != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("config mgr:%s reload fail err:%d"), configMgr->ToString().c_str(), err);
+            g_Log->Error(LOGFMT_OBJ_TAG("reload fail configMgr:%s, err:%d"), configString.c_str(), err);
             return err;
         }
 
-        const auto newMd5s = configMgr->GetConfigDataMd5();
-        if(oldMd5s != newMd5s)
+        if(isChanged)
             changes.push_back(configMgr);
     }
 
@@ -94,6 +94,25 @@ Int32 IConfigLoader::Reload(std::vector<const IConfigMgr *> &changes)
                 , static_cast<UInt64>(GetAllComps().size()), static_cast<UInt64>(changes.size()));
     return Status::Success;
 }
+
+Int32 IConfigLoader::_ReloadConfigMgr(IConfigMgr *configMgr, bool &isChanged)
+{
+    isChanged = false;
+    const auto oldMd5s = configMgr->GetConfigDataMd5();
+    auto err = configMgr->Reload();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("config mgr:%s reload fail err:%d"), configMgr->ToString().c_str(), err);
+        return err;
+    }
+
+    const auto newMd5s = configMgr->GetConfigDataMd5();
+    if(oldMd5s != newMd5s)
+        isChanged = true;
+
+    return Status::Success;
+}
+
 
 
 SERVICE_COMMON_END

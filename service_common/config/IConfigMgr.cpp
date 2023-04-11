@@ -35,7 +35,6 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IConfigMgr);
 
 IConfigMgr::IConfigMgr()
 {
-
 }
 
 IConfigMgr::~IConfigMgr()

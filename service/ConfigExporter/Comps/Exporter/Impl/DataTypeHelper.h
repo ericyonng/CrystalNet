@@ -60,20 +60,20 @@ public:
     static bool Assign(std::unordered_map<DictKey, DictValue> &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo);
 
     // 序列化
-    static void ToString(bool &field, KERNEL_NS::LibString &dataInfo);
-    static void ToString(Byte8 &field, KERNEL_NS::LibString &dataInfo);
-    static void ToString(U8 &field, KERNEL_NS::LibString &dataInfo);
-    static void ToString(Int16 &field, KERNEL_NS::LibString &dataInfo);
-    static void ToString(UInt16 &field, KERNEL_NS::LibString &dataInfo);
-    static void ToString(Int32 &field, KERNEL_NS::LibString &dataInfo);
-    static void ToString(UInt32 &field, KERNEL_NS::LibString &dataInfo);
-    static void ToString(Int64 &field, KERNEL_NS::LibString &dataInfo);
-    static void ToString(UInt64 &field, KERNEL_NS::LibString &dataInfo);
-    static void ToString(KERNEL_NS::LibString &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const bool &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const Byte8 &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const U8 &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const Int16 &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const UInt16 &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const Int32 &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const UInt32 &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const Int64 &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const UInt64 &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const KERNEL_NS::LibString &field, KERNEL_NS::LibString &dataInfo);
     template<typename ArrayElemType>
-    static void ToString(std::vector<ArrayElemType> &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const std::vector<ArrayElemType> &field, KERNEL_NS::LibString &dataInfo);
     template<typename DictKey, typename DictValue>
-    static void ToString(std::unordered_map<DictKey, DictValue> &field, KERNEL_NS::LibString &dataInfo);
+    static void ToString(const std::unordered_map<DictKey, DictValue> &field, KERNEL_NS::LibString &dataInfo);
 };
 
 ALWAYS_INLINE bool DataTypeHelper::Assign(bool &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
@@ -274,68 +274,107 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue>
     return true;
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(bool &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const bool &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field;
-    dataInfo = result.dump();
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(Byte8 &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const Byte8 &field, KERNEL_NS::LibString &dataInfo)
 {
-
+    nlohmann::json result;
+    result = field;
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(U8 &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const U8 &field, KERNEL_NS::LibString &dataInfo)
 {
-
+    nlohmann::json result;
+    result = field;
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(Int16 &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const Int16 &field, KERNEL_NS::LibString &dataInfo)
 {
-
+    nlohmann::json result;
+    result = field;
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(UInt16 &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const UInt16 &field, KERNEL_NS::LibString &dataInfo)
 {
-
+    nlohmann::json result;
+    result = field;
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(Int32 &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const Int32 &field, KERNEL_NS::LibString &dataInfo)
 {
-
+    nlohmann::json result;
+    result = field;
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(UInt32 &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const UInt32 &field, KERNEL_NS::LibString &dataInfo)
 {
-
+    nlohmann::json result;
+    result = field;
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(Int64 &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const Int64 &field, KERNEL_NS::LibString &dataInfo)
 {
-
+    nlohmann::json result;
+    result = field;
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(UInt64 &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const UInt64 &field, KERNEL_NS::LibString &dataInfo)
 {
-
+    nlohmann::json result;
+    result = field;
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
-ALWAYS_INLINE void DataTypeHelper::ToString(KERNEL_NS::LibString &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const KERNEL_NS::LibString &field, KERNEL_NS::LibString &dataInfo)
 {
-
+    nlohmann::json result;
+    result = field.GetRaw();
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
 template<typename ArrayElemType>
-ALWAYS_INLINE void DataTypeHelper::ToString(std::vector<ArrayElemType> &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const std::vector<ArrayElemType> &field, KERNEL_NS::LibString &dataInfo)
 {
+    auto result = nlohmann::json::array();
+    for(auto &item : field)
+    {
+        KERNEL_NS::LibString itemResult;
+        DataTypeHelper::ToString(item, itemResult);
+        result.push_back(itemResult.GetRaw());
+    }
 
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
 template<typename DictKey, typename DictValue>
-ALWAYS_INLINE void DataTypeHelper::ToString(std::unordered_map<DictKey, DictValue> &field, KERNEL_NS::LibString &dataInfo)
+ALWAYS_INLINE void DataTypeHelper::ToString(const std::unordered_map<DictKey, DictValue> &field, KERNEL_NS::LibString &dataInfo)
 {
+    auto result = nlohmann::json::object();
+    for(auto iter : field)
+    {
+        auto &key = iter.first;
+        auto &value = iter.second;
+
+        KERNEL_NS::LibString keyString;
+        DataTypeHelper::ToString(key, keyString);
+        KERNEL_NS::LibString valueString;
+        DataTypeHelper::ToString(value, valueString);
+        result[keyString.GetRaw()] = valueString.GetRaw();
+    }
     
+    dataInfo.AppendFormat("%s", result.dump().c_str());
 }
 
 SERVICE_END
