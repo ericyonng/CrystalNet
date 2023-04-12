@@ -244,6 +244,13 @@
       });
 
       Int32 line = 0;
+      MD5_CTX ctx;
+      if(!KERNEL_NS::LibDigest::MakeMd5Init(ctx))
+      {
+        g_Log->Error(LOGFMT_OBJ_TAG("make md5 init fail wholePath:%s"), wholePath.c_str());
+        return Status::Fail;
+      }
+
       while(true)
       {
         KERNEL_NS::LibString lineData;
@@ -252,6 +259,26 @@
           break;
 
           ++line;
+
+          if(!KERNEL_NS::LibDigest::MakeMd5Continue(ctx, lineData.data(), static_cast<UInt64>(lineData.size())))
+          {
+              g_Log->Error(LOGFMT_OBJ_TAG("MakeMd5Continue fail wholePath:%s, line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
+              KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+            return Status::Fail;
+          }
+
+          if(line == 1)
+          {// 第一行是校验列字段名
+            const KERNEL_NS::LibString columns = KERNEL_NS::LibString("Id") + "|" + "Type";
+            if(columns != lineData)
+            {
+              g_Log->Error(LOGFMT_OBJ_TAG("current data not match this config data wholePath:%s, current data columns:%s, this config columns:%s"), wholePath.c_str(), lineData.c_str(), columns.c_str());
+              return Status::Fail;
+            }
+
+            continue;
+          }
+
           KERNEL_NS::SmartPtr<ExampleConfig, KERNEL_NS::AutoDelMethods::CustomDelete> config = ExampleConfig::New_ExampleConfig();
           config.SetClosureDelegate([](void *p){
             auto ptr = reinterpret_cast<ExampleConfig *>(p);
@@ -278,6 +305,18 @@
 
           _configs.push_back(config.pop());
       }
+
+      _dataMd5.clear();
+      if(!KERNEL_NS::LibDigest::MakeMd5Final(ctx, _dataMd5))
+      {
+          g_Log->Error(LOGFMT_OBJ_TAG("MakeMd5Final fail wholePath:%s"), wholePath.c_str());
+          KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+        return Status::Fail;
+      }
+      
+      KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+      return Status::Success;
+
     }
 
     Int32 ExampleConfigMgr::Reload()
