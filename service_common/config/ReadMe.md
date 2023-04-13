@@ -77,6 +77,8 @@
     private:
     	std::vector<ExampleConfig *> _configs;
     	std::vector<KERNEL_NS::LibString> _configFiles;
+
+      std::unordered_map<Int32, ExampleConfig *> _idRefConfig;
     
     	KERNEL_NS::LibString _dataMd5;		// 数据的md5 加载的时候计算md5
     };
@@ -229,6 +231,15 @@
     
     Int32 ExampleConfigMgr::Load()
     {
+      KERNEL_NS::SmartPtr<std::vector<ExampleConfig *>, KERNEL_NS::AutoDelMethods::CustomDelete> configs = new std::vector<ExampleConfig *>;
+      configs.SetClosureDelegate([](void *p){
+        std::vector<ExampleConfig *> *ptr = reinterpret_cast<std::vector<ExampleConfig *> *>(p);
+        KERNEL_NS::ContainerUtil::DelContainer(*ptr, [](ExampleConfig *ptr){
+            ExampleConfig::Delete_ExampleConfig(ptr);
+        });
+        delete ptr;
+      });
+
       const auto basePath = GetLoader()->GetBasePath();
       const auto wholePath = basePath + "/" + "xxx/xxx.data";
       KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(wholePath.c_str(), false, "rb");
@@ -251,6 +262,7 @@
         return Status::Fail;
       }
 
+      std::set<Int32> ids;
       while(true)
       {
         KERNEL_NS::LibString lineData;
@@ -291,30 +303,35 @@
             return Status::Fail;
           }
 
-          auto newConfig = config.AsSelf();
-
+          // unique唯一性校验
+          if(ids.find(config->_Id) != ids.end())
           {
-            auto iter = _idRefConfig.find(config->_Id);
-            if(iter != _idRefConfig.end())
-            {
-                g_Log->Warn(LOGFMT_OBJ_TAG("parse ExampleConfig fail duplicate key of Id data path:%s line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
-                return Status::Fail;
-            }
-            _idRefConfig.insert(std::make_pair(config->_Id, newConfig));
+            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate id:%d data path:%s line:%d, lineData:%s"), config->_Id, wholePath.c_str(), line, lineData.c_str());
+            return Status::Fail;
           }
+          ids.insert(config->_Id);
 
-          _configs.push_back(config.pop());
+          auto newConfig = config.AsSelf();
+          configs->push_back(config.pop());
       }
 
-      _dataMd5.clear();
-      if(!KERNEL_NS::LibDigest::MakeMd5Final(ctx, _dataMd5))
+      KERNEL_NS::LibString dataMd5;
+      if(!KERNEL_NS::LibDigest::MakeMd5Final(ctx, dataMd5))
       {
           g_Log->Error(LOGFMT_OBJ_TAG("MakeMd5Final fail wholePath:%s"), wholePath.c_str());
           KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
         return Status::Fail;
       }
-      
       KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+
+      _dataMd5 = dataMd5;
+      _configs.swap(*config.AsSelf());
+      _idRefConfig.clear();
+      for(auto config : _configs)
+      {
+        _idRefConfig.insert(std::make_pair(config->_Id, config));
+      }
+      
       return Status::Success;
 
     }
