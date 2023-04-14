@@ -109,8 +109,8 @@ inline GarbageThread::~GarbageThread()
 template<typename ObjType>
 inline void GarbageThread::RegisterPurge(ObjType *gc, void(ObjType::*callback)(void))
 {
-    _toRegisterLck.Lock();
     auto deleg = DelegateFactory::Create(gc, callback);
+    _toRegisterLck.Lock();
     _toRegisterPurgeCallback->insert(std::make_pair(gc, deleg));
     _toRegisterLck.Unlock();
 }

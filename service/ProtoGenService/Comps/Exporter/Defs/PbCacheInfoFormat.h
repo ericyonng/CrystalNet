@@ -101,7 +101,7 @@ struct PbCacheFileContent
     }
 
     bool LoadPbCache(const KERNEL_NS::LibString &pbcacheFile, Int32 &maxOpcode);
-    bool _LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibString &lineData, bool &isContinue, Int32 &maxOpcode);
+    bool _LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibString &lineData, bool &isContinue, Int32 &maxOpcode, std::set<Int32> &opcodeFilter);
     bool _LoadProtoFileInfo(Int32 currentLine, KERNEL_NS::LibString &lineData, bool &isContinue);
     bool UpdatePbCache(const KERNEL_NS::LibString &pbcacheFile);
 

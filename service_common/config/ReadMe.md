@@ -61,14 +61,15 @@
     	ExampleConfigMgr();
     	~ExampleConfigMgr();
     	
+      virtual void Release();
     	virtual void Clear() override;
     	virtual KERNEL_NS::LibString ToString() const override;
     	virtual Int32 Load() override;
     	virtual Int32 Reload() override;
-    	virtual const std::vector<KERNEL_NS::LibString> &GetAllConfigFiles() const override;
         virtual const KERNEL_NS::LibString & GetConfigDataMd5() const override;
     	
     	const std::vector<ExampleConfig *> &GetAllConfigs() const;
+      const ExampleConfig *GetConfigById(Int32 key) const;
     	
     private:
     	virtual void _OnClose() override;
@@ -76,7 +77,6 @@
   	
     private:
     	std::vector<ExampleConfig *> _configs;
-    	std::vector<KERNEL_NS::LibString> _configFiles;
 
       std::unordered_map<Int32, ExampleConfig *> _idRefConfig;
     
@@ -218,6 +218,11 @@
     {
     	_Clear();
     }
+
+    void ExampleConfigMgr::Release()
+    {
+      ExampleConfigMgr::Delete_ExampleConfigMgr(this);
+    }
     
     void ExampleConfigMgr::Clear()
     {
@@ -339,22 +344,33 @@
     Int32 ExampleConfigMgr::Reload()
     {
       // 发生错误支持回退
+      return Load();
     }
 
-    const std::vector<KERNEL_NS::LibString> &ExampleConfigMgr::GetAllConfigFiles() const
-    {
-
-    }
-    
     const KERNEL_NS::LibString &ExampleConfigMgr::GetConfigDataMd5() const
     {
-
+      return _dataMd5;
     }
     	
     const std::vector<ExampleConfig *> &ExampleConfigMgr::GetAllConfigs() const
     {
-
+        return _configs;
     }
+
+    void ExampleConfigMgr::_OnClose()
+    {
+      _Clear();
+    }
+    
+    void ExampleConfigMgr::_Clear()
+    {
+      _dataMd5.clear();
+      _idRefConfig.clear();
+      KERNEL_NS::ContainerUtil::DelContainer(_configs, [](ExampleConfig *ptr){
+          ExampleConfig::Delete_ExampleConfig(ptr);
+      });
+    }
+
     ```
     
   * 

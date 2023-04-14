@@ -169,6 +169,7 @@ bool PbCacheFileContent::LoadPbCache(const KERNEL_NS::LibString &pbcacheFile, In
     Int32 currentLine = 0;
     auto &lineContentDict = _lineRefContent;
     bool isSuc = true;
+    std::set<Int32> opcodeFilter;
     while(!KERNEL_NS::FileUtil::IsEnd(*fp))
     {
         KERNEL_NS::LibString lineData;
@@ -182,7 +183,7 @@ bool PbCacheFileContent::LoadPbCache(const KERNEL_NS::LibString &pbcacheFile, In
         // message 信息
         if(lineData.IsStartsWith(ProtobufMessageParam::MessageStartFlag) && lineData.IsEndsWith(ProtobufMessageParam::MessageEndFlag))
         {// message 信息
-            if(!_LoadMessageInfo(currentLine, lineData, isContinue, maxOpcode))
+            if(!_LoadMessageInfo(currentLine, lineData, isContinue, maxOpcode, opcodeFilter))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("load message info fail"));
                 isSuc = false;
@@ -218,7 +219,7 @@ bool PbCacheFileContent::UpdatePbCache(const KERNEL_NS::LibString &pbcacheFile)
     return KERNEL_NS::FileUtil::ReplaceFile(pbcacheFile, _lineRefContent);
 }
 
-bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibString &lineData, bool &isContinue, Int32 &maxOpcode)
+bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibString &lineData, bool &isContinue, Int32 &maxOpcode, std::set<Int32> &opcodeFilter)
 {
     auto &protoPathRefMessageNameCacheInfo = _protoPathRefMessageNameCacheInfo;
     const auto &messageContent = lineData.DragRange(ProtobufMessageParam::MessageStartFlag, ProtobufMessageParam::MessageEndFlag);
@@ -293,6 +294,13 @@ bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibStrin
     if(!pbCache->CheckValid())
     {
         g_Log->Error(LOGFMT_OBJ_TAG("invalid pb cache line data:%s"), lineData.c_str());
+        PbCaheInfo::Delete_PbCaheInfo(pbCache);
+        return false;
+    }
+
+    if(opcodeFilter.find(pbCache->_opcode) != opcodeFilter.end())
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("duplicate opcode:%d in pb cache pb cache line:%d, line data:%s"), pbCache->_opcode, pbCache->_line, lineData.c_str());
         PbCaheInfo::Delete_PbCaheInfo(pbCache);
         return false;
     }
