@@ -1140,21 +1140,11 @@ bool XlsxExporterMgr::_ExportCppCode(const std::map<KERNEL_NS::LibString, XlsxCo
 {
     for(auto iter : configTypeRefConfigTableInfo)
     {
-        KERNEL_NS::LibString headerContent;
-        if(!_ExportCppCodeHeader(iter.second, headerContent))
+        if(!_ExportCppCodeHeader(iter.second))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("export cpp header fail class name:%s."), iter.second->_tableClassName.c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("export cpp:%s fail."), iter.second->_tableClassName.c_str());
             return false;
         }
-
-        KERNEL_NS::LibString cppImplicationContent;
-        if(!_ExportCppCodeImpl(iter.second, cppImplicationContent))
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("export cpp implication fail class name:%s."), iter.second->_tableClassName.c_str());
-            return false;
-        }
-
-        // 
     }
 
     return true;
@@ -1268,11 +1258,11 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("    (%s)\n", mgrClassName.c_str());
         fileContent.AppendFormat("    ~(%s)\n", mgrClassName.c_str());
         fileContent.AppendFormat("\n");
-        fileContent.AppendFormat("    virtual void Release() override;\n");
         fileContent.AppendFormat("    virtual void Clear() override;\n");
         fileContent.AppendFormat("    virtual KERNEL_NS::LibString ToString() const override;\n");
         fileContent.AppendFormat("    virtual Int32 Load() override;\n");
         fileContent.AppendFormat("    virtual Int32 Reload() override;\n");
+        fileContent.AppendFormat("    virtual const std::vector<KERNEL_NS::LibString> &GetAllConfigFiles() const override;\n");
         fileContent.AppendFormat("    virtual const KERNEL_NS::LibString & GetConfigDataMd5() const override;\n");
         fileContent.AppendFormat("    const std::vector<%s *> &GetAllConfigs() const;\n", className.c_str());
 
@@ -1316,6 +1306,8 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         {// 数据成员
             fileContent.AppendFormat("private:\n");
             fileContent.AppendFormat("    std::vector<%s *> _configs;\n", className.c_str());
+            fileContent.AppendFormat("    std::vector<KERNEL_NS::LibString> _configFiles;\n");
+            fileContent.AppendFormat("    KERNEL_NS::LibString _dataFile;\n");
             fileContent.AppendFormat("    KERNEL_NS::LibString _dataMd5;\n");
 
             // 索引字典
