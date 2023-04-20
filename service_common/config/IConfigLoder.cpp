@@ -79,7 +79,7 @@ Int32 IConfigLoader::Reload(std::vector<const IConfigMgr *> &changes)
         auto configMgr = comp->CastTo<IConfigMgr>();
         bool isChanged = false;
         const auto configString = configMgr->ToString();
-        auto err = ReloadConfigMgr(configMgr, isChanged);
+        auto err = _ReloadConfigMgr(configMgr, isChanged);
         if(err != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("reload fail configMgr:%s, err:%d"), configString.c_str(), err);

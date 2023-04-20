@@ -56,9 +56,9 @@ void ServiceProxy::Release()
     ServiceProxy::DeleteByAdapter_ServiceProxy(ServiceProxyFactory::_buildType.V, this);
 }
 
-void ServiceProxy::PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::PollerEvent *msg)
+void ServiceProxy::PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::PollerEvent *msg, Int64 packetsCount)
 {
-    auto iter = _serviceIdRefRejectPostMsgStatus.find(serviceId);
+    auto iter = _serviceIdRefRejectServiceStatus.find(serviceId);
     if(UNLIKELY(iter->second))
     {
         g_Log->Debug(LOGFMT_OBJ_TAG("reject post msg serviceId:%llu, msg:%s"), serviceId, msg->ToString().c_str());
@@ -74,8 +74,11 @@ void ServiceProxy::PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::Po
         msg->Release();
         return;
     }
-
+        
     service->Push(priorityLevel, msg);
+
+    if(packetsCount > 0)
+        service->AddRecvPackets(packetsCount);
 }
 
 void ServiceProxy::PostQuitService(UInt32 priorityLevel)
@@ -230,6 +233,17 @@ void ServiceProxy::CloseApp(Int32 err)
     GetOwner()->CastTo<Application>()->SinalFinish(err);
 }
 
+void ServiceProxy::OnMonitor(KERNEL_NS::LibString &info)
+{
+    for(auto iter : _idRefService)
+    {
+        if(_IsRejectService(iter.first))
+            continue;
+
+        iter.second->OnMonitor(info);
+    }
+}
+
 void ServiceProxy::Clear()
 {
     _Clear();
@@ -344,7 +358,7 @@ void ServiceProxy::_Clear()
     service->SetServiceName(serviceName);
 
     _guard.Lock();
-    _serviceIdRefRejectPostMsgStatus.insert(std::make_pair(serviceId, false));
+    _serviceIdRefRejectServiceStatus.insert(std::make_pair(serviceId, false));
     _idRefService.insert(std::make_pair(serviceId, service));
     _guard.Unlock();
 
@@ -423,7 +437,7 @@ void ServiceProxy::_Clear()
     ++_closeServiceNum;
 
     // 拒绝投递消息到service
-    RejectPostMsgToService(serviceId);
+    _RejectService(serviceId);
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s close finish"), service->IntroduceInfo().c_str());
 

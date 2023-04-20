@@ -84,6 +84,10 @@ public:
     Int64 GetEventAmount() const;
     // 获得消费的数量
     Int64 GetAndResetConsumCount();
+    // 消息队列生产数量
+    Int64 GetGenEventAmount() const;
+    // 获得生产的数量并重置
+    Int64 GetAndResetGenCount();
 
     // 获取脏助手
    LibDirtyHelper<void *, UInt32> *GetDirtyHelper();
@@ -140,6 +144,8 @@ public:
     void WakeupEventLoop();
     void QuitLoop();
 
+    LibString OnMonitor();
+
 protected:
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;
@@ -167,6 +173,7 @@ private:
   ConditionLocker _eventGuard;                              // 空闲挂起等待
   ConcurrentPriorityQueue<PollerEvent *> *_eventsList;      // 优先级事件队列
   std::atomic<Int64> _eventAmountLeft;
+  std::atomic<Int64> _genEventAmount;
   std::atomic<Int64> _consumEventCount;
 };
 
@@ -192,6 +199,17 @@ ALWAYS_INLINE Int64 Poller::GetAndResetConsumCount()
     return consumCount;
 }
 
+ALWAYS_INLINE Int64 Poller::GetGenEventAmount() const
+{
+    return _genEventAmount;
+}
+
+ALWAYS_INLINE Int64 Poller::GetAndResetGenCount()
+{
+    const Int64 count = _genEventAmount;
+    _genEventAmount -= count;
+    return count;
+}
 
 ALWAYS_INLINE LibDirtyHelper<void *, UInt32> *Poller::GetDirtyHelper()
 {
@@ -292,6 +310,7 @@ ALWAYS_INLINE void Poller::Push(Int32 level, PollerEvent *ev)
     }
     
     ++_eventAmountLeft;
+    ++_genEventAmount;
     _eventsList->PushQueue(level, ev);
     WakeupEventLoop();
 }
@@ -310,7 +329,10 @@ ALWAYS_INLINE void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
         return;
     }
 
-    _eventAmountLeft += static_cast<Int64>(evList->GetAmount());
+    const auto amount = static_cast<Int64>(evList->GetAmount());
+    _eventAmountLeft += amount;
+    _genEventAmount += amount;
+
     _eventsList->PushQueue(level, evList);
     LibList<PollerEvent *>::Delete_LibList(evList);
     WakeupEventLoop();
@@ -328,6 +350,7 @@ ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<
     auto ev = ActionPollerEvent::New_ActionPollerEvent(specifyActionType);
     ev->_action = action;
     ++_eventAmountLeft;
+    ++_genEventAmount;
     _eventsList->PushQueue(level, ev);
     WakeupEventLoop();
 }
@@ -349,6 +372,16 @@ ALWAYS_INLINE void Poller::QuitLoop()
     _isQuitLoop = true;
     WakeupEventLoop();
 }
+
+ALWAYS_INLINE LibString Poller::OnMonitor()
+{
+    LibString pollerInfo;
+    pollerInfo.AppendFormat("[loaded:%llu, gen:%lld, consume:%lld, backlog:%lld]"
+                , CalcLoadScore(), GetAndResetGenCount(), GetAndResetConsumCount(), GetEventAmount());
+
+    return pollerInfo;
+}
+
 
 KERNEL_END
 

@@ -36,6 +36,7 @@
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpPoller.h>
 #include <kernel/comp/Utils/SocketUtil.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/Poller/PollerInc.h>
 
 #include <kernel/comp/NetEngine/Poller/impl/PollerMgr.h>
 
@@ -221,9 +222,11 @@ void PollerMgr::OnMonitor(LibString &info)
         for(auto &iter : allPollers)
         {
             // TODO:loaded
-            auto poller = iter.second;
-            pollerInfo.AppendFormat("pollerId:%llu, sessions:%llu, loaded:%llu\n"
-                    , poller->GetPollerId(), poller->GetSessionAmount(), poller->CalcLoadScore());
+            auto tcpPoller = iter.second;
+            auto poller = tcpPoller->GetComp<Poller>();
+            pollerInfo.AppendFormat("pollerId:%llu, sessions:%llu, %s\n"
+                    , tcpPoller->GetPollerId(), tcpPoller->GetSessionAmount()
+                    , poller->OnMonitor().c_str());
         }
     }
 

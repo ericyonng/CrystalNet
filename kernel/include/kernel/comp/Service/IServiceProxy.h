@@ -50,7 +50,7 @@ public:
     IServiceProxy() {}
     ~IServiceProxy() {}
     
-    virtual void PostMsg(UInt64 serviceId, UInt32 priorityLevel, PollerEvent *msg) = 0;
+    virtual void PostMsg(UInt64 serviceId, UInt32 priorityLevel, PollerEvent *msg, Int64 packetsCount = 0) = 0;
     virtual void PostQuitService(UInt32 priorityLevel = 0) = 0;
     virtual IProtocolStack *GetProtocolStack(LibSession *session) = 0;
 };

@@ -701,6 +701,11 @@ void Application::_OnMonitorThreadFrame()
     auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
     KERNEL_NS::LibString info;
     pollerMgr->OnMonitor(info);
+
+    // 3.获取service信息
+    info.AppendFormat("\n");
+    auto serviceProxy = GetComp<ServiceProxy>();
+    serviceProxy->OnMonitor(info);
     
     Double average = 0;
     if(_statisticsInfoCache->_resCount > 0)

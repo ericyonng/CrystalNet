@@ -80,6 +80,8 @@ public:
     void OnLoopEnd();
     void Push(Int32 level, KERNEL_NS::PollerEvent *ev);
     void Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList);
+    void AddRecvPackets(Int64 recvPackets);
+    void AddConsumePackets(Int64 recvPackets);
 
     // 网络线程调用
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) = 0;
@@ -99,6 +101,9 @@ public:
 
     // 初始化从poller传来的消息处理接口
     static void InitPollerEventHandler();
+
+    // 监控信息
+    virtual void OnMonitor(KERNEL_NS::LibString &info);
 
 protected:
     // 在组件初始化前
@@ -165,6 +170,9 @@ protected:
     UInt64 _maxPieceTimeInMicroseconds;
     Int32 _maxPriorityLevel;
     UInt64 _maxSleepMilliseconds;
+
+    std::atomic<Int64> _recvPackets;
+    std::atomic<Int64> _consumePackets;
 
     typedef void (IService::*PollerEventHandler)(KERNEL_NS::PollerEvent *msg);
     static PollerEventHandler _pollerEventHandler[KERNEL_NS::PollerEventType::EvMax];
@@ -248,6 +256,16 @@ ALWAYS_INLINE void IService::Push(Int32 level, KERNEL_NS::PollerEvent *ev)
 ALWAYS_INLINE void IService::Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList)
 {
     _poller->Push(level, evList);
+}
+
+ALWAYS_INLINE void IService::AddRecvPackets(Int64 recvPackets)
+{
+    _recvPackets += recvPackets;
+}
+
+ALWAYS_INLINE void IService::AddConsumePackets(Int64 recvPackets)
+{
+    _consumePackets += recvPackets;
 }
 
 template<typename ObjType>

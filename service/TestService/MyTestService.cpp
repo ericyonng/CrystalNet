@@ -450,6 +450,9 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
         handler->Invoke(packet);
         if(LIKELY(packet))
             packet->ReleaseUsingPool();
+
+        // 消费消息数量统计
+        AddConsumePackets(1);
     }
 
     KERNEL_NS::LibList<KERNEL_NS::LibPacket *>::Delete_LibList(packets);

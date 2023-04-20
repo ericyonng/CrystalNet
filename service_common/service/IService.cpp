@@ -45,6 +45,8 @@ IService::IService()
 ,_maxPieceTimeInMicroseconds(0)
 ,_maxPriorityLevel(0)
 ,_maxSleepMilliseconds(0)
+,_recvPackets{0}
+,_consumePackets{0}
 {
     _SetType(ServiceProxyCompType::COMP_SERVICE);
     
@@ -92,6 +94,17 @@ void IService::InitPollerEventHandler()
     _pollerEventHandler[KERNEL_NS::PollerEventType::SessionDestroy] = &IService::_OnSessionDestroy;
     _pollerEventHandler[KERNEL_NS::PollerEventType::RecvMsg] = &IService::_OnRecvMsg;
     _pollerEventHandler[KERNEL_NS::PollerEventType::QuitServiceEvent] = &IService::_OnQuitServiceEvent;
+}
+
+void IService::OnMonitor(KERNEL_NS::LibString &info)
+{
+    const Int64 recvPackets = _recvPackets;
+    const Int64 consumePackets = _consumePackets;
+    _recvPackets -= recvPackets;
+    _consumePackets -= consumePackets;
+
+    info.AppendFormat("[service id:%llu, packets:[recv:%lld, consume:%lld], poller info:%s]\n"
+    , _serviceId, recvPackets, consumePackets, GetComp<KERNEL_NS::Poller>()->OnMonitor().c_str());
 }
 
 const KERNEL_NS::LibString &IService::GetAppName() const
@@ -234,7 +247,7 @@ void IService::_OnMsg(KERNEL_NS::PollerEvent *msg)
     }
 
     (this->*handler)(msg);
-
+    
     // g_Log->Debug(LOGFMT_OBJ_TAG("finish handle msg:%s"), msg->ToString().c_str());
 }
 

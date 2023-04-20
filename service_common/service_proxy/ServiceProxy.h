@@ -54,7 +54,7 @@ public:
 
 public:
     // kernel => service
-    virtual void PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::PollerEvent *msg) final;
+    virtual void PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::PollerEvent *msg, Int64 packetsCount = 0) final;
     virtual void PostQuitService(UInt32 priorityLevel = 0) final;
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
 
@@ -85,6 +85,9 @@ public:
     const Application *GetApp() const;
     void CloseApp(Int32 err = Status::Success);
 
+    // 监控信息
+    void OnMonitor(KERNEL_NS::LibString &info);
+
 private:
     virtual Int32 _OnInit() final;
     virtual Int32 _OnStart() final;
@@ -95,8 +98,9 @@ private:
     // 清理资源
     void _Clear();
 
-    // 决绝消息到service
-    void RejectPostMsgToService(UInt64 serviceId);
+    // 拒绝服务
+    void _RejectService(UInt64 serviceId);
+    bool _IsRejectService(UInt64 serviceId);
 
     IService *_GetService(UInt64 serviceId);
     const IService *_GetService(UInt64 serviceId) const;
@@ -111,7 +115,7 @@ private:
     std::vector<KERNEL_NS::LibString> _activeServices;              // 激活的服务
     std::atomic<UInt64> _maxServiceId;                              // 分配serviceId
     std::atomic<UInt64> _closeServiceNum;                           // 服务关闭个数
-    std::unordered_map<UInt64, std::atomic_bool> _serviceIdRefRejectPostMsgStatus;  // 拒绝投递消息
+    std::unordered_map<UInt64, std::atomic_bool> _serviceIdRefRejectServiceStatus;  // 拒绝服务标志
 
     KERNEL_NS::TcpPollerMgr *_tcpPollerMgr;
     KERNEL_NS::IPollerMgr *_pollerMgr;
@@ -222,11 +226,23 @@ ALWAYS_INLINE void ServiceProxy::ControlIpPipline(const std::list<KERNEL_NS::IpC
     _tcpPollerMgr->PostIpControl(level, controlInfoList);
 }
 
-ALWAYS_INLINE void ServiceProxy::RejectPostMsgToService(UInt64 serviceId)
+ALWAYS_INLINE void ServiceProxy::_RejectService(UInt64 serviceId)
 {
     _guard.Lock();
-    _serviceIdRefRejectPostMsgStatus[serviceId] = true;
+    _serviceIdRefRejectServiceStatus[serviceId] = true;
     _guard.Unlock();
+}
+
+ALWAYS_INLINE bool ServiceProxy::_IsRejectService(UInt64 serviceId)
+{
+    _guard.Lock();
+    bool isReject = false;
+    auto iter = _serviceIdRefRejectServiceStatus.find(serviceId);
+    if(iter != _serviceIdRefRejectServiceStatus.end())
+        isReject = iter->second;
+    _guard.Unlock();
+
+    return isReject;
 }
 
 ALWAYS_INLINE IService *ServiceProxy::_GetService(UInt64 serviceId)

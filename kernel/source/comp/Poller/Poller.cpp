@@ -104,6 +104,7 @@ Poller::Poller()
 ,_quickEventHandler(NULL)
 ,_eventsList(ConcurrentPriorityQueue<PollerEvent *>::New_ConcurrentPriorityQueue())
 ,_eventAmountLeft{0}
+,_genEventAmount{0}
 ,_consumEventCount{0}
 {
     // auto defObj = TlsUtil::GetDefTls();
@@ -295,6 +296,7 @@ void Poller::EventLoop()
                 listNode->_data->Erase(node);
                 --_eventAmountLeft;
                 --mergeNumber;
+                ++_consumEventCount;
 
                 #ifdef _DEBUG
                  ++curConsumeEventsCount;
