@@ -160,36 +160,36 @@ static void GenTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
     
 }
 
-static void ComsumerTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
-{
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "ComsumerTask2"));
+// static void ComsumerTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
+// {
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "ComsumerTask2"));
 
-    std::vector<KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT> *> cache;
-    for(Int32 idx = 0; idx <= g_maxConcurrentLevel; ++idx)
-        cache.push_back(KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT>::New_LibList());
+//     std::vector<KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT> *> cache;
+//     for(Int32 idx = 0; idx <= g_maxConcurrentLevel; ++idx)
+//         cache.push_back(KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT>::New_LibList());
 
-    while (!pool->IsDestroy())
-    {
-        g_concurrentQueue->SwapAll(cache);
+//     while (!pool->IsDestroy())
+//     {
+//         g_concurrentQueue->SwapAll(cache);
 
-        for(auto list:cache)
-        {
-            if(!list || list->IsEmpty())
-                continue;
+//         for(auto list:cache)
+//         {
+//             if(!list || list->IsEmpty())
+//                 continue;
 
-            for(auto node = list->Begin(); node;)
-            {
-                auto data = node->_data;
-                ++g_consumNum;
+//             for(auto node = list->Begin(); node;)
+//             {
+//                 auto data = node->_data;
+//                 ++g_consumNum;
 
-                CRYSTAL_DELETE(data);
-                node = list->Erase(node);
-            }
-        }
-    }
+//                 CRYSTAL_DELETE(data);
+//                 node = list->Erase(node);
+//             }
+//         }
+//     }
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "GEN TASK finish."));
-}
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "GEN TASK finish."));
+// }
 
 
 static void ComsumerTask2(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
@@ -223,36 +223,36 @@ static void ComsumerTask2(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *va
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "GEN TASK finish."));
 }
 
-static void ComsumerTask3(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
-{
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "ComsumerTask"));
+// static void ComsumerTask3(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
+// {
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "ComsumerTask"));
 
-    std::vector<KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT> *> cache;
-    for(Int32 idx = 0; idx <= g_maxConcurrentLevel; ++idx)
-        cache.push_back(KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT>::New_LibList());
+//     std::vector<KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT> *> cache;
+//     for(Int32 idx = 0; idx <= g_maxConcurrentLevel; ++idx)
+//         cache.push_back(KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT>::New_LibList());
 
-    while (!pool->IsDestroy())
-    {
-        g_concurrentQueue->SwapAllOutIfEmpty(cache);
+//     while (!pool->IsDestroy())
+//     {
+//         g_concurrentQueue->SwapAllOutIfEmpty(cache);
 
-        for(auto list:cache)
-        {
-            if(!list || list->IsEmpty())
-                continue;
+//         for(auto list:cache)
+//         {
+//             if(!list || list->IsEmpty())
+//                 continue;
 
-            for(auto node = list->Begin(); node;)
-            {
-                auto data = node->_data;
-                ++g_consumNum;
+//             for(auto node = list->Begin(); node;)
+//             {
+//                 auto data = node->_data;
+//                 ++g_consumNum;
 
-                CRYSTAL_DELETE(data);
-                node = list->Erase(node);
-            }
-        }
-    }
+//                 CRYSTAL_DELETE(data);
+//                 node = list->Erase(node);
+//             }
+//         }
+//     }
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "GEN TASK finish."));
-}
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "GEN TASK finish."));
+// }
 
 static void MonitorTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
 {

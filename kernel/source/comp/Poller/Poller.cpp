@@ -374,8 +374,6 @@ void Poller::QuickEventLoop()
      LibCpuCounter performaceStart;
     #endif
 
-    const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
-
     for(;!_isQuitLoop;)
     {
 

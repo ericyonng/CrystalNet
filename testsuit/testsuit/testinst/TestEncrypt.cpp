@@ -494,7 +494,7 @@ void TestEncrypt::Run(int argc, char const *argv[])
      KERNEL_NS::LibString susParamsInfo, warnParamsInfo;
     
     KERNEL_NS::LibString targetFile;
-    auto count = SERVICE_COMMON_NS::ParamsHandler::GetParams(argc, argv, susParamsInfo, warnParamsInfo, [&targetFile](const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value){
+    SERVICE_COMMON_NS::ParamsHandler::GetParams(argc, argv, susParamsInfo, warnParamsInfo, [&targetFile](const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value){
         if(key == "--file")
         {
             targetFile = value;

@@ -87,7 +87,7 @@ ALWAYS_INLINE void IConfigLoader::SetBasePath(const KERNEL_NS::LibString &basePa
     _basePath = basePath;
 }
 
-const KERNEL_NS::LibString &IConfigLoader::GetBasePath() const
+ALWAYS_INLINE const KERNEL_NS::LibString &IConfigLoader::GetBasePath() const
 {
     return _basePath;
 }

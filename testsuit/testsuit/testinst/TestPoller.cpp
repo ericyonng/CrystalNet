@@ -300,22 +300,22 @@ struct  HelloWorldReq : public KERNEL_NS::PollerEvent
 POOL_CREATE_OBJ_DEFAULT_IMPL(HelloWorldReq);
 
 
-static void HelloWorldEventWork(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *var)
-{
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "startint hello world request..."));
-    auto hostObj = var->AsPtr<HostObj>();
-    auto poller = hostObj->GetComp<KERNEL_NS::Poller>();
+// static void HelloWorldEventWork(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *var)
+// {
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "startint hello world request..."));
+//     auto hostObj = var->AsPtr<HostObj>();
+//     auto poller = hostObj->GetComp<KERNEL_NS::Poller>();
 
-    while(!t->IsDestroy())
-    {
-        auto req = HelloWorldReq::New_HelloWorldReq();
-        poller->Push(1, req);
-        KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        hostObj->OnWork();
-    }
+//     while(!t->IsDestroy())
+//     {
+//         auto req = HelloWorldReq::New_HelloWorldReq();
+//         poller->Push(1, req);
+//         KERNEL_NS::SystemUtil::ThreadSleep(1000);
+//         hostObj->OnWork();
+//     }
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "quit hello world request..."));
-}
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "quit hello world request..."));
+// }
 
 // void TestPoller::Run()
 // {
