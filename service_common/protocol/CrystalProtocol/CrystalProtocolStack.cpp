@@ -202,9 +202,9 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
 
             if(UNLIKELY(_enableProtocolLog))
             {
-                g_Log->NetInfo(LOGFMT_OBJ_TAG("parse packet suc:%s, packet:%s, msg len:%u")
+                g_Log->NetInfo(LOGFMT_OBJ_TAG("parse packet suc packet:%s, msg len:%u, session info:%s")
                             , StackPacketToString(packet).c_str()
-                            , header._len);
+                            , header._len, session->ToString().c_str());
             }
 
             if(LIKELY(option._sessionRecvPacketStackLimit != 0))
@@ -330,9 +330,9 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
 
         if(UNLIKELY(_enableProtocolLog))
         {
-            g_Log->NetInfo(LOGFMT_OBJ_TAG("packet to bin suc:%s, packet:%s, msg len:%u")
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("packet to bin suc packet:%s, msg len:%u, session:%s")
                         , StackPacketToString(packet).c_str()
-                        , header._len);
+                        , header._len, session->ToString().c_str());
         }
 
         handledBytes += static_cast<UInt64>(header._len);
