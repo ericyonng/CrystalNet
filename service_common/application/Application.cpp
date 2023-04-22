@@ -31,6 +31,10 @@
 
 #include <service_common/application/Application.h>
 
+#ifndef DISABLE_OPCODES
+ #include <protocols/protocols.h>
+#endif
+
 SERVICE_COMMON_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(Application);
@@ -99,6 +103,16 @@ Int32 Application::_OnHostInit()
         g_Log->Error(LOGFMT_OBJ_TAG("config ini init fail ini file:%s"), _ini.c_str());
         return Status::ConfigError;
     }
+
+    #ifndef DISABLE_OPCODES
+    errCode = Opcodes::Init();
+    if(errCode != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("opcodes init fail errCode:%d"), errCode);
+        return errCode;
+    }
+    #endif
+
 
     errCode = _ReadBaseConfigs();
     if(errCode != Status::Success)
@@ -207,6 +221,9 @@ void Application::_Clear()
         StatisticsInfo::Delete_StatisticsInfo(_statisticsInfo);
         _statisticsInfo = NULL;
     }
+
+    // 销毁协议信息
+    Opcodes::Destroy();
 }
 
 Int32 Application::_ReadBaseConfigs()

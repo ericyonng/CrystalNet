@@ -141,14 +141,7 @@ Int32 MyTestService::_OnServiceInit()
     _eventMgr = KERNEL_NS::EventManager::New_EventManager();
     _serviceConfig = ServiceConfig::New_ServiceConfig();
 
-    // 1.opcode 初始化
-    auto err = Opcodes::Init();
-    if(err != Status::Success)
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("opcodes init fail err:%d"), err);
-        return err;
-    }
-    
+    Int32 err = Status::Success;
     {// 2.读取配置
         auto application = _serviceProxy->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>();
         auto ini = application->GetIni();
@@ -483,7 +476,6 @@ void MyTestService::_Clear()
     KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *, KERNEL_NS::AutoDelMethods::Release>(_opcodeRefHandler);
     
     _sessionTypeRefProtocolStack.clear();
-    Opcodes::Destroy();
 
     if(LIKELY(_eventMgr))
     {
