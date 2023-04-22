@@ -109,6 +109,8 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
                 , err, limitErr.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit);
         return Status::Failed;
     }
+
+    // core dump 输出到当前程序下
     #endif
 
     // ini 文件路径

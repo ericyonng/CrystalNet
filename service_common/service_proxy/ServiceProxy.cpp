@@ -420,24 +420,25 @@ void ServiceProxy::_Clear()
     g_Log->Info(LOGFMT_OBJ_TAG("service %s event loop begin."), service->IntroduceInfo().c_str());
     service->EventLoop();
 
+    // 停止服务
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s reject service."), service->IntroduceInfo().c_str());
+    _RejectService(serviceId);
+
     // 4.事件循环结束,销毁
     service->OnLoopEnd();
     g_Log->Info(LOGFMT_OBJ_TAG("service %s on event loop end..."), service->IntroduceInfo().c_str());
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s will close..."), service->IntroduceInfo().c_str());
-    
     service->WillClose();
 
     // 剔除所有service的会话
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s quit all sessions..."), service->IntroduceInfo().c_str());
     _pollerMgr->QuitAllSessions(service->GetServiceId());
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s close..."), service->IntroduceInfo().c_str());
+
     service->Close();
-
     ++_closeServiceNum;
-
-    // 拒绝投递消息到service
-    _RejectService(serviceId);
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s close finish"), service->IntroduceInfo().c_str());
 

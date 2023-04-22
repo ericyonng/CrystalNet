@@ -409,6 +409,7 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
 void SysLogicMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
 {
     g_Log->Info(LOGFMT_OBJ_TAG("service will close."));
+    GetService()->MaskServiceModuleQuitFlag(this);
 }
 
 void SysLogicMgr::_Clear()

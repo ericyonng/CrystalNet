@@ -158,6 +158,35 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
     sessionInfo._localAddr = *localAddr;
     sessionInfo._remoteAddr = *remoteAddr;
     sessionInfo._protocolStack = protocolStack;
+
+    // 消息发送限速
+    switch (sessionInfo._sessionType)
+    {
+    case SessionType::INNER:
+    case SessionType::OUTER_NO_LIMIT:
+        sessionInfo._sessionSendBytesLimit = 0;
+        break;
+    case SessionType::OUTER:
+        sessionInfo._sessionSendBytesLimit = GetApp()->GetKernelConfig()._sessionSendPacketContentLimit;
+        break;
+    default:
+        break;
+    }
+
+    // 消息发送限速
+    switch (sessionInfo._sessionType)
+    {
+    case SessionType::INNER:
+    case SessionType::OUTER_NO_LIMIT:
+        sessionInfo._sessionRecvBytesLimit = 0;
+        break;
+    case SessionType::OUTER:
+        sessionInfo._sessionRecvBytesLimit = GetApp()->GetKernelConfig()._sessionRecvPacketContentLimit;
+        break;
+    default:
+        break;
+    }
+
     _CreateSession(sessionInfo);
 }
 

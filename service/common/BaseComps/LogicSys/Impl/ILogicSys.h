@@ -73,7 +73,6 @@ public:
     */
     virtual void OnRegisterComps() override;
 
-    
     // 逻辑功能
 public:
     /*
@@ -230,6 +229,19 @@ protected:
     */
     virtual void _OnHostUpdate() override { }
 
+    /*
+    * 默认事件处理
+    */
+    virtual void _OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev);
+
+    /*
+    * 事件注册
+    */
+private:
+   void _RegisterLogicEvents();
+   void _UnRegisterLogicEvents();
+   void _Clear();
+
 private:
     SERVICE_COMMON_NS::IService *_service;
     SERVICE_COMMON_NS::ServiceProxy *_serviceProxy;
@@ -239,6 +251,8 @@ private:
 
     // 关注的接口
     std::unordered_set<Int32> _intrestMethods;
+
+    KERNEL_NS::ListenerStub _quitServiceEventDefaltStub;
 };
 
 ALWAYS_INLINE SERVICE_COMMON_NS::IService *ILogicSys::GetService()

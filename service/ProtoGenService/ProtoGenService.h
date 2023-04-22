@@ -92,7 +92,7 @@ protected:
     // 收到网络消息回调
     virtual void _OnRecvMsg(KERNEL_NS::PollerEvent *msg) override;
     // 退出服务
-    void _OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg) override;
+    void _OnQuitingService(KERNEL_NS::PollerEvent *msg) override;
 
     // 初始化相关
     virtual bool _OnPollerPrepare(KERNEL_NS::Poller *poller) final;

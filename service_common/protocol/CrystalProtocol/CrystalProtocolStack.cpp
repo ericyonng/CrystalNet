@@ -36,6 +36,36 @@
 
 SERVICE_COMMON_BEGIN
 
+static ALWAYS_INLINE KERNEL_NS::LibString StackPacketToString(const KERNEL_NS::LibPacket *packet)
+{
+    KERNEL_NS::LibString &&packetString = packet->ToString();
+
+    #ifndef DISABLE_OPCODES
+    auto opcodeInfo = Opcodes::GetOpcodeInfo(packet->GetOpcode());
+    if(LIKELY(opcodeInfo))
+        packetString.AppendFormat(", opcode name:%s", opcodeInfo->_opcodeName.c_str());
+    else
+        packetString.AppendFormat(", unknown opcode");
+    #endif
+
+    return packetString;
+}
+
+static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
+{
+    KERNEL_NS::LibString opcodeName;
+
+    #ifndef DISABLE_OPCODES
+    auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
+    if(LIKELY(opcodeInfo))
+        opcodeName.AppendFormat("opcode name:%s", opcodeInfo->_opcodeName.c_str());
+    else
+        opcodeName.AppendFormat("unknown opcode");
+    #endif
+
+    return opcodeName;
+}
+
 CrystalProtocolStack::~CrystalProtocolStack()
 {
     if(_opcodeNameParser)
@@ -91,7 +121,7 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
                 break;
             }
 
-            if(_maxContenBytes && (header._len > _maxContenBytes))
+            if(_maxRecvContenBytes && (header._len > _maxRecvContenBytes))
             {
                 g_Log->NetWarn(LOGFMT_OBJ_TAG("bad msg:len over content limit limit:%d, header:%s, session:%s")
                 , MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT, header.ToString().c_str(), session->ToString().c_str());
@@ -101,8 +131,8 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
 
             if(header._packetId < 0)
             {
-                g_Log->NetWarn(LOGFMT_OBJ_TAG("bad msg:bad packet id:%lld, session:%s")
-                            , header._packetId, session->ToString().c_str());
+                g_Log->NetWarn(LOGFMT_OBJ_TAG("bad msg:bad packet id:%lld, header:%s, session:%s")
+                            , header._packetId, header.ToString().c_str(), session->ToString().c_str());
                 errCode = Status::ParsingPacketFail;
                 break;
             }
@@ -121,7 +151,8 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
         auto coderFactory = GetCoderFactory(header._opcodeId);
         if(!coderFactory)
         {
-            g_Log->NetWarn(LOGFMT_OBJ_TAG("have no opcode coder opcodeId:%d, session:%s"), header._opcodeId, session->ToString().c_str());
+            g_Log->NetWarn(LOGFMT_OBJ_TAG("have no opcode coder opcodeId:%d, header:%s, session:%s")
+            , header._opcodeId, header.ToString().c_str(), session->ToString().c_str());
             errCode = Status::ParsingPacketFail;
             break;
         }
@@ -130,8 +161,8 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
         const auto opcode = header._opcodeId;
         const auto headerLen = header._len;
         const auto getContent = [opcode, headerLen, session](){
-             return   KERNEL_NS::LibString().AppendFormat(PR_FMT("Decode over limit sessionId:%llu opcode:%u, len:%u")
-            , session->GetId(), opcode, headerLen);
+             return   KERNEL_NS::LibString().AppendFormat(PR_FMT("Decode over limit sessionId:%llu opcode:%u, %s, len:%u")
+            , session->GetId(), opcode, StackOpcodeToString(opcode).c_str(), headerLen);
           };
          PERFORMANCE_RECORD_DEF(middlePr, getContent, 5);
         #endif
@@ -143,7 +174,7 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
         safeDecode.Attach(const_cast<Byte8 *>(streamCache.GetReadBegin()), msgBodySize, 0, msgBodySize);
         if(!coder->Decode(safeDecode))
         {
-            g_Log->NetWarn(LOGFMT_OBJ_TAG("coder decode fail opcode:%d session:%s"), header._opcodeId, session->ToString().c_str());
+            g_Log->NetWarn(LOGFMT_OBJ_TAG("coder decode fail opcode:%d, header:%s, session:%s"), header._opcodeId, header.ToString().c_str(), session->ToString().c_str());
             errCode = Status::ParsingPacketFail;
             coder->Release();
             break;
@@ -171,9 +202,8 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
 
             if(UNLIKELY(_enableProtocolLog))
             {
-                g_Log->NetInfo(LOGFMT_OBJ_TAG("parse packet suc:%s, opcode:%s, msg len:%u")
-                            , packet->ToString().c_str()
-                            , _opcodeNameParser->Invoke(header._opcodeId).c_str()
+                g_Log->NetInfo(LOGFMT_OBJ_TAG("parse packet suc:%s, packet:%s, msg len:%u")
+                            , StackPacketToString(packet).c_str()
                             , header._len);
             }
 
@@ -228,7 +258,7 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
         auto coder = packet->GetCoder();
         if(UNLIKELY(!coder))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("packet have no coder session:%s"), session->ToString().c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("packet have no coder session:%s, packet:%s"), session->ToString().c_str(), StackPacketToString(packet).c_str());
             errCode = Status::Error;
             break;
         }
@@ -237,7 +267,7 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
         const auto opcode = packet->GetOpcode();
         const auto sessionId = packet->GetSessionId();
         const auto getContent = [opcode, sessionId](){
-            return KERNEL_NS::LibString().AppendFormat(PR_FMT("sessionId:%llu, opcode:%d"), sessionId, opcode);
+            return KERNEL_NS::LibString().AppendFormat(PR_FMT("sessionId:%llu, opcode:%d, %s"), sessionId, opcode, StackOpcodeToString(opcode).c_str());
         };
         PERFORMANCE_RECORD_DEF(middlePr, getContent, 5);
     #endif
@@ -249,7 +279,7 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
         const auto contentStart = stream->GetWriteBytes();
         if(!coder->Encode(*stream))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail have no coder session:%s"), session->ToString().c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail have no coder, packet:%s, session:%s"), StackPacketToString(packet).c_str(), session->ToString().c_str());
             errCode = Status::CoderFail;
             break;
         }
@@ -259,9 +289,19 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
         // 4.长度限制(不能超过最大长度)
         if((MsgHeaderStructure::MSG_HEADER_SIZE + contentSize) > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail content size over limit content size:%llu, limit:%d, session:%s")
-                            ,contentSize, MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT, session->ToString().c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail content size over limit content size:%lld, limit:%d, packet:%s, session:%s")
+                            ,contentSize, MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT, StackPacketToString(packet).c_str(), session->ToString().c_str());
             stream->ShiftWritePos(-(contentSize));
+            errCode = Status::CoderFail;
+            break;
+        }
+
+        // 有包内容大小限制
+        const auto sessionPacketContentLimit = session->GetOption()._sessionSendPacketContentLimit;
+        if(sessionPacketContentLimit && contentSize > static_cast<Int64>(sessionPacketContentLimit))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail packet content size over session packet content limit, content size:%lld, sessionType:%d, limit:%llu, packet:%s, session:%s")
+            , contentSize, session->GetSessionType(), sessionPacketContentLimit, StackPacketToString(packet).c_str(), session->ToString().c_str());
             errCode = Status::CoderFail;
             break;
         }
@@ -290,9 +330,8 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
 
         if(UNLIKELY(_enableProtocolLog))
         {
-            g_Log->NetInfo(LOGFMT_OBJ_TAG("packet to bin suc:%s, opcode:%s, msg len:%u")
-                        , packet->ToString().c_str()
-                        , _opcodeNameParser->Invoke(header._opcodeId).c_str()
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("packet to bin suc:%s, packet:%s, msg len:%u")
+                        , StackPacketToString(packet).c_str()
                         , header._len);
         }
 

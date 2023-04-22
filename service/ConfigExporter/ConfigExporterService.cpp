@@ -408,14 +408,11 @@ void ConfigExporterService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
     event->_packets = NULL;
 }
 
-void ConfigExporterService::_OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg)
+void ConfigExporterService::_OnQuitingService(KERNEL_NS::PollerEvent *msg)
 {
     // 抛事件
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::QUIT_SERVICE_EVENT);
     _eventMgr->FireEvent(ev);
-
-    // 退出
-    _poller->QuitLoop();
 }
 
 bool ConfigExporterService::_OnPollerPrepare(KERNEL_NS::Poller *poller)

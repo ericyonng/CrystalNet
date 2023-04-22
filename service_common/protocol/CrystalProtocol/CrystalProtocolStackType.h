@@ -44,6 +44,7 @@ public:
         BEGIN = 0,
         CRYSTAL_PROTOCOL_INNER = BEGIN, // 内部协议
         CRYSTAL_PROTOCOL_OUTER, // 外部协议
+        CRYSTAL_PROTOCOL_OUTER_NO_LIMIT, // 外部协议
         HTTP,                  // http协议
         END,
     };

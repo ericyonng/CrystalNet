@@ -107,6 +107,35 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
 
     option._forbidRecv = true;
     option._sessionType = sessionType;
+
+    // 消息接收限制
+    switch (option._sessionType)
+    {
+    case SessionType::INNER:
+    case SessionType::OUTER_NO_LIMIT:
+        option._sessionRecvPacketContentLimit = 0;
+        break;
+    case SessionType::OUTER:
+        option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig()._sessionRecvPacketContentLimit;
+        break;
+    default:
+        break;
+    }
+
+    // 消息发送限制
+    switch (option._sessionType)
+    {
+    case SessionType::INNER:
+    case SessionType::OUTER_NO_LIMIT:
+        option._sessionSendPacketContentLimit = 0;
+        break;
+    case SessionType::OUTER:
+        option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig()._sessionSendPacketContentLimit;
+        break;
+    default:
+        break;
+    }
+
     serviceProxy->TcpAddListen(service->GetServiceId(), priorityLevel, family, ip, port, sessionCount, stub, option);
 
     // 回调
@@ -161,7 +190,6 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 r
     option._sockSendBufferSize = 0;
     option._sockRecvBufferSize = 0;
     option._sessionBufferCapicity = config._sessionBufferCapicity;
-
     
     if(sessionType == SessionType::INNER)
     {
@@ -178,6 +206,35 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 r
 
     option._forbidRecv = false;
     option._sessionType = sessionType;
+
+    // 消息发送限速
+    switch (option._sessionType)
+    {
+    case SessionType::INNER:
+    case SessionType::OUTER_NO_LIMIT:
+        option._sessionRecvPacketContentLimit = 0;
+        break;
+    case SessionType::OUTER:
+        option._sessionRecvPacketContentLimit = GetApp()->GetKernelConfig()._sessionRecvPacketContentLimit;
+        break;
+    default:
+        break;
+    }
+
+    // 消息发送限速
+    switch (option._sessionType)
+    {
+    case SessionType::INNER:
+    case SessionType::OUTER_NO_LIMIT:
+        option._sessionSendPacketContentLimit = 0;
+        break;
+    case SessionType::OUTER:
+        option._sessionSendPacketContentLimit = GetApp()->GetKernelConfig()._sessionSendPacketContentLimit;
+        break;
+    default:
+        break;
+    }
+
     serviceProxy->TcpAsynConnect(service->GetServiceId(), stub, priorityLevel, family, remoteIp, remotePort, option, stack, retryTimes, periodMs, localIp, localPort);
     return Status::Success;
 }
@@ -409,6 +466,7 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
 void SysLogicMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
 {
     g_Log->Info(LOGFMT_OBJ_TAG("service will close."));
+    GetService()->MaskServiceModuleQuitFlag(this);
 }
 
 void SysLogicMgr::_Clear()

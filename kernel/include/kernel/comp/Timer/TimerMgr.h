@@ -61,8 +61,6 @@ public:
     void Register(TimeData *timeData, Int64 newExpireTime, Int64 newPeriod);
     // 反注册
     void UnRegister(TimeData *timeData);
-    // 微妙
-    Int64 GetCurFrameTime() const;
     // 新建定时数据 生成与释放由TimerMgr管理
     TimeData *NewTimeData(LibTimer *timer);
     // 定时器销毁
@@ -75,6 +73,9 @@ public:
 
     // 有没有超时的
     bool HasExpired() const;
+
+    // 是否在处理定时器帧
+    bool IsDriving() const;
 
 private:
     void _BeforeDrive();
@@ -115,11 +116,6 @@ ALWAYS_INLINE void TimerMgr::Register(TimeData *timeData, Int64 newExpireTime, I
 ALWAYS_INLINE void TimerMgr::UnRegister(TimeData *timeData)
 {
     _UnRegister(timeData);
-}
-
-ALWAYS_INLINE Int64 TimerMgr::GetCurFrameTime() const
-{
-    return _curTime;
 }
 
 ALWAYS_INLINE TimeData *TimerMgr::NewTimeData(LibTimer *timer)
@@ -163,6 +159,11 @@ ALWAYS_INLINE UInt64 TimerMgr::GetTimerLoaded() const
 ALWAYS_INLINE bool TimerMgr::HasExpired() const
 {
     return _hasExpired;
+}
+
+ALWAYS_INLINE bool TimerMgr::IsDriving() const
+{
+    return _driving > 0;
 }
 
 ALWAYS_INLINE void TimerMgr::_BeforeDrive()

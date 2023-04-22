@@ -459,14 +459,11 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
     event->_packets = NULL;
 }
 
-void MyTestService::_OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg)
+void MyTestService::_OnQuitingService(KERNEL_NS::PollerEvent *msg)
 {
     // 抛事件
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::QUIT_SERVICE_EVENT);
     _eventMgr->FireEvent(ev);
-
-    // 退出
-    _poller->QuitLoop();
 }
 
 bool MyTestService::_OnPollerPrepare(KERNEL_NS::Poller *poller)
@@ -509,9 +506,10 @@ void MyTestService::_OnFrameTimer(KERNEL_NS::LibTimer *timer)
 
 Int32 MyTestService::_InitProtocolStack()
 {
+    const auto limit = GetApp()->GetKernelConfig()._sessionRecvPacketContentLimit;
     for(Int32 idx = SERVICE_COMMON_NS::CrystalProtocolStackType::BEGIN; idx < SERVICE_COMMON_NS::CrystalProtocolStackType::END; ++idx)
     {
-        auto stack = SERVICE_COMMON_NS::CrystalProtocolStackFactory::Create(idx);
+        auto stack = SERVICE_COMMON_NS::CrystalProtocolStackFactory::Create(idx, limit);
         if(stack)
         {
             // opcode解析

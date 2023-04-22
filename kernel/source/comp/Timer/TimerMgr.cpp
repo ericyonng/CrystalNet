@@ -89,6 +89,17 @@ void TimerMgr::Drive()
             iter = _expireQueue.erase(iter);
         }
 
+        // // 重算过期标记
+        // if(UNLIKELY(!_expireQueue.empty()))
+        // {
+        //     auto timeData =  *_expireQueue.begin();
+        //     _hasExpired = TimeUtil::GetFastMicroTimestamp() >= timeData->_expiredTime;
+        // }
+        // else
+        // {
+        //     _hasExpired = false;
+        // }
+
         for(auto node = timeDataList->Begin(); node;)
         {
             auto timeData = node->_data;
@@ -112,10 +123,11 @@ void TimerMgr::Drive()
 
     _AfterDrive();
 
+    // 重算过期标记
     if(UNLIKELY(!_expireQueue.empty()))
     {
         auto timeData =  *_expireQueue.begin();
-        _hasExpired = _curTime >= timeData->_expiredTime;
+        _hasExpired = (_curTime = TimeUtil::GetFastMicroTimestamp()) >= timeData->_expiredTime;
     }
     else
     {

@@ -40,6 +40,45 @@ SERVICE_COMMON_BEGIN
 class ServiceProxy;
 class Application;
 
+// 默认的servicestatus，也可以根据业务需要来设置
+class ServiceStatus
+{
+public:
+    enum ENUMS
+    {
+        SERVICE_NOT_ACTIVE = 0,
+        SERVICE_INITING = 1,
+        SERVICE_INITED = 2,
+        SERVICE_STARTING = 3,
+        SERVICE_STARTED = 4,
+        SERVICE_WILL_QUIT = 5,
+        SERVICE_QUITED = 6,
+        SERVICE_CLOSING = 7,
+        SERVICE_CLOSED = 8,
+
+        SERVICE_STATUS_END,
+    };
+
+    static KERNEL_NS::LibString ToString(Int32 serviceStatus)
+    {
+        switch (serviceStatus)
+        {
+        case SERVICE_NOT_ACTIVE: return "SERVICE_NOT_ACTIVE";
+        case SERVICE_INITING: return "SERVICE_INITING";
+        case SERVICE_INITED: return "SERVICE_INITED";
+        case SERVICE_STARTING: return "SERVICE_STARTING";
+        case SERVICE_STARTED: return "SERVICE_STARTED";
+        case SERVICE_WILL_QUIT: return "SERVICE_WILL_QUIT";
+        case SERVICE_CLOSING: return "SERVICE_CLOSING";
+        case SERVICE_CLOSED: return "SERVICE_CLOSED";
+        default:
+            break;
+        }
+
+        return KERNEL_NS::LibString().AppendFormat("unknown service status:%d", serviceStatus);
+    }
+};
+
 class IService : public KERNEL_NS::CompHostObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IService);
@@ -105,6 +144,24 @@ public:
     // 监控信息
     virtual void OnMonitor(KERNEL_NS::LibString &info);
 
+    // service模块是否退出
+    virtual bool CheckServiceModuleQuitEnd(KERNEL_NS::LibString &notEndInfo) const;
+    // service模块退出
+    virtual void MaskServiceModuleQuitFlag(const KERNEL_NS::CompObject *comp);
+    // 注册需要关注的模块
+    virtual void RegisterFocusServiceModule(const KERNEL_NS::CompObject *comp);
+    // service退出标志
+    bool IsServiceWillQuit() const;
+    // service状态
+    Int32 GetServiceStatus() const;
+    // 只能往高的状态设置,不可往低的状态设置，否则会报错处理
+    void SetServiceStatus(Int32 serviceStatus);
+    // service status 接口,可以根据业务需要来重写默认使用 ServiceStatus
+    virtual KERNEL_NS::LibString ServiceStatusToString(Int32 serviceStatus) const;
+
+    const std::set<const KERNEL_NS::CompObject *> &GetALlFocusServiceModule() const;
+    std::set<const KERNEL_NS::CompObject *> &GetALlFocusServiceModule();
+
 protected:
     // 在组件初始化前
     virtual Int32 _OnHostInit() final;
@@ -151,7 +208,8 @@ protected:
     // 收到网络消息回调
     virtual void _OnRecvMsg(KERNEL_NS::PollerEvent *msg);
     // 退出服务消息回调
-    virtual void _OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg);
+    virtual void _OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg) final;
+    virtual void _OnQuitingService(KERNEL_NS::PollerEvent *msg){}
 
     // 初始化相关
     virtual bool _OnPollerPrepare(KERNEL_NS::Poller *poller);
@@ -176,6 +234,10 @@ protected:
 
     typedef void (IService::*PollerEventHandler)(KERNEL_NS::PollerEvent *msg);
     static PollerEventHandler _pollerEventHandler[KERNEL_NS::PollerEventType::EvMax];
+
+    std::set<const KERNEL_NS::CompObject *> _quitEndComps;
+    std::set<const KERNEL_NS::CompObject *> _forcusComps;
+    Int32 _serviceStatus;
 };
 
 ALWAYS_INLINE void IService::SetServiceId(UInt64 serviceId)
@@ -274,6 +336,42 @@ ALWAYS_INLINE void IService::Subscribe(Int32 opcodeId, ObjType *obj, void (ObjTy
     auto delg = KERNEL_NS::DelegateFactory::Create(obj, Handler);
     Subscribe(opcodeId, delg);
 }
+
+ALWAYS_INLINE const std::set<const KERNEL_NS::CompObject *> &IService::GetALlFocusServiceModule() const
+{
+    return _forcusComps;
+}
+
+ALWAYS_INLINE std::set<const KERNEL_NS::CompObject *> &IService::GetALlFocusServiceModule()
+{
+    return _forcusComps;
+}
+
+ALWAYS_INLINE bool IService::IsServiceWillQuit() const
+{
+    return _serviceStatus == ServiceStatus::SERVICE_WILL_QUIT;
+}
+
+ALWAYS_INLINE Int32 IService::GetServiceStatus() const
+{
+    return _serviceStatus;
+}
+
+ALWAYS_INLINE void IService::SetServiceStatus(Int32 serviceStatus)
+{
+    const auto oldServiceStatus = _serviceStatus;
+    if(_serviceStatus >= serviceStatus)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("error service status:%d,%s please check, current service status:%d,%s")
+                , serviceStatus, ServiceStatusToString(serviceStatus).c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
+        return;
+    }
+
+    _serviceStatus = serviceStatus;
+    g_Log->Info(LOGFMT_OBJ_TAG("service status changed [%d,%s] => [%d,%s].")
+                , oldServiceStatus, ServiceStatusToString(oldServiceStatus).c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
+}
+
 
 SERVICE_COMMON_END
 

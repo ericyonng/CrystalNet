@@ -111,6 +111,10 @@ public:
      */
     virtual bool IsFiring() const;
 
+    // 正在监听某个时间 O(n)
+    template<typename ObjType>
+    bool IsListening(int id, ObjType *obj) const;
+
 protected:
     /**
      * \brief Wrap the event listener.
@@ -243,6 +247,66 @@ inline bool EventManager::IsFiring() const
 inline void EventManager::BeforeFireEvent()
 {
     ++_firing;
+}
+
+template<typename ObjType>
+ALWAYS_INLINE bool EventManager::IsListening(int id, ObjType *obj) const
+{
+    bool isListening = false;
+    {
+        auto iter = _listeners.find(id);
+        if(iter != _listeners.end())
+        {
+            auto &listeners = iter->second;
+            for(auto &listen : listeners)
+            {
+                if(listen._listenCallBack == NULL)
+                    continue;
+
+                if(listen._listenCallBack->IsBelongTo(obj))
+                    isListening = true;
+            }
+        }
+    }
+
+    // 在延迟队列中
+    {
+        for(auto &op : _delayedOps)
+        {
+            if(op._op == EventManager::REMOVE)
+            {
+                if(op._listener._evId == id)
+                {
+                    isListening = false;
+                    continue;
+                }
+
+                if(op._listener._stub)
+                {
+                    auto iterStub = _stubListeners.find(op._listener._stub);
+                    if(iterStub != _stubListeners.end())
+                    {
+                        auto &listenInfo = iterStub->second;
+                        if(listenInfo._listenCallBack && listenInfo._listenCallBack->IsBelongTo(obj))
+                            isListening = false;
+                    }
+                }
+            }
+            else if(op._op == EventManager::ADD)
+            {
+                if(op._listener._evId != id)
+                    continue;
+
+                if(op._listener._listenCallBack)
+                {
+                    if(op._listener._listenCallBack->IsBelongTo(obj))
+                        isListening = true;
+                }
+            }
+        }
+    }
+
+    return isListening;
 }
 
 KERNEL_END

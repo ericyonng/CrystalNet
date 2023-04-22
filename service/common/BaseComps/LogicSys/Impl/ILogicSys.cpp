@@ -28,6 +28,7 @@
 
 #include <pch.h>
 #include <service/common/BaseComps/LogicSys/Impl/ILogicSys.h>
+#include <service/common/BaseComps/Event/Defs/EventEnums.h>
 
 SERVICE_BEGIN
 
@@ -40,13 +41,14 @@ ILogicSys::ILogicSys()
 ,_app(NULL)
 ,_timerMgr(NULL)
 ,_eventMgr(NULL)
+,_quitServiceEventDefaltStub(INVALID_LISTENER_STUB)
 {
 
 }
 
 ILogicSys::~ILogicSys()
 {
-
+    _Clear();
 }
 
 SERVICE_COMMON_NS::IService *&ILogicSys::GetCurrentService()
@@ -87,8 +89,12 @@ Int32 ILogicSys::_OnHostInit()
     _serviceProxy = _service->GetServiceProxy();
     _app = _service->GetApp();
     _timerMgr = _service->GetTimerMgr();
+    _eventMgr = GetService()->GetEventMgr();
 
     FocusMethod(LogicInterestMethod::ON_PASS_DAY);
+
+    // 向service注册关注的组件,在系统关闭的时候可以正常check退出
+    _service->RegisterFocusServiceModule(this);
     
     auto st = _OnSysInit();
     if(st != Status::Success)
@@ -97,13 +103,43 @@ Int32 ILogicSys::_OnHostInit()
         return st;
     }
 
+    // 注册事件
+    _RegisterLogicEvents();  
+
     return Status::Success;
 }
 
 void ILogicSys::_OnHostClose()
 {
     _OnSysClose();
+
+    _Clear();
 }
 
+void ILogicSys::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
+{
+    GetService()->MaskServiceModuleQuitFlag(this);
+    g_Log->Info(LOGFMT_OBJ_TAG("use default quit service handle to quit logic sys:%s"), GetObjName().c_str());
+}
+
+void ILogicSys::_RegisterLogicEvents()
+{
+    if(!_eventMgr->IsListening(EventEnums::QUIT_SERVICE_EVENT, this))
+    {
+        if(_quitServiceEventDefaltStub == INVALID_LISTENER_STUB)
+            _quitServiceEventDefaltStub = _eventMgr->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &ILogicSys::_OnQuitServiceEventDefault);
+    }
+}
+
+void ILogicSys::_UnRegisterLogicEvents()
+{
+    if(_quitServiceEventDefaltStub != INVALID_LISTENER_STUB)
+        _eventMgr->RemoveListenerX(_quitServiceEventDefaltStub);
+}
+
+void ILogicSys::_Clear()
+{
+    _UnRegisterLogicEvents();
+}
 
 SERVICE_END

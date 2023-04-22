@@ -57,14 +57,7 @@ struct CrystalMsgHeader
 
     }
 
-    KERNEL_NS::LibString ToString() const
-    {
-        KERNEL_NS::LibString info;
-        info.AppendFormat("opcode:%u, flag:%x, packetId:%lld, len:%u, protocol version:%llu"
-        , _opcodeId, _flags, _packetId, _len, _protocolVersion);
-
-        return info;
-    }
+    KERNEL_NS::LibString ToString() const;
 
     UInt32 _len;            // 包长度
     UInt64 _protocolVersion;    // 协议版本号
@@ -103,7 +96,7 @@ struct MsgHeaderStructure
     static constexpr Int32 MSG_BODY_MAX_SIZE_LIMIT = 16777215;     // 包体最大大小 2^24 - 1 16MB
 
     // 外部协议通信上行包限制
-    static constexpr Int32 UPLOAD_MSG_MAX_PACKET_LIMIT = 4194304;   // 外部上行包大小限制 4MB
+    // static constexpr Int32 UPLOAD_MSG_MAX_PACKET_LIMIT = 4194304;   // 外部上行包大小限制 4MB
 };
 
 SERVICE_COMMON_END

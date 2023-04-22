@@ -34,16 +34,17 @@
 
 SERVICE_COMMON_BEGIN
 
-KERNEL_NS::IProtocolStack *CrystalProtocolStackFactory::Create(Int32 type)
+KERNEL_NS::IProtocolStack *CrystalProtocolStackFactory::Create(Int32 type, UInt64 recvMsgContentBytesLimit)
 {
     switch (type)
     {
     case CrystalProtocolStackType::CRYSTAL_PROTOCOL_INNER:
+    case CrystalProtocolStackType::CRYSTAL_PROTOCOL_OUTER_NO_LIMIT:
         return new CrystalProtocolStack(type);
     case CrystalProtocolStackType::CRYSTAL_PROTOCOL_OUTER:
     {
         auto stack = new CrystalProtocolStack(type);
-        stack->SetMaxMsgContentBytes(MsgHeaderStructure::UPLOAD_MSG_MAX_PACKET_LIMIT);
+        stack->SetMaxRecvMsgContentBytes(recvMsgContentBytesLimit);
         return stack;
     }
     break;

@@ -61,26 +61,26 @@ public:
     virtual KERNEL_NS::ICoderFactory *GetCoderFactory(Int32 opcode);
     virtual void RegisterCoderFactory(Int32 opcode, KERNEL_NS::ICoderFactory *factory);
 
-    void SetMaxMsgContentBytes(UInt64 maxBytesLimit);
+    void SetMaxRecvMsgContentBytes(UInt64 maxBytesLimit);
     virtual void SetOpcodeNameParser(KERNEL_NS::IDelegate<const KERNEL_NS::LibString &, Int32> *parser) override;
-    UInt64 GetMaxMsgContentBytes() const;
+    UInt64 GetMaxRecvMsgContentBytes() const;
 
     void SetProtocolLogEnable(bool enable = true) { _enableProtocolLog = enable; }
 
 private:
     KERNEL_NS::IDelegate<const KERNEL_NS::LibString &, Int32> *_opcodeNameParser = NULL;
-    UInt64 _maxContenBytes = 0;
+    UInt64 _maxRecvContenBytes = 0;
     bool _enableProtocolLog = false;
 };
 
-ALWAYS_INLINE void CrystalProtocolStack::SetMaxMsgContentBytes(UInt64 maxBytesLimit)
+ALWAYS_INLINE void CrystalProtocolStack::SetMaxRecvMsgContentBytes(UInt64 recvMsgContentBytesLimit)
 {
-    _maxContenBytes = maxBytesLimit;
+    _maxRecvContenBytes = recvMsgContentBytesLimit;
 }
 
-ALWAYS_INLINE UInt64 CrystalProtocolStack::GetMaxMsgContentBytes() const
+ALWAYS_INLINE UInt64 CrystalProtocolStack::GetMaxRecvMsgContentBytes() const
 {
-    return _maxContenBytes;
+    return _maxRecvContenBytes;
 }
 
 SERVICE_COMMON_END

@@ -95,6 +95,8 @@ private:
     void _RegisterEvents();
     void _UnRegisterEvents();
 
+    void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
+
 private:
     // target字典
     KERNEL_NS::LibString _sourceDir;
@@ -111,6 +113,8 @@ private:
     std::unordered_map<KERNEL_NS::LibString, KERNEL_NS::XlsxWorkbook *> _xlsxFileRefWorkbook;   // 所有的配置xlsx
 
     std::map<KERNEL_NS::LibString, std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *>> _ownTypeRefConfigTypeRefXlsxConfigTableInfo;    // 每个配置类型对应的配置信息
+
+    KERNEL_NS::ListenerStub _closeServiceStub;
 };
 
 ALWAYS_INLINE  const XlsxConfigMetaInfo *XlsxExporterMgr::_GetMetaFile(const KERNEL_NS::LibString &metaFile) const

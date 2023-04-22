@@ -40,6 +40,7 @@ StubHandleMgr::StubHandleMgr()
 :_maxStub(0)
 ,_addListenResEvStub(INVALID_LISTENER_STUB)
 ,_asynConnectResEvStub(INVALID_LISTENER_STUB)
+,_closeServiceStub(INVALID_LISTENER_STUB)
 {
 
 }
@@ -148,6 +149,7 @@ void StubHandleMgr::_RegisterEvents()
     auto eventMgr = GetEventMgr();
     _addListenResEvStub = eventMgr->AddListener(EventEnums::ADD_LISTEN_RES, this, &StubHandleMgr::_OnAddListenResEvent);
     _asynConnectResEvStub = eventMgr->AddListener(EventEnums::ASYN_CONNECT_RES, this, &StubHandleMgr::_OnAsynConnectResEvent);
+    _closeServiceStub = eventMgr->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &StubHandleMgr::_CloseServiceEvent);
 }
 
 void StubHandleMgr::_UnRegisterEvents()
@@ -158,6 +160,7 @@ void StubHandleMgr::_UnRegisterEvents()
     auto eventMgr = GetEventMgr();
     eventMgr->RemoveListenerX(_addListenResEvStub);
     eventMgr->RemoveListenerX(_asynConnectResEvStub);
+    eventMgr->RemoveListenerX(_closeServiceStub);
 }
 
 void StubHandleMgr::_OnAddListenResEvent(KERNEL_NS::LibEvent *ev)
@@ -208,6 +211,9 @@ void StubHandleMgr::_OnAsynConnectResEvent(KERNEL_NS::LibEvent *ev)
     KERNEL_NS::Variant::DeleteThreadLocal_Variant(var);
 }
 
-
+void StubHandleMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
+{
+    GetService()->MaskServiceModuleQuitFlag(this);
+}
 
 SERVICE_END

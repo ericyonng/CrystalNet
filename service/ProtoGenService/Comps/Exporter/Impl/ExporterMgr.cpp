@@ -48,6 +48,7 @@ ExporterMgr::ExporterMgr()
 _forceGenAll(false)
 ,_maxOpcode(0)
 ,_pbCacheContent(NULL)
+,_closeServiceStub(INVALID_LISTENER_STUB)
 {
 
 }
@@ -1794,5 +1795,14 @@ void ExporterMgr::_Clear()
     _pbCacheContent = NULL;
 }
 
+void ExporterMgr::_RegisterEvents()
+{
+
+}
+
+void ExporterMgr::_UnRegisterEvents()
+{
+    
+}
 
 SERVICE_END

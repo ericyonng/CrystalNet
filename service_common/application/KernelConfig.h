@@ -53,6 +53,8 @@ struct KernelConfig
     UInt64 _sessionRecvPacketSpeedLimit = 0;            // 收包限速
     UInt64 _sessionRecvPacketSpeedTimeUnitMs = 0;       // 收包限速时间单位毫秒数
     UInt64 _sessionRecvPacketStackLimit = 0;       // 收包堆叠上限
+    UInt64 _sessionRecvPacketContentLimit = 0;             // 收包单包大小限制 默认4MB 0表示不限制
+    UInt64 _sessionSendPacketContentLimit = 0;             // 发包单包大小限制 0表示不限制
 };
 
 SERVICE_COMMON_END

@@ -256,14 +256,18 @@ void Poller::EventLoop()
     for(;;)
     {
         // 没有事件且没有脏处理则等待
-        if((_eventAmountLeft == 0) && !_dirtyHelper->HasDirty() && !_timerMgr->HasExpired())
+        if((_eventAmountLeft == 0) && !_dirtyHelper->HasDirty())
         {
+            // quit仅考虑消息是否处理完,以及脏是否处理完,定时器不需要考虑,否则如果过期时间设置了0则无法退出
             if(UNLIKELY(_isQuitLoop))
                 break;
 
-            _eventGuard.Lock();
-            _eventGuard.TimeWait(maxSleepMilliseconds);
-            _eventGuard.Unlock();
+            if(!_timerMgr->HasExpired())
+            {
+                _eventGuard.Lock();
+                _eventGuard.TimeWait(maxSleepMilliseconds);
+                _eventGuard.Unlock();
+            }
         }
 
         // 队列有消息就合并

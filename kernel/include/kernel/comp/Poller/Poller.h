@@ -76,6 +76,7 @@ public:
     
     // 是否可用
     bool IsEnable() const;
+    void Disable();
 
     // worker线程id
     UInt64 GetWorkerThreadId() const;
@@ -143,6 +144,7 @@ public:
     void OnLoopEnd();
     void WakeupEventLoop();
     void QuitLoop();
+    bool CanQuit() const;
 
     LibString OnMonitor();
 
@@ -180,6 +182,11 @@ private:
 ALWAYS_INLINE bool Poller::IsEnable() const
 {
     return _isEnable;
+}
+
+ALWAYS_INLINE void Poller::Disable()
+{
+    _isEnable = false;
 }
 
 ALWAYS_INLINE UInt64 Poller::GetWorkerThreadId() const
@@ -371,6 +378,21 @@ ALWAYS_INLINE void Poller::QuitLoop()
 {
     _isQuitLoop = true;
     WakeupEventLoop();
+}
+
+ALWAYS_INLINE bool Poller::CanQuit() const
+{
+    if(_eventAmountLeft != 0)
+        return false;
+
+    if(_dirtyHelper && _dirtyHelper->HasDirty())
+        return false;
+
+    // 不需要考虑定时器事件,因为当要quit的时候应该所有模块的定时器都是停止的
+    // if(_timerMgr && !_timerMgr->IsDriving() && _timerMgr->HasExpired())
+    //     return false;
+
+    return true;
 }
 
 ALWAYS_INLINE LibString Poller::OnMonitor()

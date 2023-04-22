@@ -40,8 +40,8 @@ extern "C"
         // 1.打印堆栈
         if(LIKELY(g_Log))
         {
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "catch signal:%s")
-                , KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str());
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "catch signal:%s, stack backtrace:%s")
+                , KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
         }
 
         // 3.底层信号处理集合

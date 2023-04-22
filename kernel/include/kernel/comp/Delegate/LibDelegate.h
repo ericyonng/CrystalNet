@@ -48,6 +48,9 @@ public:
     virtual Rtn Invoke(Args... args) const = 0;
     virtual IDelegate<Rtn, Args...> *CreateNewCopy() const = 0;
     virtual void Release();
+
+    // 判断是否是某个对象的回调
+    virtual bool IsBelongTo(void *obj) const { return false; }
 };
 
 ////////////////////
@@ -63,6 +66,7 @@ public:
     virtual Rtn Invoke(Args... args);
     virtual Rtn Invoke(Args... args) const;
     virtual IDelegate<Rtn, Args...> *CreateNewCopy() const;
+    virtual bool IsBelongTo(void *obj) const override;
 
 private:
     mutable ObjType *_obj;
@@ -83,6 +87,7 @@ public:
 
     virtual Rtn Invoke(Args... args);
     virtual Rtn Invoke(Args... args) const;
+    virtual bool IsBelongTo(void *obj) const override;
 
     // 禁用拷贝与赋值，以及创建副本
 private:

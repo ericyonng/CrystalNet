@@ -43,6 +43,7 @@ struct ServiceSessionInfo
     ,_pollerId(0)
     ,_priorityLevel(0)
     ,_sessionType(0)
+    ,_sessionSendBytesLimit(0)
     ,_localAddr(true)
     ,_remoteAddr(true)
     ,_protocolStack(NULL)
@@ -69,6 +70,8 @@ struct ServiceSessionInfo
     UInt64 _pollerId;       // poller
     UInt32 _priorityLevel;  // 优先级
     Int32 _sessionType;     // 会话类型 SessionType
+    UInt64 _sessionSendBytesLimit;  // 发送消息长度限制 0表示无限制
+    UInt64 _sessionRecvBytesLimit;  // 接收消息长度限制 0表示无限制
 
     KERNEL_NS::BriefSockAddr _localAddr;    // 本地地址
     KERNEL_NS::BriefSockAddr _remoteAddr;   // 远程地址

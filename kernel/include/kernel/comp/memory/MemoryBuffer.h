@@ -35,6 +35,7 @@
 #include<kernel/comp/LibStack.h>
 #include<kernel/comp/memory/MemoryBlock.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/Utils/BackTraceUtil.h>
 
 KERNEL_BEGIN
 
@@ -173,6 +174,16 @@ ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
     if(LIKELY(_freeHead))
     {// 
         MemoryBlock *toAlloc = _freeHead;
+        // 说明正在被其他对象引用需要
+        if(UNLIKELY(toAlloc->_ref > 0))
+        {
+            const auto blockHeaderSize = __MEMORY_ALIGN__(sizeof(MemoryBlock));
+
+            throw std::logic_error(KERNEL_NS::LibString().AppendFormat("block toAlloc:[%p], will alloc obj addr:[%p], size:%llu, obj name:%s is using please check %s !!!"
+            , toAlloc, reinterpret_cast<Byte8 *>(toAlloc) + blockHeaderSize, toAlloc->_realUseBytes
+            , BackTraceUtil::CrystalCaptureStackBackTrace().c_str()).GetRaw());
+        }
+
         _freeHead = _freeHead->_next;
         return toAlloc;
     }

@@ -69,6 +69,7 @@ private:
 
     void _OnAddListenResEvent(KERNEL_NS::LibEvent *ev);
     void _OnAsynConnectResEvent(KERNEL_NS::LibEvent *ev);
+    void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
 
 private:
     UInt64 _maxStub;
@@ -77,6 +78,7 @@ private:
     /* 事件 */
     KERNEL_NS::ListenerStub _addListenResEvStub;
     KERNEL_NS::ListenerStub _asynConnectResEvStub;
+    KERNEL_NS::ListenerStub _closeServiceStub;
 };
 
 SERVICE_END

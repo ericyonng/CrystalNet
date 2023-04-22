@@ -456,6 +456,38 @@ Int32 Application::_ReadBaseConfigs()
             }
             _kernelConfig._sessionRecvPacketStackLimit = cache;
         }
+
+        {// session 收包单包限制
+            UInt64 cache = 0;
+            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_CONTENT_LIMIT_KEY, cache))
+            {
+                cache = SESSION_RECV_PACKET_CONTENT_LIMIT_DEFAULT_VALUE;
+                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
+                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_CONTENT_LIMIT_KEY, value.c_str())))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                                , APPLICATION_KERNEL_CONFIG_SEG, SESSION_RECV_PACKET_CONTENT_LIMIT_KEY, value.c_str());
+                    return Status::ConfigError;
+                }
+            }
+            _kernelConfig._sessionRecvPacketContentLimit = cache;
+        }
+
+        {// session 发包单包限制
+            UInt64 cache = 0;
+            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, SESSION_SEND_PACKET_CONTENT_LIMIT_KEY, cache))
+            {
+                cache = SESSION_SEND_PACKET_CONTENT_LIMIT_DEFAULT_VALUE;
+                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
+                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, SESSION_SEND_PACKET_CONTENT_LIMIT_KEY, value.c_str())))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                                , APPLICATION_KERNEL_CONFIG_SEG, SESSION_SEND_PACKET_CONTENT_LIMIT_KEY, value.c_str());
+                    return Status::ConfigError;
+                }
+            }
+            _kernelConfig._sessionSendPacketContentLimit = cache;
+        }
         
         {// linker相关配置
             auto newPollerFeatureConfig = KERNEL_NS::TcpPollerFeatureConfig::New_TcpPollerFeatureConfig(&tcpPollerConfig, KERNEL_NS::PollerFeature::LINKER);

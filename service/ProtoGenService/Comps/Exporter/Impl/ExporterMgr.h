@@ -88,6 +88,8 @@ protected:
 
 private:
     void _Clear();
+    void _RegisterEvents();
+    void _UnRegisterEvents();
 
     KERNEL_NS::LibString _basePath;         // 工程根目录相对于工具的路径
     KERNEL_NS::LibString _protocolsPath;    // 协议的工作根目录（相对于工具）
@@ -106,6 +108,8 @@ private:
 
     // pb cache file内容
     PbCacheFileContent *_pbCacheContent;
+
+    KERNEL_NS::ListenerStub _closeServiceStub;
 };
 
 SERVICE_END

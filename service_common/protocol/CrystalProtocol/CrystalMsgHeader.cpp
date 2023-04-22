@@ -31,8 +31,36 @@
 #include "service_common/protocol/CrystalProtocol/CrystalProtocolStack.h"
 #include "service_common/protocol/CrystalProtocol/CrystalMsgHeader.h"
 
+#ifndef DISABLE_OPCODES
+ #include <protocols/protocols.h>
+#endif
+
 SERVICE_COMMON_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(CrystalMsgHeader);
+
+static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
+{
+    KERNEL_NS::LibString opcodeName;
+
+    #ifndef DISABLE_OPCODES
+    auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
+    if(LIKELY(opcodeInfo))
+        opcodeName.AppendFormat("opcode name:%s", opcodeInfo->_opcodeName.c_str());
+    else
+        opcodeName.AppendFormat("unknown opcode");
+    #endif
+
+    return opcodeName;
+}
+
+KERNEL_NS::LibString CrystalMsgHeader::ToString() const
+{
+    KERNEL_NS::LibString info;
+    info.AppendFormat("opcode:%u,%s flag:%x, packetId:%lld, len:%u, protocol version:%llu"
+    , _opcodeId, StackOpcodeToString(_opcodeId).c_str(), _flags, _packetId, _len, _protocolVersion);
+
+    return info;
+}
 
 SERVICE_COMMON_END

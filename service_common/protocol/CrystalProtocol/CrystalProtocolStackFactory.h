@@ -39,7 +39,7 @@ SERVICE_COMMON_BEGIN
 class CrystalProtocolStackFactory
 {
 public:
-    static KERNEL_NS::IProtocolStack *Create(Int32 type);
+    static KERNEL_NS::IProtocolStack *Create(Int32 type, UInt64 msgContentBytesLimit = 0);
 };
 
 SERVICE_COMMON_END

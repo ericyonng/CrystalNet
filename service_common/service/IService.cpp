@@ -47,6 +47,7 @@ IService::IService()
 ,_maxSleepMilliseconds(0)
 ,_recvPackets{0}
 ,_consumePackets{0}
+,_serviceStatus(ServiceStatus::SERVICE_NOT_ACTIVE)
 {
     _SetType(ServiceProxyCompType::COMP_SERVICE);
     
@@ -77,13 +78,13 @@ void IService::OnRegisterComps()
 
 KERNEL_NS::LibString IService::ToString() const
 {
-    return KERNEL_NS::LibString().AppendFormat("%s, id:%llu", _serviceName.c_str(), _serviceId);
+    return KERNEL_NS::LibString().AppendFormat("%s, id:%llu, status:%d,%s", _serviceName.c_str(), _serviceId, _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
 }
 
 KERNEL_NS::LibString IService::IntroduceInfo() const
 {
-    return KERNEL_NS::LibString().AppendFormat("service id:%llu, name:%s"
-                , _serviceId, _serviceName.c_str());
+    return KERNEL_NS::LibString().AppendFormat("service id:%llu, name:%s, status:%d,%s"
+                , _serviceId, _serviceName.c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
 }
 
 void IService::InitPollerEventHandler()
@@ -105,6 +106,39 @@ void IService::OnMonitor(KERNEL_NS::LibString &info)
 
     info.AppendFormat("[service id:%llu, packets:[recv:%lld, consume:%lld], poller info:%s]\n"
     , _serviceId, recvPackets, consumePackets, GetComp<KERNEL_NS::Poller>()->OnMonitor().c_str());
+}
+
+// service模块是否退出
+bool IService::CheckServiceModuleQuitEnd(KERNEL_NS::LibString &notEndInfo) const
+{
+    std::set<const KERNEL_NS::CompObject *> notEndComps;
+    for(auto comp : _forcusComps)
+    {
+        // 过滤结束的组件
+        if(_quitEndComps.find(comp) != _quitEndComps.end())
+            continue;
+
+        notEndComps.insert(comp);
+        notEndInfo.AppendFormat("focus service module [%s] not quit end.\n", comp->GetObjName().c_str());
+    }
+
+    return notEndComps.empty();
+}
+
+// service模块退出
+void IService::MaskServiceModuleQuitFlag(const KERNEL_NS::CompObject *comp)
+{
+    _quitEndComps.insert(comp);
+}
+
+void IService::RegisterFocusServiceModule(const KERNEL_NS::CompObject *comp)
+{
+    _forcusComps.insert(comp);
+}
+
+KERNEL_NS::LibString IService::ServiceStatusToString(Int32 serviceStatus) const
+{
+    return ServiceStatus::ToString(serviceStatus);
 }
 
 const KERNEL_NS::LibString &IService::GetAppName() const
@@ -130,6 +164,7 @@ Application *IService::GetApp()
 
 Int32 IService::_OnHostInit()
 {
+    SetServiceStatus(ServiceStatus::SERVICE_INITING);
     auto errCode = _OnServiceInit();
     if(errCode != Status::Success)
     {
@@ -137,6 +172,7 @@ Int32 IService::_OnHostInit()
         return errCode;
     }
 
+    SetServiceStatus(ServiceStatus::SERVICE_INITED);
     g_Log->Info(LOGFMT_OBJ_TAG("service %s init suc."), IntroduceInfo().c_str());
     return Status::Success;
 }
@@ -176,6 +212,8 @@ Int32 IService::_OnCompsCreated()
 
 Int32 IService::_OnHostWillStart()
 {
+    SetServiceStatus(ServiceStatus::SERVICE_STARTING);
+
     g_Log->Info(LOGFMT_OBJ_TAG("service %s will start suc."), IntroduceInfo().c_str());
     return Status::Success;
 }
@@ -189,6 +227,7 @@ Int32 IService::_OnHostStart()
         return errCode;
     }
 
+    SetServiceStatus(ServiceStatus::SERVICE_STARTED);
     g_Log->Info(LOGFMT_OBJ_TAG("service %s start suc."), IntroduceInfo().c_str());
     return GetErrCode();
 }
@@ -200,6 +239,7 @@ void IService::_OnHostBeforeCompsWillClose()
 
 void IService::_OnHostWillClose()
 {
+    SetServiceStatus(ServiceStatus::SERVICE_CLOSING);
     _OnServiceWillClose();
     g_Log->Info(LOGFMT_OBJ_TAG("service %s will close suc."), IntroduceInfo().c_str());
 }
@@ -208,6 +248,7 @@ void IService::_OnHostClose()
 {
     _OnServiceClosed();
     g_Log->Info(LOGFMT_OBJ_TAG("service %s close suc."), IntroduceInfo().c_str());
+    SetServiceStatus(ServiceStatus::SERVICE_CLOSED);
 }
 
 void IService::_OnServiceClear()
@@ -278,7 +319,41 @@ void IService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
 
 void IService::_OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg)
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("will quit service msg:%s"), msg->ToString().c_str());
+    SetServiceStatus(ServiceStatus::SERVICE_WILL_QUIT);
+
+    g_Log->Info(LOGFMT_OBJ_TAG("will quit service [%s] msg:%s"), IntroduceInfo().c_str(),  msg->ToString().c_str());
+    _OnQuitingService(msg);
+
+    // 启动定时器检测service的所有模块是否已经完全退出
+    auto timerMgr = GetTimerMgr();
+    if(UNLIKELY(!timerMgr))
+    {
+        if(LIKELY(_poller))
+        {
+            _poller->Disable();
+            _poller->QuitLoop();
+        }
+
+        g_Log->Warn(LOGFMT_OBJ_TAG("have no timer mgr when quit service service info:%s."), ToString().c_str());
+        return;
+    }
+
+    // 每秒检测一次模块是否退出
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
+        
+        KERNEL_NS::LibString notEndInfo;
+        if(!CheckServiceModuleQuitEnd(notEndInfo))
+        {
+            g_Log->Info(LOGFMT_OBJ_TAG("service module not end info:\n%s"), notEndInfo.c_str());
+            return;
+        }
+
+        _poller->Disable();
+        _poller->QuitLoop();
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+    timer->Schedule(1000);
 }
 
 bool IService::_OnPollerPrepare(KERNEL_NS::Poller *poller)

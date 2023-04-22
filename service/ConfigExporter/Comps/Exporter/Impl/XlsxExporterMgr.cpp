@@ -39,6 +39,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IXlsxExporterMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxExporterMgr);
 
 XlsxExporterMgr::XlsxExporterMgr()
+:_closeServiceStub(INVALID_LISTENER_STUB)
 {
 
 }
@@ -1435,12 +1436,19 @@ void XlsxExporterMgr::_Clear()
 
 void XlsxExporterMgr::_RegisterEvents()
 {
-
+    if(_closeServiceStub == INVALID_LISTENER_STUB)
+        _closeServiceStub = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &XlsxExporterMgr::_CloseServiceEvent);
 }
 
 void XlsxExporterMgr::_UnRegisterEvents()
 {
+    if(_closeServiceStub != INVALID_LISTENER_STUB)
+        GetEventMgr()->RemoveListenerX(_closeServiceStub);
+}
 
+void XlsxExporterMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
+{
+    GetService()->MaskServiceModuleQuitFlag(this);
 }
 
 

@@ -366,6 +366,21 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
 void TestMgr::_OnQuitService(KERNEL_NS::LibEvent *ev)
 {
     _isStopTest = true;
+
+    // 等到poller可以退出的时候方可结束
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
+        auto service = GetService();
+        if(!service->GetPoller()->CanQuit())
+            return;
+
+        g_Log->Info(LOGFMT_OBJ_TAG("test mgr final end."));
+
+        service->MaskServiceModuleQuitFlag(this);
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+
+    timer->Schedule(1000);
 }
 
 Int32 TestMgr::_ReadTestConfigs()

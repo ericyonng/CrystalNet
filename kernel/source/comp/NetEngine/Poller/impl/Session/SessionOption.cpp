@@ -43,6 +43,8 @@ SessionOption::SessionOption()
 ,_maxPacketSize(0)
 ,_forbidRecv(false)
 ,_sessionType(0)
+,_sessionRecvPacketContentLimit(0)
+,_sessionSendPacketContentLimit(0)
 {
 
 }
