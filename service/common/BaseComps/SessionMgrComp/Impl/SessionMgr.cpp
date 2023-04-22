@@ -41,9 +41,10 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ISessionMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(SessionMgr);
 
 SessionMgr::SessionMgr()
-:_sessionWillCreatedStub(0)
+:_sessionAmount{0}
+,_sessionWillCreatedStub(0)
 ,_sessionDestroyStub(0)
-,_sessionAmount{0}
+
 {
 
 }
