@@ -64,6 +64,8 @@ public:
     // 获取配置
     const ServiceConfig *GetServiceConfig() const;
 
+    UInt64 GetSessionAmount() const override;
+
     // 派生接口
 protected:
     // 清理数据

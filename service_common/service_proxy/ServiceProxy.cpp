@@ -237,10 +237,18 @@ void ServiceProxy::OnMonitor(KERNEL_NS::LibString &info)
 {
     for(auto iter : _idRefService)
     {
-        if(_IsRejectService(iter.first))
-            continue;
+        const auto serviceId = iter.first;
 
-        iter.second->OnMonitor(info);
+        _guard.Lock();
+        bool isReject = false;
+        auto iterStatus = _serviceIdRefRejectServiceStatus.find(serviceId);
+        if(iterStatus !=  _serviceIdRefRejectServiceStatus.end())
+            isReject = iterStatus->second;
+
+        if(!isReject)
+            iter.second->OnMonitor(info);
+
+        _guard.Unlock();
     }
 }
 
@@ -289,7 +297,13 @@ Int32 ServiceProxy::_OnInit()
         auto newThread = CRYSTAL_NEW(KERNEL_NS::LibThread);
         _serviceThreads[idx] = newThread;
         auto newVar = KERNEL_NS::Variant::New_Variant();
-        newVar->BecomeStr() = serviceName;
+        const UInt64 serviceId = ++_maxServiceId;
+        (*newVar)["ServiceName"] = serviceName;
+        (*newVar)["ServiceId"] = serviceId;
+
+        // 初始化服务的设施
+        _OnPrepareServiceThread(serviceId, serviceName);
+
         newThread->AddTask2(this, &ServiceProxy::_OnServiceThread, newVar);
     }
 
@@ -342,23 +356,34 @@ void ServiceProxy::_Clear()
 
     _idRefService.clear();
     _activeServices.clear();
+
+    _serviceIdRefRejectServiceStatus.clear();
+}
+
+void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::LibString &serviceName)
+{
+    _guard.Lock();
+
+    _serviceIdRefRejectServiceStatus.insert(std::make_pair(serviceId, false));
+
+    _guard.Unlock();
 }
 
  void ServiceProxy::_OnServiceThread(KERNEL_NS::LibThread *t, KERNEL_NS::Variant *params)
  {
-    const auto &serviceName = params->AsStr();
-    g_Log->Info(LOGFMT_OBJ_TAG("service %s thread will start thread id:%llu.")
-                    , serviceName.c_str(), t->GetTheadId());
+    const auto &serviceName = (*params)["ServiceName"].AsStr();
+    const auto serviceId = (*params)["ServiceId"].AsUInt64();
+
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s serviceId:%llu thread will start thread id:%llu.")
+                    , serviceName.c_str(), serviceId, t->GetTheadId());
     KERNEL_NS::SmartPtr<IService, KERNEL_NS::AutoDelMethods::ReleaseSafe> service = _serviceFactory->Create(serviceName);
     
     // 设置参数
     service->SetServiceProxy(this);
-    const UInt64 serviceId = ++_maxServiceId;
     service->SetServiceId(serviceId);
     service->SetServiceName(serviceName);
 
     _guard.Lock();
-    _serviceIdRefRejectServiceStatus.insert(std::make_pair(serviceId, false));
     _idRefService.insert(std::make_pair(serviceId, service));
     _guard.Unlock();
 

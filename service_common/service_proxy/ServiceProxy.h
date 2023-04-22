@@ -85,6 +85,10 @@ public:
     const Application *GetApp() const;
     void CloseApp(Int32 err = Status::Success);
 
+    void ServiceLazyCloseLock(UInt64 serviceId);
+    void ServiceLazyCloseWait(UInt64 serviceId, UInt64 milliSecond);
+    void ServiceLazyCloseUnLock(UInt64 serviceId);
+
     // 监控信息
     void OnMonitor(KERNEL_NS::LibString &info);
 
@@ -101,6 +105,7 @@ private:
     // 拒绝服务
     void _RejectService(UInt64 serviceId);
     bool _IsRejectService(UInt64 serviceId);
+    void _OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::LibString &serviceName);
 
     IService *_GetService(UInt64 serviceId);
     const IService *_GetService(UInt64 serviceId) const;
@@ -135,6 +140,24 @@ ALWAYS_INLINE Application *ServiceProxy::GetApp()
 ALWAYS_INLINE const Application *ServiceProxy::GetApp() const
 {
     return GetOwner()->CastTo<Application>();
+}
+
+ALWAYS_INLINE void ServiceProxy::ServiceLazyCloseLock(UInt64 serviceId)
+{
+    auto guard = _serviceIdRefLazyCloseGuard[serviceId];
+    guard->Lock();
+}
+
+ALWAYS_INLINE void ServiceProxy::ServiceLazyCloseWait(UInt64 serviceId, UInt64 milliSecond)
+{
+    auto guard = _serviceIdRefLazyCloseGuard[serviceId];
+    guard->TimeWait(milliSecond);
+}
+
+ALWAYS_INLINE void ServiceProxy::ServiceLazyCloseUnLock(UInt64 serviceId)
+{
+    auto guard = _serviceIdRefLazyCloseGuard[serviceId];
+    guard->Unlock();
 }
 
 ALWAYS_INLINE void ServiceProxy::AddWhite(const KERNEL_NS::LibString &ip, Int32 level)

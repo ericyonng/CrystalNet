@@ -49,7 +49,8 @@ public:
     virtual KERNEL_NS::LibString ToString() const override;
     virtual ServiceSession *GetSession(UInt64 sessionId) override;
     virtual const ServiceSession *GetSession(UInt64 sessionId) const override;
-    virtual Int64 NewPacketId(UInt64 sessionId);
+    virtual Int64 NewPacketId(UInt64 sessionId) override;
+    virtual UInt64 GetSessionAmount() const override;
 
 protected:
     Int32 _OnGlobalSysInit() override;
@@ -75,6 +76,7 @@ private:
 
     /* 会话 */
     std::map<UInt64, ServiceSession *> _sessionIdRefSession;
+    std::atomic<UInt64> _sessionAmount;
 
     /* 事件 */
     KERNEL_NS::ListenerStub _sessionWillCreatedStub;

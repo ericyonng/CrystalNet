@@ -88,6 +88,12 @@ Int32 MyTestService::GetSessionTypeByPort(UInt16 port) const
     return _serviceConfig;
  }
 
+UInt64 MyTestService::GetSessionAmount() const
+{
+    auto sessionMgr = GetComp<ISessionMgr>();
+    return sessionMgr->GetSessionAmount();
+}
+
 void MyTestService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg)
 {
     auto msgHandler = _GetMsgHandler(opcodeId);

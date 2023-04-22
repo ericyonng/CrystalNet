@@ -101,11 +101,13 @@ void IService::OnMonitor(KERNEL_NS::LibString &info)
 {
     const Int64 recvPackets = _recvPackets;
     const Int64 consumePackets = _consumePackets;
+    const UInt64 sessionAmount = GetSessionAmount();
+
     _recvPackets -= recvPackets;
     _consumePackets -= consumePackets;
 
-    info.AppendFormat("[service id:%llu, packets:[recv:%lld, consume:%lld], poller info:%s]\n"
-    , _serviceId, recvPackets, consumePackets, GetComp<KERNEL_NS::Poller>()->OnMonitor().c_str());
+    info.AppendFormat("[service id:%llu, session count:%llu packets:[recv:%lld, consume:%lld], poller info:%s]\n"
+    , _serviceId, recvPackets, consumePackets, sessionAmount, GetComp<KERNEL_NS::Poller>()->OnMonitor().c_str());
 }
 
 // service模块是否退出
@@ -160,6 +162,11 @@ const Application *IService::GetApp() const
 Application *IService::GetApp()
 {
     return _serviceProxy->GetOwner()->CastTo<Application>();
+}
+
+UInt64 IService::GetSessionAmount() const
+{
+    return 0;
 }
 
 Int32 IService::_OnHostInit()

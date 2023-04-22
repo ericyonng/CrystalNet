@@ -43,6 +43,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(SessionMgr);
 SessionMgr::SessionMgr()
 :_sessionWillCreatedStub(0)
 ,_sessionDestroyStub(0)
+,_sessionAmount{0}
 {
 
 }
@@ -82,6 +83,11 @@ Int64 SessionMgr::NewPacketId(UInt64 sessionId)
 
     // 服务端推给客户端的最大包id
     return ++iter->second;
+}
+
+UInt64 SessionMgr::GetSessionAmount() const
+{
+    return _sessionAmount;
 }
 
 Int32 SessionMgr::_OnGlobalSysInit()
@@ -208,6 +214,7 @@ ServiceSession *SessionMgr::_CreateSession(const ServiceSessionInfo &sessionInfo
     newSession->SetSessionInfo(sessionInfo);
 
     _MakeSessionDict(newSession);
+    ++_sessionAmount;
 
     // g_Log->Info(LOGFMT_OBJ_TAG("created new session:%s"), newSession->ToString().c_str());
     return newSession;
@@ -217,6 +224,7 @@ void SessionMgr::_DestroySession(ServiceSession *session)
 {
     // g_Log->Info(LOGFMT_OBJ_TAG("destroy session :%s"), session->ToString().c_str());
 
+    --_sessionAmount;
     _sessionIdRefSession.erase(session->GetSessionId());
 
     session->Release();

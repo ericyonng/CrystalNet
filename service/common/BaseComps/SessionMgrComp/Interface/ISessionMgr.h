@@ -49,6 +49,7 @@ public:
     virtual ServiceSession *GetSession(UInt64 sessionId) = 0;
     virtual const ServiceSession *GetSession(UInt64 sessionId) const = 0;
     virtual Int64 NewPacketId(UInt64 sessionId) = 0;
+    virtual UInt64 GetSessionAmount() const = 0;
 };
 
 SERVICE_END
