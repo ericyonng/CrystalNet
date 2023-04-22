@@ -179,7 +179,7 @@ ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
         {
             const auto blockHeaderSize = __MEMORY_ALIGN__(sizeof(MemoryBlock));
 
-            throw std::logic_error(KERNEL_NS::LibString().AppendFormat("block toAlloc:[%p], will alloc obj addr:[%p], size:%llu, obj name:%s is using please check %s !!!"
+            throw std::logic_error(KERNEL_NS::LibString().AppendFormat("block toAlloc:[%p], will alloc obj addr:[%p], size:%llu, is in using please check %s !!!"
             , toAlloc, reinterpret_cast<Byte8 *>(toAlloc) + blockHeaderSize, toAlloc->_realUseBytes
             , BackTraceUtil::CrystalCaptureStackBackTrace().c_str()).GetRaw());
         }
