@@ -342,6 +342,7 @@ struct KERNEL_EXPORT RecvMsgEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, RecvMsgEvent);
 
     RecvMsgEvent();
+    virtual ~RecvMsgEvent();
     virtual void Release();
 
     LibString ToString() const override;

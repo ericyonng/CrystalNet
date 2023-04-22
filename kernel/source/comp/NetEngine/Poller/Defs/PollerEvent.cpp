@@ -108,7 +108,16 @@ AsynSendEvent::AsynSendEvent()
 
 AsynSendEvent::~AsynSendEvent()
 {
+    if(_packets)
+    {
+        ContainerUtil::DelContainer(*_packets, [](LibPacket *packet){
+            if(LIKELY(packet))
+                packet->ReleaseUsingPool();
+        });
 
+        LibList<LibPacket *>::Delete_LibList(_packets);
+        _packets = NULL;
+    }
 }
 
 void AsynSendEvent::Release()
@@ -470,6 +479,20 @@ RecvMsgEvent::RecvMsgEvent()
 void RecvMsgEvent::Release()
 {
     RecvMsgEvent::Delete_RecvMsgEvent(this);
+}
+
+RecvMsgEvent::~RecvMsgEvent()
+{
+    if(_packets)
+    {
+        ContainerUtil::DelContainer(*_packets, [](LibPacket *packet){
+            if(LIKELY(packet))
+                packet->ReleaseUsingPool();
+        });
+
+        LibList<LibPacket *>::Delete_LibList(_packets);
+        _packets = NULL;
+    }
 }
 
 LibString RecvMsgEvent::ToString() const

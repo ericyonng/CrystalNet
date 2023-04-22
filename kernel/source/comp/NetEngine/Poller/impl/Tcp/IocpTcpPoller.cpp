@@ -160,6 +160,7 @@ void IocpTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibPacket *packet)
         });
 
         LibList<LibPacket *>::Delete_LibList(ev->_packets);
+        ev->_packets = NULL;
         ev->Release();
     }
 }
@@ -179,6 +180,7 @@ void IocpTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibList<LibPacket *>
         });
 
         LibList<LibPacket *>::Delete_LibList(ev->_packets);
+        ev->_packets = NULL;
         ev->Release();
     }
 }
@@ -915,7 +917,7 @@ void IocpTcpPoller::_OnWrite(PollerEvent *ev)
         ContainerUtil::DelContainer(*packetList, [this](LibPacket *&packet)
         {
             g_Log->NetWarn(LOGFMT_OBJ_TAG("packet not send packet:%s"), packet->ToString().c_str());
-            LibPacket::Delete_LibPacket(packet);
+            packet->ReleaseUsingPool();
             packet = NULL;
         });
 
@@ -923,6 +925,7 @@ void IocpTcpPoller::_OnWrite(PollerEvent *ev)
         packetList = NULL;
         ptr = NULL;
     };
+    sendEv->_packets = NULL;
 
     packets.SetClosureDelegate(closure);
 

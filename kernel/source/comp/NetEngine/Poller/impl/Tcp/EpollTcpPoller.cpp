@@ -157,6 +157,7 @@ void EpollTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibPacket *packet)
         });
 
         LibList<LibPacket *>::Delete_LibList(ev->_packets);
+        ev->_packets = NULL;
         ev->Release();
     }
 }
@@ -176,6 +177,7 @@ void EpollTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibList<LibPacket *
         });
 
         LibList<LibPacket *>::Delete_LibList(ev->_packets);
+        ev->_packets = NULL;
         ev->Release();
     }
 }
@@ -506,6 +508,7 @@ void EpollTcpPoller::_OnWrite(PollerEvent *ev)
         });
         LibList<LibPacket *>::Delete_LibList(packets);
     });
+    sendEv->_packets = NULL;
 
     auto session = _GetSession(sendEv->_sessionId);
     if(!session)
