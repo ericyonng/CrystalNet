@@ -113,6 +113,8 @@ public:
     const Application *GetApp() const;
     Application *GetApp();
 
+    virtual UInt64 GetSessionAmount() const;
+
     // 事件循环
     bool PrepareLoop();
     void EventLoop();

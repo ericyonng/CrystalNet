@@ -107,7 +107,7 @@ void IService::OnMonitor(KERNEL_NS::LibString &info)
     _consumePackets -= consumePackets;
 
     info.AppendFormat("[service id:%llu, session count:%llu packets:[recv:%lld, consume:%lld], poller info:%s]\n"
-    , _serviceId, recvPackets, consumePackets, sessionAmount, GetComp<KERNEL_NS::Poller>()->OnMonitor().c_str());
+    , _serviceId, sessionAmount, recvPackets, consumePackets, GetComp<KERNEL_NS::Poller>()->OnMonitor().c_str());
 }
 
 // service模块是否退出
