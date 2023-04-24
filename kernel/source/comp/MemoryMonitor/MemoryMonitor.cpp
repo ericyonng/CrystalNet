@@ -41,7 +41,6 @@ KERNEL_BEGIN
 MemoryMonitor::MemoryMonitor()
 :_init{false}
 ,_isStart{false}
-,_thread(NULL)
 ,_milliSecInterval(60 * 1000)   // 默认1分钟一次
 {
 
@@ -67,14 +66,6 @@ Int32 MemoryMonitor::Init(Int64 milliSecInterval)
         return Status::Success;
     }
 
-    _thread = CRYSTAL_NEW(LibThread);
-
-    if(!_thread->AddTask(this, &MemoryMonitor::_Work))
-    {
-        CRYSTAL_TRACE("fail add task to thread when MemoryMonitor Init.");
-        return Status::Error;
-    }
-
     _milliSecInterval = milliSecInterval;
 
     return Status::Success;
@@ -87,8 +78,6 @@ void MemoryMonitor::Start()
 
     if(_isStart.exchange(true))
         return;
-
-    _thread->Start();
 }
 
 void MemoryMonitor::Close()
@@ -97,15 +86,6 @@ void MemoryMonitor::Close()
         return;
     
     _init = false;
-    if(_thread)
-    {
-        if(_thread->HalfClose())
-        {
-            _lck.Broadcast();
-            _thread->FinishClose();
-        }
-        CRYSTAL_DELETE_SAFE(_thread);
-    }
 }
 
 Statistics *MemoryMonitor::GetStatistics()
@@ -115,59 +95,13 @@ Statistics *MemoryMonitor::GetStatistics()
     return s_statistics.AsSelf();
 }
 
-void MemoryMonitor::_Work(LibThread *t)
+void MemoryMonitor::_DoWork()
 {
-    g_Log->Sys(LOGFMT_OBJ_TAG("memory monitor thread work thread id[%lld] interval[%lld] milli second.")
-                , SystemUtil::GetCurrentThreadId(), _milliSecInterval);
-
-    LibCpuCounter cpuCounter, startCounter;
+    static thread_local UInt64 batchNum = 0;
     auto statics = GetStatistics();
-    UInt64 batchNum = 0;
-    while(!t->IsDestroy())
-    {
-        _lck.TimeWait(_milliSecInterval);
-        startCounter.Update();
-
-        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-        UInt64 sysAvail = SystemUtil::GetAvailPhysMemSize();
-        UInt64 totalSystemSize = SystemUtil::GetTotalPhysMemSize();
-        #else
-        std::map<LibString, LibString> memInfo;
-        SystemUtil::ReadMemInfoDict(memInfo);
-        // 单位KB
-        UInt64 sysAvail = SystemUtil::GetAvailableMem(memInfo) * 1024;
-        UInt64 totalSystemSize = SystemUtil::GetTotalMem(memInfo) * 1024;
-        #endif
-
-        g_Log->MemMonitor("Begin memory monitor log batchNum:%llu, System Total Mem Size:%llu, System Available Mem Size:%llu\n", ++batchNum, totalSystemSize, sysAvail);
-
-        // 已打印的不打,未打印的append上去,一旦发生变化,需要重新便利
-        auto &dict = statics->GetDict();
-        UInt64 idx = 0;
-        UInt64 totalBufferBytes = 0;
-        while (true)
-        {
-            statics->Lock();
-            if(idx >= dict.size())
-            {
-                statics->Unlock();
-                break;
-            }
-            
-            LibString cache;
-            auto deleg = dict.at(idx);
-            totalBufferBytes += deleg->Invoke(cache);
-            ++idx;
-            statics->Unlock();
-
-            g_Log->MemMonitor("%s\n", cache.c_str());
-        }
-
-        g_Log->MemMonitor("End memory monitor log batchNum:%llu Total Pool Alloc Buffer Bytes:%llu, Memory monitor Use Time: %llu(micro seconds) one frame.\n"
-                        , batchNum, totalBufferBytes, cpuCounter.Update().ElapseMicroseconds(startCounter));
-    }
-    
+    LibCpuCounter cpuCounter, startCounter;
     startCounter.Update();
+
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     UInt64 sysAvail = SystemUtil::GetAvailPhysMemSize();
     UInt64 totalSystemSize = SystemUtil::GetTotalPhysMemSize();
@@ -206,4 +140,5 @@ void MemoryMonitor::_Work(LibThread *t)
     g_Log->MemMonitor("End memory monitor log batchNum:%llu Total Pool Alloc Buffer Bytes:%llu, Memory monitor Use Time: %llu(micro seconds) one frame.\n"
                     , batchNum, totalBufferBytes, cpuCounter.Update().ElapseMicroseconds(startCounter));
 }
+
 KERNEL_END

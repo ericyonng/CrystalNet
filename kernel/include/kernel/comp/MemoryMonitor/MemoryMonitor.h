@@ -57,6 +57,7 @@
 
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/MemoryMonitor/Statistics.h>
+#include <kernel/comp/Delegate/Delegate.h>
 
 KERNEL_BEGIN
 
@@ -73,19 +74,31 @@ public:
     void Start();
     void Close();
 
+    Int64 GetMilliSecInterval() const;
+
+    IDelegate<void> *MakeWorkTask();
+
     // 只提供注册不提供反注册
     static Statistics *GetStatistics();
 
 private:
-    void _Work(LibThread *t);
+    void _DoWork();
 
 private:
     std::atomic_bool _init;
     std::atomic_bool _isStart;
-    LibThread *_thread;
     Int64 _milliSecInterval;
-    ConditionLocker _lck;
 };
+
+ALWAYS_INLINE Int64 MemoryMonitor::GetMilliSecInterval() const
+{
+    return _milliSecInterval;
+}
+
+ALWAYS_INLINE IDelegate<void> *MemoryMonitor::MakeWorkTask()
+{
+    return DelegateFactory::Create(this, &MemoryMonitor::_DoWork);
+}
 
 KERNEL_END
 

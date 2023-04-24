@@ -896,13 +896,43 @@ void Application::_OnMonitor(KERNEL_NS::LibThread *t)
     if(!t->IsDestroy())
         MaskReady(true);
 
+    KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
+    timerMgr.SetClosureDelegate([](void *p){
+        auto timerMgr = reinterpret_cast<KERNEL_NS::TimerMgr *>(p);
+        KERNEL_NS::TimerMgr::Delete_TimerMgr(timerMgr);
+    });
+    timerMgr->Launch(NULL);
+
     if(LIKELY(GetErrCode() == Status::Success))
     {
         g_Log->Info(LOGFMT_OBJ_TAG("all comps are ready system info:%s."), ToString().c_str());
 
+        // 性能监控 1秒一次
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> monitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(timerMgr.AsSelf());
+        monitorTimer.SetClosureDelegate([](void *p){
+            auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
+        });
+        monitorTimer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
+            _OnMonitorThreadFrame();
+        });
+        monitorTimer->Schedule(1000);
+
+        // 内存监控 60秒一次
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> memoryMonitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(timerMgr.AsSelf());
+        memoryMonitorTimer.SetClosureDelegate([](void *p){
+            auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
+        });
+        KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> workHandler = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
+        memoryMonitorTimer->SetTimeOutHandler([&workHandler](KERNEL_NS::LibTimer *t){
+            workHandler->Invoke();
+        });
+        memoryMonitorTimer->Schedule(KERNEL_NS::MemoryMonitor::GetInstance()->GetMilliSecInterval());
+
         while (!t->IsDestroy())
         {
-            _OnMonitorThreadFrame();
+            timerMgr->Drive();
             KERNEL_NS::SystemUtil::ThreadSleep(1000);
         }
     }
