@@ -585,8 +585,8 @@ Int32 Application::_ReadBaseConfigs()
                 newPollerFeatureConfig = iterPollerFeatureConfig->second;
             }
 
-            if(newPollerFeatureConfig->_pollerInstConfigs.size() < _kernelConfig._linkInOutPollerAmount)
-                newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._linkInOutPollerAmount);
+            if(static_cast<Int32>(newPollerFeatureConfig->_pollerInstConfigs.size()) < _kernelConfig._linkInOutPollerAmount)
+                newPollerFeatureConfig->_pollerInstConfigs.resize(static_cast<size_t>(_kernelConfig._linkInOutPollerAmount));
 
             // 创建配置
             auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
@@ -627,8 +627,8 @@ Int32 Application::_ReadBaseConfigs()
                 newPollerFeatureConfig = iterPollerFeatureConfig->second;
             }
 
-            if(newPollerFeatureConfig->_pollerInstConfigs.size() < _kernelConfig._dataTransferPollerAmount)
-                newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._dataTransferPollerAmount);
+            if(static_cast<Int32>(newPollerFeatureConfig->_pollerInstConfigs.size()) < _kernelConfig._dataTransferPollerAmount)
+                newPollerFeatureConfig->_pollerInstConfigs.resize(static_cast<size_t>(_kernelConfig._dataTransferPollerAmount));
 
             // 创建配置
             auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
