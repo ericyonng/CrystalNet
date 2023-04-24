@@ -505,17 +505,98 @@ Int32 Application::_ReadBaseConfigs()
             }
             _kernelConfig._sessionSendPacketContentLimit = cache;
         }
+
+        {// poller feature定义
+            KERNEL_NS::LibString cache;
+            if(!_configIni->ReadStr(APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache))
+            {
+                cache = POLLER_FEATURE_TYPE_DEFAULT_VALUE;
+                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str())))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                                , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str());
+                    return Status::ConfigError;
+                }
+            }
+
+            const auto &featurePairParts = cache.Split(',');
+            if(featurePairParts.size() < 2)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("have no poller feature please check seg:%s, key:%s, value:%s")
+                            , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str());
+                return Status::ConfigError;
+            }
+
+            for(auto &part : featurePairParts)
+            {
+                const auto &items = part.Split(':');
+                if(items.size() < 2)
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("feature format error please check seg:%s, key:%s, value:%s, part:%s")
+                            , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str(), part.c_str());
+                    return Status::ConfigError;
+                }
+
+                const auto &featureString = items[0];
+                const auto &featureIdString = items[1];
+                if(!featureIdString.isdigit())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("feature id format error please check seg:%s, key:%s, value:%s, part:%s, featureIdString:%s")
+                            , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str(), part.c_str(), featureIdString.c_str());
+                    return Status::ConfigError;
+                }
+
+                if(_kernelConfig._pollerFeatureStringRefId.find(featureString) != _kernelConfig._pollerFeatureStringRefId.end())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("repeate feature please check seg:%s, key:%s, value:%s, part:%s, featureString:%s")
+                            , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY, cache.c_str(), part.c_str(), featureString.c_str());
+                    return Status::ConfigError;
+                }
+                
+                auto featureId = KERNEL_NS::StringUtil::StringToInt32(featureIdString.c_str());
+                _kernelConfig._pollerFeatureStringRefId.insert(std::make_pair(featureString, featureId));
+                
+                auto iterFeatureString = _kernelConfig._pollerFeatureIdRefString.find(featureId);
+                if(iterFeatureString == _kernelConfig._pollerFeatureIdRefString.end())
+                    iterFeatureString = _kernelConfig._pollerFeatureIdRefString.insert(std::make_pair(featureId, std::set<KERNEL_NS::LibString>())).first;
+                iterFeatureString->second.insert(featureString);
+            }
+
+            if(_kernelConfig._pollerFeatureStringRefId.empty())
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("lack of poller feature config please check seg:%s, key:%s")
+                        , APPLICATION_KERNEL_CONFIG_SEG, POLLER_FEATURE_TYPE_KEY);
+                return Status::ConfigError;
+            }
+        }
         
         {// linker相关配置
-            auto newPollerFeatureConfig = KERNEL_NS::TcpPollerFeatureConfig::New_TcpPollerFeatureConfig(&tcpPollerConfig, KERNEL_NS::PollerFeature::LINKER);
-            newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._linkInOutPollerAmount);
-            tcpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(KERNEL_NS::PollerFeature::LINKER, newPollerFeatureConfig));
+            auto iterLinker = _kernelConfig._pollerFeatureStringRefId.find(POLLER_FEATURE_LINKER);
+            const auto linkerPollerFeatureId = iterLinker->second;
+            auto iterPollerFeatureConfig = tcpPollerConfig._pollerFeatureRefConfig.find(linkerPollerFeatureId);
+            KERNEL_NS::TcpPollerFeatureConfig *newPollerFeatureConfig = NULL;
+            if(iterPollerFeatureConfig == tcpPollerConfig._pollerFeatureRefConfig.end())
+            {
+                newPollerFeatureConfig = KERNEL_NS::TcpPollerFeatureConfig::New_TcpPollerFeatureConfig(&tcpPollerConfig, linkerPollerFeatureId);
+                tcpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(linkerPollerFeatureId, newPollerFeatureConfig));
+            }
+            else
+            {
+                newPollerFeatureConfig = iterPollerFeatureConfig->second;
+            }
+
+            if(newPollerFeatureConfig->_pollerInstConfigs.size() < _kernelConfig._linkInOutPollerAmount)
+                newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._linkInOutPollerAmount);
 
             // 创建配置
             auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
             for(Int32 idx = 0; idx < _kernelConfig._linkInOutPollerAmount; ++idx)
             {
-                auto newInstConfig = KERNEL_NS::TcpPollerInstConfig::New_TcpPollerInstConfig(newPollerFeatureConfig, static_cast<UInt32>(idx + 1));
+                auto newInstConfig = pollerInstConfigs[idx];
+                if(newInstConfig)
+                    continue;
+
+                newInstConfig = KERNEL_NS::TcpPollerInstConfig::New_TcpPollerInstConfig(newPollerFeatureConfig, static_cast<UInt32>(idx + 1));
                 newInstConfig->_handleRecvBytesPerFrameLimit = _kernelConfig._maxRecvBytesPerFrame;
                 newInstConfig->_handleSendBytesPerFrameLimit = _kernelConfig._maxSendBytesPerFrame;
                 newInstConfig->_handleAcceptPerFrameLimit = _kernelConfig._maxAcceptCountPerFrame;
@@ -532,15 +613,32 @@ Int32 Application::_ReadBaseConfigs()
         }
        
         {// transfer相关配置
-            auto newPollerFeatureConfig = KERNEL_NS::TcpPollerFeatureConfig::New_TcpPollerFeatureConfig(&tcpPollerConfig, KERNEL_NS::PollerFeature::DATA_TRANSFER);
-            newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._dataTransferPollerAmount);
-            tcpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(KERNEL_NS::PollerFeature::DATA_TRANSFER, newPollerFeatureConfig));
+            auto iterTransfer = _kernelConfig._pollerFeatureStringRefId.find(POLLER_FEATURE_DATA_TRANSFER);
+            const auto transferPollerFeatureId = iterTransfer->second;
+            auto iterPollerFeatureConfig = tcpPollerConfig._pollerFeatureRefConfig.find(transferPollerFeatureId);
+            KERNEL_NS::TcpPollerFeatureConfig *newPollerFeatureConfig = NULL;
+            if(iterPollerFeatureConfig == tcpPollerConfig._pollerFeatureRefConfig.end())
+            {
+                newPollerFeatureConfig = KERNEL_NS::TcpPollerFeatureConfig::New_TcpPollerFeatureConfig(&tcpPollerConfig, transferPollerFeatureId);
+                tcpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(transferPollerFeatureId, newPollerFeatureConfig));
+            }
+            else
+            {
+                newPollerFeatureConfig = iterPollerFeatureConfig->second;
+            }
+
+            if(newPollerFeatureConfig->_pollerInstConfigs.size() < _kernelConfig._dataTransferPollerAmount)
+                newPollerFeatureConfig->_pollerInstConfigs.resize(_kernelConfig._dataTransferPollerAmount);
 
             // 创建配置
             auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
             for(Int32 idx = 0; idx < _kernelConfig._dataTransferPollerAmount; ++idx)
             {
-                auto newInstConfig = KERNEL_NS::TcpPollerInstConfig::New_TcpPollerInstConfig(newPollerFeatureConfig,  static_cast<UInt32>(idx + 1));
+                auto newInstConfig = pollerInstConfigs[idx];
+                if(newInstConfig)
+                    continue;
+
+                newInstConfig = KERNEL_NS::TcpPollerInstConfig::New_TcpPollerInstConfig(newPollerFeatureConfig,  static_cast<UInt32>(idx + 1));
                 newInstConfig->_handleRecvBytesPerFrameLimit = _kernelConfig._maxRecvBytesPerFrame;
                 newInstConfig->_handleSendBytesPerFrameLimit = _kernelConfig._maxSendBytesPerFrame;
                 newInstConfig->_handleAcceptPerFrameLimit = _kernelConfig._maxAcceptCountPerFrame;
@@ -556,6 +654,12 @@ Int32 Application::_ReadBaseConfigs()
             }
         }
     }
+
+    _pollerConfig._pollerFeatureIdRefString = _kernelConfig._pollerFeatureIdRefString;
+    _pollerConfig._pollerFeatureStringRefId = _kernelConfig._pollerFeatureStringRefId;
+    
+    KERNEL_NS::g_LinkerPollerName = POLLER_FEATURE_LINKER;
+    KERNEL_NS::g_TransferPollerName = POLLER_FEATURE_DATA_TRANSFER;
 
     // udp poller 相关配置
     // auto &udpPollerConfig = _pollerConfig._udpPollerConfig;
@@ -740,11 +844,11 @@ void Application::_OnMonitorThreadFrame()
     // g_Log->Debug(LOGFMT_OBJ_TAG("\napplication motinotr thread frame app info:%s."), ToString().c_str());
 
     // 1.获取此刻的响应时间列表
-    _lck.Lock();
+    _guard.Lock();
     auto sw = _statisticsInfo;
     _statisticsInfo = _statisticsInfoCache;
     _statisticsInfoCache = sw;
-    _lck.Unlock();
+    _guard.Unlock();
 
     // 2.获取poller信息
     auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();

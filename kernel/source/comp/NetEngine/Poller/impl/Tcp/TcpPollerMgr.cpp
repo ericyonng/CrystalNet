@@ -41,6 +41,8 @@
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgrFactory.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpPoller.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpPoller.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
+#include <kernel/comp/NetEngine/Defs/NetCfgDefs.h>
 
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgr.h>
 
@@ -52,6 +54,8 @@ TcpPollerMgr::TcpPollerMgr()
 :_config(NULL)
 ,_maxPollerId(0)
 ,_serviceProxy(NULL)
+,_trasferFeatureId(0)
+,_linkerFeatureId(0)
 {
 
 }
@@ -241,13 +245,21 @@ TcpPollerMgr::TcpPoller *TcpPollerMgr::_CreatePoller(const TcpPollerInstConfig *
 
     // 统计poller
     auto pollerMgr = GetOwner()->CastTo<IPollerMgr>();
-    if(featureCfg->_pollerFeature == PollerFeature::LINKER)
+    auto pollerConfig = pollerMgr->GetConfig();
+    auto iterFeatureString = pollerConfig->_pollerFeatureIdRefString.find(featureCfg->_pollerFeature);
+    auto &featureStrings = iterFeatureString->second;
+    for(auto &featureStr : featureStrings)
     {
-        pollerMgr->AddLinkerPollerCount(1);
-    }
-    else if(featureCfg->_pollerFeature == PollerFeature::DATA_TRANSFER)
-    {
-        pollerMgr->AddDataTransferPollerCount(1);
+        if(featureStr == g_LinkerPollerName)
+        {
+            pollerMgr->AddLinkerPollerCount(1);
+            _linkerFeatureId = featureCfg->_pollerFeature;
+        }
+        else if(featureStr == g_TransferPollerName)
+        {
+            pollerMgr->AddDataTransferPollerCount(1);
+            _trasferFeatureId = featureCfg->_pollerFeature;
+        }
     }
 
     return newPoller;
@@ -326,9 +338,9 @@ void TcpPollerMgr::_Clear()
 void TcpPollerMgr::PostConnect(LibConnectInfo *connectInfo)
 {
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-        auto pollerCluster = _GetPollerCluster(PollerFeature::DATA_TRANSFER);
+        auto pollerCluster = _GetPollerCluster(_trasferFeatureId);
     #else
-        auto pollerCluster = _GetPollerCluster(PollerFeature::LINKER);
+        auto pollerCluster = _GetPollerCluster(_linkerFeatureId);
     #endif
     if(UNLIKELY(!pollerCluster))
     {
@@ -351,7 +363,7 @@ void TcpPollerMgr::PostConnect(LibConnectInfo *connectInfo)
 
 void TcpPollerMgr::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
 {
-    auto pollerCluster = _GetPollerCluster(PollerFeature::LINKER);
+    auto pollerCluster = _GetPollerCluster(_linkerFeatureId);
     if(UNLIKELY(!pollerCluster))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("have no linker poller cluster listen info:%s"), listenInfo->ToString().c_str());
@@ -377,7 +389,7 @@ void TcpPollerMgr::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
 
 void TcpPollerMgr::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList)
 {
-    auto pollerCluster = _GetPollerCluster(PollerFeature::LINKER);
+    auto pollerCluster = _GetPollerCluster(_linkerFeatureId);
     if(UNLIKELY(!pollerCluster))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("have no linker poller cluster listen info size:%llu"), static_cast<UInt64>(listenInfoList.size()));
@@ -467,7 +479,7 @@ void TcpPollerMgr::PostIpControl(Int32 level, const std::list<IpControlInfo *> &
 void TcpPollerMgr::OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo)
 {
 
-    auto pollerCluster = _GetPollerCluster(PollerFeature::DATA_TRANSFER);
+    auto pollerCluster = _GetPollerCluster(_trasferFeatureId);
     if(UNLIKELY(!pollerCluster))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("have no data transfer poller cluster newSessionInfo:%s"), newSessionInfo->ToString().c_str());
@@ -497,7 +509,7 @@ void TcpPollerMgr::OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo)
 
 void TcpPollerMgr::OnAcceptedSuc(BuildSessionInfo *newSessionInfo)
 {
-    auto pollerCluster = _GetPollerCluster(PollerFeature::DATA_TRANSFER);
+    auto pollerCluster = _GetPollerCluster(_trasferFeatureId);
     if(UNLIKELY(!pollerCluster))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("have no data transfer poller cluster newSessionInfo:%s"), newSessionInfo->ToString().c_str());

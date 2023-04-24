@@ -53,6 +53,9 @@ struct KERNEL_EXPORT PollerConfig
     UInt64 _maxSessionQuantity;
     TcpPollerConfig _tcpPollerConfig;   // tcp poller配置
 
+    std::unordered_map<KERNEL_NS::LibString, Int32> _pollerFeatureStringRefId;  // poller feature id定义
+    std::unordered_map<Int32, std::set<KERNEL_NS::LibString>> _pollerFeatureIdRefString;  // poller feature id定义
+    
     // UdpPollerConfig _udpPollerConfig;   // upd poller 配置
 };
 

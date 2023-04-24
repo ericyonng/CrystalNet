@@ -119,6 +119,7 @@ protected:
     LibString _cpuVendor;       // cpu厂商
     LibString _cpuBrand;        // cpu商标
 
+private:
     LockWrap<_Build::MT, LockParticleType::Heavy> _lck;
 };
 

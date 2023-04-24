@@ -35,29 +35,29 @@
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT PollerFeature
-{
-public:
-    enum FeatureType
-    {
-        NONE = 0,
-        LINKER = 1,         // 连接器 承担连入和连出
-        DATA_TRANSFER = 2,  // 数据收发器, 承担数据收发
-    };
+// class KERNEL_EXPORT PollerFeature
+// {
+// public:
+//     enum FeatureType
+//     {
+//         NONE = 0,
+//         LINKER = 1,         // 连接器 承担连入和连出
+//         DATA_TRANSFER = 2,  // 数据收发器, 承担数据收发
+//     };
     
-    static const Byte8 *ToString(Int32 featureType)
-    {
-        switch (featureType)
-        {
-        case PollerFeature::LINKER: return "LINKER";
-        case PollerFeature::DATA_TRANSFER: return "DATA_TRANSFER";
-        default:
-            break;
-        }
+//     static const Byte8 *ToString(Int32 featureType)
+//     {
+//         switch (featureType)
+//         {
+//         case PollerFeature::LINKER: return "LINKER";
+//         case PollerFeature::DATA_TRANSFER: return "DATA_TRANSFER";
+//         default:
+//             break;
+//         }
 
-        return "Unknown";
-    }
-};
+//         return "Unknown";
+//     }
+// };
 
 KERNEL_END
 

@@ -127,7 +127,7 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
         return errCode;
     }
 
-    // app等待结束
+    // app等待结束 TODO:此时执行MemoryMonitor与系统性能指标逻辑
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application wait finish(client can send a message to close application.)..."));
     Int32 err = Status::Success;
     app->WaitFinish(err);

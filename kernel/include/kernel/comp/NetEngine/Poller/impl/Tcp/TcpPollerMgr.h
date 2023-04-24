@@ -132,6 +132,9 @@ private:
     std::unordered_map<UInt64, TcpPoller *> _idRefPoller;
 
     IServiceProxy *_serviceProxy;
+
+    Int32 _trasferFeatureId;
+    Int32 _linkerFeatureId;
 };
 
 ALWAYS_INLINE void TcpPollerMgr::SetConfig(const TcpPollerConfig *cfg)

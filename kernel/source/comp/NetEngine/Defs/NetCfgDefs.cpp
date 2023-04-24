@@ -21,44 +21,18 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-04-19 22:23:44
+ * Date: 2023-04-24 17:28:07
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
+#include <kernel/comp/NetEngine/Defs/NetCfgDefs.h>
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(PollerConfig);
-
-PollerConfig::PollerConfig()
-:_blackWhiteListFlag(0)
-,_maxSessionQuantity(0)
-{
-
-}
-
-LibString PollerConfig::ToString() const
-{
-    LibString info;
-    info.AppendFormat("_blackWhiteListFlag:%u, 0x%x\n", _blackWhiteListFlag, _blackWhiteListFlag)
-        .AppendFormat("_maxSessionQuantity:%llu\n", _maxSessionQuantity)
-        .AppendFormat("tcp poller config:%s", _tcpPollerConfig.ToString().c_str())
-        ;
-
-    return info;
-}
-
-void PollerConfig::Copy(const PollerConfig &cfg)
-{
-    _blackWhiteListFlag = cfg._blackWhiteListFlag;
-    _maxSessionQuantity = cfg._maxSessionQuantity;
-    _tcpPollerConfig.Copy(cfg._tcpPollerConfig);
-    _pollerFeatureStringRefId = cfg._pollerFeatureStringRefId;
-    _pollerFeatureIdRefString = cfg._pollerFeatureIdRefString;
-    // _udpPollerConfig.Copy(cfg._udpPollerConfig);
-}
+LibString g_LinkerPollerName;
+LibString g_TransferPollerName;
 
 KERNEL_END
+

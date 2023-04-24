@@ -31,6 +31,9 @@
 
 #pragma once
 
+#include <kernel/kernel_inc.h>
+#include <kernel/comp/LibString.h>
+
 // // connector配置
 #undef CONNECT_SEGMENT
 #define CONNECTOR_SEGMENT "Connector"
@@ -53,5 +56,12 @@
 #undef CONNECTOR_BLACK_WHITE_MODE_FIELD_VALUE
 #define CONNECTOR_BLACK_WHITE_MODE_FIELD_VALUE (1U << BlackWhiteFlag::CheckBlack)
 
+// poller feature
+KERNEL_BEGIN
+
+extern KERNEL_EXPORT LibString g_LinkerPollerName;
+extern KERNEL_EXPORT LibString g_TransferPollerName;
+
+KERNEL_END
 
 #endif

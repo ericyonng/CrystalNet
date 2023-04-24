@@ -111,7 +111,7 @@ private:
     KERNEL_NS::LibThread *_monitor;
 
     // 响应时间
-    KERNEL_NS::SpinLock _lck;
+    KERNEL_NS::SpinLock _guard;
     StatisticsInfo *_statisticsInfo;
     StatisticsInfo *_statisticsInfoCache;
 };

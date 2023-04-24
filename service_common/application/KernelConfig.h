@@ -55,6 +55,8 @@ struct KernelConfig
     UInt64 _sessionRecvPacketStackLimit = 0;       // 收包堆叠上限
     UInt64 _sessionRecvPacketContentLimit = 0;             // 收包单包大小限制 默认4MB 0表示不限制
     UInt64 _sessionSendPacketContentLimit = 0;             // 发包单包大小限制 0表示不限制
+    std::unordered_map<KERNEL_NS::LibString, Int32> _pollerFeatureStringRefId;  // poller feature id定义
+    std::unordered_map<Int32, std::set<KERNEL_NS::LibString>> _pollerFeatureIdRefString;  // poller feature id定义
 };
 
 SERVICE_COMMON_END

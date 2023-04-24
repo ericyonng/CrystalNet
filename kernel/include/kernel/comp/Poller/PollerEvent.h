@@ -89,6 +89,26 @@ struct KERNEL_EXPORT ActionPollerEvent : public PollerEvent
     IDelegate<void> *_action;
 };
 
+struct KERNEL_EXPORT EmptyPollerEvent : public PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, EmptyPollerEvent);
+
+    EmptyPollerEvent(Int32 type)
+    :PollerEvent(type)
+    {
+
+    }
+
+    ~EmptyPollerEvent()
+    {
+    }
+
+    virtual void Release() override
+    {
+        EmptyPollerEvent::Delete_EmptyPollerEvent(this);
+    }
+};
+
 KERNEL_END
 
 #endif
