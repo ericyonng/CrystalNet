@@ -935,6 +935,8 @@ void Application::_OnMonitor(KERNEL_NS::LibThread *t)
             timerMgr->Drive();
             KERNEL_NS::SystemUtil::ThreadSleep(1000);
         }
+
+        workHandler->Invoke();
     }
     else
     {
