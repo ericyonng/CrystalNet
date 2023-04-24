@@ -163,7 +163,7 @@ ALWAYS_INLINE KERNEL_NS::LibIniFile *Application::GetIni()
 
 ALWAYS_INLINE void Application::PushResponceNs(UInt64 costNs)
 {
-    _lck.Lock();
+    _guard.Lock();
     if(_statisticsInfo->_minResNs == 0)
         _statisticsInfo->_minResNs = costNs;
     if(_statisticsInfo->_maxResNs < costNs)
@@ -171,7 +171,7 @@ ALWAYS_INLINE void Application::PushResponceNs(UInt64 costNs)
 
     ++_statisticsInfo->_resCount;
     _statisticsInfo->_resTotalNs += costNs;
-    _lck.Unlock();
+    _guard.Unlock();
 }
 
 SERVICE_COMMON_END
