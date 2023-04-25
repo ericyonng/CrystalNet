@@ -71,7 +71,7 @@ Int32 LibLogFile::PartitionFile(bool isSysFirstCreate, LibTime *nowTime)
     auto err = FileUtil::Rename(fileNameCache, wholeName);
     if(err != Status::Success)
     {
-        CRYSTAL_TRACE("rename frome %s to %s fail err:%d", fileNameCache.c_str(), wholeName.c_str());
+        CRYSTAL_TRACE("rename frome %s to %s fail err:%d", fileNameCache.c_str(), wholeName.c_str(), err);
         if(!Reopen(nowTime))
             CRYSTAL_TRACE("reopen log file:%s fail when PartitionFile at Rename fail.", fileNameCache.c_str());
 
