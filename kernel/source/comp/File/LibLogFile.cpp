@@ -46,10 +46,10 @@ LibLogFile::~LibLogFile()
 
 }
 
-void LibLogFile::PartitionFile(bool isSysFirstCreate, LibTime *nowTime)
+Int32 LibLogFile::PartitionFile(bool isSysFirstCreate, LibTime *nowTime)
 {
     if(isSysFirstCreate)
-        return;
+        return Status::Success;
 
     // 构建文件名
     LibString fileNameCache;
@@ -64,24 +64,18 @@ void LibLogFile::PartitionFile(bool isSysFirstCreate, LibTime *nowTime)
         wholeName.AppendFormat("%sOld%d", fileNameCache.c_str(), ++_partNo);
     }
 
-    // 转储文件
-    auto dest = FileUtil::OpenFile(wholeName.c_str(), true);
-    FileUtil::ResetFileCursor(*_fp);
-    FileUtil::CopyFile(*_fp, *dest);
-    FileUtil::CloseFile(*dest);
-
-    // 删除并重开文件
+    // 关闭文件
     Close();
-    auto tempFp = FileUtil::OpenFile(fileNameCache.c_str(), true, "w");
-    if(!tempFp)
+
+    // 将源文件改名
+    auto err = FileUtil::Rename(fileNameCache, wholeName);
+    if(err != Status::Success)
     {
-        auto err = SystemUtil::GetErrNo();
-        auto errStr = SystemUtil::GetErrString(err);
-        CRYSTAL_TRACE("open file fail wit w type err:%d, %s", err, errStr.c_str());
-    }
-    else
-    {
-        FileUtil::CloseFile(*tempFp);
+        CRYSTAL_TRACE("rename frome %s to %s fail err:%d", fileNameCache.c_str(), wholeName.c_str());
+        if(!Reopen(nowTime))
+            CRYSTAL_TRACE("reopen log file:%s fail when PartitionFile at Rename fail.", fileNameCache.c_str());
+
+        return err;
     }
 
     // if(!FileUtil::DelFileCStyle(fileNameCache.c_str()))
@@ -103,12 +97,15 @@ void LibLogFile::PartitionFile(bool isSysFirstCreate, LibTime *nowTime)
     //     }
     // }
 
+    // 重新打开原文件
     #ifdef _DEBUG
         auto ret = Reopen(nowTime);
         ASSERT(ret);
     #else
-        Reopen(nowTime);
+       auto ret = Reopen(nowTime);
     #endif
+
+    return ret ? Status::Success : Status::Failed;
 }
 
 KERNEL_END

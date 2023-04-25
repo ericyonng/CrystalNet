@@ -51,7 +51,7 @@ public:
     bool IsTooLarge(Int64 limitSize) const;
 
     // isSysFirstCreate=true:系统第一次创建不会分文件
-    void PartitionFile(bool isSysFirstCreate = false, LibTime *nowTime = NULL);    
+    Int32 PartitionFile(bool isSysFirstCreate = false, LibTime *nowTime = NULL);    
 
 protected:
     Int32 _partNo;

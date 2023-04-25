@@ -100,17 +100,17 @@ private:
     std::list<LogData *> *_swapData = new std::list<LogData *>;
 };
 
-inline void SpecifyLog::BindWakeupFlush(ConditionLocker *flusher)
+ALWAYS_INLINE void SpecifyLog::BindWakeupFlush(ConditionLocker *flusher)
 {
     _wakeupFlush = flusher;
 }
 
-inline void SpecifyLog::Flush()
+ALWAYS_INLINE void SpecifyLog::Flush()
 {
     _wakeupFlush->Sinal();
 }
 
-inline void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
+ALWAYS_INLINE void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
 {
     // 1.外部判断,按理来说不应该在日志线程即将关闭或者关闭时写日志
     if(UNLIKELY(_isClose.load()))
@@ -159,22 +159,22 @@ inline void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
     }
 }
 
-inline Int32 SpecifyLog::GetThreadRelationId() const
+ALWAYS_INLINE Int32 SpecifyLog::GetThreadRelationId() const
 {
     return _config->_threadRelationId;
 }
 
-inline void SpecifyLog::ForceToDisk()
+ALWAYS_INLINE void SpecifyLog::ForceToDisk()
 {
     CloseAndReopen();
 }
 
-inline void SpecifyLog::_WakupFlush()
+ALWAYS_INLINE void SpecifyLog::_WakupFlush()
 {
     _wakeupFlush->Sinal();
 }
 
-inline void SpecifyLog::_OutputToConsole(const LogLevelCfg &levelCfg, const LibString &logInfo)
+ALWAYS_INLINE void SpecifyLog::_OutputToConsole(const LogLevelCfg &levelCfg, const LibString &logInfo)
 {
     SystemUtil::LockConsole();
     const Int32 oldColor = SystemUtil::GetConsoleColor();
@@ -184,7 +184,7 @@ inline void SpecifyLog::_OutputToConsole(const LogLevelCfg &levelCfg, const LibS
     SystemUtil::UnlockConsole();
 }
 
-inline void SpecifyLog::InstallBeforeHook(Int32 level, IDelegate<void, LogData *> *deleg)
+ALWAYS_INLINE void SpecifyLog::InstallBeforeHook(Int32 level, IDelegate<void, LogData *> *deleg)
 {
     auto hookList = _beforeHook[level];
     if(UNLIKELY(!hookList))
@@ -196,7 +196,7 @@ inline void SpecifyLog::InstallBeforeHook(Int32 level, IDelegate<void, LogData *
     hookList->push_back(deleg);
 }
 
-inline void SpecifyLog::InstallAfterHook(Int32 level, IDelegate<void> *deleg)
+ALWAYS_INLINE void SpecifyLog::InstallAfterHook(Int32 level, IDelegate<void> *deleg)
 {   
     auto hookList = _afterHook[level];
     if(UNLIKELY(!hookList))
@@ -208,7 +208,7 @@ inline void SpecifyLog::InstallAfterHook(Int32 level, IDelegate<void> *deleg)
     hookList->push_back(deleg);
 }
 
-inline void SpecifyLog::UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *deleg)
+ALWAYS_INLINE void SpecifyLog::UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *deleg)
 {
     auto hookList = _afterHook[level];
     if(!hookList)
@@ -225,7 +225,7 @@ inline void SpecifyLog::UnInstallAfterLogHookFunc(Int32 level, const IDelegate<v
     }
 }
 
-inline void SpecifyLog::UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogData *> *deleg)
+ALWAYS_INLINE void SpecifyLog::UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogData *> *deleg)
 {
     auto hookList = _beforeHook[level];
     if(!hookList)
@@ -242,7 +242,7 @@ inline void SpecifyLog::UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<
     }
 }
 
-inline bool SpecifyLog::IsClose() const
+ALWAYS_INLINE bool SpecifyLog::IsClose() const
 {
     return _isClose.load();
 }
