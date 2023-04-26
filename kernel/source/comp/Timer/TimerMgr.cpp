@@ -135,6 +135,75 @@ void TimerMgr::Drive()
     }
 }
 
+void TimerMgr::SafetyDrive()
+{
+   _BeforeDrive();
+
+    if(LIKELY(!_expireQueue.empty()))
+    {
+        _curTime = TimeUtil::GetFastMicroTimestamp();
+        UniqueSmartPtr<LibList<TimeData *, _Build::TL>> timeDataList = LibList<TimeData *, _Build::TL>::NewThreadLocal_LibList();
+        timeDataList.SetClosureDelegate([](void *p){
+            auto ptr = reinterpret_cast<LibList<TimeData *, _Build::TL> *>(p);
+            LibList<TimeData *, _Build::TL>::DeleteThreadLocal_LibList(ptr);
+        });
+
+        try
+        {
+            for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
+            {
+                // 未过期的为止
+                auto timeData = *iter;
+                if(timeData->_expiredTime > _curTime)
+                    break;
+
+                timeDataList->PushBack(timeData);
+                iter = _expireQueue.erase(iter);
+            }
+
+            for(auto node = timeDataList->Begin(); node;)
+            {
+                auto timeData = node->_data;
+                if(timeData->_isScheduing)
+                {
+                    timeData->_owner->OnTimeOut();
+
+                    if(LIKELY(timeData->_owner))
+                    {
+                        // 重新被调度
+                        if(timeData->_isScheduing)
+                            _Register(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+                    }
+                }
+
+                node = timeDataList->Erase(node);
+            }
+        }
+        catch(const std::exception& e)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("eception when drive timer:%s"), e.what());
+        }
+        catch(...)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("unknown eception when drive timer."));
+            throw;
+        }
+    }
+
+    _AfterDrive();
+
+    // 重算过期标记
+    if(UNLIKELY(!_expireQueue.empty()))
+    {
+        auto timeData =  *_expireQueue.begin();
+        _hasExpired = (_curTime = TimeUtil::GetFastMicroTimestamp()) >= timeData->_expiredTime;
+    }
+    else
+    {
+        _hasExpired = false;
+    }
+}
+
 void TimerMgr::Close()
 {
     _expireQueue.clear();

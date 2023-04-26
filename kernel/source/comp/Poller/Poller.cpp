@@ -359,6 +359,158 @@ void Poller::EventLoop()
     g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
 }
 
+void Poller::SafetyEventLoop()
+{
+    LibList<LibList<PollerEvent *, _Build::MT> *> *priorityEvents = LibList<LibList<PollerEvent *, _Build::MT> *>::New_LibList();
+    const Int64 priorityQueueSize = static_cast<Int64>(_eventsList->GetMaxLevel() + 1);
+    for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
+        priorityEvents->PushBack(LibList<PollerEvent *, _Build::MT>::New_LibList());
+
+    // 部分数据准备
+    LibString errLog;
+
+    g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
+
+    LibCpuCounter deadline;
+    LibCpuCounter nowCounter;
+
+    #ifdef _DEBUG
+     LibCpuCounter performaceStart;
+    #endif
+
+    const UInt64 pollerId = GetId();
+    const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
+
+    UInt64 mergeNumber = 0;
+    for(;;)
+    {
+        // 没有事件且没有脏处理则等待
+        if((_eventAmountLeft == 0) && !_dirtyHelper->HasDirty())
+        {
+            // quit仅考虑消息是否处理完,以及脏是否处理完,定时器不需要考虑,否则如果过期时间设置了0则无法退出
+            if(UNLIKELY(_isQuitLoop))
+                break;
+
+            if(!_timerMgr->HasExpired())
+            {
+                _eventGuard.Lock();
+                _eventGuard.TimeWait(maxSleepMilliseconds);
+                _eventGuard.Unlock();
+            }
+        }
+
+        // 队列有消息就合并
+        if(LIKELY(_eventAmountLeft != 0))
+            mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
+
+        // 处理事件
+        #ifdef _DEBUG
+         UInt64 curConsumeEventsCount = 0;
+        #endif
+
+        Int32 detectTimeoutLoopCount = _loopDetectTimeout;
+        deadline.Update() += _maxPieceTime;
+        #ifdef _DEBUG
+         performaceStart = deadline;
+        #endif
+
+        try
+        {
+            for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber != 0);)
+            {
+                // 切换不同优先级消息队列
+                auto node = listNode->_data->Begin();
+                if(LIKELY(node))
+                {
+                    listNode->_data->Erase(node);
+                    --_eventAmountLeft;
+                    --mergeNumber;
+                    ++_consumEventCount;
+
+                    #ifdef _DEBUG
+                    ++curConsumeEventsCount;
+                    #endif
+
+                    // 事件处理
+                    UniqueSmartPtr<PollerEvent, AutoDelMethods::Release> data = node->_data;
+                    if(LIKELY(_eventHandler))
+                        _eventHandler->Invoke(data);
+                }
+
+                listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
+                
+                // 片超时
+                if(UNLIKELY(--detectTimeoutLoopCount <= 0))
+                {
+                    detectTimeoutLoopCount = _loopDetectTimeout;
+
+                    if(UNLIKELY(nowCounter.Update() >=  deadline))
+                        break;
+                }
+            }
+        }
+        catch(const std::exception& e)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("exception when handle poller event:%s."), e.what());
+        }
+        catch(...)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("unknown exception happen when handle poller event."));
+            throw;
+        }
+        
+        // 脏处理
+        if(UNLIKELY(_dirtyHelper->HasDirty()))
+        {
+            try
+            {
+                _dirtyHelper->Purge(nowCounter.Update(), &errLog);
+                if(UNLIKELY(!errLog.empty()))
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
+                    errLog.clear();
+                }
+            }
+            catch(const std::exception& e)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("eception when handle dirty purge:%s."), e.what());
+            }
+            catch(...)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("unknown eception when handle dirty purge."));
+                throw;
+            }
+        }
+
+        // 处理定时器
+        _timerMgr->SafetyDrive();
+
+        // 当前帧性能信息记录
+        #ifdef _DEBUG
+            const auto &elapseTime = nowCounter.Update() - performaceStart;
+            g_Log->Debug(LOGFMT_OBJ_TAG("poller performance poller id:%llu, \n"
+                                        "_maxPieceTimeInMicroseconds:%lld, threadId:%llu, use microseconds:%llu, curConsumeEventsCount:%llu")
+                                        , pollerId, _maxPieceTime.GetTotalMicroseconds(), _workThreadId.load(), elapseTime.GetTotalMicroseconds(), curConsumeEventsCount);
+        #endif
+    }
+
+    const auto leftElemCount = GetPriorityEvenetsQueueElemCount(*priorityEvents);
+    if(leftElemCount != 0)
+        g_Log->Warn(LOGFMT_OBJ_TAG("has unhandled events left:%llu, poller info:%s"), leftElemCount, ToString().c_str());
+    
+    ContainerUtil::DelContainer(*priorityEvents, [this](LibList<PollerEvent *, _Build::MT> *evList){
+        ContainerUtil::DelContainer(*evList, [this](PollerEvent *ev){
+            g_Log->Warn(LOGFMT_OBJ_TAG("event type:%d, not handled when poller will closed."), ev->_type);
+            ev->Release();
+        });
+        LibList<PollerEvent *, _Build::MT>::Delete_LibList(evList);
+    });
+    LibList<LibList<PollerEvent *, _Build::MT> *>::Delete_LibList(priorityEvents);
+    priorityEvents = NULL;
+
+    g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
+}
+
 void Poller::QuickEventLoop()
 {
     std::vector<LibList<PollerEvent *, _Build::MT> *> priorityEvents;

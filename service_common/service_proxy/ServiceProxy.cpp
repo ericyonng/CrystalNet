@@ -442,8 +442,8 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
     _guard.Unlock();
 
     // 3.服务的事件循环
-    g_Log->Info(LOGFMT_OBJ_TAG("service %s event loop begin."), service->IntroduceInfo().c_str());
-    service->EventLoop();
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s safty event loop begin."), service->IntroduceInfo().c_str());
+    service->SafetyEventLoop();
 
     // 停止服务
     g_Log->Info(LOGFMT_OBJ_TAG("service %s reject service."), service->IntroduceInfo().c_str());

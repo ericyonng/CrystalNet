@@ -326,6 +326,212 @@ protected:
     mutable AutoDel<delMethod> _del;
 };
 
+
+// 同时只能支持在同一个线程,不可进行多线程并发操作
+template<typename ObjType, AutoDelMethods::Way delMethod = AutoDelMethods::Delete>
+class UniqueSmartPtr
+{
+public:
+    UniqueSmartPtr()
+        :_ptr(NULL)
+    {
+
+    }
+
+    UniqueSmartPtr(ObjType *ptr)
+        :_ptr(ptr)
+    {
+    }
+
+    UniqueSmartPtr(const SmartPtr<ObjType, delMethod> &obj) = delete;    
+
+    UniqueSmartPtr(UniqueSmartPtr<ObjType, delMethod> &&obj)
+    {
+        _MoveFrom(obj);
+    }
+
+    ~UniqueSmartPtr()
+    {
+        Release();
+    }
+
+    // popDelegate 将释放的方法也弹出去（只针对CustomerDelete有效）
+    // 引用计数不为1时,pop返回NULL,因为还有其他智能指针hold住了ObjType,还是有可能被其他智能指针释放，故而无法彻底弹出
+    ObjType *pop(IDelegate<void, void *&> **popDelegate = NULL)
+    {
+        ObjType *ptr = _ptr;
+        _ptr = NULL;
+
+        if(UNLIKELY(popDelegate))
+        {
+            *popDelegate = reinterpret_cast<IDelegate<void, void *&> *>(_del.pop());
+        }
+        else
+        {
+            _del.Cancel();
+        }
+
+        return ptr;
+    }
+
+    void Release()
+    {
+        if(LIKELY(_ptr))
+            _del.Release(_ptr);
+        _del.Cancel();
+
+        _ptr = NULL;
+    }
+
+    UniqueSmartPtr<ObjType, delMethod> &operator =(ObjType *ptr)
+    {
+        if(_ptr == ptr)
+            return *this;
+
+        Release();
+        _ptr = ptr;
+        return *this;
+    }
+
+    UniqueSmartPtr<ObjType, delMethod> &operator =(const SmartPtr<ObjType, delMethod> &other) = delete;
+
+    UniqueSmartPtr<ObjType, delMethod> &operator =(UniqueSmartPtr<ObjType, delMethod> &&ptr)
+    {
+        _MoveFrom(ptr);
+
+        return *this;
+    }
+
+    operator void *()
+    {
+        return _ptr;
+    }
+
+    operator const void *() const
+    {
+        return _ptr;
+    }
+
+    operator ObjType *()
+    {
+        return _ptr;
+    }
+
+    operator const ObjType *() const
+    {
+        return _ptr;
+    }
+
+    ObjType *operator->()
+    {
+        return _ptr;
+    }
+
+    const ObjType *operator->() const
+    {
+        return _ptr;
+    }
+
+    // no out-range detect
+    ObjType& operator [](Int32 index)    
+    {
+        ObjType *ptr = _ptr;
+        if(ptr)
+            ptr += index;
+
+        return *ptr;
+    }
+
+    // no out-range detect
+    const ObjType& operator [](Int32 index) const
+    {
+        const ObjType *ptr = _ptr;
+        if(ptr)
+            ptr += index;
+
+        return *ptr;
+    }   
+
+    ObjType &operator *()
+    {
+        return *_ptr;
+    }
+
+    const ObjType &operator *() const
+    {
+        return *_ptr;
+    }
+
+    operator bool()
+    {
+        return _ptr != NULL;
+    }
+
+    ObjType *AsSelf()
+    {
+        return _ptr;
+    }
+
+    const ObjType *AsSelf() const
+    {
+        return _ptr;
+    }
+
+    template<typename SpecifyType>
+    SpecifyType *Cast()
+    {
+        return reinterpret_cast<SpecifyType *>(_ptr);
+    }
+
+    template<typename SpecifyType>
+    const SpecifyType *Cast() const
+    {
+        return reinterpret_cast<SpecifyType *>(_ptr);
+    }
+    
+    // 利用模版,在调用的地方静态断言删除类型:void func(void *&)
+    template<AutoDelMethods::Way ImplType = AutoDelMethods::CustomDelete>
+    void SetDelegate(IDelegate<void, void *> *delg)
+    {
+        // static_assert(ImplType == delMethod, "ImplType must be delMethod");
+        static_assert(ImplType == AutoDelMethods::CustomDelete, "SmartPtr SetDelegate only for CustomDelete");
+        _del.SetDelegate(delg);
+    }
+
+	// void func(void *)
+    template<typename ClosureType, AutoDelMethods::Way ImplType = AutoDelMethods::CustomDelete>
+    void SetClosureDelegate(ClosureType &&closureFun)
+    {
+        // static_assert(ImplType == delMethod, "ImplType must be delMethod");
+        static_assert(ImplType == AutoDelMethods::CustomDelete, "SmartPtr SetDelegate only for CustomDelete");
+        auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(closureFun, void, void *);
+        _del.SetDelegate(delg);
+    }
+
+private:
+
+    void _MoveFrom(SmartPtr<ObjType, delMethod> &obj)
+    {
+        if(this == &obj)
+            return;
+
+        if(_ptr != obj._ptr)
+        {
+            Release();
+        }
+
+        _ptr = obj._ptr;
+        _del.Takeover(obj._del.pop());
+
+        obj._ptr = NULL;
+        obj._ref = NULL;
+    }
+
+protected:
+    mutable ObjType *_ptr;
+    mutable AutoDel<delMethod> _del;
+};
+
 KERNEL_END
 
 #endif

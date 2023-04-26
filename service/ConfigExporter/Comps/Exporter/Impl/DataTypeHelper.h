@@ -347,7 +347,7 @@ ALWAYS_INLINE void DataTypeHelper::ToString(const KERNEL_NS::LibString &field, K
 template<typename ArrayElemType>
 ALWAYS_INLINE void DataTypeHelper::ToString(const std::vector<ArrayElemType> &field, KERNEL_NS::LibString &dataInfo)
 {
-    auto result = nlohmann::json::array();
+    auto &&result = nlohmann::json::array();
     for(auto &item : field)
     {
         KERNEL_NS::LibString itemResult;
@@ -361,7 +361,7 @@ ALWAYS_INLINE void DataTypeHelper::ToString(const std::vector<ArrayElemType> &fi
 template<typename DictKey, typename DictValue>
 ALWAYS_INLINE void DataTypeHelper::ToString(const std::unordered_map<DictKey, DictValue> &field, KERNEL_NS::LibString &dataInfo)
 {
-    auto result = nlohmann::json::object();
+    auto &&result = nlohmann::json::object();
     for(auto iter : field)
     {
         auto &key = iter.first;

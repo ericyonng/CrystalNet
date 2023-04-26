@@ -118,6 +118,7 @@ public:
     // 事件循环
     bool PrepareLoop();
     void EventLoop();
+    void SafetyEventLoop();
     void OnLoopEnd();
     void Push(Int32 level, KERNEL_NS::PollerEvent *ev);
     void Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList);
@@ -290,6 +291,11 @@ ALWAYS_INLINE const KERNEL_NS::Poller *IService::GetPoller() const
 ALWAYS_INLINE void IService::EventLoop()
 {
     _poller->EventLoop();
+}
+
+ALWAYS_INLINE void IService::SafetyEventLoop()
+{
+    _poller->SafetyEventLoop();
 }
 
 ALWAYS_INLINE void IService::OnLoopEnd()

@@ -222,14 +222,14 @@ bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibSt
         {
             auto offSetCount = std::string::npos;
             if((dictKvTypeStr.GetRaw().substr(0, 4) == "bool") || 
-                (typeStr.GetRaw().substr(0, 4) == "int8") || )
+                (typeStr.GetRaw().substr(0, 4) == "int8"))
             {
                 offSetCount = 4;
             }
             else if((typeStr.GetRaw().substr(0, 5) == "uint8") || 
             (typeStr.GetRaw().substr(0, 5) == "int16") || 
             (typeStr.GetRaw().substr(0, 5) == "int32") || 
-            (typeStr.GetRaw().substr(0, 5) == "int64") ||
+            (typeStr.GetRaw().substr(0, 5) == "int64")
             )
             {
                 offSetCount = 5;
