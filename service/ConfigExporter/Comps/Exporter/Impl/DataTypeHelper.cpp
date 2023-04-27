@@ -382,5 +382,56 @@ bool DataTypeHelper::IsDict(const KERNEL_NS::LibString &typeStr)
     return typeStr.GetRaw().substr(0, 5) == "dict";
 }
 
+bool DataTypeHelper::IsString(const KERNEL_NS::LibString &typeStr)
+{
+    if(typeStr.GetRaw().substr(0, 6) == "string")
+        return true;
+
+    return false;
+}
+
+KERNEL_NS::LibString DataTypeHelper::GetTypeDefaultValue(const KERNEL_NS::LibString &typeStr)
+{
+   if(typeStr.GetRaw().substr(0, 4) == "bool")
+   {
+        return "false";
+   }
+
+    if(typeStr.GetRaw().substr(0, 4) == "int8")
+    {
+        return "0";
+    }
+
+    if(typeStr.GetRaw().substr(0, 5) == "uint8")
+    {
+        return "0";
+    }
+
+    if(typeStr.GetRaw().substr(0, 5) == "int16")
+    {
+        return "0";
+    }
+
+    if(typeStr.GetRaw().substr(0, 5) == "int32")
+    {
+        return "0";
+    }
+
+    if(typeStr.GetRaw().substr(0, 6) == "uint32")
+    {
+        return "0";
+    }
+
+    if(typeStr.GetRaw().substr(0, 5) == "int64")
+    {
+        return "0";
+    }
+    if(typeStr.GetRaw().substr(0, 6) == "uint64")
+    {
+        return "0";
+    }
+
+    return "";
+}
 
 SERVICE_END

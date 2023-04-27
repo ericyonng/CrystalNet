@@ -142,7 +142,7 @@ void TimerMgr::SafetyDrive()
     if(LIKELY(!_expireQueue.empty()))
     {
         _curTime = TimeUtil::GetFastMicroTimestamp();
-        UniqueSmartPtr<LibList<TimeData *, _Build::TL>> timeDataList = LibList<TimeData *, _Build::TL>::NewThreadLocal_LibList();
+        UniqueSmartPtr<LibList<TimeData *, _Build::TL>, AutoDelMethods::CustomDelete> timeDataList = LibList<TimeData *, _Build::TL>::NewThreadLocal_LibList();
         timeDataList.SetClosureDelegate([](void *p){
             auto ptr = reinterpret_cast<LibList<TimeData *, _Build::TL> *>(p);
             LibList<TimeData *, _Build::TL>::DeleteThreadLocal_LibList(ptr);

@@ -1236,11 +1236,11 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
 
             if(!fieldInfo->_desc.empty())
             {
-                fileContent.AppendFormat("%s _%s;    // %s\n", dataType.c_str(), fieldInfo->_fieldName.c_str(), fieldInfo->_desc.c_str());
+                fileContent.AppendFormat("%s _%s;    // %s\n", dataType.c_str(), fieldInfo->_fieldName.FirstCharToLower().c_str(), fieldInfo->_desc.c_str());
             }
             else
             {
-                fileContent.AppendFormat("%s _%s;\n", dataType.c_str(), fieldInfo->_fieldName.c_str(), fieldInfo->_desc.c_str());
+                fileContent.AppendFormat("%s _%s;\n", dataType.c_str(), fieldInfo->_fieldName.FirstCharToLower().c_str(), fieldInfo->_desc.c_str());
             }
         }
 
@@ -1263,7 +1263,6 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("    virtual KERNEL_NS::LibString ToString() const override;\n");
         fileContent.AppendFormat("    virtual Int32 Load() override;\n");
         fileContent.AppendFormat("    virtual Int32 Reload() override;\n");
-        fileContent.AppendFormat("    virtual const std::vector<KERNEL_NS::LibString> &GetAllConfigFiles() const override;\n");
         fileContent.AppendFormat("    virtual const KERNEL_NS::LibString & GetConfigDataMd5() const override;\n");
         fileContent.AppendFormat("    const std::vector<%s *> &GetAllConfigs() const;\n", className.c_str());
 
@@ -1307,8 +1306,6 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         {// 数据成员
             fileContent.AppendFormat("private:\n");
             fileContent.AppendFormat("    std::vector<%s *> _configs;\n", className.c_str());
-            fileContent.AppendFormat("    std::vector<KERNEL_NS::LibString> _configFiles;\n");
-            fileContent.AppendFormat("    KERNEL_NS::LibString _dataFile;\n");
             fileContent.AppendFormat("    KERNEL_NS::LibString _dataMd5;\n");
 
             // 索引字典
@@ -1383,7 +1380,99 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
 
 bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const
 {
+    const auto className = configInfo->_tableClassName + "Config";
+    const auto mgrClassName = className + "Mgr";
 
+    {// 生成文件头注释
+        fileContent.AppendFormat("// Generate by %s, Dont modify it!!!\n", GetApp()->GetAppName().c_str());
+
+        // 文件路径
+        const auto multiLinePaths = configInfo->_xlsxPath.Split("\n");
+        for(auto &path : multiLinePaths)
+            fileContent.AppendFormat("// file path:%s\n", path.c_str());
+
+        // 页签名
+        const auto multiLineSheet = configInfo->_wholeSheetName.Split("\n");
+        for(auto &sheet : multiLineSheet)
+            fileContent.AppendFormat("// sheet name:%s\n", sheet.c_str());
+    }
+
+    fileContent.AppendFormat("\n");
+    fileContent.AppendFormat("#include <pch.h>\n");
+    fileContent.AppendFormat("#include \"%s.h\"\n", className.c_str());
+
+    fileContent.AppendFormat("\n");
+    fileContent.AppendFormat("SERVICE_BEGIN\n");
+
+    fileContent.AppendFormat("\n");
+    fileContent.AppendFormat("POOL_CREATE_OBJ_DEFAULT_IMPL(%s);\n", className.c_str());
+
+    fileContent.AppendFormat("%s::%s()\n", className.c_str());
+
+    // 初始化列表
+    fileContent.AppendFormat("%s::%s()\n", className.c_str());
+    bool isFirstField = true;
+    Int32 totalFieldNum = 0;
+    for(auto fieldInfo : configInfo->_fieldInfos)
+    {
+        if(!fieldInfo)
+        {
+            continue;
+        }
+
+        ++totalFieldNum;
+        if(!DataTypeHelper::IsSimpleType(fieldInfo->_dataType))
+            continue;
+
+        if(DataTypeHelper::IsString(fieldInfo->_dataType))
+            continue;
+
+        if(isFirstField)
+        {
+            isFirstField = false;
+            fileContent.AppendFormat(":");
+        }
+        else
+        {
+            fileContent.AppendFormat(",");
+        }
+        const auto &memberName =  "_" + fieldInfo->_fieldName.FirstCharToLower();
+        const auto &defaultValue = DataTypeHelper::GetTypeDefaultValue(fieldInfo->_dataType);
+        fileContent.AppendFormat("%s\n", defaultValue.c_str());
+    }
+    fileContent.AppendFormat("{\n");
+    fileContent.AppendFormat("}\n");
+    fileContent.AppendFormat("\n");
+
+    // 反序列化
+    fileContent.AppendFormat("bool %s::Parse(const KERNEL_NS::LibString &lineData)\n", className.c_str());
+    fileContent.AppendFormat("{\n");
+    fileContent.AppendFormat("// use json serialize text.\n");
+    fileContent.AppendFormat("// format:column_{column id}_{data_len}:{json text}|...\n");
+    fileContent.AppendFormat("// example:column_1_10:{json text}|...\n");
+    fileContent.AppendFormat("\n");
+    fileContent.AppendFormat("    const Int32 fieldName = %s;\n", totalFieldNum);
+    fileContent.AppendFormat("    Int32 countFieldNum = 0;\n");
+    fileContent.AppendFormat("    Int32 startPos = 0;\n");
+    fileContent.AppendFormat("\n");
+    fileContent.AppendFormat("    {\n");
+    fileContent.AppendFormat("        auto pos = lineData.GetRaw().find_first_of(\"column_\", startPos);\n");
+    fileContent.AppendFormat("        if(pos == std::string::npos)\n");
+    fileContent.AppendFormat("        {\n");
+    fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"data format error: have no column_ prefix, lineData:%%s\"), lineData.c_str());\n");
+    fileContent.AppendFormat("            return false;\n");
+    fileContent.AppendFormat("        }\n");
+    fileContent.AppendFormat("\n");
+    fileContent.AppendFormat("    }\n");
+    fileContent.AppendFormat("}\n");
+
+    
+    // 序列化
+
+    fileContent.AppendFormat("\n");
+    fileContent.AppendFormat("SERVICE_END\n");
+
+    return true;
 }
 
 bool XlsxExporterMgr::_ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
