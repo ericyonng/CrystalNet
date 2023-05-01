@@ -77,7 +77,7 @@ void XlsxExporterMgr::_OnGlobalSysClose()
 
 Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> &params)
 {
-    // ConfigExporter --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/ --meta=/xxx/
+    // ConfigExporter --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/ --meta=/xxx/ --base_path=xxx
     // 4.解析参数
     for(auto &iter : params)
     {
@@ -139,6 +139,10 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
         {
             _metaDir = value;
         }
+        else if(key == "--base_path")
+        {
+            _baseDir = value;
+        }
         else
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("unknown param:k:%s, v:%s"), key.c_str(), value.c_str());
@@ -153,10 +157,10 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
     }
 
     // 参数都不可缺省
-    if(_sourceDir.empty() || _targetDir.empty() || _dataDir.empty() || _metaDir.empty())
+    if(_sourceDir.empty() || _targetDir.empty() || _dataDir.empty() || _metaDir.empty() || _baseDir.empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
-                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s baseDir:%s error.")
+                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str(), _baseDir.c_str());
         return Status::ParamError;
     }
 
@@ -1399,7 +1403,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
 
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("#include <pch.h>\n");
-    fileContent.AppendFormat("#include \"%s.h\"\n", className.c_str());
+    fileContent.AppendFormat("#include <%s/%s.h>\n", _baseDir.c_str(), className.c_str());
 
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("SERVICE_BEGIN\n");
@@ -1462,6 +1466,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
     fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"data format error: have no column_ prefix, lineData:%%s\"), lineData.c_str());\n");
     fileContent.AppendFormat("            return false;\n");
     fileContent.AppendFormat("        }\n");
+    fileContent.AppendFormat("\n");
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("    }\n");
     fileContent.AppendFormat("}\n");

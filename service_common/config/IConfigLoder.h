@@ -60,6 +60,7 @@ public:
    template<typename ConfigMgrType>
    const ConfigMgrType *GetConfigMgr() const;
 
+    // 配置数据文件根路径:设置相对路径或者绝对路径, 相对路径是相对于当前可执行程序的路径
     void SetBasePath(const KERNEL_NS::LibString &basePath);
     const KERNEL_NS::LibString &GetBasePath() const;
 

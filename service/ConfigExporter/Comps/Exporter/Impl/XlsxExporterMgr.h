@@ -103,6 +103,7 @@ private:
     KERNEL_NS::LibString _targetDir;
     KERNEL_NS::LibString _dataDir;
     KERNEL_NS::LibString _metaDir;
+    KERNEL_NS::LibString _baseDir;
     std::unordered_map<KERNEL_NS::LibString, std::unordered_set<KERNEL_NS::LibString>> _ownTypeRefLangTypes;
 
     std::unordered_map<KERNEL_NS::LibString, XlsxConfigMetaInfo *> _metaNameRefConfigMetaInfo;

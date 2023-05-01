@@ -53,6 +53,25 @@ typedef unsigned long long UInt64;
 typedef float Float;
 typedef double Double;
 
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+typedef struct alignas(16) {
+    UInt64 low;
+    UInt64 high;
+} UInt128;
+
+typedef  struct alignas(16) {
+    Int64 low;
+    Int64 high;
+} Int128;
+#elif CRYSTAL_TARGET_PLATFORM_LINUX
+
+#undef MEM_ALIGNED_16BYTE
+#define MEM_ALIGNED_16BYTE __attribute__(( __aligned__(16) ))
+
+typedef __uint128_t UInt128;
+typedef __int128_t Int128;
+#endif
+
 // cache
 #define BUFFER_LEN2         2
 #define BUFFER_LEN4         4
