@@ -43,6 +43,7 @@ public:
     static bool IsArray(const KERNEL_NS::LibString &typeStr);
     static bool IsDict(const KERNEL_NS::LibString &typeStr);
     static bool IsString(const KERNEL_NS::LibString &typeStr);
+    static bool IsBool(const KERNEL_NS::LibString &typeStr);
 
     // 赋值
     static bool Assign(bool &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo);
@@ -71,6 +72,8 @@ public:
     static void ToString(const Int64 &field, KERNEL_NS::LibString &dataInfo);
     static void ToString(const UInt64 &field, KERNEL_NS::LibString &dataInfo);
     static void ToString(const KERNEL_NS::LibString &field, KERNEL_NS::LibString &dataInfo);
+    static void ToSimpleTypeString(const KERNEL_NS::LibString &typeStr, const KERNEL_NS::LibString &dataContent, KERNEL_NS::LibString &dataInfo);
+
     template<typename ArrayElemType>
     static void ToString(const std::vector<ArrayElemType> &field, KERNEL_NS::LibString &dataInfo);
     template<typename DictKey, typename DictValue>
@@ -380,5 +383,7 @@ ALWAYS_INLINE void DataTypeHelper::ToString(const std::unordered_map<DictKey, Di
     
     dataInfo.AppendFormat("%s", result.dump().c_str());
 }
+
+
 
 SERVICE_END

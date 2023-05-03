@@ -157,10 +157,10 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
     }
 
     // 参数都不可缺省
-    if(_sourceDir.empty() || _targetDir.empty() || _dataDir.empty() || _metaDir.empty() || _baseDir.empty())
+    if(_sourceDir.empty() || _targetDir.empty() || _dataDir.empty() || _metaDir.empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s baseDir:%s error.")
-                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str(), _baseDir.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("param error: sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s error.")
+                    , _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str());
         return Status::ParamError;
     }
 
@@ -402,11 +402,11 @@ bool XlsxExporterMgr::_ScanXlsx()
             }
                 
             bool checkSuc = true;
-            for(auto &iter : allSheet)
+            for(auto iter : allSheet)
             {
                 auto sheet = iter.second;
                 auto &sheetName = sheet->GetSheetName();
-                const auto &configTypeName = GetConfigTypeName(sheetName);
+                const auto &configTypeName = _GetConfigTypeName(sheetName);
                 if(!KERNEL_NS::StringUtil::CheckGeneralName(configTypeName))
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("bad sheet config type: xlsx file path:%s, sheet name:%s, config type name:%s"), fullFilePath.c_str(), sheetName.c_str(), configTypeName.c_str());
@@ -428,11 +428,11 @@ bool XlsxExporterMgr::_ScanXlsx()
                     break;
                 }
 
-                auto iter = _configTypeRefSheets.find(configTypeName);
-                if(iter == _configTypeRefSheets.end())
-                    iter = _configTypeRefSheets.insert(std::make_pair(configTypeName, std::set<KERNEL_NS::XlsxSheet *>())).first;
+                auto iterSheet = _configTypeRefSheets.find(configTypeName);
+                if(iterSheet == _configTypeRefSheets.end())
+                    iterSheet = _configTypeRefSheets.insert(std::make_pair(configTypeName, std::set<KERNEL_NS::XlsxSheet *>())).first;
 
-                iter->second.insert(sheet);
+                iterSheet->second.insert(sheet);
             }
 
             if(!checkSuc)
@@ -447,11 +447,11 @@ bool XlsxExporterMgr::_ScanXlsx()
             }
 
             // 要导出的配置类型汇总
-            for(auto &iter : allSheet)
+            for(auto iter = allSheet.begin(); iter != allSheet.end(); ++iter)
             {
-                auto sheet = iter.second;
+                auto sheet = iter->second;
                 auto &sheetName = sheet->GetSheetName();
-                const auto &configTypeName = GetConfigTypeName(sheetName);
+                const auto &configTypeName = _GetConfigTypeName(sheetName);
                 _needExportConfigType.insert(configTypeName);
             }
 
@@ -975,7 +975,7 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
 
                 if(DataTypeHelper::IsArray(fieldInfo->_dataType))
                 {
-                    if(!fieldInfo->_defaultValue.empty())
+                    if(fieldInfo->_defaultValue.empty())
                     {
                         fieldInfo->_defaultValue = "[]";
                         continue;
@@ -994,7 +994,7 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
 
                 if(DataTypeHelper::IsDict(fieldInfo->_dataType))
                 {
-                    if(!fieldInfo->_defaultValue.empty())
+                    if(fieldInfo->_defaultValue.empty())
                     {
                         fieldInfo->_defaultValue = "{}";
                         continue;
@@ -1010,6 +1010,34 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
 
                     continue;
                 }
+
+                if(DataTypeHelper::IsBool(fieldInfo->_dataType))
+                {
+                    if(fieldInfo->_defaultValue.empty())
+                    {
+                        fieldInfo->_defaultValue = DataTypeHelper::GetTypeDefaultValue(fieldInfo->_dataType);
+                        continue;
+                    }
+
+                    if(fieldInfo->_defaultValue.isdigit())
+                    {
+                        fieldInfo->_defaultValue = KERNEL_NS::StringUtil::StringToInt32(fieldInfo->_defaultValue.c_str()) != 0 ? "true" : "false";
+                        continue;
+                    }
+
+                    if((fieldInfo->_defaultValue != "true") && (fieldInfo->_defaultValue != "false"))
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("bad default value, default value must be true or false, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s")
+                                        , fieldInfo->_fieldName.c_str(), fieldInfo->_columnId, fieldInfo->_defaultValue.c_str(),  sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                // 其他数据类型的默认值
+                if(fieldInfo->_defaultValue.empty())
+                    fieldInfo->_defaultValue = DataTypeHelper::GetTypeDefaultValue(fieldInfo->_dataType);
             }
             
             // 解析表数据
@@ -1104,18 +1132,11 @@ bool XlsxExporterMgr::_DoExportConfigs() const
             const auto &lowwerLang = lang.tolower();
             if(lowwerLang == "c++" || lowwerLang == "cpp" || lowwerLang == "cxx")
             {// 导出c++代码和数据
-                if(!_ExportCppCode(configTypeRefConfigTable))
+                if(!_ExportCpp(lowwerLang, configTypeRefConfigTable))
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("export cpp code fail."));
                     return false;
                 }
-
-                if(!_ExportCppDatas(configTypeRefConfigTable))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("export cpp data fail."));
-                    return false;
-                }
-
             }
             else if(lowwerLang == "csharp" || lowwerLang == "c#")
             {// 导出csharp代码和数据
@@ -1141,14 +1162,118 @@ bool XlsxExporterMgr::_DoExportConfigs() const
     return true;
 }
 
-bool XlsxExporterMgr::_ExportCppCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
+bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
 {
     for(auto iter : configTypeRefConfigTableInfo)
     {
-        if(!_ExportCppCodeHeader(iter.second))
+        // 导出头文件内容
+        KERNEL_NS::LibString headerContent;
+        if(!_ExportCppCodeHeader(iter.second, headerContent))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("export cpp:%s fail."), iter.second->_tableClassName.c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("export cpp header fail config class name:%s."), iter.second->_tableClassName.c_str());
             return false;
+        }
+
+        // 导出实现内容
+        KERNEL_NS::LibString implementContent;
+        if(!_ExportCppCodeImpl(iter.second, implementContent))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("export cpp implement fail config class name:%s."), iter.second->_tableClassName.c_str());
+            return false;
+        }
+
+        // 导出数据
+        KERNEL_NS::LibString configDataContent;
+        if(!_ExportCppDatas(iter.second, configDataContent))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("export cpp data fail config class name:%s."), iter.second->_tableClassName.c_str());
+            return false;
+        }
+
+        const auto className = iter.second->_tableClassName + "Config";
+
+        {// 写入头文件内容
+            // 文件名
+            const auto fileName = _targetDir + "/" + langName + "/" + className + ".h";
+            if(KERNEL_NS::FileUtil::IsFileExist(fileName.c_str()))
+                KERNEL_NS::FileUtil::DelFileCStyle(fileName.c_str());
+
+            KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(fileName.c_str(), true);
+            if(!fp)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("open header file fail when export cpp config class name:%s fileName:%s.")
+                            , iter.second->_tableClassName.c_str(), fileName.c_str());
+                return false;
+            }
+
+            fp.SetClosureDelegate([](void *p){
+                auto ptr = reinterpret_cast<FILE *>(p);
+                KERNEL_NS::FileUtil::CloseFile(*ptr);
+            });
+
+            auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, headerContent);
+            if(bytesChange != static_cast<Int64>(headerContent.size()))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write header file bytesChange:%lld, headerContent size:%llu,  when export cpp config class name:%s fileName:%s.")
+                            , bytesChange, static_cast<Int64>(headerContent.size()), iter.second->_tableClassName.c_str(), fileName.c_str());
+                return false;
+            }
+        }
+
+        {// 写入实现内容
+            // 文件名
+            const auto fileName = _targetDir + "/" + langName + "/" + className + ".cpp";
+            if(KERNEL_NS::FileUtil::IsFileExist(fileName.c_str()))
+                KERNEL_NS::FileUtil::DelFileCStyle(fileName.c_str());
+
+            KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(fileName.c_str(), true);
+            if(!fp)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("open implement file fail when export cpp config class name:%s fileName:%s.")
+                            , iter.second->_tableClassName.c_str(), fileName.c_str());
+                return false;
+            }
+
+            fp.SetClosureDelegate([](void *p){
+                auto ptr = reinterpret_cast<FILE *>(p);
+                KERNEL_NS::FileUtil::CloseFile(*ptr);
+            });
+
+            auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, implementContent);
+            if(bytesChange != static_cast<Int64>(implementContent.size()))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write implement file bytesChange:%lld, implementContent size:%llu,  when export cpp config class name:%s fileName:%s.")
+                            , bytesChange, static_cast<Int64>(implementContent.size()), iter.second->_tableClassName.c_str(), fileName.c_str());
+                return false;
+            }
+        }
+
+        {// 写入数据文件
+            // 文件名
+            const auto fileName = _dataDir + "/" + langName + "/" + className + ".data";
+            if(KERNEL_NS::FileUtil::IsFileExist(fileName.c_str()))
+                KERNEL_NS::FileUtil::DelFileCStyle(fileName.c_str());
+
+            KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(fileName.c_str(), true);
+            if(!fp)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("open data file fail when export cpp config class name:%s fileName:%s.")
+                            , iter.second->_tableClassName.c_str(), fileName.c_str());
+                return false;
+            }
+
+            fp.SetClosureDelegate([](void *p){
+                auto ptr = reinterpret_cast<FILE *>(p);
+                KERNEL_NS::FileUtil::CloseFile(*ptr);
+            });
+
+            auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, configDataContent);
+            if(bytesChange != static_cast<Int64>(configDataContent.size()))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write data file bytesChange:%lld, configDataContent size:%llu,  when export cpp config class name:%s fileName:%s.")
+                            , bytesChange, static_cast<Int64>(configDataContent.size()), iter.second->_tableClassName.c_str(), fileName.c_str());
+                return false;
+            }
         }
     }
 
@@ -1260,6 +1385,11 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("class %s : public SERVICE_COMMON_NS::IConfigMgr\n", mgrClassName.c_str());
         fileContent.AppendFormat("{\n");
         fileContent.AppendFormat("    POOL_CREATE_OBJ_DEFAULT_P1(IConfigMgr, %s)\n", mgrClassName.c_str());
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("public:\n");
+        fileContent.AppendFormat("    // Empty configs define\n");
+        fileContent.AppendFormat("    static const std::vector<%s *> s_empty;\n", className.c_str());
+        fileContent.AppendFormat("\n");
         fileContent.AppendFormat("    (%s)\n", mgrClassName.c_str());
         fileContent.AppendFormat("    ~(%s)\n", mgrClassName.c_str());
         fileContent.AppendFormat("\n");
@@ -1269,15 +1399,26 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("    virtual Int32 Reload() override;\n");
         fileContent.AppendFormat("    virtual const KERNEL_NS::LibString & GetConfigDataMd5() const override;\n");
         fileContent.AppendFormat("    const std::vector<%s *> &GetAllConfigs() const;\n", className.c_str());
+        
+        // 字典的
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    // dict configs\n");
+        for(auto fieldInfo :  configInfo->_fieldInfos)
+        {
+            if(!fieldInfo)
+                continue;
 
+            const auto &fieldName = fieldInfo->_fieldName.FirstCharToUpper();
+            fileContent.AppendFormat("    // by %s\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("    const std::vector<%s *> &GetAll%sRefConfigs() const;\n", className.c_str(), fieldName.c_str());
+            fileContent.AppendFormat("    const std::vector<%s *> &GetAll%sRefConfigs() const;\n", className.c_str(), fieldName.c_str());
+        }
 
         {// 索引方法
             for(auto fieldInfo : configInfo->_fieldInfos)
             {
                 if(!fieldInfo)
-                {
                     continue;
-                }
 
                 if(!fieldInfo->_flags.empty())
                 {
@@ -1287,14 +1428,39 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
                         flag.strip();
                         flag = flag.tolower();
                         const auto &fieldName = fieldInfo->_fieldName.FirstCharToUpper();
+
                         auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
                         if(flag == "unique")
                         {// 唯一索引
+                            // 必须是简单数据类型
+                            if(!DataTypeHelper::IsSimpleType(fieldInfo->_dataType))
+                            {
+                                g_Log->Error(LOGFMT_OBJ_TAG("unique flag field must be a simple type: config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
+                                ,  configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                                , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+                                return false;
+                            }
+
+                            fileContent.AppendFormat("    // by %s\n", fieldInfo->_fieldName.c_str());
+                            fileContent.AppendFormat("    const std::unordered_map<%s, %s *> &GetAll%sRefConfigs() const;\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+
                             fileContent.AppendFormat("    const %s * GetConfigBy%s(const %s &key) const;\n"
                                         , className.c_str(), fieldName.c_str(), iterDataType->second.c_str());
                         }
                         else if(flag == "index")
                         {// 普通索引
+                            // 必须是简单数据类型
+                            if(!DataTypeHelper::IsSimpleType(fieldInfo->_dataType))
+                            {
+                                g_Log->Error(LOGFMT_OBJ_TAG("index flag field must be a simple type: config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
+                                ,  configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                                , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+                                return false;
+                            }
+
+                            fileContent.AppendFormat("    // by %s\n", fieldInfo->_fieldName.c_str());
+                            fileContent.AppendFormat("    const std::unordered_map<%s, std::vector<%s *>> &GetAll%sRefConfigs() const;\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+
                             fileContent.AppendFormat("    const std::vector<%s *> &GetConfigsBy%s(const %s &key) const;\n"
                                         , className.c_str(), fieldName.c_str(), iterDataType->second.c_str());
                         }
@@ -1347,6 +1513,67 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("\n");
         fileContent.AppendFormat("};\n");
         fileContent.AppendFormat("\n");
+    }
+
+    {// 内联接口
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("ALWAYS_INLINE const std::vector<%s *> &%s::GetAllConfigs() const\n", className.c_str(), mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    return _configs;\n");
+        fileContent.AppendFormat("}\n");
+
+        fileContent.AppendFormat("\n");
+        for(auto fieldInfo : configInfo->_fieldInfos)
+        {
+            if(!fieldInfo)
+                continue;
+
+            if(!fieldInfo->_flags.empty())
+            {
+                auto flags = fieldInfo->_flags.Split("|");
+                for(auto flag : flags)
+                {
+                    flag.strip();
+                    flag = flag.tolower();
+                    const auto &fieldName = fieldInfo->_fieldName.FirstCharToUpper();
+
+                    auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
+                    if(flag == "unique")
+                    {// 唯一索引
+                        fileContent.AppendFormat("ALWAYS_INLINE const std::unordered_map<%s, %s *> &GetAll%sRefConfigs() const\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+                        fileContent.AppendFormat("{\n");
+                        fileContent.AppendFormat("    return _%sRefConfig;\n", fieldInfo->_fieldName.FirstCharToLower().c_str());
+                        fileContent.AppendFormat("}\n");
+                        fileContent.AppendFormat("\n");
+
+                        fileContent.AppendFormat("ALWAYS_INLINE const %s * GetConfigBy%s(const %s &key) const\n"
+                                    , className.c_str(), fieldName.c_str(), iterDataType->second.c_str());
+                        fileContent.AppendFormat("{\n");
+                        fileContent.AppendFormat("    auto iter = _%sRefConfig.find(key);\n", fieldName.c_str());
+                        fileContent.AppendFormat("    return iter == _%sRefConfig.end() ? NULL : iter->second;\n", fieldName.c_str());
+                        fileContent.AppendFormat("}\n");
+                        fileContent.AppendFormat("\n");
+
+                    }
+                    else if(flag == "index")
+                    {// 普通索引
+                        fileContent.AppendFormat("ALWAYS_INLINE const std::unordered_map<%s, std::vector<%s *>> &GetAll%sRefConfigs() const\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+                        fileContent.AppendFormat("{\n");
+                        fileContent.AppendFormat("    return _%sRefConfigs;\n", fieldName.c_str());
+                        fileContent.AppendFormat("}\n");
+                        fileContent.AppendFormat("\n");
+
+                        fileContent.AppendFormat("ALWAYS_INLINE const std::vector<%s *> &GetConfigsBy%s(const %s &key) const\n"
+                                    , className.c_str(), fieldName.c_str(), iterDataType->second.c_str());
+                        fileContent.AppendFormat("{\n");
+                        fileContent.AppendFormat("    auto iterConfigs = _%sRefConfigs.find(key);\n", fieldName.c_str());
+                        fileContent.AppendFormat("    return iterConfigs == _%sRefConfigs.end() ? s_empty : iterConfigs->second;\n", fieldName.c_str());
+                        fileContent.AppendFormat("}\n");
+                        fileContent.AppendFormat("\n");
+                    }
+                }
+            }
+        }
     }
 
     {// 配置管理类工厂
@@ -1403,7 +1630,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
 
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("#include <pch.h>\n");
-    fileContent.AppendFormat("#include <%s/%s.h>\n", _baseDir.c_str(), className.c_str());
+    fileContent.AppendFormat("#include \"%s.h\"\n", className.c_str());
 
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("SERVICE_BEGIN\n");
@@ -1440,7 +1667,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         {
             fileContent.AppendFormat(",");
         }
-        const auto &memberName =  "_" + fieldInfo->_fieldName.FirstCharToLower();
+        const auto &memberName =  _MakeConfigMemberName(fieldInfo->_fieldName);
         const auto &defaultValue = DataTypeHelper::GetTypeDefaultValue(fieldInfo->_dataType);
         fileContent.AppendFormat("%s\n", defaultValue.c_str());
     }
@@ -1448,31 +1675,488 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
     fileContent.AppendFormat("}\n");
     fileContent.AppendFormat("\n");
 
-    // 反序列化
-    fileContent.AppendFormat("bool %s::Parse(const KERNEL_NS::LibString &lineData)\n", className.c_str());
-    fileContent.AppendFormat("{\n");
-    fileContent.AppendFormat("// use json serialize text.\n");
-    fileContent.AppendFormat("// format:column_{column id}_{data_len}:{json text}|...\n");
-    fileContent.AppendFormat("// example:column_1_10:{json text}|...\n");
-    fileContent.AppendFormat("\n");
-    fileContent.AppendFormat("    const Int32 fieldName = %s;\n", totalFieldNum);
-    fileContent.AppendFormat("    Int32 countFieldNum = 0;\n");
-    fileContent.AppendFormat("    Int32 startPos = 0;\n");
-    fileContent.AppendFormat("\n");
-    fileContent.AppendFormat("    {\n");
-    fileContent.AppendFormat("        auto pos = lineData.GetRaw().find_first_of(\"column_\", startPos);\n");
-    fileContent.AppendFormat("        if(pos == std::string::npos)\n");
-    fileContent.AppendFormat("        {\n");
-    fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"data format error: have no column_ prefix, lineData:%%s\"), lineData.c_str());\n");
-    fileContent.AppendFormat("            return false;\n");
-    fileContent.AppendFormat("        }\n");
-    fileContent.AppendFormat("\n");
-    fileContent.AppendFormat("\n");
-    fileContent.AppendFormat("    }\n");
-    fileContent.AppendFormat("}\n");
+    {// 反序列化
+        fileContent.AppendFormat("bool %s::Parse(const KERNEL_NS::LibString &lineData)\n", className.c_str());
+        fileContent.AppendFormat("{\n");
 
-    
-    // 序列化
+        fileContent.AppendFormat("// use json serialize text.\n");
+        fileContent.AppendFormat("// format:column_{column id}_{data_len}:{json text}|...\n");
+        fileContent.AppendFormat("// example:column_1_10:{json text}|...\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    const Int32 fieldName = %d;\n", totalFieldNum);
+        fileContent.AppendFormat("    Int32 countFieldNum = 0;\n");
+        fileContent.AppendFormat("    Int32 startPos = 0;\n");
+        fileContent.AppendFormat("\n");
+
+        // 解析字段数据
+        for(auto fieldInfo : configInfo->_fieldInfos)
+        {
+            if(!fieldInfo)
+                continue;
+
+            const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
+            fileContent.AppendFormat("    {// _%s\n", memberName.c_str());
+            fileContent.AppendFormat("        auto pos = lineData.GetRaw().find_first_of(\"column_\", startPos);\n");
+            fileContent.AppendFormat("        if(pos == std::string::npos)\n");
+            fileContent.AppendFormat("        {\n");
+            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"pase field:%s, data format error: have no column_ prefix, lineData:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("            return false;\n");
+            fileContent.AppendFormat("        }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("       auto headerTailPos = lineData.GetRaw().find_first_of(\":\");");
+            fileContent.AppendFormat("       if(headerTailPos == std::string::npos)");
+            fileContent.AppendFormat("       {\n");
+            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"pase field:%s, bad line data not find : symbol after column_ line data:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("            return false;\n");
+            fileContent.AppendFormat("       }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("       // 解析数据\n");
+            fileContent.AppendFormat("       const KERNEL_NS::LibString headerInfo = lineData.GetRaw().sub(pos, headerTailPos - pos);\n");
+            fileContent.AppendFormat("       const auto headParts = headerInfo.Split('_');\n");
+            fileContent.AppendFormat("       if(headParts.empty())\n");
+            fileContent.AppendFormat("       {\n");
+            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"pase field:%s, bad line data not find sep symbol:_ in header info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d,\"),\n");
+            fileContent.AppendFormat("            lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("            return false;\n");
+            fileContent.AppendFormat("       }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("       // 校验列id,保证数据解析是对的\n");
+            fileContent.AppendFormat("       const auto &columnIdString = headParts[1];\n");
+            fileContent.AppendFormat("       if(columnIdString.length() == 0)\n");
+            fileContent.AppendFormat("       {\n");
+            fileContent.AppendFormat("           g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s have no column id, bad line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d,\"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("           return false;\n");
+            fileContent.AppendFormat("       }\n");
+            fileContent.AppendFormat("       const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());\n");
+            fileContent.AppendFormat("       if(columnId != %llu)\n", fieldInfo->_columnId);
+            fileContent.AppendFormat("       {\n");
+            fileContent.AppendFormat("           g_Log->Error(LOGFMT_OBJ_TAG(\"pase field:%s, fail: bad comumn id, columnId:%%llu, real column id:%llu, please check if config data is old version, line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d\"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str(), fieldInfo->_columnId);
+            fileContent.AppendFormat("           return false;\n");
+            fileContent.AppendFormat("       }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("       // 数据长度\n");
+            fileContent.AppendFormat("       const auto &lenInfo = headParts[2];\n");
+            fileContent.AppendFormat("       if(lenInfo.length() == 0)\n");
+            fileContent.AppendFormat("       {\n");
+            fileContent.AppendFormat("           g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s fail: bad line data header len info line data:%%s, pos:%%d, headerTailPos:%%d, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), \n");
+            fileContent.AppendFormat("           static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("           return false;\n");
+            fileContent.AppendFormat("       }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("       const Int32 dataLen = KERNEL_NS::StringUtil::StringToInt32(lenInfo.c_str());\n");
+            fileContent.AppendFormat("       const auto dataEndPos = headerTailPos + static_cast<decltype(headerTailPos)>(dataLen) - 1;\n");
+            fileContent.AppendFormat("       KERNEL_NS::LibString dataPart = lineData.GetRaw().sub(headerTailPos + 1, dataEndPos - headerTailPos);\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("      // 解析数据 通过column_id找到fieldInfo然后解析出_{fieldName} = \n");
+            fileContent.AppendFormat("      KERNEL_NS::LibString errInfo;\n");
+            fileContent.AppendFormat("      if(!DataTypeHelper::Assign(%s, dataPart, errInfo)\n", memberName.c_str());
+            fileContent.AppendFormat("      {\n");
+            fileContent.AppendFormat("          g_Log->Error(LOGFMT_OBJ_TAG(\"%%s, assign fail field name:%s, data part:%%s, errInfo:%%s  line data:%%s, pos:%%d, headerTailPos:%%d, dataEndPos:%%d\"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));\n", memberName.c_str());
+            fileContent.AppendFormat("          return false;\n");
+            fileContent.AppendFormat("      }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("      startPos = dataEndPos;\n");
+            fileContent.AppendFormat("      ++countFieldNum;\n");
+
+            fileContent.AppendFormat("    }// %s\n", memberName.c_str());
+
+            fileContent.AppendFormat("\n");
+        }
+
+        // 结束
+        fileContent.AppendFormat("    if(countFieldNum != fieldNum)\n");
+        fileContent.AppendFormat("    {\n");
+        fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"field num not enough countFieldNum:%%d, need fieldNum:%%d lineData:%%s\"), countFieldNum, fieldNum, lineData.c_str());\n");
+        fileContent.AppendFormat("        return false;\n");
+        fileContent.AppendFormat("    }\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    return true;\n");
+        fileContent.AppendFormat("}\n");
+    }
+
+    fileContent.AppendFormat("\n");
+
+    {// 序列化
+        fileContent.AppendFormat("void %s::Serialize(KERNEL_NS::LibString &lineData) const\n", className.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    const Int32 fieldNum = %d;\n", totalFieldNum);
+        fileContent.AppendFormat("    Int32 countFieldNum = 0;\n");
+        fileContent.AppendFormat("\n");
+
+        // 序列化每个字段
+        for(auto fieldInfo : configInfo->_fieldInfos)
+        {
+            if(!fieldInfo)
+                continue;
+
+            const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
+            fileContent.AppendFormat("    {// %s\n", memberName.c_str());
+            fileContent.AppendFormat("        KERNEL_NS::LibString data;\n");
+            fileContent.AppendFormat("        DataTypeHelper::ToString(%s, data);\n", memberName.c_str());
+            fileContent.AppendFormat("        lineData.AppendFormat(\"column_%llu_%%d:%%s|\", static_cast<Int32>(data.size()), data.c_str());\n", fieldInfo->_columnId);
+            fileContent.AppendFormat("        ++countFieldNum;\n");
+            fileContent.AppendFormat("    }// %s\n", memberName.c_str());
+            fileContent.AppendFormat("\n");
+        }
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    if(countFieldNum != fieldNum)\n");
+        fileContent.AppendFormat("    {\n");
+        fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"field num not enough countFieldNum:%%d, need fieldNum:%%d\"), countFieldNum, fieldNum);\n");
+        fileContent.AppendFormat("    }\n");
+
+        fileContent.AppendFormat("}\n");
+    }
+
+    {// ConfigMgr
+        fileContent.AppendFormat("POOL_CREATE_OBJ_DEFAULT_IMPL(%s);\n", mgrClassName.c_str());
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("const std::vector<%s *> %s::s_empty;\n", className.c_str(), mgrClassName.c_str());
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("%s::%s()\n", mgrClassName.c_str(), mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("}\n");
+
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("%s::~%s()\n", mgrClassName.c_str(), mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    _Clear();\n");
+        fileContent.AppendFormat("}\n");
+
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("void %s::Release()\n", mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    %s::Delete_%s(this);\n", mgrClassName.c_str(), mgrClassName.c_str());
+        fileContent.AppendFormat("}\n");
+
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("void %s::Clear()\n", mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    _Clear();\n");
+        fileContent.AppendFormat("}\n");
+
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("KERNEL_NS::LibString %s::ToString() const\n");
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    return GetObjName();\n");
+        fileContent.AppendFormat("}\n");
+
+        
+        {// Load
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("Int32 %s::Load()\n", mgrClassName.c_str());
+            fileContent.AppendFormat("{\n");
+            fileContent.AppendFormat("    KERNEL_NS::SmartPtr<std::vector<%s *>, KERNEL_NS::AutoDelMethods::CustomDelete> configs = new std::vector<%s *>;\n", className.c_str(), className.c_str());
+            fileContent.AppendFormat("    configs.SetClosureDelegate([](void *p){\n");
+            fileContent.AppendFormat("        std::vector<%s *> *ptr = reinterpret_cast<std::vector<%s *> *>(p);\n", className.c_str(), className.c_str());
+            fileContent.AppendFormat("        KERNEL_NS::ContainerUtil::DelContainer(*ptr, [](%s *ptr){\n", className.c_str());
+            fileContent.AppendFormat("            %s::Delete_%s(ptr);\n", className.c_str(), className.c_str());
+            fileContent.AppendFormat("        });\n");
+            fileContent.AppendFormat("        delete ptr;\n");
+            fileContent.AppendFormat("    });\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("    const auto basePath = GetLoader()->GetBasePath();\n");
+            fileContent.AppendFormat("    const auto wholePath = basePath + \"/\" + \"%s.data\";\n", className.c_str());
+            fileContent.AppendFormat("    KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(wholePath.c_str(), false, \"rb\");\n");
+            fileContent.AppendFormat("    if(!fp)\n");
+            fileContent.AppendFormat("    {\n");
+            fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"data file not found wholePath:%%s\"), wholePath.c_str());\n");
+            fileContent.AppendFormat("        return Status::Fail;\n");
+            fileContent.AppendFormat("    }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("    fp.SetClosureDelegate([](void *p){\n");
+            fileContent.AppendFormat("        auto fpPtr = reinterpret_cast<FILE *>(p);\n");
+            fileContent.AppendFormat("        KERNEL_NS::FileUtil::CloseFile(*fpPtr);\n");
+            fileContent.AppendFormat("    });\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("    Int32 line = 0;\n");
+            fileContent.AppendFormat("    MD5_CTX ctx;\n");
+            fileContent.AppendFormat("    if(!KERNEL_NS::LibDigest::MakeMd5Init(ctx))\n");
+            fileContent.AppendFormat("    {\n");
+            fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"make md5 init fail wholePath:%%s\"), wholePath.c_str());\n");
+            fileContent.AppendFormat("        return Status::Fail;\n");
+            fileContent.AppendFormat("    }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("    // 去重\n");
+
+            // 字段类型解析
+            std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> fieldNameRefDataType;
+            for(auto fieldInfo :  configInfo->_fieldInfos)
+            {
+                if(fieldInfo == NULL)
+                    continue;
+
+                KERNEL_NS::LibString dataType;
+                KERNEL_NS::LibString errInfo;
+                if(!DataTypeHelper::Parse(fieldInfo->_dataType, dataType, errInfo))
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("parse data type fail config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s errInfo:%s")
+                            ,  configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                            , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str(), errInfo.c_str());
+
+                    return false;
+                }
+
+                fieldNameRefDataType.insert(std::make_pair(fieldInfo->_fieldName, dataType));
+            }
+
+            // 去重的字段容器定义 以及字段字符串拼接
+            KERNEL_NS::LibString fieldNames;
+            for(auto fieldInfo : configInfo->_fieldInfos)
+            {
+                if(!fieldInfo)
+                    continue;
+
+                fieldNames.AppendFormat("%s|", fieldInfo->_fieldName.c_str());
+                if(!fieldInfo->_flags.empty())
+                {
+                    auto flags = fieldInfo->_flags.Split("|");
+                    for(auto flag : flags)
+                    {
+                        flag.strip();
+                        flag = flag.tolower();
+                        const auto &fieldName = fieldInfo->_fieldName.FirstCharToLower();
+                        auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
+                        if(flag == "unique")
+                        {// 唯一索引
+                            fileContent.AppendFormat("    std::set<%s> unique_%ss;\n", iterDataType->second.c_str(), fieldName.c_str());
+                        }
+                    }
+                }
+            }
+
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("    while(true)\n");
+            fileContent.AppendFormat("    {\n");
+            fileContent.AppendFormat("        KERNEL_NS::LibString lineData;\n");
+            fileContent.AppendFormat("        auto readBytes = KERNEL_NS::FileUtil::ReadUtf8OneLine(*fp, lineData);\n");
+            fileContent.AppendFormat("        if(readBytes == 0)\n");
+            fileContent.AppendFormat("            break;\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("        ++line;\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("        if(!KERNEL_NS::LibDigest::MakeMd5Continue(ctx, lineData.data(), static_cast<UInt64>(lineData.size())))\n");
+            fileContent.AppendFormat("        {\n");
+            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"MakeMd5Continue fail wholePath:%%s, line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n");
+            fileContent.AppendFormat("            KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("            return Status::Fail;\n");
+            fileContent.AppendFormat("        }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("        if(line == 1)\n");
+            fileContent.AppendFormat("        {// 第一行是校验列字段名\n");
+            fileContent.AppendFormat("            if(lineData != %s)\n", fieldNames.c_str());
+            fileContent.AppendFormat("            {\n");
+            fileContent.AppendFormat("                g_Log->Error(LOGFMT_OBJ_TAG(\"current data not match this config data wholePath:%%s, current data columns:%%s, this config columns:%s\"), wholePath.c_str(), lineData.c_str());\n", fieldNames.c_str());
+            fileContent.AppendFormat("                return Status::Fail;\n");
+            fileContent.AppendFormat("            }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("            continue;\n");
+            fileContent.AppendFormat("        }\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("        KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> config = %s::New_%s();\n", className.c_str(), className.c_str(), className.c_str());
+            fileContent.AppendFormat("        config.SetClosureDelegate([](void *p){\n", className.c_str(), className.c_str(), className.c_str());
+            fileContent.AppendFormat("            auto ptr = reinterpret_cast<%s *>(p);\n", className.c_str());
+            fileContent.AppendFormat("            %s::Delete_%s(ptr);\n", className.c_str(), className.c_str());
+            fileContent.AppendFormat("        });\n");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("        if(!config->Parse(lineData))\n");
+            fileContent.AppendFormat("        {\n");
+            fileContent.AppendFormat("            g_Log->Warn(LOGFMT_OBJ_TAG(\"parse %s fail data path:%%s line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n", className.c_str());
+            fileContent.AppendFormat("            return Status::Fail;\n");
+            fileContent.AppendFormat("        }\n");
+            fileContent.AppendFormat("\n");
+
+            // unique唯一性校验
+            for(auto fieldInfo : configInfo->_fieldInfos)
+            {
+                if(!fieldInfo)
+                    continue;
+
+                if(!fieldInfo->_flags.empty())
+                {
+                    auto flags = fieldInfo->_flags.Split("|");
+                    for(auto flag : flags)
+                    {
+                        flag.strip();
+                        flag = flag.tolower();
+                        const auto &fieldName = fieldInfo->_fieldName.FirstCharToLower();
+                        auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
+                        if(flag == "unique")
+                        {// 唯一索引
+                            const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
+                            const auto &uniqueCheckFieldName = "unique_" + fieldName;
+                            fileContent.AppendFormat("        // unique唯一性校验\n");
+                            fileContent.AppendFormat("        if(%s.find(config->%s) != %s.end())\n", uniqueCheckFieldName.c_str(), memberName.c_str(), uniqueCheckFieldName.c_str());
+                            fileContent.AppendFormat("        {\n");
+                            fileContent.AppendFormat("            g_Log->Warn(LOGFMT_OBJ_TAG(\"duplicate %s:%%d data path:%%s line:%%d, lineData:%%s\"), config->%s, wholePath.c_str(), line, lineData.c_str());\n", fieldInfo->_fieldName.c_str(), memberName.c_str());
+                            fileContent.AppendFormat("            return Status::Fail;\n");
+                            fileContent.AppendFormat("        }\n");
+                            fileContent.AppendFormat("\n");
+                            fileContent.AppendFormat("        %s.insert(config->%s);\n", uniqueCheckFieldName.c_str(), memberName.c_str());
+                            fileContent.AppendFormat("\n");
+                        }
+                    }
+                }
+            }
+
+            fileContent.AppendFormat("\n");
+
+            fileContent.AppendFormat("        auto newConfig = config.AsSelf();\n");
+            fileContent.AppendFormat("        configs->push_back(config.pop());\n");
+            fileContent.AppendFormat("    }// while(true)\n");
+
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("    KERNEL_NS::LibString dataMd5;\n");
+            fileContent.AppendFormat("    if(!KERNEL_NS::LibDigest::MakeMd5Final(ctx, dataMd5))\n");
+            fileContent.AppendFormat("    {\n");
+            fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"MakeMd5Final fail wholePath:%%s\"), wholePath.c_str());\n");
+            fileContent.AppendFormat("        KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("        return Status::Fail;\n");
+            fileContent.AppendFormat("    }\n");
+            fileContent.AppendFormat("    KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("\n");
+
+            fileContent.AppendFormat("    _dataMd5 = dataMd5;\n");
+            fileContent.AppendFormat("    _configs.swap(*configs.AsSelf());\n");
+            fileContent.AppendFormat("\n");
+
+            // 清空映射字典
+            for(auto fieldInfo : configInfo->_fieldInfos)
+            {
+                if(!fieldInfo)
+                    continue;
+
+                if(!fieldInfo->_flags.empty())
+                {
+                    auto flags = fieldInfo->_flags.Split("|");
+                    for(auto flag : flags)
+                    {
+                        flag.strip();
+                        flag = flag.tolower();
+                        const auto &fieldName = fieldInfo->_fieldName.FirstCharToLower();
+                        const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
+                        auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
+                        if(flag == "unique")
+                        {// 唯一索引
+                            fileContent.AppendFormat("    _%sRefConfig.clear();\n", fieldName.c_str());
+                        }
+                        else if(flag == "index")
+                        {// 普通索引
+                            fileContent.AppendFormat("    _%sRefConfigs.clear();\n", fieldName.c_str());
+                        }
+                    }
+                }
+            }
+            fileContent.AppendFormat("\n");
+
+            // 字典映射
+            fileContent.AppendFormat("    for(auto config : _configs)\n");
+            fileContent.AppendFormat("    {\n");
+
+            // 字典映射数据填充
+            for(auto fieldInfo : configInfo->_fieldInfos)
+            {
+                if(!fieldInfo)
+                    continue;
+
+                if(!fieldInfo->_flags.empty())
+                {
+                    auto flags = fieldInfo->_flags.Split("|");
+                    for(auto flag : flags)
+                    {
+                        flag.strip();
+                        flag = flag.tolower();
+                        const auto &fieldName = fieldInfo->_fieldName.FirstCharToLower();
+                        const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
+                        auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
+                        fileContent.AppendFormat("        // key:%s \n", fieldInfo->_fieldName.c_str());
+                        fileContent.AppendFormat("        {\n");
+
+                        if(flag == "unique")
+                        {// 唯一索引
+                            fileContent.AppendFormat("        _%sRefConfig.insert(std::make_pair(config->%s, config));\n", fieldName.c_str(), memberName.c_str());
+                        }
+                        else if(flag == "index")
+                        {// 普通索引
+                            fileContent.AppendFormat("        auto iterConfigs = _%sRefConfigs.find(config->%s);\n", fieldName.c_str(), memberName.c_str());
+                            fileContent.AppendFormat("        if(iterConfigs == _%sRefConfigs.end())\n", fieldName.c_str());
+                            fileContent.AppendFormat("            iterConfigs = _%sRefConfigs.insert(std::make_pair(config->%s, std::vector<%s *>())).first;\n", fieldName.c_str(), memberName.c_str(), className.c_str());
+                            fileContent.AppendFormat("        iterConfigs->second.push_back(config);\n");
+                        }
+
+                        fileContent.AppendFormat("        }\n");
+                        fileContent.AppendFormat("\n");
+                    }
+                }
+            }
+            fileContent.AppendFormat("    }\n");
+
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("    return Status::Success;\n");
+            fileContent.AppendFormat("}\n");
+        }
+        
+        {// reload
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("Int32 %s::Reload()\n", mgrClassName.c_str());
+            fileContent.AppendFormat("{\n");
+            fileContent.AppendFormat("    return Load();\n");
+            fileContent.AppendFormat("}\n");
+        }
+
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("const KERNEL_NS::LibString &%s::GetConfigDataMd5() const\n", mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    return _dataMd5;\n");
+        fileContent.AppendFormat("}\n");
+
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("void &%s::_OnClose()\n", mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    _Clear();\n");
+        fileContent.AppendFormat("}\n");
+
+        {// _Clear()
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("void &%s::_Clear()\n", mgrClassName.c_str());
+            fileContent.AppendFormat("{\n");
+            fileContent.AppendFormat("    _dataMd5.clear();\n");
+
+            // 字典释放
+            for(auto fieldInfo : configInfo->_fieldInfos)
+            {
+                if(!fieldInfo)
+                    continue;
+
+                if(!fieldInfo->_flags.empty())
+                {
+                    auto flags = fieldInfo->_flags.Split("|");
+                    for(auto flag : flags)
+                    {
+                        flag.strip();
+                        flag = flag.tolower();
+                        const auto &fieldName = fieldInfo->_fieldName.FirstCharToLower();
+                        if(flag == "unique")
+                        {// 唯一索引
+                            fileContent.AppendFormat("    _%sRefConfig.clear();\n", fieldName.c_str());
+                            fileContent.AppendFormat("\n");
+                        }
+                        else if(flag == "index")
+                        {// 普通索引
+                            fileContent.AppendFormat("    _%sRefConfigs.clear();\n", fieldName.c_str());
+                            fileContent.AppendFormat("\n");
+                        }
+                    }
+                }
+            }
+
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("    KERNEL_NS::ContainerUtil::DelContainer(_configs, [](%s *ptr){\n", className.c_str());
+            fileContent.AppendFormat("        %s::Delete_%s(ptr);\n", className.c_str(), className.c_str());
+            fileContent.AppendFormat("    });\n");
+            fileContent.AppendFormat("}\n");
+        }
+    }
+
 
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("SERVICE_END\n");
@@ -1480,18 +2164,101 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
     return true;
 }
 
-bool XlsxExporterMgr::_ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
+bool XlsxExporterMgr::_ExportCppDatas(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &configDataContent) const
 {
-    return true;
-}
-
-bool XlsxExporterMgr::_ExportCppDatas(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
-{
-    
     // 每一行数据都是文本数据
     // 每个单元格的数据前缀：column_id_datalen:xxx|
     // column_前缀，列id，数据长度:数据|column_前缀,....
     // column_1_10:1010105555|column_2_10:aaaaaaaaaa|...
+
+    // 第一行是字段拼接:
+    for(auto fieldInfo : configInfo->_fieldInfos)
+    {
+        if(!fieldInfo)
+        {
+            continue;
+        }
+
+        configDataContent.AppendFormat("%s|", fieldInfo->_fieldName.c_str());
+    }
+    configDataContent.AppendFormat("\n");
+
+    const Int32 lineCount = static_cast<Int32>(configInfo->_values.size());
+    for(Int32 idx = 0; idx < lineCount; ++idx)
+    {
+        auto &columnIdRefContent = configInfo->_values[idx];
+        for(auto iterContent : columnIdRefContent)
+        {
+            const UInt64 columnId = iterContent.first;
+            const auto &content = iterContent.second;
+            auto fieldInfo = configInfo->_fieldInfos[columnId];
+            if(!fieldInfo)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("line:%d, columnId:%llu, have no fieldinfo content:%s, _tableClassName:%s"), idx, columnId, content.c_str(), configInfo->_tableClassName.c_str());
+                return false;
+            }
+
+            // 导出数据
+            KERNEL_NS::LibString dataContent;
+            if(DataTypeHelper::IsSimpleType(fieldInfo->_dataType))
+            {
+                KERNEL_NS::LibString value;
+                if(content.length() == 0)
+                {
+                    value = DataTypeHelper::GetTypeDefaultValue(fieldInfo->_dataType);
+                }
+                else
+                {
+                    value = content;
+                }
+
+                DataTypeHelper::ToSimpleTypeString(fieldInfo->_dataType, value, dataContent);
+            }
+            else
+            {
+                if(DataTypeHelper::IsArray(fieldInfo->_dataType))
+                {
+                    if(content.length() == 0)
+                    {
+                        dataContent = "[]";
+                    }
+                    else
+                    {
+                        dataContent = content;
+                    }
+                }
+                else if(DataTypeHelper::IsDict(fieldInfo->_dataType))
+                {
+                    if(content.length() == 0)
+                    {
+                        dataContent = "{}";
+                    }
+                    else
+                    {
+                        dataContent = content;
+                    }
+                }
+                else
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("unknown data type:%s line:%d, columnId:%llu, content:%s _tableClassName:%s")
+                            , fieldInfo->_dataType.c_str(), idx, columnId, content.c_str(), configInfo->_tableClassName.c_str());
+
+                    return false;
+                }
+            }
+
+            // 拼装数据
+            configDataContent.AppendFormat("column_%llu_%llu:", columnId, static_cast<UInt64>(dataContent.size()));
+            configDataContent += dataContent;
+            configDataContent += "|";
+        }
+    }
+
+    return true;
+}
+
+bool XlsxExporterMgr::_ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
+{
     return true;
 }
 

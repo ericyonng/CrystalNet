@@ -217,7 +217,7 @@ bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibSt
         }
 
         // 分离key, value
-        Int32 sepPos = std::string::npos;
+        auto sepPos = std::string::npos;
         do
         {
             auto offSetCount = std::string::npos;
@@ -354,6 +354,9 @@ bool DataTypeHelper::IsSimpleType(const KERNEL_NS::LibString &typeStr)
     if(typeStr.GetRaw().substr(0, 5) == "int16")
         return true;
 
+    if(typeStr.GetRaw().substr(0, 6) == "uint16")
+        return true;
+
     if(typeStr.GetRaw().substr(0, 5) == "int32")
         return true;
 
@@ -390,6 +393,88 @@ bool DataTypeHelper::IsString(const KERNEL_NS::LibString &typeStr)
     return false;
 }
 
+bool DataTypeHelper::IsBool(const KERNEL_NS::LibString &typeStr)
+{
+    if(typeStr.GetRaw().substr(0, 4) == "bool")
+        return true;
+
+    return false;
+}
+
+void DataTypeHelper::ToSimpleTypeString(const KERNEL_NS::LibString &typeStr, const KERNEL_NS::LibString &dataContent, KERNEL_NS::LibString &dataInfo)
+{
+    if(typeStr.GetRaw().substr(0, 4) == "bool")
+    {
+        bool value = dataContent == "true" ? true : false;
+        DataTypeHelper::ToString(value, dataInfo);
+        return;
+    }
+
+    if(typeStr.GetRaw().substr(0, 4) == "int8")
+    {
+        Byte8 value = static_cast<Byte8>(KERNEL_NS::StringUtil::StringToInt32(dataContent.c_str()));
+        DataTypeHelper::ToString(value, dataInfo);
+        return;
+    }
+
+    if(typeStr.GetRaw().substr(0, 5) == "uint8")
+    {
+        U8 value = static_cast<U8>(KERNEL_NS::StringUtil::StringToUInt32(dataContent.c_str()));
+        DataTypeHelper::ToString(value, dataInfo);
+        return;
+    }
+
+    if(typeStr.GetRaw().substr(0, 5) == "int16")
+    {
+        Int16 value = KERNEL_NS::StringUtil::StringToInt16(dataContent.c_str());
+        DataTypeHelper::ToString(value, dataInfo);
+        return;
+    }
+
+    if(typeStr.GetRaw().substr(0, 6) == "uint16")
+    {
+        UInt16 value = KERNEL_NS::StringUtil::StringToUInt16(dataContent.c_str());
+        DataTypeHelper::ToString(value, dataInfo);
+        return;
+    }
+
+    if(typeStr.GetRaw().substr(0, 5) == "int32")
+    {
+        Int32 value = KERNEL_NS::StringUtil::StringToInt32(dataContent.c_str());
+        DataTypeHelper::ToString(value, dataInfo);
+        return;
+    }
+
+    if(typeStr.GetRaw().substr(0, 6) == "uint32")
+    {
+        UInt32 value = KERNEL_NS::StringUtil::StringToUInt32(dataContent.c_str());
+        DataTypeHelper::ToString(value, dataInfo);
+        return;
+    }
+
+    if(typeStr.GetRaw().substr(0, 5) == "int64")
+    {
+        Int64 value = KERNEL_NS::StringUtil::StringToInt64(dataContent.c_str());
+        DataTypeHelper::ToString(value, dataInfo);
+        return;
+    }
+
+    if(typeStr.GetRaw().substr(0, 6) == "uint64")
+    {
+        UInt64 value = KERNEL_NS::StringUtil::StringToUInt64(dataContent.c_str());
+        DataTypeHelper::ToString(value, dataInfo);
+        return;
+    }
+
+    if(typeStr.GetRaw().substr(0, 6) == "string")
+    {
+        DataTypeHelper::ToString(dataContent, dataInfo);
+        return;
+    }
+
+    g_Log->Error(LOGFMT_NON_OBJ_TAG(DataTypeHelper, "not simple data type:%s, content:%s"), typeStr.c_str(), dataContent.c_str());
+}
+
 KERNEL_NS::LibString DataTypeHelper::GetTypeDefaultValue(const KERNEL_NS::LibString &typeStr)
 {
    if(typeStr.GetRaw().substr(0, 4) == "bool")
@@ -408,6 +493,11 @@ KERNEL_NS::LibString DataTypeHelper::GetTypeDefaultValue(const KERNEL_NS::LibStr
     }
 
     if(typeStr.GetRaw().substr(0, 5) == "int16")
+    {
+        return "0";
+    }
+
+    if(typeStr.GetRaw().substr(0, 6) == "uint16")
     {
         return "0";
     }
@@ -433,5 +523,6 @@ KERNEL_NS::LibString DataTypeHelper::GetTypeDefaultValue(const KERNEL_NS::LibStr
 
     return "";
 }
+
 
 SERVICE_END

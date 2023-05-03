@@ -29,6 +29,7 @@
 #pragma once
 
 #include <kernel/kernel.h>
+#include <3rd/3rd.h>
 #include <service_common/ServiceCommon.h>
 #include <service/common/common.h>
 #include <service/ConfigExporter/Common/ServiceCommon.h>

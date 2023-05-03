@@ -51,7 +51,7 @@ public:
 
     KERNEL_NS::LibString _ownType;      // C, S等类别
     KERNEL_NS::LibString _fieldName;    // 字段名
-    KERNEL_NS::LibString _dataType;     // 数据类型
+    KERNEL_NS::LibString _dataType;     // 配置中定义的数据类型
     KERNEL_NS::LibString _check;        // 校验
     KERNEL_NS::LibString _flags;        // 字段功能标志
     KERNEL_NS::LibString _defaultValue; // 默认值

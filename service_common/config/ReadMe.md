@@ -69,6 +69,7 @@
         virtual const KERNEL_NS::LibString & GetConfigDataMd5() const override;
     	
     	const std::vector<ExampleConfig *> &GetAllConfigs() const;
+    	const std::vector<ExampleConfig *> &GetAllIdConfigs() const;
       const ExampleConfig *GetConfigById(Int32 key) const;
     	
     private:
@@ -162,6 +163,20 @@
             return false;
           }
 
+          // 校验列id,保证数据解析是对的
+          const auto &columnIdString = headParts[1];
+          if(columnIdString.length() == 0)
+          {
+            g_Log->Error(LOGFMT_OBJ_TAG("have no column id when parse field:xxx, bad line data header len info line data:%s, pos:%d, headerTailPos:%d"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos));
+            return false;
+          }
+          const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());
+          if(columnId != xxx)
+          {
+            g_Log->Error(LOGFMT_OBJ_TAG("bad comumn id when parse field:xxx, columnId:%llu, real column id:xxx,please check if config data is old version bad line data header len info line data:%s, pos:%d, headerTailPos:%d"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos));
+            return false;
+          }
+
           // 数据长度
           const auto &lenInfo = headParts[2];
           if(lenInfo.length() == 0)
@@ -191,21 +206,33 @@
         g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d lineData%s"), countFieldNum, fieldNum, lineData.c_str());
         return false;
       }
+
+      return true;
     }
     
     void ExampleConfig::Serialize(KERNEL_NS::LibString &lineData) const
     {
+      const Int32 fieldNum = 5;
+      Int32 countFieldNum = 0;
+
        {// Id
         KERNEL_NS::LibString data;
         DataTypeHelper::ToString(_Id, data);
         lineData.AppendFormat("column_%d_%d:%s|", 1, static_cast<Int32>(data.size()), data.c_str());
+        ++countFieldNum;
        }
 
        {// Type
         KERNEL_NS::LibString data;
         DataTypeHelper::ToString(_Type, data);
         lineData.AppendFormat("column_%d_%d:%s|", 2, static_cast<Int32>(data.size()), data.c_str());
+        ++countFieldNum;
        }
+
+      if(countFieldNum != fieldNum)
+      {
+        g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d"), countFieldNum, fieldNum);
+      }
     }
     
     POOL_CREATE_OBJ_DEFAULT_IMPL(ExampleConfigMgr);

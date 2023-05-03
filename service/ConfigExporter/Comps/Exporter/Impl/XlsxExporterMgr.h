@@ -71,13 +71,13 @@ protected:
 
     // 导出配置代码
     bool _DoExportConfigs() const;
-    bool _ExportCppCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
+    bool _ExportCpp(const KERNEL_NS::LibString &langName, const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
     bool _ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const;
     bool _ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const;
-    bool _ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
+    bool _ExportCppDatas(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &configDataContent) const;
 
     // 导出配置数据
-    bool _ExportCppDatas(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
+    bool _ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
     bool _ExportCSharpDatas(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
     
     // 更新meta文件
@@ -87,7 +87,10 @@ protected:
     const XlsxConfigMetaInfo *_GetMetaFile(const KERNEL_NS::LibString &metaFile) const;
 
     // 通过sheet name 获取configType
-    KERNEL_NS::LibString GetConfigTypeName(const KERNEL_NS::LibString &sheetName) const;
+    KERNEL_NS::LibString _GetConfigTypeName(const KERNEL_NS::LibString &sheetName) const;
+
+    // 获取member成员名
+    KERNEL_NS::LibString _MakeConfigMemberName(const KERNEL_NS::LibString &fieldName) const;
 
 private:
     void _Clear();
@@ -125,7 +128,7 @@ ALWAYS_INLINE  const XlsxConfigMetaInfo *XlsxExporterMgr::_GetMetaFile(const KER
 }
 
 // sheetname: xxx名字|xxx类型名(英文, 数字, 下划线, 首字母非数字)
-ALWAYS_INLINE KERNEL_NS::LibString XlsxExporterMgr::GetConfigTypeName(const KERNEL_NS::LibString &sheetName) const
+ALWAYS_INLINE KERNEL_NS::LibString XlsxExporterMgr::_GetConfigTypeName(const KERNEL_NS::LibString &sheetName) const
 {
     const auto &parts = sheetName.Split('|');
     if(parts.size() < 2)
@@ -136,6 +139,9 @@ ALWAYS_INLINE KERNEL_NS::LibString XlsxExporterMgr::GetConfigTypeName(const KERN
     return parts[1];
 }
 
-
+ALWAYS_INLINE KERNEL_NS::LibString XlsxExporterMgr::_MakeConfigMemberName(const KERNEL_NS::LibString &fieldName) const
+{
+    return "_" + fieldName.FirstCharToLower();
+}
 
 SERVICE_END
