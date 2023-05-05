@@ -1681,7 +1681,7 @@ ALWAYS_INLINE LibString LibString::FirstCharToUpper() const
     std::string &upperRaw = upper._raw;
     upper = *this;
 
-    if(buf[0] >= 0x41 && buf[0] <= 0x7a)
+    if (buf[0] >= 0x61 && buf[0] <= 0x7a)
         upperRaw[0] = buf[0] - 0x20;
 
     return upper;
@@ -1694,14 +1694,14 @@ ALWAYS_INLINE LibString LibString::FirstCharToLower() const
     if(size == 0)
         return *this;
 
-    _ThisType upper;
-    std::string &upperRaw = upper._raw;
-    upper = *this;
+    _ThisType lower;
+    std::string &lowerRaw = lower._raw;
+    lower = *this;
 
-    if(buf[0] >= 0x61 && buf[0] <= 0x5A)
-        upperRaw[0] = buf[0] + 0x20;
+    if (buf[0] >= 0x41 && buf[0] <= 0x5A)
+        lowerRaw[0] = buf[0] + 0x20;
 
-    return upper;   
+    return lower;   
 }
 
 // escape support: escape string

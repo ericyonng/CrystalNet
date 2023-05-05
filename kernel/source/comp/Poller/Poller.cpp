@@ -422,6 +422,7 @@ void Poller::SafetyEventLoop()
                 auto node = listNode->_data->Begin();
                 if(LIKELY(node))
                 {
+                    UniqueSmartPtr<PollerEvent, AutoDelMethods::Release> data = node->_data;
                     listNode->_data->Erase(node);
                     --_eventAmountLeft;
                     --mergeNumber;
@@ -432,7 +433,6 @@ void Poller::SafetyEventLoop()
                     #endif
 
                     // 事件处理
-                    UniqueSmartPtr<PollerEvent, AutoDelMethods::Release> data = node->_data;
                     if(LIKELY(_eventHandler))
                         _eventHandler->Invoke(data);
                 }

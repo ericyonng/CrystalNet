@@ -222,21 +222,22 @@ bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibSt
         {
             auto offSetCount = std::string::npos;
             if((dictKvTypeStr.GetRaw().substr(0, 4) == "bool") || 
-                (typeStr.GetRaw().substr(0, 4) == "int8"))
+                (dictKvTypeStr.GetRaw().substr(0, 4) == "int8"))
             {
                 offSetCount = 4;
             }
-            else if((typeStr.GetRaw().substr(0, 5) == "uint8") || 
-            (typeStr.GetRaw().substr(0, 5) == "int16") || 
-            (typeStr.GetRaw().substr(0, 5) == "int32") || 
-            (typeStr.GetRaw().substr(0, 5) == "int64")
+            else if((dictKvTypeStr.GetRaw().substr(0, 5) == "uint8") || 
+            (dictKvTypeStr.GetRaw().substr(0, 5) == "int16") || 
+            (dictKvTypeStr.GetRaw().substr(0, 5) == "int32") || 
+            (dictKvTypeStr.GetRaw().substr(0, 5) == "int64")
             )
             {
                 offSetCount = 5;
             }
-            else if((typeStr.GetRaw().substr(0, 6) == "uint32") ||
-            (typeStr.GetRaw().substr(0, 6) == "uint64") || 
-            (typeStr.GetRaw().substr(0, 6) == "string"))
+            else if((dictKvTypeStr.GetRaw().substr(0, 6) == "uint32") ||
+            (dictKvTypeStr.GetRaw().substr(0, 6) == "uint16") || 
+            (dictKvTypeStr.GetRaw().substr(0, 6) == "uint64") || 
+            (dictKvTypeStr.GetRaw().substr(0, 6) == "string"))
             {
                 offSetCount = 6;
             }
@@ -382,7 +383,7 @@ bool DataTypeHelper::IsArray(const KERNEL_NS::LibString &typeStr)
 
 bool DataTypeHelper::IsDict(const KERNEL_NS::LibString &typeStr)
 {
-    return typeStr.GetRaw().substr(0, 5) == "dict";
+    return typeStr.GetRaw().substr(0, 4) == "dict";
 }
 
 bool DataTypeHelper::IsString(const KERNEL_NS::LibString &typeStr)

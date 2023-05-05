@@ -87,7 +87,7 @@ bool ArchiveFile::ExtractToMem(const LibString &archivePathName)
     SmartPtr<FILE, AutoDelMethods::CustomDelete> fp = FileUtil::OpenFile(archivePathName.c_str(), false, "rb");
     if(!fp)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("open archive file fail :%s"), archivePathName.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("open archive file fail :%s"), archivePathName.c_str());
         return false;
     }
 
@@ -129,7 +129,7 @@ bool ArchiveFile::ExtractToMem(const LibString &archivePathName)
             mz_zip_archive_file_stat curFileStat;
             if (!mz_zip_reader_file_stat(&curArchive, i, &curFileStat))
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("mz_zip_reader_file_stat fail."));
+                g_Log->Warn(LOGFMT_OBJ_TAG("mz_zip_reader_file_stat fail."));
                 return false;
             }
 
@@ -137,7 +137,7 @@ bool ArchiveFile::ExtractToMem(const LibString &archivePathName)
             void* p = mz_zip_reader_extract_file_to_heap(&curArchive, curFileStat.m_filename, &curUncomSize, 0);
             if (!p)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("memory allocation fail for file:%s"), curFileStat.m_filename);
+                g_Log->Warn(LOGFMT_OBJ_TAG("memory allocation fail for file:%s"), curFileStat.m_filename);
                 return false;
             }
 

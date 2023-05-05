@@ -93,7 +93,7 @@ bool XlsxWorkbook::Parse(const LibString &xlsxPath)
 
     if(!achive->ExtractToMem(xlsxPath))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("achive extract to mem fail. xlsxPath:%s"), xlsxPath.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("achive extract to mem fail. xlsxPath:%s"), xlsxPath.c_str());
         return false;
     }
 
