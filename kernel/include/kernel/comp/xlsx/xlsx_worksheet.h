@@ -50,14 +50,17 @@ public:
     const LibString &GetSheetName() const;
     UInt64 GetMaxRow() const;
     UInt64 GetMaxColumn() const;
+    UInt64 GetTotalLine() const;
     const XlsxWorkbook *GetWorkbook() const;
 
     void AddCell(UInt64 rowId, UInt64 columnId, const LibString &content);
     void Clear();
 
-    const std::unordered_map<UInt64, XlsxCell *> &GetRowCells(UInt64 rowId) const;
-    const std::unordered_map<UInt64, XlsxCell *> &GetColumnCells(UInt64 columnId) const;
+    const std::map<UInt64, XlsxCell *> &GetRowCells(UInt64 rowId) const;
+    const std::map<UInt64, XlsxCell *> &GetColumnCells(UInt64 columnId) const;
     const XlsxCell *GetCell(UInt64 rowId, UInt64 columnId) const;
+
+    LibString ToRowString(UInt64 rowId) const;
 
 protected:
     XlsxWorkbook *_workbook;
@@ -66,10 +69,11 @@ protected:
 
     UInt64 _maxRow;
     UInt64 _maxColumn;
+    UInt64 _line;
 
     // 单元格数据
-    std::unordered_map<UInt64, std::unordered_map<UInt64, XlsxCell *>> _rowRefColumnRefCells;
-    std::unordered_map<UInt64, std::unordered_map<UInt64, XlsxCell *>> _columnRefRowRefCells;
+    std::map<UInt64, std::map<UInt64, XlsxCell *>> _rowRefColumnRefCells;
+    std::map<UInt64, std::map<UInt64, XlsxCell *>> _columnRefRowRefCells;
 };
 
 ALWAYS_INLINE const LibString &XlsxSheet::GetSheetName() const
@@ -87,14 +91,19 @@ ALWAYS_INLINE UInt64 XlsxSheet::GetMaxColumn() const
     return _maxColumn;
 }
 
+ALWAYS_INLINE UInt64 XlsxSheet::GetTotalLine() const
+{
+    return _line;
+}
+
 ALWAYS_INLINE const XlsxWorkbook *XlsxSheet::GetWorkbook() const
 {
     return _workbook;
 }
 
-ALWAYS_INLINE const std::unordered_map<UInt64, XlsxCell *> &XlsxSheet::GetRowCells(UInt64 rowId) const
+ALWAYS_INLINE const std::map<UInt64, XlsxCell *> &XlsxSheet::GetRowCells(UInt64 rowId) const
 {
-    static const std::unordered_map<UInt64, XlsxCell *> s_empty;
+    static const std::map<UInt64, XlsxCell *> s_empty;
     auto iter = _rowRefColumnRefCells.find(rowId);
     if(iter == _rowRefColumnRefCells.end())
     {
@@ -104,9 +113,9 @@ ALWAYS_INLINE const std::unordered_map<UInt64, XlsxCell *> &XlsxSheet::GetRowCel
     return iter->second;
 }
 
-ALWAYS_INLINE const std::unordered_map<UInt64, XlsxCell *> &XlsxSheet::GetColumnCells(UInt64 columnId) const
+ALWAYS_INLINE const std::map<UInt64, XlsxCell *> &XlsxSheet::GetColumnCells(UInt64 columnId) const
 {
-    static const std::unordered_map<UInt64, XlsxCell *> s_empty;
+    static const std::map<UInt64, XlsxCell *> s_empty;
     auto iter = _columnRefRowRefCells.find(columnId);
     if(iter == _columnRefRowRefCells.end())
     {

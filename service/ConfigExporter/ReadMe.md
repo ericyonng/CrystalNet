@@ -12,5 +12,12 @@
     * dataType数据类型是否一样
     * 校验是否一样
     * flags是否一样
-    * 
+    
+  * 测试参数
+
+    ```
+    --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=../../service_common/config/xlsx --target_dir=./code --data=./data --meta=./meta
+    ```
+
+    
 

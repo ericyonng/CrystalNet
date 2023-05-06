@@ -41,6 +41,7 @@ XlsxSheet::XlsxSheet(XlsxWorkbook *workbook, const LibString &sheetName, UInt64 
 ,_sheetId(sheetId)
 ,_maxRow(0)
 ,_maxColumn(0)
+,_line(0)
 {
 
 }
@@ -54,14 +55,18 @@ void XlsxSheet::AddCell(UInt64 rowId, UInt64 columnId, const LibString &content)
     cell->_owner = this;
 
     if(_maxRow < cell->_row)
+    {
         _maxRow = cell->_row;
+        ++_line;
+    }
+    
     if(_maxColumn < cell->_column)
         _maxColumn = cell->_column;
 
     {
         auto iter = _rowRefColumnRefCells.find(cell->_row);
         if(iter == _rowRefColumnRefCells.end())
-            iter = _rowRefColumnRefCells.insert(std::make_pair(cell->_row, std::unordered_map<UInt64, XlsxCell *>())).first;
+            iter = _rowRefColumnRefCells.insert(std::make_pair(cell->_row, std::map<UInt64, XlsxCell *>())).first;
         auto &columnRefCells = iter->second;
 
         columnRefCells.insert(std::make_pair(cell->_column, cell));
@@ -70,7 +75,7 @@ void XlsxSheet::AddCell(UInt64 rowId, UInt64 columnId, const LibString &content)
     {
         auto iter = _columnRefRowRefCells.find(cell->_column);
         if(iter == _columnRefRowRefCells.end())
-            iter = _columnRefRowRefCells.insert(std::make_pair(cell->_column, std::unordered_map<UInt64, XlsxCell *>())).first;
+            iter = _columnRefRowRefCells.insert(std::make_pair(cell->_column, std::map<UInt64, XlsxCell *>())).first;
 
         auto &rowRefCells = iter->second;
         rowRefCells.insert(std::make_pair(cell->_row, cell));
@@ -79,7 +84,7 @@ void XlsxSheet::AddCell(UInt64 rowId, UInt64 columnId, const LibString &content)
 
 void XlsxSheet::Clear()
 {
-   ContainerUtil::DelContainer(_rowRefColumnRefCells, [](std::unordered_map<UInt64, XlsxCell *> &dict){
+   ContainerUtil::DelContainer(_rowRefColumnRefCells, [](std::map<UInt64, XlsxCell *> &dict){
         ContainerUtil::DelContainer(dict, [](XlsxCell *ptr){
             XlsxCell::Delete_XlsxCell(ptr);
         });
@@ -88,6 +93,20 @@ void XlsxSheet::Clear()
    _columnRefRowRefCells.clear();
    _maxRow = 0;
    _maxColumn = 0;
+}
+
+LibString XlsxSheet::ToRowString(UInt64 rowId) const
+{
+    LibString rowInfo;
+    auto &rowCells = GetRowCells(rowId);
+    for(auto &iter : rowCells)
+    {
+        auto rowCell = iter.second;
+        rowInfo += rowCell->ToString();
+        rowInfo += "|";
+    }
+
+    return rowInfo;
 }
 
 KERNEL_END

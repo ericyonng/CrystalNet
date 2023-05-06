@@ -103,6 +103,8 @@ public:
     void Debug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(6, 7);
     void Warn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(6, 7);
     void Error(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(6, 7);
+    // template<typename... Args>
+    // void ErrorPlus(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args);
     
     void Monitor(const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(2, 3);
 

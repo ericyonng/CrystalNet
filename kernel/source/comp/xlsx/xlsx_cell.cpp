@@ -47,4 +47,11 @@ XlsxCell::~XlsxCell()
     
 }
 
+LibString XlsxCell::ToString() const
+{
+    LibString cellInfo;
+    cellInfo += _content;
+    return cellInfo;
+}
+
 KERNEL_END

@@ -143,10 +143,6 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
         {
             _baseDir = value;
         }
-        else
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("unknown param:k:%s, v:%s"), key.c_str(), value.c_str());
-        }
     }
     
     // 必须指定语言版本
@@ -737,6 +733,14 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
         auto &sheets = iterSheets->second;
         for(auto &sheet : sheets)
         {
+            if(sheet->GetTotalLine() < ConfigTableDefine::HEADER_ROW_NUMBER)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("have no enough line, total line:%llu, need line:%d, and will skip exporting config:%s, xlsx path:%s")
+                        ,sheet->GetTotalLine(), ConfigTableDefine::HEADER_ROW_NUMBER
+                        , sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
+                continue;
+            }
+
             // TODO:
             const auto maxRowId = sheet->GetMaxRow();
             const auto workbook = sheet->GetWorkbook();
@@ -887,6 +891,7 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                             }
                             newConfigFieldInfo->_dataType = cell->_content;
                             newConfigFieldInfo->_dataType.strip();
+                            newConfigFieldInfo->_dataType = newConfigFieldInfo->_dataType.tolower();
                             newConfigFieldInfo->_dataType.EraseAnyOf("\t\v\r\n\f");
                         }
                         break;
@@ -1030,6 +1035,10 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                         continue;
                     }
 
+                    // 转小写
+                    if(fieldInfo->_defaultValue == "TRUE" || fieldInfo->_defaultValue == "FALSE")
+                        fieldInfo->_defaultValue = fieldInfo->_defaultValue.tolower();
+
                     if((fieldInfo->_defaultValue != "true") && (fieldInfo->_defaultValue != "false"))
                     {
                         g_Log->Warn(LOGFMT_OBJ_TAG("bad default value, default value must be true or false, please check field name:%s columnId:%llu default value:%s sheetName:%s, xlsx path:%s")
@@ -1045,7 +1054,7 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                     fieldInfo->_defaultValue = DataTypeHelper::GetTypeDefaultValue(fieldInfo->_dataType);
             }
             
-            // 解析表数据
+            // 解析表数据并校验数据合法性
             bool isMultiDisableLine = false;
             for(UInt64 idx = ConfigTableDefine::HEADER_ROW_NUMBER + 1; idx <= maxRowId; ++idx)
             {
@@ -1093,16 +1102,68 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                     auto iterCell = rowCells.find(scanColumn);
                     if(iterCell == rowCells.end())
                     {// 使用默认值
+                        KERNEL_NS::LibString errInfo;
+                        if(!DataTypeHelper::CheckData(fieldInfo->_dataType, fieldInfo->_defaultValue, errInfo))
+                        {
+                            g_Log->Error(LOGFMT_OBJ_TAG("check data fail columnId:%llu, field name:%s config:%s:data type:%s, defaultValue:%s, errInfo:%s, sheet name:%s, path:%s, index(maybe not row id in sometimes):%llu, row data:\n")
+                                        , fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str()
+                                        ,  fieldInfo->_dataType.c_str(), fieldInfo->_defaultValue.c_str(), errInfo.c_str()
+                                        , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str(), idx);
+
+                            // TODO:转义? 需要让日志支持直接打出不需要转义
+                            // sheet->ToRowString(idx).escape()
+
+                            return false;
+                        }
+
                         finalLine.insert(std::make_pair(scanColumn, fieldInfo->_defaultValue));
                     }
                     else
                     {
                         if(iterCell->second->_content.empty())
                         {// 默认值
+                            // 校验值
+                            KERNEL_NS::LibString errInfo;
+                            if(!DataTypeHelper::CheckData(fieldInfo->_dataType, fieldInfo->_defaultValue, errInfo))
+                            {
+                                g_Log->Error(LOGFMT_OBJ_TAG("check data fail columnId:%llu, field name:%s config:%s:data type:%s, defaultValue:%s, errInfo:%s, sheet name:%s, path:%s")
+                                            , fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str()
+                                            ,  fieldInfo->_dataType.c_str(), fieldInfo->_defaultValue.c_str(), errInfo.c_str()
+                                            , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str());
+
+                                return false;
+                            }
+
+
                             finalLine.insert(std::make_pair(scanColumn, fieldInfo->_defaultValue));
                         }
                         else
                         {
+                            // 校验值
+                            KERNEL_NS::LibString errInfo;
+                            if(!DataTypeHelper::CheckData(fieldInfo->_dataType, iterCell->second->_content, errInfo))
+                            {
+                                g_Log->Error(LOGFMT_OBJ_TAG("check data fail columnId:%llu, field name:%s config:%s:data type:%s, content:%s, errInfo:%s, sheet name:%s, path:%s")
+                                            , fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str()
+                                            ,  fieldInfo->_dataType.c_str(), iterCell->second->_content.c_str(), errInfo.c_str()
+                                            , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str());
+
+                                return false;
+                            }
+
+                            // bool类型需要转成小写且如果是数值的需要转成bool
+                            if(DataTypeHelper::IsBool(fieldInfo->_dataType))
+                            {
+                                if(iterCell->second->_content.isdigit())
+                                {
+                                    iterCell->second->_content = KERNEL_NS::StringUtil::StringToInt64(iterCell->second->_content.GetRaw().substr(0, 20).c_str()) != 0 ? "true" : "false";
+                                }
+                                else
+                                {
+                                    iterCell->second->_content = iterCell->second->_content.tolower();
+                                }
+                            }
+
                             finalLine.insert(std::make_pair(scanColumn, iterCell->second->_content));
                         }
                     }

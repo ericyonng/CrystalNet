@@ -68,7 +68,7 @@ public:
     const LibString &GetWorkbookFileName() const;
     const LibString &GetWorkbookPath() const;
 
-    const std::unordered_map<LibString, XlsxSheet *> &GetAllSheets() const;
+    const std::map<LibString, XlsxSheet *> &GetAllSheets() const;
     const XlsxSheet *GetSheet(const LibString &sheetName) const;
 
 private:
@@ -93,10 +93,10 @@ private:
     bool _useThreadlocal;
     LibString _workBookName;
     LibString _workBookPath;
-    std::unordered_map<LibString, XMLDocument *> _docPathRefXmlDoc;
+    std::map<LibString, XMLDocument *> _docPathRefXmlDoc;
 
     // 页数据
-    std::unordered_map<LibString, XlsxSheet *> _sheetNameRefSheet;
+    std::map<LibString, XlsxSheet *> _sheetNameRefSheet;
 };
 
 ALWAYS_INLINE UInt64 XlsxWorkbook::GetSheetAmount() const
@@ -114,7 +114,7 @@ ALWAYS_INLINE const LibString &XlsxWorkbook::GetWorkbookPath() const
     return _workBookPath;
 }
 
-ALWAYS_INLINE const std::unordered_map<LibString, XlsxSheet *> &XlsxWorkbook::GetAllSheets() const
+ALWAYS_INLINE const std::map<LibString, XlsxSheet *> &XlsxWorkbook::GetAllSheets() const
 {
     return _sheetNameRefSheet;
 }
