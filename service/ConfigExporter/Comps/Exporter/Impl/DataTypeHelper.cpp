@@ -31,7 +31,7 @@
 
 SERVICE_BEGIN
 
-bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibString &targetType, KERNEL_NS::LibString &errInfo, bool toNormalMapIfExist)
+bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibString &targetType, KERNEL_NS::LibString &errInfo)
 {
     // 校验
     auto copyTypeStr = typeStr.strip();
@@ -137,7 +137,7 @@ bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibSt
             return false;
         }
 
-        if(!DataTypeHelper::Parse(arrayElementType, targetType, errInfo, toNormalMapIfExist))
+        if(!DataTypeHelper::Parse(arrayElementType, targetType, errInfo))
         {
             errInfo.AppendFormat("parse array element fail element:%s\n", arrayElementType.c_str());
 
@@ -186,15 +186,7 @@ bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibSt
             return false;
         }
 
-        if(toNormalMapIfExist)
-        {
-            targetType.AppendFormat("std::map<");
-        }
-        else
-        {
-            targetType.AppendFormat("std::unordered_map<");
-        }
-
+        targetType.AppendFormat("std::map<");
         auto dictKvTypeStr = leftTypeStr.sub("<", ">");
         if(dictKvTypeStr.empty())
         {
@@ -304,7 +296,7 @@ bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibSt
         }
         
         // 解析key type
-        if(!DataTypeHelper::Parse(keyString, targetType, errInfo, toNormalMapIfExist))
+        if(!DataTypeHelper::Parse(keyString, targetType, errInfo))
         {
             if(!targetType.empty())
                 targetType.clear();
@@ -317,7 +309,7 @@ bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibSt
         targetType.AppendFormat(", ");
 
         // 解析value type
-        if(!DataTypeHelper::Parse(valueString, targetType, errInfo, toNormalMapIfExist))
+        if(!DataTypeHelper::Parse(valueString, targetType, errInfo))
         {
             if(!targetType.empty())
                 targetType.clear();

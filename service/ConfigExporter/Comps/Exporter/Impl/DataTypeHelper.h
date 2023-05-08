@@ -35,8 +35,7 @@ SERVICE_BEGIN
 class DataTypeHelper
 {
 public:
-    // toNormalMapIfExist:true 导出普通的std::map, false:导出std::unordered_map
-    static bool Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibString &targetType, KERNEL_NS::LibString &errInfo, bool toNormalMapIfExist = false);
+    static bool Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibString &targetType, KERNEL_NS::LibString &errInfo);
 
     static bool IsSimpleType(const KERNEL_NS::LibString &typeStr);
 
@@ -89,7 +88,9 @@ public:
     static void ToString(const std::vector<ArrayElemType> &field, KERNEL_NS::LibString &dataInfo);
     template<typename DictKey, typename DictValue>
     static void ToString(const std::unordered_map<DictKey, DictValue> &field, KERNEL_NS::LibString &dataInfo);
-
+    template<typename DictKey, typename DictValue>
+    static void ToString(const std::map<DictKey, DictValue> &field, KERNEL_NS::LibString &dataInfo);
+    
     // 校验数据长度(对于整形:无符号是没有负号的, 数据是有长度限制防止溢出)
     static bool CheckData(const KERNEL_NS::LibString &dataType, const KERNEL_NS::LibString &value, KERNEL_NS::LibString &errInfo);
     static bool CheckSymbolRight(const KERNEL_NS::LibString &signedNumber);
@@ -343,70 +344,70 @@ ALWAYS_INLINE void DataTypeHelper::ToString(const bool &field, KERNEL_NS::LibStr
 {
     nlohmann::json result;
     result = field;
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const Byte8 &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field;
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const U8 &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field;
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const Int16 &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field;
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const UInt16 &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field;
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const Int32 &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field;
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const UInt32 &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field;
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const Int64 &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field;
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const UInt64 &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field;
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const KERNEL_NS::LibString &field, KERNEL_NS::LibString &dataInfo)
 {
     nlohmann::json result;
     result = field.GetRaw();
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 template<typename ArrayElemType>
@@ -420,7 +421,7 @@ ALWAYS_INLINE void DataTypeHelper::ToString(const std::vector<ArrayElemType> &fi
         result.push_back(itemResult.GetRaw());
     }
 
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
 template<typename DictKey, typename DictValue>
@@ -439,9 +440,26 @@ ALWAYS_INLINE void DataTypeHelper::ToString(const std::unordered_map<DictKey, Di
         result[keyString.GetRaw()] = valueString.GetRaw();
     }
     
-    dataInfo.AppendFormat("%s", result.dump().c_str());
+    dataInfo << result.dump();
 }
 
+template<typename DictKey, typename DictValue>
+ALWAYS_INLINE void DataTypeHelper::ToString(const std::map<DictKey, DictValue> &field, KERNEL_NS::LibString &dataInfo)
+{
+    auto &&result = nlohmann::json::object();
+    for(auto iter : field)
+    {
+        auto &key = iter.first;
+        auto &value = iter.second;
 
+        KERNEL_NS::LibString keyString;
+        DataTypeHelper::ToString(key, keyString);
+        KERNEL_NS::LibString valueString;
+        DataTypeHelper::ToString(value, valueString);
+        result[keyString.GetRaw()] = valueString.GetRaw();
+    }
+    
+    dataInfo << result.dump();
+}
 
 SERVICE_END

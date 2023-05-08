@@ -67,11 +67,20 @@
 #undef LOGFMT_DETAIL
 #define LOGFMT_DETAIL(tag, x) tag, _FUNC_LINE_ARGS_, x
 
+// NO FMT
+#undef LOGFMT_DETAIL_NO_FMT
+#define LOGFMT_DETAIL_NO_FMT(tag) tag, _FUNC_LINE_ARGS_
+
+
 // // 带tag宏,除了Net接口特殊外都可用
 
 // 类实例tag
 #undef LOGFMT_OBJ_TAG
 #define LOGFMT_OBJ_TAG(x) LOGFMT_DETAIL(LOG_OBJ_TAG(), x)
+
+// no fmt
+#undef LOGFMT_OBJ_TAG_NO_FMT
+#define LOGFMT_OBJ_TAG_NO_FMT() LOGFMT_DETAIL_NO_FMT(LOG_OBJ_TAG())
 
 // 非类实例tag
 #undef LOGFMT_NON_OBJ_TAG
@@ -103,8 +112,14 @@ public:
     void Debug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(6, 7);
     void Warn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(6, 7);
     void Error(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(6, 7);
-    // template<typename... Args>
-    // void ErrorPlus(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args);
+    template<typename... Args>
+    void Info2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args);
+    template<typename... Args>
+    void Debug2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args);
+    template<typename... Args>
+    void Warn2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args);
+    template<typename... Args>
+    void Error2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args);
     
     void Monitor(const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(2, 3);
 
@@ -164,7 +179,8 @@ protected:
     void _Common4(Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize);
 
     void _Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize);
-
+    template<typename... Args>
+    void _Common6(const Byte8 *tag, Int32 codeLine, Int32 levelId, Args&&... args);
 };
 
 inline void ILog::Info(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
@@ -213,6 +229,30 @@ inline void ILog::Error(const Byte8 *tag, const char *fileName, const char *func
     va_start(va, fmt);
     _Common1(tag, LogLevel::Error, fileName, funcName, codeLine, fmt, va, finalSize);
     va_end(va);
+}
+
+template<typename... Args>
+ALWAYS_INLINE void ILog::Info2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args)
+{
+    _Common6(tag, codeLine, LogLevel::Info, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+ALWAYS_INLINE void ILog::Debug2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args)
+{
+    _Common6(tag, codeLine, LogLevel::Debug, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+ALWAYS_INLINE void ILog::Warn2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args)
+{
+    _Common6(tag, codeLine, LogLevel::Warn, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+ALWAYS_INLINE void ILog::Error2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
+{
+    _Common6(tag, codeLine, LogLevel::Error, std::forward<Args>(args)...);
 }
 
 inline void ILog::Monitor(const char *fmt, ...)
@@ -602,6 +642,34 @@ inline void ILog::_Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, cons
 
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
+
+    _WriteLog(levelCfg, newLogData);
+}
+
+template<typename... Args>
+ALWAYS_INLINE void ILog::_Common6(const Byte8 *tag, Int32 codeLine, Int32 levelId, Args&&... args)
+{
+   if(UNLIKELY(!IsLogOpen()))
+        return;
+ 
+    auto levelCfg = _GetLevelCfg(levelId);
+    if(UNLIKELY(!levelCfg))
+    {
+        CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
+        return;
+    }
+
+    // 是否需要输出日志
+    if(UNLIKELY(!levelCfg->_enable))
+        return;
+
+    // 构建日志数据
+    LogData *newLogData = LogData::New_LogData();
+    newLogData->_logTime.UpdateTime();
+    auto &logInfo = newLogData->_logInfo;
+    logInfo.AppendFormat("%s<%s>[%s][line:%d]: ", newLogData->_logTime.ToString().c_str(), levelCfg->_levelName.c_str(), (tag ? tag : ""), codeLine);
+    logInfo.Append(std::forward<Args>(args)...);
+    logInfo.AppendEnd();
 
     _WriteLog(levelCfg, newLogData);
 }

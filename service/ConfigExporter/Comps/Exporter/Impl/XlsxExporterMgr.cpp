@@ -675,7 +675,7 @@ bool XlsxExporterMgr::_AnalyzeExportConfigs()
 
                         if(isInsertLineFirst)
                         {
-                            newConfigTable->_values.push_back(std::unordered_map<UInt64, KERNEL_NS::LibString>());
+                            newConfigTable->_values.push_back(std::map<UInt64, KERNEL_NS::LibString>());
                             isInsertLineFirst = false;
                         }
 
@@ -1049,6 +1049,15 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                     continue;
                 }
 
+                if(DataTypeHelper::IsString(fieldInfo->_dataType))
+                {
+                    if(fieldInfo->_defaultValue.empty())
+                    {
+                        fieldInfo->_defaultValue = "\"\"";
+                        continue;
+                    }
+                }
+
                 // 其他数据类型的默认值
                 if(fieldInfo->_defaultValue.empty())
                     fieldInfo->_defaultValue = DataTypeHelper::GetTypeDefaultValue(fieldInfo->_dataType);
@@ -1082,7 +1091,7 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                 if(isMultiDisableLine)
                     continue;
 
-                configTableInfo->_values.push_back(std::unordered_map<UInt64, KERNEL_NS::LibString>());
+                configTableInfo->_values.push_back(std::map<UInt64, KERNEL_NS::LibString>());
                 auto &finalLine = configTableInfo->_values.back();
 
                 // 行数据
@@ -1112,6 +1121,8 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
 
                             // TODO:转义? 需要让日志支持直接打出不需要转义
                             // sheet->ToRowString(idx).escape()
+                            const auto &lineData = sheet->ToRowString(idx);
+                            g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT(), lineData);
 
                             return false;
                         }
@@ -1143,10 +1154,12 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                             KERNEL_NS::LibString errInfo;
                             if(!DataTypeHelper::CheckData(fieldInfo->_dataType, iterCell->second->_content, errInfo))
                             {
-                                g_Log->Error(LOGFMT_OBJ_TAG("check data fail columnId:%llu, field name:%s config:%s:data type:%s, content:%s, errInfo:%s, sheet name:%s, path:%s")
+                                g_Log->Error(LOGFMT_OBJ_TAG("check data fail columnId:%llu, field name:%s config:%s:data type:%s, content:%s, errInfo:%s, sheet name:%s, path:%s, index:%llu, line data:")
                                             , fieldInfo->_columnId, fieldInfo->_fieldName.c_str(), fieldInfo->_owner->_tableClassName.c_str()
                                             ,  fieldInfo->_dataType.c_str(), iterCell->second->_content.c_str(), errInfo.c_str()
-                                            , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str());
+                                            , fieldInfo->_owner->_wholeSheetName.c_str(), fieldInfo->_owner->_xlsxPath.c_str(), idx);
+
+                                g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT(), sheet->ToRowString(idx));
 
                                 return false;
                             }
@@ -1533,7 +1546,7 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
                             }
 
                             fileContent.AppendFormat("    // by %s\n", fieldInfo->_fieldName.c_str());
-                            fileContent.AppendFormat("    const std::unordered_map<%s, %s *> &GetAll%sRefConfigs() const;\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+                            fileContent.AppendFormat("    const std::map<%s, %s *> &GetAll%sRefConfigs() const;\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
 
                             fileContent.AppendFormat("    const %s * GetConfigBy%s(const %s &key) const;\n"
                                         , className.c_str(), fieldName.c_str(), iterDataType->second.c_str());
@@ -1551,7 +1564,7 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
                             }
 
                             fileContent.AppendFormat("    // by %s\n", fieldInfo->_fieldName.c_str());
-                            fileContent.AppendFormat("    const std::unordered_map<%s, std::vector<%s *>> &GetAll%sRefConfigs() const;\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+                            fileContent.AppendFormat("    const std::map<%s, std::vector<%s *>> &GetAll%sRefConfigs() const;\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
 
                             fileContent.AppendFormat("    const std::vector<%s *> &GetConfigsBy%s(const %s &key) const;\n"
                                         , className.c_str(), fieldName.c_str(), iterDataType->second.c_str());
@@ -1592,12 +1605,12 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
                         auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
                         if(flag == "unique")
                         {// 唯一索引
-                            fileContent.AppendFormat("    std::unordered_map<%s, %s *> _%sRefConfig;\n"
+                            fileContent.AppendFormat("    std::map<%s, %s *> _%sRefConfig;\n"
                                         , iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
                         }
                         else if(flag == "index")
                         {// 普通索引
-                            fileContent.AppendFormat("    std::unordered_map<%s, std::vector<%s *>> _%sRefConfigs;\n"
+                            fileContent.AppendFormat("    std::map<%s, std::vector<%s *>> _%sRefConfigs;\n"
                                         , iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
                         }
                     }
@@ -1636,7 +1649,7 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
                     auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
                     if(flag == "unique")
                     {// 唯一索引
-                        fileContent.AppendFormat("ALWAYS_INLINE const std::unordered_map<%s, %s *> &GetAll%sRefConfigs() const\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+                        fileContent.AppendFormat("ALWAYS_INLINE const std::map<%s, %s *> &GetAll%sRefConfigs() const\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
                         fileContent.AppendFormat("{\n");
                         fileContent.AppendFormat("    return _%sRefConfig;\n", lowerFieldName.c_str());
                         fileContent.AppendFormat("}\n");
@@ -1653,7 +1666,7 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
                     }
                     else if(flag == "index")
                     {// 普通索引
-                        fileContent.AppendFormat("ALWAYS_INLINE const std::unordered_map<%s, std::vector<%s *>> &GetAll%sRefConfigs() const\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
+                        fileContent.AppendFormat("ALWAYS_INLINE const std::map<%s, std::vector<%s *>> &GetAll%sRefConfigs() const\n", iterDataType->second.c_str(), className.c_str(), fieldName.c_str());
                         fileContent.AppendFormat("{\n");
                         fileContent.AppendFormat("    return _%sRefConfigs;\n", lowerFieldName.c_str());
                         fileContent.AppendFormat("}\n");
@@ -1845,7 +1858,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("      // 解析数据 通过column_id找到fieldInfo然后解析出_{fieldName} = \n");
             fileContent.AppendFormat("      KERNEL_NS::LibString errInfo;\n");
-            fileContent.AppendFormat("      if(!DataTypeHelper::Assign(%s, dataPart, errInfo)\n", memberName.c_str());
+            fileContent.AppendFormat("      if(!DataTypeHelper::Assign(%s, dataPart, errInfo))\n", memberName.c_str());
             fileContent.AppendFormat("      {\n");
             fileContent.AppendFormat("          g_Log->Error(LOGFMT_OBJ_TAG(\"%%s, assign fail field name:%s, data part:%%s, errInfo:%%s  line data:%%s, pos:%%d, headerTailPos:%%d, dataEndPos:%%d\"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));\n", memberName.c_str());
             fileContent.AppendFormat("          return false;\n");
