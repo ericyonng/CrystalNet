@@ -1435,6 +1435,7 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("\n");
 
         fileContent.AppendFormat("SERVICE_BEGIN\n");
+        fileContent.AppendFormat("\n");
     }
 
     {// 配置类
@@ -1804,18 +1805,18 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                 continue;
 
             const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
-            fileContent.AppendFormat("    {// _%s\n", memberName.c_str());
+            fileContent.AppendFormat("    {// %s\n", memberName.c_str());
             fileContent.AppendFormat("        auto pos = lineData.GetRaw().find_first_of(\"column_\", startPos);\n");
             fileContent.AppendFormat("        if(pos == std::string::npos)\n");
             fileContent.AppendFormat("        {\n");
-            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"pase field:%s, data format error: have no column_ prefix, lineData:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s, data format error: have no column_ prefix, lineData:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
             fileContent.AppendFormat("            return false;\n");
             fileContent.AppendFormat("        }\n");
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("       auto headerTailPos = lineData.GetRaw().find_first_of(\":\");\n");
             fileContent.AppendFormat("       if(headerTailPos == std::string::npos)\n");
             fileContent.AppendFormat("       {\n");
-            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"pase field:%s, bad line data not find : symbol after column_ line data:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
+            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s, bad line data not find : symbol after column_ line data:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
             fileContent.AppendFormat("            return false;\n");
             fileContent.AppendFormat("       }\n");
             fileContent.AppendFormat("\n");
@@ -1945,7 +1946,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("}\n");
 
         fileContent.AppendFormat("\n");
-        fileContent.AppendFormat("KERNEL_NS::LibString %s::ToString() const\n");
+        fileContent.AppendFormat("KERNEL_NS::LibString %s::ToString() const\n", mgrClassName.c_str());
         fileContent.AppendFormat("{\n");
         fileContent.AppendFormat("    return GetObjName();\n");
         fileContent.AppendFormat("}\n");
@@ -2093,7 +2094,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                         if(flag == "unique")
                         {// 唯一索引
                             const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
-                            const auto &uniqueCheckFieldName = "unique_" + fieldName;
+                            const auto &uniqueCheckFieldName = "unique_" + fieldName + "s";
                             fileContent.AppendFormat("        // unique唯一性校验\n");
                             fileContent.AppendFormat("        if(%s.find(config->%s) != %s.end())\n", uniqueCheckFieldName.c_str(), memberName.c_str(), uniqueCheckFieldName.c_str());
                             fileContent.AppendFormat("        {\n");
