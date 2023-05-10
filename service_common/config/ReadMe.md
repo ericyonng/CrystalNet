@@ -75,6 +75,7 @@
     private:
     	virtual void _OnClose() override;
     	void _Clear();
+      Int64 _ReadConfigData(FILE &fp, KERNEL_NS::LibString &configData) const;
   	
     private:
     	std::vector<ExampleConfig *> _configs;
@@ -298,7 +299,14 @@
       while(true)
       {
         KERNEL_NS::LibString lineData;
-        auto readBytes = KERNEL_NS::FileUtil::ReadUtf8OneLine(*fp, lineData);
+        Int64 readBytes =_ReadConfigData(*fp, lineData);
+        if(readBytes < 0)
+        {
+          g_Log->Error(LOGFMT_OBJ_TAG("Read a line config data fail wholePath:%s, line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
+          KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+          return Status::Fail;
+        }
+
         if(readBytes == 0)
           break;
 
@@ -396,6 +404,78 @@
       KERNEL_NS::ContainerUtil::DelContainer(_configs, [](ExampleConfig *ptr){
           ExampleConfig::Delete_ExampleConfig(ptr);
       });
+    }
+
+    Int64 ExampleConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configData) const
+    {
+        // 读够一条配置的列数即可, 完整性校验: 必须把所有需要导出的列导出数据, 数据不完整则返回-1, 0表示没有数据了, >0 表示读取的字节数
+        Int64 readBytes = 0;
+        // column_1_10:1010105555|column_2_10:aaaaaaaaaa|...
+        // 读到:解析头部,继续读数据,统计fieldNum个数, 以及列id,读完整才返回,若完整性有问题则返回-1
+        KERNEL_NS::LibString content;
+        std::set<Int32> needFieldIds = {xxxxxxxx};
+        const Int32 fieldNum = xxx;
+        Int32 count = 0;
+        while(true)
+        {
+          auto bytesOnce = KERNEL_NS::FileUtil::ReadFile(fp, content, 1);
+          if(bytesOnce == 0)
+          {
+            break;
+          }
+
+          readBytes += bytesOnce;
+          if(content.Contain(":"))
+          {
+             const auto symbolPos = content.GetRaw().find_first_of(":", 0);
+             const KERNEL_NS::LibString fieldHeader = content.GetRaw().substr(0, symbolPos);
+             const auto &headerCache = fieldHeader.strip();
+             const auto &headerParts = headerCache.Split('_');
+             if(headerParts.size() < 3)
+             {
+              g_Log->Warn(LOGFMT_OBJ_TAG("column field header format error"));
+              g_Log->Warn2(KERNEL_NS::LibString("headerCache:"), headerCache, KERNEL_NS::LibString(", content:"), content);
+               return -1;
+             }
+
+             const Int32 fieldColumnId = KERNEL_NS::StringUtil::StringToInt32(headerParts[1].c_str());
+             const Int64 fieldDataLen = KERNEL_NS::StringUtil::StringToInt64(headerParts[2].c_str());
+
+             configData += content.GetRaw().substr(0, symbolPos + 1);
+             content.clear();
+
+             bytesOnce = KERNEL_NS::FileUtil::ReadFile(fp, content, fieldDataLen);
+             if(bytesOnce != fieldDataLen)
+             {
+                g_Log->Warn(LOGFMT_OBJ_TAG("column data error:"));
+                g_Log->Warn2(KERNEL_NS::LibString("headerCache:"), headerCache, KERNEL_NS::LibString(", content:"), content, KERNEL_NS::LibString(", fieldDataLen:"), fieldDataLen, KERNEL_NS::LibString(", real len:"), bytesOnce, KERNEL_NS::LibString(", not enough."));
+               return -1;
+             }
+
+             readBytes += bytesOnce;
+             configData += content;
+             content.clear();
+             needFieldIds.erase(fieldColumnId);
+             ++count;
+
+             if(((count != fieldNum) && needFieldIds.empty()) || 
+                ((count == fieldNum) && !needFieldIds.empty()))
+             {
+                g_Log->Warn(LOGFMT_OBJ_TAG("column data error: field maybe changed count:%d, need fieldNum:%d column fieldIds not empty left:%d"), count, fieldNum, static_cast<Int32>(needFieldIds.size()));
+                g_Log->Warn2(KERNEL_NS::LibString("configData:"), configData, KERNEL_NS::LibString("need field column ids:"), KERNEL_NS::LibString("xxxx"));
+                return -1;
+             }
+
+             if((count == fieldNum) && needFieldIds.empty())
+             {
+               return readBytes;
+             }
+          }
+        }
+
+        g_Log->Warn(LOGFMT_OBJ_TAG("column data error: field maybe changed count:%d, need fieldNum:%d column fieldIds not empty left:%d"), count, fieldNum, static_cast<Int32>(needFieldIds.size()));
+
+        return -1;
     }
 
     ```

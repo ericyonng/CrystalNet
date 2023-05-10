@@ -1580,6 +1580,7 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("private:\n");
         fileContent.AppendFormat("    virtual void _OnClose() override;\n");
         fileContent.AppendFormat("    void _Clear();\n");
+        fileContent.AppendFormat("    Int64 _ReadConfigData(FILE &fp, KERNEL_NS::LibString &configData) const;\n");
         fileContent.AppendFormat("\n");
 
         {// 数据成员
@@ -2039,7 +2040,15 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("    while(true)\n");
             fileContent.AppendFormat("    {\n");
             fileContent.AppendFormat("        KERNEL_NS::LibString lineData;\n");
-            fileContent.AppendFormat("        auto readBytes = KERNEL_NS::FileUtil::ReadUtf8OneLine(*fp, lineData);\n");
+            fileContent.AppendFormat("        Int64 readBytes = _ReadConfigData(*fp, lineData);\n");
+            fileContent.AppendFormat("        if(readBytes < 0)\n");
+            fileContent.AppendFormat("        {\n");
+            fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"Read a line config data fail wholePath:%%s, line:%%d, \"), wholePath.c_str(), line);\n");
+            fileContent.AppendFormat("            g_Log->Error2(KERNEL_NS::LibString(\"lineData:\"), lineData);\n");
+            fileContent.AppendFormat("            KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("            return Status::Fail;\n");
+            fileContent.AppendFormat("        }\n");
+            fileContent.AppendFormat("\n");
             fileContent.AppendFormat("        if(readBytes == 0)\n");
             fileContent.AppendFormat("            break;\n");
             fileContent.AppendFormat("\n");
@@ -2268,6 +2277,97 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         }
     }
 
+    {// _ReadConfigData
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("Int64 %s::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configData) const\n", mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    // 读够一条配置的列数即可, 完整性校验: 必须把所有需要导出的列导出数据, 数据不完整则返回-1, 0表示没有数据了, >0 表示读取的字节数\n");
+        fileContent.AppendFormat("    Int64 readBytes = 0;\n");
+        fileContent.AppendFormat("    KERNEL_NS::LibString content;\n");
+        fileContent.AppendFormat("    std::set<Int32> needFieldIds = ");
+        fileContent.AppendFormat("{");
+
+        bool isFirst = true;
+        Int32 fieldNum = 0;
+        for(auto fieldInfo : configInfo->_fieldInfos)
+        {
+            if(!fieldInfo)
+                continue;
+
+            ++fieldNum;
+            if(isFirst)
+            {
+                fileContent.AppendFormat("%llu", fieldInfo->_columnId);
+                isFirst = false;
+            }
+            else
+            {
+                fileContent.AppendFormat(", %llu", fieldInfo->_columnId);
+            }
+        }
+        fileContent.AppendFormat("};\n");
+
+        fileContent.AppendFormat("    const Int32 fieldNum = %d;\n", fieldNum);
+        fileContent.AppendFormat("    Int32 count = 0;\n");
+        fileContent.AppendFormat("    while(true)\n");
+        fileContent.AppendFormat("    {\n");
+        fileContent.AppendFormat("        Int64 bytesOnce = static_cast<Int64>(KERNEL_NS::FileUtil::ReadFile(fp, content, 1));\n");
+        fileContent.AppendFormat("        if(bytesOnce == 0)\n");
+        fileContent.AppendFormat("            break;\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("        readBytes += bytesOnce;\n");
+        fileContent.AppendFormat("        if(content.Contain(\":\"))\n");
+        fileContent.AppendFormat("        {\n");
+        fileContent.AppendFormat("            const auto symbolPos = content.GetRaw().find_first_of(\":\", 0);\n");
+        fileContent.AppendFormat("            const KERNEL_NS::LibString fieldHeader = content.GetRaw().substr(0, symbolPos);\n");
+        fileContent.AppendFormat("            const auto &headerCache = fieldHeader.strip();\n");
+        fileContent.AppendFormat("            const auto &headerParts = headerCache.Split(\'_\');\n");
+        fileContent.AppendFormat("            if(headerParts.size() < 3)\n");
+        fileContent.AppendFormat("            {\n");
+        fileContent.AppendFormat("                g_Log->Warn(LOGFMT_OBJ_TAG(\"column field header format error\"));\n");
+        fileContent.AppendFormat("                g_Log->Warn2(KERNEL_NS::LibString(\"headerCache:\"), headerCache, KERNEL_NS::LibString(\", content:\"), content);\n");
+        fileContent.AppendFormat("                return -1;\n");
+        fileContent.AppendFormat("            }\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("            const Int32 fieldColumnId = KERNEL_NS::StringUtil::StringToInt32(headerParts[1].c_str());\n");
+        fileContent.AppendFormat("            const Int64 fieldDataLen = KERNEL_NS::StringUtil::StringToInt64(headerParts[2].c_str());\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("            bytesOnce = static_cast<Int64>(KERNEL_NS::FileUtil::ReadFile(fp, content, fieldDataLen));\n");
+        fileContent.AppendFormat("            if(bytesOnce != fieldDataLen)\n");
+        fileContent.AppendFormat("            {\n");
+        fileContent.AppendFormat("                g_Log->Warn(LOGFMT_OBJ_TAG(\"column data error:\"));\n");
+        fileContent.AppendFormat("                g_Log->Warn2(KERNEL_NS::LibString(\"headerCache:\"), headerCache, KERNEL_NS::LibString(\", content:\"), content, KERNEL_NS::LibString(\", fieldDataLen:\"), fieldDataLen, KERNEL_NS::LibString(\", real len:\"), bytesOnce, KERNEL_NS::LibString(\", not enough.\"));\n");
+        fileContent.AppendFormat("                return -1;\n");
+        fileContent.AppendFormat("            }\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("            readBytes += bytesOnce;\n");
+        fileContent.AppendFormat("            configData += content;\n");
+        fileContent.AppendFormat("            content.clear();\n");
+        fileContent.AppendFormat("            needFieldIds.erase(fieldColumnId);\n");
+        fileContent.AppendFormat("            ++count;\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("            if(((count != fieldNum) && needFieldIds.empty()) ||\n");
+        fileContent.AppendFormat("                ((count == fieldNum) && !needFieldIds.empty()))\n");
+        fileContent.AppendFormat("            {\n");
+        fileContent.AppendFormat("                g_Log->Warn(LOGFMT_OBJ_TAG(\"column data error: field maybe changed count:%%d, need fieldNum:%%d column fieldIds not empty left:%%d\"), count, fieldNum, static_cast<Int32>(needFieldIds.size()));\n");
+        fileContent.AppendFormat("                g_Log->Warn2(KERNEL_NS::LibString(\"configData:\"), configData);\n");
+        fileContent.AppendFormat("                return -1;\n");
+        fileContent.AppendFormat("            }\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("            if((count == fieldNum) && needFieldIds.empty())\n");
+        fileContent.AppendFormat("            {\n");
+        fileContent.AppendFormat("                return readBytes;\n");
+        fileContent.AppendFormat("            }\n");
+
+        fileContent.AppendFormat("        }\n");
+        fileContent.AppendFormat("    }\n");
+        fileContent.AppendFormat("    g_Log->Warn(LOGFMT_OBJ_TAG(\"column data error: field maybe changed count:%%d, need fieldNum:%%d column fieldIds not empty left:%%d\"), count, fieldNum, static_cast<Int32>(needFieldIds.size()));\n");
+        fileContent.AppendFormat("    g_Log->Warn2(KERNEL_NS::LibString(\"configData:\"), configData);\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    return -1;\n");
+
+        fileContent.AppendFormat("}\n");
+    }
 
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("SERVICE_END\n");
