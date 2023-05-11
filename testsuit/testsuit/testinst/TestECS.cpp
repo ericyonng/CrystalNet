@@ -513,9 +513,24 @@ private:
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(HostB);
 
+class ICompC : public KERNEL_NS::CompObject
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(CompObject, ICompC);
+public:
+    ICompC()
+    {
+
+    }
+
+    ~ICompC()
+    {
+
+    }
+
+};
 
 // 简化版 组件C
-class CompC : public KERNEL_NS::CompObject
+class CompC : public ICompC
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, CompC);
 
@@ -553,6 +568,7 @@ private:
     KERNEL_NS::LibString _name = "CompC name field";
     
 };
+POOL_CREATE_OBJ_DEFAULT_IMPL(ICompC);
 POOL_CREATE_OBJ_DEFAULT_IMPL(CompC);
 
 
@@ -780,37 +796,37 @@ void HostC::OnRegisterComps()
 }
 
 // 测试循环依赖: HostA <= HostC <= HostA <= ...
-void TestECS::Run()
-{
-    do
-    {
-        auto hosta = HostA::New_HostA();
-        auto st = hosta->Init();
-        if(st != Status::Success)
-        {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestECS, "host a init fail st:%d"), st);
-            break;
-        }
+// void TestECS::Run()
+// {
+//     do
+//     {
+//         auto hosta = HostA::New_HostA();
+//         auto st = hosta->Init();
+//         if(st != Status::Success)
+//         {
+//             g_Log->Error(LOGFMT_NON_OBJ_TAG(TestECS, "host a init fail st:%d"), st);
+//             break;
+//         }
 
-        st = hosta->Start();
-        if(st != Status::Success)
-        {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestECS, "hosta start fail st:%d"), st);
-            break;
-        }
+//         st = hosta->Start();
+//         if(st != Status::Success)
+//         {
+//             g_Log->Error(LOGFMT_NON_OBJ_TAG(TestECS, "hosta start fail st:%d"), st);
+//             break;
+//         }
 
-        getchar();
+//         getchar();
 
-        hosta->WillClose();
+//         hosta->WillClose();
 
-        hosta->Close();
+//         hosta->Close();
 
-        hosta->Release();
+//         hosta->Release();
 
-        /* code */
-    } while (0);
+//         /* code */
+//     } while (0);
     
-}
+// }
 // void TestECS::Run()
 // {
 //     do
@@ -868,3 +884,43 @@ void TestECS::Run()
 //         hostc->Close();
 //     } while (0);
 // }
+
+// 测试替换组件
+void TestECS::Run()
+{
+    do
+    {
+        auto hostb = HostB::New_HostB();
+        auto st = hostb->Init();
+        if(st != Status::Success)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestECS, "hostb init fail st:%d"), st);
+            break;
+        }
+
+        st = hostb->Start();
+        if(st != Status::Success)
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestECS, "hostb start fail st:%d"), st);
+            break;
+        }
+
+        // 替换组件c
+        KERNEL_NS::CompObject *compc = CompC::NewByAdapter_CompC(CompCFactory::_buildType.V);
+        compc->Init();
+        compc->Start();
+
+        hostb->ReplaceComp(compc);
+
+        getchar();
+
+        hostb->WillClose();
+
+        hostb->Close();
+
+        hostb->Release();
+
+        /* code */
+    } while (0);
+    
+}

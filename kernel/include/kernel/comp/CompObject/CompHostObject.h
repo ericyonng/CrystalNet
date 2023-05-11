@@ -124,6 +124,12 @@ public:
     std::vector<CompObject *> &GetComps(const LibString &compRttiName);
     const std::vector<CompObject *> &GetComps(const LibString &compRttiName) const;
 
+    // 替换已有组件 同时必须校验循环依赖 TODO:找到组件, 存在的要对组件执行Close以及移除操作, 用于比如热更配置（在另外一个线程创建ConfigLoader并加载好配置后替换掉原有的ConfigLoader）
+    template<typename ObjType>
+    bool ReplaceComp(ObjType *comp);
+    // 批量替换相同类型组件 TODO:找到组件, 存在的要对组件进行Close和移除操作
+    // TODO:批量替换多个同类型组件
+
     // 提供给有设置了Type的对象（除了DynamicComp）
     CompObject *GetCompByType(Int32 type);
     const CompObject *GetCompByType(Int32 type) const;
@@ -134,10 +140,8 @@ public:
     std::vector<CompObject *> &GetAllComps();
     const std::vector<CompObject *> &GetAllComps() const;
 
-    // 检查host 类型组件避免循环依赖
-    bool CheckAddRegisterCompName(const LibString &compName);
-    // 所有host组件
-    const LibString &GetAllRegisterHostName() const;
+    // 检查host 类型组件避免循环依赖 dependingShip:依赖关系
+    bool CheckCircleDepending(const LibString &compName, KERNEL_NS::LibString &dependingShip) const;
 
 private:
     // 在MaxFocusEnum变化时需要调用该方法
@@ -149,6 +153,7 @@ private:
     void _DestroyWillRegComps();
     void _DestroyComps();
     void _AddComp(CompObject *comp);
+    bool _ReplaceComp(CompObject *oldComp, CompObject *comp);
 
     void _MaskIfFocus(CompObject *comp);
     void _Clear();
@@ -177,10 +182,6 @@ private:
 
     // 关注的接口
     std::vector<std::vector<CompObject *>> _focusTypeRefComps;
-
-    // 已注册过的HostComp 避免循环依赖
-    std::unordered_set<LibString> _registerdHostComps;
-    LibString _allRegisterHostComps;
 };
 
 template<typename CompFactoryType>
@@ -324,6 +325,34 @@ ALWAYS_INLINE const std::vector<CompObject *> &CompHostObject::GetAllComps() con
 ALWAYS_INLINE void CompHostObject::_ResizeFocusDict()
 {
     _focusTypeRefComps.resize(GetMaxFocusEnd());
+}
+
+template<typename ObjType>
+ALWAYS_INLINE bool CompHostObject::ReplaceComp(ObjType *comp)
+{
+// 替换已有组件 TODO:找到组件, 存在的要对组件执行Close以及移除操作
+    const KERNEL_NS::LibString compType = RttiUtil::GetByObj(comp);
+    auto oldComp = GetComp(compType);
+    if(oldComp == comp)
+        return true;
+
+    if(LIKELY(oldComp))
+    {
+        oldComp->WillClose();
+        oldComp->Close();
+    }
+
+    if(!_ReplaceComp(oldComp, comp))
+    {
+        return false;
+    }
+
+    if(LIKELY(oldComp))
+    {
+        oldComp->Release();
+    }
+
+    return true;
 }
 
 KERNEL_END

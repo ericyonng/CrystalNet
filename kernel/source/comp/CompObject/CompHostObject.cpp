@@ -55,9 +55,10 @@ CompHostObject::~CompHostObject()
 Int32 CompHostObject::_OnCreated()
 {
     const LibString objName = RttiUtil::GetByObj(this);
-    if(!CheckAddRegisterCompName(objName))
+    LibString dependingShip = objName + " ";
+    if(!CheckCircleDepending(objName, dependingShip))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("circle depending... %s, is register in host:%s"), objName.c_str(), GetOwner()->GetObjName().c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("circle depending... %s, owner::%s, dependingShip:%s"), objName.c_str(), GetOwner()->GetObjName().c_str(), dependingShip.c_str());
         return Status::Repeat;
     }
 
@@ -260,32 +261,24 @@ Int32 CompHostObject::RegisterComp(CompObject *comp)
     return Status::Success;
 }
 
-bool CompHostObject::CheckAddRegisterCompName(const LibString &compName)
+bool CompHostObject::CheckCircleDepending(const LibString &compName, KERNEL_NS::LibString &dependingShip) const
 {
+    // 循环依赖定义:A <= B <= A, 即A往上找到宿主B，再往上找如果找到的是自己那么说明存在循环依赖
     auto owner = GetOwner();
     if(LIKELY(owner))
     {
-        return owner->CastTo<CompHostObject>()->CheckAddRegisterCompName(compName);
+        dependingShip.AppendFormat("=> %s ", owner->GetObjName().c_str());
+        if(owner->GetObjName() == compName)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("circle depending please check compName:%s, dependingShip:%s")
+                        , compName.c_str(), dependingShip.c_str());
+            return false;
+        }
+
+        return owner->CastTo<CompHostObject>()->CheckCircleDepending(compName, dependingShip);
     }
-
-    auto iter = _registerdHostComps.find(compName);
-    if(iter != _registerdHostComps.end())
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("circle depending please check compName:%s, root host obj name:%s, all host comp name:%s")
-                    , compName.c_str(), GetObjName().c_str(), GetAllRegisterHostName().c_str());
-        return false;
-    }
-
-    _registerdHostComps.insert(compName);
-
-    _allRegisterHostComps.AppendFormat("%s|", compName.c_str());
 
     return true;
-}
-
-const LibString &CompHostObject::GetAllRegisterHostName() const
-{
-    return _allRegisterHostComps;
 }
 
 Int32 CompHostObject::_OnHostCreated()
@@ -536,6 +529,126 @@ void CompHostObject::_AddComp(CompObject *comp)
             iterTypeComps = _compTypeRefComps.insert(std::make_pair(comp->GetType(), std::vector<CompObject *>())).first;
         iterTypeComps->second.push_back(comp);
     }
+}
+
+bool CompHostObject::_ReplaceComp(CompObject *oldComp, CompObject *comp)
+{
+    comp->BindOwner(this);
+    if(UNLIKELY(!oldComp))
+    {// 旧的组件不存在, 那么执行的是新增
+        LibString dependingShip;
+        if(!CheckCircleDepending(comp->GetObjName(), dependingShip))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("circle depending when old comp is not found and will add new comp ... %s, owner::%s, dependingShip:%s")
+                    , comp->GetObjName().c_str(), comp->GetOwner()->GetObjName().c_str(), dependingShip.c_str());
+            return false;
+        }
+
+        _AddComp(comp);
+        return true;
+    }
+
+    // TODO:
+    {// 容器中替代
+        const Int32 compAmount = static_cast<Int32>(_comps.size());
+        for(Int32 idx = 0; idx < compAmount; ++idx)
+        {
+            if(_comps[idx] == oldComp)
+            {
+                _comps[idx] = comp;
+                break;
+            }
+        }
+
+        _compIdRefComp.erase(oldComp->GetId());
+        _compIdRefComp.insert(std::make_pair(comp->GetId(), comp));
+    }
+
+    // 名字映射
+    const auto &compName = comp->GetObjName();
+    auto iterComps = _compNameRefComps.find(compName);
+    if(iterComps == _compNameRefComps.end())
+        iterComps = _compNameRefComps.insert(std::make_pair(compName, std::vector<CompObject *>())).first;
+    auto &comps = iterComps->second;
+    {
+        const Int32 compAmount = static_cast<Int32>(comps.size());
+        for(Int32 idx = 0; idx < compAmount; ++idx)
+        {
+            if(comps[idx] == oldComp)
+            {
+                comps[idx] = comp;
+                break;
+            }
+        }
+    }
+
+    // 命名空间检测
+    LibString copyCompName = compName;
+    auto splitNameSpace = copyCompName.Split("::", -1, false, true);
+    Int32 splitSize = static_cast<Int32>(splitNameSpace.size());
+
+    // 去末尾空
+    for(Int32 idx = splitSize - 1; idx >= 0; --idx)
+    {
+        if(splitNameSpace[idx].empty())
+        {
+            splitNameSpace.erase(splitNameSpace.begin() + idx);
+        }
+        else
+            break;
+    }
+
+    LibString icompName;
+    splitSize = static_cast<Int32>(splitNameSpace.size());
+    for(Int32 idx = 0; idx < splitSize; ++idx)
+    {
+        if(idx == splitSize -1)
+            icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
+
+        if(!splitNameSpace[idx].empty())
+            icompName.AppendFormat("%s", splitNameSpace[idx].c_str());
+
+        if(idx != splitSize -1)
+            icompName.AppendFormat("::");
+    }
+    
+    // 接口名字映射
+    auto iterIComps = _icompNameRefComps.find(icompName);
+    if(iterIComps == _icompNameRefComps.end())
+        iterIComps = _icompNameRefComps.insert(std::make_pair(icompName, std::vector<CompObject *>())).first;
+    auto &icomps = iterIComps->second;
+    {
+        const Int32 compAmount = static_cast<Int32>(icomps.size());
+        for(Int32 idx = 0; idx < compAmount; ++idx)
+        {
+            if(icomps[idx] == oldComp)
+            {
+                icomps[idx] = comp;
+                break;
+            }
+        }
+    }
+
+    // 类型映射
+    if(comp->GetType())
+    {
+        auto iterTypeComps = _compTypeRefComps.find(comp->GetType());
+        if(iterTypeComps == _compTypeRefComps.end())
+            iterTypeComps = _compTypeRefComps.insert(std::make_pair(comp->GetType(), std::vector<CompObject *>())).first;
+        
+        auto &typeComps = iterTypeComps->second;
+        const Int32 compAmount = static_cast<Int32>(typeComps.size());
+        for(Int32 idx = 0; idx < compAmount; ++idx)
+        {
+            if(typeComps[idx] == oldComp)
+            {
+                typeComps[idx] = comp;
+                break;
+            }
+        }
+    }
+
+    return true;
 }
 
 void CompHostObject::_MaskIfFocus(CompObject *comp)

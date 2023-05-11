@@ -294,6 +294,14 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue>
             return false;
         }
 
+        if(field.find(keyField) != field.end())
+        {
+            errInfo.AppendFormat("duplicate key, std::unordered_map<%s, %s> key:%s, value json:%s, old value json:%s"
+                        , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
+                        , keyJson.c_str(), valueJson.c_str());
+            return false;
+        }
+
         field.insert(std::make_pair(keyField, valueField));
     }
 
@@ -318,7 +326,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, c
         DictKey keyField;
         if(!Assign(keyField, keyJson))
         {
-            errInfo.AppendFormat("assign key field fail, std::unordered_map<%s, %s> key type:%s, keyJson:%s"
+            errInfo.AppendFormat("assign key field fail, std::map<%s, %s> key type:%s, keyJson:%s"
                 , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
                 , KERNEL_NS::RttiUtil::GetByType<DictKey>(), keyJson.c_str());
             return false;
@@ -328,9 +336,17 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, c
         DictValue valueField;
         if(!Assign(valueField, valueJson))
         {
-            errInfo.AppendFormat("assign value field fail, std::unordered_map<%s, %s> value type:%s, valueJson:%s"
+            errInfo.AppendFormat("assign value field fail, std::map<%s, %s> value type:%s, valueJson:%s"
                         , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
-                        , KERNEL_NS::RttiUtil::GetByType<DictKey>(), keyJson.c_str());
+                        , KERNEL_NS::RttiUtil::GetByType<DictValue>(), valueJson.c_str());
+            return false;
+        }
+
+        if(field.find(keyField) != field.end())
+        {
+            errInfo.AppendFormat("duplicate key, std::map<%s, %s> key:%s, value json:%s, old value json:%s"
+                        , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
+                        , keyJson.c_str(), valueJson.c_str());
             return false;
         }
 
