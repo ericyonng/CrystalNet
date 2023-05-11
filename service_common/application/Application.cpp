@@ -223,7 +223,9 @@ void Application::_Clear()
     }
 
     // 销毁协议信息
+#ifndef DISABLE_OPCODES
     Opcodes::Destroy();
+#endif
 }
 
 Int32 Application::_ReadBaseConfigs()
