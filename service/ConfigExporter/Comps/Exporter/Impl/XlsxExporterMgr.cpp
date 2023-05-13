@@ -191,8 +191,16 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
         return Status::Failed;
     }
 
-    // 更新meta文件
-    
+    // 更新metafile
+    for(auto xlsxPath : _dirtyXlsxFiles)
+    {
+        if(!_ExportMetaFile(xlsxPath))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("_ExportMetaFile fail sourceDir:%s, targetDir:%s, dataDir:%s metaDir:%s xlsxPath:%s."), 
+                        _sourceDir.c_str(), _targetDir.c_str(), _dataDir.c_str(), _metaDir.c_str(), xlsxPath.c_str());
+            return Status::Failed;
+        }
+    }
 
     g_Log->Custom("export xlsx success.");
     return Status::Success;
@@ -219,7 +227,7 @@ bool XlsxExporterMgr::_ScanMeta()
                 break;
 
             KERNEL_NS::LibString fullPath = fileInfo._rootPath;
-            if(fileInfo._rootPath.at(fileInfo._rootPath.length() - 1) != '/')
+            if(fullPath.empty() || fullPath.at(fullPath.length() - 1) != '/')
                 fullPath.AppendFormat("/");
 
             const auto &fullFilePath = fullPath + fileInfo._fileName;
@@ -311,18 +319,25 @@ bool XlsxExporterMgr::_ScanMeta()
         }
         else
         {
-            const auto xlsxFullPath = _sourceDir + metaInfo->_relationPath + metaInfo->_xlsxFileName;
+            KERNEL_NS::LibString srcDir = _sourceDir;
+            if(srcDir.empty() || srcDir.at(srcDir.length() - 1) != '/')
+                srcDir.AppendFormat("/");
+
+            KERNEL_NS::LibString relationPath = metaInfo->_relationPath;
+            if(relationPath.empty() || relationPath.at(srcDir.length() - 1) != '/')
+                relationPath.AppendFormat("/");
+
+            const auto xlsxFullPath = srcDir + relationPath + metaInfo->_xlsxFileName;
             if(!KERNEL_NS::FileUtil::IsFileExist(xlsxFullPath.c_str()))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("xlsx file not found:%s, will remove meta file, metaFilePath:%s.")
-                    , xlsxFullPath.c_str(), metaFilePath.c_str());    
+                    , xlsxFullPath.c_str(), metaFilePath.c_str());   
+
+                XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(metaInfo);
+                KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
+                iter = _metaNameRefConfigMetaInfo.erase(iter); 
+                continue;
             }
-
-            XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(metaInfo);
-            KERNEL_NS::FileUtil::DelFileCStyle(metaFilePath.c_str());
-            iter = _metaNameRefConfigMetaInfo.erase(iter);
-
-            continue;
         }
         
         // 2.md5是空的则删除meta文件
@@ -365,7 +380,7 @@ bool XlsxExporterMgr::_ScanXlsx()
                 break;
 
             KERNEL_NS::LibString fullPath = fileInfo._rootPath;
-            if(fileInfo._rootPath.at(fileInfo._rootPath.length() - 1) != '/')
+            if(fullPath.empty() || fullPath.at(fullPath.length() - 1) != '/')
                 fullPath.AppendFormat("/");
 
             const auto &fullFilePath = fullPath + fileInfo._fileName;
@@ -481,28 +496,36 @@ bool XlsxExporterMgr::_IsNeedExport(const KERNEL_NS::LibString &metaFile, const 
     }
 
     // 2.生成xlsxfile的md5
-    KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(xlsxFile.c_str()); 
-    if(!fp)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("open file fail file:%s"), xlsxFile.c_str());
-        return false;
-    }
-
-    fp.SetClosureDelegate([](void *p){
-        auto ptr = reinterpret_cast<FILE *>(p);
-        KERNEL_NS::FileUtil::CloseFile(*ptr);
-    });
-
     KERNEL_NS::LibString md5;
-    if(!KERNEL_NS::LibDigest::MakeFileMd5(xlsxFile, md5))
+    if(!_CalcMd5(xlsxFile, md5))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("MakeFileMd5 fail file:%s"), xlsxFile.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("calc md5 fail file:%s"), xlsxFile.c_str());
         return false;
     }
-    md5 = KERNEL_NS::LibBase64::Encode(md5);
 
     // 3.若xlsxfile的md5和metafile的不同则说明需要导出
     return md5 != meta->_lastMd5;
+}
+
+bool XlsxExporterMgr::_CalcMd5(const KERNEL_NS::LibString &file, KERNEL_NS::LibString &md5) const
+{
+    // 2.生成xlsxfile的md5
+    if(!KERNEL_NS::FileUtil::IsFileExist(file.c_str()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("file not exists file:%s"), file.c_str());
+        return false;
+    }
+
+    KERNEL_NS::LibString content;
+    if(!KERNEL_NS::LibDigest::MakeFileMd5(file, content))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("MakeFileMd5 fail file:%s"), file.c_str());
+        return false;
+    }
+
+    md5 = KERNEL_NS::LibBase64::Encode(content);
+
+    return true;
 }
 
 bool XlsxExporterMgr::_IsOwnTypeNeedExport(const KERNEL_NS::LibString &ownType) const
@@ -641,7 +664,7 @@ bool XlsxExporterMgr::_AnalyzeExportConfigs()
                     return false;
                 }
 
-                newConfigTable->_xlsxPath.AppendFormat(";\n%s", configTable->_xlsxPath.c_str());
+                newConfigTable->_xlsxPath.AppendFormat("\n%s", configTable->_xlsxPath.c_str());
                 newConfigTable->_wholeSheetName.AppendFormat(";%s", configTable->_wholeSheetName.c_str());
 
                 // 合并两表数据
@@ -1246,6 +1269,13 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
     for(auto iter : configTypeRefConfigTableInfo)
     {
         // 导出头文件内容
+        KERNEL_NS::LibString shortPath;
+        auto path = iter.second->_xlsxPath;
+        const auto pathParts = path.Split("\n");
+        for(auto &part : pathParts)
+            shortPath.AppendFormat("%s,", KERNEL_NS::DirectoryUtil::GetFileNameInPath(part.c_str()).c_str());
+        g_Log->Custom("[GeneratorConfig]:[%sConfig] - %s", iter.second->_tableClassName.c_str(), shortPath.c_str());
+
         KERNEL_NS::LibString headerContent;
         if(!_ExportCppCodeHeader(iter.second, headerContent))
         {
@@ -1255,7 +1285,8 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
 
         // 导出实现内容
         KERNEL_NS::LibString implementContent;
-        if(!_ExportCppCodeImpl(iter.second, implementContent))
+        auto configTableInfo = iter.second;
+        if(!_ExportCppCodeImpl(configTableInfo, implementContent))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("export cpp implement fail config class name:%s."), iter.second->_tableClassName.c_str());
             return false;
@@ -1263,7 +1294,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
 
         // 导出数据
         KERNEL_NS::LibString configDataContent;
-        if(!_ExportCppDatas(iter.second, configDataContent))
+        if(!_ExportCppDatas(configTableInfo, configDataContent))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("export cpp data fail config class name:%s."), iter.second->_tableClassName.c_str());
             return false;
@@ -2469,6 +2500,73 @@ bool XlsxExporterMgr::_ExportCppDatas(const XlsxConfigTableInfo *configInfo, KER
 
     return true;
 }
+
+bool XlsxExporterMgr::_ExportMetaFile(const KERNEL_NS::LibString &xlsxPath) const
+{
+    const auto xlsxFile = KERNEL_NS::DirectoryUtil::GetFileNameInPath(xlsxPath.c_str());
+    const auto xlsxWithoutExtention = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(xlsxFile);
+    const auto xlsxDir = KERNEL_NS::DirectoryUtil::GetFileDirInPath(xlsxPath.c_str());
+    auto relationPath = xlsxDir - _sourceDir;
+    if(relationPath.empty() || relationPath.at(relationPath.length() - 1) != '/')
+        relationPath.AppendFormat("/");
+
+    const auto metaFile = _metaDir + relationPath + xlsxWithoutExtention + ".meta";
+    if(KERNEL_NS::FileUtil::IsFileExist(metaFile.c_str()))
+        KERNEL_NS::FileUtil::DelFileCStyle(metaFile.c_str());
+
+    {// 实现创建路径
+        const auto dir =  KERNEL_NS::DirectoryUtil::GetFileDirInPath(metaFile);
+        if(dir.empty())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("bad file name:%s"), metaFile.c_str());
+            return false;
+        }
+        if(!KERNEL_NS::DirectoryUtil::CreateDir(dir))
+        {
+            return false;
+        }
+    }
+
+    // XlsxFile:xxxfile.xlsx\n Md5:xxx
+
+    KERNEL_NS::LibString md5;
+    if(!_CalcMd5(xlsxPath, md5))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("calc xlsx md5 fail xlsx path:%s, metaFile:%s"), xlsxPath.c_str(), metaFile.c_str());
+        return false;
+    }
+
+    KERNEL_NS::LibString metaFileRefContent;
+    metaFileRefContent.AppendFormat("XlsxFile:%s", xlsxFile.c_str());
+    metaFileRefContent += "\n";
+    metaFileRefContent.AppendFormat("Md5:%s", md5.c_str());
+
+    {// 写入meta文件
+        KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp =  KERNEL_NS::FileUtil::OpenFile(metaFile.c_str(), true);
+        if(!fp)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("open data file fail when export cpp config xlsxPath:%s, metaFile:%s content:%s.")
+                        , xlsxPath.c_str(), metaFile.c_str(), metaFileRefContent.c_str());
+            return false;
+        }
+
+        fp.SetClosureDelegate([](void *p){
+            auto ptr = reinterpret_cast<FILE *>(p);
+            KERNEL_NS::FileUtil::CloseFile(*ptr);
+        });
+
+        auto bytesChange = KERNEL_NS::FileUtil::WriteFile(*fp, metaFileRefContent);
+        if(bytesChange != static_cast<Int64>(metaFileRefContent.size()))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("write meta file bytesChange:%lld, content size:%llu,  xlsxPath:%s, metaFile:%s content:%s.")
+                        , bytesChange, static_cast<Int64>(metaFileRefContent.size()), xlsxPath.c_str(), metaFile.c_str(), metaFileRefContent.c_str());
+            return false;
+        }
+    }
+
+    return true;
+}
+
 
 bool XlsxExporterMgr::_ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const
 {

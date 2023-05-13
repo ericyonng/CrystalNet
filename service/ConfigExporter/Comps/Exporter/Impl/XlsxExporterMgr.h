@@ -62,6 +62,7 @@ protected:
 
     // 是否需要导出
     bool _IsNeedExport(const KERNEL_NS::LibString &metaFile, const KERNEL_NS::LibString &xlsxFile) const;
+    bool _CalcMd5(const KERNEL_NS::LibString &file, KERNEL_NS::LibString &md5) const;
 
     bool _IsOwnTypeNeedExport(const KERNEL_NS::LibString &ownType) const;
 
@@ -75,6 +76,8 @@ protected:
     bool _ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const;
     bool _ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const;
     bool _ExportCppDatas(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &configDataContent) const;
+
+    bool _ExportMetaFile(const KERNEL_NS::LibString &xlsxPath) const;
 
     // 导出配置数据
     bool _ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
