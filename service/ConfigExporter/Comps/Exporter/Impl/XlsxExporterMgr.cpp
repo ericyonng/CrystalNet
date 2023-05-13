@@ -1427,7 +1427,7 @@ bool XlsxExporterMgr::_ExportCpp(const KERNEL_NS::LibString &langName, const std
 bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const
 {
     // 变量定义
-    const auto className = configInfo->_tableClassName + "Config";
+    const auto className = configInfo->_tableClassName.FirstCharToUpper() + "Config";
     const auto mgrClassName = className + "Mgr";
     const auto mgrFactoryClassName = mgrClassName + "Factory";
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> fieldNameRefDataType;
@@ -1754,7 +1754,7 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
 
 bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, KERNEL_NS::LibString &fileContent) const
 {
-    const auto className = configInfo->_tableClassName + "Config";
+    const auto className = configInfo->_tableClassName.FirstCharToUpper() + "Config";
     const auto mgrClassName = className + "Mgr";
 
     {// 生成文件头注释
