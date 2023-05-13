@@ -29,7 +29,7 @@
 #include <pch.h>
 #include "TestConfig.h"
 
-#include <cpp/AllConfigs.h>
+// #include <cpp/AllConfigs.h>
 
 class MyTestConfigLoader : public SERVICE_COMMON_NS::IConfigLoader
 {
