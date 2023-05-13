@@ -4,9 +4,69 @@
 
   * 代码使用办法
 
-    * 导表工具对于CPP来说会生成RegisterAllConfigs.h, 和AllConfigs.h两个文件，使用配置的时候包含AllConfigs.h, 并继承IConfigLoader, 在OnRegisterComps接口中添加:#include <cpp/RegisterAllConfigs.h> 就自动注入了生成的所有配置
+    * 导表工具对于CPP来说会生成RegisterAllConfigs.h, 和AllConfigs.h两个文件，使用配置的时候包含AllConfigs.h, 并继承IConfigLoader, 在OnRegisterComps接口中添加:#include <cpp/RegisterAllConfigs.hpp> 就自动注入了生成的所有配置
 
+    * 使用案例:
+
+      * ```
       
+        #include <cpp/AllConfigs.h>
+        
+        class MyTestConfigLoader : public SERVICE_COMMON_NS::IConfigLoader
+        {
+            POOL_CREATE_OBJ_DEFAULT_P1(IConfigLoader, MyTestConfigLoader);
+        public:
+            MyTestConfigLoader()
+            {
+                
+            }
+            ~MyTestConfigLoader()
+            {
+        
+            }
+        
+            virtual void OnRegisterComps() override
+            {
+                #include <cpp/RegisterAllConfigs.hpp>
+            }
+            
+            virtual void Release() override
+            {
+                MyTestConfigLoader::Delete_MyTestConfigLoader(this);
+            }
+        };
+        
+        POOL_CREATE_OBJ_DEFAULT_IMPL(MyTestConfigLoader);
+        
+        void TestConfig::Run()
+        {
+            auto configLoader = MyTestConfigLoader::New_MyTestConfigLoader();
+            configLoader->SetBasePath("./Cfgs");
+        
+            auto err = configLoader->Init();
+            if(err != Status::Success)
+            {
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(TestConfig, "config init fail."));
+                return;
+            }
+        
+        
+            err = configLoader->Start();
+            if(err != Status::Success)
+            {
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(TestConfig, "config start fail."));
+                return;
+            }
+        
+        
+            configLoader->WillClose();
+            configLoader->Close();
+        
+            configLoader->Release();
+        }
+        ```
+        
+        
 
   * Xlsx格式
 
