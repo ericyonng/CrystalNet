@@ -42,16 +42,4 @@ IConfigMgr::~IConfigMgr()
 
 }
 
-Int32 IConfigMgr::_OnInit()
-{
-    auto err = Load();
-    if(err != Status::Success)
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("load config fail config:%s"), GetObjName().c_str());
-        return err;
-    }
-
-    return Status::Success;
-}
-
 SERVICE_COMMON_END

@@ -1537,11 +1537,15 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
 
             if(!fieldInfo->_desc.empty())
             {
-                fileContent.AppendFormat("    %s _%s;    // %s\n", dataType.c_str(), fieldInfo->_fieldName.FirstCharToLower().c_str(), fieldInfo->_desc.c_str());
+                fileContent.AppendFormat("    %s _%s;    // %s", dataType.c_str(), fieldInfo->_fieldName.FirstCharToLower().c_str(), fieldInfo->_desc.c_str());
+                fileContent.AppendFormat("\n");
+                fileContent.AppendFormat("\n");
             }
             else
             {
-                fileContent.AppendFormat("    %s _%s;\n", dataType.c_str(), fieldInfo->_fieldName.FirstCharToLower().c_str());
+                fileContent.AppendFormat("    %s _%s;", dataType.c_str(), fieldInfo->_fieldName.FirstCharToLower().c_str());
+                fileContent.AppendFormat("\n");
+                fileContent.AppendFormat("\n");
             }
         }
 
@@ -1881,7 +1885,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("            return false;\n");
             fileContent.AppendFormat("       }\n");
             fileContent.AppendFormat("\n");
-            fileContent.AppendFormat("       // 解析数据\n");
+            fileContent.AppendFormat("       // parse data\n");
             fileContent.AppendFormat("       const KERNEL_NS::LibString headerInfo = lineData.GetRaw().substr(pos, headerTailPos - pos);\n");
             fileContent.AppendFormat("       const auto headParts = headerInfo.Split('_');\n");
             fileContent.AppendFormat("       if(headParts.empty())\n");
@@ -1891,7 +1895,9 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("            return false;\n");
             fileContent.AppendFormat("       }\n");
             fileContent.AppendFormat("\n");
-            fileContent.AppendFormat("       // 校验列id,保证数据解析是对的\n");
+            fileContent.AppendFormat("       // check column id");
+            fileContent.AppendFormat("\n");
+            fileContent.AppendFormat("\n");
             fileContent.AppendFormat("       const auto &columnIdString = headParts[1];\n");
             fileContent.AppendFormat("       if(columnIdString.length() == 0)\n");
             fileContent.AppendFormat("       {\n");
@@ -1905,7 +1911,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("           return false;\n");
             fileContent.AppendFormat("       }\n");
             fileContent.AppendFormat("\n");
-            fileContent.AppendFormat("       // 数据长度\n");
+            fileContent.AppendFormat("       // data len\n");
             fileContent.AppendFormat("       const auto &lenInfo = headParts[2];\n");
             fileContent.AppendFormat("       if(lenInfo.length() == 0)\n");
             fileContent.AppendFormat("       {\n");
@@ -1918,7 +1924,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("       const auto dataEndPos = headerTailPos + static_cast<decltype(headerTailPos)>(dataLen);\n");
             fileContent.AppendFormat("       KERNEL_NS::LibString dataPart = lineData.GetRaw().substr(headerTailPos + 1, dataEndPos - headerTailPos);\n");
             fileContent.AppendFormat("\n");
-            fileContent.AppendFormat("      // 解析数据 通过column_id找到fieldInfo然后解析出_{fieldName} = \n");
+            fileContent.AppendFormat("      // parse data through\n");
             fileContent.AppendFormat("      KERNEL_NS::LibString errInfo;\n");
             fileContent.AppendFormat("      if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(%s, dataPart, errInfo))\n", memberName.c_str());
             fileContent.AppendFormat("      {\n");
@@ -2048,7 +2054,8 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("        return Status::Failed;\n");
             fileContent.AppendFormat("    }\n");
             fileContent.AppendFormat("\n");
-            fileContent.AppendFormat("    // 去重\n");
+            fileContent.AppendFormat("    // 去重");
+            fileContent.AppendFormat("\n");
 
             // 字段类型解析
             std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> fieldNameRefDataType;
@@ -2124,7 +2131,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("                return Status::Failed;\n");
             fileContent.AppendFormat("            }\n");
             fileContent.AppendFormat("\n");
-            fileContent.AppendFormat("            // 第一行是校验列字段名\n");
+            fileContent.AppendFormat("            // first line data is field names\n");
             fileContent.AppendFormat("            if(line == 1)\n");
             fileContent.AppendFormat("            {\n");
             fileContent.AppendFormat("                if(lineData != %s)\n", fieldNamesWrap.c_str());
@@ -2134,7 +2141,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("                }\n");
             fileContent.AppendFormat("            }\n");
 
-            fileContent.AppendFormat("            // 第2行是数据行数量\n");
+            fileContent.AppendFormat("            // total line data\n");
             fileContent.AppendFormat("            if(line == 2)\n");
             fileContent.AppendFormat("            {\n");
             fileContent.AppendFormat("                lineData.strip();\n");
@@ -2144,7 +2151,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("            continue;\n");
             fileContent.AppendFormat("        }\n");
             fileContent.AppendFormat("\n");
-            fileContent.AppendFormat("        // 没有数据\n");
+            fileContent.AppendFormat("        // have no data\n");
             fileContent.AppendFormat("        if(totalLine <= 2)\n");
             fileContent.AppendFormat("            break;\n");
             fileContent.AppendFormat("\n");
@@ -2204,7 +2211,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                         {// 唯一索引
                             const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
                             const auto &uniqueCheckFieldName = "unique_" + fieldName + "s";
-                            fileContent.AppendFormat("        // unique唯一性校验\n");
+                            fileContent.AppendFormat("        // check unique\n");
                             fileContent.AppendFormat("        if(%s.find(config->%s) != %s.end())\n", uniqueCheckFieldName.c_str(), memberName.c_str(), uniqueCheckFieldName.c_str());
                             fileContent.AppendFormat("        {\n");
                             fileContent.AppendFormat("            g_Log->Warn(LOGFMT_OBJ_TAG(\"duplicate %s:%%d data path:%%s line:%%d, lineData:%%s\"), config->%s, wholePath.c_str(), line, lineData.c_str());\n", fieldInfo->_fieldName.c_str(), memberName.c_str());
@@ -2386,7 +2393,8 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("\n");
         fileContent.AppendFormat("Int64 %s::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configData, Int32 totalLine, Int32 curLine) const\n", mgrClassName.c_str());
         fileContent.AppendFormat("{\n");
-        fileContent.AppendFormat("    // 读够一条配置的列数即可, 完整性校验: 必须把所有需要导出的列导出数据, 数据不完整则返回-1, 0表示没有数据了, >0 表示读取的字节数\n");
+        fileContent.AppendFormat("    // read all column data as one line data, it need check if lack. error data format return -1, return zeror if have no data, return > 0 as readBytes\n");
+        fileContent.AppendFormat("\n");
         fileContent.AppendFormat("    Int64 readBytes = 0;\n");
         fileContent.AppendFormat("    KERNEL_NS::LibString content;\n");
         fileContent.AppendFormat("    std::set<Int32> needFieldIds = ");
@@ -2459,7 +2467,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("                return -1;\n");
         fileContent.AppendFormat("            }\n");
         fileContent.AppendFormat("\n");
-        fileContent.AppendFormat("            // 最后一行读到文件结束\n");
+        fileContent.AppendFormat("            // read final line data all\n");
         fileContent.AppendFormat("            if(curLine == totalLine && ((count == fieldNum) && needFieldIds.empty()))\n");
         fileContent.AppendFormat("            {\n");
         fileContent.AppendFormat("                bytesOnce = static_cast<Int64>(KERNEL_NS::FileUtil::ReadFile(fp, content));\n");

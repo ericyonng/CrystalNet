@@ -65,6 +65,8 @@ public:
     const KERNEL_NS::LibString &GetBasePath() const;
 
 protected:
+    // 所有配置在此时加载
+    virtual Int32 _OnCompsCreated() final;
     virtual Int32 _OnHostInit() { return Status::Success; }
     virtual Int32 _OnHostStart() override { return Status::Success; }
     virtual void _OnHostClose() {}

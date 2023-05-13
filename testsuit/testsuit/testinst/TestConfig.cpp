@@ -46,7 +46,7 @@ public:
 
     virtual void OnRegisterComps() override
     {
-        #include <cpp/RegisterAllConfigs.hpp>
+        // #include <cpp/RegisterAllConfigs.hpp>
     }
     
     virtual void Release() override

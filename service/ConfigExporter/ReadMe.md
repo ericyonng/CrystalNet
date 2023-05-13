@@ -6,6 +6,10 @@
 
     * 导表工具对于CPP来说会生成RegisterAllConfigs.h, 和AllConfigs.h两个文件，使用配置的时候包含AllConfigs.h, 并继承IConfigLoader, 在OnRegisterComps接口中添加:#include <cpp/RegisterAllConfigs.hpp> 就自动注入了生成的所有配置
 
+    * IConfigLoader::_OnCompsCreated 开始加载所有的配置
+
+    * IConfigMgr::_OnInit 时候配置已都加载好了, _OnInit可以实现定制化配置
+
     * 使用案例:
 
       * ```

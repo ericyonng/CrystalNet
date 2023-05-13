@@ -56,7 +56,9 @@ public:
     const IConfigLoader *GetLoader() const;
 
 protected:
-    Int32 _OnInit() override;
+    // OnInit可以定制实现定制化配置
+    Int32 _OnInit() override {return Status::Success;}
+    // virtual Int32 _OnStart() override;
     // virtual void _OnClose() override;
     // void _Clear();
 };

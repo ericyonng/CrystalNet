@@ -71,6 +71,11 @@ Int32 IConfigLoader::Load()
     return Status::Success;
 }
 
+Int32 IConfigLoader::_OnCompsCreated()
+{
+    return Load();
+}
+
 Int32 IConfigLoader::Reload(std::vector<const IConfigMgr *> &changes)
 {
     auto &allComps = GetAllComps();
