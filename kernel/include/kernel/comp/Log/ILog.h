@@ -113,11 +113,11 @@ public:
     void Warn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(6, 7);
     void Error(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(6, 7);
     template<typename... Args>
-    void Info2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args);
+    void Info2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args);
     template<typename... Args>
-    void Debug2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args);
+    void Debug2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args);
     template<typename... Args>
-    void Warn2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args);
+    void Warn2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args);
     template<typename... Args>
     void Error2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args);
     
@@ -232,19 +232,19 @@ inline void ILog::Error(const Byte8 *tag, const char *fileName, const char *func
 }
 
 template<typename... Args>
-ALWAYS_INLINE void ILog::Info2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args)
+ALWAYS_INLINE void ILog::Info2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {
     _Common6(tag, codeLine, LogLevel::Info, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-ALWAYS_INLINE void ILog::Debug2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args)
+ALWAYS_INLINE void ILog::Debug2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {
     _Common6(tag, codeLine, LogLevel::Debug, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-ALWAYS_INLINE void ILog::Warn2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, Args&&... args)
+ALWAYS_INLINE void ILog::Warn2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {
     _Common6(tag, codeLine, LogLevel::Warn, std::forward<Args>(args)...);
 }

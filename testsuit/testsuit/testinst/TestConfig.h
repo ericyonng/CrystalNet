@@ -21,19 +21,20 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-12-16 13:04:00
+ * Date: 2023-05-13 21:50:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_CONFIG_CONFIG_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_CONFIG_CONFIG_H__
+#ifndef __CRYSTAL_NET_TEST_SUIT_TEST_SUIT_TEST_INST_TEST_CONFIG_H__
+#define __CRYSTAL_NET_TEST_SUIT_TEST_SUIT_TEST_INST_TEST_CONFIG_H__
 
 #pragma once
 
-#include <service_common/config/xlsx/xlsx.h>
-#include <service_common/config/DataTypeHelper.h>
-#include <service_common/config/IConfigMgr.h>
-#include <service_common/config/IConfigLoder.h>
+class TestConfig
+{
+public:
+    static void Run();
+};
 
 #endif

@@ -21,19 +21,65 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-12-16 13:04:00
+ * Date: 2023-05-13 21:50:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_CONFIG_CONFIG_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_CONFIG_CONFIG_H__
+#include <pch.h>
+#include "TestConfig.h"
 
-#pragma once
+#include <cpp/AllConfigs.h>
 
-#include <service_common/config/xlsx/xlsx.h>
-#include <service_common/config/DataTypeHelper.h>
-#include <service_common/config/IConfigMgr.h>
-#include <service_common/config/IConfigLoder.h>
+class MyTestConfigLoader : public SERVICE_COMMON_NS::IConfigLoader
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IConfigLoader, MyTestConfigLoader);
+public:
+    MyTestConfigLoader()
+    {
+        
+    }
+    ~MyTestConfigLoader()
+    {
 
-#endif
+    }
+
+    virtual void OnRegisterComps() override
+    {
+        #include <cpp/RegisterAllConfigs.hpp>
+    }
+    
+    virtual void Release() override
+    {
+        MyTestConfigLoader::Delete_MyTestConfigLoader(this);
+    }
+};
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(MyTestConfigLoader);
+
+void TestConfig::Run()
+{
+    auto configLoader = MyTestConfigLoader::New_MyTestConfigLoader();
+    configLoader->SetBasePath("./Cfgs");
+
+    auto err = configLoader->Init();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestConfig, "config init fail."));
+        return;
+    }
+
+
+    err = configLoader->Start();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestConfig, "config start fail."));
+        return;
+    }
+
+
+    configLoader->WillClose();
+    configLoader->Close();
+
+    configLoader->Release();
+}

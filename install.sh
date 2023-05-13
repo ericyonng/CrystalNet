@@ -14,7 +14,7 @@ OUTPUT_DIR=${SCRIPT_PATH}/output/gmake/
 # 连接配置与ini
 sudo rm -rf ${OUTPUT_DIR}/Cfgs
 sudo rm -rf ${OUTPUT_DIR}/ini
-sudo ln -sv $SCRIPT_PATH/Service/Cfgs ${OUTPUT_DIR}/Cfgs
+sudo ln -sv $SCRIPT_PATH/Service/TestService/config/data/cpp ${OUTPUT_DIR}/Cfgs
 sudo ln -sv $SCRIPT_PATH/doc/ini ${OUTPUT_DIR}/ini
 
 # 动态库连接

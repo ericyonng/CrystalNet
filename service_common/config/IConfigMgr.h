@@ -56,6 +56,7 @@ public:
     const IConfigLoader *GetLoader() const;
 
 protected:
+    Int32 _OnInit() override;
     // virtual void _OnClose() override;
     // void _Clear();
 };

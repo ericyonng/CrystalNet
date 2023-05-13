@@ -27,9 +27,9 @@
 */
 
 #include <pch.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/DataTypeHelper.h>
+#include <service_common/config/DataTypeHelper.h>
 
-SERVICE_BEGIN
+SERVICE_COMMON_BEGIN
 
 bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibString &targetType, KERNEL_NS::LibString &errInfo)
 {
@@ -1311,5 +1311,4 @@ bool DataTypeHelper::MakeDataAdaptJson(const KERNEL_NS::LibString &dataType, KER
     return false;
 }
 
-
-SERVICE_END
+SERVICE_COMMON_END

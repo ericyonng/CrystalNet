@@ -2,6 +2,12 @@
 
 * 使用说明
 
+  * 代码使用办法
+
+    * 导表工具对于CPP来说会生成RegisterAllConfigs.h, 和AllConfigs.h两个文件，使用配置的时候包含AllConfigs.h, 并继承IConfigLoader, 在OnRegisterComps接口中添加:#include <cpp/RegisterAllConfigs.h> 就自动注入了生成的所有配置
+
+      
+
   * Xlsx格式
 
     * 文件名:平台的文件名

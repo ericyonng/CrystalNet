@@ -82,6 +82,7 @@
 #include <testsuit/testinst/TestArchive.h>
 #include <testsuit/testinst/TestXlsx.h>
 #include <testsuit/testinst/TestSimpleApi.h>
+#include <testsuit/testinst/TestConfig.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -212,7 +213,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestConcurrentPriorityQueue::Run();
     // CRYSTAL_TRACE("test inst finish.");
     // TestBlackWhiteList::Run();
-    TestECS::Run();
+    // TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
     // TestPoller::Run();
@@ -230,6 +231,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestArchive::Run();
     // TestXlsx::Run();
     // TestSimpleApi::Run();
+
+    TestConfig::Run();
 
     KERNEL_NS::KernelUtil::Destroy();
     

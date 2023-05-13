@@ -455,6 +455,7 @@ project "testsuit"
 		"../../testsuit/",
 		"../../testsuit/testsuit_pch/",
 		"../../simple_api/",
+        "../../service/TestService/config/code/",
     }
 	
 	-- 设置通用选项
@@ -475,6 +476,8 @@ project "testsuit"
         "../../service_common/**.cpp",
         "../../testsuit/**.h",
         "../../testsuit/**.cpp",
+        "../../service/TestService/config/code/**.h",
+        "../../service/TestService/config/code/**.cpp",
     }
 
     filter{ "system:windows"}		

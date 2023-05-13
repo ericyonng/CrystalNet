@@ -79,6 +79,9 @@ protected:
 
     bool _ExportMetaFile(const KERNEL_NS::LibString &xlsxPath) const;
 
+    void _ExportCppAllConfigHeaderFile(const KERNEL_NS::LibString &lang) const;
+    void _ExportCppRegisterConfigs(const KERNEL_NS::LibString &lang) const;
+
     // 导出配置数据
     bool _ExportCSharpCode(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
     bool _ExportCSharpDatas(const std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *> &configTypeRefConfigTableInfo) const;
@@ -122,6 +125,9 @@ private:
     std::map<KERNEL_NS::LibString, std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *>> _ownTypeRefConfigTypeRefXlsxConfigTableInfo;    // 每个配置类型对应的配置信息
 
     KERNEL_NS::ListenerStub _closeServiceStub;
+
+    KERNEL_NS::LibString _allConfigsHeader;
+    KERNEL_NS::LibString _registerAllConfigs;
 };
 
 ALWAYS_INLINE  const XlsxConfigMetaInfo *XlsxExporterMgr::_GetMetaFile(const KERNEL_NS::LibString &metaFile) const

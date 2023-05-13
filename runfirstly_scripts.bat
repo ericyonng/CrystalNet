@@ -9,7 +9,7 @@ SET VER="%1"
 
 :: -------------------------------------- 链接配置 -------------------------------------------
 if not exist %CUR_PATH%output\%VER%\Cfgs (
-    mklink /d %CUR_PATH%output\%VER%\Cfgs %CUR_PATH%Service\Cfgs
+    mklink /d %CUR_PATH%output\%VER%\Cfgs %CUR_PATH%Service\TestService\config\data\cpp\
 	
 )
 if not exist %CUR_PATH%output\%VER%\ini (

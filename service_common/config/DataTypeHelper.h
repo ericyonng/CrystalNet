@@ -26,11 +26,16 @@
  * Description: 
 */
 
+#ifndef __CRYSTAL_NET_SERVICE_COMMON_CONFIG_DATA_TYPE_HELPER_H__
+#define __CRYSTAL_NET_SERVICE_COMMON_CONFIG_DATA_TYPE_HELPER_H__
+
 #pragma once
 
-#include <service/ConfigExporter/ServiceCompHeader.h>
+#include <service_common/common/common.h>
+#include <kernel/kernel.h>
+#include <3rd/3rd.h>
 
-SERVICE_BEGIN
+SERVICE_COMMON_BEGIN
 
 class DataTypeHelper
 {
@@ -105,13 +110,13 @@ public:
 ALWAYS_INLINE bool DataTypeHelper::Assign(bool &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
 {
     const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
-    if(!jsonString.is_number_integer())
+    if(!jsonString.is_boolean())
     {
         errInfo.AppendFormat("parse json fail, assign boolean value fail dataInfo:%s\n", dataInfo.c_str());
         return false;
     }
     
-    field = (jsonString.get<int>() != 0) ? true : false;
+    field = jsonString.get<bool>();
     return true;
 }
 
@@ -246,7 +251,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::vector<ArrayElemType> &field, con
     for(auto &item : jsonArray.items())
     {
         ArrayElemType elem;
-        const KERNEL_NS::LibString &itemDump = item.value.dump();
+        const KERNEL_NS::LibString &itemDump = item.value().dump();
         if(!Assign(elem, itemDump, errInfo))
         {
             errInfo.AppendFormat("assign array element fail, element type:%s, jsonArray:%s"
@@ -276,7 +281,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue>
         // key:
         const KERNEL_NS::LibString &keyJson = item.key();
         DictKey keyField;
-        if(!Assign(keyField, keyJson))
+        if(!Assign(keyField, keyJson, errInfo))
         {
             errInfo.AppendFormat("assign key field fail, std::unordered_map<%s, %s> key type:%s, keyJson:%s"
                 , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
@@ -284,9 +289,9 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue>
             return false;
         }
 
-        const KERNEL_NS::LibString &valueJson = item.value.dump();
+        const KERNEL_NS::LibString &valueJson = item.value().dump();
         DictValue valueField;
-        if(!Assign(valueField, valueJson))
+        if(!Assign(valueField, valueJson, errInfo))
         {
             errInfo.AppendFormat("assign value field fail, std::unordered_map<%s, %s> value type:%s, valueJson:%s"
                         , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
@@ -308,6 +313,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue>
     return true;
 }
 
+
 template<typename DictKey, typename DictValue>
 ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
 {
@@ -324,7 +330,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, c
         // key:
         const KERNEL_NS::LibString &keyJson = item.key();
         DictKey keyField;
-        if(!Assign(keyField, keyJson))
+        if(!Assign(keyField, keyJson, errInfo))
         {
             errInfo.AppendFormat("assign key field fail, std::map<%s, %s> key type:%s, keyJson:%s"
                 , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
@@ -332,9 +338,9 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, c
             return false;
         }
 
-        const KERNEL_NS::LibString &valueJson = item.value.dump();
+        const KERNEL_NS::LibString &valueJson = item.value().dump();
         DictValue valueField;
-        if(!Assign(valueField, valueJson))
+        if(!Assign(valueField, valueJson, errInfo))
         {
             errInfo.AppendFormat("assign value field fail, std::map<%s, %s> value type:%s, valueJson:%s"
                         , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
@@ -478,4 +484,6 @@ ALWAYS_INLINE void DataTypeHelper::ToString(const std::map<DictKey, DictValue> &
     dataInfo << result.dump();
 }
 
-SERVICE_END
+SERVICE_COMMON_END
+
+#endif
