@@ -76,6 +76,8 @@
 
     * ```
       --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=../../service_common/config/xlsx --target_dir=./code --data=./data --meta=./meta
+      
+      --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=../../service/TestService/config/xlsx --target_dir=../../service/TestService/config/code --data=../../service/TestService/config/data --meta=../../service/TestService/config/meta
       ```
 
   * 待实现的功能
