@@ -65,6 +65,8 @@ Int32 IConfigLoader::Load()
             g_Log->Error(LOGFMT_OBJ_TAG("config mgr:%s, load config fail err:%d"), comp->ToString().c_str(), err);
             return err;
         }
+        
+        g_Log->Info(LOGFMT_OBJ_TAG("Load %s config success."), comp->GetObjName().c_str());
     }
 
     g_Log->Info(LOGFMT_OBJ_TAG("config loader loaded configs success config mgr number:%llu."), static_cast<UInt64>(GetAllComps().size()));
