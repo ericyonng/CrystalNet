@@ -829,7 +829,8 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
 
                 // 校验字段是否冲突
                 {
-                    auto iterField = fieldsColumnCells.find(ConfigTableDefine::FIELD_NAME);
+                    const UInt64 fieldName = ConfigTableDefine::FIELD_NAME;
+                    auto iterField = fieldsColumnCells.find(fieldName);
                     if(iterField == fieldsColumnCells.end())
                     {
                         g_Log->Error(LOGFMT_OBJ_TAG("have no field name sheet name:%s, xlsx path:%s")
