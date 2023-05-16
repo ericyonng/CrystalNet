@@ -88,7 +88,7 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
 
         if(key == "--lang")
         {// 生成的语言版本
-            auto configTypeRefLangsArr = value.Split(";");
+            auto configTypeRefLangsArr = value.Split("@");
             if(!configTypeRefLangsArr.empty())
             {
                 for(auto &configTypeRefLangs : configTypeRefLangsArr)
