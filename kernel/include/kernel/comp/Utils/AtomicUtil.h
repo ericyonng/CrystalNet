@@ -310,15 +310,15 @@ ALWAYS_INLINE Int64 AtomicUtil::FetchAndXOr(volatile Int64 *ptr, Int64 value)
 ALWAYS_INLINE Int32 AtomicUtil::CompareAndSwap(volatile Int32 *ptr, Int32 exchange, Int32 comparand)
 {
 #if CRYSTAL_TARGET_PLATFORM_LINUX
-    return __sync_val_compare_and_swap((sint32 *)ptr, comparand, exchange);
+    return __sync_val_compare_and_swap((Int32 *)ptr, comparand, exchange);
 #elif CRYSTAL_TARGET_PLATFORM_WINDOWS
-    return ::InterlockedCompareExchange((volatile LONG *)ptr, exchange, comparand);
+    return ::InterlockedCompareExchange((volatile Long *)ptr, exchange, comparand);
 #elif CRYSTAL_TARGET_PLATFORM_IPHONE
-    return __sync_val_compare_and_swap((sint32 *)ptr, comparand, exchange);
+    return __sync_val_compare_and_swap((Int32 *)ptr, comparand, exchange);
 #elif CRYSTAL_TARGET_PLATFORM_MAC
-    return __sync_val_compare_and_swap((sint32 *)ptr, comparand, exchange);
+    return __sync_val_compare_and_swap((Int32 *)ptr, comparand, exchange);
 #elif CRYSTAL_TARGET_PLATFORM_ANDROID
-    return __sync_val_compare_and_swap((sint32 *)ptr, comparand, exchange);
+    return __sync_val_compare_and_swap((Int32 *)ptr, comparand, exchange);
 #endif
 }
 
