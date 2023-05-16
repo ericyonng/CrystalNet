@@ -4,7 +4,7 @@
 
   * 代码使用办法
 
-    * 导表工具对于CPP来说会生成RegisterAllConfigs.h, 和AllConfigs.h两个文件，使用配置的时候包含AllConfigs.h, 并继承IConfigLoader, 在OnRegisterComps接口中添加:#include <cpp/RegisterAllConfigs.hpp> 就自动注入了生成的所有配置
+    * 导表工具对于CPP来说会生成RegisterAllConfigs.hpp, 和AllConfigs.h两个文件，使用配置的时候包含AllConfigs.h, 并继承IConfigLoader, 在OnRegisterComps接口中添加:#include <cpp/RegisterAllConfigs.hpp> 就自动注入了生成的所有配置
 
     * IConfigLoader::_OnCompsCreated 开始加载所有的配置
 
@@ -139,9 +139,9 @@
     * --meta:用来指定各个xlsx对应的meta文件的路径
 
     * ```
-      --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=../../service_common/config/xlsx --target_dir=./code --data=./data --meta=./meta
+      --config=xlsx --lang=S:cpp@C:C#,lua --source_dir=../../service_common/config/xlsx --target_dir=./code --data=./data --meta=./meta
       
-      --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=../../service/TestService/config/xlsx --target_dir=../../service/TestService/config/code --data=../../service/TestService/config/data --meta=../../service/TestService/config/meta
+      --config=xlsx --lang=S:cpp@C:C#,lua --source_dir=../../service/TestService/config/xlsx --target_dir=../../service/TestService/config/code --data=../../service/TestService/config/data --meta=../../service/TestService/config/meta
       ```
 
   * 待实现的功能
@@ -159,7 +159,7 @@
   * 测试参数
 
     ```
-    --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=../../service_common/config/xlsx --target_dir=./code --data=./data --meta=./meta
+    --config=xlsx --lang=S:cpp@C:C#,lua --source_dir=../../service_common/config/xlsx --target_dir=./code --data=./data --meta=./meta
     ```
 
     
