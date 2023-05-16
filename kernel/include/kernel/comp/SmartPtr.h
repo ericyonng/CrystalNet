@@ -524,7 +524,6 @@ private:
         _del.Takeover(obj._del.pop());
 
         obj._ptr = NULL;
-        obj._ref = NULL;
     }
 
 protected:
