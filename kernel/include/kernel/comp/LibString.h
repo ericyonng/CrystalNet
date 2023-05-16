@@ -1055,6 +1055,8 @@ ALWAYS_INLINE LibString &LibString::Append(Args&&... rest)
 {
     // 使用数组展开参数包，并同时调用<<
     char _[] = { ((*this) << rest, char(0))... };
+    UNUSED(_);
+    
     return *this;
 }
 

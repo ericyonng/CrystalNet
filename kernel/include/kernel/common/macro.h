@@ -600,4 +600,9 @@ __rdtscp(&cpuCoreId)
 public:                                 \
 Int32 _againstLazy = 0
 
+// 不使用的变量
+#ifndef UNUSED
+ #define UNUSED(x) (void)(x)
+#endif
+
 #endif
