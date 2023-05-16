@@ -79,7 +79,6 @@ void ExporterMgr::_OnGlobalSysClose()
 
 void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
 {
-    bool genSuc = false;
     auto app = GetApp();
     const auto &appArgs = app->GetAppArgs();
     

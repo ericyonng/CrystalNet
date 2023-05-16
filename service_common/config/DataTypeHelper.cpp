@@ -851,7 +851,7 @@ bool DataTypeHelper::CheckData(const KERNEL_NS::LibString &dataType, const KERNE
         const auto jsonObject = nlohmann::json::parse(value.c_str(), NULL, false);
         if(!jsonObject.is_object())
         {
-            errInfo.AppendFormat("parse json fail, check data data type:%s fail of data value:%s not a dict type:%s\n"
+            errInfo.AppendFormat("parse json fail, check data data type:%s fail of data value:%s not a dict type\n"
                                 , dataType.c_str(), value.c_str());
             return false;
         }
@@ -1132,7 +1132,7 @@ bool DataTypeHelper::MakeDataAdaptJson(const KERNEL_NS::LibString &dataType, KER
         const auto jsonObject = nlohmann::json::parse(value.c_str(), NULL, false);
         if(!jsonObject.is_object())
         {
-            errInfo.AppendFormat("parse json fail when MakeDataAdaptJson, check data data type:%s fail of data value:%s not a dict type:%s\n"
+            errInfo.AppendFormat("parse json fail when MakeDataAdaptJson, check data data type:%s fail of data value:%s not a dict type\n"
                                 , dataType.c_str(), value.c_str());
             return false;
         }

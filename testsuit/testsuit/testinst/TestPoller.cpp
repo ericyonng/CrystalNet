@@ -364,8 +364,8 @@ static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
 {
     // g_Log->Debug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::Poller, "recv event:%s"), ev->ToString().c_str());
     ++g_consumNum;
-    int b = 0;
-    int a = 1 / b;
+    // int b = 0;
+    // int a = 1 / b;
 }
 
 struct AcEvent : public KERNEL_NS::PollerEvent

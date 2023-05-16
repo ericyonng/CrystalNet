@@ -207,7 +207,6 @@ Int32 XlsxExporterMgr::ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL
     // 导出所有头文件
     for(auto iterOwnType : _ownTypeRefConfigTypeRefXlsxConfigTableInfo)
     {
-        auto &configTypeRefConfigTable = iterOwnType.second;
         auto iterLang = _ownTypeRefLangTypes.find(iterOwnType.first);
         if(iterLang == _ownTypeRefLangTypes.end())
         {
@@ -783,7 +782,7 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
         {
             if(sheet->GetTotalLine() < ConfigTableDefine::HEADER_ROW_NUMBER)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("have no enough line, total line:%llu, need line:%d, and will skip exporting config:%s, xlsx path:%s")
+                g_Log->Warn(LOGFMT_OBJ_TAG("have no enough line, total line:%llu, need line:%llu, and will skip exporting config:%s, xlsx path:%s")
                         ,sheet->GetTotalLine(), ConfigTableDefine::HEADER_ROW_NUMBER
                         , sheet->GetSheetName().c_str(), sheet->GetWorkbook()->GetWorkbookPath().c_str());
                 continue;
@@ -841,7 +840,8 @@ bool XlsxExporterMgr::_PrepareConfigStructAndDatas(std::unordered_map<KERNEL_NS:
                     if(configTableInfo->_fieldNames.find(iterField->second->_content) != configTableInfo->_fieldNames.end())
                     {
                         g_Log->Error(LOGFMT_OBJ_TAG("field name:%s duplicate column:%llu, row:%llu sheet name:%s, xlsx path:%s")
-                        , iterField->second->_content.c_str(), sheet->GetSheetName().c_str(), workbook->GetWorkbookPath().c_str());
+                        , iterField->second->_content.c_str(), iterField->second->_column, iterField->second->_row, sheet->GetSheetName().c_str()
+                        , workbook->GetWorkbookPath().c_str());
                         return false;
                     }
 
@@ -2180,7 +2180,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("        }\n");
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("        KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> config = %s::New_%s();\n", className.c_str(), className.c_str(), className.c_str());
-            fileContent.AppendFormat("        config.SetClosureDelegate([](void *p){\n", className.c_str(), className.c_str(), className.c_str());
+            fileContent.AppendFormat("        config.SetClosureDelegate([](void *p){\n");
             fileContent.AppendFormat("            auto ptr = reinterpret_cast<%s *>(p);\n", className.c_str());
             fileContent.AppendFormat("            %s::Delete_%s(ptr);\n", className.c_str(), className.c_str());
             fileContent.AppendFormat("        });\n");
@@ -2206,7 +2206,6 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                         flag.strip();
                         flag = flag.tolower();
                         const auto &fieldName = fieldInfo->_fieldName.FirstCharToLower();
-                        auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
                         if(flag == "unique")
                         {// 唯一索引
                             const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
@@ -2261,7 +2260,6 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                         flag = flag.tolower();
                         const auto &fieldName = fieldInfo->_fieldName.FirstCharToLower();
                         const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
-                        auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
                         if(flag == "unique")
                         {// 唯一索引
                             fileContent.AppendFormat("    _%sRefConfig.clear();\n", fieldName.c_str());
@@ -2294,8 +2292,6 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                         flag = flag.tolower();
                         const auto &fieldName = fieldInfo->_fieldName.FirstCharToLower();
                         const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
-                        auto iterDataType = fieldNameRefDataType.find(fieldInfo->_fieldName);
-
 
                         if(flag == "unique")
                         {// 唯一索引
