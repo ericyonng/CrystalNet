@@ -121,6 +121,14 @@
 * Windows
   * 构建：winsolution_build.bat （选择vs2115, vs2017, vs2019, vs2022生成solution），请使用指定版本vs编译
   * start.bat/stop.bat 运行或者关闭
+  
+* 导表工具
+
+  * update_configs.bat/update_configs.sh
+
+* 协议导出工具
+
+  * protoc.bat/protoc.sh
 
 # 环境构建
 
