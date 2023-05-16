@@ -343,7 +343,7 @@ public:
     {
     }
 
-    UniqueSmartPtr(const SmartPtr<ObjType, delMethod> &obj) = delete;    
+    UniqueSmartPtr(const UniqueSmartPtr<ObjType, delMethod> &obj) = delete;    
 
     UniqueSmartPtr(UniqueSmartPtr<ObjType, delMethod> &&obj)
     {
@@ -393,7 +393,7 @@ public:
         return *this;
     }
 
-    UniqueSmartPtr<ObjType, delMethod> &operator =(const SmartPtr<ObjType, delMethod> &other) = delete;
+    UniqueSmartPtr<ObjType, delMethod> &operator =(const UniqueSmartPtr<ObjType, delMethod> &other) = delete;
 
     UniqueSmartPtr<ObjType, delMethod> &operator =(UniqueSmartPtr<ObjType, delMethod> &&ptr)
     {
@@ -494,7 +494,7 @@ public:
     void SetDelegate(IDelegate<void, void *> *delg)
     {
         // static_assert(ImplType == delMethod, "ImplType must be delMethod");
-        static_assert(ImplType == AutoDelMethods::CustomDelete, "SmartPtr SetDelegate only for CustomDelete");
+        static_assert(ImplType == AutoDelMethods::CustomDelete, "UniqueSmartPtr SetDelegate only for CustomDelete");
         _del.SetDelegate(delg);
     }
 
@@ -503,14 +503,14 @@ public:
     void SetClosureDelegate(ClosureType &&closureFun)
     {
         // static_assert(ImplType == delMethod, "ImplType must be delMethod");
-        static_assert(ImplType == AutoDelMethods::CustomDelete, "SmartPtr SetDelegate only for CustomDelete");
+        static_assert(ImplType == AutoDelMethods::CustomDelete, "UniqueSmartPtr SetDelegate only for CustomDelete");
         auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(closureFun, void, void *);
         _del.SetDelegate(delg);
     }
 
 private:
 
-    void _MoveFrom(SmartPtr<ObjType, delMethod> &obj)
+    void _MoveFrom(UniqueSmartPtr<ObjType, delMethod> &obj)
     {
         if(this == &obj)
             return;
