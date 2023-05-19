@@ -2679,8 +2679,8 @@ void XlsxExporterMgr::_ExportCppAllConfigHeaderFile(const KERNEL_NS::LibString &
     content.AppendFormat("// Generate by %s, Dont modify it!!!\n", GetApp()->GetAppName().c_str());
 
     const auto allConfigsName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(_allConfigsHeader);
-    content.AppendFormat("#ifndef __CONFIG_%s_H_\n", allConfigsName.toupper().c_str());
-    content.AppendFormat("#define __CONFIG_%s_H_\n", allConfigsName.toupper().c_str());
+    content.AppendFormat("#ifndef __CONFIG_%s_H__\n", allConfigsName.toupper().c_str());
+    content.AppendFormat("#define __CONFIG_%s_H__\n", allConfigsName.toupper().c_str());
 
     content.AppendFormat("\n");
 
