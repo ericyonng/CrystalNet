@@ -456,8 +456,24 @@ project "testsuit"
 		"../../testsuit/testsuit_pch/",
 		"../../simple_api/",
         "../../service/TestService/config/code/",
+		"../../3rd/mysql/win/include/",
     }
-	
+
+    -- mysql
+    filter { "system:windows"}
+        includedirs {
+            "../../3rd/mysql/win/include/"
+        }
+
+        libdirs { 
+            ROOT_DIR .. "3rd/mysql/win/lib/",
+        }
+
+        links {
+            "libmysql",
+        }
+    filter {}
+
 	-- 设置通用选项
     set_common_options()
 	
