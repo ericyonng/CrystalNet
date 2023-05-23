@@ -1,0 +1,1 @@
+mysql  Ver 8.0.30 for Linux on x86_64 (MySQL Community Server - GPL)

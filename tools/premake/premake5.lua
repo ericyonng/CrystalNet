@@ -473,6 +473,20 @@ project "testsuit"
             "libmysql",
         }
     filter {}
+    -- mysql
+    filter { "system:not windows"}
+        includedirs {
+            "../../3rd/mysql/linux/include/"
+        }
+
+        libdirs { 
+            ROOT_DIR .. "3rd/mysql/linux/lib/",
+        }
+
+        links {
+            "mysqlclient",
+        }
+    filter {}
 
 	-- 设置通用选项
     set_common_options()

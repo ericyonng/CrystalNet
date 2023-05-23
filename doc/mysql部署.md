@@ -33,6 +33,15 @@
 
 #  linux安装myql
 
+* 使用lnmp只安装mysql 8.0
+
+  * ```shell
+    install.sh db
+    # 选择mysql 8.0
+    ```
+
+    
+
 * 下载8.0rpm包
 
   * wget https://dev.mysql.com/get/mysql80-community-release-el8-5.noarch.rpm
