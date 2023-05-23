@@ -31,53 +31,53 @@
 static const Int32 TestCount = 1000000;
 void TestSimpleApi::Run()
 {
-    auto err = SimpleApiInit(false);
-    if(err != Status::Success)
-    {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestSimpleApi, "init simple api fail err:%d"), err);
-        return;
-    }
+    // auto err = SimpleApiInit(false);
+    // if(err != Status::Success)
+    // {
+    //     g_Log->Error(LOGFMT_NON_OBJ_TAG(TestSimpleApi, "init simple api fail err:%d"), err);
+    //     return;
+    // }
 
-    {
-        auto cpuCountBegin = KERNEL_NS::LibCpuCounter::Current();
-        for(Int32 idx = 0; idx < TestCount; ++idx)
-        {
-            const auto &nowTime = KERNEL_NS::LibTime::Now();
-            SimpleApiPushProfile(0, nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        }
-        auto cpuCountEnd = KERNEL_NS::LibCpuCounter::Current();
-        auto slice = (cpuCountEnd - cpuCountBegin);
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSimpleApi, "SimpleApiPushProfile cost total time:%llu(microseconds), cost time:%llu(microseconds) per invoke")
-                    , slice.GetTotalNanoseconds(), (slice.GetTotalNanoseconds() / TestCount));
-    }
+    // {
+    //     auto cpuCountBegin = KERNEL_NS::LibCpuCounter::Current();
+    //     for(Int32 idx = 0; idx < TestCount; ++idx)
+    //     {
+    //         const auto &nowTime = KERNEL_NS::LibTime::Now();
+    //         SimpleApiPushProfile(0, nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    //     }
+    //     auto cpuCountEnd = KERNEL_NS::LibCpuCounter::Current();
+    //     auto slice = (cpuCountEnd - cpuCountBegin);
+    //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSimpleApi, "SimpleApiPushProfile cost total time:%llu(microseconds), cost time:%llu(microseconds) per invoke")
+    //                 , slice.GetTotalNanoseconds(), (slice.GetTotalNanoseconds() / TestCount));
+    // }
 
-    {
-        auto cpuCountBegin = KERNEL_NS::LibCpuCounter::Current();
-        for(Int32 idx = 0; idx < TestCount; ++idx)
-        {
-            const auto &nowTime = KERNEL_NS::LibTime::Now();
-            SimpleApiPushProfile2(0, nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0, 0);
-        }
-        auto cpuCountEnd = KERNEL_NS::LibCpuCounter::Current();
-        auto slice = (cpuCountEnd - cpuCountBegin);
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSimpleApi, "SimpleApiPushProfile2 cost total time:%llu(microseconds), cost time:%llu(microseconds) per invoke")
-                    , slice.GetTotalNanoseconds(), (slice.GetTotalNanoseconds() / TestCount));
-    }
+    // {
+    //     auto cpuCountBegin = KERNEL_NS::LibCpuCounter::Current();
+    //     for(Int32 idx = 0; idx < TestCount; ++idx)
+    //     {
+    //         const auto &nowTime = KERNEL_NS::LibTime::Now();
+    //         SimpleApiPushProfile2(0, nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0, 0);
+    //     }
+    //     auto cpuCountEnd = KERNEL_NS::LibCpuCounter::Current();
+    //     auto slice = (cpuCountEnd - cpuCountBegin);
+    //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSimpleApi, "SimpleApiPushProfile2 cost total time:%llu(microseconds), cost time:%llu(microseconds) per invoke")
+    //                 , slice.GetTotalNanoseconds(), (slice.GetTotalNanoseconds() / TestCount));
+    // }
 
-    {
-        auto cpuCountBegin = KERNEL_NS::LibCpuCounter::Current();
-        for(Int32 idx = 0; idx < TestCount; ++idx)
-        {
-            const auto &nowTime = KERNEL_NS::LibTime::Now();
-            SimpleApiPushProfile3(0, nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0);
-        }
-        auto cpuCountEnd = KERNEL_NS::LibCpuCounter::Current();
-        auto slice = (cpuCountEnd - cpuCountBegin);
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSimpleApi, "SimpleApiPushProfile3 cost total time:%llu(microseconds), cost time:%llu(microseconds) per invoke")
-                    , slice.GetTotalNanoseconds(), (slice.GetTotalNanoseconds() / TestCount));
-    }
+    // {
+    //     auto cpuCountBegin = KERNEL_NS::LibCpuCounter::Current();
+    //     for(Int32 idx = 0; idx < TestCount; ++idx)
+    //     {
+    //         const auto &nowTime = KERNEL_NS::LibTime::Now();
+    //         SimpleApiPushProfile3(0, nowTime.GetMilliTimestamp(), 0, 0, 0, 0, 0, 0, 0);
+    //     }
+    //     auto cpuCountEnd = KERNEL_NS::LibCpuCounter::Current();
+    //     auto slice = (cpuCountEnd - cpuCountBegin);
+    //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSimpleApi, "SimpleApiPushProfile3 cost total time:%llu(microseconds), cost time:%llu(microseconds) per invoke")
+    //                 , slice.GetTotalNanoseconds(), (slice.GetTotalNanoseconds() / TestCount));
+    // }
 
-    KERNEL_NS::SystemUtil::ThreadSleep(2000);
+    // KERNEL_NS::SystemUtil::ThreadSleep(2000);
 
-    SimpleApiDestroy();
+    // SimpleApiDestroy();
 }

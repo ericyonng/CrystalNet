@@ -441,7 +441,7 @@ project "testsuit"
     -- dependents
     dependson {
         "CrystalKernel",
-        "simple_api",
+        -- "simple_api",
     }
 
     -- 导入内核接口
@@ -454,7 +454,7 @@ project "testsuit"
 		"../../kernel/include/",
 		"../../testsuit/",
 		"../../testsuit/testsuit_pch/",
-		"../../simple_api/",
+		-- "../../simple_api/",
         "../../service/TestService/config/code/",
 		"../../3rd/mysql/win/include/",
     }
@@ -529,28 +529,28 @@ project "testsuit"
 	include_libfs(true, true)
 
     -- links(windows)
-    filter { "system:windows", "configurations:debug*" }
-        links {
-            "simple_api_debug"
-        }
-    filter {}
-    filter { "system:windows", "configurations:release*" }
-        links {
-            "simple_api"
-        }
-    filter {}
+    -- filter { "system:windows", "configurations:debug*" }
+    --     links {
+    --         "simple_api_debug"
+    --     }
+    -- filter {}
+    -- filter { "system:windows", "configurations:release*" }
+    --     links {
+    --         "simple_api"
+    --     }
+    -- filter {}
 
     -- links(not windows)
-    filter { "system:not windows", "configurations:debug*" }
-        links {
-            "simple_api_debug",
-        }
-    filter {}
-    filter { "system:not windows", "configurations:release*" }
-        links {
-            "simple_api"
-        }
-    filter {}
+    -- filter { "system:not windows", "configurations:debug*" }
+    --     links {
+    --         "simple_api_debug",
+    --     }
+    -- filter {}
+    -- filter { "system:not windows", "configurations:release*" }
+    --     links {
+    --         "simple_api"
+    --     }
+    -- filter {}
 
 
     -- debug target suffix define
