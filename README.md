@@ -42,6 +42,95 @@
 
 --------
 
+# 简单使用
+
+* 见testinst.cpp (测试用例)
+
+* 简单使用内核
+
+  * ```c++
+    class LogFactory : public KERNEL_NS::ILogFactory
+    {
+    public:
+        virtual KERNEL_NS::ILog *Create()
+        {
+            return new KERNEL_NS::LibLog();
+        }
+    };    
+    
+    LogFactory logFactory;
+    KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+    KERNEL_NS::LibString logIniPath;
+    logIniPath = programPath + "/ini/";
+    KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
+    
+    // 内核初始化
+    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str());
+    if(err != Status::Success)
+    {
+        CRYSTAL_TRACE("kernel init fail err:%d", err);
+        return;
+    }
+    
+    // 内核启动
+    KERNEL_NS::KernelUtil::Start();
+    
+    // TODO:执行用户代码
+    
+    // 内核销毁
+    KERNEL_NS::KernelUtil::Destroy();
+    ```
+
+* 复杂的app启动
+
+  * ```c++
+    class LogFactory : public KERNEL_NS::ILogFactory
+    {
+    public:
+        virtual KERNEL_NS::ILog *Create()
+        {
+            return new KERNEL_NS::LibLog();
+        }
+    };    
+    
+    void TestInst::Run(int argc, char const *argv[])
+    {
+        LogFactory logFactory;
+        KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+        KERNEL_NS::LibString logIniPath;
+        logIniPath = programPath + "/ini/";
+        KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
+    
+        // 内核初始化
+        Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str());
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("kernel init fail err:%d", err);
+            return;
+        }
+    
+        // 内核启动
+        KERNEL_NS::KernelUtil::Start();
+    
+        // app 启动代码
+        KERNEL_NS::SmartPtr<SERVICE_COMMON_NS::Application, KERNEL_NS::AutoDelMethods::CustomDelete> app = SERVICE_COMMON_NS::Application::New_Application();
+        app.SetClosureDelegate([](void *ptr)
+        {
+            auto p = KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::Application>(ptr);
+            SERVICE_COMMON_NS::Application::Delete_Application(p);
+            ptr = NULL;
+        });
+    
+        SERVICE_COMMON_NS::ApplicationHelper::Start(app.AsSelf(), SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "./ini/service.ini");
+        
+        // 内核销毁
+        KERNEL_NS::KernelUtil::Destroy();
+    }
+    
+    ```
+
+    
+
 # 特性
 
 * 采用iocp/epoll网络模型，跨windows/linux平台
