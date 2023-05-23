@@ -83,6 +83,7 @@
 #include <testsuit/testinst/TestXlsx.h>
 #include <testsuit/testinst/TestSimpleApi.h>
 #include <testsuit/testinst/TestConfig.h>
+#include <testsuit/testinst/TestMysql.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -232,7 +233,9 @@ void TestInst::Run(int argc, char const *argv[])
     // TestXlsx::Run();
     // TestSimpleApi::Run();
 
-    TestConfig::Run();
+    // TestConfig::Run();
+
+    TestMysql::Run();
 
     KERNEL_NS::KernelUtil::Destroy();
     
