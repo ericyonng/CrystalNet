@@ -301,7 +301,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue>
 
         if(field.find(keyField) != field.end())
         {
-            errInfo.AppendFormat("duplicate key, std::unordered_map<%s, %s> key:%s, value json:%s, old value json:%s"
+            errInfo.AppendFormat("duplicate key, std::unordered_map<%s, %s> key:%s, value json:%s"
                         , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
                         , keyJson.c_str(), valueJson.c_str());
             return false;
@@ -350,7 +350,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, c
 
         if(field.find(keyField) != field.end())
         {
-            errInfo.AppendFormat("duplicate key, std::map<%s, %s> key:%s, value json:%s, old value json:%s"
+            errInfo.AppendFormat("duplicate key, std::map<%s, %s> key:%s, value json:%s"
                         , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
                         , keyJson.c_str(), valueJson.c_str());
             return false;
