@@ -32,6 +32,36 @@
 
 void TestMysql::Run()
 {
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMysql, "mysql test start."));
+
+    // 程序资源初始化 只初始化一次在整个程序过程只初始化一次 线程不安全
+    mysql_library_init(0, 0, 0);
+
+    // 库的初始化, 多线程的初始化，上下文的初始化，线程不安全 因为内部会去调用mysql_library_init（一个程序只能执行一次mysql_init, mysql_library_end会销毁资源）
     MYSQL mysql;
     mysql_init(&mysql);
+
+    KERNEL_NS::LibString host = "127.0.0.1";
+    KERNEL_NS::LibString user = "root";
+    KERNEL_NS::LibString pwd = "123456";
+    KERNEL_NS::LibString db = "rpg";
+
+    // 连接登录数据库
+    if(!mysql_real_connect(&mysql, host.c_str(), user.c_str(), pwd.c_str(), db.c_str(), 3306, 0, 0))
+    {
+        g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestMysql, "Mysql connect fail host:%s, error:%s"), host.c_str(), mysql_error(&mysql));
+    }
+    else
+    {
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMysql, "mysql connect success host:%s."), host.c_str());
+    }
+    
+    // 断开mysql连接
+    mysql_close(&mysql);
+
+    // 释放程序资源, 只做一次
+    mysql_library_end();
+
+    // mysql_close可以断开mysql连接
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMysql, "mysql test end."));
 }
