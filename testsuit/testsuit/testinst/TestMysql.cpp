@@ -38,8 +38,7 @@ void TestMysql::Run()
     mysql_library_init(0, 0, 0);
 
     // 库的初始化, 多线程的初始化，上下文的初始化，线程不安全 因为内部会去调用mysql_library_init（一个程序只能执行一次mysql_init, mysql_library_end会销毁资源）
-    MYSQL mysql;
-    mysql_init(&mysql);
+    MYSQL *mysql = mysql_init(NULL);
 
     KERNEL_NS::LibString host = "127.0.0.1";
     KERNEL_NS::LibString user = "root";
@@ -47,17 +46,55 @@ void TestMysql::Run()
     KERNEL_NS::LibString db = "rpg";
 
     // 连接登录数据库
-    if(!mysql_real_connect(&mysql, host.c_str(), user.c_str(), pwd.c_str(), db.c_str(), 3306, 0, 0))
+    mysql_options(mysql, MYSQL_SET_CHARSET_NAME, "utf8mb4");
+    if(!mysql_real_connect(mysql, host.c_str(), user.c_str(), pwd.c_str(), NULL, 3306, 0, 0))
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestMysql, "Mysql connect fail host:%s, error:%s"), host.c_str(), mysql_error(&mysql));
+        g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestMysql, "Mysql connect fail host:%s, error:%s"), host.c_str(), mysql_error(mysql));
     }
     else
     {
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMysql, "mysql connect success host:%s."), host.c_str());
     }
+
+    {// check if exists db
+        bool is_exists = false;
+        auto res = mysql_list_dbs(mysql, db.c_str());
+        if(res == NULL)
+        {
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestMysql, "db:%s, not create err:%s"), db.c_str(), mysql_error(mysql));
+        }
+        else
+        {
+            is_exists = mysql_num_rows(res) > 0;
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMysql, "DB:%s, is_exists:%d"), db.c_str(), is_exists);
+            mysql_free_result(res);
+        }
+
+        if(!is_exists)
+        {// 不存在就创建数据库
+            KERNEL_NS::LibString sql;
+            sql.AppendFormat("CREATE DATABASE `%s` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_bin", db.c_str());
+            auto ret = mysql_real_query(mysql, sql.c_str(), static_cast<ULong>(sql.length()));
+            if(ret == 0)
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMysql, "DB:%s create success."), db.c_str());
+            }
+            else
+            {
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestMysql, "db:%s, create fail err:%s"), db.c_str(), mysql_error(mysql));
+            }
+        }
+
+        // 选择工作的数据库
+        auto ret = mysql_select_db(mysql, db.c_str());
+        if(ret != 0)
+        {
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestMysql, "select db:%s fail err:%s"), db.c_str(), mysql_error(mysql));
+        }
+    }
     
     // 断开mysql连接
-    mysql_close(&mysql);
+    mysql_close(mysql);
 
     // 释放程序资源, 只做一次
     mysql_library_end();
