@@ -73,7 +73,7 @@ void TestMysql::Run()
         if(!is_exists)
         {// 不存在就创建数据库
             KERNEL_NS::LibString sql;
-            sql.AppendFormat("CREATE DATABASE `%s` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_bin", db.c_str());
+            sql.AppendFormat("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_bin", db.c_str());
             auto ret = mysql_real_query(mysql, sql.c_str(), static_cast<ULong>(sql.length()));
             if(ret == 0)
             {
