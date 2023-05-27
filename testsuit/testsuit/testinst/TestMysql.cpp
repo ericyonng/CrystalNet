@@ -45,8 +45,14 @@ void TestMysql::Run()
     KERNEL_NS::LibString pwd = "123456";
     KERNEL_NS::LibString db = "rpg";
 
-    // 连接登录数据库
+    // 字符集设置
     mysql_options(mysql, MYSQL_SET_CHARSET_NAME, "utf8mb4");
+
+    // 自动重连
+    Int32 op = 1;
+    mysql_options(mysql, MYSQL_OPT_RECONNECT, &op);
+
+    // 连接登录数据库
     if(!mysql_real_connect(mysql, host.c_str(), user.c_str(), pwd.c_str(), NULL, 3306, 0, 0))
     {
         g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestMysql, "Mysql connect fail host:%s, error:%s"), host.c_str(), mysql_error(mysql));
@@ -90,6 +96,31 @@ void TestMysql::Run()
         if(ret != 0)
         {
             g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestMysql, "select db:%s fail err:%s"), db.c_str(), mysql_error(mysql));
+        }
+
+        {
+            KERNEL_NS::LibString sql;
+            sql.AppendFormat("select *from tbl_role");
+            auto ret = mysql_real_query(mysql, sql.c_str(), static_cast<ULong>(sql.length()));
+            if(ret != 0)
+            {
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestMysql, "query fail sql:%s fail err:%s"), sql.c_str(), mysql_error(mysql));
+            }
+        }
+
+    }
+
+    for(Int32 idx = 0; idx < 1000; ++idx)
+    {
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        auto pingRet = mysql_ping(mysql);
+        if(pingRet == 0)
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMysql, "mysql is connected."));
+        }
+        else
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMysql, "mysql is disconnected err:%s."), mysql_error(mysql));
         }
     }
     

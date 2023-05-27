@@ -63,25 +63,25 @@ public:
 
     void Clear() override;
     virtual KERNEL_NS::LibString ToString() const override;
-    virtual void OnRegisterComps() final; 
+    virtual void OnRegisterComps() override; 
 
     void PushResponceNs(UInt64 costNs); 
 
 protected:
     // 在组件初始化前
-    virtual Int32 _OnHostInit() final;
+    virtual Int32 _OnHostInit() override;
     // 所有组件创建完成
-    virtual Int32 _OnCompsCreated() final;
+    virtual Int32 _OnCompsCreated() override;
     // 在组件启动之前
-    virtual Int32 _OnHostWillStart() final;
+    virtual Int32 _OnHostWillStart() override;
     // 组件启动之后
-    virtual Int32 _OnHostStart() final;
+    virtual Int32 _OnHostStart() override;
     // 在组件willclose之前
-    virtual void _OnHostBeforeCompsWillClose() final;
+    virtual void _OnHostBeforeCompsWillClose() override;
     // 在组件willclose之后
-    virtual void _OnHostWillClose() final;
+    virtual void _OnHostWillClose() override;
     // 在组件Close之后
-    virtual void _OnHostClose() final;
+    virtual void _OnHostClose() override;
 
 protected:
     virtual void _OnMonitorThreadFrame();

@@ -77,4 +77,7 @@
     flush privileges;
     ```
 
-    
+
+# 安全措施
+
+* 为了安全起见数据库应该设定只能从localhost访问，如果外部要访问需要通过ssh跳板过来访问（通过navacat ssh然后再在连接上指定localhost ip连接mysql）
