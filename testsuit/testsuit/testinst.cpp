@@ -252,8 +252,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestXlsx::Run();
     // TestSimpleApi::Run();
     // TestConfig::Run();
-    // TestMysql::Run();
-    TestCharset::Run();
+    TestMysql::Run();
+    // TestCharset::Run();
 
 
     // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();

@@ -24,6 +24,8 @@
  * Date: 2023-05-22 23:40:28
  * Author: Eric Yonng
  * Description: 
+ * 1.创建索引越多, 在插入或者update的时候性能开销是比较大的
+ * 2.truncate 表会把表的数据清空，自增id归0
 */
 
 #include <pch.h>
