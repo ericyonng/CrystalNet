@@ -84,6 +84,7 @@
 #include <testsuit/testinst/TestSimpleApi.h>
 #include <testsuit/testinst/TestConfig.h>
 #include <testsuit/testinst/TestMysql.h>
+#include <testsuit/testinst/TestCharset.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -123,6 +124,24 @@ public:
         return new LibTestLog();
     }
 };
+
+static void TestPool(KERNEL_NS::LibThreadPool *pool)
+{
+    while(!pool->IsDestroy())
+    {
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "hello thread:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+    }
+}
+
+static void TestBreak(KERNEL_NS::LibThreadPool *pool)
+{
+    while(!pool->IsDestroy())
+    {
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "hello TestBreak thread:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+    }
+}
 
 void TestInst::Run(int argc, char const *argv[])
 {
@@ -232,10 +251,19 @@ void TestInst::Run(int argc, char const *argv[])
     // TestArchive::Run();
     // TestXlsx::Run();
     // TestSimpleApi::Run();
-
     // TestConfig::Run();
+    // TestMysql::Run();
+    TestCharset::Run();
 
-    TestMysql::Run();
+
+    // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();
+    // pool->Init(0, 4);
+    // pool->AddTask(&TestPool, false);
+    // pool->AddTask(&TestBreak, false);
+
+    // pool->Start(true, 4);
+
+    // getchar();
 
     KERNEL_NS::KernelUtil::Destroy();
     

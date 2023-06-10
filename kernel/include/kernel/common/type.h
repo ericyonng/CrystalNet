@@ -63,6 +63,10 @@ typedef  struct alignas(16) {
     Int64 low;
     Int64 high;
 } Int128;
+
+// 宽字节字符
+typedef __wchar_t wchar;
+
 #elif CRYSTAL_TARGET_PLATFORM_LINUX
 
 #undef MEM_ALIGNED_16BYTE
@@ -70,6 +74,9 @@ typedef  struct alignas(16) {
 
 typedef __uint128_t UInt128;
 typedef __int128_t Int128;
+
+typedef unsigned short wchar;
+
 #endif
 
 // cache

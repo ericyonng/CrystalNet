@@ -71,6 +71,7 @@ namespace Status
         PreparePollerFail = 25,                                 // 准备poller失败
         PollerFail = 26,                                        // poller失败
         DummyHandle = 27,                                       // 伪处理
+        LibraryError = 28,                                      // 来自库的报错
         
 
         // SOCKET[500, 599]

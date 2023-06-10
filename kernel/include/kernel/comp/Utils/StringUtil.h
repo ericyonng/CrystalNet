@@ -93,6 +93,7 @@ public:
 	static bool CheckDoubleString(const LibString &str);
 
 	static UInt64 CalcUtf8CharBytes(U8 ctrlChar);
+	static bool IsUtf8String(const LibString &str);
 
 	static void MergerMultiLine(const std::vector<LibString> &lines, LibString &target);
 	static void SepMultiLine(const LibString &multiLine, std::vector<LibString> &lines);
@@ -1048,6 +1049,11 @@ inline UInt64 StringUtil::CalcUtf8CharBytes(U8 ctrlChar)
 	}
 
 	return 0;
+}
+
+ALWAYS_INLINE bool StringUtil::IsUtf8String(const LibString &str)
+{
+	return str.IsUtf8();
 }
 
 ALWAYS_INLINE void StringUtil::MergerMultiLine(const std::vector<LibString> &lines, LibString &target)

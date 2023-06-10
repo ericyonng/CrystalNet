@@ -357,6 +357,8 @@ public:
     _ThisType unescape(const _Elem &escapeChar) const;
 
     // UTF8 Surport
+    // 是否utf8判断(只对不带bom utf8判断, 如果带bom请移除后判断)
+    bool IsUtf8() const;
     // 添加bomb
     void add_utf8_bomb();
     // utf8字符个数
@@ -367,7 +369,7 @@ public:
     void split_utf8_string(size_type charIndex, _These &strs) const;
     // 打散ut8f字符串 scatterCount:按顺序打散n次，生产scatterCount个utf8字符串
     void scatter_utf8_string(_These &chars, std::string::size_type scatterCount = 0) const;
-    // utf8有没带bomb（windows下utf8识别带bomb（字符串前三个字节：\xef\xbb\xbf））
+    // utf8有没带bomb（windows下utf8识别带bomb（字符串前三个字节：\xef\xbb\xbf）一般在处理文件时用到）
     bool has_utf8_bomb() const;
     // 移除bomb
     void remove_utf8_bomb();

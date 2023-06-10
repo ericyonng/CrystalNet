@@ -482,13 +482,13 @@ inline const IDelegate<void, LogData *> *ILog::InstallBeforeLogHookFunc(Int32 le
     return newDelegate;
 }
 
-inline bool ILog::IsEnable(Int32 level) const
+ALWAYS_INLINE bool ILog::IsEnable(Int32 level) const
 {
-    auto levelCfg = _GetLevelCfg(level);
-    if(UNLIKELY(!levelCfg || !levelCfg->_enable))
+    if(UNLIKELY(!IsLogOpen()))
         return false;
 
-    return true;
+    auto levelCfg = _GetLevelCfg(level);
+    return levelCfg ? levelCfg->_enable : false;
 }
 
 inline void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, va_list va, UInt64 formatFinalSize)
