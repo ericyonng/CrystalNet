@@ -31,9 +31,30 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
+#include <kernel/kernel_inc.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/memory/memory.h>
+
+struct MYSQL;
 
 KERNEL_BEGIN
+
+class MysqlOperateType
+{
+public:
+    enum ENUMS
+    {
+        READ = 0,  // 查询等读数据操作
+        WRITE = 1, // 写数据操作
+    };
+};
+
+class MysqlOperateInfo
+{
+public:
+    Int32 _type = 0;    // MysqlOperateType
+    Int64 _count = 0;   // 操作次数
+};
 
 struct MysqlConfig
 {
@@ -42,15 +63,18 @@ struct MysqlConfig
     MysqlConfig();
     ~MysqlConfig(){}
 
+    LibString ToString() const;
+
     // 连接参数
     LibString _host;
     LibString _user;
     LibString _pwd;
     LibString _dbName;
+    UInt16 _port;
 
     // 可选配置
     LibString _charset;     // mysql操作时的编码字符集
-    bool _autoReconnect;    // 自动重连
+    Int32 _autoReconnect;    // 自动重连
     UInt64 _maxPacketSize;  // mysql 单包缓冲区大小(涉及到从mysql回来的接收缓冲区大小)
     bool _isOpenTableInfo;  // 开启表信息显示
 };
@@ -72,7 +96,19 @@ public:
     void Close();
 
 private:
+    bool _Connect();
+    bool _SelectDB();
+    // bool _CreateTable();
+    // bool _DropTable();
+    bool _Ping();
+
+    void _AddOpCount(Int32 type, Int64 count = 1);
+
+private:
     MysqlConfig _cfg;
+    MYSQL *_mysql;
+    bool _isConnected;
+    std::unordered_map<Int32, MysqlOperateInfo> _typeRefOpInfo; 
 };
 
 ALWAYS_INLINE void MysqlConnect::SetConfig(const MysqlConfig &cfg)
