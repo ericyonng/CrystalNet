@@ -206,7 +206,12 @@ private:
     Int32 _limit = -1;
 };
 
-// 
+// insert field,field into table1 values(xx,xx,...);
+// template<>
+// class SqlBuilder<SqlBuilderType::INSERT>
+// {
+
+// };
 
 KERNEL_END
 
