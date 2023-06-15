@@ -784,7 +784,7 @@ void HostB::OnRegisterComps()
     RegisterComp<CompAFactory>();
     RegisterComp<CompBFactory>();
     // RegisterComp<CompFaultFactory>();
-    RegisterComp<CompCFactory>();
+    // RegisterComp<CompCFactory>();
 }
 
 void HostC::OnRegisterComps()
@@ -892,6 +892,11 @@ void TestECS::Run()
     do
     {
         auto hostb = HostB::New_HostB();
+        
+        // 动态添加组件
+        KERNEL_NS::CompObject *compc = CompC::NewByAdapter_CompC(CompCFactory::_buildType.V);
+        hostb->RegisterComp(compc);
+
         hostb->RegisterComp<CompFaultFactory>();
 
         auto st = hostb->Init();
@@ -909,11 +914,11 @@ void TestECS::Run()
         }
 
         // 替换组件c
-        KERNEL_NS::CompObject *compc = CompC::NewByAdapter_CompC(CompCFactory::_buildType.V);
-        compc->Init();
-        compc->Start();
+        // KERNEL_NS::CompObject *compc = CompC::NewByAdapter_CompC(CompCFactory::_buildType.V);
+        // compc->Init();
+        // compc->Start();
 
-        hostb->ReplaceComp(compc);
+        // hostb->ReplaceComp(compc);
 
         // 动态移除组件
         hostb->RemoveComp<CompC>();
