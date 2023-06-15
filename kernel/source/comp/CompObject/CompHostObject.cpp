@@ -484,35 +484,8 @@ void CompHostObject::_AddComp(CompObject *comp)
     auto &comps = iterComps->second;
     comps.push_back(comp);
 
-    // 命名空间检测
-    LibString copyCompName = compName;
-    auto splitNameSpace = copyCompName.Split("::", -1, false, true);
-    Int32 splitSize = static_cast<Int32>(splitNameSpace.size());
-
-    // 去末尾空
-    for(Int32 idx = splitSize - 1; idx >= 0; --idx)
-    {
-        if(splitNameSpace[idx].empty())
-        {
-            splitNameSpace.erase(splitNameSpace.begin() + idx);
-        }
-        else
-            break;
-    }
-
-    LibString icompName;
-    splitSize = static_cast<Int32>(splitNameSpace.size());
-    for(Int32 idx = 0; idx < splitSize; ++idx)
-    {
-        if(idx == splitSize -1)
-            icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
-
-        if(!splitNameSpace[idx].empty())
-            icompName.AppendFormat("%s", splitNameSpace[idx].c_str());
-
-        if(idx != splitSize -1)
-            icompName.AppendFormat("::");
-    }
+    // 获取接口名
+    const auto &icompName = StringUtil::InterfaceObjName(compName);
     
     // 接口名字映射
     auto iterIComps = _icompNameRefComps.find(icompName);

@@ -268,7 +268,109 @@ public:
             return "";
 
         LibString sql;
-        sql.AppendFormat("INSERT INTO `%s`");
+        sql.AppendFormat("INSERT INTO `%s`", _table.c_str());
+        if(!_fields.empty())
+        {
+            sql.AppendFormat("(");
+            const Int32 count = static_cast<Int32>(_fields.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                sql.AppendFormat("`");
+                sql.AppendData(_fields[idx].c_str(), static_cast<Int64>(_fields[idx].size()));
+                sql.AppendFormat("`");
+                if((idx + 1) != count)
+                    sql.AppendFormat(", ");
+            }
+            sql.AppendFormat(")");
+        }
+
+        if(!_values.empty())
+        {
+            sql.AppendFormat(" VALUE(");
+            const Int32 count = static_cast<Int32>(_values.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                sql.AppendData(_values[idx].c_str(), static_cast<Int64>(_values[idx].size()));
+                if((idx + 1) != count)
+                    sql.AppendFormat(",");
+            }
+            sql.AppendFormat(")");
+            return sql;
+        }
+
+        sql.AppendFormat(" ");
+        sql.AppendData(_valuesFromSql.c_str(), static_cast<Int64>(_valuesFromSql.size()));
+
+        return sql;
+    }
+
+private:
+    std::vector<LibString> _fields;
+    LibString _table;
+    std::vector<LibString> _values;
+    LibString _valuesFromSql;
+};
+
+// replace into t(field,field) into table1 values(xx,xx,...);
+template<>
+class SqlBuilder<SqlBuilderType::REPLACE_INTO>
+{
+public:
+    SqlBuilder(){}
+    ~SqlBuilder(){}
+
+
+    void Clear()
+    {
+        _fields.clear();
+        _table.clear();
+        _values.clear();
+        _valuesFromSql.clear();
+    }
+
+    SqlBuilder<SqlBuilderType::REPLACE_INTO> &Fields(const std::vector<LibString> &fields)
+    {
+        _fields = fields;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::REPLACE_INTO> &Table(const LibString &table)
+    {
+        _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::REPLACE_INTO> &Values(const std::vector<LibString> &values)
+    {
+        _valuesFromSql.clear();
+        _values = values;
+
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::REPLACE_INTO> &ValuesFrom(const SqlBuilder<SqlBuilderType::SELECT> &src)
+    {
+        const auto &sql = src.ToSql();
+        if(sql.empty())
+            return *this;
+
+        _valuesFromSql = sql;
+        _values.clear();
+        _fields.clear();
+
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_table.empty()))
+            return "";
+
+        if(UNLIKELY(_values.empty() && _valuesFromSql.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("REPLACE INTO `%s`", _table.c_str());
         if(!_fields.empty())
         {
             sql.AppendFormat("(");

@@ -100,6 +100,11 @@ public:
 
 	// 校验标准名字:英文, 数字, 下划线, 且首字母非数字, name 长度为0也是非法
 	static bool CheckGeneralName(const LibString &name);
+
+	// 移除命名空间
+	static LibString RemoveNameSpace(const LibString &name);
+	// 转成接口类
+	static LibString InterfaceObjName(const LibString &name);
 };
 
 inline size_t StringUtil::snprintf(std::string &str, const char *format, va_list ap)
@@ -1098,6 +1103,76 @@ ALWAYS_INLINE bool StringUtil::CheckGeneralName(const LibString &name)
 
 	return true;
 }
+
+ALWAYS_INLINE LibString StringUtil::RemoveNameSpace(const LibString &name)
+{
+    // 命名空间检测
+    auto splitNameSpace = name.Split("::", -1, false, true);
+    Int32 splitSize = static_cast<Int32>(splitNameSpace.size());
+
+    // 去末尾空
+    for(Int32 idx = splitSize - 1; idx >= 0; --idx)
+    {
+        if(splitNameSpace[idx].empty())
+        {
+            splitNameSpace.erase(splitNameSpace.begin() + idx);
+        }
+        else
+            break;
+    }
+
+	return splitNameSpace.empty() ? "" : splitNameSpace[splitNameSpace.size() - 1];
+
+    LibString icompName;
+    splitSize = static_cast<Int32>(splitNameSpace.size());
+    for(Int32 idx = 0; idx < splitSize; ++idx)
+    {
+        if(idx == splitSize -1)
+            icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
+
+        if(!splitNameSpace[idx].empty())
+            icompName.AppendFormat("%s", splitNameSpace[idx].c_str());
+
+        if(idx != splitSize -1)
+            icompName.AppendFormat("::");
+    }
+}
+
+ALWAYS_INLINE LibString StringUtil::InterfaceObjName(const LibString &name)
+{
+	// 命名空间检测
+    auto &&splitNameSpace = name.Split("::", -1, false, true);
+    Int32 splitSize = static_cast<Int32>(splitNameSpace.size());
+
+    // 去末尾空
+    for(Int32 idx = splitSize - 1; idx >= 0; --idx)
+    {
+        if(splitNameSpace[idx].empty())
+        {
+            splitNameSpace.erase(splitNameSpace.begin() + idx);
+        }
+        else
+            break;
+    }
+
+    LibString icompName;
+    splitSize = static_cast<Int32>(splitNameSpace.size());
+    for(Int32 idx = 0; idx < splitSize; ++idx)
+    {
+        if(idx == splitSize -1)
+            icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
+
+        if(!splitNameSpace[idx].empty())
+            icompName.AppendFormat("%s", splitNameSpace[idx].c_str());
+
+        if(idx != splitSize -1)
+            icompName.AppendFormat("::");
+    }
+
+	return icompName;
+}
+
+
 
 KERNEL_END
 

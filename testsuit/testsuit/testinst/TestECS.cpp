@@ -241,8 +241,9 @@ protected:
     virtual Int32 _OnInit() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s on init"), ToString().c_str());
-        SetErrCode(NULL, Status::Failed);
-        return Status::Failed;
+        // SetErrCode(NULL, Status::Failed);
+        // return Status::Failed;
+        return Status::Success;
     }
 
     // start 可以启动线程，再此之前都不可以启动线程
@@ -891,6 +892,8 @@ void TestECS::Run()
     do
     {
         auto hostb = HostB::New_HostB();
+        hostb->RegisterComp<CompFaultFactory>();
+
         auto st = hostb->Init();
         if(st != Status::Success)
         {
@@ -911,6 +914,9 @@ void TestECS::Run()
         compc->Start();
 
         hostb->ReplaceComp(compc);
+
+        // 动态移除组件
+        hostb->RemoveComp<CompC>();
 
         getchar();
 

@@ -40,6 +40,7 @@
 
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/CompObject/CompObject.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
 
@@ -109,6 +110,12 @@ public:
     Int32 RegisterComp(CompFactory *factory);
     Int32 RegisterComp(CompObject *comp);
 
+    template<typename CompType>
+    void RemoveComp();
+    void RemoveComp(CompObject *comp);
+    template<typename CompFactoryType>
+    void RemoveCompFactory();
+
     // 通过objectid（除了DynamicComp）
     template<typename ObjType>
     ObjType *GetComp(UInt64 objectId);
@@ -154,6 +161,7 @@ private:
     void _DestroyComps();
     void _AddComp(CompObject *comp);
     bool _ReplaceComp(CompObject *oldComp, CompObject *comp);
+    void _RemoveComp(CompObject *comp);
 
     void _MaskIfFocus(CompObject *comp);
     void _Clear();
@@ -199,6 +207,73 @@ ALWAYS_INLINE Int32 CompHostObject::RegisterComp()
     return Status::Success;    
 }
 
+template<typename CompType>
+ALWAYS_INLINE void CompHostObject::RemoveComp()
+{
+    // 替换已有组件 TODO:找到组件, 存在的要对组件执行Close以及移除操作
+    const KERNEL_NS::LibString compName = RttiUtil::GetByType<CompType>();
+    auto comp = GetComp(compName);
+    if(UNLIKELY(!comp))
+    {
+        // 找不到有可能还没注册
+        const Int32 count = static_cast<Int32>(_willRegComps.size());
+        for(Int32 idx = count - 1; idx >= 0; --idx)
+        {
+            // 如果是Factory,这时候就移除不了,需要从设计上考虑
+            auto &regComp = _willRegComps[idx];
+            if(!regComp._comp)
+                continue;
+            
+            const LibString willRegCompName = RttiUtil::GetByObj(regComp._comp);
+            const LibString iWillRegCompName = StringUtil::InterfaceObjName(willRegCompName);
+            if((compName != willRegCompName) && 
+                (compName != iWillRegCompName))
+                continue;
+
+            regComp._comp->WillClose();
+            regComp._comp->Close();
+            regComp._comp->Release();
+
+            _willRegComps.erase(_willRegComps.begin() + idx);
+        }
+
+        return;
+    }
+
+    // 移除所有
+    do
+    {
+        _RemoveComp(comp);
+    } while (comp = GetComp(compName));
+}
+
+ALWAYS_INLINE void CompHostObject::RemoveComp(CompObject *comp)
+{
+    if(UNLIKELY(!comp))
+        return;
+
+    _RemoveComp(comp);
+}
+
+template<typename CompFactoryType>
+ALWAYS_INLINE void CompHostObject::RemoveCompFactory()
+{
+    const LibString factoryName = RttiUtil::GetByType<CompFactoryType>();
+    const Int32 idx = static_cast<Int32>(_willRegComps.size());
+    for(Int32 idx = count -1; idx >= 0; --idx)
+    {
+        auto &regInfo = _willRegComps[idx];
+        if(!regInfo._factory)
+            continue;
+
+        const LibString &name = RttiUtil::GetByObj(regInfo._factory);
+        if(name != factoryName)
+            continue;
+
+        regInfo._factory->Release();
+        _willRegComps.erase(_willRegComps.begin() + idx);
+    }
+}
 
 template<typename ObjType>
 ALWAYS_INLINE ObjType *CompHostObject::GetComp(UInt64 objectId)
@@ -354,6 +429,92 @@ ALWAYS_INLINE bool CompHostObject::ReplaceComp(ObjType *comp)
 
     return true;
 }
+
+ALWAYS_INLINE void CompHostObject::_RemoveComp(CompObject *comp)
+{
+    {// will reg, 无法移除Factory
+        const Int32 count = static_cast<Int32>(_willRegComps.size());
+        for(Int32 idx = count - 1; idx >= 0; --idx)
+        {
+            auto &regComp = _willRegComps[idx];
+            if(regComp._comp != comp)
+                continue;
+
+            _willRegComps.erase(_willRegComps.begin() + idx);
+        }
+    }
+
+    {
+        const Int32 count = static_cast<Int32>(_comps.size());
+        for(Int32 idx = count - 1; idx >= 0; --idx)
+        {
+            if(_comps[idx] != comp)
+                continue;
+
+            _comps.erase(_comps.begin() + idx);
+        }
+
+        _compIdRefComp.erase(comp->GetId());
+
+        // 组件名容器中移除
+        const auto &compName = comp->GetObjName();
+        {
+            auto iterComps = _compNameRefComps.find(compName);
+            if(iterComps != _compNameRefComps.end())
+            {
+                auto &comps = iterComps->second;
+                const Int32 countComp = static_cast<Int32>(comps.size());
+                for(Int32 idxComp = countComp - 1; idxComp >= 0; --idxComp)
+                {
+                    if(comps[idxComp] != comp)
+                        continue;
+
+                    comps.erase(comps.begin() + idxComp);
+                }
+            }
+        }
+
+        // 接口名容器中移除
+        const auto &icompName = StringUtil::InterfaceObjName(compName);
+        {
+            auto iterComps = _icompNameRefComps.find(icompName);
+            if(iterComps != _icompNameRefComps.end())
+            {
+                auto &comps = iterComps->second;
+                const Int32 countComp = static_cast<Int32>(comps.size());
+                for(Int32 idxComp = countComp - 1; idxComp >= 0; --idxComp)
+                {
+                    if(comps[idxComp] != comp)
+                        continue;
+
+                    comps.erase(comps.begin() + idxComp);
+                }
+            }
+        }
+
+        if(comp->GetType())
+        {
+            auto iterComps = _compTypeRefComps.find(comp->GetType());
+            if(iterComps != _compTypeRefComps.end())
+            {
+                auto &comps = iterComps->second;
+                const Int32 countComp = static_cast<Int32>(comps.size());
+                for(Int32 idxComp = countComp - 1; idxComp >= 0; --idxComp)
+                {
+                    if(comps[idxComp] != comp)
+                        continue;
+
+                    comps.erase(comps.begin() + idxComp);
+                }
+            }
+        }
+    }
+
+    comp->WillClose();
+    comp->Close();
+    comp->Release();
+}
+
 
 KERNEL_END
 
