@@ -233,7 +233,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestConcurrentPriorityQueue::Run();
     // CRYSTAL_TRACE("test inst finish.");
     // TestBlackWhiteList::Run();
-    TestECS::Run();
+    // TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
     // TestPoller::Run();
@@ -252,7 +252,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestXlsx::Run();
     // TestSimpleApi::Run();
     // TestConfig::Run();
-    // TestMysql::Run();
+    TestMysql::Run();
     // TestCharset::Run();
 
 

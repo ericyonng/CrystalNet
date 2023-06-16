@@ -413,6 +413,169 @@ private:
     LibString _valuesFromSql;
 };
 
+// update table set field1=xxx, field2=xxx,... where xxx
+template<>
+class SqlBuilder<SqlBuilderType::UPDATE>
+{
+public:
+    SqlBuilder(){}
+    ~SqlBuilder(){}
+
+    void Clear()
+    {
+        _kvs.clear();
+        _table.clear();
+        _where.clear();
+    }
+
+    SqlBuilder<SqlBuilderType::UPDATE> &Table(const LibString &table)
+    {
+        _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::UPDATE> &Set(const LibString &field, const LibString &value)
+    {
+        LibString kv;
+
+        // field
+        kv.AppendFormat("`");
+        kv.AppendData(field);
+        kv.AppendFormat("`");
+
+        // value
+        kv.AppendFormat(" = ");
+        kv.AppendData(value);
+
+        _kvs.push_back(kv);
+
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::UPDATE> &Where(const LibString &condition)
+    {
+        _where = condition;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_kvs.empty() || _table.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("UPDATE `%s` SET ", _table.c_str());
+
+        const Int32 count = static_cast<Int32>(_kvs.size());
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            sql.AppendData(_kvs[idx]);
+            
+            if((idx + 1) != count)
+                sql.AppendFormat(", ");
+        }
+
+        if(LIKELY(!_where.empty()))
+            sql.AppendData(_where);
+
+        return sql;
+    }
+
+private:
+    std::vector<LibString> _kvs;
+    LibString _table;
+    LibString _where;
+};
+
+// create table if not exists `xxx`() xxx
+template<>
+class SqlBuilder<SqlBuilderType::CREATE_TABLE>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}
+
+    void Clear()
+    {
+        _table.clear();
+        _fields.clear();
+        _engine = "InnoDB";
+        _charset = "utf8mb4";
+        _collate = "utf8mb4_bin";
+        _rowFormat = "DYNAMIC";
+        _comment.clear();
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Table(const LibString &table)
+    {
+        _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Field(const LibString &field)
+    {
+        _fields.push_back(field);
+        return *this;
+    }
+    
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Engine(const LibString &engine)
+    {
+        _engine = engine;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Charset(const LibString &charset)
+    {
+        _charset = charset;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Collate(const LibString &collate)
+    {
+        _collate = collate;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_table.empty() || _fields.empty() || _engine.empty() || _charset.empty() || _collate.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("CREATE TABLE IF NOT EXISTS `%s`(", _table.c_str());
+
+        const Int32 count = static_cast<Int32>(_fields.size());
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            sql.AppendData(_fields[idx]);
+            
+            if((idx + 1) != count)
+                sql.AppendFormat(",");
+        }
+
+        sql.AppendFormat(") ");
+
+        sql.AppendFormat("ENGINE=%s DEFAULT CHARSET=%s, COLLATE = %s", _engine.c_str(), _charset.c_str(), _collate.c_str());
+
+        if(!_rowFormat.empty())
+            sql.AppendFormat(", ROW_FORMAT = %s", _rowFormat.c_str());
+
+        if(!_comment.empty())
+            sql.AppendFormat(", COMMENT = \"%s\"", _comment.c_str());
+
+        return sql;
+    }
+
+private:
+    LibString _table;
+    std::vector<LibString> _fields;
+    LibString _engine = "InnoDB";
+    LibString _charset = "utf8mb4";
+    LibString _collate = "utf8mb4_bin";
+    LibString _rowFormat = "DYNAMIC";
+    LibString _comment;
+};
+
 KERNEL_END
 
 #endif

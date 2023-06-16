@@ -180,6 +180,7 @@ public:
     const LibString &RemoveHeadZero();      // 移除容器中首部的0
 
     LibString &AppendData(const Byte8 *bitData, Int64 dataSize);
+    LibString &AppendData(const LibString &data);
     LibString &AppendFormat(const Byte8 *fmt, ...) LIB_KERNEL_FORMAT_CHECK(2, 3)
     {
         // if fmt args is null, return.
@@ -976,6 +977,12 @@ ALWAYS_INLINE const LibString &LibString::RemoveHeadZero()
 ALWAYS_INLINE LibString &LibString::AppendData(const Byte8 *bitData, Int64 dataSize)
 {
     _raw.append(bitData, dataSize);
+    return *this;
+}
+
+ALWAYS_INLINE LibString &LibString::AppendData(const LibString &data)
+{
+    _raw.append(data._raw);
     return *this;
 }
 
