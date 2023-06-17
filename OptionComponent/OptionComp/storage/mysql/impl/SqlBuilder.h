@@ -45,8 +45,9 @@ public:
         INSERT,
         REPLACE_INTO,
         UPDATE,
+        DELETE_RECORD,
         CREATE_TABLE,
-        TRAUNCATE_TABLE,
+        TRUNCATE_TABLE,
         DROP_TABLE,
         CREATE_DB,
         DROP_DB,
@@ -487,6 +488,55 @@ private:
     LibString _where;
 };
 
+// delete from
+template<>
+class SqlBuilder<SqlBuilderType::DELETE_RECORD>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}
+
+    void Clear()
+    {
+        _table.clear();
+        _where.clear();
+    }
+
+    SqlBuilder<SqlBuilderType::DELETE_RECORD> &Table(const LibString &table)
+    {
+        _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::DELETE_RECORD> &Where(const LibString &condition)
+    {
+        _where = condition;
+        return *this;
+    }
+    
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_table.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("DELETE FROM %s", _table.c_str());
+
+        if(!_where.empty())
+        {
+            sql.AppendFormat(" WHERE ");
+            sql.AppendData(_where);
+        }
+
+        return sql;
+    }
+
+
+private:
+    LibString _table;
+    LibString _where;
+};
+
 // create table if not exists `xxx`() xxx
 template<>
 class SqlBuilder<SqlBuilderType::CREATE_TABLE>
@@ -574,6 +624,158 @@ private:
     LibString _collate = "utf8mb4_bin";
     LibString _rowFormat = "DYNAMIC";
     LibString _comment;
+};
+
+// truncate table `xxx`
+template<>
+class SqlBuilder<SqlBuilderType::TRUNCATE_TABLE>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}
+
+    void Clear()
+    {
+        _table.clear();
+    }
+
+    SqlBuilder<SqlBuilderType::TRUNCATE_TABLE> &Table(const LibString &table)
+    {
+        _table = table;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_table.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("TRUNCATE TABLE `%s`", _table.c_str());
+        return sql;
+    }
+
+
+private:
+    LibString _table;
+};
+
+// drop table if exists `xxx`
+template<>
+class SqlBuilder<SqlBuilderType::DROP_TABLE>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}
+
+    void Clear()
+    {
+        _table.clear();
+    }
+
+    SqlBuilder<SqlBuilderType::DROP_TABLE> &Table(const LibString &table)
+    {
+        _table = table;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_table.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("DROP TABLE IF EXISTS `%s`", _table.c_str());
+        return sql;
+    }
+
+private:
+    LibString _table;
+};
+
+// create DATABASE if not exists `xxx`
+template<>
+class SqlBuilder<SqlBuilderType::CREATE_DB>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}
+
+    void Clear()
+    {
+        _db.clear();
+        _charset = "utf8mb4";
+        _collate = "utf8mb4_bin";
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_DB> &DB(const LibString &db)
+    {
+        _db = db;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_DB> &Charset(const LibString &charset)
+    {
+        _charset = charset;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_DB> &Collate(const LibString &collate)
+    {
+        _collate = collate;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_db.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("CREATE DATABASE IF NOT EXISTS `%s`", _db.c_str());
+
+        if(!_charset.empty())
+            sql.AppendFormat(" DEFAULT CHARACTER SET %s", _charset.c_str());
+
+        if(!_collate.empty())
+            sql.AppendFormat(" DEFAULT COLLATE %s", _collate.c_str());
+
+        return sql;
+    }
+
+private:
+    LibString _db;
+    LibString _charset = "utf8mb4";
+    LibString _collate = "utf8mb4_bin";
+};
+
+// create DATABASE if not exists `xxx`
+template<>
+class SqlBuilder<SqlBuilderType::DROP_DB>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}
+
+    SqlBuilder<SqlBuilderType::DROP_DB> &DB(const LibString &db)
+    {
+        _db = db;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_db.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("DROP DATABASE IF EXISTS `%s`", _db.c_str());
+
+        return sql;
+    }
+    
+private:
+    LibString _db;
 };
 
 KERNEL_END
