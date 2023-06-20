@@ -876,6 +876,11 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}
 
+    void Clear()
+    {
+        _db.clear();
+    }
+
     SqlBuilder<SqlBuilderType::DROP_DB> &DB(const LibString &db)
     {
         _db = db;
@@ -895,6 +900,320 @@ public:
     
 private:
     LibString _db;
+};
+
+// ALTER TABLE `xxx` ADD/DROP/MODIFY COLUMN ...
+template<>
+class SqlBuilder<SqlBuilderType::ALTER_TABLE>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}
+
+    void Clear()
+    {
+        _adds.clear();
+        _renames.clear();
+        _modifys.clear();
+        _drops.clear();
+        _type = CHANGE_UNKNOWN;
+        _table.clear();
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Table(const LibString &table)
+    {
+        _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Add(const std::vector<std::tuple<LibString, LibString, LibString>> &fields)
+    {
+        for(auto &tupleInfo : fields)
+        {
+            auto &field = std::get<0>(tupleInfo);
+            auto &desc = std::get<1>(tupleInfo);
+            auto &afterField = std::get<2>(tupleInfo);
+            if(UNLIKELY(field.empty() || desc.empty()))
+                continue;
+
+            _adds.push_back(tupleInfo);
+        }
+
+        if(UNLIKELY(_adds.empty()))
+            return *this;
+
+        _type = CHANGE_ADD;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Add(const LibString &field, const LibString &desc, const LibString &after = "")
+    {
+        if(UNLIKELY(field.empty() || desc.empty()))
+            return *this;
+
+        _adds.push_back(std::make_tuple(field, desc, after));
+        _type = CHANGE_ADD;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Rename(const LibString &oldField, const LibString &newField)
+    {
+        if(UNLIKELY(oldField.empty() || newField.empty()))
+            return *this;
+
+        _renames.push_back(std::make_tuple(oldField, newField));
+
+        _type = CHANGE_RENAME;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Rename(const std::vector<std::tuple<LibString, LibString>> &renameInfoList)
+    {
+        const Int32 count = static_cast<Int32>(renameInfoList.size());
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto &renameInfo = renameInfoList[idx];
+            auto &oldField = std::get<0>(renameInfo);
+            auto &newField = std::get<1>(renameInfo);
+            if(UNLIKELY(oldField.empty() || newField.empty()))
+                continue;
+
+            _renames.push_back(renameInfo);
+        }
+
+        if(UNLIKELY(_renames.empty()))
+            return *this;
+
+        _type = CHANGE_RENAME;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Modify(const LibString &field, const LibString &desc)
+    {
+        if(UNLIKELY(field.empty() || desc.empty()))
+            return *this;
+
+        _modifys.push_back(std::make_tuple(field, desc));
+
+        _type = CHANGE_MODIFY;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Modify(const std::vector<std::tuple<LibString, LibString>> &contents)
+    {
+        for(auto &tupleInfo : contents)
+        {
+            auto &field = std::get<0>(tupleInfo);
+            auto &desc = std::get<1>(tupleInfo);
+            if(UNLIKELY(field.empty() || desc.empty()))
+                continue;
+
+            _modifys.push_back(tupleInfo);
+        }
+
+        _type = CHANGE_MODIFY;
+        return *this;
+    }
+
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Drop(const LibString &field)
+    {
+        if(UNLIKELY(field.empty()))
+            return *this;
+
+        _drops.push_back(field);
+        _type = CHANGE_DROP;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Drop(const std::vector<LibString> &fields)
+    {
+        for(auto &field : fields)
+        {
+            if(UNLIKELY(field.empty()))
+                continue;
+
+            _drops.push_back(field);
+        }
+
+        if(UNLIKELY(_drops.empty()))
+            return *this;
+
+        _type = CHANGE_DROP;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if((_type == CHANGE_UNKNOWN) || 
+            (_table.empty()) )
+            return "";
+
+        LibString sql;
+        switch (_type)
+        {
+        case CHANGE_ADD: 
+            return _BuildAddSql();
+        case CHANGE_RENAME:
+            return _BuildRenameSql();
+        case CHANGE_DROP:
+            return _BuildDropSql();
+        case CHANGE_MODIFY:
+            return _BuildModifySql();
+        default:
+            break;
+        }
+
+        return "";
+    }
+
+private:
+    LibString _BuildAddSql() const
+    {
+        if(UNLIKELY(_adds.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        const Int32 count = static_cast<Int32>(_adds.size());
+        bool hasChanged = false;
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto &addInfo = _adds[idx];
+            auto &field = std::get<0>(addInfo);
+            auto &desc = std::get<1>(addInfo);
+            auto &afterField = std::get<2>(addInfo);
+
+            if(field.empty() || desc.empty())
+                continue;
+            
+            hasChanged = true;
+            sql.AppendFormat(" ADD COLUMN `%s` ", field.c_str());
+            sql.AppendData(desc);
+
+            if(!afterField.empty())
+                sql.AppendFormat(" AFTER `%s`", afterField.c_str());
+
+            if((idx + 1) != count)
+                sql.AppendFormat(",");
+        }
+
+        if(!hasChanged)
+            return "";
+
+        return sql;
+    }
+
+    LibString _BuildRenameSql() const
+    {
+        if(UNLIKELY(_renames.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        const Int32 count = static_cast<Int32>(_renames.size());
+        bool hasChanged = false;
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto &tupleInfo = _renames[idx];
+            auto &oldField = std::get<0>(tupleInfo);
+            auto &newField = std::get<1>(tupleInfo);
+
+            if(oldField.empty() || newField.empty())
+                continue;
+            
+            hasChanged = true;
+            sql.AppendFormat(" RENAME COLUMN `%s` TO `%s` ", oldField.c_str(), newField.c_str());
+
+            if((idx + 1) != count)
+                sql.AppendFormat(",");
+        }
+
+        if(!hasChanged)
+            return "";
+
+        return sql;
+    }
+
+    LibString _BuildDropSql() const
+    {
+        if(UNLIKELY(_drops.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        const Int32 count = static_cast<Int32>(_drops.size());
+        bool hasChanged = false;
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto &field = _drops[idx];
+
+            if(field.empty())
+                continue;
+            
+            hasChanged = true;
+            sql.AppendFormat(" DROP COLUMN `%s` ", field.c_str());
+
+            if((idx + 1) != count)
+                sql.AppendFormat(",");
+        }
+
+        if(!hasChanged)
+            return "";
+
+        return sql;
+    }
+
+    LibString _BuildModifySql() const
+    {
+        if(UNLIKELY(_modifys.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        const Int32 count = static_cast<Int32>(_modifys.size());
+        bool hasChanged = false;
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto &tupleInfo = _modifys[idx];
+            auto &field = std::get<0>(tupleInfo);
+            auto &desc = std::get<1>(tupleInfo);
+
+            if(field.empty() || desc.empty())
+                continue;
+            
+            hasChanged = true;
+            sql.AppendFormat(" MODIFY COLUMN `%s` ", field.c_str());
+            sql.AppendData(desc);
+
+            if((idx + 1) != count)
+                sql.AppendFormat(",");
+        }
+
+        if(!hasChanged)
+            return "";
+
+        return sql;
+    }
+
+private:
+
+    // 类型
+    enum ChangeType
+    {
+        CHANGE_UNKNOWN = 0,
+        CHANGE_ADD,
+        CHANGE_RENAME,
+        CHANGE_DROP,
+        CHANGE_MODIFY,
+    };
+
+    std::vector<std::tuple<LibString, LibString, LibString>> _adds;
+    std::vector<std::tuple<LibString, LibString>> _renames;
+    std::vector<std::tuple<LibString, LibString>> _modifys;
+    std::vector<LibString> _drops;
+    Int32 _type = CHANGE_UNKNOWN;
+    LibString _table;
 };
 
 KERNEL_END

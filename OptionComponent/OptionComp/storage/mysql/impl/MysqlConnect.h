@@ -88,7 +88,7 @@ class MysqlConnect
     POOL_CREATE_OBJ_DEFAULT(MysqlConnect);
 
 public:
-    MysqlConnect();
+    MysqlConnect(UInt64 id);
     ~MysqlConnect();
 
     void SetConfig(const MysqlConfig &cfg);
@@ -126,6 +126,7 @@ private:
     void _AddOpCount(Int32 type, Int64 count = 1);
 
 private:
+    UInt64 _id;
     MysqlConfig _cfg;
     MYSQL *_mysql;
     bool _isConnected;

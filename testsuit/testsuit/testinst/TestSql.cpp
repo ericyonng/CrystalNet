@@ -32,7 +32,10 @@
 
 void TestSql::Run()
 {
-    KERNEL_NS::SmartPtr<KERNEL_NS::MysqlConnect, KERNEL_NS::AutoDelMethods::CustomDelete> mysqlConnection = KERNEL_NS::MysqlConnect::New_MysqlConnect();
+    KERNEL_NS::SnowflakeInfo snowFlakeInfo;
+    KERNEL_NS::GuidUtil::InitSnowFlake(snowFlakeInfo, 1, static_cast<UInt64>(KERNEL_NS::LibTime::NowTimestamp()));
+
+    KERNEL_NS::SmartPtr<KERNEL_NS::MysqlConnect, KERNEL_NS::AutoDelMethods::CustomDelete> mysqlConnection = KERNEL_NS::MysqlConnect::New_MysqlConnect(KERNEL_NS::GuidUtil::Snowflake(snowFlakeInfo));
     mysqlConnection.SetClosureDelegate([](void *p){
         auto ptr = KERNEL_NS::KernelCastTo<KERNEL_NS::MysqlConnect>(p);
         KERNEL_NS::MysqlConnect::Delete_MysqlConnect(ptr);
@@ -62,24 +65,21 @@ void TestSql::Run()
 
     {// 删除db
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DROP_DB> builder;
-        const auto &sql = builder.DB("rpg2").ToSql();
-        g_Log->Info2(LOGFMT_NON_OBJ_TAG_NO_FMT(TestSql), sql);
+        builder.DB("rpg2");
 
         mysqlConnection->ExcuteSql(builder);
     }
 
     {// 创建db
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::CREATE_DB> builder;
-        const auto &sql = builder.DB("rpg2").Charset("utf8mb4").Collate("utf8mb4_bin").ToSql();
-        g_Log->Info2(LOGFMT_NON_OBJ_TAG_NO_FMT(TestSql), sql);
+        builder.DB("rpg2").Charset("utf8mb4").Collate("utf8mb4_bin");
 
         mysqlConnection->ExcuteSql(builder);
     }
 
     {// 删除表
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DROP_TABLE> builder;
-        const auto &sql = builder.Table("tbl_role").ToSql();
-        g_Log->Info2(LOGFMT_NON_OBJ_TAG_NO_FMT(TestSql), sql);
+        builder.Table("tbl_role");
 
         mysqlConnection->ExcuteSql(builder);
     }
@@ -99,9 +99,6 @@ void TestSql::Run()
         .Index("Role", {"RoleId"})
         .Comment("角色表")
         ;
-        const auto &sql = builder.ToSql();
-        g_Log->Info2(LOGFMT_NON_OBJ_TAG_NO_FMT(TestSql), sql);
-
         mysqlConnection->ExcuteSql(builder);
     }
 
@@ -110,9 +107,6 @@ void TestSql::Run()
         builder.Table("tbl_role")
         .Fields({"Id", "RoleId", "UserId", "Name"})
         .Values({"1001", "100101", "\"Eric\"", "\"Yonng\""});
-
-        const auto &sql = builder.ToSql();
-        g_Log->Info2(LOGFMT_NON_OBJ_TAG_NO_FMT(TestSql), sql);
 
         mysqlConnection->ExcuteSql(builder);
     }
@@ -123,9 +117,6 @@ void TestSql::Run()
         .Fields({"Id", "RoleId", "UserId", "Name"})
         .Values({"1002", "100102", "\"Eric2\"", "\"Yonng2\""});
 
-        const auto &sql = builder.ToSql();
-        g_Log->Info2(LOGFMT_NON_OBJ_TAG_NO_FMT(TestSql), sql);
-
         mysqlConnection->ExcuteSql(builder);
     }
 
@@ -134,9 +125,6 @@ void TestSql::Run()
         builder.Table("tbl_role")
         .Fields({"Id", "RoleId", "UserId", "Name"})
         .Values({"1003", "100103", "\"Eric3\"", "\"Yonng3\""});
-
-        const auto &sql = builder.ToSql();
-        g_Log->Info2(LOGFMT_NON_OBJ_TAG_NO_FMT(TestSql), sql);
 
         mysqlConnection->ExcuteSql(builder);
     }
@@ -147,9 +135,29 @@ void TestSql::Run()
         .Fields({"Id", "RoleId", "UserId", "Name"})
         .Values({"1005", "100105", "\"God2\"", "\"God2\""});
 
-        const auto &sql = builder.ToSql();
-        g_Log->Info2(LOGFMT_NON_OBJ_TAG_NO_FMT(TestSql), sql);
+        mysqlConnection->ExcuteSql(builder);
+    }
 
+    {// ALTER TABLE
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::ALTER_TABLE> builder;
+
+        // 添加字段
+        builder.Table("tbl_role").Add("TestMgr", "INT NOT NULL DEFAULT 0").Add("TestMgr2", "INT NOT NULL DEFAULT 0");
+        mysqlConnection->ExcuteSql(builder);
+
+        // 重命名
+        builder.Clear();
+        builder.Table("tbl_role").Rename("TestMgr", "TestMgrRename").Rename("TestMgr2", "TestMgr2Rename");
+        mysqlConnection->ExcuteSql(builder);
+
+        // 修改
+        builder.Clear();
+        builder.Table("tbl_role").Modify("TestMgrRename", "BIGINT NOT NULL DEFAULT 0 COMMENT '测试'").Modify("TestMgr2Rename", "BIGINT NOT NULL DEFAULT 0 COMMENT '测试2'");
+        mysqlConnection->ExcuteSql(builder);
+
+        // 删
+        builder.Clear();
+        builder.Table("tbl_role").Drop("TestMgrRename").Drop("TestMgr2Rename");
         mysqlConnection->ExcuteSql(builder);
     }
 
@@ -160,9 +168,6 @@ void TestSql::Run()
         .Set("UserId", "\"Eric4\"")
         .Where("`Id`=1003")
         ;
-
-        const auto &sql = builder.ToSql();
-        g_Log->Info2(LOGFMT_NON_OBJ_TAG_NO_FMT(TestSql), sql);
 
         mysqlConnection->ExcuteSql(builder);
     }

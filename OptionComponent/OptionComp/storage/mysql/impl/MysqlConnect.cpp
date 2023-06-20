@@ -58,8 +58,9 @@ LibString MysqlConfig::ToString() const
     return info;
 }
 
-MysqlConnect::MysqlConnect()
-:_mysql(NULL)
+MysqlConnect::MysqlConnect(UInt64 id)
+:_id(id)
+,_mysql(NULL)
 ,_isConnected(false)
 {
 
@@ -77,13 +78,15 @@ void MysqlConnect::Close()
         mysql_close(_mysql);
         _mysql = NULL;
     }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql connection closed %s"), ToString().c_str());
 }
 
 LibString MysqlConnect::ToString() const
 {
     LibString info;
-    info.AppendFormat("mysql host:%s, port:%hu, user:%s, db name:%s, is connected:%d"
-                    , _cfg._host.c_str(), _cfg._port, _cfg._user.c_str(), _cfg._dbName.c_str(), _isConnected);
+    info.AppendFormat("connection id:%llu mysql host:%s, port:%hu, user:%s, db name:%s, is connected:%d"
+                    , _id, _cfg._host.c_str(), _cfg._port, _cfg._user.c_str(), _cfg._dbName.c_str(), _isConnected);
     return info;
 }
 
@@ -130,7 +133,8 @@ Int32 MysqlConnect::Init()
         return Status::Failed;
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("mysql connector init success config:%s."), _cfg.ToString().c_str());
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql connector init success id:%llu config:%s."), _id, _cfg.ToString().c_str());
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql connection simple info: %s."), ToString().c_str());
 
     return Status::Success;
 }
@@ -161,6 +165,8 @@ Int32 MysqlConnect::Start()
         }
 
     } while (false);
+
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql connection start %s"), ToString().c_str());
     
     return Status::Success;
 }
@@ -196,14 +202,13 @@ void MysqlConnect::_FreeRes(MYSQL_RES *res)
 
 bool MysqlConnect::_ExcuteSql(const LibString &sql)
 {
-    g_Log->Info2(LOGFMT_OBJ_TAG_NO_FMT(), LibString("excute sql:"), sql);
+    g_Log->Info2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql:", _id), sql);
     auto ret = mysql_real_query(_mysql, sql.c_str(), static_cast<ULong>(sql.length()));
     if(ret != 0)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("connection info:%s, excute sql fail err:%s"), ToString().c_str(), mysql_error(_mysql));
         return false;
     }
-
 
     return true;
 }
