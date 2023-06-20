@@ -86,6 +86,9 @@
 #undef LOGFMT_NON_OBJ_TAG
 #define LOGFMT_NON_OBJ_TAG(classType, x) LOGFMT_DETAIL(LOG_NON_OBJ_TAG(classType), x)
 
+// no fmt
+#undef LOGFMT_NON_OBJ_TAG_NO_FMT
+#define LOGFMT_NON_OBJ_TAG_NO_FMT(classType) LOGFMT_DETAIL_NO_FMT(LOG_NON_OBJ_TAG(classType))
 
 KERNEL_BEGIN
 

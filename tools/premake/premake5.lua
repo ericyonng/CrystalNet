@@ -457,6 +457,7 @@ project "testsuit"
 		-- "../../simple_api/",
         "../../service/TestService/config/code/",
 		"../../3rd/mysql/win/include/",
+		"../../OptionComponent/",
     }
 
     -- mysql
@@ -508,6 +509,8 @@ project "testsuit"
         "../../testsuit/**.cpp",
         "../../service/TestService/config/code/**.h",
         "../../service/TestService/config/code/**.cpp",
+        "../../OptionComponent/OptionComp/**.h",
+        "../../OptionComponent/OptionComp/**.cpp",
     }
 
     filter{ "system:windows"}		

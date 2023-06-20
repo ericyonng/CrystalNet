@@ -21,18 +21,15 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-06-09 11:16:00
+ * Date: 2023-06-19 11:01:00
  * Author: Eric Yonng
- * Description: mysql通用组件封装
+ * Description: 
 */
-
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MYSQL_MYSQL_COMP_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MYSQL_MYSQL_COMP_H__
 
 #pragma once
 
-#include <OptionComp/storage/mysql/impl/SqlBuilder.h>
-#include <OptionComp/storage/mysql/impl/MysqlConnect.h>
-
-#endif
-
+class TestSql
+{
+public:
+    static void Run();
+};

@@ -51,7 +51,12 @@ public:
         DROP_TABLE,
         CREATE_DB,
         DROP_DB,
-    }
+
+        // 表结构 TODO:
+        ALTER_TABLE,
+        CREATE_INDEX,
+        DROP_INDEX,
+    };
 };
 
 template<SqlBuilderType::ENUMS T>
@@ -157,14 +162,15 @@ public:
         }
         else
         {
-            sql.AppendFormat("* ");
+            sql.AppendFormat("*");
         }
 
         {// from
+            sql.AppendFormat(" FROM ");
             const Int32 count = static_cast<Int32>(_tables.size());
             for(Int32 idx = 0; idx < count; ++idx)
             {
-                sql.AppendData(_tables[idx].c_str(), static_cast<Int64>(_tables[idx].size()));
+                sql.AppendData(_tables[idx]);
 
                 if((idx + 1) != count)
                 {
@@ -175,12 +181,16 @@ public:
 
         {// where
             if(!_where.empty())
-                sql.AppendData(_where.c_str(), static_cast<Int64>(_where.size()));
+            {
+                sql.AppendFormat(" WHERE ");
+                sql.AppendData(_where);
+            }
         }
 
         {// order by
             if(!_orders.empty())
             {
+                sql.AppendFormat(" ORDER BY ");
                 const Int32 count = static_cast<Int32>(_orders.size());
                 for(Int32 idx = 0; idx < count; ++idx)
                 {
@@ -197,7 +207,7 @@ public:
         // limit
         if(_limit > 0)
         {
-            sql.AppendFormat("LIMIT %d", _limit);
+            sql.AppendFormat(" LIMIT %d", _limit);
         }
 
         return sql;
@@ -477,7 +487,10 @@ public:
         }
 
         if(LIKELY(!_where.empty()))
+        {
+            sql.AppendFormat(" WHERE ");
             sql.AppendData(_where);
+        }
 
         return sql;
     }
@@ -554,6 +567,9 @@ public:
         _collate = "utf8mb4_bin";
         _rowFormat = "DYNAMIC";
         _comment.clear();
+        _primaryKey.clear();
+        _uniques.clear();
+        _indexs.clear();
     }
 
     SqlBuilder<SqlBuilderType::CREATE_TABLE> &Table(const LibString &table)
@@ -586,6 +602,37 @@ public:
         return *this;
     }
 
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &PrimaryKey(const LibString &field)
+    {
+        _primaryKey = field;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Unique(const LibString &keyName, const std::vector<LibString> &fields)
+    {
+        if(_uniques.find(keyName) != _uniques.end())
+            return *this;
+
+        _uniques.insert(std::make_pair(keyName, fields));
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Index(const LibString &keyName, const std::vector<LibString> &fields)
+    {
+        if(_indexs.find(keyName) != _indexs.end())
+            return *this;
+
+        _indexs.insert(std::make_pair(keyName, fields));
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Comment(const LibString &content)
+    {
+        _comment = content;
+        return *this;
+    }
+
+
     LibString ToSql() const
     {
         if(UNLIKELY(_table.empty() || _fields.empty() || _engine.empty() || _charset.empty() || _collate.empty()))
@@ -594,13 +641,81 @@ public:
         LibString sql;
         sql.AppendFormat("CREATE TABLE IF NOT EXISTS `%s`(", _table.c_str());
 
-        const Int32 count = static_cast<Int32>(_fields.size());
-        for(Int32 idx = 0; idx < count; ++idx)
         {
-            sql.AppendData(_fields[idx]);
-            
-            if((idx + 1) != count)
-                sql.AppendFormat(",");
+            const Int32 count = static_cast<Int32>(_fields.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                sql.AppendData(_fields[idx]);
+                
+                if((idx + 1) != count)
+                    sql.AppendFormat(",");
+            } 
+        }
+
+        // 主键
+        if(!_primaryKey.empty())
+        {
+            sql.AppendFormat(",PRIMARY KEY(");
+            sql.AppendData(_primaryKey);
+            sql.AppendFormat(")");
+        }
+
+        // 唯一索引
+        if(!_uniques.empty())
+        {
+            sql.AppendFormat(",");
+            const Int32 countIter = static_cast<Int32>(_uniques.size());
+            Int32 loop = 0;
+            for(auto &iter : _uniques)
+            {
+                auto &keyName = iter.first;
+                auto &fields = iter.second;
+
+                sql.AppendFormat("UNIQUE KEY `%s` (", keyName.c_str());
+                const Int32 count = static_cast<Int32>(fields.size());
+                for(Int32 idx = 0; idx < count; ++idx)
+                {
+                    sql.AppendFormat("`");
+                    sql.AppendData(fields[idx]);
+                    sql.AppendFormat("`");
+                    
+                    if((idx + 1) != count)
+                        sql.AppendFormat(",");
+                }
+
+                sql.AppendFormat(")");
+                if(++loop != countIter)
+                    sql.AppendFormat(",");
+            }
+        }
+
+        // 普通索引
+        if(!_indexs.empty())
+        {
+            sql.AppendFormat(",");
+            const Int32 countIter = static_cast<Int32>(_indexs.size());
+            Int32 loop = 0;
+            for(auto &iter : _indexs)
+            {
+                auto &keyName = iter.first;
+                auto &fields = iter.second;
+
+                sql.AppendFormat("INDEX `%s` (", keyName.c_str());
+                const Int32 count = static_cast<Int32>(fields.size());
+                for(Int32 idx = 0; idx < count; ++idx)
+                {
+                    sql.AppendFormat("`");
+                    sql.AppendData(fields[idx]);
+                    sql.AppendFormat("`");
+                    
+                    if((idx + 1) != count)
+                        sql.AppendFormat(",");
+                }
+
+                sql.AppendFormat(")");
+                if(++loop != countIter)
+                    sql.AppendFormat(",");
+            }
         }
 
         sql.AppendFormat(") ");
@@ -624,6 +739,10 @@ private:
     LibString _collate = "utf8mb4_bin";
     LibString _rowFormat = "DYNAMIC";
     LibString _comment;
+    LibString _primaryKey;
+    std::map<LibString, std::vector<LibString>> _uniques;
+    std::map<LibString, std::vector<LibString>> _indexs;
+    
 };
 
 // truncate table `xxx`

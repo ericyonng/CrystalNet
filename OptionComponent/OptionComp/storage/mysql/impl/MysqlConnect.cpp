@@ -39,6 +39,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlConnect);
 MysqlConfig::MysqlConfig()
 :_port(3306)
 ,_charset("utf8mb4")
+,_dbCharset("utf8mb4")
+,_dbCollate("utf8mb4_bin")
 ,_autoReconnect(1)
 ,_maxPacketSize(1024*1024*1024)
 ,_isOpenTableInfo(true)
@@ -49,8 +51,9 @@ MysqlConfig::MysqlConfig()
 LibString MysqlConfig::ToString() const
 {
     LibString info;
-    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%llu charset:%s autoreconnect:%d maxpacketsize:%llu isopentableinfo:%d"
-        , _host.c_str(), _user.c_str(), _pwd.c_str(), _dbName.c_str(), _port, _charset.c_str(), _autoReconnect, _maxPacketSize, _isOpenTableInfo);
+    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%llu \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu isopentableinfo:%d"
+        , _host.c_str(), _user.c_str(), _pwd.c_str(), _dbName.c_str(), _port, _charset.c_str(), _dbCharset.c_str(), _dbCollate.c_str(),
+         _autoReconnect, _maxPacketSize, _isOpenTableInfo);
 
     return info;
 }
@@ -74,6 +77,14 @@ void MysqlConnect::Close()
         mysql_close(_mysql);
         _mysql = NULL;
     }
+}
+
+LibString MysqlConnect::ToString() const
+{
+    LibString info;
+    info.AppendFormat("mysql host:%s, port:%hu, user:%s, db name:%s, is connected:%d"
+                    , _cfg._host.c_str(), _cfg._port, _cfg._user.c_str(), _cfg._dbName.c_str(), _isConnected);
+    return info;
 }
 
 Int32 MysqlConnect::Init()
@@ -136,24 +147,74 @@ Int32 MysqlConnect::Start()
     do
     {
         // 连接
-        if(!mysql_real_connect(_mysql, _cfg._host.c_str(), _cfg._user.c_str(), _cfg._pwd.c_str(), NULL, _cfg._port, 0, 0))
+        if(!_Connect())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("mysql_real_connect fail cfg:%s, mysql error:%s"), _cfg.ToString().c_str(), mysql_error(_mysql));
+            g_Log->Error(LOGFMT_OBJ_TAG("mysql_real_connect fail cfg:%s"), _cfg.ToString().c_str());
             return Status::Failed;
         }
 
-        
+        // 选择数据库
+        if(!_SelectDB())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("select db fail cfg:%s"), _cfg.ToString().c_str());
+            return Status::Failed;
+        }
+
     } while (false);
     
     return Status::Success;
 }
 
+MYSQL_RES *MysqlConnect::_StoreResult()
+{
+    auto res = mysql_store_result(_mysql);
+    if(!res)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("store result fail err:%s, connection info:%s"), mysql_error(_mysql), ToString().c_str());
+        return NULL;
+    }
+
+    return res;
+}
+
+MYSQL_RES *MysqlConnect::_UseResult()
+{
+    auto res = mysql_use_result(_mysql);
+    if(!res)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("use result fail err:%s, connection info:%s"), mysql_error(_mysql), ToString().c_str());
+        return NULL;
+    }
+
+    return res;
+}
+
+void MysqlConnect::_FreeRes(MYSQL_RES *res)
+{
+    mysql_free_result(res);
+}
+
+bool MysqlConnect::_ExcuteSql(const LibString &sql)
+{
+    g_Log->Info2(LOGFMT_OBJ_TAG_NO_FMT(), LibString("excute sql:"), sql);
+    auto ret = mysql_real_query(_mysql, sql.c_str(), static_cast<ULong>(sql.length()));
+    if(ret != 0)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("connection info:%s, excute sql fail err:%s"), ToString().c_str(), mysql_error(_mysql));
+        return false;
+    }
+
+
+    return true;
+}
+
 bool MysqlConnect::_Connect()
 {
     // 连接
+    _isConnected = false;
     if(!mysql_real_connect(_mysql, _cfg._host.c_str(), _cfg._user.c_str(), _cfg._pwd.c_str(), NULL, _cfg._port, 0, 0))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("mysql_real_connect fail cfg:%s, mysql error:%s"), _cfg.ToString().c_str(), mysql_error(_mysql));
+        g_Log->Error(LOGFMT_OBJ_TAG("mysql_real_connect fail connection info:%s, mysql error:%s"), ToString().c_str(), mysql_error(_mysql));
         return false;
     }
 
@@ -176,15 +237,13 @@ bool MysqlConnect::_SelectDB()
 
     if(!isExists)
     {// 数据库不存在则创建
-        KERNEL_NS::LibString sql;
-        sql.AppendFormat("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_bin"
-                        , _cfg._dbName.c_str());
+        SqlBuilder<SqlBuilderType::CREATE_DB> builder;
+        const auto &sql = builder.DB(_cfg._dbName).Charset(_cfg._dbCharset).Collate(_cfg._dbCollate).ToSql();
 
-        auto ret = mysql_real_query(_mysql, sql.c_str(), static_cast<ULong>(sql.length()));
         _AddOpCount(MysqlOperateType::WRITE);
-        if(ret != 0)
+        if(!_ExcuteSql(sql))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("db:%s, create fail err:%s"), _cfg._dbName.c_str(), mysql_error(_mysql));
+            g_Log->Warn(LOGFMT_OBJ_TAG("db:%s, _ExcuteSql fail err:%s"), _cfg._dbName.c_str(), mysql_error(_mysql));
             return false;
         }
 
@@ -213,8 +272,8 @@ bool MysqlConnect::_Ping()
         return true;
     }
 
-    g_Log->Warn(LOGFMT_OBJ_TAG("mysql disconnected config:%s, mysql error:%s.")
-                ,_cfg.ToString().c_str(), mysql_error(_mysql));
+    g_Log->Warn(LOGFMT_OBJ_TAG("mysql disconnected connection info:%s, mysql error:%s.")
+                , ToString().c_str(), mysql_error(_mysql));
 
     _isConnected = false;
 

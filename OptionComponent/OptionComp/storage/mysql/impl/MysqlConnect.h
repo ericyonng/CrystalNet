@@ -34,8 +34,10 @@
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/memory/memory.h>
+#include <OptionComp/storage/mysql/impl/SqlBuilder.h>
 
 struct MYSQL;
+struct MYSQL_RES;
 
 KERNEL_BEGIN
 
@@ -58,7 +60,7 @@ public:
 
 struct MysqlConfig
 {
-    POOL_CREATE_OBJ_DEFAULT(MysqlConnectConfig);
+    POOL_CREATE_OBJ_DEFAULT(MysqlConfig);
 
     MysqlConfig();
     ~MysqlConfig(){}
@@ -74,6 +76,8 @@ struct MysqlConfig
 
     // 可选配置
     LibString _charset;     // mysql操作时的编码字符集
+    LibString _dbCharset;     // db库的字符集
+    LibString _dbCollate;     // db库的字符集
     Int32 _autoReconnect;    // 自动重连
     UInt64 _maxPacketSize;  // mysql 单包缓冲区大小(涉及到从mysql回来的接收缓冲区大小)
     bool _isOpenTableInfo;  // 开启表信息显示
@@ -95,7 +99,24 @@ public:
     
     void Close();
 
+    template<SqlBuilderType::ENUMS T>
+    bool ExcuteSql(const SqlBuilder<T> &builder);
+
+    // 直接将结果集拿回本地
+    template<typename CallbackType>
+    bool StoreResult(CallbackType &&cb);
+
+    // 需要fetch_row一次一次的从远程取会结果
+    template<typename CallbackType>
+    bool UseResult(CallbackType &&cb);
+
+    LibString ToString() const;
+
 private:
+    MYSQL_RES *_StoreResult();
+    MYSQL_RES *_UseResult();
+    void _FreeRes(MYSQL_RES *res);
+    bool _ExcuteSql(const LibString &sql);
     bool _Connect();
     bool _SelectDB();
     // bool _CreateTable();
@@ -119,6 +140,42 @@ ALWAYS_INLINE void MysqlConnect::SetConfig(const MysqlConfig &cfg)
 ALWAYS_INLINE const MysqlConfig &MysqlConnect::GetConfig() const
 {
     return _cfg;
+}
+
+template<SqlBuilderType::ENUMS T>
+ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const SqlBuilder<T> &builder)
+{
+    for(;!_Ping(););
+
+    return _ExcuteSql(builder.ToSql());
+}
+
+template<typename CallbackType>
+ALWAYS_INLINE bool MysqlConnect::StoreResult(CallbackType &&cb)
+{
+    auto res = _StoreResult();
+    if(!res)
+        return false;
+
+    cb(this, res);
+
+    _FreeRes(res);
+
+    return true;
+}
+
+template<typename CallbackType>
+ALWAYS_INLINE bool MysqlConnect::UseResult(CallbackType &&cb)
+{
+    auto res = _UseResult();
+    if(!res)
+        return false;
+
+    cb(this, res);
+
+    _FreeRes(res);
+
+    return true;
 }
 
 KERNEL_END
