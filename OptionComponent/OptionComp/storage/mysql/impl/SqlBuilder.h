@@ -33,6 +33,7 @@
 
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/memory/memory.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
 
@@ -54,9 +55,15 @@ public:
 
         // 表结构 TODO:
         ALTER_TABLE,
-        CREATE_INDEX,
-        DROP_INDEX,
+        SHOW_INDEX,
     };
+};
+
+// 在全文索引时候指定的解析器
+class FullTextParser
+{
+public:
+    static const LibString WITH_PARSER_NGRAM;
 };
 
 template<SqlBuilderType::ENUMS T>
@@ -916,6 +923,10 @@ public:
         _renames.clear();
         _modifys.clear();
         _drops.clear();
+        _addIndexs.clear();
+        _addUniqueIndexs.clear();
+        _dropIndexs.clear();
+        _addPrimaryKeys.clear();
         _type = CHANGE_UNKNOWN;
         _table.clear();
     }
@@ -1043,6 +1054,124 @@ public:
         return *this;
     }
 
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddIndex(const LibString &indexName, const std::vector<LibString> &fields, const LibString &usingDesc, const LibString &comment, bool usingFulltext = false, const LibString &fulltextWithParser = "")
+    {
+        if(UNLIKELY(indexName.empty() || fields.empty()))
+            return *this;
+
+        const auto &content = std::make_tuple(indexName, fields, usingDesc, comment, usingFulltext, fulltextWithParser);
+        _addIndexs.push_back(content);
+        _type = CHANGE_ADD_INDEX;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddIndex(const std::vector<std::tuple<LibString, std::vector<LibString>, LibString, LibString, bool, LibString>> &contents)
+    {
+        for(auto &content : contents)
+        {
+            const auto &indexName = std::get<0>(content);
+            const auto &fields = std::get<1>(content);
+            if(UNLIKELY(indexName.empty() || fields.empty()))
+                continue;
+
+            _addIndexs.push_back(content);
+        }
+
+        if(UNLIKELY(_addIndexs.empty()))
+            return *this;
+
+        _type = CHANGE_ADD_INDEX;
+        return *this;     
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddUniqueIndex(const LibString &indexName, const std::vector<LibString> &fields, const LibString &usingDesc, const LibString &comment)
+    {
+        if(UNLIKELY(indexName.empty() || fields.empty()))
+            return *this;
+
+        const auto &content = std::make_tuple(indexName, fields, usingDesc, comment);
+        _addUniqueIndexs.push_back(content);
+        _type = CHANGE_ADD_UNIQUE_INDEX;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddUniqueIndex(const std::vector<std::tuple<LibString, std::vector<LibString>, LibString, LibString>> &contents)
+    {
+        for(auto &content : contents)
+        {
+            const auto &indexName = std::get<0>(content);
+            const auto &fields = std::get<1>(content);
+            if(UNLIKELY(indexName.empty() || fields.empty()))
+                continue;
+
+            _addUniqueIndexs.push_back(content);
+        }
+
+        if(UNLIKELY(_addUniqueIndexs.empty()))
+            return *this;
+
+        _type = CHANGE_ADD_UNIQUE_INDEX;
+        return *this;     
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &DropIndex(const LibString &indexName)
+    {
+        if(UNLIKELY(indexName.empty()))
+            return *this;
+
+        _dropIndexs.push_back(indexName);
+        _type = CHANGE_DROP_INDEX;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &DropIndex(const std::vector<LibString> &indexNames)
+    {
+        for(auto &indexName : indexNames)
+        {
+            if(UNLIKELY(indexName.empty()))
+                continue;
+
+            _dropIndexs.push_back(indexName);
+        }
+
+        if(UNLIKELY(_dropIndexs.empty()))
+            return *this;
+
+        _type = CHANGE_DROP_INDEX;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddPrimaryKey(const LibString &field)
+    {
+        if(UNLIKELY(field.empty()))
+            return *this;
+        
+        _addPrimaryKeys.push_back(field);
+        _type = CHANGE_ADD_PRIMARY_KEY;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddPrimaryKey(const std::vector<LibString> &fields)
+    {
+        if(UNLIKELY(fields.empty()))
+            return *this;
+
+        for(auto &field : fields)
+            _addPrimaryKeys.push_back(field);
+
+        if(UNLIKELY(_addPrimaryKeys.empty()))
+            return *this;
+
+        _type = CHANGE_ADD_PRIMARY_KEY;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &DropPrimaryKey()
+    {
+        _type = CHANGE_DROP_PRIMARY_KEY;
+        return *this;
+    }
+
     LibString ToSql() const
     {
         if((_type == CHANGE_UNKNOWN) || 
@@ -1060,6 +1189,16 @@ public:
             return _BuildDropSql();
         case CHANGE_MODIFY:
             return _BuildModifySql();
+        case CHANGE_ADD_INDEX:
+            return _BuildAddIndexSql();
+        case CHANGE_ADD_UNIQUE_INDEX:
+            return _BuildAddUniqueIndexSql();
+        case CHANGE_DROP_INDEX:
+            return _BuildDropIndexSql();
+        case CHANGE_ADD_PRIMARY_KEY:
+            return _BuildAddPrimaryKeySql();
+        case CHANGE_DROP_PRIMARY_KEY:
+            return _BuildDropPrimaryKeySql();
         default:
             break;
         }
@@ -1196,6 +1335,152 @@ private:
         return sql;
     }
 
+    LibString _BuildAddIndexSql() const
+    {
+        if(UNLIKELY(_addIndexs.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        const Int32 count = static_cast<Int32>(_addIndexs.size());
+        bool hasChanged = false;
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto &addInfo = _addIndexs[idx];
+
+            auto &indexName = std::get<0>(addInfo);
+            auto &fields = std::get<1>(addInfo);
+            auto &usingDesc = std::get<2>(addInfo);
+            auto &comment = std::get<3>(addInfo);
+            auto &usingFulltext = std::get<4>(addInfo);
+            auto &fulltextWithParser = std::get<5>(addInfo);
+
+            if(UNLIKELY(indexName.empty() || fields.empty()))
+                continue;
+            
+            hasChanged = true;
+            if(usingFulltext)
+            {
+                sql.AppendFormat(" ADD FULLTEXT INDEX `%s`(", indexName.c_str());
+            }
+            else
+            {
+                sql.AppendFormat(" ADD INDEX `%s`(", indexName.c_str());
+            }
+            sql.AppendData(StringUtil::ToString(fields, ","))
+                .AppendData(")");
+
+            // 全文索引不能使用btree等
+            if(!usingFulltext && !usingDesc.empty())
+                sql.AppendFormat(" ").AppendData(usingDesc);
+
+            // 全文索引使用的解析器
+            if(!fulltextWithParser.empty())
+                sql.AppendFormat(" %s", fulltextWithParser.c_str());
+
+            if(!comment.empty())
+                sql.AppendFormat(" COMMENT '").AppendData(comment).AppendData("'");
+
+            if((idx + 1) != count)
+                sql.AppendFormat(",");
+        }
+
+        if(!hasChanged)
+            return "";
+
+        return sql;
+    }
+
+    LibString _BuildAddUniqueIndexSql() const
+    {
+        if(UNLIKELY(_addUniqueIndexs.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        const Int32 count = static_cast<Int32>(_addUniqueIndexs.size());
+        bool hasChanged = false;
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto &addInfo = _addUniqueIndexs[idx];
+
+            auto &indexName = std::get<0>(addInfo);
+            auto &fields = std::get<1>(addInfo);
+            auto &usingDesc = std::get<2>(addInfo);
+            auto &comment = std::get<3>(addInfo);
+
+            if(UNLIKELY(indexName.empty() || fields.empty()))
+                continue;
+            
+            hasChanged = true;
+
+            sql.AppendFormat(" ADD UNIQUE INDEX `%s`(", indexName.c_str());
+            sql.AppendData(StringUtil::ToString(fields, ","))
+                .AppendData(")");
+
+            // 全文索引不能使用btree等
+            if(!usingDesc.empty())
+                sql.AppendFormat(" ").AppendData(usingDesc);
+
+            if(!comment.empty())
+                sql.AppendFormat(" COMMENT '").AppendData(comment).AppendData("'");
+
+            if((idx + 1) != count)
+                sql.AppendFormat(",");
+        }
+
+        if(!hasChanged)
+            return "";
+
+        return sql;
+    }
+    
+    LibString _BuildDropIndexSql() const
+    {
+        if(UNLIKELY(_dropIndexs.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        const Int32 count = static_cast<Int32>(_dropIndexs.size());
+        bool hasChanged = false;
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto &indexName = _dropIndexs[idx];
+
+            if(indexName.empty())
+                continue;
+            
+            hasChanged = true;
+            sql.AppendFormat(" DROP INDEX `%s` ", indexName.c_str());
+
+            if((idx + 1) != count)
+                sql.AppendFormat(",");
+        }
+
+        if(!hasChanged)
+            return "";
+
+        return sql;
+    }
+
+    LibString _BuildAddPrimaryKeySql() const
+    {
+        if(UNLIKELY(_addPrimaryKeys.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s` ADD PRIMARY KEY (%s)", _table.c_str(), StringUtil::ToString(_addPrimaryKeys, ",").c_str());
+        return sql;
+    }
+
+    LibString _BuildDropPrimaryKeySql() const
+    {
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s` DROP PRIMARY KEY", _table.c_str());
+        return sql;
+    }
+
 private:
 
     // 类型
@@ -1206,13 +1491,55 @@ private:
         CHANGE_RENAME,
         CHANGE_DROP,
         CHANGE_MODIFY,
+        CHANGE_ADD_INDEX,
+        CHANGE_ADD_UNIQUE_INDEX,
+        CHANGE_DROP_INDEX,
+        CHANGE_ADD_PRIMARY_KEY,
+        CHANGE_DROP_PRIMARY_KEY,
     };
 
-    std::vector<std::tuple<LibString, LibString, LibString>> _adds;
-    std::vector<std::tuple<LibString, LibString>> _renames;
-    std::vector<std::tuple<LibString, LibString>> _modifys;
-    std::vector<LibString> _drops;
+    std::vector<std::tuple<LibString, LibString, LibString>> _adds; // field, desc, after
+    std::vector<std::tuple<LibString, LibString>> _renames;         // oldField, newField
+    std::vector<std::tuple<LibString, LibString>> _modifys;         // field, desc
+    std::vector<LibString> _drops;                                  // field
+    std::vector<std::tuple<LibString, std::vector<LibString>, LibString, LibString, bool, LibString>> _addIndexs; // index name, column name list, using btree等, comment, 是否使用FULLTEXT, fulltext with parser(建立全文索引并使用解析器,建议ngram)     
+    std::vector<std::tuple<LibString, std::vector<LibString>, LibString, LibString>> _addUniqueIndexs; // index name, column name list, using btree等, comment
+    std::vector<LibString> _dropIndexs;
+    std::vector<LibString> _addPrimaryKeys;
     Int32 _type = CHANGE_UNKNOWN;
+    LibString _table;
+};
+
+// ALTER TABLE `xxx` ADD/DROP/MODIFY COLUMN ...
+template<>
+class SqlBuilder<SqlBuilderType::SHOW_INDEX>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}
+
+    void Clear()
+    {
+        _table.clear();
+    }
+
+    SqlBuilder<SqlBuilderType::SHOW_INDEX> &Table(const LibString &table)
+    {
+        _table = table;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_table.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("SHOW INDEX FROM `%s`", _table.c_str());
+        return sql;
+    }
+
+private:
     LibString _table;
 };
 

@@ -93,7 +93,7 @@ void TestSql::Run()
         .Field("Name VARCHAR(32) NOT NULL COMMENT \"名字\"")
         .Field("LoginTime INT DEFAULT 0 COMMENT \"登录时间\"")
         .PrimaryKey("Id")
-        .Unique("UserRoleId", {"UserId", "RoleId"})
+        // .Unique("UserRoleId", {"UserId", "RoleId"})
         .Unique("UserName", {"UserId", "Name"})
         .Index("RoleName", {"RoleId", "Name"})
         .Index("Role", {"RoleId"})
@@ -145,6 +145,11 @@ void TestSql::Run()
         builder.Table("tbl_role").Add("TestMgr", "INT NOT NULL DEFAULT 0").Add("TestMgr2", "INT NOT NULL DEFAULT 0");
         mysqlConnection->ExcuteSql(builder);
 
+        // 添加字段
+        builder.Clear();
+        builder.Table("tbl_role").Add("TestFulltextIndex1", "VARCHAR(32) NOT NULL DEFAULT \"测试全文索引1\"").Add("TestFulltextIndex2", "VARCHAR(32) NOT NULL DEFAULT \"测试全文索引2\"");
+        mysqlConnection->ExcuteSql(builder);
+
         // 重命名
         builder.Clear();
         builder.Table("tbl_role").Rename("TestMgr", "TestMgrRename").Rename("TestMgr2", "TestMgr2Rename");
@@ -155,10 +160,53 @@ void TestSql::Run()
         builder.Table("tbl_role").Modify("TestMgrRename", "BIGINT NOT NULL DEFAULT 0 COMMENT '测试'").Modify("TestMgr2Rename", "BIGINT NOT NULL DEFAULT 0 COMMENT '测试2'");
         mysqlConnection->ExcuteSql(builder);
 
+        // 建立索引
+        builder.Clear();
+        builder.Table("tbl_role").AddIndex("idx_test", {"TestMgrRename", "TestMgr2Rename"}, "using btree", "测试索引");
+        mysqlConnection->ExcuteSql(builder);
+
+        // 建立唯一索引
+        builder.Clear();
+        builder.Table("tbl_role").AddUniqueIndex("idx_UserRoleId", {"UserId", "RoleId"}, "using btree", "测试唯一索引");
+        mysqlConnection->ExcuteSql(builder);
+
+        // 全文索引
+        builder.Clear();
+        builder.Table("tbl_role").AddIndex("idx_fulltext1", {"TestFulltextIndex1"}, "using btree", "测试全文索引", true, KERNEL_NS::FullTextParser::WITH_PARSER_NGRAM);
+        mysqlConnection->ExcuteSql(builder);
+        
+        // 删除索引
+        builder.Clear();
+        builder.Table("tbl_role").DropIndex("idx_test").DropIndex("idx_UserRoleId");
+        mysqlConnection->ExcuteSql(builder);
+
+        // 修改
+        builder.Clear();
+        builder.Table("tbl_role").Modify("Id", "BIGINT NOT NULL COMMENT 'id'");
+        mysqlConnection->ExcuteSql(builder);
+
+        // 删除主键
+        builder.Clear();
+        builder.Table("tbl_role").DropPrimaryKey();
+        mysqlConnection->ExcuteSql(builder);
+
+        // 添加主键
+        builder.Clear();
+        builder.Table("tbl_role").AddPrimaryKey({"Id", "RoleId"});
+        mysqlConnection->ExcuteSql(builder);
+
         // 删
         builder.Clear();
         builder.Table("tbl_role").Drop("TestMgrRename").Drop("TestMgr2Rename");
         mysqlConnection->ExcuteSql(builder);
+    }
+
+    {// 查索引
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SHOW_INDEX> builder;
+        builder.Table("tbl_role");
+        mysqlConnection->ExcuteSql(builder);
+
+        mysqlConnection->UseResult([](KERNEL_NS::MysqlConnect *, MYSQL_RES *){});
     }
 
     {// update数据

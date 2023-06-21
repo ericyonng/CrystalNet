@@ -206,7 +206,7 @@ bool MysqlConnect::_ExcuteSql(const LibString &sql)
     auto ret = mysql_real_query(_mysql, sql.c_str(), static_cast<ULong>(sql.length()));
     if(ret != 0)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("connection info:%s, excute sql fail err:%s"), ToString().c_str(), mysql_error(_mysql));
+        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("connection info:%s, excute sql fail err:%s, sql:", ToString().c_str(), mysql_error(_mysql)), sql);
         return false;
     }
 
@@ -266,7 +266,7 @@ bool MysqlConnect::_SelectDB()
     return true;
 }
 
-bool MysqlConnect::_Ping()
+bool MysqlConnect::_Ping(const LibString &content)
 {
     auto ret = mysql_ping(_mysql);
     _AddOpCount(MysqlOperateType::READ);
@@ -277,8 +277,8 @@ bool MysqlConnect::_Ping()
         return true;
     }
 
-    g_Log->Warn(LOGFMT_OBJ_TAG("mysql disconnected connection info:%s, mysql error:%s.")
-                , ToString().c_str(), mysql_error(_mysql));
+    g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql disconnected connection info:%s, mysql error:%s\ncontent:.", ToString().c_str(), mysql_error(_mysql))
+                , content);
 
     _isConnected = false;
 

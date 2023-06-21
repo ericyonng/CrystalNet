@@ -31,4 +31,6 @@
 
 KERNEL_BEGIN
 
+const LibString FullTextParser::WITH_PARSER_NGRAM = "WITH PARSER ngram";
+
 KERNEL_END

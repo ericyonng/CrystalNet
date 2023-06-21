@@ -121,7 +121,7 @@ private:
     bool _SelectDB();
     // bool _CreateTable();
     // bool _DropTable();
-    bool _Ping();
+    bool _Ping(const LibString &content = "");
 
     void _AddOpCount(Int32 type, Int64 count = 1);
 
@@ -146,9 +146,10 @@ ALWAYS_INLINE const MysqlConfig &MysqlConnect::GetConfig() const
 template<SqlBuilderType::ENUMS T>
 ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const SqlBuilder<T> &builder)
 {
-    for(;!_Ping(););
+    const auto &sql = builder.ToSql();
+    for(;!_Ping(sql););
 
-    return _ExcuteSql(builder.ToSql());
+    return _ExcuteSql(sql);
 }
 
 template<typename CallbackType>

@@ -98,6 +98,9 @@ public:
 	static void MergerMultiLine(const std::vector<LibString> &lines, LibString &target);
 	static void SepMultiLine(const LibString &multiLine, std::vector<LibString> &lines);
 
+	static LibString ToString(const std::vector<LibString> &contents, const LibString &sep);
+	static void ToString(const std::vector<LibString> &contents, const LibString &sep, LibString &target);
+
 	// 校验标准名字:英文, 数字, 下划线, 且首字母非数字, name 长度为0也是非法
 	static bool CheckGeneralName(const LibString &name);
 
@@ -1077,6 +1080,26 @@ ALWAYS_INLINE void StringUtil::SepMultiLine(const LibString &multiLine, std::vec
 {
 	lines = multiLine.Split("\n");
 }
+
+ALWAYS_INLINE LibString StringUtil::ToString(const std::vector<LibString> &contents, const LibString &sep)
+{
+	LibString target;
+	ToString(contents, sep, target);
+	return target;
+}
+
+ALWAYS_INLINE void StringUtil::ToString(const std::vector<LibString> &contents, const LibString &sep, LibString &target)
+{
+	const Int32 count = static_cast<Int32>(contents.size());
+	for(Int32 idx = 0; idx < count; ++idx)
+	{
+		auto &content = contents[idx];
+		target.AppendData(content);
+		if(idx != (count - 1))
+			target.AppendData(sep);
+	}
+}
+
 
 ALWAYS_INLINE bool StringUtil::CheckGeneralName(const LibString &name)
 {
