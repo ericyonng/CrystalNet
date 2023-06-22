@@ -44,18 +44,27 @@ public:
     {
         SELECT = 0,
         INSERT,
+
+        // 如果数据不存在则直接insert, 如果存在则先删除再insert, 前者affected_row是1后者affected_row是2
         REPLACE_INTO,
+        
         UPDATE,
         DELETE_RECORD,
         CREATE_TABLE,
+
+        // 删除表数据,并把自增id归0
         TRUNCATE_TABLE,
         DROP_TABLE,
+
         CREATE_DB,
         DROP_DB,
 
-        // 表结构 TODO:
+        // 表结构
         ALTER_TABLE,
         SHOW_INDEX,
+
+        // 优化表会对表空间进行清理,比如delete的数据进行真正的删除
+        OPTIMIZE_TABLE,
     };
 };
 
@@ -1536,6 +1545,39 @@ public:
 
         LibString sql;
         sql.AppendFormat("SHOW INDEX FROM `%s`", _table.c_str());
+        return sql;
+    }
+
+private:
+    LibString _table;
+};
+
+// ALTER TABLE `xxx` ADD/DROP/MODIFY COLUMN ...
+template<>
+class SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}  
+
+    void Clear()
+    {
+        _table.clear();
+    }
+
+    SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE> &Table(const LibString &table)
+    {
+        _table = table;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        if(UNLIKELY(_table.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("OPTIMIZE TABLE `%s`", _table.c_str());
         return sql;
     }
 

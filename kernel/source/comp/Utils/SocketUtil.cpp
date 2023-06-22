@@ -1288,7 +1288,7 @@ Int32 SocketUtil::UpdateRemoteAddr(UInt16 family, SOCKET sock, BriefSockAddr &ad
     Int32 errCode = SocketUtil::GetPeerAddr(family, sock, sizeof(ip), ptr, addr._port, lastErr);
     if(errCode != Status::Success)
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "sock[%d] get peer addr fail!"), sock);
+        g_Log->Warn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "sock[%d] get peer addr fail lastErr:%d!"), sock, lastErr);
         return errCode;
     }
 

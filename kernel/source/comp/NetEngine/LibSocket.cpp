@@ -284,7 +284,7 @@ Int32 LibSocket::EnableCloseOnExec()
     return Status::Success;
 #else
     g_Log->NetWarn(LOGFMT_OBJ_TAG("enable close on exec is enable in linux platform"));
-    return Status::Failed;
+    return Status::Success;
 #endif
 }
 
@@ -306,7 +306,7 @@ Int32 LibSocket::DisableCloseOnExec()
     return Status::Success;
 #else
     g_Log->NetWarn(LOGFMT_OBJ_TAG("disable close on exec is enable in linux platform"));
-    return Status::Failed;
+    return Status::Success;
 #endif
 }
 

@@ -107,10 +107,12 @@ LibString LibAddr::ToString() const
 {
     LibString info;
     const UInt16 family = static_cast<UInt16>(_sock->GetFamily());
-    info.AppendFormat("[ADDR INFO]: _sock[%d], family[%hu, %s], remote addr info[%s], local addr info[%s]"
+    info.AppendFormat("[ADDR INFO]: _sock[%d], family[%hu, %s], _prepareLocalIp[%s], _prepareLocalPort[%hu] remote addr info[%s], local addr info[%s]"
                     , _sock->GetSock()
                     , family
                     , FamilyType::ToString(family)
+                    , _prepareLocalIp.c_str()
+                    , _prepareLocalPort
                     , _remoteAddr.ToString().c_str()
                     , _localAddr.ToString().c_str());
 

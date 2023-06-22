@@ -99,7 +99,7 @@ ALWAYS_INLINE void  MemoryPipe<BuildType>::Release()
     if(LIKELY(_release))
     {
         _release->Invoke();
-        CRYSTAL_RELEASE_SAFE(_release);
+        _release = NULL;
     }
 }
 

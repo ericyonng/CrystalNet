@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <OptionComp/storage/mysql/impl/MysqlConnect.h>
 #include <mysql.h>
+#include <kernel/comp/Utils/Utils.h>
 
 KERNEL_BEGIN
 
@@ -42,8 +43,9 @@ MysqlConfig::MysqlConfig()
 ,_dbCharset("utf8mb4")
 ,_dbCollate("utf8mb4_bin")
 ,_autoReconnect(1)
-,_maxPacketSize(1024*1024*1024)
+,_maxPacketSize(4 * 1024 * 1024 * 1024) // 4GB
 ,_isOpenTableInfo(true)
+,_enableMultiStatements(true)
 {
 
 }
@@ -51,9 +53,9 @@ MysqlConfig::MysqlConfig()
 LibString MysqlConfig::ToString() const
 {
     LibString info;
-    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%llu \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu isopentableinfo:%d"
-        , _host.c_str(), _user.c_str(), _pwd.c_str(), _dbName.c_str(), _port, _charset.c_str(), _dbCharset.c_str(), _dbCollate.c_str(),
-         _autoReconnect, _maxPacketSize, _isOpenTableInfo);
+    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%llu bind ip:%s \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu isopentableinfo:%d, _enableMultiStatements:%d"
+        , _host.c_str(), _user.c_str(), _pwd.c_str(), _dbName.c_str(), _port, _bindIp.c_str(), _charset.c_str(), _dbCharset.c_str(), _dbCollate.c_str(),
+         _autoReconnect, _maxPacketSize, _isOpenTableInfo, _enableMultiStatements);
 
     return info;
 }
@@ -82,11 +84,28 @@ void MysqlConnect::Close()
     g_Log->Info(LOGFMT_OBJ_TAG("mysql connection closed %s"), ToString().c_str());
 }
 
+UInt64 MysqlConnect::GetLastInsertIdOfAutoIncField() const
+{
+    return mysql_insert_id(_mysql);
+}
+
+Int64 MysqlConnect::GetLastAffectedRow() const
+{
+    return static_cast<Int64>(mysql_affected_rows(_mysql));
+}
+
+bool MysqlConnect::HasNextResult() const
+{
+    // 0表示有结果
+    return mysql_next_result(_mysql) == 0;
+}
+
 LibString MysqlConnect::ToString() const
 {
     LibString info;
-    info.AppendFormat("connection id:%llu mysql host:%s, port:%hu, user:%s, db name:%s, is connected:%d"
-                    , _id, _cfg._host.c_str(), _cfg._port, _cfg._user.c_str(), _cfg._dbName.c_str(), _isConnected);
+    info.AppendFormat("connection id:%llu mysql host:%s, port:%hu, bind ip:%s, user:%s, db name:%s, is connected:%d"
+                    , _id, _cfg._host.c_str(), _cfg._port, _cfg._bindIp.c_str(),
+                     _cfg._user.c_str(), _cfg._dbName.c_str(), _isConnected);
     return info;
 }
 
@@ -124,6 +143,14 @@ Int32 MysqlConnect::Init()
         err = mysql_options(_mysql, MYSQL_OPT_OPTIONAL_RESULTSET_METADATA, &_cfg._isOpenTableInfo);
         if(err != 0)
             break;
+
+        // 绑定本地指定的ip
+        if(!_cfg._bindIp.empty())
+        {
+            err = mysql_options(_mysql, MYSQL_OPT_BIND, _cfg._bindIp.c_str());
+            if(err != 0)
+                break;
+        }
 
     }while(false);
     
@@ -171,7 +198,7 @@ Int32 MysqlConnect::Start()
     return Status::Success;
 }
 
-MYSQL_RES *MysqlConnect::_StoreResult()
+MYSQL_RES *MysqlConnect::_StoreResult() const
 {
     auto res = mysql_store_result(_mysql);
     if(!res)
@@ -183,7 +210,7 @@ MYSQL_RES *MysqlConnect::_StoreResult()
     return res;
 }
 
-MYSQL_RES *MysqlConnect::_UseResult()
+MYSQL_RES *MysqlConnect::_UseResult() const
 {
     auto res = mysql_use_result(_mysql);
     if(!res)
@@ -195,20 +222,26 @@ MYSQL_RES *MysqlConnect::_UseResult()
     return res;
 }
 
-void MysqlConnect::_FreeRes(MYSQL_RES *res)
+void MysqlConnect::_FreeRes(MYSQL_RES *res) const
 {
     mysql_free_result(res);
 }
 
-bool MysqlConnect::_ExcuteSql(const LibString &sql)
+bool MysqlConnect::_ExcuteSql(const LibString &sql) const
 {
     g_Log->Info2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql:", _id), sql);
+
+    // 当没有开启CLIENT_MULTI_STATEMENTS时候会返回结果, 如果开启CLIENT_MULTI_STATEMENTS则语句并没有全部执行好,需要获取结果, 会有多个结果
     auto ret = mysql_real_query(_mysql, sql.c_str(), static_cast<ULong>(sql.length()));
     if(ret != 0)
     {
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("connection info:%s, excute sql fail err:%s, sql:", ToString().c_str(), mysql_error(_mysql)), sql);
         return false;
     }
+
+    // 打印出影响的行数
+    const Int64 count = GetLastAffectedRow();
+    g_Log->Info2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql affected row:%lld, mysql_error:%s", _id, count, (count >= 0) ? "NONE" : mysql_error(_mysql)));
 
     return true;
 }
@@ -217,7 +250,11 @@ bool MysqlConnect::_Connect()
 {
     // 连接
     _isConnected = false;
-    if(!mysql_real_connect(_mysql, _cfg._host.c_str(), _cfg._user.c_str(), _cfg._pwd.c_str(), NULL, _cfg._port, 0, 0))
+    ULong flag = 0;
+    if(_cfg._enableMultiStatements)
+        flag = CLIENT_MULTI_STATEMENTS;
+
+    if(!mysql_real_connect(_mysql, _cfg._host.c_str(), _cfg._user.c_str(), _cfg._pwd.c_str(), NULL, _cfg._port, 0, flag))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("mysql_real_connect fail connection info:%s, mysql error:%s"), ToString().c_str(), mysql_error(_mysql));
         return false;

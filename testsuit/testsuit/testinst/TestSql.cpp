@@ -47,6 +47,9 @@ void TestSql::Run()
     config._pwd = "123456";
     config._dbName = "rpg";
     config._port = 3306;
+
+    // 利用 MYSQL_OPT_BIND 选项绑定多张网卡中的一张
+    config._bindIp = "127.0.0.1";
     mysqlConnection->SetConfig(config);
 
     auto err = mysqlConnection->Init();
@@ -61,6 +64,12 @@ void TestSql::Run()
     {
         g_Log->Error(LOGFMT_NON_OBJ_TAG(TestSql, "mysql start fail."));
         return;
+    }
+
+    {// 未实现的builder类型 执行sql时候会报错
+        // KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::KB> builder;
+
+        // mysqlConnection->ExcuteSql(builder);
     }
 
     {// 删除db
@@ -88,6 +97,8 @@ void TestSql::Run()
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::CREATE_TABLE> builder;
         builder.Table("tbl_role")
         .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT \"id\"")
+        // .Field("Id BIGINT NOT NULL DEFAULT 0 COMMENT \"id\"")
+        // .Field("Id2 BIGINT NOT NULL AUTO_INCREMENT COMMENT \"Id2\"")
         .Field("RoleId INT NOT NULL COMMENT \"角色id\"")
         .Field("UserId VARCHAR(32) NOT NULL COMMENT \"账号id\"")
         .Field("Name VARCHAR(32) NOT NULL COMMENT \"名字\"")
@@ -109,15 +120,18 @@ void TestSql::Run()
         .Values({"1001", "100101", "\"Eric\"", "\"Yonng\""});
 
         mysqlConnection->ExcuteSql(builder);
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "last insert id:%llu"), mysqlConnection->GetLastInsertIdOfAutoIncField());
     }
 
     {// 插入数据
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT> builder;
         builder.Table("tbl_role")
-        .Fields({"Id", "RoleId", "UserId", "Name"})
-        .Values({"1002", "100102", "\"Eric2\"", "\"Yonng2\""});
+        .Fields({"RoleId", "UserId", "Name"})
+        .Values({"100102", "\"Eric2\"", "\"Yonng2\""});
 
         mysqlConnection->ExcuteSql(builder);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "last insert id:%llu"), mysqlConnection->GetLastInsertIdOfAutoIncField());
     }
 
     {// replace into数据
@@ -127,6 +141,7 @@ void TestSql::Run()
         .Values({"1003", "100103", "\"Eric3\"", "\"Yonng3\""});
 
         mysqlConnection->ExcuteSql(builder);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "last insert id:%llu"), mysqlConnection->GetLastInsertIdOfAutoIncField());
     }
 
     {// 插入数据
@@ -136,6 +151,27 @@ void TestSql::Run()
         .Values({"1005", "100105", "\"God2\"", "\"God2\""});
 
         mysqlConnection->ExcuteSql(builder);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "last insert id:%llu"), mysqlConnection->GetLastInsertIdOfAutoIncField());
+    }
+
+    {// 插入数据
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT> builder;
+        builder.Table("tbl_role")
+        .Fields({"Id", "RoleId", "UserId", "Name"})
+        .Values({"900", "1001088", "\"God55\"", "\"God554\""});
+
+        mysqlConnection->ExcuteSql(builder);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "last insert id:%llu"), mysqlConnection->GetLastInsertIdOfAutoIncField());
+    }
+
+    {// replace into数据
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::REPLACE_INTO> builder;
+        builder.Table("tbl_role")
+        .Fields({"Id", "RoleId", "UserId", "Name"})
+        .Values({"1003", "100103", "\"Eric3\"", "\"Yonng3\""});
+
+        mysqlConnection->ExcuteSql(builder);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "last insert id:%llu"), mysqlConnection->GetLastInsertIdOfAutoIncField());
     }
 
     {// ALTER TABLE
@@ -154,6 +190,8 @@ void TestSql::Run()
         builder.Clear();
         builder.Table("tbl_role").Rename("TestMgr", "TestMgrRename").Rename("TestMgr2", "TestMgr2Rename");
         mysqlConnection->ExcuteSql(builder);
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "last insert id:%llu"), mysqlConnection->GetLastInsertIdOfAutoIncField());
 
         // 修改
         builder.Clear();
@@ -230,6 +268,8 @@ void TestSql::Run()
         mysqlConnection->StoreResult([](KERNEL_NS::MysqlConnect *connect, MYSQL_RES *res){
             
         });
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "last insert id:%llu"), mysqlConnection->GetLastInsertIdOfAutoIncField());
     }
 
     {// delete数据
@@ -239,6 +279,25 @@ void TestSql::Run()
         ;
 
         mysqlConnection->ExcuteSql(builder);
+    }
+
+    {// delete数据
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DELETE_RECORD> builder;
+        builder.Table("tbl_role")
+        .Where("Id>0");
+        ;
+
+        mysqlConnection->ExcuteSql(builder);
+    }
+
+    {// optimize table
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::OPTIMIZE_TABLE> builder;
+        builder.Table("tbl_role")
+        ;
+
+        mysqlConnection->ExcuteSql(builder);
+
+        mysqlConnection->StoreResult([](KERNEL_NS::MysqlConnect *conn, MYSQL_RES *res){});
     }
 
     {// 清空数据

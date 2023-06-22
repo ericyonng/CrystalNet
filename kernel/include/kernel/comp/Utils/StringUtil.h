@@ -100,6 +100,11 @@ public:
 
 	static LibString ToString(const std::vector<LibString> &contents, const LibString &sep);
 	static void ToString(const std::vector<LibString> &contents, const LibString &sep, LibString &target);
+	template<typename T>
+	static LibString ToString(const std::vector<T> &contents, const LibString &sep);
+	template<typename T>
+	static LibString ToString(const std::vector<T *> &contents, const LibString &sep);
+
 
 	// 校验标准名字:英文, 数字, 下划线, 且首字母非数字, name 长度为0也是非法
 	static bool CheckGeneralName(const LibString &name);
@@ -1100,6 +1105,25 @@ ALWAYS_INLINE void StringUtil::ToString(const std::vector<LibString> &contents, 
 	}
 }
 
+template<typename T>
+ALWAYS_INLINE LibString StringUtil::ToString(const std::vector<T> &contents, const LibString &sep)
+{
+	std::vector<LibString> strs;
+	for(auto &elem : contents)
+		strs.push_back(elem.ToString());
+	
+	StringUtil::ToString(strs, sep);
+}
+
+template<typename T>
+ALWAYS_INLINE LibString StringUtil::ToString(const std::vector<T *> &contents, const LibString &sep)
+{
+	std::vector<LibString> strs;
+	for(auto &elem : contents)
+		strs.push_back(elem->ToString());
+	
+	StringUtil::ToString(strs, sep);
+}
 
 ALWAYS_INLINE bool StringUtil::CheckGeneralName(const LibString &name)
 {
