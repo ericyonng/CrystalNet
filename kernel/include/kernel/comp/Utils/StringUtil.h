@@ -1112,7 +1112,7 @@ ALWAYS_INLINE LibString StringUtil::ToString(const std::vector<T> &contents, con
 	for(auto &elem : contents)
 		strs.push_back(elem.ToString());
 	
-	StringUtil::ToString(strs, sep);
+	return StringUtil::ToString(strs, sep);
 }
 
 template<typename T>
@@ -1122,7 +1122,7 @@ ALWAYS_INLINE LibString StringUtil::ToString(const std::vector<T *> &contents, c
 	for(auto &elem : contents)
 		strs.push_back(elem->ToString());
 	
-	StringUtil::ToString(strs, sep);
+	return StringUtil::ToString(strs, sep);
 }
 
 ALWAYS_INLINE bool StringUtil::CheckGeneralName(const LibString &name)
@@ -1146,7 +1146,6 @@ ALWAYS_INLINE bool StringUtil::CheckGeneralName(const LibString &name)
 	// 首字母不能是数值
 	if(KERNEL_NS::LibString::isdigit(name[0]))
 		return false;
-
 
 	return true;
 }
@@ -1218,8 +1217,6 @@ ALWAYS_INLINE LibString StringUtil::InterfaceObjName(const LibString &name)
 
 	return icompName;
 }
-
-
 
 KERNEL_END
 

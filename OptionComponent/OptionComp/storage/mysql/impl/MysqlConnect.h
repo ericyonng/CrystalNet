@@ -120,11 +120,11 @@ public:
 
     // 直接将结果集拿回本地
     template<typename CallbackType>
-    bool StoreResult(CallbackType &&cb) const;
+    bool StoreResult(CallbackType &&cb);
 
     // 需要fetch_row一次一次的从远程取会结果
     template<typename CallbackType>
-    bool UseResult(CallbackType &&cb) const;
+    bool UseResult(CallbackType &&cb);
 
     // 判断执行完sql有没有结果
     bool HasNextResult() const;
@@ -175,7 +175,7 @@ ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const SqlBuilder<T> &builder)
 }
 
 template<typename CallbackType>
-ALWAYS_INLINE bool MysqlConnect::StoreResult(CallbackType &&cb) const
+ALWAYS_INLINE bool MysqlConnect::StoreResult(CallbackType &&cb)
 {
     auto res = _StoreResult();
     if(!res)
@@ -189,7 +189,7 @@ ALWAYS_INLINE bool MysqlConnect::StoreResult(CallbackType &&cb) const
 }
 
 template<typename CallbackType>
-ALWAYS_INLINE bool MysqlConnect::UseResult(CallbackType &&cb) const
+ALWAYS_INLINE bool MysqlConnect::UseResult(CallbackType &&cb)
 {
     auto res = _UseResult();
     if(!res)

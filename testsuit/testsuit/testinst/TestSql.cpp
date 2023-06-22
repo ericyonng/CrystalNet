@@ -108,7 +108,7 @@ void TestSql::Run()
         .Unique("UserName", {"UserId", "Name"})
         .Index("RoleName", {"RoleId", "Name"})
         .Index("Role", {"RoleId"})
-        .Comment("角色表")
+        .Comment("role table")
         ;
         mysqlConnection->ExcuteSql(builder);
     }
@@ -244,7 +244,7 @@ void TestSql::Run()
         builder.Table("tbl_role");
         mysqlConnection->ExcuteSql(builder);
 
-        mysqlConnection->UseResult([](KERNEL_NS::MysqlConnect *, MYSQL_RES *){});
+        mysqlConnection->UseResult([](const KERNEL_NS::MysqlConnect *, MYSQL_RES *){});
     }
 
     {// update数据
@@ -265,7 +265,7 @@ void TestSql::Run()
 
         mysqlConnection->ExcuteSql(builder);
 
-        mysqlConnection->StoreResult([](KERNEL_NS::MysqlConnect *connect, MYSQL_RES *res){
+        mysqlConnection->StoreResult([](const KERNEL_NS::MysqlConnect *connect, MYSQL_RES *res){
             
         });
 
@@ -297,7 +297,7 @@ void TestSql::Run()
 
         mysqlConnection->ExcuteSql(builder);
 
-        mysqlConnection->StoreResult([](KERNEL_NS::MysqlConnect *conn, MYSQL_RES *res){});
+        mysqlConnection->StoreResult([](const KERNEL_NS::MysqlConnect *conn, MYSQL_RES *res){});
     }
 
     {// 清空数据

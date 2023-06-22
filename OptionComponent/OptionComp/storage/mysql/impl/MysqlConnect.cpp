@@ -43,7 +43,7 @@ MysqlConfig::MysqlConfig()
 ,_dbCharset("utf8mb4")
 ,_dbCollate("utf8mb4_bin")
 ,_autoReconnect(1)
-,_maxPacketSize(4 * 1024 * 1024 * 1024) // 4GB
+,_maxPacketSize(4llu * 1024llu * 1024llu * 1024llu) // 4GB
 ,_isOpenTableInfo(true)
 ,_enableMultiStatements(true)
 {
