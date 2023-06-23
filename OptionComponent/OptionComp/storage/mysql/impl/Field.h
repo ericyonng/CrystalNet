@@ -48,11 +48,11 @@ class Field
     POOL_CREATE_OBJ_DEFAULT(Field);
 
 public:
-    Field(const LibString &fieldName, Record *owner = NULL);
+    Field(const LibString &tableName, const LibString &fieldName, Record *owner = NULL);
     ~Field();
 
     template<typename T = _Build::TL>
-    static Field *Create(const LibString &fieldName, Record *owner = NULL);
+    static Field *Create(const LibString &tableName, const LibString &fieldName, Record *owner = NULL);
     void Release();
 
     void Write(const void *data, Int64 dataSize);
@@ -67,10 +67,17 @@ public:
     // 字段名
     const LibString &GetName() const;
 
+    // 表名
+    const LibString GetTableName() const;
+
     // 字段所在行的索引
     Int32 GetIndexInRecord() const;
     bool HasIndex() const;
     void SetIndexInRecord(Int32 idx);
+
+    // 数据
+    const LibStream<_Build::TL> *GetData() const;
+    LibStream<_Build::TL> *GetData();
 
     LibString ToString() const;
 
@@ -84,19 +91,22 @@ private:
     Record *_owner;
     Int32 _index;
     LibString _name;
+    LibString _tableName;
     LibStream<_Build::TL> *_data;
     IDelegate<void, Field *> *_release; 
 };
 
 template<typename T>
-ALWAYS_INLINE Field *Field::Create(const LibString &fieldName, Record *owner)
+ALWAYS_INLINE Field *Field::Create(const LibString &tableName, const LibString &fieldName, Record *owner)
 {
+    auto field = Field::NewByAdapter_Field(T::V, tableName, fieldName, owner);
+
     // 设置释放
-    _SetRelease([](Field *ptr){
+    field->_SetRelease([](Field *ptr){
         Field::DeleteByAdapter_Field(T::V, ptr);
     });
 
-    return Field::NewByAdapter_Field(T::V, fieldName, owner);
+    return field;
 }
 
 ALWAYS_INLINE void Field::Release()
@@ -131,6 +141,11 @@ ALWAYS_INLINE const LibString &Field::GetName() const
     return _name;
 }
 
+ALWAYS_INLINE const LibString Field::GetTableName() const
+{
+    return _tableName;
+}
+
 ALWAYS_INLINE Int32 Field::GetIndexInRecord() const
 {
     return _index;
@@ -146,10 +161,20 @@ ALWAYS_INLINE void Field::SetIndexInRecord(Int32 idx)
     _index = idx;
 }
 
+ALWAYS_INLINE const LibStream<_Build::TL> *Field::GetData() const
+{
+    return _data;
+}
+
+ALWAYS_INLINE LibStream<_Build::TL> *Field::GetData()
+{
+    return _data;
+}
+
 ALWAYS_INLINE LibString Field::ToString() const
 {
     LibString info;
-    info.AppendFormat("field name:%s, index in record:%d, data size:%lld", _name.c_str(), _index, GetDataSize());
+    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld", _tableName.c_str(), _name.c_str(), _index, GetDataSize());
     return info;
 }
 

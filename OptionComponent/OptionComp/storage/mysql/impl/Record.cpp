@@ -51,13 +51,13 @@ void Record::Clear()
     _fieldNameRefField.clear();
 }
 
-bool Record::AddField(Field *field)
+Field *Record::AddField(Field *field)
 {
     if(UNLIKELY(HasField(field->GetName())))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("field already exists name:%s, idx:%d, data size:%lld")
                 , field->GetName().c_str(), field->GetIndexInRecord(), field->GetDataSize());
-        return false;
+        return NULL;
     }
 
     if(field->HasIndex())
@@ -76,7 +76,7 @@ bool Record::AddField(Field *field)
 
     _fieldNameRefField[field->GetName()] = field;
 
-    return true;
+    return field;
 }
 
 void Record::SetFieldAmount(Int32 amount)
@@ -100,7 +100,7 @@ void Record::SetFieldAmount(Int32 amount)
 
 LibString Record::ToString() const
 {
-    return StringUtil::ToString(_fields, ",");
+    return StringUtil::ToString(_fields, "\n");
 }
 
 

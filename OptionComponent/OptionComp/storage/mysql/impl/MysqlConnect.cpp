@@ -28,6 +28,8 @@
 
 #include <pch.h>
 #include <OptionComp/storage/mysql/impl/MysqlConnect.h>
+#include <OptionComp/storage/mysql/impl/Record.h>
+
 #include <mysql.h>
 #include <kernel/comp/Utils/Utils.h>
 
@@ -43,7 +45,7 @@ MysqlConfig::MysqlConfig()
 ,_dbCharset("utf8mb4")
 ,_dbCollate("utf8mb4_bin")
 ,_autoReconnect(1)
-,_maxPacketSize(4llu * 1024llu * 1024llu * 1024llu) // 4GB
+,_maxPacketSize(2 * 1024llu * 1024llu * 1024llu) // 2GB
 ,_isOpenTableInfo(true)
 ,_enableMultiStatements(true)
 {
@@ -84,9 +86,9 @@ void MysqlConnect::Close()
     g_Log->Info(LOGFMT_OBJ_TAG("mysql connection closed %s"), ToString().c_str());
 }
 
-UInt64 MysqlConnect::GetLastInsertIdOfAutoIncField() const
+Int64 MysqlConnect::GetLastInsertIdOfAutoIncField() const
 {
-    return mysql_insert_id(_mysql);
+    return static_cast<Int64>(mysql_insert_id(_mysql));
 }
 
 Int64 MysqlConnect::GetLastAffectedRow() const
@@ -100,12 +102,85 @@ bool MysqlConnect::HasNextResult() const
     return mysql_next_result(_mysql) == 0;
 }
 
+Int64 MysqlConnect::GetCurrentResultRows(MYSQL_RES *res) const
+{
+    return static_cast<Int64>(mysql_num_rows(res));
+}
+
 LibString MysqlConnect::ToString() const
 {
     LibString info;
     info.AppendFormat("connection id:%llu mysql host:%s, port:%hu, bind ip:%s, user:%s, db name:%s, is connected:%d"
                     , _id, _cfg._host.c_str(), _cfg._port, _cfg._bindIp.c_str(),
                      _cfg._user.c_str(), _cfg._dbName.c_str(), _isConnected);
+    return info;
+}
+
+LibString MysqlConnect::GetCarefulOptionsInfo() const
+{
+    LibString info;
+    {// MYSQL_SET_CHARSET_NAME
+        LibString charset;
+        charset.resize(256);
+        auto err = mysql_get_option(_mysql, MYSQL_SET_CHARSET_NAME, charset.data());
+        if(err != 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_SET_CHARSET_NAME option fail err:%s"), mysql_error(_mysql));
+            return "";
+        }
+
+        info.AppendFormat("MYSQL_SET_CHARSET_NAME:%s\n", charset.c_str());
+    }
+
+    {// MYSQL_OPT_RECONNECT
+        Int32 value = 0;
+        auto err = mysql_get_option(_mysql, MYSQL_OPT_RECONNECT, &value);
+        if(err != 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_OPT_RECONNECT option fail err:%s"), mysql_error(_mysql));
+            return "";
+        }
+
+        info.AppendFormat("MYSQL_OPT_RECONNECT:%d\n", value);
+    }
+
+    {// MYSQL_OPT_MAX_ALLOWED_PACKET
+        UInt64 value = 0;
+        auto err = mysql_get_option(_mysql, MYSQL_OPT_MAX_ALLOWED_PACKET, &value);
+        if(err != 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_OPT_MAX_ALLOWED_PACKET option fail err:%s"), mysql_error(_mysql));
+            return "";
+        }
+
+        info.AppendFormat("MYSQL_OPT_MAX_ALLOWED_PACKET:%llu\n", value);
+    }
+
+    {// MYSQL_OPT_OPTIONAL_RESULTSET_METADATA
+        bool value = false;
+        auto err = mysql_get_option(_mysql, MYSQL_OPT_OPTIONAL_RESULTSET_METADATA, &value);
+        if(err != 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_OPT_OPTIONAL_RESULTSET_METADATA option fail err:%s"), mysql_error(_mysql));
+            return "";
+        }
+
+        info.AppendFormat("MYSQL_OPT_OPTIONAL_RESULTSET_METADATA:%d\n", value);
+    }
+
+    {// MYSQL_OPT_BIND
+        LibString bindIp;
+        bindIp.resize(256);
+        auto err = mysql_get_option(_mysql, MYSQL_OPT_BIND, bindIp.data());
+        if(err != 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_OPT_BIND option fail err:%s"), mysql_error(_mysql));
+            return "";
+        }
+
+        info.AppendFormat("MYSQL_OPT_BIND:%s\n", bindIp.c_str());
+    }
+
     return info;
 }
 
@@ -193,7 +268,7 @@ Int32 MysqlConnect::Start()
 
     } while (false);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("mysql connection start %s"), ToString().c_str());
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql connection start %s, carefule options:\n%s"), ToString().c_str(), GetCarefulOptionsInfo().c_str());
     
     return Status::Success;
 }
@@ -203,7 +278,29 @@ MYSQL_RES *MysqlConnect::_StoreResult() const
     auto res = mysql_store_result(_mysql);
     if(!res)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("store result fail err:%s, connection info:%s"), mysql_error(_mysql), ToString().c_str());
+        auto errNo = mysql_errno(_mysql);
+        if(errNo == 0)
+        {
+            const auto fieldCount = mysql_field_count(_mysql);
+            if(fieldCount != 0)
+            {// select等语句 有字段但是没有结果集
+                g_Log->Warn(LOGFMT_OBJ_TAG("have some field but have no result(perhaps select sql): fieldCount:%u, err:%s, connection info:%s")
+                            , fieldCount, mysql_error(_mysql), ToString().c_str());
+                return NULL;
+            }
+
+            // update/insert/delete/create等 result是NULL属于正常的
+            const auto affectedRow = GetLastAffectedRow();
+            const auto lastInsertId = GetLastInsertIdOfAutoIncField();
+            // update/insert/create/delete等没有结果集的sql
+            if(g_Log->IsEnable(LogLevel::Debug))
+                g_Log->Debug(LOGFMT_OBJ_TAG("perhaps update/insert/delete/create ... sql, have no result. store result affectedRow:%lld, lastInsertId:%lld err:%s, connection info:%s"), affectedRow, lastInsertId, mysql_error(_mysql), ToString().c_str());
+        }
+        else
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("store result fail errNo:%d error:%s, connection info :%s"), errNo, mysql_error(_mysql), ToString().c_str());
+        }
+
         return NULL;
     }
 
@@ -215,7 +312,28 @@ MYSQL_RES *MysqlConnect::_UseResult() const
     auto res = mysql_use_result(_mysql);
     if(!res)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("use result fail err:%s, connection info:%s"), mysql_error(_mysql), ToString().c_str());
+        auto errNo = mysql_errno(_mysql);
+        if(errNo == 0)
+        {
+            const auto fieldCount = mysql_field_count(_mysql);
+            if(fieldCount != 0)
+            {// select等语句 有字段但是没有结果集
+                g_Log->Warn(LOGFMT_OBJ_TAG("have some field but have no result(perhaps select sql): fieldCount:%u, err:%s, connection info:%s")
+                            , fieldCount, mysql_error(_mysql), ToString().c_str());
+                return NULL;
+            }
+
+            const auto affectedRow = GetLastAffectedRow();
+            const auto lastInsertId = GetLastInsertIdOfAutoIncField();
+            // update/insert/create/delete等没有结果集的sql
+            if(g_Log->IsEnable(LogLevel::Debug))
+                g_Log->Debug(LOGFMT_OBJ_TAG("perhaps update/insert/delete/create ... sql, have no result. store result affectedRow:%lld, lastInsertId:%lld err:%s, connection info:%s"), affectedRow, lastInsertId, mysql_error(_mysql), ToString().c_str());
+        }
+        else
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("use result fail errNo:%d error:%s, connection info :%s"), errNo, mysql_error(_mysql), ToString().c_str());
+        }
+
         return NULL;
     }
 
@@ -227,9 +345,90 @@ void MysqlConnect::_FreeRes(MYSQL_RES *res) const
     mysql_free_result(res);
 }
 
+void MysqlConnect::_FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, SmartPtr<Record, AutoDelMethods::CustomDelete> &> *cb)
+{
+    MYSQL_ROW row;
+    // 当前res中拿到的数据量
+    auto fieldNum = mysql_num_fields(res);
+    Int64 rowCount = 0;
+    while (row = mysql_fetch_row(res))
+    {
+        auto lens = mysql_fetch_lengths(res);
+        SmartPtr<Record, AutoDelMethods::CustomDelete> record = Record::NewThreadLocal_Record();
+        record.SetClosureDelegate([](void *p){
+            auto ptr = KernelCastTo<Record>(p);
+            Record::DeleteThreadLocal_Record(ptr);
+        });
+
+        record->SetFieldAmount(fieldNum);
+        ++rowCount;
+
+        for(UInt32 idx = 0; idx < fieldNum; ++idx)
+        {
+            // 取当前字段信息并打印字段信息与数据
+            auto curField = mysql_fetch_field_direct(res, idx);
+            record->AddField(idx, curField->table, curField->name, row[idx], lens[idx]);
+
+            // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            //     g_Log->Info(LOGFMT_OBJ_TAG("field:%s"), newField->ToString().c_str());
+        }
+
+        // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        //      g_Log->Info(LOGFMT_OBJ_TAG("row count:%lld row info:\n%s"), rowCount, record->ToString().c_str());
+
+        if(LIKELY(cb))
+            cb->Invoke(this, true, record);
+    }
+
+    if(cb && rowCount == 0)
+    {
+        SmartPtr<Record, AutoDelMethods::CustomDelete> record = NULL;
+        cb->Invoke(this, false, record);
+    }
+}
+
+void MysqlConnect::_FetchRows(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
+{
+    MYSQL_ROW row;
+    auto fieldNum = mysql_num_fields(res);
+    Int32 rowCount = 0;
+    std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> records;
+    while (row = mysql_fetch_row(res))
+    {
+        auto lens = mysql_fetch_lengths(res);
+        SmartPtr<Record, AutoDelMethods::CustomDelete> record = Record::NewThreadLocal_Record();
+        record.SetClosureDelegate([](void *p){
+            auto ptr = KernelCastTo<Record>(p);
+            Record::DeleteThreadLocal_Record(ptr);
+        });
+
+        record->SetFieldAmount(fieldNum);
+        ++rowCount;
+
+        for(UInt32 idx = 0; idx < fieldNum; ++idx)
+        {
+            // 取当前字段信息并打印字段信息与数据
+            auto curField = mysql_fetch_field_direct(res, idx);
+            record->AddField(idx, curField->table, curField->name, row[idx], lens[idx]);
+
+            // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            //     g_Log->Info(LOGFMT_OBJ_TAG("field:%s"), newField->ToString().c_str());
+        }
+
+        // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        //      g_Log->Info(LOGFMT_OBJ_TAG("row count:%d row info:%s"), rowCount, record->ToString().c_str());
+
+        records.push_back(record);
+    }
+
+    if(LIKELY(cb))
+        cb->Invoke(this, !records.empty(), records);
+}
+
 bool MysqlConnect::_ExcuteSql(const LibString &sql) const
 {
-    g_Log->Info2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql:", _id), sql);
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql:", _id), sql);
 
     // 当没有开启CLIENT_MULTI_STATEMENTS时候会返回结果, 如果开启CLIENT_MULTI_STATEMENTS则语句并没有全部执行好,需要获取结果, 会有多个结果
     auto ret = mysql_real_query(_mysql, sql.c_str(), static_cast<ULong>(sql.length()));
@@ -241,7 +440,8 @@ bool MysqlConnect::_ExcuteSql(const LibString &sql) const
 
     // 打印出影响的行数
     const Int64 count = GetLastAffectedRow();
-    g_Log->Info2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql affected row:%lld, mysql_error:%s", _id, count, (count >= 0) ? "NONE" : mysql_error(_mysql)));
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql affected row:%lld, mysql_error:%s", _id, count, (count >= 0) ? "NONE" : mysql_error(_mysql)));
 
     return true;
 }

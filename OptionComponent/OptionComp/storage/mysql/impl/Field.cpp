@@ -35,10 +35,11 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(Field);
 
-Field::Field(const LibString &name, Record *owner)
+Field::Field(const LibString &tableName, const LibString &name, Record *owner)
 :_owner(owner)
 ,_index(-1)
 ,_name(name)
+,_tableName(tableName)
 ,_data(NULL)
 ,_release(NULL)
 {
@@ -62,6 +63,9 @@ Field::~Field()
 
 void Field::Write(const void *data, Int64 dataSize)
 {
+    if(UNLIKELY(!data || dataSize <= 0))
+        return;
+
     if(UNLIKELY(!_data))
     {
         // 默认4个字节空间
@@ -74,6 +78,9 @@ void Field::Write(const void *data, Int64 dataSize)
 
 Int64 Field::GetDataSize() const
 {
+    if(UNLIKELY(!_data))
+        return 0;
+
     return _data->GetWriteBytes();
 }
 

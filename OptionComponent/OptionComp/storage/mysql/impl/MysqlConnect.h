@@ -40,6 +40,7 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/memory/memory.h>
 #include <OptionComp/storage/mysql/impl/SqlBuilder.h>
+#include <kernel/comp/Delegate/Delegate.h>
 
 struct MYSQL;
 struct MYSQL_RES;
@@ -47,6 +48,7 @@ struct MYSQL_RES;
 KERNEL_BEGIN
 
 class LibSocket;
+class Record;
 
 class MysqlOperateType
 {
@@ -87,7 +89,7 @@ struct MysqlConfig
     LibString _dbCharset;   // db库的字符集
     LibString _dbCollate;   // db库的字符集
     Int32 _autoReconnect;   // 自动重连
-    UInt64 _maxPacketSize;  // mysql 单包缓冲区大小(涉及到从mysql回来的接收缓冲区大小)
+    UInt64 _maxPacketSize;  // mysql 单包缓冲区大小(涉及到从mysql回来的接收缓冲区大小) 最大1GB
     bool _isOpenTableInfo;  // 开启表信息显示
     bool _enableMultiStatements;    // 支持一次执行多条sql
 };
@@ -110,33 +112,52 @@ public:
 
     template<SqlBuilderType::ENUMS T>
     bool ExcuteSql(const SqlBuilder<T> &builder);
+    bool ExcuteSql(const LibString &sql);
 
     // 获取上次新增一条数据操作产生的id(这个id是在标识了自增属性的字段, 一张表只能有一个自增id字段), 如果上次是其他非造成新增数据的sql则获取的结果是0
     // 如果表没有自增字段则返回0
-    UInt64 GetLastInsertIdOfAutoIncField() const;
+    Int64 GetLastInsertIdOfAutoIncField() const;
 
     // 获取上次执行sql影响的行数(由执行完sql后自动返回的,有些sql不返回, 不返回的则此时是-1), 没有影响返回0
     Int64 GetLastAffectedRow() const;
 
-    // 直接将结果集拿回本地
+    // 直接将结果集拿回本地再逐行的取数据 lambda[](KERNEL_NS::MysqlConnect *conn, MYSQL_RES *) ->void
     template<typename CallbackType>
     bool StoreResult(CallbackType &&cb);
 
-    // 需要fetch_row一次一次的从远程取会结果
+    // 有可能不会拿到所有数据(尤其在网络不稳的情况下一部分一部分的取数据会取不全数据)
+    // 需要fetch_row一次一次的从远程取会结果(需要注意中间可能会断开连接) 需要设置本地缓存为1K然后取多条数据到本地测试断线重连情况 lambda[](KERNEL_NS::MysqlConnect *conn, MYSQL_RES *) ->void
     template<typename CallbackType>
     bool UseResult(CallbackType &&cb);
 
     // 判断执行完sql有没有结果
     bool HasNextResult() const;
 
-    // 
+    // 逐行取数据(逐行回调)lambda[](MysqlConnect *, bool, SmartPtr<Record, AutoMethod::CustomDelete> &)->void bool:有没有数据, record:数据 FetchRow 
+    // 需要配合 UseResult或者StoreResult使用, Fetch不负责释放res
+    template<typename CallbackType>
+    void FetchRow(MYSQL_RES *res, CallbackType &&cb);
+    // 逐行取数据(回调时候是一次性多行)lambda[](MysqlConnect *, bool, std::vector<SmartPtr<Record,  AutoMethod::CustomDelete>> &)->void bool:有没有数据
+    // 需要配合 UseResult或者StoreResult使用, Fetch不负责释放res
+    template<typename CallbackType>
+    void FetchRows(MYSQL_RES *res, CallbackType &&cb);
+
+    // 获取当前结果取到本地缓存中的总行数（对于UserResult来说是一行一行取, 每次FetchRow时行数会增加）
+    Int64 GetCurrentResultRows(MYSQL_RES *res) const;
 
     LibString ToString() const;
+
+    LibString GetCarefulOptionsInfo() const;
 
 private:
     MYSQL_RES *_StoreResult() const;
     MYSQL_RES *_UseResult() const;
     void _FreeRes(MYSQL_RES *res) const;
+
+    // cb:返回值, connect对象, 是否有数据, 当前行数据
+    void _FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, SmartPtr<Record, AutoDelMethods::CustomDelete> &> *cb);
+    void _FetchRows(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
+
     bool _ExcuteSql(const LibString &sql) const;
 
     bool _Connect();
@@ -174,32 +195,60 @@ ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const SqlBuilder<T> &builder)
     return _ExcuteSql(sql);
 }
 
+ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const LibString &sql)
+{
+    if(UNLIKELY(sql.empty()))
+        return false;
+
+    for(;!_Ping(sql););
+
+    return _ExcuteSql(sql);
+}
+
 template<typename CallbackType>
 ALWAYS_INLINE bool MysqlConnect::StoreResult(CallbackType &&cb)
 {
-    auto res = _StoreResult();
-    if(!res)
-        return false;
+    do
+    {
+        auto res = _StoreResult();
+        cb(this, res);
 
-    cb(this, res);
-
-    _FreeRes(res);
-
+        if(LIKELY(res))
+            _FreeRes(res);
+    } while (HasNextResult());
+    
     return true;
 }
 
 template<typename CallbackType>
 ALWAYS_INLINE bool MysqlConnect::UseResult(CallbackType &&cb)
 {
-    auto res = _UseResult();
-    if(!res)
-        return false;
+    do
+    {
+        auto res = _UseResult();
+        cb(this, res);
 
-    cb(this, res);
-
-    _FreeRes(res);
-
+        if(LIKELY(res))
+            _FreeRes(res);
+    } while (HasNextResult());
+    
     return true;
+}
+
+template<typename CallbackType>
+ALWAYS_INLINE void MysqlConnect::FetchRow(MYSQL_RES *res, CallbackType &&cb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void , MysqlConnect *, bool, SmartPtr<Record, AutoDelMethods::CustomDelete> &);
+    _FetchRow(res, delg);
+    delg->Release();
+}
+
+template<typename CallbackType>
+ALWAYS_INLINE void MysqlConnect::FetchRows(MYSQL_RES *res, CallbackType &&cb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, MysqlConnect *, bool, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &);
+    _FetchRows(res, delg);
+    delg->Release();
 }
 
 KERNEL_END

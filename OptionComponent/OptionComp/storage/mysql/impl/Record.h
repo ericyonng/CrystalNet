@@ -52,12 +52,12 @@ public:
 
     // 新增字段
     template<typename T = _Build::TL>
-    bool AddField(Int32 idx, const LibString &name, const void *data, Int64 dataSize);
+    Field *AddField(Int32 idx, const LibString &tableName, const LibString &name, const void *data, Int64 dataSize);
     template<typename T = _Build::TL>
-    bool AddField(const LibString &name, const void *data, Int64 dataSize);
+    Field *AddField(const LibString &tableName, const LibString &name, const void *data, Int64 dataSize);
 
     // 必须是NewThreadLocal创建出来的
-    bool AddField(Field *field);
+    Field *AddField(Field *field);
 
     bool HasField(const LibString &name) const;
     bool HasField(Int32 idx) const;
@@ -79,6 +79,12 @@ public:
     Field *operator[](const LibString &fieldName);
     const Field *operator[](const LibString &fieldName) const;
 
+    // 索引field
+    Field *GetField(Int32 idx);
+    const Field *GetField(Int32 idx) const;
+    Field *GetField(const LibString &fieldName);
+    const Field *GetField(const LibString &fieldName) const;
+
     // 支持for(auto : record)遍历
     std::vector<Field *>::iterator begin();
     std::vector<Field *>::const_iterator begin() const;
@@ -91,33 +97,33 @@ private:
 };
 
 template<typename T>
-ALWAYS_INLINE bool Record::AddField(Int32 idx, const LibString &name, const void *data, Int64 dataSize)
+ALWAYS_INLINE Field *Record::AddField(Int32 idx, const LibString &tableName, const LibString &name, const void *data, Int64 dataSize)
 {
-    auto field = Field::Create<T>(name, this);
+    auto field = Field::Create<T>(tableName, name, this);
     field->SetIndexInRecord(idx);
     field->Write(data, dataSize);
 
     if(UNLIKELY(!AddField(field)))
     {
         field->Release();
-        return false;
+        return NULL;
     }
 
-    return true;
+    return field;
 }
 
 template<typename T>
-ALWAYS_INLINE bool Record::AddField(const LibString &name, const void *data, Int64 dataSize)
+ALWAYS_INLINE Field *Record::AddField(const LibString &tableName, const LibString &name, const void *data, Int64 dataSize)
 {
-    auto field = Field::Create<T>(name, this);
+    auto field = Field::Create<T>(tableName, name, this);
     field->Write(data, dataSize);
     if(UNLIKELY(!AddField(field)))
     {
         field->Release();
-        return false;
+        return NULL;
     }
 
-    return true;
+    return field;
 }
 
 ALWAYS_INLINE bool Record::HasField(const LibString &name) const
@@ -220,6 +226,26 @@ ALWAYS_INLINE const Field *Record::operator[](const LibString &fieldName) const
 {
     auto iter = _fieldNameRefField.find(fieldName);
     return iter == _fieldNameRefField.end() ? NULL : iter->second;
+}
+
+ALWAYS_INLINE Field *Record::GetField(Int32 idx)
+{
+    return (*this)[idx];
+}
+
+ALWAYS_INLINE const Field *Record::GetField(Int32 idx) const
+{
+    return (*this)[idx];
+}
+
+ALWAYS_INLINE Field *Record::GetField(const LibString &fieldName)
+{
+    return (*this)[fieldName];
+}
+
+ALWAYS_INLINE const Field *Record::GetField(const LibString &fieldName) const
+{
+    return (*this)[fieldName];
 }
 
 ALWAYS_INLINE std::vector<Field *>::iterator Record::begin()

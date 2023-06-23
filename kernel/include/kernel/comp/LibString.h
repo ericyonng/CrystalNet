@@ -396,8 +396,9 @@ ALWAYS_INLINE LibString::LibString(LibString &&other)
 }
 
 ALWAYS_INLINE LibString::LibString(const Byte8 *other, UInt64 cacheSize)
-:_raw(other, cacheSize)
 {
+    if(LIKELY(other))
+        _raw.append(other, cacheSize);
 }
 
 ALWAYS_INLINE LibString::LibString(const LibString &other)
@@ -412,7 +413,8 @@ ALWAYS_INLINE LibString::LibString(const std::string &other)
 
 ALWAYS_INLINE LibString::LibString(const Byte8 *other)
 {
-    _raw = other;
+    if(LIKELY(other))
+        _raw = other;
 }
 
 ALWAYS_INLINE LibString::LibString(Byte8 other)
@@ -422,7 +424,9 @@ ALWAYS_INLINE LibString::LibString(Byte8 other)
 
 ALWAYS_INLINE LibString &LibString::operator = (const Byte8 *other)
 {
-    _raw = other;
+    if(LIKELY(other))
+        _raw = other;
+
     return *this;
 }
 
@@ -445,6 +449,9 @@ ALWAYS_INLINE LibString LibString::operator + (const LibString &other) const
 
 ALWAYS_INLINE LibString LibString::operator + (const Byte8 *other) const
 {
+    if(UNLIKELY(!other))
+        return _raw;
+
     return std::string(_raw).append(std::string(other));
 }
 
@@ -461,7 +468,9 @@ ALWAYS_INLINE LibString &LibString::operator += (const LibString &other)
 
 ALWAYS_INLINE LibString &LibString::operator += (const Byte8 *other)
 {
-    _raw.append(other);
+    if(LIKELY(other))
+        _raw.append(other);
+    
     return *this;
 }
 
@@ -509,6 +518,9 @@ ALWAYS_INLINE LibString LibString::operator - (const LibString &other) const
 
 ALWAYS_INLINE LibString LibString::operator - (const Byte8 *other) const
 {
+    if(UNLIKELY(!other))
+        return _raw;
+
     return LibString::operator -(LibString(other));
 }
 
@@ -529,6 +541,9 @@ ALWAYS_INLINE LibString &LibString::operator -= (const LibString &other)
 
 ALWAYS_INLINE LibString &LibString::operator -= (const Byte8 *other)
 {
+    if(UNLIKELY(!other))
+        return *this;
+
     return LibString::operator -=(LibString(other));
 }
 
@@ -721,11 +736,17 @@ ALWAYS_INLINE bool LibString::operator == (const std::string &other) const
 
 ALWAYS_INLINE bool LibString::operator == (const Byte8 *other) const
 {
+    if(UNLIKELY(!other))
+        return false;
+
     return _raw == other;
 }
 
 ALWAYS_INLINE bool LibString::operator != (const Byte8 *other) const
 {
+    if(UNLIKELY(!other))
+        return true;
+
     return _raw != other;
 }
 
@@ -756,6 +777,9 @@ ALWAYS_INLINE bool LibString::operator < (const LibString &right) const
 
 ALWAYS_INLINE size_t LibString::CopyTo(char *destData, UInt64 destSize, UInt64 cntToCopy, UInt64 srcOffset) const
 {
+    if(UNLIKELY(!destData))
+        return 0;
+
     const UInt64 maxLen = std::min<UInt64>(destSize, cntToCopy);
     ::memcpy(destData, _raw.data() + srcOffset, maxLen);
 
@@ -976,6 +1000,9 @@ ALWAYS_INLINE const LibString &LibString::RemoveHeadZero()
 
 ALWAYS_INLINE LibString &LibString::AppendData(const Byte8 *bitData, Int64 dataSize)
 {
+    if(UNLIKELY(!bitData))
+        return *this;
+
     _raw.append(bitData, dataSize);
     return *this;
 }
