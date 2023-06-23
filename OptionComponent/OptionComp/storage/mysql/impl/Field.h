@@ -51,15 +51,11 @@ public:
     Field(Record *owner = NULL);
     ~Field();
 
+    template<typename T = _Build::TL>
     static Field *Create(Record *owner = NULL);
     void Release();
 
     void Write(const void *data, Int64 dataSize);
-
-    // 设置释放的回调
-    template<typename CallbackType>
-    void SetRelease(CallbackType &&cb);
-    void SetRelease(IDelegate<void, Field *> *cb);
 
     // owner
     void SetOwner(Record *owner);
@@ -78,6 +74,12 @@ public:
     LibString ToString() const;
 
 private:
+    // 设置释放的回调
+    template<typename CallbackType>
+    void _SetRelease(CallbackType &&cb);
+    void _SetRelease(IDelegate<void, Field *> *cb);
+
+private:
     Record *_owner;
     Int32 _index;
     LibString _name;
@@ -85,9 +87,15 @@ private:
     IDelegate<void, Field *> *_release; 
 };
 
+template<typename T>
 ALWAYS_INLINE Field *Field::Create(Record *owner)
 {
-    return Field::NewThreadLocal_Field(owner);
+    // 设置释放
+    _SetRelease([](Field *ptr){
+        Field::DeleteByAdapter_Field(T::V, ptr);
+    });
+
+    return Field::NewByAdapter_Field(T::V, owner);
 }
 
 ALWAYS_INLINE void Field::Release()
@@ -100,21 +108,6 @@ ALWAYS_INLINE void Field::Release()
 
     // 默认方式
     Field::DeleteThreadLocal_Field(this);
-}
-
-template<typename CallbackType>
-ALWAYS_INLINE void Field::SetRelease(CallbackType &&cb)
-{
-    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Field *);
-    SetRelease(delg);
-}
-
-ALWAYS_INLINE void Field::SetRelease(IDelegate<void, Field *> *cb)
-{
-    if(UNLIKELY(_release))
-        _release->Release();
-
-    _release = cb;
 }
 
 ALWAYS_INLINE void Field::SetOwner(Record *owner)
@@ -153,6 +146,22 @@ ALWAYS_INLINE LibString Field::ToString() const
     info.AppendFormat("field name:%s, index in record:%d, data size:%lld", _name.c_str(), _index, GetDataSize());
     return info;
 }
+
+template<typename CallbackType>
+ALWAYS_INLINE void Field::_SetRelease(CallbackType &&cb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Field *);
+    _SetRelease(delg);
+}
+
+ALWAYS_INLINE void Field::_SetRelease(IDelegate<void, Field *> *cb)
+{
+    if(UNLIKELY(_release))
+        _release->Release();
+
+    _release = cb;
+}
+
 
 KERNEL_END
 

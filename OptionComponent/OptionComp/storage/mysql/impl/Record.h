@@ -34,6 +34,7 @@
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/memory/memory.h>
 #include <kernel/comp/LibString.h>
+#include <OptionComp/storage/mysql/impl/Field.h>
 
 KERNEL_BEGIN
 
@@ -50,6 +51,7 @@ public:
     void Clear();
 
     // 新增字段
+    template<typename T = _Build::TL>
     void AddField(Int32 idx, const LibString &name, const void *data, Int64 dataSize);
 
     // 必须是NewThreadLocal创建出来的
@@ -64,6 +66,14 @@ public:
 private:
     std::vector<Field *> _fields;
 };
+
+template<typename T>
+ALWAYS_INLINE void Record::AddField(Int32 idx, const LibString &name, const void *data, Int64 dataSize)
+{
+    auto field = Field::Create<T>(this);
+    field->SetIndexInRecord(idx);
+    AddField(idx, field);
+}
 
 ALWAYS_INLINE Int32 Record::GetFieldAmount() const
 {

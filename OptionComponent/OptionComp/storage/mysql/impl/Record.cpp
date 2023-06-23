@@ -50,13 +50,6 @@ void Record::Clear()
     ContainerUtil::DelContainer2(_fields);
 }
 
-void Record::AddField(Int32 idx, const LibString &name, const void *data, Int64 dataSize)
-{
-    auto field = Field::Create(this);
-    field->SetIndexInRecord(idx);
-    AddField(idx, field);
-}
-
 void Record::AddField(Int32 idx, Field *field)
 {
     bool isExists = false;
