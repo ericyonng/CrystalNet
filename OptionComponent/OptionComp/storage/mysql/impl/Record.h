@@ -52,10 +52,20 @@ public:
 
     // 新增字段
     template<typename T = _Build::TL>
-    void AddField(Int32 idx, const LibString &name, const void *data, Int64 dataSize);
+    bool AddField(Int32 idx, const LibString &name, const void *data, Int64 dataSize);
+    template<typename T = _Build::TL>
+    bool AddField(const LibString &name, const void *data, Int64 dataSize);
 
     // 必须是NewThreadLocal创建出来的
-    void AddField(Int32 idx, Field *field);
+    bool AddField(Field *field);
+
+    bool HasField(const LibString &name) const;
+    bool HasField(Int32 idx) const;
+
+    void RemoveField(const LibString &name);
+    void RemoveField(Int32 idx);
+    Field *Pop(const LibString &name);
+    Field *Pop(Int32 idx);
 
     // 字段数量
     void SetFieldAmount(Int32 amount);
@@ -63,21 +73,173 @@ public:
 
     LibString ToString() const;
 
+    // 索引field
+    Field *operator[](Int32 idx);
+    const Field *operator[](Int32 idx) const;
+    Field *operator[](const LibString &fieldName);
+    const Field *operator[](const LibString &fieldName) const;
+
+    // 支持for(auto : record)遍历
+    std::vector<Field *>::iterator begin();
+    std::vector<Field *>::const_iterator begin() const;
+    std::vector<Field *>::iterator end();
+    std::vector<Field *>::const_iterator end() const;
+
 private:
     std::vector<Field *> _fields;
+    std::unordered_map<LibString, Field *> _fieldNameRefField;
 };
 
 template<typename T>
-ALWAYS_INLINE void Record::AddField(Int32 idx, const LibString &name, const void *data, Int64 dataSize)
+ALWAYS_INLINE bool Record::AddField(Int32 idx, const LibString &name, const void *data, Int64 dataSize)
 {
-    auto field = Field::Create<T>(this);
+    auto field = Field::Create<T>(name, this);
     field->SetIndexInRecord(idx);
-    AddField(idx, field);
+    field->Write(data, dataSize);
+
+    if(UNLIKELY(!AddField(field)))
+    {
+        field->Release();
+        return false;
+    }
+
+    return true;
+}
+
+template<typename T>
+ALWAYS_INLINE bool Record::AddField(const LibString &name, const void *data, Int64 dataSize)
+{
+    auto field = Field::Create<T>(name, this);
+    field->Write(data, dataSize);
+    if(UNLIKELY(!AddField(field)))
+    {
+        field->Release();
+        return false;
+    }
+
+    return true;
+}
+
+ALWAYS_INLINE bool Record::HasField(const LibString &name) const
+{
+    return _fieldNameRefField.find(name) != _fieldNameRefField.end();
+}
+
+ALWAYS_INLINE bool Record::HasField(Int32 idx) const
+{
+    if(UNLIKELY(_fields.size() <= idx))
+        return false;
+
+    return _fields[idx] != NULL;
+}
+
+ALWAYS_INLINE void Record::RemoveField(const LibString &name)
+{
+    auto iter = _fieldNameRefField.find(name);
+    if(UNLIKELY(iter == _fieldNameRefField.end()))
+        return;
+
+    auto field = iter->second;
+    _fieldNameRefField.erase(iter);
+    _fields.erase(_fields.begin() + field->GetIndexInRecord());
+
+    field->Release();
+}
+
+ALWAYS_INLINE void Record::RemoveField(Int32 idx)
+{
+    if(UNLIKELY(_fields.size() <= idx))
+        return;
+
+    auto field = _fields[idx];
+    if(UNLIKELY(!field))
+        return;
+
+    _fieldNameRefField.erase(field->GetName());
+    _fields.erase(_fields.begin() + idx);
+
+    field->Release();
+}
+
+ALWAYS_INLINE Field *Record::Pop(const LibString &name)
+{
+    auto iter = _fieldNameRefField.find(name);
+    if(UNLIKELY(iter == _fieldNameRefField.end()))
+        return NULL;
+
+    auto field = iter->second;
+    _fieldNameRefField.erase(iter);
+    _fields.erase(_fields.begin() + field->GetIndexInRecord());
+
+    return field;
+}
+
+ALWAYS_INLINE Field *Record::Pop(Int32 idx)
+{
+    if(UNLIKELY(_fields.size() <= idx))
+        return NULL;
+
+    auto field = _fields[idx];
+    if(UNLIKELY(!field))
+        return NULL;
+
+    _fieldNameRefField.erase(field->GetName());
+    _fields.erase(_fields.begin() + idx);
+
+    return field;
 }
 
 ALWAYS_INLINE Int32 Record::GetFieldAmount() const
 {
-    return static_cast<Int32>(_fields.size());
+    return static_cast<Int32>(_fieldNameRefField.size());
+}
+
+ALWAYS_INLINE Field *Record::operator[](Int32 idx)
+{
+    if(UNLIKELY(_fields.size() <= idx))
+        return NULL;
+
+    return _fields[idx];
+}
+
+ALWAYS_INLINE const Field *Record::operator[](Int32 idx) const
+{
+    if(UNLIKELY(_fields.size() <= idx))
+        return NULL;
+
+    return _fields[idx];
+}
+
+ALWAYS_INLINE Field *Record::operator[](const LibString &fieldName)
+{
+    auto iter = _fieldNameRefField.find(fieldName);
+    return iter == _fieldNameRefField.end() ? NULL : iter->second;
+}
+
+ALWAYS_INLINE const Field *Record::operator[](const LibString &fieldName) const
+{
+    auto iter = _fieldNameRefField.find(fieldName);
+    return iter == _fieldNameRefField.end() ? NULL : iter->second;
+}
+
+ALWAYS_INLINE std::vector<Field *>::iterator Record::begin()
+{
+    return _fields.begin();
+}
+
+ALWAYS_INLINE std::vector<Field *>::const_iterator Record::begin() const
+{
+    return _fields.begin();
+}
+
+ALWAYS_INLINE std::vector<Field *>::iterator Record::end()
+{
+    return _fields.end();
+}
+
+ALWAYS_INLINE std::vector<Field *>::const_iterator Record::end() const
+{
+    return _fields.end();
 }
 
 KERNEL_END

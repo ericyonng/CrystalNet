@@ -48,11 +48,11 @@ class Field
     POOL_CREATE_OBJ_DEFAULT(Field);
 
 public:
-    Field(Record *owner = NULL);
+    Field(const LibString &fieldName, Record *owner = NULL);
     ~Field();
 
     template<typename T = _Build::TL>
-    static Field *Create(Record *owner = NULL);
+    static Field *Create(const LibString &fieldName, Record *owner = NULL);
     void Release();
 
     void Write(const void *data, Int64 dataSize);
@@ -69,6 +69,7 @@ public:
 
     // 字段所在行的索引
     Int32 GetIndexInRecord() const;
+    bool HasIndex() const;
     void SetIndexInRecord(Int32 idx);
 
     LibString ToString() const;
@@ -88,14 +89,14 @@ private:
 };
 
 template<typename T>
-ALWAYS_INLINE Field *Field::Create(Record *owner)
+ALWAYS_INLINE Field *Field::Create(const LibString &fieldName, Record *owner)
 {
     // 设置释放
     _SetRelease([](Field *ptr){
         Field::DeleteByAdapter_Field(T::V, ptr);
     });
 
-    return Field::NewByAdapter_Field(T::V, owner);
+    return Field::NewByAdapter_Field(T::V, fieldName, owner);
 }
 
 ALWAYS_INLINE void Field::Release()
@@ -133,6 +134,11 @@ ALWAYS_INLINE const LibString &Field::GetName() const
 ALWAYS_INLINE Int32 Field::GetIndexInRecord() const
 {
     return _index;
+}
+
+ALWAYS_INLINE bool Field::HasIndex() const
+{
+    return _index >= 0;
 }
 
 ALWAYS_INLINE void Field::SetIndexInRecord(Int32 idx)

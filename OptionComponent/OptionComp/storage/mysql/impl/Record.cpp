@@ -48,31 +48,35 @@ Record::~Record()
 void Record::Clear()
 {
     ContainerUtil::DelContainer2(_fields);
+    _fieldNameRefField.clear();
 }
 
-void Record::AddField(Int32 idx, Field *field)
+bool Record::AddField(Field *field)
 {
-    bool isExists = false;
-    Int32 existsIdx = -1;
-    for(auto v : _fields)
+    if(UNLIKELY(HasField(field->GetName())))
     {
-        if(v == field)
-        {
-            isExists = true;
-            break;
-        }
+        g_Log->Warn(LOGFMT_OBJ_TAG("field already exists name:%s, idx:%d, data size:%lld")
+                , field->GetName().c_str(), field->GetIndexInRecord(), field->GetDataSize());
+        return false;
     }
 
-    if(UNLIKELY(isExists))
+    if(field->HasIndex())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("field exists in this record existsIdx:%d, will add idx:%d, field:%s"), existsIdx, idx, field->ToString().c_str());
-        return;
+        const auto idx = field->GetIndexInRecord();
+        if(UNLIKELY(idx >= static_cast<Int32>(_fields.size())))
+            _fields.resize(idx + 1);
+
+        _fields[idx] = field;
+    }
+    else
+    {
+        field->SetIndexInRecord(static_cast<Int32>(_fields.size()));
+        _fields.push_back(field);
     }
 
-    if(idx >= static_cast<Int32>(_fields.size()))
-        _fields.resize(idx + 1);
+    _fieldNameRefField[field->GetName()] = field;
 
-    _fields[idx] = field;
+    return true;
 }
 
 void Record::SetFieldAmount(Int32 amount)

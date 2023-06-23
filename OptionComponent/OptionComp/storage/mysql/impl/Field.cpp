@@ -35,9 +35,10 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(Field);
 
-Field::Field(Record *owner)
+Field::Field(const LibString &name, Record *owner)
 :_owner(owner)
-,_index(0)
+,_index(-1)
+,_name(name)
 ,_data(NULL)
 ,_release(NULL)
 {
