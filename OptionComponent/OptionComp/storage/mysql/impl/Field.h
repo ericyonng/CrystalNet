@@ -48,11 +48,11 @@ class Field
     POOL_CREATE_OBJ_DEFAULT(Field);
 
 public:
-    Field(const LibString &tableName, const LibString &fieldName, Record *owner = NULL);
+    Field(const LibString &tableName, const LibString &fieldName, Int32 dataType, Record *owner = NULL);
     ~Field();
 
     template<typename T = _Build::TL>
-    static Field *Create(const LibString &tableName, const LibString &fieldName, Record *owner = NULL);
+    static Field *Create(const LibString &tableName, const LibString &fieldName, Int32 dataType, Record *owner = NULL);
     void Release();
 
     void Write(const void *data, Int64 dataSize);
@@ -66,6 +66,10 @@ public:
     Int64 GetDataSize() const;
     // 字段名
     const LibString &GetName() const;
+
+    // 数据类型
+    Int32 GetType() const;
+    void SetType(Int32 mysqlFieldType);
 
     // 表名
     const LibString GetTableName() const;
@@ -81,6 +85,9 @@ public:
 
     LibString ToString() const;
 
+    static const Byte8 *DataTypeString(Int32 dataType);
+    const Byte8 *GetDataTypeString() const;
+
 private:
     // 设置释放的回调
     template<typename CallbackType>
@@ -93,13 +100,14 @@ private:
     LibString _name;
     LibString _tableName;
     LibStream<_Build::TL> *_data;
+    Int32 _dataType;        // enum_field_types
     IDelegate<void, Field *> *_release; 
 };
 
 template<typename T>
-ALWAYS_INLINE Field *Field::Create(const LibString &tableName, const LibString &fieldName, Record *owner)
+ALWAYS_INLINE Field *Field::Create(const LibString &tableName, const LibString &fieldName, Int32 dataType, Record *owner)
 {
-    auto field = Field::NewByAdapter_Field(T::V, tableName, fieldName, owner);
+    auto field = Field::NewByAdapter_Field(T::V, tableName, fieldName, dataType, owner);
 
     // 设置释放
     field->_SetRelease([](Field *ptr){
@@ -141,6 +149,16 @@ ALWAYS_INLINE const LibString &Field::GetName() const
     return _name;
 }
 
+ALWAYS_INLINE Int32 Field::GetType() const
+{
+    return _dataType;
+}
+
+ALWAYS_INLINE void Field::SetType(Int32 mysqlFieldType)
+{
+    _dataType = mysqlFieldType;
+}
+
 ALWAYS_INLINE const LibString Field::GetTableName() const
 {
     return _tableName;
@@ -174,8 +192,13 @@ ALWAYS_INLINE LibStream<_Build::TL> *Field::GetData()
 ALWAYS_INLINE LibString Field::ToString() const
 {
     LibString info;
-    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld", _tableName.c_str(), _name.c_str(), _index, GetDataSize());
+    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld, data type:%d,%s", _tableName.c_str(), _name.c_str(), _index, GetDataSize(), _dataType, DataTypeString(_dataType));
     return info;
+}
+
+ALWAYS_INLINE const Byte8 *Field::GetDataTypeString() const
+{
+    return DataTypeString(_dataType);
 }
 
 template<typename CallbackType>

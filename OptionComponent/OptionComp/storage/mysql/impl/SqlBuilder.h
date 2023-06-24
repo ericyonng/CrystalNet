@@ -47,7 +47,7 @@ public:
 
         // 如果数据不存在则直接insert, 如果存在则先删除再insert, 前者affected_row是1后者affected_row是2
         REPLACE_INTO,
-        
+
         UPDATE,
         DELETE_RECORD,
         CREATE_TABLE,
@@ -65,6 +65,11 @@ public:
 
         // 优化表会对表空间进行清理,比如delete的数据进行真正的删除
         OPTIMIZE_TABLE,
+
+        START_TRANSACTION,      // 开启事务
+        SET_AUTOCOMMIT,         // 设置自动提交标志
+        ROLLBACK,               // 数据回滚操作, MyISAM引擎不支持回滚
+        COMMIT_TRANSACTION,     // 提交事务
     };
 };
 
@@ -1626,6 +1631,88 @@ public:
 
 private:
     LibString _table;
+};
+
+template<>
+class SqlBuilder<SqlBuilderType::START_TRANSACTION>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}  
+
+    SqlBuilder<SqlBuilderType::START_TRANSACTION> &Clear()
+    {
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        return "START TRANSACTION";
+    }
+};
+
+template<>
+class SqlBuilder<SqlBuilderType::SET_AUTOCOMMIT>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}  
+
+    SqlBuilder<SqlBuilderType::SET_AUTOCOMMIT> &Clear()
+    {
+        _autoCommit = true;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::SET_AUTOCOMMIT> &SetAutoCommit(bool autoCommit = true)
+    {
+        _autoCommit = autoCommit;
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        return LibString().AppendFormat("set autocommit = %d", _autoCommit ? 1 : 0);
+    }
+
+private:
+    bool _autoCommit = true;
+};
+
+template<>
+class SqlBuilder<SqlBuilderType::ROLLBACK>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}  
+
+    SqlBuilder<SqlBuilderType::ROLLBACK> &Clear()
+    {
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        return "ROLLBACK";
+    }
+};
+
+template<>
+class SqlBuilder<SqlBuilderType::COMMIT_TRANSACTION>
+{
+public:
+    SqlBuilder() {}
+    ~SqlBuilder() {}  
+
+    SqlBuilder<SqlBuilderType::COMMIT_TRANSACTION> &Clear()
+    {
+        return *this;
+    }
+
+    LibString ToSql() const
+    {
+        return "COMMIT";
+    }
 };
 
 KERNEL_END

@@ -52,9 +52,9 @@ public:
 
     // 新增字段
     template<typename T = _Build::TL>
-    Field *AddField(Int32 idx, const LibString &tableName, const LibString &name, const void *data, Int64 dataSize);
+    Field *AddField(Int32 idx, const LibString &tableName, const LibString &name, Int32 fieldType, const void *data, Int64 dataSize);
     template<typename T = _Build::TL>
-    Field *AddField(const LibString &tableName, const LibString &name, const void *data, Int64 dataSize);
+    Field *AddField(const LibString &tableName, const LibString &name, Int32 fieldType, const void *data, Int64 dataSize);
 
     // 必须是NewThreadLocal创建出来的
     Field *AddField(Field *field);
@@ -97,9 +97,9 @@ private:
 };
 
 template<typename T>
-ALWAYS_INLINE Field *Record::AddField(Int32 idx, const LibString &tableName, const LibString &name, const void *data, Int64 dataSize)
+ALWAYS_INLINE Field *Record::AddField(Int32 idx, const LibString &tableName, const LibString &name, Int32 fieldType, const void *data, Int64 dataSize)
 {
-    auto field = Field::Create<T>(tableName, name, this);
+    auto field = Field::Create<T>(tableName, name, fieldType, this);
     field->SetIndexInRecord(idx);
     field->Write(data, dataSize);
 
@@ -113,10 +113,11 @@ ALWAYS_INLINE Field *Record::AddField(Int32 idx, const LibString &tableName, con
 }
 
 template<typename T>
-ALWAYS_INLINE Field *Record::AddField(const LibString &tableName, const LibString &name, const void *data, Int64 dataSize)
+ALWAYS_INLINE Field *Record::AddField(const LibString &tableName, const LibString &name, Int32 fieldType, const void *data, Int64 dataSize)
 {
-    auto field = Field::Create<T>(tableName, name, this);
+    auto field = Field::Create<T>(tableName, name, fieldType, this);
     field->Write(data, dataSize);
+
     if(UNLIKELY(!AddField(field)))
     {
         field->Release();

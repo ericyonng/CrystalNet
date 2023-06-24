@@ -47,7 +47,6 @@ MysqlConfig::MysqlConfig()
 ,_dbCollate("utf8mb4_bin")
 ,_autoReconnect(1)
 ,_maxPacketSize(2 * 1024llu * 1024llu * 1024llu) // 2GB
-,_isOpenTableInfo(true)
 ,_enableMultiStatements(true)
 {
 
@@ -56,9 +55,9 @@ MysqlConfig::MysqlConfig()
 LibString MysqlConfig::ToString() const
 {
     LibString info;
-    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%llu bind ip:%s \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu isopentableinfo:%d, _enableMultiStatements:%d"
+    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%llu bind ip:%s \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu _enableMultiStatements:%d"
         , _host.c_str(), _user.c_str(), _pwd.c_str(), _dbName.c_str(), _port, _bindIp.c_str(), _charset.c_str(), _dbCharset.c_str(), _dbCollate.c_str(),
-         _autoReconnect, _maxPacketSize, _isOpenTableInfo, _enableMultiStatements);
+         _autoReconnect, _maxPacketSize, _enableMultiStatements);
 
     return info;
 }
@@ -186,6 +185,16 @@ LibString MysqlConnect::GetCarefulOptionsInfo() const
     return info;
 }
 
+UInt32 MysqlConnect::GetMysqlErrno() const
+{
+    return mysql_errno(_mysql);
+}
+
+LibString MysqlConnect::GetMysqlError() const
+{
+    return mysql_error(_mysql);
+}
+
 Int32 MysqlConnect::Init()
 {
     if(UNLIKELY(_mysql))
@@ -196,46 +205,6 @@ Int32 MysqlConnect::Init()
 
     _mysql = mysql_init(NULL);
     _isConnected = false;
-
-    Int32 err = 0;
-    do
-    {
-        // 操作字符集
-        err = mysql_options(_mysql, MYSQL_SET_CHARSET_NAME, _cfg._charset.c_str());
-        if(err != 0)
-            break;
-
-        // TODO:需要判断断线重连是否会自动选择上次的数据库
-        // 自动重连
-        err = mysql_options(_mysql, MYSQL_OPT_RECONNECT, &_cfg._autoReconnect);
-        if(err != 0)
-            break;
-
-        // 设置mysql的最大包大小
-        err = mysql_options(_mysql, MYSQL_OPT_MAX_ALLOWED_PACKET, &_cfg._maxPacketSize);
-        if(err != 0)
-            break;
-
-        // 表信息打开
-        err = mysql_options(_mysql, MYSQL_OPT_OPTIONAL_RESULTSET_METADATA, &_cfg._isOpenTableInfo);
-        if(err != 0)
-            break;
-
-        // 绑定本地指定的ip
-        if(!_cfg._bindIp.empty())
-        {
-            err = mysql_options(_mysql, MYSQL_OPT_BIND, _cfg._bindIp.c_str());
-            if(err != 0)
-                break;
-        }
-
-    }while(false);
-    
-    if(err != 0)
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("mysql error:%s"), mysql_error(_mysql));
-        return Status::Failed;
-    }
 
     g_Log->Info(LOGFMT_OBJ_TAG("mysql connector init success id:%llu config:%s."), _id, _cfg.ToString().c_str());
     g_Log->Info(LOGFMT_OBJ_TAG("mysql connection simple info: %s."), ToString().c_str());
@@ -349,6 +318,19 @@ void MysqlConnect::_FreeRes(MYSQL_RES *res) const
 
 void MysqlConnect::_FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, SmartPtr<Record, AutoDelMethods::CustomDelete> &> *cb)
 {
+    // 定位到数据起始位置
+    mysql_data_seek(res, 0);
+
+    // 获取字段集合
+    // MYSQL_FIELD *dbFields = mysql_fetch_fields(res);
+    // if(!dbFields)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("mysql_fetch_fields fail have no dbfields error:%s connection info:%s"), mysql_error(_mysql), ToString().c_str());
+    //     SmartPtr<Record, AutoDelMethods::CustomDelete> record = NULL;
+    //     cb->Invoke(this, false, false, record);
+    //     return;
+    // }
+
     MYSQL_ROW row;
     // 当前res中拿到的数据量
     auto fieldNum = mysql_num_fields(res);
@@ -369,7 +351,7 @@ void MysqlConnect::_FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, boo
         {
             // 取当前字段信息并打印字段信息与数据
             auto curField = mysql_fetch_field_direct(res, idx);
-            record->AddField(idx, curField->table, curField->name, row[idx], lens[idx]);
+            record->AddField(idx, curField->table, curField->name, curField->type, row[idx], lens[idx]);
 
             // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
             //     g_Log->Info(LOGFMT_OBJ_TAG("field:%s"), newField->ToString().c_str());
@@ -411,7 +393,7 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bo
         {
             // 取当前字段信息并打印字段信息与数据
             auto curField = mysql_fetch_field_direct(res, idx);
-            record->AddField(idx, curField->table, curField->name, row[idx], lens[idx]);
+            record->AddField(idx, curField->table, curField->name, curField->type, row[idx], lens[idx]);
 
             // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
             //     g_Log->Info(LOGFMT_OBJ_TAG("field:%s"), newField->ToString().c_str());
@@ -429,14 +411,15 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bo
 
 bool MysqlConnect::_ExcuteSql(const LibString &sql) const
 {
+    // mysql需要指定一个日志文件
     if(g_Log->IsEnable(LogLevel::Debug))
-        g_Log->Debug2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql:", _id), sql);
+        g_Log->Debug2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql size:%llu excute sql:", _id, static_cast<UInt64>(sql.size())), sql);
 
     // 当没有开启CLIENT_MULTI_STATEMENTS时候会返回结果, 如果开启CLIENT_MULTI_STATEMENTS则语句并没有全部执行好,需要获取结果, 会有多个结果
     auto ret = mysql_real_query(_mysql, sql.c_str(), static_cast<ULong>(sql.length()));
     if(ret != 0)
     {
-        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("connection info:%s, excute sql fail err:%s, sql:", ToString().c_str(), mysql_error(_mysql)), sql);
+        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("connection info:%s, excute sql fail err:%s, sql size:%llu sql:", ToString().c_str(), mysql_error(_mysql), static_cast<UInt64>(sql.size())), sql);
         return false;
     }
 
@@ -452,6 +435,52 @@ bool MysqlConnect::_Connect()
 {
     // 连接
     _isConnected = false;
+
+    // 设置mysql选项
+    Int32 err = 0;
+    do
+    {
+        // 操作字符集
+        if(!_cfg._charset.empty())
+        {
+            err = mysql_options(_mysql, MYSQL_SET_CHARSET_NAME, _cfg._charset.c_str());
+            if(err != 0)
+                break;
+        }
+
+        // TODO:需要判断断线重连是否会自动选择上次的数据库
+        // 自动重连
+        err = mysql_options(_mysql, MYSQL_OPT_RECONNECT, &_cfg._autoReconnect);
+        if(err != 0)
+            break;
+
+        // 设置mysql的最大包大小
+        err = mysql_options(_mysql, MYSQL_OPT_MAX_ALLOWED_PACKET, &_cfg._maxPacketSize);
+        if(err != 0)
+            break;
+
+        // 表信息打开
+        bool isOpenTableInfo = true;
+        err = mysql_options(_mysql, MYSQL_OPT_OPTIONAL_RESULTSET_METADATA, &isOpenTableInfo);
+        if(err != 0)
+            break;
+
+        // 绑定本地指定的ip
+        if(!_cfg._bindIp.empty())
+        {
+            err = mysql_options(_mysql, MYSQL_OPT_BIND, _cfg._bindIp.c_str());
+            if(err != 0)
+                break;
+        }
+    }while(false);
+    
+    if(err != 0)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("mysql_options fail error:%s, mysql connection info:%s"), mysql_error(_mysql), ToString().c_str());
+        return false;
+    }
+
+    // 启用一次执行多条sql
     ULong flag = 0;
     if(_cfg._enableMultiStatements)
         flag = CLIENT_MULTI_STATEMENTS;

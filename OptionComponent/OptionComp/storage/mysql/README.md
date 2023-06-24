@@ -6,8 +6,16 @@
 * 包含3rd下mysql的相关include路径和库路径
 * windows下最好使用mysql官方指定的mysql workbench来管理数据库
 * 一张表只能有一个自增id字段
+* mysql 错误问题解析
+  * MySQL server has gone away: 一个mysql_real_query过长, 超过了max_allowed_packet限制大小
+  * 在一次性执行多条sql后，无论是insert/update等这些没有结果的还是select等有结果的sql, 必须要store_result/user_result来移除result，才能继续执行sql
+  * 执行完mysql_real_query后必须再执行store_result/user_result才算完整的执行完sql，因为mysql_real_query只是把sql发过去, mysql还没真正执行完成
 * 配置
   * my.ini中配置最大连接数5000(my.ini)
+  * my.ini中配置最大包大小: max_allowed_packet=2048M
+  * my.ini中配置最大连接数:max_connections
+  * mysql连接是有上限的所以为了保证mysql可以被访问，需要对mysqlclient的连接控制,这时候就需要连接池，限制client-side的连接数量
+    * 在使用连接池时必须设置不可自动重连，因为自动重连时就会阻塞mysql_ping导致性能下降, 应该设置不重连, 手动重新连接
   * MYSQL_OPT_MAX_ALLOWED_PACKET 设置mysql连接一次接收的最大包大小 最大建议设置2GB, 不超过3GB
     * UseResult：
       * 优点: 不会把所有的数据一次性全部取回本地缓存， 对于全表查询数据量比较大，但又不需要缓存所有数据来说是比较友好的

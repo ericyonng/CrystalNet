@@ -30,17 +30,19 @@
 #include <OptionComp/storage/mysql/impl/Record.h>
 #include <OptionComp/storage/mysql/impl/Field.h>
 #include <kernel/comp/LibStream.h>
+#include <mysql.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(Field);
 
-Field::Field(const LibString &tableName, const LibString &name, Record *owner)
+Field::Field(const LibString &tableName, const LibString &name, Int32 dataType, Record *owner)
 :_owner(owner)
 ,_index(-1)
 ,_name(name)
 ,_tableName(tableName)
 ,_data(NULL)
+,_dataType(dataType)
 ,_release(NULL)
 {
 
@@ -82,6 +84,51 @@ Int64 Field::GetDataSize() const
         return 0;
 
     return _data->GetWriteBytes();
+}
+
+const Byte8 *Field::DataTypeString(Int32 dataType)
+{
+    switch (dataType)
+    {
+    case MYSQL_TYPE_DECIMAL: return "MYSQL_TYPE_DECIMAL";
+    case MYSQL_TYPE_TINY: return "MYSQL_TYPE_TINY";
+    case MYSQL_TYPE_SHORT: return "MYSQL_TYPE_SHORT";
+    case MYSQL_TYPE_LONG: return "MYSQL_TYPE_LONG";
+    case MYSQL_TYPE_FLOAT: return "MYSQL_TYPE_FLOAT";
+    case MYSQL_TYPE_DOUBLE: return "MYSQL_TYPE_DOUBLE";
+    case MYSQL_TYPE_NULL: return "MYSQL_TYPE_NULL";
+    case MYSQL_TYPE_TIMESTAMP: return "MYSQL_TYPE_TIMESTAMP";
+    case MYSQL_TYPE_LONGLONG: return "MYSQL_TYPE_LONGLONG";
+    case MYSQL_TYPE_INT24: return "MYSQL_TYPE_INT24";
+    case MYSQL_TYPE_DATE: return "MYSQL_TYPE_DATE";
+    case MYSQL_TYPE_TIME: return "MYSQL_TYPE_TIME";
+    case MYSQL_TYPE_DATETIME: return "MYSQL_TYPE_DATETIME";
+    case MYSQL_TYPE_YEAR: return "MYSQL_TYPE_YEAR";
+    case MYSQL_TYPE_NEWDATE: return "MYSQL_TYPE_NEWDATE";
+    case MYSQL_TYPE_VARCHAR: return "MYSQL_TYPE_VARCHAR";
+    case MYSQL_TYPE_BIT: return "MYSQL_TYPE_BIT";
+    case MYSQL_TYPE_TIMESTAMP2: return "MYSQL_TYPE_TIMESTAMP2";
+    case MYSQL_TYPE_DATETIME2: return "MYSQL_TYPE_DATETIME2";
+    case MYSQL_TYPE_TIME2: return "MYSQL_TYPE_TIME2";
+    case MYSQL_TYPE_TYPED_ARRAY: return "MYSQL_TYPE_TYPED_ARRAY";
+    case MYSQL_TYPE_INVALID: return "MYSQL_TYPE_INVALID";
+    case MYSQL_TYPE_BOOL: return "MYSQL_TYPE_BOOL";
+    case MYSQL_TYPE_JSON: return "MYSQL_TYPE_JSON";
+    case MYSQL_TYPE_NEWDECIMAL: return "MYSQL_TYPE_NEWDECIMAL";
+    case MYSQL_TYPE_ENUM: return "MYSQL_TYPE_ENUM";
+    case MYSQL_TYPE_SET: return "MYSQL_TYPE_SET";
+    case MYSQL_TYPE_TINY_BLOB: return "MYSQL_TYPE_TINY_BLOB";
+    case MYSQL_TYPE_MEDIUM_BLOB: return "MYSQL_TYPE_MEDIUM_BLOB";
+    case MYSQL_TYPE_LONG_BLOB: return "MYSQL_TYPE_LONG_BLOB";
+    case MYSQL_TYPE_BLOB: return "MYSQL_TYPE_BLOB";
+    case MYSQL_TYPE_VAR_STRING: return "MYSQL_TYPE_VAR_STRING";
+    case MYSQL_TYPE_STRING: return "MYSQL_TYPE_STRING";
+    case MYSQL_TYPE_GEOMETRY: return "MYSQL_TYPE_GEOMETRY";
+    default:
+        break;
+    }
+
+    return "UNKNOWN_DATA_TYPE";
 }
 
 KERNEL_END
