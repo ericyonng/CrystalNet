@@ -32,6 +32,7 @@
 
 #include <mysql.h>
 #include <kernel/comp/Utils/Utils.h>
+#include <kernel/comp/Cpu/cpu.h>
 
 KERNEL_BEGIN
 
@@ -66,6 +67,7 @@ MysqlConnect::MysqlConnect(UInt64 id)
 :_id(id)
 ,_mysql(NULL)
 ,_isConnected(false)
+,_lastPingMs(0)
 {
 
 }
@@ -110,9 +112,9 @@ Int64 MysqlConnect::GetCurrentResultRows(MYSQL_RES *res) const
 LibString MysqlConnect::ToString() const
 {
     LibString info;
-    info.AppendFormat("connection id:%llu mysql host:%s, port:%hu, bind ip:%s, user:%s, db name:%s, is connected:%d"
+    info.AppendFormat("connection id:%llu mysql host:%s, port:%hu, bind ip:%s, user:%s, db name:%s, is connected:%d, last ping:%llu ms"
                     , _id, _cfg._host.c_str(), _cfg._port, _cfg._bindIp.c_str(),
-                     _cfg._user.c_str(), _cfg._dbName.c_str(), _isConnected);
+                     _cfg._user.c_str(), _cfg._dbName.c_str(), _isConnected, _lastPingMs);
     return info;
 }
 
@@ -505,9 +507,11 @@ bool MysqlConnect::_SelectDB()
 
 bool MysqlConnect::_Ping(const LibString &content)
 {
+    const auto &counter = LibCpuCounter::Current();
     auto ret = mysql_ping(_mysql);
+    _lastPingMs = LibCpuCounter::Current().ElapseMilliseconds(counter);
+    
     _AddOpCount(MysqlOperateType::READ);
-
     if(ret == 0)
     {
         _isConnected = true;

@@ -363,16 +363,26 @@ void TestSql::Run()
     {// 创建表
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::CREATE_TABLE> builder;
         builder.Table("tbl_role")
-        .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT \"id\"")
+        .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'id'")
         // .Field("Id BIGINT NOT NULL DEFAULT 0 COMMENT \"id\"")
         // .Field("Id2 BIGINT NOT NULL AUTO_INCREMENT COMMENT \"Id2\"")
-        .Field("RoleId INT NOT NULL COMMENT \"角色id\"")
-        .Field("UserId VARCHAR(4096) NOT NULL COMMENT \"账号id\"")
-        .Field("Name VARCHAR(4096) NOT NULL COMMENT \"名字\"")
-        .Field("LoginTime INT DEFAULT 0 COMMENT \"登录时间\"")
+        .Field("RoleId INT NOT NULL COMMENT '角色id'")
+        .Field("UserId VARCHAR(4096) NOT NULL DEFAULT '' COMMENT '账号id'")
+        .Field("Name VARCHAR(4096) NOT NULL DEFAULT '' COMMENT '名字'")
+        .Field("TestText TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'test text'")
+        .Field("LoginTime INT DEFAULT 0 COMMENT '登录时间'")
         .PrimaryKey("Id")
         .Comment("role table")
         ;
+        mysqlConnection->ExcuteSql(builder);
+    }
+
+    {// 改表引擎
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::ALTER_TABLE> builder;
+        builder.Table("tbl_role").ChangeEngine("MyISAM");
+        mysqlConnection->ExcuteSql(builder);
+
+        builder.Clear().Table("tbl_role").ChangeEngine("InnoDB");
         mysqlConnection->ExcuteSql(builder);
     }
 

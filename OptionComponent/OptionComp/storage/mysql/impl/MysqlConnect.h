@@ -114,6 +114,9 @@ public:
     bool ExcuteSql(const SqlBuilder<T> &builder);
     bool ExcuteSql(const LibString &sql);
 
+    // 执行ping判断连接是否在
+    bool Ping();
+
     // 获取上次新增一条数据操作产生的id(这个id是在标识了自增属性的字段, 一张表只能有一个自增id字段), 如果上次是其他非造成新增数据的sql则获取的结果是0
     // 如果表没有自增字段则返回0
     Int64 GetLastInsertIdOfAutoIncField() const;
@@ -173,7 +176,8 @@ private:
     MysqlConfig _cfg;
     MYSQL *_mysql;
     bool _isConnected;
-    std::unordered_map<Int32, MysqlOperateInfo> _typeRefOpInfo; 
+    std::unordered_map<Int32, MysqlOperateInfo> _typeRefOpInfo;
+    UInt64 _lastPingMs;
 };
 
 ALWAYS_INLINE void MysqlConnect::SetConfig(const MysqlConfig &cfg)
@@ -203,6 +207,11 @@ ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const LibString &sql)
     for(;!_Ping(sql););
 
     return _ExcuteSql(sql);
+}
+
+ALWAYS_INLINE bool MysqlConnect::Ping()
+{
+    return _Ping(LibString());
 }
 
 template<typename CallbackType>

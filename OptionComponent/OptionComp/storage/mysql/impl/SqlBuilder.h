@@ -93,13 +93,15 @@ public:
     SqlBuilder(){}
     ~SqlBuilder(){}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::SELECT> &Clear()
     {
         _fields.clear();
         _tables.clear();
         _where.clear();
         _orders.clear();
         _limit = -1;
+        
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::SELECT> &WithFields(const std::vector<LibString> &fields)
@@ -245,12 +247,13 @@ public:
     SqlBuilder(){}
     ~SqlBuilder(){}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::INSERT> &Clear()
     {
         _fields.clear();
         _table.clear();
         _values.clear();
         _valuesFromSql.clear();
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::INSERT> &Fields(const std::vector<LibString> &fields)
@@ -347,12 +350,13 @@ public:
     ~SqlBuilder(){}
 
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::REPLACE_INTO> &Clear()
     {
         _fields.clear();
         _table.clear();
         _values.clear();
         _valuesFromSql.clear();
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::REPLACE_INTO> &Fields(const std::vector<LibString> &fields)
@@ -448,11 +452,13 @@ public:
     SqlBuilder(){}
     ~SqlBuilder(){}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::UPDATE> &Clear()
     {
         _kvs.clear();
         _table.clear();
         _where.clear();
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::UPDATE> &Table(const LibString &table)
@@ -525,10 +531,12 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::DELETE_RECORD> &Clear()
     {
         _table.clear();
         _where.clear();
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::DELETE_RECORD> &Table(const LibString &table)
@@ -574,7 +582,7 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Clear()
     {
         _table.clear();
         _fields.clear();
@@ -586,6 +594,8 @@ public:
         _primaryKey.clear();
         _uniques.clear();
         _indexs.clear();
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::CREATE_TABLE> &Table(const LibString &table)
@@ -769,9 +779,11 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::TRUNCATE_TABLE> &Clear()
     {
         _table.clear();
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::TRUNCATE_TABLE> &Table(const LibString &table)
@@ -803,9 +815,11 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::DROP_TABLE> &Clear()
     {
         _table.clear();
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::DROP_TABLE> &Table(const LibString &table)
@@ -836,11 +850,13 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::CREATE_DB> &Clear()
     {
         _db.clear();
         _charset = "utf8mb4";
         _collate = "utf8mb4_bin";
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::CREATE_DB> &DB(const LibString &db)
@@ -892,9 +908,11 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::DROP_DB> &Clear()
     {
         _db.clear();
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::DROP_DB> &DB(const LibString &db)
@@ -926,7 +944,7 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Clear()
     {
         _adds.clear();
         _renames.clear();
@@ -936,8 +954,11 @@ public:
         _addUniqueIndexs.clear();
         _dropIndexs.clear();
         _addPrimaryKeys.clear();
+        _changeEngine.clear();
         _type = CHANGE_UNKNOWN;
         _table.clear();
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::ALTER_TABLE> &Table(const LibString &table)
@@ -1181,6 +1202,13 @@ public:
         return *this;
     }
 
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &ChangeEngine(const LibString &engine)
+    {
+        _type = CHANGE_ENGINE;
+        _changeEngine = engine;
+        return *this;
+    }
+
     LibString ToSql() const
     {
         if((_type == CHANGE_UNKNOWN) || 
@@ -1208,6 +1236,8 @@ public:
             return _BuildAddPrimaryKeySql();
         case CHANGE_DROP_PRIMARY_KEY:
             return _BuildDropPrimaryKeySql();
+        case CHANGE_ENGINE:
+            return _BuildChangeEngineSql();
         default:
             break;
         }
@@ -1490,6 +1520,13 @@ private:
         return sql;
     }
 
+    LibString _BuildChangeEngineSql() const
+    {
+        LibString sql;
+        sql.AppendFormat("ALTER TABLE `%s` ENGINE = %s", _table.c_str(), _changeEngine.c_str());
+        return sql;
+    }
+
 private:
 
     // 类型
@@ -1505,6 +1542,7 @@ private:
         CHANGE_DROP_INDEX,
         CHANGE_ADD_PRIMARY_KEY,
         CHANGE_DROP_PRIMARY_KEY,
+        CHANGE_ENGINE,
     };
 
     std::vector<std::tuple<LibString, LibString, LibString>> _adds; // field, desc, after
@@ -1515,6 +1553,7 @@ private:
     std::vector<std::tuple<LibString, std::vector<LibString>, LibString, LibString>> _addUniqueIndexs; // index name, column name list, using btree等, comment
     std::vector<LibString> _dropIndexs;
     std::vector<LibString> _addPrimaryKeys;
+    LibString _changeEngine;
     Int32 _type = CHANGE_UNKNOWN;
     LibString _table;
 };
@@ -1527,9 +1566,11 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::SHOW_INDEX> &Clear()
     {
         _table.clear();
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::SHOW_INDEX> &Table(const LibString &table)
@@ -1560,9 +1601,11 @@ public:
     SqlBuilder() {}
     ~SqlBuilder() {}  
 
-    void Clear()
+    SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE> &Clear()
     {
         _table.clear();
+
+        return *this;
     }
 
     SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE> &Table(const LibString &table)

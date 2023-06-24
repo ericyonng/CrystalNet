@@ -18,5 +18,16 @@
       * 当即将返回的数据 >  MYSQL_OPT_MAX_ALLOWED_PACKET 时候 执行的sql可能会失败，建议 MYSQL_OPT_MAX_ALLOWED_PACKET = 1024M
     * 一般情况下采用StoreResult, 如果数据较大, 需要进行分页查询, 分多次将数据查完select *from tbl where id > last_max_id order by id asc limit 1000
     * 对于单台机器内存128G来说一半用来用户自己的内存, 且单点负载5000人情况下， 一个用户数据占用内存建议不超过16MB, 也就是说可能一次查询需要的内存是最大约16GB，但是一般玩家通常内存占用不会这么大一般4MB已经很大了, 那么可以设置MYSQL_OPT_MAX_ALLOWED_PACKET  4GB
-  * 
+* mysql_options 需要在connect之前调用
+* 事务
+  * 概念：一个程序执行单元，要么都执行要么都不执行
+  * 操作
+    * START TRANSACTION:开启事务
+    * set autocommit = 0:不自动提交事务（一个sql是一个事务，如果设置自动提交那么就回滚不了）
+    * COMMIT:手动提交事务
+    * ROLLBACK:中间出错会回滚
+    * set autocommit = 1恢复自动提交
+  * 存储引擎: myisam:查询快, 表级锁,不支持行锁 ROLLBACK 不支持， InnoDB: 支持回滚，所以要支持事务必须选用InnoDB， 行级锁
+  * 事务不是原子操作，原子操作由锁来保证
+  * 因为MyISAM是表级锁，会导致其他人读不了数据
 
