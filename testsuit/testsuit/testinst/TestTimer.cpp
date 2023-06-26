@@ -106,8 +106,8 @@ void TestTimer::Run()
         KERNEL_NS::SystemUtil::ThreadSleep(1);
         timerMgr.Drive();
 
-        if(--loop < 0)
-            break;
+        // if(--loop < 0)
+        //     break;
     }
 
     timerMgr.Close();

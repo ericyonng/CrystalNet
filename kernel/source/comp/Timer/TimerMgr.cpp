@@ -77,16 +77,53 @@ void TimerMgr::Drive()
     if(LIKELY(!_expireQueue.empty()))
     {
         _curTime = TimeUtil::GetFastMicroTimestamp();
-        LibList<TimeData *, _Build::TL> *timeDataList = LibList<TimeData *, _Build::TL>::NewThreadLocal_LibList();
-        for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
-        {
-            // 未过期的为止
-            auto timeData = *iter;
-            if(timeData->_expiredTime > _curTime)
-                break;
+        TimeData *expiredHead = NULL;
+        TimeData *expiredEnd = NULL;
 
-            timeDataList->PushBack(timeData);
+        // 判断头节点过期
+        auto iter = _expireQueue.begin();
+        if((*iter)->_expiredTime <= _curTime)
+        {
+            expiredHead = *iter;
+            expiredEnd = expiredHead;
+            expiredEnd->_next = NULL;
             iter = _expireQueue.erase(iter);
+        }
+
+        // 第一个有过期就判断其他有没有过期
+        if(expiredHead)
+        {
+            for(; iter != _expireQueue.end();)
+            {
+                // 未过期的为止
+                auto timeData = *iter;
+                if(timeData->_expiredTime > _curTime)
+                    break;
+
+                expiredEnd->_next = timeData;
+                expiredEnd = timeData;
+                expiredEnd->_next = NULL;
+
+                iter = _expireQueue.erase(iter);
+            }
+        }
+
+        for (;expiredHead;)
+        {
+            auto timeData = expiredHead;
+            expiredHead = expiredHead->_next;
+
+            if(timeData->_isScheduing)
+            {
+                timeData->_owner->OnTimeOut();
+
+                if(LIKELY(timeData->_owner))
+                {
+                    // 重新被调度
+                    if(timeData->_isScheduing)
+                        _Register(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+                }
+            }
         }
 
         // // 重算过期标记
@@ -99,26 +136,6 @@ void TimerMgr::Drive()
         // {
         //     _hasExpired = false;
         // }
-
-        for(auto node = timeDataList->Begin(); node;)
-        {
-            auto timeData = node->_data;
-            if(timeData->_isScheduing)
-            {
-                timeData->_owner->OnTimeOut();
-
-                if(LIKELY(timeData->_owner))
-                {
-                    // 重新被调度
-                    if(timeData->_isScheduing)
-                        _Register(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
-                }
-            }
-
-            node = timeDataList->Erase(node);
-        }
-
-        LibList<TimeData *, _Build::TL>::DeleteThreadLocal_LibList(timeDataList);
     }
 
     _AfterDrive();

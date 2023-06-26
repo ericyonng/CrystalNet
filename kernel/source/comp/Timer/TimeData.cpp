@@ -46,6 +46,8 @@ TimeData::TimeData(Int64 id, LibTimer *timer)
     ,_isScheduing(false)
     ,_asynData(AsynTimeData::NewThreadLocal_AsynTimeData(this))
     ,_params(Variant::New_Variant())
+    , _next(NULL)
+
 {
 
 }
@@ -61,6 +63,7 @@ TimeData::~TimeData()
     _asynData = NULL;
     Variant::Delete_Variant(_params);
     _params = NULL;
+    _next = NULL;
 }
 
 void TimeData::MoveParams(Variant *params)

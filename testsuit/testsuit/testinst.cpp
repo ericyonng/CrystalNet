@@ -226,7 +226,7 @@ void TestInst::Run(int argc, char const *argv[])
     // // TestLocker::Run();
     // // TestMessageQueue::Run();
     // TestVariant::Run();
-    // TestTimer::Run();
+    TestTimer::Run();
     // // TestCpuInfo::Run();
     // TestBackTrace::Run();
     // //TestDaemon::Run();
@@ -255,7 +255,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestConfig::Run();
     // TestMysql::Run();
     // TestCharset::Run();
-        TestSql::Run();
+    // TestSql::Run();
 
     // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();
     // pool->Init(0, 4);

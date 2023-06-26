@@ -72,6 +72,8 @@ public:
     bool _isScheduing;              // 处于定时阶段
     AsynTimeData *_asynData;        // 异步数据 这个数据由TimerMgr统一创建与释放，这里只引用
     Variant *_params;             // 参数
+    
+    TimeData *_next;                // 给遍历过期用的, 其他地方不可以使用
 };
 
 ALWAYS_INLINE bool TimeDataComp::operator()(const TimeData *l, const TimeData *r) const
