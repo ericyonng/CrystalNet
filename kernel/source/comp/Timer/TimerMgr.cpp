@@ -185,6 +185,7 @@ void TimerMgr::Close()
 {
     _expireQueue.clear();
     ContainerUtil::DelContainer<TimeData *, AutoDelMethods::Release>(_allTimeData);
+    _asynDirty.clear();
 
     if(LIKELY(_wakeupCb))
     {

@@ -83,6 +83,7 @@ public:
 
     virtual void AddLinkerPollerCount(UInt64 num) override;
     virtual void AddDataTransferPollerCount(UInt64 num) override;
+    virtual void AddPollerCount(UInt64 num) override;
 
     virtual void QuitAllSessions(UInt64 serviceId) override;
 

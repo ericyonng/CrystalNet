@@ -262,6 +262,7 @@ TcpPollerMgr::TcpPoller *TcpPollerMgr::_CreatePoller(const TcpPollerInstConfig *
         }
     }
 
+    pollerMgr->AddPollerCount(1);
     return newPoller;
 }
 

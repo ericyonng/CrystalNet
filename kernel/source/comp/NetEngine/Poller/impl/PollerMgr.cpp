@@ -343,16 +343,17 @@ void PollerMgr::ReduceListenerSessionCount(UInt64 num)
 
 void PollerMgr::AddLinkerPollerCount(UInt64 num)
 {
-    _pollerCounts += num;
-
     _linkerCount += num;
 }
 
 void PollerMgr::AddDataTransferPollerCount(UInt64 num)
 {
-    _pollerCounts += num;
-    
     _dataTransferCount += num;
+}
+
+void PollerMgr::AddPollerCount(UInt64 num)
+{
+    _pollerCounts += num;
 }
 
 void PollerMgr::QuitAllSessions(UInt64 serviceId)

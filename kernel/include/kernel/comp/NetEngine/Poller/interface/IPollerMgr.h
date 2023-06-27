@@ -81,6 +81,7 @@ public:
     // poller统计
     virtual void AddLinkerPollerCount(UInt64 num) = 0;
     virtual void AddDataTransferPollerCount(UInt64 num) = 0;
+    virtual void AddPollerCount(UInt64 num) = 0;
 
     // 剔除所有session
     virtual void QuitAllSessions(UInt64 serviceId) = 0;
