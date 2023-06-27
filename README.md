@@ -185,6 +185,7 @@
 * CXX11 ABI兼容性 请设置编译选项:D_GLIBCXX_USE_CXX11_ABI=1 放弃兼容gcc 5.x以下版本
 * 由于github单文件100MB 限制的原因，对3rd/kernel 3rd/protobuf/lib 两个目录库超过100MB文件进行了partition拆分，编译时会自动合并
 * 框架层不可以抛异常，只能使用错误码或者bool, 需不需要异常要上层决定，一般不建议抛异常即使是上层
+* 数据库应该采用参数化查询来放置SQL注入攻击
 
 # 依赖
 
