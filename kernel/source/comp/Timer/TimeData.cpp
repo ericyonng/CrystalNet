@@ -80,8 +80,8 @@ LibString TimeData::ToString() const
 {
     LibString info;
     const auto &now = LibTime::Now();
-    info.AppendFormat("_id=[%lld], _expiredTime=[%lld], _period=[%lld], _owner=[%p], _isScheduing=[%d], left time=[%lld](ms)"
-    , _id,  _expiredTime, _period, _owner, _isScheduing, _expiredTime - now.GetMicroTimestamp());
+    info.AppendFormat("_id=[%lld], _expiredTime=[%lld], _period=[%lld], _owner=[%p], _isScheduing=[%d], left time=[%lld](ns)"
+    , _id,  _expiredTime, _period, _owner, _isScheduing, _expiredTime - now.GetNanoTimestamp());
 
     return info;
 }

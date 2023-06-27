@@ -106,7 +106,7 @@ void TestFile::Run()
 
         // 跨天
         KERNEL_NS::LibTime nowTime;
-        nowTime.UpdateTime(KERNEL_NS::LibTime::Now().AddDays(1).GetMicroTimestamp());
+        nowTime.UpdateTime(KERNEL_NS::LibTime::Now().AddDays(1).GetNanoTimestamp());
 
         if(logFile.IsDayPass(nowTime))
             logFile.Reopen(&nowTime);

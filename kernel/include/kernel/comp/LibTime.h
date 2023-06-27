@@ -55,26 +55,25 @@ public:
     static Int64 NowTimestamp();            // 
     static Int64 NowMilliTimestamp();       // 
     static Int64 NowMicroTimestamp();       // 
+    static Int64 NowNanoTimestamp();       // 
     
     static LibTime FromSeconds(Int64 seconds);
     static LibTime FromMilliSeconds(Int64 milliSeconds);
     static LibTime FromMicroSeconds(Int64 microSeconds);
-    static LibTime FromFmtString(const LibString &fmt);    // fmt：1970-07-01 12:12:12.000000055 
-    static LibTime FromTimeMoment(int year, int month, int day, int hour, int minute, int second, int milliSecond = 0, int microSecond = 0);
-    static LibTime FromTimeStruct(const tm &timeStruct, int milliSecond = 0, int microSecond = 0);
-    
-
+    static LibTime FromNanoSeconds(Int64 nanoSeconds);
+    static LibTime FromFmtString(const LibString &fmt);    // fmt：1970-07-01 12:12:12.000000055 精度到纳秒 
+    static LibTime FromTimeMoment(int year, int month, int day, int hour, int minute, int second, int milliSecond = 0, int microSecond = 0, int nanoSecond = 0);
+    static LibTime FromTimeStruct(const tm &timeStruct, int milliSecond = 0, int microSecond = 0, int nanoSecond = 0);
      
     Int64 GetSecTimestamp() const;
     Int64 GetMilliTimestamp() const;
     Int64 GetMicroTimestamp() const;
-    
-
+    Int64 GetNanoTimestamp() const;
      
     const LibTime &UpdateTime();
-    const LibTime &UpdateTime(Int64 microSecTime);
+    const LibTime &UpdateTime(Int64 nanoSecTime);
     const LibTime &UpdateAppendTime(const TimeSlice &addSliceBaseOnNowTime);
-    const LibTime &UpdateAppendTime(Int64 addMicroSecBaseOnNowTime);
+    const LibTime &UpdateAppendTime(Int64 addNanoSecBaseOnNowTime);
 
     bool operator ==(const LibTime &time) const;
     bool operator ==(const Int64 &microSecondTimestamp) const;
@@ -86,8 +85,6 @@ public:
 
     LibTime &operator =(const LibTime &other);
     
-
-     
     /**
      * Get current time of day.
      * @return TimeSlice - the current time of day.
@@ -105,9 +102,9 @@ public:
      * @return TimeSlice - timeslice value.
      */
     TimeSlice GetIntervalTo(const TimeSlice &slice) const;    // slice是当天的时刻如：10:10:10.100000的微妙数
-    TimeSlice GetIntervalTo(int hour, int minute, int second, int milliSecond = 0, int microSecond = 0) const;
+    TimeSlice GetIntervalTo(int hour, int minute, int second, int milliSecond = 0, int microSecond = 0, int nanoSecond = 0) const;
     static TimeSlice GetIntervalTo(const LibTime &from, const TimeSlice &slice);
-    static TimeSlice GetIntervalTo(const LibTime &from, int hour, int minute, int second, int milliSecond = 0, int microSecond = 0);
+    static TimeSlice GetIntervalTo(const LibTime &from, int hour, int minute, int second, int milliSecond = 0, int microSecond = 0, int nanoSecond = 0);
 
     /**
      * Time slice operations.
@@ -116,8 +113,6 @@ public:
 
     LibTime operator +(const TimeSlice &slice) const;
     LibTime operator -(const TimeSlice &slice) const;
-    
-
      
     /**
      * Add specified time parts values.
@@ -133,6 +128,7 @@ public:
     LibTime AddSeconds(int seconds) const;
     LibTime AddMilliSeconds(int milliSeconds) const;
     LibTime AddMicroSeconds(int microSeconds) const;
+    LibTime AddNanoSeconds(int nanoSeconds) const;
     
     /**
      * Get GMT time struct.
@@ -160,6 +156,7 @@ public:
     Int32 GetLocalSecond() const;
     Int32 GetLocalMilliSecond() const;
     Int32 GetLocalMicroSecond() const;
+    Int32 GetLocalNanoSecond() const;
 
     LibTime GetZeroTime() const;
 

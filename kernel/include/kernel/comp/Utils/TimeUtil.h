@@ -63,6 +63,8 @@ public:
     static Int64 GetClockMonotonicSysRunTime();
     // 通用时间 除GetClockRealTimeCoarse外最高性能 但调用一次仍然将近400+ns
     static Int64 GetMicroTimestamp();
+    // 通用时间 Linux下使用CLOCK_REALTIME 纳秒级精度, windows下使用 GetMicroTimestamp * 1000 微妙级精度
+    static Int64 GetNanoTimestamp();
     // chrono时间
     static Int64 GetChronoMicroTimestamp();
 
@@ -84,7 +86,7 @@ public:
     static Int64 GetFastNanoTimestamp();
     
 private:
-    static Int64 _systemTimeBegin;      // 系统启动时间戳
+    static Int64 _systemTimeBegin;      // 系统启动时间戳 纳秒
     static UInt64 _cpuBegin;    // 系统启动时的tsc
 };
 
@@ -164,6 +166,18 @@ ALWAYS_INLINE Int64 TimeUtil::GetMicroTimestamp()
 #endif
 }
 
+ALWAYS_INLINE Int64 TimeUtil::GetNanoTimestamp()
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+#else
+    struct timespec tp;
+    ::clock_gettime(CLOCK_REALTIME, &tp);
+
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
+#endif
+}
+
 ALWAYS_INLINE Int64 TimeUtil::GetChronoMicroTimestamp()
 {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock().now().time_since_epoch()).count() / TimeDefs::RESOLUTION_PER_MICROSECOND;
@@ -230,7 +244,7 @@ ALWAYS_INLINE UInt64 TimeUtil::GetCpuCounterFrequancy()
 ALWAYS_INLINE void TimeUtil::InitFastTime()
 {
     _cpuBegin = KERNEL_NS::CrystalNativeRdTsc();
-    _systemTimeBegin = TimeUtil::GetMicroTimestamp();
+    _systemTimeBegin = TimeUtil::GetNanoTimestamp();
 }
 
 ALWAYS_INLINE Int64 TimeUtil::GetFastMicroTimestamp()
@@ -243,9 +257,7 @@ ALWAYS_INLINE Int64 TimeUtil::GetFastMicroTimestamp()
 //     return GetMicroTimestamp();
 // #endif
 
-    const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
-    const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerMicroSecond);
-    return _systemTimeBegin + cpuSlice;
+    return GetFastNanoTimestamp() / TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
 }
 
 ALWAYS_INLINE Int64 TimeUtil::GetFastNanoTimestamp()
@@ -258,9 +270,18 @@ ALWAYS_INLINE Int64 TimeUtil::GetFastNanoTimestamp()
 //     return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
 // #endif
 
-    const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
-    const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerNanoSecond);
-    return _systemTimeBegin + cpuSlice;
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        // linux精度到nanosecond
+        const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
+        const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerNanoSecond);
+        return _systemTimeBegin + cpuSlice;
+    #else
+        // windows下的cpu只能支持微妙计数
+        const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
+        const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerMicroSecond);
+        return _systemTimeBegin + cpuSlice * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    #endif
+
 }
 
 

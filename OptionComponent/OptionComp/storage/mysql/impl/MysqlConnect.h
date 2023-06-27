@@ -156,6 +156,9 @@ public:
     template<typename ObjType>
     bool UseTransActionExcuteSql(const LibString &sql, ObjType *obj, void (ObjType::*cb)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &), bool doPing = true);
 
+    // 返回多值属于结构化绑定,至少需要C++17
+    // std::tuple<Int32, LibString> TestMulti();
+
     // 执行ping判断连接是否在
     bool Ping();
 

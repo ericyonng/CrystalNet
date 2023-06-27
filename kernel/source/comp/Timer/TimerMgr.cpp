@@ -76,42 +76,16 @@ void TimerMgr::Drive()
 
     if(LIKELY(!_expireQueue.empty()))
     {
-        _curTime = TimeUtil::GetFastMicroTimestamp();
-        TimeData *expiredHead = NULL;
-        TimeData *expiredEnd = NULL;
-
-        // 判断头节点过期
-        auto iter = _expireQueue.begin();
-        if((*iter)->_expiredTime <= _curTime)
+        _curTime = TimeUtil::GetFastNanoTimestamp();
+        for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
         {
-            expiredHead = *iter;
-            expiredEnd = expiredHead;
-            expiredEnd->_next = NULL;
-            iter = _expireQueue.erase(iter);
-        }
+            // 未过期的为止
+            auto timeData = *iter;
+            if(timeData->_expiredTime > _curTime)
+                break;
 
-        // 第一个有过期就判断其他有没有过期
-        if(expiredHead)
-        {
-            for(; iter != _expireQueue.end();)
-            {
-                // 未过期的为止
-                auto timeData = *iter;
-                if(timeData->_expiredTime > _curTime)
-                    break;
-
-                expiredEnd->_next = timeData;
-                expiredEnd = timeData;
-                expiredEnd->_next = NULL;
-
-                iter = _expireQueue.erase(iter);
-            }
-        }
-
-        for (;expiredHead;)
-        {
-            auto timeData = expiredHead;
-            expiredHead = expiredHead->_next;
+            // 必须先移除
+            _expireQueue.erase(iter);
 
             if(timeData->_isScheduing)
             {
@@ -124,18 +98,10 @@ void TimerMgr::Drive()
                         _Register(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
                 }
             }
-        }
 
-        // // 重算过期标记
-        // if(UNLIKELY(!_expireQueue.empty()))
-        // {
-        //     auto timeData =  *_expireQueue.begin();
-        //     _hasExpired = TimeUtil::GetFastMicroTimestamp() >= timeData->_expiredTime;
-        // }
-        // else
-        // {
-        //     _hasExpired = false;
-        // }
+            // 从头开始
+            iter = _expireQueue.begin();
+        }
     }
 
     _AfterDrive();
@@ -144,7 +110,7 @@ void TimerMgr::Drive()
     if(UNLIKELY(!_expireQueue.empty()))
     {
         auto timeData =  *_expireQueue.begin();
-        _hasExpired = (_curTime = TimeUtil::GetFastMicroTimestamp()) >= timeData->_expiredTime;
+        _hasExpired = (_curTime = TimeUtil::GetFastNanoTimestamp()) >= timeData->_expiredTime;
     }
     else
     {
@@ -158,12 +124,7 @@ void TimerMgr::SafetyDrive()
 
     if(LIKELY(!_expireQueue.empty()))
     {
-        _curTime = TimeUtil::GetFastMicroTimestamp();
-        UniqueSmartPtr<LibList<TimeData *, _Build::TL>, AutoDelMethods::CustomDelete> timeDataList = LibList<TimeData *, _Build::TL>::NewThreadLocal_LibList();
-        timeDataList.SetClosureDelegate([](void *p){
-            auto ptr = reinterpret_cast<LibList<TimeData *, _Build::TL> *>(p);
-            LibList<TimeData *, _Build::TL>::DeleteThreadLocal_LibList(ptr);
-        });
+        _curTime = TimeUtil::GetFastNanoTimestamp();
 
         try
         {
@@ -174,13 +135,9 @@ void TimerMgr::SafetyDrive()
                 if(timeData->_expiredTime > _curTime)
                     break;
 
-                timeDataList->PushBack(timeData);
-                iter = _expireQueue.erase(iter);
-            }
+                // 必须先移除
+                _expireQueue.erase(iter);
 
-            for(auto node = timeDataList->Begin(); node;)
-            {
-                auto timeData = node->_data;
                 if(timeData->_isScheduing)
                 {
                     timeData->_owner->OnTimeOut();
@@ -193,7 +150,8 @@ void TimerMgr::SafetyDrive()
                     }
                 }
 
-                node = timeDataList->Erase(node);
+                // 从头开始
+                iter = _expireQueue.begin();
             }
         }
         catch(const std::exception& e)
@@ -213,7 +171,7 @@ void TimerMgr::SafetyDrive()
     if(UNLIKELY(!_expireQueue.empty()))
     {
         auto timeData =  *_expireQueue.begin();
-        _hasExpired = (_curTime = TimeUtil::GetFastMicroTimestamp()) >= timeData->_expiredTime;
+        _hasExpired = (_curTime = TimeUtil::GetFastNanoTimestamp()) >= timeData->_expiredTime;
     }
     else
     {

@@ -51,7 +51,7 @@ TimeSlice::TimeSlice(const LibString &fmtSlice)
         return;
     }
 
-    // Split by ':', fetch hour,minute,second, microsecond parts.
+    // Split by ':', fetch hour,minute,second, nanosecond parts.
     auto sliceParts = fmtSlice.Split(':');
     if(sliceParts.size() == 1) // Only has second part.
     {
@@ -63,11 +63,11 @@ TimeSlice::TimeSlice(const LibString &fmtSlice)
         sliceParts.insert(sliceParts.begin(), "0");
     }
 
-    _slice = StringUtil::StringToInt32(sliceParts[0].c_str()) * TimeDefs::MICRO_SECOND_PER_HOUR +
-        StringUtil::StringToInt32(sliceParts[1].c_str()) * TimeDefs::MICRO_SECOND_PER_MINUTE;
+    _slice = StringUtil::StringToInt32(sliceParts[0].c_str()) * TimeDefs::NANO_SECOND_PER_HOUR +
+        StringUtil::StringToInt32(sliceParts[1].c_str()) * TimeDefs::NANO_SECOND_PER_MINUTE;
 
     auto secParts = sliceParts[2].Split('.', 1);
-    _slice += StringUtil::StringToInt32(secParts[0].c_str()) * TimeDefs::MICRO_SECOND_PER_SECOND;
+    _slice += StringUtil::StringToInt32(secParts[0].c_str()) * TimeDefs::NANO_SECOND_PER_SECOND;
     if(secParts.size() == 2)
         _slice += StringUtil::StringToInt32(secParts[1].c_str());
 }

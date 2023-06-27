@@ -69,8 +69,8 @@ public:
 
 public:
     UInt32 _flag;                   // 操作位标记 AsynOpType
-    Int64 _newExpiredTime;          // 当前过期时间 微妙 修改数据时候使用
-    Int64 _newPeriod;               // 定时周期 微妙    修改数据时候使用
+    Int64 _newExpiredTime;          // 当前过期时间 纳妙 修改数据时候使用
+    Int64 _newPeriod;               // 定时周期 纳妙    修改数据时候使用
     TimeData *_data;                // 原始的定时数据
 };
 

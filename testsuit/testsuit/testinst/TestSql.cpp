@@ -1082,6 +1082,9 @@ void TestSql::Run()
         });
         auto elapseMs = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(cpucount);
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "select %d record cost:%llu ms"), selectCount, elapseMs);
-    
     }
+
+    // 返回多值属于结构化绑定 至少需要c++17 
+    // const auto &[err, errStr] = mysqlConnection->TestMulti();
+    // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "err:%d, errStr:%s"), err, errStr.c_str());
 }

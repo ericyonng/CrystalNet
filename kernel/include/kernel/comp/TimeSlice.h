@@ -51,7 +51,7 @@ public:
      * @param[in] milliSeconds - the slice milli-seconds part.
      * @param[in] microSeconds - the slice micro-seconds part.
      */
-    explicit TimeSlice(int seconds, Int64 milliSeconds = 0, Int64 microSeconds = 0);
+    explicit TimeSlice(int seconds, Int64 milliSeconds = 0, Int64 microSeconds = 0, Int64 nanoSeconds = 0);
 
     /**
      * Construct by slice string representation(fmt: 00:00:00.xxxxxx).
@@ -73,7 +73,7 @@ public:
      * @param[in] milliSeconds - the milli-seconds part, default is 0.
      * @param[in] microSeconds - the micro-seconds part, default is 0.
      */
-    TimeSlice(int days, int hours, int minutes, Int64 seconds, Int64 milliSeconds = 0, Int64 microSeconds = 0);
+    TimeSlice(int days, int hours, int minutes, Int64 seconds, Int64 milliSeconds = 0, Int64 microSeconds = 0, Int64 nanoSeconds = 0);
 
     /**
      * Destructor.
@@ -90,13 +90,15 @@ public:
     int GetSeconds() const;
     int GetMilliSeconds() const;
     int GetMicroSeconds() const;
+    int GetNanoSeconds() const;
 
     int GetTotalDays() const;
     int GetTotalHours() const;
     int GetTotalMinutes() const;
     int GetTotalSeconds() const;
     Int64 GetTotalMilliSeconds() const;
-    const Int64 &GetTotalMicroSeconds() const;
+    const Int64 GetTotalMicroSeconds() const;
+    const Int64 &GetTotalNanoSeconds() const;
 
     TimeSlice operator +(const TimeSlice &slice) const;
     TimeSlice operator -(const TimeSlice &slice) const;
@@ -112,7 +114,7 @@ public:
     bool operator >=(const TimeSlice &slice) const;
 
     TimeSlice &operator =(const TimeSlice &slice);
-    TimeSlice &operator =(Int64 microSecSlice);
+    TimeSlice &operator =(Int64 nanoSecSlice);
 
     LibString ToString() const;
 
@@ -122,7 +124,7 @@ private:
     TimeSlice(const Int64 &slice);
 
 private:
-    Int64 _slice;
+    Int64 _slice;   // 纳秒级时间
 };
 
 KERNEL_END

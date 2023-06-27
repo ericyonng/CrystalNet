@@ -270,6 +270,13 @@ ALWAYS_INLINE void ObjAlloctor<ObjType>::DeleteThreadLocal(ObjType *ptr)
     // #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     //     _alloctor.Lock();
     // #endif
+
+    // TODO:判断是不是本线程, 不是本线程扔到中央GC线程
+    // if(UNLIKELY(memoryBlock->_buffer->_alloctor != &_alloctor))
+    // {
+    //     return;
+    // }
+
     _alloctor.Free(ptr);
     // #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     //     _alloctor.Unlock();

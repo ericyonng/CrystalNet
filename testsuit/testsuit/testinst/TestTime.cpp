@@ -66,7 +66,9 @@ void TestTime::Run()
     std::cout << "test GetClockRealTime :" << KERNEL_NS::TimeUtil::GetClockRealTime() << std::endl;
     std::cout << "test GetClockMonotonicTime :" << KERNEL_NS::TimeUtil::GetClockMonotonicSysRunTime() << std::endl;
     std::cout << "test GetMicroTimestamp :" << KERNEL_NS::TimeUtil::GetMicroTimestamp() << std::endl;
+    std::cout << "test GetNanoTimestamp :" << KERNEL_NS::TimeUtil::GetNanoTimestamp() << std::endl;
     std::cout << "test GetFastMicroTimestamp :" << KERNEL_NS::TimeUtil::GetFastMicroTimestamp() << std::endl;
+    std::cout << "test GetFastNanoTimestamp :" << KERNEL_NS::TimeUtil::GetFastNanoTimestamp() << std::endl;
     std::cout << "test GetChronoMicroTimestamp :" << KERNEL_NS::TimeUtil::GetChronoMicroTimestamp() << std::endl;
     std::cout << "test GetClockRealTimeCoarse :" << KERNEL_NS::TimeUtil::GetClockRealTimeCoarse() << std::endl;
 
@@ -87,6 +89,22 @@ void TestTime::Run()
     endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
     std::cout << " GetFastMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+
+    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+        KERNEL_NS::TimeUtil::GetNanoTimestamp();
+
+    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+
+    std::cout << " GetNanoTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+
+    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+        KERNEL_NS::TimeUtil::GetFastNanoTimestamp();
+
+    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+
+    std::cout << " GetFastNanoTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
 
     beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
     for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
@@ -218,12 +236,12 @@ void TestTime::Run()
     KERNEL_NS::LibTime t2;
     t2.UpdateTime();
 
-    std::cout << "t2 - t1 =" << (t1 - t2).ToString() << std::endl;
+    std::cout << "t2 - t1 =" << (t2 - t1).ToString() << std::endl;
 
-    KERNEL_NS::LibTime t3 =  KERNEL_NS::LibTime::FromFmtString("2020-11-01 00:31:00.000000");
+    KERNEL_NS::LibTime t3 =  KERNEL_NS::LibTime::FromFmtString("2023-06-25 00:31:00.100000093");
     std::cout << "t3 = " << t3.ToString() << std::endl;
     std::cout << "t2 - t3 ="<< (t2 - t3).ToString() << std::endl;
-    std::cout << "t3 to zero time = " << t3.GetIntervalTo(KERNEL_NS::TimeSlice("00:00:00")).ToString() << std::endl;
+    std::cout << "t3 to zero time = " << t3.GetIntervalTo(KERNEL_NS::TimeSlice("00:00:00.100000100")).ToString() << std::endl;
 
     std::cout << "test lib time get time performance"<< std::endl;
     beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();

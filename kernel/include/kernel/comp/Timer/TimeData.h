@@ -65,8 +65,8 @@ public:
     LibString ToString() const;
 
     const Int64 _id;               // 定时器id
-    Int64 _expiredTime;             // 当前过期时间 微妙
-    Int64 _period;                  // 定时周期 微妙
+    Int64 _expiredTime;             // 当前过期时间 纳秒
+    Int64 _period;                  // 定时周期 纳秒
     LibTimer *_owner;               // 定时器对象
 
     bool _isScheduing;              // 处于定时阶段

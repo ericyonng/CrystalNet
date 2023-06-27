@@ -89,7 +89,7 @@ private:
 
 ALWAYS_INLINE void LibTimer::Schedule(Int64 milliSec)
 {
-    Schedule(TimeUtil::GetFastMicroTimestamp(), milliSec);
+    Schedule(TimeUtil::GetFastNanoTimestamp(), milliSec);
 }
 
 ALWAYS_INLINE bool LibTimer::IsScheduling() const

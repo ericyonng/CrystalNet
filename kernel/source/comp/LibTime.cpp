@@ -64,17 +64,22 @@ LibTime::~LibTime()
 
 LibTime LibTime::FromSeconds(Int64 seconds)
 {
-    return LibTime(seconds * TimeDefs::MICRO_SECOND_PER_SECOND);
+    return LibTime(seconds * TimeDefs::NANO_SECOND_PER_SECOND);
 }
 
 LibTime LibTime::FromMilliSeconds(Int64 milliSeconds)
 {
-    return LibTime(milliSeconds * TimeDefs::MICRO_SECOND_PER_MILLI_SECOND);
+    return LibTime(milliSeconds * TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
 }
 
 LibTime LibTime::FromMicroSeconds(Int64 microSeconds)
 {
-    return LibTime(microSeconds);
+    return LibTime(microSeconds * TimeDefs::NANO_SECOND_PER_MICRO_SECOND);
+}
+
+LibTime LibTime::FromNanoSeconds(Int64 nanoSeconds)
+{
+    return LibTime(nanoSeconds);
 }
 
 LibTime LibTime::FromFmtString(const LibString &fmt)
@@ -119,7 +124,7 @@ LibTime LibTime::FromFmtString(const LibString &fmt)
         timeParts.insert(timeParts.begin(), "0");
     }
 
-    // Split time, microseconds 
+    // Split time, nanoseconds 
     auto secondParts = timeParts[2].Split('.', 1);
     if(secondParts.size() == 1) // Only has second part.
         secondParts.push_back("0");
@@ -132,7 +137,7 @@ LibTime LibTime::FromFmtString(const LibString &fmt)
     Int32 hour =  StringUtil::StringToInt32(timeParts[0].c_str());
     Int32 minute = StringUtil::StringToInt32(timeParts[1].c_str());
     Int32 second =  StringUtil::StringToInt32(timeParts[2].c_str());
-    Int32 microSecond = StringUtil::StringToInt32(secondParts[1].c_str());
+    Int32 nanoSecond = StringUtil::StringToInt32(secondParts[1].c_str());
 
     return FromTimeMoment(year,
                          month,
@@ -140,11 +145,12 @@ LibTime LibTime::FromFmtString(const LibString &fmt)
                          hour,
                          minute,
                          second,
-                         static_cast<Int32>(microSecond / TimeDefs::MICRO_SECOND_PER_MILLI_SECOND),
-                         static_cast<Int32>(microSecond % TimeDefs::MICRO_SECOND_PER_MILLI_SECOND));
+                         static_cast<Int32>(nanoSecond / TimeDefs::NANO_SECOND_PER_MILLI_SECOND),
+                         static_cast<Int32>(nanoSecond % TimeDefs::NANO_SECOND_PER_MILLI_SECOND / TimeDefs::NANO_SECOND_PER_MICRO_SECOND), 
+                         static_cast<Int32>(nanoSecond % TimeDefs::NANO_SECOND_PER_MICRO_SECOND));
 }
 
-LibTime LibTime::FromTimeMoment(int year, int month, int day, int hour, int minute, int second, int milliSecond, int microSecond)
+LibTime LibTime::FromTimeMoment(int year, int month, int day, int hour, int minute, int second, int milliSecond, int microSecond, int nanoSecond)
 {
     tm timeStruct;
     timeStruct.tm_year = year - 1900;
@@ -168,28 +174,28 @@ LibTime LibTime::FromTimeMoment(int year, int month, int day, int hour, int minu
     timeStruct.tm_min = minute;
     timeStruct.tm_sec = second;
 
-    return FromTimeStruct(timeStruct, milliSecond, microSecond);
+    return FromTimeStruct(timeStruct, milliSecond, microSecond, nanoSecond);
 }
 
-LibTime LibTime::FromTimeStruct(const tm &timeStruct, int milliSecond, int microSecond)
+LibTime LibTime::FromTimeStruct(const tm &timeStruct, int milliSecond, int microSecond, int nanoSecond)
 {
     time_t clanderTimeInSecs = ::mktime(const_cast<tm *>(&timeStruct));
-    return LibTime(clanderTimeInSecs*TimeDefs::MICRO_SECOND_PER_SECOND + 
-                milliSecond * TimeDefs::MICRO_SECOND_PER_MILLI_SECOND + microSecond);
+    return LibTime(clanderTimeInSecs*TimeDefs::NANO_SECOND_PER_SECOND + 
+                milliSecond * TimeDefs::NANO_SECOND_PER_MILLI_SECOND + microSecond * TimeDefs::NANO_SECOND_PER_MICRO_SECOND + nanoSecond);
 }
 
 const LibTime &LibTime::UpdateAppendTime(const TimeSlice &addSliceBaseOnNowTime)
 {
-    _rawTime = TimeUtil::GetFastMicroTimestamp() + addSliceBaseOnNowTime.GetTotalMicroSeconds();
+    _rawTime = TimeUtil::GetFastNanoTimestamp() + addSliceBaseOnNowTime.GetTotalNanoSeconds();
     // _rawTime = std::chrono::system_clock::now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond
     //     + addSliceBaseOnNowTime.GetTotalMicroSeconds();
     _UpdateTimeStructs();
     return *this;
 }
 
-const LibTime &LibTime::UpdateAppendTime(Int64 addMicroSecBaseOnNowTime)
+const LibTime &LibTime::UpdateAppendTime(Int64 addNanoSecBaseOnNowTime)
 {
-    _rawTime = TimeUtil::GetFastMicroTimestamp() + addMicroSecBaseOnNowTime;
+    _rawTime = TimeUtil::GetFastNanoTimestamp() + addNanoSecBaseOnNowTime;
     // _rawTime = std::chrono::system_clock::now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond
     //     + addMicroSecBaseOnNowTime;
     _UpdateTimeStructs();
@@ -212,29 +218,29 @@ LibTime &LibTime::operator =(const LibTime &other)
 
 TimeSlice LibTime::GetTimeOfDay() const
 {
-    Int64 timeZone = TimeUtil::GetTimeZone() * TimeDefs::MICRO_SECOND_PER_SECOND;
+    Int64 timeZone = TimeUtil::GetTimeZone() * TimeDefs::NANO_SECOND_PER_SECOND;
 
     Int64 localTime = _rawTime - timeZone;
-    return localTime % TimeDefs::MICRO_SECOND_PER_DAY;
+    return localTime % TimeDefs::NANO_SECOND_PER_DAY;
 }
 
 TimeSlice LibTime::GetIntervalTo(const TimeSlice &slice) const
 {
     // Get past time(local time zone).
-    Int64 localTime = _rawTime - TimeUtil::GetTimeZone() * TimeDefs::MICRO_SECOND_PER_SECOND;
-    Int64 todayElapsed = localTime % TimeDefs::MICRO_SECOND_PER_DAY;
+    Int64 localTime = _rawTime - TimeUtil::GetTimeZone() * TimeDefs::NANO_SECOND_PER_SECOND;
+    Int64 todayElapsed = localTime % TimeDefs::NANO_SECOND_PER_DAY;
 
     // Calculate slice value.
-    Int64 sliceVal = slice.GetTotalMicroSeconds() - todayElapsed;
+    Int64 sliceVal = slice.GetTotalNanoSeconds() - todayElapsed;
     if(sliceVal < 0)
-        sliceVal = TimeDefs::MICRO_SECOND_PER_DAY + sliceVal;    // 
+        sliceVal = TimeDefs::NANO_SECOND_PER_DAY + sliceVal;    // 
 
     return TimeSlice(sliceVal);
 }
 
-TimeSlice LibTime::GetIntervalTo(int hour, int minute, int second, int milliSecond /*= 0*/, int microSecond /*= 0*/) const
+TimeSlice LibTime::GetIntervalTo(int hour, int minute, int second, int milliSecond /*= 0*/, int microSecond /*= 0*/, int nanoSecond /*= 0*/) const
 {
-    return GetIntervalTo(TimeSlice(0, hour, minute, second, milliSecond, microSecond));
+    return GetIntervalTo(TimeSlice(0, hour, minute, second, milliSecond, microSecond, nanoSecond));
 }
 
 TimeSlice LibTime::GetIntervalTo(const LibTime &from, const TimeSlice &slice)
@@ -242,9 +248,9 @@ TimeSlice LibTime::GetIntervalTo(const LibTime &from, const TimeSlice &slice)
     return from.GetIntervalTo(slice);
 }
 
-TimeSlice LibTime::GetIntervalTo(const LibTime &from, int hour, int minute, int second, int milliSecond /*= 0*/, int microSecond /*= 0*/)
+TimeSlice LibTime::GetIntervalTo(const LibTime &from, int hour, int minute, int second, int milliSecond /*= 0*/, int microSecond /*= 0*/, int nanoSecond /*= 0*/)
 {
-    return from.GetIntervalTo(hour, minute, second, milliSecond, microSecond);
+    return from.GetIntervalTo(hour, minute, second, milliSecond, microSecond, nanoSecond);
 }
 
 TimeSlice LibTime::operator -(const LibTime &time) const
@@ -254,12 +260,12 @@ TimeSlice LibTime::operator -(const LibTime &time) const
 
 LibTime LibTime::operator +(const TimeSlice &slice) const
 {
-    return LibTime(_rawTime + slice.GetTotalMicroSeconds());
+    return LibTime(_rawTime + slice.GetTotalNanoSeconds());
 }
 
 LibTime LibTime::operator -(const TimeSlice &slice) const
 {
-    return LibTime(_rawTime - slice.GetTotalMicroSeconds());
+    return LibTime(_rawTime - slice.GetTotalNanoSeconds());
 }
 
 LibTime LibTime::AddYears(int years) const
@@ -279,7 +285,7 @@ LibTime LibTime::AddYears(int years) const
             newTimeStruct.tm_mday -= 1;
     }
 
-    return FromTimeStruct(newTimeStruct, GetLocalMilliSecond(), GetLocalMicroSecond());
+    return FromTimeStruct(newTimeStruct, GetLocalMilliSecond(), GetLocalMicroSecond(), GetLocalNanoSecond());
 }
 
 LibTime LibTime::AddMonths(int months) const
@@ -321,45 +327,50 @@ LibTime LibTime::AddMonths(int months) const
     newTimeStruct.tm_mday = std::min<Int32>(newTimeStruct.tm_mday,
                                             TimeUtil::GetMonthMaxDays(yearAddedTime.GetLocalYear(), newTimeStruct.tm_mon + 1));
 
-    return FromTimeStruct(newTimeStruct, GetLocalMilliSecond(), GetLocalMicroSecond());
+    return FromTimeStruct(newTimeStruct, GetLocalMilliSecond(), GetLocalMicroSecond(), GetLocalNanoSecond());
 }
 
 LibTime LibTime::AddDays(int days) const
 {
-    return *this + TimeSlice(static_cast<Int64>(days * TimeDefs::MICRO_SECOND_PER_DAY));
+    return *this + TimeSlice(static_cast<Int64>(days * TimeDefs::NANO_SECOND_PER_DAY));
 }
 
 LibTime LibTime::AddHours(int hours) const
 {
-    return *this + TimeSlice(static_cast<Int64>(hours * TimeDefs::MICRO_SECOND_PER_HOUR));
+    return *this + TimeSlice(static_cast<Int64>(hours * TimeDefs::NANO_SECOND_PER_HOUR));
 }
 
 LibTime LibTime::AddMinutes(int minutes) const
 {
-    return *this + TimeSlice(static_cast<Int64>(minutes * TimeDefs::MICRO_SECOND_PER_MINUTE));
+    return *this + TimeSlice(static_cast<Int64>(minutes * TimeDefs::NANO_SECOND_PER_MINUTE));
 }
 
 LibTime LibTime::AddSeconds(int seconds) const
 {
-    return *this + TimeSlice(static_cast<Int64>(seconds * TimeDefs::MICRO_SECOND_PER_SECOND));
+    return *this + TimeSlice(static_cast<Int64>(seconds * TimeDefs::NANO_SECOND_PER_SECOND));
 }
 
 LibTime LibTime::AddMilliSeconds(int milliSeconds) const
 {
-    return *this + TimeSlice(static_cast<Int64>(milliSeconds * TimeDefs::MICRO_SECOND_PER_MILLI_SECOND));
+    return *this + TimeSlice(static_cast<Int64>(milliSeconds * TimeDefs::NANO_SECOND_PER_MILLI_SECOND));
 }
 
 LibTime LibTime::AddMicroSeconds(int microSeconds) const
 {
-    return *this + TimeSlice(static_cast<Int64>(microSeconds));
+    return *this + TimeSlice(static_cast<Int64>(microSeconds * TimeDefs::NANO_SECOND_PER_MICRO_SECOND));
+}
+
+LibTime LibTime::AddNanoSeconds(int nanoSeconds) const
+{
+    return *this + TimeSlice(static_cast<Int64>(nanoSeconds));
 }
 
 LibTime LibTime::GetZeroTime() const
 {
     // 转换成本地时间
-    Int64 zoneTime = static_cast<Int64>(TimeUtil::GetTimeZone()*TimeDefs::MICRO_SECOND_PER_SECOND);
+    Int64 zoneTime = static_cast<Int64>(TimeUtil::GetTimeZone()*TimeDefs::NANO_SECOND_PER_SECOND);
     Int64 localTime = _rawTime - zoneTime;
-    Int64 zeroTime = localTime / TimeDefs::MICRO_SECOND_PER_DAY * TimeDefs::MICRO_SECOND_PER_DAY;
+    Int64 zeroTime = localTime / TimeDefs::NANO_SECOND_PER_DAY * TimeDefs::NANO_SECOND_PER_DAY;
     zeroTime += zoneTime;
     return LibTime(zeroTime);
 }
@@ -398,9 +409,9 @@ LibString LibTime::ToString() const
     if(UNLIKELY(!_rawTime))
         return GetZeroTimeString();
 
-    auto localTime = _rawTime - static_cast<Int64>(TimeUtil::GetTimeZone()*TimeDefs::MICRO_SECOND_PER_SECOND);
+    auto localTime = _rawTime - static_cast<Int64>(TimeUtil::GetTimeZone()*TimeDefs::NANO_SECOND_PER_SECOND);
     LibString repr;   
-    return repr.AppendFormat("%s.%06lld", Format().c_str(), localTime % TimeDefs::MICRO_SECOND_PER_SECOND);
+    return repr.AppendFormat("%s.%09lld", Format().c_str(), localTime % TimeDefs::NANO_SECOND_PER_SECOND);
 }
 
 LibString LibTime::ToStringOfMillSecondPrecision() const
@@ -408,9 +419,9 @@ LibString LibTime::ToStringOfMillSecondPrecision() const
     if(UNLIKELY(!_rawTime))
         return GetZeroTimeString();
 
-    auto localTime = _rawTime - static_cast<Int64>(TimeUtil::GetTimeZone()*TimeDefs::MICRO_SECOND_PER_SECOND);
+    auto localTime = _rawTime - static_cast<Int64>(TimeUtil::GetTimeZone()*TimeDefs::NANO_SECOND_PER_SECOND);
     LibString repr;   
-    return repr.AppendFormat("%s.%03lld", Format().c_str(), localTime%TimeDefs::MICRO_SECOND_PER_SECOND / TimeDefs::MICRO_SECOND_PER_MILLI_SECOND);
+    return repr.AppendFormat("%s.%03lld", Format().c_str(), localTime%TimeDefs::NANO_SECOND_PER_SECOND / TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
 }
 
 LibTime::LibTime(Int64 microSecTimestamp)
@@ -427,7 +438,7 @@ LibTime::LibTime(Int64 microSecTimestamp)
 
 void LibTime::_UpdateTimeStructs()
 {
-    time_t calendarTime = static_cast<time_t>(_rawTime / TimeDefs::MICRO_SECOND_PER_SECOND);
+    time_t calendarTime = static_cast<time_t>(_rawTime / TimeDefs::NANO_SECOND_PER_SECOND);
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     ::localtime_s(&_localTimeStruct, &calendarTime);
     ::gmtime_s(&_gmtTimeStruct, &calendarTime);

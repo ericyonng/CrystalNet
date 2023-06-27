@@ -95,7 +95,7 @@ private:
 private:
     UInt64 _launchThreadId;         // 启用TimerMgr的线程
     Int64 _driving;                 // 正在驱动
-    Int64 _curTime;                 // 当前时间戳 微妙
+    Int64 _curTime;                 // 当前时间戳 纳秒
 
     // 过期定时队列
     std::set<TimeData *, TimeDataComp> _expireQueue;
