@@ -127,30 +127,33 @@ void TimerMgr::SafetyDrive()
 
         try
         {
-            for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
+            if(LIKELY(!_expireQueue.empty()))
             {
-                // 未过期的为止
-                auto timeData = *iter;
-                if(timeData->_expiredTime > _curTime)
-                    break;
+                _curTime = TimeUtil::GetFastNanoTimestamp();
 
-                // 必须先移除
-                _expireQueue.erase(iter);
-
-                if(timeData->_isScheduing)
+                // 为了避免在TimeOut执行过程中定时器重新注册进去导致队列顺序失效, 以及可能注册进去的定时器每次都超时导致死循环, 所以一定是需要异步处理注册定时, 反注册, 以及销毁定时器等操作
+                for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
                 {
-                    timeData->_owner->OnTimeOut();
+                    // 未过期的为止
+                    auto timeData = *iter;
+                    if(timeData->_expiredTime > _curTime)
+                        break;
 
-                    if(LIKELY(timeData->_owner))
+                    // 必须先移除
+                    iter = _expireQueue.erase(iter);
+
+                    if(timeData->_isScheduing)
                     {
-                        // 重新被调度
-                        if(timeData->_isScheduing)
-                            _Register(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+                        timeData->_owner->OnTimeOut();
+
+                        if(LIKELY(timeData->_owner))
+                        {
+                            // 重新被调度
+                            if(timeData->_isScheduing)
+                                _AsynRegister(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+                        }
                     }
                 }
-
-                // 从头开始
-                iter = _expireQueue.begin();
             }
         }
         catch(const std::exception& e)
