@@ -111,11 +111,23 @@ private:
 
 ALWAYS_INLINE void TimerMgr::Register(TimeData *timeData, Int64 newExpireTime, Int64 newPeriod)
 {
+    if (_driving > 0)
+    {
+        _AsynRegister(timeData, newPeriod, newExpireTime);
+        return;
+    }
+
     _Register(timeData, newPeriod, newExpireTime);
 }
 
 ALWAYS_INLINE void TimerMgr::UnRegister(TimeData *timeData)
 {
+    if(_driving > 0)
+    {
+        _AsynUnRegister(timeData);
+        return;
+    }
+
     _UnRegister(timeData);
 }
 
@@ -128,12 +140,10 @@ ALWAYS_INLINE TimeData *TimerMgr::NewTimeData(LibTimer *timer)
 
 ALWAYS_INLINE void TimerMgr::OnTimerDestroy(TimeData *timeData)
 {
-    _UnRegister(timeData);
-    timeData->_owner = NULL;
-
     // 在Drive中的时候由Drive函数释放
     if(_driving <= 0)
     {
+        _asynDirty.erase(timeData->_asynData);
         _Destroy(timeData);
     }
     else
@@ -241,12 +251,16 @@ ALWAYS_INLINE void TimerMgr::_UnRegister(TimeData *timeData)
 
 ALWAYS_INLINE void TimerMgr::_Destroy(TimeData *timeData)
 {
+    _expireQueue.erase(timeData);
+    timeData->_isScheduing = false;
+    timeData->_owner = NULL;
     _allTimeData.erase(timeData);
     timeData->Release();
 }
 
 ALWAYS_INLINE void TimerMgr::_AsynDestroy(TimeData *timeData)
 {
+    timeData->_owner = NULL;
     timeData->_isScheduing = false;
     timeData->_asynData->MaskDestroy();
     _asynDirty.insert(timeData->_asynData);

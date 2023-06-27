@@ -205,7 +205,7 @@ void TestInst::Run(int argc, char const *argv[])
     // //TestGarbageCollector::Run();
     // TestLibString::Run();
     // TestString::Run();
-    TestTime::Run();
+    // TestTime::Run();
     // //TestFileUtil::Run();
     // TestGuid::Run();
     // // TestTemplateObjPool::Run();
@@ -226,7 +226,7 @@ void TestInst::Run(int argc, char const *argv[])
     // // TestLocker::Run();
     // // TestMessageQueue::Run();
     // TestVariant::Run();
-    // TestTimer::Run();
+    TestTimer::Run();
     // // TestCpuInfo::Run();
     // TestBackTrace::Run();
     // //TestDaemon::Run();

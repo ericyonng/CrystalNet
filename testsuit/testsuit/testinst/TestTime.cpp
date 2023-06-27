@@ -267,5 +267,15 @@ void TestTime::Run()
     endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
     std::cout << " NowMilliTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+
+    for(Int64 i = 0; i < TEST_TIME_PERFORMANCE_CNT; ++i)
+    {
+        std::cout << "now time standard:" << KERNEL_NS::TimeUtil::GetMicroTimestamp() << " us" << std::endl;
+        std::cout << "now fast time    :" << KERNEL_NS::TimeUtil::GetFastMicroTimestamp() << " us" << std::endl;
+        std::cout << "now fast time    :" << KERNEL_NS::TimeUtil::GetFastNanoTimestamp() << " ns" << std::endl;
+
+        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+    }
+
     getchar();
 }

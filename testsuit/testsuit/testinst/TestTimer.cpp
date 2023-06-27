@@ -45,6 +45,10 @@ static void TimerOut2(KERNEL_NS::LibTimer *timer)
     if(isSwitch)
     {
         g_Log->Custom("TimerOut2 10 seconds cur time=[%lld]", KERNEL_NS::TimeUtil::GetMicroTimestamp());
+        const auto now = KERNEL_NS::LibTime::Now();
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestTimer, "TimerOut2 10 seconds cur time=[%lld] ms, [%lld] us, [%lld] ns, util ms:%lld")
+        , now.GetMilliTimestamp(), now.GetMicroTimestamp(), now.GetNanoTimestamp()
+        ,  KERNEL_NS::TimeUtil::GetMicroTimestamp());
     }
     else
     {

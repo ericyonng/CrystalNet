@@ -77,6 +77,8 @@ void TimerMgr::Drive()
     if(LIKELY(!_expireQueue.empty()))
     {
         _curTime = TimeUtil::GetFastNanoTimestamp();
+
+        // 为了避免在TimeOut执行过程中定时器重新注册进去导致队列顺序失效, 以及可能注册进去的定时器每次都超时导致死循环, 所以一定是需要异步处理注册定时, 反注册, 以及销毁定时器等操作
         for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
         {
             // 未过期的为止
@@ -85,7 +87,7 @@ void TimerMgr::Drive()
                 break;
 
             // 必须先移除
-            _expireQueue.erase(iter);
+            iter = _expireQueue.erase(iter);
 
             if(timeData->_isScheduing)
             {
@@ -95,12 +97,9 @@ void TimerMgr::Drive()
                 {
                     // 重新被调度
                     if(timeData->_isScheduing)
-                        _Register(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+                        _AsynRegister(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
                 }
             }
-
-            // 从头开始
-            iter = _expireQueue.begin();
         }
     }
 
@@ -183,7 +182,6 @@ void TimerMgr::Close()
 {
     _expireQueue.clear();
     ContainerUtil::DelContainer<TimeData *, AutoDelMethods::Release>(_allTimeData);
-    ContainerUtil::DelContainer<AsynTimeData *, AutoDelMethods::Release>(_asynDirty);
 
     if(LIKELY(_wakeupCb))
     {

@@ -90,7 +90,11 @@ inline void AsynTimeData::Release()
 
 inline void AsynTimeData::MaskRegister(Int64 expireTime, Int64 newPeriod)
 {
-    // 移除删除与修改
+    if(UNLIKELY(BitUtil::IsSet(_flag, AsynOpType::OP_DESTROY)))
+        return;
+
+    // 先移除然后注册
+    _flag = BitUtil::Set(_flag, AsynOpType::OP_UNREGISTER);
     _flag = BitUtil::Set(_flag, AsynOpType::OP_REGISTER);
     _newExpiredTime = expireTime;
     _newPeriod = newPeriod;
@@ -98,16 +102,17 @@ inline void AsynTimeData::MaskRegister(Int64 expireTime, Int64 newPeriod)
 
 inline void AsynTimeData::MaskUnRegister()
 {
-    // 移除添加与修改
+    if(UNLIKELY(BitUtil::IsSet(_flag, AsynOpType::OP_DESTROY)))
+        return;
+
+    // 把注册去掉只做反注册
     _flag = BitUtil::Clear(_flag, AsynOpType::OP_REGISTER);
     _flag = BitUtil::Set(_flag, AsynOpType::OP_UNREGISTER);
 }
 
 inline void AsynTimeData::MaskDestroy()
 {
-    _flag = BitUtil::Clear(_flag, AsynOpType::OP_REGISTER);
-    _flag = BitUtil::Clear(_flag, AsynOpType::OP_UNREGISTER);
-    _flag = BitUtil::Set(_flag, AsynOpType::OP_DESTROY);
+    _flag = BitUtil::Set(0, AsynOpType::OP_DESTROY);
 }
 
 inline void AsynTimeData::Reset()
