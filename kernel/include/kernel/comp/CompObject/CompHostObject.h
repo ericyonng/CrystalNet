@@ -259,7 +259,7 @@ template<typename CompFactoryType>
 ALWAYS_INLINE void CompHostObject::RemoveCompFactory()
 {
     const LibString factoryName = RttiUtil::GetByType<CompFactoryType>();
-    const Int32 idx = static_cast<Int32>(_willRegComps.size());
+    const Int32 count = static_cast<Int32>(_willRegComps.size());
     for(Int32 idx = count -1; idx >= 0; --idx)
     {
         auto &regInfo = _willRegComps[idx];
