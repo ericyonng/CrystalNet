@@ -149,6 +149,10 @@ ALWAYS_INLINE void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *lo
         if(UNLIKELY(levelCfg._enableRealTime))
             _wakeupFlush->Sinal();
     }
+    else
+    {
+        LogData::Delete_LogData(logData);
+    }
 
     // 6.日志后hook
     auto afterHookList = _afterHook[levelCfg._level];

@@ -149,9 +149,8 @@ ALWAYS_INLINE void *MemoryAlloctor::Alloc(UInt64 objBytes)
 
     auto block = memoryBuffer->AllocNewBlock();
 
+
     // block 参数设置
-    block->_isInAlloctor = true;
-    block->_buffer = memoryBuffer;
     block->_ref = 1;
     block->_realUseBytes = objBytes;
     ++_blockCountInUsed;

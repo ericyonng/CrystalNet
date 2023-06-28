@@ -191,11 +191,9 @@ ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
     MemoryBlock *toAlloc = _head;
     if(LIKELY(_head != _tail))
     {
-        // _head->_ref = 0;
-        // _head->_buffer = this;
-        // _head->_next = NULL;
-        // _head->_isInAlloctor = true;
-        // _head->_realUseBytes = 0;
+        _head->_buffer = this;
+        _head->_next = NULL;
+        _head->_isInAlloctor = true;
         _head = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(_head) + _blockSize);
     }
     else
