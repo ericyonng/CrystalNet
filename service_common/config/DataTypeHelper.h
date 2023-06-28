@@ -240,7 +240,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(KERNEL_NS::LibString &field, const KER
 template<typename ArrayElemType>
 ALWAYS_INLINE bool DataTypeHelper::Assign(std::vector<ArrayElemType> &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
 {
-    const auto jsonArray = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    const auto &jsonArray = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
     if(!jsonArray.is_array())
     {
         errInfo.AppendFormat("parse json fail, assign std::vector<%s> value fail dataInfo:%s\n"
@@ -250,7 +250,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::vector<ArrayElemType> &field, con
 
     for(auto &item : jsonArray.items())
     {
-        ArrayElemType elem;
+        ArrayElemType elem{};
         const KERNEL_NS::LibString &itemDump = item.value().dump();
         if(!Assign(elem, itemDump, errInfo))
         {
@@ -268,7 +268,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::vector<ArrayElemType> &field, con
 template<typename DictKey, typename DictValue>
 ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue> &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
 {
-    const auto jsonObject = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    const auto &jsonObject = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
     if(!jsonObject.is_object())
     {
         errInfo.AppendFormat("parse json fail, assign std::unordered_map<%s, %s> value fail dataInfo:%s\n"
@@ -280,7 +280,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue>
     {
         // key:
         const KERNEL_NS::LibString &keyJson = item.key();
-        DictKey keyField;
+        DictKey keyField{};
         if(!Assign(keyField, keyJson, errInfo))
         {
             errInfo.AppendFormat("assign key field fail, std::unordered_map<%s, %s> key type:%s, keyJson:%s"
@@ -290,7 +290,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue>
         }
 
         const KERNEL_NS::LibString &valueJson = item.value().dump();
-        DictValue valueField;
+        DictValue valueField{};
         if(!Assign(valueField, valueJson, errInfo))
         {
             errInfo.AppendFormat("assign value field fail, std::unordered_map<%s, %s> value type:%s, valueJson:%s"
@@ -317,7 +317,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::unordered_map<DictKey, DictValue>
 template<typename DictKey, typename DictValue>
 ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
 {
-    const auto jsonObject = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    const auto &jsonObject = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
     if(!jsonObject.is_object())
     {
         errInfo.AppendFormat("parse json fail, assign std::map<%s, %s> value fail dataInfo:%s\n"
@@ -329,7 +329,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, c
     {
         // key:
         const KERNEL_NS::LibString &keyJson = item.key();
-        DictKey keyField;
+        DictKey keyField{};
         if(!Assign(keyField, keyJson, errInfo))
         {
             errInfo.AppendFormat("assign key field fail, std::map<%s, %s> key type:%s, keyJson:%s"
@@ -339,7 +339,7 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, c
         }
 
         const KERNEL_NS::LibString &valueJson = item.value().dump();
-        DictValue valueField;
+        DictValue valueField{};
         if(!Assign(valueField, valueJson, errInfo))
         {
             errInfo.AppendFormat("assign value field fail, std::map<%s, %s> value type:%s, valueJson:%s"
