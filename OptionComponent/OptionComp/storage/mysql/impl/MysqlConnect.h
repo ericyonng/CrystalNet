@@ -267,7 +267,6 @@ ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const LibString &sql, CallbackType &&
 
     do
     {
-        bool hasError = false;
         auto res = _StoreResult();
         cb(this, true, res, false);
 

@@ -2225,9 +2225,6 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                 }
             }
 
-            fileContent.AppendFormat("\n");
-
-            fileContent.AppendFormat("        auto newConfig = config.AsSelf();\n");
             fileContent.AppendFormat("        configs->push_back(config.pop());\n");
             fileContent.AppendFormat("    }// while(true)\n");
 

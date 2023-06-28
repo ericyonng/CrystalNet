@@ -244,7 +244,7 @@ ALWAYS_INLINE void CompHostObject::RemoveComp()
     do
     {
         _RemoveComp(comp);
-    } while (comp = GetComp(compName));
+    } while ((comp = GetComp(compName)) != NULL);
 }
 
 ALWAYS_INLINE void CompHostObject::RemoveComp(CompObject *comp)

@@ -126,23 +126,23 @@ public:
     }
 };
 
-static void TestPool(KERNEL_NS::LibThreadPool *pool)
-{
-    while(!pool->IsDestroy())
-    {
-        KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "hello thread:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
-    }
-}
+// static void TestPool(KERNEL_NS::LibThreadPool *pool)
+// {
+//     while(!pool->IsDestroy())
+//     {
+//         KERNEL_NS::SystemUtil::ThreadSleep(1000);
+//         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "hello thread:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+//     }
+// }
 
-static void TestBreak(KERNEL_NS::LibThreadPool *pool)
-{
-    while(!pool->IsDestroy())
-    {
-        KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "hello TestBreak thread:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
-    }
-}
+// static void TestBreak(KERNEL_NS::LibThreadPool *pool)
+// {
+//     while(!pool->IsDestroy())
+//     {
+//         KERNEL_NS::SystemUtil::ThreadSleep(1000);
+//         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "hello TestBreak thread:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+//     }
+// }
 
 void TestInst::Run(int argc, char const *argv[])
 {

@@ -132,7 +132,7 @@ void TestMysql::Run()
             // 使用 mysql_use_result 的 mysql_fetch_row 会从mysql远程去取数据, 如果是mysql_store_result 会直接从本地缓存中取数据
             MYSQL_ROW row;
             auto fieldNum = mysql_num_fields(res);
-            while (row = mysql_fetch_row(res))
+            while ((row = mysql_fetch_row(res)) != NULL)
             {
                 auto lens = mysql_fetch_lengths(res);
                 for(UInt32 idx = 0; idx < fieldNum; ++idx)
@@ -147,7 +147,7 @@ void TestMysql::Run()
 
             // 获取表字段
             MYSQL_FIELD *field;
-            while (field = mysql_fetch_field(res))
+            while ((field = mysql_fetch_field(res)) != NULL)
             {
                 g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMysql, "field name:%s, create field len:%lu, table:%s, max len:%lu, type:%d")
                 , field->name, field->length, field->table, field->max_length, field->type);

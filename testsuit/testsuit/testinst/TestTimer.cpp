@@ -104,7 +104,6 @@ void TestTimer::Run()
 
     // 扫描精度
     // const auto milliSec = resolutionMicroSec / KERNEL_NS::TimeDefs::MICRO_SECOND_PER_MILLI_SECOND;
-    Int32 loop = 100;
     while (true)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1);
