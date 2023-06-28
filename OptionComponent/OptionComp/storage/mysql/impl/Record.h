@@ -134,7 +134,7 @@ ALWAYS_INLINE bool Record::HasField(const LibString &name) const
 
 ALWAYS_INLINE bool Record::HasField(Int32 idx) const
 {
-    if(UNLIKELY(_fields.size() <= idx))
+    if(UNLIKELY(static_cast<Int32>(_fields.size()) <= idx))
         return false;
 
     return _fields[idx] != NULL;
@@ -155,7 +155,7 @@ ALWAYS_INLINE void Record::RemoveField(const LibString &name)
 
 ALWAYS_INLINE void Record::RemoveField(Int32 idx)
 {
-    if(UNLIKELY(_fields.size() <= idx))
+    if(UNLIKELY(static_cast<Int32>(_fields.size()) <= idx))
         return;
 
     auto field = _fields[idx];
@@ -183,7 +183,7 @@ ALWAYS_INLINE Field *Record::Pop(const LibString &name)
 
 ALWAYS_INLINE Field *Record::Pop(Int32 idx)
 {
-    if(UNLIKELY(_fields.size() <= idx))
+    if(UNLIKELY(static_cast<Int32>(_fields.size()) <= idx))
         return NULL;
 
     auto field = _fields[idx];
@@ -203,7 +203,7 @@ ALWAYS_INLINE Int32 Record::GetFieldAmount() const
 
 ALWAYS_INLINE Field *Record::operator[](Int32 idx)
 {
-    if(UNLIKELY(_fields.size() <= idx))
+    if(UNLIKELY(static_cast<Int32>(_fields.size()) <= idx))
         return NULL;
 
     return _fields[idx];
@@ -211,7 +211,7 @@ ALWAYS_INLINE Field *Record::operator[](Int32 idx)
 
 ALWAYS_INLINE const Field *Record::operator[](Int32 idx) const
 {
-    if(UNLIKELY(_fields.size() <= idx))
+    if(UNLIKELY(static_cast<Int32>(_fields.size()) <= idx))
         return NULL;
 
     return _fields[idx];

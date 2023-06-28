@@ -55,7 +55,7 @@ MysqlConfig::MysqlConfig()
 LibString MysqlConfig::ToString() const
 {
     LibString info;
-    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%llu bind ip:%s \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu _enableMultiStatements:%d"
+    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%hu bind ip:%s \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu _enableMultiStatements:%d"
         , _host.c_str(), _user.c_str(), _pwd.c_str(), _dbName.c_str(), _port, _bindIp.c_str(), _charset.c_str(), _dbCharset.c_str(), _dbCollate.c_str(),
          _autoReconnect, _maxPacketSize, _enableMultiStatements);
 
@@ -220,7 +220,6 @@ Int32 MysqlConnect::Start()
         return Status::Failed;
     }
 
-    Int32 err = 0;
     do
     {
         // 连接
@@ -335,7 +334,7 @@ void MysqlConnect::_FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, boo
     // 当前res中拿到的数据量
     auto fieldNum = mysql_num_fields(res);
     Int64 rowCount = 0;
-    while (row = mysql_fetch_row(res))
+    while ((row = mysql_fetch_row(res)) != NULL)
     {
         auto lens = mysql_fetch_lengths(res);
         SmartPtr<Record, AutoDelMethods::CustomDelete> record = Record::NewThreadLocal_Record();
@@ -377,7 +376,7 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bo
     auto fieldNum = mysql_num_fields(res);
     Int32 rowCount = 0;
     std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> records;
-    while (row = mysql_fetch_row(res))
+    while ((row = mysql_fetch_row(res)) != NULL)
     {
         auto lens = mysql_fetch_lengths(res);
         SmartPtr<Record, AutoDelMethods::CustomDelete> record = Record::NewThreadLocal_Record();

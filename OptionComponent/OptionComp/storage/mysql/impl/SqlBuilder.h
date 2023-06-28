@@ -978,7 +978,6 @@ public:
         {
             auto &field = std::get<0>(tupleInfo);
             auto &desc = std::get<1>(tupleInfo);
-            auto &afterField = std::get<2>(tupleInfo);
             if(UNLIKELY(field.empty() || desc.empty()))
                 continue;
 
