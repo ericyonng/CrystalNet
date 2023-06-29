@@ -111,7 +111,7 @@ public:
      */
     virtual bool IsFiring() const;
 
-    // 正在监听某个时间 O(n)
+    // 正在监听某个时间 O(n) ObjType:是监听者, 可以是类对象也可以是函数地址
     template<typename ObjType>
     bool IsListening(int id, ObjType *obj) const;
 
@@ -190,6 +190,9 @@ protected:
     // 存根对应的监听回调
     typedef std::map<ListenerStub, _Listener> _StubIndexedListeners;
     _StubIndexedListeners _stubListeners;
+
+    // 针对某个对象上监听的
+    std::map<Int32, std::set<void *>> _eventIdRefListenerOwners;
 };
 
 
@@ -254,19 +257,9 @@ ALWAYS_INLINE bool EventManager::IsListening(int id, ObjType *obj) const
 {
     bool isListening = false;
     {
-        auto iter = _listeners.find(id);
-        if(iter != _listeners.end())
-        {
-            auto &listeners = iter->second;
-            for(auto &listen : listeners)
-            {
-                if(listen._listenCallBack == NULL)
-                    continue;
-
-                if(listen._listenCallBack->IsBelongTo(obj))
-                    isListening = true;
-            }
-        }
+        auto iter = _eventIdRefListenerOwners.find(id);
+        if(iter != _eventIdRefListenerOwners.end())
+            isListening = iter->second.find(obj) != iter->second.end();
     }
 
     // 在延迟队列中

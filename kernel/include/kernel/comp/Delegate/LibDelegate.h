@@ -32,6 +32,7 @@
 #pragma once
 
 #include <kernel/kernel_inc.h>
+#include <kernel/comp/Utils/RttiUtil.h>
 
 KERNEL_BEGIN
 
@@ -51,6 +52,9 @@ public:
 
     // 判断是否是某个对象的回调
     virtual bool IsBelongTo(void *obj) const { return false; }
+    virtual const void *GetOwner() const { return NULL; }
+    virtual void *GetOwner() { return NULL; }
+    virtual const Byte8 * GetOwnerRtti() { return ""; }
 };
 
 ////////////////////
@@ -66,7 +70,10 @@ public:
     virtual Rtn Invoke(Args... args);
     virtual Rtn Invoke(Args... args) const;
     virtual IDelegate<Rtn, Args...> *CreateNewCopy() const;
-    virtual bool IsBelongTo(void *obj) const override;
+    virtual bool IsBelongTo(void *obj) const override { return reinterpret_cast<void *>(_obj) == obj; }
+    virtual const void *GetOwner() const override { return _obj; }
+    virtual void *GetOwner() override { return _obj; }
+    virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_obj); }
 
 private:
     mutable ObjType *_obj;
@@ -87,7 +94,10 @@ public:
 
     virtual Rtn Invoke(Args... args);
     virtual Rtn Invoke(Args... args) const;
-    virtual bool IsBelongTo(void *obj) const override;
+    virtual bool IsBelongTo(void *obj) const override { return reinterpret_cast<void *>(_obj) == obj; }
+    virtual const void *GetOwner() const override { return _obj; }
+    virtual void *GetOwner() override { return _obj; }
+    virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_obj); }
 
     // 禁用拷贝与赋值，以及创建副本
 private:
@@ -114,6 +124,10 @@ public:
     virtual Rtn Invoke(Args... args);
     virtual Rtn Invoke(Args... args) const;
     virtual IDelegate<Rtn, Args...> *CreateNewCopy() const;
+    virtual bool IsBelongTo(void *f) const { return f == reinterpret_cast<void *>(_f); }
+    virtual const void *GetOwner() const { return _f; }
+    virtual void *GetOwner() override { return _f; }
+    virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_f); }
 
 private:
     mutable Rtn(*_f)(Args...);
@@ -134,6 +148,7 @@ public:
     virtual Rtn Invoke(Args... args);
     virtual Rtn Invoke(Args... args) const;
     virtual IDelegate<Rtn, Args...> *CreateNewCopy() const;
+    virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(&_closureFun); }
 
 private:
     mutable RemoveReferenceType<ClosureFuncType> _closureFun;

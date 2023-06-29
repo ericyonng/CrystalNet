@@ -87,12 +87,6 @@ inline IDelegate<Rtn, Args...> *DelegateClass<ObjType, Rtn, Args...>::CreateNewC
     return DelegateFactory::Create(_obj, _f);
 }
 
-template <typename ObjType, typename Rtn, typename... Args>
-ALWAYS_INLINE bool DelegateClass<ObjType, Rtn, Args...>::IsBelongTo(void *obj) const
-{
-    return reinterpret_cast<void *>(_obj) == obj;
-}
-
 // 类委托带删除对象
 template <typename ObjType, class Rtn, typename... Args>
 inline DelegateClassDelObj<ObjType, Rtn, Args...>::DelegateClassDelObj(ObjType *t, Rtn(ObjType::*f)(Args...))
@@ -124,12 +118,6 @@ template <typename ObjType, typename Rtn, typename... Args>
 inline Rtn DelegateClassDelObj<ObjType, Rtn, Args...>::Invoke(Args... args) const
 {
     return (_obj->*_f)(std::forward<Args>(args)...);
-}
-
-template <typename ObjType, typename Rtn, typename... Args>
-ALWAYS_INLINE bool DelegateClassDelObj<ObjType, Rtn, Args...>::IsBelongTo(void *obj) const
-{
-    return reinterpret_cast<void *>(_obj) == obj;
 }
 
 // 函数委托

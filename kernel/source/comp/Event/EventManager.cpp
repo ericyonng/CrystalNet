@@ -30,6 +30,8 @@
 #include <kernel/comp/Event/EventManager.h>
 #include <kernel/comp/Event/LibEvent.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/Utils/BackTraceUtil.h>
+#include <kernel/comp/Utils/RttiUtil.h>
 
 KERNEL_BEGIN
 
@@ -38,6 +40,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(EventManager);
 
 EventManager::~EventManager()
 {
+    _eventIdRefListenerOwners.clear();
     if(!_listeners.empty())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("have some listener not remove listen count:%d"), static_cast<Int32>(_listeners.size()));
@@ -74,6 +77,13 @@ ListenerStub EventManager::AddListener(int id, IDelegate<void, LibEvent *> *list
     {
         CRYSTAL_RELEASE_SAFE(listener);
         return INVALID_LISTENER_STUB;
+    }
+
+    auto owner = listener->GetOwner();
+    if(UNLIKELY(owner && IsListening(id, owner)))
+    {// 重复监听就告警下
+        const LibString ownerRtti = listener->GetOwnerRtti();
+        g_Log->Warn(LOGFMT_OBJ_TAG("repeat add listen for owner, ev id:%d, obj:%p, %s stack back trace:\n%s"), id, owner, ownerRtti.c_str(), BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
     }
 
     ListenerStub stub = INVALID_LISTENER_STUB;
@@ -213,6 +223,19 @@ int EventManager::ProcessEventOperation(EventManager::_Op &op)
 
         _stubListeners.insert(std::make_pair(listener._stub, listener));
 
+        if(listener._listenCallBack)
+        {
+            auto owner = listener._listenCallBack->GetOwner();
+            if(LIKELY(owner))
+            {
+                auto iter = _eventIdRefListenerOwners.find(listener._evId);
+                if(iter == _eventIdRefListenerOwners.end())
+                    iter = _eventIdRefListenerOwners.insert(std::make_pair(listener._evId, std::set<void *>())).first;
+
+                iter->second.insert(owner);
+            }
+        }
+
         // 扣除异步次数
         auto iterCount = _delayAddOpRefCount.find(listener._evId);
         if (iterCount != _delayAddOpRefCount.end())
@@ -239,6 +262,18 @@ int EventManager::ProcessEventOperation(EventManager::_Op &op)
             {
                 _Listener &l = *lIt;
 
+                auto iterOwners = _eventIdRefListenerOwners.find(l._evId);
+                if((iterOwners != _eventIdRefListenerOwners.end()) && l._listenCallBack)
+                {
+                    auto owner = l._listenCallBack->GetOwner();
+                    if(owner)
+                        iterOwners->second.erase(owner);
+
+                    if(iterOwners->second.empty())
+                    {
+                        _eventIdRefListenerOwners.erase(iterOwners);
+                    }
+                }
                 _stubListeners.erase(l._stub);
                 CRYSTAL_RELEASE_SAFE(l._listenCallBack);
             }
@@ -263,6 +298,19 @@ int EventManager::ProcessEventOperation(EventManager::_Op &op)
                 _Listener &l = *lIt;
                 if(l._stub == listener._stub)
                 {
+                    auto iterOwners = _eventIdRefListenerOwners.find(l._evId);
+                    if((iterOwners != _eventIdRefListenerOwners.end()) && l._listenCallBack)
+                    {
+                        auto owner = l._listenCallBack->GetOwner();
+                        if(owner)
+                            iterOwners->second.erase(owner);
+
+                        if(iterOwners->second.empty())
+                        {
+                            _eventIdRefListenerOwners.erase(iterOwners);
+                        }
+                    }
+
                     CRYSTAL_RELEASE_SAFE(l._listenCallBack);
                     listeners.erase(lIt);
                     break;

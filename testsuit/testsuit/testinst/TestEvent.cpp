@@ -82,7 +82,7 @@ public:
         TestEventTask3 task3;
         eventMgr->AddListener(EventIds::TEST_EVENT_TASK3, &task3, &TestEventTask3::OnEvent);
         
-        ev = KERNEL_NS::LibEvent::New_LibEvent(EventIds::TEST_EVENT_TASK3);
+        ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventIds::TEST_EVENT_TASK3);
         ev->SetParam(EventParams::SESSION_ID, 10);
         ev->SetParam(EventParams::NAME, "test event");
         eventMgr->FireEvent(ev);
@@ -108,7 +108,7 @@ public:
 
         // task2 TODO:不是好的设计,因为如果对事件顺序有要求的话延迟触发事件会导致逻辑问题,但若不加入延迟队列又会丢失事件,所以这个应该在设计层面规避
         eventMgr->AddListener(EventIds::TEST_EVENT_TASK2, task2, &TestEventTask2::OnEvent);
-        ev = KERNEL_NS::LibEvent::New_LibEvent(EventIds::TEST_EVENT_TASK2);
+        ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventIds::TEST_EVENT_TASK2);
         ev->SetParam(EventParams::SESSION_ID, 10);
         ev->SetParam(EventParams::NAME, "test event");
         ev->SetParam(EventParams::EVENT_MGR, eventMgr);
@@ -116,6 +116,10 @@ public:
     }
 };
 
+static void TestRepeatEventFunc(KERNEL_NS::LibEvent *ev)
+{
+    g_Log->Custom("TestRepeatEventFunc");
+}
 
 void TestEvent::Run() 
 {
@@ -125,8 +129,13 @@ void TestEvent::Run()
 
     auto stub1 = eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, &task1, &TestEventTask1::OnEvent);
 
-    // task1
-    KERNEL_NS::LibEvent *ev = KERNEL_NS::LibEvent::New_LibEvent(EventIds::TEST_EVENT_TASK1);
+    // 测试重复订阅
+    auto testRepeatStub = eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, &task1, &TestEventTask1::OnEvent);
+    auto testRepeatStub2 = eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, KERNEL_NS::DelegateFactory::Create(&TestRepeatEventFunc));
+    auto testRepeatStub3 = eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, KERNEL_NS::DelegateFactory::Create(&TestRepeatEventFunc));
+
+    // task1 默认LibEvent是ThreadLocal释放的所以一定得是ThreadLocal创建
+    KERNEL_NS::LibEvent *ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventIds::TEST_EVENT_TASK1);
     ev->SetParam(EventParams::SESSION_ID, 10);
     ev->SetParam(EventParams::NAME, "test event");
     ev->SetParam(EventParams::EVENT_MGR, &eventMgr);
