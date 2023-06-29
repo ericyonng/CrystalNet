@@ -443,6 +443,7 @@ static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
         // g_concurrentQueue->PushQueue(idx, &((new KERNEL_NS::LibString())->AppendFormat("hello idx:%d", idx)));
         // g_concurrentQueue->PushQueue(idx, new AcEvent());
         ++g_genNum;
+        KERNEL_NS::SystemUtil::ThreadSleep(5000);
     }
 } 
 
