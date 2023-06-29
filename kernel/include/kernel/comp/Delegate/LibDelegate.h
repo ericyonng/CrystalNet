@@ -125,8 +125,8 @@ public:
     virtual Rtn Invoke(Args... args) const;
     virtual IDelegate<Rtn, Args...> *CreateNewCopy() const;
     virtual bool IsBelongTo(void *f) const { return f == reinterpret_cast<void *>(_f); }
-    virtual const void *GetOwner() const { return _f; }
-    virtual void *GetOwner() override { return _f; }
+    virtual const void *GetOwner() const { return reinterpret_cast<const void *>(_f); }
+    virtual void *GetOwner() override { return reinterpret_cast<const void *>(_f); }
     virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_f); }
 
 private:
