@@ -34,6 +34,7 @@
 #include <kernel/comp/Variant/variant_inc.h>
 #include <kernel/comp/Cpu/LibCpuCounter.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/Utils/SignalHandleUtil.h>
 
 KERNEL_BEGIN
 
@@ -118,16 +119,18 @@ void TimerMgr::Drive()
     }
 }
 
-void TimerMgr::SafetyDrive()
+void TimerMgr::SafetyDrive(jmp_buf &stackFrame)
 {
    _BeforeDrive();
 
     if(LIKELY(!_expireQueue.empty()))
     {
-        try
+        _curTime = TimeUtil::GetFastNanoTimestamp();
+        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
+        if(LIKELY(err == 0))
         {
-            _curTime = TimeUtil::GetFastNanoTimestamp();
-
+        #endif
             // 为了避免在TimeOut执行过程中定时器重新注册进去导致队列顺序失效, 以及可能注册进去的定时器每次都超时导致死循环, 所以一定是需要异步处理注册定时, 反注册, 以及销毁定时器等操作
             // TimeOut中有可能继续加入定时器，这个定时器可能在一个循环中刚好超时, 所以添加移除定时器操作一定得是异步在_AfterDrive做
             for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
@@ -152,16 +155,13 @@ void TimerMgr::SafetyDrive()
                     }
                 }
             }
+        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         }
-        catch(const std::exception& e)
+        else
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("eception when drive timer:%s"), e.what());
+            g_Log->Error(LOGFMT_OBJ_TAG("timer mgr handle timer event error"));
         }
-        catch(...)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("unknown eception when drive timer."));
-            throw;
-        }
+        #endif
     }
 
     _AfterDrive();

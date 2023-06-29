@@ -32,6 +32,7 @@
 #include <kernel/comp/thread/thread.h>
 #include <kernel/comp/TimeSlice.h>
 #include <kernel/comp/Utils/TlsUtil.h>
+#include <kernel/comp/Utils/SignalHandleUtil.h>
 
 static ALWAYS_INLINE bool IsPriorityEvenetsQueueEmpty(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
 {
@@ -381,6 +382,7 @@ void Poller::SafetyEventLoop()
     const UInt64 pollerId = GetId();
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
+    jmp_buf stackFrame;
     UInt64 mergeNumber = 0;
     for(;;)
     {
@@ -414,8 +416,11 @@ void Poller::SafetyEventLoop()
          performaceStart = deadline;
         #endif
 
-        try
+        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
+        if(LIKELY(err == 0))
         {
+        #endif
             for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber != 0);)
             {
                 // 切换不同优先级消息队列
@@ -433,8 +438,9 @@ void Poller::SafetyEventLoop()
                     #endif
 
                     // 事件处理
-                    if(LIKELY(_eventHandler))
-                        _eventHandler->Invoke(data);
+                        if(LIKELY(_eventHandler))
+                            _eventHandler->Invoke(data);
+                    
                 }
 
                 listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
@@ -448,42 +454,40 @@ void Poller::SafetyEventLoop()
                         break;
                 }
             }
+
+        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         }
-        catch(const std::exception& e)
+        else
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("exception when handle poller event:%s."), e.what());
+            g_Log->Error(LOGFMT_OBJ_TAG("event handler error happen:"));
         }
-        catch(...)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("unknown exception happen when handle poller event."));
-            throw;
-        }
-        
+        #endif
+
         // 脏处理
         if(UNLIKELY(_dirtyHelper->HasDirty()))
         {
-            try
+        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+            auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
+            if(LIKELY(err == 0))
             {
+        #endif
                 _dirtyHelper->Purge(nowCounter.Update(), &errLog);
                 if(UNLIKELY(!errLog.empty()))
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
                     errLog.clear();
                 }
+        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
             }
-            catch(const std::exception& e)
+            else
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("eception when handle dirty purge:%s."), e.what());
+                g_Log->Error(LOGFMT_OBJ_TAG("dirty helper purge error"));
             }
-            catch(...)
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("unknown eception when handle dirty purge."));
-                throw;
-            }
+        #endif
         }
 
         // 处理定时器
-        _timerMgr->SafetyDrive();
+        _timerMgr->SafetyDrive(stackFrame);
 
         // 当前帧性能信息记录
         #ifdef _DEBUG

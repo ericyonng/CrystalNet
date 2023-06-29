@@ -40,22 +40,31 @@ extern "C"
         // 1.打印堆栈
         if(LIKELY(g_Log))
         {
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "catch signal:%s, stack backtrace:%s")
-                , KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "catch signal:%d, %s, thread id:%llu stack backtrace:%s")
+                , signalNo, KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), KERNEL_NS::SystemUtil::GetCurrentThreadId(), KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
         }
 
-        // 3.底层信号处理集合
+        // 可恢复栈帧的信号
+        if(KERNEL_NS::SignalHandleUtil::IsSignalRecoverable(signalNo, true))
         {
-            auto &tasks = KERNEL_NS::SignalHandleUtil::GetTasks(signalNo);
-            for (auto delg : tasks)
-                delg->Invoke();
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "will recover last point"));
+            KERNEL_NS::SignalHandleUtil::RecoverToLastPoint(true);
         }
+        else
+        {
+            // 3.底层信号处理集合
+            {
+                auto &tasks = KERNEL_NS::SignalHandleUtil::GetTasks(signalNo);
+                for (auto delg : tasks)
+                    delg->Invoke();
+            }
 
-        // 4.恢复系统默认处理方式
-        KERNEL_NS::SignalHandleUtil::RecoverDefault(signalNo);
+            // 4.恢复系统默认处理方式
+            KERNEL_NS::SignalHandleUtil::RecoverDefault(signalNo);
 
-        // 5.重新发射信号 执行默认处理
-        KERNEL_NS::SignalHandleUtil::ResendSignal(signalNo);
+            // 5.重新发射信号 执行默认处理
+            KERNEL_NS::SignalHandleUtil::ResendSignal(signalNo);
+        }
     }
 }
 
@@ -88,6 +97,8 @@ SpinLock SignalHandleUtil::_lck;
 std::unordered_map<Int32, std::vector<IDelegate<void> *>> SignalHandleUtil::_signalRefTasks;
 std::vector<IDelegate<void> *> SignalHandleUtil::_allSignalTasksPending;
 std::unordered_set<Int32> SignalHandleUtil::_concernSignals;
+std::unordered_set<Int32> SignalHandleUtil::_recoverableSignals;
+std::vector<jmp_buf *> s_stackFrames;
 
 void SignalHandleUtil::Lock()
 {
@@ -188,7 +199,7 @@ Int32 SignalHandleUtil::Init()
     _concernSignals.insert(SIGBUS);
     #endif
 
-    // // SIGFPE 在发生致命算术运算错误时发出
+    // // SIGFPE 在发生致命算术运算错误时发出 TODO:windows下不需要捕获, core出来
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     if(::signal(SIGFPE, CatchSigHandler) == SIG_ERR)
     {
@@ -204,7 +215,7 @@ Int32 SignalHandleUtil::Init()
     // SIGUSR1 留给用户使用
     // ::signal(SIGUSR1, CatchSigHandler);
 
-    // SIGSEGV 试图访问未分配给自己的内存，或试图往没有写权限的内存地址写数据
+    // SIGSEGV 试图访问未分配给自己的内存，或试图往没有写权限的内存地址写数据 TODO:windows下不需要捕获
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     if(::signal(SIGSEGV, CatchSigHandler) == SIG_ERR)
     {
@@ -311,6 +322,16 @@ Int32 SignalHandleUtil::Init()
     _concernSignals.insert(SIGPWR);
     #endif
 
+    // SIGSTKFLT 栈溢出
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    if(::signal(SIGSTKFLT, CatchSigHandler) == SIG_ERR)
+    {
+        CRYSTAL_TRACE("signal set handler error, signal:%s", SignalToString(SIGSTKFLT).c_str());
+        return Status::Error;
+    }
+    _concernSignals.insert(SIGSTKFLT);
+    #endif
+
     for(auto pending : _allSignalTasksPending)
     {
         for(auto signalId : _concernSignals)
@@ -319,6 +340,16 @@ Int32 SignalHandleUtil::Init()
     _allSignalTasksPending.clear();
 
     // #endif
+
+    // 需要恢复栈帧的信号 windows下有问题就不需要恢复
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        _recoverableSignals.insert(SIGILL);
+        _recoverableSignals.insert(SIGABRT);
+        _recoverableSignals.insert(SIGBUS);
+        _recoverableSignals.insert(SIGFPE);
+        _recoverableSignals.insert(SIGSEGV);
+        _recoverableSignals.insert(SIGSYS);
+    #endif
 
     return Status::Success;
 }
@@ -330,6 +361,11 @@ void SignalHandleUtil::Destroy()
     ContainerUtil::DelContainer(_signalRefTasks, [](std::vector<IDelegate<void> *> &vec){
         ContainerUtil::DelContainer2(vec);
     });
+
+    // ContainerUtil::DelContainer(s_stackFrames, [](jmp_buf *p){
+    //     KernelFreeMemory<_Build::MT>(p);
+    // });
+
     _lck.Unlock();
 }
 
@@ -378,6 +414,7 @@ LibString SignalHandleUtil::SignalToString(Int32 signalId)
     case SIGPIPE: return info.AppendFormat("SIGPIPE");
     case SIGALRM: return info.AppendFormat("SIGALRM");
     case SIGTERM: return info.AppendFormat("SIGTERM");
+    case SIGSTKFLT: return info.AppendFormat("SIGSTKFLT");
     case SIGCHLD: return info.AppendFormat("SIGCHLD");
     case SIGCONT: return info.AppendFormat("SIGCONT");
     case SIGSTOP: return info.AppendFormat("SIGSTOP");
@@ -401,5 +438,58 @@ LibString SignalHandleUtil::SignalToString(Int32 signalId)
     return info.AppendFormat("unknown signal");
 } 
 
+Int32 SignalHandleUtil::PushRecoverPoint(jmp_buf *stackFramePoint)
+{
+    Int32 ret = 0;
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        ret = setjmp(*stackFramePoint);
+    #else
+        ret = sigsetjmp(*stackFramePoint, 1);
+    #endif
+
+    _lck.Lock();
+    s_stackFrames.push_back(stackFramePoint);
+    _lck.Unlock();
+
+    return ret;
+}
+
+void SignalHandleUtil::RecoverToLastPoint(bool skipLock)
+{
+    if(!skipLock)
+        _lck.Lock();
+
+    auto p = s_stackFrames.back();
+    s_stackFrames.pop_back();
+    
+    if(!skipLock)
+        _lck.Unlock();
+
+    Int32 ret = 0;
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        longjmp(*p, 1);
+    #else
+        siglongjmp(*p, 1);
+    #endif
+}
+
+void SignalHandleUtil::SetSignalRecoverable(Int32 signalId)
+{
+    _lck.Lock();
+    _recoverableSignals.insert(signalId);
+    _lck.Unlock();
+}
+
+bool SignalHandleUtil::IsSignalRecoverable(Int32 signalId, bool skipLock)
+{
+    if(!skipLock)
+        _lck.Lock();
+
+    auto ret = _recoverableSignals.find(signalId) != _recoverableSignals.end();
+    if(!skipLock)
+        _lck.Unlock();
+
+    return ret;
+}
 
 KERNEL_END

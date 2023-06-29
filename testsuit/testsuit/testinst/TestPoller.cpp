@@ -363,6 +363,9 @@ static const Int32 g_maxConcurrentLevel = 1;
 static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
 {
     // g_Log->Debug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::Poller, "recv event:%s"), ev->ToString().c_str());
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test crash..........."));
+    KERNEL_NS::SystemUtil::ThreadSleep(5000);
+
     ++g_consumNum;
     // int b = 0;
     // int a = 1 / b;

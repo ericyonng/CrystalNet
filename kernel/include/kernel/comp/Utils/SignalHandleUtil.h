@@ -24,6 +24,7 @@
  * Date: 2022-10-05 15:36:06
  * Author: Eric Yonng
  * Description: 处理信号,避免
+ * 可恢复栈帧的信号将直接恢复到栈帧
 */
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_UTILS_SIGNAL_HANDLE_UTIL_H__
@@ -67,11 +68,22 @@ public:
     // 信号名
     static LibString SignalToString(Int32 signalId);
 
+    // 设置恢复点
+    static Int32 PushRecoverPoint(jmp_buf *stackFramePoint);
+    static void RecoverToLastPoint(bool skipLock = false);
+
+    // 设置某些信号栈恢复 recoverable
+    static void SetSignalRecoverable(Int32 signalId);
+
+    // 是否是可恢复的信号
+    static bool IsSignalRecoverable(Int32 signalId, bool skipLock = false);
+
 private:
     static SpinLock _lck;
     static std::unordered_map<Int32, std::vector<IDelegate<void> *>> _signalRefTasks;
     static std::vector<IDelegate<void> *> _allSignalTasksPending;
     static std::unordered_set<Int32> _concernSignals;
+    static std::unordered_set<Int32> _recoverableSignals;
 };
 
 KERNEL_END
