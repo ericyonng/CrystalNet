@@ -70,6 +70,7 @@ public:
 
     // 设置恢复点
     static Int32 PushRecoverPoint(jmp_buf *stackFramePoint);
+    static void PopRecoverPoint();
     static void RecoverToLastPoint(bool skipLock = false);
 
     // 设置某些信号栈恢复 recoverable

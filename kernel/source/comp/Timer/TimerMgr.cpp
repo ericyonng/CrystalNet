@@ -127,6 +127,7 @@ void TimerMgr::SafetyDrive(jmp_buf &stackFrame)
     {
         _curTime = TimeUtil::GetFastNanoTimestamp();
         #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        SignalHandleUtil::PopRecoverPoint();
         auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
         if(LIKELY(err == 0))
         {

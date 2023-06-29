@@ -467,6 +467,7 @@ void Poller::SafetyEventLoop()
         if(UNLIKELY(_dirtyHelper->HasDirty()))
         {
         #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+            SignalHandleUtil::PopRecoverPoint();
             auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
             if(LIKELY(err == 0))
             {

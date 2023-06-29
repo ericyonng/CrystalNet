@@ -349,6 +349,9 @@ Int32 SignalHandleUtil::Init()
         _recoverableSignals.insert(SIGFPE);
         _recoverableSignals.insert(SIGSEGV);
         _recoverableSignals.insert(SIGSYS);
+
+        // TODO:测试恢复栈帧
+        _recoverableSignals.insert(SIGINT);
     #endif
 
     return Status::Success;
@@ -452,6 +455,13 @@ Int32 SignalHandleUtil::PushRecoverPoint(jmp_buf *stackFramePoint)
     _lck.Unlock();
 
     return ret;
+}
+
+void SignalHandleUtil::PopRecoverPoint()
+{
+    _lck.Lock();
+    s_stackFrames.pop_back();
+    _lck.Unlock();
 }
 
 void SignalHandleUtil::RecoverToLastPoint(bool skipLock)
