@@ -60,7 +60,8 @@ public:
     // 获取进程id
     static Int32 GetCurProcessId();
     // 结束进程
-    static Int32 CloseProcess(Int32 processId, ULong *lastError = NULL);
+    static Int32 CloseProcess(UInt64 processId, ULong *lastError = NULL);
+    static Int32 SendCloseMsgToProcess(UInt64 processId, ULong *lastError = NULL);
 
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     // 获取可用的内存大小
@@ -90,6 +91,8 @@ public:
     static void GetCallingThreadCpuInfo(UInt16 &cpuGroup, Byte8 &cpuNumber);
     // 遍历进程判断某进程是否在进程列表
     static bool IsProcessExist(const LibString &processName);
+    // 找进程id，isLikely:是否模糊匹配
+    static bool GetProcessIdList(const LibString &processName, std::map<UInt64, LibString> &processIdRefNames, bool isLikely = true, bool isMatchPath = false);
     #else
     // 可用内存
     static UInt64 GetFreeMemBySysCall();

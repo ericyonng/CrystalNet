@@ -67,6 +67,10 @@ extern "C"
 }
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+HHOOK g_HookProc;
+extern "C" void __declspec(dllexport) SetHook(); // 安装HOOK
+extern "C" void __declspec(dllexport) UnHook(); // 卸载HOOK
+LRESULT CALLBACK MessageHookProc(int nCode, WPARAM wParam, LPARAM lParam); //消息处理函数
 
 // 拦截关闭窗口消息
 LRESULT CALLBACK WindowProc(
@@ -85,6 +89,69 @@ LRESULT CALLBACK WindowProc(
     }
 
     return 0;
+}
+
+extern "C" void __declspec(dllexport) SetHook()
+{
+	g_HookProc = SetWindowsHookEx(WH_CALLWNDPROC, MessageHookProc, GetModuleHandle(NULL), 0);
+}
+
+extern "C" void __declspec(dllexport) UnHook()
+{
+	if (NULL != g_HookProc)
+		UnhookWindowsHookEx(g_HookProc);
+}
+
+LRESULT CALLBACK MessageHookProc(int nCode, WPARAM wParam, LPARAM lParam)  //我们自己的程序处理             
+{
+	if (nCode == HC_ACTION)
+	{
+		PCWPSTRUCT pcw = (PCWPSTRUCT)lParam;
+		if (pcw->message == WM_CLOSE)
+		{
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "process will close"));
+            CatchSigHandler(-1);
+		}
+	}
+	return CallNextHookEx(g_HookProc, nCode, wParam, lParam); //继续调用钩子过程
+}
+
+BOOL WINAPI ConsoleHandler(DWORD event)
+{
+    switch (event)
+    {
+    // ctrl + c
+    case CTRL_C_EVENT:
+    {
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "ConsoleHandler CTRL_C_EVENT"));
+        CatchSigHandler(-1);
+
+        SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, FALSE);
+        ExitProcess(0);
+        return TRUE;
+    }
+    break;
+    // ctrl + break 
+    case CTRL_BREAK_EVENT:
+    {
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "ConsoleHandler CTRL_BREAK_EVENT"));
+    }
+    break;
+    // 窗口关闭
+    case CTRL_CLOSE_EVENT:
+    {
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "ConsoleHandler CTRL_CLOSE_EVENT"));
+        CatchSigHandler(-1);
+        SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, FALSE);
+        ExitProcess(0);
+        return TRUE;
+    }
+    break;
+    default:
+        break;
+    }
+
+    return FALSE;
 }
 
 #endif
@@ -330,6 +397,9 @@ Int32 SignalHandleUtil::Init()
     _concernSignals.insert(SIGSTKFLT);
     #endif
 
+    // -1是缺省
+    _concernSignals.insert(-1);
+
     for(auto pending : _allSignalTasksPending)
     {
         for(auto signalId : _concernSignals)
@@ -350,6 +420,11 @@ Int32 SignalHandleUtil::Init()
 
         // TODO:测试恢复栈帧
         _recoverableSignals.insert(SIGINT);
+    #endif
+
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    // SetHook();
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE);
     #endif
 
     return Status::Success;
@@ -380,14 +455,16 @@ std::vector<IDelegate<void> *> &SignalHandleUtil::GetTasks(Int32 signalId)
 void SignalHandleUtil::RecoverDefault(Int32 signalId)
 {
     // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-     ::signal(signalId, SIG_DFL);
+    if(signalId >= 0)
+         ::signal(signalId, SIG_DFL);
     // #endif
 }
 
 void SignalHandleUtil::ResendSignal(Int32 signalId)
 {
     // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-     ::raise(signalId);
+    if(signalId >= 0)
+         ::raise(signalId);
     // #endif
 }
 

@@ -104,7 +104,7 @@ LibString DirectoryUtil::GetFileNameInPath(const LibString &path)
     }
 
     if(UNLIKELY(i < 0))
-        return "";
+        return path;
 
 
     return pathRaw.substr(i, len - i);

@@ -228,10 +228,10 @@ LibString SystemUtil::GetCurProgRootPath()
     return DirectoryUtil::GetFileDirInPath(path);
 }
 
-Int32 SystemUtil::CloseProcess(Int32 processId, ULong *lastError)
+Int32 SystemUtil::CloseProcess(UInt64 processId, ULong *lastError)
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    if(!TerminateProcess(OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_INFORMATION, false, processId), 0))
+    if(!TerminateProcess(OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_INFORMATION, false, static_cast<DWORD>(processId)), 0))
     {
         if(lastError)
             *lastError = GetLastError();
@@ -250,6 +250,23 @@ Int32 SystemUtil::CloseProcess(Int32 processId, ULong *lastError)
     return Status::Success;
 }
 
+Int32 SystemUtil::SendCloseMsgToProcess(UInt64 processId, ULong *lastError)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    auto hwd = GetWindowHwndByPID((DWORD)processId);
+    auto ret = ::SendMessage(hwd, WM_CLOSE, 0, 0);
+    if(ret != 0)
+    {
+        if(lastError)
+        {
+            *lastError = static_cast<ULong>(::GetLastError());
+        }
+        return Status::Failed;
+    }
+#endif
+
+    return Status::Success;
+}
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
 UInt64 SystemUtil::GetAvailPhysMemSize()
@@ -405,6 +422,57 @@ bool SystemUtil::IsProcessExist(const LibString &processName)
     }
 
     return false;
+#else
+    // TODO:linux
+    return false;
+#endif
+}
+
+bool SystemUtil::GetProcessIdList(const LibString &processName, std::map<UInt64, LibString> &processIdRefNames, bool isLikely, bool isMatchPath)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    // 遍历进程
+    auto hProcModule = CreateProcessSnapshot();
+    auto pid = GetFirstProcessPid(hProcModule);
+    bool isFirst = true;
+    KERNEL_NS::LibString pachCache;
+    for(; isFirst ? isFirst : (pid > 0); pid = GetNextProcessPid(hProcModule))
+    {
+        isFirst = false;
+        pachCache.clear();
+        if(GetProgramPath(false, pachCache, pid) != Status::Success)
+            continue;
+
+        const auto &dirPart = DirectoryUtil::GetFileDirInPath(processName.c_str());
+        const auto &namePart = DirectoryUtil::GetFileNameInPath(processName.c_str());
+
+        const auto &wholePathPart = DirectoryUtil::GetFileDirInPath(pachCache.c_str());
+        const auto &wholeNamePart = DirectoryUtil::GetFileNameInPath(pachCache.c_str());
+
+        if(isMatchPath)
+        {
+            if(wholePathPart.GetRaw().find(dirPart.GetRaw()) == std::string::npos)
+                continue;
+        }
+
+        if(isLikely)
+        {
+            auto iterExist = wholeNamePart.GetRaw().find(namePart.GetRaw());
+            if(iterExist != std::string::npos)
+            {
+                processIdRefNames[pid] = pachCache;
+            }
+        }
+        else
+        {
+            if(namePart == wholeNamePart)
+            {
+                processIdRefNames[pid] = pachCache;
+            }
+        }
+    }
+
+    return !processIdRefNames.empty();
 #else
     // TODO:linux
     return false;
