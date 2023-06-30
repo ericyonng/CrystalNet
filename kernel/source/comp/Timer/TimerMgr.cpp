@@ -119,19 +119,19 @@ void TimerMgr::Drive()
     }
 }
 
-void TimerMgr::SafetyDrive(jmp_buf &stackFrame)
+void TimerMgr::SafetyDrive()
 {
    _BeforeDrive();
 
     if(LIKELY(!_expireQueue.empty()))
     {
         _curTime = TimeUtil::GetFastNanoTimestamp();
-        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-        SignalHandleUtil::PopRecoverPoint();
-        auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
-        if(LIKELY(err == 0))
-        {
-        #endif
+        // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        // SignalHandleUtil::PopRecoverPoint();
+        // auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
+        // if(LIKELY(err == 0))
+        // {
+        // #endif
             // 为了避免在TimeOut执行过程中定时器重新注册进去导致队列顺序失效, 以及可能注册进去的定时器每次都超时导致死循环, 所以一定是需要异步处理注册定时, 反注册, 以及销毁定时器等操作
             // TimeOut中有可能继续加入定时器，这个定时器可能在一个循环中刚好超时, 所以添加移除定时器操作一定得是异步在_AfterDrive做
             for(auto iter = _expireQueue.begin(); iter != _expireQueue.end();)
@@ -156,13 +156,13 @@ void TimerMgr::SafetyDrive(jmp_buf &stackFrame)
                     }
                 }
             }
-        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-        }
-        else
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("timer mgr handle timer event error"));
-        }
-        #endif
+        // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        // }
+        // else
+        // {
+        //     g_Log->Error(LOGFMT_OBJ_TAG("timer mgr handle timer event error"));
+        // }
+        // #endif
     }
 
     _AfterDrive();

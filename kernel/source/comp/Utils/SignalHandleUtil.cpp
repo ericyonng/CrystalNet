@@ -44,27 +44,25 @@ extern "C"
                 , signalNo, KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), KERNEL_NS::SystemUtil::GetCurrentThreadId(), KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
         }
 
-        // 可恢复栈帧的信号
-        if(KERNEL_NS::SignalHandleUtil::IsSignalRecoverable(signalNo, true))
+        // 可恢复栈帧的信号 经常coredump 恢复栈帧的先延后TODO
+        // if(KERNEL_NS::SignalHandleUtil::IsSignalRecoverable(signalNo, true))
+        // {
+        //     g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "will recover last point"));
+        //     KERNEL_NS::SignalHandleUtil::RecoverToLastPoint(true);
+        // }
+        //else
+        // 3.底层信号处理集合
         {
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "will recover last point"));
-            KERNEL_NS::SignalHandleUtil::RecoverToLastPoint(true);
+            auto &tasks = KERNEL_NS::SignalHandleUtil::GetTasks(signalNo);
+            for (auto delg : tasks)
+                delg->Invoke();
         }
-        else
-        {
-            // 3.底层信号处理集合
-            {
-                auto &tasks = KERNEL_NS::SignalHandleUtil::GetTasks(signalNo);
-                for (auto delg : tasks)
-                    delg->Invoke();
-            }
 
-            // 4.恢复系统默认处理方式
-            KERNEL_NS::SignalHandleUtil::RecoverDefault(signalNo);
+        // 4.恢复系统默认处理方式
+        KERNEL_NS::SignalHandleUtil::RecoverDefault(signalNo);
 
-            // 5.重新发射信号 执行默认处理
-            KERNEL_NS::SignalHandleUtil::ResendSignal(signalNo);
-        }
+        // 5.重新发射信号 执行默认处理
+        KERNEL_NS::SignalHandleUtil::ResendSignal(signalNo);
     }
 }
 

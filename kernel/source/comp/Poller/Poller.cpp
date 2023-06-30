@@ -382,7 +382,8 @@ void Poller::SafetyEventLoop()
     const UInt64 pollerId = GetId();
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
-    jmp_buf stackFrame;
+    // TODO:如何安全的恢复栈帧
+    // jmp_buf stackFrame;
     UInt64 mergeNumber = 0;
     for(;;)
     {
@@ -416,11 +417,11 @@ void Poller::SafetyEventLoop()
          performaceStart = deadline;
         #endif
 
-        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-        auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
-        if(LIKELY(err == 0))
-        {
-        #endif
+        // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        // auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
+        // if(LIKELY(err == 0))
+        // {
+        // #endif
             for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber != 0);)
             {
                 // 切换不同优先级消息队列
@@ -455,36 +456,36 @@ void Poller::SafetyEventLoop()
                 }
             }
 
-        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-        }
-        else
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("event handler error happen:"));
-        }
-        #endif
+        // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        // }
+        // else
+        // {
+        //     g_Log->Error(LOGFMT_OBJ_TAG("event handler error happen:"));
+        // }
+        // #endif
 
         // 脏处理
         if(UNLIKELY(_dirtyHelper->HasDirty()))
         {
-        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-            SignalHandleUtil::PopRecoverPoint();
-            auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
-            if(LIKELY(err == 0))
-            {
-        #endif
+        // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        //     SignalHandleUtil::PopRecoverPoint();
+        //     auto err = SignalHandleUtil::PushRecoverPoint(&stackFrame);
+        //     if(LIKELY(err == 0))
+        //     {
+        // #endif
                 _dirtyHelper->Purge(nowCounter.Update(), &errLog);
                 if(UNLIKELY(!errLog.empty()))
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
                     errLog.clear();
                 }
-        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-            }
-            else
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("dirty helper purge error"));
-            }
-        #endif
+        // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        //     }
+        //     else
+        //     {
+        //         g_Log->Error(LOGFMT_OBJ_TAG("dirty helper purge error"));
+        //     }
+        // #endif
         }
 
         // 处理定时器

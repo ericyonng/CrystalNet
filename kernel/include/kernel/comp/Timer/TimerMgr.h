@@ -55,7 +55,7 @@ public:
     // 在线程中启动
     void Launch(IDelegate<void> *wakeupThreadCb);
     void Drive();
-    void SafetyDrive(jmp_buf &stackFrame);
+    void SafetyDrive());
     void Close();
 
     // 注册
