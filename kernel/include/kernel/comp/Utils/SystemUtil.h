@@ -62,6 +62,7 @@ public:
     // 结束进程
     static Int32 CloseProcess(UInt64 processId, ULong *lastError = NULL);
     static Int32 SendCloseMsgToProcess(UInt64 processId, ULong *lastError = NULL);
+    static UInt64 GetMainThreadId(UInt64 processId);
 
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     // 获取可用的内存大小

@@ -91,6 +91,17 @@ LRESULT CALLBACK WindowProc(
     return 0;
 }
 
+static bool SetNewWindowProc(HWND hwnd)
+{
+    auto prevHwnd = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)WindowProc);
+    if(prevHwnd == NULL)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 extern "C" void __declspec(dllexport) SetHook()
 {
 	g_HookProc = SetWindowsHookEx(WH_CALLWNDPROC, MessageHookProc, GetModuleHandle(NULL), 0);

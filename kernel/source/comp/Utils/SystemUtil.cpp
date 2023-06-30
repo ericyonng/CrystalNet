@@ -263,10 +263,92 @@ Int32 SystemUtil::SendCloseMsgToProcess(UInt64 processId, ULong *lastError)
         }
         return Status::Failed;
     }
+
+    // if(!AllocConsole())
+    // {
+    //     if(lastError)
+    //     {
+    //         *lastError = ::GetLastError();
+    //     }
+    //     return Status::Failed;
+    // }
+    // if(!AttachConsole((DWORD)processId))
+    // {
+    //     if(lastError)
+    //     {
+    //         *lastError = ::GetLastError();
+    //     }
+    //     return Status::Failed;
+    // }
+    // SetConsoleCtrlHandler(NULL, TRUE);
+    // if(!GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0))
+    // {
+    //     if(lastError)
+    //     {
+    //         *lastError = ::GetLastError();
+    //     }
+    //     return Status::Failed;
+    // }
+    // FreeConsole();
+
+    // auto h = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, (DWORD)processId);
+    // if(!h)
+    // {
+    //     if(lastError)
+    //     {
+    //         *lastError = static_cast<ULong>(::GetLastError());
+    //     }
+    //     return  Status::Failed;
+    // }
+
+    // if(!GenerateConsoleCtrlEvent(CTRL_C_EVENT, (DWORD)processId))
+    // {
+    //     if(lastError)
+    //     {
+    //         *lastError = static_cast<ULong>(::GetLastError());
+    //     }
+
+    //     CloseHandle(h);
+
+    //     return Status::Failed;
+    // }
+
+    // CloseHandle(h);
 #endif
 
     return Status::Success;
 }
+
+UInt64 SystemUtil::GetMainThreadId(UInt64 processId)
+{
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    // 获取进程的主线程ID
+    THREADENTRY32 te;       // 线程信息
+    te.dwSize = sizeof(THREADENTRY32);
+    auto hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0); // 系统所有线程快照
+    if(!hSnapshot)
+        return 0;
+
+    UInt64 threadId = 0;
+    if(Thread32First(hSnapshot, &te))       // 第一个线程
+    {
+        do
+        {
+            if(processId == te.th32OwnerProcessID)      // 认为找到的第一个该进程的线程为主线程
+            {
+                threadId = (UInt64)te.th32ThreadID;
+                break;
+            }
+        }while(Thread32Next(hSnapshot, &te));           // 下一个线程
+    }
+
+    CloseHandle(hSnapshot); // 删除快照
+    return threadId;
+    #else
+        return processId;
+    #endif
+}
+
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
 UInt64 SystemUtil::GetAvailPhysMemSize()
@@ -418,9 +500,15 @@ bool SystemUtil::IsProcessExist(const LibString &processName)
 
         auto iterExist = pachCache.GetRaw().find(processName.GetRaw());
         if(iterExist != std::string::npos)
+        {
+            if(hProcModule)
+                CloseHandle(hProcModule);
             return true;
+        }
     }
 
+    if(hProcModule)
+        CloseHandle(hProcModule);
     return false;
 #else
     // TODO:linux
@@ -471,6 +559,9 @@ bool SystemUtil::GetProcessIdList(const LibString &processName, std::map<UInt64,
             }
         }
     }
+
+    if(hProcModule)
+        CloseHandle(hProcModule);
 
     return !processIdRefNames.empty();
 #else
