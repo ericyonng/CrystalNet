@@ -489,7 +489,7 @@ void Poller::SafetyEventLoop()
         }
 
         // 处理定时器
-        _timerMgr->SafetyDrive(stackFrame);
+        _timerMgr->SafetyDrive();
 
         // 当前帧性能信息记录
         #ifdef _DEBUG
