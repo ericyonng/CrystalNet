@@ -484,6 +484,12 @@ void EpollTcpPoller::_OnPollerWillDestroy(Poller *poller)
 
 void EpollTcpPoller::_OnPollerEvent(PollerEvent *ev)
 {
+    if(UNLIKELY(ev->_type >= PollerEventType::EvMax))
+    {
+        g_Log->NetError(LOGFMT_OBJ_TAG("unknown poller event type:%d"), ev->_type);
+        return;
+    }
+    
     auto handler = _eventHandlerArray[ev->_type];
     if(!handler)
     {

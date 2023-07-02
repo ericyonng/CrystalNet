@@ -40,6 +40,7 @@
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpPoller.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpPoller.h>
 #include <kernel/comp/Utils/SignalHandleUtil.h>
+#include <kernel/comp/memory/CenterMemoryCollector.h>
 
 KERNEL_NS::LibCpuInfo *g_cpu = NULL;
 // KERNEL_NS::CpuFeature *g_cpuFeature = NULL;
@@ -261,6 +262,8 @@ void KernelUtil::Start()
     KERNEL_NS::GarbageThread::GetInstence()->Start();
     // 启动内存监控
     g_MemoryMonitor->Start();
+    // 启动中央内存收集器
+    CenterMemoryCollector::GetInstance()->Start();
 
     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started."));
 
@@ -289,6 +292,9 @@ void KernelUtil::Destroy()
     // if(LIKELY(g_Log))
     //     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "comp will destroy."));
 
+    // 先关闭
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
+
     if (g_MemoryMonitor)
         g_MemoryMonitor->Close();
     g_MemoryMonitor = NULL;
@@ -316,6 +322,8 @@ void KernelUtil::Destroy()
     g_KernelInit = false;
     s_KernelStart = false;
 
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->Close();
+
     // CRYSTAL_TRACE("kernel destroy finish.");
 }
 
@@ -334,6 +342,9 @@ void KernelUtil::OnAbnormalClose()
 
     CRYSTAL_TRACE("will abnormal close kernel log addr:[%p], log IsStart[%d], memory pool addr:[%p], Statistics addr:[%p]..."
     , g_Log, g_Log && g_Log->IsStart(), g_MemoryPool,  g_MemoryPool ? g_MemoryMonitor->GetStatistics() : NULL);
+
+    // 先关闭
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
 
     if (g_MemoryMonitor)
         g_MemoryMonitor->Close();

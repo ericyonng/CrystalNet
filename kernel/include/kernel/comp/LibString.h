@@ -179,7 +179,13 @@ public:
     const LibString &RemoveZeroTail();      // 移除容器中尾部的0
     const LibString &RemoveHeadZero();      // 移除容器中首部的0
 
+    // 如果是字符串的话会带很多的\0, 如果bitData有的话，这会造成再次Append的时候之后追加的字符串打印不出来
     LibString &AppendData(const Byte8 *bitData, Int64 dataSize);
+    LibString &AppendData(const Byte8 *str)
+    {
+        return AppendData(str, static_cast<Int64>(strlen(str)));
+    }
+    
     LibString &AppendData(const LibString &data);
     LibString &AppendFormat(const Byte8 *fmt, ...) LIB_KERNEL_FORMAT_CHECK(2, 3)
     {
@@ -414,7 +420,7 @@ ALWAYS_INLINE LibString::LibString(const std::string &other)
 ALWAYS_INLINE LibString::LibString(const Byte8 *other)
 {
     if(LIKELY(other))
-        _raw = other;
+        _raw.assign(other, strlen(other));
 }
 
 ALWAYS_INLINE LibString::LibString(Byte8 other)
@@ -425,7 +431,7 @@ ALWAYS_INLINE LibString::LibString(Byte8 other)
 ALWAYS_INLINE LibString &LibString::operator = (const Byte8 *other)
 {
     if(LIKELY(other))
-        _raw = other;
+        _raw.assign(other, strlen(other));
 
     return *this;
 }
@@ -469,14 +475,14 @@ ALWAYS_INLINE LibString &LibString::operator += (const LibString &other)
 ALWAYS_INLINE LibString &LibString::operator += (const Byte8 *other)
 {
     if(LIKELY(other))
-        _raw.append(other);
+        _raw.append(other, ::strlen(other));
     
     return *this;
 }
 
 ALWAYS_INLINE LibString &LibString::operator += (const std::string &other)
 {
-    _raw.append(other);
+    _raw.append(other.c_str(), other.size());
     return *this;
 }
 
@@ -861,7 +867,7 @@ ALWAYS_INLINE void LibString::ToHexString(LibString &target) const
         const Int32 len = ::sprintf(cache, "%02x", static_cast<U8>(_raw[i]));
 #endif
         cache[len] = 0;
-        info.append(cache);
+        info.append(cache, len);
     }
 
     target += info;
@@ -885,7 +891,7 @@ ALWAYS_INLINE void LibString::ToHexView(LibString &target) const
             , static_cast<U8>(_raw[i]), ((i + 1) % 16 == 0) ? "\n" : " ");
 
         cache[cacheLen] = 0;
-        targetRaw.append(cache);
+        targetRaw.append(cache, cacheLen);
     }
 }
 

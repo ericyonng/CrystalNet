@@ -621,4 +621,30 @@ LibString QuitServiceEvent::ToString() const
     return info;
 }
 
+POOL_CREATE_OBJ_DEFAULT_IMPL(QuitApplicationEvent);
+
+QuitApplicationEvent::QuitApplicationEvent()
+:PollerEvent(PollerEventType::QuitApplicationEvent)
+{
+
+}
+
+QuitApplicationEvent::~QuitApplicationEvent()
+{
+
+}
+
+void QuitApplicationEvent::Release()
+{
+    QuitApplicationEvent::Delete_QuitApplicationEvent(this);
+}
+
+LibString QuitApplicationEvent::ToString() const 
+{
+    LibString info;
+    info.AppendFormat("%s\n", PollerEvent::ToString().c_str());
+
+    return info;
+}
+
 KERNEL_END

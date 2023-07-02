@@ -21,26 +21,29 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-12-09 01:21:28
+ * Date: 2023-07-01 14:33:40
  * Author: Eric Yonng
  * Description: 
 */
+#include <pch.h>
+#include <service_common/KillMonitor/impl/KillMonitorMgr.h>
+#include <service_common/KillMonitor/impl/KillMonitorMgrFactory.h>
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
+SERVICE_COMMON_BEGIN
 
-#pragma once
+KERNEL_NS::CompFactory *KillMonitorMgrFactory::FactoryCreate()
+{
+    return KERNEL_NS::ObjPoolWrap<KillMonitorMgrFactory>::NewByAdapter(_buildType.V);
+}
 
-#include <service_common/common/common.h>
-#include <service_common/protocol/protocol.h>
-#include <service_common/service/service.h>
-#include <service_common/service_proxy/ServiceProxyInc.h>
-#include <service_common/poller/PollerInc.h>
-#include <service_common/application/Application.h>
-#include <service_common/application/ApplicationHelper.h>
-#include <service_common/KillMonitor/KillMonitor.h>
-#include <service_common/DB/db.h>
-#include <service_common/params/params.h>
-#include <service_common/config/config.h>
+void KillMonitorMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<KillMonitorMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
 
-#endif
+KERNEL_NS::CompObject *KillMonitorMgrFactory::Create() const
+{
+    return KillMonitorMgr::NewByAdapter_KillMonitorMgr(_buildType.V);
+}
+
+SERVICE_COMMON_END

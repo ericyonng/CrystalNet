@@ -21,26 +21,32 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-12-09 01:21:28
+ * Date: 2023-07-02 02:12:16
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_MEMMORY_MERGE_MEMORY_BUFFER_INFO_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_MEMMORY_MERGE_MEMORY_BUFFER_INFO_H__
 
 #pragma once
 
-#include <service_common/common/common.h>
-#include <service_common/protocol/protocol.h>
-#include <service_common/service/service.h>
-#include <service_common/service_proxy/ServiceProxyInc.h>
-#include <service_common/poller/PollerInc.h>
-#include <service_common/application/Application.h>
-#include <service_common/application/ApplicationHelper.h>
-#include <service_common/KillMonitor/KillMonitor.h>
-#include <service_common/DB/db.h>
-#include <service_common/params/params.h>
-#include <service_common/config/config.h>
+#include <kernel/kernel_inc.h>
+
+KERNEL_BEGIN
+
+class MemoryBuffer;
+struct MemoryBlock;
+
+struct KERNEL_EXPORT MergeMemoryBufferInfo
+{
+    MergeMemoryBufferInfo *_next = NULL;    // 合并的链表
+    MemoryBuffer *_buffer = NULL;
+    UInt64 _count = 0;              // block链表节点数量
+    MemoryBlock *_head = NULL;             // block链表头
+    MemoryBlock *_tail = NULL;             // block连表尾
+};
+
+KERNEL_END
 
 #endif

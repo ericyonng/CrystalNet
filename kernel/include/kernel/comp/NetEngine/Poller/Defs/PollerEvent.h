@@ -99,6 +99,8 @@ public:
         QuitServiceSessionsEvent = 13,  // 退出所有session
         QuitServiceEvent = 14,  // 退出service
         RealDoQuitServiceSessionEvent = 15, // 真正的踢session
+
+        QuitApplicationEvent = 16, // 退出app事件
         EvMax,                      // 枚举
     };
 
@@ -122,6 +124,7 @@ public:
         case PollerEventType::SessionDestroy: return "SessionDestroy";  // 会话销毁 业务层监听事件
         case PollerEventType::RecvMsg: return "RecvMsg";  // 收到网络消息 业务层监听事件
         case PollerEventType::QuitServiceEvent: return "QuitServiceEvent";  // 退出服务 业务层监听事件
+        case PollerEventType::QuitApplicationEvent: return "QuitApplicationEvent";  // 退出app
         default:
             break;
         };
@@ -397,6 +400,18 @@ struct KERNEL_EXPORT QuitServiceEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, QuitServiceEvent);
     QuitServiceEvent();
     ~QuitServiceEvent();
+
+    virtual void Release();
+
+    LibString ToString() const override;
+};
+
+// 退出app
+struct KERNEL_EXPORT QuitApplicationEvent : public PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, QuitApplicationEvent);
+    QuitApplicationEvent();
+    ~QuitApplicationEvent();
 
     virtual void Release();
 

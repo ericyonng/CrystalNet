@@ -36,8 +36,6 @@ SERVICE_COMMON_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IService);
 
-IService::PollerEventHandler IService::_pollerEventHandler[KERNEL_NS::PollerEventType::EvMax] = {NULL};
-
 IService::IService()
 :_serviceId(0)
 ,_poller(NULL)
@@ -47,6 +45,7 @@ IService::IService()
 ,_maxSleepMilliseconds(0)
 ,_recvPackets{0}
 ,_consumePackets{0}
+,_maxEventType(KERNEL_NS::PollerEventType::EvMax)
 ,_serviceStatus(ServiceStatus::SERVICE_NOT_ACTIVE)
 {
     _SetType(ServiceProxyCompType::COMP_SERVICE);
@@ -89,6 +88,9 @@ KERNEL_NS::LibString IService::IntroduceInfo() const
 
 void IService::InitPollerEventHandler()
 {
+    if(static_cast<Int32>(_pollerEventHandler.size()) <= _maxEventType)
+        _pollerEventHandler.resize(_maxEventType + 1);
+
     _pollerEventHandler[KERNEL_NS::PollerEventType::SessionCreated] = &IService::_OnSessionCreated;
     _pollerEventHandler[KERNEL_NS::PollerEventType::AsynConnectRes] = &IService::_OnAsynConnectRes;
     _pollerEventHandler[KERNEL_NS::PollerEventType::AddListenRes] = &IService::_OnAddListenRes;
@@ -141,6 +143,20 @@ void IService::RegisterFocusServiceModule(const KERNEL_NS::CompObject *comp)
 KERNEL_NS::LibString IService::ServiceStatusToString(Int32 serviceStatus) const
 {
     return ServiceStatus::ToString(serviceStatus);
+}
+
+void IService::SetMaxEventType(Int32 maxEventType)
+{
+    if(maxEventType >= _maxEventType)
+    {
+        _maxEventType = maxEventType;
+        _pollerEventHandler.resize(_maxEventType + 1);
+    }
+}
+
+Int32 IService::GetMaxEventType() const
+{
+    return _maxEventType;
 }
 
 const KERNEL_NS::LibString &IService::GetAppName() const
@@ -287,6 +303,12 @@ void IService::_OnServiceClosed()
 
 void IService::_OnMsg(KERNEL_NS::PollerEvent *msg)
 {
+    if(UNLIKELY(msg->_type >= static_cast<Int32>(_pollerEventHandler.size())))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("unregister event handler event type:%d, event:%s"), msg->_type, msg->ToString().c_str());
+        return;
+    }
+
     auto handler = _pollerEventHandler[msg->_type];
     if(UNLIKELY(!handler))
     {

@@ -121,6 +121,7 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
                 return Status::SystemUtil_GetModuleFileNameFailed;
 
             processPath.AppendData(pathName, MAX_PATH);
+            processPath.RemoveZeroTail();
             break;
         }
 
@@ -140,6 +141,7 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
                 return Status::SystemUtil_QueryFullProcessImageNameFailed;
 
             processPath.AppendData(pathName, MAX_PATH);
+            processPath.RemoveZeroTail();
             break;
         }
 
@@ -176,7 +178,9 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
             return Status::SystemUtil_GetDriveError;
 
         processPath.AppendData(volName, ::strlen(volName));
+        processPath.RemoveZeroTail();
         processPath.AppendData(pathName + ::strlen(volNameDev), ::strlen(pathName) - ::strlen(volNameDev));
+        processPath.RemoveZeroTail();
     } while(0);
 
     if(hModule)
@@ -205,6 +209,7 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
 
     buf[ret] = '\0';
     processPath = buf;
+    processPath.RemoveZeroTail();
     return Status::Success;
 #endif
 }

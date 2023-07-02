@@ -31,6 +31,7 @@
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/App/IApplication.h>
 
 extern "C"
 {
@@ -134,7 +135,7 @@ BOOL WINAPI ConsoleHandler(DWORD event)
     // ctrl + c
     case CTRL_C_EVENT:
     {
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "ConsoleHandler CTRL_C_EVENT"));
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "ConsoleHandler CTRL_C_EVENT"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
         CatchSigHandler(-1);
 
         SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, FALSE);
@@ -151,10 +152,14 @@ BOOL WINAPI ConsoleHandler(DWORD event)
     // 窗口关闭
     case CTRL_CLOSE_EVENT:
     {
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "ConsoleHandler CTRL_CLOSE_EVENT"));
-        CatchSigHandler(-1);
-        SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, FALSE);
-        ExitProcess(0);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "ConsoleHandler CTRL_CLOSE_EVENT threadId: %llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+        // CatchSigHandler(-1);
+        // SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, FALSE);
+        // ExitProcess(0);
+
+        if(g_Application)
+            g_Application->SinalFinish();
+
         return TRUE;
     }
     break;

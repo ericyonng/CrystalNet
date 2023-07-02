@@ -31,11 +31,16 @@
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Tls/Tls.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/memory/CenterMemoryCollector.h>
 
 KERNEL_BEGIN
 
 void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId, const Byte8 *tlsMemPoolReason)
 {
+    // 注册到内存中央收集器
+    auto centerMemroyCollector = CenterMemoryCollector::GetInstance();
+    centerMemroyCollector->RegisterThreadInfo(threadId);
+
     // tls
     auto tlsStack = TlsUtil::GetTlsStack();
     auto defTls = tlsStack->GetDef();
@@ -54,6 +59,10 @@ void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId,
 
 void ThreadTool::OnDestroy()
 {
+    // 得等收集器关闭
+    auto centerMemroyCollector = CenterMemoryCollector::GetInstance();
+    centerMemroyCollector->WaitClose();
+
     // tls 资源清理
     TlsUtil::ClearTlsResource();
 

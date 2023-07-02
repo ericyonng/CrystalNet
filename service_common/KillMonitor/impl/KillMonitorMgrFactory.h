@@ -21,26 +21,35 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-12-09 01:21:28
+ * Date: 2023-07-01 14:33:33
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_COMMON_H__
+#ifndef __CRYSTAL_NET_SERVICE_COMMON_KILL_MONITOR_IMPL_KILL_MONITOR_FACTORY_H__
+#define __CRYSTAL_NET_SERVICE_COMMON_KILL_MONITOR_IMPL_KILL_MONITOR_FACTORY_H__
 
 #pragma once
 
+#include <kernel/kernel.h>
 #include <service_common/common/common.h>
-#include <service_common/protocol/protocol.h>
-#include <service_common/service/service.h>
-#include <service_common/service_proxy/ServiceProxyInc.h>
-#include <service_common/poller/PollerInc.h>
-#include <service_common/application/Application.h>
-#include <service_common/application/ApplicationHelper.h>
-#include <service_common/KillMonitor/KillMonitor.h>
-#include <service_common/DB/db.h>
-#include <service_common/params/params.h>
-#include <service_common/config/config.h>
+
+SERVICE_COMMON_BEGIN
+
+class KillMonitorMgrFactory : public KERNEL_NS::CompFactory
+{
+    // 创建factory对象时候使用创建的方法类型
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+    static KERNEL_NS::CompFactory *FactoryCreate();
+
+    virtual void Release() override;
+
+public:
+    virtual KERNEL_NS::CompObject *Create() const;
+};
+
+SERVICE_COMMON_END
 
 #endif

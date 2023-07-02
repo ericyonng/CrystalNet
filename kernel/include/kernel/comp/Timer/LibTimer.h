@@ -36,6 +36,7 @@
 #include <kernel/comp/Delegate/Delegate.h>
 #include <kernel/comp/Timer/TimeData.h>
 #include <kernel/comp/Utils/TimeUtil.h>
+#include <kernel/comp/TimeSlice.h>
 
 KERNEL_BEGIN
 
@@ -53,6 +54,7 @@ public:
 public:
     void Cancel();
     void Schedule(Int64 milliSec);
+    void Schedule(const TimeSlice &slice);
     void Schedule(Int64 startTime, Int64 milliSecPeriod);
     bool IsScheduling() const;
     void GiveupTimerData();
@@ -90,6 +92,11 @@ private:
 ALWAYS_INLINE void LibTimer::Schedule(Int64 milliSec)
 {
     Schedule(TimeUtil::GetFastNanoTimestamp(), milliSec);
+}
+
+ALWAYS_INLINE void LibTimer::Schedule(const TimeSlice &slice)
+{
+    Schedule(slice.GetTotalMilliSeconds());
 }
 
 ALWAYS_INLINE bool LibTimer::IsScheduling() const

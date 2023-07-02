@@ -170,13 +170,13 @@ void Poller::_OnWillClose()
 void Poller::_OnClose()
 {
     g_Log->Debug(LOGFMT_OBJ_TAG("poller close %s"), ToString().c_str());
-    _Clear();
+    // _Clear();
     CompObject::_OnClose();
 }
 
 void Poller::Clear()
 {
-    _Clear();
+    // _Clear();
     CompObject::Clear();
 }
 
