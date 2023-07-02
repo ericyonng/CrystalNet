@@ -35,6 +35,7 @@
 #include <kernel/comp/Utils/TimeUtil.h>
 #include <kernel/comp/Cpu/LibCpuCounter.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/memory/CenterMemoryCollector.h>
 
 KERNEL_BEGIN
 
@@ -113,6 +114,8 @@ void MemoryMonitor::_DoWork()
     UInt64 totalSystemSize = SystemUtil::GetTotalMem(memInfo) * 1024;
     #endif
 
+    auto centerMemoryCollector = CenterMemoryCollector::GetInstance();
+
     g_Log->MemMonitor("Begin memory monitor log batchNum:%llu, System Total Mem Size:%llu, System Available Mem Size:%llu\n", ++batchNum, totalSystemSize, sysAvail);
 
     // 已打印的不打,未打印的append上去,一旦发生变化,需要重新便利
@@ -135,6 +138,10 @@ void MemoryMonitor::_DoWork()
         statics->Unlock();
 
         g_Log->MemMonitor("%s\n", cache.c_str());
+
+        const auto &centerCollectorInfo = centerMemoryCollector->ToString();
+
+        g_Log->MemMonitor("centerCollectorInfo:%s", centerCollectorInfo.c_str());
     }
 
     g_Log->MemMonitor("End memory monitor log batchNum:%llu Total Pool Alloc Buffer Bytes:%llu, Memory monitor Use Time: %llu(micro seconds) one frame.\n"

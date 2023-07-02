@@ -43,9 +43,11 @@ CenterMemoryCollector::CenterMemoryCollector()
 ,_totalRegisterThreadCount{0}
 ,_worker(NULL)
 ,_currentPendingBlockTotalNum{0}
+,_historyPendingBlockTotalNum{0}
 ,_blockNumForPurgeLimit(128 * 1024)
 ,_workIntervalMs(100)
 ,_recycleMemoryBufferInfoCount{0}
+,_historyRecycleMemoryBufferInfoCount{0}
 ,_recycleForPurgeLimit(128 * 1024)
 ,_head(NULL)
 ,_headToSwap(NULL)
@@ -140,6 +142,7 @@ void CenterMemoryCollector::PushBlock(UInt64 freeThreadId, MemoryBlock *block)
 
     iter->second->PushBlock(block);
     ++_currentPendingBlockTotalNum;
+    ++_historyPendingBlockTotalNum;
 
     if(UNLIKELY(_currentPendingBlockTotalNum >= _blockNumForPurgeLimit))
         _guard.Sinal();
@@ -148,10 +151,12 @@ void CenterMemoryCollector::PushBlock(UInt64 freeThreadId, MemoryBlock *block)
 void CenterMemoryCollector::Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bufferInfoListHead, MergeMemoryBufferInfo *bufferInfoListTail)
 {
     _recycleGuard.Lock();
-    _recycleMemoryBufferInfoCount += recycleNum;
     bufferInfoListTail->_next = _headToSwap;
     _headToSwap = bufferInfoListHead;
     _recycleGuard.Unlock();
+
+    _recycleMemoryBufferInfoCount += recycleNum;
+    _historyRecycleMemoryBufferInfoCount += recycleNum;
 
     if(UNLIKELY(_recycleMemoryBufferInfoCount >= _recycleForPurgeLimit))
         _guard.Sinal();
@@ -159,9 +164,23 @@ void CenterMemoryCollector::Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bu
 
 LibString CenterMemoryCollector::ToString() const
 {
+    if(_isDestroy)
+        return "";
+
+    const UInt64 pendingBlock = _currentPendingBlockTotalNum.load();
+    const UInt64 historyBlock = _historyPendingBlockTotalNum.load();
+    const UInt64 recycleBufferInfo = _recycleMemoryBufferInfoCount.load();
+    const UInt64 historyRecycleBufferInfo = _historyRecycleMemoryBufferInfoCount.load();
+    
     LibString info;
+    info.AppendFormat("[CENTER MEMORY COLLECTOR BEGIN]\n");
+    info.AppendFormat("center memory collector info: current block num:%llu, history num:%llu, recycle memory buffer info num:%llu, history num:%llu \n"
+    , pendingBlock, historyBlock, recycleBufferInfo, historyRecycleBufferInfo);
+
     for(auto iter : _threadIdRefThreadInfo)
         info.AppendFormat("threadId:%llu, center memory collector info:%s\n", iter.first, iter.second->ToString().c_str());
+
+    info.AppendFormat("[CENTER MEMORY COLLECTOR END]\n");
 
     return info;
 }

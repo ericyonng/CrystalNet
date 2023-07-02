@@ -91,12 +91,14 @@ private:
     LibThread *_worker;
 
     std::atomic<UInt64> _currentPendingBlockTotalNum;   // 当前总数量
+    std::atomic<UInt64> _historyPendingBlockTotalNum;   // 历史总数量
     UInt64 _blockNumForPurgeLimit;                      // 当数量超过时候需要唤醒工作线程 默认 128 * 1024
     Int64 _workIntervalMs;                             // 扫描时间间隔 默认100ms扫描一次
 
     ConditionLocker _guard;                             
 
     std::atomic<UInt64> _recycleMemoryBufferInfoCount;      // 回收内存块信息
+    std::atomic<UInt64> _historyRecycleMemoryBufferInfoCount;      // 历史回收内存块信息
     UInt64 _recycleForPurgeLimit;                           // 当数量超过时候需要唤醒工作线程 默认 128 * 1024
     MergeMemoryBufferInfo *_head;                           // 内存块信息链表头
     MergeMemoryBufferInfo *_headToSwap;                     // 内存块信息链表头

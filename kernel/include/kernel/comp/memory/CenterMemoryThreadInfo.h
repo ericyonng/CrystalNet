@@ -41,6 +41,7 @@ KERNEL_BEGIN
 class MemoryAlloctor;
 struct MergeMemoryBufferInfo;
 class MemoryBuffer;
+struct CenterMemoryProfileInfo;
 
 struct KERNEL_EXPORT MergeMemoryAlloctorInfo
 {
@@ -81,9 +82,14 @@ private:
     MemoryBlock *_head;                         // 最终合并到该链表
     MemoryBlock *_headSwap;                     // 临时放置的链表
     std::atomic<UInt64> _pendingBlockCount;     // 待处理的block总数量
+    std::atomic<UInt64> _historyBlockCount;     // 历史数量
 
     // 整理后每个MemoryAlloctor的信息
     std::map<MemoryAlloctor *, MergeMemoryAlloctorInfo> _memroyAlloctorRefInfo;
+
+    // 每个alloctor历史数量以及
+    mutable SpinLock _profileLck;                              // 线程安全
+    std::map<MemoryAlloctor *, CenterMemoryProfileInfo *> _memoryAlloctorRefBlockCount;
 };
 
 ALWAYS_INLINE void CenterMemoryThreadInfo::PushBlock(MemoryBlock *block)
@@ -91,8 +97,10 @@ ALWAYS_INLINE void CenterMemoryThreadInfo::PushBlock(MemoryBlock *block)
     _lck.Lock();
     block->_next = _headSwap;
     _headSwap = block;
-    ++_pendingBlockCount;
     _lck.Unlock();
+
+    ++_pendingBlockCount;
+    ++_historyBlockCount;
 }
 
 ALWAYS_INLINE bool CenterMemoryThreadInfo::IsEmpty() const

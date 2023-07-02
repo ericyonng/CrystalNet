@@ -87,6 +87,7 @@ public:
     void AddRef(void *ptr);
     LibString ToString() const;
     LibString UsingInfo() const;
+    const std::string &GetCreateSource() const;
 
     // 初始化与销毁
     void Init(UInt64 initBlockNumPerBuffer = MEMORY_BUFFER_BLOCK_INIT, const std::string &source = "");
@@ -221,6 +222,7 @@ ALWAYS_INLINE LibString MemoryAlloctor::UsingInfo() const
     LibString str;
 
     str << "alloctor init thread id:" << _threadId << ";\n"
+        << "alloctor address:" << this <<  ";\n"
         << "block size:" << _blockSizeAfterAlign << ", create source:" << _createSource << "create memory buffer num when init:" << _initMemoryBufferNum <<  ";\n"
         << "current alloctor buffer total bytes:" << _totalBytes << ", current all using bytes:" << _bytesInUsed << ";\n"
         << "total block amount:" << _totalBlockAmount << ", using block:" << _blockCountInUsed << ";\n"
@@ -231,6 +233,11 @@ ALWAYS_INLINE LibString MemoryAlloctor::UsingInfo() const
         ;
         
     return str;
+}
+
+ALWAYS_INLINE const std::string &MemoryAlloctor::GetCreateSource() const
+{
+    return _createSource;
 }
 
 ALWAYS_INLINE void MemoryAlloctor::Lock()
