@@ -60,6 +60,10 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     auto signalCloseLambda = [&app, currentTid]()->void{
         auto threadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
         g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "signal catched, application will close threadId:%llu, application thread id:%llu..."), threadId, currentTid);
+        
+        // 需要先停掉收集器, 不然其他线程会阻塞在那里等待收集器结束
+        KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
+
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         if (threadId == currentTid)
         {
@@ -131,6 +135,9 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application wait finish(client can send a message to close application.)..."));
     Int32 err = Status::Success;
     app->WaitFinish(err);
+
+    // 需要先关闭内存收集器
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application wake up and will close err:%d..."), err);
     app->WillClose();

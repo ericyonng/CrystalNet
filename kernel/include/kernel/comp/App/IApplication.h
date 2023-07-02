@@ -56,6 +56,8 @@ class PollerMgr;
 class IServiceProxy;
 class ILogFactory;
 class IServiceProxyFactory;
+struct PollerEvent;
+class Poller;
 
 class KERNEL_EXPORT IApplication : public CompHostObject
 {
@@ -68,7 +70,7 @@ public:
 
 public:
     virtual void WaitFinish(Int32 &err);
-    virtual void SinalFinish(Int32 err = Status::Success);
+    virtual void SinalFinish(Int32 err = Status::Success) = 0;
 
     virtual const LibString &GetAppName() const;
     virtual const LibString &GetAppAliasName() const = 0;
@@ -81,12 +83,20 @@ public:
     void SetAppArgs(const std::vector<KERNEL_NS::LibString> &args);
     const std::vector<KERNEL_NS::LibString> &GetAppArgs() const;
 
+    // poller 的时间片 默认1秒
+    void SetMaxPieceTimeInMicroseconds(Int64 maxPieceTimeInMicroseconds);
+    // 最大优先级 默认0
+    void SetMaxPriorityLevel(Int32 maxPriorityLevel);
+    // 扫描时间间隔 默认1秒
+    void SetMaxSleepMilliseconds(UInt64 maxSleepMilliseconds);
+
 public:
     void Clear() override;
     virtual LibString ToString() const override;
     virtual LibString IntroduceStr() const;
 
 protected:
+    virtual void OnRegisterComps() override;  
     // 在组件初始化前
     virtual Int32 _OnHostInit() override;
     // 所有组件创建完成
@@ -103,6 +113,8 @@ protected:
     virtual void _OnHostUpdate() override;
 
 private:
+    virtual void _OnMsg(PollerEvent *ev);
+
     void _Clear();
 
 protected:
@@ -119,7 +131,11 @@ protected:
     LibString _cpuVendor;       // cpu厂商
     LibString _cpuBrand;        // cpu商标
 
-private:
+    Poller *_poller;
+    Int64 _maxPieceTimeInMicroseconds;  // poller的时间片
+    Int32 _maxPriorityLevel;            // poller的最大优先级别, 默认是0, 也就是一个优先级队列
+    UInt64 _maxSleepMilliseconds;       // poller 的扫描时间间隔
+
     LockWrap<_Build::MT, LockParticleType::Heavy> _lck;
 };
 
@@ -163,6 +179,23 @@ ALWAYS_INLINE const std::vector<KERNEL_NS::LibString> &IApplication::GetAppArgs(
     return _appArguments;
 }
 
+ALWAYS_INLINE void IApplication::SetMaxPieceTimeInMicroseconds(Int64 maxPieceTimeInMicroseconds)
+{
+    _maxPieceTimeInMicroseconds = maxPieceTimeInMicroseconds;
+}
+
+ALWAYS_INLINE void IApplication::SetMaxPriorityLevel(Int32 maxPriorityLevel)
+{
+    _maxPriorityLevel = maxPriorityLevel;
+}
+
+ALWAYS_INLINE void IApplication::SetMaxSleepMilliseconds(UInt64 maxSleepMilliseconds)
+{
+    _maxSleepMilliseconds = maxSleepMilliseconds;
+}
+
 KERNEL_END
+
+KERNEL_EXPORT extern KERNEL_NS::IApplication *g_Application;
 
 #endif

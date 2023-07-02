@@ -44,6 +44,9 @@
                 另一个线程swap下gc去的内存块，并释放内存（cpu不繁忙，时候清理内存）
                 当达到emptylimit的一半时候记下emptybuffer在双向链表中的节点，当达到gc条件时候从中间断开链表再把要gc的emptybuffer链表转移到gc器
                 待gc区要有一个节点计数器，用于计算断开时的节点
+
+                为了避免频繁归并内存, 跨线程的时候请使用跨线程版本的分配内存, 生命周期只在单线程的, 使用线程本地版本的分配内存
+                合并内存块MemoryBuffer13w个每次
 */
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_MEMMORY_MEMORY_ALLOCTOR_H__
@@ -58,10 +61,12 @@
 #include <kernel/comp/memory/MemoryDefs.h>
 #include <kernel/comp/memory/GarbageCollector.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/memory/MergeMemoryBufferInfo.h>
 
 KERNEL_BEGIN
 
 struct MemoryAlloctorConfig;
+class CenterMemoryCollector;
 
 // 线程不安全
 class KERNEL_EXPORT MemoryAlloctor
@@ -97,13 +102,20 @@ public:
     UInt64 GetBlockSize() const;
     // 要分配的大小,不包含头,以及对齐
     UInt64 GetUnitSize() const;
+    UInt64 GetOwnerThreadId() const;
 
     bool CheckOwner(const MemoryBlock *block) const;
+
+    void PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferInfo *head, MergeMemoryBufferInfo *tail);
 
 private:
     MemoryBuffer *_NewBuffer();
     void _AddToList(MemoryBuffer *&listHead, MemoryBuffer *buffer);
     void _RemoveFromList(MemoryBuffer *&listHead, MemoryBuffer *buffer);
+
+    void _MergeBlocks();
+    void _MergeBlocks(MergeMemoryBufferInfo *memoryBufferInfo);
+    void _Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bufferInfoListHead, MergeMemoryBufferInfo *bufferInfoListTail);
 
 protected:
     // 内存分配收集器
@@ -134,6 +146,15 @@ protected:
     // 锁
     SpinLock _lck;
     GarbageCollector _gc;
+
+    // 其他线程归并过来的内存 key:buffer, value:UInt64:block的数量, 第一个MemoryBlock:block链表头, 第二个MemoryBlock链表尾
+    SpinLock _toMergeLck;
+    std::atomic_bool _needMerge;
+    std::atomic<UInt64> _bufferToMergeCount;
+    MergeMemoryBufferInfo *_mergeBufferList;
+    MergeMemoryBufferInfo *_mergeBufferListSwap;
+
+    CenterMemoryCollector *_centerMemroyCollector;
 };
 
 ALWAYS_INLINE void *MemoryAlloctor::Alloc(UInt64 objBytes)
@@ -147,10 +168,8 @@ ALWAYS_INLINE void *MemoryAlloctor::Alloc(UInt64 objBytes)
         _AddToList(_activeHead, memoryBuffer);
     }
 
-    auto block = memoryBuffer->AllocNewBlock();
-
-
     // block 参数设置
+    auto block = memoryBuffer->AllocNewBlock();
     block->_ref = 1;
     block->_realUseBytes = objBytes;
     ++_blockCountInUsed;
@@ -166,6 +185,10 @@ ALWAYS_INLINE void *MemoryAlloctor::Alloc(UInt64 objBytes)
     
     // 加入busy队列
     _AddToList(_busyHead, memoryBuffer);
+    memoryBuffer->_isInBusy = true;
+
+    // 归并内存
+    _MergeBlocks();
     
     return ((Byte8 *)block) + _memoryBlockHeadSize;
 }
@@ -204,6 +227,7 @@ ALWAYS_INLINE LibString MemoryAlloctor::UsingInfo() const
         << "current block count per buffer for next time:" << _curBlockCntPerBuffer << ", max block count limit per buffer:" << _bufferBlockNumLimit << ";\n"
         << "active buffer num:" << _curActiveBufferNum << ";\n"
         << "trigger new buffer when alloc block num:" << _trigerNewBufferWhenAlloc << ";\n"
+        << "need to merge buffer count:" << _bufferToMergeCount.load() << ";\n"
         ;
         
     return str;
@@ -249,9 +273,26 @@ ALWAYS_INLINE UInt64 MemoryAlloctor::GetUnitSize() const
     return _unitBytesToAlloc;
 }
 
+ALWAYS_INLINE UInt64 MemoryAlloctor::GetOwnerThreadId() const
+{
+    return _threadId;
+}
+
 ALWAYS_INLINE bool MemoryAlloctor::CheckOwner(const MemoryBlock *block) const
 {
     return block->_buffer && (block->_buffer->_alloctor == this);
+}
+
+ALWAYS_INLINE void MemoryAlloctor::PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferInfo *head, MergeMemoryBufferInfo *tail)
+{
+    _toMergeLck.Lock();
+    _needMerge = true;
+    _bufferToMergeCount += memoryBuffMergeNum;
+
+    // 合并链表
+    tail->_next = _mergeBufferListSwap;
+    _mergeBufferListSwap = head;
+    _toMergeLck.Unlock();
 }
 
 ALWAYS_INLINE MemoryBuffer *MemoryAlloctor::_NewBuffer()
@@ -294,6 +335,72 @@ ALWAYS_INLINE void MemoryAlloctor::_RemoveFromList(MemoryBuffer *&listHead, Memo
 
     buffer->_pre = NULL;
     buffer->_next = NULL;
+}
+
+ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks()
+{
+    if(LIKELY(_needMerge.load() == false))
+        return;
+
+    // 先进行交换
+    _toMergeLck.Lock();
+    auto toSwap = _mergeBufferList;
+    _mergeBufferList = _mergeBufferListSwap;
+    _mergeBufferListSwap = toSwap;
+    _needMerge = false;
+    _bufferToMergeCount = 0;
+    _toMergeLck.Unlock();
+
+    // 遍历并吧内存归并 为了避免频繁归并内存, 跨线程的时候请使用跨线程版本的分配内存, 生命周期只在单线程的, 使用线程本地版本的分配内存
+    MergeMemoryBufferInfo *bufferList = _mergeBufferList;
+    MergeMemoryBufferInfo *bufferListTail = NULL;
+    UInt64 count = 0;
+    for(;_mergeBufferList;)
+    {
+        _MergeBlocks(_mergeBufferList);
+
+        bufferListTail = _mergeBufferList;
+        _mergeBufferList = _mergeBufferList->_next;
+        ++count;
+    }
+
+    _Recycle(count, bufferList, bufferListTail);
+}
+
+ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks(MergeMemoryBufferInfo *memoryBufferInfo)
+{
+    auto buffer = memoryBufferInfo->_buffer;
+    auto mergeBlockCount = memoryBufferInfo->_count;
+    auto mergeBlockHead = memoryBufferInfo->_head;
+    auto mergeBlockEnd= memoryBufferInfo->_tail;
+
+    // 回收
+    buffer->_usedBlockCnt -= mergeBlockCount;
+    buffer->FreeBlockList(mergeBlockHead, mergeBlockEnd, mergeBlockCount);
+    
+    _blockCountInUsed -= mergeBlockCount;
+    _bytesInUsed -= (_blockSizeAfterAlign * mergeBlockCount);
+
+    // 空闲buffer释放掉
+    if(UNLIKELY(buffer->_usedBlockCnt == 0 && (buffer->_notEnableGcFlag == 0)))
+    {
+        if(LIKELY(buffer->_isInBusy))
+            _RemoveFromList(_busyHead, buffer);
+        else
+            _RemoveFromList(_activeHead, buffer);
+
+        --_curActiveBufferNum;
+        _gc.push(buffer);
+        return;
+    }
+
+    // 若在busy中放回active队列
+    if(UNLIKELY(buffer->_isInBusy))
+    {
+        _RemoveFromList(_busyHead, buffer);
+        _AddToList(_activeHead, buffer);
+        buffer->_isInBusy = false;
+    }
 }
 
 KERNEL_END

@@ -67,6 +67,12 @@ public:
 
     void PushResponceNs(UInt64 costNs); 
 
+    // 设置事件最大类型
+    void SetMaxEventType(Int32 maxEventType);
+    Int32 GetMaxEventType() const;
+
+    void SinalFinish(Int32 err) override;
+
 protected:
     // 在组件初始化前
     virtual Int32 _OnHostInit() override;
@@ -85,6 +91,9 @@ protected:
 
 protected:
     virtual void _OnMonitorThreadFrame();
+    
+    void _OnQuitApplicationEvent(KERNEL_NS::PollerEvent *ev);
+    void _OnMsg(KERNEL_NS::PollerEvent *ev) override;
 
     // 每帧打印
 private:
@@ -99,6 +108,9 @@ private:
     // 监控
     void _OnMonitor(KERNEL_NS::LibThread *t);
 
+    // 检测程序退出
+    void _OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer);
+
 private:
     KERNEL_NS::LibString _ini;                              // 配置表路径
     KERNEL_NS::LibString _memoryIni;                        // 内存配置表内容
@@ -110,10 +122,18 @@ private:
     // 监控线程
     KERNEL_NS::LibThread *_monitor;
 
+    // 退出程序监控定时
+    KERNEL_NS::LibTimer *_killMonitorTimer;
+
     // 响应时间
     KERNEL_NS::SpinLock _guard;
     StatisticsInfo *_statisticsInfo;
     StatisticsInfo *_statisticsInfoCache;
+
+    // 消息
+    typedef void (Application::*PollerEventHandler)(KERNEL_NS::PollerEvent *msg);
+    std::vector<PollerEventHandler> _pollerEventHandler;
+    Int32 _maxEventType;
 };
     
 ALWAYS_INLINE void Application::SetIniFile(const KERNEL_NS::LibString &ini)
@@ -172,6 +192,20 @@ ALWAYS_INLINE void Application::PushResponceNs(UInt64 costNs)
     ++_statisticsInfo->_resCount;
     _statisticsInfo->_resTotalNs += costNs;
     _guard.Unlock();
+}
+
+ALWAYS_INLINE void Application::SetMaxEventType(Int32 maxEventType)
+{
+    if(maxEventType >= _maxEventType)
+    {
+        _maxEventType = maxEventType;
+        _pollerEventHandler.resize(_maxEventType + 1);
+    }
+}
+
+ALWAYS_INLINE Int32 Application::GetMaxEventType() const
+{
+    return _maxEventType;
 }
 
 SERVICE_COMMON_END

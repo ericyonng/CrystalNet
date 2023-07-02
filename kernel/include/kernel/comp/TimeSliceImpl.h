@@ -214,6 +214,26 @@ inline TimeSlice::TimeSlice(const Int64 &slice)
 
 }
 
+ALWAYS_INLINE TimeSlice TimeSlice::FromSeconds(Int64 seconds)
+{
+    return TimeSlice(TimeDefs::NANO_SECOND_PER_SECOND * seconds);
+}
+
+ALWAYS_INLINE TimeSlice TimeSlice::FromMilliSeconds(Int64 milliseconds)
+{
+    return TimeSlice(TimeDefs::NANO_SECOND_PER_MILLI_SECOND * milliseconds);
+}
+
+ALWAYS_INLINE TimeSlice TimeSlice::FromMicroSeconds(Int64 microseconds)
+{
+    return TimeSlice(TimeDefs::NANO_SECOND_PER_MICRO_SECOND * microseconds);
+}
+
+ALWAYS_INLINE TimeSlice TimeSlice::FromNanoSeconds(Int64 nanoseconds)
+{
+    return TimeSlice(nanoseconds);
+}
+
 KERNEL_END
 
 #endif

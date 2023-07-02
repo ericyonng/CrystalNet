@@ -57,5 +57,8 @@
 #include <kernel/comp/memory/GarbageThread.h>
 #include <kernel/comp/memory/ObjPoolWrap.h>
 #include <kernel/comp/memory/MemoryAssist.h>
+#include <kernel/comp/memory/CenterMemoryCollector.h>
+#include <kernel/comp/memory/CenterMemoryThreadInfo.h>
+#include <kernel/comp/memory/MergeMemoryBufferInfo.h>
 
 #endif

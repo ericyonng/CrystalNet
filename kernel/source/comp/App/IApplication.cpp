@@ -34,7 +34,11 @@
 #include <kernel/comp/Variant/variant_inc.h>
 #include <kernel/comp/App/BaseAppOption.h>
 #include <kernel/comp/Service/Service.h>
+#include <kernel/comp/Poller/PollerInc.h>
 #include <kernel/comp/Cpu/cpu.h>
+#include <kernel/comp/TimeSlice.h>
+
+KERNEL_NS::IApplication *g_Application = NULL;
 
 KERNEL_BEGIN
 
@@ -45,13 +49,23 @@ IApplication::IApplication()
     ,_threadId(0)
     ,_runErr{Status::Success}
     ,_cpuCoreAmount(0)
+    ,_poller(NULL)
+    ,_maxPieceTimeInMicroseconds(TimeDefs::MICRO_SECOND_PER_SECOND) // 默认1秒扫描间隔
+    ,_maxPriorityLevel(0)
+    ,_maxSleepMilliseconds(TimeDefs::MILLI_SECOND_PER_SECOND)   // 默认1秒
 {
+    if(g_Application == NULL)
+        g_Application = this;
+
     _appStartTime = LibTime::Now();
 }
 
 IApplication::~IApplication()
 {
     _Clear();
+
+    if(g_Application)
+        g_Application = NULL;
 }
 
 void IApplication::WaitFinish(Int32 &err)
@@ -59,18 +73,23 @@ void IApplication::WaitFinish(Int32 &err)
     // #if _DEBUG
         // getchar();
     // #else
-        _lck.Lock();
-        _lck.Wait();
-        _lck.Unlock();
-
+    if(!_poller->PrepareLoop())
+    {
         err = _runErr;
-    // #endif
-}
+        g_Log->Error(LOGFMT_OBJ_TAG("application %s prepare loop fail run err:%d.")
+                    , _appName.c_str(), _runErr.load());
+        return;
+    }
 
-void IApplication::SinalFinish(Int32 err)
-{
-    _runErr = err;
-    _lck.Sinal();
+    _poller->EventLoop();
+    _poller->OnLoopEnd();
+    // _lck.Lock();
+    // _lck.Wait();
+    // _lck.Unlock();
+
+    err = _runErr;
+
+    // #endif
 }
 
 // 需要打印app内部组件资源列表以及状态
@@ -114,6 +133,12 @@ void IApplication::_Clear()
     // TODO:
 }
 
+void IApplication::OnRegisterComps()
+{
+    // 基础组件
+    RegisterComp<KERNEL_NS::PollerFactory>();
+}
+
 Int32 IApplication::_OnHostInit()
 {
     _threadId = SystemUtil::GetCurrentThreadId();
@@ -149,6 +174,25 @@ Int32 IApplication::_OnHostInit()
 // 所有组件创建完成
 Int32 IApplication::_OnCompsCreated()
 {
+    _poller = GetComp<Poller>();
+
+    // poller 设置
+    KERNEL_NS::TimeSlice span(0, 0, _maxPieceTimeInMicroseconds);
+    _poller->SetMaxPriorityLevel(_maxPriorityLevel);
+    _poller->SetMaxPieceTime(span);
+    _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
+    // _poller->SetPepareEventWorkerHandler(this, &IApplication::_OnPollerPrepare);
+    // _poller->SetEventWorkerCloseHandler(this, &IApplication::_OnPollerWillDestroy);
+    _poller->SetEventHandler(this, &IApplication::_OnMsg);
+
+    auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
+    if(UNLIKELY(defObj->_poller))
+        g_Log->Warn(LOGFMT_OBJ_TAG("poller already existes int current thread please check:%p, will assign new poller:%p, thread id:%llu")
+        , defObj->_poller, _poller, defObj->_threadId);
+
+    defObj->_poller = _poller;
+    defObj->_pollerTimerMgr = _poller->GetTimerMgr();
+
     g_Log->Info(LOGFMT_OBJ_TAG("app %s comps created."), _appName.c_str());
     return Status::Success;
 }
@@ -185,6 +229,10 @@ void IApplication::_OnHostUpdate()
     g_Log->Info(LOGFMT_OBJ_TAG("app %s on update."), _appName.c_str());
 }
 
+void IApplication::_OnMsg(PollerEvent *ev)
+{
+    g_Log->Debug(LOGFMT_OBJ_TAG("_OnMsg ev:%s"), ev->ToString().c_str());
+}
 
 KERNEL_END
 

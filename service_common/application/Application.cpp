@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <service_common/service_proxy/ServiceProxyInc.h>
 
+#include <service_common/KillMonitor/KillMonitor.h>
 #include <service_common/application/Application.h>
 
 #ifndef DISABLE_OPCODES
@@ -42,10 +43,13 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(Application);
 Application::Application()
 :_configIni(NULL)
 ,_monitor(NULL)
+,_killMonitorTimer(NULL)
 ,_statisticsInfo(StatisticsInfo::New_StatisticsInfo())
 ,_statisticsInfoCache(StatisticsInfo::New_StatisticsInfo())
+,_maxEventType(KERNEL_NS::PollerEventType::EvMax)
 {
-
+    if(static_cast<Int32>(_pollerEventHandler.size()) <= _maxEventType)
+        _pollerEventHandler.resize(_maxEventType + 1);
 }
 
 Application::~Application()
@@ -78,8 +82,23 @@ KERNEL_NS::LibString Application::ToString() const
 
 void Application::OnRegisterComps()
 {
+    IApplication::OnRegisterComps();
+
+    // 监控程序结束
+    RegisterComp<KillMonitorMgrFactory>();
+
     RegisterComp<KERNEL_NS::PollerMgrFactory>();
     RegisterComp<ServiceProxyFactory>();
+}
+
+void Application::SinalFinish(Int32 err)
+{
+    _runErr = err;
+
+    auto ev = KERNEL_NS::QuitApplicationEvent::New_QuitApplicationEvent();
+    _poller->Push(0, ev);
+
+    // _lck.Sinal();
 }
 
 Int32 Application::_OnHostInit()
@@ -90,6 +109,8 @@ Int32 Application::_OnHostInit()
         g_Log->Error(LOGFMT_OBJ_TAG("iapplication on houst init fail errcode:%d"), errCode);
         return errCode;
     }
+
+    _pollerEventHandler[KERNEL_NS::PollerEventType::QuitApplicationEvent] = &Application::_OnQuitApplicationEvent;
 
     _monitor = CRYSTAL_NEW(KERNEL_NS::LibThread);
     _monitor->AddTask(this, &Application::_OnMonitor);
@@ -112,7 +133,6 @@ Int32 Application::_OnHostInit()
         return errCode;
     }
     #endif
-
 
     errCode = _ReadBaseConfigs();
     if(errCode != Status::Success)
@@ -140,6 +160,15 @@ Int32 Application::_OnCompsCreated()
     auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
     pollerMgr->SetConfig(_pollerConfig);
     pollerMgr->SetServiceProxy(GetComp<SERVICE_COMMON_NS::ServiceProxy>());
+
+    // 设置关闭监控
+    auto killMonitor = GetComp<IKillMonitorMgr>();
+    killMonitor->SetTimerMgr(_poller->GetTimerMgr());
+    killMonitor->SetDeadthDetectionFile(_path + KERNEL_NS::LibString().AppendFormat(".kill_%d", _processId));
+
+    _killMonitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    _killMonitorTimer->SetTimeOutHandler(this, &Application::_OnKillMonitorTimeOut);
+    _killMonitorTimer->Schedule(2000);
 
     return Status::Success;
 }
@@ -174,6 +203,13 @@ Int32 Application::_OnHostStart()
 void Application::_OnHostBeforeCompsWillClose()
 {
     g_Log->Info(LOGFMT_OBJ_TAG("app will close"));
+
+    // 依赖组件的需要先释放资源
+    if(_killMonitorTimer)
+    {
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_killMonitorTimer);
+        _killMonitorTimer = NULL;
+    }
 }
 
 void Application::_OnHostWillClose()
@@ -220,6 +256,12 @@ void Application::_Clear()
     {
         StatisticsInfo::Delete_StatisticsInfo(_statisticsInfo);
         _statisticsInfo = NULL;
+    }
+
+    if(_killMonitorTimer)
+    {
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(_killMonitorTimer);
+        _killMonitorTimer = NULL;
     }
 
     // 销毁协议信息
@@ -877,6 +919,14 @@ void Application::_OnMonitorThreadFrame()
     _statisticsInfoCache->_resTotalNs = 0;
 }
 
+void Application::_OnQuitApplicationEvent(KERNEL_NS::PollerEvent *ev)
+{
+    g_Log->Info(LOGFMT_OBJ_TAG("application will quit app:\n%s"), IntroduceStr().c_str());
+
+    _poller->Disable();
+    _poller->QuitLoop();
+}
+
 void Application::_OnMonitor(KERNEL_NS::LibThread *t)
 {
     KERNEL_NS::CompObject *notReadyComp = NULL;
@@ -947,6 +997,35 @@ void Application::_OnMonitor(KERNEL_NS::LibThread *t)
     }
 
     g_Log->Info(LOGFMT_OBJ_TAG("monitor quik thread id:%llu."), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+}
+
+void Application::_OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer)
+{
+    auto killMonitor = GetComp<IKillMonitorMgr>();
+    if(killMonitor->IsReadyToDie())
+    {
+        _killMonitorTimer->Cancel();
+        _poller->Disable();
+        _poller->QuitLoop();
+    }
+}
+
+void Application::_OnMsg(KERNEL_NS::PollerEvent *ev)
+{
+    if(UNLIKELY(ev->_type >= static_cast<Int32>(_pollerEventHandler.size())))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("unregister event handler event type:%d, event:%s"), ev->_type, ev->ToString().c_str());
+        return;
+    }
+
+    auto handler = _pollerEventHandler[ev->_type];
+    if(UNLIKELY(!handler))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("unregister event handler event type:%d, event:%s"), ev->_type, ev->ToString().c_str());
+        return;
+    }
+
+    (this->*handler)(ev);
 }
 
 

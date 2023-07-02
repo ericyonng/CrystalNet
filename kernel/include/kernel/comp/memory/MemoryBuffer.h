@@ -43,7 +43,7 @@ KERNEL_BEGIN
 class MemoryBuffer;
 class MemoryAlloctor;
 
-class KERNEL_EXPORT MemoryBuffer
+class KERNEL_EXPORT  MemoryBuffer
 {
 public:
     // 内存大小 = blockSize * blockCnt
@@ -56,6 +56,7 @@ public:
     MemoryBlock *AllocNewBlock();
     // 回收
     void FreeBlock(MemoryBlock *block);
+    void FreeBlockList(MemoryBlock *blockHead, MemoryBlock *blockEnd, UInt64 mergeBlockCount);
     // buffer信息
     LibString ToString();
 
@@ -97,6 +98,7 @@ public:
     MemoryAlloctor          *_alloctor;         // 分配器
     MemoryBuffer            *_pre;              // 上一个buffer
     MemoryBuffer            *_next;             // 下一个buffer
+    bool                    _isInBusy;          // 是否在忙链表中
 };
 
 
@@ -119,6 +121,7 @@ ALWAYS_INLINE MemoryBuffer::MemoryBuffer(UInt64 blockSize, UInt64 blockCnt, UInt
     ,_alloctor(alloctor)
     ,_pre(NULL)
     ,_next(NULL)
+    ,_isInBusy(false)
 {
     _buffer = reinterpret_cast<Byte8 *>(::malloc(_bufferSize));
     if (UNLIKELY(!_buffer))
@@ -184,6 +187,7 @@ ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
             , BackTraceUtil::CrystalCaptureStackBackTrace().c_str()).GetRaw());
         }
 
+        toAlloc->_next = NULL;
         _freeHead = _freeHead->_next;
         return toAlloc;
     }
@@ -211,6 +215,13 @@ ALWAYS_INLINE void MemoryBuffer::FreeBlock(MemoryBlock *block)
     --_usedBlockCnt;
     block->_next = _freeHead;
     _freeHead = block;
+}
+
+ALWAYS_INLINE void MemoryBuffer::FreeBlockList(MemoryBlock *blockHead, MemoryBlock *blockEnd, UInt64 mergeBlockCount)
+{
+    _usedBlockCnt -= mergeBlockCount;
+    blockEnd->_next = _freeHead;
+    _freeHead = blockHead;
 }
 
 ALWAYS_INLINE LibString MemoryBuffer::ToString()

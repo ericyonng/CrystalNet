@@ -118,6 +118,12 @@ public:
 
     LibString ToString() const;
 
+    // From接口
+    static TimeSlice FromSeconds(Int64 seconds);
+    static TimeSlice FromMilliSeconds(Int64 milliseconds);
+    static TimeSlice FromMicroSeconds(Int64 microseconds);
+    static TimeSlice FromNanoSeconds(Int64 nanoseconds);
+
 private:
     friend class LibTime;
 

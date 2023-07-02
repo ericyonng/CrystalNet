@@ -35,6 +35,7 @@
 #include <kernel/comp/memory/Defs/MemoryAlloctorConfig.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
+#include <kernel/comp/memory/CenterMemoryCollector.h>
 
 KERNEL_BEGIN
 
@@ -57,7 +58,13 @@ MemoryAlloctor::MemoryAlloctor(const MemoryAlloctorConfig &config)
 , _activeHead(NULL)
 , _busyHead(0)
 , _curActiveBufferNum(0)
+,_needMerge{false}
+,_bufferToMergeCount{0}
+,_mergeBufferList(NULL)
+,_mergeBufferListSwap(NULL)
+,_centerMemroyCollector(NULL)
 {
+    _centerMemroyCollector = CenterMemoryCollector::GetInstance();
 }
 
 MemoryAlloctor::~MemoryAlloctor()
@@ -67,19 +74,6 @@ MemoryAlloctor::~MemoryAlloctor()
 
 void MemoryAlloctor::Free(MemoryBlock *block)
 {
-  // 判断是不是属于当前分配器
-    if(UNLIKELY(!CheckOwner(block)))
-    {
-        auto buffer = block->_buffer;
-        MemoryAlloctor *bufferAlloctor = buffer ? buffer->_alloctor : NULL;
-        
-        g_Log->Error(LOGFMT_OBJ_TAG("check owner fail, free a error block:%p, not belong to this alloctor:%p, %s, block owner buffer:%p, buffer owner alloctor:%p, buffer owner alloctor info:%s, \n backtrace:%s")
-                                , block, this, ToString().c_str(), buffer, bufferAlloctor, bufferAlloctor? bufferAlloctor->ToString().c_str() : "", BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
-        
-        throw std::logic_error("free block in another alloctor");
-        return;
-    }
-
     // 引用计数 TODO:重复释放ref为小于0
     if(UNLIKELY(block->_ref == 0))
     {
@@ -92,8 +86,35 @@ void MemoryAlloctor::Free(MemoryBlock *block)
     if(UNLIKELY(--block->_ref > 0))
         return;
 
+    // 判断是不是属于当前分配器
+    if(UNLIKELY(!CheckOwner(block)))
+    {
+        auto buffer = block->_buffer;
+        MemoryAlloctor *bufferAlloctor = buffer ? buffer->_alloctor : NULL;
+        if(LIKELY(bufferAlloctor))
+        {
+            // 同一个线程直接调用分配器释放
+            if(bufferAlloctor->_threadId == _threadId)
+            {
+                ++block->_ref;
+                bufferAlloctor->Free(block);
+                return;
+            }
+            else
+            {// 不同线程需要丢给中央收集器 TODO
+                _centerMemroyCollector->PushBlock(_threadId, block);
+                return;
+            }
+        }
+        
+        g_Log->Error(LOGFMT_OBJ_TAG("check owner fail not in any alloctor, free a error block:%p, not belong to this alloctor:%p, current alloctor info:\n %s,\n block owner buffer:%p, buffer owner alloctor:%p, buffer owner alloctor info:%s, \n backtrace:%s")
+                                , block, this, ToString().c_str(), buffer, bufferAlloctor, bufferAlloctor? bufferAlloctor->ToString().c_str() : "", BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
+        
+        throw std::logic_error("free block error not in any alloctor");
+        return;
+    }
+
     auto buffer = block->_buffer;
-    const bool isNotBusy = buffer->_blockCnt ^ buffer->_usedBlockCnt;
 
     // 回收
     buffer->FreeBlock(block);
@@ -104,10 +125,10 @@ void MemoryAlloctor::Free(MemoryBlock *block)
     // 空闲buffer释放掉
     if(UNLIKELY(buffer->_usedBlockCnt == 0 && (buffer->_notEnableGcFlag == 0)))
     {
-        if(LIKELY(isNotBusy))
-            _RemoveFromList(_activeHead, buffer);
-        else
+        if(UNLIKELY(buffer->_isInBusy))
             _RemoveFromList(_busyHead, buffer);
+        else
+            _RemoveFromList(_activeHead, buffer);
 
         --_curActiveBufferNum;
         _gc.push(buffer);
@@ -115,10 +136,11 @@ void MemoryAlloctor::Free(MemoryBlock *block)
     }
 
     // 若在busy中放回active队列
-    if(UNLIKELY(isNotBusy == false))
+    if(LIKELY(buffer->_isInBusy))
     {
         _RemoveFromList(_busyHead, buffer);
         _AddToList(_activeHead, buffer);
+        buffer->_isInBusy = false;
     }
 }
 
@@ -152,6 +174,8 @@ void MemoryAlloctor::Destroy()
     if(!_isInit.exchange(false))
         return;
     
+    _MergeBlocks();
+
     _lck.Lock();
     MemoryBuffer *head = _activeHead;
     while (_activeHead)
@@ -173,7 +197,14 @@ void MemoryAlloctor::Destroy()
     _bytesInUsed = 0;
     _curActiveBufferNum = 0;
     _lck.Unlock();
+
 }
+
+void MemoryAlloctor::_Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bufferInfoListHead, MergeMemoryBufferInfo *bufferInfoListTail)
+{
+    _centerMemroyCollector->Recycle(recycleNum, bufferInfoListHead, bufferInfoListTail);
+}
+
 
 KERNEL_END
 

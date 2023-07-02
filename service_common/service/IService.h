@@ -142,7 +142,7 @@ public:
     virtual const KERNEL_NS::EventManager *GetEventMgr() const = 0;
 
     // 初始化从poller传来的消息处理接口
-    static void InitPollerEventHandler();
+    void InitPollerEventHandler();
 
     // 监控信息
     virtual void OnMonitor(KERNEL_NS::LibString &info);
@@ -161,6 +161,10 @@ public:
     void SetServiceStatus(Int32 serviceStatus);
     // service status 接口,可以根据业务需要来重写默认使用 ServiceStatus
     virtual KERNEL_NS::LibString ServiceStatusToString(Int32 serviceStatus) const;
+
+    // 设置事件最大类型
+    virtual void SetMaxEventType(Int32 maxEventType);
+    virtual Int32 GetMaxEventType() const;
 
     const std::set<const KERNEL_NS::CompObject *> &GetALlFocusServiceModule() const;
     std::set<const KERNEL_NS::CompObject *> &GetALlFocusServiceModule();
@@ -236,7 +240,8 @@ protected:
     std::atomic<Int64> _consumePackets;
 
     typedef void (IService::*PollerEventHandler)(KERNEL_NS::PollerEvent *msg);
-    static PollerEventHandler _pollerEventHandler[KERNEL_NS::PollerEventType::EvMax];
+    std::vector<PollerEventHandler> _pollerEventHandler;
+    Int32 _maxEventType;
 
     std::set<const KERNEL_NS::CompObject *> _quitEndComps;
     std::set<const KERNEL_NS::CompObject *> _forcusComps;
