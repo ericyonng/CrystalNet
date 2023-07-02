@@ -90,7 +90,7 @@ public:
     // 必须重写
     virtual void Release() = 0;
 
-    // obj创建成功,在init之前
+    // obj创建成功,在 _OnInit 之前
     virtual Int32 OnCreated() final;
     // 初始化数据
     virtual Int32 Init() final;
@@ -185,6 +185,8 @@ private:
     std::atomic_bool _isCreated;
     std::atomic_bool _isInited;
     std::atomic_bool _isStarted;
+    std::atomic_bool _isWillClose;
+    std::atomic_bool _isClose;
     std::atomic_bool _isReady;
 
     IObject *_owner;

@@ -36,6 +36,7 @@
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
 #include <kernel/comp/memory/CenterMemoryCollector.h>
+#include <kernel/comp/Utils/TlsUtil.h>
 
 KERNEL_BEGIN
 
@@ -63,6 +64,7 @@ MemoryAlloctor::MemoryAlloctor(const MemoryAlloctorConfig &config)
 ,_mergeBufferList(NULL)
 ,_mergeBufferListSwap(NULL)
 ,_centerMemroyCollector(NULL)
+,_tlsDefaultObj(TlsUtil::GetDefTls())
 {
     _centerMemroyCollector = CenterMemoryCollector::GetInstance();
 }
@@ -72,7 +74,7 @@ MemoryAlloctor::~MemoryAlloctor()
     Destroy();
 }
 
-void MemoryAlloctor::Free(MemoryBlock *block)
+MemoryAlloctor *MemoryAlloctor::Free(MemoryBlock *block)
 {
     // 引用计数 TODO:重复释放ref为小于0
     if(UNLIKELY(block->_ref == 0))
@@ -84,7 +86,7 @@ void MemoryAlloctor::Free(MemoryBlock *block)
 
     // 引用计数
     if(UNLIKELY(--block->_ref > 0))
-        return;
+        return NULL;
 
     // 判断是不是属于当前分配器
     if(UNLIKELY(!CheckOwner(block)))
@@ -96,14 +98,14 @@ void MemoryAlloctor::Free(MemoryBlock *block)
             // 同一个线程直接调用分配器释放
             if(bufferAlloctor->_threadId == _threadId)
             {
+                // 由外部进行再次释放
                 ++block->_ref;
-                bufferAlloctor->Free(block);
-                return;
+                return bufferAlloctor;
             }
             else
             {// 不同线程需要丢给中央收集器 TODO
-                _centerMemroyCollector->PushBlock(_threadId, block);
-                return;
+                _centerMemroyCollector->PushBlock(SystemUtil::GetCurrentThreadId(), block);
+                return NULL;
             }
         }
         
@@ -111,7 +113,7 @@ void MemoryAlloctor::Free(MemoryBlock *block)
                                 , block, this, ToString().c_str(), buffer, bufferAlloctor, bufferAlloctor? bufferAlloctor->ToString().c_str() : "", BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
         
         throw std::logic_error("free block error not in any alloctor");
-        return;
+        return NULL;
     }
 
     auto buffer = block->_buffer;
@@ -122,28 +124,14 @@ void MemoryAlloctor::Free(MemoryBlock *block)
     --_blockCountInUsed;
     _bytesInUsed -= _blockSizeAfterAlign;
 
-    // 空闲buffer释放掉
-    if(UNLIKELY(buffer->_usedBlockCnt == 0 && (buffer->_notEnableGcFlag == 0)))
-    {
-        if(UNLIKELY(buffer->_isInBusy))
-            _RemoveFromList(_busyHead, buffer);
-        else
-            _RemoveFromList(_activeHead, buffer);
+    // 判断可以回收就丢给gc, 没有判断是否切换忙或者活跃队列
+    _JudgeBufferRecycle(buffer);
 
-        --_curActiveBufferNum;
-        _gc.push(buffer);
-        return;
-    }
+    // 合并内存
+    _MergeBlocks();
 
-    // 若在busy中放回active队列
-    if(LIKELY(buffer->_isInBusy))
-    {
-        _RemoveFromList(_busyHead, buffer);
-        _AddToList(_activeHead, buffer);
-        buffer->_isInBusy = false;
-    }
+    return NULL;
 }
-
 
 void MemoryAlloctor::Init(UInt64 initBlockNumPerBuffer, const std::string &source)
 {
@@ -204,7 +192,6 @@ void MemoryAlloctor::_Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bufferIn
 {
     _centerMemroyCollector->Recycle(recycleNum, bufferInfoListHead, bufferInfoListTail);
 }
-
 
 KERNEL_END
 

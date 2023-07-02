@@ -35,6 +35,7 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Lock/Lock.h>
 #include <kernel/comp/memory/MemoryBlock.h>
+#include <kernel/comp/Tls/TlsStack.h>
 
 KERNEL_BEGIN
 
@@ -71,8 +72,17 @@ public:
     // 合并到Alloctor
     void MergeToAlloctor();
 
+    // 设置是否需要强制释放空闲buffer
+    void SetForceFreeIdleBuffer(bool force = true);
+
     // 是否清空了
     bool IsEmpty() const;
+
+    // 设置线程当前线程的tlsstack
+    void SetTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack);
+
+    // 当前线程分配内存字节数
+    UInt64 GetAllocBytes() const;
 
 private:
     const UInt64 _threadId;
@@ -90,6 +100,9 @@ private:
     // 每个alloctor历史数量以及
     mutable SpinLock _profileLck;                              // 线程安全
     std::map<MemoryAlloctor *, CenterMemoryProfileInfo *> _memoryAlloctorRefBlockCount;
+
+    // 当前线程的tlsstack
+    TlsStack<TlsStackSize::SIZE_1MB> *_tlsStack;
 };
 
 ALWAYS_INLINE void CenterMemoryThreadInfo::PushBlock(MemoryBlock *block)
@@ -103,11 +116,26 @@ ALWAYS_INLINE void CenterMemoryThreadInfo::PushBlock(MemoryBlock *block)
     ++_historyBlockCount;
 }
 
+ALWAYS_INLINE void CenterMemoryThreadInfo::SetForceFreeIdleBuffer(bool force)
+{
+    _tlsStack->GetDef()->_isForceFreeIdleBuffer = force;
+}
+
 ALWAYS_INLINE bool CenterMemoryThreadInfo::IsEmpty() const
 {
     auto ret = _pendingBlockCount == 0;
 
     return ret || _memroyAlloctorRefInfo.empty();
+}
+
+ALWAYS_INLINE void CenterMemoryThreadInfo::SetTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
+{
+    _tlsStack = tlsStack;
+}
+
+ALWAYS_INLINE UInt64 CenterMemoryThreadInfo::GetAllocBytes() const
+{
+    return _tlsStack->GetDef()->_alloctorTotalBytes;
 }
 
 KERNEL_END

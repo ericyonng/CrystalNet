@@ -207,7 +207,7 @@ template<TlsStackSize::SizeType TlsSizeType>
 inline void TlsStack<TlsSizeType>::FreeAll()
 {
     // CRYSTAL_TRACE("tls stack size=[%llu] will free all maxidx=[%llu]", TlsSizeType, static_cast<UInt64>(_maxIdx));
-    for(UInt64 i = 0; i < _maxIdx; ++i)
+    for(Int32 i = static_cast<Int32>(_maxIdx - 1); i >= 0; --i)
     {
         ITlsObj *obj = reinterpret_cast<ITlsObj *>(_objAddr[i]);
         if(UNLIKELY(!obj->IsFree()))

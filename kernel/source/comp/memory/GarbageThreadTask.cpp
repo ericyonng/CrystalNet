@@ -37,7 +37,7 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(GarbageThreadTask);
 
-GarbageThreadTask::GarbageThreadTask(LibThread *libThread, IDelegate<void> *callback, UInt64 workIntervalMsTime, ConditionLocker &lck)
+GarbageThreadTask::GarbageThreadTask(LibThread *libThread, IDelegate<void> *callback, UInt64 &workIntervalMsTime, ConditionLocker &lck)
     :_thead(libThread)
     ,_callback(callback)
     ,_workIntervalMsTime(workIntervalMsTime)

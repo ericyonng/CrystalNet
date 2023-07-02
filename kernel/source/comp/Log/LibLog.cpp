@@ -39,6 +39,10 @@
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
 #include <kernel/comp/Utils/SignalHandleUtil.h>
+#include <kernel/comp/TlsMemoryCleanerComp.h>
+#include <kernel/comp/SmartPtr.h>
+#include <kernel/comp/Timer/Timer.h>
+
 
 KERNEL_BEGIN
 
@@ -481,6 +485,43 @@ void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
 
     const Int32 holdCount = 10;
     Int32 dynamicHoldCount = 0;
+
+    // 定时管理
+    SmartPtr<TimerMgr, AutoDelMethods::CustomDelete> timerMgr = TimerMgr::New_TimerMgr();
+    timerMgr.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<TimerMgr *>(p);
+        TimerMgr::Delete_TimerMgr(ptr);
+    });
+    timerMgr->Launch(NULL);
+
+    // 内存定时清理
+    SmartPtr<TlsMemoryCleanerComp, AutoDelMethods::CustomDelete> memoryCleaner = TlsMemoryCleanerCompFactory::StaticCreate()->CastTo<TlsMemoryCleanerComp>();
+    memoryCleaner.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<TlsMemoryCleanerComp *>(p);
+        ptr->Release();
+    });
+
+    // 设置
+    memoryCleaner->SetTimerMgr(timerMgr.AsSelf());
+
+    // 启动内存清理
+    do
+    {
+        auto err = memoryCleaner->Init();
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("memory cleaner init fail err:%d", err);
+            break;
+        }
+
+        err = memoryCleaner->Start();
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("memory cleaner start fail err:%d", err);
+            break;
+        }
+    } while (false);
+
     while (true)
     {
         if(UNLIKELY(t->IsDestroy()))
@@ -511,8 +552,13 @@ void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
             --dynamicHoldCount;
         }
 
+        timerMgr->Drive();
         // CRYSTAL_TRACE("log file name thread wake up file thread relation id:[%d]", idx);
     }
+
+    // 关闭
+    memoryCleaner->WillClose();
+    memoryCleaner->Close();
 
     // CRYSTAL_TRACE("log thread close relation id = [%d], thread id=[%llu] file list name:%s", idx, SystemUtil::GetCurrentThreadId(), logNameList.c_str());
 }

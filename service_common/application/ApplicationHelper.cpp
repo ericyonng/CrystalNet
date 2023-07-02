@@ -62,9 +62,8 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
         g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "signal catched, application will close threadId:%llu, application thread id:%llu..."), threadId, currentTid);
         
         // 需要先停掉收集器, 不然其他线程会阻塞在那里等待收集器结束
-        KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
-
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
         if (threadId == currentTid)
         {
             app->WillClose();
@@ -84,17 +83,18 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
 
         }
 #else
-        app->WillClose();
-        app->Close();
+        app->SinalFinish(Status::Success);
+        // app->WillClose();
+        // app->Close();
 
-        while (app->IsReady())
-            KERNEL_NS::SystemUtil::ThreadSleep(0);
+        while (true)
+            KERNEL_NS::SystemUtil::ThreadSleep(1000);
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close finished."));
+        // g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close finished."));
 
-        KERNEL_NS::KernelUtil::OnSignalClose();
+        // KERNEL_NS::KernelUtil::OnSignalClose();
 
-        printf("\napplication quit finish.\n");
+        // printf("\napplication quit finish.\n");
         // while(true)
         // {
         //     auto v = getchar();

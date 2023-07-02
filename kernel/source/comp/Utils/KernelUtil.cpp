@@ -199,7 +199,8 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     // 内存监控
     g_MemoryMonitor = KERNEL_NS::MemoryMonitor::GetInstance();
-    err = g_MemoryMonitor->Init(60*1000);
+    // err = g_MemoryMonitor->Init(60*1000);
+    err = g_MemoryMonitor->Init(10*1000);
     if(err != Status::Success)
     {
         g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "g_MemoryMonitor Init fail err=[%d]."), err);
@@ -303,9 +304,9 @@ void KernelUtil::Destroy()
     if(LIKELY(g_Log))
     {
         g_Log->Close();
-        CRYSTAL_DELETE_SAFE(g_Log);
+        // CRYSTAL_DELETE_SAFE(g_Log);
     }
-    g_Log = NULL;
+    // g_Log = NULL;
     
     // gc停止
     KERNEL_NS::GarbageThread::GetInstence()->Close();

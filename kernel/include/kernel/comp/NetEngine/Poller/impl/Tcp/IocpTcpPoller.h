@@ -57,6 +57,7 @@ class LibPacket;
 class IPollerMgr;
 class IServiceProxy;
 struct IpControlInfo;
+class TlsMemoryCleanerComp;
 
 class KERNEL_EXPORT IocpTcpPoller : public CompHostObject
 {
@@ -164,6 +165,7 @@ private:
     IPollerMgr *_pollerMgr;
     IServiceProxy *_serviceProxy;
     Poller *_poller;
+    TlsMemoryCleanerComp *_memoryCleaner;
 
     const TcpPollerInstConfig *_cfg;
     std::map<UInt64, IocpTcpSession *> _sessionIdRefSession;

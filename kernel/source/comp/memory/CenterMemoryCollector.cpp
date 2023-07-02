@@ -51,6 +51,10 @@ CenterMemoryCollector::CenterMemoryCollector()
 ,_recycleForPurgeLimit(128 * 1024)
 ,_head(NULL)
 ,_headToSwap(NULL)
+,_allThreadMemoryAllocUpperLimit(4LLU * 1024LLU * 1024LLU * 1024LLU)    // 默认4GB
+,_lastScanTotalAllocBytes(0)
+,_threadAllocTopn(new BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp>)
+,_threadAllocTopnSwap(new BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp>)
 {
 }
 
@@ -60,6 +64,11 @@ CenterMemoryCollector::~CenterMemoryCollector()
         CRYSTAL_RELEASE_SAFE(_worker);
 
     ContainerUtil::DelContainer(_threadIdRefThreadInfo);
+
+    if(_threadAllocTopn)
+        CRYSTAL_DELETE_SAFE(_threadAllocTopn);
+    if(_threadAllocTopnSwap)
+        CRYSTAL_DELETE_SAFE(_threadAllocTopnSwap);
 }
 
 CenterMemoryCollector *CenterMemoryCollector::GetInstance()
@@ -110,7 +119,7 @@ void CenterMemoryCollector::WaitClose()
     g_Log->Info(LOGFMT_OBJ_TAG("center memory is closed current thread id:%llu..."), threadId);
 }
 
-void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId)
+void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
 {
     if(UNLIKELY(_isDestroy))
         return;
@@ -120,6 +129,8 @@ void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId)
     if(iter == _threadIdRefThreadInfo.end())
     {
         auto newInfo = new CenterMemoryThreadInfo(threadId);
+        newInfo->SetTlsStack(tlsStack);
+
         _threadIdRefThreadInfo.insert(std::make_pair(threadId, newInfo));
 
         if((_worker == NULL) || threadId != _worker->GetTheadId())
@@ -171,16 +182,44 @@ LibString CenterMemoryCollector::ToString() const
     const UInt64 historyBlock = _historyPendingBlockTotalNum.load();
     const UInt64 recycleBufferInfo = _recycleMemoryBufferInfoCount.load();
     const UInt64 historyRecycleBufferInfo = _historyRecycleMemoryBufferInfoCount.load();
+
+    // 把排行榜换出来
+    SmartPtr<BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp>> topn = new BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp>;
+    _topnGuard.Lock();
+    auto *swapTopn = topn.pop();
+    topn = _threadAllocTopnSwap;
+    _threadAllocTopnSwap = swapTopn;
+    _topnGuard.Unlock();
     
+    // 数据信息
     LibString info;
     info.AppendFormat("[CENTER MEMORY COLLECTOR BEGIN]\n");
-    info.AppendFormat("center memory collector info: current block num:%llu, history num:%llu, recycle memory buffer info num:%llu, history num:%llu \n"
-    , pendingBlock, historyBlock, recycleBufferInfo, historyRecycleBufferInfo);
+    info.AppendFormat("center memory collector info: current block num:%llu, history num:%llu, recycle memory buffer info num:%llu, history num:%llu, all thread alloctor bytes limit:%llu, last alloc mem total bytes:%llu \n"
+    , pendingBlock, historyBlock, recycleBufferInfo, historyRecycleBufferInfo, _allThreadMemoryAllocUpperLimit, _lastScanTotalAllocBytes);
 
     for(auto iter : _threadIdRefThreadInfo)
         info.AppendFormat("threadId:%llu, center memory collector info:%s\n", iter.first, iter.second->ToString().c_str());
 
+    // 每个线程内存分配排行榜信息
+    const Int32 count = static_cast<Int32>(topn->size());
+    info.AppendFormat("thread alloc topn count:[%d]:\n", count);
+    for(Int32 idx = 0; idx < count; ++idx)
+    {
+        auto elem = (*topn)[idx].AsSelf();
+        info.AppendFormat("[%d] threadId:%llu, alloc bytes:%llu\n", idx + 1, elem->_threadId, elem->_totalAllocBytes);
+    }
+
     info.AppendFormat("[CENTER MEMORY COLLECTOR END]\n");
+
+    // 排行榜如果没更新再把数据放回去
+    _topnGuard.Lock();
+    if(_threadAllocTopnSwap->empty() && !topn->empty())
+    {
+        swapTopn = topn.pop();
+        topn = _threadAllocTopnSwap;
+        _threadAllocTopnSwap = swapTopn;
+    }
+    _topnGuard.Unlock();
 
     return info;
 }
@@ -218,6 +257,9 @@ void CenterMemoryCollector::_DoWorker()
         CRYSTAL_DELETE_SAFE(node);
     }
 
+    _lastScanTotalAllocBytes = 0;
+
+    _threadAllocTopn->clear();
     for(auto &iter : _threadIdRefThreadInfo)
     {
         auto info = iter.second;
@@ -228,7 +270,29 @@ void CenterMemoryCollector::_DoWorker()
         // 再将每个MemoryAlloctor 回收的block push到各个alloctor 
         info->MergeToAlloctor();
 
+        _lastScanTotalAllocBytes += info->GetAllocBytes();
+
+        SmartPtr<CenterMemoryTopnThreadInfo> newInfo = new CenterMemoryTopnThreadInfo;
+        newInfo->_threadId = iter.first;
+        newInfo->_totalAllocBytes = info->GetAllocBytes();
+        _threadAllocTopn->insert(newInfo);
+
         _currentPendingBlockTotalNum -= mergedCount;
+    }
+
+    // 更新排行榜
+    _topnGuard.Lock();
+    auto newTopn = _threadAllocTopn;
+    _threadAllocTopn = _threadAllocTopnSwap;
+    _threadAllocTopnSwap = newTopn; 
+    _topnGuard.Unlock();
+
+    // 设置是否强制释放空闲内存
+    bool isForceFree = _lastScanTotalAllocBytes >= _allThreadMemoryAllocUpperLimit;
+    for(auto &iter : _threadIdRefThreadInfo)
+    {
+        auto info = iter.second;
+        info->SetForceFreeIdleBuffer(isForceFree);
     }
 }
 

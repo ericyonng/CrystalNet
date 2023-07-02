@@ -86,6 +86,8 @@ void Application::OnRegisterComps()
 
     // 监控程序结束
     RegisterComp<KillMonitorMgrFactory>();
+    // 内存清理
+    RegisterComp<KERNEL_NS::TlsMemoryCleanerCompFactory>();
 
     RegisterComp<KERNEL_NS::PollerMgrFactory>();
     RegisterComp<ServiceProxyFactory>();
@@ -141,6 +143,13 @@ Int32 Application::_OnHostInit()
         return errCode;
     }
 
+    // 设置内核先关参数
+    KERNEL_NS::GarbageThread::GetInstence()->SetIntervalMs(_kernelConfig._gCIntervalMs);
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetAllThreadMemoryAllocUpperLimit(_kernelConfig._allMemoryAlloctorTotalUpper);
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetWorkerIntervalMs(_kernelConfig._centerCollectorIntervalMs);
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetBlockNumForPurgeLimit(_kernelConfig._wakeupCenterCollectorMinBlockNum);
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->SetRecycleForPurgeLimit(_kernelConfig._wakeupCenterCollectorMinMergeBufferInfoNum);
+
     // 生成apply id
     _GenerateMachineApplyId();
 
@@ -169,6 +178,11 @@ Int32 Application::_OnCompsCreated()
     _killMonitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _killMonitorTimer->SetTimeOutHandler(this, &Application::_OnKillMonitorTimeOut);
     _killMonitorTimer->Schedule(2000);
+
+    // 内存清理设置
+    auto memoryCleaner = GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
+    memoryCleaner->SetTimerMgr(_poller->GetTimerMgr());
+    memoryCleaner->SetIntervalMs(_kernelConfig._mergeTlsMemoryBlockIntervalMs);
 
     return Status::Success;
 }
@@ -696,6 +710,100 @@ Int32 Application::_ReadBaseConfigs()
                 newInstConfig->_sessionRecvPacketStackLimit = _kernelConfig._sessionRecvPacketStackLimit;
                 pollerInstConfigs[idx] = newInstConfig;
             }
+        }
+    }
+
+    {// gc 中央收集器等配置
+        {
+            UInt64 cache = 0;
+            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, "AllMemoryAlloctorTotalUpper", cache))
+            {
+                cache = 4LLU * 1024LLU * 1024LLU * 1024LLU;
+                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
+                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "AllMemoryAlloctorTotalUpper", value.c_str())))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                                , APPLICATION_KERNEL_CONFIG_SEG, "AllMemoryAlloctorTotalUpper", value.c_str());
+                    return Status::ConfigError;
+                }
+            }
+            _kernelConfig._allMemoryAlloctorTotalUpper = cache;
+        }
+        {
+            UInt64 cache = 0;
+            if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, "GCIntervalMs", cache))
+            {
+                cache = 5000;
+                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
+                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "GCIntervalMs", value.c_str())))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                                , APPLICATION_KERNEL_CONFIG_SEG, "GCIntervalMs", value.c_str());
+                    return Status::ConfigError;
+                }
+            }
+            _kernelConfig._gCIntervalMs = cache;
+        }
+        {
+            Int64 cache = 0;
+            if(!_configIni->CheckReadNumber(APPLICATION_KERNEL_CONFIG_SEG, "CenterCollectorIntervalMs", cache))
+            {
+                cache = 100;
+                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
+                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "CenterCollectorIntervalMs", value.c_str())))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                                , APPLICATION_KERNEL_CONFIG_SEG, "CenterCollectorIntervalMs", value.c_str());
+                    return Status::ConfigError;
+                }
+            }
+            _kernelConfig._centerCollectorIntervalMs = cache;
+        }
+        {
+            UInt64 cache = 0;
+            if(!_configIni->CheckReadNumber(APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinBlockNum", cache))
+            {
+                cache = 100;
+                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
+                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinBlockNum", value.c_str())))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                                , APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinBlockNum", value.c_str());
+                    return Status::ConfigError;
+                }
+            }
+            _kernelConfig._wakeupCenterCollectorMinBlockNum = cache;
+        }
+        {
+            UInt64 cache = 0;
+            if(!_configIni->CheckReadNumber(APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinMergeBufferInfoNum", cache))
+            {
+                cache = 100;
+                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
+                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinMergeBufferInfoNum", value.c_str())))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                                , APPLICATION_KERNEL_CONFIG_SEG, "WakeupCenterCollectorMinMergeBufferInfoNum", value.c_str());
+                    return Status::ConfigError;
+                }
+            }
+            _kernelConfig._wakeupCenterCollectorMinMergeBufferInfoNum = cache;
+        }
+
+        {
+            Int64 cache = 0;
+            if(!_configIni->CheckReadNumber(APPLICATION_KERNEL_CONFIG_SEG, "MergeTlsMemoryBlockIntervalMs", cache))
+            {
+                cache = 60000;
+                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
+                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, "MergeTlsMemoryBlockIntervalMs", value.c_str())))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                                , APPLICATION_KERNEL_CONFIG_SEG, "MergeTlsMemoryBlockIntervalMs", value.c_str());
+                    return Status::ConfigError;
+                }
+            }
+            _kernelConfig._mergeTlsMemoryBlockIntervalMs = cache;
         }
     }
 

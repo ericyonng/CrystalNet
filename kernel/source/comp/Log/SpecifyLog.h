@@ -91,7 +91,7 @@ private:
     std::vector<std::list<IDelegate<void, LogData *> *> *> _beforeHook; // level 做下标索引
     std::vector<std::list<IDelegate<void> *> *> _afterHook;    // level 做下标索引
     LibLogFile *_logFile = NULL;
-
+    
     // 锁
     SpinLock _logLck;
     ConditionLocker *_wakeupFlush = NULL;

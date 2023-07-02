@@ -86,6 +86,7 @@
 #include <testsuit/testinst/TestMysql.h>
 #include <testsuit/testinst/TestCharset.h>
 #include <testsuit/testinst/TestSql.h>
+#include <testsuit/testinst/TestCenterMemoryCollector.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -256,6 +257,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestMysql::Run();
     // TestCharset::Run();
     // TestSql::Run();
+    // TestCenterMemoryCollector::Run();
 
     // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();
     // pool->Init(0, 4);

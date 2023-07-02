@@ -34,6 +34,7 @@
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/Tls/ITlsObj.h>
 #include <kernel/comp/Tls/Defs.h>
+#include <kernel/comp/Lock/Lock.h>
 
 KERNEL_BEGIN
 
@@ -41,12 +42,13 @@ class LibThread;
 class LibThreadPool;
 class TimerMgr;
 class Poller;
+class MemoryAlloctor;
 
 class KERNEL_EXPORT TlsDefaultObj : public ITlsObj
 {
 public:
     TlsDefaultObj();
-    ~TlsDefaultObj(){}
+    ~TlsDefaultObj();
 
 public:
     virtual const char *GetObjTypeName(){ return _objTypeName.c_str(); }
@@ -70,6 +72,20 @@ public:
     Poller *_poller;
     // 雪花算法信息 TODO:tlsutil给一个接口方便获取uid
     // SnowflakeInfo _snowFlakeInfo;
+
+    // 跨线程读写
+    // 用于跨线程下内存合并,如果有需要合并则放到这上面, 合并完成后从中移除
+    SpinLock _lck;
+    // 脏队列
+    std::set<MemoryAlloctor *> *_durtyList;
+    // 上层将脏队列与_headSwap交换 并遍历_headSwap处理合并
+    std::set<MemoryAlloctor *> *_durtyListSwap;
+    // 是否Free时候如果有空闲buffer强制释放内存
+    bool _isForceFreeIdleBuffer;    // 由中央收集器写, 其他所有线程读
+
+    // 本线程内写, 其他线程只读
+    // 当前内存分配器占用内存总的大小
+    UInt64 _alloctorTotalBytes;
 };
 
 KERNEL_END

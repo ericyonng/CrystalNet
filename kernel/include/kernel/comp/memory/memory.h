@@ -61,5 +61,6 @@
 #include <kernel/comp/memory/CenterMemoryThreadInfo.h>
 #include <kernel/comp/memory/MergeMemoryBufferInfo.h>
 #include <kernel/comp/memory/CenterMemoryProfileInfo.h>
+#include <kernel/comp/memory/CenterMemoryTopnThreadInfo.h>
 
 #endif

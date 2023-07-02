@@ -44,6 +44,8 @@ IObject::IObject()
     ,_isCreated{false}
     ,_isInited{false}
     ,_isStarted{false}
+    ,_isWillClose{false}
+    ,_isClose{false}
     ,_isReady{false}
     ,_owner(NULL)
     ,_maxFocusTypeEnumEnd(ObjFocusInterfaceFlag::END)
@@ -128,6 +130,9 @@ Int32 IObject::Start()
 
 void IObject::WillClose()
 {
+    if(_isWillClose.exchange(true))
+        return;
+
     if(!_isStarted)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("obj not started."));
@@ -143,6 +148,9 @@ void IObject::WillClose()
 
 void IObject::Close()
 {
+    if(_isClose.exchange(true))
+        return;
+        
     if(!_isStarted)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("obj not started."));

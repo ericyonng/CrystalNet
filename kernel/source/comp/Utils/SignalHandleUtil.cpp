@@ -137,9 +137,6 @@ BOOL WINAPI ConsoleHandler(DWORD event)
     {
         g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "ConsoleHandler CTRL_C_EVENT"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
         CatchSigHandler(-1);
-
-        SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, FALSE);
-        ExitProcess(0);
         return TRUE;
     }
     break;

@@ -154,16 +154,22 @@ inline void SystemUtil::ThreadSleep(UInt64 milliSec, UInt64 microSec)
 
 inline UInt64 SystemUtil::GetCurrentThreadId()
 {
+    thread_local UInt64 s_currentThreadId = 0;
+
 #if CRYSTAL_TARGET_PLATFORM_LINUX
 	// pthread_self是获取的是pthread_create创建的tcb块的首地址，基本一样,不是真正的线程id,应该使用gettid()
 	// linux glibc 不提供gettid只能手动调用系统调用 __NR_gettid 224
 	// return ::pthread_self();
 	// return ::gettid();
-	return static_cast<UInt64>(::syscall(__NR_gettid));
+    if(UNLIKELY(s_currentThreadId == 0))
+        s_currentThreadId = static_cast<UInt64>(::syscall(__NR_gettid));
 #else
-	return ::GetCurrentThreadId();
+    if(UNLIKELY(s_currentThreadId == 0))
+        s_currentThreadId = ::GetCurrentThreadId();
 	// TODO:windows
 #endif
+
+	return s_currentThreadId;
 }
 
 inline Int32 SystemUtil::GetCurProcessId()

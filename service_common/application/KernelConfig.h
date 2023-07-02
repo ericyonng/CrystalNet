@@ -57,6 +57,13 @@ struct KernelConfig
     UInt64 _sessionSendPacketContentLimit = 0;             // 发包单包大小限制 0表示不限制
     std::unordered_map<KERNEL_NS::LibString, Int32> _pollerFeatureStringRefId;  // poller feature id定义
     std::unordered_map<Int32, std::set<KERNEL_NS::LibString>> _pollerFeatureIdRefString;  // poller feature id定义
+
+    UInt64 _allMemoryAlloctorTotalUpper = 0;        // 所有分配器内存使用上限控制
+    UInt64 _gCIntervalMs = 0;        // GC 时间间隔
+    Int64 _centerCollectorIntervalMs = 0;        // 设置中央内存收集器工作时间间隔
+    UInt64 _wakeupCenterCollectorMinBlockNum = 0;        // 设置中央收集器跨线程block合并数量达到限制唤醒收集器工作的数量
+    UInt64 _wakeupCenterCollectorMinMergeBufferInfoNum = 0;        // 设置MergeMemoryBufferInfo队列达到数量时唤醒中央收集器
+    Int64 _mergeTlsMemoryBlockIntervalMs = 0;        // 定时合并tls内存块间隔时间
 };
 
 SERVICE_COMMON_END

@@ -187,8 +187,8 @@ ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
             , BackTraceUtil::CrystalCaptureStackBackTrace().c_str()).GetRaw());
         }
 
-        toAlloc->_next = NULL;
         _freeHead = _freeHead->_next;
+        toAlloc->_next = NULL;
         return toAlloc;
     }
 

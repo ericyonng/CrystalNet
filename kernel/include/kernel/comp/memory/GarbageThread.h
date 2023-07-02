@@ -61,6 +61,9 @@ public:
     // 关闭线程
     void Close();
 
+    // 设置gc时间间隔,及时生效
+    void SetIntervalMs(UInt64 gcIntervalMs);
+
 private:
     void _Work();
 
@@ -127,6 +130,14 @@ inline void GarbageThread::MaskPurge(void *gc)
     _lckPurge.Lock();
     _toPurge->insert(gc);
     _lckPurge.Unlock();
+}
+
+ALWAYS_INLINE void GarbageThread::SetIntervalMs(UInt64 gcIntervalMs)
+{
+    if(gcIntervalMs == 0)
+        return;
+
+    _gcIntervalMs = gcIntervalMs;
 }
 
 inline void GarbageThread::_Work()

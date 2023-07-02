@@ -105,8 +105,11 @@ ALWAYS_INLINE TlsStack<TlsStackSize::SIZE_1MB> *TlsUtil::GetTlsStack(bool forceC
         return tlsStack;
 
     {
-        auto memPool = MemoryPool::GetDefaultInstance();
-        void *ptr = memPool->Alloc(__MEMORY_ALIGN__(sizeof(TlsStack<TlsStackSize::SIZE_1MB>)));
+        // auto memPool = MemoryPool::GetDefaultInstance();
+        // void *ptr = memPool->Alloc(__MEMORY_ALIGN__(sizeof(TlsStack<TlsStackSize::SIZE_1MB>)));
+        // tlsStack = AllocUtil::NewByPtrNoConstructorParams<TlsStack<TlsStackSize::SIZE_1MB>>(ptr) ;
+
+        Byte8 *ptr = new Byte8[__MEMORY_ALIGN__(sizeof(TlsStack<TlsStackSize::SIZE_1MB>))];
         tlsStack = AllocUtil::NewByPtrNoConstructorParams<TlsStack<TlsStackSize::SIZE_1MB>>(ptr) ;
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
@@ -127,7 +130,6 @@ inline TlsDefaultObj *TlsUtil::GetDefTls()
 
 inline void TlsUtil::DestroyTlsStack()
 {
-    auto memPool = MemoryPool::GetDefaultInstance();
     auto tlsStack = GetTlsStack(false);
     if(UNLIKELY(!tlsStack))
     {
@@ -136,7 +138,9 @@ inline void TlsUtil::DestroyTlsStack()
     }
 
     tlsStack->FreeAll();
-    memPool->Free(tlsStack);
+    Byte8 *ptr = reinterpret_cast<Byte8 *>(tlsStack);
+    CRYSTAL_DELETE_SAFE(ptr);
+    // memPool->Free(tlsStack);
 
     // 设置null
     auto &handle = GetUtileTlsHandle();

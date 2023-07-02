@@ -62,6 +62,7 @@
 #include <kernel/comp/memory/GarbageCollector.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/memory/MergeMemoryBufferInfo.h>
+#include <kernel/comp/Tls/TlsDefaultObj.h>
 
 KERNEL_BEGIN
 
@@ -80,9 +81,9 @@ public:
     virtual ~MemoryAlloctor();
 
     void *Alloc(UInt64 objBytes);
-    // TODO:需要解决重复释放的问题,重复释放ref<0 需要asset掉
-    void Free(void *ptr);
-    void Free(MemoryBlock *block);
+    // TODO:需要解决重复释放的问题,重复释放ref<0 需要asset掉 如果block不属于本分配器但是属于同一线程下其他分配器分配的那么会返回其他分配器Alloctor
+    MemoryAlloctor *Free(void *ptr);
+    MemoryAlloctor *Free(MemoryBlock *block);
     MemoryBlock *GetMemoryBlockBy(void *ptr);
     void AddRef(void *ptr);
     LibString ToString() const;
@@ -109,10 +110,14 @@ public:
 
     void PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferInfo *head, MergeMemoryBufferInfo *tail);
 
+    void ForceMergeBlocks();
+
 private:
     MemoryBuffer *_NewBuffer();
+    void _GcBuffer(MemoryBuffer *buffer);
     void _AddToList(MemoryBuffer *&listHead, MemoryBuffer *buffer);
     void _RemoveFromList(MemoryBuffer *&listHead, MemoryBuffer *buffer);
+    void _JudgeBufferRecycle(MemoryBuffer *buffer);
 
     void _MergeBlocks();
     void _MergeBlocks(MergeMemoryBufferInfo *memoryBufferInfo);
@@ -156,6 +161,14 @@ protected:
     MergeMemoryBufferInfo *_mergeBufferListSwap;
 
     CenterMemoryCollector *_centerMemroyCollector;
+
+// memoryAlloctor链表 用于合并内存
+    // 线程安全接口
+    void _RemoveSelfFromDurtyList();
+    void _AddSelfToDurtyListIfNotIn();
+
+public:
+    TlsDefaultObj *_tlsDefaultObj;
 };
 
 ALWAYS_INLINE void *MemoryAlloctor::Alloc(UInt64 objBytes)
@@ -194,10 +207,10 @@ ALWAYS_INLINE void *MemoryAlloctor::Alloc(UInt64 objBytes)
     return ((Byte8 *)block) + _memoryBlockHeadSize;
 }
 
-ALWAYS_INLINE void MemoryAlloctor::Free(void *ptr)
+ALWAYS_INLINE MemoryAlloctor *MemoryAlloctor::Free(void *ptr)
 {
     MemoryBlock *block = GetMemoryBlockBy(ptr);
-    Free(block);
+    return Free(block);
 }
 
 ALWAYS_INLINE MemoryBlock *MemoryAlloctor::GetMemoryBlockBy(void *ptr)
@@ -300,6 +313,15 @@ ALWAYS_INLINE void MemoryAlloctor::PushMergeList(UInt64 memoryBuffMergeNum, Merg
     tail->_next = _mergeBufferListSwap;
     _mergeBufferListSwap = head;
     _toMergeLck.Unlock();
+
+    // 不在脏队列中则加入脏队列 放在tls中提供上层去处理合并事情
+    if(LIKELY(_needMerge))
+        _AddSelfToDurtyListIfNotIn();
+}
+
+ALWAYS_INLINE void MemoryAlloctor::ForceMergeBlocks()
+{
+    _MergeBlocks();
 }
 
 ALWAYS_INLINE MemoryBuffer *MemoryAlloctor::_NewBuffer()
@@ -313,8 +335,22 @@ ALWAYS_INLINE MemoryBuffer *MemoryAlloctor::_NewBuffer()
     _totalBytes += new_buffer->_bufferSize;
     _totalBlockAmount += new_buffer->_blockCnt;
 
+    // 占用总大小
+    _tlsDefaultObj->_alloctorTotalBytes += new_buffer->_bufferSize;
+
     ++_curActiveBufferNum;
     return new_buffer;
+}
+
+ALWAYS_INLINE void MemoryAlloctor::_GcBuffer(MemoryBuffer *buffer)
+{
+    // 数据更新
+    _totalBytes -= buffer->_bufferSize;
+    _totalBlockAmount -= buffer->_blockCnt;
+    _tlsDefaultObj->_alloctorTotalBytes -= buffer->_bufferSize;
+    --_curActiveBufferNum;
+
+    _gc.push(buffer);
 }
 
 ALWAYS_INLINE void MemoryAlloctor::_AddToList(MemoryBuffer *&listHead, MemoryBuffer *buffer)
@@ -342,6 +378,31 @@ ALWAYS_INLINE void MemoryAlloctor::_RemoveFromList(MemoryBuffer *&listHead, Memo
 
     buffer->_pre = NULL;
     buffer->_next = NULL;
+}
+
+ALWAYS_INLINE void MemoryAlloctor::_JudgeBufferRecycle(MemoryBuffer *buffer)
+{
+    // 空闲buffer 且_notEnableGcFlag为0 或者强制释放buffer时候gc掉
+    if(UNLIKELY(buffer->_usedBlockCnt == 0 && 
+        ((buffer->_notEnableGcFlag == 0) || 
+        _tlsDefaultObj->_isForceFreeIdleBuffer)))
+    {
+        if(UNLIKELY(buffer->_isInBusy))
+            _RemoveFromList(_busyHead, buffer);
+        else
+            _RemoveFromList(_activeHead, buffer);
+
+        _GcBuffer(buffer);
+        return;
+    }
+
+    // 若在busy中放回active队列
+    if(UNLIKELY(buffer->_isInBusy))
+    {
+        _RemoveFromList(_busyHead, buffer);
+        _AddToList(_activeHead, buffer);
+        buffer->_isInBusy = false;
+    }
 }
 
 ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks()
@@ -372,6 +433,10 @@ ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks()
     }
 
     _Recycle(count, bufferList, bufferListTail);
+
+    // 没有需要合并的就把自己移除
+    if(LIKELY(!_needMerge))
+        _RemoveSelfFromDurtyList();
 }
 
 ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks(MergeMemoryBufferInfo *memoryBufferInfo)
@@ -382,32 +447,27 @@ ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks(MergeMemoryBufferInfo *memoryBuf
     auto mergeBlockEnd= memoryBufferInfo->_tail;
 
     // 回收
-    buffer->_usedBlockCnt -= mergeBlockCount;
     buffer->FreeBlockList(mergeBlockHead, mergeBlockEnd, mergeBlockCount);
     
     _blockCountInUsed -= mergeBlockCount;
     _bytesInUsed -= (_blockSizeAfterAlign * mergeBlockCount);
 
-    // 空闲buffer释放掉
-    if(UNLIKELY(buffer->_usedBlockCnt == 0 && (buffer->_notEnableGcFlag == 0)))
-    {
-        if(LIKELY(buffer->_isInBusy))
-            _RemoveFromList(_busyHead, buffer);
-        else
-            _RemoveFromList(_activeHead, buffer);
+    _JudgeBufferRecycle(buffer);
+}
 
-        --_curActiveBufferNum;
-        _gc.push(buffer);
-        return;
-    }
+ALWAYS_INLINE void MemoryAlloctor::_RemoveSelfFromDurtyList()
+{
+    _tlsDefaultObj->_lck.Lock();
+    _tlsDefaultObj->_durtyList->erase(this);
+    _tlsDefaultObj->_lck.Unlock();
+}
 
-    // 若在busy中放回active队列
-    if(UNLIKELY(buffer->_isInBusy))
-    {
-        _RemoveFromList(_busyHead, buffer);
-        _AddToList(_activeHead, buffer);
-        buffer->_isInBusy = false;
-    }
+ALWAYS_INLINE void MemoryAlloctor::_AddSelfToDurtyListIfNotIn()
+{
+    // 如果不在队列中就加入
+    _tlsDefaultObj->_lck.Lock();
+    _tlsDefaultObj->_durtyList->insert(this);
+    _tlsDefaultObj->_lck.Unlock();
 }
 
 KERNEL_END

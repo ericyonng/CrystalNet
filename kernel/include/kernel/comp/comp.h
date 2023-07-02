@@ -84,5 +84,6 @@
 #include <kernel/comp/NetEngine/NetEngine_Inc.h>
 #include <kernel/comp/Service/Service.h>
 #include <kernel/comp/App/app.h>
+#include <kernel/comp/TlsMemoryCleanerComp.h>
 
 #endif

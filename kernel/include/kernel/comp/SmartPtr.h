@@ -71,6 +71,8 @@ public:
     }
 
     SmartPtr(SmartPtr<ObjType, delMethod> &&obj)
+    :_ptr(NULL)
+    ,_ref(NULL)
     {
         _MoveFrom(obj);
     }
@@ -170,15 +172,15 @@ public:
         return *this;
     }
 
-    operator void *()
-    {
-        return _ptr;
-    }
+    // operator void *()
+    // {
+    //     return _ptr;
+    // }
 
-    operator const void *() const
-    {
-        return _ptr;
-    }
+    // operator const void *() const
+    // {
+    //     return _ptr;
+    // }
 
     operator ObjType *()
     {
@@ -230,10 +232,10 @@ public:
         return *_ptr;
     }
 
-    operator bool()
-    {
-        return _ptr != NULL;
-    }
+    // operator bool()
+    // {
+    //     return _ptr != NULL;
+    // }
 
     ObjType *AsSelf()
     {

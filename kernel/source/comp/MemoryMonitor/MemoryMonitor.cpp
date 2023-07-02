@@ -138,11 +138,10 @@ void MemoryMonitor::_DoWork()
         statics->Unlock();
 
         g_Log->MemMonitor("%s\n", cache.c_str());
-
-        const auto &centerCollectorInfo = centerMemoryCollector->ToString();
-
-        g_Log->MemMonitor("centerCollectorInfo:%s", centerCollectorInfo.c_str());
     }
+
+    const auto &centerCollectorInfo = centerMemoryCollector->ToString();
+    g_Log->MemMonitor("centerCollectorInfo:%s", centerCollectorInfo.c_str());
 
     g_Log->MemMonitor("End memory monitor log batchNum:%llu Total Pool Alloc Buffer Bytes:%llu, Memory monitor Use Time: %llu(micro seconds) one frame.\n"
                     , batchNum, totalBufferBytes, cpuCounter.Update().ElapseMicroseconds(startCounter));

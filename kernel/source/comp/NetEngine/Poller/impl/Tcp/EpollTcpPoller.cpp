@@ -51,6 +51,7 @@
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgrFactory.h>
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
+#include <kernel/comp/TlsMemoryCleanerComp.h>
 
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpPoller.h>
 
@@ -70,6 +71,7 @@ _pollerId(pollerId)
 ,_pollerMgr(NULL)
 ,_serviceProxy(NULL)
 ,_poller(NULL)
+,_memoryCleaner(NULL)
 ,_cfg(cfg)
 ,_sessionCount{0}
 ,_sessionPendingCount{0}
@@ -112,6 +114,7 @@ void EpollTcpPoller::OnRegisterComps()
     // 注册poller组件
     RegisterComp<PollerFactory>();
     RegisterComp<IpRuleMgrFactory>();
+    RegisterComp<TlsMemoryCleanerCompFactory>();
 }
 
 void EpollTcpPoller::Clear()
@@ -300,6 +303,7 @@ bool EpollTcpPoller::_TryHandleConnecting(UInt64 sessionId, Int32 events)
 Int32 EpollTcpPoller::_OnCompsCreated()
 {
     _poller = GetComp<Poller>();
+    _memoryCleaner = GetComp<TlsMemoryCleanerComp>();
 
     TimeSlice span(0, 0, _cfg->_maxPieceTimeInMicroseconds);
     _poller->SetMaxPriorityLevel(_cfg->_maxPriorityLevel);
@@ -331,6 +335,14 @@ Int32 EpollTcpPoller::_OnCompsCreated()
             GetOwner()->SetErrCode(this, Status::Failed);
         return Status::Failed;
     }
+
+    #if _DEBUG
+        _memoryCleaner->SetIntervalMs(1000);
+    #endif
+
+    // 手动启动
+    _memoryCleaner->SetTimerMgr(_poller->GetTimerMgr());
+    _memoryCleaner->SetManualStart();
     
     g_Log->NetInfo(LOGFMT_OBJ_TAG("comps created suc %s."), ToString().c_str());
     return Status::Success;
@@ -413,8 +425,17 @@ void EpollTcpPoller::_Clear()
 bool EpollTcpPoller::_OnPollerPrepare(Poller *poller)
 {
     const auto workerThreadId = poller->GetWorkerThreadId();
+    Int32 err = _memoryCleaner->ManualStart();
+    if(err != Status::Success)
+    {
+        g_Log->NetError(LOGFMT_OBJ_TAG("fail memory cleaner ManualStart, err = [%d], poller worker threadId = [%llu]")
+                        , err, workerThreadId);
 
-    Int32 err = _epoll->Create();
+        SetErrCode(poller, err);
+        return false;
+    }
+
+    err = _epoll->Create();
     if(err != Status::Success)
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("fail create epoll. err = [%d], poller worker threadId = [%llu]")
@@ -480,6 +501,8 @@ void EpollTcpPoller::_OnPollerWillDestroy(Poller *poller)
         pendingInfo = NULL;
         --_sessionPendingCount;
     });
+
+    _memoryCleaner->ManualClose();
 }
 
 void EpollTcpPoller::_OnPollerEvent(PollerEvent *ev)

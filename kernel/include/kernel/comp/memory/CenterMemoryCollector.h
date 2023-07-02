@@ -37,6 +37,10 @@
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/Lock/Lock.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/Tls/TlsStack.h>
+#include <kernel/comp/BinaryArray.h>
+#include <kernel/comp/memory/CenterMemoryTopnThreadInfo.h>
+#include <kernel/comp/SmartPtr.h>
 
 KERNEL_BEGIN
 
@@ -45,6 +49,7 @@ class LibThread;
 
 struct MemoryBlock;
 struct MergeMemoryBufferInfo;
+
 
 class KERNEL_EXPORT CenterMemoryCollector
 {
@@ -60,7 +65,7 @@ public:
     void WaitClose();
 
     // 每个线程都需要注册到收集器
-    void RegisterThreadInfo(UInt64 threadId);
+    void RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStackSize::SIZE_1MB> *tlsStack);
 
     // 要释放的内存块 只有当Collector结束的时候才会失败, 此时系统已经正在清理, 不需要归还block
     void PushBlock(UInt64 freeThreadId, MemoryBlock *block);
@@ -73,6 +78,15 @@ public:
 
     // 设置扫描时间间隔
     void SetWorkerIntervalMs(Int64 ms);
+
+    // 设置超过该数量时唤醒工作线程
+    void SetBlockNumForPurgeLimit(UInt64 blockNumForPurgeLimit);
+
+    // 设置超过该数量时候对内存buffer信息进行回收释放
+    void SetRecycleForPurgeLimit(UInt64 recycleForPurgeLimit);
+
+    // 设置所有线程内存分配上限, 超过了有空闲buffer就立即释放 默认4GB
+    void SetAllThreadMemoryAllocUpperLimit(UInt64 bytes);
 
     LibString ToString() const;
 
@@ -103,6 +117,13 @@ private:
     MergeMemoryBufferInfo *_head;                           // 内存块信息链表头
     MergeMemoryBufferInfo *_headToSwap;                     // 内存块信息链表头
     SpinLock _recycleGuard;                             
+
+    UInt64 _allThreadMemoryAllocUpperLimit;                 // 所有内存分配上限
+    UInt64 _lastScanTotalAllocBytes;                        // 上次扫描时所有线程内存分配情况
+
+    mutable SpinLock _topnGuard;
+    BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp> *_threadAllocTopn; // 内存分配排行榜
+    mutable BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp> *_threadAllocTopnSwap; // 内存分配排行榜副本 外部只读取副本
 };
 
 ALWAYS_INLINE bool CenterMemoryCollector::IsWorking() const
@@ -113,6 +134,21 @@ ALWAYS_INLINE bool CenterMemoryCollector::IsWorking() const
 ALWAYS_INLINE void CenterMemoryCollector::SetWorkerIntervalMs(Int64 ms)
 {
     _workIntervalMs = ms;
+}
+
+ALWAYS_INLINE void CenterMemoryCollector::SetBlockNumForPurgeLimit(UInt64 blockNumForPurgeLimit)
+{
+    _blockNumForPurgeLimit = blockNumForPurgeLimit;
+}
+
+ALWAYS_INLINE void CenterMemoryCollector::SetRecycleForPurgeLimit(UInt64 recycleForPurgeLimit)
+{
+    _recycleForPurgeLimit = recycleForPurgeLimit;
+}
+
+ALWAYS_INLINE void CenterMemoryCollector::SetAllThreadMemoryAllocUpperLimit(UInt64 bytes)
+{
+    _allThreadMemoryAllocUpperLimit = bytes;
 }
 
 KERNEL_END

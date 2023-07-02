@@ -41,6 +41,7 @@ CenterMemoryThreadInfo::CenterMemoryThreadInfo(UInt64 threadId)
 ,_headSwap(NULL)
 ,_pendingBlockCount{0}
 ,_historyBlockCount{0}
+,_tlsStack(NULL)
 {
 
 }
@@ -91,7 +92,10 @@ UInt64 CenterMemoryThreadInfo::MergeBlocks()
     std::map<MemoryAlloctor *, UInt64> profileCache;
     for(;_head;)
     {
-        auto alloctor = _head->_buffer->_alloctor;
+        auto memoryBlock = _head;
+        _head = _head->_next;
+
+        auto alloctor = memoryBlock->_buffer->_alloctor;
         CenterMemoryProfileInfo *profileInfo = NULL;
         auto iter = _memroyAlloctorRefInfo.find(alloctor);
         if(iter == _memroyAlloctorRefInfo.end())
@@ -114,7 +118,6 @@ UInt64 CenterMemoryThreadInfo::MergeBlocks()
         iterProfile->second += 1;
 
         // buffer链表
-        auto memoryBlock = _head;
         auto iterBufferInfo = info._memoryBufferRefMergeInfo.find(memoryBlock->_buffer);
         if(iterBufferInfo == info._memoryBufferRefMergeInfo.end())
         {
@@ -142,8 +145,6 @@ UInt64 CenterMemoryThreadInfo::MergeBlocks()
 
         // 更新数量
         newBufferInfo->_count += 1;
-
-        _head = _head->_next;
     }
 
     for(auto iter = profileCache.begin(); iter != profileCache.end();)
@@ -151,7 +152,7 @@ UInt64 CenterMemoryThreadInfo::MergeBlocks()
         _profileLck.Lock();
         auto iterProfile = _memoryAlloctorRefBlockCount.find(iter->first);
         if(iterProfile == _memoryAlloctorRefBlockCount.end())
-            _memoryAlloctorRefBlockCount.insert(std::make_pair(iter->first, new CenterMemoryProfileInfo));
+            iterProfile = _memoryAlloctorRefBlockCount.insert(std::make_pair(iter->first, new CenterMemoryProfileInfo)).first;
 
         iterProfile->second->_historyBlockCount += iter->second;
         iterProfile->second->_currentPendingCount += iter->second;

@@ -46,7 +46,7 @@ class KERNEL_EXPORT GarbageThreadTask : public ITask
     POOL_CREATE_OBJ_DEFAULT_P1(ITask, GarbageThreadTask);
     
 public:
-    GarbageThreadTask(LibThread *libThread, IDelegate<void> *callback, UInt64 workIntervalMsTime, ConditionLocker &lck);
+    GarbageThreadTask(LibThread *libThread, IDelegate<void> *callback, UInt64 &workIntervalMsTime, ConditionLocker &lck);
     ~GarbageThreadTask(){ CRYSTAL_DELETE_SAFE(_callback); }
 
 public:
@@ -56,7 +56,7 @@ public:
 private:
     LibThread *_thead;
     IDelegate<void> *_callback;
-    UInt64 _workIntervalMsTime;    // 清理内存时间间隔
+    UInt64 &_workIntervalMsTime;    // 清理内存时间间隔
     ConditionLocker &_lck;
 };
 

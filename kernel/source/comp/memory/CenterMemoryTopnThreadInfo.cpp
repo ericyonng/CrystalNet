@@ -21,36 +21,33 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-01-17 22:12:49
+ * Date: 2023-07-02 20:28:00
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <kernel/comp/Tls/TlsDefaultObj.h>
-#include <kernel/comp/Utils/RttiUtil.h>
+#include <kernel/comp/memory/CenterMemoryTopnThreadInfo.h>
 
 KERNEL_BEGIN
 
-TlsDefaultObj::TlsDefaultObj()
-    :_objTypeName("TlsDefaultObj")
-    ,_threadId(0)
-    ,_thread(NULL)
-    ,_threadPool(NULL)
-    ,_pollerTimerMgr(NULL)
-    ,_poller(NULL)
-    ,_alloctorTotalBytes(0)
-    ,_isForceFreeIdleBuffer(false)
-    ,_durtyList(new std::set<MemoryAlloctor *>)
-    ,_durtyListSwap(new std::set<MemoryAlloctor *>)
+bool CenterMemoryTopnThreadInfoComp::operator()(const SmartPtr<CenterMemoryTopnThreadInfo> &l, const SmartPtr<CenterMemoryTopnThreadInfo> &r) const
 {
+    if(!l || !r)
+        return l.AsSelf() > r.AsSelf();
 
-}
+    if(l.AsSelf() == r.AsSelf())
+        return false;
 
-TlsDefaultObj::~TlsDefaultObj()
-{
-    CRYSTAL_DELETE_SAFE(_durtyList);
-    CRYSTAL_DELETE_SAFE(_durtyListSwap);
+    if(l->_threadId == r->_threadId)
+        return false;
+
+    if(l->_totalAllocBytes == r->_totalAllocBytes)
+    {
+        return l.AsSelf() > r.AsSelf();
+    }
+
+    return l->_totalAllocBytes > r->_totalAllocBytes;
 }
 
 KERNEL_END
