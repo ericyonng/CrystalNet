@@ -67,7 +67,7 @@ static void TestMultiThreadAlloc(KERNEL_NS::LibThread *t)
     {
         timerMgr->Drive();
         KERNEL_NS::SystemUtil::ThreadSleep(100);
-        auto ptr = TestCenterMemroyAlloc::NewThreadLocal_TestCenterMemroyAlloc();
+        auto ptr = TestCenterMemroyAlloc::New_TestCenterMemroyAlloc();
 
         g_TestCenterMemCollectorGuard.Lock();
         g_Ptrs.push_back(ptr);

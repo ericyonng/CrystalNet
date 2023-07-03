@@ -104,6 +104,9 @@ void MemoryAlloctor::Free(MemoryBlock *block)
                 return;
             }
 
+            if(!bufferAlloctor->_isThreadLocalCreate)
+                ++block->_ref;
+
             // 当前free操作调用线程独占所以之和中央收集器会有锁冲突,丢给中央收集器处理后续的操作
             _centerMemroyCollector->PushBlock(SystemUtil::GetCurrentThreadId(), block);
             return;
