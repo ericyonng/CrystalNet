@@ -123,7 +123,7 @@ public:
 };
 
 template<typename ObjType>
-ObjAlloctor<ObjType> * ObjPoolWrap<ObjType>::_staticAlloctor = new ObjAlloctor<ObjType>(MEMORY_BUFFER_BLOCK_INIT                                                               
+ObjAlloctor<ObjType> * ObjPoolWrap<ObjType>::_staticAlloctor = new ObjAlloctor<ObjType>(false, MEMORY_BUFFER_BLOCK_INIT                                                               
         , MemoryAlloctorConfig(sizeof(ObjType)));
 
 template<typename ObjType>

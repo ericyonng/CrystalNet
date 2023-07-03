@@ -88,7 +88,7 @@ InitMemoryPoolInfo::InitMemoryPoolInfo(UInt64 createMemoryBufferNumWhenInit, UIn
     }
 }
 
-MemoryPool::MemoryPool(const InitMemoryPoolInfo &initInfo, const std::string &reason)
+MemoryPool::MemoryPool(bool isThreadLocal, const InitMemoryPoolInfo &initInfo, const std::string &reason)
 :_isInit{false}
 ,_miniAllockBlockBytes(initInfo.GetMin())
 ,_maxAllockBlockBytes(initInfo.GetMax())
@@ -97,13 +97,14 @@ MemoryPool::MemoryPool(const InitMemoryPoolInfo &initInfo, const std::string &re
 ,_monitorPrintDelg(NULL)
 ,_reason(reason)
 ,_threadId(0)
+,_isThreadLocal(isThreadLocal)
 {
     Init();
 }
 
 MemoryPool *MemoryPool::GetInstance(const InitMemoryPoolInfo &initInfo)
 {
-    static SmartPtr<MemoryPool> pool = new MemoryPool(initInfo);
+    static SmartPtr<MemoryPool> pool = new MemoryPool(false, initInfo);
 
     return pool.AsSelf();
 }
@@ -226,15 +227,8 @@ void *MemoryPool::Realloc(void *ptr, UInt64 bytes)
             ::memcpy(newCache, ptr, block->_realUseBytes);
 
             alloctor->Lock();
-            MemoryAlloctor *otherAlloctor = alloctor->Free(block);
+            alloctor->Free(block);
             alloctor->Unlock();
-            if(UNLIKELY(otherAlloctor))
-            {
-                otherAlloctor->Lock();
-                otherAlloctor->Free(block);
-                otherAlloctor->Unlock();
-            }
-
             return newCache;
         }
 
@@ -271,15 +265,8 @@ void MemoryPool::Free(void *ptr)
     {
         auto alloctor = block->_buffer->_alloctor;
         alloctor->Lock();
-        MemoryAlloctor *otherAlloctor = alloctor->Free(block);
+        alloctor->Free(block);
         alloctor->Unlock();
-
-        if(UNLIKELY(otherAlloctor))
-        {
-            otherAlloctor->Lock();
-            otherAlloctor->Free(block);
-            otherAlloctor->Unlock();
-        }
     }
     else if(--block->_ref == 0)
     {
@@ -366,9 +353,7 @@ void MemoryPool::FreeThreadLocal(void *ptr)
     if(LIKELY(block->_isInAlloctor))
     {
         auto alloctor = block->_buffer->_alloctor;
-        MemoryAlloctor *otherAlloctor = alloctor->Free(block);
-        if(UNLIKELY(otherAlloctor))
-            otherAlloctor->Free(block);
+        alloctor->Free(block);
     }
     else if(--block->_ref == 0)
     {
@@ -378,7 +363,7 @@ void MemoryPool::FreeThreadLocal(void *ptr)
 
 void MemoryPool::_InitMemRange(UInt64 begin, UInt64 end, MemoryAlloctor *alloctor)
 {
-    alloctor->Init();
+    alloctor->Init(_isThreadLocal);
     for (UInt64 i = begin; i <= end; ++i)
         _bytesPosRefAlloctors[i] = alloctor;
 

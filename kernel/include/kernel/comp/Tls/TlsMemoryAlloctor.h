@@ -82,7 +82,7 @@ private:
     {
         // 1.创建alloctor
         auto newAlloctor = new MemAllocType(MemAllocCfgType(allocUnitBytes));
-        newAlloctor->Init(initBlockNumPerBuffer, source);
+        newAlloctor->Init(true, initBlockNumPerBuffer, source);
         // 2.绑定删除器
         auto destructorFunc = [this, newAlloctor]() mutable ->void{
             #if _DEBUG

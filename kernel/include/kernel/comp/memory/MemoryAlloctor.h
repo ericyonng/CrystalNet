@@ -82,8 +82,8 @@ public:
 
     void *Alloc(UInt64 objBytes);
     // TODO:需要解决重复释放的问题,重复释放ref<0 需要asset掉 如果block不属于本分配器但是属于同一线程下其他分配器分配的那么会返回其他分配器Alloctor
-    MemoryAlloctor *Free(void *ptr);
-    MemoryAlloctor *Free(MemoryBlock *block);
+    void Free(void *ptr);
+    void Free(MemoryBlock *block);
     MemoryBlock *GetMemoryBlockBy(void *ptr);
     void AddRef(void *ptr);
     LibString ToString() const;
@@ -91,7 +91,7 @@ public:
     const std::string &GetCreateSource() const;
 
     // 初始化与销毁
-    void Init(UInt64 initBlockNumPerBuffer = MEMORY_BUFFER_BLOCK_INIT, const std::string &source = "");
+    void Init(bool isThreadLocalCreate, UInt64 initBlockNumPerBuffer = MEMORY_BUFFER_BLOCK_INIT, const std::string &source = "");
     void Destroy();
 
     void Lock();
@@ -112,12 +112,15 @@ public:
 
     void ForceMergeBlocks();
 
+    bool IsThreadLocalCreate() const;
+
 private:
     MemoryBuffer *_NewBuffer();
     void _GcBuffer(MemoryBuffer *buffer);
     void _AddToList(MemoryBuffer *&listHead, MemoryBuffer *buffer);
     void _RemoveFromList(MemoryBuffer *&listHead, MemoryBuffer *buffer);
     void _JudgeBufferRecycle(MemoryBuffer *buffer);
+    void _DoFreeBlock(MemoryBlock *block);
 
     void _MergeBlocks();
     void _MergeBlocks(MergeMemoryBufferInfo *memoryBufferInfo);
@@ -141,8 +144,9 @@ protected:
     UInt64 _totalBlockAmount;                    // 内存块总量
     UInt64 _trigerNewBufferWhenAlloc;            // 在分配内存时触发NewBuffer总次数,这个指标比较影响性能,频繁的触发new buffer会导致系统性能下降
     std::string _createSource;                   // 创建alloctor来源
-    UInt64 _threadId;                            // alloctor 所在线程id
+    UInt64 _threadId;                            // alloctor 所在线程id 原则是在哪个线程创建分配器就在哪个线程分配和释放内存
     std::atomic_bool _isInit;
+    bool _isThreadLocalCreate;                  // 分配器是否由thread_local创建
 
     /* 新版本简单实现 原则, 新操作的放到队列头,以便 cache 命中 */
     MemoryBuffer *_activeHead;                  // 活跃队列
@@ -202,15 +206,16 @@ ALWAYS_INLINE void *MemoryAlloctor::Alloc(UInt64 objBytes)
     memoryBuffer->_isInBusy = true;
 
     // 归并内存
-    _MergeBlocks();
+    if(LIKELY(_isThreadLocalCreate))
+        _MergeBlocks();
     
     return ((Byte8 *)block) + _memoryBlockHeadSize;
 }
 
-ALWAYS_INLINE MemoryAlloctor *MemoryAlloctor::Free(void *ptr)
+ALWAYS_INLINE void MemoryAlloctor::Free(void *ptr)
 {
     MemoryBlock *block = GetMemoryBlockBy(ptr);
-    return Free(block);
+    Free(block);
 }
 
 ALWAYS_INLINE MemoryBlock *MemoryAlloctor::GetMemoryBlockBy(void *ptr)
@@ -243,6 +248,7 @@ ALWAYS_INLINE LibString MemoryAlloctor::UsingInfo() const
         << "active buffer num:" << _curActiveBufferNum << ";\n"
         << "trigger new buffer when alloc block num:" << _trigerNewBufferWhenAlloc << ";\n"
         << "need to merge buffer count:" << _bufferToMergeCount.load() << ";\n"
+        << "is thread local create alloctor:" << _isThreadLocalCreate << ";\n"
         ;
         
     return str;
@@ -324,6 +330,11 @@ ALWAYS_INLINE void MemoryAlloctor::ForceMergeBlocks()
     _MergeBlocks();
 }
 
+ALWAYS_INLINE bool MemoryAlloctor::IsThreadLocalCreate() const
+{
+    return _isThreadLocalCreate;
+}
+
 ALWAYS_INLINE MemoryBuffer *MemoryAlloctor::_NewBuffer()
 {
     MemoryBuffer *new_buffer = new MemoryBuffer(this->_blockSizeAfterAlign, this->_curBlockCntPerBuffer, this->_unitBytesToAlloc, this);
@@ -336,7 +347,8 @@ ALWAYS_INLINE MemoryBuffer *MemoryAlloctor::_NewBuffer()
     _totalBlockAmount += new_buffer->_blockCnt;
 
     // 占用总大小
-    _tlsDefaultObj->_alloctorTotalBytes += new_buffer->_bufferSize;
+    if(_isThreadLocalCreate)
+        _tlsDefaultObj->_alloctorTotalBytes += new_buffer->_bufferSize;
 
     ++_curActiveBufferNum;
     return new_buffer;
@@ -347,7 +359,10 @@ ALWAYS_INLINE void MemoryAlloctor::_GcBuffer(MemoryBuffer *buffer)
     // 数据更新
     _totalBytes -= buffer->_bufferSize;
     _totalBlockAmount -= buffer->_blockCnt;
-    _tlsDefaultObj->_alloctorTotalBytes -= buffer->_bufferSize;
+
+    if(_isThreadLocalCreate)
+        _tlsDefaultObj->_alloctorTotalBytes -= buffer->_bufferSize;
+    
     --_curActiveBufferNum;
 
     _gc.push(buffer);
@@ -385,7 +400,7 @@ ALWAYS_INLINE void MemoryAlloctor::_JudgeBufferRecycle(MemoryBuffer *buffer)
     // 空闲buffer 且_notEnableGcFlag为0 或者强制释放buffer时候gc掉
     if(UNLIKELY(buffer->_usedBlockCnt == 0 && 
         ((buffer->_notEnableGcFlag == 0) || 
-        _tlsDefaultObj->_isForceFreeIdleBuffer)))
+        _isThreadLocalCreate && _tlsDefaultObj->_isForceFreeIdleBuffer)))
     {
         if(UNLIKELY(buffer->_isInBusy))
             _RemoveFromList(_busyHead, buffer);
@@ -403,6 +418,23 @@ ALWAYS_INLINE void MemoryAlloctor::_JudgeBufferRecycle(MemoryBuffer *buffer)
         _AddToList(_activeHead, buffer);
         buffer->_isInBusy = false;
     }
+}
+
+ALWAYS_INLINE void MemoryAlloctor::_DoFreeBlock(MemoryBlock *block)
+{
+    // 回收
+    auto buffer = block->_buffer;
+    buffer->FreeBlock(block);
+    
+    --_blockCountInUsed;
+    _bytesInUsed -= _blockSizeAfterAlign;
+
+    // 判断可以回收就丢给gc, 没有判断是否切换忙或者活跃队列
+    _JudgeBufferRecycle(buffer);
+
+    // 合并内存
+    if(LIKELY(_isThreadLocalCreate))
+        _MergeBlocks();
 }
 
 ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks()

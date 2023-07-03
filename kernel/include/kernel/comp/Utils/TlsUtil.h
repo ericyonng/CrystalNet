@@ -40,6 +40,7 @@
 #include <kernel/comp/Tls/Tls.h>
 #include <kernel/comp/memory/MemoryPool.h>
 #include <kernel/comp/Utils/AllocUtil.h>
+#include <kernel/comp/Utils/SystemUtil.h>
 
 KERNEL_BEGIN
 
@@ -55,6 +56,8 @@ public:
     static TlsStack<TlsStackSize::SIZE_1MB> *GetTlsStack(bool forceCreate = true); 
     static TlsDefaultObj *GetDefTls();
     static void DestroyTlsStack();
+    static void DestroyTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsTask);
+    static void SetTlsValueNull();
 
     // 获取thread local MemoryAlloc
     template<typename MemAlloctorType, typename MemAloctorCfgType>
@@ -112,6 +115,8 @@ ALWAYS_INLINE TlsStack<TlsStackSize::SIZE_1MB> *TlsUtil::GetTlsStack(bool forceC
         Byte8 *ptr = new Byte8[__MEMORY_ALIGN__(sizeof(TlsStack<TlsStackSize::SIZE_1MB>))];
         tlsStack = AllocUtil::NewByPtrNoConstructorParams<TlsStack<TlsStackSize::SIZE_1MB>>(ptr) ;
 
+        tlsStack->SetThreadId(SystemUtil::GetCurrentThreadId());
+
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         (void)pthread_setspecific(handle, tlsStack);
 #else
@@ -137,18 +142,31 @@ inline void TlsUtil::DestroyTlsStack()
         return;
     }
 
+    DestroyTlsStack(tlsStack);
+}
+
+inline void TlsUtil::DestroyTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
+{
     tlsStack->FreeAll();
-    Byte8 *ptr = reinterpret_cast<Byte8 *>(tlsStack);
-    CRYSTAL_DELETE_SAFE(ptr);
     // memPool->Free(tlsStack);
 
     // 设置null
+    if(tlsStack->GetThreadId() == SystemUtil::GetCurrentThreadId())
+        SetTlsValueNull();
+
+    Byte8 *ptr = reinterpret_cast<Byte8 *>(tlsStack);
+    CRYSTAL_DELETE_SAFE(ptr);
+}
+
+inline void TlsUtil::SetTlsValueNull()
+{
+    // 设置null
     auto &handle = GetUtileTlsHandle();
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-        (void)pthread_setspecific(handle, NULL);
-#else
-        (void)::TlsSetValue(handle, NULL);
-#endif
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+            (void)pthread_setspecific(handle, NULL);
+    #else
+            (void)::TlsSetValue(handle, NULL);
+    #endif
 }
 
 template<typename MemAlloctorType, typename MemAloctorCfgType>

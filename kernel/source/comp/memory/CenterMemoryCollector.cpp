@@ -119,6 +119,13 @@ void CenterMemoryCollector::WaitClose()
     g_Log->Info(LOGFMT_OBJ_TAG("center memory is closed current thread id:%llu..."), threadId);
 }
 
+void CenterMemoryCollector::OnThreadQuit(UInt64 threadId)
+{
+    auto threadInfo = GetThreadInfo(threadId);
+    if(LIKELY(threadInfo))
+        threadInfo->OnThreadWillQuit();
+}
+
 void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
 {
     if(UNLIKELY(_isDestroy))
@@ -128,7 +135,7 @@ void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStac
     auto iter = _threadIdRefThreadInfo.find(threadId);
     if(iter == _threadIdRefThreadInfo.end())
     {
-        auto newInfo = new CenterMemoryThreadInfo(threadId);
+        auto newInfo = new CenterMemoryThreadInfo(threadId, this);
         newInfo->SetTlsStack(tlsStack);
 
         _threadIdRefThreadInfo.insert(std::make_pair(threadId, newInfo));
@@ -238,6 +245,8 @@ void CenterMemoryCollector::_OnWorker(LibThread *thread)
 
     _DoWorker();
 
+    _OnThreadDown();
+
     _isWorking = false;
 }
 
@@ -296,4 +305,14 @@ void CenterMemoryCollector::_DoWorker()
     }
 }
 
+void CenterMemoryCollector::_OnThreadDown()
+{
+    for(auto iter : _threadIdRefThreadInfo)
+        iter.second->OnCollectorThreadDown();
+}
+
+UInt64 CenterMemoryCollector::GetWorkerThreadId() const
+{
+    return _worker ? _worker->GetTheadId() : 0;
+}
 KERNEL_END

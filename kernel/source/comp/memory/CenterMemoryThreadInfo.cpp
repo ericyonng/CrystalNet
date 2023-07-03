@@ -32,23 +32,26 @@
 #include <kernel/comp/memory/MergeMemoryBufferInfo.h>
 #include <kernel/comp/memory/CenterMemoryProfileInfo.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/comp/memory/CenterMemoryCollector.h>
 
 KERNEL_BEGIN
 
-CenterMemoryThreadInfo::CenterMemoryThreadInfo(UInt64 threadId)
+CenterMemoryThreadInfo::CenterMemoryThreadInfo(UInt64 threadId, CenterMemoryCollector *collector)
 :_threadId(threadId)
+,_collector(collector)
 ,_head(NULL)
 ,_headSwap(NULL)
 ,_pendingBlockCount{0}
 ,_historyBlockCount{0}
 ,_tlsStack(NULL)
+,_isQuit{false}
 {
 
 }
 
 CenterMemoryThreadInfo::~CenterMemoryThreadInfo()
 {
-    ContainerUtil::DelContainer(_memoryAlloctorRefBlockCount);
+
 }
 
 LibString CenterMemoryThreadInfo::ToString() const
@@ -88,7 +91,7 @@ UInt64 CenterMemoryThreadInfo::MergeBlocks()
     _pendingBlockCount = 0;
     _lck.Unlock();
 
-
+    // 丢进来的memoryalloctor 需要按照线程区分并丢给对应的线程TODO:
     std::map<MemoryAlloctor *, UInt64> profileCache;
     for(;_head;)
     {
@@ -96,67 +99,37 @@ UInt64 CenterMemoryThreadInfo::MergeBlocks()
         _head = _head->_next;
 
         auto alloctor = memoryBlock->_buffer->_alloctor;
-        CenterMemoryProfileInfo *profileInfo = NULL;
-        auto iter = _memroyAlloctorRefInfo.find(alloctor);
-        if(iter == _memroyAlloctorRefInfo.end())
+
+        if(!alloctor->IsThreadLocalCreate())
         {
-            iter = _memroyAlloctorRefInfo.insert(std::make_pair(alloctor, MergeMemoryAlloctorInfo())).first;
-            auto &info = iter->second;
-            info._alloctorCreateThreadId = alloctor->GetOwnerThreadId();
-            info._head = NULL;
-            info._tail = NULL;
-            info._count = 0;
-
-        }
-        auto &info = iter->second;
-
-        // 性能信息
-        auto iterProfile = profileCache.find(alloctor);
-        if(iterProfile == profileCache.end())
-            iterProfile = profileCache.insert(std::make_pair(alloctor, 0)).first;
-
-        iterProfile->second += 1;
-
-        // buffer链表
-        auto iterBufferInfo = info._memoryBufferRefMergeInfo.find(memoryBlock->_buffer);
-        if(iterBufferInfo == info._memoryBufferRefMergeInfo.end())
-        {
-            auto newBufferInfo = new MergeMemoryBufferInfo;
-            newBufferInfo->_buffer = memoryBlock->_buffer;
-
-            if(info._head == NULL)
-                info._tail = newBufferInfo;
-
-            newBufferInfo->_next = info._head;
-            info._head = newBufferInfo;
-            info._count += 1;
-            iterBufferInfo = info._memoryBufferRefMergeInfo.insert(std::make_pair(memoryBlock->_buffer, newBufferInfo)).first;
+            alloctor->Lock();
+            alloctor->Free(memoryBlock);
+            alloctor->Unlock();
+            continue;
         }
 
-        auto newBufferInfo = iterBufferInfo->second;
-
-        // 设置链表尾
-        if(newBufferInfo->_head == NULL)
-            newBufferInfo->_tail = memoryBlock;
-
-        // 更新链表头
-        memoryBlock->_next = newBufferInfo->_head;
-        newBufferInfo->_head = memoryBlock;
-
-        // 更新数量
-        newBufferInfo->_count += 1;
+        if(alloctor->GetOwnerThreadId() != _threadId)
+        {
+            auto threadInfo = _collector->GetThreadInfo(alloctor->GetOwnerThreadId());
+            threadInfo->_MergeBlocks(alloctor, memoryBlock, profileCache);
+        }
+        else
+        {
+            _MergeBlocks(alloctor, memoryBlock, profileCache);
+        }
     }
 
     for(auto iter = profileCache.begin(); iter != profileCache.end();)
     {
-        _profileLck.Lock();
-        auto iterProfile = _memoryAlloctorRefBlockCount.find(iter->first);
-        if(iterProfile == _memoryAlloctorRefBlockCount.end())
-            iterProfile = _memoryAlloctorRefBlockCount.insert(std::make_pair(iter->first, new CenterMemoryProfileInfo)).first;
-
-        iterProfile->second->_historyBlockCount += iter->second;
-        iterProfile->second->_currentPendingCount += iter->second;
-        _profileLck.Unlock();
+        if(iter->first->GetOwnerThreadId() != _threadId)
+        {
+            auto threadInfo = _collector->GetThreadInfo(iter->first->GetOwnerThreadId());
+            threadInfo->_MergeProfileInfo(iter->first, iter->second);
+        }
+        else
+        {
+            _MergeProfileInfo(iter->first, iter->second);
+        }
 
         iter = profileCache.erase(iter);
     }
@@ -183,5 +156,96 @@ void CenterMemoryThreadInfo::MergeToAlloctor()
         _profileLck.Unlock();
     }
 }
+
+void CenterMemoryThreadInfo::OnThreadWillQuit()
+{
+    _isQuit = true;
+
+    // tls资源由CenterCollector释放
+}
+
+void CenterMemoryThreadInfo::OnCollectorThreadDown()
+{
+    _Clear();
+}
+
+void CenterMemoryThreadInfo::_Clear()
+{
+    _profileLck.Lock();
+    ContainerUtil::DelContainer(_memoryAlloctorRefBlockCount);
+    _profileLck.Unlock();
+
+    // 不是收集器所在线程的tls都清理掉
+    if(_collector->GetWorkerThreadId() != _threadId)
+        TlsUtil::DestroyTlsStack(_tlsStack);
+
+    _tlsStack = NULL;
+}
+
+void CenterMemoryThreadInfo::_MergeBlocks(MemoryAlloctor *alloctor, MemoryBlock *memoryBlock, std::map<MemoryAlloctor *, UInt64> &profileCache)
+{
+    auto iter = _memroyAlloctorRefInfo.find(alloctor);
+    if(iter == _memroyAlloctorRefInfo.end())
+    {
+        iter = _memroyAlloctorRefInfo.insert(std::make_pair(alloctor, MergeMemoryAlloctorInfo())).first;
+        auto &info = iter->second;
+        info._alloctorCreateThreadId = alloctor->GetOwnerThreadId();
+        info._head = NULL;
+        info._tail = NULL;
+        info._count = 0;
+
+    }
+    auto &info = iter->second;
+
+    // 性能信息
+    auto iterProfile = profileCache.find(alloctor);
+    if(iterProfile == profileCache.end())
+        iterProfile = profileCache.insert(std::make_pair(alloctor, 0)).first;
+
+    iterProfile->second += 1;
+
+    // buffer链表
+    auto iterBufferInfo = info._memoryBufferRefMergeInfo.find(memoryBlock->_buffer);
+    if(iterBufferInfo == info._memoryBufferRefMergeInfo.end())
+    {
+        auto newBufferInfo = new MergeMemoryBufferInfo;
+        newBufferInfo->_buffer = memoryBlock->_buffer;
+
+        if(info._head == NULL)
+            info._tail = newBufferInfo;
+
+        newBufferInfo->_next = info._head;
+        info._head = newBufferInfo;
+        info._count += 1;
+        iterBufferInfo = info._memoryBufferRefMergeInfo.insert(std::make_pair(memoryBlock->_buffer, newBufferInfo)).first;
+    }
+
+    auto newBufferInfo = iterBufferInfo->second;
+
+    // 设置链表尾
+    if(newBufferInfo->_head == NULL)
+        newBufferInfo->_tail = memoryBlock;
+
+    // 更新链表头
+    memoryBlock->_next = newBufferInfo->_head;
+    newBufferInfo->_head = memoryBlock;
+
+    // 更新数量
+    newBufferInfo->_count += 1;
+}
+
+void CenterMemoryThreadInfo::_MergeProfileInfo(MemoryAlloctor *alloctor, UInt64 addCount)
+{
+    _profileLck.Lock();
+    auto iterProfile = _memoryAlloctorRefBlockCount.find(alloctor);
+    if(iterProfile == _memoryAlloctorRefBlockCount.end())
+        iterProfile = _memoryAlloctorRefBlockCount.insert(std::make_pair(alloctor, new CenterMemoryProfileInfo)).first;
+
+    iterProfile->second->_historyBlockCount += addCount;
+    iterProfile->second->_currentPendingCount += addCount;
+    _profileLck.Unlock();
+}
+
+
 
 KERNEL_END

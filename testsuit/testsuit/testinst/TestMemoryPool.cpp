@@ -77,7 +77,7 @@
 
 void TestMemoryPool::Run()
 {
-    auto memoryPool = new KERNEL_NS::MemoryPool(KERNEL_NS::InitMemoryPoolInfo(1));
+    auto memoryPool = new KERNEL_NS::MemoryPool(true, KERNEL_NS::InitMemoryPoolInfo(1));
     memoryPool->Init();
 
     // {// 无锁测试分配 常规条件下，系统性能是内存池的1.41倍(默认没有创建memory buffer)

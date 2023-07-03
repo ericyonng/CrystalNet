@@ -61,8 +61,19 @@ void ThreadTool::OnDestroy()
 {
     // 得等收集器关闭
     auto centerMemroyCollector = CenterMemoryCollector::GetInstance();
-    centerMemroyCollector->WaitClose();
+    if(centerMemroyCollector->GetWorkerThreadId() != SystemUtil::GetCurrentThreadId())
+        centerMemroyCollector->OnThreadQuit(SystemUtil::GetCurrentThreadId());
 
+    // tls 资源清理
+    TlsUtil::ClearTlsResource();
+
+    // 释放线程局部存储资源
+    if(centerMemroyCollector->GetWorkerThreadId() == SystemUtil::GetCurrentThreadId())
+        TlsUtil::DestroyTlsStack();
+}
+
+void ThreadTool::Destroy(TlsStack<TlsStackSize::SIZE_1MB> *tlsTask)
+{
     // tls 资源清理
     TlsUtil::ClearTlsResource();
 

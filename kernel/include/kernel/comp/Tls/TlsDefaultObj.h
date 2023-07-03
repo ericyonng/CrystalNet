@@ -73,7 +73,7 @@ public:
     // 雪花算法信息 TODO:tlsutil给一个接口方便获取uid
     // SnowflakeInfo _snowFlakeInfo;
 
-    // 跨线程读写
+    // 跨线程读写 以下MemoryAlloctor必须都是threadlocal的,且是本线程创建的,否则将引发问题
     // 用于跨线程下内存合并,如果有需要合并则放到这上面, 合并完成后从中移除
     SpinLock _lck;
     // 脏队列

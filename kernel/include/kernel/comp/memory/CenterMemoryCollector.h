@@ -63,10 +63,12 @@ public:
     void WillClose();
     void Close();
     void WaitClose();
+    void OnThreadQuit(UInt64 threadId);
 
-    // 每个线程都需要注册到收集器
+    // 每个线程都需要注册到收集器 tlsStack在Collector释放
     void RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStackSize::SIZE_1MB> *tlsStack);
 
+    // TODO:需要区分threadlocal和分threadlocal block, threadlocal需要流转到对应线程合并, 非threadlocal的上锁并调用Free接口
     // 要释放的内存块 只有当Collector结束的时候才会失败, 此时系统已经正在清理, 不需要归还block
     void PushBlock(UInt64 freeThreadId, MemoryBlock *block);
 
@@ -90,9 +92,14 @@ public:
 
     LibString ToString() const;
 
+    UInt64 GetWorkerThreadId() const;
+
+    CenterMemoryThreadInfo *GetThreadInfo(UInt64 threadId);
+
 private:
     void _OnWorker(LibThread *thread);
     void _DoWorker();
+    void _OnThreadDown();
 
 private:
     std::atomic_bool _isDestroy;
@@ -149,6 +156,12 @@ ALWAYS_INLINE void CenterMemoryCollector::SetRecycleForPurgeLimit(UInt64 recycle
 ALWAYS_INLINE void CenterMemoryCollector::SetAllThreadMemoryAllocUpperLimit(UInt64 bytes)
 {
     _allThreadMemoryAllocUpperLimit = bytes;
+}
+
+ALWAYS_INLINE CenterMemoryThreadInfo *CenterMemoryCollector::GetThreadInfo(UInt64 threadId)
+{
+    auto iter = _threadIdRefThreadInfo.find(threadId);
+    return iter == _threadIdRefThreadInfo.end() ? NULL : iter->second;
 }
 
 KERNEL_END

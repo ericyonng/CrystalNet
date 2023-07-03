@@ -215,7 +215,7 @@ public:                                                                         
 
 #undef __OBJ_POOL_CREATE_TEMPLATE_IMPL
 #define __OBJ_POOL_CREATE_TEMPLATE_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjTypeNoTempArgs, ...)                                                                            \
-KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *ObjTypeNoTempArgs< __VA_ARGS__ >::_static##ObjTypeNoTempArgs##Alloctor = new KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>(initBlockNumPerBuffer                      \
+KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *ObjTypeNoTempArgs< __VA_ARGS__ >::_static##ObjTypeNoTempArgs##Alloctor = new KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>(false, initBlockNumPerBuffer                      \
             , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit))
 
 #undef __OBJ_POOL_CREATE_TEMPLATE_TL_IMPL

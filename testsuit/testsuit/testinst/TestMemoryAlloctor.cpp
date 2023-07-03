@@ -50,7 +50,7 @@ void TestMemoryAlloctor::Run()
     // 保证不处罚new buffer情况
     KERNEL_NS::MemoryAlloctorConfig cfg(TEST_ALLOC_UNIT_BYTES, 36);
     KERNEL_NS::MemoryAlloctor alloctor(cfg);
-    alloctor.Init(40960);
+    alloctor.Init(false, 40960);
 
     // 测试gc
     // KERNEL_NS::MemoryAlloctorConfig cfg(TEST_ALLOC_UNIT_BYTES, 1);

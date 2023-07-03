@@ -55,6 +55,7 @@ MemoryAlloctor::MemoryAlloctor(const MemoryAlloctorConfig &config)
 ,_trigerNewBufferWhenAlloc(0)
 ,_threadId(0)
 ,_isInit{false}
+,_isThreadLocalCreate(false)
 
 , _activeHead(NULL)
 , _busyHead(0)
@@ -74,7 +75,7 @@ MemoryAlloctor::~MemoryAlloctor()
     Destroy();
 }
 
-MemoryAlloctor *MemoryAlloctor::Free(MemoryBlock *block)
+void MemoryAlloctor::Free(MemoryBlock *block)
 {
     // 引用计数 TODO:重复释放ref为小于0
     if(UNLIKELY(block->_ref == 0))
@@ -86,7 +87,7 @@ MemoryAlloctor *MemoryAlloctor::Free(MemoryBlock *block)
 
     // 引用计数
     if(UNLIKELY(--block->_ref > 0))
-        return NULL;
+        return;
 
     // 判断是不是属于当前分配器
     if(UNLIKELY(!CheckOwner(block)))
@@ -95,45 +96,30 @@ MemoryAlloctor *MemoryAlloctor::Free(MemoryBlock *block)
         MemoryAlloctor *bufferAlloctor = buffer ? buffer->_alloctor : NULL;
         if(LIKELY(bufferAlloctor))
         {
-            // 同一个线程直接调用分配器释放
-            if(bufferAlloctor->_threadId == _threadId)
+            // 只有都是threadlocal且同一个线程下才能直接处理,其他情况都丢给中央收集器
+            if(_isThreadLocalCreate && bufferAlloctor->_isThreadLocalCreate && (bufferAlloctor->_threadId == _threadId))
             {
-                // 由外部进行再次释放
-                ++block->_ref;
-                return bufferAlloctor;
+                // 直接释放
+                bufferAlloctor->_DoFreeBlock(block);
+                return;
             }
-            else
-            {// 不同线程需要丢给中央收集器 TODO
-                _centerMemroyCollector->PushBlock(SystemUtil::GetCurrentThreadId(), block);
-                return NULL;
-            }
+
+            // 当前free操作调用线程独占所以之和中央收集器会有锁冲突,丢给中央收集器处理后续的操作
+            _centerMemroyCollector->PushBlock(SystemUtil::GetCurrentThreadId(), block);
+            return;
         }
         
         g_Log->Error(LOGFMT_OBJ_TAG("check owner fail not in any alloctor, free a error block:%p, not belong to this alloctor:%p, current alloctor info:\n %s,\n block owner buffer:%p, buffer owner alloctor:%p, buffer owner alloctor info:%s, \n backtrace:%s")
                                 , block, this, ToString().c_str(), buffer, bufferAlloctor, bufferAlloctor? bufferAlloctor->ToString().c_str() : "", BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
         
         throw std::logic_error("free block error not in any alloctor");
-        return NULL;
+        return;
     }
 
-    auto buffer = block->_buffer;
-
-    // 回收
-    buffer->FreeBlock(block);
-    
-    --_blockCountInUsed;
-    _bytesInUsed -= _blockSizeAfterAlign;
-
-    // 判断可以回收就丢给gc, 没有判断是否切换忙或者活跃队列
-    _JudgeBufferRecycle(buffer);
-
-    // 合并内存
-    _MergeBlocks();
-
-    return NULL;
+    _DoFreeBlock(block);
 }
 
-void MemoryAlloctor::Init(UInt64 initBlockNumPerBuffer, const std::string &source)
+void MemoryAlloctor::Init(bool isThreadLocalCreate, UInt64 initBlockNumPerBuffer, const std::string &source)
 {
     if(_isInit.exchange(true))
         return;
@@ -146,6 +132,7 @@ void MemoryAlloctor::Init(UInt64 initBlockNumPerBuffer, const std::string &sourc
         _curBlockCntPerBuffer = MEMORY_BUFFER_BLOCK_INIT;
 
     _initMinBlockCntPerBuffer = _curBlockCntPerBuffer;
+    _isThreadLocalCreate = isThreadLocalCreate;
 
     // 初始内存块数量
     for(UInt64 idx = 0; idx < _initMemoryBufferNum; ++idx)
@@ -162,7 +149,8 @@ void MemoryAlloctor::Destroy()
     if(!_isInit.exchange(false))
         return;
     
-    _MergeBlocks();
+    if(_isThreadLocalCreate)
+        _MergeBlocks();
 
     _lck.Lock();
     MemoryBuffer *head = _activeHead;

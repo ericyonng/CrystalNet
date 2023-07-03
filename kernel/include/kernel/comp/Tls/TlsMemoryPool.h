@@ -66,7 +66,7 @@ public:
         }
 
         // 1.创建alloctor
-        auto newPool = new MemoryPoolType(InitMemoryPoolInfoType(), source);
+        auto newPool = new MemoryPoolType(true, InitMemoryPoolInfoType(), source);
         Int32 st = static_cast<Int32>(newPool->Init());
         if(st != Status::Success)
         {

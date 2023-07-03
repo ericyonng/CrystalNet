@@ -32,6 +32,7 @@
 #pragma once
 
 #include <kernel/kernel_inc.h>
+#include <kernel/comp/Tls/TlsStack.h>
 
 KERNEL_BEGIN
 
@@ -43,6 +44,7 @@ class KERNEL_EXPORT ThreadTool
 public:
     static void OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId, const Byte8 *tlsMemPoolReason);
     static void OnDestroy();
+    static void Destroy(TlsStack<TlsStackSize::SIZE_1MB> *tlsTask);
 };
 
 KERNEL_END

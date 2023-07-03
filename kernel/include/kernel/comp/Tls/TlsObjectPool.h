@@ -58,7 +58,7 @@ public:
     ObjPoolType *GetPool(UInt64 initBlockNumPerBuffer, const MemoryAllocCfg &alloctorCfg)
     {
         if(UNLIKELY(!_pool))
-            _pool = new ObjPoolType(initBlockNumPerBuffer, alloctorCfg);
+            _pool = new ObjPoolType(true, initBlockNumPerBuffer, alloctorCfg);
 
         return _pool;
     }

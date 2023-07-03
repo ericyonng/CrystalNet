@@ -213,7 +213,7 @@ public:                                                                         
 
 #undef __OBJ_POOL_CREATE_IMPL
 #define __OBJ_POOL_CREATE_IMPL(ObjType, createBufferNumWhenInit, initBlockNumPerBuffer)                                             \
-KERNEL_NS::ObjAlloctor<ObjType> *ObjType::_static##ObjType##Alloctor = new KERNEL_NS::ObjAlloctor<ObjType>(initBlockNumPerBuffer    \
+KERNEL_NS::ObjAlloctor<ObjType> *ObjType::_static##ObjType##Alloctor = new KERNEL_NS::ObjAlloctor<ObjType>(false, initBlockNumPerBuffer    \
             , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));                                           \
 DEF_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjType> *ObjType::_staticThreadLocal##ObjType##Alloctor = NULL
 

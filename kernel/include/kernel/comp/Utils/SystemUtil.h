@@ -174,10 +174,15 @@ inline UInt64 SystemUtil::GetCurrentThreadId()
 
 inline Int32 SystemUtil::GetCurProcessId()
 {
+    static Int32 s_pid = 0;
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    return ::_getpid();
+    if(s_pid == 0)
+        s_pid =  static_cast<Int32>(::_getpid());
+    return s_pid;
 #else
-    return ::getpid();
+    if(s_pid == 0)
+        s_pid = static_cast<Int32>(::getpid());
+    return s_pid;
 #endif
 }
 

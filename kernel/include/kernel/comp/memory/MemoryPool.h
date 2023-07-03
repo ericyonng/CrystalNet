@@ -81,7 +81,7 @@ private:
 class KERNEL_EXPORT MemoryPool
 {
 public:
-    MemoryPool(const InitMemoryPoolInfo &initInfo = InitMemoryPoolInfo(), const std::string &reason = "");
+    MemoryPool(bool isThreadLocal, const InitMemoryPoolInfo &initInfo = InitMemoryPoolInfo(), const std::string &reason = "");
     virtual ~MemoryPool();
 
 public:
@@ -152,6 +152,7 @@ private:
     IDelegate<UInt64, LibString &> *_monitorPrintDelg;                // 内存池日志回调
     const std::string _reason;
     UInt64 _threadId;
+    bool _isThreadLocal;                                            // 是否是thread_local创建
 };
 
 ALWAYS_INLINE MemoryPool::~MemoryPool()

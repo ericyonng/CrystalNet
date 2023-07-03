@@ -43,6 +43,7 @@ class MemoryAlloctor;
 struct MergeMemoryBufferInfo;
 class MemoryBuffer;
 struct CenterMemoryProfileInfo;
+class CenterMemoryCollector;
 
 struct KERNEL_EXPORT MergeMemoryAlloctorInfo
 {
@@ -58,7 +59,7 @@ struct KERNEL_EXPORT MergeMemoryAlloctorInfo
 class KERNEL_EXPORT CenterMemoryThreadInfo
 {
 public:
-    CenterMemoryThreadInfo(UInt64 threadId);
+    CenterMemoryThreadInfo(UInt64 threadId, CenterMemoryCollector *collector);
     ~CenterMemoryThreadInfo();
 
     LibString ToString() const;
@@ -78,14 +79,30 @@ public:
     // 是否清空了
     bool IsEmpty() const;
 
+    // 线程是否退出
+    bool IsQuit() const;
+
     // 设置线程当前线程的tlsstack
     void SetTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack);
 
     // 当前线程分配内存字节数
     UInt64 GetAllocBytes() const;
 
+    // 线程退出
+    void OnThreadWillQuit();
+
+    // 收集器线程退出
+    void OnCollectorThreadDown();
+
+private:
+    void _Clear();
+
+    void _MergeBlocks(MemoryAlloctor *alloctor, MemoryBlock *memoryBlock, std::map<MemoryAlloctor *, UInt64> &profileCache);
+    void _MergeProfileInfo(MemoryAlloctor *alloctor, UInt64 addCount);
+
 private:
     const UInt64 _threadId;
+    CenterMemoryCollector *_collector;
 
     // 交换区
     SpinLock _lck;                              // 线程安全
@@ -103,6 +120,9 @@ private:
 
     // 当前线程的tlsstack
     TlsStack<TlsStackSize::SIZE_1MB> *_tlsStack;
+
+    // 线程退出
+    std::atomic_bool _isQuit;
 };
 
 ALWAYS_INLINE void CenterMemoryThreadInfo::PushBlock(MemoryBlock *block)
@@ -126,6 +146,11 @@ ALWAYS_INLINE bool CenterMemoryThreadInfo::IsEmpty() const
     auto ret = _pendingBlockCount == 0;
 
     return ret || _memroyAlloctorRefInfo.empty();
+}
+
+ALWAYS_INLINE bool CenterMemoryThreadInfo::IsQuit() const
+{
+    return _isQuit;
 }
 
 ALWAYS_INLINE void CenterMemoryThreadInfo::SetTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)

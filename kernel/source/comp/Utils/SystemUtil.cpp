@@ -327,28 +327,36 @@ Int32 SystemUtil::SendCloseMsgToProcess(UInt64 processId, ULong *lastError)
 UInt64 SystemUtil::GetMainThreadId(UInt64 processId)
 {
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    // 获取进程的主线程ID
-    THREADENTRY32 te;       // 线程信息
-    te.dwSize = sizeof(THREADENTRY32);
-    auto hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0); // 系统所有线程快照
-    if(!hSnapshot)
-        return 0;
-
-    UInt64 threadId = 0;
-    if(Thread32First(hSnapshot, &te))       // 第一个线程
+    static UInt64 s_mainThreadId = 0;
+    if(UNLIKELY(s_mainThreadId == 0))
     {
         do
         {
-            if(processId == te.th32OwnerProcessID)      // 认为找到的第一个该进程的线程为主线程
-            {
-                threadId = (UInt64)te.th32ThreadID;
+            // 获取进程的主线程ID
+            THREADENTRY32 te;       // 线程信息
+            te.dwSize = sizeof(THREADENTRY32);
+            auto hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0); // 系统所有线程快照
+            if(!hSnapshot)
                 break;
+
+            if(Thread32First(hSnapshot, &te))       // 第一个线程
+            {
+                do
+                {
+                    if(processId == te.th32OwnerProcessID)      // 认为找到的第一个该进程的线程为主线程
+                    {
+                        s_mainThreadId = (UInt64)te.th32ThreadID;
+                        break;
+                    }
+                }while(Thread32Next(hSnapshot, &te));           // 下一个线程
             }
-        }while(Thread32Next(hSnapshot, &te));           // 下一个线程
+
+            CloseHandle(hSnapshot); // 删除快照
+        } while (false);
+        
     }
 
-    CloseHandle(hSnapshot); // 删除快照
-    return threadId;
+    return s_mainThreadId;
     #else
         return processId;
     #endif

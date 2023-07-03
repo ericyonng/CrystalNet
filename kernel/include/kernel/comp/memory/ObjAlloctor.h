@@ -52,7 +52,7 @@ public:
     AgainstTemplateLazyInit _againstLazy = 0;
 
 public:
-    ObjAlloctor(UInt64 initBlockNumPerBuffer = MEMORY_BUFFER_BLOCK_INIT, const MemoryAlloctorConfig &alloctorCfg = MemoryAlloctorConfig(sizeof(ObjType)));
+    ObjAlloctor(bool isThreadLocal, UInt64 initBlockNumPerBuffer = MEMORY_BUFFER_BLOCK_INIT, const MemoryAlloctorConfig &alloctorCfg = MemoryAlloctorConfig(sizeof(ObjType)));
     virtual ~ObjAlloctor();
     virtual void Release();
 
@@ -127,18 +127,20 @@ protected:
     const UInt64 _objSize;
     MemoryAlloctor _alloctor;
     IDelegate<UInt64, LibString &> *_objPoolPrintDelg;
+    bool _isThreadLocal;
 };
 
 
 template<typename ObjType>
-ALWAYS_INLINE ObjAlloctor<ObjType>::ObjAlloctor(UInt64 initBlockNumPerBuffer, const MemoryAlloctorConfig &alloctorCfg)
+ALWAYS_INLINE ObjAlloctor<ObjType>::ObjAlloctor(bool isThreadLocal, UInt64 initBlockNumPerBuffer, const MemoryAlloctorConfig &alloctorCfg)
     :_threadId(KernelGetCurrentThreadId())
     ,_name(RttiUtil::GetByType<ObjType>())
     ,_objSize(sizeof(ObjType))
     ,_alloctor(alloctorCfg)
     ,_objPoolPrintDelg(NULL)
+    ,_isThreadLocal(isThreadLocal)
 {
-    _alloctor.Init(initBlockNumPerBuffer, RttiUtil::GetByType<ObjType>());
+    _alloctor.Init(_isThreadLocal, initBlockNumPerBuffer, RttiUtil::GetByType<ObjType>());
 
     auto staticstics = MemoryMonitor::GetStatistics();
     _objPoolPrintDelg = DelegateFactory::Create<ObjAlloctor<ObjType>, UInt64, LibString &>(this, &ObjAlloctor<ObjType>::ToMonitor);
@@ -215,15 +217,8 @@ ALWAYS_INLINE void ObjAlloctor<ObjType>::Delete(ObjType *ptr)
     }
 
     _alloctor.Lock();
-    MemoryAlloctor *otherAlloctor = _alloctor.Free(memoryBlock);
+    _alloctor.Free(memoryBlock);
     _alloctor.Unlock();
-
-    if(UNLIKELY(otherAlloctor))
-    {
-        otherAlloctor->Lock();
-        otherAlloctor->Free(memoryBlock);
-        otherAlloctor->Unlock();
-    }
 }
 
 template<typename ObjType>
@@ -235,15 +230,8 @@ ALWAYS_INLINE void ObjAlloctor<ObjType>::DeleteNoDestructor(void *ptr)
     auto memoryBlock = _alloctor.GetMemoryBlockBy(ptr);
 
     _alloctor.Lock();
-    auto otherAlloctor = _alloctor.Free(memoryBlock);
+    _alloctor.Free(memoryBlock);
     _alloctor.Unlock();
-
-    if(UNLIKELY(otherAlloctor))
-    {
-        otherAlloctor->Lock();
-        otherAlloctor->Free(memoryBlock);
-        otherAlloctor->Unlock();
-    }
 }
 
 template<typename ObjType>
@@ -293,9 +281,7 @@ ALWAYS_INLINE void ObjAlloctor<ObjType>::DeleteThreadLocal(ObjType *ptr)
     //     return;
     // }
 
-    MemoryAlloctor *otherAlloctor = _alloctor.Free(memoryBlock);
-    if(UNLIKELY(otherAlloctor))
-        otherAlloctor->Free(memoryBlock);
+    _alloctor.Free(memoryBlock);
 
     // #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     //     _alloctor.Unlock();
@@ -305,10 +291,7 @@ ALWAYS_INLINE void ObjAlloctor<ObjType>::DeleteThreadLocal(ObjType *ptr)
 template<typename ObjType>
 ALWAYS_INLINE void ObjAlloctor<ObjType>::DeleteNoDestructorThreadLocal(void *ptr)
 {
-    auto memoryBlock = _alloctor.GetMemoryBlockBy(ptr);
-    MemoryAlloctor *otherAlloctor = _alloctor.Free(memoryBlock);
-    if(UNLIKELY(otherAlloctor))
-        otherAlloctor->Free(memoryBlock);
+    _alloctor.Free(_alloctor.GetMemoryBlockBy(ptr));
 }
 
 template<typename ObjType>

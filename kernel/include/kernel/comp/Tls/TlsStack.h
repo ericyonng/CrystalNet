@@ -77,11 +77,15 @@ public:
 
     std::string ToString();
 
+    UInt64 GetThreadId() const;
+    void SetThreadId(UInt64 threadId);
+
 private:
     UInt64 _curUseBytes;                                            // 当前已分配的字节数
     UInt64 _maxIdx;                                                 // 当前分配的对象id最大值
     Byte8 *_objAddr[TlsSizeType/TlsStackSize::SIZE_MIN_UNIT];       // 对象索引_mem指针
     Byte8 _mem[TlsSizeType];                                        // 分配对象的内存空间
+    UInt64 _threadId;                                               // 线程id
     // LogType *_log;
 };
 
@@ -90,6 +94,7 @@ template<TlsStackSize::SizeType TlsSizeType>
 inline TlsStack<TlsSizeType>::TlsStack()
     :_curUseBytes(0)
     ,_maxIdx(0)
+    ,_threadId(0)
 {
     // 第一个为默认对象 tlsstack避免调用自身导致死循环
     _objAddr[0] = reinterpret_cast<Byte8 *>(New<TlsDefaultObj>());
@@ -225,6 +230,18 @@ inline std::string TlsStack<TlsSizeType>::ToString()
     sprintf(info, "this stack addr[%p], real obj mem[%p] cur usebytes[%llu], maxIdx[%llu] TlsSizeType[%llu]", this, _mem, _curUseBytes, _maxIdx, static_cast<UInt64>(TlsSizeType));
 
     return info;
+}
+
+template<TlsStackSize::SizeType TlsSizeType>
+inline UInt64 TlsStack<TlsSizeType>::GetThreadId() const
+{
+    return _threadId;
+}
+
+template<TlsStackSize::SizeType TlsSizeType>
+inline void TlsStack<TlsSizeType>::SetThreadId(UInt64 threadId)
+{
+    _threadId = threadId;
 }
 
 KERNEL_END

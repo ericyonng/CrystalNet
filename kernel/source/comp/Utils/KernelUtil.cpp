@@ -294,7 +294,6 @@ void KernelUtil::Destroy()
     //     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "comp will destroy."));
 
     // 先关闭
-    KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
 
     if (g_MemoryMonitor)
         g_MemoryMonitor->Close();
@@ -313,6 +312,10 @@ void KernelUtil::Destroy()
 
     // 销毁资源
     ThreadTool::OnDestroy();
+
+    // 关闭中央收集器
+    KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
+
     // 关闭内存池全局内存池晚于所有对象销毁
     if(g_MemoryPool)
         g_MemoryPool->Destroy();
@@ -344,17 +347,16 @@ void KernelUtil::OnAbnormalClose()
     CRYSTAL_TRACE("will abnormal close kernel log addr:[%p], log IsStart[%d], memory pool addr:[%p], Statistics addr:[%p]..."
     , g_Log, g_Log && g_Log->IsStart(), g_MemoryPool,  g_MemoryPool ? g_MemoryMonitor->GetStatistics() : NULL);
 
-    // 先关闭
-    KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
+    // if (g_MemoryMonitor)
+    //     g_MemoryMonitor->Close();
 
-    if (g_MemoryMonitor)
-        g_MemoryMonitor->Close();
+    // // 日志关闭
+    // if(LIKELY(g_Log))
+    // {
+    //     g_Log->ForceLogToDiskAll();
+    // }
 
-    // 日志关闭
-    if(LIKELY(g_Log))
-    {
-        g_Log->ForceLogToDiskAll();
-    }
+    KernelUtil::Destroy();
     
     CRYSTAL_TRACE("kernel abnormal close finish.");
 }
