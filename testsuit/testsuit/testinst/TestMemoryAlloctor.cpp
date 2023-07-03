@@ -50,7 +50,7 @@ void TestMemoryAlloctor::Run()
     // 保证不处罚new buffer情况
     KERNEL_NS::MemoryAlloctorConfig cfg(TEST_ALLOC_UNIT_BYTES, 36);
     KERNEL_NS::MemoryAlloctor alloctor(cfg);
-    alloctor.Init(false, 40960);
+    alloctor.Init(true, 40960);
 
     // 测试gc
     // KERNEL_NS::MemoryAlloctorConfig cfg(TEST_ALLOC_UNIT_BYTES, 1);
@@ -173,7 +173,7 @@ void TestMemoryAlloctor::Run()
     // }
 
     {// 无锁条件下同时分配与释放 linux 下 pool 的性能是 system的 5倍左右 这是大部分的情形
-        const Int32 testLoopCount = 100000;
+        const Int32 testLoopCount = 1000000;
         const Int32 testBufferSize = TEST_ALLOC_UNIT_BYTES;
 
         auto poolStart = KERNEL_NS::LibTime::Now();
