@@ -82,7 +82,7 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
         {
             app->SinalFinish(Status::Success);
 
-            while (s_KernelStart)
+            while (KERNEL_NS::s_KernelStart)
             {
                 KERNEL_NS::SystemUtil::ThreadSleep(1000);
                 printf("\nwait kernel destroy finish.\n");
