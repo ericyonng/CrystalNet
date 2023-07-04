@@ -33,6 +33,7 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(PollerEvent);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ActionPollerEvent);
+POOL_CREATE_OBJ_DEFAULT_IMPL(EmptyPollerEvent);
 
 PollerEvent::PollerEvent(Int32 type)
     :_type(type)
