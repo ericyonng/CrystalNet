@@ -511,7 +511,7 @@ void TestMemoryAlloctor::Run()
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
     }
 
-    // 内存分配器:166ns, 系统:168ns intel 4C8G
+    // 内存分配器:alloc:171ns, free:47ns, 系统:alloc:176ns free:81ns intel 4C8G
     {// 
         std::vector<void *> alloctorPtrs;
         std::vector<char *> systemPtrs;
@@ -551,7 +551,7 @@ void TestMemoryAlloctor::Run()
                     , testBufferSize, testLoopCount, (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds(), (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
     }
 
-    // 内存分配器:166ns, 系统:168ns intel 4C8G
+    // 内存分配器:alloc:70ns, free:58ns, 系统:alloc:173ns free:73ns intel 4C8G
     {// 
         std::vector<void *> alloctorPtrs;
         std::vector<char *> systemPtrs;
@@ -598,5 +598,8 @@ void TestMemoryAlloctor::Run()
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 2 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
                     , testBufferSize, testLoopCount, (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds(), (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
     }
+
+    // 结论: 当分配器的Free链表有block时候其分配性能会是系统的2倍由于, 但及时没有Free链表的优化也会比系统性能略好，武罗是有加锁还是没有加锁
+    // 释放性能也是优于系统
 
 }
