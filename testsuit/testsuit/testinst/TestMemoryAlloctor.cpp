@@ -48,7 +48,7 @@ void TestMemoryAlloctor::Run()
 //     alloctor.Init();
 
     // 保证不处罚new buffer情况
-    KERNEL_NS::MemoryAlloctorConfig cfg(TEST_ALLOC_UNIT_BYTES, 1);
+    KERNEL_NS::MemoryAlloctorConfig cfg(TEST_ALLOC_UNIT_BYTES, 2);
     cfg._bufferBlockNumLimit = TEST_BLOCK_NUM_LIMIT;
     KERNEL_NS::MemoryAlloctor alloctor(cfg);
     alloctor.Init(true, TEST_BLOCK_NUM_LIMIT);
@@ -435,6 +435,8 @@ void TestMemoryAlloctor::Run()
 //     alloctor.Destroy();
 //     getchar();
 
+    // 内存分配器:160ns, 系统170ns intel 4C8G
+    if(false)
     {// 
         const Int32 testLoopCount = 1000000;
         const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
@@ -445,7 +447,7 @@ void TestMemoryAlloctor::Run()
 
         auto poolEnd = KERNEL_NS::LibTime::Now();
         
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool free speed blockSize:%llu, test count:%d, pool total cost:%lld, unit cost:%lld")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns")
                     , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), (poolEnd - poolStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
 
         auto sysStart = KERNEL_NS::LibTime::Now();
@@ -453,7 +455,30 @@ void TestMemoryAlloctor::Run()
             new Byte8[testBufferSize];
         auto sysEnd = KERNEL_NS::LibTime::Now();
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system delete speed blockSize:%llu, test count:%d, system malloc total cost:%lld, unit cost:%llu")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system new speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
+                    , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
+    }
+
+    // 内存分配器:?ns, 系统?ns intel 4C8G
+    {// 
+        const Int32 testLoopCount = 1000000;
+        const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
+
+        auto poolStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            alloctor.Free(alloctor.Alloc(testBufferSize));
+
+        auto poolEnd = KERNEL_NS::LibTime::Now();
+        
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool free speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns")
+                    , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), (poolEnd - poolStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
+
+        auto sysStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            delete [](new Byte8[testBufferSize]);
+        auto sysEnd = KERNEL_NS::LibTime::Now();
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system delete speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
     }
 
