@@ -147,10 +147,12 @@ void CompHostObject::_OnClose()
     _CloseComps();
     _OnHostClose();
 
+    g_Log->Debug(LOGFMT_OBJ_TAG("_OnClose CompHostObject will _Clear host:%s..."), _objName.c_str());
+    
     _Clear();
     CompObject::_OnClose();
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("_OnClose CompHostObject suc"));
+    g_Log->Debug(LOGFMT_OBJ_TAG("_OnClose CompHostObject suc host:%s"), _objName.c_str());
 }
 
 void CompHostObject::Clear()
@@ -463,12 +465,18 @@ void CompHostObject::_DestroyWillRegComps()
 void CompHostObject::_DestroyComps()
 {
     ContainerUtil::DelContainer(_comps, [](CompObject *comp){
+        const auto compName = comp->GetObjName();
+        CRYSTAL_TRACE("destroy comp:%s...", compName.c_str());
         comp->Release();
+
+        CRYSTAL_TRACE("destroyed comp:%s", compName.c_str());
     });
 
     _compNameRefComps.clear();
     _icompNameRefComps.clear();
     _compIdRefComp.clear();
+
+    CRYSTAL_TRACE("destroyed comps over of host:%s", _objName.c_str());
 }
 
 void CompHostObject::_AddComp(CompObject *comp)
@@ -644,11 +652,14 @@ void CompHostObject::_Clear()
 //     }
 
     // 释放
+    CRYSTAL_TRACE("will destroy comps host:%s", _objName.c_str());
     _DestroyComps();
+
+    CRYSTAL_TRACE("will destroy reg comps host:%s", _objName.c_str());
     _DestroyWillRegComps();
 
     _focusTypeRefComps.clear();
-    g_Log->Debug(LOGFMT_OBJ_TAG("_Clear CompHostObject"));
+    CRYSTAL_TRACE("_Clear CompHostObject host:%s over", _objName.c_str());
 }
 
 void CompHostObject::_OnUpdateComps()
