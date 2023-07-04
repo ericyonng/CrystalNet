@@ -446,13 +446,13 @@ void TestMemoryAlloctor::Run()
 
         auto poolEnd = KERNEL_NS::LibTime::Now();
         
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns")
-                    , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), (poolEnd - poolStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
-
         auto sysStart = KERNEL_NS::LibTime::Now();
         for(Int32 idx = 0; idx < testLoopCount; ++idx)
             new Byte8[testBufferSize];
         auto sysEnd = KERNEL_NS::LibTime::Now();
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns, alloctor info:%s")
+                    , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), (poolEnd - poolStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
 
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system new speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
@@ -469,13 +469,13 @@ void TestMemoryAlloctor::Run()
 
         auto poolEnd = KERNEL_NS::LibTime::Now();
         
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool free speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns")
-                    , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), (poolEnd - poolStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
-
         auto sysStart = KERNEL_NS::LibTime::Now();
         for(Int32 idx = 0; idx < testLoopCount; ++idx)
             delete [](new Byte8[testBufferSize]);
         auto sysEnd = KERNEL_NS::LibTime::Now();
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool free speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns, alloctor info:%s")
+                    , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), (poolEnd - poolStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
 
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system delete speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
