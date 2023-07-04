@@ -38,6 +38,10 @@ extern "C"
     // 1.段错误捕获
     static void CatchSigHandler(Int32 signalNo)
     {
+        const auto processId = KERNEL_NS::SystemUtil::GetCurProcessId();
+        const auto mainThreadId = KERNEL_NS::SystemUtil::GetMainThreadId(static_cast<UInt64>(processId));
+        const auto currentThreadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
+
         // 1.打印堆栈
         if(LIKELY(g_Log))
         {

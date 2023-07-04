@@ -68,8 +68,11 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
             app->WillClose();
             app->Close();
 
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application closed and will check if not ready..."));
             while (app->IsReady())
                 KERNEL_NS::SystemUtil::ThreadSleep(0);
+
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application is final close all."));
 
             KERNEL_NS::KernelUtil::OnSignalClose();
 
@@ -77,7 +80,15 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
         }
         else
         {
-            KERNEL_NS::KernelUtil::OnAbnormalClose();
+            app->SinalFinish(Status::Success);
+
+            while (s_KernelStart)
+            {
+                KERNEL_NS::SystemUtil::ThreadSleep(1000);
+                printf("\nwait kernel destroy finish.\n");
+            }
+
+            // KERNEL_NS::KernelUtil::OnAbnormalClose();
             printf("\napplication quit finish.\n");
 
         }

@@ -279,6 +279,8 @@ void KernelUtil::Destroy()
         return;
     }
  
+    CRYSTAL_TRACE("kernel will destroy.");
+
     if(LIKELY(g_Log))
     {
         g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "will destroy kernel log addr:[%p], log IsStart[%d], memory pool addr:[%p], Statistics addr:[%p]...")
@@ -294,10 +296,13 @@ void KernelUtil::Destroy()
     //     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "comp will destroy."));
 
     // 先关闭
+    CRYSTAL_TRACE("kernel will close memory monitor.");
 
     if (g_MemoryMonitor)
         g_MemoryMonitor->Close();
     g_MemoryMonitor = NULL;
+
+    CRYSTAL_TRACE("kernel will close log.");
 
     // 日志关闭
     if(LIKELY(g_Log))
@@ -307,14 +312,22 @@ void KernelUtil::Destroy()
     }
     // g_Log = NULL;
     
+    CRYSTAL_TRACE("kernel will close gc.");
+
     // gc停止
     KERNEL_NS::GarbageThread::GetInstence()->Close();
+
+    CRYSTAL_TRACE("kernel will destroy main thread resource.");
 
     // 销毁资源
     ThreadTool::OnDestroy();
 
+    CRYSTAL_TRACE("kernel will close center memory collector.");
+
     // 关闭中央收集器
     KERNEL_NS::CenterMemoryCollector::GetInstance()->WillClose();
+
+    CRYSTAL_TRACE("kernel will destroy memory pool.");
 
     // 关闭内存池全局内存池晚于所有对象销毁
     if(g_MemoryPool)
@@ -323,12 +336,14 @@ void KernelUtil::Destroy()
     // tls销毁
     KERNEL_NS::TlsUtil::DestroyUtilTlsHandle();
 
-    g_KernelInit = false;
-    s_KernelStart = false;
+    CRYSTAL_TRACE("kernel close center memory collector.");
 
     KERNEL_NS::CenterMemoryCollector::GetInstance()->Close();
 
-    // CRYSTAL_TRACE("kernel destroy finish.");
+    g_KernelInit = false;
+    s_KernelStart = false;
+    
+    CRYSTAL_TRACE("kernel destroy finish.");
 }
 
 void KernelUtil::OnSignalClose()
