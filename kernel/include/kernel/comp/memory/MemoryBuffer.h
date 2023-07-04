@@ -71,6 +71,7 @@ public:
     // 没有的再从_head取
     // 若buffer全部被释放那么buffer会被放到Alloctor的空闲区等待被gc
     Byte8                   *_buffer;                       // 内存[DEAD_AREA + MemoryBlockArea]
+    Byte8                   *_currentBufferPos;             // 内存[DEAD_AREA + MemoryBlockArea]
     MemoryBlock             *_head;                         // 内存块头
     MemoryBlock             *_tail;                         // 内存块末尾
     MemoryBlock             *_freeHead;                     // free 链表
@@ -104,6 +105,7 @@ public:
 
 ALWAYS_INLINE MemoryBuffer::MemoryBuffer(UInt64 blockSize, UInt64 blockCnt, UInt64 usableBytesPerBlock, MemoryAlloctor *alloctor)
     :_buffer(NULL)
+    ,_currentBufferPos(NULL)
     ,_head(NULL)
     ,_tail(NULL)
     ,_freeHead(NULL)
@@ -138,6 +140,7 @@ ALWAYS_INLINE void MemoryBuffer::Init()
     // 出于性能考虑使用惰性初始化
     // Byte8 *cache = _buffer;
     _head = reinterpret_cast<MemoryBlock *>(_buffer);
+    _currentBufferPos = _buffer;
     // _head->_ref = 0;
     // _head->_buffer = this;
     // _head->_next = NULL;
@@ -172,7 +175,7 @@ ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
         _notEnableGcFlag <<= _shiftBitNum;
 
     // 优先从释放链表中拿
-    if(_freeHead)
+    if(LIKELY(_freeHead))
     {// 
         MemoryBlock *toAlloc = _freeHead;
         // 说明正在被其他对象引用需要
@@ -195,7 +198,7 @@ ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
     toAlloc->_buffer = this;
     toAlloc->_next = NULL;
     toAlloc->_isInAlloctor = true;
-    _head = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(_head) + _blockSize);
+    _head = reinterpret_cast<MemoryBlock *>(_currentBufferPos += _blockSize);
 
     // return (_head ^ _tail) ? toAlloc : NULL;
     return toAlloc;
