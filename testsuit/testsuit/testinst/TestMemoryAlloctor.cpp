@@ -436,6 +436,7 @@ void TestMemoryAlloctor::Run()
 //     getchar();
 
     // 内存分配器:160ns, 系统170ns intel 4C8G
+    if(false)
     {// 
         const Int32 testLoopCount = 1000000;
         const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
@@ -459,6 +460,7 @@ void TestMemoryAlloctor::Run()
     }
 
     // 内存分配器:12ns, 系统:60ns intel 4C8G
+    if(false)
     {// 
         const Int32 testLoopCount = 1000000;
         const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
@@ -481,7 +483,8 @@ void TestMemoryAlloctor::Run()
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
     }
 
-    // 内存分配器:?ns, 系统:?ns intel 4C8G
+    // 内存分配器:166ns, 系统:168ns intel 4C8G
+    if(false)
     {// 
         const Int32 testLoopCount = 1000000;
         const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
@@ -506,6 +509,94 @@ void TestMemoryAlloctor::Run()
 
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
+    }
+
+    // 内存分配器:166ns, 系统:168ns intel 4C8G
+    {// 
+        std::vector<void *> alloctorPtrs;
+        std::vector<char *> systemPtrs;
+        const Int32 testLoopCount = 1000000;
+        const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
+
+        auto poolStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            alloctorPtrs.push_back(alloctor.Alloc(testBufferSize));
+
+        auto poolEnd = KERNEL_NS::LibTime::Now();
+
+        auto poolFreeStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            alloctor.Free(alloctorPtrs[idx]);
+
+        auto poolFreeEnd = KERNEL_NS::LibTime::Now();
+        
+        auto sysStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            systemPtrs.push_back(new Byte8[testBufferSize]);
+        auto sysEnd = KERNEL_NS::LibTime::Now();
+
+        auto sysFreeStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            delete [](systemPtrs[idx]);
+        auto sysFreeEnd = KERNEL_NS::LibTime::Now();
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 2 speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns, alloctor info:%s")
+                    , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), (poolEnd - poolStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 2 free speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns, alloctor info:%s")
+                    , testBufferSize, testLoopCount, (poolFreeEnd - poolFreeStart).GetTotalNanoSeconds(), (poolFreeEnd - poolFreeStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 2 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
+                    , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 2 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
+                    , testBufferSize, testLoopCount, (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds(), (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
+    }
+
+    // 内存分配器:166ns, 系统:168ns intel 4C8G
+    {// 
+        std::vector<void *> alloctorPtrs;
+        std::vector<char *> systemPtrs;
+        const Int32 testLoopCount = 1000000;
+        const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
+
+        auto poolStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+        {
+            alloctor.Lock();
+            alloctorPtrs.push_back(alloctor.Alloc(testBufferSize));
+            alloctor.Unlock();
+        }
+
+        auto poolEnd = KERNEL_NS::LibTime::Now();
+
+        auto poolFreeStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+        {
+            alloctor.Lock();
+            alloctor.Free(alloctorPtrs[idx]);
+            alloctor.Unlock();
+        }
+
+        auto poolFreeEnd = KERNEL_NS::LibTime::Now();
+        
+        auto sysStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            systemPtrs.push_back(new Byte8[testBufferSize]);
+        auto sysEnd = KERNEL_NS::LibTime::Now();
+
+        auto sysFreeStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            delete [](systemPtrs[idx]);
+        auto sysFreeEnd = KERNEL_NS::LibTime::Now();
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 2 speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns, alloctor info:%s")
+                    , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), (poolEnd - poolStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 2 free speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lld ns, alloctor info:%s")
+                    , testBufferSize, testLoopCount, (poolFreeEnd - poolFreeStart).GetTotalNanoSeconds(), (poolFreeEnd - poolFreeStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 2 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
+                    , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 2 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%llu ns")
+                    , testBufferSize, testLoopCount, (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds(), (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
     }
 
 }
