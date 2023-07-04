@@ -627,6 +627,8 @@ void Poller::_Clear()
             allList.resize(_eventsList->GetMaxLevel() + 1);
             for(Int32 idx = 0; idx < static_cast<Int32>(allList.size()); ++idx)
                 allList[idx] = LibList<PollerEvent *>::New_LibList();
+            
+            g_Log->Info(LOGFMT_OBJ_TAG("event list swap all... %s"), ToString().c_str());
 
             _eventsList->SwapAll(allList);
             for(Int32 idx = 0; idx < static_cast<Int32>(allList.size()); ++idx)
@@ -638,11 +640,19 @@ void Poller::_Clear()
                     node = eventList->Erase(node);
                 }
             }
+
+            g_Log->Info(LOGFMT_OBJ_TAG("event list swap all end... %s"), ToString().c_str());
         }
 
+        g_Log->Info(LOGFMT_OBJ_TAG("event list destroy... %s"), ToString().c_str());
         _eventsList->Destroy();
+
+        g_Log->Info(LOGFMT_OBJ_TAG("event will delete... %s"), ToString().c_str());
+
         ConcurrentPriorityQueue<PollerEvent *>::Delete_ConcurrentPriorityQueue(_eventsList);
         _eventsList = NULL;
+
+        g_Log->Info(LOGFMT_OBJ_TAG("event list deleted... %s"), ToString().c_str());
     }
 
     g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
