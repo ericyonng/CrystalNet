@@ -614,6 +614,8 @@ void Poller::_Clear()
     CRYSTAL_DELETE_SAFE(_onEventWorkerCloseHandler);
     CRYSTAL_DELETE_SAFE(_eventHandler);
 
+    g_Log->Info(LOGFMT_OBJ_TAG("will destroy poller events list %s"), ToString().c_str());
+
     if(LIKELY(_eventsList))
     {
         if(UNLIKELY(_eventsList->GetAmount() != 0))
@@ -642,6 +644,8 @@ void Poller::_Clear()
         ConcurrentPriorityQueue<PollerEvent *>::Delete_ConcurrentPriorityQueue(_eventsList);
         _eventsList = NULL;
     }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
 }
 
 KERNEL_END
