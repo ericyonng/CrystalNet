@@ -65,6 +65,8 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         if (threadId == currentTid)
         {
+            app->SinalFinish(Status::Success);
+
             app->WillClose();
             app->Close();
 
