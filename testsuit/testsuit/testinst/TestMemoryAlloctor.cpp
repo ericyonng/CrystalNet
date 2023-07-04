@@ -436,7 +436,6 @@ void TestMemoryAlloctor::Run()
 //     getchar();
 
     // 内存分配器:160ns, 系统170ns intel 4C8G
-    if(false)
     {// 
         const Int32 testLoopCount = 1000000;
         const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
