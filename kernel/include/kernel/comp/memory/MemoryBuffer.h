@@ -167,10 +167,8 @@ ALWAYS_INLINE void MemoryBuffer::Init()
 // 分配新block节点
 ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
 {
-    ++_usedBlockCnt;
-
     // 用光一次，向左移位一位
-    if(UNLIKELY(_usedBlockCnt == _blockCnt))
+    if(UNLIKELY(++_usedBlockCnt == _blockCnt))
         _notEnableGcFlag <<= _shiftBitNum;
 
     // 优先从释放链表中拿
@@ -192,19 +190,14 @@ ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
         return toAlloc;
     }
 
+    // 不需要考虑_head 是_tail 的情况, 因为用尽的时候再调用AllocNewBlock 此时block一定在_freeHead中, 其他情况一定是异常
     MemoryBlock *toAlloc = _head;
-    if(LIKELY(_head != _tail))
-    {
-        _head->_buffer = this;
-        _head->_next = NULL;
-        _head->_isInAlloctor = true;
-        _head = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(_head) + _blockSize);
-    }
-    else
-    {
-        toAlloc = NULL;
-    }
+    toAlloc->_buffer = this;
+    toAlloc->_next = NULL;
+    toAlloc->_isInAlloctor = true;
+    _head = reinterpret_cast<MemoryBlock *>(reinterpret_cast<Byte8 *>(_head) + _blockSize);
 
+    // return (_head ^ _tail) ? toAlloc : NULL;
     return toAlloc;
 }
 

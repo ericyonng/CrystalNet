@@ -459,7 +459,7 @@ void TestMemoryAlloctor::Run()
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
     }
 
-    // 内存分配器:?ns, 系统?ns intel 4C8G
+    // 内存分配器:12ns, 系统:60ns intel 4C8G
     {// 
         const Int32 testLoopCount = 1000000;
         const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
