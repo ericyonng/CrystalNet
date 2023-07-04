@@ -172,7 +172,7 @@ ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
         _notEnableGcFlag <<= _shiftBitNum;
 
     // 优先从释放链表中拿
-    if(LIKELY(_freeHead))
+    if(_freeHead)
     {// 
         MemoryBlock *toAlloc = _freeHead;
         // 说明正在被其他对象引用需要
