@@ -398,7 +398,7 @@ ALWAYS_INLINE void MemoryAlloctor::_RemoveFromList(MemoryBuffer *&listHead, Memo
 ALWAYS_INLINE void MemoryAlloctor::_JudgeBufferRecycle(MemoryBuffer *buffer)
 {
     // 空闲buffer 且_notEnableGcFlag为0 或者强制释放buffer时候gc掉
-    bool checkGc = (buffer->_usedBlockCnt == 0) && ((buffer->_notEnableGcFlag == 0) || _isThreadLocalCreate && _tlsDefaultObj->_isForceFreeIdleBuffer);
+    bool checkGc = (buffer->_usedBlockCnt == 0) && ((buffer->_notEnableGcFlag == 0) || (_isThreadLocalCreate && _tlsDefaultObj->_isForceFreeIdleBuffer));
     if(UNLIKELY(checkGc))
     {
         if(UNLIKELY(buffer->_isInBusy))
