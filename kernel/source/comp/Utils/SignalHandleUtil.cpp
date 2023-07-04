@@ -563,7 +563,6 @@ void SignalHandleUtil::RecoverToLastPoint(bool skipLock)
     if(!skipLock)
         _lck.Unlock();
 
-    Int32 ret = 0;
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
         longjmp(*p, 1);
     #else

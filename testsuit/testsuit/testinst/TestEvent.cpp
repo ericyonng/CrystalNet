@@ -130,9 +130,9 @@ void TestEvent::Run()
     auto stub1 = eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, &task1, &TestEventTask1::OnEvent);
 
     // 测试重复订阅
-    auto testRepeatStub = eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, &task1, &TestEventTask1::OnEvent);
-    auto testRepeatStub2 = eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, KERNEL_NS::DelegateFactory::Create(&TestRepeatEventFunc));
-    auto testRepeatStub3 = eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, KERNEL_NS::DelegateFactory::Create(&TestRepeatEventFunc));
+    eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, &task1, &TestEventTask1::OnEvent);
+    eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, KERNEL_NS::DelegateFactory::Create(&TestRepeatEventFunc));
+    eventMgr.AddListener(EventIds::TEST_EVENT_TASK1, KERNEL_NS::DelegateFactory::Create(&TestRepeatEventFunc));
 
     // task1 默认LibEvent是ThreadLocal释放的所以一定得是ThreadLocal创建
     KERNEL_NS::LibEvent *ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventIds::TEST_EVENT_TASK1);

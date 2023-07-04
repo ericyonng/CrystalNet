@@ -31,13 +31,13 @@
 
 
 #undef TEST_ALLOC_UNIT_BYTES
-#define TEST_ALLOC_UNIT_BYTES 256
+#define TEST_ALLOC_UNIT_BYTES 256LLU
 
 #define TEST_ALLOC_TO_ALLOC 1024
 
 #define  TEST_ALLOC_LOOP   10240
 #define  TEST_BLOCK_NUM_INIT   1024
-#define  TEST_BLOCK_NUM_LIMIT   102400
+#define  TEST_BLOCK_NUM_LIMIT   1024000
 
 
 void TestMemoryAlloctor::Run()
@@ -48,9 +48,10 @@ void TestMemoryAlloctor::Run()
 //     alloctor.Init();
 
     // 保证不处罚new buffer情况
-    KERNEL_NS::MemoryAlloctorConfig cfg(TEST_ALLOC_UNIT_BYTES, 36);
+    KERNEL_NS::MemoryAlloctorConfig cfg(TEST_ALLOC_UNIT_BYTES, 1);
+    cfg._bufferBlockNumLimit = TEST_BLOCK_NUM_LIMIT;
     KERNEL_NS::MemoryAlloctor alloctor(cfg);
-    alloctor.Init(true, 40960);
+    alloctor.Init(true, TEST_BLOCK_NUM_LIMIT);
 
     // 测试gc
     // KERNEL_NS::MemoryAlloctorConfig cfg(TEST_ALLOC_UNIT_BYTES, 1);
@@ -172,27 +173,27 @@ void TestMemoryAlloctor::Run()
     //     }
     // }
 
-    {// 无锁条件下同时分配与释放 linux 下 pool 的性能是 system的 5倍左右 这是大部分的情形
-        const Int32 testLoopCount = 1000000;
-        const Int32 testBufferSize = TEST_ALLOC_UNIT_BYTES;
+    // {// 无锁条件下同时分配与释放 linux 下 pool 的性能是 system的 5倍左右 这是大部分的情形
+    //     const Int32 testLoopCount = 1000000;
+    //     const Int32 testBufferSize = TEST_ALLOC_UNIT_BYTES;
 
-        auto poolStart = KERNEL_NS::LibTime::Now();
-        for(Int32 idx = 0; idx < testLoopCount; ++idx)
-            alloctor.Free(alloctor.Alloc(testBufferSize));
+    //     auto poolStart = KERNEL_NS::LibTime::Now();
+    //     for(Int32 idx = 0; idx < testLoopCount; ++idx)
+    //         alloctor.Free(alloctor.Alloc(testBufferSize));
 
-        auto poolEnd = KERNEL_NS::LibTime::Now();
+    //     auto poolEnd = KERNEL_NS::LibTime::Now();
         
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool free speed blockSize:%d, test count:%d, pool total cost:%lld, unit cost:%lld")
-                    , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalMicroSeconds(), (poolEnd - poolStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
+    //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool free speed blockSize:%d, test count:%d, pool total cost:%lld, unit cost:%lld")
+    //                 , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalMicroSeconds(), (poolEnd - poolStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
 
-        auto sysStart = KERNEL_NS::LibTime::Now();
-        for(Int32 idx = 0; idx < testLoopCount; ++idx)
-            delete [] (new Byte8[testBufferSize]);
-        auto sysEnd = KERNEL_NS::LibTime::Now();
+    //     auto sysStart = KERNEL_NS::LibTime::Now();
+    //     for(Int32 idx = 0; idx < testLoopCount; ++idx)
+    //         delete [] (new Byte8[testBufferSize]);
+    //     auto sysEnd = KERNEL_NS::LibTime::Now();
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system delete speed blockSize:%d, test count:%d, system malloc total cost:%lld, unit cost:%llu")
-                    , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalMicroSeconds(), (sysEnd - sysStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
-    }
+    //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system delete speed blockSize:%d, test count:%d, system malloc total cost:%lld, unit cost:%llu")
+    //                 , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalMicroSeconds(), (sysEnd - sysStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
+    // }
 
 
     // {// 加锁条件下分配 linux 下 pool 在频繁触发NewBuffer情况下系统性能是pool的2.2倍,在不触发NewBuffer情况下pool的性能是系统的5.5倍左右
@@ -433,5 +434,27 @@ void TestMemoryAlloctor::Run()
 //     getchar();
 //     alloctor.Destroy();
 //     getchar();
+
+    {// 
+        const Int32 testLoopCount = 1000000;
+        const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
+
+        auto poolStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            alloctor.Alloc(testBufferSize);
+
+        auto poolEnd = KERNEL_NS::LibTime::Now();
+        
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool free speed blockSize:%llu, test count:%d, pool total cost:%lld, unit cost:%lld")
+                    , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), (poolEnd - poolStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
+
+        auto sysStart = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < testLoopCount; ++idx)
+            new Byte8[testBufferSize];
+        auto sysEnd = KERNEL_NS::LibTime::Now();
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system delete speed blockSize:%llu, test count:%d, system malloc total cost:%lld, unit cost:%llu")
+                    , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), (sysEnd - sysStart).GetTotalNanoSeconds() / static_cast<Int64>(testLoopCount));
+    }
 
 }
