@@ -39,10 +39,10 @@ TlsDefaultObj::TlsDefaultObj()
     ,_threadPool(NULL)
     ,_pollerTimerMgr(NULL)
     ,_poller(NULL)
-    ,_alloctorTotalBytes(0)
-    ,_isForceFreeIdleBuffer(false)
     ,_durtyList(new std::set<MemoryAlloctor *>)
     ,_durtyListSwap(new std::set<MemoryAlloctor *>)
+    ,_isForceFreeIdleBuffer(false)
+    ,_alloctorTotalBytes(0)
 {
 
 }
