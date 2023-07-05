@@ -60,16 +60,20 @@ public:
     // const _finddata_t &: 文件属性
     // const LibString &:文件所在目录路径, 
     // bool &:父目录需不需要继续搜索 当前目录所在的上级目录是否需要继续遍历
+    // depth:目录递归层数, -1:无限层数
     static bool TraverseDirRecursively(const LibString &dir
-    , IDelegate<bool, const FindFileInfo &, bool &> *stepCallback);
+    , IDelegate<bool, const FindFileInfo &, bool &> *stepCallback, Int32 depth = -1);
 
     template<typename CallbackType>
     static bool TraverseDirRecursively(const LibString &dir
-    , CallbackType &&cb);
+    , CallbackType &&cb, Int32 depth = -1);
 
     static bool IsDirExists(const LibString &dir);
 
 private:
+    static bool _TraverseDirRecursively(const LibString &dir
+    , IDelegate<bool, const FindFileInfo &, bool &> *stepCallback, Int32 &currentDepth, Int32 depth = -1);
+
     // create sub dir
     static bool _CreateSubDir(const LibString &subDir);
     static bool _CreateSubDir(const std::string &subDir);
@@ -96,12 +100,19 @@ ALWAYS_INLINE bool DirectoryUtil::_CreateSubDir(const LibString &subDir)
     return _CreateSubDir(subDir.GetRaw());
 }
 
+ALWAYS_INLINE bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
+    , IDelegate<bool, const FindFileInfo &, bool &> *stepCallback, Int32 depth)
+{
+    Int32 currentDepth = 1;
+    return _TraverseDirRecursively(dir, stepCallback, currentDepth, depth);
+}
+
 template<typename CallbackType>
 ALWAYS_INLINE bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
-, CallbackType &&cb)
+, CallbackType &&cb, Int32 depth)
 {
     auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, bool, const FindFileInfo &, bool &);
-    auto isContinue = TraverseDirRecursively(dir, delg);
+    auto isContinue = TraverseDirRecursively(dir, delg, depth);
     delg->Release();
     return isContinue;
 }

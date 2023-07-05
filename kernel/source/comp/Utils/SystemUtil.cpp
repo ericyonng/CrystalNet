@@ -468,7 +468,7 @@ bool SystemUtil::GetProcessIdList(const LibString &processName, std::map<UInt64,
             }
 
             return true;
-    });
+    }, 1);
 
     return !processIdRefNames.empty();
 #endif
@@ -537,7 +537,7 @@ bool SystemUtil::IsProcessExist(const LibString &processName)
             }
 
             return true;
-    });
+    }, 1);
 
     return isFound;
 #endif
@@ -593,7 +593,7 @@ bool SystemUtil::IsProcessExist(UInt64 processId)
             }
 
             return true;
-    });
+    }, 1);
 
     return isFound;
 #endif

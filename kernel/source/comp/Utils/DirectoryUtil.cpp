@@ -135,8 +135,22 @@ LibString DirectoryUtil::GetFileDirInPath(const LibString &path)
     return pathRaw.substr(0, i);
 }
 
-bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
-    , IDelegate<bool, const FindFileInfo &, bool &> *stepCallback)
+bool DirectoryUtil::IsDirExists(const LibString &dir)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS    
+    if(::_access(dir.c_str(), 0) == -1)
+        return false;
+#else
+    // CRYSTAL_TRACE("create sub dir %s", subDir.c_str());
+    if(UNLIKELY(access(dir.c_str(), 0) == -1))
+        return false;
+#endif
+
+    return true;
+}
+
+bool DirectoryUtil::_TraverseDirRecursively(const LibString &dir
+    , IDelegate<bool, const FindFileInfo &, bool &> *stepCallback, Int32 &currentDepth, Int32 depth)
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
@@ -189,10 +203,14 @@ bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
         if(FileUtil::IsDir(findFile))
         {
             const auto &subDir = dir + "/" + findFile._fileName;
-            if (!TraverseDirRecursively(subDir, stepCallback))
+            if((depth < 0) || (currentDepth < depth))
             {
-                isContinue = false;
-                break;
+                ++currentDepth;
+                if (!_TraverseDirRecursively(subDir, stepCallback, currentDepth, depth))
+                {
+                    isContinue = false;
+                    break;
+                }
             }
         }
 
@@ -257,10 +275,14 @@ bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
         // 判断该文件是否是目录，及是否已搜索了三层，这里我定义只搜索了三层目录.
         if(FileUtil::IsDir(findFile))
         {
-            if (!TraverseDirRecursively(filePath, stepCallback))
+            if((depth < 0) || (currentDepth < depth))
             {
-                isContinue = false;
-                break;
+                ++currentDepth;
+                if (!_TraverseDirRecursively(subDir, stepCallback, currentDepth, depth))
+                {
+                    isContinue = false;
+                    break;
+                }
             }
         }
     }
@@ -269,23 +291,7 @@ bool DirectoryUtil::TraverseDirRecursively(const LibString &dir
 
     return isContinue;
 #endif
-
 }
-
-bool DirectoryUtil::IsDirExists(const LibString &dir)
-{
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS    
-    if(::_access(dir.c_str(), 0) == -1)
-        return false;
-#else
-    // CRYSTAL_TRACE("create sub dir %s", subDir.c_str());
-    if(UNLIKELY(access(dir.c_str(), 0) == -1))
-        return false;
-#endif
-
-    return true;
-}
-
 
 bool DirectoryUtil::_CreateRecursiveDir(const LibString &masterDir, const LibString &subDir)
 {
