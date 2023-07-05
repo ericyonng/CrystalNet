@@ -32,6 +32,7 @@
 #include <kernel/comp/Utils/DirectoryUtil.h>
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
+#include <kernel/comp/Log/log.h>
 
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
