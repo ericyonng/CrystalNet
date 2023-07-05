@@ -431,8 +431,7 @@ bool SystemUtil::GetProcessIdList(const LibString &processName, std::map<UInt64,
             char buf[PATH_MAX + 1];
 
             BUFFER64 proc = {};
-            sprintf(proc, "/proc/%llu/exe", fileInfo._fileName.c_str());
-            Int32 ret = 0;
+            sprintf(proc, "/proc/%s/exe", fileInfo._fileName.c_str());
             if((ret = readlink(proc, buf, PATH_MAX)) == -1)
                 return true;
 
@@ -522,8 +521,7 @@ bool SystemUtil::IsProcessExist(const LibString &processName)
             char buf[PATH_MAX + 1];
 
             BUFFER64 proc = {};
-            sprintf(proc, "/proc/%llu/exe", fileInfo._fileName.c_str());
-            Int32 ret = 0;
+            sprintf(proc, "/proc/%s/exe", fileInfo._fileName.c_str());
             if((ret = readlink(proc, buf, PATH_MAX)) == -1)
                 return true;
 
@@ -565,7 +563,7 @@ bool SystemUtil::IsProcessExist(UInt64 processId)
     return false;
 #else
     bool isFound = false;
-    DirectoryUtil::TraverseDirRecursively("/proc", [&processName, &isFound, processId](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
+    DirectoryUtil::TraverseDirRecursively("/proc", [&isFound, processId](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
 
             if(!KERNEL_NS::FileUtil::IsDir(fileInfo))
                 return true;
@@ -583,8 +581,7 @@ bool SystemUtil::IsProcessExist(UInt64 processId)
             char buf[PATH_MAX + 1];
 
             BUFFER64 proc = {};
-            sprintf(proc, "/proc/%llu/exe", fileInfo._fileName.c_str());
-            Int32 ret = 0;
+            sprintf(proc, "/proc/%s/exe", fileInfo._fileName.c_str());
             if((ret = readlink(proc, buf, PATH_MAX)) == -1)
                 return true;
 
