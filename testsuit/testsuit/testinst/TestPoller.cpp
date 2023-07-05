@@ -363,8 +363,8 @@ static const Int32 g_maxConcurrentLevel = 1;
 static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
 {
     // g_Log->Debug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::Poller, "recv event:%s"), ev->ToString().c_str());
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test crash..........."));
-    KERNEL_NS::SystemUtil::ThreadSleep(5000);
+    // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test crash..........."));
+    // KERNEL_NS::SystemUtil::ThreadSleep(5000);
 
     ++g_consumNum;
     // int b = 0;
@@ -373,8 +373,8 @@ static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
 
 struct AcEvent : public KERNEL_NS::PollerEvent
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AcEvent);
-
+    POOL_CREATE_OBJ_P1(1, 1024, PollerEvent, AcEvent);
+    
     AcEvent()
     :KERNEL_NS::PollerEvent(1)
     {
@@ -388,7 +388,7 @@ struct AcEvent : public KERNEL_NS::PollerEvent
 
 };
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(AcEvent);
+POOL_CREATE_OBJ_IMPL(1, 1024, AcEvent);
 
 static void _OnPoller(KERNEL_NS::LibThread *t)
 {
@@ -408,7 +408,7 @@ static void _OnPoller(KERNEL_NS::LibThread *t)
     }
 
     // s_Poller->EventLoop();
-    s_Poller->SafetyEventLoop();
+    s_Poller->EventLoop();
     s_Poller->OnLoopEnd();
 
     // while(!t->IsDestroy())
@@ -442,8 +442,8 @@ static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
         poller->Push(idx, ev);
         // g_concurrentQueue->PushQueue(idx, &((new KERNEL_NS::LibString())->AppendFormat("hello idx:%d", idx)));
         // g_concurrentQueue->PushQueue(idx, new AcEvent());
-        ++g_genNum;
-        KERNEL_NS::SystemUtil::ThreadSleep(5000);
+        // ++g_genNum;
+        // KERNEL_NS::SystemUtil::ThreadSleep(5000);
     }
 } 
 
