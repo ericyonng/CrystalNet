@@ -38,15 +38,15 @@ extern "C"
     // 1.段错误捕获
     static void CatchSigHandler(Int32 signalNo)
     {
-        // const auto processId = KERNEL_NS::SystemUtil::GetCurProcessId();
-        // const auto mainThreadId = KERNEL_NS::SystemUtil::GetMainThreadId(static_cast<UInt64>(processId));
-        // const auto currentThreadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
+        const auto processId = KERNEL_NS::SystemUtil::GetCurProcessId();
+        const auto mainThreadId = KERNEL_NS::SystemUtil::GetMainThreadId(static_cast<UInt64>(processId));
 
         // 1.打印堆栈
         if(LIKELY(g_Log))
         {
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "catch signal:%d, %s, thread id:%llu stack backtrace:%s")
-                , signalNo, KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), KERNEL_NS::SystemUtil::GetCurrentThreadId(), KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "catch signal:%d, %s, process id:%d thread id:%llu, main thread id:%llu stack backtrace:%s")
+                , signalNo, KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), processId, KERNEL_NS::SystemUtil::GetCurrentThreadId(), mainThreadId,
+                 KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
         }
 
         // 可恢复栈帧的信号 经常coredump 恢复栈帧的先延后TODO
