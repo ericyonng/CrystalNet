@@ -28,13 +28,12 @@
 */
 
 #include <pch.h>
-#include <CloseWindowsProcess/CloseWindowsProcess.h>
+#include <CloseProcess/CloseProcess.h>
 #include <service_common/ServiceCommon.h>
-#include <CloseWindowsProcess/CloseWindowsProcessIni.h>
+#include <CloseProcess/CloseProcessIni.h>
 
-Int32 CloseWindowsProcess::Run(int argc, char const *argv[])
+Int32 CloseProcess::Run(int argc, char const *argv[])
 {
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
     std::vector<KERNEL_NS::LibString> params;
     Int32 count = 0;
     KERNEL_NS::LibString killProcessName;
@@ -63,7 +62,7 @@ Int32 CloseWindowsProcess::Run(int argc, char const *argv[])
                     const auto &parts = param.Split("=");
                     if(static_cast<Int32>(parts.size()) != 2)
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseWindowsProcess, "is_likely param error param:%s"), param.c_str());
+                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_likely param error param:%s"), param.c_str());
                         ret = false;
                         break;
                     }
@@ -78,7 +77,7 @@ Int32 CloseWindowsProcess::Run(int argc, char const *argv[])
                     const auto &value = parts[1].strip();
                     if(!value.isdigit())
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseWindowsProcess, "is_likely value not number error param:%s"), param.c_str());
+                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_likely value not number error param:%s"), param.c_str());
                         ret = false;
                         break;
                     }
@@ -93,7 +92,7 @@ Int32 CloseWindowsProcess::Run(int argc, char const *argv[])
                     const auto &parts = param.Split("=");
                     if(static_cast<Int32>(parts.size()) != 2)
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseWindowsProcess, "is_match_path param error param:%s"), param.c_str());
+                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_match_path param error param:%s"), param.c_str());
                         ret = false;
                         break;
                     }
@@ -108,7 +107,7 @@ Int32 CloseWindowsProcess::Run(int argc, char const *argv[])
                     const auto &value = parts[1].strip();
                     if(!value.isdigit())
                     {
-                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseWindowsProcess, "is_match_path value not number error param:%s"), param.c_str());
+                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_match_path value not number error param:%s"), param.c_str());
                         ret = false;
                         break;
                     }
@@ -126,8 +125,14 @@ Int32 CloseWindowsProcess::Run(int argc, char const *argv[])
         return ret;
     });
 
-    killProcessName.findreplace("//", "\\");
-    killProcessName.findreplace("/", "\\");
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+     killProcessName.findreplace("//", "\\");
+     killProcessName.findreplace("/", "\\");
+    #else
+     killProcessName.findreplace("\\", "/");
+     killProcessName.findreplace("//", "/");
+    #endif
+
     g_Log->Custom("killProcessName:%s, isLikely:%d, isMachPath:%d", killProcessName.c_str(), isLikely, isMachPath);
     
     std::vector<UInt64> processIds;
@@ -137,25 +142,37 @@ Int32 CloseWindowsProcess::Run(int argc, char const *argv[])
     {
         for(auto iter : processIdRefNames)
         {
-            ULong lastErr = 0;
-            auto ret = KERNEL_NS::SystemUtil::SendCloseMsgToProcess(iter.first, &lastErr);
-            // auto ret = KERNEL_NS::SystemUtil::CloseProcess(processId, &lastErr);
-            if(ret != Status::Success)
+            // 创建关闭文件:xxx.kill_processId
+            KERNEL_NS::LibString killFile;
+            killFile.AppendFormat("%s.kill_%llu", iter.second.c_str(), iter.first);
+            auto fp = KERNEL_NS::FileUtil::OpenFile(killFile.c_str(), true, "rb");
+            if(!fp)
             {
-                g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseWindowsProcess, "close process:%s, pid:%llu fail lastError:%lu"), iter.second.c_str(), iter.first, lastErr);
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "create kill file fail. file:%s"), killFile.c_str());
             }
             else
             {
-                g_Log->Custom("close process:%s, pid:%llu success.", iter.second.c_str(), iter.first);
+                KERNEL_NS::FileUtil::CloseFile(*fp);
             }
+
+            // 等待关闭
+            while (true)
+            {
+                if(KERNEL_NS::SystemUtil::IsProcessExist(iter.first))
+                    g_Log->Custom("waiting process quit process:%s, process id:%llu", iter.second.c_str(), iter.first);
+                else
+                    break;
+
+                KERNEL_NS::SystemUtil::ThreadSleep(1000);
+            }
+
+            g_Log->Custom("process is killed process:%s, process id:%llu.", iter.second.c_str(), iter.first);
         }
     }
     else
     {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseWindowsProcess, "cant find process:%s"), killProcessName.c_str());
+        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "cant find process:%s"), killProcessName.c_str());
     }
-
-#endif
 
     return Status::Success;
 }

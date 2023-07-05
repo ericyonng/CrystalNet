@@ -27,22 +27,10 @@
  * Description: 
 */
 
-#ifndef __CLOSE_WINDOWS_PROCESS_CLOSE_WINDOWS_PROCESS_PCH_PCH_H__
-#define __CLOSE_WINDOWS_PROCESS_CLOSE_WINDOWS_PROCESS_PCH_PCH_H__
-
 #pragma once
 
-#define _CRT_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN
-// #define CRYSTAL_DEBUG_ENABLE 0
-
-#ifdef _WIN32
-#include "targetver.h"
-#include "windows.h"
-#endif
-
-#include <kernel/kernel.h>
-#include <3rd/3rd.h>
-
-#endif
-
+class CloseProcess
+{
+public:
+    static Int32 Run(int argc, char const *argv[]);
+};

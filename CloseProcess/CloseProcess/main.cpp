@@ -28,8 +28,8 @@
 */
 
 #include <pch.h>
-#include <CloseWindowsProcess/CloseWindowsProcess.h>
-#include <CloseWindowsProcess/CloseWindowsProcessIni.h>
+#include <CloseProcess/CloseProcess.h>
+#include <CloseProcess/CloseProcessIni.h>
 
 class LibTestLog : public KERNEL_NS::LibLog
 {
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
 {
     // 1.初始化内核
     printf("/*********************************************/!\n");
-    printf("/*           Hello Crystal Net CloseWindowsProcess!      */\n");
+    printf("/*           Hello Crystal Net CloseProcess!      */\n");
     printf("/*********************************************/!\n\n");
 
     LogFactory logFactory;
@@ -69,7 +69,7 @@ int main(int argc, char const *argv[])
     KERNEL_NS::KernelUtil::Start();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started."));
 
-    err = CloseWindowsProcess::Run(argc, argv);
+    err = CloseProcess::Run(argc, argv);
 
     KERNEL_NS::KernelUtil::Destroy();
 

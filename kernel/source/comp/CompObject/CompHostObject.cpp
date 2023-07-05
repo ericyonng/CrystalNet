@@ -69,7 +69,9 @@ Int32 CompHostObject::_OnCreated()
         return st;
     }
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("on host _OnCreated obj:%s"), GetObjName().c_str());
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("on host _OnCreated obj:%s"), GetObjName().c_str());
+
     return Status::Success;
 }
 
@@ -96,7 +98,8 @@ Int32 CompHostObject::_OnInit()
         return ret;
     }
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("_OnInit CompHostObject suc"));
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("_OnInit CompHostObject %s suc"), GetObjName().c_str());
     return Status::Success;
 }
 
@@ -128,7 +131,8 @@ Int32 CompHostObject::_OnStart()
         return ret;
     }
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("_OnStart suc host object"));
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("_OnStart suc host %s object"), GetObjName().c_str());
     return Status::Success;
 }
 
@@ -138,7 +142,8 @@ void CompHostObject::_OnWillClose()
     _OnWillCloseComps();
     _OnHostWillClose();
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("_OnWillClose CompHostObject suc"));
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("_OnWillClose CompHostObject %s suc"), GetObjName().c_str());
 }
 
 void CompHostObject::_OnClose()
@@ -147,12 +152,11 @@ void CompHostObject::_OnClose()
     _CloseComps();
     _OnHostClose();
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("_OnClose CompHostObject will _Clear host:%s..."), _objName.c_str());
-    
     _Clear();
     CompObject::_OnClose();
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("_OnClose CompHostObject suc host:%s"), _objName.c_str());
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("_OnClose CompHostObject suc host:%s"), _objName.c_str());
 }
 
 void CompHostObject::Clear()
@@ -285,13 +289,17 @@ bool CompHostObject::CheckCircleDepending(const LibString &compName, KERNEL_NS::
 
 Int32 CompHostObject::_OnHostCreated()
 {
-    g_Log->Debug(LOGFMT_OBJ_TAG("_OnCompsCreated host comp name:%s"), GetObjName().c_str());
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("_OnCompsCreated host comp name:%s"), GetObjName().c_str());
+
     return Status::Success;
 }
 
 Int32 CompHostObject::_OnCompsCreated()
 {
-    g_Log->Debug(LOGFMT_OBJ_TAG("_OnCompsCreated host comp name:%s"), GetObjName().c_str());
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("_OnCompsCreated host comp name:%s"), GetObjName().c_str());
+
     return Status::Success;
 }
 
@@ -377,7 +385,8 @@ Int32 CompHostObject::_InitComps()
         }
     }
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("init comps suc."));
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("init comps %s suc."), GetObjName().c_str());
     return Status::Success;
 }
 
@@ -410,7 +419,8 @@ Int32 CompHostObject::_StartComps()
         }
     }
 
-    g_Log->Debug(LOGFMT_OBJ_TAG("start comps suc."));
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("start comps %s suc."), GetObjName().c_str());
     return Status::Success;
 }
 
@@ -464,19 +474,17 @@ void CompHostObject::_DestroyWillRegComps()
 
 void CompHostObject::_DestroyComps()
 {
-    ContainerUtil::DelContainer(_comps, [](CompObject *comp){
+    ContainerUtil::DelContainer(_comps, [this](CompObject *comp){
         const auto compName = comp->GetObjName();
-        g_Log->Info(LOGFMT_OBJ_TAG("destroy comp:%s..."), compName.c_str());
-
         comp->Release();
-        g_Log->Info(LOGFMT_OBJ_TAG("destroyed comp:%s"), compName.c_str());
     });
 
     _compNameRefComps.clear();
     _icompNameRefComps.clear();
     _compIdRefComp.clear();
 
-    g_Log->Info(LOGFMT_OBJ_TAG("destroyed comps over of host:%s"), _objName.c_str());
+    if(g_Log->IsEnable(LogLevel::Info)) 
+       g_Log->Info(LOGFMT_OBJ_TAG("destroyed comps over of host:%s"), _objName.c_str());
 }
 
 void CompHostObject::_AddComp(CompObject *comp)
@@ -652,14 +660,13 @@ void CompHostObject::_Clear()
 //     }
 
     // 释放
-    g_Log->Info(LOGFMT_OBJ_TAG("will destroy comps host:%s"), _objName.c_str());
     _DestroyComps();
-
-    g_Log->Info(LOGFMT_OBJ_TAG("will destroy reg comps host:%s"), _objName.c_str());
     _DestroyWillRegComps();
 
     _focusTypeRefComps.clear();
-    g_Log->Info(LOGFMT_OBJ_TAG("_Clear CompHostObject host:%s over"), _objName.c_str());
+
+    if(g_Log->IsEnable(LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("_Clear CompHostObject host:%s over"), _objName.c_str());
 }
 
 void CompHostObject::_OnUpdateComps()

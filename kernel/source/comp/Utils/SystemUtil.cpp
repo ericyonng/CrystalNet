@@ -362,6 +362,245 @@ UInt64 SystemUtil::GetMainThreadId(UInt64 processId)
     #endif
 }
 
+
+bool SystemUtil::GetProcessIdList(const LibString &processName, std::map<UInt64, LibString> &processIdRefNames, bool isLikely, bool isMatchPath)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    // 遍历进程
+    auto hProcModule = CreateProcessSnapshot();
+    auto pid = GetFirstProcessPid(hProcModule);
+    bool isFirst = true;
+    KERNEL_NS::LibString pachCache;
+    for(; isFirst ? isFirst : (pid > 0); pid = GetNextProcessPid(hProcModule))
+    {
+        isFirst = false;
+        pachCache.clear();
+        if(GetProgramPath(false, pachCache, pid) != Status::Success)
+            continue;
+
+        const auto &dirPart = DirectoryUtil::GetFileDirInPath(processName.c_str());
+        const auto &namePart = DirectoryUtil::GetFileNameInPath(processName.c_str());
+
+        const auto &wholePathPart = DirectoryUtil::GetFileDirInPath(pachCache.c_str());
+        const auto &wholeNamePart = DirectoryUtil::GetFileNameInPath(pachCache.c_str());
+
+        if(isMatchPath)
+        {
+            if(wholePathPart.GetRaw().find(dirPart.GetRaw()) == std::string::npos)
+                continue;
+        }
+
+        if(isLikely)
+        {
+            auto iterExist = wholeNamePart.GetRaw().find(namePart.GetRaw());
+            if(iterExist != std::string::npos)
+            {
+                processIdRefNames[pid] = pachCache;
+            }
+        }
+        else
+        {
+            if(namePart == wholeNamePart)
+            {
+                processIdRefNames[pid] = pachCache;
+            }
+        }
+    }
+
+    if(hProcModule)
+        CloseHandle(hProcModule);
+
+    return !processIdRefNames.empty();
+#else
+    DirectoryUtil::TraverseDirRecursively("/proc", [&processIdRefNames, &processName, isLikely, isMatchPath](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
+
+            if(!KERNEL_NS::FileUtil::IsDir(fileInfo))
+                return true;
+
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(SystemUtil, "traval dir:%s, file:%s"), fileInfo._rootPath.c_str(), fileInfo._fileName.c_str());
+            if(fileInfo._rootPath != "/proc")
+                return true;
+
+            // 匹配数值
+            if(!fileInfo._fileName.isdigit())
+                return true;
+            
+            // 读取exe
+            ssize_t ret = -1;
+            char buf[PATH_MAX + 1];
+
+            BUFFER64 proc = {};
+            sprintf(proc, "/proc/%llu/exe", fileInfo._fileName.c_str());
+            Int32 ret = 0;
+            if((ret = readlink(proc, buf, PATH_MAX)) == -1)
+                return true;
+
+            LibString procPath = buf;
+            procPath.RemoveZeroTail();
+
+            const auto &dirPart = DirectoryUtil::GetFileDirInPath(processName.c_str());
+            const auto &namePart = DirectoryUtil::GetFileNameInPath(processName.c_str());
+
+            const auto &wholePathPart = DirectoryUtil::GetFileDirInPath(procPath.c_str());
+            const auto &wholeNamePart = DirectoryUtil::GetFileNameInPath(procPath.c_str());
+
+            if(isMatchPath)
+            {
+                if(wholePathPart.GetRaw().find(dirPart.GetRaw()) == std::string::npos)
+                    return true;
+            }
+
+            const UInt64 pid = StringUtil::StringToUInt64(fileInfo._fileName.c_str());
+            if(isLikely)
+            {
+                auto iterExist = wholeNamePart.GetRaw().find(namePart.GetRaw());
+                if(iterExist != std::string::npos)
+                {
+                    processIdRefNames[pid] = procPath;
+                }
+            }
+            else
+            {
+                if(namePart == wholeNamePart)
+                {
+                    processIdRefNames[pid] = procPath;
+                }
+            }
+
+            return true;
+    });
+
+    return !processIdRefNames.empty();
+#endif
+}
+
+bool SystemUtil::IsProcessExist(const LibString &processName)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    // 遍历进程
+    auto hProcModule = CreateProcessSnapshot();
+    auto pid = GetFirstProcessPid(hProcModule);
+    bool isFirst = true;
+    KERNEL_NS::LibString pachCache;
+    for(; isFirst ? isFirst : (pid > 0); pid = GetNextProcessPid(hProcModule))
+    {
+        isFirst = false;
+        pachCache.clear();
+        if(GetProgramPath(false, pachCache, pid) != Status::Success)
+            continue;
+
+        auto iterExist = pachCache.GetRaw().find(processName.GetRaw());
+        if(iterExist != std::string::npos)
+        {
+            if(hProcModule)
+                CloseHandle(hProcModule);
+            return true;
+        }
+    }
+
+    if(hProcModule)
+        CloseHandle(hProcModule);
+    return false;
+#else
+    bool isFound = false;
+    DirectoryUtil::TraverseDirRecursively("/proc", [&processName, &isFound](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
+
+            if(!KERNEL_NS::FileUtil::IsDir(fileInfo))
+                return true;
+
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(SystemUtil, "traval dir:%s, file:%s"), fileInfo._rootPath.c_str(), fileInfo._fileName.c_str());
+            if(fileInfo._rootPath != "/proc")
+                return true;
+
+            // 匹配数值
+            if(!fileInfo._fileName.isdigit())
+                return true;
+            
+            // 读取exe
+            ssize_t ret = -1;
+            char buf[PATH_MAX + 1];
+
+            BUFFER64 proc = {};
+            sprintf(proc, "/proc/%llu/exe", fileInfo._fileName.c_str());
+            Int32 ret = 0;
+            if((ret = readlink(proc, buf, PATH_MAX)) == -1)
+                return true;
+
+            LibString procPath = buf;
+            procPath.RemoveZeroTail();
+
+            auto iter = procPath.GetRaw().find(processName.GetRaw());
+            if(iter != std::string::npos)
+            {
+                isParentDirContinue = false;
+                isFound = true;
+                return false;
+            }
+
+            return true;
+    });
+
+    return isFound;
+#endif
+}
+
+bool SystemUtil::IsProcessExist(UInt64 processId)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    // 遍历进程
+    auto hProcModule = CreateProcessSnapshot();
+    auto pid = GetFirstProcessPid(hProcModule);
+    bool isFirst = true;
+    KERNEL_NS::LibString pachCache;
+    for(; isFirst ? isFirst : (pid > 0); pid = GetNextProcessPid(hProcModule))
+    {
+        isFirst = false;
+        if(pid == processId)
+            return true;
+    }
+
+    if(hProcModule)
+        CloseHandle(hProcModule);
+    return false;
+#else
+    bool isFound = false;
+    DirectoryUtil::TraverseDirRecursively("/proc", [&processName, &isFound, processId](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
+
+            if(!KERNEL_NS::FileUtil::IsDir(fileInfo))
+                return true;
+
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(SystemUtil, "traval dir:%s, file:%s"), fileInfo._rootPath.c_str(), fileInfo._fileName.c_str());
+            if(fileInfo._rootPath != "/proc")
+                return true;
+
+            // 匹配数值
+            if(!fileInfo._fileName.isdigit())
+                return true;
+            
+            // 读取exe
+            ssize_t ret = -1;
+            char buf[PATH_MAX + 1];
+
+            BUFFER64 proc = {};
+            sprintf(proc, "/proc/%llu/exe", fileInfo._fileName.c_str());
+            Int32 ret = 0;
+            if((ret = readlink(proc, buf, PATH_MAX)) == -1)
+                return true;
+
+            if(KERNEL_NS::StringUtil::StringToUInt64(fileInfo._fileName.c_str()) == processId)
+            {
+                isFound = true;
+                isParentDirContinue = false;
+                return false;
+            }
+
+            return true;
+    });
+
+    return isFound;
+#endif
+}
+
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
 UInt64 SystemUtil::GetAvailPhysMemSize()
@@ -494,93 +733,6 @@ void SystemUtil::GetCallingThreadCpuInfo(UInt16 &cpuGroup, Byte8 &cpuNumber)
     GetCurrentProcessorNumberEx(&processorInfo);
     cpuGroup = processorInfo.Group;
     cpuNumber = processorInfo.Number;
-}
-
-bool SystemUtil::IsProcessExist(const LibString &processName)
-{
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    // 遍历进程
-    auto hProcModule = CreateProcessSnapshot();
-    auto pid = GetFirstProcessPid(hProcModule);
-    bool isFirst = true;
-    KERNEL_NS::LibString pachCache;
-    for(; isFirst ? isFirst : (pid > 0); pid = GetNextProcessPid(hProcModule))
-    {
-        isFirst = false;
-        pachCache.clear();
-        if(GetProgramPath(false, pachCache, pid) != Status::Success)
-            continue;
-
-        auto iterExist = pachCache.GetRaw().find(processName.GetRaw());
-        if(iterExist != std::string::npos)
-        {
-            if(hProcModule)
-                CloseHandle(hProcModule);
-            return true;
-        }
-    }
-
-    if(hProcModule)
-        CloseHandle(hProcModule);
-    return false;
-#else
-    // TODO:linux
-    return false;
-#endif
-}
-
-bool SystemUtil::GetProcessIdList(const LibString &processName, std::map<UInt64, LibString> &processIdRefNames, bool isLikely, bool isMatchPath)
-{
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    // 遍历进程
-    auto hProcModule = CreateProcessSnapshot();
-    auto pid = GetFirstProcessPid(hProcModule);
-    bool isFirst = true;
-    KERNEL_NS::LibString pachCache;
-    for(; isFirst ? isFirst : (pid > 0); pid = GetNextProcessPid(hProcModule))
-    {
-        isFirst = false;
-        pachCache.clear();
-        if(GetProgramPath(false, pachCache, pid) != Status::Success)
-            continue;
-
-        const auto &dirPart = DirectoryUtil::GetFileDirInPath(processName.c_str());
-        const auto &namePart = DirectoryUtil::GetFileNameInPath(processName.c_str());
-
-        const auto &wholePathPart = DirectoryUtil::GetFileDirInPath(pachCache.c_str());
-        const auto &wholeNamePart = DirectoryUtil::GetFileNameInPath(pachCache.c_str());
-
-        if(isMatchPath)
-        {
-            if(wholePathPart.GetRaw().find(dirPart.GetRaw()) == std::string::npos)
-                continue;
-        }
-
-        if(isLikely)
-        {
-            auto iterExist = wholeNamePart.GetRaw().find(namePart.GetRaw());
-            if(iterExist != std::string::npos)
-            {
-                processIdRefNames[pid] = pachCache;
-            }
-        }
-        else
-        {
-            if(namePart == wholeNamePart)
-            {
-                processIdRefNames[pid] = pachCache;
-            }
-        }
-    }
-
-    if(hProcModule)
-        CloseHandle(hProcModule);
-
-    return !processIdRefNames.empty();
-#else
-    // TODO:linux
-    return false;
-#endif
 }
 
 #else

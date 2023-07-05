@@ -1121,7 +1121,7 @@ project "md5tool"
 
 
 -- close windows process
-project "CloseWindowsProcess"
+project "CloseProcess"
     -- language, kind
     language "c++"
     kind "ConsoleApp"
@@ -1138,13 +1138,13 @@ project "CloseWindowsProcess"
     -- 导入内核接口
 	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
 
-	enable_precompileheader("pch.h", ROOT_DIR .. "CloseWindowsProcess/CloseWindowsProcess_pch/pch.cpp")
+	enable_precompileheader("pch.h", ROOT_DIR .. "CloseProcess/CloseProcess_pch/pch.cpp")
 
 	includedirs {
 	    "../../",
 		"../../kernel/include/",
-		"../../CloseWindowsProcess/",
-		"../../CloseWindowsProcess/CloseWindowsProcess_pch/",
+		"../../CloseProcess/",
+		"../../CloseProcess/CloseProcess_pch/",
     }
 	
 	-- 设置通用选项
@@ -1154,8 +1154,8 @@ project "CloseWindowsProcess"
     files {
 		"../../service_common/**.h",
         "../../service_common/**.cpp",
-        "../../CloseWindowsProcess/**.h",
-        "../../CloseWindowsProcess/**.cpp",
+        "../../CloseProcess/**.h",
+        "../../CloseProcess/**.cpp",
     }
 
     -- 工具不需要动态库连接

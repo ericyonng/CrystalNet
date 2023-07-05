@@ -64,6 +64,12 @@ public:
     static Int32 SendCloseMsgToProcess(UInt64 processId, ULong *lastError = NULL);
     static UInt64 GetMainThreadId(UInt64 processId);
 
+    // 找进程id，isLikely:是否模糊匹配
+    static bool GetProcessIdList(const LibString &processName, std::map<UInt64, LibString> &processIdRefNames, bool isLikely = true, bool isMatchPath = false);
+    // 遍历进程判断某进程是否在进程列表
+    static bool IsProcessExist(const LibString &processName);
+    static bool IsProcessExist(UInt64 processId);
+    
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     // 获取可用的内存大小
     static UInt64 GetAvailPhysMemSize();
@@ -90,10 +96,8 @@ public:
     static void MessageBoxPopup(const LibString &title, const LibString &content);
     // 获取当前调用线程所在的cpu编号信息
     static void GetCallingThreadCpuInfo(UInt16 &cpuGroup, Byte8 &cpuNumber);
-    // 遍历进程判断某进程是否在进程列表
-    static bool IsProcessExist(const LibString &processName);
-    // 找进程id，isLikely:是否模糊匹配
-    static bool GetProcessIdList(const LibString &processName, std::map<UInt64, LibString> &processIdRefNames, bool isLikely = true, bool isMatchPath = false);
+
+
     #else
     // 可用内存
     static UInt64 GetFreeMemBySysCall();
