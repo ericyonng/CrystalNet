@@ -270,11 +270,11 @@ void TestInst::Run(int argc, char const *argv[])
 
     KERNEL_NS::KernelUtil::Destroy();
     
-    printf("\npress q to quit.\n");
-    while(true)
-    {
-        auto v = getchar();
-        if(v == 'q')
-            break;
-    }
+    printf("\ntest case finish.\n");
+    // while(true)
+    // {
+    //     auto v = getchar();
+    //     if(v == 'q')
+    //         break;
+    // }
 }
