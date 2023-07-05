@@ -278,7 +278,7 @@ bool DirectoryUtil::_TraverseDirRecursively(const LibString &dir
             if((depth < 0) || (currentDepth < depth))
             {
                 ++currentDepth;
-                if (!_TraverseDirRecursively(subDir, stepCallback, currentDepth, depth))
+                if (!_TraverseDirRecursively(filePath, stepCallback, currentDepth, depth))
                 {
                     isContinue = false;
                     break;
