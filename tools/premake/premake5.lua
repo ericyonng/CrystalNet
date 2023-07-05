@@ -441,7 +441,6 @@ project "testsuit"
     -- dependents
     dependson {
         "CrystalKernel",
-        -- "simple_api",
     }
 
     -- 导入内核接口
@@ -454,7 +453,6 @@ project "testsuit"
 		"../../kernel/include/",
 		"../../testsuit/",
 		"../../testsuit/testsuit_pch/",
-		-- "../../simple_api/",
         "../../service/TestService/config/code/",
 		"../../3rd/mysql/win/include/",
 		"../../OptionComponent/",
@@ -530,31 +528,6 @@ project "testsuit"
 	-- links
     libdirs { OUTPUT_DIR }	
 	include_libfs(true, true)
-
-    -- links(windows)
-    -- filter { "system:windows", "configurations:debug*" }
-    --     links {
-    --         "simple_api_debug"
-    --     }
-    -- filter {}
-    -- filter { "system:windows", "configurations:release*" }
-    --     links {
-    --         "simple_api"
-    --     }
-    -- filter {}
-
-    -- links(not windows)
-    -- filter { "system:not windows", "configurations:debug*" }
-    --     links {
-    --         "simple_api_debug",
-    --     }
-    -- filter {}
-    -- filter { "system:not windows", "configurations:release*" }
-    --     links {
-    --         "simple_api"
-    --     }
-    -- filter {}
-
 
     -- debug target suffix define
     filter { "configurations:debug*" }
@@ -951,82 +924,6 @@ project "ConfigExporter"
     filter { "system:windows" }
         postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", WIN_ROOT_DIR, _ACTION))
     filter {}
-
-
-    -- FS core library compile setting
-project "simple_api"
-    -- language, kind
-    language "c++"
-    kind "SharedLib"
-
-    -- symbols
-    debugdir(DEBUG_DIR)
-    symbols "On"
-    
-    -- dependents
-    dependson {
-        "CrystalKernel",
-    }
-
-    enable_precompileheader("pch.h", ROOT_DIR .. "simple_api/simple_api_pch/pch.cpp")
-
-    -- 设置通用选项
-    set_common_options()
-
-    -- includedirs
-    includedirs {
-        "../../",
-        "../../kernel/include/",
-        ROOT_DIR .. "/3rd/openssl/include/",
-        ROOT_DIR .. "/3rd/uuid/include/",
-		"../../simple_api/",
-		"../../simple_api/simple_api_pch/",
-    }
-    
-    -- files
-    files {
-		"../../simple_api/**.h",
-		"../../simple_api/**.cpp",
-    }
-   -- 工具不需要动态库连接
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
-
-   filter{ "system:windows"}		
-       libdirs { 
-           ROOT_DIR .. "3rd/"
-       }
-   filter{}
-
-   filter { "system:windows" }
-       links {
-           "ws2_32",
-           "Mswsock",
-           "DbgHelp",
-       }
-   filter{}
-
-   -- links
-   libdirs { OUTPUT_DIR }	
-   include_libfs(true, true)
-
-   -- debug target suffix define
-   filter { "configurations:debug*" }
-       targetsuffix "_debug"
-   filter {}
-
-   -- enable multithread compile
-   -- enable_multithread_comp("C++14")
-   enable_multithread_comp()
-
-   -- warnings
-   filter { "system:not windows" }
-       disablewarnings {
-           "invalid-source-encoding",
-       }
-   filter {}
-
-   -- optimize
-   set_optimize_opts()
 
    
 -- core library testsuite compile setting
