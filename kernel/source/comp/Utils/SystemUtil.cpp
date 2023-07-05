@@ -435,6 +435,7 @@ bool SystemUtil::GetProcessIdList(const LibString &processName, std::map<UInt64,
             if((ret = readlink(proc, buf, PATH_MAX)) == -1)
                 return true;
 
+            buf[ret] = '\0';
             LibString procPath = buf;
             procPath.RemoveZeroTail();
 
@@ -525,6 +526,7 @@ bool SystemUtil::IsProcessExist(const LibString &processName)
             if((ret = readlink(proc, buf, PATH_MAX)) == -1)
                 return true;
 
+            buf[ret] = '\0';
             LibString procPath = buf;
             procPath.RemoveZeroTail();
 
@@ -585,6 +587,7 @@ bool SystemUtil::IsProcessExist(UInt64 processId)
             if((ret = readlink(proc, buf, PATH_MAX)) == -1)
                 return true;
 
+            buf[ret] = '\0';
             if(KERNEL_NS::StringUtil::StringToUInt64(fileInfo._fileName.c_str()) == processId)
             {
                 isFound = true;
