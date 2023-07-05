@@ -67,6 +67,9 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
         {
             app->SinalFinish(Status::Success);
 
+            // Poller中的condition释放时会卡主所以先不释放Poller
+            app->GetComp<KERNEL_NS::Poller>()->SetDummyRelease();
+
             app->WillClose();
             app->Close();
 

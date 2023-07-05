@@ -149,6 +149,9 @@ public:
 
     LibString OnMonitor();
 
+    // TODO:假release, 不会Delete Poller,暂时性处理当处wait状态,中间收到信号导致Poller在被释放的时候调用条件变量的析构并调用destroy销毁条件变量时导致死锁
+    void SetDummyRelease();
+
 protected:
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;
@@ -178,6 +181,8 @@ private:
   std::atomic<Int64> _eventAmountLeft;
   std::atomic<Int64> _genEventAmount;
   std::atomic<Int64> _consumEventCount;
+
+  std::atomic_bool _isDummyRelease;
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -403,6 +408,11 @@ ALWAYS_INLINE LibString Poller::OnMonitor()
                 , CalcLoadScore(), GetAndResetGenCount(), GetAndResetConsumCount(), GetEventAmount());
 
     return pollerInfo;
+}
+
+ALWAYS_INLINE void Poller::SetDummyRelease()
+{
+    _isDummyRelease = true;
 }
 
 

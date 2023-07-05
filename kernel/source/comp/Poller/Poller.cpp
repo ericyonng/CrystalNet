@@ -107,6 +107,7 @@ Poller::Poller()
 ,_eventAmountLeft{0}
 ,_genEventAmount{0}
 ,_consumEventCount{0}
+,_isDummyRelease{false}
 {
     // auto defObj = TlsUtil::GetDefTls();
     // if(UNLIKELY(defObj->_poller))
@@ -123,7 +124,8 @@ Poller::~Poller()
 
 void Poller::Release()
 {
-    Poller::Delete_Poller(this);
+    if(LIKELY(!_isDummyRelease))
+        Poller::Delete_Poller(this);
 }
 
 Int32 Poller::_OnInit()
