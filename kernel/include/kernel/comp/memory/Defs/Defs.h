@@ -95,7 +95,6 @@ public:                                                                         
                                                                                                                                     \
         static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjType> &GetAlloctor_##_objAlloctor()                                          \
         {                                                                                                                           \
-            _static##ObjType##Alloctor->_againstLazy = 0;                                                                               \
             return *_static##ObjType##Alloctor;                                                                                     \
         }                                                                                                                           \
         static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjType> &GetThreadLocalAlloctor_##_objAlloctor()                               \
@@ -104,7 +103,6 @@ public:                                                                         
             {                                                                                                                       \
                 _staticThreadLocal##ObjType##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New<KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjType>> >()->GetPool(initBlockNumPerBuffer          \
             , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));                                           \
-            _staticThreadLocal##ObjType##Alloctor->_againstLazy = 0;                                                                    \
             }                                                                                                                       \
                                                                                                                                     \
             return *_staticThreadLocal##ObjType##Alloctor;                                                                          \

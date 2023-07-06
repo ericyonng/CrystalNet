@@ -61,7 +61,7 @@ public:
     ListNode<ObjType> operator++(int)
     {// postfix iter++
         ListNode<ObjType> tmp;
-        tmp._data = _data;
+        CopyAdapter::Invoke(tmp._data, _data);
         tmp._pre = _pre;
         tmp._next = _next;
         
@@ -78,7 +78,7 @@ public:
     ListNode<ObjType> operator--(int) noexcept
     {// postfix iter--
         ListNode<ObjType> tmp;
-        tmp._data = _data;
+        CopyAdapter::Invoke(tmp._data, _data);
         tmp._pre = _pre;
         tmp._next = _next;
         this->decrement();
@@ -102,7 +102,7 @@ private:
     {
         if(LIKELY(_next))
         {
-            _data = _next->_data;
+            CopyAdapter::Invoke(_data, _next->_data);
             _pre = _next->_pre;
             _next = _next->_next;
         }
@@ -112,7 +112,7 @@ private:
     {
         if(LIKELY(_pre))
         {
-            _data = _pre->_data;
+            CopyAdapter::Invoke(_data, _pre->_data);
             _next = _pre->_next;
             _pre = _pre->_pre;
         }
@@ -238,7 +238,9 @@ public:
     // 插入
     void InsertBefore(ObjType obj, ListNode<ObjType> *node)
     {
-        auto newNode = _NewNode(obj);
+        auto newNode = ListNode<ObjType>::NewNode<BuildType>();
+        CopyAdapter::Invoke(newNode->_data, obj);
+        
         if(node->_pre)
             node->_pre->_next = newNode;
         newNode->_pre = node->_pre;
@@ -254,7 +256,9 @@ public:
     // 结尾添加
     ListNode<ObjType> *PushBack(ObjType obj)
     {
-        auto newNode = _NewNode(obj);
+        auto newNode = ListNode<ObjType>::NewNode<BuildType>();
+        CopyAdapter::Invoke(newNode->_data, obj);
+
         if(LIKELY(_tail))
         {
             _tail->_next = newNode;
@@ -274,7 +278,9 @@ public:
     // 头添加
     ListNode<ObjType> *PushFront(ObjType obj)
     {
-        auto newNode = _NewNode(obj);
+        auto newNode = ListNode<ObjType>::NewNode<BuildType>();
+        CopyAdapter::Invoke(newNode->_data, obj);
+
         if(LIKELY(_head))
         {
             _head->_pre = newNode;
@@ -297,7 +303,7 @@ public:
         if(LIKELY(_tail))
         {
             auto preNode = _tail->_pre;
-            CRYSTAL_DELETE_SAFE(_tail);
+            ListNode<ObjType>::DeleteNode<BuildType>(_tail);
             if(preNode)
                 preNode->_next = NULL;
 
@@ -315,7 +321,7 @@ public:
         if(LIKELY(_head))
         {
             auto nextNode = _head->_next;
-            CRYSTAL_DELETE_SAFE(_head);
+            ListNode<ObjType>::DeleteNode<BuildType>(_head);
             if(nextNode)
                 nextNode->_pre = NULL;
 
@@ -343,7 +349,7 @@ public:
         if(UNLIKELY(_tail == node))
             _tail = preNode;
 
-        CRYSTAL_DELETE_SAFE(node);
+        ListNode<ObjType>::DeleteNode<BuildType>(node);
 
         return nextNode;
     }
@@ -401,21 +407,6 @@ public:
         return info;
     }
 
-    KERNEL_NS::ObjAlloctor<ListNode<ObjType>> &GetNodePool(_Build::MT::Type)
-    {
-        auto &pool = ListNode<ObjType>::GetAlloctor__ListNodeobjAlloctor();
-        CRYSTAL_TRACE("lib list node mt pool:%p, _againstLazy:%d", &pool, pool._againstLazy);
-        return pool;
-    }
-
-    KERNEL_NS::ObjAlloctor<ListNode<ObjType>> &GetNodePool(_Build::TL::Type)
-    {
-        auto &pool = ListNode<ObjType>::GetThreadLocalAlloctor__ListNodeobjAlloctor();
-        CRYSTAL_TRACE("lib list node tl pool:%p, against lazy:%d", &pool, pool._againstLazy);
-
-        return pool;
-    }
-
 protected:
     void _GiveUp()
     {
@@ -424,22 +415,11 @@ protected:
         _nodeAmount = 0;
     }
 
-    // 新建节点
-    ListNode<ObjType> *_NewNode(ObjType &obj)
-    {
-        auto newNode = CRYSTAL_NEW(ListNode<ObjType>);
-        // auto newNode = ListNode<ObjType>::New_ListNode();
-        newNode->_data = obj;
-
-        return newNode;
-    }
-
     // 返回下个节点
     ListNode<ObjType> *_DeleteNode(ListNode<ObjType> *node)
     {
         auto nextNode = node->_next;
-        CRYSTAL_DELETE_SAFE(node);
-        // ListNode<ObjType>::Delete_ListNode(node);
+        ListNode<ObjType>::DeleteNode<BuildType>(node);
         return nextNode;
     }
 

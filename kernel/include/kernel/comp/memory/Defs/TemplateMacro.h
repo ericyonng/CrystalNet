@@ -96,7 +96,6 @@ public:                                                                         
                                                                                                                     \
         static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> &GetAlloctor_##_objAlloctor() \
         {                                                                                                           \
-            _static##ObjTypeNoTempArgs##Alloctor->_againstLazy = 0;                                                     \
             return *_static##ObjTypeNoTempArgs##Alloctor;                                                           \
         }                                                                                                           \
                                                                                                                     \
@@ -106,7 +105,6 @@ public:                                                                         
             {                                                                                                       \
                 _staticThreadLocal##ObjTypeNoTempArgs##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New< KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>> >()->GetPool(initBlockNumPerBuffer    \
             , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit));  \
-            _staticThreadLocal##ObjTypeNoTempArgs##Alloctor->_againstLazy = 0;                                          \
             }                                                                                                       \
                                                                                                                     \
             return *_staticThreadLocal##ObjTypeNoTempArgs##Alloctor;                                                \

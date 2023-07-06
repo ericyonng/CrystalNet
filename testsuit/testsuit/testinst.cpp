@@ -238,11 +238,11 @@ void TestInst::Run(int argc, char const *argv[])
     // TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
-    TestPoller::Run();
+    // TestPoller::Run();
     // TestMemoryAssist::Run();
     // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
-    // TestList::Run();
+    TestList::Run();
     // TestDirectoryUtil::Run();
     // TestProtobuf::Run();
     // TestPopen::Run();

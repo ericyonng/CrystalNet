@@ -268,7 +268,7 @@ ALWAYS_INLINE void ObjAlloctor<ObjType>::DeleteThreadLocal(ObjType *ptr)
     auto memoryBlock = _alloctor.GetMemoryBlockBy(ptr);
     // 先析构后释放
     if(LIKELY(memoryBlock->_ref == 1))
-        ptr->~ObjType();
+        Destructor::Invoke(ptr);
 
     // c++ 11 支持thread_local
     // #if CRYSTAL_TARGET_PLATFORM_WINDOWS

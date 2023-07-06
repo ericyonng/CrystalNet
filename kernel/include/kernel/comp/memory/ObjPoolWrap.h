@@ -93,7 +93,7 @@ public:
         // new ObjAlloctor<ObjType>(MEMORY_BUFFER_BLOCK_INIT                                                               
         // , MemoryAlloctorConfig(sizeof(ObjType)));                                              
 
-        _staticAlloctor->_againstLazy = 0;                                                                                             
+        // _staticAlloctor->_againstLazy = 0;                                                                                             
         return *_staticAlloctor;                                                                                                 
     }                                                                                                                           
     static ObjAlloctor<ObjType> &GetThreadLocalAlloctor()                               
@@ -111,7 +111,7 @@ public:
         {
             _staticThreadLocalAlloctor = TlsUtil::GetTlsStack()->New< TlsObjectPool<ObjAlloctor<ObjType>> >()->GetPool(MEMORY_BUFFER_BLOCK_INIT
             , MemoryAlloctorConfig(sizeof(ObjType)));
-        _staticThreadLocalAlloctor->_againstLazy = 0;                                                                                                   
+            // _staticThreadLocalAlloctor->_againstLazy = 0;                                                                                                   
         }
 
         return *_staticThreadLocalAlloctor;                                                                                                   

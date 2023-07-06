@@ -429,7 +429,7 @@ ALWAYS_INLINE MemoryAssist<ObjType, BuildType, ParticleType> *MemoryAssist<ObjTy
 {
     static MemoryAssist<ObjType, BuildType, ParticleType> *staticAlloctor = new MemoryAssist<ObjType, BuildType, ParticleType>();                                         
 
-    staticAlloctor->_againstLazy = 0;                                                       
+    // staticAlloctor->_againstLazy = 0;                                                       
     return staticAlloctor;
 }
 
@@ -444,7 +444,7 @@ ALWAYS_INLINE MemoryAssist<ObjType, BuildType, ParticleType> *MemoryAssist<ObjTy
         });
     }                                       
 
-    staticAlloctor->_againstLazy = 0;                                                                                                         
+    // staticAlloctor->_againstLazy = 0;                                                                                                         
     return staticAlloctor.AsSelf();
 }
 

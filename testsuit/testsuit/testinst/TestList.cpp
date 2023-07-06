@@ -29,12 +29,53 @@
 #include <pch.h>
 #include <testsuit/testinst/TestList.h>
 
+template<typename ObjType, typename BuildType>
+class TestLibListObjType
+{
+public:
+    TestLibListObjType()
+        :_head(NULL)
+        ,_release(NULL)
+    {
+        auto release = [this](){
+            if(_head)
+                KERNEL_NS::LibList<ObjType, BuildType>::DeleteByAdapter_LibList(BuildType::V, _head);
+
+            _head = NULL;
+        };
+        _release = KERNEL_CREATE_CLOSURE_DELEGATE(release, void);
+    }
+
+    ~TestLibListObjType()
+    {
+        if(_release)
+           _release->Invoke();
+
+        CRYSTAL_RELEASE_SAFE(_release);
+    }
+
+    KERNEL_NS::LibList<ObjType, BuildType> *_head;
+    BUFFER1024 _buffer;
+    KERNEL_NS::IDelegate<void> *_release;
+};
+
 void TestList::Run()
 {
-    KERNEL_NS::LibList<int *> *newIntList =  KERNEL_NS::LibList<int *>::New_LibList();
-    *(newIntList->PushBack(new int)->_data) = 15;
-    *(newIntList->PushBack(new int)->_data) = 20;
+    // KERNEL_NS::LibList<int *> *newIntList =  KERNEL_NS::LibList<int *>::New_LibList();
+    // *(newIntList->PushBack(new int)->_data) = 15;
+    // *(newIntList->PushBack(new int)->_data) = 20;
 
-    auto iter = newIntList->PushBack(new int);
-    newIntList->Erase(iter);
+    // auto iter = newIntList->PushBack(new int);
+    // newIntList->Erase(iter);
+
+    auto testObj = new TestLibListObjType<BUFFER1024, KERNEL_NS::_Build::TL>();
+
+    BUFFER1024 obj = {0};
+    testObj->_head = KERNEL_NS::LibList<BUFFER1024, KERNEL_NS::_Build::TL>::NewByAdapter_LibList(KERNEL_NS::_Build::TL::V);
+    testObj->_head->PushBack(obj);
+    auto iter = testObj->_head->PushBack(obj);
+    testObj->_head->PushBack(obj);
+    testObj->_head->Erase(iter);
+
+    delete testObj;
 }

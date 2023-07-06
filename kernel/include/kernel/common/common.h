@@ -51,5 +51,6 @@
 #include <kernel/common/LibObject.h>
 #include <kernel/common/KernelExternTemplate.h>
 #include <kernel/common/Destructor.h>
+#include <kernel/common/CopyAdapter.h>
 
 #endif
