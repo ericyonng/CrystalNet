@@ -1093,7 +1093,7 @@ void Application::_OnMonitor(KERNEL_NS::LibThread *t)
         while (!t->IsDestroy())
         {
             timerMgr->Drive();
-            KERNEL_NS::SystemUtil::ThreadSleep(1000);
+            KERNEL_NS::SystemUtil::ThreadSleep(100);
         }
 
         workHandler->Invoke();
