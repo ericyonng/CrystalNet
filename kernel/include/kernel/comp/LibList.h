@@ -61,7 +61,7 @@ public:
     ListNode<ObjType> operator++(int)
     {// postfix iter++
         ListNode<ObjType> tmp;
-        CopyAdapter::Invoke(tmp._data, _data);
+        CopyAdapter<ObjType>::Invoke(tmp._data, _data);
         tmp._pre = _pre;
         tmp._next = _next;
         
@@ -78,7 +78,7 @@ public:
     ListNode<ObjType> operator--(int) noexcept
     {// postfix iter--
         ListNode<ObjType> tmp;
-        CopyAdapter::Invoke(tmp._data, _data);
+        CopyAdapter<ObjType>::Invoke(tmp._data, _data);
         tmp._pre = _pre;
         tmp._next = _next;
         this->decrement();
@@ -102,7 +102,7 @@ private:
     {
         if(LIKELY(_next))
         {
-            CopyAdapter::Invoke(_data, _next->_data);
+            CopyAdapter<ObjType>::Invoke(_data, _next->_data);
             _pre = _next->_pre;
             _next = _next->_next;
         }
@@ -112,7 +112,7 @@ private:
     {
         if(LIKELY(_pre))
         {
-            CopyAdapter::Invoke(_data, _pre->_data);
+            CopyAdapter<ObjType>::Invoke(_data, _pre->_data);
             _next = _pre->_next;
             _pre = _pre->_pre;
         }
@@ -239,7 +239,7 @@ public:
     void InsertBefore(ObjType obj, ListNode<ObjType> *node)
     {
         auto newNode = ListNode<ObjType>::NewNode<BuildType>();
-        CopyAdapter::Invoke(newNode->_data, obj);
+        CopyAdapter<ObjType>::Invoke(newNode->_data, obj);
         
         if(node->_pre)
             node->_pre->_next = newNode;
@@ -257,7 +257,7 @@ public:
     ListNode<ObjType> *PushBack(ObjType obj)
     {
         auto newNode = ListNode<ObjType>::NewNode<BuildType>();
-        CopyAdapter::Invoke(newNode->_data, obj);
+        CopyAdapter<ObjType>::Invoke(newNode->_data, obj);
 
         if(LIKELY(_tail))
         {
@@ -279,7 +279,7 @@ public:
     ListNode<ObjType> *PushFront(ObjType obj)
     {
         auto newNode = ListNode<ObjType>::NewNode<BuildType>();
-        CopyAdapter::Invoke(newNode->_data, obj);
+        CopyAdapter<ObjType>::Invoke(newNode->_data, obj);
 
         if(LIKELY(_head))
         {

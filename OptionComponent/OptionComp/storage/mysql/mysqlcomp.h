@@ -34,6 +34,8 @@
 #include <OptionComp/storage/mysql/impl/SqlBuilder.h>
 #include <OptionComp/storage/mysql/impl/Record.h>
 #include <OptionComp/storage/mysql/impl/MysqlConnect.h>
+#include <OptionComp/storage/mysql/impl/MysqlDB.h>
+#include <OptionComp/storage/mysql/impl/MysqlDBMgr.h>
 
 #endif
 

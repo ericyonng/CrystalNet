@@ -186,7 +186,7 @@ public:
 };
 
 template<typename _Ty>
-struct StringOutAdapter : KernelStringOutAdapter<_Ty, LibTraitsDataType<_Ty>::value>
+struct StringOutAdapter : public KernelStringOutAdapter<_Ty, LibTraitsDataType<_Ty>::value>
 {};
 
 KERNEL_END

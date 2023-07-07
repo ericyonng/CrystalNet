@@ -38,8 +38,9 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
     Int32 count = 0;
     KERNEL_NS::LibString killProcessName;
     bool isLikely = true;
-    bool isMachPath = false;
-    SERVICE_COMMON_NS::ParamsHandler::GetStandardParams(argc, argv, [&killProcessName, &isLikely, &isMachPath, &count](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam) ->bool{
+    bool isMatchPath = false;
+    bool isWaitingClose = false;
+    SERVICE_COMMON_NS::ParamsHandler::GetStandardParams(argc, argv, [&killProcessName, &isLikely, &isMatchPath, &isWaitingClose, &count](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam) ->bool{
         
         bool ret = true;
         do
@@ -97,8 +98,8 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                         break;
                     }
 
-                    const auto &isMatchPath = parts[0].strip();
-                    if(isMatchPath != "is_match_path")
+                    const auto &valueStr = parts[0].strip();
+                    if(valueStr != "is_match_path")
                     {
                         ret = false;
                         break;
@@ -112,7 +113,37 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
                         break;
                     }
 
-                    isMachPath = KERNEL_NS::StringUtil::StringToInt32(value.c_str()) != 0;
+                    isMatchPath = KERNEL_NS::StringUtil::StringToInt32(value.c_str()) != 0;
+                    ret = true;
+                    break;
+                }
+
+                if(param.GetRaw().find("is_waiting_close") != std::string::npos)
+                {
+                    const auto &parts = param.Split("=");
+                    if(static_cast<Int32>(parts.size()) != 2)
+                    {
+                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_waiting_close param error param:%s"), param.c_str());
+                        ret = false;
+                        break;
+                    }
+
+                    const auto &valueStr = parts[0].strip();
+                    if(valueStr != "is_waiting_close")
+                    {
+                        ret = false;
+                        break;
+                    }
+
+                    const auto &value = parts[1].strip();
+                    if(!value.isdigit())
+                    {
+                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CloseProcess, "is_waiting_close value not number error param:%s"), param.c_str());
+                        ret = false;
+                        break;
+                    }
+
+                    isWaitingClose = KERNEL_NS::StringUtil::StringToInt32(value.c_str()) != 0;
                     ret = true;
                     break;
                 }
@@ -133,12 +164,12 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
      killProcessName.findreplace("//", "/");
     #endif
 
-    g_Log->Custom("killProcessName:%s, isLikely:%d, isMachPath:%d", killProcessName.c_str(), isLikely, isMachPath);
+    g_Log->Custom("killProcessName:%s, isLikely:%d, isMachPath:%d, isWaitingClose:%d", killProcessName.c_str(), isLikely, isMatchPath, isWaitingClose);
     
     std::vector<UInt64> processIds;
     std::vector<KERNEL_NS::LibString> processNames;
     std::map<UInt64, KERNEL_NS::LibString> processIdRefNames;
-    if(!killProcessName.empty() && KERNEL_NS::SystemUtil::GetProcessIdList(killProcessName, processIdRefNames, isLikely, isMachPath))
+    if(!killProcessName.empty() && KERNEL_NS::SystemUtil::GetProcessIdList(killProcessName, processIdRefNames, isLikely, isMatchPath))
     {
         for(auto iter : processIdRefNames)
         {
@@ -156,17 +187,24 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
             }
 
             // 等待关闭
-            while (true)
+            if(isWaitingClose)
             {
-                if(KERNEL_NS::SystemUtil::IsProcessExist(iter.first))
-                    g_Log->Custom("waiting process quit process:%s, process id:%llu", iter.second.c_str(), iter.first);
-                else
-                    break;
+                while (true)
+                {
+                    if(KERNEL_NS::SystemUtil::IsProcessExist(iter.first))
+                        g_Log->Custom("waiting process quit process:%s, process id:%llu", iter.second.c_str(), iter.first);
+                    else
+                        break;
 
-                KERNEL_NS::SystemUtil::ThreadSleep(1000);
+                    KERNEL_NS::SystemUtil::ThreadSleep(1000);
+                }
+
+                g_Log->Custom("process is killed process:%s, process id:%llu.", iter.second.c_str(), iter.first);
             }
-
-            g_Log->Custom("process is killed process:%s, process id:%llu.", iter.second.c_str(), iter.first);
+            else
+            {
+                g_Log->Custom("just notify process close, process name:%s, process id:%llu.", iter.second.c_str(), iter.first);
+            }
         }
     }
     else

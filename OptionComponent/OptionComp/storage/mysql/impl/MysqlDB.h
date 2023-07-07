@@ -21,55 +21,25 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-12-16 22:25:46
+ * Date: 2023-07-07 21:00:00
  * Author: Eric Yonng
- * Description: 拷贝器
+ * Description: mysql 数据库
+ * 
+ * 1.每个对象只管理一个数据库
+ * 2.支持mysqldump等
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_COPY_ADAPTER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_COPY_ADAPTER_H__
+
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MYSQL_IMPL_MYSQL_DB_MGR_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MYSQL_IMPL_MYSQL_DB_MGR_H__
 
 #pragma once
 
-#include <kernel/common/macro.h>
-#include <kernel/common/DataTypeAdapter.h>
+#include <kernel/kernel_inc.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/memory/memory.h>
 
 KERNEL_BEGIN
-
-
-// 流输出必须区分,指针,pod类型
-template<typename _Ty, LibDataType::ENUMS _DataType>
-class KernelCopyAdapter
-{
-public:
-    static void Invoke(_Ty &target, _Ty &source);
-};
-
-template<typename _Ty, LibDataType::ENUMS _DataType>
-ALWAYS_INLINE void KernelCopyAdapter<_Ty, _DataType>::Invoke(_Ty &target, _Ty &source)
-{
-    target = source;
-}
-
-// ARRAY
-template<typename _Ty>
-class KernelCopyAdapter<_Ty, LibDataType::ARRAY_TYPE>
-{
-public:
-    static void Invoke(_Ty target, _Ty source);
-};
-
-template<typename _Ty>
-ALWAYS_INLINE void KernelCopyAdapter<_Ty, LibDataType::ARRAY_TYPE>::Invoke(_Ty target, _Ty source)
-{
-    ::memcpy(target, source, sizeof(source));
-}
-
-template<typename _Ty>
-class CopyAdapter : public KernelCopyAdapter<_Ty, LibTraitsDataType<_Ty>::value>
-{
-
-};
 
 KERNEL_END
 

@@ -88,6 +88,11 @@ public:
     {
         return "";
     }
+
+    LibString ToString() const
+    {
+        return "UNKOWN SqlBuilderType";
+    }
 };
 
 // select field,field from table1,table2 where condition;
@@ -105,6 +110,7 @@ public:
         _where.clear();
         _orders.clear();
         _limit = -1;
+        _db.clear();
         
         return *this;
     }
@@ -134,6 +140,12 @@ public:
         for(auto &v : tables)
             _tables.push_back(v);
 
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::SELECT> &FromDB(const LibString &db)
+    {
+        _db = db;
         return *this;
     }
 
@@ -167,6 +179,8 @@ public:
     {
         if(_tables.empty())
             return LibString();
+        if(_db.empty())
+            return LibString();
 
         LibString sql;
         sql.AppendFormat("SELECT ");
@@ -193,6 +207,8 @@ public:
             const Int32 count = static_cast<Int32>(_tables.size());
             for(Int32 idx = 0; idx < count; ++idx)
             {
+                sql.AppendData(_db);
+                sql.AppendData(".");
                 sql.AppendData(_tables[idx]);
 
                 if((idx + 1) != count)
@@ -236,9 +252,42 @@ public:
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::SELECT fields:[");
+        for(auto &data : _fields)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("],\n");
+        info.AppendFormat("tables:[");
+        for(auto &data : _tables)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("]\n");
+        info.AppendFormat("db:%s\n", _db.c_str());
+        info.AppendFormat("where:%s\n", _where.c_str());
+        info.AppendFormat("where:%s\n", _where.c_str());
+        info.AppendFormat("orders:[");
+        for(auto &data : _orders)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("]\n");
+        info.AppendFormat("limit:%d", _limit);
+
+        return info;
+    }
+
 private:
     std::vector<LibString> _fields;
     std::vector<LibString> _tables;
+    LibString _db;
     LibString _where;
     std::vector<LibString> _orders;
     Int32 _limit = -1;
@@ -258,6 +307,7 @@ public:
         _table.clear();
         _values.clear();
         _valuesFromSql.clear();
+        _db.clear();
         return *this;
     }
 
@@ -270,6 +320,12 @@ public:
     SqlBuilder<SqlBuilderType::INSERT> &Table(const LibString &table)
     {
         _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::INSERT> &DB(const LibString &db)
+    {
+        _db = db;
         return *this;
     }
 
@@ -299,11 +355,14 @@ public:
         if(UNLIKELY(_table.empty()))
             return "";
 
+        if(UNLIKELY(_db.empty()))
+            return "";
+
         if(UNLIKELY(_values.empty() && _valuesFromSql.empty()))
             return "";
 
         LibString sql;
-        sql.AppendFormat("INSERT INTO `%s`", _table.c_str());
+        sql.AppendFormat("INSERT INTO %s.`%s`", _db.c_str(), _table.c_str());
         if(!_fields.empty())
         {
             sql.AppendFormat("(");
@@ -339,9 +398,36 @@ public:
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::INSERT fields:[");
+        for(auto &data : _fields)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("],\n");
+        info.AppendFormat("table:%s\n", _table.c_str());
+        info.AppendFormat("db:%s\n", _db.c_str());
+        info.AppendFormat("values:[");
+        for(auto &data : _values)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("],\n");
+
+        info.AppendFormat("valuesFromSql:\n");
+        info.AppendData(_valuesFromSql);
+        
+        return info;
+    }
+
 private:
     std::vector<LibString> _fields;
     LibString _table;
+    LibString _db;
     std::vector<LibString> _values;
     LibString _valuesFromSql;
 };
@@ -361,6 +447,7 @@ public:
         _table.clear();
         _values.clear();
         _valuesFromSql.clear();
+        _db.clear();
         return *this;
     }
 
@@ -373,6 +460,12 @@ public:
     SqlBuilder<SqlBuilderType::REPLACE_INTO> &Table(const LibString &table)
     {
         _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::REPLACE_INTO> &DB(const LibString &db)
+    {
+        _db = db;
         return *this;
     }
 
@@ -402,11 +495,14 @@ public:
         if(UNLIKELY(_table.empty()))
             return "";
 
+        if(UNLIKELY(_db.empty()))
+            return "";
+
         if(UNLIKELY(_values.empty() && _valuesFromSql.empty()))
             return "";
 
         LibString sql;
-        sql.AppendFormat("REPLACE INTO `%s`", _table.c_str());
+        sql.AppendFormat("REPLACE INTO %s.`%s`", _db.c_str(), _table.c_str());
         if(!_fields.empty())
         {
             sql.AppendFormat("(");
@@ -442,8 +538,35 @@ public:
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::REPLACE_INTO fields:[");
+        for(auto &data : _fields)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("],\n");
+        info.AppendFormat("db:%s\n", _db.c_str());
+        info.AppendFormat("table:%s\n", _table.c_str());
+        info.AppendFormat("values:[");
+        for(auto &data : _values)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("],\n");
+
+        info.AppendFormat("valuesFromSql:\n");
+        info.AppendData(_valuesFromSql);
+        
+        return info;
+    }
+
 private:
     std::vector<LibString> _fields;
+    LibString _db;
     LibString _table;
     std::vector<LibString> _values;
     LibString _valuesFromSql;
@@ -462,6 +585,7 @@ public:
         _kvs.clear();
         _table.clear();
         _where.clear();
+        _db.clear();
 
         return *this;
     }
@@ -469,6 +593,12 @@ public:
     SqlBuilder<SqlBuilderType::UPDATE> &Table(const LibString &table)
     {
         _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::UPDATE> &DB(const LibString &db)
+    {
+        _db = db;
         return *this;
     }
 
@@ -498,11 +628,11 @@ public:
 
     LibString ToSql() const
     {
-        if(UNLIKELY(_kvs.empty() || _table.empty()))
+        if(UNLIKELY(_kvs.empty() || _table.empty() || _db.empty()))
             return "";
 
         LibString sql;
-        sql.AppendFormat("UPDATE `%s` SET ", _table.c_str());
+        sql.AppendFormat("UPDATE %s.`%s` SET ", _db.c_str(), _table.c_str());
 
         const Int32 count = static_cast<Int32>(_kvs.size());
         for(Int32 idx = 0; idx < count; ++idx)
@@ -522,8 +652,27 @@ public:
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::UPDATE kvs:[");
+        for(auto &data : _kvs)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("],\n");
+        info.AppendFormat("db:%s\n", _db.c_str());
+        info.AppendFormat("table:%s\n", _table.c_str());
+        info.AppendFormat("where:");
+        info.AppendData(_where);
+        
+        return info;
+    }
+
 private:
     std::vector<LibString> _kvs;
+    LibString _db;
     LibString _table;
     LibString _where;
 };
@@ -540,6 +689,7 @@ public:
     {
         _table.clear();
         _where.clear();
+        _db.clear();
 
         return *this;
     }
@@ -547,6 +697,12 @@ public:
     SqlBuilder<SqlBuilderType::DELETE_RECORD> &Table(const LibString &table)
     {
         _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::DELETE_RECORD> &DB(const LibString &db)
+    {
+        _db = db;
         return *this;
     }
 
@@ -558,11 +714,11 @@ public:
     
     LibString ToSql() const
     {
-        if(UNLIKELY(_table.empty()))
+        if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
 
         LibString sql;
-        sql.AppendFormat("DELETE FROM %s", _table.c_str());
+        sql.AppendFormat("DELETE FROM %s.%s", _db.c_str(), _table.c_str());
 
         if(!_where.empty())
         {
@@ -573,8 +729,20 @@ public:
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::DELETE_RECORD ");
+        info.AppendFormat("db:%s\n", _db.c_str());
+        info.AppendFormat("table:%s\n", _table.c_str());
+        info.AppendFormat("where:");
+        info.AppendData(_where);
+        
+        return info;
+    }
 
 private:
+    LibString _db;
     LibString _table;
     LibString _where;
 };
@@ -599,6 +767,7 @@ public:
         _primaryKey.clear();
         _uniques.clear();
         _indexs.clear();
+        _db.clear();
 
         return *this;
     }
@@ -606,6 +775,12 @@ public:
     SqlBuilder<SqlBuilderType::CREATE_TABLE> &Table(const LibString &table)
     {
         _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::CREATE_TABLE> &DB(const LibString &db)
+    {
+        _db = db;
         return *this;
     }
 
@@ -663,14 +838,13 @@ public:
         return *this;
     }
 
-
     LibString ToSql() const
     {
-        if(UNLIKELY(_table.empty() || _fields.empty() || _engine.empty() || _charset.empty() || _collate.empty()))
+        if(UNLIKELY(_table.empty() || _fields.empty() || _engine.empty() || _charset.empty() || _collate.empty() || _db.empty()))
             return "";
 
         LibString sql;
-        sql.AppendFormat("CREATE TABLE IF NOT EXISTS `%s`(", _table.c_str());
+        sql.AppendFormat("CREATE TABLE IF NOT EXISTS %s.`%s`(", _db.c_str(), _table.c_str());
 
         {
             const Int32 count = static_cast<Int32>(_fields.size());
@@ -762,7 +936,66 @@ public:
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::CREATE_TABLE db:%s \n", _db.c_str());
+        info.AppendFormat("table:%s\n", _table.c_str());
+        info.AppendFormat("fields:[");
+        for(auto &data : _fields)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("]\n");
+        info.AppendFormat("engine:%s\n", _engine.c_str());
+        info.AppendFormat("charset:%s\n", _charset.c_str());
+        info.AppendFormat("collate:%s\n", _collate.c_str());
+        info.AppendFormat("rowFormat:%s\n", _rowFormat.c_str());
+        info.AppendFormat("comment:");
+        info.AppendData(_comment);
+        info.AppendData("\n");
+        info.AppendFormat("_primaryKey:%s\n", _primaryKey.c_str());
+
+        info.AppendFormat("uniques:\n{");
+        for(auto iter : _uniques)
+        {
+            auto &uniqueName = iter.first;
+            info.AppendFormat("unique name:");
+            info.AppendData(uniqueName);
+            info.AppendFormat("[");
+            auto &uniqueKeys = iter.second;
+            for(auto &key : uniqueKeys)
+            {
+                info.AppendData(key);
+                info.AppendFormat(",");
+            }
+            info.AppendFormat("]");
+        }
+        info.AppendFormat("}\n");
+        
+        info.AppendFormat("indexs:\n{");
+        for(auto iter : _indexs)
+        {
+            auto &indexName = iter.first;
+            info.AppendFormat("index name:");
+            info.AppendData(indexName);
+            info.AppendFormat("[");
+            auto &indexKeys = iter.second;
+            for(auto &key : indexKeys)
+            {
+                info.AppendData(key);
+                info.AppendFormat(",");
+            }
+            info.AppendFormat("]");
+        }
+        info.AppendFormat("}\n");
+
+        return info;
+    }
+
 private:
+    LibString _db;
     LibString _table;
     std::vector<LibString> _fields;
     LibString _engine = "InnoDB";
@@ -787,6 +1020,7 @@ public:
     SqlBuilder<SqlBuilderType::TRUNCATE_TABLE> &Clear()
     {
         _table.clear();
+        _db.clear();
 
         return *this;
     }
@@ -796,19 +1030,34 @@ public:
         _table = table;
         return *this;
     }
+    
+    SqlBuilder<SqlBuilderType::TRUNCATE_TABLE> &DB(const LibString &db)
+    {
+        _db = db;
+        return *this;
+    }
 
     LibString ToSql() const
     {
-        if(UNLIKELY(_table.empty()))
+        if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
 
         LibString sql;
-        sql.AppendFormat("TRUNCATE TABLE `%s`", _table.c_str());
+        sql.AppendFormat("TRUNCATE TABLE %s.`%s`", _db.c_str(), _table.c_str());
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::TRUNCATE_TABLE db:%s \n", _db.c_str());
+        info.AppendFormat("table:%s\n", _table.c_str());
+
+        return info;
+    }
 
 private:
+    LibString _db;
     LibString _table;
 };
 
@@ -823,6 +1072,7 @@ public:
     SqlBuilder<SqlBuilderType::DROP_TABLE> &Clear()
     {
         _table.clear();
+        _db.clear();
 
         return *this;
     }
@@ -832,18 +1082,34 @@ public:
         _table = table;
         return *this;
     }
+    
+    SqlBuilder<SqlBuilderType::DROP_TABLE> &DB(const LibString &db)
+    {
+        _db = db;
+        return *this;
+    }
 
     LibString ToSql() const
     {
-        if(UNLIKELY(_table.empty()))
+        if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
 
         LibString sql;
-        sql.AppendFormat("DROP TABLE IF EXISTS `%s`", _table.c_str());
+        sql.AppendFormat("DROP TABLE IF EXISTS %s.`%s`", _db.c_str(), _table.c_str());
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::DROP_TABLE db:%s \n", _db.c_str());
+        info.AppendFormat("table:%s\n", _table.c_str());
+
+        return info;
+    }
+
 private:
+    LibString _db;
     LibString _table;
 };
 
@@ -899,6 +1165,16 @@ public:
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::CREATE_DB db:%s \n", _db.c_str());
+        info.AppendFormat("charset:%s \n", _charset.c_str());
+        info.AppendFormat("collate:%s \n", _collate.c_str());
+
+        return info;
+    }
+
 private:
     LibString _db;
     LibString _charset = "utf8mb4";
@@ -937,6 +1213,14 @@ public:
         return sql;
     }
     
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::DROP_DB db:%s \n", _db.c_str());
+
+        return info;
+    }
+
 private:
     LibString _db;
 };
@@ -962,6 +1246,7 @@ public:
         _changeEngine.clear();
         _type = CHANGE_UNKNOWN;
         _table.clear();
+        _db.clear();
 
         return *this;
     }
@@ -969,6 +1254,12 @@ public:
     SqlBuilder<SqlBuilderType::ALTER_TABLE> &Table(const LibString &table)
     {
         _table = table;
+        return *this;
+    }
+
+    SqlBuilder<SqlBuilderType::ALTER_TABLE> &DB(const LibString &db)
+    {
+        _db = db;
         return *this;
     }
 
@@ -1216,7 +1507,7 @@ public:
     LibString ToSql() const
     {
         if((_type == CHANGE_UNKNOWN) || 
-            (_table.empty()) )
+            (_table.empty() || _db.empty()) )
             return "";
 
         LibString sql;
@@ -1249,6 +1540,101 @@ public:
         return "";
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::ALTER_TABLE db:%s \n", _db.c_str());
+        info.AppendFormat("table:%s \n", _table.c_str());
+        info.AppendFormat("type:%d \n", _type);
+        info.AppendFormat("changeEngine:").AppendData(_changeEngine).AppendFormat("\n");
+
+        info.AppendFormat("addPrimaryKeys:[");
+        for(auto &key : _addPrimaryKeys)
+            info.AppendData(key).AppendFormat(",");
+        info.AppendFormat("]\n");
+
+        info.AppendFormat("dropIndexs:[");
+        for(auto &key : _dropIndexs)
+            info.AppendData(key).AppendFormat(",");
+        info.AppendFormat("]\n");
+
+        info.AppendFormat("addUniqueIndexs:[");
+        for(auto &uniqueIndexInfo : _addUniqueIndexs)
+        {
+            info.AppendFormat("index name:").AppendData(std::get<0>(uniqueIndexInfo)).AppendFormat(", ");
+
+            info.AppendFormat("column list:[");
+            auto &columnList = std::get<1>(uniqueIndexInfo);
+            for(auto &column : columnList)
+                info.AppendData(column).AppendFormat(",");
+            info.AppendFormat("], ");
+
+            info.AppendFormat("using tree:").AppendData(std::get<2>(uniqueIndexInfo)).AppendFormat(",");
+            info.AppendFormat("comment:").AppendData(std::get<3>(uniqueIndexInfo)).AppendFormat(",");
+
+            info.AppendFormat(";");
+        }
+        info.AppendFormat("]\n");
+
+        info.AppendFormat("addIndexs:[");
+        for(auto &addIndexInfo : _addIndexs)
+        {
+            info.AppendFormat("index name:").AppendData(std::get<0>(addIndexInfo)).AppendFormat(", ");
+
+            info.AppendFormat("column list:[");
+            auto &columnList = std::get<1>(addIndexInfo);
+            for(auto &column : columnList)
+                info.AppendData(column).AppendFormat(",");
+            info.AppendFormat("], ");
+
+            info.AppendFormat("using tree:").AppendData(std::get<2>(addIndexInfo)).AppendFormat(",");
+            info.AppendFormat("comment:").AppendData(std::get<3>(addIndexInfo)).AppendFormat(",");
+            info.AppendFormat("is fulltext:").AppendData(std::get<4>(addIndexInfo) ? "true" : "false").AppendFormat(",");
+            info.AppendFormat("fulltext parser:").AppendData(std::get<5>(addIndexInfo)).AppendFormat(",");
+
+            info.AppendFormat(";");
+        }
+        info.AppendFormat("]\n");
+
+        info.AppendFormat("drops:[");
+        for(auto &key : _drops)
+            info.AppendData(key).AppendFormat(",");
+        info.AppendFormat("]\n");
+
+        info.AppendFormat("modifys:[");
+        for(auto &modifyInfo : _modifys)
+        {
+            info.AppendFormat("field:").AppendData(std::get<0>(modifyInfo)).AppendFormat(", ");
+            info.AppendFormat("desc:").AppendData(std::get<1>(modifyInfo)).AppendFormat(", ");
+
+            info.AppendFormat(";");
+        }
+        info.AppendFormat("]\n");
+
+        info.AppendFormat("renames:[");
+        for(auto &renameInfo : _renames)
+        {
+            info.AppendFormat("old field:").AppendData(std::get<0>(renameInfo)).AppendFormat(", ");
+            info.AppendFormat("new field:").AppendData(std::get<1>(renameInfo)).AppendFormat(", ");
+
+            info.AppendFormat(";");
+        }
+        info.AppendFormat("]\n");
+
+        info.AppendFormat("adds:[");
+        for(auto &addInfo : _adds)
+        {
+            info.AppendFormat("field:").AppendData(std::get<0>(addInfo)).AppendFormat(", ");
+            info.AppendFormat("desc:").AppendData(std::get<1>(addInfo)).AppendFormat(", ");
+            info.AppendFormat("after:").AppendData(std::get<2>(addInfo)).AppendFormat(", ");
+
+            info.AppendFormat(";");
+        }
+        info.AppendFormat("]\n");
+
+        return info;
+    }
+
 private:
     LibString _BuildAddSql() const
     {
@@ -1256,7 +1642,7 @@ private:
             return "";
 
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s`", _db.c_str(), _table.c_str());
         const Int32 count = static_cast<Int32>(_adds.size());
         bool hasChanged = false;
         for(Int32 idx = 0; idx < count; ++idx)
@@ -1292,7 +1678,7 @@ private:
             return "";
 
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s`", _db.c_str(), _table.c_str());
         const Int32 count = static_cast<Int32>(_renames.size());
         bool hasChanged = false;
         for(Int32 idx = 0; idx < count; ++idx)
@@ -1323,7 +1709,7 @@ private:
             return "";
 
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s`", _db.c_str(), _table.c_str());
         const Int32 count = static_cast<Int32>(_drops.size());
         bool hasChanged = false;
         for(Int32 idx = 0; idx < count; ++idx)
@@ -1352,7 +1738,7 @@ private:
             return "";
 
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s`", _db.c_str(), _table.c_str());
         const Int32 count = static_cast<Int32>(_modifys.size());
         bool hasChanged = false;
         for(Int32 idx = 0; idx < count; ++idx)
@@ -1384,7 +1770,7 @@ private:
             return "";
 
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s`", _db.c_str(), _table.c_str());
         const Int32 count = static_cast<Int32>(_addIndexs.size());
         bool hasChanged = false;
         for(Int32 idx = 0; idx < count; ++idx)
@@ -1440,7 +1826,7 @@ private:
             return "";
 
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s`", _db.c_str(), _table.c_str());
         const Int32 count = static_cast<Int32>(_addUniqueIndexs.size());
         bool hasChanged = false;
         for(Int32 idx = 0; idx < count; ++idx)
@@ -1484,7 +1870,7 @@ private:
             return "";
 
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s`", _table.c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s`", _db.c_str(), _table.c_str());
         const Int32 count = static_cast<Int32>(_dropIndexs.size());
         bool hasChanged = false;
         for(Int32 idx = 0; idx < count; ++idx)
@@ -1513,21 +1899,21 @@ private:
             return "";
 
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s` ADD PRIMARY KEY (%s)", _table.c_str(), StringUtil::ToString(_addPrimaryKeys, ",").c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s` ADD PRIMARY KEY (%s)", _db.c_str(), _table.c_str(), StringUtil::ToString(_addPrimaryKeys, ",").c_str());
         return sql;
     }
 
     LibString _BuildDropPrimaryKeySql() const
     {
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s` DROP PRIMARY KEY", _table.c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s` DROP PRIMARY KEY", _db.c_str(), _table.c_str());
         return sql;
     }
 
     LibString _BuildChangeEngineSql() const
     {
         LibString sql;
-        sql.AppendFormat("ALTER TABLE `%s` ENGINE = %s", _table.c_str(), _changeEngine.c_str());
+        sql.AppendFormat("ALTER TABLE %s.`%s` ENGINE = %s", _db.c_str(), _table.c_str(), _changeEngine.c_str());
         return sql;
     }
 
@@ -1560,6 +1946,7 @@ private:
     LibString _changeEngine;
     Int32 _type = CHANGE_UNKNOWN;
     LibString _table;
+    LibString _db;
 };
 
 // ALTER TABLE `xxx` ADD/DROP/MODIFY COLUMN ...
@@ -1573,6 +1960,7 @@ public:
     SqlBuilder<SqlBuilderType::SHOW_INDEX> &Clear()
     {
         _table.clear();
+        _db.clear();
 
         return *this;
     }
@@ -1583,17 +1971,33 @@ public:
         return *this;
     }
 
+    SqlBuilder<SqlBuilderType::SHOW_INDEX> &DB(const LibString &db)
+    {
+        _db = db;
+        return *this;
+    }
+
     LibString ToSql() const
     {
-        if(UNLIKELY(_table.empty()))
+        if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
 
         LibString sql;
-        sql.AppendFormat("SHOW INDEX FROM `%s`", _table.c_str());
+        sql.AppendFormat("SHOW INDEX FROM %s.`%s`", _db.c_str(), _table.c_str());
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::SHOW_INDEX db:%s, ", _db.c_str());
+        info.AppendFormat("table:%s \n", _table.c_str());
+
+        return info;
+    }
+
 private:
+    LibString _db;
     LibString _table;
 };
 
@@ -1608,6 +2012,7 @@ public:
     SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE> &Clear()
     {
         _table.clear();
+        _db.clear();
 
         return *this;
     }
@@ -1618,18 +2023,33 @@ public:
         return *this;
     }
 
+    SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE> &DB(const LibString &db)
+    {
+        _db = db;
+        return *this;
+    }
+
     LibString ToSql() const
     {
-        if(UNLIKELY(_table.empty()))
+        if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
 
         LibString sql;
-        sql.AppendFormat("OPTIMIZE TABLE `%s`", _table.c_str());
+        sql.AppendFormat("OPTIMIZE TABLE %s.`%s`", _db.c_str(), _table.c_str());
         return sql;
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::OPTIMIZE_TABLE db:%s, ", _db.c_str());
+        info.AppendFormat("table:%s \n", _table.c_str());
+
+        return info;
+    }
 private:
     LibString _table;
+    LibString _db;
 };
 
 template<>
@@ -1647,6 +2067,14 @@ public:
     LibString ToSql() const
     {
         return "START TRANSACTION";
+    }
+
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::START_TRANSACTION");
+
+        return info;
     }
 };
 
@@ -1674,6 +2102,14 @@ public:
         return LibString().AppendFormat("set autocommit = %d", _autoCommit ? 1 : 0);
     }
 
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::SET_AUTOCOMMIT autoCommit:%s", _autoCommit ? "true" : "false");
+
+        return info;
+    }
+
 private:
     bool _autoCommit = true;
 };
@@ -1694,6 +2130,14 @@ public:
     {
         return "ROLLBACK";
     }
+
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::ROLLBACK ");
+
+        return info;
+    }
 };
 
 template<>
@@ -1711,6 +2155,14 @@ public:
     LibString ToSql() const
     {
         return "COMMIT";
+    }
+
+    LibString ToString() const
+    {
+        LibString info;
+        info.AppendFormat("SqlBuilderType::COMMIT_TRANSACTION ");
+
+        return info;
     }
 };
 

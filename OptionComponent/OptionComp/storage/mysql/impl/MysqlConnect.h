@@ -249,7 +249,7 @@ template<SqlBuilderType::ENUMS T, typename CallbackType>
 ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const SqlBuilder<T> &builder, CallbackType &&cb, bool doPing)
 {
     const auto &sql = builder.ToSql();
-    return ExcuteSql(builder.ToSql(), cb, doPing);
+    return ExcuteSql(builder.ToSql(), std::forward<CallbackType>(cb), doPing);
 }
 
 template<typename CallbackType>

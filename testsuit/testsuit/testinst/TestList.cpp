@@ -70,7 +70,7 @@ void TestList::Run()
 
     auto testObj = new TestLibListObjType<BUFFER1024, KERNEL_NS::_Build::TL>();
 
-    BUFFER1024 obj = {0};
+    BUFFER1024 obj = {'a', 'b', 0};
     testObj->_head = KERNEL_NS::LibList<BUFFER1024, KERNEL_NS::_Build::TL>::NewByAdapter_LibList(KERNEL_NS::_Build::TL::V);
     testObj->_head->PushBack(obj);
     auto iter = testObj->_head->PushBack(obj);
