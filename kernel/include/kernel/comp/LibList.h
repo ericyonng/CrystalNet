@@ -85,18 +85,6 @@ public:
         return tmp;
     }
 
-    template<typename BuildType>
-    static ListNode<ObjType> *NewNode()
-    {
-        return ListNode<ObjType>::NewByAdapter_ListNode(BuildType::V);
-    }
-
-    template<typename BuildType>
-    static void DeleteNode(ListNode<ObjType> *ptr)
-    {
-        ListNode<ObjType>::DeleteByAdapter_ListNode(BuildType::V, ptr);
-    }
-
 private:
     void increment()
     {
@@ -238,7 +226,7 @@ public:
     // 插入
     void InsertBefore(ObjType obj, ListNode<ObjType> *node)
     {
-        auto newNode = ListNode<ObjType>::NewNode<BuildType>();
+        auto newNode = ListNode<ObjType>::NewByAdapter_ListNode(BuildType::V);
         CopyAdapter<ObjType>::Invoke(newNode->_data, obj);
         
         if(node->_pre)
@@ -256,7 +244,7 @@ public:
     // 结尾添加
     ListNode<ObjType> *PushBack(ObjType obj)
     {
-        auto newNode = ListNode<ObjType>::NewNode<BuildType>();
+        auto newNode = ListNode<ObjType>::NewByAdapter_ListNode(BuildType::V);
         CopyAdapter<ObjType>::Invoke(newNode->_data, obj);
 
         if(LIKELY(_tail))
@@ -278,7 +266,7 @@ public:
     // 头添加
     ListNode<ObjType> *PushFront(ObjType obj)
     {
-        auto newNode = ListNode<ObjType>::NewNode<BuildType>();
+        auto newNode = ListNode<ObjType>::NewByAdapter_ListNode(BuildType::V);
         CopyAdapter<ObjType>::Invoke(newNode->_data, obj);
 
         if(LIKELY(_head))
@@ -303,7 +291,7 @@ public:
         if(LIKELY(_tail))
         {
             auto preNode = _tail->_pre;
-            ListNode<ObjType>::DeleteNode<BuildType>(_tail);
+            ListNode<ObjType>::DeleteByAdapter_ListNode(BuildType::V, _tail);
             if(preNode)
                 preNode->_next = NULL;
 
@@ -321,7 +309,7 @@ public:
         if(LIKELY(_head))
         {
             auto nextNode = _head->_next;
-            ListNode<ObjType>::DeleteNode<BuildType>(_head);
+            ListNode<ObjType>::DeleteByAdapter_ListNode(BuildType::V, _head);
             if(nextNode)
                 nextNode->_pre = NULL;
 
@@ -349,7 +337,7 @@ public:
         if(UNLIKELY(_tail == node))
             _tail = preNode;
 
-        ListNode<ObjType>::DeleteNode<BuildType>(node);
+        ListNode<ObjType>::DeleteByAdapter_ListNode(BuildType::V, node);
 
         return nextNode;
     }
@@ -419,7 +407,7 @@ protected:
     ListNode<ObjType> *_DeleteNode(ListNode<ObjType> *node)
     {
         auto nextNode = node->_next;
-        ListNode<ObjType>::DeleteNode<BuildType>(node);
+        ListNode<ObjType>::DeleteByAdapter_ListNode(BuildType::V, node);
         return nextNode;
     }
 
