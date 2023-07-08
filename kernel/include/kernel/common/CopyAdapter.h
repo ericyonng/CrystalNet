@@ -62,7 +62,8 @@ public:
 template<typename _Ty>
 ALWAYS_INLINE void KernelCopyAdapter<_Ty, LibDataType::ARRAY_TYPE>::Invoke(_Ty target, _Ty source)
 {
-    ::memcpy(target, source, sizeof(_Ty));
+    const UInt64 sz = static_cast<UInt64>(sizeof(_Ty));
+    ::memcpy(target, source, sz);
 }
 
 template<typename _Ty>
