@@ -211,7 +211,7 @@
     或者：linux_run.sh testsuit
 
 * Windows
-  * 构建：winsolution_build.bat （选择vs2115, vs2017, vs2019, vs2022生成solution），请使用指定版本vs编译
+  * 构建：winsolution_build.bat （选择vs2019, vs2022生成solution），请使用指定版本vs编译
   * start.bat/stop.bat 运行或者关闭
   
 * 导表工具
@@ -226,7 +226,7 @@
 
 * 安装cmake不低于v 3.25.0-rc4 （不是必须, 用于编译支持cmake的openssl，protobuf等库的时候用到）
 
-* 安装gcc 8.3以上 必须
+* 安装gcc 8.3以上 必须，注意升级gcc同时需要升级glibc(c运行库)到更高版本（建议升级到glibc 2.28(Tencent os 3 默认运行库版本)，默认使用的话glibc 2.17）, 可以使用ldd --version来查看glibc版本,升级glibc需谨慎, 因为其他软件依赖它
 
 * 安装jenkins（doc中安装步骤， ci等功能）（不是必须，用于持续集成）
 
