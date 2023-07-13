@@ -42,6 +42,7 @@ template<typename T>
 class LibStream;
 
 class Record;
+class LibTime;
 
 class Field
 {
@@ -50,6 +51,8 @@ class Field
 public:
     Field(const LibString &tableName, const LibString &fieldName, Int32 dataType, Record *owner = NULL);
     ~Field();
+    Field(const Field &);
+    Field(Field &&);
 
     template<typename T = _Build::TL>
     static Field *Create(const LibString &tableName, const LibString &fieldName, Int32 dataType, Record *owner = NULL);
@@ -92,6 +95,54 @@ public:
     bool IsNull() const;
     void SetIsNull(bool isNull);
 
+    // 是否无符号
+    bool IsUnsigned() const;
+    void SetIsUnsigned(bool isUnsigned);
+
+    // 写数据
+    void SetInt8(Byte8 v);
+    void SetInt16(Int16 v);
+    void SetInt32(Int32 v);
+    void SetInt64(Int64 v);
+    void SetUInt8(U8 v);
+    void SetUInt16(UInt16 v);
+    void SetUInt32(UInt32 v);
+    void SetUInt64(UInt64 v);
+    void SetFloat(Float v);
+    void SetDouble(Double v);
+    void SetString(const LibString &str);
+    void SetString(const void *str, UInt64 strLen);
+    void SetDatetime(const LibString &tm);
+    void SetDatetime(const LibTime &tm);
+    void SetBlob(const LibString &b);
+    void SetBlob(const void *p, UInt64 len);
+    void SetMediumBlob(const LibString &b);
+    void SetMediumBlob(const void *p, UInt64 len);
+    void SetLongBlob(const LibString &b);
+    void SetLongBlob(const void *p, UInt64 len);
+
+    // 读数据
+    Byte8 GetInt8() const;
+    Int16 GetInt16() const;
+    Int32 GetInt32() const;
+    Int64 GetInt64() const;
+    U8    GetUInt8() const;
+    UInt16 GetUInt16() const;
+    UInt32 GetUInt32() const;
+    UInt64 GetUInt64() const;
+    Float GetFloat() const;
+    Double GetDouble() const;
+    void GetString(LibString &str);
+    void GetString(Byte8 *str, UInt64 strSize);
+    void GetDatetime(LibString &dt);
+    void GetDateTime(LibTime &tm);
+    void GetBlob(LibString &b);
+    void GetBlob(Byte8 *b, UInt64 sz);
+    void GetMediumBlob(LibString &b);
+    void GetMediumBlob(Byte8 *b, UInt64 sz);
+    void GetLongBlob(LibString &b);
+    void GetLongBlob(Byte8 *b, UInt64 sz);
+
 private:
     // 设置释放的回调
     template<typename CallbackType>
@@ -107,6 +158,7 @@ private:
     Int32 _dataType;        // enum_field_types
     IDelegate<void, Field *> *_release; 
     bool _isNull;
+    bool _isUnsigned;
 };
 
 template<typename T>
@@ -197,7 +249,8 @@ ALWAYS_INLINE LibStream<_Build::TL> *Field::GetData()
 ALWAYS_INLINE LibString Field::ToString() const
 {
     LibString info;
-    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld, data type:%d,%s", _tableName.c_str(), _name.c_str(), _index, GetDataSize(), _dataType, DataTypeString(_dataType));
+    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld, data type:%d,%s, is null:%d, is unsigend:%d"
+    , _tableName.c_str(), _name.c_str(), _index, GetDataSize(), _dataType, DataTypeString(_dataType), _isNull, _isUnsigned);
     return info;
 }
 
@@ -214,6 +267,16 @@ ALWAYS_INLINE bool Field::IsNull() const
 ALWAYS_INLINE void Field::SetIsNull(bool isNull)
 {
     _isNull = isNull;
+}
+
+ALWAYS_INLINE bool Field::IsUnsigned() const
+{
+    return _isUnsigned;
+}
+
+ALWAYS_INLINE void Field::SetIsUnsigned(bool isUnsigned)
+{
+    _isUnsigned = isUnsigned;
 }
 
 template<typename CallbackType>

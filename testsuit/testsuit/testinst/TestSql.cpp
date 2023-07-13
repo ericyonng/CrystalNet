@@ -29,6 +29,8 @@
 #include <pch.h>
 #include <testsuit/testinst/TestSql.h>
 #include <OptionComp/storage/mysql/mysqlcomp.h>
+#include <protocols/protocols.h>
+
 
 // void TestSql::Run()
 // {
@@ -975,13 +977,13 @@ void TestSql::Run()
 
     {// 删除表
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DROP_TABLE> builder;
-        builder.Table("tbl_role");
-        mysqlConnection->ExecuteSql(builder, 1, KERNEL_NS::MysqlConnect::FUNC_NULL);
+        builder.DB("rpg").Table("tbl_role");
+        mysqlConnection->ExecuteSql(builder, 1);
     }
 
     {// 创建表
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::CREATE_TABLE> builder;
-        builder.Table("tbl_role")
+        builder.DB("rpg").Table("tbl_role")
         .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'id'")
         // .Field("Id BIGINT NOT NULL DEFAULT 0 COMMENT \"id\"")
         // .Field("Id2 BIGINT NOT NULL AUTO_INCREMENT COMMENT \"Id2\"")
@@ -993,7 +995,7 @@ void TestSql::Run()
         .PrimaryKey("Id")
         .Comment("role table")
         ;
-        mysqlConnection->ExecuteSql(builder, 1, KERNEL_NS::MysqlConnect::DELG_NULL);
+        mysqlConnection->ExecuteSql(builder, 1);
     }
 
     KERNEL_NS::LibString data2k;
@@ -1003,14 +1005,14 @@ void TestSql::Run()
         data2k.AppendData("a");
     data2k.AppendData("'");
 
-    const Int64 count = 100000;
+    const Int64 count = 10;
     Int64 incId = 0;
     {// 插入数据
         std::vector<KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT>> multiSql;
         for(Int64 idx = 0; idx < count; ++idx)
         {
             KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT> builder;
-            builder.Table("tbl_role")
+            builder.DB("rpg").Table("tbl_role")
             .Fields({"RoleId", "UserId", "Name"})
             .Values({"100101", data2k, data2k});
 
@@ -1035,7 +1037,7 @@ void TestSql::Run()
             affectedRowCount += affectedRows;
             ++resCount;
 
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "inert seqId:%llu,ast incId:%lld, resCount:%d, affectedRowCount:%lld"), seqId, incId, resCount, affectedRowCount);
+            // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "inert seqId:%llu,ast incId:%lld, resCount:%d, affectedRowCount:%lld"), seqId, incId, resCount, affectedRowCount);
         });
         auto elapseMs = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(cpucount);
 
@@ -1046,7 +1048,7 @@ void TestSql::Run()
     {
         const Int32 selectCount = 10;
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SELECT> builder;
-        builder.From("tbl_role")
+        builder.DB("rpg").From("tbl_role")
         .OrderBy("Id asc")
         .Where(KERNEL_NS::LibString().AppendFormat("`Id` > %d", 0))
         .Limit(selectCount)
@@ -1055,10 +1057,193 @@ void TestSql::Run()
         const auto cpucount = KERNEL_NS::LibCpuCounter::Current();
         mysqlConnection->ExecuteSql(builder, 1, [](KERNEL_NS::MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, Int64 insertId, Int64 affectedRows, std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::Record, KERNEL_NS::AutoDelMethods::CustomDelete>> &records){
 
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "select seqId:%llu,ast insertId:%lld, affectedRowCount:%lld"), seqId, insertId, affectedRows);
+            // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "select seqId:%llu,ast insertId:%lld, affectedRowCount:%lld"), seqId, insertId, affectedRows);
         });
         auto elapseMs = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(cpucount);
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "select %d record cost:%llu ms"), selectCount, elapseMs);
+    }
+
+    // -------- stmt 接口 ----------------------
+    {// 建表
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DROP_TABLE> builder;
+        builder.DB("rpg").Table("tbl_test_stmt");
+        mysqlConnection->ExecuteSqlUsingStmt(builder, 1, {});
+
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::CREATE_TABLE> builder2;
+        builder2.DB("rpg").Table("tbl_test_stmt")
+        .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'id'")
+        // .Field("Id BIGINT NOT NULL DEFAULT 0 COMMENT \"id\"")
+        // .Field("Id2 BIGINT NOT NULL AUTO_INCREMENT COMMENT \"Id2\"")
+        .Field("RoleId INT NOT NULL COMMENT '角色id'")
+        .Field("UserId VARCHAR(4096) NOT NULL DEFAULT '' COMMENT '账号id'")
+        .Field("Name VARCHAR(4096) NOT NULL DEFAULT '' COMMENT '名字'")
+        .Field("TestText TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'test text'")
+        .Field("LoginTime INT DEFAULT 0 COMMENT '登录时间'")
+        .Field("Pb BLOB COMMENT 'pb data'")
+        .PrimaryKey("Id")
+        .Comment("tbl_test_stmt")
+        ;
+
+        mysqlConnection->ExecuteSqlUsingStmt(builder2, 1, {});
+    }
+    {// stmt 新增 数据
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT> builder;
+        builder.DB("rpg").Table("tbl_test_stmt")
+        .Fields({"RoleId", "UserId", "Name", "Pb"})
+        .Values({"?", "?", "?", "?"});
+
+        std::vector<KERNEL_NS::Field *> fields;
+        fields.resize(4);
+
+        {// ROLE ID
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "RoleId", MYSQL_TYPE_LONG);
+            Int32 roleId = 10001;
+            v->Write(&roleId, static_cast<Int64>(sizeof(roleId)));
+            fields[0] = v;
+        }
+
+        {// user id
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "UserId", MYSQL_TYPE_VARCHAR);
+            v->Write(data2k.c_str(), static_cast<Int64>(data2k.size()));
+            fields[1] = v;
+        }
+
+        {// name
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Name", MYSQL_TYPE_VARCHAR);
+            v->Write(data2k.c_str(), static_cast<Int64>(data2k.size()));
+            fields[2] = v;
+        }
+
+        {// pb
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB);
+            LoginReq req;
+            req.set_account("abc");
+            KERNEL_NS::LibString info;
+            req.SerializeToString(&info.GetRaw());
+
+            v->Write(info.c_str(), static_cast<Int64>(info.size()));
+            fields[3] = v;
+        }
+
+        for(Int32 idx = 0; idx < 10; ++idx)
+        {
+            mysqlConnection->ExecuteSqlUsingStmt(builder, 1, fields, [](KERNEL_NS::MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErr, bool isSendToMysql
+            , Int64 insertId, Int64 affectedRows, std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::Record, KERNEL_NS::AutoDelMethods::CustomDelete>> & records){
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert id:%lld, affected rows:%lld seqId:%llu"), insertId, affectedRows, seqId);
+            });
+        }
+    }
+
+    {// stmt 改数据
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::UPDATE> builder;
+        builder.DB("rpg").Table("tbl_test_stmt")
+        .Set("RoleId", "?")
+        .Set("UserId", "?")
+        .Set("Pb", "?")
+        .Where("`Id`=?")
+        ;
+
+        std::vector<KERNEL_NS::Field *> fields;
+        fields.resize(4);
+
+        {// ROLE ID
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "RoleId", MYSQL_TYPE_LONG);
+            Int32 roleId = 56;
+            v->Write(&roleId, static_cast<Int64>(sizeof(roleId)));
+            fields[0] = v;
+        }
+
+        {// user id
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "UserId", MYSQL_TYPE_VARCHAR);
+            KERNEL_NS::LibString uid = "hello world stmt\"";
+            v->Write(uid.c_str(), static_cast<Int64>(uid.size()));
+            fields[1] = v;
+        }
+
+        {// pb
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB);
+            LoginReq req;
+            req.set_account("kk liw");
+            KERNEL_NS::LibString info;
+            req.SerializeToString(&info.GetRaw());
+
+            v->Write(info.c_str(), static_cast<Int64>(info.size()));
+            fields[2] = v;
+        }
+
+        {// id
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Id", MYSQL_TYPE_LONGLONG);
+            Int64 id = 2;
+            v->Write(&id, static_cast<Int64>(sizeof(id)));
+            fields[3] = v;
+        }
+
+        mysqlConnection->ExecuteSqlUsingStmt(builder, 1, fields);
+    }
+
+    {// stmt 查数据
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SELECT> builder2;
+        builder2.DB("rpg").From("tbl_test_stmt")
+        .OrderBy("Id asc")
+        .Where(KERNEL_NS::LibString().AppendFormat("`Id` > ?"))
+        .Limit(10)
+        ;
+
+        std::vector<KERNEL_NS::Field *> fields2;
+        fields2.resize(1);
+
+        {
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Id", MYSQL_TYPE_LONGLONG);
+            Int64 id = 0;
+            v->Write(&id, static_cast<Int64>(sizeof(id)));
+            fields2[0] = v;
+        }
+
+        mysqlConnection->ExecuteSqlUsingStmt(builder2, 1, fields2, [](KERNEL_NS::MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErr, bool isSendToMysql
+        , Int64 insertId, Int64 affectedRows, std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::Record, KERNEL_NS::AutoDelMethods::CustomDelete>> & records)
+        {
+            for(auto &record : records)
+            {
+                auto field = record->GetField("Id");
+
+                // stmt 回来的数据是二进制流
+                Int64 id = field->GetData()->ReadInt64();
+
+                auto pbField = record->GetField("Pb");
+                LoginReq req;
+                req.ParseFromArray(pbField->GetData()->GetReadBegin(), static_cast<Int32>(pbField->GetData()->GetReadableSize()));
+
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert id:%lld, affected rows:%lld seqId:%llu id:%lld, account:%s, record:%s")
+                    , insertId, affectedRows, seqId, id, req.account().c_str(), record->ToString().c_str());
+            }
+
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert id:%lld, affected rows:%lld seqId:%llu, "), insertId, affectedRows, seqId);
+        });
+    }
+
+    {// stmt 删数据
+        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DELETE_RECORD> builder;
+        builder.DB("rpg").Table("tbl_test_stmt")
+        .Where("Id=?");
+        ;
+        std::vector<KERNEL_NS::Field *> fields;
+        fields.resize(1);
+        {// id
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Id", MYSQL_TYPE_LONGLONG);
+            Int64 id = 1;
+            v->Write(&id, static_cast<Int64>(sizeof(id)));
+            fields[0] = v;
+        }
+
+        mysqlConnection->ExecuteSqlUsingStmt(builder, 1, fields);
+    }
+
+    {// stmt pb的序列化存储
+
+    }
+
+    {// stmt pb的反序列化恢复
+
     }
 
     // 返回多值属于结构化绑定 至少需要c++17 

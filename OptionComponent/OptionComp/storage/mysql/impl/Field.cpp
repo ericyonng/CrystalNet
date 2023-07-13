@@ -41,10 +41,11 @@ Field::Field(const LibString &tableName, const LibString &name, Int32 dataType, 
 ,_index(-1)
 ,_name(name)
 ,_tableName(tableName)
-,_data(NULL)
+,_data(LibStream<_Build::TL>::NewThreadLocal_LibStream())
 ,_dataType(dataType)
 ,_release(NULL)
 ,_isNull(true)
+,_isUnsigned(false)
 {
 
 }
@@ -64,6 +65,39 @@ Field::~Field()
     }
 }
 
+Field::Field(const Field &other)
+{
+    _owner = other._owner;
+    _index = other._index;
+    _name = other._name;
+    _tableName = other._tableName;
+    _data = LibStream<_Build::TL>::NewThreadLocal_LibStream();
+    *_data = *(other._data);
+    _dataType = other._dataType;
+    _release = other._release->CreateNewCopy();
+    _isNull = other._isNull;
+    _isUnsigned = other._isUnsigned;
+}
+
+Field::Field(Field &&other)
+{
+    _owner = other._owner;
+    _index = other._index;
+    _name = other._name;
+    _tableName = other._tableName;
+    
+    _data = other._data;
+    other._data = NULL;
+
+    _dataType = other._dataType;
+    
+    _release = other._release;
+    other._release = NULL;
+
+    _isNull = other._isNull;
+    _isUnsigned = other._isUnsigned;
+}
+
 void Field::Write(const void *data, Int64 dataSize)
 {
     if(UNLIKELY(!data || dataSize <= 0))
@@ -77,6 +111,8 @@ void Field::Write(const void *data, Int64 dataSize)
     }
 
     _data->Write(data, dataSize);
+
+    SetIsNull(false);
 }
 
 Int64 Field::GetDataSize() const
@@ -130,6 +166,388 @@ const Byte8 *Field::DataTypeString(Int32 dataType)
     }
 
     return "UNKNOWN_DATA_TYPE";
+}
+
+// 写数据
+void Field::SetInt8(Byte8 v)
+{
+    _data->Reset();
+    _data->WriteInt8(v);
+    
+    _dataType = MYSQL_TYPE_TINY;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetInt16(Int16 v)
+{
+    _data->Reset();
+    _data->WriteInt16(v);
+
+    _dataType = MYSQL_TYPE_SHORT;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetInt32(Int32 v)
+{
+    _data->Reset();
+    _data->WriteInt32(v);
+
+    _dataType = MYSQL_TYPE_LONG;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetInt64(Int64 v)
+{
+    _data->Reset();
+    _data->WriteInt64(v);
+
+    _dataType = MYSQL_TYPE_LONGLONG;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetUInt8(U8 v)
+{
+    _data->Reset();
+    _data->Write(&v, static_cast<Int64>(sizeof(v)));
+
+    _dataType = MYSQL_TYPE_TINY;
+    _isNull = false;
+    _isUnsigned = true;
+}
+
+void Field::SetUInt16(UInt16 v)
+{
+    _data->Reset();
+    _data->Write(&v, static_cast<Int64>(sizeof(v)));
+
+    _dataType = MYSQL_TYPE_SHORT;
+    _isNull = false;
+    _isUnsigned = true;
+}
+
+void Field::SetUInt32(UInt32 v)
+{
+    _data->Reset();
+    _data->Write(&v, static_cast<Int64>(sizeof(v)));
+
+    _dataType = MYSQL_TYPE_LONG;
+    _isNull = false;
+    _isUnsigned = true;
+}
+void Field::SetUInt64(UInt64 v)
+{
+    _data->Reset();
+    _data->Write(&v, static_cast<Int64>(sizeof(v)));
+
+    _dataType = MYSQL_TYPE_LONGLONG;
+    _isNull = false;
+    _isUnsigned = true;
+}
+
+void Field::SetFloat(Float v)
+{
+    _data->Reset();
+    _data->Write(&v, static_cast<Int64>(sizeof(v)));
+
+    _dataType = MYSQL_TYPE_FLOAT;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetDouble(Double v)
+{
+    _data->Reset();
+    _data->Write(&v, static_cast<Int64>(sizeof(v)));
+
+    _dataType = MYSQL_TYPE_DOUBLE;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetString(const LibString &str)
+{
+    _data->Reset();
+    _data->Write(str.data(), static_cast<Int64>(str.size()));
+
+    _dataType = MYSQL_TYPE_VAR_STRING;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetString(const void *str, UInt64 strLen)
+{
+    _data->Reset();
+    _data->Write(str, static_cast<Int64>(strLen));
+
+    _dataType = MYSQL_TYPE_VAR_STRING;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetDatetime(const LibString &tm)
+{
+    KERNEL_NS::LibTime t = KERNEL_NS::LibTime::FromFmtString(tm);
+    SetDatetime(t);
+}
+
+void Field::SetDatetime(const LibTime &t)
+{
+    MYSQL_TIME mt;
+    mt.year = static_cast<decltype(mt.year)>(t.GetLocalYear());
+    mt.month = static_cast<decltype(mt.month)>(t.GetLocalMonth());
+    mt.day = static_cast<decltype(mt.day)>(t.GetLocalDay());
+    mt.hour = static_cast<decltype(mt.hour)>(t.GetLocalHour());
+    mt.minute = static_cast<decltype(mt.minute)>(t.GetLocalMinute());
+    mt.second = static_cast<decltype(mt.minute)>(t.GetLocalSecond());
+    mt.second_part = static_cast<decltype(mt.second_part)>(t.GetLocalMilliSecond());
+    mt.time_type = MYSQL_TIMESTAMP_DATETIME;
+    mt.time_zone_displacement = static_cast<decltype(mt.time_zone_displacement)>(KERNEL_NS::TimeUtil::GetTimeZone());
+
+    _data->Reset();
+    _data->Write(&mt, static_cast<Int64>(sizeof(mt)));
+
+    _dataType = MYSQL_TYPE_DATETIME;
+    _isNull = false;
+    _isUnsigned = true;
+}
+
+void Field::SetBlob(const LibString &b)
+{
+    _data->Reset();
+    _data->Write(b.data(), static_cast<Int64>(b.size()));
+
+    _dataType = MYSQL_TYPE_BLOB;
+    _isNull = false;
+    _isUnsigned = false;   
+}
+
+void Field::SetBlob(const void *p, UInt64 len)
+{
+    _data->Reset();
+    _data->Write(p, static_cast<Int64>(len));
+
+    _dataType = MYSQL_TYPE_BLOB;
+    _isNull = false;
+    _isUnsigned = false;  
+}
+
+void Field::SetMediumBlob(const LibString &b)
+{
+    _data->Reset();
+    _data->Write(b.data(), static_cast<Int64>(b.size()));
+
+    _dataType = MYSQL_TYPE_MEDIUM_BLOB;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetMediumBlob(const void *p, UInt64 len)
+{
+    _data->Reset();
+    _data->Write(p, static_cast<Int64>(len));
+
+    _dataType = MYSQL_TYPE_MEDIUM_BLOB;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetLongBlob(const LibString &b)
+{
+    _data->Reset();
+    _data->Write(b.data(), static_cast<Int64>(b.size()));
+
+    _dataType = MYSQL_TYPE_LONG_BLOB;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+void Field::SetLongBlob(const void *p, UInt64 len)
+{
+    _data->Reset();
+    _data->Write(p, static_cast<Int64>(len));
+
+    _dataType = MYSQL_TYPE_LONG_BLOB;
+    _isNull = false;
+    _isUnsigned = false;
+}
+
+// 读数据
+Byte8 Field::GetInt8() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadInt8();
+    return v;
+}
+
+Int16 Field::GetInt16() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadInt16();
+    return v;   
+}
+
+Int32 Field::GetInt32() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadInt32();
+    return v;   
+}
+
+Int64 Field::GetInt64() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadInt64();
+    return v; 
+}
+
+U8    Field::GetUInt8() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadUInt8();
+    return v; 
+}
+
+UInt16 Field::GetUInt16() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadUInt16();
+    return v; 
+}
+
+UInt32 Field::GetUInt32() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadUInt32();
+    return v; 
+}
+
+UInt64 Field::GetUInt64() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadUInt64();
+    return v; 
+}
+
+Float Field::GetFloat() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadFloat();
+    return v; 
+}
+
+Double Field::GetDouble() const
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    auto v = streamCache.ReadDouble();
+    return v; 
+}
+
+void Field::GetString(LibString &str)
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    str.AppendData(streamCache.GetReadBegin(), streamCache.GetReadableSize());
+}
+
+void Field::GetString(Byte8 *str, UInt64 strSize)
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
+    ::memcpy(str, streamCache.GetReadBegin(), strSize > rBytes ? rBytes : strSize);
+}
+
+void Field::GetDatetime(LibString &dt)
+{
+    MYSQL_TIME mt;
+    ::memset(&mt, 0, sizeof(mt));
+
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
+    ::memcpy(&mt, streamCache.GetReadBegin(), sizeof(mt) > rBytes ? rBytes : sizeof(mt));
+
+    const auto &t = LibTime::FromTimeMoment(mt.year, mt.month, mt.day, mt.hour, mt.minute, mt.second, mt.second_part);
+
+    dt = t.ToStringOfMillSecondPrecision();
+}
+
+void Field::GetBlob(LibString &b)
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    b.AppendData(streamCache.GetReadBegin(), streamCache.GetReadableSize());
+}
+
+void Field::GetBlob(Byte8 *b, UInt64 sz)
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
+    ::memcpy(b, streamCache.GetReadBegin(), sz > rBytes ? rBytes : sz);
+}
+
+void Field::GetMediumBlob(LibString &b)
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    b.AppendData(streamCache.GetReadBegin(), streamCache.GetReadableSize());
+}
+
+void Field::GetMediumBlob(Byte8 *b, UInt64 sz)
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
+    ::memcpy(b, streamCache.GetReadBegin(), sz > rBytes ? rBytes : sz);
+}
+
+void Field::GetLongBlob(LibString &b)
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    b.AppendData(streamCache.GetReadBegin(), streamCache.GetReadableSize());
+}
+
+void Field::GetLongBlob(Byte8 *b, UInt64 sz)
+{
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
+    streamCache.Attach(*_data);
+
+    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
+    ::memcpy(b, streamCache.GetReadBegin(), sz > rBytes ? rBytes : sz);
 }
 
 KERNEL_END

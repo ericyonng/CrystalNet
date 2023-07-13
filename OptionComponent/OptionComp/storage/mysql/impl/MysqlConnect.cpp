@@ -367,7 +367,9 @@ void MysqlConnect::_FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, boo
         {
             // 取当前字段信息并打印字段信息与数据
             auto curField = mysql_fetch_field_direct(res, idx);
-            record->AddField(idx, curField->table, curField->name, curField->type, row[idx], lens[idx]);
+            auto newField = record->AddField(idx, curField->table, curField->name, curField->type, row[idx], lens[idx]);
+            if(LIKELY(newField))
+                newField->SetIsUnsigned(curField->flags & UNSIGNED_FLAG);
 
             // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
             //     g_Log->Info(LOGFMT_OBJ_TAG("field:%s"), newField->ToString().c_str());
@@ -411,8 +413,10 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, Mysq
         {
             // 取当前字段信息并打印字段信息与数据
             auto curField = mysql_fetch_field_direct(res, idx);
-            record->AddField(idx, curField->table, curField->name, curField->type, row[idx], lens[idx]);
-
+            auto newField = record->AddField(idx, curField->table, curField->name, curField->type, row[idx], lens[idx]);
+            if(LIKELY(newField))
+                newField->SetIsUnsigned(curField->flags & UNSIGNED_FLAG);
+                
             // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
             //     g_Log->Info(LOGFMT_OBJ_TAG("field:%s"), newField->ToString().c_str());
         }

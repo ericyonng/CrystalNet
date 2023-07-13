@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <mysql.h>
 #include <OptionComp/storage/mysql/impl/SqlBuilder.h>
 #include <OptionComp/storage/mysql/impl/Record.h>
 #include <OptionComp/storage/mysql/impl/MysqlConnect.h>

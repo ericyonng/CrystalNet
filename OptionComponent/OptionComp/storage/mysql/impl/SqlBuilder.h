@@ -143,7 +143,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &FromDB(const LibString &db)
+    SqlBuilder<SqlBuilderType::SELECT> &DB(const LibString &db)
     {
         _db = db;
         return *this;

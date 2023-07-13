@@ -143,14 +143,15 @@ void PrepareStmt::BindParam(Field *field)
 {
     auto curIndex = _curBindParamIndex++;
     auto &bindParam = _bindParams[curIndex];
-    _paramValues[curIndex] = field;
-    bindParam.buffer_type = static_cast<enum_field_types>(field->GetType());
+    auto newField = Field::NewThreadLocal_Field(*field);
+    _paramValues[curIndex] = newField;
+    bindParam.buffer_type = static_cast<enum_field_types>(newField->GetType());
     
     // 绑定数据
-    if(field->GetType() != static_cast<Int32>(MYSQL_TYPE_NULL))
+    if(newField->GetType() != static_cast<Int32>(MYSQL_TYPE_NULL))
     {
-        bindParam.buffer = field->GetData()->GetReadBegin();
-        bindParam.buffer_length = static_cast<ULong>(field->GetData()->GetReadableSize());
+        bindParam.buffer = newField->GetData()->GetReadBegin();
+        bindParam.buffer_length = static_cast<ULong>(newField->GetData()->GetReadableSize());
     }
 }
 
@@ -323,8 +324,11 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
             auto &bindField = _resultBinds[idx];
             const auto &tableName = _indexRefTableName[idx];
             const auto &fieldName = _indexRefFieldName[idx];
-            const bool isNull = (bindField.is_null != 0);
-            record->AddField(idx, tableName, fieldName, bindField.buffer_type, isNull ? NULL : bindField.buffer, static_cast<Int64>(isNull ? 0 : bindField.buffer_length));
+            // const bool isNull = (bindField.is_null != 0);
+            Int64 len = static_cast<Int64>(bindField.length ? *(bindField.length) : 0);
+            auto newField = record->AddField(idx, tableName, fieldName, bindField.buffer_type, (len == 0) ? NULL : bindField.buffer, len);
+            if(LIKELY(newField))
+                newField->SetIsUnsigned(bindField.is_unsigned);
         }
         allRecords.push_back(record);
 
