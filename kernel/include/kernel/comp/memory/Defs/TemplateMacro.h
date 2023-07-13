@@ -32,7 +32,6 @@
 #pragma once
 
 #include <kernel/common/compile.h>
-#include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Utils/AllocUtil.h>
 

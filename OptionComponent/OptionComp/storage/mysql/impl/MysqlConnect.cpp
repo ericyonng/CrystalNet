@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <OptionComp/storage/mysql/impl/MysqlConnect.h>
 #include <OptionComp/storage/mysql/impl/Record.h>
+#include <OptionComp/storage/mysql/impl/PrepareStmt.h>
 
 #include <mysql.h>
 #include <kernel/comp/Utils/Utils.h>
@@ -67,6 +68,8 @@ MysqlConnect::MysqlConnect(UInt64 id)
 ,_mysql(NULL)
 ,_isConnected(false)
 ,_lastPingMs(0)
+,_lastErrno(0)
+,_stmtId(0)
 {
 
 }
@@ -83,6 +86,11 @@ void MysqlConnect::Close()
         mysql_close(_mysql);
         _mysql = NULL;
     }
+
+    KERNEL_NS::ContainerUtil::DelContainer(_stmtIdRefPrepareStmt, [](PrepareStmt *p){
+        PrepareStmt::DeleteThreadLocal_PrepareStmt(p);
+    });
+    _sqlRefPrepareStmt.clear();
 
     g_Log->Info(LOGFMT_OBJ_TAG("mysql connection closed %s"), ToString().c_str());
 }
@@ -127,6 +135,7 @@ LibString MysqlConnect::GetCarefulOptionsInfo() const
         if(err != 0)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_SET_CHARSET_NAME option fail err:%s"), mysql_error(_mysql));
+            _UpdateLastMysqlErrno();
             return "";
         }
 
@@ -139,6 +148,7 @@ LibString MysqlConnect::GetCarefulOptionsInfo() const
         if(err != 0)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_OPT_RECONNECT option fail err:%s"), mysql_error(_mysql));
+            _UpdateLastMysqlErrno();
             return "";
         }
 
@@ -151,6 +161,7 @@ LibString MysqlConnect::GetCarefulOptionsInfo() const
         if(err != 0)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_OPT_MAX_ALLOWED_PACKET option fail err:%s"), mysql_error(_mysql));
+            _UpdateLastMysqlErrno();
             return "";
         }
 
@@ -163,6 +174,7 @@ LibString MysqlConnect::GetCarefulOptionsInfo() const
         if(err != 0)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_OPT_OPTIONAL_RESULTSET_METADATA option fail err:%s"), mysql_error(_mysql));
+            _UpdateLastMysqlErrno();
             return "";
         }
 
@@ -176,6 +188,7 @@ LibString MysqlConnect::GetCarefulOptionsInfo() const
         if(err != 0)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("get MYSQL_OPT_BIND option fail err:%s"), mysql_error(_mysql));
+            _UpdateLastMysqlErrno();
             return "";
         }
 
@@ -243,16 +256,18 @@ Int32 MysqlConnect::Start()
     return Status::Success;
 }
 
-MYSQL_RES *MysqlConnect::_StoreResult() const
+MYSQL_RES *MysqlConnect::_StoreResult(bool &isSqlWithFieldsCountReturn) const
 {
     auto res = mysql_store_result(_mysql);
+    const auto fieldCount = mysql_field_count(_mysql);
+    isSqlWithFieldsCountReturn = fieldCount != 0;
+    
     if(!res)
     {
-        auto errNo = mysql_errno(_mysql);
+        auto errNo = _UpdateLastMysqlErrno();
         if(errNo == 0)
         {
-            const auto fieldCount = mysql_field_count(_mysql);
-            if(fieldCount != 0)
+            if(isSqlWithFieldsCountReturn)
             {// select等语句 有字段但是没有结果集
                 g_Log->Warn(LOGFMT_OBJ_TAG("have some field but have no result(perhaps select sql): fieldCount:%u, err:%s, connection info:%s")
                             , fieldCount, mysql_error(_mysql), ToString().c_str());
@@ -277,16 +292,18 @@ MYSQL_RES *MysqlConnect::_StoreResult() const
     return res;
 }
 
-MYSQL_RES *MysqlConnect::_UseResult() const
+MYSQL_RES *MysqlConnect::_UseResult(bool &isSqlWithFieldsCountReturn) const
 {
     auto res = mysql_use_result(_mysql);
+    const auto fieldCount = mysql_field_count(_mysql);
+    isSqlWithFieldsCountReturn = fieldCount != 0;
+
     if(!res)
     {
-        auto errNo = mysql_errno(_mysql);
+        auto errNo = _UpdateLastMysqlErrno();
         if(errNo == 0)
         {
-            const auto fieldCount = mysql_field_count(_mysql);
-            if(fieldCount != 0)
+            if(isSqlWithFieldsCountReturn)
             {// select等语句 有字段但是没有结果集
                 g_Log->Warn(LOGFMT_OBJ_TAG("have some field but have no result(perhaps select sql): fieldCount:%u, err:%s, connection info:%s")
                             , fieldCount, mysql_error(_mysql), ToString().c_str());
@@ -370,8 +387,10 @@ void MysqlConnect::_FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, boo
     }
 }
 
-void MysqlConnect::_FetchRows(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
+void MysqlConnect::_FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
 {
+    mysql_data_seek(res, 0);
+
     MYSQL_ROW row;
     auto fieldNum = mysql_num_fields(res);
     Int32 rowCount = 0;
@@ -404,8 +423,9 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bo
         records.push_back(record);
     }
 
+    auto mysqlErr = _UpdateLastMysqlErrno();
     if(LIKELY(cb))
-        cb->Invoke(this, !records.empty(), records);
+        cb->Invoke(this, seqId, mysqlErr == 0 ?Status::Success : Status::Failed, mysqlErr, true, 0, 0, records);
 }
 
 bool MysqlConnect::_ExcuteSql(const LibString &sql) const
@@ -418,6 +438,7 @@ bool MysqlConnect::_ExcuteSql(const LibString &sql) const
     auto ret = mysql_real_query(_mysql, sql.c_str(), static_cast<ULong>(sql.length()));
     if(ret != 0)
     {
+        _UpdateLastMysqlErrno();
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("connection info:%s, excute sql fail err:%s, sql size:%llu sql:", ToString().c_str(), mysql_error(_mysql), static_cast<UInt64>(sql.size())), sql);
         return false;
     }
@@ -426,6 +447,22 @@ bool MysqlConnect::_ExcuteSql(const LibString &sql) const
     const Int64 count = GetLastAffectedRow();
     if(g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql affected row:%lld, mysql_error:%s", _id, count, (count >= 0) ? "NONE" : mysql_error(_mysql)));
+
+    return true;
+}
+
+bool MysqlConnect::_ExecuteSqlUsingStmt(const LibString &sql, UInt64 seqId, const std::vector<Field *> &fields, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
+{
+    auto stmt = _GetStmt(sql);
+    if(!stmt)
+        stmt = _CreateStmt(sql);
+
+    auto ret = stmt->Execute(seqId, fields, cb);
+    if(ret != 0)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("stmt excute fail ret:%u"), ret);
+        return false;
+    }
 
     return true;
 }
@@ -475,6 +512,7 @@ bool MysqlConnect::_Connect()
     
     if(err != 0)
     {
+        _UpdateLastMysqlErrno();
         g_Log->Error(LOGFMT_OBJ_TAG("mysql_options fail error:%s, mysql connection info:%s"), mysql_error(_mysql), ToString().c_str());
         return false;
     }
@@ -486,6 +524,7 @@ bool MysqlConnect::_Connect()
 
     if(!mysql_real_connect(_mysql, _cfg._host.c_str(), _cfg._user.c_str(), _cfg._pwd.c_str(), NULL, _cfg._port, 0, flag))
     {
+        _UpdateLastMysqlErrno();
         g_Log->Error(LOGFMT_OBJ_TAG("mysql_real_connect fail connection info:%s, mysql error:%s"), ToString().c_str(), mysql_error(_mysql));
         return false;
     }
@@ -546,6 +585,7 @@ bool MysqlConnect::_Ping(const LibString &content)
         return true;
     }
 
+    _UpdateLastMysqlErrno();
     g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql disconnected connection info:%s, mysql error:%s\ncontent:.", ToString().c_str(), mysql_error(_mysql))
                 , content);
 
@@ -566,5 +606,37 @@ void MysqlConnect::_AddOpCount(Int32 type, Int64 count)
     iter->second._count += count;
 }
 
+UInt32 MysqlConnect::_UpdateLastMysqlErrno() const
+{
+    _lastErrString = mysql_error(_mysql);
+    return _lastErrno = mysql_errno(_mysql);
+}
+
+PrepareStmt *MysqlConnect::_CreateStmt(const LibString &sql)
+{
+    ++_stmtId;
+
+    SmartPtr<PrepareStmt, KERNEL_NS::AutoDelMethods::CustomDelete> newStmt = PrepareStmt::NewThreadLocal_PrepareStmt(this, sql, _stmtId);
+    newStmt.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<PrepareStmt *>(p);
+        PrepareStmt::DeleteThreadLocal_PrepareStmt(ptr);
+    });
+
+    if(!newStmt->Init())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("prepare stmt init fail connection: %s."), ToString().c_str());
+        return NULL;
+    }
+
+    _stmtIdRefPrepareStmt.insert(std::make_pair(_stmtId, newStmt.AsSelf()));
+    _sqlRefPrepareStmt.insert(std::make_pair(sql, newStmt.AsSelf()));
+    return newStmt.pop();
+}
+
+PrepareStmt *MysqlConnect::_GetStmt(const LibString &sql)
+{
+    auto iter = _sqlRefPrepareStmt.find(sql);
+    return iter == _sqlRefPrepareStmt.end() ? NULL : iter->second;
+}
 
 KERNEL_END

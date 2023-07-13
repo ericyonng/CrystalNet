@@ -74,6 +74,12 @@ void TestString::Run()
 
     KERNEL_NS::LibString str8 = "7897b0055789789";
     str8.stripString("789");
+
+    std::string stringEx;
+    stringEx = "hello";
+    stringEx = std::string("big world");
+    stringEx += std::string("5564");
+    stringEx << std::string("123");
 }
 
 

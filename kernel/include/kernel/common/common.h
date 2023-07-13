@@ -52,5 +52,6 @@
 #include <kernel/common/KernelExternTemplate.h>
 #include <kernel/common/Destructor.h>
 #include <kernel/common/CopyAdapter.h>
+#include <kernel/common/STLAlloctorEx.h>
 
 #endif

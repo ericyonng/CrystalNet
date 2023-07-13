@@ -39,7 +39,7 @@ TimeSlice::TimeSlice(const LibString &fmtSlice)
 {
     // Ensure the slice string is time format, not datetime format.
     LibString sliceRepr = fmtSlice;
-    const std::string &fmtRaw = fmtSlice.GetRaw();
+    const auto &fmtRaw = fmtSlice.GetRaw();
     std::string::size_type spaceIdx = fmtRaw.find(' ');
     if(spaceIdx != std::string::npos)
         sliceRepr = fmtRaw.substr(spaceIdx + 1);

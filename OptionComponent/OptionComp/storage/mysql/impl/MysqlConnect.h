@@ -29,6 +29,8 @@
  * 3.启用断线重连后执行sql如果远端mysql断开, 则重连后不需要重新配置mysql选项，也不用重新切换到配置指定的数据库，直接执行sql即可
  * 4.MysqlConnect只操作配置指定的数据库期间不支持切换到其他数据库，因为这样会引入混乱, 如果要操作多个数据库应该从设计上着手创建多个MysqlConnect即可满足要求
  * 5.一张表只能有一个自增id字段
+ * 6.MysqlConnect 不建议一次性批量执行多条语句, 因为有可能会因为网络问题导致从中间断开失败, 导致数据不一致, 所以默认是不打开批量执行
+ * 7.mysql connect 提交一个sql执行一定要保证其操作的原子性, 尤其是开启事务, 必须要批量发送过去, 做到要么全部发送, 要么不发送, 因为mysql连接是有可能会断开的
 */
 
 #ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MYSQL_IMPL_MYSQL_CONNECT_H__
@@ -50,6 +52,8 @@ KERNEL_BEGIN
 
 class LibSocket;
 class Record;
+class PrepareStmt;
+class Field;
 
 class MysqlOperateType
 {
@@ -98,16 +102,18 @@ struct MysqlConfig
 // 建议一个线程一个Connect
 class MysqlConnect
 {
+    friend class PrepareStmt;
+
     POOL_CREATE_OBJ_DEFAULT(MysqlConnect);
 
 public:
     // 空值(用于不需要回调时候匹配不同的Exe/UseTransAction函数)
-    static constexpr IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool> *DELG_NULL = NULL;
-    static constexpr void (*FUNC_NULL)(MysqlConnect *, bool, MYSQL_RES *, bool)  = NULL;
+    static constexpr IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *DELG_NULL = NULL;
+    static constexpr void (*FUNC_NULL)(MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &)  = NULL;
 
     // 事务的
-    static constexpr IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool, bool &> *TA_DELG_NULL = NULL;
-    static constexpr void (*TA_FUNC_NULL)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &)  = NULL;
+    static constexpr IDelegate<void,MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *TA_DELG_NULL = NULL;
+    static constexpr void (*TA_FUNC_NULL)(MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &)  = NULL;
 
 public:
     MysqlConnect(UInt64 id);
@@ -121,41 +127,29 @@ public:
     
     void Close();
 
-    // 注意builder不能是开启事务的, 开启事务由MySQLConnect加
-    // ExcuteSql时需要手动传入需不需要开启事务, 这样才可以准确的获取到AffectedRows和InsertId
-    // CallbackType:params:MysqlConnect *, bool, MYSQL_RES *res, bool, 一个res调用一次cb, 第一个bool:sql语句是否成功发送到MysqlServer, 第二个bool表示Sql全部执行完成与否
+    // stmt执行sql结果: MysqlConnect*, UInt64(seqId), Int32(runErrCode), UInt32(mysqlerr), bool(是否发送到mysqlserver), Int64(InsertId), Int64(AffectedRows), std::vector<SmartPtr<Record>>(数据),
+    template<SqlBuilderType::ENUMS T>
+    bool ExecuteSqlUsingStmt(const SqlBuilder<T> &builder, UInt64 seqId, const std::vector<Field *> &fields, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
     template<SqlBuilderType::ENUMS T, typename CallbackType>
-    bool ExcuteSql(const SqlBuilder<T> &builder, CallbackType &&cb, bool doPing = true);
-    template<typename CallbackType>
-    bool ExcuteSql(const LibString &sql, CallbackType &&cb, bool doPing = true);
-    template<SqlBuilderType::ENUMS T>
-    bool ExcuteSql(const SqlBuilder<T> &builder, IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool> *cb, bool doPing = true);
-    bool ExcuteSql(const LibString &sql, IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool> *cb, bool doPing = true);
-    template<SqlBuilderType::ENUMS T>
-    bool ExcuteSql(const SqlBuilder<T> &builder, void (*cb)(MysqlConnect *, bool, MYSQL_RES *, bool), bool doPing = true);
-    bool ExcuteSql(const LibString &sql, void (*cb)(MysqlConnect *, bool, MYSQL_RES *, bool), bool doPing = true);
-    template<SqlBuilderType::ENUMS T, typename ObjType>
-    bool ExcuteSql(const SqlBuilder<T> &builder, ObjType *obj, void (ObjType::*cb)(MysqlConnect *, bool, MYSQL_RES *, bool), bool doPing = true);
-    template<typename ObjType>
-    bool ExcuteSql(const LibString &sql, ObjType *obj, void (ObjType::*cb)(MysqlConnect *, bool, MYSQL_RES *, bool), bool doPing = true);
+    bool ExecuteSqlUsingStmt(const SqlBuilder<T> &builder, UInt64 seqId, const std::vector<Field *> &fields, CallbackType &&cb);
 
-    // 开启事务的方式执行sql
-    // CallbackType:params:MysqlConnect *, bool, MYSQL_RES *res, bool, bool &, 一个res调用一次cb, 第一个bool:sql语句是否成功发送到MysqlServer, 第二个bool表示Sql全部执行完成与否, bool &:需不需要回滚
+    // 执行普通sql
+    template<SqlBuilderType::ENUMS T>
+    bool ExecuteSql(const SqlBuilder<T> &builder, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
     template<SqlBuilderType::ENUMS T, typename CallbackType>
-    bool UseTransActionExcuteSql(const SqlBuilder<T> &builder, CallbackType &&cb, bool doPing = true);
-    template<typename CallbackType>
-    bool UseTransActionExcuteSql(const LibString &sql, CallbackType &&cb, bool doPing = true);
+    bool ExecuteSql(const SqlBuilder<T> &builder, UInt64 seqId, CallbackType &&cb);
+    
+    // 开启事务执行sql
     template<SqlBuilderType::ENUMS T>
-    bool UseTransActionExcuteSql(const SqlBuilder<T> &builder, IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool, bool &> *cb, bool doPing = true);
-    bool UseTransActionExcuteSql(const LibString &sql, IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool, bool &> *cb, bool doPing = true);
+    bool ExecuteSqlUsingTransAction(const SqlBuilder<T> &builder, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
     template<SqlBuilderType::ENUMS T>
-    bool UseTransActionExcuteSql(const SqlBuilder<T> &builder, void (*cb)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &), bool doPing = true);
-    bool UseTransActionExcuteSql(const LibString &sql, void (*cb)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &), bool doPing = true);
-    template<SqlBuilderType::ENUMS T, typename ObjType>
-    bool UseTransActionExcuteSql(const SqlBuilder<T> &builder, ObjType *obj, void (ObjType::*cb)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &), bool doPing = true);
-    template<typename ObjType>
-    bool UseTransActionExcuteSql(const LibString &sql, ObjType *obj, void (ObjType::*cb)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &), bool doPing = true);
-
+    bool ExecuteSqlUsingTransAction(const std::vector<SqlBuilder<T>> &builder, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
+    bool ExecuteSqlUsingTransAction(const LibString &sql, Int32 sqlCount, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
+    template<SqlBuilderType::ENUMS T, typename CallbackType>
+    bool ExecuteSqlUsingTransAction(const SqlBuilder<T> &builder, UInt64 seqId, CallbackType &&cb);
+    template<SqlBuilderType::ENUMS T, typename CallbackType>
+    bool ExecuteSqlUsingTransAction(const std::vector<SqlBuilder<T>> &builder, UInt64 seqId, CallbackType &&cb);
+    
     // 返回多值属于结构化绑定,至少需要C++17
     // std::tuple<Int32, LibString> TestMulti();
 
@@ -170,26 +164,8 @@ public:
     // 获取上次执行sql影响的行数(由执行完sql后自动返回的,有些sql不返回, 不返回的则此时是-1), 没有影响返回0
     Int64 GetLastAffectedRow() const;
 
-    // 直接将结果集拿回本地再逐行的取数据 lambda[](KERNEL_NS::MysqlConnect *conn, MYSQL_RES *) ->void
-    template<typename CallbackType>
-    bool StoreResult(CallbackType &&cb);
-
-    // 有可能不会拿到所有数据(尤其在网络不稳的情况下一部分一部分的取数据会取不全数据)
-    // 需要fetch_row一次一次的从远程取会结果(需要注意中间可能会断开连接) 需要设置本地缓存为1K然后取多条数据到本地测试断线重连情况 lambda[](KERNEL_NS::MysqlConnect *conn, MYSQL_RES *) ->void
-    template<typename CallbackType>
-    bool UseResult(CallbackType &&cb);
-
     // 判断执行完sql有没有结果
     bool HasNextResult() const;
-
-    // 逐行取数据(逐行回调)lambda[](MysqlConnect *, bool, SmartPtr<Record, AutoMethod::CustomDelete> &)->void bool:有没有数据, record:数据 FetchRow 
-    // 需要配合 UseResult或者StoreResult使用, Fetch不负责释放res
-    template<typename CallbackType>
-    void FetchRow(MYSQL_RES *res, CallbackType &&cb);
-    // 逐行取数据(回调时候是一次性多行)lambda[](MysqlConnect *, bool, bool, std::vector<SmartPtr<Record,  AutoMethod::CustomDelete>> &)->void bool:有没有数据
-    // 需要配合 UseResult或者StoreResult使用, Fetch不负责释放res
-    template<typename CallbackType>
-    void FetchRows(MYSQL_RES *res, CallbackType &&cb);
 
     // 获取当前结果取到本地缓存中的总行数（对于UserResult来说是一行一行取, 每次FetchRow时行数会增加）
     Int64 GetCurrentResultRows(MYSQL_RES *res) const;
@@ -203,20 +179,31 @@ public:
     // 上次ping的毫秒数
     UInt64 GetLastPingMs() const;
 
-    // 获取mysql错误
+    // 实时获取mysql错误
     UInt32 GetMysqlErrno() const;
     LibString GetMysqlError() const;
 
+    // 获取最近一次出错的错误码
+    UInt32 GetLastMysqlErrno() const;
+    const LibString &GetLastMysqlErrString() const;
+
+    const MYSQL *GetMysql() const;
+    MYSQL *GetMysql();
+
 private:
-    MYSQL_RES *_StoreResult() const;
-    MYSQL_RES *_UseResult() const;
+    MYSQL_RES *_StoreResult(bool &isSqlWithFieldsCountReturn) const;
+    MYSQL_RES *_UseResult(bool &isSqlWithFieldsCountReturn) const;
     void _FreeRes(MYSQL_RES *res) const;
 
     // cb:返回值, connect对象, 是否有数据, 当前行数据, 第一个bool:执行是否成功, 第二个bool:有没有数据
     void _FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, SmartPtr<Record, AutoDelMethods::CustomDelete> &> *cb);
-    void _FetchRows(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
+    void _FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
 
     bool _ExcuteSql(const LibString &sql) const;
+
+    bool _ExecuteSqlUsingStmt(const LibString &sql, UInt64 seqId, const std::vector<Field *> &fields, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
+    bool _ExcuteSql(const LibString &sql, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
+    bool _ExcuteSqlUsingTransAction(const LibString &sqls, Int32 sqlCount, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
 
     bool _Connect();
     bool _SelectDB();
@@ -226,6 +213,12 @@ private:
 
     void _AddOpCount(Int32 type, Int64 count = 1);
 
+    UInt32 _UpdateLastMysqlErrno() const;
+
+    // stmt
+    PrepareStmt *_CreateStmt(const LibString &sql);
+    PrepareStmt *_GetStmt(const LibString &sql);
+
 private:
     UInt64 _id;
     MysqlConfig _cfg;
@@ -233,6 +226,13 @@ private:
     bool _isConnected;
     std::unordered_map<Int32, MysqlOperateInfo> _typeRefOpInfo;
     UInt64 _lastPingMs;
+    mutable UInt32 _lastErrno;
+    mutable LibString _lastErrString;
+
+    // 预处理的sql
+    UInt64 _stmtId;
+    std::map<UInt64, PrepareStmt *> _stmtIdRefPrepareStmt;
+    std::map<LibString, PrepareStmt *> _sqlRefPrepareStmt;
 };
 
 ALWAYS_INLINE void MysqlConnect::SetConfig(const MysqlConfig &cfg)
@@ -245,608 +245,71 @@ ALWAYS_INLINE const MysqlConfig &MysqlConnect::GetConfig() const
     return _cfg;
 }
 
-template<SqlBuilderType::ENUMS T, typename CallbackType>
-ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const SqlBuilder<T> &builder, CallbackType &&cb, bool doPing)
-{
-    const auto &sql = builder.ToSql();
-    return ExcuteSql(builder.ToSql(), std::forward<CallbackType>(cb), doPing);
-}
-
-template<typename CallbackType>
-ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const LibString &sql, CallbackType &&cb, bool doPing)
-{
-    if(UNLIKELY(doPing))
-        for(;!_Ping(sql););
-
-    auto exeRet = _ExcuteSql(sql);
-    if(!exeRet)
-    {
-        cb(this, false, NULL, true);
-        return false;
-    }
-
-    do
-    {
-        auto res = _StoreResult();
-        cb(this, true, res, false);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-
-    cb(this, true, NULL, true);
-
-    return true;
-}
-
 template<SqlBuilderType::ENUMS T>
-ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const SqlBuilder<T> &builder, IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool> *cb, bool doPing)
+ALWAYS_INLINE bool MysqlConnect::ExecuteSqlUsingStmt(const SqlBuilder<T> &builder, UInt64 seqId, const std::vector<Field *> &fields, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
 {
-    return ExcuteSql(builder.ToSql(), cb, doPing);
-}
-
-ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const LibString &sql, IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool> *cb, bool doPing)
-{
-    if(UNLIKELY(doPing))
-        for(;!_Ping(sql););
-
-    auto exeRet = _ExcuteSql(sql);
-    if(!exeRet)
-    {
-        if(LIKELY(cb))
-        {
-            cb->Invoke(this, false, NULL, true);
-            cb->Release();
-        }
-
-        return false;
-    }
-
-    do
-    {
-        auto res = _StoreResult();
-        if(LIKELY(cb))
-            cb->Invoke(this, true, res, false);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-
-    if(LIKELY(cb))
-    {
-        cb->Invoke(this, true, NULL, true);
-        cb->Release();
-    }
-    
-    return true;
-}
-
-template<SqlBuilderType::ENUMS T>
-ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const SqlBuilder<T> &builder, void (*cb)(MysqlConnect *, bool, MYSQL_RES *, bool), bool doPing)
-{
-    return ExcuteSql(builder.ToSql(), cb, doPing);
-}
-
-ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const LibString &sql, void (*cb)(MysqlConnect *, bool, MYSQL_RES *, bool), bool doPing)
-{
-    if(UNLIKELY(doPing))
-        for(;!_Ping(sql););
-
-    auto exeRet = _ExcuteSql(sql);
-    if(!exeRet)
-    {
-        if(LIKELY(cb))
-            (*cb)(this, false, NULL, true);
-
-        return false;
-    }
-
-    do
-    {
-        auto res = _StoreResult();
-        if(LIKELY(cb))
-            (*cb)(this, true, res, false);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-
-    if(LIKELY(cb))
-        (*cb)(this, true, NULL, true);
-
-    return true;
-}
-
-template<SqlBuilderType::ENUMS T, typename ObjType>
-ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const SqlBuilder<T> &builder, ObjType *obj, void (ObjType::*cb)(MysqlConnect *, bool, MYSQL_RES *, bool), bool doPing)
-{
-    return ExcuteSql(builder.ToSql(), obj, cb, doPing);
-}
-
-template<typename ObjType>
-ALWAYS_INLINE bool MysqlConnect::ExcuteSql(const LibString &sql, ObjType *obj, void (ObjType::*cb)(MysqlConnect *, bool, MYSQL_RES *, bool), bool doPing)
-{
-    if(UNLIKELY(doPing))
-        for(;!_Ping(sql););
-
-    auto exeRet = _ExcuteSql(sql);
-    if(!exeRet)
-    {
-        if(LIKELY(obj && cb))
-            (obj->*cb)(this, false, NULL, true);
-
-        return false;
-    }
-
-    do
-    {
-        auto res = _StoreResult();
-        if(LIKELY(obj && cb))
-            (obj->*cb)(this, true, res, false);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-
-    if(LIKELY(obj && cb))
-        (obj->*cb)(this, true, NULL, true);
-
-    return true;
+    return _ExecuteSqlUsingStmt(builder.ToSql(), seqId, fields, cb);
 }
 
 template<SqlBuilderType::ENUMS T, typename CallbackType>
-ALWAYS_INLINE bool MysqlConnect::UseTransActionExcuteSql(const SqlBuilder<T> &builder, CallbackType &&cb, bool doPing)
+ALWAYS_INLINE bool MysqlConnect::ExecuteSqlUsingStmt(const SqlBuilder<T> &builder, UInt64 seqId, const std::vector<Field *> &fields, CallbackType &&cb)
 {
-    return UseTransActionExcuteSql(builder.ToSql(), cb, doPing);
-}
-
-template<typename CallbackType>
-ALWAYS_INLINE bool MysqlConnect::UseTransActionExcuteSql(const LibString &sql, CallbackType &&cb, bool doPing)
-{
-    if(UNLIKELY(doPing))
-        for(;!_Ping(sql););
-
-    {// 开启事务与关闭自动提交
-        std::vector<KERNEL_NS::LibString> sqls;
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::START_TRANSACTION>().ToSql());
-        sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(false).ToSql());
-        auto exeRet = _ExcuteSql(StringUtil::ToString(sqls, ";"));
-        if(!exeRet)
-        {
-            bool v = false;
-            // (bool &)保证签名匹配
-            cb(this, false, NULL, true, v);
-            return false;
-        }
-
-        // 获取结果集
-        do
-        {
-            auto res = _StoreResult();
-            if(LIKELY(res))
-                _FreeRes(res);
-        } while (HasNextResult());
-    }
-
-    // 执行真正的sql
-    auto exeRet = _ExcuteSql(sql);
-    if(!exeRet)
-    {
-        bool v = false;
-        cb(this, false, NULL, true, v);
-
-        // 提交事务
-        std::vector<KERNEL_NS::LibString> sqls;
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::COMMIT_TRANSACTION>().ToSql());
-        sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(true).ToSql());
-        if(_ExcuteSql(StringUtil::ToString(sqls, ";")))
-        {
-            // 获取结果集
-            do
-            {
-                auto res = _StoreResult();
-                if(LIKELY(res))
-                    _FreeRes(res);
-            } while (HasNextResult());
-        }
-
-        return false;
-    }
-
-    // 获取结果集
-    bool needRollback = false;
-    do
-    {
-        auto res = _StoreResult();
-        cb(this, true, res, false, needRollback);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-
-    // 完成后再调用
-    cb(this, true, NULL, true, needRollback);
-
-    // 处理回滚
-    std::vector<KERNEL_NS::LibString> sqls;
-    if(UNLIKELY(needRollback))
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::ROLLBACK>().ToSql());
-
-    // 提交事务
-    sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::COMMIT_TRANSACTION>().ToSql());
-    sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(true).ToSql());
-    if(_ExcuteSql(StringUtil::ToString(sqls, ";")))
-    {
-        // 获取结果集
-        do
-        {
-            auto res = _StoreResult();
-            if(LIKELY(res))
-                _FreeRes(res);
-        } while (HasNextResult());
-    }
-
-    return true;
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &);
+    auto ret = _ExecuteSqlUsingStmt(builder.ToSql(), seqId, fields, delg);
+    delg->Release();
+    return ret;
 }
 
 template<SqlBuilderType::ENUMS T>
-ALWAYS_INLINE bool MysqlConnect::UseTransActionExcuteSql(const SqlBuilder<T> &builder, IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool, bool &> *cb, bool doPing)
+ALWAYS_INLINE bool MysqlConnect::ExecuteSql(const SqlBuilder<T> &builder, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
 {
-    return UseTransActionExcuteSql(builder.ToSql(), cb, doPing);
+    return _ExcuteSql(builder.ToSql(), seqId, cb);
 }
 
-ALWAYS_INLINE bool MysqlConnect::UseTransActionExcuteSql(const LibString &sql, IDelegate<void, MysqlConnect *, bool, MYSQL_RES *, bool, bool &> *cb, bool doPing)
+template<SqlBuilderType::ENUMS T, typename CallbackType>
+ALWAYS_INLINE bool MysqlConnect::ExecuteSql(const SqlBuilder<T> &builder, UInt64 seqId, CallbackType &&cb)
 {
-   if(UNLIKELY(doPing))
-        for(;!_Ping(sql););
-
-    {// 开启事务与关闭自动提交
-        std::vector<KERNEL_NS::LibString> sqls;
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::START_TRANSACTION>().ToSql());
-        sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(false).ToSql());
-        auto exeRet = _ExcuteSql(StringUtil::ToString(sqls, ";"));
-        if(!exeRet)
-        {
-            if(LIKELY(cb))
-            {
-                bool v = false;
-                cb->Invoke(this, false, NULL, true, v);
-                cb->Release();
-            }
-
-            return false;
-        }
-
-        // 获取结果集
-        do
-        {
-            auto res = _StoreResult();
-            if(LIKELY(res))
-                _FreeRes(res);
-        } while (HasNextResult());
-    }
-
-    // 执行真正的sql
-    auto exeRet = _ExcuteSql(sql);
-    if(!exeRet)
-    {
-        if(LIKELY(cb))
-        {
-            bool v = false;
-            cb->Invoke(this, false, NULL, true, v);
-            cb->Release();
-        }
-
-        // 提交事务
-        std::vector<KERNEL_NS::LibString> sqls;
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::COMMIT_TRANSACTION>().ToSql());
-        sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(true).ToSql());
-        if(_ExcuteSql(StringUtil::ToString(sqls, ";")))
-        {
-            // 获取结果集
-            do
-            {
-                auto res = _StoreResult();
-                if(LIKELY(res))
-                    _FreeRes(res);
-            } while (HasNextResult());
-        }
-
-        return false;
-    }
-
-    // 获取结果集
-    bool needRollback = false;
-    do
-    {
-        auto res = _StoreResult();
-        if(LIKELY(cb))
-            cb->Invoke(this, true, res, false, needRollback);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-
-    if(LIKELY(cb))
-    {
-        cb->Invoke(this, true, NULL, true, needRollback);
-        cb->Release();
-    }
-
-    // 处理回滚
-    std::vector<KERNEL_NS::LibString> sqls;
-    if(UNLIKELY(needRollback))
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::ROLLBACK>().ToSql());
-
-    // 提交事务
-    sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::COMMIT_TRANSACTION>().ToSql());
-    sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(true).ToSql());
-    if(_ExcuteSql(StringUtil::ToString(sqls, ";")))
-    {
-        // 获取结果集
-        do
-        {
-            auto res = _StoreResult();
-            if(LIKELY(res))
-                _FreeRes(res);
-        } while (HasNextResult());
-    }
-
-    return true;
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &);
+    auto ret = _ExcuteSql(builder.ToSql(), seqId, delg);
+    delg->Release();
+    return ret;
 }
 
 template<SqlBuilderType::ENUMS T>
-ALWAYS_INLINE bool MysqlConnect::UseTransActionExcuteSql(const SqlBuilder<T> &builder, void (*cb)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &), bool doPing)
+ALWAYS_INLINE bool MysqlConnect::ExecuteSqlUsingTransAction(const SqlBuilder<T> &builder, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
 {
-    return UseTransActionExcuteSql(builder.ToSql(), cb, doPing);
+    return _ExcuteSqlUsingTransAction(builder.ToSql(), 1, seqId, cb);
 }
 
-ALWAYS_INLINE bool MysqlConnect::UseTransActionExcuteSql(const LibString &sql, void (*cb)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &), bool doPing)
+template<SqlBuilderType::ENUMS T>
+ALWAYS_INLINE bool MysqlConnect::ExecuteSqlUsingTransAction(const std::vector<SqlBuilder<T>> &builder, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
 {
-    if(UNLIKELY(doPing))
-        for(;!_Ping(sql););
-
-    {// 开启事务与关闭自动提交
-        std::vector<KERNEL_NS::LibString> sqls;
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::START_TRANSACTION>().ToSql());
-        sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(false).ToSql());
-        auto exeRet = _ExcuteSql(StringUtil::ToString(sqls, ";"));
-        if(!exeRet)
-        {
-            if(LIKELY(cb))
-            {
-                bool v = false;
-                (*cb)(this, false, NULL, true, v);
-            }
-
-            return false;
-        }
-
-        // 获取结果集
-        do
-        {
-            auto res = _StoreResult();
-            if(LIKELY(res))
-                _FreeRes(res);
-        } while (HasNextResult());
-    }
-
-    // 执行真正的sql
-    auto exeRet = _ExcuteSql(sql);
-    if(!exeRet)
-    {
-        if(LIKELY(cb))
-        {
-            bool v = false;
-            (*cb)(this, false, NULL, true, v);
-        }
-
-        // 提交事务
-        std::vector<KERNEL_NS::LibString> sqls;
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::COMMIT_TRANSACTION>().ToSql());
-        sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(true).ToSql());
-        if(_ExcuteSql(StringUtil::ToString(sqls, ";")))
-        {
-            // 获取结果集
-            do
-            {
-                auto res = _StoreResult();
-                if(LIKELY(res))
-                    _FreeRes(res);
-            } while (HasNextResult());
-        }
-
-        return false;
-    }
-
-    // 获取结果集
-    bool needRollback = false;
-    do
-    {
-        auto res = _StoreResult();
-        if(LIKELY(cb))
-            (*cb)(this, true, res, false, needRollback);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-
-    if(LIKELY(cb))
-        (*cb)(this, true, NULL, true, needRollback);
-
-    // 处理回滚
-    std::vector<KERNEL_NS::LibString> sqls;
-    if(UNLIKELY(needRollback))
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::ROLLBACK>().ToSql());
-
-    // 提交事务
-    sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::COMMIT_TRANSACTION>().ToSql());
-    sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(true).ToSql());
-    if(_ExcuteSql(StringUtil::ToString(sqls, ";")))
-    {
-        // 获取结果集
-        do
-        {
-            auto res = _StoreResult();
-            if(LIKELY(res))
-                _FreeRes(res);
-        } while (HasNextResult());
-    }
-
-    return true;
+    return _ExcuteSqlUsingTransAction(StringUtil::ToString(builder, ";"), static_cast<Int32>(builder.size()), seqId, cb);
 }
 
-template<SqlBuilderType::ENUMS T, typename ObjType>
-ALWAYS_INLINE bool MysqlConnect::UseTransActionExcuteSql(const SqlBuilder<T> &builder, ObjType *obj, void (ObjType::*cb)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &), bool doPing)
+ALWAYS_INLINE bool MysqlConnect::ExecuteSqlUsingTransAction(const LibString &sql, Int32 sqlCount, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
 {
-    return UseTransActionExcuteSql(builder.ToSql(), obj, cb, doPing);
+    return _ExcuteSqlUsingTransAction(sql, sqlCount, seqId, cb);
 }
 
-template<typename ObjType>
-ALWAYS_INLINE bool MysqlConnect::UseTransActionExcuteSql(const LibString &sql, ObjType *obj, void (ObjType::*cb)(MysqlConnect *, bool, MYSQL_RES *, bool, bool &), bool doPing)
+template<SqlBuilderType::ENUMS T, typename CallbackType>
+ALWAYS_INLINE bool MysqlConnect::ExecuteSqlUsingTransAction(const SqlBuilder<T> &builder, UInt64 seqId, CallbackType &&cb)
 {
-    if(UNLIKELY(doPing))
-        for(;!_Ping(sql););
-
-    {// 开启事务与关闭自动提交
-        std::vector<KERNEL_NS::LibString> sqls;
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::START_TRANSACTION>().ToSql());
-        sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(false).ToSql());
-        auto exeRet = _ExcuteSql(StringUtil::ToString(sqls, ";"));
-        if(!exeRet)
-        {
-            if(LIKELY(obj && cb))
-            {
-                bool v = false;
-                (obj->*cb)(this, false, NULL, true, v);
-            }
-
-            return false;
-        }
-
-        // 获取结果集
-        do
-        {
-            auto res = _StoreResult();
-            if(LIKELY(res))
-                _FreeRes(res);
-        } while (HasNextResult());
-    }
-
-    // 执行真正的sql
-    auto exeRet = _ExcuteSql(sql);
-    if(!exeRet)
-    {
-        if(LIKELY(obj && cb))
-        {
-            bool v = false;
-            (obj->*cb)(this, false, NULL, true, v);
-        }
-
-        // 提交事务
-        std::vector<KERNEL_NS::LibString> sqls;
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::COMMIT_TRANSACTION>().ToSql());
-        sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(true).ToSql());
-        if(_ExcuteSql(StringUtil::ToString(sqls, ";")))
-        {
-            // 获取结果集
-            do
-            {
-                auto res = _StoreResult();
-                if(LIKELY(res))
-                    _FreeRes(res);
-            } while (HasNextResult());
-        }
-
-        return false;
-    }
-
-    // 获取结果集
-    bool needRollback = false;
-    do
-    {
-        auto res = _StoreResult();
-        if(LIKELY(obj && cb))
-            (obj->*cb)(this, true, res, false, needRollback);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-
-    if(LIKELY(obj && cb))
-        (obj->*cb)(this, true, NULL, true, needRollback);
-
-    // 处理回滚
-    std::vector<KERNEL_NS::LibString> sqls;
-    if(UNLIKELY(needRollback))
-        sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::ROLLBACK>().ToSql());
-
-    // 提交事务
-    sqls.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::COMMIT_TRANSACTION>().ToSql());
-    sqls.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(true).ToSql());
-    if(_ExcuteSql(StringUtil::ToString(sqls, ";")))
-    {
-        // 获取结果集
-        do
-        {
-            auto res = _StoreResult();
-            if(LIKELY(res))
-                _FreeRes(res);
-        } while (HasNextResult());
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool MysqlConnect::Ping()
-{
-    return _Ping(LibString());
-}
-
-template<typename CallbackType>
-ALWAYS_INLINE bool MysqlConnect::StoreResult(CallbackType &&cb)
-{
-    do
-    {
-        auto res = _StoreResult();
-        cb(this, res);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-    
-    return true;
-}
-
-template<typename CallbackType>
-ALWAYS_INLINE bool MysqlConnect::UseResult(CallbackType &&cb)
-{
-    do
-    {
-        auto res = _UseResult();
-        cb(this, res);
-
-        if(LIKELY(res))
-            _FreeRes(res);
-    } while (HasNextResult());
-    
-    return true;
-}
-
-template<typename CallbackType>
-ALWAYS_INLINE void MysqlConnect::FetchRow(MYSQL_RES *res, CallbackType &&cb)
-{
-    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void , MysqlConnect *, bool, SmartPtr<Record, AutoDelMethods::CustomDelete> &);
-    _FetchRow(res, delg);
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &);
+    auto ret = _ExcuteSqlUsingTransAction(sql, 1, seqId, delg);
     delg->Release();
+
+    return ret;
 }
 
-template<typename CallbackType>
-ALWAYS_INLINE void MysqlConnect::FetchRows(MYSQL_RES *res, CallbackType &&cb)
+template<SqlBuilderType::ENUMS T, typename CallbackType>
+ALWAYS_INLINE bool MysqlConnect::ExecuteSqlUsingTransAction(const std::vector<SqlBuilder<T>> &builder, UInt64 seqId, CallbackType &&cb)
 {
-    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, MysqlConnect *, bool, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &);
-    _FetchRows(res, delg);
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &);
+    auto ret = _ExcuteSqlUsingTransAction(StringUtil::ToString(builder, ";"), static_cast<Int32>(builder.size()), seqId, delg);
     delg->Release();
+
+    return ret;
 }
 
 ALWAYS_INLINE const std::unordered_map<Int32, MysqlOperateInfo> &MysqlConnect::GetOperationInfos() const
@@ -857,6 +320,170 @@ ALWAYS_INLINE const std::unordered_map<Int32, MysqlOperateInfo> &MysqlConnect::G
 ALWAYS_INLINE UInt64 MysqlConnect::GetLastPingMs() const
 {
     return _lastPingMs;
+}
+
+ALWAYS_INLINE UInt32 MysqlConnect::GetLastMysqlErrno() const
+{
+    return _lastErrno;
+}
+
+ALWAYS_INLINE const LibString &MysqlConnect::GetLastMysqlErrString() const
+{
+    return _lastErrString;
+}
+
+ALWAYS_INLINE const MYSQL *MysqlConnect::GetMysql() const
+{
+    return _mysql;
+}
+
+ALWAYS_INLINE MYSQL *MysqlConnect::GetMysql()
+{
+    return _mysql;
+}
+
+ALWAYS_INLINE bool MysqlConnect::_ExcuteSql(const LibString &sql, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
+{
+    static std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::Record, KERNEL_NS::AutoDelMethods::CustomDelete>> s_empty;
+
+    auto exeRet = _ExcuteSql(sql);
+    if(!exeRet)
+    {
+        if(LIKELY(cb))
+            cb->Invoke(this, seqId, Status::Failed, _lastErrno, false, 0, 0, s_empty);
+
+        return false;
+    }
+
+    do
+    {
+        bool hasFieldsCount = false;
+        auto res = _StoreResult(hasFieldsCount);
+
+        // 可能有数据回来
+        if(hasFieldsCount)
+        {
+            if(res)
+                _FetchRows(res, seqId, cb);
+            else
+            {// 有字段信息但是没有数据结果
+                if(LIKELY(cb))
+                {
+                    UInt32 ret = 0;
+                    if(!res)
+                        ret = _UpdateLastMysqlErrno();
+
+                    cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, 0, 0, s_empty);
+                } 
+            }
+        }
+        else
+        {// 没有数据可回来, 那么回传InsertId, 和AffectedRow
+            auto lastInsertId = GetLastInsertIdOfAutoIncField();
+            auto lastAffectedRows = GetLastAffectedRow();
+            if(LIKELY(cb))
+            {
+                UInt32 ret = 0;
+                if(!res)
+                    ret = _UpdateLastMysqlErrno();
+
+                cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, lastInsertId, lastAffectedRows, s_empty);
+            }
+        }
+
+        if(LIKELY(res))
+            _FreeRes(res);
+    } while (HasNextResult());
+
+    return true;
+}
+
+ALWAYS_INLINE bool MysqlConnect::_ExcuteSqlUsingTransAction(const LibString &sqls, Int32 sqlCount, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
+{
+    if(UNLIKELY(sqls.empty()))
+        return false;
+
+    static std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::Record, KERNEL_NS::AutoDelMethods::CustomDelete>> s_empty;
+
+    // 必须开启事务
+    if(UNLIKELY(!_cfg._enableMultiStatements))
+    {
+        if(LIKELY(cb))
+            cb->Invoke(this, seqId, Status::Failed, 0, false, 0, 0, s_empty);
+
+        return false;
+    }
+
+    // 开启事务
+    std::vector<KERNEL_NS::LibString> sqlsParts;
+    sqlsParts.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::START_TRANSACTION>().ToSql());
+    sqlsParts.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(false).ToSql());
+
+    // 执行sql
+    sqlsParts.push_back(sqls);
+
+    // 提交事务
+    sqlsParts.push_back(SqlBuilder<KERNEL_NS::SqlBuilderType::COMMIT_TRANSACTION>().ToSql());
+    sqlsParts.push_back(KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SET_AUTOCOMMIT>().SetAutoCommit(true).ToSql());
+
+    // 发送到mysql执行
+    if(!_ExcuteSql(StringUtil::ToString(sqlsParts, ";")))
+    {
+        if(LIKELY(cb))
+            cb->Invoke(this, seqId, Status::Failed, _lastErrno, false, 0, 0, s_empty);
+
+        return false;
+    }
+
+    // 获取结果集
+    Int32 loop = 0;
+    const Int32 resultStart = 2;
+    const Int32 resultEnd = resultStart + sqlCount;
+    do
+    {
+        ++loop;
+        bool hasFieldsCount = false;
+        auto res = _StoreResult(hasFieldsCount);
+
+        // 只有在 resultStart 和 resultEnd之间才是sql执行的结果
+        if(loop >= resultStart && loop <= resultEnd)
+        {
+            if(hasFieldsCount)
+            {// 查询
+                if(res)
+                    _FetchRows(res, seqId, cb);
+                else
+                {// 有字段信息但是没有数据结果
+                    if(LIKELY(cb))
+                    {
+                        UInt32 ret = 0;
+                        if(!res)
+                            ret = _UpdateLastMysqlErrno();
+
+                        cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, 0, 0, s_empty);
+                    } 
+                }
+            }
+            else
+            {// 其他物结果的
+                auto lastInsertId = GetLastInsertIdOfAutoIncField();
+                auto lastAffectedRows = GetLastAffectedRow();
+                if(LIKELY(cb))
+                {
+                    UInt32 ret = 0;
+                    if(!res)
+                        ret = _UpdateLastMysqlErrno();
+
+                    cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, lastInsertId, lastAffectedRows, s_empty);
+                }
+            } 
+        }
+
+        if(LIKELY(res))
+            _FreeRes(res);
+    } while (HasNextResult());
+
+    return true;
 }
 
 KERNEL_END

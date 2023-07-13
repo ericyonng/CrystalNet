@@ -333,8 +333,8 @@ void StringUtil::SplitString(const LibString &str, const LibString &separator, s
     LibString::size_type prevPos = 0;
 
     LibString strInternal = str;
-    std::string &internalRaw = strInternal.GetRaw();
-	const std::string &sepRaw = separator.GetRaw();
+    auto &internalRaw = strInternal.GetRaw();
+	const auto &sepRaw = separator.GetRaw();
     const UInt64 stepSize = static_cast<UInt64>(sepRaw.size());
     while((curPos = internalRaw.find(sepRaw, curPos)) != std::string::npos)
     {

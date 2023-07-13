@@ -76,13 +76,6 @@ bool LibString::IsUtf8() const
 
 KERNEL_END
 
-template<typename T>
-KERNEL_NS::LibStream<T> &operator <<(KERNEL_NS::LibStream<T> &o, const KERNEL_NS::LibString &str)
-{
-    o.Write(str);
-    return o;
-}
-
 std::string &operator <<(std::string &o, const KERNEL_NS::LibString &str)
 {
     o += str.GetRaw();

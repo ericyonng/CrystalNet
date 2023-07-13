@@ -63,6 +63,7 @@ public:
     static Int32 CloseProcess(UInt64 processId, ULong *lastError = NULL);
     static Int32 SendCloseMsgToProcess(UInt64 processId, ULong *lastError = NULL);
     static UInt64 GetMainThreadId(UInt64 processId);
+    static UInt64 GetCurProcessMainThreadId();
 
     // 找进程id，isLikely:是否模糊匹配
     static bool GetProcessIdList(const LibString &processName, std::map<UInt64, LibString> &processIdRefNames, bool isLikely = true, bool isMatchPath = false);

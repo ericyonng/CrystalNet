@@ -44,6 +44,7 @@ Field::Field(const LibString &tableName, const LibString &name, Int32 dataType, 
 ,_data(NULL)
 ,_dataType(dataType)
 ,_release(NULL)
+,_isNull(true)
 {
 
 }

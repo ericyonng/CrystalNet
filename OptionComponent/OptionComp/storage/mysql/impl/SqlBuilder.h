@@ -440,7 +440,6 @@ public:
     SqlBuilder(){}
     ~SqlBuilder(){}
 
-
     SqlBuilder<SqlBuilderType::REPLACE_INTO> &Clear()
     {
         _fields.clear();

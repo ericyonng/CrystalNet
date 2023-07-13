@@ -27,6 +27,7 @@
  * Description: 
  *              1.由于AutoDel的特殊性（尤其针对闭包,有封闭的环境,所以不可任何情况下的转移,拷贝，以及赋值,要转移请pop）
  *              2. SmartPtr的引用计数线程不安全
+ *              3.由于SmartPtr引用计数使用了内存池分配所以，在使用SmartPtr包装内存池,对象池对象的时候需要警惕循环依赖（SmartPtr创建依赖内存池, 取内存池对象的时候又要创建SmartPtr对象, 导致死循环）
 */
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_SMART_PTR_H__
@@ -58,7 +59,7 @@ public:
     {
         if(LIKELY(_ptr))
         {
-            _ref = CRYSTAL_NEW(UInt64);
+            _ref = reinterpret_cast<Int64 *>(KERNEL_ALLOC_MEMORY_TL(sizeof(Int64)));
             *_ref = 1;
         }
     }
@@ -89,7 +90,7 @@ public:
         // 还有引用不可抛出去
         if(_ref && *_ref > 1)
         {
-            CRYSTAL_TRACE("ptr is hold by other smartptr objtype:%s, ref:%llu", typeid(ObjType).name(), *_ref);
+            CRYSTAL_TRACE("ptr is hold by other smartptr objtype:%s, ref:%lld", typeid(ObjType).name(), *_ref);
             return NULL;
         }
 
@@ -109,7 +110,12 @@ public:
         if(UNLIKELY(!_ref))
             return ptr;
 
-        CRYSTAL_DELETE_SAFE(_ref);
+        if(_ref)
+        {
+            KERNEL_FREE_MEMORY_TL(_ref);
+            _ref = NULL;
+        }
+
         return ptr;
     }
 
@@ -120,7 +126,11 @@ public:
         {
             _del.Cancel();
 
-            CRYSTAL_DELETE_SAFE(_ref);
+            if(_ref)
+            {
+                KERNEL_FREE_MEMORY_TL(_ref);
+                _ref = NULL;
+            }
 
             return;
         }
@@ -137,8 +147,11 @@ public:
             _del.Release(_ptr);
         _del.Cancel();
 
-        CRYSTAL_DELETE_SAFE(_ref);
-        _ref = NULL;
+        if(_ref)
+        {
+            KERNEL_FREE_MEMORY_TL(_ref);
+            _ref = NULL;
+        }
         _ptr = NULL;
     }
 
@@ -151,7 +164,7 @@ public:
         _ptr = ptr;
         if(LIKELY(_ptr))
         {
-            _ref = CRYSTAL_NEW(UInt64);
+            _ref = reinterpret_cast<Int64 *>(KERNEL_ALLOC_MEMORY_TL(sizeof(Int64)));
             *_ref = 1;
         }
 
@@ -278,7 +291,7 @@ public:
         _del.SetDelegate(delg);
     }
 
-    UInt64 GetRefCount() const
+    Int64 GetRefCount() const
     {
         return _ref ? *_ref : 0;
     }
@@ -324,7 +337,7 @@ private:
 
 protected:
     mutable ObjType *_ptr;
-    mutable UInt64 *_ref;
+    mutable Int64 *_ref;
     mutable AutoDel<delMethod> _del;
 };
 

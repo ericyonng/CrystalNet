@@ -436,16 +436,16 @@ ALWAYS_INLINE MemoryAssist<ObjType, BuildType, ParticleType> *MemoryAssist<ObjTy
 template<typename ObjType, typename BuildType, LockParticleType::ENUMS ParticleType>
 ALWAYS_INLINE MemoryAssist<ObjType, BuildType, ParticleType> *MemoryAssist<ObjType, BuildType, ParticleType>::_GetInstance(_Build::TL::Type)
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR SmartPtr<MemoryAssist<ObjType, BuildType, ParticleType>> staticAlloctor;
+    DEF_STATIC_THREAD_LOCAL_DECLEAR std::shared_ptr<MemoryAssist<ObjType, BuildType, ParticleType>> staticAlloctor;
     if(UNLIKELY(!staticAlloctor))
     {
-        staticAlloctor = AllocUtil::GetStaticThreadLocalTemplateObjNoFree<MemoryAssist<ObjType, BuildType, ParticleType>>([]() -> void * {
+        staticAlloctor = std::shared_ptr<MemoryAssist<ObjType, BuildType, ParticleType>>(AllocUtil::GetStaticThreadLocalTemplateObjNoFree<MemoryAssist<ObjType, BuildType, ParticleType>>([]() -> void * {
             return new MemoryAssist<ObjType, BuildType, ParticleType>();
-        });
+        }));
     }                                       
 
     // staticAlloctor->_againstLazy = 0;                                                                                                         
-    return staticAlloctor.AsSelf();
+    return staticAlloctor.get();
 }
 
 template<typename ObjType, typename BuildType, LockParticleType::ENUMS ParticleType>

@@ -151,21 +151,25 @@ void TestInst::Run(int argc, char const *argv[])
     printf("/*           Hello Crystal Net!              */\n");
     printf("/*********************************************/!\n\n");
 
-    SERVICE_COMMON_NS::ParamsInfo params;
-    KERNEL_NS::LibString errParamsInfo;
-    KERNEL_NS::LibString sucParamsInfo;
-    Int32 paramNum = SERVICE_COMMON_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
-
-    LogFactory logFactory;
-    KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
-    KERNEL_NS::LibString logIniPath;
-    logIniPath = programPath + "/ini/";
-    KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
-    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), KERNEL_NS::LibString(), KERNEL_NS::LibString(), true, params._fileSoftLimit, params._fileHardLimit);
-    if(err != Status::Success)
     {
-        CRYSTAL_TRACE("kernel init fail err:%d", err);
-        return;
+        SERVICE_COMMON_NS::ParamsInfo params;
+        KERNEL_NS::LibString errParamsInfo;
+        KERNEL_NS::LibString sucParamsInfo;
+        Int32 paramNum = SERVICE_COMMON_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
+
+        LogFactory logFactory;
+        KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+        KERNEL_NS::LibString logIniPath;
+        logIniPath = programPath + "/ini/";
+        KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
+        Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), KERNEL_NS::LibString(), KERNEL_NS::LibString(), true, params._fileSoftLimit, params._fileHardLimit);
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("kernel init fail err:%d", err);
+            return;
+        }
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "system test init paramNum:%d.\nsucParamsInfo:\n%s, errParamsInfo:\n%s."), paramNum, sucParamsInfo.c_str(), errParamsInfo.c_str());
     }
 
     // 安装loghook
@@ -175,9 +179,7 @@ void TestInst::Run(int argc, char const *argv[])
 
     // // TODO:analyze argv参数 使用lua分析
 
-    CRYSTAL_TRACE("test started.\n");
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "system test started paramNum:%d.\nsucParamsInfo:\n%s, errParamsInfo:\n%s."), paramNum, sucParamsInfo.c_str(), errParamsInfo.c_str());
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "nihao:你好.shabi " u8" 🌍 olleH"));
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "test started. nihao:你好.shabi " u8" 🌍 olleH"));
 
 // 
 //     KERNEL_NS::AllocUtil::GetStaticTemplateObjNoFree<Int32>([]()->Int32 * {
@@ -205,7 +207,7 @@ void TestInst::Run(int argc, char const *argv[])
 
     // //TestGarbageCollector::Run();
     // TestLibString::Run();
-    // TestString::Run();
+    TestString::Run();
     // TestTime::Run();
     // //TestFileUtil::Run();
     // TestGuid::Run();
@@ -242,7 +244,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestMemoryAssist::Run();
     // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
-    TestList::Run();
+    // TestList::Run();
     // TestDirectoryUtil::Run();
     // TestProtobuf::Run();
     // TestPopen::Run();

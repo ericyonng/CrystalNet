@@ -72,7 +72,7 @@ public:
     void SetType(Int32 mysqlFieldType);
 
     // 表名
-    const LibString GetTableName() const;
+    const LibString &GetTableName() const;
 
     // 字段所在行的索引
     Int32 GetIndexInRecord() const;
@@ -88,6 +88,10 @@ public:
     static const Byte8 *DataTypeString(Int32 dataType);
     const Byte8 *GetDataTypeString() const;
 
+    // 数据是否为空
+    bool IsNull() const;
+    void SetIsNull(bool isNull);
+
 private:
     // 设置释放的回调
     template<typename CallbackType>
@@ -102,6 +106,7 @@ private:
     LibStream<_Build::TL> *_data;
     Int32 _dataType;        // enum_field_types
     IDelegate<void, Field *> *_release; 
+    bool _isNull;
 };
 
 template<typename T>
@@ -159,7 +164,7 @@ ALWAYS_INLINE void Field::SetType(Int32 mysqlFieldType)
     _dataType = mysqlFieldType;
 }
 
-ALWAYS_INLINE const LibString Field::GetTableName() const
+ALWAYS_INLINE const LibString &Field::GetTableName() const
 {
     return _tableName;
 }
@@ -199,6 +204,16 @@ ALWAYS_INLINE LibString Field::ToString() const
 ALWAYS_INLINE const Byte8 *Field::GetDataTypeString() const
 {
     return DataTypeString(_dataType);
+}
+
+ALWAYS_INLINE bool Field::IsNull() const
+{
+    return _isNull;
+}
+
+ALWAYS_INLINE void Field::SetIsNull(bool isNull)
+{
+    _isNull = isNull;
 }
 
 template<typename CallbackType>

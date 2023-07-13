@@ -73,8 +73,8 @@ CenterMemoryCollector::~CenterMemoryCollector()
 
 CenterMemoryCollector *CenterMemoryCollector::GetInstance()
 {
-    static std::shared_ptr<CenterMemoryCollector> g_collector(new CenterMemoryCollector());
-    return g_collector.get();
+    static CenterMemoryCollector *g_collector = new CenterMemoryCollector();
+    return g_collector;
 }
 
 void CenterMemoryCollector::Start()
@@ -308,7 +308,13 @@ void CenterMemoryCollector::_DoWorker()
 void CenterMemoryCollector::_OnThreadDown()
 {
     for(auto iter : _threadIdRefThreadInfo)
+    {
+        // 主线程不清理
+        if(iter.first == SystemUtil::GetCurProcessMainThreadId())
+            continue;
+
         iter.second->OnCollectorThreadDown();
+    }
 }
 
 UInt64 CenterMemoryCollector::GetWorkerThreadId() const

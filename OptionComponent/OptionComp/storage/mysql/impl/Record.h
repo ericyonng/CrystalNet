@@ -102,6 +102,7 @@ ALWAYS_INLINE Field *Record::AddField(Int32 idx, const LibString &tableName, con
     auto field = Field::Create<T>(tableName, name, fieldType, this);
     field->SetIndexInRecord(idx);
     field->Write(data, dataSize);
+    field->SetIsNull(dataSize <= 0);
 
     if(UNLIKELY(!AddField(field)))
     {
@@ -117,6 +118,7 @@ ALWAYS_INLINE Field *Record::AddField(const LibString &tableName, const LibStrin
 {
     auto field = Field::Create<T>(tableName, name, fieldType, this);
     field->Write(data, dataSize);
+    field->SetIsNull(dataSize <= 0);
 
     if(UNLIKELY(!AddField(field)))
     {

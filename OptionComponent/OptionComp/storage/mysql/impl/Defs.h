@@ -21,59 +21,45 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-12-16 22:25:46
+ * Date: 2023-07-08 18:19:00
  * Author: Eric Yonng
- * Description: 拷贝器
+ * Description: Mysql定义
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_COPY_ADAPTER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_COPY_ADAPTER_H__
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MYSQL_IMPL_DEFS_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MYSQL_IMPL_DEFS_H__
 
 #pragma once
 
-#include <kernel/common/macro.h>
-#include <kernel/common/DataTypeAdapter.h>
+// mysql 网络错误 此时sql需要重新处理或者放入pending队列等到网络正常再处理
+#ifndef IS_MYSQL_NETWORK_ERROR
+ #define IS_MYSQL_NETWORK_ERROR(x) (((x) == CR_SERVER_GONE_ERROR) || ((x) == CR_SERVER_LOST))
+#endif
 
-KERNEL_BEGIN
+// 是否mysql数值
+#ifndef IS_MYSQL_NUM
+ #define IS_MYSQL_NUM(x) (\
+    ((x) == MYSQL_TYPE_TINY) ||\
+    ((x) == MYSQL_TYPE_YEAR) ||\
+    ((x) == MYSQL_TYPE_SHORT) ||\
+    ((x) == MYSQL_TYPE_INT24) ||\
+    ((x) == MYSQL_TYPE_LONG) ||\
+    ((x) == MYSQL_TYPE_LONGLONG) ||\
+    ((x) == MYSQL_TYPE_FLOAT) ||\
+    ((x) == MYSQL_TYPE_DOUBLE) ||\
+    )
 
+#endif
 
-// 流输出必须区分,指针,pod类型
-template<typename _Ty, LibDataType::ENUMS _DataType>
-class KernelCopyAdapter
-{
-public:
-    static void Invoke(_Ty &target, _Ty &source);
-};
-
-template<typename _Ty, LibDataType::ENUMS _DataType>
-ALWAYS_INLINE void KernelCopyAdapter<_Ty, _DataType>::Invoke(_Ty &target, _Ty &source)
-{
-    target = source;
-}
-
-// ARRAY
-template<typename _Ty>
-class KernelCopyAdapter<_Ty, LibDataType::ARRAY_TYPE>
-{
-public:
-    // template<size_t _ArrLen>
-    // static void Invoke(_Ty (&target)[_ArrLen], _Ty (&source)[_ArrLen])
-    // {
-    //     ::memcpy(target, source, sizeof(_Ty) * _ArrLen);
-    // }
-
-    static ALWAYS_INLINE void Invoke(_Ty target, _Ty source)
-    {
-        ::memcpy(target, source, sizeof(_Ty));
-    }
-};
-
-template<typename _Ty>
-class CopyAdapter : public KernelCopyAdapter<_Ty, LibTraitsDataType<_Ty>::value>
-{
-
-};
-
-KERNEL_END
+// 释放需要 mysql_stmt_send_long_data
+#ifndef IS_MYSQL_NEED_SEND_LONG_DATA
+ #define IS_MYSQL_NEED_SEND_LONG_DATA(x)        \
+    ((x) == MYSQL_TYPE_BLOB) ||                 \
+    ((x) == MYSQL_TYPE_STRING) ||               \
+    ((x) == MYSQL_TYPE_TINY_BLOB) ||            \
+    ((x) == MYSQL_TYPE_MEDIUM_BLOB) ||          \
+    ((x) == MYSQL_TYPE_LONG_BLOB) ||            \
+    ((x) == MYSQL_TYPE_VAR_STRING)
+#endif
 
 #endif

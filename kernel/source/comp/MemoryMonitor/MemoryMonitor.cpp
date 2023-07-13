@@ -54,9 +54,9 @@ MemoryMonitor::~MemoryMonitor()
 
 MemoryMonitor *MemoryMonitor::GetInstance()
 {
-    static SmartPtr<MemoryMonitor> s_Monitor = CRYSTAL_NEW(MemoryMonitor);
+    static std::shared_ptr<MemoryMonitor> s_Monitor(CRYSTAL_NEW(MemoryMonitor));
 
-    return s_Monitor.AsSelf();
+    return s_Monitor.get();
 }
 
 Int32 MemoryMonitor::Init(Int64 milliSecInterval)
@@ -91,9 +91,9 @@ void MemoryMonitor::Close()
 
 Statistics *MemoryMonitor::GetStatistics()
 {
-    static SmartPtr<Statistics> s_statistics = new Statistics;
+    static std::shared_ptr<Statistics> s_statistics(new Statistics);
 
-    return s_statistics.AsSelf();
+    return s_statistics.get();
 }
 
 void MemoryMonitor::_DoWork()

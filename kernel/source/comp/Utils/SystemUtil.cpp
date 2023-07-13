@@ -363,6 +363,10 @@ UInt64 SystemUtil::GetMainThreadId(UInt64 processId)
     #endif
 }
 
+UInt64 SystemUtil::GetCurProcessMainThreadId()
+{
+    return GetMainThreadId(static_cast<UInt64>(GetCurProcessId()));
+}
 
 bool SystemUtil::GetProcessIdList(const LibString &processName, std::map<UInt64, LibString> &processIdRefNames, bool isLikely, bool isMatchPath)
 {

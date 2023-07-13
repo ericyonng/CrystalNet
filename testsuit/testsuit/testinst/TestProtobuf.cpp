@@ -42,7 +42,9 @@ void TestProtobuf::Run()
     req->set_account("abc");
 
     KERNEL_NS::LibString info;
-    req->SerializeToString(&info.GetRaw());
+    std::string data;
+    req->SerializeToString(&data);
+    info = data;
     req->PrintDebugString();
 
     LoginReq *req2 = new LoginReq;

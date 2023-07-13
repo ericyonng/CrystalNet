@@ -124,6 +124,7 @@ public:
     Int64 GetReadableSize() const;
     bool IsReadFull() const;
     const Byte8 *GetReadBegin() const;
+    Byte8 *GetReadBegin();
 
     // 字节流序列化反序列化
     bool SerializeTo(LibString &str) const;
@@ -610,6 +611,12 @@ ALWAYS_INLINE bool LibStream<BuildType>::IsReadFull() const
 
 template<typename BuildType>
 ALWAYS_INLINE const Byte8 *LibStream<BuildType>::GetReadBegin() const
+{
+    return _buff + _readPos;
+}
+
+template<typename BuildType>
+ALWAYS_INLINE Byte8 *LibStream<BuildType>::GetReadBegin()
 {
     return _buff + _readPos;
 }

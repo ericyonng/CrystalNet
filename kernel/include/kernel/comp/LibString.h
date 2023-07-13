@@ -386,14 +386,13 @@ private:
     // hex=>decimal
     U8 _TurnDecimal(const Byte8 hexChar);
 
-    
-
 private:
     std::string _raw;
 };
 
 ALWAYS_INLINE LibString::LibString()
 {
+    
 }
 
 ALWAYS_INLINE LibString::LibString(LibString &&other)
@@ -414,7 +413,8 @@ ALWAYS_INLINE LibString::LibString(const LibString &other)
 
 ALWAYS_INLINE LibString::LibString(const std::string &other)
 {
-    _raw = other;
+    if(LIKELY(!other.empty()))
+        _raw.append(other.data(), other.size());
 }
 
 ALWAYS_INLINE LibString::LibString(const Byte8 *other)
@@ -482,7 +482,7 @@ ALWAYS_INLINE LibString &LibString::operator += (const Byte8 *other)
 
 ALWAYS_INLINE LibString &LibString::operator += (const std::string &other)
 {
-    _raw.append(other.c_str(), other.size());
+    _raw += other;
     return *this;
 }
 
@@ -498,7 +498,7 @@ ALWAYS_INLINE LibString &LibString::operator *= (size_t right)
     }
 
     _ThisType unitStr(*this);
-    std::string &unitRaw = unitStr._raw;
+    auto &unitRaw = unitStr._raw;
 
     const _Elem *unitStrBuf = unitRaw.data();
     typename LibString::size_type unitStrSize = unitRaw.size();
@@ -535,6 +535,7 @@ ALWAYS_INLINE LibString LibString::operator - (const std::string &other) const
     return LibString::operator -(LibString(other));
 }
 
+
 ALWAYS_INLINE LibString &LibString::operator -= (const LibString &other)
 {
     auto pos = _raw.find(other._raw);
@@ -557,6 +558,7 @@ ALWAYS_INLINE LibString &LibString::operator -= (const std::string &other)
 {
     return LibString::operator -=(LibString(other));
 }
+
 
 ALWAYS_INLINE LibString &LibString::operator << (const LibString &str)
 {
@@ -587,11 +589,9 @@ ALWAYS_INLINE LibString &LibString::operator << (const std::string &str)
 
 ALWAYS_INLINE LibString &LibString::operator << (std::string &&str)
 {
-    _raw.append(str);
+    _raw += str;
     if (UNLIKELY(&_raw != &str))
-        str.clear();
-
-    return *this;
+        str.clear();    return *this;
 }
 
 ALWAYS_INLINE LibString &LibString::operator << (const bool &val)
@@ -2038,6 +2038,13 @@ struct hash<KERNEL_NS::LibString>
     }
 };
 
+}
+
+template<typename T>
+ALWAYS_INLINE KERNEL_NS::LibStream<T> &operator <<(KERNEL_NS::LibStream<T> &o, const KERNEL_NS::LibString &str)
+{
+    o.Write(str);
+    return o;
 }
 
 #endif

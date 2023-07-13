@@ -133,6 +133,34 @@ LibString &KernelAppendFormat(LibString &o, const Byte8 *fmt, ...)
     return o;
 }
 
+template<>
+void *KernelAllocMemoryBy<_Build::MT>(void *pool, UInt64 memSize)
+{
+    auto p = reinterpret_cast<MemoryPool *>(pool);
+    return p->AllocAdapter<_Build::MT>(memSize);
+}
+
+template<>
+void *KernelAllocMemoryBy<_Build::TL>(void *pool, UInt64 memSize)
+{
+    auto p = reinterpret_cast<MemoryPool *>(pool);
+    return p->AllocAdapter<_Build::TL>(memSize);
+}
+
+template<>
+void KernelFreeMemoryBy<_Build::MT>(void *pool, void *ptr)
+{
+    auto p = reinterpret_cast<MemoryPool *>(pool);
+    return p->FreeAdapter<_Build::MT>(ptr);
+}
+
+template<>
+void KernelFreeMemoryBy<_Build::TL>(void *pool, void *ptr)
+{
+    auto p = reinterpret_cast<MemoryPool *>(pool);
+    return p->FreeAdapter<_Build::TL>(ptr);
+}
+
 KERNEL_END
 
 // std::atomic<Int64> g_TotalBytes = {0};
@@ -157,4 +185,5 @@ KERNEL_END
 
 //     return ::malloc(bytes);
 // }
+
 

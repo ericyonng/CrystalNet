@@ -28,7 +28,6 @@
 
 #include <pch.h>
 #include <kernel/comp/memory/MemoryAssist.h>
-#include <kernel/comp/SmartPtr.h>
 
 KERNEL_BEGIN
 

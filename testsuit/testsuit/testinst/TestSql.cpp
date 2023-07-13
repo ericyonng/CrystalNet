@@ -976,7 +976,7 @@ void TestSql::Run()
     {// 删除表
         KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DROP_TABLE> builder;
         builder.Table("tbl_role");
-        mysqlConnection->ExcuteSql(builder, KERNEL_NS::MysqlConnect::FUNC_NULL);
+        mysqlConnection->ExecuteSql(builder, 1, KERNEL_NS::MysqlConnect::FUNC_NULL);
     }
 
     {// 创建表
@@ -993,7 +993,7 @@ void TestSql::Run()
         .PrimaryKey("Id")
         .Comment("role table")
         ;
-        mysqlConnection->ExcuteSql(builder, KERNEL_NS::MysqlConnect::DELG_NULL);
+        mysqlConnection->ExecuteSql(builder, 1, KERNEL_NS::MysqlConnect::DELG_NULL);
     }
 
     KERNEL_NS::LibString data2k;
@@ -1006,8 +1006,7 @@ void TestSql::Run()
     const Int64 count = 100000;
     Int64 incId = 0;
     {// 插入数据
-
-        std::vector<KERNEL_NS::LibString> multiSql;
+        std::vector<KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT>> multiSql;
         for(Int64 idx = 0; idx < count; ++idx)
         {
             KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT> builder;
@@ -1015,36 +1014,29 @@ void TestSql::Run()
             .Fields({"RoleId", "UserId", "Name"})
             .Values({"100101", data2k, data2k});
 
-            multiSql.push_back(builder.ToSql());
+            multiSql.push_back(builder);
         }
-
-        const auto &sql = KERNEL_NS::StringUtil::ToString(multiSql, ";");
 
         Int32 resCount = 0;
         Int64 affectedRowCount = 0;
 
         const auto cpucount = KERNEL_NS::LibCpuCounter::Current();
-        mysqlConnection->UseTransActionExcuteSql(sql, [&incId, &resCount, &affectedRowCount](KERNEL_NS::MysqlConnect *conn, bool isSucSendToMysql, MYSQL_RES *res, bool isFinished, bool &){
-            if(!isSucSendToMysql)
+        mysqlConnection->ExecuteSqlUsingTransAction(multiSql, 1, [&incId, &resCount, &affectedRowCount] (KERNEL_NS::MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, Int64 insertId, Int64 affectedRows, std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::Record, KERNEL_NS::AutoDelMethods::CustomDelete>> &records){
+            
+            if(errCode != Status::Success)
             {
-                g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestSql, "send to mysql fail"));
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestSql, "insert fail errCode:%d, mysqlErrno:%u connection:%s"), errCode, mysqlErrno, conn->ToString().c_str());
                 return;
             }
 
-            if(isFinished)
-            {
-                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert all records resCount:%d, affectedRowCount:%lld"), resCount, affectedRowCount);
-                return;
-            }
-
-            ++resCount;
-            const auto insertId = conn->GetLastInsertIdOfAutoIncField();
-            if(insertId > incId)
+            if(incId < insertId)
                 incId = insertId;
 
-            affectedRowCount += conn->GetLastAffectedRow();
+            affectedRowCount += affectedRows;
+            ++resCount;
 
-        }, false);
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "inert seqId:%llu,ast incId:%lld, resCount:%d, affectedRowCount:%lld"), seqId, incId, resCount, affectedRowCount);
+        });
         auto elapseMs = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(cpucount);
 
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert %lld record cost:%llu ms, last incId:%lld, resCount:%d, affectedRowCount:%lld"), count, elapseMs, incId, resCount, affectedRowCount);
@@ -1061,24 +1053,9 @@ void TestSql::Run()
         ;
 
         const auto cpucount = KERNEL_NS::LibCpuCounter::Current();
-        mysqlConnection->ExcuteSql(builder, [](KERNEL_NS::MysqlConnect *conn, bool isSucSendToMysql, MYSQL_RES *res, bool isFinished){
-            if(!isSucSendToMysql)
-                return;
+        mysqlConnection->ExecuteSql(builder, 1, [](KERNEL_NS::MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, Int64 insertId, Int64 affectedRows, std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::Record, KERNEL_NS::AutoDelMethods::CustomDelete>> &records){
 
-            if(!res)
-                return;
-
-            if(isFinished)
-                return;
-
-            conn->FetchRow(res, [](KERNEL_NS::MysqlConnect *conn, bool hasRecord, KERNEL_NS::SmartPtr<KERNEL_NS::Record, KERNEL_NS::AutoDelMethods::CustomDelete> &record){
-                // if(!hasRecord)
-                //     return;
-
-                // auto idField = record->GetField("Id")->GetData();
-                // const auto id = KERNEL_NS::StringUtil::StringToInt64(KERNEL_NS::LibString().AppendData(idField->GetReadBegin(), idField->GetReadableSize()).c_str());
-                // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "get record id value:%lld"), id);
-            });
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "select seqId:%llu,ast insertId:%lld, affectedRowCount:%lld"), seqId, insertId, affectedRows);
         });
         auto elapseMs = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(cpucount);
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "select %d record cost:%llu ms"), selectCount, elapseMs);

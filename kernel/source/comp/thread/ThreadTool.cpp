@@ -59,16 +59,18 @@ void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId,
 
 void ThreadTool::OnDestroy()
 {
+    const auto currentThreadId = SystemUtil::GetCurrentThreadId();
     // 得等收集器关闭
     auto centerMemroyCollector = CenterMemoryCollector::GetInstance();
-    if(centerMemroyCollector->GetWorkerThreadId() != SystemUtil::GetCurrentThreadId())
-        centerMemroyCollector->OnThreadQuit(SystemUtil::GetCurrentThreadId());
+    if(centerMemroyCollector->GetWorkerThreadId() != currentThreadId)
+        centerMemroyCollector->OnThreadQuit(currentThreadId);
 
-    // tls 资源清理
-    TlsUtil::ClearTlsResource();
+    // tls 资源清理 主线程不释放资源, 因为全局对象可能在程序结束时候需要使用到内存释放
+    if(currentThreadId != SystemUtil::GetCurProcessMainThreadId())
+        TlsUtil::ClearTlsResource();
 
     // 释放线程局部存储资源
-    if(centerMemroyCollector->GetWorkerThreadId() == SystemUtil::GetCurrentThreadId())
+    if(centerMemroyCollector->GetWorkerThreadId() == currentThreadId)
         TlsUtil::DestroyTlsStack();
 }
 

@@ -30,7 +30,6 @@
 #include <kernel/comp/memory/MemoryPool.h>
 #include <kernel/comp/memory/BufferBlockLimit.h>
 #include <kernel/comp/memory/MemoryAlloctor.h>
-#include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/MemoryMonitor/memorymonitor_inc.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/SystemUtil.h>
@@ -104,9 +103,8 @@ MemoryPool::MemoryPool(bool isThreadLocal, const InitMemoryPoolInfo &initInfo, c
 
 MemoryPool *MemoryPool::GetInstance(const InitMemoryPoolInfo &initInfo)
 {
-    static SmartPtr<MemoryPool> pool = new MemoryPool(false, initInfo);
-
-    return pool.AsSelf();
+    static std::shared_ptr<MemoryPool> pool(new MemoryPool(false, initInfo));
+    return pool.get();
 }
 
 Int32 MemoryPool::Init()

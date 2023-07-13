@@ -24,6 +24,7 @@
  * Date: 2020-12-21 01:56:43
  * Author: Eric Yonng
  * Description: 
+ * 模板函数已经显示实例化在kernel静态库中，只要其他程序使用kernel的静态库就会找到实例化的模板而不必重新实例化
 */
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_FUNC_H__
@@ -70,6 +71,25 @@ extern void *KernelAllocMemory(UInt64 memSize);
 // 释放内存
 template<typename BuildType>
 extern void KernelFreeMemory(void *ptr);
+
+template<typename BuildType>
+extern void *KernelAllocMemoryBy(void *pool, UInt64 memSize);
+template<typename BuildType>
+extern void KernelFreeMemoryBy(void *pool, void *ptr);
+
+// 内存分配宏
+#ifndef KERNEL_ALLOC_MEMORY_TL 
+ #define KERNEL_ALLOC_MEMORY_TL(Sz) KernelAllocMemory<_Build::TL>(Sz)
+#endif
+#ifndef KERNEL_ALLOC_MEMORY_MT 
+ #define KERNEL_ALLOC_MEMORY_MT(Sz) KernelAllocMemory<_Build::MT>(Sz)
+#endif
+#ifndef KERNEL_FREE_MEMORY_TL
+ #define KERNEL_FREE_MEMORY_TL(Ptr) KernelFreeMemory<_Build::TL>(Ptr)
+#endif
+#ifndef KERNEL_FREE_MEMORY_MT
+ #define KERNEL_FREE_MEMORY_MT(Ptr) KernelFreeMemory<_Build::MT>(Ptr)
+#endif
 
 // 类型转换
 template<typename T>
