@@ -1207,12 +1207,18 @@ void TestSql::Run()
                 auto field = record->GetField("Id");
 
                 // stmt 回来的数据是二进制流
-                Int64 id = field->GetData()->ReadInt64();
+                Int64 id = field->GetInt64();
+                KERNEL_NS::LibString acc;
+                field = record->GetField("UserId");
+                field->GetString(acc);
 
                 auto pbField = record->GetField("Pb");
                 LoginReq req;
                 req.ParseFromArray(pbField->GetData()->GetReadBegin(), static_cast<Int32>(pbField->GetData()->GetReadableSize()));
 
+                KERNEL_NS::LibString blob;
+                pbField->GetBlob(blob);
+                
                 g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert id:%lld, affected rows:%lld seqId:%llu id:%lld, account:%s, record:%s")
                     , insertId, affectedRows, seqId, id, req.account().c_str(), record->ToString().c_str());
             }
