@@ -63,11 +63,12 @@ public:
     // return 0 if success.
     UInt32 CommitParam();
 
-    // TODO:执行sql结果: MysqlConnect*, UInt64(seqId), Int32(runErrCode), UInt32(mysqlerr), bool(是否发送到mysqlserver), Int64(InsertId), Int64(AffectedRows), std::vector<SmartPtr<Record>>(数据),
+    // return 0 if success, 执行sql结果: MysqlConnect*, UInt64(seqId), Int32(runErrCode), UInt32(mysqlerr), bool(是否发送到mysqlserver), Int64(InsertId), Int64(AffectedRows), std::vector<SmartPtr<Record>>(数据),
     UInt32 Execute(UInt64 seqId, const std::vector<Field *> &fields, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
+    // return 0 if success
     UInt32 Execute();
 
-    // TODO:执行sql结果: MysqlConnect*, UInt64(seqId), Int32(runErrCode), UInt32(mysqlerr), bool(是否发送到mysqlserver), Int64(InsertId), Int64(AffectedRows), std::vector<SmartPtr<Record>>(数据),
+    // return 0 if success 执行sql结果: MysqlConnect*, UInt64(seqId), Int32(runErrCode), UInt32(mysqlerr), bool(是否发送到mysqlserver), Int64(InsertId), Int64(AffectedRows), std::vector<SmartPtr<Record>>(数据),
     UInt32 FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
 
     bool IsInit() const;
@@ -107,6 +108,8 @@ private:
     std::map<LibString, Int32> _fieldNameRefIndex;
     std::map<Int32, LibString> _indexRefFieldName;
     std::map<Int32, LibString> _indexRefTableName;
+    std::map<Int32, bool> _indexRefIsAutoIncField;
+    std::map<Int32, bool> _indexRefIsUnsigned;
 };
 
 ALWAYS_INLINE bool PrepareStmt::IsInit() const

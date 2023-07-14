@@ -1074,7 +1074,7 @@ void TestSql::Run()
         .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'id'")
         // .Field("Id BIGINT NOT NULL DEFAULT 0 COMMENT \"id\"")
         // .Field("Id2 BIGINT NOT NULL AUTO_INCREMENT COMMENT \"Id2\"")
-        .Field("RoleId INT NOT NULL COMMENT '角色id'")
+        .Field("RoleId INT UNSIGNED NOT NULL COMMENT '角色id'")
         .Field("UserId VARCHAR(4096) NOT NULL DEFAULT '' COMMENT '账号id'")
         .Field("Name VARCHAR(4096) NOT NULL DEFAULT '' COMMENT '名字'")
         .Field("TestText TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'test text'")
@@ -1218,7 +1218,7 @@ void TestSql::Run()
 
                 KERNEL_NS::LibString blob;
                 pbField->GetBlob(blob);
-                
+
                 g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert id:%lld, affected rows:%lld seqId:%llu id:%lld, account:%s, record:%s")
                     , insertId, affectedRows, seqId, id, req.account().c_str(), record->ToString().c_str());
             }

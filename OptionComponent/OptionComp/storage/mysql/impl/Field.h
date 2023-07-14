@@ -99,6 +99,10 @@ public:
     bool IsUnsigned() const;
     void SetIsUnsigned(bool isUnsigned);
 
+    // 是否自增字段
+    bool IsAutoIncField() const;
+    void SetAutoIncField(bool isInc);
+
     // 写数据
     void SetInt8(Byte8 v);
     void SetInt16(Int16 v);
@@ -159,6 +163,7 @@ private:
     IDelegate<void, Field *> *_release; 
     bool _isNull;
     bool _isUnsigned;
+    bool _isAutoIncField;
 };
 
 template<typename T>
@@ -249,8 +254,8 @@ ALWAYS_INLINE LibStream<_Build::TL> *Field::GetData()
 ALWAYS_INLINE LibString Field::ToString() const
 {
     LibString info;
-    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld, data type:%d,%s, is null:%d, is unsigend:%d"
-    , _tableName.c_str(), _name.c_str(), _index, GetDataSize(), _dataType, DataTypeString(_dataType), _isNull, _isUnsigned);
+    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld, data type:%d,%s, is null:%d, is unsigend:%d, is auto inc field:%d"
+    , _tableName.c_str(), _name.c_str(), _index, GetDataSize(), _dataType, DataTypeString(_dataType), _isNull, _isUnsigned, _isAutoIncField);
     return info;
 }
 
@@ -277,6 +282,16 @@ ALWAYS_INLINE bool Field::IsUnsigned() const
 ALWAYS_INLINE void Field::SetIsUnsigned(bool isUnsigned)
 {
     _isUnsigned = isUnsigned;
+}
+
+ALWAYS_INLINE bool Field::IsAutoIncField() const
+{
+    return _isAutoIncField;
+}
+
+ALWAYS_INLINE void Field::SetAutoIncField(bool isInc)
+{
+    _isAutoIncField = isInc;
 }
 
 template<typename CallbackType>

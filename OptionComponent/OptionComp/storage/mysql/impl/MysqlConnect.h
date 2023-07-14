@@ -195,8 +195,6 @@ private:
     MYSQL_RES *_UseResult(bool &isSqlWithFieldsCountReturn) const;
     void _FreeRes(MYSQL_RES *res) const;
 
-    // cb:返回值, connect对象, 是否有数据, 当前行数据, 第一个bool:执行是否成功, 第二个bool:有没有数据
-    void _FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, SmartPtr<Record, AutoDelMethods::CustomDelete> &> *cb);
     void _FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb);
 
     bool _ExcuteSql(const LibString &sql) const;

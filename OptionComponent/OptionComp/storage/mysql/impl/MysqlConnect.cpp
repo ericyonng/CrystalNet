@@ -332,63 +332,6 @@ void MysqlConnect::_FreeRes(MYSQL_RES *res) const
     mysql_free_result(res);
 }
 
-void MysqlConnect::_FetchRow(MYSQL_RES *res, IDelegate<void, MysqlConnect *, bool, SmartPtr<Record, AutoDelMethods::CustomDelete> &> *cb)
-{
-    // 定位到数据起始位置
-    mysql_data_seek(res, 0);
-
-    // 获取字段集合
-    // MYSQL_FIELD *dbFields = mysql_fetch_fields(res);
-    // if(!dbFields)
-    // {
-    //     g_Log->Warn(LOGFMT_OBJ_TAG("mysql_fetch_fields fail have no dbfields error:%s connection info:%s"), mysql_error(_mysql), ToString().c_str());
-    //     SmartPtr<Record, AutoDelMethods::CustomDelete> record = NULL;
-    //     cb->Invoke(this, false, false, record);
-    //     return;
-    // }
-
-    MYSQL_ROW row;
-    // 当前res中拿到的数据量
-    auto fieldNum = mysql_num_fields(res);
-    Int64 rowCount = 0;
-    while ((row = mysql_fetch_row(res)) != NULL)
-    {
-        auto lens = mysql_fetch_lengths(res);
-        SmartPtr<Record, AutoDelMethods::CustomDelete> record = Record::NewThreadLocal_Record();
-        record.SetClosureDelegate([](void *p){
-            auto ptr = KernelCastTo<Record>(p);
-            Record::DeleteThreadLocal_Record(ptr);
-        });
-
-        record->SetFieldAmount(fieldNum);
-        ++rowCount;
-
-        for(UInt32 idx = 0; idx < fieldNum; ++idx)
-        {
-            // 取当前字段信息并打印字段信息与数据
-            auto curField = mysql_fetch_field_direct(res, idx);
-            auto newField = record->AddField(idx, curField->table, curField->name, curField->type, row[idx], lens[idx]);
-            if(LIKELY(newField))
-                newField->SetIsUnsigned(curField->flags & UNSIGNED_FLAG);
-
-            // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-            //     g_Log->Info(LOGFMT_OBJ_TAG("field:%s"), newField->ToString().c_str());
-        }
-
-        // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-        //      g_Log->Info(LOGFMT_OBJ_TAG("row count:%lld row info:\n%s"), rowCount, record->ToString().c_str());
-
-        if(LIKELY(cb))
-            cb->Invoke(this, true, record);
-    }
-
-    if(cb && rowCount == 0)
-    {
-        SmartPtr<Record, AutoDelMethods::CustomDelete> record = NULL;
-        cb->Invoke(this, false, record);
-    }
-}
-
 void MysqlConnect::_FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
 {
     mysql_data_seek(res, 0);
@@ -415,8 +358,11 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, Mysq
             auto curField = mysql_fetch_field_direct(res, idx);
             auto newField = record->AddField(idx, curField->table, curField->name, curField->type, row[idx], lens[idx]);
             if(LIKELY(newField))
+            {
+                newField->SetAutoIncField(curField->flags & AUTO_INCREMENT_FLAG);
                 newField->SetIsUnsigned(curField->flags & UNSIGNED_FLAG);
-                
+            }
+
             // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
             //     g_Log->Info(LOGFMT_OBJ_TAG("field:%s"), newField->ToString().c_str());
         }

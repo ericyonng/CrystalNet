@@ -298,7 +298,7 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
         if(LIKELY(cb))
         {
             std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> emptyRecords;
-            cb->Invoke(_conn, _seqId, Status::Failed, ret, true, insertId, affectedRows, emptyRecords);
+            cb->Invoke(_conn, _seqId, Status::Failed, ret, true, 0, 0, emptyRecords);
         }
 
         mysql_stmt_free_result(_stmt);
@@ -324,11 +324,17 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
             auto &bindField = _resultBinds[idx];
             const auto &tableName = _indexRefTableName[idx];
             const auto &fieldName = _indexRefFieldName[idx];
+            const auto isAutoIncField = _indexRefIsAutoIncField[idx];
+            const auto isUnsigend = _indexRefIsUnsigned[idx];
+
             // const bool isNull = (bindField.is_null != 0);
             Int64 len = static_cast<Int64>(bindField.length ? *(bindField.length) : 0);
             auto newField = record->AddField(idx, tableName, fieldName, bindField.buffer_type, (len == 0) ? NULL : bindField.buffer, len);
             if(LIKELY(newField))
-                newField->SetIsUnsigned(bindField.is_unsigned);
+            {
+                newField->SetAutoIncField(isAutoIncField);
+                newField->SetIsUnsigned(isUnsigend);
+            }
         }
         allRecords.push_back(record);
 
@@ -353,9 +359,7 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
 
     if(LIKELY(cb))
     {
-        const Int64 insertId = static_cast<Int64>(mysql_stmt_insert_id(_stmt));
-        const Int64 affectedRows = static_cast<Int64>(mysql_stmt_affected_rows(_stmt));
-        cb->Invoke(_conn, _seqId, Status::Success, 0, true, insertId, affectedRows, allRecords);
+        cb->Invoke(_conn, _seqId, Status::Success, 0, true, 0, 0, allRecords);
     }
     mysql_stmt_free_result(_stmt);
 
@@ -409,6 +413,8 @@ void PrepareStmt::_ClearBindResult()
     _fieldNameRefIndex.clear();
     _indexRefFieldName.clear();
     _indexRefTableName.clear();
+    _indexRefIsAutoIncField.clear();
+    _indexRefIsUnsigned.clear();
 }
 
 void PrepareStmt::_ClearBindParamValue()
@@ -483,6 +489,8 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
         _fieldNameRefIndex[field->name] = curFieldIndex;
         _indexRefFieldName[curFieldIndex] = field->name;
         _indexRefTableName[curFieldIndex] = field->table;
+        _indexRefIsAutoIncField[curFieldIndex] = field->flags & AUTO_INCREMENT_FLAG;
+        _indexRefIsUnsigned[curFieldIndex] = field->flags & UNSIGNED_FLAG;
 
         _resultBinds[curFieldIndex].buffer_type = field->type;
         if(sz != 0)

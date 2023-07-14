@@ -46,6 +46,7 @@ Field::Field(const LibString &tableName, const LibString &name, Int32 dataType, 
 ,_release(NULL)
 ,_isNull(true)
 ,_isUnsigned(false)
+,_isAutoIncField(false)
 {
 
 }
@@ -77,25 +78,37 @@ Field::Field(const Field &other)
     _release = other._release->CreateNewCopy();
     _isNull = other._isNull;
     _isUnsigned = other._isUnsigned;
+    _isAutoIncField = other._isAutoIncField;
 }
 
 Field::Field(Field &&other)
 {
     _owner = other._owner;
+    other._owner = NULL;
+
     _index = other._index;
-    _name = other._name;
-    _tableName = other._tableName;
+    other._index = -1;
+
+    _name.Swap(other._name);
+    _tableName.Swap(other._tableName);
     
     _data = other._data;
     other._data = NULL;
 
     _dataType = other._dataType;
+    other._dataType = MYSQL_TYPE_NULL;
     
     _release = other._release;
     other._release = NULL;
 
     _isNull = other._isNull;
+    other._isNull = true;
+
     _isUnsigned = other._isUnsigned;
+    other._isUnsigned = false;
+
+    _isAutoIncField = other._isAutoIncField;
+    other._isAutoIncField = false;
 }
 
 void Field::Write(const void *data, Int64 dataSize)
