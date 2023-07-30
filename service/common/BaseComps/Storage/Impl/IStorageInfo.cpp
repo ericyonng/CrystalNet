@@ -377,6 +377,7 @@ IStorageInfo::IStorageInfo(const KERNEL_NS::LibString &systemName)
 ,_releaseCb(NULL)
 ,_inputMysqlDataType(0)
 ,_outputMysqlDataType(0)
+,_dataCountLimit(-1)
 {
     _SetType(ServiceCompType::STORAGE_COMP);
 
@@ -458,11 +459,11 @@ void IStorageInfo::ManualClose()
 KERNEL_NS::LibString IStorageInfo::ToString() const
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("base info: system:%s, table name:%s, comment:%s, flags:%llx, sub storage info count:%d, has key storage:%d, key name:%s, field name:%s, capacity size:%llu\n"
+    info.AppendFormat("base info: system:%s, table name:%s, comment:%s, flags:%llx, sub storage info count:%d, has key storage:%d, key name:%s, field name:%s, capacity size:%llu, _dataCountlimit:%d\n"
             ,_systemName.c_str(), _tableName.c_str(), _comment.c_str(),  _flags
             , static_cast<Int32>(_subStorageInfos.size()), _keyStorage != NULL
             , _keyStorage ? _keyStorage->GetFieldName().c_str() : ""
-            , _fieldName.c_str(), _capacitySize);
+            , _fieldName.c_str(), _capacitySize, _dataCountLimit);
 
     info.AppendFormat("sub storage info:[\n");
     for(auto storageInfo : _subStorageInfos)

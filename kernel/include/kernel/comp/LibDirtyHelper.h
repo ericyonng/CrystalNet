@@ -189,6 +189,7 @@ public:
     
 
     bool HasDirty() const;
+    bool HasDirty(const KeyType &k) const;
     bool IsInPurge() const;
     UInt64 GetLoaded() const;
     // 脏标记需要在回调中移除,否则一直在
@@ -406,6 +407,13 @@ template<typename KeyType, typename MaskValue>
 inline bool LibDirtyHelper<KeyType, MaskValue>::HasDirty() const
 {
     return !_keyRefMask.empty();
+}
+
+template<typename KeyType, typename MaskValue>
+ALWAYS_INLINE bool LibDirtyHelper<KeyType, MaskValue>::HasDirty(const KeyType &k) const
+{
+    auto iter = _keyRefMask.find(k);
+    return iter != _keyRefMask.end();
 }
 
 template<typename KeyType, typename MaskValue>

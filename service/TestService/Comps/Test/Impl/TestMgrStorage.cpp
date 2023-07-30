@@ -60,6 +60,10 @@ bool TestMgrStorage::RegisterStorages()
     StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG |
     StorageFlagType::NEED_NUMBER_KEY_FLAG
     );
+
+    // 只加载十条
+    SetDataCountLimit(10);
+
     SetComment("测试管理");
 
     return true;

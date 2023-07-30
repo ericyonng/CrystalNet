@@ -42,6 +42,22 @@
 
 --------
 
+# 特性
+
+- 采用iocp/epoll网络模型，跨windows/linux平台
+- 支持protobuf 3.21.9， 定制了protobuf协议生成器，自动生成c++/c#的协议代码
+- 支持ipv4/ipv6 
+- 支持session级别的packet限速
+- 支持openssl md5/sha1/aes等加解密，签名验签
+- 支持ECS设计，轻松设计大型复杂系统
+- 支持任意对象对象池，内存池，可以很轻松的进行内存管理
+- 支持tinyxml
+- 支持对zip文档解压
+- 支持对xlsx解析
+- 强大的日志系统
+- 丰富的组件支持
+- 支持Mysql 8.0存储, 不需要自行建表建库,支持自动建库建表， 支持标脏持久化, 自动存库，数据类型与大小自适应，后续有空再支持ORM
+
 # 简单使用
 
 * 见testinst.cpp (测试用例)
@@ -131,21 +147,6 @@
 
     
 
-# 特性
-
-* 采用iocp/epoll网络模型，跨windows/linux平台
-* 支持protobuf 3.21.9， 定制了protobuf协议生成器，自动生成c++/c#的协议代码
-* 支持ipv4/ipv6 
-* 支持session级别的packet限速
-* 支持openssl md5/sha1/aes等加解密，签名验签
-* 支持ECS设计，轻松设计大型复杂系统
-* 支持任意对象对象池，内存池，可以很轻松的进行内存管理
-* 支持tinyxml
-* 支持对zip文档解压
-* 支持对xlsx解析
-* 强大的日志系统
-* 丰富的组件支持
-
 ## 可执行程序目录结构
 
 * 可执行程序
@@ -197,6 +198,7 @@
 * 依赖protobuf 3.21.9版本（官方:v21.9版本）(默认自带 在gcc 8.3以上编译)
 * 依赖premake5 (默认自带)
 * windows下依赖DbgHelp(默认自带)
+* Mysql8.0可选组件（需要环境安装mysql8.0服务端, 需要把libmysqlclient.so拷贝到公共路径或者和程序运行目录同级目录即可）
 
 # 快速使用
 

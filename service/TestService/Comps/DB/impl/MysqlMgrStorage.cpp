@@ -59,7 +59,7 @@ bool MysqlMgrStorage::RegisterStorages()
     StorageFlagType::SYSTEM_DATA_STORAGE_FLAG |
     StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG
     );
-    SetComment("Mysql全局表管理");
+    SetComment("mysql global system table manager");
 
     // TableName string field 主键
     auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(TABLE_NAME);
@@ -70,7 +70,7 @@ bool MysqlMgrStorage::RegisterStorages()
     StorageFlagType::MYSQL_FLAG | 
     StorageFlagType::PRIMARY_FIELD_FLAG);
     newStorageInfo->SetCapacitySize(StorageCapacityType::Cap64);
-    newStorageInfo->SetComment("表名");
+    newStorageInfo->SetComment("table name");
     newStorageInfo->SetFieldName(TABLE_NAME);
     AddStorageInfo(newStorageInfo);
 
@@ -82,7 +82,7 @@ bool MysqlMgrStorage::RegisterStorages()
 
     newStorageInfo->AddFlags(StorageFlagType::NORMAL_TEXT_STRING_FIELD_FLAG | 
     StorageFlagType::MYSQL_FLAG);
-    newStorageInfo->SetComment("每张表的简要信息");
+    newStorageInfo->SetComment("table simple info");
     newStorageInfo->SetFieldName(SIMPLE_INFO);
     AddStorageInfo(newStorageInfo);
 

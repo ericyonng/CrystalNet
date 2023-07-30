@@ -26,6 +26,9 @@ VER="$1"
 	    sudo rm -f ${OUTPUT_DIR}../../3rd/kernel/libCrystalKernel_debug.a
 		sudo cp -rf ${OUTPUT_DIR}libCrystalKernel_debug.a ${OUTPUT_DIR}../../3rd/kernel/
 
+		# 拷贝mysqlclient.so到运行目录
+		sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
+
 		# sudo ln -sv ${OUTPUT_DIR}libCrystalKernel_debug.so /usr/lib/libCrystalKernel_debug.so
 		# 创建debug版本的so连接符号
 		# for libName in $DEBUG_LIBS
@@ -37,6 +40,9 @@ VER="$1"
 		sudo mkdir ${OUTPUT_DIR}../../3rd/kernel
 	    sudo rm -f ${OUTPUT_DIR}../../3rd/kernel/libCrystalKernel.a
 		sudo cp -rf ${OUTPUT_DIR}libCrystalKernel.a ${OUTPUT_DIR}../../3rd/kernel/
+
+		# 拷贝mysqlclient.so到运行目录
+		sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
 
 		# sudo ln -sv ${OUTPUT_DIR}libCrystalKernel.so /usr/lib/libCrystalKernel.so
 		# 创建release版本的so连接符号

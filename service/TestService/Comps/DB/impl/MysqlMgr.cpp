@@ -48,6 +48,7 @@ MysqlMgr::MysqlMgr()
 ,_curVersionNo(0)
 ,_systemOperatorUid(0)
 ,_purgeIntervalMs(3000)
+,_disableAutoTruncate(1)
 {
 }
 
@@ -177,7 +178,7 @@ void MysqlMgr::MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key, bo
     auto dirtyHelper = iter->second;
 
     // 如果有其他脏标记则移除
-    if(dirtyHelper->HasDirty())
+    if(dirtyHelper->HasDirty(key))
         dirtyHelper->Clear(key);
 
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true);
@@ -240,7 +241,7 @@ void MysqlMgr::MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key,
     }
 
     // 已经标脏过不需要再标脏(增加会覆盖最新的数据)
-    if(dirtyHelper->HasDirty())
+    if(dirtyHelper->HasDirty(key))
         return;
 
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true);
@@ -344,7 +345,7 @@ void MysqlMgr::MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_N
     auto dirtyHelper = iter->second;
 
     // 如果有其他脏标记则移除
-    if(dirtyHelper->HasDirty())
+    if(dirtyHelper->HasDirty(key))
         dirtyHelper->Clear(key);
 
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true);
@@ -408,7 +409,7 @@ void MysqlMgr::MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNE
     }
 
     // 已经标脏过不需要再标脏(增加会覆盖最新的数据)
-    if(dirtyHelper->HasDirty())
+    if(dirtyHelper->HasDirty(key))
         return;
 
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true);
@@ -614,6 +615,12 @@ Int32 MysqlMgr::_OnGlobalSysInit()
         return Status::Failed;
     }
 
+    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableSystemTableAutoTruncate", _disableAutoTruncate))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableSystemTableAutoTruncate config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
+        return Status::Failed;
+    }
+
     // 设置操作id
     SetStorageOperatorId(_systemOperatorUid);
 
@@ -674,6 +681,17 @@ Int32 MysqlMgr::_OnGlobalSysCompsCreated()
     _purgeTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _purgeTimer->SetTimeOutHandler(this, &MysqlMgr::_OnPurge);
     _purgeTimer->Schedule(_purgeIntervalMs);
+
+    // 系统表的自动清库属性设置
+    auto systemStorageInfo = GetStorageInfo();
+    if(_disableAutoTruncate > 0)
+    {
+        systemStorageInfo->AddFlags(StorageFlagType::DISABLE_AUTO_TRUNCATE_FLAG);
+    }
+    else
+    {
+        systemStorageInfo->ClearFlags(StorageFlagType::DISABLE_AUTO_TRUNCATE_FLAG);
+    }
 
     g_Log->Info(LOGFMT_OBJ_TAG("mysql mgr init success."));
 
@@ -1126,6 +1144,10 @@ bool MysqlMgr::_CheckTruncateTables()
             tableInfo->_simpleInfo->set_versionno(_curVersionNo);
             MaskStringKeyModifyDirty(tableInfo->_tableName);
 
+            // 禁止清表
+            if(logic->GetStorageInfo()->HasFlags(StorageFlagType::DISABLE_AUTO_TRUNCATE_FLAG))
+                continue;
+
             // 系统表也需要清理, 清理后需要立即创建
             if(logic == this)
                 hasMe = true;
@@ -1186,6 +1208,9 @@ void MysqlMgr::_LoadAllPublicData()
         // 查询库中所有表和字段: 需要校准:tbl_system_data, 1.表校准, 2.表字段校准
         KERNEL_NS::SelectSqlBuilder *selectBuilder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
         selectBuilder->DB(_currentServiceDBName).From(storageInfo->GetTableName());
+        if(storageInfo->GetDataCountLimit() > 0)
+            selectBuilder->Limit(storageInfo->GetDataCountLimit());
+
         std::vector<KERNEL_NS::SqlBuilder *> builders;
         builders.push_back(selectBuilder);
         UInt64 stub = 0;
@@ -2748,7 +2773,7 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
 
     if(LIKELY(!fieldDatas.empty()))
     {
-        updateBuilder->Where(KERNEL_NS::LibString().AppendFormat("`%s` like '?'", keyStorageInfo->GetFieldName().c_str()));
+        updateBuilder->Where(KERNEL_NS::LibString().AppendFormat("`%s` like ?", keyStorageInfo->GetFieldName().c_str()));
         KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName()
                         ,keyStorageInfo->GetFieldName() , keyStorageInfo->GetInputMysqlDataType(), 0);
 
@@ -3273,7 +3298,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         StorageFlagType::MYSQL_FLAG | 
         StorageFlagType::PRIMARY_FIELD_FLAG);
         newStorageInfo->SetCapacitySize(StorageCapacityType::Cap256);
-        newStorageInfo->SetComment("自动创建字符串主键");
+        newStorageInfo->SetComment("auto make string primary field");
         storageInfo->AddStorageInfo(newStorageInfo);
 
         // BINARY
@@ -3284,7 +3309,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         newStorageInfo->AddFlags(StorageFlagType::BINARY_FIELD_FLAG | 
         StorageFlagType::MYSQL_FLAG);
         newStorageInfo->SetCapacitySize(_defaultBlobOriginSize);
-        newStorageInfo->SetComment("自动创建系统数据字段");
+        newStorageInfo->SetComment("auto make system data field");
         storageInfo->AddStorageInfo(newStorageInfo);
 
         return true;
@@ -3303,7 +3328,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         StorageFlagType::UNSIGNED_NUMBER_FIELD_FLAG |
         StorageFlagType::MYSQL_FLAG | 
         StorageFlagType::PRIMARY_FIELD_FLAG);
-        newStorageInfo->SetComment("自动创建64位数值主键");
+        newStorageInfo->SetComment("auto make 64bit number primary field");
         storageInfo->AddStorageInfo(newStorageInfo);
 
         // BINARY
@@ -3314,7 +3339,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         newStorageInfo->AddFlags(StorageFlagType::BINARY_FIELD_FLAG | 
         StorageFlagType::MYSQL_FLAG);
         newStorageInfo->SetCapacitySize(_defaultBlobOriginSize);
-        newStorageInfo->SetComment("自动创建系统数据字段");
+        newStorageInfo->SetComment("auto make system data field");
         storageInfo->AddStorageInfo(newStorageInfo);
 
         return true;

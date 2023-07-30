@@ -192,6 +192,7 @@ private:
     Int64 _curVersionNo;
     Int32 _systemOperatorUid;
     Int64 _purgeIntervalMs;
+    Int32 _disableAutoTruncate;
 };
 
 ALWAYS_INLINE const ILogicSys *MysqlMgr::_GetDependenceLogic(const KERNEL_NS::LibString &tableName) const

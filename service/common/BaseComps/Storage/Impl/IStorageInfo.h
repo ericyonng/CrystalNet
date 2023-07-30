@@ -119,8 +119,8 @@ private:
         // 公共系统数据(启动时候加载)
         LOAD_DATA_ON_STARTUP_FLAG_POS,
 
-        // 
-
+        // 不自动清库(版本号切换时候会清库), 默认自动清库
+        DISABLE_AUTO_TRUNCATE_POS,
     };
 
 public:
@@ -228,6 +228,9 @@ public:
 
         // 启动时候加载数据
         LOAD_DATA_ON_STARTUP_FLAG = (1LLU << LOAD_DATA_ON_STARTUP_FLAG_POS),
+
+        // 不自动清库(版本号切换时候会清库), 默认自动清库
+        DISABLE_AUTO_TRUNCATE_FLAG = (1LLU << DISABLE_AUTO_TRUNCATE_POS),
     };
 
     // 获取字符串类型的flags
@@ -478,6 +481,9 @@ public:
     // 是否启动时候加载数据
     bool IsLoadDataOnStartup() const;
 
+    // 是否禁用自动清库
+    bool IsDisableAutoTruncate() const;
+
     // 注释
     void SetComment(const KERNEL_NS::LibString &comment);
     const KERNEL_NS::LibString &GetComment() const;
@@ -493,6 +499,10 @@ public:
     bool AddStorageInfo(StorageFactory *factory);
     bool AddStorageInfo(const std::vector<StorageFactory *> &factorys);
     void RemoveAllSubStorage();
+
+    // 设置拉一次数据的条数限制
+    void SetDataCountLimit(Int32 count);
+    Int32 GetDataCountLimit() const;
 
     KERNEL_NS::LibString ToString() const override;
 
@@ -528,6 +538,9 @@ protected:
     Int32 _outputMysqlDataType;   // enum_field_types
 
     KERNEL_NS::IDelegate<void> *_releaseCb;
+
+    // 数据条数限制
+    Int32 _dataCountLimit;
 };
 
 template<typename StorageFactory>
@@ -832,6 +845,11 @@ ALWAYS_INLINE bool IStorageInfo::IsLoadDataOnStartup() const
     return HasFlags(StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG);
 }
 
+ALWAYS_INLINE bool IStorageInfo::IsDisableAutoTruncate() const
+{
+    return HasFlags(StorageFlagType::DISABLE_AUTO_TRUNCATE_FLAG);
+}
+
 ALWAYS_INLINE void IStorageInfo::SetComment(const KERNEL_NS::LibString &comment)
 {
     _comment = comment;
@@ -965,6 +983,15 @@ ALWAYS_INLINE void IStorageInfo::RemoveAllSubStorage()
     _keyStorage = NULL;
 }
 
+ALWAYS_INLINE void IStorageInfo::SetDataCountLimit(Int32 count)
+{
+    _dataCountLimit = count;
+}
+
+ALWAYS_INLINE Int32 IStorageInfo::GetDataCountLimit() const
+{
+    return _dataCountLimit;
+}
 
 
 SERVICE_END

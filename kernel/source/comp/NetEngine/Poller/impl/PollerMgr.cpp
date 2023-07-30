@@ -226,7 +226,7 @@ void PollerMgr::OnMonitor(LibString &info)
             auto poller = tcpPoller->GetComp<Poller>();
             pollerInfo.AppendFormat("pollerId:%llu, sessions:%llu, %s\n"
                     , tcpPoller->GetPollerId(), tcpPoller->GetSessionAmount()
-                    , poller->OnMonitor().c_str());
+                    , poller->IsEnable() ? poller->OnMonitor().c_str() : "poller disable");
         }
     }
 
