@@ -49,6 +49,7 @@ MysqlMgr::MysqlMgr()
 ,_systemOperatorUid(0)
 ,_purgeIntervalMs(3000)
 ,_disableAutoTruncate(1)
+,_disableTruncateDB(1)
 {
 }
 
@@ -621,6 +622,12 @@ Int32 MysqlMgr::_OnGlobalSysInit()
         return Status::Failed;
     }
 
+    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableTruncateDB", _disableTruncateDB))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableTruncateDB config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
+        return Status::Failed;
+    }
+
     // 设置操作id
     SetStorageOperatorId(_systemOperatorUid);
 
@@ -1132,6 +1139,10 @@ void MysqlMgr::_OnAddNewTableBack(KERNEL_NS::MysqlResponse *res)
 
 bool MysqlMgr::_CheckTruncateTables()
 {
+    // 禁用自动清库, 这个用于线上
+    if(_disableTruncateDB > 0)
+        return true;
+
     // 比对表version, 进行清库操作
     bool hasMe = false;
     std::vector<KERNEL_NS::SqlBuilder *> builders;
@@ -3306,7 +3317,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         newStorageInfo->SetRelease([newStorageInfo](){
             IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
         });
-        newStorageInfo->AddFlags(StorageFlagType::BINARY_FIELD_FLAG | 
+        newStorageInfo->AddFlags(StorageFlagType::VARBINARY_FIELD_FLAG | 
         StorageFlagType::MYSQL_FLAG);
         newStorageInfo->SetCapacitySize(_defaultBlobOriginSize);
         newStorageInfo->SetComment("auto make system data field");
@@ -3336,7 +3347,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         newStorageInfo->SetRelease([newStorageInfo](){
             IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
         });
-        newStorageInfo->AddFlags(StorageFlagType::BINARY_FIELD_FLAG | 
+        newStorageInfo->AddFlags(StorageFlagType::VARBINARY_FIELD_FLAG | 
         StorageFlagType::MYSQL_FLAG);
         newStorageInfo->SetCapacitySize(_defaultBlobOriginSize);
         newStorageInfo->SetComment("auto make system data field");
