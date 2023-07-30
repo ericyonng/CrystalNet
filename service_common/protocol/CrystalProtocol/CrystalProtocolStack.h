@@ -62,13 +62,11 @@ public:
     virtual void RegisterCoderFactory(Int32 opcode, KERNEL_NS::ICoderFactory *factory);
 
     void SetMaxRecvMsgContentBytes(UInt64 maxBytesLimit);
-    virtual void SetOpcodeNameParser(KERNEL_NS::IDelegate<const KERNEL_NS::LibString &, Int32> *parser) override;
     UInt64 GetMaxRecvMsgContentBytes() const;
 
     void SetProtocolLogEnable(bool enable = true) { _enableProtocolLog = enable; }
 
 private:
-    KERNEL_NS::IDelegate<const KERNEL_NS::LibString &, Int32> *_opcodeNameParser = NULL;
     UInt64 _maxRecvContenBytes = 0;
     bool _enableProtocolLog = false;
 };

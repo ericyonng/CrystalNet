@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message TestMgrData 
+{
+    string Account = 1;
+    sint64 TestId = 2;
+}

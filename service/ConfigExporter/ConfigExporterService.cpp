@@ -67,13 +67,25 @@ void ConfigExporterService::Release()
 
 KERNEL_NS::IProtocolStack *ConfigExporterService::GetProtocolStack(KERNEL_NS::LibSession *session)
 {
-    auto iter = this->_sessionTypeRefProtocolStack.find(session->GetSessionType());
+    auto iter = this->_sessionTypeRefProtocolStack.find(session->GetProtocolStackType());
     return iter == this->_sessionTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 
-KERNEL_NS::IProtocolStack *ConfigExporterService::GetProtocolStack(Int32 SessionType)
+const KERNEL_NS::IProtocolStack *ConfigExporterService::GetProtocolStack(KERNEL_NS::LibSession *session) const
 {
-    auto iter = this->_sessionTypeRefProtocolStack.find(SessionType);
+    auto iter = this->_sessionTypeRefProtocolStack.find(session->GetProtocolStackType());
+    return iter == this->_sessionTypeRefProtocolStack.end() ? NULL : iter->second;
+}
+
+KERNEL_NS::IProtocolStack *ConfigExporterService::GetProtocolStack(Int32 prototalStackType)
+{
+    auto iter = this->_sessionTypeRefProtocolStack.find(prototalStackType);
+    return iter == this->_sessionTypeRefProtocolStack.end() ? NULL : iter->second;
+}
+
+const KERNEL_NS::IProtocolStack *ConfigExporterService::GetProtocolStack(Int32 prototalStackType) const
+{
+    auto iter = this->_sessionTypeRefProtocolStack.find(prototalStackType);
     return iter == this->_sessionTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 

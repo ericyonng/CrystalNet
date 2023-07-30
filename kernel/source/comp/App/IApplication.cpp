@@ -183,7 +183,6 @@ Int32 IApplication::_OnCompsCreated()
     _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
     // _poller->SetPepareEventWorkerHandler(this, &IApplication::_OnPollerPrepare);
     // _poller->SetEventWorkerCloseHandler(this, &IApplication::_OnPollerWillDestroy);
-    _poller->SetEventHandler(this, &IApplication::_OnMsg);
 
     auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
     if(UNLIKELY(defObj->_poller))
@@ -227,11 +226,6 @@ void IApplication::_OnHostClose()
 void IApplication::_OnHostUpdate()
 {
     g_Log->Info(LOGFMT_OBJ_TAG("app %s on update."), _appName.c_str());
-}
-
-void IApplication::_OnMsg(PollerEvent *ev)
-{
-    g_Log->Debug(LOGFMT_OBJ_TAG("_OnMsg ev:%s"), ev->ToString().c_str());
 }
 
 KERNEL_END

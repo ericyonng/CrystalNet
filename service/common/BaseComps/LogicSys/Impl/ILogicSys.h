@@ -35,6 +35,9 @@
 
 SERVICE_BEGIN
 
+class ILogicSys;
+class IStorageInfo;
+
 class LogicInterestMethod
 {
 public: 
@@ -46,8 +49,16 @@ public:
         ON_PASS_WEEK = 1,       // 跨周 国外以星期天为第一天，国内以星期一为第一天
         ON_PASS_MONTH = 2,      // 跨月
         ON_PASS_YEAR = 3,       // 跨年
-        ON_STORAGE_SUPPORT = 4,  // 存储支持
         END,
+    };
+};
+
+class LogicSysFlagsType
+{
+public:
+    enum FLAG_ENUMS
+    {
+
     };
 };
 
@@ -114,21 +125,53 @@ public:
    template<typename SysType>
    const SysType *GetSys() const;
 
-   // 关注的接口
+   // 关注的接口 LogicInterestMethod
    void FocusMethod(Int32 methodEnum);
+   // 是否关注接口 LogicInterestMethod
    bool IsMethodFocus(Int32 methodEnum) const;
 
    /*
    * 数据加载
    * TODO: 需要 FocusMethod ON_STORAGE_SUPPORT 才生效
    */
-   virtual void OnLoaded(const KERNEL_NS::LibString &db);
+   virtual Int32 OnLoaded(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db);
+   virtual Int32 OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db);
+   virtual Int32 OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb);
+   virtual Int32 OnLoaded(const KERNEL_NS::LibString &key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db);
+   virtual Int32 OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb);
 
    /*
    * 数据持久化
    * TODO: 需要FocusMethod ON_STORAGE_SUPPORT 才生效
    */
-   virtual void OnStorage(KERNEL_NS::LibString &db);
+   virtual Int32 OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
+   virtual Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
+   virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;
+   virtual Int32 OnSave(const KERNEL_NS::LibString &key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const;
+   // sysRefdb:key:fieldName, tuple:data type, data
+   virtual Int32 OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;
+
+  /*
+  * 数据库操作id 从MysqlMgr/或者其他数据库管理获取operatorId
+  */
+ void SetStorageOperatorId(Int32 oid);
+ Int32 GetStorageOperatorId() const;
+
+ IStorageInfo *GetStorageInfo();
+ const IStorageInfo *GetStorageInfo() const;
+
+  /*
+  * 标脏
+  */
+#ifdef CRYSTAL_STORAGE_ENABLE
+   void MaskDirty();
+   void MaskNumberKeyAddDirty(UInt64 key);
+   void MaskNumberKeyModifyDirty(UInt64 key);
+   void MaskNumberKeyDeleteDirty(UInt64 key);
+   void MaskStringKeyAddDirty(const KERNEL_NS::LibString &key);
+   void MaskStringKeyModifyDirty(const KERNEL_NS::LibString &key);
+   void MaskStringKeyDeleteDirty(const KERNEL_NS::LibString &key);
+#endif
 
    /*
    * 跨天 默认关注
@@ -154,6 +197,18 @@ public:
   */
  virtual void OnPassYear(KERNEL_NS::Variant *params) {}
 
+    /* logic sys的特性
+    * flags LogicSysFlagsType
+    */
+   const std::unordered_map<UInt64, UInt64> &GetFlags() const;
+   // LogicSysFlagsType
+   void AddFlag(UInt64 flag);
+   // LogicSysFlagsType
+   bool IsFlagSet(UInt64 flag);
+   // LogicSysFlagsType
+   void ClearFlag(UInt64 flag);
+   // LogicSysFlagsType
+   void ClearFlags();
  
     // 组件接口资源
 protected:
@@ -176,7 +231,8 @@ protected:
     /*
     * sys 所有组件创建出来时
     */
-    virtual Int32 _OnCompsCreated() override { return Status::Success; }
+    virtual Int32 _OnCompsCreated() final;
+    virtual Int32 _OnSysCompsCreated() { return Status::Success; }
 
     /*
     * sys 将要启动,并且在组件启动之前,
@@ -253,6 +309,10 @@ private:
     std::unordered_set<Int32> _intrestMethods;
 
     KERNEL_NS::ListenerStub _quitServiceEventDefaltStub;
+
+    std::unordered_map<UInt64, UInt64> _flags;
+    Int32 _storageOperatorId;
+    IStorageInfo *_storage;
 };
 
 ALWAYS_INLINE SERVICE_COMMON_NS::IService *ILogicSys::GetService()
@@ -330,6 +390,51 @@ ALWAYS_INLINE void ILogicSys::FocusMethod(Int32 methodEnum)
 ALWAYS_INLINE bool ILogicSys::IsMethodFocus(Int32 methodEnum) const
 {
     return _intrestMethods.find(methodEnum) != _intrestMethods.end();
+}
+
+ALWAYS_INLINE void ILogicSys::SetStorageOperatorId(Int32 oid)
+{
+    _storageOperatorId = oid;
+}
+
+ALWAYS_INLINE Int32 ILogicSys::GetStorageOperatorId() const
+{
+    return _storageOperatorId;
+}
+
+ALWAYS_INLINE IStorageInfo *ILogicSys::GetStorageInfo()
+{
+    return _storage;
+}
+
+ALWAYS_INLINE const IStorageInfo *ILogicSys::GetStorageInfo() const
+{
+    return _storage;
+}
+
+ALWAYS_INLINE const std::unordered_map<UInt64, UInt64> &ILogicSys::GetFlags() const
+{
+    return _flags;
+}
+
+ALWAYS_INLINE void ILogicSys::AddFlag(UInt64 flag)
+{
+    KERNEL_NS::SimpleBitmapUtil::Set(_flags, flag);
+}
+
+ALWAYS_INLINE bool ILogicSys::IsFlagSet(UInt64 flag)
+{
+    return KERNEL_NS::SimpleBitmapUtil::IsSet(_flags, flag);
+}
+
+ALWAYS_INLINE void ILogicSys::ClearFlag(UInt64 flag)
+{
+    KERNEL_NS::SimpleBitmapUtil::Clear(_flags, flag);
+}
+
+ALWAYS_INLINE void ILogicSys::ClearFlags()
+{
+    _flags.clear();
 }
 
 SERVICE_END

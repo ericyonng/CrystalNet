@@ -166,7 +166,6 @@ public:
     void SetFocus(Int32 focusEnum);
     void ClearFocus(Int32 focusEnum);
     bool IsFocus(Int32 focusEnum) const;
-    
 
 protected:
     void _SetType(Int32 type);

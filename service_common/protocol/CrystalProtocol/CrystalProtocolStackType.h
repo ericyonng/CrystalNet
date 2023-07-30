@@ -41,13 +41,31 @@ class CrystalProtocolStackType
 public:
     enum ENUMS
     {
-        BEGIN = 0,
-        CRYSTAL_PROTOCOL_INNER = BEGIN, // 内部协议
-        CRYSTAL_PROTOCOL_OUTER, // 外部协议
-        CRYSTAL_PROTOCOL_OUTER_NO_LIMIT, // 外部协议
+        UNKNOWN = 0,
+        BEGIN,
+        CRYSTAL_PROTOCOL = BEGIN, // crystal协议栈类型
+        CRYSTAL_PROTOCOL_NO_LIMIT, // 无限制crystal_protocol
         HTTP,                  // http协议
+        JSON,                   // json
+        WEBSOCKET,              // websocket
         END,
     };
+
+    static Int32 TurnFromString(const KERNEL_NS::LibString &stackTypeName)
+    {
+        if(stackTypeName == "CRYSTAL_PROTOCOL")
+            return CrystalProtocolStackType::CRYSTAL_PROTOCOL;
+        if(stackTypeName == "CRYSTAL_PROTOCOL_NO_LIMIT")
+            return CrystalProtocolStackType::CRYSTAL_PROTOCOL_NO_LIMIT;
+        if(stackTypeName == "HTTP")
+            return CrystalProtocolStackType::HTTP;
+        if(stackTypeName == "JSON")
+            return CrystalProtocolStackType::JSON;   
+        if(stackTypeName == "WEBSOCKET")
+            return CrystalProtocolStackType::WEBSOCKET;   
+
+        return CrystalProtocolStackType::UNKNOWN;
+    }
 };
 
 SERVICE_COMMON_END

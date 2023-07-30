@@ -32,11 +32,17 @@
 #pragma once
 
 #include <mysql.h>
+#include <OptionComp/storage/mysql/impl/Defs.h>
+#include <OptionComp/storage/mysql/impl/MysqlConfig.h>
+#include <OptionComp/storage/mysql/impl/DbEvent.h>
+#include <OptionComp/storage/mysql/impl/MysqlMsg.h>
 #include <OptionComp/storage/mysql/impl/SqlBuilder.h>
+#include <OptionComp/storage/mysql/impl/Field.h>
 #include <OptionComp/storage/mysql/impl/Record.h>
 #include <OptionComp/storage/mysql/impl/MysqlConnect.h>
 #include <OptionComp/storage/mysql/impl/MysqlDB.h>
 #include <OptionComp/storage/mysql/impl/MysqlDBMgr.h>
+#include <OptionComp/storage/mysql/impl/MysqlDBMgrFactory.h>
 
 #endif
 

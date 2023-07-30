@@ -70,7 +70,6 @@ public:
 
     void SetProtoVersionNumber(UInt64 ver);
     UInt64 GetProtoVersionNumber() const;
-    virtual void SetOpcodeNameParser(KERNEL_NS::IDelegate<const KERNEL_NS::LibString &, Int32> *parser) = 0;
 
     Int32 GetType() const;
 

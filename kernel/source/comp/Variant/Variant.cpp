@@ -172,7 +172,7 @@ LibString Variant::AsStr() const
         else if(IsSignedBriefData())
             return StringUtil::Num2Str(_raw._briefData._int64Data);
         else if(IsPtr())
-            return LibString().AppendFormat("0x%x", static_cast<UInt32>(_raw._briefData._uint64Data));
+            return LibString().AppendFormat("0x%llx", _raw._briefData._uint64Data);
         return StringUtil::Num2Str(_raw._briefData._uint64Data);
     }
     

@@ -43,6 +43,7 @@ SessionOption::SessionOption()
 ,_maxPacketSize(0)
 ,_forbidRecv(false)
 ,_sessionType(0)
+,_protocolStackType(0)
 ,_sessionRecvPacketContentLimit(0)
 ,_sessionSendPacketContentLimit(0)
 {
@@ -62,6 +63,7 @@ LibString SessionOption::ToString() const
         .AppendFormat("_maxPacketSize:%llu, ", _maxPacketSize)
         .AppendFormat("_forbidRecv:%d, ", static_cast<Int32>(_forbidRecv))
         .AppendFormat("_sessionType:%d, ", _sessionType)
+        .AppendFormat("_protocolStackType:%d, ", _protocolStackType)
         ;
     return info;
 }

@@ -71,7 +71,19 @@
 
 *遵循protocol buffer基础语法，不在此赘述。*
 
-> 
+# 其他
+
+若需要支持pb与json互转:
+
+```
+#include <google/protobuf/message.h>
+#include <google/protobuf/util/json_util.h>
+#include <google/protobuf/text_format.h>
+
+::google::protobuf::util::MessageToJsonString(_data, &jsonStr)
+```
+
+
 
 ## TODO ：
 

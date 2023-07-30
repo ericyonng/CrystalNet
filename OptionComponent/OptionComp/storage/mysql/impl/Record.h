@@ -52,9 +52,9 @@ public:
 
     // 新增字段
     template<typename T = _Build::TL>
-    Field *AddField(Int32 idx, const LibString &tableName, const LibString &name, Int32 fieldType, const void *data, Int64 dataSize);
+    Field *AddField(Int32 idx, const LibString &tableName, const LibString &name, Int32 fieldType, UInt64 flags, const void *data, Int64 dataSize);
     template<typename T = _Build::TL>
-    Field *AddField(const LibString &tableName, const LibString &name, Int32 fieldType, const void *data, Int64 dataSize);
+    Field *AddField(const LibString &tableName, const LibString &name, Int32 fieldType, UInt64 flags, const void *data, Int64 dataSize);
 
     // 必须是NewThreadLocal创建出来的
     Field *AddField(Field *field);
@@ -85,21 +85,29 @@ public:
     Field *GetField(const LibString &fieldName);
     const Field *GetField(const LibString &fieldName) const;
 
+    const Field *GetPrimaryKey() const;
+    Field *GetPrimaryKey();
+
     // 支持for(auto : record)遍历
     std::vector<Field *>::iterator begin();
     std::vector<Field *>::const_iterator begin() const;
     std::vector<Field *>::iterator end();
     std::vector<Field *>::const_iterator end() const;
+    
+    std::map<LibString, LibStream<_Build::TL> *> &GetFieldDatas();
+    const std::map<LibString, LibStream<_Build::TL> *> &GetFieldDatas() const;
 
 private:
     std::vector<Field *> _fields;
+    Field *_primaryKey;
     std::unordered_map<LibString, Field *> _fieldNameRefField;
+    std::map<LibString, LibStream<_Build::TL> *> _fieldNameRefData;
 };
 
 template<typename T>
-ALWAYS_INLINE Field *Record::AddField(Int32 idx, const LibString &tableName, const LibString &name, Int32 fieldType, const void *data, Int64 dataSize)
+ALWAYS_INLINE Field *Record::AddField(Int32 idx, const LibString &tableName, const LibString &name, Int32 fieldType, UInt64 flags, const void *data, Int64 dataSize)
 {
-    auto field = Field::Create<T>(tableName, name, fieldType, this);
+    auto field = Field::Create<T>(tableName, name, fieldType, flags, this);
     field->SetIndexInRecord(idx);
     field->Write(data, dataSize);
     field->SetIsNull(dataSize <= 0);
@@ -114,9 +122,9 @@ ALWAYS_INLINE Field *Record::AddField(Int32 idx, const LibString &tableName, con
 }
 
 template<typename T>
-ALWAYS_INLINE Field *Record::AddField(const LibString &tableName, const LibString &name, Int32 fieldType, const void *data, Int64 dataSize)
+ALWAYS_INLINE Field *Record::AddField(const LibString &tableName, const LibString &name, Int32 fieldType, UInt64 flags, const void *data, Int64 dataSize)
 {
-    auto field = Field::Create<T>(tableName, name, fieldType, this);
+    auto field = Field::Create<T>(tableName, name, fieldType, flags, this);
     field->Write(data, dataSize);
     field->SetIsNull(dataSize <= 0);
 
@@ -251,6 +259,16 @@ ALWAYS_INLINE const Field *Record::GetField(const LibString &fieldName) const
     return (*this)[fieldName];
 }
 
+ALWAYS_INLINE const Field *Record::GetPrimaryKey() const
+{
+    return _primaryKey;
+}
+
+ALWAYS_INLINE Field *Record::GetPrimaryKey()
+{
+    return _primaryKey;
+}
+
 ALWAYS_INLINE std::vector<Field *>::iterator Record::begin()
 {
     return _fields.begin();
@@ -269,6 +287,16 @@ ALWAYS_INLINE std::vector<Field *>::iterator Record::end()
 ALWAYS_INLINE std::vector<Field *>::const_iterator Record::end() const
 {
     return _fields.end();
+}
+
+ALWAYS_INLINE std::map<LibString, LibStream<_Build::TL> *> &Record::GetFieldDatas()
+{
+    return _fieldNameRefData;
+}
+
+ALWAYS_INLINE const std::map<LibString, LibStream<_Build::TL> *> &Record::GetFieldDatas() const
+{
+    return _fieldNameRefData;
 }
 
 KERNEL_END

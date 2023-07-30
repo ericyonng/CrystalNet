@@ -113,8 +113,6 @@ protected:
     virtual void _OnHostUpdate() override;
 
 private:
-    virtual void _OnMsg(PollerEvent *ev);
-
     void _Clear();
 
 protected:

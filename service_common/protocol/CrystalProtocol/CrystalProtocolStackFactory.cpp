@@ -30,6 +30,7 @@
 #include "service_common/protocol/CrystalProtocol/CrystalProtocolStackFactory.h"
 #include "service_common/protocol/CrystalProtocol/CrystalProtocolStackType.h"
 #include "service_common/protocol/CrystalProtocol/CrystalProtocolStack.h"
+#include "service_common/protocol/CrystalProtocol/CrystalProtocolJsonStack.h"
 #include "service_common/protocol/CrystalProtocol/CrystalMsgHeader.h"
 
 SERVICE_COMMON_BEGIN
@@ -38,15 +39,22 @@ KERNEL_NS::IProtocolStack *CrystalProtocolStackFactory::Create(Int32 type, UInt6
 {
     switch (type)
     {
-    case CrystalProtocolStackType::CRYSTAL_PROTOCOL_INNER:
-    case CrystalProtocolStackType::CRYSTAL_PROTOCOL_OUTER_NO_LIMIT:
+    // 无限制上行数据包大小, 一般用于内部节点通信
+    case CrystalProtocolStackType::CRYSTAL_PROTOCOL_NO_LIMIT:
         return new CrystalProtocolStack(type);
-    case CrystalProtocolStackType::CRYSTAL_PROTOCOL_OUTER:
+    // 默认是有限制上行数据包大小
+    case CrystalProtocolStackType::CRYSTAL_PROTOCOL:
     {
         auto stack = new CrystalProtocolStack(type);
         stack->SetMaxRecvMsgContentBytes(recvMsgContentBytesLimit);
         return stack;
     }
+    break;
+    // json解析
+    case CrystalProtocolStackType::JSON:
+    {
+        return new CrystalProtocolJsonStack(type);
+    } 
     break;
     default:
         break;

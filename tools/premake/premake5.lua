@@ -443,8 +443,8 @@ project "testsuit"
         "CrystalKernel",
     }
 
-    -- 导入内核接口
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB"}
+    -- 导入内核接口 宏定义
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "testsuit/testsuit_pch/pch.cpp")
 
@@ -593,8 +593,8 @@ project "client"
 		"../../protocols/**.cpp",
 		"../../service/common/**.h",
 		"../../service/common/**.cpp",
-        "../../service/TestService/**.h",
-        "../../service/TestService/**.cpp",
+        "../../service/Client/**.h",
+        "../../service/Client/**.cpp",
 		"../../service_common/**.h",
         "../../service_common/**.cpp",
         "../../client/**.h",

@@ -1505,7 +1505,79 @@ ALWAYS_INLINE Variant &Variant::operator =(const std::vector<_Ty> &val)
 }
 
 template<typename _Ty>
+ALWAYS_INLINE Variant &Variant::operator =(const std::vector<const _Ty *> &val)
+{
+    BecomeSeq();
+    auto &seqData = _raw._obj._sequenceData;
+    seqData->clear();
+    if(LIKELY(!val.empty()))
+    {
+        if(seqData->capacity() < val.size())
+            seqData->reserve(val.size());
+
+        for(auto iter = val.begin(); iter != val.end(); ++iter)
+           seqData->emplace_back(Variant(*iter));
+    }
+
+    return *this;
+}
+
+template<typename _Ty>
+ALWAYS_INLINE Variant &Variant::operator =(const std::vector<_Ty *> &val)
+{
+    BecomeSeq();
+    auto &seqData = _raw._obj._sequenceData;
+    seqData->clear();
+    if(LIKELY(!val.empty()))
+    {
+        if(seqData->capacity() < val.size())
+            seqData->reserve(val.size());
+
+        for(auto iter = val.begin(); iter != val.end(); ++iter)
+           seqData->emplace_back(Variant(*iter));
+    }
+
+    return *this;
+}
+
+template<typename _Ty>
 ALWAYS_INLINE Variant &Variant::operator =(const std::list<_Ty> &val)
+{
+    BecomeSeq();
+    auto &seqData = _raw._obj._sequenceData;
+    seqData->clear();
+    if(LIKELY(!val.empty()))
+    {
+        if(seqData->capacity() < val.size())
+            seqData->reserve(val.size());
+
+        for(auto iter = val.begin(); iter != val.end(); ++iter)
+           seqData->emplace_back(Variant(*iter));
+    }
+
+    return *this;
+}
+
+template<typename _Ty>
+ALWAYS_INLINE Variant &Variant::operator =(const std::list<_Ty *> &val)
+{
+    BecomeSeq();
+    auto &seqData = _raw._obj._sequenceData;
+    seqData->clear();
+    if(LIKELY(!val.empty()))
+    {
+        if(seqData->capacity() < val.size())
+            seqData->reserve(val.size());
+
+        for(auto iter = val.begin(); iter != val.end(); ++iter)
+           seqData->emplace_back(Variant(*iter));
+    }
+
+    return *this;
+}
+
+template<typename _Ty>
+ALWAYS_INLINE Variant &Variant::operator =(const std::list<const _Ty *> &val)
 {
     BecomeSeq();
     auto &seqData = _raw._obj._sequenceData;

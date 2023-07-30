@@ -589,7 +589,15 @@ public:
     template<typename _Ty>
     Variant &operator =(const std::vector<_Ty> &val);
     template<typename _Ty>
+    Variant &operator =(const std::vector<const _Ty *> &val);
+    template<typename _Ty>
+    Variant &operator =(const std::vector<_Ty *> &val);
+    template<typename _Ty>
     Variant &operator =(const std::list<_Ty> &val);
+    template<typename _Ty>
+    Variant &operator =(const std::list<_Ty *> &val);
+    template<typename _Ty>
+    Variant &operator =(const std::list<const _Ty *> &val);
     template<typename _Ty>
     Variant &operator =(const std::queue<_Ty> &val);
     template<typename _Ty>

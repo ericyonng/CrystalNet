@@ -46,7 +46,10 @@ public:
 
     // 协议栈
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
-    virtual KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 sessionType) final;
+    virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) const final;
+    virtual KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) final;
+    virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) const final;
+
 
     // 获取定时器
     KERNEL_NS::TimerMgr *GetTimerMgr();
@@ -96,10 +99,14 @@ protected:
     // 退出服务
     void _OnQuitingService(KERNEL_NS::PollerEvent *msg) override;
 
+
     // 初始化相关
     virtual bool _OnPollerPrepare(KERNEL_NS::Poller *poller) final;
     // 销毁相关
     virtual void _OnPollerWillDestroy(KERNEL_NS::Poller *poller) final;
+
+    // db加载完毕事件
+    void _OnDbLoaded(KERNEL_NS::LibEvent *ev);
 
     // 获取消息处理器
     KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode);
@@ -124,11 +131,13 @@ private:
     // 配置
     ServiceConfig *_serviceConfig;
 
-    std::unordered_map<Int32, KERNEL_NS::IProtocolStack *> _sessionTypeRefProtocolStack;
     std::unordered_map<Int32, KERNEL_NS::IProtocolStack *> _stackTypeRefProtocolStack;
+    KERNEL_NS::IProtocolStack *_defaultStack;
 
     // 协议消息处理器
     std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *> _opcodeRefHandler;
+
+    KERNEL_NS::ListenerStub _dbLoadedEventStub;
 };
 
 ALWAYS_INLINE KERNEL_NS::TimerMgr *MyTestService::GetTimerMgr()

@@ -28,7 +28,6 @@
 
 
 #include "pch.h"
-#include "service_common/protocol/CrystalProtocol/CrystalProtocolStack.h"
 #include "service_common/protocol/CrystalProtocol/CrystalMsgHeader.h"
 
 #ifndef DISABLE_OPCODES

@@ -126,8 +126,8 @@ LibString NetCardInfo::ToString() const
         .AppendFormat("mac address:%s\n", _mac.c_str())
         .AppendFormat("mtu:%llu\n", _mtu)
         .AppendFormat("cardType:%d, [%s]\n", _cardType, NetCardType::CardTypeStr(_cardType))
-        .AppendFormat("infoMask:%x\n", static_cast<UInt32>(_infoMask))
-        .AppendFormat("ipTypeMask:%x, [%s]\n", static_cast<UInt32>(_ipTypeMask), IpTypeMask::MaskToStr(_ipTypeMask));
+        .AppendFormat("infoMask:%llx\n", _infoMask)
+        .AppendFormat("ipTypeMask:%llx, [%s]\n", _ipTypeMask, IpTypeMask::MaskToStr(_ipTypeMask));
 
     // // ipv4 info
         // ipv4

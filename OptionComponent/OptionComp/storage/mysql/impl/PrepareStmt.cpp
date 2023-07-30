@@ -76,6 +76,8 @@ bool PrepareStmt::Init()
     if(_isInit)
         return true;
 
+    _conn->AddOpCount(MysqlOperateType::Operate);
+
     auto mysqlObj = _conn->GetMysql();
     _stmt = mysql_stmt_init(mysqlObj);
     
@@ -150,6 +152,7 @@ void PrepareStmt::BindParam(Field *field)
     // 绑定数据
     if(newField->GetType() != static_cast<Int32>(MYSQL_TYPE_NULL))
     {
+        // TODO:数据长度需要根据实际的Type做限制 例如int只有4个字节如果外部写入一个UInt64进来就是8个字节了
         bindParam.buffer = newField->GetData()->GetReadBegin();
         bindParam.buffer_length = static_cast<ULong>(newField->GetData()->GetReadableSize());
     }
@@ -160,6 +163,7 @@ UInt32 PrepareStmt::CommitParam()
     Int32 ret = 0;
     if(_paramCount > 0)
     {
+        _conn->AddOpCount(MysqlOperateType::Operate);
         ret = mysql_stmt_bind_param(_stmt, _bindParams);
         if(ret != 0)
         {
@@ -176,6 +180,7 @@ UInt32 PrepareStmt::CommitParam()
         auto &bindParam = _bindParams[idx];
         if(IS_MYSQL_NEED_SEND_LONG_DATA(bindParam.buffer_type))
         {
+            _conn->AddOpCount(MysqlOperateType::Operate);
             ret = mysql_stmt_send_long_data(_stmt, idx, reinterpret_cast<const Byte8 *>(bindParam.buffer), bindParam.buffer_length);
             if(ret != 0)
             {
@@ -195,6 +200,15 @@ UInt32 PrepareStmt::CommitParam()
 
 UInt32 PrepareStmt::Execute(UInt64 seqId, const std::vector<Field *> &fields, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb)
 {
+    if(g_Log->IsEnable(LogLevel::DumpSql))
+    {
+        std::vector<KERNEL_NS::LibString> fieldsStr;
+        for(auto field:fields)
+            fieldsStr.push_back(field->Dump());
+
+        g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("seq id:%llu, sql:%s, fields:", seqId, _sql.c_str()), KERNEL_NS::StringUtil::ToString(fieldsStr, ","));
+    }
+
     StartParam(seqId);
 
     for(auto field : fields)
@@ -238,6 +252,7 @@ UInt32 PrepareStmt::Execute(UInt64 seqId, const std::vector<Field *> &fields, ID
 
 UInt32 PrepareStmt::Execute()
 {
+    _conn->AddOpCount(MysqlOperateType::Operate);
     auto ret = mysql_stmt_execute(_stmt);
     if(ret != 0)
     {
@@ -283,6 +298,7 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
     }
     
     // 有返回数据的sql 如select等
+    _conn->AddOpCount(MysqlOperateType::Operate);
     ret = mysql_stmt_store_result(_stmt);
     if(ret != 0)
     {
@@ -293,8 +309,6 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
         , LibString().AppendFormat("mysql_stmt_store_result fail error:%s", mysql_error(_conn->GetMysql()))
         , ToString());
 
-        Int64 insertId = static_cast<Int64>(mysql_stmt_insert_id(_stmt));
-        Int64 affectedRows = static_cast<Int64>(mysql_stmt_affected_rows(_stmt));
         if(LIKELY(cb))
         {
             std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> emptyRecords;
@@ -322,19 +336,14 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
         for(Int32 idx = 0; idx < resultFieldCount; ++idx)
         {
             auto &bindField = _resultBinds[idx];
+            auto &flags = _indexOfFlags[idx];
+
             const auto &tableName = _indexRefTableName[idx];
             const auto &fieldName = _indexRefFieldName[idx];
-            const auto isAutoIncField = _indexRefIsAutoIncField[idx];
-            const auto isUnsigend = _indexRefIsUnsigned[idx];
 
             // const bool isNull = (bindField.is_null != 0);
             Int64 len = static_cast<Int64>(bindField.length ? *(bindField.length) : 0);
-            auto newField = record->AddField(idx, tableName, fieldName, bindField.buffer_type, (len == 0) ? NULL : bindField.buffer, len);
-            if(LIKELY(newField))
-            {
-                newField->SetAutoIncField(isAutoIncField);
-                newField->SetIsUnsigned(isUnsigend);
-            }
+            record->AddField(idx, tableName, fieldName, bindField.buffer_type, flags, (len == 0) ? NULL : bindField.buffer, len);
         }
         allRecords.push_back(record);
 
@@ -413,8 +422,7 @@ void PrepareStmt::_ClearBindResult()
     _fieldNameRefIndex.clear();
     _indexRefFieldName.clear();
     _indexRefTableName.clear();
-    _indexRefIsAutoIncField.clear();
-    _indexRefIsUnsigned.clear();
+    _indexOfFlags.clear();
 }
 
 void PrepareStmt::_ClearBindParamValue()
@@ -442,6 +450,8 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
     // 绑定元数据信息, 只执行一次 因为绑定之后,不需要再绑定, mysql那边会一直保留 除非重连
     if(_isSucObtainResultSetMetadata)
         return 0;
+
+    _conn->AddOpCount(MysqlOperateType::Operate);
 
     _hasRecords = false;
     UInt32 ret = 0;
@@ -489,8 +499,7 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
         _fieldNameRefIndex[field->name] = curFieldIndex;
         _indexRefFieldName[curFieldIndex] = field->name;
         _indexRefTableName[curFieldIndex] = field->table;
-        _indexRefIsAutoIncField[curFieldIndex] = field->flags & AUTO_INCREMENT_FLAG;
-        _indexRefIsUnsigned[curFieldIndex] = field->flags & UNSIGNED_FLAG;
+        _indexOfFlags[curFieldIndex] = static_cast<UInt64>(field->flags);
 
         _resultBinds[curFieldIndex].buffer_type = field->type;
         if(sz != 0)

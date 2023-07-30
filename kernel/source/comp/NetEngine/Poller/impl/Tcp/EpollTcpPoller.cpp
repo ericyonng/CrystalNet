@@ -62,8 +62,6 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(EpollTcpPoller);
 
-EpollTcpPoller::PollerEventHandler EpollTcpPoller::_eventHandlerArray[PollerEventType::EvMax] = {NULL};
-
 EpollTcpPoller::EpollTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const TcpPollerInstConfig *cfg)
 :
 _pollerId(pollerId)
@@ -93,20 +91,6 @@ EpollTcpPoller::~EpollTcpPoller()
 void EpollTcpPoller::Release()
 {
     EpollTcpPoller::Delete_EpollTcpPoller(this);
-}
-
-void EpollTcpPoller::InitStatic()
-{
-    _eventHandlerArray[PollerEventType::Write] = &EpollTcpPoller::_OnWrite;
-    _eventHandlerArray[PollerEventType::AsynConnect] = &EpollTcpPoller::_OnAsynConnect;
-    _eventHandlerArray[PollerEventType::NewSession] = &EpollTcpPoller::_OnNewSession;
-    _eventHandlerArray[PollerEventType::Monitor] = &EpollTcpPoller::_OnMonitor;
-    _eventHandlerArray[PollerEventType::CloseSession] = &EpollTcpPoller::_OnCloseSession;
-    _eventHandlerArray[PollerEventType::AddListen] = &EpollTcpPoller::_OnAddListen;
-    _eventHandlerArray[PollerEventType::IpRuleControl] = &EpollTcpPoller::_OnIpRuleControl;
-    _eventHandlerArray[PollerEventType::QuitServiceSessionsEvent] = &EpollTcpPoller::_OnQuitServiceSessionsEvent;
-    _eventHandlerArray[PollerEventType::RealDoQuitServiceSessionEvent] = &EpollTcpPoller::_OnRealDoQuitServiceSessionEvent;
-
 }
 
 void EpollTcpPoller::OnRegisterComps()
@@ -311,7 +295,16 @@ Int32 EpollTcpPoller::_OnCompsCreated()
     _poller->SetMaxSleepMilliseconds(_cfg->_maxSleepMilliseconds);
     _poller->SetPepareEventWorkerHandler(this, &EpollTcpPoller::_OnPollerPrepare);
     _poller->SetEventWorkerCloseHandler(this, &EpollTcpPoller::_OnPollerWillDestroy);
-    _poller->SetEventHandler(this, &EpollTcpPoller::_OnPollerEvent);
+    
+    _poller->Subscribe(PollerEventType::Write, this, &EpollTcpPoller::_OnWrite);
+    _poller->Subscribe(PollerEventType::AsynConnect, this, &EpollTcpPoller::_OnAsynConnect);
+    _poller->Subscribe(PollerEventType::NewSession, this, &EpollTcpPoller::_OnNewSession);
+    _poller->Subscribe(PollerEventType::Monitor, this, &EpollTcpPoller::_OnMonitor);
+    _poller->Subscribe(PollerEventType::CloseSession, this, &EpollTcpPoller::_OnCloseSession);
+    _poller->Subscribe(PollerEventType::AddListen, this, &EpollTcpPoller::_OnAddListen);
+    _poller->Subscribe(PollerEventType::IpRuleControl, this, &EpollTcpPoller::_OnIpRuleControl);
+    _poller->Subscribe(PollerEventType::QuitServiceSessionsEvent, this, &EpollTcpPoller::_OnQuitServiceSessionsEvent);
+    _poller->Subscribe(PollerEventType::RealDoQuitServiceSessionEvent, this, &EpollTcpPoller::_OnRealDoQuitServiceSessionEvent);
 
     // 脏回调
     auto dirtyHelper = _poller->GetDirtyHelper();
@@ -503,26 +496,6 @@ void EpollTcpPoller::_OnPollerWillDestroy(Poller *poller)
     });
 
     _memoryCleaner->ManualClose();
-}
-
-void EpollTcpPoller::_OnPollerEvent(PollerEvent *ev)
-{
-    if(UNLIKELY(ev->_type >= PollerEventType::EvMax))
-    {
-        g_Log->NetError(LOGFMT_OBJ_TAG("unknown poller event type:%d"), ev->_type);
-        return;
-    }
-    
-    auto handler = _eventHandlerArray[ev->_type];
-    if(!handler)
-    {
-        g_Log->NetError(LOGFMT_OBJ_TAG("unknown poller event type:%d"), ev->_type);
-        return;
-    }
-
-    // g_Log->NetInfo(LOGFMT_OBJ_TAG("will consume a poller event type:%d"), ev->_type);
-    // g_Log->NetDebug(LOGFMT_OBJ_TAG("will consume a poller event:%s"), ev->ToString().c_str());
-    (this->*handler)(ev);
 }
 
 void EpollTcpPoller::_OnWrite(PollerEvent *ev)
@@ -732,6 +705,7 @@ void EpollTcpPoller::_OnNewSession(PollerEvent *ev)
     sessionCreatedEv->_stub = buildSessionInfo->_stub;
     sessionCreatedEv->_isFromConnect = buildSessionInfo->_isFromConnect;
     sessionCreatedEv->_isLinker = buildSessionInfo->_isLinker;
+    sessionCreatedEv->_protocolStackType = buildSessionInfo->_sessionOption._protocolStackType;
     _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv->_priorityLevel, sessionCreatedEv);
 
     // 有存根才需要回包
@@ -934,6 +908,8 @@ void EpollTcpPoller::_OnAddListen(PollerEvent *ev)
         sessionCreatedEv->_stub = listenInfo->_stub;
         sessionCreatedEv->_isFromConnect = false;
         sessionCreatedEv->_isLinker = true;
+        sessionCreatedEv->_protocolStackType = listenInfo->_sessionOption._protocolStackType;
+
         _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv->_priorityLevel, sessionCreatedEv);
 
         // listenres
@@ -1310,7 +1286,7 @@ Int32 EpollTcpPoller::_OnAcceptedNew(SOCKET sock, EpollTcpSession *session)
     return Status::Success;
 }
 
-void EpollTcpPoller::_OnDirtySessionAccept(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params)
+void EpollTcpPoller::_OnDirtySessionAccept(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params)
 {
     auto acceptSession = KernelCastTo<EpollTcpSession>(session);
     g_Log->NetDebug(LOGFMT_OBJ_TAG("session accept dirty coming session%s"), acceptSession->ToString().c_str());
@@ -1318,21 +1294,21 @@ void EpollTcpPoller::_OnDirtySessionAccept(LibDirtyHelper<void *, UInt32> *dirty
     _OnAccept(acceptSession);
 }
 
-void EpollTcpPoller::_OnDirtySessionWrite(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params)
+void EpollTcpPoller::_OnDirtySessionWrite(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params)
 {
     auto epollTcpSession = KernelCastTo<EpollTcpSession>(session);
     // g_Log->NetDebug(LOGFMT_OBJ_TAG("dirty write session:%s"), epollTcpSession->ToString().c_str());
     epollTcpSession->ContinueSend();
 }
 
-void EpollTcpPoller::_OnDirtySessionRead(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params)
+void EpollTcpPoller::_OnDirtySessionRead(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params)
 {
     auto epollTcpSession = KernelCastTo<EpollTcpSession>(session);
     // g_Log->NetDebug(LOGFMT_OBJ_TAG("dirty read session:%s"), epollTcpSession->ToString().c_str());
     epollTcpSession->OnRecv();
 }
 
-void EpollTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params)
+void EpollTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params)
 {
     auto epollSession = KernelCastTo<EpollTcpSession>(session);
 

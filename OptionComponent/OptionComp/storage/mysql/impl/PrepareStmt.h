@@ -108,8 +108,8 @@ private:
     std::map<LibString, Int32> _fieldNameRefIndex;
     std::map<Int32, LibString> _indexRefFieldName;
     std::map<Int32, LibString> _indexRefTableName;
-    std::map<Int32, bool> _indexRefIsAutoIncField;
-    std::map<Int32, bool> _indexRefIsUnsigned;
+
+    std::map<Int32, UInt64> _indexOfFlags;
 };
 
 ALWAYS_INLINE bool PrepareStmt::IsInit() const

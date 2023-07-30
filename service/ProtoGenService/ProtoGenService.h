@@ -46,7 +46,10 @@ public:
 
     // 协议栈
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
-    virtual KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 SessionType) final;
+    virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) const;
+    virtual KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType);
+    virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) const;
+
 
     // 获取定时器
     KERNEL_NS::TimerMgr *GetTimerMgr();

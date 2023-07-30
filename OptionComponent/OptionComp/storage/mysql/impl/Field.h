@@ -49,13 +49,67 @@ class Field
     POOL_CREATE_OBJ_DEFAULT(Field);
 
 public:
-    Field(const LibString &tableName, const LibString &fieldName, Int32 dataType, Record *owner = NULL);
+    enum DATA_FLAGS_POS : UInt64
+    {
+        UNKNOWN_FLAG_POS = 0,
+        NUMBER_FLAG_POS = 1,
+        STRING_FLAG_POS = 2,
+        BINARY_FLAG_POS = 3,
+
+        // NUMBER特性
+        NUMBER_INT8_POS,
+        NUMBER_INT16_POS,
+        NUMBER_INT32_POS,
+        NUMBER_INT64_POS,
+        NUMBER_UNSIGNED_POS,
+        NUMBER_FLOAT_POS,
+        NUMBER_DOUBLE_POS,
+
+        // STRING
+        TIME_STRING_POS,
+        JSON_STRING_POS,
+        NORMAL_STRING_POS,
+
+        // BLOB
+        TINY_BINARY_POS,
+        NORMAL_BINARY_POS,
+        MEDIUM_BINARY_POS,
+        LONG_BINARY_POS,
+    };
+
+public:
+    static constexpr UInt64  UNKNOWN_FLAG = 0;
+    static constexpr UInt64  NUMBER_FLAG = (1LLU << Field::NUMBER_FLAG_POS);
+    static constexpr UInt64  STRING_FLAG = (1LLU << Field::STRING_FLAG_POS);
+    static constexpr UInt64  BINARY_FIELD_FLAG = (1LLU << Field::BINARY_FLAG_POS);
+
+    static constexpr UInt64 NUMBER_INT8 = Field::NUMBER_FLAG | (1LLU << Field::NUMBER_INT8_POS);
+    static constexpr UInt64 NUMBER_INT16 = Field::NUMBER_FLAG | (1LLU << Field::NUMBER_INT16_POS);
+    static constexpr UInt64 NUMBER_INT32 = Field::NUMBER_FLAG | (1LLU << Field::NUMBER_INT32_POS);
+    static constexpr UInt64 NUMBER_INT64 = Field::NUMBER_FLAG | (1LLU << Field::NUMBER_INT64_POS);
+    static constexpr UInt64 NUMBER_UNSIGNED = Field::NUMBER_FLAG | (1LLU << Field::NUMBER_UNSIGNED_POS);
+    static constexpr UInt64 NUMBER_FLOAT = Field::NUMBER_FLAG | (1LLU << Field::NUMBER_FLOAT_POS);
+    static constexpr UInt64 NUMBER_DOUBLE = Field::NUMBER_FLAG | (1LLU << Field::NUMBER_DOUBLE_POS);
+
+        // STRING
+    static constexpr UInt64 TIME_STRING = Field::STRING_FLAG | (1LLU << Field::TIME_STRING_POS);
+    static constexpr UInt64 JSON_STRING = Field::STRING_FLAG | (1LLU << Field::JSON_STRING_POS);
+    static constexpr UInt64 NORMAL_STRING = Field::STRING_FLAG | (1LLU << Field::NORMAL_STRING_POS);
+
+        // blob
+    static constexpr UInt64 TINY_BINARY_FLAG = Field::BINARY_FIELD_FLAG | (1LLU << Field::TINY_BINARY_POS);
+    static constexpr UInt64 NORMAL_BINARY_FLAG = Field::BINARY_FIELD_FLAG | (1LLU << Field::NORMAL_BINARY_POS);
+    static constexpr UInt64 MEDIUM_BINARY_FLAG = Field::BINARY_FIELD_FLAG | (1LLU << Field::MEDIUM_BINARY_POS);
+    static constexpr UInt64 LONG_BINARY_FLAG = Field::BINARY_FIELD_FLAG | (1LLU << Field::MEDIUM_BINARY_POS);
+
+public:
+    Field(const LibString &tableName, const LibString &fieldName, Int32 dataType, UInt64 flags, Record *owner = NULL);
     ~Field();
     Field(const Field &);
     Field(Field &&);
 
     template<typename T = _Build::TL>
-    static Field *Create(const LibString &tableName, const LibString &fieldName, Int32 dataType, Record *owner = NULL);
+    static Field *Create(const LibString &tableName, const LibString &fieldName, Int32 dataType, UInt64 flags, Record *owner = NULL);
     void Release();
 
     void Write(const void *data, Int64 dataSize);
@@ -85,8 +139,12 @@ public:
     // 数据
     const LibStream<_Build::TL> *GetData() const;
     LibStream<_Build::TL> *GetData();
+    void SetData(LibStream<_Build::TL> *newData);
 
     LibString ToString() const;
+    LibString Dump() const;
+    // value转成文本可读的
+    LibString GetValueTextCompatible() const;
 
     static const Byte8 *DataTypeString(Int32 dataType);
     const Byte8 *GetDataTypeString() const;
@@ -103,6 +161,14 @@ public:
     bool IsAutoIncField() const;
     void SetAutoIncField(bool isInc);
 
+    // 主键
+    bool IsPrimaryKey() const;
+    void SetIsPrimaryKey(bool isPrimaryKey);
+
+    // 字段属性信息
+    UInt64 GetFlags() const;
+    void SetFlags(UInt64 flags);
+
     // 写数据
     void SetInt8(Byte8 v);
     void SetInt16(Int16 v);
@@ -118,6 +184,8 @@ public:
     void SetString(const void *str, UInt64 strLen);
     void SetDatetime(const LibString &tm);
     void SetDatetime(const LibTime &tm);
+    void SetVarBinary(const LibString &b);
+    void SetVarBinary(const void *b, UInt64 sz);
     void SetBlob(const LibString &b);
     void SetBlob(const void *p, UInt64 len);
     void SetMediumBlob(const LibString &b);
@@ -136,22 +204,53 @@ public:
     UInt64 GetUInt64() const;
     Float GetFloat() const;
     Double GetDouble() const;
-    void GetString(LibString &str);
-    void GetString(Byte8 *str, UInt64 strSize);
-    void GetDatetime(LibString &dt);
-    void GetDateTime(LibTime &tm);
-    void GetBlob(LibString &b);
-    void GetBlob(Byte8 *b, UInt64 sz);
-    void GetMediumBlob(LibString &b);
-    void GetMediumBlob(Byte8 *b, UInt64 sz);
-    void GetLongBlob(LibString &b);
-    void GetLongBlob(Byte8 *b, UInt64 sz);
+    void GetString(LibString &str) const;
+    void GetString(Byte8 *str, UInt64 strSize) const;
+    void GetDateTime(LibString &dt) const;
+    void GetDateTime(LibTime &tm) const;
+    void GetVarBinary(LibString &b) const;
+    void GetVarBinary(void *b, UInt64 sz) const;
+    void GetBlob(LibString &b) const;
+    void GetBlob(void *b, UInt64 sz) const;
+    void GetMediumBlob(LibString &b) const;
+    void GetMediumBlob(void *b, UInt64 sz) const;
+    void GetLongBlob(LibString &b) const;
+    void GetLongBlob(void *b, UInt64 sz) const;
+
+    bool IsNumber() const;
+    bool IsString() const;
+    bool IsBinary() const;
+
+    bool IsInt8() const;
+    bool IsUInt8() const;
+    bool IsInt16() const;
+    bool IsUInt16() const;
+    bool IsInt32() const;
+    bool IsUInt32() const;
+    bool IsInt64() const;
+    bool IsUInt64() const;
+    bool IsDouble() const;
+    bool IsFloat() const;
+
+    bool IsNormalString() const;
+    bool IsJsonString() const;
+    bool IsTimeString() const;
+
+    bool IsTinyBinary() const;
+
+    // 可能是VARCHAR,也可能是VARBINARY
+    bool IsNormalBinary() const;
+    bool IsMediumBinary() const;
+    bool IsLongBinary() const;
 
 private:
     // 设置释放的回调
     template<typename CallbackType>
     void _SetRelease(CallbackType &&cb);
     void _SetRelease(IDelegate<void, Field *> *cb);
+
+    // 更新flags
+    void _UpdateDataFlags();
 
 private:
     Record *_owner;
@@ -164,12 +263,16 @@ private:
     bool _isNull;
     bool _isUnsigned;
     bool _isAutoIncField;
+    bool _isPrimaryKey;
+    UInt64 _flags;  // 字段的属性信息
+
+    UInt64 _dataFlags;
 };
 
 template<typename T>
-ALWAYS_INLINE Field *Field::Create(const LibString &tableName, const LibString &fieldName, Int32 dataType, Record *owner)
+ALWAYS_INLINE Field *Field::Create(const LibString &tableName, const LibString &fieldName, Int32 dataType, UInt64 flags, Record *owner)
 {
-    auto field = Field::NewByAdapter_Field(T::V, tableName, fieldName, dataType, owner);
+    auto field = Field::NewByAdapter_Field(T::V, tableName, fieldName, dataType, flags, owner);
 
     // 设置释放
     field->_SetRelease([](Field *ptr){
@@ -216,11 +319,6 @@ ALWAYS_INLINE Int32 Field::GetType() const
     return _dataType;
 }
 
-ALWAYS_INLINE void Field::SetType(Int32 mysqlFieldType)
-{
-    _dataType = mysqlFieldType;
-}
-
 ALWAYS_INLINE const LibString &Field::GetTableName() const
 {
     return _tableName;
@@ -254,8 +352,17 @@ ALWAYS_INLINE LibStream<_Build::TL> *Field::GetData()
 ALWAYS_INLINE LibString Field::ToString() const
 {
     LibString info;
-    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld, data type:%d,%s, is null:%d, is unsigend:%d, is auto inc field:%d"
-    , _tableName.c_str(), _name.c_str(), _index, GetDataSize(), _dataType, DataTypeString(_dataType), _isNull, _isUnsigned, _isAutoIncField);
+    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld, data type:%d,%s, is null:%d, is unsigend:%d, is auto inc field:%d, 是否主键:%d, _dataFlags:%llx"
+    , _tableName.c_str(), _name.c_str(), _index, GetDataSize(), _dataType, DataTypeString(_dataType), _isNull, _isUnsigned, _isAutoIncField, _isPrimaryKey, _dataFlags);
+    return info;
+}
+
+ALWAYS_INLINE LibString Field::Dump() const
+{
+    LibString info;
+    info.AppendFormat("table name:%s, field name:%s, data type:%d,%s data size:%lld, data flags:%llx data:\n", _tableName.c_str(), _name.c_str(), _dataType, DataTypeString(_dataType), _dataFlags, GetDataSize());
+    info.AppendData(GetValueTextCompatible());
+
     return info;
 }
 
@@ -274,14 +381,11 @@ ALWAYS_INLINE void Field::SetIsNull(bool isNull)
     _isNull = isNull;
 }
 
-ALWAYS_INLINE bool Field::IsUnsigned() const
-{
-    return _isUnsigned;
-}
-
 ALWAYS_INLINE void Field::SetIsUnsigned(bool isUnsigned)
 {
     _isUnsigned = isUnsigned;
+
+    _UpdateDataFlags();
 }
 
 ALWAYS_INLINE bool Field::IsAutoIncField() const
@@ -292,6 +396,151 @@ ALWAYS_INLINE bool Field::IsAutoIncField() const
 ALWAYS_INLINE void Field::SetAutoIncField(bool isInc)
 {
     _isAutoIncField = isInc;
+}
+
+ALWAYS_INLINE bool Field::IsPrimaryKey() const
+{
+    return _isPrimaryKey;
+}
+
+ALWAYS_INLINE void Field::SetIsPrimaryKey(bool isPrimaryKey)
+{
+    _isPrimaryKey = isPrimaryKey;
+}
+
+ALWAYS_INLINE UInt64 Field::GetFlags() const
+{
+    return _flags;
+}
+
+ALWAYS_INLINE void Field::SetFlags(UInt64 flags)
+{
+    _flags = flags;
+}
+
+ALWAYS_INLINE void Field::SetString(const LibString &str)
+{
+    SetString(str.data(), static_cast<UInt64>(str.size()));
+}
+
+ALWAYS_INLINE void Field::SetVarBinary(const LibString &b)
+{
+    SetVarBinary(b.data(), static_cast<UInt64>(b.size()));
+}
+
+ALWAYS_INLINE void Field::SetBlob(const LibString &b)
+{
+    SetBlob(b.data(), static_cast<UInt64>(b.size()));
+}
+
+ALWAYS_INLINE void Field::SetMediumBlob(const LibString &b)
+{
+    SetMediumBlob(b.data(), static_cast<UInt64>(b.size()));
+}
+
+ALWAYS_INLINE void Field::SetLongBlob(const LibString &b)
+{
+    SetLongBlob(b.data(), static_cast<UInt64>(b.size()));
+}
+
+ALWAYS_INLINE bool Field::IsNumber() const
+{
+    return (_dataFlags & NUMBER_FLAG) == NUMBER_FLAG;
+}
+
+ALWAYS_INLINE bool Field::IsString() const
+{
+    return (_dataFlags & STRING_FLAG) == STRING_FLAG;
+}
+
+ALWAYS_INLINE bool Field::IsBinary() const
+{
+    return (_dataFlags & BINARY_FIELD_FLAG) == BINARY_FIELD_FLAG;
+}
+
+ALWAYS_INLINE bool Field::IsInt8() const
+{
+    return ((_dataFlags & NUMBER_INT16) == NUMBER_INT16) && (!IsUnsigned());
+}
+
+ALWAYS_INLINE bool Field::IsUInt8() const
+{
+    return ((_dataFlags & NUMBER_INT16) == NUMBER_INT16) && (IsUnsigned());
+}
+
+ALWAYS_INLINE bool Field::IsInt16() const
+{
+    return ((_dataFlags & NUMBER_INT16) == NUMBER_INT16) && (!IsUnsigned());
+}
+
+ALWAYS_INLINE bool Field::IsUInt16() const
+{
+    return ((_dataFlags & NUMBER_INT16) == NUMBER_INT16) && IsUnsigned();
+}
+
+ALWAYS_INLINE bool Field::IsInt32() const
+{
+    return ((_dataFlags & NUMBER_INT32) == NUMBER_INT32) && (!IsUnsigned());
+}
+
+ALWAYS_INLINE bool Field::IsUInt32() const
+{
+    return ((_dataFlags & NUMBER_INT32) == NUMBER_INT32) && IsUnsigned();
+}
+
+ALWAYS_INLINE bool Field::IsInt64() const
+{
+    return ((_dataFlags & NUMBER_INT64) == NUMBER_INT64) && (!IsUnsigned());
+}
+
+ALWAYS_INLINE bool Field::IsUInt64() const
+{
+    return ((_dataFlags & NUMBER_INT64) == NUMBER_INT64) && IsUnsigned();
+}
+
+ALWAYS_INLINE bool Field::IsDouble() const
+{
+    return (_dataFlags & NUMBER_DOUBLE) == NUMBER_DOUBLE;
+}
+
+ALWAYS_INLINE bool Field::IsFloat() const
+{
+    return (_dataFlags & NUMBER_FLOAT) == NUMBER_FLOAT;
+}
+
+ALWAYS_INLINE bool Field::IsNormalString() const
+{
+    return (_dataFlags & NORMAL_STRING) == NORMAL_STRING;
+}
+
+ALWAYS_INLINE bool Field::IsJsonString() const
+{
+    return (_dataFlags & JSON_STRING) == JSON_STRING;
+}
+
+ALWAYS_INLINE bool Field::IsTimeString() const
+{
+    return (_dataFlags & TIME_STRING) == TIME_STRING;
+}
+
+ALWAYS_INLINE bool Field::IsTinyBinary() const
+{
+    return (_dataFlags & TINY_BINARY_FLAG) == TINY_BINARY_FLAG;
+}
+
+ALWAYS_INLINE bool Field::IsNormalBinary() const
+{
+    return (_dataFlags & NORMAL_BINARY_FLAG) == NORMAL_BINARY_FLAG;
+}
+
+ALWAYS_INLINE bool Field::IsMediumBinary() const
+{
+    return (_dataFlags & MEDIUM_BINARY_FLAG) == MEDIUM_BINARY_FLAG;
+}
+
+ALWAYS_INLINE bool Field::IsLongBinary() const
+{
+    return (_dataFlags & LONG_BINARY_FLAG) == LONG_BINARY_FLAG;
 }
 
 template<typename CallbackType>

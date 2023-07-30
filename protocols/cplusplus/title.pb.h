@@ -143,7 +143,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
     return true;
 }
 
-virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
     if (stream.GetReadableSize() == 0)
     {
         Clear();
@@ -159,7 +159,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
     if (stream.GetReadableSize() == 0)
     {
         Clear();
@@ -368,7 +368,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
     return true;
 }
 
-virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
     if (stream.GetReadableSize() == 0)
     {
         Clear();
@@ -384,7 +384,7 @@ virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
     if (stream.GetReadableSize() == 0)
     {
         Clear();

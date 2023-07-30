@@ -107,12 +107,12 @@ static void __GetExceptionBackTrace(PCONTEXT ctx, KERNEL_NS::LibString &backTrac
         IMAGEHLP_LINE64 lineInfo = {sizeof(IMAGEHLP_LINE64)};
         if(::SymGetLineFromAddr64(curProc, stackFrame64.AddrPC.Offset, &symDisplacement, &lineInfo))
         {
-            backTraces.push_back(KERNEL_NS::LibString().AppendFormat("0x%x in %s at %s:%d",
+            backTraces.push_back(KERNEL_NS::LibString().AppendFormat("0x%llx in %s at %s:%d",
                 (void *)symbol->Address, symbol->Name, lineInfo.FileName, lineInfo.LineNumber));
         }
         else
         {
-            backTraces.push_back(KERNEL_NS::LibString().AppendFormat("0x%x in %s at %s:%d",
+            backTraces.push_back(KERNEL_NS::LibString().AppendFormat("0x%llx in %s at %s:%d",
                 (void *)symbol->Address, symbol->Name, "", 0));
         }
     }
@@ -293,12 +293,12 @@ LibString BackTraceUtil::CrystalCaptureStackBackTrace(size_t skipFrames, size_t 
         IMAGEHLP_LINE64 &imgHelpLine64 = win32ImgHelpLine64;
         if(::SymGetLineFromAddr64(curProc, symbol->Address, &displacement, &imgHelpLine64))
         {
-            backTrace.AppendFormat("#%d 0x%x in %s at %s:%d", frames - frame - 1, (void *)symbol->Address,
+            backTrace.AppendFormat("#%d 0x%llx in %s at %s:%d", frames - frame - 1, (void *)symbol->Address,
                                     symbol->Name, imgHelpLine64.FileName, imgHelpLine64.LineNumber);
         }
         else
         {
-            backTrace.AppendFormat("#%d 0x%x in %s at %s:%d", frames - frame - 1,
+            backTrace.AppendFormat("#%d 0x%llx in %s at %s:%d", frames - frame - 1,
                 (void *)symbol->Address, symbol->Name, "", 0);
         }
 

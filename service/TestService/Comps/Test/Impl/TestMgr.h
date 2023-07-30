@@ -46,10 +46,18 @@ public:
 
     void Release() override;
 
+   virtual Int32 OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
+   virtual Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const override;
+    virtual void OnWillStartup() override;
+    virtual void OnStartup() override;
+
+    virtual void OnRegisterComps() override;
+
 protected:
    Int32 _OnGlobalSysInit() override;
    Int32 _OnHostStart() override;
    void _OnGlobalSysClose() override;
+
 
 private:
     void _Clear();
@@ -61,6 +69,8 @@ private:
     void _OnWillSessionDestroy(KERNEL_NS::LibEvent *ev);
     void _OnCommonSessionReady(KERNEL_NS::LibEvent *ev);
     void _OnQuitService(KERNEL_NS::LibEvent *ev);
+
+    void _MakeNewTestData();
 
     Int32 _ReadTestConfigs();
 
@@ -87,6 +97,9 @@ private:
     // 需要发送数据包的会话
     std::unordered_map<UInt64, SessionAnalyzeInfo *> _sessionIdRefAnalyzeInfo;
     TestOpcodeReq req;
+
+    std::unordered_map<UInt64, TestMgrData *> _datas;
+    UInt64 _maxId;
 };
 
 SERVICE_END

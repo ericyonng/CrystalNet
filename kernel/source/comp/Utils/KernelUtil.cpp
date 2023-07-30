@@ -215,14 +215,6 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
         return err;
     }
 
-    // 静态成员初始化
-    #if CRYSTAL_TARGET_PLATFORM_LINUX
-     EpollTcpPoller::InitStatic();
-    #endif
-    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-     IocpTcpPoller::InitStatic();
-    #endif
-
     // 异常信号处理
     if(needSignalHandle)
     {

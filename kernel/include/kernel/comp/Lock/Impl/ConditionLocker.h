@@ -49,7 +49,6 @@ public:
     Int32 TimeWait(UInt64 second, UInt64 microSec);
     Int32 TimeWait(Int64 second, Int64 microSec);
     Int32 TimeWait(UInt64 milliSecond);
-    Int32 TimeWait(Int64 milliSecond);
 
     // Int32 Wait(UInt64 second, UInt64 microSec);
     // Int32 Wait(UInt64 milliSecond = INFINITE);
@@ -81,11 +80,6 @@ private:
 ALWAYS_INLINE Int32 ConditionLocker::TimeWait(Int64 second, Int64 microSec)
 {
     return TimeWait(static_cast<UInt64>(second), static_cast<UInt64>(microSec));
-}
-
-ALWAYS_INLINE Int32 ConditionLocker::TimeWait(Int64 milliSecond)
-{
-    return TimeWait(static_cast<UInt64>(milliSecond));
 }
 
 ALWAYS_INLINE bool ConditionLocker::HasWaiter()

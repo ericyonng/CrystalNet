@@ -69,7 +69,6 @@ public:
     void DefaultMaskReady(bool isReady) override {}
 
 public:
-    static void InitStatic();
     void OnRegisterComps() override;
     void Clear() override;
     LibString ToString() const override;
@@ -124,7 +123,6 @@ private:
     // poller组件回调
     bool _OnPollerPrepare(Poller *poller);
     void _OnPollerWillDestroy(Poller *poller);
-    void _OnPollerEvent(PollerEvent *ev);
 
     // poller事件
     void _OnWrite(PollerEvent *ev);
@@ -145,10 +143,10 @@ private:
     Int32 _OnAcceptedNew(SOCKET sock, EpollTcpSession *session);
 
     // 脏事件
-    void _OnDirtySessionAccept(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params);
-    void _OnDirtySessionWrite(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params);
-    void _OnDirtySessionRead(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params);
-    void _OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params);
+    void _OnDirtySessionAccept(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params);
+    void _OnDirtySessionWrite(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params);
+    void _OnDirtySessionRead(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params);
+    void _OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params);
 
     // epoll 监控线程
     void _OnMonitorThread(LibThread *t);
@@ -185,9 +183,6 @@ private:
     LibThread *_eventLoopThread;            // 事件循环线程
     Int32 _pollerInstMonitorPriorityLevel;  // 监听线程的消息优先级
 
-    // 事件
-    typedef void (EpollTcpPoller::*PollerEventHandler)(PollerEvent *);
-    static PollerEventHandler _eventHandlerArray[PollerEventType::EvMax];
 };
 
 ALWAYS_INLINE EpollTcpSession *EpollTcpPoller::_GetSession(UInt64 sessionId)

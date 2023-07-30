@@ -48,8 +48,6 @@ Application::Application()
 ,_statisticsInfoCache(StatisticsInfo::New_StatisticsInfo())
 ,_maxEventType(KERNEL_NS::PollerEventType::EvMax)
 {
-    if(static_cast<Int32>(_pollerEventHandler.size()) <= _maxEventType)
-        _pollerEventHandler.resize(_maxEventType + 1);
 }
 
 Application::~Application()
@@ -112,8 +110,6 @@ Int32 Application::_OnHostInit()
         return errCode;
     }
 
-    _pollerEventHandler[KERNEL_NS::PollerEventType::QuitApplicationEvent] = &Application::_OnQuitApplicationEvent;
-
     _monitor = CRYSTAL_NEW(KERNEL_NS::LibThread);
     _monitor->AddTask(this, &Application::_OnMonitor);
 
@@ -164,6 +160,8 @@ Int32 Application::_OnCompsCreated()
         g_Log->Error(LOGFMT_OBJ_TAG("iapplication _OnCompsCreated fail errcode:%d"), errCode);
         return errCode;
     }
+
+    _poller->Subscribe(KERNEL_NS::PollerEventType::QuitApplicationEvent, this, &Application::_OnQuitApplicationEvent);
 
     // poller mgr 的配置
     auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
@@ -1117,24 +1115,5 @@ void Application::_OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer)
         _poller->QuitLoop();
     }
 }
-
-void Application::_OnMsg(KERNEL_NS::PollerEvent *ev)
-{
-    if(UNLIKELY(ev->_type >= static_cast<Int32>(_pollerEventHandler.size())))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("unregister event handler event type:%d, event:%s"), ev->_type, ev->ToString().c_str());
-        return;
-    }
-
-    auto handler = _pollerEventHandler[ev->_type];
-    if(UNLIKELY(!handler))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("unregister event handler event type:%d, event:%s"), ev->_type, ev->ToString().c_str());
-        return;
-    }
-
-    (this->*handler)(ev);
-}
-
 
 SERVICE_COMMON_END

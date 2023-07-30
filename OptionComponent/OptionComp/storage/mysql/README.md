@@ -22,6 +22,7 @@
   * 执行完mysql_real_query后必须再执行store_result/user_result才算完整的执行完sql，因为mysql_real_query只是把sql发过去, mysql还没真正执行完成
   
 * 配置
+  * my.ini lower_case_table_names 设置大小写敏感 lower_case_table_names=0
   * my.ini中配置最大连接数5000(my.ini)
   * my.ini中配置最大包大小: max_allowed_packet=2048M
   * my.ini中配置最大连接数:max_connections
@@ -55,6 +56,19 @@
 * 安全的sql：PrepareStmt 相关接口
 
   * preparestmt 是通过二进制流形式增删改查mysql, 防止了注入式攻击风险，建议使用，在要设置字段的地方替换成?即可, 接口:ExecuteSqlUsingStmt
+
+* 二进制存储大小对照：
+
+  * BLOB类型的字段用于存储二进制数据
+
+    MySQL中，BLOB是个类型系列，包括：TinyBlob、Blob、MediumBlob、LongBlob，这几个类型之间的唯一区别是在存储文件的最大大小上不同。
+
+    MySQL的四种BLOB类型
+    类型 大小(单位：字节)
+    TinyBlob 最大 255
+    Blob 最大 65K
+    MediumBlob 最大 16M
+    LongBlob 最大 4G
 
 * mysql数据类型对照
 

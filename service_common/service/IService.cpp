@@ -50,7 +50,6 @@ IService::IService()
 {
     _SetType(ServiceProxyCompType::COMP_SERVICE);
     
-    InitPollerEventHandler();
 }
 
 IService::~IService()
@@ -90,15 +89,12 @@ KERNEL_NS::LibString IService::IntroduceInfo() const
 
 void IService::InitPollerEventHandler()
 {
-    if(static_cast<Int32>(_pollerEventHandler.size()) <= _maxEventType)
-        _pollerEventHandler.resize(_maxEventType + 1);
-
-    _pollerEventHandler[KERNEL_NS::PollerEventType::SessionCreated] = &IService::_OnSessionCreated;
-    _pollerEventHandler[KERNEL_NS::PollerEventType::AsynConnectRes] = &IService::_OnAsynConnectRes;
-    _pollerEventHandler[KERNEL_NS::PollerEventType::AddListenRes] = &IService::_OnAddListenRes;
-    _pollerEventHandler[KERNEL_NS::PollerEventType::SessionDestroy] = &IService::_OnSessionDestroy;
-    _pollerEventHandler[KERNEL_NS::PollerEventType::RecvMsg] = &IService::_OnRecvMsg;
-    _pollerEventHandler[KERNEL_NS::PollerEventType::QuitServiceEvent] = &IService::_OnQuitServiceEvent;
+    _poller->Subscribe(KERNEL_NS::PollerEventType::SessionCreated, this, &IService::_OnSessionCreated);
+    _poller->Subscribe(KERNEL_NS::PollerEventType::AsynConnectRes, this, &IService::_OnAsynConnectRes);
+    _poller->Subscribe(KERNEL_NS::PollerEventType::AddListenRes, this, &IService::_OnAddListenRes);
+    _poller->Subscribe(KERNEL_NS::PollerEventType::SessionDestroy, this, &IService::_OnSessionDestroy);
+    _poller->Subscribe(KERNEL_NS::PollerEventType::RecvMsg, this, &IService::_OnRecvMsg);
+    _poller->Subscribe(KERNEL_NS::PollerEventType::QuitServiceEvent, this, &IService::_OnQuitServiceEvent);
 }
 
 void IService::OnMonitor(KERNEL_NS::LibString &info)
@@ -137,6 +133,11 @@ void IService::MaskServiceModuleQuitFlag(const KERNEL_NS::CompObject *comp)
     _quitEndComps.insert(comp);
 }
 
+bool IService::IsServiceModuleQuit(const KERNEL_NS::CompObject *comp) const
+{
+    return _quitEndComps.find(comp) != _quitEndComps.end();
+}
+
 void IService::RegisterFocusServiceModule(const KERNEL_NS::CompObject *comp)
 {
     _forcusComps.insert(comp);
@@ -150,10 +151,7 @@ KERNEL_NS::LibString IService::ServiceStatusToString(Int32 serviceStatus) const
 void IService::SetMaxEventType(Int32 maxEventType)
 {
     if(maxEventType >= _maxEventType)
-    {
         _maxEventType = maxEventType;
-        _pollerEventHandler.resize(_maxEventType + 1);
-    }
 }
 
 Int32 IService::GetMaxEventType() const
@@ -206,6 +204,8 @@ Int32 IService::_OnCompsCreated()
 {
     _poller = GetComp<KERNEL_NS::Poller>();
 
+    InitPollerEventHandler();
+
     // poller 设置
     KERNEL_NS::TimeSlice span(0, 0, _maxPieceTimeInMicroseconds);
     _poller->SetMaxPriorityLevel(_maxPriorityLevel);
@@ -213,7 +213,6 @@ Int32 IService::_OnCompsCreated()
     _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
     _poller->SetPepareEventWorkerHandler(this, &IService::_OnPollerPrepare);
     _poller->SetEventWorkerCloseHandler(this, &IService::_OnPollerWillDestroy);
-    _poller->SetEventHandler(this, &IService::_OnMsg);
 
     auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
     if(UNLIKELY(defObj->_poller))
@@ -304,26 +303,6 @@ void IService::_OnServiceWillClose()
 void IService::_OnServiceClosed()
 {
     g_Log->Info(LOGFMT_OBJ_TAG("service %s on service closed default."), IntroduceInfo().c_str());
-}
-
-void IService::_OnMsg(KERNEL_NS::PollerEvent *msg)
-{
-    if(UNLIKELY(msg->_type >= static_cast<Int32>(_pollerEventHandler.size())))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("unregister event handler event type:%d, event:%s"), msg->_type, msg->ToString().c_str());
-        return;
-    }
-
-    auto handler = _pollerEventHandler[msg->_type];
-    if(UNLIKELY(!handler))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("unregister event handler event type:%d, event:%s"), msg->_type, msg->ToString().c_str());
-        return;
-    }
-
-    (this->*handler)(msg);
-    
-    // g_Log->Debug(LOGFMT_OBJ_TAG("finish handle msg:%s"), msg->ToString().c_str());
 }
 
 void IService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)

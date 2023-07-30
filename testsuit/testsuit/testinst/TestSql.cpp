@@ -976,13 +976,13 @@ void TestSql::Run()
     }
 
     {// 删除表
-        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DROP_TABLE> builder;
+        KERNEL_NS::DropTableSqlBuilder builder;
         builder.DB("rpg").Table("tbl_role");
         mysqlConnection->ExecuteSql(builder, 1);
     }
 
     {// 创建表
-        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::CREATE_TABLE> builder;
+        KERNEL_NS::CreateTableSqlBuilder builder;
         builder.DB("rpg").Table("tbl_role")
         .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'id'")
         // .Field("Id BIGINT NOT NULL DEFAULT 0 COMMENT \"id\"")
@@ -1008,11 +1008,11 @@ void TestSql::Run()
     const Int64 count = 10;
     Int64 incId = 0;
     {// 插入数据
-        std::vector<KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT>> multiSql;
+        std::vector<KERNEL_NS::SqlBuilder *> multiSql;
         for(Int64 idx = 0; idx < count; ++idx)
         {
-            KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT> builder;
-            builder.DB("rpg").Table("tbl_role")
+            KERNEL_NS::InsertSqlBuilder *builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
+            builder->DB("rpg").Table("tbl_role")
             .Fields({"RoleId", "UserId", "Name"})
             .Values({"100101", data2k, data2k});
 
@@ -1047,7 +1047,7 @@ void TestSql::Run()
     // 查询数据
     {
         const Int32 selectCount = 10;
-        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SELECT> builder;
+        KERNEL_NS::SelectSqlBuilder builder;
         builder.DB("rpg").From("tbl_role")
         .OrderBy("Id asc")
         .Where(KERNEL_NS::LibString().AppendFormat("`Id` > %d", 0))
@@ -1065,11 +1065,11 @@ void TestSql::Run()
 
     // -------- stmt 接口 ----------------------
     {// 建表
-        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DROP_TABLE> builder;
+        KERNEL_NS::DropTableSqlBuilder builder;
         builder.DB("rpg").Table("tbl_test_stmt");
         mysqlConnection->ExecuteSqlUsingStmt(builder, 1, {});
 
-        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::CREATE_TABLE> builder2;
+        KERNEL_NS::CreateTableSqlBuilder builder2;
         builder2.DB("rpg").Table("tbl_test_stmt")
         .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'id'")
         // .Field("Id BIGINT NOT NULL DEFAULT 0 COMMENT \"id\"")
@@ -1087,7 +1087,7 @@ void TestSql::Run()
         mysqlConnection->ExecuteSqlUsingStmt(builder2, 1, {});
     }
     {// stmt 新增 数据
-        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::INSERT> builder;
+        KERNEL_NS::InsertSqlBuilder builder;
         builder.DB("rpg").Table("tbl_test_stmt")
         .Fields({"RoleId", "UserId", "Name", "Pb"})
         .Values({"?", "?", "?", "?"});
@@ -1096,26 +1096,26 @@ void TestSql::Run()
         fields.resize(4);
 
         {// ROLE ID
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "RoleId", MYSQL_TYPE_LONG);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "RoleId", MYSQL_TYPE_LONG, 0);
             Int32 roleId = 10001;
             v->Write(&roleId, static_cast<Int64>(sizeof(roleId)));
             fields[0] = v;
         }
 
         {// user id
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "UserId", MYSQL_TYPE_VARCHAR);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "UserId", MYSQL_TYPE_VARCHAR, 0);
             v->Write(data2k.c_str(), static_cast<Int64>(data2k.size()));
             fields[1] = v;
         }
 
         {// name
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Name", MYSQL_TYPE_VARCHAR);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Name", MYSQL_TYPE_VARCHAR, 0);
             v->Write(data2k.c_str(), static_cast<Int64>(data2k.size()));
             fields[2] = v;
         }
 
         {// pb
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB, 0);
             LoginReq req;
             req.set_account("abc");
             KERNEL_NS::LibString info;
@@ -1135,7 +1135,7 @@ void TestSql::Run()
     }
 
     {// stmt 改数据
-        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::UPDATE> builder;
+        KERNEL_NS::UpdateSqlBuilder builder;
         builder.DB("rpg").Table("tbl_test_stmt")
         .Set("RoleId", "?")
         .Set("UserId", "?")
@@ -1147,21 +1147,21 @@ void TestSql::Run()
         fields.resize(4);
 
         {// ROLE ID
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "RoleId", MYSQL_TYPE_LONG);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "RoleId", MYSQL_TYPE_LONG, 0);
             Int32 roleId = 56;
             v->Write(&roleId, static_cast<Int64>(sizeof(roleId)));
             fields[0] = v;
         }
 
         {// user id
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "UserId", MYSQL_TYPE_VARCHAR);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "UserId", MYSQL_TYPE_VARCHAR, 0);
             KERNEL_NS::LibString uid = "hello world stmt\"";
             v->Write(uid.c_str(), static_cast<Int64>(uid.size()));
             fields[1] = v;
         }
 
         {// pb
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB, 0);
             LoginReq req;
             req.set_account("kk liw");
             KERNEL_NS::LibString info;
@@ -1172,7 +1172,7 @@ void TestSql::Run()
         }
 
         {// id
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Id", MYSQL_TYPE_LONGLONG);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Id", MYSQL_TYPE_LONGLONG, 0);
             Int64 id = 2;
             v->Write(&id, static_cast<Int64>(sizeof(id)));
             fields[3] = v;
@@ -1182,7 +1182,7 @@ void TestSql::Run()
     }
 
     {// stmt 查数据
-        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::SELECT> builder2;
+        KERNEL_NS::SelectSqlBuilder builder2;
         builder2.DB("rpg").From("tbl_test_stmt")
         .OrderBy("Id asc")
         .Where(KERNEL_NS::LibString().AppendFormat("`Id` > ?"))
@@ -1193,7 +1193,7 @@ void TestSql::Run()
         fields2.resize(1);
 
         {
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Id", MYSQL_TYPE_LONGLONG);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Id", MYSQL_TYPE_LONGLONG, 0);
             Int64 id = 0;
             v->Write(&id, static_cast<Int64>(sizeof(id)));
             fields2[0] = v;
@@ -1228,14 +1228,14 @@ void TestSql::Run()
     }
 
     {// stmt 删数据
-        KERNEL_NS::SqlBuilder<KERNEL_NS::SqlBuilderType::DELETE_RECORD> builder;
+        KERNEL_NS::DeleteSqlBuilder builder;
         builder.DB("rpg").Table("tbl_test_stmt")
         .Where("Id=?");
         ;
         std::vector<KERNEL_NS::Field *> fields;
         fields.resize(1);
         {// id
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Id", MYSQL_TYPE_LONGLONG);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Id", MYSQL_TYPE_LONGLONG, 0);
             Int64 id = 1;
             v->Write(&id, static_cast<Int64>(sizeof(id)));
             fields[0] = v;

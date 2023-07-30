@@ -58,8 +58,8 @@ inline DelegateClass<ObjType, Rtn, Args...>::DelegateClass(ObjType *t, Rtn(ObjTy
 }
 
 template <typename ObjType, class Rtn, typename... Args>
-inline DelegateClass<ObjType, Rtn, Args...>::DelegateClass(ObjType *t, Rtn(ObjType::*f)(Args...) const)
-    :_obj(t)
+inline DelegateClass<ObjType, Rtn, Args...>::DelegateClass(const ObjType *t, Rtn(ObjType::*f)(Args...) const)
+    :_obj(const_cast<ObjType *>(t))
     , _f(decltype(_f)(f))
 {
 }
@@ -96,8 +96,8 @@ inline DelegateClassDelObj<ObjType, Rtn, Args...>::DelegateClassDelObj(ObjType *
 }
 
 template <typename ObjType, class Rtn, typename... Args>
-inline DelegateClassDelObj<ObjType, Rtn, Args...>::DelegateClassDelObj(ObjType *t, Rtn(ObjType::*f)(Args...) const)
-    :_obj(t)
+inline DelegateClassDelObj<ObjType, Rtn, Args...>::DelegateClassDelObj(const ObjType *t, Rtn(ObjType::*f)(Args...) const)
+    :_obj(const_cast<ObjType *>(t))
     , _f(decltype(_f)(f))
 {
 }
@@ -207,7 +207,7 @@ inline IDelegate<Rtn, Args...> *DelegateFactory::Create(ObjType *obj, Rtn(ObjTyp
 }
 
 template <typename ObjType, typename Rtn, typename... Args>
-inline const IDelegate<Rtn, Args...> *DelegateFactory::Create(ObjType *obj, Rtn(ObjType::*f)(Args...) const)
+inline const IDelegate<Rtn, Args...> *DelegateFactory::Create(const ObjType *obj, Rtn(ObjType::*f)(Args...) const)
 {
     return new DelegateClass<ObjType, Rtn, Args...>(obj, f);
 }
@@ -219,7 +219,7 @@ inline IDelegate<Rtn, Args...> *DelegateFactory::CreateAndHelpDelObj(ObjType *ob
 }
 
 template <typename ObjType, typename Rtn, typename... Args>
-inline const IDelegate<Rtn, Args...> *DelegateFactory::CreateAndHelpDelObj(ObjType *obj, Rtn(ObjType::*f)(Args...) const)
+inline const IDelegate<Rtn, Args...> *DelegateFactory::CreateAndHelpDelObj(const ObjType *obj, Rtn(ObjType::*f)(Args...) const)
 {
     return new DelegateClassDelObj<ObjType, Rtn, Args...>(obj, f);
 }

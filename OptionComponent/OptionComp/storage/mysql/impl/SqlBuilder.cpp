@@ -28,9 +28,40 @@
 
 #include <pch.h>
 #include <OptionComp/storage/mysql/impl/SqlBuilder.h>
+#include <mysql.h>
 
 KERNEL_BEGIN
 
 const LibString FullTextParser::WITH_PARSER_NGRAM = "WITH PARSER ngram";
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(SqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(SelectSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(InsertSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ReplaceIntoSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(UpdateSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(DeleteSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(CreateTableSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(TruncateTableSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(DropTableSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(CreateDBSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(DropDBSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(AlterTableSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ShowIndexSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(OptimizeTableSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(StartTransActionSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(SetAutoCommitSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(RollbackSqlBuilder);
+POOL_CREATE_OBJ_DEFAULT_IMPL(CommitTransActionSqlBuilder);
+
+void SqlEscape::escape(KERNEL_NS::LibString &str)
+{
+    auto buffer = reinterpret_cast<Byte8 *>(KERNEL_ALLOC_MEMORY_TL((str.size() * 2 + 1)));
+    ::memset(buffer, 0, static_cast<size_t>(str.size() * 2 + 1));
+    mysql_escape_string(buffer, str.data(), static_cast<ULong>(str.size()));
+    str.clear();
+    str.AppendData(buffer, ::strlen(buffer));
+    KERNEL_FREE_MEMORY_TL(buffer);
+}
+
 
 KERNEL_END

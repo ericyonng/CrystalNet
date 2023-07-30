@@ -33,6 +33,7 @@
 
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/memory/memory.h>
+#include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
@@ -80,42 +81,81 @@ public:
     static const LibString WITH_PARSER_NGRAM;
 };
 
-template<SqlBuilderType::ENUMS T>
-class SqlBuilder
+class SqlEscape
 {
 public:
-    LibString ToSql() const
+    static void escape(KERNEL_NS::LibString &str);
+};
+
+class SqlBuilder
+{
+    POOL_CREATE_OBJ_DEFAULT(SqlBuilder);
+
+public:
+    SqlBuilder(Int32 type)
+    :_type(type)
+    {
+
+    }
+    
+    virtual ~SqlBuilder()
+    {
+
+    }
+
+    virtual LibString ToSql() const
     {
         return "";
     }
 
-    LibString ToString() const
+    virtual LibString Dump() const = 0;
+
+    virtual LibString ToString() const
     {
-        return "UNKOWN SqlBuilderType";
+        return LibString().AppendFormat("sql builder type:%d", _type);
     }
+
+    virtual void Release() = 0;
+
+    Int32 _type;
 };
 
 // select field,field from table1,table2 where condition;
-template<>
-class SqlBuilder<SqlBuilderType::SELECT>
+class SelectSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder(){}
-    ~SqlBuilder(){}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, SelectSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::SELECT> &Clear()
+public:
+    SelectSqlBuilder()
+    :SqlBuilder(SqlBuilderType::SELECT)
+    {
+
+    }
+
+    ~SelectSqlBuilder()
+    {
+
+    }
+
+    virtual void Release() override
+    {
+        SelectSqlBuilder::DeleteThreadLocal_SelectSqlBuilder(this);
+    }
+
+    SelectSqlBuilder &Clear()
     {
         _fields.clear();
         _tables.clear();
         _where.clear();
         _orders.clear();
+        _groupBy.clear();
         _limit = -1;
         _db.clear();
         
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &WithFields(const std::vector<LibString> &fields)
+    SelectSqlBuilder &WithFields(const std::vector<LibString> &fields)
     {
         for(auto &v : fields)
             _fields.push_back(v);
@@ -123,19 +163,19 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &WithField(const LibString &field)
+    SelectSqlBuilder &WithField(const LibString &field)
     {
         _fields.push_back(field);
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &From(const LibString &table)
+    SelectSqlBuilder &From(const LibString &table)
     {
         _tables.push_back(table);
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &From(const std::vector<LibString> &tables)
+    SelectSqlBuilder &From(const std::vector<LibString> &tables)
     {
         for(auto &v : tables)
             _tables.push_back(v);
@@ -143,31 +183,31 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &DB(const LibString &db)
+    SelectSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &Where(const LibString &condition)
+    SelectSqlBuilder &Where(const LibString &condition)
     {
         _where = condition;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &Limit(Int32 number)
+    SelectSqlBuilder &Limit(Int32 number)
     {
         _limit = number;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &OrderBy(const LibString &content)
+    SelectSqlBuilder &OrderBy(const LibString &content)
     {
         _orders.push_back(content);
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SELECT> &OrderBy(const std::vector<LibString> &contents)
+    SelectSqlBuilder &OrderBy(const std::vector<LibString> &contents)
     {
         for(auto &v : contents)
             _orders.push_back(v);
@@ -175,7 +215,118 @@ public:
         return *this;
     }
 
-    LibString ToSql() const
+    SelectSqlBuilder &GroupBy(const LibString &content)
+    {
+        _groupBy.push_back(content);
+        return *this;
+    }
+
+    SelectSqlBuilder &GroupBy(const std::vector<LibString> &contents)
+    {
+        for(auto &v : contents)
+            _groupBy.push_back(v);
+
+        return *this;
+    }
+
+    LibString Dump() const override
+    {
+        if(_tables.empty())
+            return LibString();
+        if(_db.empty())
+            return LibString();
+
+        LibString sql;
+        sql.AppendFormat("SELECT ");
+
+        // fields
+        if(!_fields.empty())
+        {
+            const Int32 count = static_cast<Int32>(_fields.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                sql.AppendData(_fields[idx].c_str(), static_cast<Int64>(_fields[idx].size()));
+
+                if((idx + 1) != count)
+                    sql.AppendFormat(", ");
+            }
+        }
+        else
+        {
+            sql.AppendFormat("*");
+        }
+
+        {// from
+            sql.AppendFormat(" FROM ");
+            const Int32 count = static_cast<Int32>(_tables.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                sql.AppendData(_db);
+                sql.AppendData(".");
+                sql.AppendData(_tables[idx]);
+
+                if((idx + 1) != count)
+                {
+                    sql.AppendFormat(", ");
+                }
+            }
+        }
+
+        {// where
+            if(!_where.empty())
+            {
+                sql.AppendFormat(" WHERE ");
+                auto data = _where;
+                SqlEscape::escape(data);
+                sql.AppendData(data);
+            }
+        }
+
+        // group by 需要在where之后, order by之前
+        {// group by
+            if(!_groupBy.empty())
+            {
+                sql.AppendFormat(" GROUP BY ");
+                const Int32 count = static_cast<Int32>(_groupBy.size());
+                for(Int32 idx = 0; idx < count; ++idx)
+                {
+                    sql.AppendData(_groupBy[idx].c_str(), static_cast<Int64>(_groupBy[idx].size()));
+
+                    if((idx + 1) != count)
+                    {
+                        sql.AppendFormat(", ");
+                    }
+                }
+            }
+        }
+
+        {// order by
+            if(!_orders.empty())
+            {
+                sql.AppendFormat(" ORDER BY ");
+                const Int32 count = static_cast<Int32>(_orders.size());
+                for(Int32 idx = 0; idx < count; ++idx)
+                {
+                    sql.AppendData(_orders[idx].c_str(), static_cast<Int64>(_orders[idx].size()));
+
+                    if((idx + 1) != count)
+                    {
+                        sql.AppendFormat(", ");
+                    }
+                }
+            }
+        }
+
+        // limit
+        if(_limit > 0)
+        {
+            sql.AppendFormat(" LIMIT %d", _limit);
+        }
+
+        return sql;
+    }
+
+    LibString ToSql() const override
     {
         if(_tables.empty())
             return LibString();
@@ -226,6 +377,24 @@ public:
             }
         }
 
+        // group by 需要在where之后, order by之前
+        {// group by
+            if(!_groupBy.empty())
+            {
+                sql.AppendFormat(" GROUP BY ");
+                const Int32 count = static_cast<Int32>(_groupBy.size());
+                for(Int32 idx = 0; idx < count; ++idx)
+                {
+                    sql.AppendData(_groupBy[idx].c_str(), static_cast<Int64>(_groupBy[idx].size()));
+
+                    if((idx + 1) != count)
+                    {
+                        sql.AppendFormat(", ");
+                    }
+                }
+            }
+        }
+
         {// order by
             if(!_orders.empty())
             {
@@ -271,7 +440,15 @@ public:
         info.AppendFormat("]\n");
         info.AppendFormat("db:%s\n", _db.c_str());
         info.AppendFormat("where:%s\n", _where.c_str());
-        info.AppendFormat("where:%s\n", _where.c_str());
+        
+        info.AppendFormat("groupby:[");
+        for(auto &data : _groupBy)
+        {
+            info.AppendData(data);
+            info.AppendData(",");
+        }
+        info.AppendFormat("]\n");
+
         info.AppendFormat("orders:[");
         for(auto &data : _orders)
         {
@@ -290,18 +467,32 @@ private:
     LibString _db;
     LibString _where;
     std::vector<LibString> _orders;
+    std::vector<LibString> _groupBy;
     Int32 _limit = -1;
 };
 
 // insert field,field into table1 values(xx,xx,...);
-template<>
-class SqlBuilder<SqlBuilderType::INSERT>
+class InsertSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder(){}
-    ~SqlBuilder(){}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, InsertSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::INSERT> &Clear()
+public:
+    InsertSqlBuilder()
+    :SqlBuilder(SqlBuilderType::INSERT)
+    {
+
+    }
+    ~InsertSqlBuilder()
+    {
+
+    }
+
+    virtual void Release() override
+    {
+        InsertSqlBuilder::DeleteThreadLocal_InsertSqlBuilder(this);
+    }
+
+    InsertSqlBuilder &Clear()
     {
         _fields.clear();
         _table.clear();
@@ -311,25 +502,25 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::INSERT> &Fields(const std::vector<LibString> &fields)
+    InsertSqlBuilder &Fields(const std::vector<LibString> &fields)
     {
         _fields = fields;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::INSERT> &Table(const LibString &table)
+    InsertSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::INSERT> &DB(const LibString &db)
+    InsertSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::INSERT> &Values(const std::vector<LibString> &values)
+    InsertSqlBuilder &Values(const std::vector<LibString> &values)
     {
         _valuesFromSql.clear();
         _values = values;
@@ -337,7 +528,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::INSERT> &ValuesFrom(const SqlBuilder<SqlBuilderType::SELECT> &src)
+    InsertSqlBuilder &ValuesFrom(const SelectSqlBuilder &src)
     {
         const auto &sql = src.ToSql();
         if(sql.empty())
@@ -350,7 +541,59 @@ public:
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        if(UNLIKELY(_table.empty()))
+            return "";
+
+        if(UNLIKELY(_db.empty()))
+            return "";
+
+        if(UNLIKELY(_values.empty() && _valuesFromSql.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("INSERT INTO %s.`%s`", _db.c_str(), _table.c_str());
+        if(!_fields.empty())
+        {
+            sql.AppendFormat("(");
+            const Int32 count = static_cast<Int32>(_fields.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                sql.AppendFormat("`");
+                sql.AppendData(_fields[idx].c_str(), static_cast<Int64>(_fields[idx].size()));
+                sql.AppendFormat("`");
+                if((idx + 1) != count)
+                    sql.AppendFormat(", ");
+            }
+            sql.AppendFormat(")");
+        }
+
+        if(!_values.empty())
+        {
+            sql.AppendFormat(" VALUE(");
+            const Int32 count = static_cast<Int32>(_values.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                auto data = _values[idx];
+                SqlEscape::escape(data);
+                sql.AppendData(data);
+                if((idx + 1) != count)
+                    sql.AppendFormat(",");
+            }
+            sql.AppendFormat(")");
+            return sql;
+        }
+
+        sql.AppendFormat(" ");
+        auto fromSql = _valuesFromSql;
+        SqlEscape::escape(fromSql);
+        sql.AppendData(fromSql);
+
+        return sql;
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_table.empty()))
             return "";
@@ -433,14 +676,22 @@ private:
 };
 
 // replace into t(field,field) into table1 values(xx,xx,...);
-template<>
-class SqlBuilder<SqlBuilderType::REPLACE_INTO>
+class ReplaceIntoSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder(){}
-    ~SqlBuilder(){}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, ReplaceIntoSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::REPLACE_INTO> &Clear()
+public:
+    ReplaceIntoSqlBuilder()
+    :SqlBuilder(SqlBuilderType::REPLACE_INTO)
+    {}
+    ~ReplaceIntoSqlBuilder(){}
+
+    virtual void Release() override
+    {
+        ReplaceIntoSqlBuilder::DeleteThreadLocal_ReplaceIntoSqlBuilder(this);
+    }
+
+    ReplaceIntoSqlBuilder &Clear()
     {
         _fields.clear();
         _table.clear();
@@ -450,25 +701,25 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::REPLACE_INTO> &Fields(const std::vector<LibString> &fields)
+    ReplaceIntoSqlBuilder &Fields(const std::vector<LibString> &fields)
     {
         _fields = fields;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::REPLACE_INTO> &Table(const LibString &table)
+    ReplaceIntoSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::REPLACE_INTO> &DB(const LibString &db)
+    ReplaceIntoSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::REPLACE_INTO> &Values(const std::vector<LibString> &values)
+    ReplaceIntoSqlBuilder &Values(const std::vector<LibString> &values)
     {
         _valuesFromSql.clear();
         _values = values;
@@ -476,7 +727,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::REPLACE_INTO> &ValuesFrom(const SqlBuilder<SqlBuilderType::SELECT> &src)
+    ReplaceIntoSqlBuilder &ValuesFrom(const SelectSqlBuilder &src)
     {
         const auto &sql = src.ToSql();
         if(sql.empty())
@@ -489,7 +740,59 @@ public:
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+       if(UNLIKELY(_table.empty()))
+            return "";
+
+        if(UNLIKELY(_db.empty()))
+            return "";
+
+        if(UNLIKELY(_values.empty() && _valuesFromSql.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("REPLACE INTO %s.`%s`", _db.c_str(), _table.c_str());
+        if(!_fields.empty())
+        {
+            sql.AppendFormat("(");
+            const Int32 count = static_cast<Int32>(_fields.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                sql.AppendFormat("`");
+                sql.AppendData(_fields[idx].c_str(), static_cast<Int64>(_fields[idx].size()));
+                sql.AppendFormat("`");
+                if((idx + 1) != count)
+                    sql.AppendFormat(", ");
+            }
+            sql.AppendFormat(")");
+        }
+
+        if(!_values.empty())
+        {
+            sql.AppendFormat(" VALUE(");
+            const Int32 count = static_cast<Int32>(_values.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                auto data = _values[idx];
+                SqlEscape::escape(data);
+                sql.AppendData(data);
+                if((idx + 1) != count)
+                    sql.AppendFormat(",");
+            }
+            sql.AppendFormat(")");
+            return sql;
+        }
+
+        sql.AppendFormat(" ");
+        auto fromSql = _valuesFromSql;
+        SqlEscape::escape(fromSql);
+        sql.AppendData(fromSql);
+
+        return sql;
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_table.empty()))
             return "";
@@ -572,14 +875,28 @@ private:
 };
 
 // update table set field1=xxx, field2=xxx,... where xxx
-template<>
-class SqlBuilder<SqlBuilderType::UPDATE>
+class UpdateSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder(){}
-    ~SqlBuilder(){}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, UpdateSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::UPDATE> &Clear()
+public:
+    UpdateSqlBuilder()
+    :SqlBuilder(SqlBuilderType::UPDATE)
+    {
+
+    }
+
+    ~UpdateSqlBuilder()
+    {
+
+    }
+
+    virtual void Release() override
+    {
+        UpdateSqlBuilder::DeleteThreadLocal_UpdateSqlBuilder(this);
+    }
+
+    UpdateSqlBuilder &Clear()
     {
         _kvs.clear();
         _table.clear();
@@ -589,19 +906,19 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::UPDATE> &Table(const LibString &table)
+    UpdateSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::UPDATE> &DB(const LibString &db)
+    UpdateSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::UPDATE> &Set(const LibString &field, const LibString &value)
+    UpdateSqlBuilder &Set(const LibString &field, const LibString &value)
     {
         LibString kv;
 
@@ -619,13 +936,43 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::UPDATE> &Where(const LibString &condition)
+    UpdateSqlBuilder &Where(const LibString &condition)
     {
         _where = condition;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        if(UNLIKELY(_kvs.empty() || _table.empty() || _db.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("UPDATE %s.`%s` SET ", _db.c_str(), _table.c_str());
+
+        const Int32 count = static_cast<Int32>(_kvs.size());
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto kv = _kvs[idx];
+            SqlEscape::escape(kv);
+            sql.AppendData(kv);
+            
+            if((idx + 1) != count)
+                sql.AppendFormat(", ");
+        }
+
+        if(LIKELY(!_where.empty()))
+        {
+            sql.AppendFormat(" WHERE ");
+            auto cond = _where;
+            SqlEscape::escape(cond);
+            sql.AppendData(cond);
+        }
+
+        return sql;
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_kvs.empty() || _table.empty() || _db.empty()))
             return "";
@@ -677,14 +1024,24 @@ private:
 };
 
 // delete from
-template<>
-class SqlBuilder<SqlBuilderType::DELETE_RECORD>
+class DeleteSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, DeleteSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::DELETE_RECORD> &Clear()
+public:
+    DeleteSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::DELETE_RECORD)
+    {
+
+    }
+    ~DeleteSqlBuilder() {}
+
+    virtual void Release() override
+    {
+        DeleteSqlBuilder::DeleteThreadLocal_DeleteSqlBuilder(this);
+    }
+
+    DeleteSqlBuilder &Clear()
     {
         _table.clear();
         _where.clear();
@@ -693,25 +1050,44 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::DELETE_RECORD> &Table(const LibString &table)
+    DeleteSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::DELETE_RECORD> &DB(const LibString &db)
+    DeleteSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::DELETE_RECORD> &Where(const LibString &condition)
+    DeleteSqlBuilder &Where(const LibString &condition)
     {
         _where = condition;
         return *this;
     }
     
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        if(UNLIKELY(_table.empty() || _db.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("DELETE FROM %s.%s", _db.c_str(), _table.c_str());
+
+        if(!_where.empty())
+        {
+            sql.AppendFormat(" WHERE ");
+            auto cond = _where;
+            SqlEscape::escape(cond);
+            sql.AppendData(_where);
+        }
+
+        return sql;
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
@@ -747,14 +1123,28 @@ private:
 };
 
 // create table if not exists `xxx`() xxx
-template<>
-class SqlBuilder<SqlBuilderType::CREATE_TABLE>
+class CreateTableSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, CreateTableSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Clear()
+public:
+    CreateTableSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::CREATE_TABLE)
+    {
+
+    }
+
+    ~CreateTableSqlBuilder() 
+    {
+
+    }
+    
+    virtual void Release() override
+    {
+        CreateTableSqlBuilder::DeleteThreadLocal_CreateTableSqlBuilder(this);
+    }
+
+    CreateTableSqlBuilder &Clear()
     {
         _table.clear();
         _fields.clear();
@@ -771,49 +1161,49 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Table(const LibString &table)
+    CreateTableSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &DB(const LibString &db)
+    CreateTableSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Field(const LibString &field)
+    CreateTableSqlBuilder &Field(const LibString &field)
     {
         _fields.push_back(field);
         return *this;
     }
     
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Engine(const LibString &engine)
+    CreateTableSqlBuilder &Engine(const LibString &engine)
     {
         _engine = engine;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Charset(const LibString &charset)
+    CreateTableSqlBuilder &Charset(const LibString &charset)
     {
         _charset = charset;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Collate(const LibString &collate)
+    CreateTableSqlBuilder &Collate(const LibString &collate)
     {
         _collate = collate;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &PrimaryKey(const LibString &field)
+    CreateTableSqlBuilder &PrimaryKey(const LibString &field)
     {
         _primaryKey = field;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Unique(const LibString &keyName, const std::vector<LibString> &fields)
+    CreateTableSqlBuilder &Unique(const LibString &keyName, const std::vector<LibString> &fields)
     {
         if(_uniques.find(keyName) != _uniques.end())
             return *this;
@@ -822,7 +1212,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Index(const LibString &keyName, const std::vector<LibString> &fields)
+    CreateTableSqlBuilder &Index(const LibString &keyName, const std::vector<LibString> &fields)
     {
         if(_indexs.find(keyName) != _indexs.end())
             return *this;
@@ -831,13 +1221,115 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_TABLE> &Comment(const LibString &content)
+    CreateTableSqlBuilder &Comment(const LibString &content)
     {
         _comment = content;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+       if(UNLIKELY(_table.empty() || _fields.empty() || _engine.empty() || _charset.empty() || _collate.empty() || _db.empty()))
+            return "";
+
+        LibString sql;
+        sql.AppendFormat("CREATE TABLE IF NOT EXISTS %s.`%s`(", _db.c_str(), _table.c_str());
+
+        {
+            const Int32 count = static_cast<Int32>(_fields.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                sql.AppendData(_fields[idx]);
+                
+                if((idx + 1) != count)
+                    sql.AppendFormat(",");
+            } 
+        }
+
+        // 主键
+        if(!_primaryKey.empty())
+        {
+            sql.AppendFormat(",PRIMARY KEY(");
+            sql.AppendData(_primaryKey);
+            sql.AppendFormat(")");
+        }
+
+        // 唯一索引
+        if(!_uniques.empty())
+        {
+            sql.AppendFormat(",");
+            const Int32 countIter = static_cast<Int32>(_uniques.size());
+            Int32 loop = 0;
+            for(auto &iter : _uniques)
+            {
+                auto &keyName = iter.first;
+                auto &fields = iter.second;
+
+                sql.AppendFormat("UNIQUE KEY `%s` (", keyName.c_str());
+                const Int32 count = static_cast<Int32>(fields.size());
+                for(Int32 idx = 0; idx < count; ++idx)
+                {
+                    sql.AppendFormat("`");
+                    sql.AppendData(fields[idx]);
+                    sql.AppendFormat("`");
+                    
+                    if((idx + 1) != count)
+                        sql.AppendFormat(",");
+                }
+
+                sql.AppendFormat(")");
+                if(++loop != countIter)
+                    sql.AppendFormat(",");
+            }
+        }
+
+        // 普通索引
+        if(!_indexs.empty())
+        {
+            sql.AppendFormat(",");
+            const Int32 countIter = static_cast<Int32>(_indexs.size());
+            Int32 loop = 0;
+            for(auto &iter : _indexs)
+            {
+                auto &keyName = iter.first;
+                auto &fields = iter.second;
+
+                sql.AppendFormat("INDEX `%s` (", keyName.c_str());
+                const Int32 count = static_cast<Int32>(fields.size());
+                for(Int32 idx = 0; idx < count; ++idx)
+                {
+                    sql.AppendFormat("`");
+                    sql.AppendData(fields[idx]);
+                    sql.AppendFormat("`");
+                    
+                    if((idx + 1) != count)
+                        sql.AppendFormat(",");
+                }
+
+                sql.AppendFormat(")");
+                if(++loop != countIter)
+                    sql.AppendFormat(",");
+            }
+        }
+
+        sql.AppendFormat(") ");
+
+        sql.AppendFormat("ENGINE=%s DEFAULT CHARSET=%s, COLLATE = %s", _engine.c_str(), _charset.c_str(), _collate.c_str());
+
+        if(!_rowFormat.empty())
+            sql.AppendFormat(", ROW_FORMAT = %s", _rowFormat.c_str());
+
+        if(!_comment.empty())
+        {
+            auto comment = _comment;
+            SqlEscape::escape(comment);
+            sql.AppendFormat(", COMMENT = \"").AppendData(comment).AppendFormat("\"");
+        }
+
+        return sql;
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_table.empty() || _fields.empty() || _engine.empty() || _charset.empty() || _collate.empty() || _db.empty()))
             return "";
@@ -1005,18 +1497,31 @@ private:
     LibString _primaryKey;
     std::map<LibString, std::vector<LibString>> _uniques;
     std::map<LibString, std::vector<LibString>> _indexs;
-    
 };
 
 // truncate table `xxx`
-template<>
-class SqlBuilder<SqlBuilderType::TRUNCATE_TABLE>
+class TruncateTableSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, TruncateTableSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::TRUNCATE_TABLE> &Clear()
+public:
+    TruncateTableSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::TRUNCATE_TABLE)
+    {
+
+    }
+
+    ~TruncateTableSqlBuilder() 
+    {
+
+    }
+
+    virtual void Release() override
+    {
+        TruncateTableSqlBuilder::DeleteThreadLocal_TruncateTableSqlBuilder(this);
+    }
+
+    TruncateTableSqlBuilder &Clear()
     {
         _table.clear();
         _db.clear();
@@ -1024,19 +1529,24 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::TRUNCATE_TABLE> &Table(const LibString &table)
+    TruncateTableSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
     
-    SqlBuilder<SqlBuilderType::TRUNCATE_TABLE> &DB(const LibString &db)
+    TruncateTableSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
@@ -1061,14 +1571,28 @@ private:
 };
 
 // drop table if exists `xxx`
-template<>
-class SqlBuilder<SqlBuilderType::DROP_TABLE>
+class DropTableSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, DropTableSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::DROP_TABLE> &Clear()
+public:
+    DropTableSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::DROP_TABLE)
+    {
+
+    }
+
+    ~DropTableSqlBuilder() 
+    {
+
+    }
+
+    virtual void Release() override
+    {
+        DropTableSqlBuilder::DeleteThreadLocal_DropTableSqlBuilder(this);
+    }
+
+    DropTableSqlBuilder &Clear()
     {
         _table.clear();
         _db.clear();
@@ -1076,19 +1600,24 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::DROP_TABLE> &Table(const LibString &table)
+    DropTableSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
     
-    SqlBuilder<SqlBuilderType::DROP_TABLE> &DB(const LibString &db)
+    DropTableSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
@@ -1113,14 +1642,28 @@ private:
 };
 
 // create DATABASE if not exists `xxx`
-template<>
-class SqlBuilder<SqlBuilderType::CREATE_DB>
+class CreateDBSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, CreateDBSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::CREATE_DB> &Clear()
+public:
+    CreateDBSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::CREATE_DB)
+    {
+
+    }
+
+    ~CreateDBSqlBuilder() 
+    {
+
+    }
+
+    virtual void Release() override
+    {
+        CreateDBSqlBuilder::DeleteThreadLocal_CreateDBSqlBuilder(this);
+    }
+
+    CreateDBSqlBuilder &Clear()
     {
         _db.clear();
         _charset = "utf8mb4";
@@ -1129,25 +1672,30 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_DB> &DB(const LibString &db)
+    CreateDBSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_DB> &Charset(const LibString &charset)
+    CreateDBSqlBuilder &Charset(const LibString &charset)
     {
         _charset = charset;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::CREATE_DB> &Collate(const LibString &collate)
+    CreateDBSqlBuilder &Collate(const LibString &collate)
     {
         _collate = collate;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_db.empty()))
             return "";
@@ -1181,27 +1729,46 @@ private:
 };
 
 // create DATABASE if not exists `xxx`
-template<>
-class SqlBuilder<SqlBuilderType::DROP_DB>
+class DropDBSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, DropDBSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::DROP_DB> &Clear()
+public:
+    DropDBSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::DROP_DB)
+    {
+
+    }
+
+    ~DropDBSqlBuilder() 
+    {
+
+    }
+
+    virtual void Release() override
+    {
+        DropDBSqlBuilder::DeleteThreadLocal_DropDBSqlBuilder(this);
+    }
+
+    DropDBSqlBuilder &Clear()
     {
         _db.clear();
 
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::DROP_DB> &DB(const LibString &db)
+    DropDBSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_db.empty()))
             return "";
@@ -1225,14 +1792,27 @@ private:
 };
 
 // ALTER TABLE `xxx` ADD/DROP/MODIFY COLUMN ...
-template<>
-class SqlBuilder<SqlBuilderType::ALTER_TABLE>
+class AlterTableSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, AlterTableSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Clear()
+public:
+    AlterTableSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::ALTER_TABLE)
+    {
+
+    }
+    ~AlterTableSqlBuilder() 
+    {
+
+    }
+
+    virtual void Release() override
+    {
+        AlterTableSqlBuilder::DeleteThreadLocal_AlterTableSqlBuilder(this);
+    }
+
+    AlterTableSqlBuilder &Clear()
     {
         _adds.clear();
         _renames.clear();
@@ -1250,19 +1830,19 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Table(const LibString &table)
+    AlterTableSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &DB(const LibString &db)
+    AlterTableSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Add(const std::vector<std::tuple<LibString, LibString, LibString>> &fields)
+    AlterTableSqlBuilder &Add(const std::vector<std::tuple<LibString, LibString, LibString>> &fields)
     {
         for(auto &tupleInfo : fields)
         {
@@ -1281,7 +1861,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Add(const LibString &field, const LibString &desc, const LibString &after = "")
+    AlterTableSqlBuilder &Add(const LibString &field, const LibString &desc, const LibString &after = "")
     {
         if(UNLIKELY(field.empty() || desc.empty()))
             return *this;
@@ -1291,7 +1871,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Rename(const LibString &oldField, const LibString &newField)
+    AlterTableSqlBuilder &Rename(const LibString &oldField, const LibString &newField)
     {
         if(UNLIKELY(oldField.empty() || newField.empty()))
             return *this;
@@ -1302,7 +1882,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Rename(const std::vector<std::tuple<LibString, LibString>> &renameInfoList)
+    AlterTableSqlBuilder &Rename(const std::vector<std::tuple<LibString, LibString>> &renameInfoList)
     {
         const Int32 count = static_cast<Int32>(renameInfoList.size());
         for(Int32 idx = 0; idx < count; ++idx)
@@ -1323,7 +1903,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Modify(const LibString &field, const LibString &desc)
+    AlterTableSqlBuilder &Modify(const LibString &field, const LibString &desc)
     {
         if(UNLIKELY(field.empty() || desc.empty()))
             return *this;
@@ -1334,7 +1914,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Modify(const std::vector<std::tuple<LibString, LibString>> &contents)
+    AlterTableSqlBuilder &Modify(const std::vector<std::tuple<LibString, LibString>> &contents)
     {
         for(auto &tupleInfo : contents)
         {
@@ -1350,8 +1930,7 @@ public:
         return *this;
     }
 
-
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Drop(const LibString &field)
+    AlterTableSqlBuilder &Drop(const LibString &field)
     {
         if(UNLIKELY(field.empty()))
             return *this;
@@ -1361,7 +1940,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &Drop(const std::vector<LibString> &fields)
+    AlterTableSqlBuilder &Drop(const std::vector<LibString> &fields)
     {
         for(auto &field : fields)
         {
@@ -1378,7 +1957,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddIndex(const LibString &indexName, const std::vector<LibString> &fields, const LibString &usingDesc, const LibString &comment, bool usingFulltext = false, const LibString &fulltextWithParser = "")
+    AlterTableSqlBuilder &AddIndex(const LibString &indexName, const std::vector<LibString> &fields, const LibString &usingDesc, const LibString &comment, bool usingFulltext = false, const LibString &fulltextWithParser = "")
     {
         if(UNLIKELY(indexName.empty() || fields.empty()))
             return *this;
@@ -1389,7 +1968,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddIndex(const std::vector<std::tuple<LibString, std::vector<LibString>, LibString, LibString, bool, LibString>> &contents)
+    AlterTableSqlBuilder &AddIndex(const std::vector<std::tuple<LibString, std::vector<LibString>, LibString, LibString, bool, LibString>> &contents)
     {
         for(auto &content : contents)
         {
@@ -1408,7 +1987,7 @@ public:
         return *this;     
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddUniqueIndex(const LibString &indexName, const std::vector<LibString> &fields, const LibString &usingDesc, const LibString &comment)
+    AlterTableSqlBuilder &AddUniqueIndex(const LibString &indexName, const std::vector<LibString> &fields, const LibString &usingDesc, const LibString &comment)
     {
         if(UNLIKELY(indexName.empty() || fields.empty()))
             return *this;
@@ -1419,7 +1998,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddUniqueIndex(const std::vector<std::tuple<LibString, std::vector<LibString>, LibString, LibString>> &contents)
+    AlterTableSqlBuilder &AddUniqueIndex(const std::vector<std::tuple<LibString, std::vector<LibString>, LibString, LibString>> &contents)
     {
         for(auto &content : contents)
         {
@@ -1438,7 +2017,7 @@ public:
         return *this;     
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &DropIndex(const LibString &indexName)
+    AlterTableSqlBuilder &DropIndex(const LibString &indexName)
     {
         if(UNLIKELY(indexName.empty()))
             return *this;
@@ -1448,7 +2027,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &DropIndex(const std::vector<LibString> &indexNames)
+    AlterTableSqlBuilder &DropIndex(const std::vector<LibString> &indexNames)
     {
         for(auto &indexName : indexNames)
         {
@@ -1465,7 +2044,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddPrimaryKey(const LibString &field)
+    AlterTableSqlBuilder &AddPrimaryKey(const LibString &field)
     {
         if(UNLIKELY(field.empty()))
             return *this;
@@ -1475,7 +2054,7 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &AddPrimaryKey(const std::vector<LibString> &fields)
+    AlterTableSqlBuilder &AddPrimaryKey(const std::vector<LibString> &fields)
     {
         if(UNLIKELY(fields.empty()))
             return *this;
@@ -1490,20 +2069,25 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &DropPrimaryKey()
+    AlterTableSqlBuilder &DropPrimaryKey()
     {
         _type = CHANGE_DROP_PRIMARY_KEY;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::ALTER_TABLE> &ChangeEngine(const LibString &engine)
+    AlterTableSqlBuilder &ChangeEngine(const LibString &engine)
     {
         _type = CHANGE_ENGINE;
         _changeEngine = engine;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         if((_type == CHANGE_UNKNOWN) || 
             (_table.empty() || _db.empty()) )
@@ -1949,14 +2533,28 @@ private:
 };
 
 // ALTER TABLE `xxx` ADD/DROP/MODIFY COLUMN ...
-template<>
-class SqlBuilder<SqlBuilderType::SHOW_INDEX>
+class ShowIndexSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, ShowIndexSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::SHOW_INDEX> &Clear()
+public:
+    ShowIndexSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::SHOW_INDEX)
+    {
+
+    }
+
+    ~ShowIndexSqlBuilder() 
+    {
+
+    }
+
+    virtual void Release() override
+    {
+        ShowIndexSqlBuilder::DeleteThreadLocal_ShowIndexSqlBuilder(this);
+    }
+
+    ShowIndexSqlBuilder &Clear()
     {
         _table.clear();
         _db.clear();
@@ -1964,19 +2562,24 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SHOW_INDEX> &Table(const LibString &table)
+    ShowIndexSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SHOW_INDEX> &DB(const LibString &db)
+    ShowIndexSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
@@ -2001,14 +2604,28 @@ private:
 };
 
 // ALTER TABLE `xxx` ADD/DROP/MODIFY COLUMN ...
-template<>
-class SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE>
+class OptimizeTableSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}  
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, OptimizeTableSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE> &Clear()
+public:
+    OptimizeTableSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::OPTIMIZE_TABLE)
+    {
+
+    }
+
+    ~OptimizeTableSqlBuilder() 
+    {
+
+    }  
+
+    virtual void Release() override
+    {
+        OptimizeTableSqlBuilder::DeleteThreadLocal_OptimizeTableSqlBuilder(this);
+    }
+
+    OptimizeTableSqlBuilder &Clear()
     {
         _table.clear();
         _db.clear();
@@ -2016,19 +2633,24 @@ public:
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE> &Table(const LibString &table)
+    OptimizeTableSqlBuilder &Table(const LibString &table)
     {
         _table = table;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::OPTIMIZE_TABLE> &DB(const LibString &db)
+    OptimizeTableSqlBuilder &DB(const LibString &db)
     {
         _db = db;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         if(UNLIKELY(_table.empty() || _db.empty()))
             return "";
@@ -2051,19 +2673,38 @@ private:
     LibString _db;
 };
 
-template<>
-class SqlBuilder<SqlBuilderType::START_TRANSACTION>
+class StartTransActionSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}  
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, StartTransActionSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::START_TRANSACTION> &Clear()
+public:
+    StartTransActionSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::START_TRANSACTION)
+    {
+
+    }
+
+    ~StartTransActionSqlBuilder() 
+    {
+
+    }  
+
+    virtual void Release() override
+    {
+        StartTransActionSqlBuilder::DeleteThreadLocal_StartTransActionSqlBuilder(this);
+    }
+
+    StartTransActionSqlBuilder &Clear()
     {
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         return "START TRANSACTION";
     }
@@ -2077,26 +2718,45 @@ public:
     }
 };
 
-template<>
-class SqlBuilder<SqlBuilderType::SET_AUTOCOMMIT>
+class SetAutoCommitSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}  
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, SetAutoCommitSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::SET_AUTOCOMMIT> &Clear()
+public:
+    SetAutoCommitSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::SET_AUTOCOMMIT)
+    {
+
+    }
+
+    ~SetAutoCommitSqlBuilder() 
+    {
+
+    }  
+
+    virtual void Release() override
+    {
+        SetAutoCommitSqlBuilder::DeleteThreadLocal_SetAutoCommitSqlBuilder(this);
+    }
+
+    SetAutoCommitSqlBuilder &Clear()
     {
         _autoCommit = true;
         return *this;
     }
 
-    SqlBuilder<SqlBuilderType::SET_AUTOCOMMIT> &SetAutoCommit(bool autoCommit = true)
+    SetAutoCommitSqlBuilder &SetAutoCommit(bool autoCommit = true)
     {
         _autoCommit = autoCommit;
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         return LibString().AppendFormat("set autocommit = %d", _autoCommit ? 1 : 0);
     }
@@ -2113,19 +2773,37 @@ private:
     bool _autoCommit = true;
 };
 
-template<>
-class SqlBuilder<SqlBuilderType::ROLLBACK>
+class RollbackSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}  
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, RollbackSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::ROLLBACK> &Clear()
+public:
+    RollbackSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::ROLLBACK)
+    {
+
+    }
+    ~RollbackSqlBuilder() 
+    {
+
+    }  
+
+    virtual void Release() override
+    {
+        RollbackSqlBuilder::DeleteThreadLocal_RollbackSqlBuilder(this);
+    }
+
+    RollbackSqlBuilder &Clear()
     {
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         return "ROLLBACK";
     }
@@ -2139,19 +2817,38 @@ public:
     }
 };
 
-template<>
-class SqlBuilder<SqlBuilderType::COMMIT_TRANSACTION>
+class CommitTransActionSqlBuilder : public SqlBuilder
 {
-public:
-    SqlBuilder() {}
-    ~SqlBuilder() {}  
+    POOL_CREATE_OBJ_DEFAULT_P1(SqlBuilder, CommitTransActionSqlBuilder);
 
-    SqlBuilder<SqlBuilderType::COMMIT_TRANSACTION> &Clear()
+public:
+    CommitTransActionSqlBuilder() 
+    :SqlBuilder(SqlBuilderType::COMMIT_TRANSACTION)
+    {
+
+    }
+
+    ~CommitTransActionSqlBuilder() 
+    {
+
+    }  
+
+    virtual void Release() override
+    {
+        CommitTransActionSqlBuilder::DeleteThreadLocal_CommitTransActionSqlBuilder(this);
+    }
+
+    CommitTransActionSqlBuilder &Clear()
     {
         return *this;
     }
 
-    LibString ToSql() const
+    LibString Dump() const override
+    {
+        return ToSql();
+    }
+
+    LibString ToSql() const override
     {
         return "COMMIT";
     }

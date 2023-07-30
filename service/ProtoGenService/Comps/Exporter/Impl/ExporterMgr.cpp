@@ -746,7 +746,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
     addLines.push_back("");
 
     {// 6.添加Decode MT方法
-        addLines.push_back("virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {");
+        addLines.push_back("virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {");
         addLines.push_back("    if (stream.GetReadableSize() == 0)");
         addLines.push_back("    {");
         addLines.push_back("        Clear();");
@@ -767,7 +767,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
     addLines.push_back("");
 
     {// 7.添加Decode TL方法
-        addLines.push_back("virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {");
+        addLines.push_back("virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {");
         addLines.push_back("    if (stream.GetReadableSize() == 0)");
         addLines.push_back("    {");
         addLines.push_back("        Clear();");

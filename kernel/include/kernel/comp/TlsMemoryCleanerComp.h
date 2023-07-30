@@ -96,7 +96,7 @@ ALWAYS_INLINE void TlsMemoryCleanerComp::SetManualStart(bool isManualStart)
 }
 
 // 工厂
-class TlsMemoryCleanerCompFactory : public KERNEL_NS::CompFactory
+class KERNEL_EXPORT TlsMemoryCleanerCompFactory : public KERNEL_NS::CompFactory
 {
 public:
     static constexpr KERNEL_NS::_Build::MT _buildType{};

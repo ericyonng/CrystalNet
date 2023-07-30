@@ -110,7 +110,7 @@ protected:
         poller->SetMaxPriorityLevel(8);
         poller->SetPepareEventWorkerHandler(this, &HostObj::_OnPollerPrepare);
         poller->SetEventWorkerCloseHandler(this, &HostObj::_OnPollerWillDestroy);
-        poller->SetEventHandler(this, &HostObj::_OnPollerEvent);
+        poller->Subscribe(1, this, &HostObj::_OnHelloWorldEv);
 
         auto dirtyHelper = poller->GetDirtyHelper();
         dirtyHelper->Init(1);
@@ -159,24 +159,6 @@ protected:
     void _OnPollerWillDestroy(KERNEL_NS::Poller *poller)
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s poller will destroy."), ToString().c_str());
-    }
-
-    void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
-    {
-        if(static_cast<Int32>(sizeof(_eventHandlerArray)) <= ev->_type)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("bad event type, event:%s"), ev->ToString().c_str());
-            return;
-        }
-
-        auto handler = _eventHandlerArray[ev->_type];
-        if(!handler)
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("event type have no handler, event:%s"), ev->ToString().c_str());
-            return;
-        }
-
-        (this->*handler)(ev);
     }
 
     void _OnHelloWorldEv(KERNEL_NS::PollerEvent *ev)
@@ -230,7 +212,7 @@ protected:
         MaskReady(false);
     }
 
-    void _OnDirty(KERNEL_NS::LibDirtyHelper<void *, UInt32> *dirtyHelper, void *ptr, KERNEL_NS::Variant *params)
+    void _OnDirty(KERNEL_NS::LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&ptr, KERNEL_NS::Variant *params)
     {
         dirtyHelper->Clear(NULL);
         g_Log->Info(LOGFMT_OBJ_TAG("dirty %p, param:%s"), ptr, params->AsStr().c_str());
@@ -243,15 +225,9 @@ private:
     }
 
 private:
-    typedef void (HostObj::*PollerEventHandler)(KERNEL_NS::PollerEvent *);
-    static PollerEventHandler _eventHandlerArray[1];
 };
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(HostObj);
-
-HostObj::PollerEventHandler HostObj::_eventHandlerArray[1] = {
-    &HostObj::_OnHelloWorldEv,
-};
 
 class HostObjFactory : public KERNEL_NS::CompFactory
 {
@@ -468,7 +444,7 @@ void TestPoller::Run()
     g_concurrentQueue = KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *>::New_ConcurrentPriorityQueue();
     s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
     s_Poller->SetMaxPriorityLevel(g_maxConcurrentLevel);
-    s_Poller->SetEventHandler(KERNEL_NS::DelegateFactory::Create(&_OnPollerEvent));
+    s_Poller->Subscribe(1, &_OnPollerEvent);
     g_concurrentQueue->SetMaxLevel(g_maxConcurrentLevel);
     g_concurrentQueue->Init();
 

@@ -104,18 +104,19 @@ public:
    template<typename ObjType>
    void SetEventWorkerCloseHandler(ObjType *obj, void (ObjType::*handler)(Poller *));
 
-    // 设置事件处理 PollerEvent统一在poller层释放,handler不可以释放
-    void SetEventHandler(IDelegate<void, PollerEvent *> *handler);
+    // 订阅消息处理
     template<typename ObjType>
-    void SetEventHandler(ObjType *obj, void (ObjType::*handler)(PollerEvent *ev));
-
-    void SetEventHandler(void (*f)(PollerEvent *));
+    void Subscribe(Int32 eventType, ObjType *obj, void (ObjType::*handler)(KERNEL_NS::PollerEvent *));
+    void Subscribe(Int32 eventType, void (*handler)(KERNEL_NS::PollerEvent *));
+    void Subscribe(Int32 eventType, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *> *deleg);
+    void UnSubscribe(Int32 eventType);
 
     // 设置poller事件循环休眠时最大等待时长
     void SetMaxSleepMilliseconds(UInt64 maxMilliseconds);
 
     // 设置处理超时时长
     void SetMaxPieceTime(const TimeSlice &piece);
+    const LibCpuSlice &GetMaxPieceTime() const;
 
     // 设置事件优先级队列最大等级
     void SetMaxPriorityLevel(Int32 level);
@@ -140,8 +141,6 @@ public:
     // 事件循环接口
     bool PrepareLoop();
     void EventLoop();
-    void SafetyEventLoop();
-    void QuickEventLoop();
     void OnLoopEnd();
     void WakeupEventLoop();
     void QuitLoop();
@@ -174,13 +173,14 @@ private:
 
   IDelegate<bool, Poller *> *_prepareEventWorkerHandler;    // 事件处理线程初始准备
   IDelegate<void, Poller *> *_onEventWorkerCloseHandler;    // 事件处理线程结束销毁
-  IDelegate<void, PollerEvent *> *_eventHandler;            // 事件处理回调
-  PollerHandler _quickEventHandler;                         // 事件处理回调
   ConditionLocker _eventGuard;                              // 空闲挂起等待
   ConcurrentPriorityQueue<PollerEvent *> *_eventsList;      // 优先级事件队列
   std::atomic<Int64> _eventAmountLeft;
   std::atomic<Int64> _genEventAmount;
   std::atomic<Int64> _consumEventCount;
+
+  // poller event handler
+  std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *> *> _pollerEventHandler;
 
   std::atomic_bool _isDummyRelease;
 };
@@ -260,22 +260,27 @@ ALWAYS_INLINE void Poller::SetEventWorkerCloseHandler(ObjType *obj, void (ObjTyp
     SetEventWorkerCloseHandler(delg);
 }
 
-ALWAYS_INLINE void Poller::SetEventHandler(IDelegate<void, PollerEvent *> *handler)
-{
-    CRYSTAL_DELETE_SAFE(_eventHandler);
-    _eventHandler = handler;
-}
-
 template<typename ObjType>
-ALWAYS_INLINE void Poller::SetEventHandler(ObjType *obj, void (ObjType::*handler)(PollerEvent *ev))
+ALWAYS_INLINE void Poller::Subscribe(Int32 eventType, ObjType *obj, void (ObjType::*handler)(KERNEL_NS::PollerEvent *))
 {
     auto delg = DelegateFactory::Create(obj, handler);
-    SetEventHandler(delg);
+    Subscribe(eventType, delg);
 }
 
-ALWAYS_INLINE void Poller::SetEventHandler(void (*f)(PollerEvent *))
+ALWAYS_INLINE void Poller::Subscribe(Int32 eventType, void (*handler)(KERNEL_NS::PollerEvent *))
 {
-    _quickEventHandler = f;
+    auto delg = DelegateFactory::Create(handler);
+    Subscribe(eventType, delg);
+}
+
+ALWAYS_INLINE void Poller::UnSubscribe(Int32 eventType)
+{
+    auto iter = _pollerEventHandler.find(eventType);
+    if(UNLIKELY(iter == _pollerEventHandler.end()))
+        return;
+
+    iter->second->Release();
+    _pollerEventHandler.erase(iter);
 }
 
 ALWAYS_INLINE void Poller::SetMaxSleepMilliseconds(UInt64 maxMilliseconds)

@@ -748,7 +748,6 @@
 //     _poller->SetMaxSleepMilliseconds(_cfg->_maxSleepMilliseconds);
 //     _poller->SetPepareEventWorkerHandler(this, &IocpTcpPoller::_OnPollerPrepare);
 //     _poller->SetEventWorkerCloseHandler(this, &IocpTcpPoller::_OnPollerWillDestroy);
-//     _poller->SetEventHandler(this, &IocpTcpPoller::_OnPollerEvent);
 
 //     // 脏回调
 //     auto dirtyHelper = _poller->GetDirtyHelper();

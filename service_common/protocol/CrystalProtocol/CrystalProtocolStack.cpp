@@ -68,9 +68,6 @@ static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
 
 CrystalProtocolStack::~CrystalProtocolStack()
 {
-    if(_opcodeNameParser)
-        _opcodeNameParser->Release();
-    _opcodeNameParser = NULL;
 }
 
 Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
@@ -366,12 +363,6 @@ void CrystalProtocolStack::RegisterCoderFactory(Int32 opcode, KERNEL_NS::ICoderF
 }
 
 #endif
-
-void CrystalProtocolStack::SetOpcodeNameParser(KERNEL_NS::IDelegate<const KERNEL_NS::LibString &, Int32> *parser) 
-{ 
-    if(_opcodeNameParser) _opcodeNameParser->Release(); 
-    _opcodeNameParser = parser;
-}
 
 
 SERVICE_COMMON_END

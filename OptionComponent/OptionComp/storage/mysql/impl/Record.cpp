@@ -31,11 +31,13 @@
 #include <OptionComp/storage/mysql/impl/Record.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
+#include <mysql.h>
 
 KERNEL_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(Record);
 
 Record::Record()
+:_primaryKey(NULL)
 {
 
 }
@@ -74,7 +76,21 @@ Field *Record::AddField(Field *field)
         _fields.push_back(field);
     }
 
+    auto flags = field->GetFlags();
+    field->SetAutoIncField(flags & AUTO_INCREMENT_FLAG);
+    field->SetIsUnsigned(flags & UNSIGNED_FLAG);
+    field->SetIsPrimaryKey(flags & PRI_KEY_FLAG);
+
+    if(field->IsPrimaryKey())
+    {
+        if(_primaryKey)
+            g_Log->Warn(LOGFMT_OBJ_TAG("multi primary key old field is:%s"), _primaryKey->ToString().c_str());
+
+        _primaryKey = field;
+    }
+
     _fieldNameRefField[field->GetName()] = field;
+    _fieldNameRefData[field->GetName()] = field->GetData();
 
     return field;
 }

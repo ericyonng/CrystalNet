@@ -34,6 +34,8 @@
 #include <service/TestService/Comps/SysLogic/SysLogic.h>
 
 #include <service/TestService/Comps/Test/Impl/TestMgr.h>
+#include <service/TestService/Comps/Test/Impl/TestMgrStorage.h>
+#include <service/TestService/Comps/Test/Impl/TestMgrStorageFactory.h>
 
 SERVICE_BEGIN
 
@@ -57,8 +59,8 @@ TestMgr::TestMgr()
 ,_testSendPackCountOnce(0)
 ,_testSendPackageBytes(0)
 ,_testSendPackTimeoutMilliseconds(0)
+,_maxId(0)
 {
-
 }
 
 TestMgr::~TestMgr()
@@ -69,6 +71,73 @@ TestMgr::~TestMgr()
 void TestMgr::Release()
 {
     TestMgr::DeleteByAdapter_TestMgr(TestMgrFactory::_buildType.V, this);
+}
+
+Int32 TestMgr::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
+{
+    TestMgrData *newData = new TestMgrData;
+    if(!newData->Decode(db))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("parse fail key:%llu"), key);
+        newData->Release();
+        return Status::ParseFail;
+    }
+
+    _datas.insert(std::make_pair(key, newData));
+
+    if(key > _maxId)
+        _maxId = key;
+
+    return Status::Success;
+}
+
+Int32 TestMgr::OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
+{
+    auto iter = _datas.find(key);
+    if(UNLIKELY(iter == _datas.end()))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("serialize fail key:%llu"), key);
+        return Status::SerializeFail;
+    }
+
+    if(!iter->second->Encode(db))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("serialize fail key:%llu"), key);
+        return Status::SerializeFail;
+    }
+
+    return Status::Success;
+}
+
+void TestMgr::OnWillStartup()
+{
+    g_Log->Info(LOGFMT_OBJ_TAG("test mgr will start up"));
+    for(auto iter : _datas)
+        g_Log->Info(LOGFMT_OBJ_TAG("test mgr key:%llu, Account:%s"), iter.first, iter.second->account().c_str());
+
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
+        
+        if(GetService()->IsServiceModuleQuit(this))
+        {
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+            return;
+        }
+
+        _MakeNewTestData();
+    });
+
+    timer->Schedule(1000);
+}
+
+void TestMgr::OnStartup()
+{
+    g_Log->Info(LOGFMT_OBJ_TAG("test mgr start up"));
+}
+
+void TestMgr::OnRegisterComps()
+{
+    RegisterComp<TestMgrStorageFactory>();
 }
 
 Int32 TestMgr::_OnGlobalSysInit()
@@ -118,6 +187,8 @@ void TestMgr::_Clear()
         AddrConfig::DeleteThreadLocal_AddrConfig(_targetAddrConfig);
         _targetAddrConfig = NULL;
     }
+
+    KERNEL_NS::ContainerUtil::DelContainer2(_datas);
 
     KERNEL_NS::ContainerUtil::DelContainer2(_sessionIdRefAnalyzeInfo);
 
@@ -352,7 +423,8 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
         , 0
         ,  _targetAddrConfig->_priorityLevel
         ,  _targetAddrConfig->_sessionType
-        , _targetAddrConfig->_af);
+        , _targetAddrConfig->_af
+        , _targetAddrConfig->_remoteProtocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig->ToString().c_str());
@@ -488,6 +560,17 @@ Int32 TestMgr::_ReadTestConfigs()
     return Status::Success;
 }
 
+void TestMgr::_MakeNewTestData()
+{
+    auto newData = new TestMgrData;
+    newData->set_account("ni hao");
+    newData->set_testid(static_cast<Int64>(++_maxId));
+
+    _datas.insert(std::make_pair(_maxId, newData));
+    MaskNumberKeyAddDirty(_maxId);
+
+    g_Log->Info(LOGFMT_OBJ_TAG("make new test data max id:%llu"), _maxId);
+}
 
 SERVICE_END
 

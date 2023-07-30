@@ -30,6 +30,7 @@
 #include <service/common/ServiceConfig.h>
 #include <service/common/PriorityLevelDefine.h>
 #include <service/common/SessionType.h>
+#include <service_common/protocol/protocol.h>
 
 SERVICE_BEGIN
 
@@ -69,9 +70,11 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
     // 识别Local/remote地址
     KERNEL_NS::LibString localIp;
     UInt16 localPort = 0;
+    Int32 localStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
     KERNEL_NS::LibString remoteIp;
     Int32 listenSessionCount = 1;
     UInt16 remotePort = 0;
+    Int32 remoteStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
     for(auto &endianInfo : sepLocalAndRemote)
     {
         const auto &endianPartGroup = endianInfo.Split(elemSep);
@@ -137,6 +140,23 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
 
                 listenSessionCount = KERNEL_NS::StringUtil::StringToInt32(endianPartGroup[3].c_str());
             }
+
+            if(endianPartGroup.size() >= 5)
+            {
+                localStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
+                if(!endianPartGroup[4].empty())
+                {
+                    auto stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(endianPartGroup[4]);
+                    if(stackType == SERVICE_COMMON_NS::CrystalProtocolStackType::UNKNOWN)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("unknown local protocol stack configContent:%s, stack type:%s")
+                        , configContent.c_str(), endianPartGroup[4].c_str());
+                        return false;
+                    }
+
+                    localStack = stackType;
+                }
+            }
             continue;
         }
 
@@ -182,6 +202,23 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
 
                 remotePort = KERNEL_NS::StringUtil::StringToUInt16(endianPartGroup[2].c_str());
             }
+
+            if(endianPartGroup.size() >= 4)
+            {
+                remoteStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
+                if(!endianPartGroup[3].empty())
+                {
+                    auto stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(endianPartGroup[3]);
+                    if(stackType == SERVICE_COMMON_NS::CrystalProtocolStackType::UNKNOWN)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("unknown remote protocol stack configContent:%s, stack type:%s")
+                        , configContent.c_str(), endianPartGroup[3].c_str());
+                        return false;
+                    }
+
+                    remoteStack = stackType;
+                }
+            }
             continue;
         }
         
@@ -203,6 +240,8 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
         _remoteIp = remoteIp;
         _remotePort = remotePort;
         _listenSessionCount = listenSessionCount;
+        _localProtocolStackType = localStack;
+        _remoteProtocolStackType = remoteStack;
 
         _af = KERNEL_NS::SocketUtil::IsIpv4(localIp) ? AF_INET : AF_INET6;
 
@@ -223,7 +262,8 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
         _localIp = localIp;
         _localPort = localPort;
         _listenSessionCount = listenSessionCount;
-
+        _localProtocolStackType = localStack;
+        
         _af = KERNEL_NS::SocketUtil::IsIpv4(localIp) ? AF_INET : AF_INET6;
         _sessionType = SessionType::INNER;
         auto iter = portRefSessinType.find(_localPort);
@@ -237,6 +277,8 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
     // 3.本地没有,远程有
     _remoteIp = remoteIp;
     _remotePort = remotePort;
+    _remoteProtocolStackType = remoteStack;
+
     _af = KERNEL_NS::SocketUtil::IsIpv4(remoteIp) ? AF_INET : AF_INET6;
     _sessionType = SessionType::INNER;
     auto iter = portRefSessinType.find(_remotePort);

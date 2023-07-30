@@ -64,8 +64,8 @@ public:
     virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) = 0;
     virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) = 0;
 
-    virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) = 0;
-    virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) = 0;
+    virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) = 0;
+    virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) = 0;
 };
 
 // 工厂方法

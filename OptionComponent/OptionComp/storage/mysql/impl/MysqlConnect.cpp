@@ -37,31 +37,8 @@
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlConfig);
-
 POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlConnect);
 
-MysqlConfig::MysqlConfig()
-:_port(3306)
-,_charset("utf8mb4")
-,_dbCharset("utf8mb4")
-,_dbCollate("utf8mb4_bin")
-,_autoReconnect(1)
-,_maxPacketSize(2 * 1024llu * 1024llu * 1024llu) // 2GB
-,_enableMultiStatements(true)
-{
-
-}
-
-LibString MysqlConfig::ToString() const
-{
-    LibString info;
-    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%hu bind ip:%s \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu _enableMultiStatements:%d"
-        , _host.c_str(), _user.c_str(), _pwd.c_str(), _dbName.c_str(), _port, _bindIp.c_str(), _charset.c_str(), _dbCharset.c_str(), _dbCollate.c_str(),
-         _autoReconnect, _maxPacketSize, _enableMultiStatements);
-
-    return info;
-}
 
 MysqlConnect::MysqlConnect(UInt64 id)
 :_id(id)
@@ -208,6 +185,18 @@ LibString MysqlConnect::GetMysqlError() const
     return mysql_error(_mysql);
 }
 
+void MysqlConnect::AddOpCount(Int32 type, Int64 count) const
+{
+    auto iter = _typeRefOpInfo.find(type);
+    if(iter == _typeRefOpInfo.end())
+    {
+        iter = _typeRefOpInfo.emplace(type, MysqlOperateInfo()).first;
+        iter->second._type = type;
+    }
+    
+    iter->second._count += count;
+}
+
 Int32 MysqlConnect::Init()
 {
     if(UNLIKELY(_mysql))
@@ -258,6 +247,7 @@ Int32 MysqlConnect::Start()
 
 MYSQL_RES *MysqlConnect::_StoreResult(bool &isSqlWithFieldsCountReturn) const
 {
+    AddOpCount(MysqlOperateType::Operate);
     auto res = mysql_store_result(_mysql);
     const auto fieldCount = mysql_field_count(_mysql);
     isSqlWithFieldsCountReturn = fieldCount != 0;
@@ -356,12 +346,7 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, Mysq
         {
             // 取当前字段信息并打印字段信息与数据
             auto curField = mysql_fetch_field_direct(res, idx);
-            auto newField = record->AddField(idx, curField->table, curField->name, curField->type, row[idx], lens[idx]);
-            if(LIKELY(newField))
-            {
-                newField->SetAutoIncField(curField->flags & AUTO_INCREMENT_FLAG);
-                newField->SetIsUnsigned(curField->flags & UNSIGNED_FLAG);
-            }
+            record->AddField(idx, curField->table, curField->name, curField->type, static_cast<UInt64>(curField->flags), row[idx], lens[idx]);
 
             // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
             //     g_Log->Info(LOGFMT_OBJ_TAG("field:%s"), newField->ToString().c_str());
@@ -378,26 +363,28 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, Mysq
         cb->Invoke(this, seqId, mysqlErr == 0 ?Status::Success : Status::Failed, mysqlErr, true, 0, 0, records);
 }
 
-bool MysqlConnect::_ExcuteSql(const LibString &sql) const
+bool MysqlConnect::_ExcuteSql(UInt64 seqId, const LibString &sql) const
 {
     // mysql需要指定一个日志文件
-    if(g_Log->IsEnable(LogLevel::Debug))
-        g_Log->Debug2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql size:%llu excute sql:", _id, static_cast<UInt64>(sql.size())), sql);
+    if(g_Log->IsEnable(LogLevel::DumpSql))
+        g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql seqId:%llu size:%llu excute sql:", _id, seqId, static_cast<UInt64>(sql.size())), sql);
 
     // 当没有开启CLIENT_MULTI_STATEMENTS时候会返回结果, 如果开启CLIENT_MULTI_STATEMENTS则语句并没有全部执行好,需要获取结果, 会有多个结果
     auto ret = mysql_real_query(_mysql, sql.c_str(), static_cast<ULong>(sql.length()));
     if(ret != 0)
     {
         _UpdateLastMysqlErrno();
-        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("connection info:%s, excute sql fail err:%s, sql size:%llu sql:", ToString().c_str(), mysql_error(_mysql), static_cast<UInt64>(sql.size())), sql);
+        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("connection info:%s, excute sql fail err:%s, seqId:%llu sql size:%llu sql:", ToString().c_str(), mysql_error(_mysql), seqId, static_cast<UInt64>(sql.size())), sql);
         return false;
     }
 
     // 打印出影响的行数
     const Int64 count = GetLastAffectedRow();
-    if(g_Log->IsEnable(LogLevel::Debug))
-        g_Log->Debug2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, excute sql affected row:%lld, mysql_error:%s", _id, count, (count >= 0) ? "NONE" : mysql_error(_mysql)));
+    if(g_Log->IsEnable(LogLevel::DumpSql))
+        g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql connection id:%llu, seqId:%llu excute sql affected row:%lld, mysql_error:%s", _id, seqId, count, (count >= 0) ? "NONE" : mysql_error(_mysql)));
 
+    AddOpCount(MysqlOperateType::Operate);
+    
     return true;
 }
 
@@ -413,6 +400,8 @@ bool MysqlConnect::_ExecuteSqlUsingStmt(const LibString &sql, UInt64 seqId, cons
         g_Log->Warn(LOGFMT_OBJ_TAG("stmt excute fail ret:%u"), ret);
         return false;
     }
+
+    AddOpCount(MysqlOperateType::CompleteQuery);
 
     return true;
 }
@@ -488,7 +477,7 @@ bool MysqlConnect::_SelectDB()
 {
     bool isExists = false;
     auto res = mysql_list_dbs(_mysql, _cfg._dbName.c_str());
-    _AddOpCount(MysqlOperateType::READ);
+    AddOpCount(MysqlOperateType::Operate);
 
     if(UNLIKELY(res))
     {
@@ -498,11 +487,10 @@ bool MysqlConnect::_SelectDB()
 
     if(!isExists)
     {// 数据库不存在则创建
-        SqlBuilder<SqlBuilderType::CREATE_DB> builder;
+        CreateDBSqlBuilder builder;
         const auto &sql = builder.DB(_cfg._dbName).Charset(_cfg._dbCharset).Collate(_cfg._dbCollate).ToSql();
 
-        _AddOpCount(MysqlOperateType::WRITE);
-        if(!_ExcuteSql(sql))
+        if(!_ExcuteSql(0, sql))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("db:%s, _ExcuteSql fail err:%s"), _cfg._dbName.c_str(), mysql_error(_mysql));
             return false;
@@ -512,7 +500,7 @@ bool MysqlConnect::_SelectDB()
     }
 
     auto ret = mysql_select_db(_mysql, _cfg._dbName.c_str());
-    _AddOpCount(MysqlOperateType::READ);
+    AddOpCount(MysqlOperateType::Operate);
     if(ret != 0)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("select db:%s fail err:%s"), _cfg._dbName.c_str(), mysql_error(_mysql));
@@ -528,7 +516,7 @@ bool MysqlConnect::_Ping(const LibString &content)
     auto ret = mysql_ping(_mysql);
     _lastPingMs = LibCpuCounter::Current().ElapseMilliseconds(counter);
     
-    _AddOpCount(MysqlOperateType::READ);
+    AddOpCount(MysqlOperateType::Operate);
     if(ret == 0)
     {
         _isConnected = true;
@@ -542,18 +530,6 @@ bool MysqlConnect::_Ping(const LibString &content)
     _isConnected = false;
 
     return false;
-}
-
-void MysqlConnect::_AddOpCount(Int32 type, Int64 count)
-{
-    auto iter = _typeRefOpInfo.find(type);
-    if(iter == _typeRefOpInfo.end())
-    {
-        iter = _typeRefOpInfo.emplace(type, MysqlOperateInfo()).first;
-        iter->second._type = type;
-    }
-    
-    iter->second._count += count;
 }
 
 UInt32 MysqlConnect::_UpdateLastMysqlErrno() const

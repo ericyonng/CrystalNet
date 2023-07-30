@@ -70,6 +70,8 @@ public:
 
     bool CheckReadNumber(const Byte8 *segmentName, const Byte8 *keyName, Int64 &result) const;
     bool CheckReadNumber(const Byte8 *segmentName, const Byte8 *keyName, UInt64 &result) const;
+    bool CheckReadNumber(const Byte8 *segmentName, const Byte8 *keyName, Int32 &result) const;
+    bool CheckReadNumber(const Byte8 *segmentName, const Byte8 *keyName, UInt32 &result) const;
     bool CheckReadNumber(const Byte8 *segmentName, const Byte8 *keyName, Double &result) const;
 
     bool WriteStr(const Byte8 *segmentName, const Byte8 *keyName, const Byte8 *wrStr);
@@ -83,7 +85,7 @@ public:
     bool WriteFileHeaderAnnotation(const LibString &content);   // 内容只会在第一个segment的位置插入
 
     // 段下所有配置
-    const std:: map<LibString, LibString> *GetSegmentCfgs(const Byte8 *segmentName) const;
+    const std::unordered_map<LibString, LibString> *GetSegmentCfgs(const Byte8 *segmentName) const;
 
 private:
     bool _Init();
@@ -107,7 +109,7 @@ private:
                           , Int32 contentType
                           , Int32 line
                           , LibString &curSegment
-                          , std::map<LibString, LibString> *&curKeyValues);
+                          , std::unordered_map<LibString, LibString> *&curKeyValues);
 
     // 段的所包含的键值对的最大行
     Int32 _GetSegmentKeyValueMaxValidLine(const LibString &segment) const;  // 返回-1该段不存在
@@ -122,9 +124,9 @@ private:
     bool _isDirtied;
     Int32 _maxLine;                                                                 // 行号最小值1
     std:: map<Int32,     LibString> _lineRefContent;                                // 每一行的元数据,行号最小值从1开始
-    std:: map<LibString, Int32> _segOrKeyRefLine;                                   // seg对应的行号或者seg-key所在的行号 例如seg, seg-key
-    std:: map<LibString, std:: map<LibString, LibString>> _segmentRefKeyValues;
-    std:: map<LibString, Int32> _segmentRefMaxValidLine;                            // key：段， value:该段有效的最大行号
+    std:: unordered_map<LibString, Int32> _segOrKeyRefLine;                                   // seg对应的行号或者seg-key所在的行号 例如seg, seg-key
+    std:: unordered_map<LibString, std::unordered_map<LibString, LibString>> _segmentRefKeyValues;
+    std:: unordered_map<LibString, Int32> _segmentRefMaxValidLine;                            // key：段， value:该段有效的最大行号
 };
 
 ALWAYS_INLINE void LibIniFile::SetMemoryIniContent(const KERNEL_NS::LibString &fromMemory)

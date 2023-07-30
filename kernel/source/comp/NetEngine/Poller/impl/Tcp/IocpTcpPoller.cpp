@@ -66,8 +66,6 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IocpTcpPoller);
 
-IocpTcpPoller::PollerEventHandler IocpTcpPoller::_eventHandlerArray[PollerEventType::EvMax] = {NULL};
-
 IocpTcpPoller::IocpTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const TcpPollerInstConfig* cfg)
 :_pollerId(pollerId)
 ,_tcpPollerMgr(pollerMgr)
@@ -96,19 +94,6 @@ IocpTcpPoller::~IocpTcpPoller()
 void IocpTcpPoller::Release()
 {
     IocpTcpPoller::Delete_IocpTcpPoller(this);
-}
-
-void IocpTcpPoller::InitStatic()
-{
-    _eventHandlerArray[PollerEventType::Write] = &IocpTcpPoller::_OnWrite;
-    _eventHandlerArray[PollerEventType::AsynConnect] = &IocpTcpPoller::_OnAsynConnect;
-    _eventHandlerArray[PollerEventType::NewSession] = &IocpTcpPoller::_OnNewSession;
-    _eventHandlerArray[PollerEventType::Monitor] = &IocpTcpPoller::_OnMonitor;
-    _eventHandlerArray[PollerEventType::CloseSession] = &IocpTcpPoller::_OnCloseSession;
-    _eventHandlerArray[PollerEventType::AddListen] = &IocpTcpPoller::_OnAddListen;
-    _eventHandlerArray[PollerEventType::IpRuleControl] = &IocpTcpPoller::_OnIpRuleControl;
-    _eventHandlerArray[PollerEventType::QuitServiceSessionsEvent] = &IocpTcpPoller::_OnQuitServiceSessionsEvent;
-    _eventHandlerArray[PollerEventType::RealDoQuitServiceSessionEvent] = &IocpTcpPoller::_OnRealDoQuitServiceSessionEvent;
 }
 
 void IocpTcpPoller::OnRegisterComps()
@@ -755,7 +740,16 @@ Int32 IocpTcpPoller::_OnCompsCreated()
     _poller->SetMaxSleepMilliseconds(_cfg->_maxSleepMilliseconds);
     _poller->SetPepareEventWorkerHandler(this, &IocpTcpPoller::_OnPollerPrepare);
     _poller->SetEventWorkerCloseHandler(this, &IocpTcpPoller::_OnPollerWillDestroy);
-    _poller->SetEventHandler(this, &IocpTcpPoller::_OnPollerEvent);
+
+    _poller->Subscribe(PollerEventType::Write, this, &IocpTcpPoller::_OnWrite);
+    _poller->Subscribe(PollerEventType::AsynConnect, this, &IocpTcpPoller::_OnAsynConnect);
+    _poller->Subscribe(PollerEventType::NewSession, this, &IocpTcpPoller::_OnNewSession);
+    _poller->Subscribe(PollerEventType::Monitor, this, &IocpTcpPoller::_OnMonitor);
+    _poller->Subscribe(PollerEventType::CloseSession, this, &IocpTcpPoller::_OnCloseSession);
+    _poller->Subscribe(PollerEventType::AddListen, this, &IocpTcpPoller::_OnAddListen);
+    _poller->Subscribe(PollerEventType::IpRuleControl, this, &IocpTcpPoller::_OnIpRuleControl);
+    _poller->Subscribe(PollerEventType::QuitServiceSessionsEvent, this, &IocpTcpPoller::_OnQuitServiceSessionsEvent);
+    _poller->Subscribe(PollerEventType::RealDoQuitServiceSessionEvent, this, &IocpTcpPoller::_OnRealDoQuitServiceSessionEvent);
 
     // 脏回调
     auto dirtyHelper = _poller->GetDirtyHelper();
@@ -913,26 +907,6 @@ void IocpTcpPoller::_OnPollerWillDestroy(Poller *poller)
     });
 
     _memoryCleaner->ManualClose();
-}
-
-void IocpTcpPoller::_OnPollerEvent(PollerEvent *ev)
-{
-    if(UNLIKELY(ev->_type >= PollerEventType::EvMax))
-    {
-        g_Log->NetError(LOGFMT_OBJ_TAG("unknown poller event type:%d"), ev->_type);
-        return;
-    }
-    
-    auto handler = _eventHandlerArray[ev->_type];
-    if(!handler)
-    {
-        g_Log->NetError(LOGFMT_OBJ_TAG("unknown poller event type:%d"), ev->_type);
-        return;
-    }
-
-    // g_Log->NetInfo(LOGFMT_OBJ_TAG("will consume a poller event type:%d"), ev->_type);
-    // g_Log->NetDebug(LOGFMT_OBJ_TAG("will consume a poller event:%s"), ev->ToString().c_str());
-    (this->*handler)(ev);
 }
 
 void IocpTcpPoller::_OnWrite(PollerEvent *ev)
@@ -1130,6 +1104,8 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
     sessionCreatedEv->_stub = buildSessionInfo->_stub;
     sessionCreatedEv->_isFromConnect = buildSessionInfo->_isFromConnect;
     sessionCreatedEv->_isLinker = buildSessionInfo->_isLinker;
+    sessionCreatedEv->_protocolStackType = buildSessionInfo->_sessionOption._protocolStackType;
+
     _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv->_priorityLevel, sessionCreatedEv);
 
     // 有存根才需要回包
@@ -1335,6 +1311,8 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
         sessionCreatedEv->_stub = listenInfo->_stub;
         sessionCreatedEv->_isFromConnect = false;
         sessionCreatedEv->_isLinker = true;
+        sessionCreatedEv->_protocolStackType = listenInfo->_sessionOption._protocolStackType;
+
         _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv->_priorityLevel, sessionCreatedEv);
 
         // listenres
@@ -1680,26 +1658,26 @@ void IocpTcpPoller::_OnAccept(IocpTcpSession *session, IoEvent &io)
 }
 
 // 脏事件
-void IocpTcpPoller::_OnDirtySessionAccept(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params)
+void IocpTcpPoller::_OnDirtySessionAccept(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params)
 {
     auto iocpSession = KernelCastTo<IocpTcpSession>(session);
     g_Log->NetWarn(LOGFMT_OBJ_TAG("iocp dont need accept dirty, session:%s"), iocpSession->ToString().c_str());
 }
 
-void IocpTcpPoller::_OnDirtySessionWrite(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params)
+void IocpTcpPoller::_OnDirtySessionWrite(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params)
 {
     auto iocpSession = KernelCastTo<IocpTcpSession>(session);
     g_Log->NetWarn(LOGFMT_OBJ_TAG("dirty send session:%s"), iocpSession->ToString().c_str());
 }
 
-void IocpTcpPoller::_OnDirtySessionRead(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params)
+void IocpTcpPoller::_OnDirtySessionRead(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params)
 {
     auto iocpSession = KernelCastTo<IocpTcpSession>(session);
     // g_Log->NetDebug(LOGFMT_OBJ_TAG("dirty read session:%s"), iocpSession->ToString().c_str());
     iocpSession->ContinueRecv();
 }
 
-void IocpTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *session, Variant *params)
+void IocpTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params)
 {
     auto iocpSession = KernelCastTo<IocpTcpSession>(session);
 

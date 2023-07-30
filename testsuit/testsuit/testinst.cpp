@@ -28,6 +28,7 @@
 */
 
 #include <pch.h>
+#include <service/TestService/service.h>
 #include <testsuit/testinst.h>
 
 #include <testsuit/testinst/TestMemoryAlloctor.h>
@@ -157,12 +158,12 @@ void TestInst::Run(int argc, char const *argv[])
         KERNEL_NS::LibString sucParamsInfo;
         Int32 paramNum = SERVICE_COMMON_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
 
-        LogFactory logFactory;
+        SERVICE_NS::LibServiceLogFactory serviceLogFactory;
         KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
         KERNEL_NS::LibString logIniPath;
         logIniPath = programPath + "/ini/";
         KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
-        Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), KERNEL_NS::LibString(), KERNEL_NS::LibString(), true, params._fileSoftLimit, params._fileHardLimit);
+        Int32 err = KERNEL_NS::KernelUtil::Init(&serviceLogFactory, "LogCfg.ini", logIniPath.c_str(), KERNEL_NS::LibString(), KERNEL_NS::LibString(), true, params._fileSoftLimit, params._fileHardLimit);
         if(err != Status::Success)
         {
             CRYSTAL_TRACE("kernel init fail err:%d", err);
@@ -242,7 +243,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
-    // TestService::Run(argc, argv);
+    TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     // TestList::Run();
     // TestDirectoryUtil::Run();
@@ -258,7 +259,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestConfig::Run();
     // TestMysql::Run();
     // TestCharset::Run();
-    TestSql::Run();
+    // TestSql::Run();
     // TestCenterMemoryCollector::Run();
 
     // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();

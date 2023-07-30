@@ -235,6 +235,47 @@ Int32 CompHostObject::RegisterComp(CompFactory *factory)
     return Status::Success;
 }
 
+Int32 CompHostObject::RegisterComp(const std::vector<CompFactory *> &factorys)
+{
+    if(UNLIKELY(factorys.empty()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("have no factorys please check"));
+        return Status::Failed;
+    }
+
+    std::vector<CompFactory *> toRegister;
+    for(auto factory : factorys)
+    {
+        // 是否被注册过
+        bool isRegister = false;
+        for(auto iter = _willRegComps.begin(); iter != _willRegComps.end(); ++iter)
+        {
+            if(iter->_factory == factory)
+            {
+                isRegister = true;
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory));
+                break;
+            }
+        }
+
+        if(UNLIKELY(isRegister))
+            continue;
+
+        toRegister.push_back(factory);
+    }
+
+    if(toRegister.empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("have no any comp to register."));
+        return Status::Success;
+    }
+
+    for(auto factory : toRegister)
+        _willRegComps.push_back(_WillRegComp(factory));
+
+    return Status::Success;
+}
+
 Int32 CompHostObject::RegisterComp(CompObject *comp)
 {
     if(UNLIKELY(!comp))

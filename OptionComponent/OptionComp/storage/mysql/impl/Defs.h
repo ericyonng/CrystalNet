@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include<kernel/common/common.h>
+
 // mysql 网络错误 此时sql需要重新处理或者放入pending队列等到网络正常再处理
 #ifndef IS_MYSQL_NETWORK_ERROR
  #define IS_MYSQL_NETWORK_ERROR(x) (((x) == CR_SERVER_GONE_ERROR) || ((x) == CR_SERVER_LOST))
@@ -61,5 +63,18 @@
     ((x) == MYSQL_TYPE_LONG_BLOB) ||            \
     ((x) == MYSQL_TYPE_VAR_STRING)
 #endif
+
+KERNEL_BEGIN
+
+// mysql 限制
+class MysqlLimit
+{
+public:
+    static constexpr size_t _tableNameLimit = 64;
+    static constexpr size_t _fieldNameLimit = 64;
+    static constexpr Int32 _tableFieldsCountLimit = 1017;
+};
+
+KERNEL_END
 
 #endif

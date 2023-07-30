@@ -19,7 +19,8 @@
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE",
-                "CRYSTAL_NET_IMPORT_KERNEL_LIB"
+                "CRYSTAL_NET_IMPORT_KERNEL_LIB",
+                "CRYSTAL_STORAGE_ENABLE"
             ],
             "windowsSdkVersion": "10.0.17763.0",
             "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2017/Enterprise/VC/Tools/MSVC/14.16.27023/bin/Hostx64/x64/cl.exe",

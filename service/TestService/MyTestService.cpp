@@ -51,6 +51,8 @@ MyTestService::MyTestService()
 ,_frameUpdateTimeMs(0)
 ,_eventMgr(NULL)
 ,_serviceConfig(NULL)
+,_defaultStack(NULL)
+,_dbLoadedEventStub(INVALID_LISTENER_STUB)
 {
     ILogicSys::GetCurrentService() = this;
 }
@@ -67,14 +69,26 @@ void MyTestService::Release()
 
 KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(KERNEL_NS::LibSession *session)
 {
-    auto iter = this->_sessionTypeRefProtocolStack.find(session->GetSessionType());
-    return iter == this->_sessionTypeRefProtocolStack.end() ? NULL : iter->second;
+    auto iter = _stackTypeRefProtocolStack.find(session->GetProtocolStackType());
+    return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 
-KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(Int32 sessionType)
+const KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(KERNEL_NS::LibSession *session) const
 {
-    auto iter = this->_sessionTypeRefProtocolStack.find(sessionType);
-    return iter == this->_sessionTypeRefProtocolStack.end() ? NULL : iter->second;
+    auto iter = _stackTypeRefProtocolStack.find(session->GetProtocolStackType());
+    return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
+}
+
+KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(Int32 prototalStackType)
+{
+    auto iter = _stackTypeRefProtocolStack.find(prototalStackType);
+    return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
+}
+
+const KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(Int32 prototalStackType) const
+{
+    auto iter = _stackTypeRefProtocolStack.find(prototalStackType);
+    return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 
 Int32 MyTestService::GetSessionTypeByPort(UInt16 port) const
@@ -101,7 +115,8 @@ void MyTestService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_
     {
         KERNEL_NS::LibString opcodeInfo;
         _GetOpcodeInfo(opcodeId, opcodeInfo);
-        g_Log->Warn(LOGFMT_OBJ_TAG("repeate msg handler opcodeInfo:%s"), opcodeInfo.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("repeate msg handler opcodeInfo:%s, old owner:%s, old callback:%s, new owner:%s, new callback:%s")
+                , opcodeInfo.c_str(), msgHandler->GetOwnerRtti(), msgHandler->GetCallbackRtti(), deleg->GetOwnerRtti(), deleg->GetCallbackRtti());
         
         msgHandler->Release();
         _opcodeRefHandler.erase(opcodeId);
@@ -112,7 +127,8 @@ void MyTestService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_
         KERNEL_NS::LibString opcodeInfo;
         _GetOpcodeInfo(opcodeId, opcodeInfo);
 
-        g_Log->Warn(LOGFMT_OBJ_TAG("subscribe a disable opcode opcode info:%s"), opcodeInfo.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("subscribe a disable opcode opcode info:%s, new owner:%s, new callback:%s"), opcodeInfo.c_str(), deleg->GetOwnerRtti(), deleg->GetCallbackRtti());
+        deleg->Release();
         return;
     }
 
@@ -129,11 +145,12 @@ void MyTestService::_OnServiceRegisterComps()
 {
     // 会话管理
     RegisterComp<SessionMgrFactory>();
-    
      // 系统逻辑管理
     RegisterComp<SysLogicMgrFactory>();
     // 存根系统
     RegisterComp<StubHandleMgrFactory>();
+    // 存储组件
+    RegisterComp<MysqlMgrFactory>();
 
     // 测试组件
     RegisterComp<MyServiceCompFactory>();
@@ -144,6 +161,7 @@ void MyTestService::_OnServiceRegisterComps()
 
 Int32 MyTestService::_OnServiceInit()
 {
+    // poller event 接口初始化
     _eventMgr = KERNEL_NS::EventManager::New_EventManager();
     _serviceConfig = ServiceConfig::New_ServiceConfig();
 
@@ -245,6 +263,8 @@ Int32 MyTestService::_OnServiceCompsCreated()
         return Status::Failed;
     }
 
+    _dbLoadedEventStub = GetEventMgr()->AddListener(EventEnums::DB_LOADED_FINISH_ON_STARTUP, this, &MyTestService::_OnDbLoaded);
+
     return Status::Success;
 }
 
@@ -314,6 +334,7 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
         ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
         ev->SetParam(Params::PRIORITY_LEVEL, sessionCreatedEv->_priorityLevel);
         ev->SetParam(Params::SESSION_TYPE, sessionCreatedEv->_sessionType);
+        ev->SetParam(Params::PROTOCOL_STACK, sessionCreatedEv->_protocolStackType);
         ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
         ev->SetParam(Params::SERVICE_ID, sessionCreatedEv->_belongServiceId);
         ev->SetParam(Params::STUB, sessionCreatedEv->_stub);
@@ -476,12 +497,22 @@ void MyTestService::_OnPollerWillDestroy(KERNEL_NS::Poller *poller)
     g_Log->Info(LOGFMT_OBJ_TAG("service %s poller will destroy "), GetObjName().c_str());
 }
 
+void MyTestService::_OnDbLoaded(KERNEL_NS::LibEvent *ev)
+{
+    ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_WILL_STARTUP);
+    GetEventMgr()->FireEvent(ev);
+
+    ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
+    GetEventMgr()->FireEvent(ev);
+}
+
 void MyTestService::_Clear()
 {
     KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IProtocolStack *, KERNEL_NS::AutoDelMethods::Release>(_stackTypeRefProtocolStack);
     KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *, KERNEL_NS::AutoDelMethods::Release>(_opcodeRefHandler);
     
-    _sessionTypeRefProtocolStack.clear();
+    if(_eventMgr && (_dbLoadedEventStub != INVALID_LISTENER_STUB))
+        _eventMgr->RemoveListenerX(_dbLoadedEventStub);
 
     if(LIKELY(_eventMgr))
     {
@@ -511,27 +542,11 @@ Int32 MyTestService::_InitProtocolStack()
         if(stack)
         {
             // opcode解析
-            auto delg = KERNEL_NS::DelegateFactory::Create(&Opcodes::ToString);
-            stack->SetOpcodeNameParser(delg);
-
             _stackTypeRefProtocolStack.insert(std::make_pair(idx, stack));
 
-            auto sessionType = SessionType::TurnFromProtocolStackType(idx);
-            if(UNLIKELY(sessionType == SessionType::UNKNOWN))
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("protocol stack type to session type map fail stack type:%d"), idx);
-                return Status::Failed;
-            }
-            
-            auto iterSessionType = _sessionTypeRefProtocolStack.find(sessionType);
-            if(iterSessionType != _sessionTypeRefProtocolStack.end())
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("repeate protocol stack to session type map, old stack type:%d, new stack type:%d, sessionType:%d")
-                                , iterSessionType->first,  idx, sessionType);
-                return Status::Failed;
-            }
-
-            _sessionTypeRefProtocolStack.insert(std::make_pair(sessionType, stack));
+            // 默认协议栈是CRYSTAL_PROTOCOL, 如果端口没有指定使用的协议栈则默认使用CRYSTAL_PROTOCOL
+            if(idx == SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL)
+                _defaultStack = stack;
         }
     }
 

@@ -622,8 +622,8 @@ Int32 LibSocket::Close()
 LibString LibSocket::ToString() const
 {
     LibString info;
-    info.AppendFormat("socket info: sessionId:%llu, family:%d, type:%d,%s, protocol:%d, sock:%d, option:0x%x, isLinker:%d, addr:%s"
-                , _session ? _session->GetId() : 0, _af, _type, ProtocolType::ToProtocolType(_type), _protocol, _sock, static_cast<UInt32>(_option), _isLinker, _addr ? _addr->ToString().c_str() : "no addr");
+    info.AppendFormat("socket info: sessionId:%llu, family:%d, type:%d,%s, protocol:%d, sock:%d, option:0x%llx, isLinker:%d, addr:%s"
+                , _session ? _session->GetId() : 0, _af, _type, ProtocolType::ToProtocolType(_type), _protocol, _sock, _option, _isLinker, _addr ? _addr->ToString().c_str() : "no addr");
 
     return info;
 }

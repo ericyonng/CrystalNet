@@ -118,7 +118,6 @@ public:
     // 事件循环
     bool PrepareLoop();
     void EventLoop();
-    void SafetyEventLoop();
     void OnLoopEnd();
     void Push(Int32 level, KERNEL_NS::PollerEvent *ev);
     void Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList);
@@ -127,13 +126,15 @@ public:
 
     // 网络线程调用
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) = 0;
-    virtual KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 sessionType) = 0;
+    virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) const = 0;
+    virtual KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) = 0;
+    virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) const = 0;
 
     // 获取定时器
     virtual KERNEL_NS::TimerMgr *GetTimerMgr() = 0;
     virtual const KERNEL_NS::TimerMgr *GetTimerMgr() const = 0;
 
-    // 协议订阅 已经存在的订阅会被新的覆盖并报warn
+    // 协议订阅 已经存在的订阅会被新的覆盖并报warn 专门定制Protocol消息
     template<typename ObjType>
     void Subscribe(Int32 opcodeId, ObjType *obj, void (ObjType::*Handler)(KERNEL_NS::LibPacket *&));
     virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) = 0;
@@ -151,6 +152,8 @@ public:
     virtual bool CheckServiceModuleQuitEnd(KERNEL_NS::LibString &notEndInfo) const;
     // service模块退出
     virtual void MaskServiceModuleQuitFlag(const KERNEL_NS::CompObject *comp);
+    // 是否退出
+    virtual bool IsServiceModuleQuit(const KERNEL_NS::CompObject *comp) const;
     // 注册需要关注的模块
     virtual void RegisterFocusServiceModule(const KERNEL_NS::CompObject *comp);
     // service退出标志
@@ -168,6 +171,9 @@ public:
 
     const std::set<const KERNEL_NS::CompObject *> &GetALlFocusServiceModule() const;
     std::set<const KERNEL_NS::CompObject *> &GetALlFocusServiceModule();
+
+    // 获得消息优先级
+    Int32 GetMaxPriorityLevel() const;
 
 protected:
     // 在组件初始化前
@@ -202,8 +208,6 @@ protected:
     // 服务完成关闭
     virtual void _OnServiceClosed();
 
-    // 收到消息
-    virtual void _OnMsg(KERNEL_NS::PollerEvent *msg) final;
     // 会话创建
     virtual void _OnSessionCreated(KERNEL_NS::PollerEvent *msg);
     // 会话销毁
@@ -239,8 +243,6 @@ protected:
     std::atomic<Int64> _recvPackets;
     std::atomic<Int64> _consumePackets;
 
-    typedef void (IService::*PollerEventHandler)(KERNEL_NS::PollerEvent *msg);
-    std::vector<PollerEventHandler> _pollerEventHandler;
     Int32 _maxEventType;
 
     std::set<const KERNEL_NS::CompObject *> _quitEndComps;
@@ -298,11 +300,6 @@ ALWAYS_INLINE void IService::EventLoop()
     _poller->EventLoop();
 }
 
-ALWAYS_INLINE void IService::SafetyEventLoop()
-{
-    _poller->SafetyEventLoop();
-}
-
 ALWAYS_INLINE void IService::OnLoopEnd()
 {
     _poller->OnLoopEnd();
@@ -358,6 +355,11 @@ ALWAYS_INLINE const std::set<const KERNEL_NS::CompObject *> &IService::GetALlFoc
 ALWAYS_INLINE std::set<const KERNEL_NS::CompObject *> &IService::GetALlFocusServiceModule()
 {
     return _forcusComps;
+}
+
+ALWAYS_INLINE Int32 IService::GetMaxPriorityLevel() const
+{
+    return _maxPriorityLevel;
 }
 
 ALWAYS_INLINE bool IService::IsServiceWillQuit() const

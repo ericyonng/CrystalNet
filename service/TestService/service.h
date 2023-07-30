@@ -31,4 +31,5 @@
 #include <service/common/common.h>
 #include <service/TestService/ServiceFactory.h>
 #include <service_common/ServiceCommon.h>
+#include <service/TestService/Common/ServiceLog.h>
 #include <service/TestService/TestService.h>

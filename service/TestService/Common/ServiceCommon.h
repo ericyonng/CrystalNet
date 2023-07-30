@@ -30,3 +30,6 @@
 
 #include <service/TestService/Common/DirtyType.h>
 #include <service/TestService/Common/EventEnums.h>
+#include <service/TestService/Common/ServicePollerEvent.h>
+#include <service/TestService/Common/ServiceLog.h>
+

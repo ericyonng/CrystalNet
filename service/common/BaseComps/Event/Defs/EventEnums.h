@@ -131,7 +131,11 @@ namespace EventEnums
                                                     */
 
         SERVICE_COMMON_SESSION_READY,   // 公共会话准备就绪
+
+        SERVICE_WILL_STARTUP,           // service启动完成
+        SERVICE_STARTUP,                // service 启动完成
         SERVICE_EVENT_END = 200,
+
 
         EVENT_COMMON_END = 65536,       // 公共事件集结束
     };

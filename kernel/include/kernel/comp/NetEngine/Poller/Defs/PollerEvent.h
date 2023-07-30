@@ -278,6 +278,7 @@ struct KERNEL_EXPORT SessionCreatedEvent : public PollerEvent
     UInt64 _stub;               // 存根 给需要回执的 一般是连接远程时会有stub透传 addListen也有
     bool _isFromConnect;        // 是否主动连接远程而创建的会话
     bool _isLinker;             // 是否监听者
+    Int32 _protocolStackType;   // 协议栈类型
 };
 
 // 连接回包

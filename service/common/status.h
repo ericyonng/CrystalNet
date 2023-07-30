@@ -37,5 +37,22 @@ namespace Status
         ServiceStatusBegin = Status::FrameStatusEnd + 1,    // 服务层状态码起始
 
         CreateNewStubFail = ServiceStatusBegin + 1,         // stub失败
+
+        LoadSystemTableFail = ServiceStatusBegin + 2,       // 拉取系统表失败
+
+        DBTableError = ServiceStatusBegin + 3,              // 数据表错误
+
+        DBAddDataFail = ServiceStatusBegin + 4,             // db添加数据失败
+        DBAffectedRowsNotEnough = ServiceStatusBegin + 5,             // db数据变更行数没达到预期行数
+
+        ParseFail = ServiceStatusBegin + 6,                 // 解析失败
+        CreateTableInfoInSystemTableFail = ServiceStatusBegin + 7,  // 在系统表创建表结构失败
+        MysqlMgrCheckLogicFail = ServiceStatusBegin + 8,    // 检查logic时校验失败(table名不可超过64字节, field name不可超过64字节)
+        MysqlMgrFillStorageInfoFail,                        // 填充storageinfo时候失败
+
+        DBLoadDataFail,                                     // db 加载数据失败
+        DBCreateTableSqlBuilderFail,                        // 创建db 建表sql builder失败
+        DBNewRequestFail,                                   // 创建新的db request失败
+        SerializeFail,                                      // 序列化失败
     };
 }

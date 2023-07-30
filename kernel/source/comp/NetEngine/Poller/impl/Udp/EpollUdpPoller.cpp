@@ -305,7 +305,6 @@
 //     _poller->SetMaxSleepMilliseconds(_cfg->_maxSleepMilliseconds);
 //     _poller->SetPepareEventWorkerHandler(this, &EpollTcpPoller::_OnPollerPrepare);
 //     _poller->SetEventWorkerCloseHandler(this, &EpollTcpPoller::_OnPollerWillDestroy);
-//     _poller->SetEventHandler(this, &EpollTcpPoller::_OnPollerEvent);
 
 //     // 脏回调
 //     auto dirtyHelper = _poller->GetDirtyHelper();

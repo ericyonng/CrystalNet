@@ -176,7 +176,8 @@ public:
 
     void Init(Int32 dirtyTypeAmount);
     void Destroy();
-    void SetHandler(Int32 dirtyType, IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType, Variant *> *handler);
+    void SetHandler(Int32 dirtyType, IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler);
+    void SetHandler(Int32 dirtyType, const IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler);
 
     // // 操作
     Variant *MaskDirty(KeyType k, Int32 dirtyType, bool fillParams = false);
@@ -202,7 +203,7 @@ private:
     // key => mask
     std::map<KeyType, DirtyMask<KeyType, MaskValue> *> _keyRefMask;
     // DirtyType => handler
-    std::vector<IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType, Variant *> *> _dirtyTypeRefHandler;      // dirtyType 按顺序执行
+    std::vector<IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *> _dirtyTypeRefHandler;      // dirtyType 按顺序执行
 
     // 延迟执行 只有_keyRefMask 中没有才会添加到delay队列
     std::vector<DirtyHelperDelayOp<KeyType, MaskValue> *> _delayOperations;
@@ -251,7 +252,7 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Destroy()
         });
     }
 
-    ContainerUtil::DelContainer(_dirtyTypeRefHandler, [](IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType, Variant *> *delg)->void{
+    ContainerUtil::DelContainer(_dirtyTypeRefHandler, [](IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *delg)->void{
         CRYSTAL_RELEASE_SAFE(delg);
     });
 
@@ -268,12 +269,21 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Destroy()
 }
 
 template<typename KeyType, typename MaskValue>
-inline void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyType, IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType, Variant *> *handler)
+inline void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyType, IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler)
 {
     auto h = _dirtyTypeRefHandler[dirtyType];
     if(UNLIKELY(h))
         CRYSTAL_DELETE_SAFE(h);
     _dirtyTypeRefHandler[dirtyType] = handler;
+}
+
+template<typename KeyType, typename MaskValue>
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyType, const IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler)
+{
+    auto h = _dirtyTypeRefHandler[dirtyType];
+    if(UNLIKELY(h))
+        CRYSTAL_DELETE_SAFE(h);
+    _dirtyTypeRefHandler[dirtyType] = const_cast<IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *>(handler);
 }
 
 template<typename KeyType, typename MaskValue>
@@ -410,7 +420,7 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &deadl
         if(UNLIKELY(!mask))
         {
             if(errorLog)
-                errorLog->AppendFormat("zero mask in dirty queue key[%llu]", UInt64(iter->first));
+                errorLog->AppendFormat("zero mask in dirty queue key:").Append(iter->first);
             iter = _keyRefMask.erase(iter);
             continue;
         }
@@ -424,17 +434,21 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &deadl
             if(LIKELY(handler))
             {
                 auto &variantDict = mask->_dirtyTypeRefVariant;
-                handler->Invoke(this, iter->first, variantDict[i]);
+                auto &k = (KeyType &)(iter->first);
+                handler->Invoke(this, k, variantDict[i]);
             }
             else
             {
                 mask->ClearFlag(i);
             }
 
-            if(UNLIKELY(performanceTemp.Update() >=  deadline))
+            if(LIKELY(deadline.GetCurCount() != 0))
             {
-                isTimeout = true;
-                break;
+                if(UNLIKELY(performanceTemp.Update() >=  deadline))
+                {
+                    isTimeout = true;
+                    break;
+                }
             }
         }
 
@@ -450,7 +464,7 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &deadl
         }
 
         // 片超时
-        if(UNLIKELY(isTimeout || (performanceTemp.Update() >=  deadline)))
+        if(UNLIKELY(isTimeout || ((deadline.GetCurCount() > 0) && (performanceTemp.Update() >=  deadline))))
             break;
     }
 

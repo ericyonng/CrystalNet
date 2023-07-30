@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+// 表结构信息
+message SimpleInfo
+{
+    // 当前自增id最大值（配合id池）
+    sint64 MaxIncId = 1;
+    // 标脏次数
+    sint64 DirtyCount = 2;
+    // 用于清档, 版本号和当前配置版本号不同则清档
+    sint64 VersionNo = 3;
+}

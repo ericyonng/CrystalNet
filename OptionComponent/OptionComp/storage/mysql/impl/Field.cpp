@@ -36,7 +36,7 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(Field);
 
-Field::Field(const LibString &tableName, const LibString &name, Int32 dataType, Record *owner)
+Field::Field(const LibString &tableName, const LibString &name, Int32 dataType, UInt64 flags, Record *owner)
 :_owner(owner)
 ,_index(-1)
 ,_name(name)
@@ -47,8 +47,11 @@ Field::Field(const LibString &tableName, const LibString &name, Int32 dataType, 
 ,_isNull(true)
 ,_isUnsigned(false)
 ,_isAutoIncField(false)
+,_isPrimaryKey(false)
+,_flags(flags)
+,_dataFlags(0)
 {
-
+    _UpdateDataFlags();
 }
 
 Field::~Field()
@@ -79,6 +82,9 @@ Field::Field(const Field &other)
     _isNull = other._isNull;
     _isUnsigned = other._isUnsigned;
     _isAutoIncField = other._isAutoIncField;
+    _isPrimaryKey = other._isPrimaryKey;
+    _flags = other._flags;
+    _dataFlags = other._dataFlags;
 }
 
 Field::Field(Field &&other)
@@ -109,6 +115,15 @@ Field::Field(Field &&other)
 
     _isAutoIncField = other._isAutoIncField;
     other._isAutoIncField = false;
+
+    _isPrimaryKey = other._isPrimaryKey;
+    other._isPrimaryKey = false;
+
+    _flags = other._flags;
+    other._flags = 0;
+
+    _dataFlags = other._dataFlags;
+    other._dataFlags = 0;
 }
 
 void Field::Write(const void *data, Int64 dataSize)
@@ -128,12 +143,153 @@ void Field::Write(const void *data, Int64 dataSize)
     SetIsNull(false);
 }
 
+LibString Field::GetValueTextCompatible() const
+{
+    if(UNLIKELY(!_data || (_dataType == MYSQL_TYPE_NULL)))
+        return "";
+
+    LibStream<_Build::TL> attach; 
+    attach.Attach(*_data);
+
+    LibString data;
+    switch (_dataType)
+    {
+    case MYSQL_TYPE_TINY:
+    {// signed char
+        if(IsUnsigned())
+        {
+            auto value = attach.ReadUInt8();
+            data.AppendFormat("%u", value);
+        }
+        else
+        {
+            auto value = attach.ReadInt8();
+            data.AppendFormat("%d", value);
+        }
+    }
+    break;
+    case MYSQL_TYPE_SHORT:
+    {
+        if(IsUnsigned())
+        {
+            auto value = attach.ReadUInt16();
+            data.AppendFormat("%hu", value);
+        }
+        else
+        {
+            auto value = attach.ReadInt16();
+            data.AppendFormat("%hd", value);
+        }
+    }break;
+    case MYSQL_TYPE_LONG:
+    {
+        if(IsUnsigned())
+        {
+            auto value = attach.ReadUInt32();
+            data.AppendFormat("%u", value);
+        }
+        else
+        {
+            auto value = attach.ReadInt32();
+            data.AppendFormat("%d", value);
+        }
+    }break;
+    case MYSQL_TYPE_FLOAT:
+    {
+        auto value = attach.ReadFloat();
+        data.AppendFormat("%f", value);
+    }break;
+    case MYSQL_TYPE_DOUBLE:
+    {
+        auto value = attach.ReadDouble();
+        data.AppendFormat("%lf", value);
+    }break;
+    case MYSQL_TYPE_LONGLONG:
+    {
+        if(IsUnsigned())
+        {
+            auto value = attach.ReadUInt64();
+            data.AppendFormat("%llu", value);
+        }
+        else
+        {
+            auto value = attach.ReadInt64();
+            data.AppendFormat("%lld", value);
+        }
+    }break;
+    case MYSQL_TYPE_INT24:
+    {
+        if(IsUnsigned())
+        {
+            auto value = attach.ReadUInt32();
+            data.AppendFormat("%u", value);
+        }
+        else
+        {
+            auto value = attach.ReadInt32();
+            data.AppendFormat("%d", value);
+        }
+    }break;
+    case MYSQL_TYPE_TIMESTAMP:
+    case MYSQL_TYPE_DATE:
+    case MYSQL_TYPE_TIME:
+    case MYSQL_TYPE_DATETIME:
+    {
+        GetDateTime(data);
+
+    auto buffer = reinterpret_cast<Byte8 *>(KERNEL_ALLOC_MEMORY_TL((data.size() * 2 + 1)));
+        ::memset(buffer, 0, static_cast<size_t>(data.size() * 2 + 1));
+        mysql_escape_string(buffer, data.data(), static_cast<ULong>(data.size()));
+        data.clear();
+        data.AppendData(buffer, ::strlen(buffer));
+        KERNEL_FREE_MEMORY_TL(buffer);
+    }break;
+    case MYSQL_TYPE_JSON:
+    case MYSQL_TYPE_VAR_STRING:
+    case MYSQL_TYPE_STRING:
+    {
+        auto buffer = reinterpret_cast<Byte8 *>(KERNEL_ALLOC_MEMORY_TL((attach.GetReadableSize() * 2 + 1)));
+        ::memset(buffer, 0, static_cast<size_t>(attach.GetReadableSize() * 2 + 1));
+        mysql_escape_string(buffer, attach.GetReadBegin(), static_cast<ULong>(attach.GetReadableSize()));
+        data.clear();
+        data.AppendData(buffer, ::strlen(buffer));
+        KERNEL_FREE_MEMORY_TL(buffer);
+    }break;
+    case MYSQL_TYPE_TINY_BLOB:
+    case MYSQL_TYPE_MEDIUM_BLOB:
+    case MYSQL_TYPE_LONG_BLOB:
+    case MYSQL_TYPE_BLOB:
+    {// 二进制的打印成hex格式
+        data.AppendFormat("[HEX DATA]:");
+        StringUtil::ToHexStringView(attach.GetReadBegin(), attach.GetReadableSize(), data);
+    }break;
+    default:
+    {
+        data.AppendFormat("[UNKNOWN DATA TYPE:%d %s HEX DATA]:", _dataType, DataTypeString(_dataType));
+        StringUtil::ToHexStringView(attach.GetReadBegin(), attach.GetReadableSize(), data);
+    }break;
+    }
+
+    return data;
+}
+
+bool Field::IsUnsigned() const
+{
+    return _isUnsigned || ((_flags & UNSIGNED_FLAG) == UNSIGNED_FLAG);
+}
+
 Int64 Field::GetDataSize() const
 {
     if(UNLIKELY(!_data))
         return 0;
 
     return _data->GetWriteBytes();
+}
+
+void Field::SetType(Int32 mysqlFieldType)
+{
+    _dataType = mysqlFieldType;
+    _UpdateDataFlags();
 }
 
 const Byte8 *Field::DataTypeString(Int32 dataType)
@@ -181,6 +337,15 @@ const Byte8 *Field::DataTypeString(Int32 dataType)
     return "UNKNOWN_DATA_TYPE";
 }
 
+void Field::SetData(LibStream<_Build::TL> *newData)
+{
+    if(LIKELY(_data))
+        LibStream<_Build::TL>::DeleteThreadLocal_LibStream(_data);
+
+    _data = newData;
+}
+
+
 // 写数据
 void Field::SetInt8(Byte8 v)
 {
@@ -190,6 +355,8 @@ void Field::SetInt8(Byte8 v)
     _dataType = MYSQL_TYPE_TINY;
     _isNull = false;
     _isUnsigned = false;
+
+    _UpdateDataFlags();
 }
 
 void Field::SetInt16(Int16 v)
@@ -200,6 +367,8 @@ void Field::SetInt16(Int16 v)
     _dataType = MYSQL_TYPE_SHORT;
     _isNull = false;
     _isUnsigned = false;
+
+    _UpdateDataFlags();
 }
 
 void Field::SetInt32(Int32 v)
@@ -210,6 +379,8 @@ void Field::SetInt32(Int32 v)
     _dataType = MYSQL_TYPE_LONG;
     _isNull = false;
     _isUnsigned = false;
+
+    _UpdateDataFlags();
 }
 
 void Field::SetInt64(Int64 v)
@@ -220,6 +391,8 @@ void Field::SetInt64(Int64 v)
     _dataType = MYSQL_TYPE_LONGLONG;
     _isNull = false;
     _isUnsigned = false;
+
+    _UpdateDataFlags();
 }
 
 void Field::SetUInt8(U8 v)
@@ -230,6 +403,8 @@ void Field::SetUInt8(U8 v)
     _dataType = MYSQL_TYPE_TINY;
     _isNull = false;
     _isUnsigned = true;
+
+    _UpdateDataFlags();
 }
 
 void Field::SetUInt16(UInt16 v)
@@ -250,7 +425,10 @@ void Field::SetUInt32(UInt32 v)
     _dataType = MYSQL_TYPE_LONG;
     _isNull = false;
     _isUnsigned = true;
+
+    _UpdateDataFlags();
 }
+
 void Field::SetUInt64(UInt64 v)
 {
     _data->Reset();
@@ -259,6 +437,8 @@ void Field::SetUInt64(UInt64 v)
     _dataType = MYSQL_TYPE_LONGLONG;
     _isNull = false;
     _isUnsigned = true;
+
+    _UpdateDataFlags();
 }
 
 void Field::SetFloat(Float v)
@@ -269,6 +449,8 @@ void Field::SetFloat(Float v)
     _dataType = MYSQL_TYPE_FLOAT;
     _isNull = false;
     _isUnsigned = false;
+
+    _UpdateDataFlags();
 }
 
 void Field::SetDouble(Double v)
@@ -279,16 +461,8 @@ void Field::SetDouble(Double v)
     _dataType = MYSQL_TYPE_DOUBLE;
     _isNull = false;
     _isUnsigned = false;
-}
 
-void Field::SetString(const LibString &str)
-{
-    _data->Reset();
-    _data->Write(str.data(), static_cast<Int64>(str.size()));
-
-    _dataType = MYSQL_TYPE_VAR_STRING;
-    _isNull = false;
-    _isUnsigned = false;
+    _UpdateDataFlags();
 }
 
 void Field::SetString(const void *str, UInt64 strLen)
@@ -299,6 +473,8 @@ void Field::SetString(const void *str, UInt64 strLen)
     _dataType = MYSQL_TYPE_VAR_STRING;
     _isNull = false;
     _isUnsigned = false;
+
+    _UpdateDataFlags();
 }
 
 void Field::SetDatetime(const LibString &tm)
@@ -326,16 +502,20 @@ void Field::SetDatetime(const LibTime &t)
     _dataType = MYSQL_TYPE_DATETIME;
     _isNull = false;
     _isUnsigned = true;
+
+    _UpdateDataFlags();
 }
 
-void Field::SetBlob(const LibString &b)
+void Field::SetVarBinary(const void *b, UInt64 sz)
 {
     _data->Reset();
-    _data->Write(b.data(), static_cast<Int64>(b.size()));
+    _data->Write(b, static_cast<Int64>(sz));
 
     _dataType = MYSQL_TYPE_BLOB;
     _isNull = false;
     _isUnsigned = false;   
+
+    _UpdateDataFlags();
 }
 
 void Field::SetBlob(const void *p, UInt64 len)
@@ -346,16 +526,8 @@ void Field::SetBlob(const void *p, UInt64 len)
     _dataType = MYSQL_TYPE_BLOB;
     _isNull = false;
     _isUnsigned = false;  
-}
 
-void Field::SetMediumBlob(const LibString &b)
-{
-    _data->Reset();
-    _data->Write(b.data(), static_cast<Int64>(b.size()));
-
-    _dataType = MYSQL_TYPE_MEDIUM_BLOB;
-    _isNull = false;
-    _isUnsigned = false;
+    _UpdateDataFlags();
 }
 
 void Field::SetMediumBlob(const void *p, UInt64 len)
@@ -366,16 +538,8 @@ void Field::SetMediumBlob(const void *p, UInt64 len)
     _dataType = MYSQL_TYPE_MEDIUM_BLOB;
     _isNull = false;
     _isUnsigned = false;
-}
 
-void Field::SetLongBlob(const LibString &b)
-{
-    _data->Reset();
-    _data->Write(b.data(), static_cast<Int64>(b.size()));
-
-    _dataType = MYSQL_TYPE_LONG_BLOB;
-    _isNull = false;
-    _isUnsigned = false;
+    _UpdateDataFlags();
 }
 
 void Field::SetLongBlob(const void *p, UInt64 len)
@@ -386,181 +550,403 @@ void Field::SetLongBlob(const void *p, UInt64 len)
     _dataType = MYSQL_TYPE_LONG_BLOB;
     _isNull = false;
     _isUnsigned = false;
+
+    _UpdateDataFlags();
 }
 
 // 读数据
 Byte8 Field::GetInt8() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadInt8();
-    return v;
+    if(LIKELY(streamCache.CanRead(1)))
+        return streamCache.ReadInt8();
+
+    return 0;
 }
 
 Int16 Field::GetInt16() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadInt16();
+    Int64 bytes = static_cast<Int64>(sizeof(Int16));
+    bytes = bytes >= streamCache.GetReadableSize() ? streamCache.GetReadableSize() : bytes;
+
+    if(UNLIKELY(bytes == 0))
+        return 0;
+
+    Int16 v = 0;
+    streamCache.Read(&v, bytes);
     return v;   
 }
 
 Int32 Field::GetInt32() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadInt32();
+    Int64 bytes = static_cast<Int64>(sizeof(Int32));
+    bytes = bytes >= streamCache.GetReadableSize() ? streamCache.GetReadableSize() : bytes;
+
+    if(UNLIKELY(bytes == 0))
+        return 0;
+
+    Int32 v = 0;
+    streamCache.Read(&v, bytes);
     return v;   
 }
 
 Int64 Field::GetInt64() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+        
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadInt64();
-    return v; 
+    Int64 bytes = static_cast<Int64>(sizeof(Int64));
+    bytes = bytes >= streamCache.GetReadableSize() ? streamCache.GetReadableSize() : bytes;
+
+    if(UNLIKELY(bytes == 0))
+        return 0;
+
+    Int64 v = 0;
+    streamCache.Read(&v, bytes);
+    return v;
 }
 
 U8    Field::GetUInt8() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadUInt8();
-    return v; 
+    if(LIKELY(streamCache.CanRead(1)))
+        return streamCache.ReadUInt8();
+
+    return 0;
 }
 
 UInt16 Field::GetUInt16() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadUInt16();
-    return v; 
+    Int64 bytes = static_cast<Int64>(sizeof(UInt16));
+    bytes = bytes >= streamCache.GetReadableSize() ? streamCache.GetReadableSize() : bytes;
+
+    if(UNLIKELY(bytes == 0))
+        return 0;
+
+    UInt16 v = 0;
+    streamCache.Read(&v, bytes);
+    return v;   
 }
 
 UInt32 Field::GetUInt32() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadUInt32();
-    return v; 
+    Int64 bytes = static_cast<Int64>(sizeof(UInt32));
+    bytes = bytes >= streamCache.GetReadableSize() ? streamCache.GetReadableSize() : bytes;
+
+    if(UNLIKELY(bytes == 0))
+        return 0;
+
+    UInt32 v = 0;
+    streamCache.Read(&v, bytes);
+    return v;   
 }
 
 UInt64 Field::GetUInt64() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+        
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadUInt64();
-    return v; 
+    Int64 bytes = static_cast<Int64>(sizeof(UInt64));
+    bytes = bytes >= streamCache.GetReadableSize() ? streamCache.GetReadableSize() : bytes;
+
+    if(UNLIKELY(bytes == 0))
+        return 0;
+
+    UInt64 v = 0;
+    streamCache.Read(&v, bytes);
+    return v;
 }
 
 Float Field::GetFloat() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+        
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadFloat();
-    return v; 
+    Int64 bytes = static_cast<Int64>(sizeof(Float));
+    bytes = bytes >= streamCache.GetReadableSize() ? streamCache.GetReadableSize() : bytes;
+
+    if(UNLIKELY(bytes == 0))
+        return 0;
+
+    Float v = 0;
+    streamCache.Read(&v, bytes);
+    return v;
 }
 
 Double Field::GetDouble() const
 {
+    // 必须是数值型
+    if(UNLIKELY(!IsNumber()))
+        return 0;
+        
     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
     streamCache.Attach(*_data);
 
-    auto v = streamCache.ReadDouble();
-    return v; 
+    Int64 bytes = static_cast<Int64>(sizeof(Double));
+    bytes = bytes >= streamCache.GetReadableSize() ? streamCache.GetReadableSize() : bytes;
+
+    if(UNLIKELY(bytes == 0))
+        return 0;
+
+    Double v = 0;
+    streamCache.Read(&v, bytes);
+    return v;
 }
 
-void Field::GetString(LibString &str)
+void Field::GetString(LibString &str) const
 {
-    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
-    streamCache.Attach(*_data);
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
 
-    str.AppendData(streamCache.GetReadBegin(), streamCache.GetReadableSize());
+    str.AppendData(_data->GetReadBegin(), _data->GetReadableSize());
 }
 
-void Field::GetString(Byte8 *str, UInt64 strSize)
+void Field::GetString(Byte8 *str, UInt64 strSize) const
 {
-    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
-    streamCache.Attach(*_data);
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
 
-    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
-    ::memcpy(str, streamCache.GetReadBegin(), strSize > rBytes ? rBytes : strSize);
+    const auto rBytes = static_cast<UInt64>(_data->GetReadableSize());
+    ::memcpy(str, _data->GetReadBegin(), strSize > rBytes ? rBytes : strSize);
 }
 
-void Field::GetDatetime(LibString &dt)
+void Field::GetDateTime(LibString &dt) const
 {
+    // 必须是字符串类型
+    if(UNLIKELY(!IsString()))
+        return;
+
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
+
     MYSQL_TIME mt;
     ::memset(&mt, 0, sizeof(mt));
 
-    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
-    streamCache.Attach(*_data);
-
-    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
-    ::memcpy(&mt, streamCache.GetReadBegin(), sizeof(mt) > rBytes ? rBytes : sizeof(mt));
+    const auto rBytes = static_cast<UInt64>(_data->GetReadableSize());
+    ::memcpy(&mt, _data->GetReadBegin(), sizeof(mt) > rBytes ? rBytes : sizeof(mt));
 
     const auto &t = LibTime::FromTimeMoment(mt.year, mt.month, mt.day, mt.hour, mt.minute, mt.second, mt.second_part);
 
     dt = t.ToStringOfMillSecondPrecision();
 }
 
-void Field::GetBlob(LibString &b)
+void Field::GetVarBinary(LibString &b) const
 {
-    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
-    streamCache.Attach(*_data);
-
-    b.AppendData(streamCache.GetReadBegin(), streamCache.GetReadableSize());
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
+    
+    b.AppendData(_data->GetReadBegin(), _data->GetReadableSize());
 }
 
-void Field::GetBlob(Byte8 *b, UInt64 sz)
+void Field::GetVarBinary(void *b, UInt64 sz) const
 {
-    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
-    streamCache.Attach(*_data);
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
 
-    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
-    ::memcpy(b, streamCache.GetReadBegin(), sz > rBytes ? rBytes : sz);
+    const auto rBytes = static_cast<UInt64>(_data->GetReadableSize());
+    ::memcpy(b, _data->GetReadBegin(), sz > rBytes ? rBytes : sz);
 }
 
-void Field::GetMediumBlob(LibString &b)
+void Field::GetBlob(LibString &b) const
 {
-    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
-    streamCache.Attach(*_data);
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
 
-    b.AppendData(streamCache.GetReadBegin(), streamCache.GetReadableSize());
+    b.AppendData(_data->GetReadBegin(), _data->GetReadableSize());
 }
 
-void Field::GetMediumBlob(Byte8 *b, UInt64 sz)
+void Field::GetBlob(void *b, UInt64 sz) const
 {
-    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
-    streamCache.Attach(*_data);
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
 
-    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
-    ::memcpy(b, streamCache.GetReadBegin(), sz > rBytes ? rBytes : sz);
+    const auto rBytes = static_cast<UInt64>(_data->GetReadableSize());
+    ::memcpy(b, _data->GetReadBegin(), sz > rBytes ? rBytes : sz);
 }
 
-void Field::GetLongBlob(LibString &b)
+void Field::GetMediumBlob(LibString &b) const
 {
-    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
-    streamCache.Attach(*_data);
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
 
-    b.AppendData(streamCache.GetReadBegin(), streamCache.GetReadableSize());
+    b.AppendData(_data->GetReadBegin(), _data->GetReadableSize());
 }
 
-void Field::GetLongBlob(Byte8 *b, UInt64 sz)
+void Field::GetMediumBlob(void *b, UInt64 sz) const
 {
-    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> streamCache;
-    streamCache.Attach(*_data);
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
 
-    const auto rBytes = static_cast<UInt64>(streamCache.GetReadableSize());
-    ::memcpy(b, streamCache.GetReadBegin(), sz > rBytes ? rBytes : sz);
+    const auto rBytes = static_cast<UInt64>(_data->GetReadableSize());
+    ::memcpy(b, _data->GetReadBegin(), sz > rBytes ? rBytes : sz);
 }
+
+void Field::GetLongBlob(LibString &b) const
+{
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
+
+    b.AppendData(_data->GetReadBegin(), _data->GetReadableSize());
+}
+
+void Field::GetLongBlob(void *b, UInt64 sz) const
+{
+    if(UNLIKELY(_data->GetReadableSize() <= 0))
+        return;
+
+    const auto rBytes = static_cast<UInt64>(_data->GetReadableSize());
+    ::memcpy(b, _data->GetReadBegin(), sz > rBytes ? rBytes : sz);
+}
+
+void Field::_UpdateDataFlags()
+{
+   // 数据类型标记
+    switch (_dataType)
+    {
+        case MYSQL_TYPE_TINY:
+        {
+            if(_isUnsigned)
+            {
+                _dataFlags = NUMBER_FLAG | NUMBER_INT8 | UNSIGNED_FLAG;
+
+            }
+            else
+            {
+                _dataFlags = NUMBER_FLAG | NUMBER_INT8;
+            }
+        }break;
+        case MYSQL_TYPE_SHORT:
+        {
+            if(_isUnsigned)
+            {
+                _dataFlags = NUMBER_FLAG | NUMBER_INT16 | UNSIGNED_FLAG;
+            }
+            else
+            {
+                _dataFlags = NUMBER_FLAG | NUMBER_INT16;
+            }
+        }break;
+        case MYSQL_TYPE_INT24:
+        case MYSQL_TYPE_LONG:
+        {
+            if(_isUnsigned)
+            {
+                _dataFlags = NUMBER_FLAG | NUMBER_INT32 | UNSIGNED_FLAG;
+
+            }
+            else
+            {
+                _dataFlags = NUMBER_FLAG | NUMBER_INT32;
+            }
+        }break;
+        case MYSQL_TYPE_FLOAT:
+        {
+            _dataFlags = NUMBER_FLAG | NUMBER_FLOAT;
+        }break;
+        case MYSQL_TYPE_DOUBLE:
+        {
+            _dataFlags = NUMBER_FLAG | NUMBER_DOUBLE;
+        }break;
+        case MYSQL_TYPE_LONGLONG:
+        {
+            if(_isUnsigned)
+            {
+                _dataFlags = NUMBER_FLAG | NUMBER_INT64 | UNSIGNED_FLAG;
+            }
+            else
+            {
+                _dataFlags = NUMBER_FLAG | NUMBER_INT64;
+            }
+
+        }break;
+        case MYSQL_TYPE_TIMESTAMP:
+        case MYSQL_TYPE_DATE:
+        case MYSQL_TYPE_TIME:
+        case MYSQL_TYPE_DATETIME:
+        {
+            _dataFlags = TIME_STRING;
+        }break;
+        case MYSQL_TYPE_JSON:
+        {
+            _dataFlags = JSON_STRING;
+        }break;
+        case MYSQL_TYPE_VAR_STRING:
+        {
+            _dataFlags = NORMAL_BINARY_FLAG;
+        }break;
+        case MYSQL_TYPE_TINY_BLOB:
+        {
+            _dataFlags = TINY_BINARY_FLAG;
+        }break;
+        case MYSQL_TYPE_MEDIUM_BLOB:
+        {
+            _dataFlags = MEDIUM_BINARY_FLAG;
+        }break;
+        case MYSQL_TYPE_LONG_BLOB:
+        {
+            _dataFlags = LONG_BINARY_FLAG;
+        }break;
+        case MYSQL_TYPE_BLOB:
+        {
+            _dataFlags = NORMAL_BINARY_FLAG;
+        }break;
+        default:
+            break;
+    }
+}
+
+
 
 KERNEL_END

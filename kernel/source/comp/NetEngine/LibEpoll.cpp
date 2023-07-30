@@ -79,7 +79,7 @@ Int32 LibEpoll::Ctl(Int32 opType, Int32 fd, epoll_event *ev)
     // epoll_ctl 是线程安全的
     if(::epoll_ctl(_evFd, opType, fd, ev) == EpollDefs::EpollError)
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("::epoll_ctl fail evFd[%d] optye[%d] fd[%d] ev[%p] eventFlags[%x]")
+        g_Log->NetError(LOGFMT_OBJ_TAG("::epoll_ctl fail evFd[%d] optye[%d] fd[%d] ev[%p] eventFlags[%llx]")
                            , _evFd, opType, fd, ev, ev->events);
         return Status::Failed;
     }
@@ -113,7 +113,7 @@ Int32 LibEpoll::AddEvent(Int32 newFd, UInt32 eventFlags)
 
     if(::epoll_ctl(_evFd, EPOLL_CTL_ADD, newFd, &ev) == EpollDefs::EpollError)
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("::epoll_ctl(evFd[%d], add, newFd[%d], ev(%p) eventFlags[%x]) fail")
+        g_Log->NetError(LOGFMT_OBJ_TAG("::epoll_ctl(evFd[%d], add, newFd[%d], ev(%p) eventFlags[%llx]) fail")
                            , _evFd, newFd, &ev, eventFlags);
         return Status::Failed;
     }

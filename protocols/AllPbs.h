@@ -33,7 +33,9 @@
 
 #include <protocols/cplusplus/com.pb.h>
 #include <protocols/cplusplus/com_player.pb.h>
+#include <protocols/cplusplus/com_system_table.pb.h>
 #include <protocols/cplusplus/com_title.pb.h>
+#include <protocols/cplusplus/comp_test.pb.h>
 #include <protocols/cplusplus/login.pb.h>
 #include <protocols/cplusplus/player.pb.h>
 #include <protocols/cplusplus/test_opcode.pb.h>

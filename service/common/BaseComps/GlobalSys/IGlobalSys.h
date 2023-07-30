@@ -104,6 +104,10 @@ protected:
     virtual Int32 _OnSysInit() final;
     virtual Int32 _OnGlobalSysInit() { return Status::Success; }
 
+    virtual Int32 _OnSysCompsCreated() final;
+    virtual Int32 _OnGlobalSysCompsCreated() { return Status::Success; }
+
+
     /*
     * 在组件 close 之后 global close
     * Attention:给IGlobalSys使用 派生类使用：_OnGlobalSysClose
@@ -114,6 +118,12 @@ protected:
 
 private:
     void _Clear();
+
+    void _OnWillStartupEv(KERNEL_NS::LibEvent *ev);
+    void _OnStartupEv(KERNEL_NS::LibEvent *ev);
+
+    KERNEL_NS::ListenerStub _onServiceWillStartupStub;
+    KERNEL_NS::ListenerStub _onServiceStartupStub;
 };
 
 template<typename SysType>

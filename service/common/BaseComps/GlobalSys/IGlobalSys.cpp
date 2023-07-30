@@ -29,12 +29,15 @@
 #include <pch.h>
 #include <service/common/BaseComps/GlobalSys/IGlobalSys.h>
 #include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
+#include <service/common/BaseComps/Storage/storage.h>
 
 SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IGlobalSys);
 
 IGlobalSys::IGlobalSys()
+:_onServiceWillStartupStub(INVALID_LISTENER_STUB)
+,_onServiceStartupStub(INVALID_LISTENER_STUB)
 {
 }
 
@@ -255,10 +258,30 @@ Int32 IGlobalSys::_OnSysInit()
 {
     SetEventMgr(GetService()->GetEventMgr());
 
+    _onServiceWillStartupStub = GetEventMgr()->AddListener(EventEnums::SERVICE_WILL_STARTUP, this, &IGlobalSys::_OnWillStartupEv);
+    _onServiceStartupStub = GetEventMgr()->AddListener(EventEnums::SERVICE_STARTUP, this, &IGlobalSys::_OnStartupEv);
+
     auto st = _OnGlobalSysInit();
     if(st != Status::Success)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("global sys init fail %s"), ToString().c_str());
+        return st;
+    }
+
+    return Status::Success;
+}
+
+Int32 IGlobalSys::_OnSysCompsCreated()
+{
+    // 全局系统需要启动时加载数据
+    auto storageInfo = GetStorageInfo();
+    if(storageInfo)
+        storageInfo->AddFlags(StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG);
+        
+    auto st = _OnGlobalSysCompsCreated();
+    if(st != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("_OnGlobalSysCompsCreated fail st:%d, global sys:%s"), GetObjName().c_str());
         return st;
     }
 
@@ -279,7 +302,21 @@ void IGlobalSys::_OnGlobalSysClose()
 
 void IGlobalSys::_Clear()
 {
+    if(_onServiceWillStartupStub != INVALID_LISTENER_STUB)
+        GetEventMgr()->RemoveListenerX(_onServiceWillStartupStub);
 
+    if(_onServiceStartupStub != INVALID_LISTENER_STUB)
+        GetEventMgr()->RemoveListenerX(_onServiceStartupStub);
+}
+
+void IGlobalSys::_OnWillStartupEv(KERNEL_NS::LibEvent *ev)
+{
+    OnWillStartup();
+}
+
+void IGlobalSys::_OnStartupEv(KERNEL_NS::LibEvent *ev)
+{
+    OnStartup();
 }
 
 SERVICE_END

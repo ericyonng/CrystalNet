@@ -65,6 +65,8 @@ public:
         Trace = 15,         // 追踪
 
         Monitor = 16,       // 监控日志
+        FailSql = 17,       // sql 失败
+        DumpSql = 18,       // 打印sql
         End,
     };
 };

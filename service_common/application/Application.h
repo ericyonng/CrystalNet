@@ -71,7 +71,7 @@ public:
     void SetMaxEventType(Int32 maxEventType);
     Int32 GetMaxEventType() const;
 
-    void SinalFinish(Int32 err) override;
+    void SinalFinish(Int32 err = Status::Success) override;
 
 protected:
     // 在组件初始化前
@@ -93,7 +93,6 @@ protected:
     virtual void _OnMonitorThreadFrame();
     
     void _OnQuitApplicationEvent(KERNEL_NS::PollerEvent *ev);
-    void _OnMsg(KERNEL_NS::PollerEvent *ev) override;
 
     // 每帧打印
 private:
@@ -130,9 +129,6 @@ private:
     StatisticsInfo *_statisticsInfo;
     StatisticsInfo *_statisticsInfoCache;
 
-    // 消息
-    typedef void (Application::*PollerEventHandler)(KERNEL_NS::PollerEvent *msg);
-    std::vector<PollerEventHandler> _pollerEventHandler;
     Int32 _maxEventType;
 };
     
@@ -197,10 +193,7 @@ ALWAYS_INLINE void Application::PushResponceNs(UInt64 costNs)
 ALWAYS_INLINE void Application::SetMaxEventType(Int32 maxEventType)
 {
     if(maxEventType >= _maxEventType)
-    {
         _maxEventType = maxEventType;
-        _pollerEventHandler.resize(_maxEventType + 1);
-    }
 }
 
 ALWAYS_INLINE Int32 Application::GetMaxEventType() const

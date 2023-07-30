@@ -322,6 +322,7 @@ SessionCreatedEvent::SessionCreatedEvent()
 ,_stub(0)
 ,_isFromConnect(false)
 ,_isLinker(false)
+,_protocolStackType(0)
 {
 
 }
@@ -347,6 +348,7 @@ LibString SessionCreatedEvent::ToString() const
         .AppendFormat("_stub:%llu, \n", _stub)
         .AppendFormat("_isFromConnect:%s, \n", _isFromConnect ? "true" : "false")
         .AppendFormat("_isLinker:%s, \n", _isLinker ? "true" : "false")
+        .AppendFormat("_protocolStackType:%d, \n", _protocolStackType)
         ;
 
     return info;

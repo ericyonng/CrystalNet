@@ -192,6 +192,30 @@ bool LibIniFile::CheckReadNumber(const Byte8 *segmentName, const Byte8 *keyName,
     return false;
 }
 
+bool LibIniFile::CheckReadNumber(const Byte8 *segmentName, const Byte8 *keyName, Int32 &result) const
+{
+    LibString cache;
+    if(_ReadStr(segmentName, keyName, cache) && !cache.empty())
+    {
+        result = StringUtil::StringToInt32(cache.c_str());
+        return true;
+    }
+
+    return false;
+}
+
+bool LibIniFile::CheckReadNumber(const Byte8 *segmentName, const Byte8 *keyName, UInt32 &result) const
+{
+    LibString cache;
+    if(_ReadStr(segmentName, keyName, cache) && !cache.empty())
+    {
+        result = StringUtil::StringToUInt32(cache.c_str());
+        return true;
+    }
+
+    return false;
+}
+
 bool LibIniFile::CheckReadNumber(const Byte8 *segmentName, const Byte8 *keyName, Double &result) const
 {
     LibString cache;
@@ -309,7 +333,7 @@ bool LibIniFile::WriteFileHeaderAnnotation(const LibString &content)
     return _InsertNewLineData(firstSegLine, willWriteContent);
 }
 
-const std:: map<LibString, LibString> *LibIniFile::GetSegmentCfgs(const Byte8 *segmentName) const
+const std::unordered_map<LibString, LibString> *LibIniFile::GetSegmentCfgs(const Byte8 *segmentName) const
 {
     auto iterKeyValue = _segmentRefKeyValues.find(segmentName);
     if(iterKeyValue == _segmentRefKeyValues.end())
@@ -347,7 +371,7 @@ bool LibIniFile::_LoadAllCfgs()
         _segmentRefKeyValues.clear();
         _segmentRefMaxValidLine.clear();
 
-        std::map<LibString, LibString> *curKeyValues = NULL;
+        std::unordered_map<LibString, LibString> *curKeyValues = NULL;
         LibString curSegment;
         while(true)
         {
@@ -390,7 +414,7 @@ bool LibIniFile::_LoadAllCfgs()
         {
             const auto &multilineContent = _fromMemory.Split(LibString(IniFileDefs::_changeLineFlag));
 
-             std::map<LibString, LibString> *curKeyValues = NULL;
+            std::unordered_map<LibString, LibString> *curKeyValues = NULL;
             LibString curSegment;
             for(auto &lineCache : multilineContent)
             {
@@ -436,7 +460,7 @@ bool LibIniFile::_WriteStr(const Byte8 *segmentName, const Byte8 *keyName, const
     auto iterKeyValue = _segmentRefKeyValues.find(segmentName);
     if(iterKeyValue == _segmentRefKeyValues.end())
     {
-        iterKeyValue = _segmentRefKeyValues.insert(std::make_pair(segmentName, std::map<LibString, LibString>())).first;
+        iterKeyValue = _segmentRefKeyValues.insert(std::make_pair(segmentName, std::unordered_map<LibString, LibString>())).first;
         _segOrKeyRefLine.insert(std::make_pair(segmentName, ++_maxLine));
 
         LibString segContent = LibString(IniFileDefs::_leftSegmentFlag);
@@ -622,14 +646,14 @@ void LibIniFile::_OnReadValidData(const LibString &validContent
                                   , Int32 contentType
                                   , Int32 line
                                   , LibString &curSegment
-                                  , std::map<LibString, LibString> *&curKeyValues)
+                                  , std::unordered_map<LibString, LibString> *&curKeyValues)
 {
     if(contentType == IniFileDefs::ContentType::Segment)
     {// 是段
         curSegment = validContent;
         auto iterKeyValues = _segmentRefKeyValues.find(curSegment);
         if(iterKeyValues == _segmentRefKeyValues.end())
-            iterKeyValues = _segmentRefKeyValues.insert(std::make_pair(curSegment, std::map<LibString, LibString>())).first;
+            iterKeyValues = _segmentRefKeyValues.insert(std::make_pair(curSegment, std::unordered_map<LibString, LibString>())).first;
         curKeyValues = &(iterKeyValues->second);
 
         // 记录段所在的行号

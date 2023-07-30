@@ -35,6 +35,7 @@ namespace EventEnums
     enum 
     {
         TEST_SERVICE_EVENT_BEGIN = EventEnums::EVENT_COMMON_END + 1,
-        
+
+        DB_LOADED_FINISH_ON_STARTUP,         // db加载完毕事件
     };
 }

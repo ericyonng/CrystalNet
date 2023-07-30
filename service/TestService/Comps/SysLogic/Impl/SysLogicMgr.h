@@ -58,20 +58,20 @@ public:
                     , Int32 sessionCount = 1
                     , UInt32 priorityLevel = PriorityLevelDefine::OUTER1
                     , Int32 sessionType = SessionType::OUTER
-                    , Int32 family = AF_INET) const;
+                    , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
   Int32 AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
   , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg
   , Int32 sessionCount = 1
   , UInt32 priorityLevel = PriorityLevelDefine::OUTER1
   , Int32 sessionType = SessionType::OUTER
-  , Int32 family = AF_INET) const;
+  , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
   Int32 AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port, UInt64 &stub
   , Int32 sessionCount = 1
   , UInt32 priorityLevel = PriorityLevelDefine::OUTER1
   , Int32 sessionType = SessionType::OUTER
-  , Int32 family = AF_INET) const;
+  , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
   /*
   * 连接远程
@@ -87,6 +87,7 @@ public:
   , UInt32 priorityLevel = PriorityLevelDefine::INNER /* 消息队列优先级 */
   , Int32 sessionType = SessionType::INNER /* 会话类型 */
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
+  , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const;
 
 protected:
@@ -117,10 +118,10 @@ ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UI
                 , Int32 sessionCount
                 , UInt32 priorityLevel
                 , Int32 sessionType
-                , Int32 family) const
+                , Int32 family, Int32 protocolStackType) const
 {
     auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
-    auto st = AddTcpListen(ip, port, stub, delg, sessionCount, priorityLevel, sessionType, family);
+    auto st = AddTcpListen(ip, port, stub, delg, sessionCount, priorityLevel, sessionType, family, protocolStackType);
     if(st != Status::Success)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail st:%d, ip:%s, port:%hu, sessionType:%d, family:%d"), st, ip.c_str(), port, sessionType, family);
@@ -131,9 +132,9 @@ ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UI
     return st;
 }
 
-ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, UInt32 priorityLevel, Int32 sessionType, Int32 family) const
+ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, UInt32 priorityLevel, Int32 sessionType, Int32 family, Int32 protocolStackType) const
 {
-    return AddTcpListen(ip, port, stub, NULL, sessionCount, priorityLevel, sessionType, family);
+    return AddTcpListen(ip, port, stub, NULL, sessionCount, priorityLevel, sessionType, family, protocolStackType);
 }
 
 SERVICE_END

@@ -108,6 +108,8 @@ public:
     template<typename CompFactoryType>
     Int32 RegisterComp();
     Int32 RegisterComp(CompFactory *factory);
+    // 一次性注册多个
+    Int32 RegisterComp(const std::vector<CompFactory *> &factory);
     Int32 RegisterComp(CompObject *comp);
 
     template<typename CompType>
@@ -168,6 +170,9 @@ private:
 
     void _OnUpdateComps();
 
+    void _Release(CompFactory *factory);
+    void _Release(const std::vector<CompFactory *> &factorys);
+
 private:
     // 委托注册
     class _WillRegComp
@@ -199,8 +204,7 @@ ALWAYS_INLINE Int32 CompHostObject::RegisterComp()
     Int32 ret = RegisterComp(newFactory);
     if(ret != Status::Success)
     {
-        newFactory->Release();
-        newFactory = NULL;
+        _Release(newFactory);
         return ret;
     }
 
@@ -513,6 +517,17 @@ ALWAYS_INLINE void CompHostObject::_RemoveComp(CompObject *comp)
     comp->WillClose();
     comp->Close();
     comp->Release();
+}
+
+ALWAYS_INLINE void CompHostObject::_Release(CompFactory *factory)
+{
+    factory->Release();
+}
+
+ALWAYS_INLINE void CompHostObject::_Release(const std::vector<CompFactory *> &factorys)
+{
+    for(auto factory : factorys)
+        factory->Release();
 }
 
 

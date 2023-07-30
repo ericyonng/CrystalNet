@@ -29,6 +29,8 @@
 #pragma once
 
 #include <service/common/BaseComps/Event/Event.h>
+#include <service/common/BaseComps/ServiceCompType.h>
 #include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <service/common/BaseComps/Storage/storage.h>
 

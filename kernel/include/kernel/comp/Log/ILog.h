@@ -148,6 +148,12 @@ public:
     // 追踪日志
     void Trace(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(6, 7);
 
+    // sql
+    template<typename... Args>
+    void FailSql(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args);
+    template<typename... Args>
+    void DumpSql(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args);
+
     // // hook函数安装与卸载 // 线程不安全 原则上不可在多线程环境下使用 必须在单线程情况下设置与卸载
 public:
     template<typename ObjType>
@@ -401,6 +407,18 @@ inline void ILog::Trace(const Byte8 *tag, const char *fileName, const char *func
     va_start(va, fmt);
     _Common5(tag, codeLine, LogLevel::Trace, fmt, va, finalSize);
     va_end(va);
+}
+
+template<typename... Args>
+ALWAYS_INLINE void ILog::FailSql(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
+{
+    _Common6(tag, codeLine, LogLevel::FailSql, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+ALWAYS_INLINE void ILog::DumpSql(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
+{
+    _Common6(tag, codeLine, LogLevel::DumpSql, std::forward<Args>(args)...);
 }
 
 template<typename ObjType>

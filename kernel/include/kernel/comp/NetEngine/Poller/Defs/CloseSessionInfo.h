@@ -83,7 +83,7 @@ struct KERNEL_EXPORT CloseSessionInfo
     LibString ToString() const
     {
         LibString reason;
-        reason.AppendFormat("_reason = [%llu, %x, %s], _lastErrNo=[%d]", _reason, static_cast<UInt32>(_reason), ToReasonString(_reason).c_str(),  _lastErrNo);
+        reason.AppendFormat("_reason = [%llu, %llx, %s], _lastErrNo=[%d]", _reason, _reason, ToReasonString(_reason).c_str(),  _lastErrNo);
 
         return reason;
     }

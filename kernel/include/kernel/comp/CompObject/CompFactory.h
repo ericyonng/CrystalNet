@@ -50,6 +50,10 @@ public:
     virtual void Release() = 0;
 
     virtual CompObject *Create() const = 0;
+
+    // 派生类无需要重写以下静态接口任意一个
+    // static KERNEL_NS::CompFactory *FactoryCreate();
+    // static std::vector<KERNEL_NS::CompFactory *> FactoryCreate();
 };
 
 KERNEL_END

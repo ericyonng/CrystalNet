@@ -55,6 +55,7 @@ struct KERNEL_EXPORT SessionOption
     UInt64 _maxPacketSize;          // 最大包大小
     bool _forbidRecv;               // 禁止接收数据
     Int32 _sessionType;             // 会话的类型
+    Int32 _protocolStackType;           // 协议栈类型
     UInt64 _sessionRecvPacketContentLimit;             // 包内容大小限制 0表示无限制
     UInt64 _sessionSendPacketContentLimit;             // 包内容大小限制 0表示无限制
 };

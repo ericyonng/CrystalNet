@@ -59,7 +59,7 @@ void SysLogicMgr::Release()
 Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
 , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg
 , Int32 sessionCount
-, UInt32 priorityLevel, Int32 sessionType, Int32 family) const
+, UInt32 priorityLevel, Int32 sessionType, Int32 family, Int32 protocolStackType) const
 {
     // 1.校验ip
     if(!ip.empty())
@@ -107,6 +107,7 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
 
     option._forbidRecv = true;
     option._sessionType = sessionType;
+    option._protocolStackType = protocolStackType;
 
     // 消息接收限制
     switch (option._sessionType)
@@ -159,6 +160,7 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 r
 , UInt32 priorityLevel /* 消息队列优先级 */
 , Int32 sessionType /* 会话类型 */
 , Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
+, Int32 protocolStackType
 ) const
 {
     // 1.校验参数
@@ -206,6 +208,7 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 r
 
     option._forbidRecv = false;
     option._sessionType = sessionType;
+    option._protocolStackType = protocolStackType;
 
     // 消息发送限速
     switch (option._sessionType)
@@ -269,7 +272,9 @@ Int32 SysLogicMgr::_OnHostStart()
                                 , addrInfo->_listenSessionCount
                                 , addrInfo->_priorityLevel
                                 , addrInfo->_sessionType
-                                , addrInfo->_af);
+                                , addrInfo->_af
+                                ,addrInfo->_localProtocolStackType
+                                );
 
         if(st != Status::Success)
         {
@@ -297,7 +302,8 @@ Int32 SysLogicMgr::_OnHostStart()
         , 12000
         ,  PriorityLevelDefine::INNER
         ,  SessionType::INNER
-        , KERNEL_NS::SocketUtil::IsIpv4(centerAddr->_remoteIp) ? AF_INET : AF_INET6);
+        , KERNEL_NS::SocketUtil::IsIpv4(centerAddr->_remoteIp) ? AF_INET : AF_INET6
+        , centerAddr->_remoteProtocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, centerAddr->ToString().c_str());
@@ -328,7 +334,8 @@ Int32 SysLogicMgr::_OnHostStart()
         , 0
         ,  addr->_priorityLevel
         ,  addr->_sessionType
-        , KERNEL_NS::SocketUtil::IsIpv4(addr->_remoteIp) ? AF_INET : AF_INET6);
+        , KERNEL_NS::SocketUtil::IsIpv4(addr->_remoteIp) ? AF_INET : AF_INET6
+        , addr->_remoteProtocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, centerAddr->ToString().c_str());
@@ -429,7 +436,8 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
         , 0
         ,  PriorityLevelDefine::INNER
         ,  SessionType::INNER
-        , KERNEL_NS::SocketUtil::IsIpv4(addr->_remoteIp) ? AF_INET : AF_INET6);
+        , KERNEL_NS::SocketUtil::IsIpv4(addr->_remoteIp) ? AF_INET : AF_INET6
+        , addr->_remoteProtocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, addr->ToString().c_str());

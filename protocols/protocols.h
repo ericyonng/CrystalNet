@@ -32,6 +32,11 @@
 
 #pragma once
 
+// protobuf 支持json
+#include <google/protobuf/message.h>
+#include <google/protobuf/util/json_util.h>
+#include <google/protobuf/text_format.h>
+
 #include <protocols/AllPbs.h>
 #include <protocols/Opcodes.h>
 

@@ -138,9 +138,10 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
     auto remoteAddr = ev->GetParam(Params::REMOTE_ADDR).AsPtr<KERNEL_NS::BriefSockAddr>();
     auto priorityLevel = ev->GetParam(Params::PRIORITY_LEVEL).AsUInt32();
     auto sessionType = ev->GetParam(Params::SESSION_TYPE).AsInt32();
+    auto protocolStackType = ev->GetParam(Params::PROTOCOL_STACK).AsInt32();
     auto sesionPollerId = ev->GetParam(Params::SESSION_POLLER_ID).AsUInt64();
     auto serviceId = ev->GetParam(Params::SERVICE_ID).AsUInt64();
-    auto protocolStack = GetService()->GetProtocolStack(sessionType);
+    auto protocolStack = GetService()->GetProtocolStack(protocolStackType);
 
     // g_Log->Info(LOGFMT_OBJ_TAG("session will created sessionid:%llu, localAddr:%s, remoteAddr:%s, protocolType:%d, priorityLevel:%u, pollerId:%llu, "
     //                         "serviceId:%llu, stub:%llu, isFromConnect:%d, isFromLinker:%d")

@@ -55,6 +55,7 @@ public:
     virtual const void *GetOwner() const { return NULL; }
     virtual void *GetOwner() { return NULL; }
     virtual const Byte8 * GetOwnerRtti() { return ""; }
+    virtual const Byte8 * GetCallbackRtti() { return ""; }
 };
 
 ////////////////////
@@ -64,7 +65,7 @@ class DelegateClass : public IDelegate<Rtn, Args...>
 {
 public:
     DelegateClass(ObjType *t, Rtn(ObjType::*f)(Args...));
-    DelegateClass(ObjType *t, Rtn(ObjType::*f)(Args...) const);
+    DelegateClass(const ObjType *t, Rtn(ObjType::*f)(Args...) const);
     virtual ~DelegateClass();
 
     virtual Rtn Invoke(Args... args);
@@ -74,6 +75,7 @@ public:
     virtual const void *GetOwner() const override { return _obj; }
     virtual void *GetOwner() override { return _obj; }
     virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_obj); }
+    virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(&_f); }
 
 private:
     mutable ObjType *_obj;
@@ -89,7 +91,7 @@ class DelegateClassDelObj : public IDelegate<Rtn, Args...>
 {
 public:
     DelegateClassDelObj(ObjType *t, Rtn(ObjType::*f)(Args...));
-    DelegateClassDelObj(ObjType *t, Rtn(ObjType::*f)(Args...) const);
+    DelegateClassDelObj(const ObjType *t, Rtn(ObjType::*f)(Args...) const);
     virtual ~DelegateClassDelObj();
 
     virtual Rtn Invoke(Args... args);
@@ -98,6 +100,7 @@ public:
     virtual const void *GetOwner() const override { return _obj; }
     virtual void *GetOwner() override { return _obj; }
     virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_obj); }
+    virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(&_f); }
 
     // 禁用拷贝与赋值，以及创建副本
 private:
@@ -128,6 +131,7 @@ public:
     virtual const void *GetOwner() const { return reinterpret_cast<const void *>(_f); }
     virtual void *GetOwner() override { return reinterpret_cast<void *>(_f); }
     virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_f); }
+    virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(_f); }
 
 private:
     mutable Rtn(*_f)(Args...);
@@ -149,6 +153,7 @@ public:
     virtual Rtn Invoke(Args... args) const;
     virtual IDelegate<Rtn, Args...> *CreateNewCopy() const;
     virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(&_closureFun); }
+    virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(&_closureFun); }
 
 private:
     mutable RemoveReferenceType<ClosureFuncType> _closureFun;
@@ -164,13 +169,13 @@ public:
     template <typename ObjType, typename Rtn, typename... Args>
     static IDelegate<Rtn, Args...> *Create(ObjType *obj, Rtn(ObjType::*f)(Args...));
     template <typename ObjType, typename Rtn, typename... Args>
-    static const IDelegate<Rtn, Args...> *Create(ObjType *obj, Rtn(ObjType::*f)(Args...) const);
+    static const IDelegate<Rtn, Args...> *Create(const ObjType *obj, Rtn(ObjType::*f)(Args...) const);
 
     // 委托,委托释放时候将释放obj对象 TODO:待测试,确认obj是否被释放
     template <typename ObjType, typename Rtn, typename... Args>
     static IDelegate<Rtn, Args...> *CreateAndHelpDelObj(ObjType *obj, Rtn(ObjType::*f)(Args...));
     template <typename ObjType, typename Rtn, typename... Args>
-    static const IDelegate<Rtn, Args...> *CreateAndHelpDelObj(ObjType *obj, Rtn(ObjType::*f)(Args...) const);
+    static const IDelegate<Rtn, Args...> *CreateAndHelpDelObj(const ObjType *obj, Rtn(ObjType::*f)(Args...) const);
 
     // 普通函数
     template <typename Rtn, typename... Args>

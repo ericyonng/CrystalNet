@@ -76,8 +76,11 @@ struct AddrConfig
     KERNEL_NS::LibString _localIp;
     UInt16 _localPort = 0;
     Int32 _listenSessionCount = 1;
+    Int32 _localProtocolStackType = 0;   // 协议栈类型
+
     KERNEL_NS::LibString _remoteIp;
     UInt16 _remotePort = 0;
+    Int32 _remoteProtocolStackType = 0;   // 协议栈类型
 
     Int32 _af = AF_INET;         // ipv4/ipv6
     Int32 _sessionType = 0;      // 配置的会话类型

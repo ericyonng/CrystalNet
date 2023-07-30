@@ -35,6 +35,7 @@
 #include <service_common/protocol/CrystalProtocol/ProtocolDefs.h>
 #include <service_common/protocol/CrystalProtocol/CrystalProtocolStackType.h>
 #include <service_common/protocol/CrystalProtocol/CrystalProtocolStack.h>
+#include <service_common/protocol/CrystalProtocol/CrystalProtocolJsonStack.h>
 #include <service_common/protocol/CrystalProtocol/CrystalProtocolStackFactory.h>
 
 #endif
