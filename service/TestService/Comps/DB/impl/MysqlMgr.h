@@ -86,7 +86,7 @@ protected:
     void _OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res);
     void _OnAddNewTableBack(KERNEL_NS::MysqlResponse *res);
 
-    bool _CheckTruncateTables();
+    bool _CheckDropTables();
     void _LoadAllPublicData();
     void _OnLoadPublicData(KERNEL_NS::MysqlResponse *res);
 
@@ -192,8 +192,8 @@ private:
     Int64 _curVersionNo;
     Int32 _systemOperatorUid;
     Int64 _purgeIntervalMs;
-    Int32 _disableAutoTruncate;
-    Int32 _disableTruncateDB;
+    Int32 _disableSystemTableAutoDrop;
+    Int32 _disableAutoDrop;
 };
 
 ALWAYS_INLINE const ILogicSys *MysqlMgr::_GetDependenceLogic(const KERNEL_NS::LibString &tableName) const

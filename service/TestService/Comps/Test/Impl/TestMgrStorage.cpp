@@ -64,7 +64,7 @@ bool TestMgrStorage::RegisterStorages()
     // 只加载十条
     // SetDataCountLimit(10);
 
-    SetComment("测试管理");
+    SetComment("新版测试管理");
 
     return true;
 }

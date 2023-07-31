@@ -48,8 +48,8 @@ MysqlMgr::MysqlMgr()
 ,_curVersionNo(0)
 ,_systemOperatorUid(0)
 ,_purgeIntervalMs(3000)
-,_disableAutoTruncate(1)
-,_disableTruncateDB(1)
+,_disableSystemTableAutoDrop(1)
+,_disableAutoDrop(1)
 {
 }
 
@@ -616,15 +616,15 @@ Int32 MysqlMgr::_OnGlobalSysInit()
         return Status::Failed;
     }
 
-    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableSystemTableAutoTruncate", _disableAutoTruncate))
+    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableSystemTableAutoDrop", _disableSystemTableAutoDrop))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableSystemTableAutoTruncate config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableSystemTableAutoDrop config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
         return Status::Failed;
     }
 
-    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableTruncateDB", _disableTruncateDB))
+    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableAutoDropDB", _disableAutoDrop))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableTruncateDB config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableAutoDropDB config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
         return Status::Failed;
     }
 
@@ -691,13 +691,13 @@ Int32 MysqlMgr::_OnGlobalSysCompsCreated()
 
     // 系统表的自动清库属性设置
     auto systemStorageInfo = GetStorageInfo();
-    if(_disableAutoTruncate > 0)
+    if(_disableSystemTableAutoDrop > 0)
     {
-        systemStorageInfo->AddFlags(StorageFlagType::DISABLE_AUTO_TRUNCATE_FLAG);
+        systemStorageInfo->AddFlags(StorageFlagType::DISABLE_AUTO_DROP_FLAG);
     }
     else
     {
-        systemStorageInfo->ClearFlags(StorageFlagType::DISABLE_AUTO_TRUNCATE_FLAG);
+        systemStorageInfo->ClearFlags(StorageFlagType::DISABLE_AUTO_DROP_FLAG);
     }
 
     g_Log->Info(LOGFMT_OBJ_TAG("mysql mgr init success."));
@@ -1137,10 +1137,10 @@ void MysqlMgr::_OnAddNewTableBack(KERNEL_NS::MysqlResponse *res)
     _LoadAllPublicData();
 }
 
-bool MysqlMgr::_CheckTruncateTables()
+bool MysqlMgr::_CheckDropTables()
 {
     // 禁用自动清库, 这个用于线上
-    if(_disableTruncateDB > 0)
+    if(_disableAutoDrop > 0)
         return true;
 
     // 比对表version, 进行清库操作
@@ -1156,7 +1156,7 @@ bool MysqlMgr::_CheckTruncateTables()
             MaskStringKeyModifyDirty(tableInfo->_tableName);
 
             // 禁止清表
-            if(logic->GetStorageInfo()->HasFlags(StorageFlagType::DISABLE_AUTO_TRUNCATE_FLAG))
+            if(logic->GetStorageInfo()->HasFlags(StorageFlagType::DISABLE_AUTO_DROP_FLAG))
                 continue;
 
             // 系统表也需要清理, 清理后需要立即创建
@@ -1164,9 +1164,19 @@ bool MysqlMgr::_CheckTruncateTables()
                 hasMe = true;
 
             // sql
-            auto newBuilder = KERNEL_NS::TruncateTableSqlBuilder::NewThreadLocal_TruncateTableSqlBuilder();
+            auto newBuilder = KERNEL_NS::DropTableSqlBuilder::NewThreadLocal_DropTableSqlBuilder();
             newBuilder->DB(_currentServiceDBName).Table(tableInfo->_tableName);
             builders.push_back(newBuilder);
+
+            // 创建表
+            auto createBuilder = MysqlFieldTypeHelper::NewCreateTableSqlBuilder(_currentServiceDBName, logic->GetStorageInfo());
+            if(!createBuilder)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("NewCreateTableSqlBuilder fail logic:%s"), logic->GetObjName().c_str());
+                KERNEL_NS::ContainerUtil::DelContainer2(builders);
+                return false;
+            }
+            builders.push_back(createBuilder);
         }
     }
 
@@ -1199,9 +1209,10 @@ bool MysqlMgr::_CheckTruncateTables()
 
 void MysqlMgr::_LoadAllPublicData()
 {
-    if(!_CheckTruncateTables())
+    if(!_CheckDropTables())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("_CheckTruncateTables fail."));
+        GetService()->GetApp()->SinalFinish(Status::DBCheckDropTablesFail);
         return;
     }
 

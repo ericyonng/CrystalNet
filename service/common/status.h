@@ -54,5 +54,6 @@ namespace Status
         DBCreateTableSqlBuilderFail,                        // 创建db 建表sql builder失败
         DBNewRequestFail,                                   // 创建新的db request失败
         SerializeFail,                                      // 序列化失败
+        DBCheckDropTablesFail,                              // 清库失败
     };
 }

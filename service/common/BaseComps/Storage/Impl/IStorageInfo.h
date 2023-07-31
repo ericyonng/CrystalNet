@@ -230,7 +230,7 @@ public:
         LOAD_DATA_ON_STARTUP_FLAG = (1LLU << LOAD_DATA_ON_STARTUP_FLAG_POS),
 
         // 不自动清库(版本号切换时候会清库), 默认自动清库
-        DISABLE_AUTO_TRUNCATE_FLAG = (1LLU << DISABLE_AUTO_TRUNCATE_POS),
+        DISABLE_AUTO_DROP_FLAG = (1LLU << DISABLE_AUTO_TRUNCATE_POS),
     };
 
     // 获取字符串类型的flags
@@ -847,7 +847,7 @@ ALWAYS_INLINE bool IStorageInfo::IsLoadDataOnStartup() const
 
 ALWAYS_INLINE bool IStorageInfo::IsDisableAutoTruncate() const
 {
-    return HasFlags(StorageFlagType::DISABLE_AUTO_TRUNCATE_FLAG);
+    return HasFlags(StorageFlagType::DISABLE_AUTO_DROP_FLAG);
 }
 
 ALWAYS_INLINE void IStorageInfo::SetComment(const KERNEL_NS::LibString &comment)
