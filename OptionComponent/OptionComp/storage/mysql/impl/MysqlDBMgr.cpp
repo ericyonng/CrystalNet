@@ -166,7 +166,7 @@ bool MysqlDBMgr::PushRequest(MysqlDB *db, MysqlRequest *req)
         return false;
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("db:%s push request success req:%s"), db->GetConfig()._dbName.c_str(), req->ToString().c_str());
+    g_Log->Info(LOGFMT_OBJ_TAG("db:%s push request success seq id:%llu"), db->GetConfig()._dbName.c_str(), req->_seqId);
     return true;
 }
 

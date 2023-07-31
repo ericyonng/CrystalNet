@@ -527,17 +527,20 @@ inline void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName
     // 是否需要输出日志
     if(UNLIKELY(!levelCfg->_enable))
         return;
+
+    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     // 构建日志数据
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][%s][%s][line:%d]: "
+    logInfo.AppendFormat("%s<%s>[%s][%s][%s][line:%d][tid:%llu]: "
                                    , newLogData->_logTime.ToString().c_str()
                                    , levelCfg->_levelName.c_str()
                                    , (tag ? tag : "")
                                    , fileName
                                    , funcName
-                                   , codeLine);
+                                   , codeLine
+                                   , tid);
 
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
@@ -563,13 +566,15 @@ inline void ILog::_Common2(const Byte8 *tag, Int32 levelId, const char *fmt, va_
         return;
 
     // 构建日志数据
+    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s]: "
+    logInfo.AppendFormat("%s<%s>[%s][tid:%llu]: "
                         , newLogData->_logTime.ToString().c_str()
                         , levelCfg->_levelName.c_str()
-                        , (tag ? tag : ""));
+                        , (tag ? tag : "")
+                        , tid);
 
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
@@ -594,10 +599,12 @@ inline void ILog::_Common3(Int32 levelId, const char *fmt, va_list va, UInt64 fo
         return;
 
     // 构建日志数据
+    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
 
+    logInfo.AppendFormat("[tid:%llu] ", tid);
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
 
@@ -621,13 +628,15 @@ inline void ILog::_Common4(Int32 levelId, const char *fmt, va_list va, UInt64 fo
         return;
 
     // 构建日志数据
+    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
 
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>: "
+    logInfo.AppendFormat("%s<%s>[tid:%llu]: "
                         , newLogData->_logTime.ToString().c_str()
-                        , levelCfg->_levelName.c_str());
+                        , levelCfg->_levelName.c_str()
+                        , tid);
 
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
@@ -652,14 +661,16 @@ inline void ILog::_Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, cons
         return;
 
     // 构建日志数据
+    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][line:%d]: "
+    logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu]: "
                         , newLogData->_logTime.ToString().c_str()
                         , levelCfg->_levelName.c_str()
                         , (tag ? tag : "")
-                        , codeLine);
+                        , codeLine
+                        , tid);
 
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
@@ -685,10 +696,11 @@ ALWAYS_INLINE void ILog::_Common6(const Byte8 *tag, Int32 codeLine, Int32 levelI
         return;
 
     // 构建日志数据
+    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][line:%d]: ", newLogData->_logTime.ToString().c_str(), levelCfg->_levelName.c_str(), (tag ? tag : ""), codeLine);
+    logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu]: ", newLogData->_logTime.ToString().c_str(), levelCfg->_levelName.c_str(), (tag ? tag : ""), codeLine, tid);
     logInfo.Append(std::forward<Args>(args)...);
     logInfo.AppendEnd();
 
