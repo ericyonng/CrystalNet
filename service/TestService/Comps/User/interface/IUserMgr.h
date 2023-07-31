@@ -21,19 +21,24 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2023-07-31 23:50:09
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/common/BaseComps/BaseComps.h>
-#include <service/TestService/Comps/MyServiceComp/MyServiceComp.h>
-#include <service/TestService/Comps/PlayerSys/PlayerSys.h>
-#include <service/TestService/Comps/StubHandle/StubHandle.h>
-#include <service/TestService/Comps/SysLogic/SysLogic.h>
-#include <service/TestService/Comps/Test/Test.h>
-#include <service/TestService/Comps/DB/db.h>
-#include <service/TestService/Comps/User/User.h>
+#include <ServiceCompHeader.h>
+
+SERVICE_BEGIN
+
+class IUserMgr : public ILogicSys
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(ILogicSys, IUserMgr);
+
+public:
+    
+};
+
+SERVICE_END
 

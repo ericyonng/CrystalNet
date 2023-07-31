@@ -456,6 +456,7 @@ project "testsuit"
         "../../service/TestService/config/code/",
 		"../../3rd/mysql/win/include/",
 		"../../OptionComponent/",
+		"../../service/TestService/",
     }
 
     -- mysql

@@ -21,19 +21,46 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2023-07-31 23:47:39
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/User/interface/IUserSys.h>
+#include <Comps/User/interface/IUser.h>
+#include <Comps/User/interface/IUserMgr.h>
 
-#include <service/common/BaseComps/BaseComps.h>
-#include <service/TestService/Comps/MyServiceComp/MyServiceComp.h>
-#include <service/TestService/Comps/PlayerSys/PlayerSys.h>
-#include <service/TestService/Comps/StubHandle/StubHandle.h>
-#include <service/TestService/Comps/SysLogic/SysLogic.h>
-#include <service/TestService/Comps/Test/Test.h>
-#include <service/TestService/Comps/DB/db.h>
-#include <service/TestService/Comps/User/User.h>
+SERVICE_BEGIN
 
+POOL_CREATE_OBJ_DEFAULT_IMPL(IUserSys);
+
+IUserSys::IUserSys(IUser *owner)
+:_owner(owner)
+,_userMgr(owner->GetUserMgr())
+,_userEventMgr(owner->GetEventMgr())
+{
+
+}
+
+IUserSys::~IUserSys()
+{
+
+}
+
+Int64 IUserSys::Send(KERNEL_NS::LibPacket *packet) const
+{
+    return _owner->Send(packet);
+}
+
+void IUserSys::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
+{
+    _owner->Send(packets);
+}
+
+Int64 IUserSys::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
+{
+    return _owner->Send(opcode, coder, packetId);
+}
+
+SERVICE_END
