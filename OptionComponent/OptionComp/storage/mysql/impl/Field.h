@@ -352,7 +352,7 @@ ALWAYS_INLINE LibStream<_Build::TL> *Field::GetData()
 ALWAYS_INLINE LibString Field::ToString() const
 {
     LibString info;
-    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld, data type:%d,%s, is null:%d, is unsigend:%d, is auto inc field:%d, 是否主键:%d, _dataFlags:%llx"
+    info.AppendFormat("table name:%s, field name:%s, index in record:%d, data size:%lld, data type:%d,%s, is null:%d, is unsigend:%d, is auto inc field:%d, 是否主键:%d, _dataFlags:0x%llx"
     , _tableName.c_str(), _name.c_str(), _index, GetDataSize(), _dataType, DataTypeString(_dataType), _isNull, _isUnsigned, _isAutoIncField, _isPrimaryKey, _dataFlags);
     return info;
 }
@@ -360,7 +360,7 @@ ALWAYS_INLINE LibString Field::ToString() const
 ALWAYS_INLINE LibString Field::Dump() const
 {
     LibString info;
-    info.AppendFormat("table name:%s, field name:%s, data type:%d,%s data size:%lld, data flags:%llx data:\n", _tableName.c_str(), _name.c_str(), _dataType, DataTypeString(_dataType), _dataFlags, GetDataSize());
+    info.AppendFormat("table name:%s, field name:%s, data type:%d,%s data flags:0x%llx, data size:%lld, data:\n", _tableName.c_str(), _name.c_str(), _dataType, DataTypeString(_dataType), _dataFlags, GetDataSize());
     info.AppendData(GetValueTextCompatible());
 
     return info;

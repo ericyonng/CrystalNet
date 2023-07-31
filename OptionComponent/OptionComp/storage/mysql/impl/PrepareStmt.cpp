@@ -206,7 +206,7 @@ UInt32 PrepareStmt::Execute(UInt64 seqId, const std::vector<Field *> &fields, ID
         for(auto field:fields)
             fieldsStr.push_back(field->Dump());
 
-        g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("seq id:%llu, sql:%s, fields:", seqId, _sql.c_str()), KERNEL_NS::StringUtil::ToString(fieldsStr, ","));
+        g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("seq id:%llu, sql:%s, fields:\n", seqId, _sql.c_str()), KERNEL_NS::StringUtil::ToString(fieldsStr, "\n"));
     }
 
     StartParam(seqId);
