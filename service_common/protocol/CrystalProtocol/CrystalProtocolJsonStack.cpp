@@ -44,10 +44,11 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
 , KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *, KERNEL_NS::_Build::TL> *&recvPacketsBatch)
 {
     #ifdef _DEBUG
-    const auto getContent = [](){
-        return KERNEL_NS::LibString().AppendFormat(PR_FMT(""));
-     };
-     PERFORMANCE_RECORD_DEF(pr, getContent, 5);
+    auto &&outputLogFunc = [](UInt64 costMs){
+        g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
+    };
+        
+    PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
     #endif
 
     const auto &option = session->GetOption();

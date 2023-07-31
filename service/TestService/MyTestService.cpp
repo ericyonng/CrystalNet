@@ -460,13 +460,12 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
 
         const auto sessionId = packet->GetSessionId();
         const auto packetId = packet->GetPacketId();
-        auto &&getContent = [sessionId, packetId, opcode](){
+        auto &&outputLogFunc = [sessionId, packetId, opcode](UInt64 costMs){
             const auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
-            return KERNEL_NS::LibString().AppendFormat(PR_FMT("sessionId:%llu, packetid:%lld, opcode:%d,[%s],  ")
-                , sessionId, packetId, opcode, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.");
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(MyTestService, "sessionId:%llu, packetid:%lld, opcode:%d,[%s], costMs:%llu ms. "),  sessionId, packetId, opcode, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.", costMs);
         };
-        PERFORMANCE_RECORD_DEF(pr, getContent, 10);
-
+            
+        PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
         handler->Invoke(packet);
         if(LIKELY(packet))
             packet->ReleaseUsingPool();

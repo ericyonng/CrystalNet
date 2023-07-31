@@ -77,10 +77,11 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
 , KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *, KERNEL_NS::_Build::TL> *&recvPacketsBatch)
 {
     #ifdef _DEBUG
-    const auto getContent = [](){
-        return KERNEL_NS::LibString().AppendFormat(PR_FMT(""));
-     };
-     PERFORMANCE_RECORD_DEF(pr, getContent, 5);
+    auto &&outputLogFunc = [](UInt64 costMs){
+        g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
+    };
+        
+    PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 5);
     #endif
 
     const auto &option = session->GetOption();
@@ -157,11 +158,12 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
         #ifdef _DEBUG
         const auto opcode = header._opcodeId;
         const auto headerLen = header._len;
-        const auto getContent = [opcode, headerLen, session](){
-             return   KERNEL_NS::LibString().AppendFormat(PR_FMT("Decode over limit sessionId:%llu opcode:%u, %s, len:%u")
-            , session->GetId(), opcode, StackOpcodeToString(opcode).c_str(), headerLen);
-          };
-         PERFORMANCE_RECORD_DEF(middlePr, getContent, 5);
+        auto &&outputLogFunc = [opcode, headerLen, session](UInt64 costMs){
+            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "Decode over limit sessionId:%llu opcode:%u, %s, len:%u, costMs:%llu ms")
+            ,  session->GetId(), opcode, StackOpcodeToString(opcode).c_str(), headerLen, costMs);
+        };
+            
+        PERFORMANCE_RECORD_DEF(middlePr, outputLogFunc, 5);
         #endif
 
         // 4.创建编码器并解码
@@ -241,10 +243,11 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
 , UInt64 &handledBytes)
 {
     #if _DEBUG
-    const auto getContent = [](){
-        return KERNEL_NS::LibString().AppendFormat(PR_FMT(""));
-     };
-     PERFORMANCE_RECORD_DEF(pr, getContent, 5);
+    auto &&outputLogFunc = [](UInt64 costMs){
+        g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
+    };
+        
+    PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 5);
     #endif
     
     Int32 errCode = Status::Success;
@@ -263,10 +266,12 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
     #if _DEBUG 
         const auto opcode = packet->GetOpcode();
         const auto sessionId = packet->GetSessionId();
-        const auto getContent = [opcode, sessionId](){
-            return KERNEL_NS::LibString().AppendFormat(PR_FMT("sessionId:%llu, opcode:%d, %s"), sessionId, opcode, StackOpcodeToString(opcode).c_str());
+        auto &&outputLogFunc = [opcode, sessionId](UInt64 costMs){
+            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "sessionId:%llu, opcode:%d, %s, costMs:%llu ms.")
+            , sessionId, opcode, StackOpcodeToString(opcode).c_str(), costMs);
         };
-        PERFORMANCE_RECORD_DEF(middlePr, getContent, 5);
+            
+        PERFORMANCE_RECORD_DEF(middlePr, outputLogFunc, 5);
     #endif
 
         // 2.预留header空间

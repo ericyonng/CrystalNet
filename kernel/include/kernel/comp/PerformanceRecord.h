@@ -50,48 +50,48 @@ KERNEL_BEGIN
 #ifdef CRYSTAL_NET_PORFORMANCE_RECORD
 
 // 耗时超过OUTPUT_LOG_MS_LINE 会输出日志
-#define PERFORMANCE_RECORD_DEF(PR, GET_CONTENT_LAMBDA, OUTPUT_LOG_MS_LINE) KERNEL_NS::PerformanceRecord<decltype(GET_CONTENT_LAMBDA)> PR(GET_CONTENT_LAMBDA, OUTPUT_LOG_MS_LINE)
+#define PERFORMANCE_RECORD_DEF(PR, OUT_PUT_LOG_LAMBDA, OUTPUT_LOG_MS_LINE) KERNEL_NS::PerformanceRecord<decltype(OUT_PUT_LOG_LAMBDA)> PR(OUT_PUT_LOG_LAMBDA, OUTPUT_LOG_MS_LINE)
 
-template<typename GetContentLambda>
+// TODO:GetContentLambda改成使用lambda输出日志 GetContentLambda:OutputLog
+template<typename OutputLogLambda>
 class PerformanceRecord
 {
-    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(PerformanceRecord, GetContentLambda);
+    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(PerformanceRecord, OutputLogLambda);
 
 public:
-    PerformanceRecord(GetContentLambda &getContentFun, UInt64 outputLogMsLine);
+    PerformanceRecord(OutputLogLambda &outputFunc, UInt64 outputLogMsLine);
     ~PerformanceRecord();
 
 private:
-    GetContentLambda &_getContent;
+    OutputLogLambda &_output;
     LibCpuCounter _start;
     UInt64 _outputLogMsLine;
 };
 
-template<typename GetContentLambda>
-ALWAYS_INLINE PerformanceRecord<GetContentLambda>::PerformanceRecord(GetContentLambda &getContentFun, UInt64 outputLogMsLine)
-:_getContent(getContentFun)
+template<typename OutputLogLambda>
+ALWAYS_INLINE PerformanceRecord<OutputLogLambda>::PerformanceRecord(OutputLogLambda &outputFunc, UInt64 outputLogMsLine)
+:_output(outputFunc)
 {
     _outputLogMsLine = outputLogMsLine;
     _start.Update();
 }
 
-template<typename GetContentLambda>
-ALWAYS_INLINE PerformanceRecord<GetContentLambda>::~PerformanceRecord()
+template<typename OutputLogLambda>
+ALWAYS_INLINE PerformanceRecord<OutputLogLambda>::~PerformanceRecord()
 {
     const auto ms = LibCpuCounter().Update().ElapseMilliseconds(_start);
     if(LIKELY(_outputLogMsLine > ms))
         return;
 
-    g_Log->Warn(LOGFMT_OBJ_TAG("[PERFORMANCE RECORD]:%s, cost:%llu (ms).")
-                ,_getContent().c_str(), ms);
+    _output(ms);
 }
 
 
-template<typename GetContentLambda>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(PerformanceRecord, GetContentLambda);
+template<typename OutputLogLambda>
+POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(PerformanceRecord, OutputLogLambda);
 
-template<typename GetContentLambda>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(PerformanceRecord, GetContentLambda);
+template<typename OutputLogLambda>
+POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(PerformanceRecord, OutputLogLambda);
 
 #else
 
