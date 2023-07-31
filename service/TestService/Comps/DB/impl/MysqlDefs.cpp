@@ -290,7 +290,7 @@ bool MysqlFieldTypeHelper::MakeFieldDescribe(const IStorageInfo *fieldDefine, KE
                 fieldDesc.AppendFormat("UNSIGNED ");
             }
 
-            fieldDesc.AppendFormat("NOT NULL COMMENT '%s'", fieldDefine->GetComment().c_str());
+            fieldDesc.AppendFormat("NOT NULL AUTO_INCREMENT COMMENT '%s'", fieldDefine->GetComment().c_str());
             return true;
         }
 

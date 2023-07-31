@@ -455,6 +455,9 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req)
         }
     }
 
+    g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
+                    , res->_seqId, res->_dbName.c_str(), res->_affectedRows, res->_maxInsertId, res->_isRequestSendToMysql, res->_errCode, res->_mysqlErrno));
+
     // 有失败, 则打印剩余失败的sql
     if(idx != count)
     {
@@ -574,6 +577,9 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
         }
     }
 
+    g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
+                    , res->_seqId, res->_dbName.c_str(), res->_affectedRows, res->_maxInsertId, res->_isRequestSendToMysql, res->_errCode, res->_mysqlErrno));
+
     // 有失败, 则打印剩余失败的sql
     if(idx != count)
     {
@@ -583,6 +589,7 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
             auto builder = req->_builders[idx];
             failBuilder.AppendData(builder->Dump()).AppendFormat("\n");
         }
+
         g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error mysql:%s connection:%s request dump:\n", ToString().c_str(), curConn->ToString().c_str())
                     , req->Dump(), LibString().AppendFormat("\nfail sqls:\n"), failBuilder);
     }
@@ -652,6 +659,9 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
 
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail req:"), req->Dump());
     }
+
+    g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
+                    , res->_seqId, res->_dbName.c_str(), res->_affectedRows, res->_maxInsertId, res->_isRequestSendToMysql, res->_errCode, res->_mysqlErrno));
 
     // 返回res
     if(LIKELY(_targetPoller && (_eventType > 0)))
