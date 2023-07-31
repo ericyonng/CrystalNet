@@ -78,7 +78,7 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
 {
     #ifdef _DEBUG
     auto &&outputLogFunc = [](UInt64 costMs){
-        g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
+        g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolStack, "costMs:%llu ms"), costMs);
     };
         
     PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 5);
@@ -159,7 +159,7 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
         const auto opcode = header._opcodeId;
         const auto headerLen = header._len;
         auto &&outputLogFunc = [opcode, headerLen, session](UInt64 costMs){
-            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "Decode over limit sessionId:%llu opcode:%u, %s, len:%u, costMs:%llu ms")
+            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolStack, "Decode over limit sessionId:%llu opcode:%u, %s, len:%u, costMs:%llu ms")
             ,  session->GetId(), opcode, StackOpcodeToString(opcode).c_str(), headerLen, costMs);
         };
             
@@ -244,7 +244,7 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
 {
     #if _DEBUG
     auto &&outputLogFunc = [](UInt64 costMs){
-        g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
+        g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolStack, "costMs:%llu ms"), costMs);
     };
         
     PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 5);
@@ -267,7 +267,7 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
         const auto opcode = packet->GetOpcode();
         const auto sessionId = packet->GetSessionId();
         auto &&outputLogFunc = [opcode, sessionId](UInt64 costMs){
-            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "sessionId:%llu, opcode:%d, %s, costMs:%llu ms.")
+            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolStack, "sessionId:%llu, opcode:%d, %s, costMs:%llu ms.")
             , sessionId, opcode, StackOpcodeToString(opcode).c_str(), costMs);
         };
             
