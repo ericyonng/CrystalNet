@@ -86,6 +86,17 @@ bool MysqlMgrStorage::RegisterStorages()
     newStorageInfo->SetFieldName(SIMPLE_INFO);
     AddStorageInfo(newStorageInfo);
 
+    // 数量
+    // newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(COUNT);
+    // newStorageInfo->SetRelease([newStorageInfo](){
+    //     IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
+    // });
+
+    // newStorageInfo->AddFlags(StorageFlagType::INT64_NUMBER_FIELD_FLAG | 
+    // StorageFlagType::MYSQL_FLAG);
+    // newStorageInfo->SetComment("count");
+    // AddStorageInfo(newStorageInfo);
+
     return true;
 }
 

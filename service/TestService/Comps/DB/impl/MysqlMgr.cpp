@@ -3483,7 +3483,28 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
             }
             continue;
         }
-    }    
+    }   
+
+    // 拿新系统对照,有新增的添加新增
+    auto &subStorages = storageInfo->GetSubStorageInfos();
+    for(auto &subStorage : subStorages)
+    {
+        auto &fieldName = subStorage->GetFieldName();
+        auto iter = originDbTableInfo.find(fieldName);
+        if(iter == originDbTableInfo.end())
+        {
+            KERNEL_NS::LibString newDescribe;
+            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe, true))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
+                            , subStorage->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+                return false;
+            }
+
+            alterAddColumn->Add(fieldName, newDescribe);
+            hasAdd = true;
+        }
+    }
 
     if(hasDrop)
         builders.push_back(alterDropColumn.pop());
@@ -3557,7 +3578,7 @@ bool MysqlMgr::_ModifyDbNumberDataType(IStorageInfo *storageInfo, IStorageInfo *
     {// 数据库是数值但是代码却是其他类型
         // 1.先drop掉字段, 再新增字段
         KERNEL_NS::LibString newDescribe;
-        if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe))
+        if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe, true))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                         , subStorageInfo->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -3679,7 +3700,7 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
     {// 数据库是数值但是代码却是其他类型
         // 1.先drop掉字段, 再新增字段
         KERNEL_NS::LibString newDescribe;
-        if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe))
+        if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe, true))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                         , subStorageInfo->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -3802,7 +3823,7 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
     {// 数据库是二进制但是代码却是其他类型
         // 1.先drop掉字段, 再新增字段
         KERNEL_NS::LibString newDescribe;
-        if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe))
+        if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe, true))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                         , subStorageInfo->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());

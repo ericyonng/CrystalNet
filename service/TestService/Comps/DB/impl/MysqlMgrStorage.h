@@ -40,6 +40,7 @@ class MysqlMgrStorage : public IStorageInfo
 public:
     static constexpr const Byte8 *TABLE_NAME = "TableName";
     static constexpr const Byte8 *SIMPLE_INFO = "SimpleInfo";
+    static constexpr const Byte8 *COUNT = "Count";
     
 public:
     MysqlMgrStorage();

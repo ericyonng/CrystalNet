@@ -236,9 +236,10 @@ bool MysqlFieldTypeHelper::GetStringDataTypeBySize(UInt64 sz, bool onlyText, boo
     return false;
 }
 
-bool MysqlFieldTypeHelper::MakeFieldDescribe(const IStorageInfo *fieldDefine, KERNEL_NS::LibString &fieldDesc)
+bool MysqlFieldTypeHelper::MakeFieldDescribe(const IStorageInfo *fieldDefine, KERNEL_NS::LibString &fieldDesc, bool isAddColumn)
 {
-    fieldDesc.AppendFormat("%s ", fieldDefine->GetFieldName().c_str());
+    if(!isAddColumn)
+        fieldDesc.AppendFormat("%s ", fieldDefine->GetFieldName().c_str());
 
     if(fieldDefine->IsPrimaryField())
     {
@@ -354,7 +355,7 @@ bool MysqlFieldTypeHelper::MakeFieldDescribe(const IStorageInfo *fieldDefine, KE
             fieldDesc.AppendFormat("UNSIGNED ");
         }
 
-        fieldDesc.AppendFormat("NOT NULL COMMENT '%s'", fieldDefine->GetComment().c_str());
+        fieldDesc.AppendFormat("NOT NULL DEFAULT 0 COMMENT '%s'", fieldDefine->GetComment().c_str());
         return true;
     }
 

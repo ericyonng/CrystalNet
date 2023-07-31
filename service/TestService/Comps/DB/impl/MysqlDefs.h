@@ -151,7 +151,7 @@ public:
     static bool GetStringDataTypeBySize(UInt64 sz, bool onlyText, bool onlyVarchar, KERNEL_NS::LibString &dataType);
 
     // 构建字段描述
-    static bool MakeFieldDescribe(const IStorageInfo *fieldDefine, KERNEL_NS::LibString &fieldDesc);
+    static bool MakeFieldDescribe(const IStorageInfo *fieldDefine, KERNEL_NS::LibString &fieldDesc, bool isAddColumn = false);
     
     // 数据类型
     static bool MakeFieldDataType(const IStorageInfo *fieldDefine, KERNEL_NS::LibString &dataType);

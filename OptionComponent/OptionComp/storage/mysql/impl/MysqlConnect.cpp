@@ -392,7 +392,15 @@ bool MysqlConnect::_ExecuteSqlUsingStmt(const LibString &sql, UInt64 seqId, cons
 {
     auto stmt = _GetStmt(sql);
     if(!stmt)
+    {
         stmt = _CreateStmt(sql);
+        if(UNLIKELY(!stmt))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("stmt create fail"));
+            return false;
+        }
+
+    }
 
     auto ret = stmt->Execute(seqId, fields, cb);
     if(ret != 0)
