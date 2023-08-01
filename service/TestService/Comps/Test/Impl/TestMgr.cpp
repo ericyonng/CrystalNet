@@ -36,6 +36,7 @@
 #include <service/TestService/Comps/Test/Impl/TestMgr.h>
 #include <service/TestService/Comps/Test/Impl/TestMgrStorage.h>
 #include <service/TestService/Comps/Test/Impl/TestMgrStorageFactory.h>
+#include <service/TestService/Comps/DB/db.h>
 
 SERVICE_BEGIN
 
@@ -124,7 +125,13 @@ void TestMgr::OnWillStartup()
             return;
         }
 
-        _MakeNewTestData();
+        for(auto idx = 0; idx < 10; ++idx)
+             _MakeNewTestData();
+
+        auto maxId = _maxId;
+        GetService()->GetComp<IMysqlMgr>()->PurgeEndWith([maxId, this](){
+            g_Log->Info(LOGFMT_OBJ_TAG("purge finished maxId:%llu"), maxId);
+        });
     });
 
     timer->Schedule(1000);

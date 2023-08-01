@@ -55,6 +55,10 @@ namespace Params
         LAST_TIME,           // 最后一次时间
         ERROR_CODE,           // 错误码 Int32
         FAMILY,             // AF UInt16
+
+        VAR_HANDLER,        // 处理函数
+        VAR_COUNTER,        // 计数
+        VAR_LOGIC,          // logic参数
     };
 }
 

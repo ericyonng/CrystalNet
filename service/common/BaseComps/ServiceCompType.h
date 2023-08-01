@@ -39,6 +39,7 @@ public:
     {
         LOGIC_SYS = 1000,       // logic类型组件
         STORAGE_COMP,           // 存储组件 IStorageInfo
+        USER_SYS_COMP,  // 用户子系统
     };
 };
 

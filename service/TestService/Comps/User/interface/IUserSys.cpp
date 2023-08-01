@@ -38,9 +38,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IUserSys);
 IUserSys::IUserSys(IUser *owner)
 :_owner(owner)
 ,_userMgr(owner->GetUserMgr())
-,_userEventMgr(owner->GetEventMgr())
 {
-
+    _SetType(ServiceCompType::USER_SYS_COMP);
 }
 
 IUserSys::~IUserSys()

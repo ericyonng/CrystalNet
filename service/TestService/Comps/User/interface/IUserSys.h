@@ -49,9 +49,6 @@ public:
     IUserMgr *GetUserMgr();
     const IUserMgr *GetUserMgr() const;
 
-    KERNEL_NS::EventManager *GetEventMgr();
-    const KERNEL_NS::EventManager *GetEventMgr() const;
-
     KERNEL_NS::ListenerStub AddListener(int id,
                                         KERNEL_NS::IDelegate<void, KERNEL_NS::LibEvent *> *listener,
                                         const KERNEL_NS::ListenerStub &bindedStub = INVALID_LISTENER_STUB);
@@ -102,7 +99,6 @@ public:
 protected:
     IUser *_owner;
     IUserMgr *_userMgr;
-    KERNEL_NS::EventManager *_userEventMgr;
 };
 
 ALWAYS_INLINE IUser *IUserSys::GetUser()
@@ -125,21 +121,11 @@ ALWAYS_INLINE const IUserMgr *IUserSys::GetUserMgr() const
     return _userMgr;
 }
 
-ALWAYS_INLINE KERNEL_NS::EventManager *IUserSys::GetEventMgr()
-{
-    return _userEventMgr;
-}
-
-ALWAYS_INLINE const KERNEL_NS::EventManager *IUserSys::GetEventMgr() const
-{
-    return _userEventMgr;
-}
-
 ALWAYS_INLINE KERNEL_NS::ListenerStub IUserSys::AddListener(int id,
                                     KERNEL_NS::IDelegate<void, KERNEL_NS::LibEvent *> *listener,
                                     const KERNEL_NS::ListenerStub &bindedStub)
 {
-    return _userEventMgr->AddListener(id, listener, bindedStub);
+    return GetEventMgr()->AddListener(id, listener, bindedStub);
 }
 
 template <typename ObjectType>
@@ -148,27 +134,27 @@ ALWAYS_INLINE KERNEL_NS::ListenerStub IUserSys::AddListener(int id,
                                 void (ObjectType::*listener)(KERNEL_NS::LibEvent *),
                                 const KERNEL_NS::ListenerStub &bindedStub)
 {
-    return _userEventMgr->AddListener(id, obj, listener, bindedStub);
+    return GetEventMgr()->AddListener(id, obj, listener, bindedStub);
 }
 
 ALWAYS_INLINE int IUserSys::RemoveListener(int id)
 {
-    return _userEventMgr->RemoveListener(id);
+    return GetEventMgr()->RemoveListener(id);
 }
 
 ALWAYS_INLINE int IUserSys::RemoveListener(const KERNEL_NS::ListenerStub &stub)
 {
-    return _userEventMgr->RemoveListener(stub);
+    return GetEventMgr()->RemoveListener(stub);
 }
 
 ALWAYS_INLINE int IUserSys::RemoveListenerX(KERNEL_NS::ListenerStub &stub)
 {
-    return _userEventMgr->RemoveListenerX(stub);
+    return GetEventMgr()->RemoveListenerX(stub);
 }
 
 ALWAYS_INLINE Int32 IUserSys::FireEvent(KERNEL_NS::LibEvent *event)
 {
-    return _userEventMgr->FireEvent(event);
+    return GetEventMgr()->FireEvent(event);
 }
 
 SERVICE_END

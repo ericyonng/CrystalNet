@@ -183,7 +183,7 @@ void MysqlMgr::MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key, bo
         dirtyHelper->Clear(key);
 
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true);
-    var->BecomePtr() = logic;
+    var->BecomePtr()[Params::VAR_LOGIC] = logic;
     _dirtyLogics.insert(logic);
 
     if(isRightRow)
@@ -246,7 +246,7 @@ void MysqlMgr::MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key,
         return;
 
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true);
-    var->BecomePtr() = logic;
+    var->BecomePtr()[Params::VAR_LOGIC] = logic;
     _dirtyLogics.insert(logic);
 
     if(isRightRow)
@@ -295,7 +295,7 @@ void MysqlMgr::MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, UInt64 key,
     auto dirtyHelper = iter->second;
     dirtyHelper->Clear(key);
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true);
-    var->BecomePtr() = logic;
+    var->BecomePtr()[Params::VAR_LOGIC] = logic;
 
     _dirtyLogics.insert(logic);
 
@@ -350,7 +350,7 @@ void MysqlMgr::MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_N
         dirtyHelper->Clear(key);
 
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true);
-    var->BecomePtr() = logic;
+    var->BecomePtr()[Params::VAR_LOGIC] = logic;
     _dirtyLogics.insert(logic);
 
     if(isRightRow)
@@ -414,7 +414,7 @@ void MysqlMgr::MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNE
         return;
 
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true);
-    var->BecomePtr() = logic;
+    var->BecomePtr()[Params::VAR_LOGIC] = logic;
     _dirtyLogics.insert(logic);
 
     if(isRightRow)
@@ -464,7 +464,7 @@ void MysqlMgr::MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const KERNE
     auto dirtyHelper = iter->second;
     dirtyHelper->Clear(key);
     auto var = dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true);
-    var->BecomePtr() = logic;
+    var->BecomePtr()[Params::VAR_LOGIC] = logic;
 
     _dirtyLogics.insert(logic);
 
@@ -505,6 +505,115 @@ const KERNEL_NS::LibString &MysqlMgr::GetCurrentServiceDbOption() const
 const KERNEL_NS::LibString &MysqlMgr::GetCurrentServiceDbName() const
 {
     return _currentServiceDBName;
+}
+
+void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void> *handler)
+{
+    if(UNLIKELY(_dirtyLogics.empty()))
+    {
+        if(LIKELY(handler))
+        {
+            handler->Invoke();
+            handler->Release();
+        }
+        
+        return;
+    }
+
+    auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
+    auto &&startCounter = KERNEL_NS::LibCpuCounter::Current();
+    auto &&deadLine = KERNEL_NS::LibCpuCounter(0);
+    KERNEL_NS::LibString err;
+    auto counter = reinterpret_cast<Int64 *>(KERNEL_ALLOC_MEMORY_TL(sizeof(Int64)));
+    *counter = 0;
+    for(auto iter = _dirtyLogics.begin(); iter != _dirtyLogics.end();)
+    {
+        auto logic = *iter;
+
+        auto iterNumberKey = _logicRefNumberDirtyHelper.find(logic);
+        if(iterNumberKey != _logicRefNumberDirtyHelper.end())
+        {
+            // 传入参数
+            auto dirtyHelper = iterNumberKey->second;
+            auto &allMasks = dirtyHelper->GetAllMasks();
+            for(auto iter : allMasks)
+            {
+                auto mask = iter.second;
+                for(Int32 idx = MysqlDirtyType::BEGIN; idx < MysqlDirtyType::MAX_TYPE; ++idx)
+                {
+                    if(!mask->IsDirty(idx))
+                        continue;
+
+                    auto var = mask->GetVar(idx);
+                    if(!var)
+                        var = mask->AddVar(idx);
+
+                    var->BecomeDict()[Params::VAR_HANDLER] = handler;
+                    var->BecomeDict()[Params::VAR_COUNTER] = counter;
+                }
+            }
+
+            iterNumberKey->second->Purge(deadLine, &err);
+            if(!iterNumberKey->second->HasDirty())
+            {
+                iter = _dirtyLogics.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+
+            continue;
+        }
+
+        auto iterStringKey = _logicRefStringDirtyHelper.find(logic);
+        if(iterStringKey != _logicRefStringDirtyHelper.end())
+        {
+            // 传入参数
+            auto dirtyHelper = iterNumberKey->second;
+            auto &allMasks = dirtyHelper->GetAllMasks();
+            for(auto iter : allMasks)
+            {
+                auto mask = iter.second;
+                for(Int32 idx = MysqlDirtyType::BEGIN; idx < MysqlDirtyType::MAX_TYPE; ++idx)
+                {
+                    if(!mask->IsDirty(idx))
+                        continue;
+
+                    auto var = mask->GetVar(idx);
+                    if(!var)
+                        var = mask->AddVar(idx);
+
+                    var->BecomeDict()[Params::VAR_HANDLER] = handler;
+                    var->BecomeDict()[Params::VAR_COUNTER] = counter;
+                }
+            }
+
+            iterStringKey->second->Purge(deadLine, &err);
+            if(!iterStringKey->second->HasDirty())
+            {
+                iter = _dirtyLogics.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+
+            continue;
+        }
+
+        iter = _dirtyLogics.erase(iter);
+    }
+
+    if(UNLIKELY(*counter == 0))
+    {
+        handler->Invoke();
+        handler->Release();
+        KERNEL_FREE_MEMORY_TL(counter);
+        g_Log->Error(LOGFMT_OBJ_TAG("dirty but have no request to mysql thread"));
+    }
+    if(UNLIKELY(!err.empty()))
+        g_Log->Warn(LOGFMT_OBJ_TAG("purge err:%s"), err.c_str());
 }
 
 Int32 MysqlMgr::OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
@@ -1403,7 +1512,25 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
 
 void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *dirtyHelper, UInt64 &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::ADD_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -1451,12 +1578,26 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
 
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
+
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true))[Params::VAR_LOGIC] = logic;
             return;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 
@@ -1480,20 +1621,50 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
         fields[1] = v;
     }
     
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newAddSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key);
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *dirtyHelper, UInt64 &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::MODIFY_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -1539,14 +1710,27 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
             return;
         }
 
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true))[Params::VAR_LOGIC] = logic;
             return;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 
@@ -1571,20 +1755,50 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
         fields[1] = v;
     }
 
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newUpdateSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnKvSystemNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *dirtyHelper, UInt64 &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::DEL_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -1617,20 +1831,50 @@ void MysqlMgr::_OnKvSystemNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
         fields[0] = v;
     }
 
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *dirtyHelper, UInt64 &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::REPLACE_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -1676,14 +1920,26 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
             return;
         }
 
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true))[Params::VAR_LOGIC] = logic;
             return;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 
@@ -1708,20 +1964,50 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
         fields[1] = v;
     }
     
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newReplaceSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
    dirtyHelper->Clear(key, MysqlDirtyType::ADD_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -1767,14 +2053,26 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
             return;
         }
 
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true))[Params::VAR_LOGIC] = logic;
             return;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 
@@ -1798,20 +2096,50 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
         fields[1] = v;
     }
     
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newAddSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::MODIFY_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -1856,14 +2184,26 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
             return;
         }
 
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true))[Params::VAR_LOGIC] = logic;
             return;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 
@@ -1888,20 +2228,50 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
         fields[1] = v;
     }
 
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newUpdateSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnKvSystemStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
    dirtyHelper->Clear(key, MysqlDirtyType::DEL_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -1934,20 +2304,50 @@ void MysqlMgr::_OnKvSystemStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
         fields[0] = v;
     }
 
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::REPLACE_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -1992,14 +2392,26 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
             return;
         }
 
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, key:%s"), err, key.c_str());
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true))[Params::VAR_LOGIC] = logic;
             return;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 
@@ -2024,20 +2436,50 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
         fields[1] = v;
     }
     
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newReplaceSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s,  key:%s"), err, logic->GetObjName().c_str(), key.c_str());
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *dirtyHelper, UInt64 &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::ADD_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -2149,34 +2591,76 @@ void MysqlMgr::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64
 
     if(UNLIKELY(hasModify))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
             return;
         }
+        else if(counter)
+        {
+            ++(*counter);
+        }
     }
 
     if(LIKELY(!fields.empty()))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         insertBuilder->Fields(fields);
         insertBuilder->Values(values);
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {insertBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%llu"), err, logic->GetObjName().c_str(), key);
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true))[Params::VAR_LOGIC] = logic;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 }
 
 void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *dirtyHelper, UInt64 &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::MODIFY_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -2298,13 +2782,25 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
 
     if(UNLIKELY(hasModify))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
             return;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 
@@ -2325,20 +2821,50 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
         v->SetData(keyData.pop());
         fieldDatas.push_back(v);
 
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {updateBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%llu"), err, logic->GetObjName().c_str(), key);
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true))[Params::VAR_LOGIC] = logic;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 }
 
 void MysqlMgr::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *dirtyHelper, UInt64 &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::DEL_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -2373,20 +2899,50 @@ void MysqlMgr::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
         fields[0] = v;
     }
 
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields,  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *dirtyHelper, UInt64 &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::REPLACE_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -2498,34 +3054,76 @@ void MysqlMgr::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UI
 
     if(UNLIKELY(hasModify))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
             return;
         }
+        else if(counter)
+        {
+            ++(*counter);
+        }
     }
 
     if(LIKELY(!fields.empty()))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         replaceBuilder->Fields(fields);
         replaceBuilder->Values(values);
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {replaceBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas,  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%llu"), err, logic->GetObjName().c_str(), key);
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true))[Params::VAR_LOGIC] = logic;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 }
 
 void MysqlMgr::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::ADD_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -2635,34 +3233,76 @@ void MysqlMgr::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::Lib
 
     if(UNLIKELY(hasModify))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
             return;
         }
+        else if(counter)
+        {
+            ++(*counter);
+        }
     }
 
     if(LIKELY(!fields.empty()))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         insertBuilder->Fields(fields);
         insertBuilder->Values(values);
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {insertBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%s"), err, logic->GetObjName().c_str(), key.c_str());
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true))[Params::VAR_LOGIC] = logic;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 }
 
 void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::MODIFY_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -2783,13 +3423,25 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
 
     if(UNLIKELY(hasModify))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
             return;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 
@@ -2808,20 +3460,50 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
         v->SetData(keyData.pop());
         fieldDatas.push_back(v);
 
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {updateBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas);
+        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%s"), err, logic->GetObjName().c_str(), key.c_str());
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::MODIFY_TYPE, true))[Params::VAR_LOGIC] = logic;
+        }
+        else if(counter)
+        {
+            ++(*counter);
         }
     }
 }
 
 void MysqlMgr::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::DEL_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -2855,20 +3537,50 @@ void MysqlMgr::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
         fields[0] = v;
     }
 
+    // 传入参数
+    KERNEL_NS::Variant *var = NULL;
+    if(handler)
+    {
+        var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        var->BecomeDict()[Params::VAR_COUNTER] = counter;
+    }
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
-        *dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true) = logic;
+        (*dirtyHelper->MaskDirty(key, MysqlDirtyType::DEL_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
+    }
+    else if(counter)
+    {
+        ++(*counter);
     }
 }
 
 void MysqlMgr::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params)
 {
-    auto logic = params->AsPtr<ILogicSys>();
+    auto logic = (*params)[Params::VAR_LOGIC].AsPtr<ILogicSys>();
+    Int64 *counter = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_COUNTER);
+        if(iter != params->EndDict())
+        {
+            counter = iter->second.AsPtr<Int64>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::IDelegate<void> *handler = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_HANDLER);
+        if(iter != params->EndDict())
+        {
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            params->EraseDict(iter);
+        }
+    }
     dirtyHelper->Clear(key, MysqlDirtyType::REPLACE_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -2980,28 +3692,72 @@ void MysqlMgr::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS:
 
     if(UNLIKELY(hasModify))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {});
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
             return;
         }
+        else if(counter)
+        {
+            ++(*counter);
+        }
     }
 
     if(LIKELY(!fields.empty()))
     {
+        // 传入参数
+        KERNEL_NS::Variant *var = NULL;
+        if(handler)
+        {
+            var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+            var->BecomeDict()[Params::VAR_HANDLER] = handler;
+            var->BecomeDict()[Params::VAR_COUNTER] = counter;
+        }
         replaceBuilder->Fields(fields);
         replaceBuilder->Values(values);
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {replaceBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas,  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%s"), err, logic->GetObjName().c_str(), key.c_str());
-            *dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true) = logic;
+            (*dirtyHelper->MaskDirty(key, MysqlDirtyType::REPLACE_TYPE, true))[Params::VAR_LOGIC] = logic;
         }
+        else if(counter)
+        {
+            ++(*counter);
+        }
+    }
+}
+
+void MysqlMgr::_OnDurtyPurgeFinishHandler(KERNEL_NS::MysqlResponse *res)
+{
+    auto var = res->_var;
+    if(UNLIKELY(!var))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("lack of var res:%s"), res->ToString().c_str());
+        return;
+    }
+
+    auto counter = (*var)[Params::VAR_COUNTER].AsPtr<Int64>();
+    auto handler = (*var)[Params::VAR_HANDLER].AsPtr<KERNEL_NS::IDelegate<void>>();
+    --(*counter);
+    if(*counter == 0)
+    {
+        handler->Invoke();
+        handler->Release();
+        KERNEL_FREE_MEMORY_TL(counter);
     }
 }
 

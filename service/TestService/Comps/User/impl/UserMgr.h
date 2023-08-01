@@ -27,3 +27,24 @@
 */
 
 #pragma once
+
+#include <Comps/User/interface/IUserMgr.h>
+
+SERVICE_BEGIN
+
+class UserMgr : public IUserMgr
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IUserMgr, UserMgr);
+
+public:
+    UserMgr();
+    ~UserMgr();
+    void Release() override;
+    
+    virtual void OnRegisterComps() override; 
+
+private:
+
+};
+
+SERVICE_END

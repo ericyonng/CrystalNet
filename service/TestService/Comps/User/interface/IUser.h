@@ -42,9 +42,6 @@ public:
     virtual IUserMgr *GetUserMgr() = 0;
     virtual const IUserMgr *GetUserMgr() const = 0;
 
-    virtual KERNEL_NS::EventManager *GetEventMgr() = 0;
-    virtual const KERNEL_NS::EventManager *GetEventMgr() const = 0;
-
     virtual KERNEL_NS::ListenerStub AddListener(int id,
                                         KERNEL_NS::IDelegate<void, KERNEL_NS::LibEvent *> *listener,
                                         const KERNEL_NS::ListenerStub &bindedStub = INVALID_LISTENER_STUB) = 0;

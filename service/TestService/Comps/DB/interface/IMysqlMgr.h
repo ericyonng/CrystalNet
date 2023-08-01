@@ -74,6 +74,13 @@ public:
    // 获取当前数据库名
    virtual const KERNEL_NS::LibString &GetCurrentServiceDbOption() const = 0;
    virtual const KERNEL_NS::LibString &GetCurrentServiceDbName() const = 0;
+
+   // 清洗数据, 数据全部落地后调用handler handler内部释放
+   virtual void PurgeEndWith(KERNEL_NS::IDelegate<void> *handler) = 0;
+   template<typename CallbackType>
+   void PurgeEndWith(CallbackType &&cb);
+   template<typename ObjType>
+   void PurgeEndWith(ObjType *obj, void (ObjType::*handler)());
 };
 
 template<typename ObjType>
@@ -158,6 +165,20 @@ ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibSt
     }
 
     return Status::Success;
+}
+
+template<typename CallbackType>
+ALWAYS_INLINE void IMysqlMgr::PurgeEndWith(CallbackType &&cb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void);
+    PurgeEndWith(delg);
+}
+
+template<typename ObjType>
+ALWAYS_INLINE void IMysqlMgr::PurgeEndWith(ObjType *obj, void (ObjType::*handler)())
+{
+    auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
+    PurgeEndWith(delg);
 }
 
 SERVICE_END

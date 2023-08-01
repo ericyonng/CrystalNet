@@ -79,16 +79,16 @@ extern void KernelFreeMemoryBy(void *pool, void *ptr);
 
 // 内存分配宏
 #ifndef KERNEL_ALLOC_MEMORY_TL 
- #define KERNEL_ALLOC_MEMORY_TL(Sz) KernelAllocMemory<_Build::TL>(Sz)
+ #define KERNEL_ALLOC_MEMORY_TL(Sz) KERNEL_NS::KernelAllocMemory<KERNEL_NS::_Build::TL>(Sz)
 #endif
 #ifndef KERNEL_ALLOC_MEMORY_MT 
- #define KERNEL_ALLOC_MEMORY_MT(Sz) KernelAllocMemory<_Build::MT>(Sz)
+ #define KERNEL_ALLOC_MEMORY_MT(Sz) KERNEL_NS::KernelAllocMemory<KERNEL_NS::_Build::MT>(Sz)
 #endif
 #ifndef KERNEL_FREE_MEMORY_TL
- #define KERNEL_FREE_MEMORY_TL(Ptr) KernelFreeMemory<_Build::TL>(Ptr)
+ #define KERNEL_FREE_MEMORY_TL(Ptr) KERNEL_NS::KernelFreeMemory<KERNEL_NS::_Build::TL>(Ptr)
 #endif
 #ifndef KERNEL_FREE_MEMORY_MT
- #define KERNEL_FREE_MEMORY_MT(Ptr) KernelFreeMemory<_Build::MT>(Ptr)
+ #define KERNEL_FREE_MEMORY_MT(Ptr) KERNEL_NS::KernelFreeMemory<KERNEL_NS::_Build::MT>(Ptr)
 #endif
 
 // 类型转换

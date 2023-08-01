@@ -109,6 +109,26 @@ struct DirtyMask
         return params;
     }
 
+    Variant *GetVar(Int32 dirtyType)
+    {
+        return _dirtyTypeRefVariant[dirtyType];
+    }
+
+    const Variant *GetVar(Int32 dirtyType) const
+    {
+        return _dirtyTypeRefVariant[dirtyType];
+    }
+
+    Variant *AddVar(Int32 dirtyType)
+    {
+        if(UNLIKELY(_dirtyTypeRefVariant[dirtyType]))
+            return _dirtyTypeRefVariant[dirtyType];
+
+        auto var = Variant::NewThreadLocal_Variant();
+        _dirtyTypeRefVariant[dirtyType] = var;
+        return var;
+    }
+
     bool IsDirty(Int32 dirtyType) const
     {
         return BitUtil::IsSet(_mask, dirtyType);
@@ -186,6 +206,8 @@ public:
     bool IsDirty(KeyType k, Int32 dirtyType) const;
     const DirtyMask<KeyType, MaskValue> *GetMask(KeyType k) const;
     DirtyMask<KeyType, MaskValue> *GetMask(KeyType k);
+
+    std::map<KeyType, DirtyMask<KeyType, MaskValue> *> &GetAllMasks();
     
 
     bool HasDirty() const;
@@ -194,6 +216,7 @@ public:
     UInt64 GetLoaded() const;
     // 脏标记需要在回调中移除,否则一直在
     void Purge(const LibCpuCounter &deadline, LibString *errorLog = NULL);
+    void Purge(const LibCpuCounter &deadline, Variant *addVar, LibString *errorLog = NULL);
 
 private:
     void _AfterPurge();
@@ -389,6 +412,12 @@ inline DirtyMask<KeyType, MaskValue> *LibDirtyHelper<KeyType, MaskValue>::GetMas
     }
 
     return mask;
+}
+
+template<typename KeyType, typename MaskValue>
+ALWAYS_INLINE std::map<KeyType, DirtyMask<KeyType, MaskValue> *> &LibDirtyHelper<KeyType, MaskValue>::GetAllMasks()
+{
+    return _keyRefMask;
 }
 
 template<typename KeyType, typename MaskValue>

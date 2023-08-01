@@ -14,3 +14,5 @@
 
 ​	IUserMgr是管理User的GlobalSys组件
 
+* 
+

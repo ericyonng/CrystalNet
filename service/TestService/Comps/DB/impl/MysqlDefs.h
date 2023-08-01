@@ -177,7 +177,8 @@ class MysqlDirtyType
 public:
     enum ENUMS
     {
-        ADD_TYPE = 1,           // 增
+        BEGIN = 1,
+        ADD_TYPE = BEGIN,           // 增
         MODIFY_TYPE = 2,        // 改
         DEL_TYPE = 3,           // 删
         REPLACE_TYPE = 4,       // 覆盖

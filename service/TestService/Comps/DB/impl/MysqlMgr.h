@@ -65,6 +65,8 @@ public:
    virtual const KERNEL_NS::LibString &GetCurrentServiceDbOption() const override;
    virtual const KERNEL_NS::LibString &GetCurrentServiceDbName() const override;
 
+    // 清洗数据
+   virtual void PurgeEndWith(KERNEL_NS::IDelegate<void> *handler) override;
 
    virtual Int32 OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const override;
    virtual Int32 OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) override;
@@ -111,6 +113,8 @@ protected:
     void _OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params);
     void _OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params);
     void _OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper, KERNEL_NS::LibString &key, KERNEL_NS::Variant *params);
+
+    void _OnDurtyPurgeFinishHandler(KERNEL_NS::MysqlResponse *res);
 
     void _InitNumberDirtyHelper(const IStorageInfo *storageInfo, KERNEL_NS::LibDirtyHelper<UInt64, UInt64> *dirtyHelper);
     void _InitStringDirtyHelper(const IStorageInfo *storageInfo, KERNEL_NS::LibDirtyHelper<KERNEL_NS::LibString, UInt64> *dirtyHelper);
