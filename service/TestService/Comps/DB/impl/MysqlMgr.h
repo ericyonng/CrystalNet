@@ -51,7 +51,8 @@ public:
     virtual void RegisterDependence(ILogicSys *obj) override;
     virtual void UnRegisterDependence(const ILogicSys *obj) override;
 
-    virtual Int32 NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var = NULL) override;
+    // msqQueue:使用指定的消息队列, 用于做同步使用
+    virtual Int32 NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL) override;
 
    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key, bool isRightRow = false) override;
    virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key, bool isRightRow = false) override;
@@ -66,7 +67,10 @@ public:
    virtual const KERNEL_NS::LibString &GetCurrentServiceDbName() const override;
 
     // 清洗数据
-   virtual void PurgeEndWith(KERNEL_NS::IDelegate<void> *handler) override;
+   virtual void PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler) override;
+   
+   // 同步接口, 持久化且等完成后回调
+   virtual Int32 PurgeAndWaitComplete(ILogicSys *logic) override;
 
    virtual Int32 OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const override;
    virtual Int32 OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) override;

@@ -129,9 +129,15 @@ void TestMgr::OnWillStartup()
              _MakeNewTestData();
 
         auto maxId = _maxId;
-        GetService()->GetComp<IMysqlMgr>()->PurgeEndWith([maxId, this](){
-            g_Log->Info(LOGFMT_OBJ_TAG("purge finished maxId:%llu"), maxId);
+        GetService()->GetComp<IMysqlMgr>()->PurgeEndWith([maxId, this](Int32 errCode){
+            g_Log->Info(LOGFMT_OBJ_TAG("purge finished maxId:%llu, errCode:%d"), maxId, errCode);
         });
+
+        // for(auto idx = 0; idx < 10; ++idx)
+        //      _MakeNewTestData();
+
+        // 同步调用
+         // GetService()->GetComp<IMysqlMgr>()->PurgeAndWaitComplete(this);
     });
 
     timer->Schedule(1000);

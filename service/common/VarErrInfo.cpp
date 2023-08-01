@@ -21,25 +21,16 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-06-26 17:36:11
+ * Date: 2023-08-01 23:54:30
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_COMMON_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_COMMON_H__
-
-#pragma once
-
-#include <service/common/macro.h>
-#include <service/common/status.h>
-#include <service/common/Params.h>
-#include <service/common/AppAlias.h>
-#include <service/common/PriorityLevelDefine.h>
+#include <pch.h>
 #include <service/common/VarErrInfo.h>
 
-#include <service/common/ServiceConfig.h>
-#include <service/common/SessionType.h>
-#include <service/common/BaseComps/BaseComps.h>
+SERVICE_BEGIN
+POOL_CREATE_OBJ_DEFAULT_IMPL(VarErrInfo);
+POOL_CREATE_OBJ_DEFAULT_IMPL(VarErrInfoList);
 
-#endif
+SERVICE_END

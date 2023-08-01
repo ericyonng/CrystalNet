@@ -55,5 +55,7 @@ namespace Status
         DBNewRequestFail,                                   // 创建新的db request失败
         SerializeFail,                                      // 序列化失败
         DBCheckDropTablesFail,                              // 清库失败
+        DBError,                                            // db错误
+        PurgeFail,                                          // 数据清洗失败
     };
 }

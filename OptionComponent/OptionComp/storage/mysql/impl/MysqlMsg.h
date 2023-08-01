@@ -71,6 +71,62 @@ public:
     }
 };
 
+class MysqlMsgQueue
+{
+    POOL_CREATE_OBJ_DEFAULT(MysqlMsgQueue);
+
+    MysqlMsgQueue();
+    ~MysqlMsgQueue();
+
+public:
+    static MysqlMsgQueue *Cerate();
+    void Release();
+
+    void PushQueue(MysqlResponse *msg);
+    void Wait(LibList<MysqlResponse *> *queuesOut, UInt64 milliseconds = 3000);
+
+private:
+    UInt64 _MergeTailAllTo(LibList<MysqlResponse *> * queuesOut);
+
+private:
+    KERNEL_NS::ConcurrentPriorityQueue<MysqlResponse *> *_msgQueue;
+    KERNEL_NS::ConditionLocker _lck;
+};
+
+ALWAYS_INLINE MysqlMsgQueue *MysqlMsgQueue::Cerate()
+{
+    return MysqlMsgQueue::NewThreadLocal_MysqlMsgQueue();
+}
+
+ALWAYS_INLINE void MysqlMsgQueue::Release()
+{
+    MysqlMsgQueue::DeleteThreadLocal_MysqlMsgQueue(this);
+}
+
+ALWAYS_INLINE void MysqlMsgQueue::PushQueue(MysqlResponse *msg)
+{
+    _msgQueue->PushQueue(0, msg);
+
+    _lck.Sinal();
+}
+
+ALWAYS_INLINE void MysqlMsgQueue::Wait(LibList<MysqlResponse *> *queuesOut, UInt64 milliseconds)
+{
+    _lck.Lock();
+    _lck.TimeWait(milliseconds);
+    _lck.Unlock();
+
+    _MergeTailAllTo(queuesOut);
+}
+
+ALWAYS_INLINE UInt64 MysqlMsgQueue::_MergeTailAllTo(LibList<MysqlResponse *> *queuesOut)
+{
+    std::vector<LibList<MysqlResponse *> *> resQueue;
+    resQueue.push_back(queuesOut);
+
+    return _msgQueue->MergeTailAllTo(resQueue);
+}
+
 class MysqlRequest
 {
     POOL_CREATE_OBJ_DEFAULT(MysqlRequest);
@@ -103,6 +159,8 @@ public:
     LibString _dbName;
     // 透传参数
     Variant *_var;
+    // 消息返回的通道 _msgQueue 由外部释放, 这里不做释放
+    MysqlMsgQueue *_msgQueue;
 };
 
 class MysqlResponse

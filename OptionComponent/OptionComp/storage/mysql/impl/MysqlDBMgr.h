@@ -63,6 +63,7 @@ public:
 public:
     // 新建序列号id
     UInt64 NewSeqId();
+    void RemovePendingSeqId(UInt64 seqId);
     // 系统,用户若需要操作数据库都需要持有一个操作id, 用于负载均衡
     Int32 NewOperatorUid(const LibString &dbName);
     // NewOperatorUid 的时候跳过该id, 保证该id使用者不受其他使用者干扰
@@ -162,6 +163,11 @@ private:
 ALWAYS_INLINE UInt64 MysqlDBMgr::NewSeqId()
 {
     return ++_maxSeqId;
+}
+
+ALWAYS_INLINE void MysqlDBMgr::RemovePendingSeqId(UInt64 seqId)
+{
+    _pendingSeqs.erase(seqId);
 }
 
 ALWAYS_INLINE void MysqlDBMgr::SetMsgBackPoller(Poller *poller)

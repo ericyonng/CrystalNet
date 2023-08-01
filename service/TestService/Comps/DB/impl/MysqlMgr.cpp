@@ -86,7 +86,7 @@ void MysqlMgr::UnRegisterDependence(const ILogicSys *obj)
     _tableNameRefLogic.erase(obj->GetStorageInfo()->GetTableName());
 }
 
-Int32 MysqlMgr::NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var)
+Int32 MysqlMgr::NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
 {
     stub = 0;
     auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
@@ -134,6 +134,7 @@ Int32 MysqlMgr::NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int
     req->_handler = cb;
     req->_isDestroyHandler = isDestroyHandler;
     req->_dbName = dbName;
+    req->_msgQueue = msqQueue;
 
     if(var)
     {
@@ -507,13 +508,13 @@ const KERNEL_NS::LibString &MysqlMgr::GetCurrentServiceDbName() const
     return _currentServiceDBName;
 }
 
-void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void> *handler)
+void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
 {
     if(UNLIKELY(_dirtyLogics.empty()))
     {
         if(LIKELY(handler))
         {
-            handler->Invoke();
+            handler->Invoke(Status::Success);
             handler->Release();
         }
         
@@ -526,6 +527,7 @@ void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void> *handler)
     KERNEL_NS::LibString err;
     auto counter = reinterpret_cast<Int64 *>(KERNEL_ALLOC_MEMORY_TL(sizeof(Int64)));
     *counter = 0;
+    auto errList = VarErrInfoList::Create();
     for(auto iter = _dirtyLogics.begin(); iter != _dirtyLogics.end();)
     {
         auto logic = *iter;
@@ -550,6 +552,7 @@ void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void> *handler)
 
                     var->BecomeDict()[Params::VAR_HANDLER] = handler;
                     var->BecomeDict()[Params::VAR_COUNTER] = counter;
+                    var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
                 }
             }
 
@@ -586,6 +589,7 @@ void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void> *handler)
 
                     var->BecomeDict()[Params::VAR_HANDLER] = handler;
                     var->BecomeDict()[Params::VAR_COUNTER] = counter;
+                    var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
                 }
             }
 
@@ -607,13 +611,164 @@ void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void> *handler)
 
     if(UNLIKELY(*counter == 0))
     {
-        handler->Invoke();
+        // TODO:落地失败的正常来说应该踢掉内存中的User，重新登陆，以便剔除脏数据
+        handler->Invoke(Status::PurgeFail);
         handler->Release();
         KERNEL_FREE_MEMORY_TL(counter);
+        errList->Release();
         g_Log->Error(LOGFMT_OBJ_TAG("dirty but have no request to mysql thread"));
     }
     if(UNLIKELY(!err.empty()))
         g_Log->Warn(LOGFMT_OBJ_TAG("purge err:%s"), err.c_str());
+}
+
+Int32 MysqlMgr::PurgeAndWaitComplete(ILogicSys *logic)
+{
+    auto iter = _dirtyLogics.find(logic);
+    if(UNLIKELY(iter == _dirtyLogics.end()))
+        return Status::Success;
+
+    auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
+    auto &&startCounter = KERNEL_NS::LibCpuCounter::Current();
+    auto &&deadLine = KERNEL_NS::LibCpuCounter(0);
+    KERNEL_NS::LibString err;
+    auto counter = reinterpret_cast<Int64 *>(KERNEL_ALLOC_MEMORY_TL(sizeof(Int64)));
+    *counter = 0;
+    KERNEL_NS::SmartPtr<KERNEL_NS::MysqlMsgQueue, KERNEL_NS::AutoDelMethods::Release> msgQueue = KERNEL_NS::MysqlMsgQueue::Cerate();
+
+    do
+    {
+        auto iterNumberKey = _logicRefNumberDirtyHelper.find(logic);
+        if(iterNumberKey != _logicRefNumberDirtyHelper.end())
+        {
+            // 传入参数
+            auto dirtyHelper = iterNumberKey->second;
+            auto &allMasks = dirtyHelper->GetAllMasks();
+            for(auto iter : allMasks)
+            {
+                auto mask = iter.second;
+                for(Int32 idx = MysqlDirtyType::BEGIN; idx < MysqlDirtyType::MAX_TYPE; ++idx)
+                {
+                    if(!mask->IsDirty(idx))
+                        continue;
+
+                    auto var = mask->GetVar(idx);
+                    if(!var)
+                        var = mask->AddVar(idx);
+
+                    var->BecomeDict()[Params::VAR_COUNTER] = counter;
+                    var->BecomeDict()[Params::VAR_MSG_QUEUE] = msgQueue.AsSelf();
+                }
+            }
+
+            iterNumberKey->second->Purge(deadLine, &err);
+            if(!iterNumberKey->second->HasDirty())
+            {
+                iter = _dirtyLogics.erase(iter);
+            }
+
+            break;
+        }
+
+        auto iterStringKey = _logicRefStringDirtyHelper.find(logic);
+        if(iterStringKey != _logicRefStringDirtyHelper.end())
+        {
+            // 传入参数
+            auto dirtyHelper = iterNumberKey->second;
+            auto &allMasks = dirtyHelper->GetAllMasks();
+            for(auto iter : allMasks)
+            {
+                auto mask = iter.second;
+                for(Int32 idx = MysqlDirtyType::BEGIN; idx < MysqlDirtyType::MAX_TYPE; ++idx)
+                {
+                    if(!mask->IsDirty(idx))
+                        continue;
+
+                    auto var = mask->GetVar(idx);
+                    if(!var)
+                        var = mask->AddVar(idx);
+
+                    var->BecomeDict()[Params::VAR_COUNTER] = counter;
+                    var->BecomeDict()[Params::VAR_MSG_QUEUE] = msgQueue.AsSelf();
+                }
+            }
+
+            iterStringKey->second->Purge(deadLine, &err);
+            if(!iterStringKey->second->HasDirty())
+            {
+                iter = _dirtyLogics.erase(iter);
+            }
+
+            break;
+        }
+    } while (false);
+
+    if(UNLIKELY(!err.empty()))
+        g_Log->Warn(LOGFMT_OBJ_TAG("purge err:%s"), err.c_str());
+
+    if(UNLIKELY(*counter == 0))
+    {
+        // TODO:落地失败的正常来说应该踢掉内存中的User，重新登陆，以便剔除脏数据
+        KERNEL_FREE_MEMORY_TL(counter);
+        g_Log->Error(LOGFMT_OBJ_TAG("dirty but have no request to mysql thread"));
+        return Status::PurgeFail;
+    }
+
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *>, KERNEL_NS::AutoDelMethods::CustomDelete> resList = KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *>::New_LibList();
+    resList.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *> *>(p);
+
+        KERNEL_NS::ContainerUtil::DelContainer(*ptr, [](KERNEL_NS::MysqlResponse *res){
+            KERNEL_NS::MysqlResponse::Delete_MysqlResponse(res);
+        });
+        KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *>::Delete_LibList(ptr);
+    });
+
+    const auto &start = KERNEL_NS::LibCpuCounter::Current();
+    for(;;)
+    {
+        msgQueue->Wait(resList.AsSelf());
+
+        const auto elapseMilliSeconds = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(start);
+
+        if(resList->IsEmpty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("still have no mysql response please check, logic:%s"), logic->GetObjName().c_str());
+        }
+        else if(resList->GetAmount() >= static_cast<UInt64>(*counter))
+        {
+            break;
+        }
+        
+        if(elapseMilliSeconds >= 3000)
+        {// 3 秒后打印警告
+            g_Log->Warn(LOGFMT_OBJ_TAG("wait time out over 3 seconds please check resList count :%llu logic:%s."), resList->GetAmount(), logic->GetObjName().c_str());
+        }
+    }
+
+    // 收到所有的包
+    Int32 errCode = Status::Success;
+    auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
+    for(auto node = resList->Begin(); node;)
+    {
+        auto res = node->_data;
+        if(LIKELY(res->_handler))
+            res->_handler->Invoke(res);
+
+        if(UNLIKELY(res->_errCode != Status::Success))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("purge fail seqId:%llu, errCode:%d, res:%s")
+                    , res->_seqId, res->_errCode, res->ToString().c_str());
+
+            errCode = res->_errCode;
+        }
+
+        dbMgr->RemovePendingSeqId(res->_seqId);
+        KERNEL_NS::MysqlResponse::Delete_MysqlResponse(res);
+        node = resList->Erase(node);
+    }
+
+    return errCode;
 }
 
 Int32 MysqlMgr::OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
@@ -1522,15 +1677,34 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
             params->EraseDict(iter);
         }
     }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
+            params->EraseDict(iter);
+        }
+    }
+
     dirtyHelper->Clear(key, MysqlDirtyType::ADD_TYPE);
     if(UNLIKELY(!logic))
     {
@@ -1581,14 +1755,16 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -1623,15 +1799,17 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
     
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newAddSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key);
@@ -1656,12 +1834,30 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -1712,16 +1908,18 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -1757,15 +1955,17 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
 
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newUpdateSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -1790,12 +1990,30 @@ void MysqlMgr::_OnKvSystemNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -1833,15 +2051,18 @@ void MysqlMgr::_OnKvSystemNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
 
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -1866,12 +2087,30 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -1922,15 +2161,17 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -1966,15 +2207,17 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
     
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newReplaceSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -1999,12 +2242,30 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -2055,15 +2316,18 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -2098,15 +2362,17 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
     
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newAddSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -2131,12 +2397,30 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -2186,15 +2470,18 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -2230,15 +2517,18 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
 
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newUpdateSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -2263,12 +2553,30 @@ void MysqlMgr::_OnKvSystemStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -2306,15 +2614,18 @@ void MysqlMgr::_OnKvSystemStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
 
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -2339,12 +2650,30 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -2394,15 +2723,18 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, key:%s"), err, key.c_str());
@@ -2438,15 +2770,18 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
     
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newReplaceSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s,  key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -2471,12 +2806,30 @@ void MysqlMgr::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -2593,15 +2946,18 @@ void MysqlMgr::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -2617,17 +2973,20 @@ void MysqlMgr::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         insertBuilder->Fields(fields);
         insertBuilder->Values(values);
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {insertBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -2652,12 +3011,30 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -2784,15 +3161,18 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+\
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -2823,15 +3203,18 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {updateBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -2856,12 +3239,30 @@ void MysqlMgr::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -2901,15 +3302,18 @@ void MysqlMgr::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
 
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields,  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields,  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -2934,12 +3338,30 @@ void MysqlMgr::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UI
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -3056,15 +3478,18 @@ void MysqlMgr::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UI
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -3080,17 +3505,20 @@ void MysqlMgr::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UI
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         replaceBuilder->Fields(fields);
         replaceBuilder->Values(values);
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {replaceBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas,  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas,  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -3115,12 +3543,30 @@ void MysqlMgr::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::Lib
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -3235,15 +3681,18 @@ void MysqlMgr::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::Lib
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3259,17 +3708,20 @@ void MysqlMgr::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::Lib
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         insertBuilder->Fields(fields);
         insertBuilder->Values(values);
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {insertBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3294,12 +3746,30 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -3425,15 +3895,18 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3462,15 +3935,18 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {updateBuilder.pop()};
-        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3495,12 +3971,30 @@ void MysqlMgr::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -3539,15 +4033,18 @@ void MysqlMgr::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
 
     // 传入参数
     KERNEL_NS::Variant *var = NULL;
-    if(handler)
-    {
+    if(handler || counter || mysqlQueue || errList)
         var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+    if(handler)
         var->BecomeDict()[Params::VAR_HANDLER] = handler;
+    if(counter)
         var->BecomeDict()[Params::VAR_COUNTER] = counter;
-    }
+    if(errList)
+        var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
     UInt64 stub = 0;
     std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3572,12 +4069,30 @@ void MysqlMgr::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS:
             params->EraseDict(iter);
         }
     }
-    KERNEL_NS::IDelegate<void> *handler = NULL;
+    KERNEL_NS::IDelegate<void, Int32> *handler = NULL;
     {
         auto iter = params->FindDict(Params::VAR_HANDLER);
         if(iter != params->EndDict())
         {
-            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void>>();
+            handler = iter->second.AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+            params->EraseDict(iter);
+        }
+    }
+    VarErrInfoList *errList = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_ERROR_INFO);
+        if(iter != params->EndDict())
+        {
+            errList = iter->second.AsPtr<VarErrInfoList>();
+            params->EraseDict(iter);
+        }
+    }
+    KERNEL_NS::MysqlMsgQueue *mysqlQueue = NULL;
+    {
+        auto iter = params->FindDict(Params::VAR_MSG_QUEUE);
+        if(iter != params->EndDict())
+        {
+            mysqlQueue = iter->second.AsPtr<KERNEL_NS::MysqlMsgQueue>();
             params->EraseDict(iter);
         }
     }
@@ -3694,15 +4209,18 @@ void MysqlMgr::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS:
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3718,17 +4236,20 @@ void MysqlMgr::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS:
     {
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
-        if(handler)
-        {
+        if(handler || counter || mysqlQueue || errList)
             var = KERNEL_NS::Variant::NewThreadLocal_Variant();
+        if(handler)
             var->BecomeDict()[Params::VAR_HANDLER] = handler;
+        if(counter)
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
-        }
+        if(errList)
+            var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
+
         replaceBuilder->Fields(fields);
         replaceBuilder->Values(values);
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {replaceBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas,  var ? this : NULL, var ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas,  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3751,12 +4272,28 @@ void MysqlMgr::_OnDurtyPurgeFinishHandler(KERNEL_NS::MysqlResponse *res)
     }
 
     auto counter = (*var)[Params::VAR_COUNTER].AsPtr<Int64>();
-    auto handler = (*var)[Params::VAR_HANDLER].AsPtr<KERNEL_NS::IDelegate<void>>();
+    auto errList = (*var)[Params::VAR_ERROR_INFO].AsPtr<VarErrInfoList>();
+    auto handler = (*var)[Params::VAR_HANDLER].AsPtr<KERNEL_NS::IDelegate<void, Int32>>();
+    if(UNLIKELY(res->_errCode != Status::Success))
+    {
+        auto newErr = VarErrInfo::Create();
+        newErr->_errCode = res->_errCode;
+        newErr->_seqId = res->_seqId;
+        errList->_errList.push_back(newErr);
+
+        g_Log->Warn(LOGFMT_OBJ_TAG("purge fail seqId:%llu, errCode:%d, res:%s")
+                , newErr->_seqId, newErr->_errCode, res->ToString().c_str());
+    }
+    
     --(*counter);
     if(*counter == 0)
     {
-        handler->Invoke();
+        if(UNLIKELY(!errList->IsEmpty()))
+            g_Log->Warn(LOGFMT_OBJ_TAG("[WAIT PURGE COMPLETE WITH FAIL]:%s"), errList->ToString().c_str());
+
+        handler->Invoke(errList->IsEmpty() ? Status::Success : Status::DBError);
         handler->Release();
+        errList->Release();
         KERNEL_FREE_MEMORY_TL(counter);
     }
 }

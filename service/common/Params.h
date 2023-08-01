@@ -59,6 +59,8 @@ namespace Params
         VAR_HANDLER,        // 处理函数
         VAR_COUNTER,        // 计数
         VAR_LOGIC,          // logic参数
+        VAR_ERROR_INFO,     // VarErrInfoList
+        VAR_MSG_QUEUE,      // 放一个消息队列
     };
 }
 

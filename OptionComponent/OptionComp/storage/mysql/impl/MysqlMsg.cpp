@@ -34,8 +34,22 @@
 
 KERNEL_BEGIN
 
+POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlMsgQueue);
 POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlRequest);
 POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlResponse);
+
+MysqlMsgQueue::MysqlMsgQueue()
+:_msgQueue(KERNEL_NS::ConcurrentPriorityQueue<MysqlResponse *>::New_ConcurrentPriorityQueue())
+{
+    _msgQueue->SetMaxLevel(0);
+    _msgQueue->Init();
+}
+
+MysqlMsgQueue::~MysqlMsgQueue()
+{
+    if(LIKELY(_msgQueue))
+        _msgQueue->Destroy();
+}
 
 MysqlRequest::MysqlRequest()
 :_dbOperatorId(0)
@@ -45,6 +59,7 @@ MysqlRequest::MysqlRequest()
 ,_handler(NULL)
 ,_isDestroyHandler(true)
 ,_var(NULL)
+,_msgQueue(NULL)
 {
 
 }
@@ -62,6 +77,9 @@ MysqlRequest::~MysqlRequest()
         Variant::DeleteThreadLocal_Variant(_var);
         _var = NULL;
     }
+
+    // msg queue是不释放的
+    _msgQueue = NULL;
 }
 
 LibString MysqlRequest::ToString() const

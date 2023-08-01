@@ -478,13 +478,19 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req)
                     , req->Dump(), LibString().AppendFormat("\nfail sqls:\n"), failBuilder);
     }
 
+    // 使用指定的消息队列
+    if(req->_msgQueue)
+    {
+        req->_msgQueue->PushQueue(res.pop());
+        return;
+    }
+
     // 返回res
     if(LIKELY(_targetPoller && (_eventType > 0)))
     {
         auto dbEvent = DbEvent::New_DbEvent(_eventType);
         dbEvent->_res = res.AsSelf();
         _targetPoller->Push(_msgLevel, dbEvent);
-
         res.pop();
     }
 }
@@ -601,6 +607,13 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
                     , req->Dump(), LibString().AppendFormat("\nfail sqls:\n"), failBuilder);
     }
 
+    // 使用指定的消息队列
+    if(req->_msgQueue)
+    {
+        req->_msgQueue->PushQueue(res.pop());
+        return;
+    }
+
     // 返回res
     if(LIKELY(_targetPoller && (_eventType > 0)))
     {
@@ -670,6 +683,13 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
     g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
                     , res->_seqId, res->_dbName.c_str(), res->_affectedRows, res->_maxInsertId, res->_isRequestSendToMysql, res->_errCode, res->_mysqlErrno));
 
+    // 使用指定的消息队列
+    if(req->_msgQueue)
+    {
+        req->_msgQueue->PushQueue(res.pop());
+        return;
+    }
+    
     // 返回res
     if(LIKELY(_targetPoller && (_eventType > 0)))
     {
