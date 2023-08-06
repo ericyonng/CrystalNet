@@ -142,3 +142,12 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, TitleInfoResFactory::CreateFactory()));
     }
+
+    {// LoginInfoNty
+        auto info = OpcodeInfo();
+        info._opcode = 22;
+        info._opcodeName = "LoginInfoNty";
+        info._protoFile = "login.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, LoginInfoNtyFactory::CreateFactory()));
+    }

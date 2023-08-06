@@ -36,11 +36,6 @@ class TestMgrStorage : public IStorageInfo
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IStorageInfo, TestMgrStorage);
 
-    // 字段定义
-public:
-    static constexpr const Byte8 *TABLE_NAME = "TableName";
-    static constexpr const Byte8 *SIMPLE_INFO = "SimpleInfo";
-    
 public:
     TestMgrStorage();
     ~TestMgrStorage();

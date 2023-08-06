@@ -372,11 +372,12 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IStorageInfo);
 IStorageInfo::IStorageInfo(const KERNEL_NS::LibString &systemName)
 :_systemName(systemName)
 ,_flags(0)
-,_keyStorage(NULL)
+,_primaryKeyStorage(NULL)
+,_kvModeValueStorage(NULL)
 ,_capacitySize(0)
-,_releaseCb(NULL)
 ,_inputMysqlDataType(0)
 ,_outputMysqlDataType(0)
+,_releaseCb(NULL)
 ,_dataCountLimit(-1)
 {
     _SetType(ServiceCompType::STORAGE_COMP);
@@ -459,10 +460,10 @@ void IStorageInfo::ManualClose()
 KERNEL_NS::LibString IStorageInfo::ToString() const
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("base info: system:%s, table name:%s, comment:%s, flags:%llx, sub storage info count:%d, has key storage:%d, key name:%s, field name:%s, capacity size:%llu, _dataCountlimit:%d\n"
+    info.AppendFormat("base info: system:%s, table name:%s, comment:%s, flags:%llx, sub storage info count:%d, has primary key storage:%d, primary key name:%s, primary key field name:%s, capacity size:%llu, _dataCountlimit:%d\n"
             ,_systemName.c_str(), _tableName.c_str(), _comment.c_str(),  _flags
-            , static_cast<Int32>(_subStorageInfos.size()), _keyStorage != NULL
-            , _keyStorage ? _keyStorage->GetFieldName().c_str() : ""
+            , static_cast<Int32>(_subStorageInfos.size()), _primaryKeyStorage != NULL
+            , _primaryKeyStorage ? _primaryKeyStorage->GetFieldName().c_str() : ""
             , _fieldName.c_str(), _capacitySize, _dataCountLimit);
 
     info.AppendFormat("sub storage info:[\n");

@@ -30,7 +30,17 @@
 
 #include <Comps/User/interface/IUserMgr.h>
 
+KERNEL_BEGIN
+
+class MysqlResponse;
+
+KERNEL_END
+
 SERVICE_BEGIN
+
+class IUser;
+class PendingUser;
+class User;
 
 class UserMgr : public IUserMgr
 {
@@ -40,11 +50,110 @@ public:
     UserMgr();
     ~UserMgr();
     void Release() override;
-    
+
     virtual void OnRegisterComps() override; 
+    virtual void OnWillStartup() override;
+    virtual void OnStartup() override;
+
+   virtual Int32 OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) override;
+   virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const override;
+
+    virtual IUser *GetUser(UInt64 userId);
+    virtual const IUser *GetUser(UInt64 userId) const;
+    virtual IUser *GetUser(const KERNEL_NS::LibString &accountName) override;
+    virtual const IUser *GetUser(const KERNEL_NS::LibString &accountName) const override;
+
+    virtual void MaskNumberKeyAddDirty(UInt64 key) override;
+
+    /* 登录
+    * @param(loginInfo):登录信息
+    * @param(cb):回调, Rtn:void, Int32:错误码, IUser登录成功后的user对象, Variant:传入的透传参数
+    */
+    virtual Int32 Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo
+    , KERNEL_NS::IDelegate<void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *cb
+    , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL) override;
+
+    virtual Int32 LoadUser(const KERNEL_NS::LibString &accountName
+    , KERNEL_NS::IDelegate<void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *cb
+    , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL) override;
+
+    virtual Int32 LoadUser(UInt64 userId
+    , KERNEL_NS::IDelegate<void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *cb
+    , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL) override;
+
+    Int32 LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingUser);
 
 private:
+    virtual Int32 _OnGlobalSysInit() override;
+    virtual Int32 _OnGlobalSysCompsCreated() override;
+    virtual void _OnGlobalSysClose() override;
 
+    PendingUser *_GetPendingByAccount(const KERNEL_NS::LibString &accountName);
+    const PendingUser *_GetPendingByAccount(const KERNEL_NS::LibString &accountName) const;
+    PendingUser *_GetPendingByStub(UInt64 stub);
+    const PendingUser *_GetPendingByStub(UInt64 stub) const;
+    PendingUser *_GetPendingByUserId(UInt64 userId);
+    const PendingUser *_GetPendingByUserId(UInt64 userId) const;
+    void _AddUserPendingInfo(UInt64 userId, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingInfo);
+    void _AddUserPendingInfo(const KERNEL_NS::LibString &accountName, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingInfo);
+    void _RemovePendingInfo(const KERNEL_NS::LibString &accountName);
+    void _RemovePendingInfo(UInt64 userId);
+
+    void _AddUser(User *user);
+    void _RemoveUser(User *user);
+    void _LruPopUser();
+
+    void _OnDbUserLoaded(KERNEL_NS::MysqlResponse *res);
+
+    Int32 _CheckRegisterInfo(const RegisterUserInfo &regiseterInfo) const;
+
+    void _Clear();
+
+    // TODO:需要考虑通过LoadPlayer userid产生的pending, 在LoadPlayer userId后需要移除所有该User的Pending, 并且执行该Pending后续的delegate
+    std::map<UInt64, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete>> _stubRefPendingUser;
+    std::map<KERNEL_NS::LibString, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete>> _accountNameRefPendingUser;
+    std::map<UInt64, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete>> _userIdRefPendingUser;
+
+    std::map<UInt64, IUser *> _userIdRefUser;
+    std::map<KERNEL_NS::LibString, IUser *> _accountNameRefUser;
+    std::list<IUser *> _lru;
+    Int32 _lruCapacityLimit;    // 容量限制
 };
+
+ALWAYS_INLINE PendingUser *UserMgr::_GetPendingByAccount(const KERNEL_NS::LibString &accountName)
+{
+    auto iter = _accountNameRefPendingUser.find(accountName);
+    return iter == _accountNameRefPendingUser.end() ? NULL : iter->second.AsSelf();
+}
+
+ALWAYS_INLINE const PendingUser *UserMgr::_GetPendingByAccount(const KERNEL_NS::LibString &accountName) const
+{
+    auto iter = _accountNameRefPendingUser.find(accountName);
+    return iter == _accountNameRefPendingUser.end() ? NULL : iter->second.AsSelf();
+}
+
+ALWAYS_INLINE PendingUser *UserMgr::_GetPendingByStub(UInt64 stub)
+{
+    auto iter = _stubRefPendingUser.find(stub);
+    return iter == _stubRefPendingUser.end() ? NULL : iter->second.AsSelf();
+}
+
+ALWAYS_INLINE const PendingUser *UserMgr::_GetPendingByStub(UInt64 stub) const
+{
+    auto iter = _stubRefPendingUser.find(stub);
+    return iter == _stubRefPendingUser.end() ? NULL : iter->second.AsSelf();
+}
+
+ALWAYS_INLINE PendingUser *UserMgr::_GetPendingByUserId(UInt64 userId)
+{
+    auto iter = _userIdRefPendingUser.find(userId);
+    return iter == _userIdRefPendingUser.end() ? NULL : iter->second.AsSelf();
+}
+
+ALWAYS_INLINE const PendingUser *UserMgr::_GetPendingByUserId(UInt64 userId) const
+{
+    auto iter = _userIdRefPendingUser.find(userId);
+    return iter == _userIdRefPendingUser.end() ? NULL : iter->second.AsSelf();
+}
 
 SERVICE_END

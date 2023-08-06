@@ -26,4 +26,6 @@
  * Description: 逻辑系统
 */
 
+#pragma once
+
 #include <service/common/BaseComps/LogicSys/Impl/ILogicSys.h>

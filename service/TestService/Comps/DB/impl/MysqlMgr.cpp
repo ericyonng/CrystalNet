@@ -88,7 +88,6 @@ void MysqlMgr::UnRegisterDependence(const ILogicSys *obj)
 
 Int32 MysqlMgr::NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
 {
-    stub = 0;
     auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
     auto db = dbMgr->GetDB(_currentServiceDBName);
     if(UNLIKELY(!db))
@@ -116,8 +115,11 @@ Int32 MysqlMgr::NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int
         return Status::NotFound;
     }
 
-    auto stubMgr = GetGlobalSys<IStubHandleMgr>();
-    stub = stubMgr->NewStub();
+    if(stub == 0)
+    {
+        auto stubMgr = GetGlobalSys<IStubHandleMgr>();
+        stub = stubMgr->NewStub();
+    }
 
     auto req = KERNEL_NS::MysqlRequest::New_MysqlRequest();
     req->_dbOperatorId = dbOperatorId;
@@ -1420,7 +1422,7 @@ bool MysqlMgr::_CheckDropTables()
             MaskStringKeyModifyDirty(tableInfo->_tableName);
 
             // 禁止清表
-            if(logic->GetStorageInfo()->HasFlags(StorageFlagType::DISABLE_AUTO_DROP_FLAG))
+            if(logic->GetStorageInfo()->IsDisableAutoDrop())
                 continue;
 
             // 系统表也需要清理, 清理后需要立即创建
@@ -1562,13 +1564,15 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
     auto storageInfo = logic->GetStorageInfo();
     if(storageInfo->IsKvSystem())
     {
-        const auto &keyName = storageInfo->GetKeyStorage()->GetFieldName();
+        const auto &keyName = storageInfo->GetPrimaryKeyStorage()->GetFieldName();
+        auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
+        const auto &valueFieldName = valueStorageInfo->GetFieldName();
         if(storageInfo->IsUsingNumberKey())
         {
             for(auto &record : res->_datas)
             {
                 auto keyField = record->GetField(keyName);
-                auto valueField = record->GetField(StorageCommonDefine::SYSTEM_DATA);
+                auto valueField = record->GetField(valueFieldName);
                 auto k = keyField->GetUInt64();
                 auto err = logic->OnLoaded(k, *valueField->GetData());
                 if(err != Status::Success)
@@ -1586,7 +1590,7 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
             for(auto &record : res->_datas)
             {
                 auto keyField = record->GetField(keyName);
-                auto valueField = record->GetField(StorageCommonDefine::SYSTEM_DATA);
+                auto valueField = record->GetField(valueFieldName);
                 KERNEL_NS::LibString k;
                 keyField->GetString(k);
                 auto err = logic->OnLoaded(k, *valueField->GetData());
@@ -1619,7 +1623,7 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
     }
     else
     {
-        const auto &keyName = storageInfo->GetKeyStorage()->GetFieldName();
+        const auto &keyName = storageInfo->GetPrimaryKeyStorage()->GetFieldName();
         if(storageInfo->IsUsingNumberKey())
         {
             for(auto &record : res->_datas)
@@ -1724,7 +1728,8 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
     }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-    auto valueStorageInfo = storageInfo->GetSubStorageByFieldName(StorageCommonDefine::SYSTEM_DATA);
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
+    auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
     data->Init(valueStorageInfo->GetCapacitySize());
     err = logic->OnSave(key, *data);
     if(err != Status::Success)
@@ -1779,20 +1784,20 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
 
     // 保存数据sql
     auto newAddSqlBuilder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
-    newAddSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName()).Fields({StorageCommonDefine::NUMBER_KEY, StorageCommonDefine::SYSTEM_DATA})
+    newAddSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName()).Fields({keyStorageInfo->GetFieldName(), valueStorageInfo->GetFieldName()})
     .Values({"?", "?"});
 
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(2);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::NUMBER_KEY, MYSQL_TYPE_LONGLONG, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_LONGLONG, 0);
         v->Write(&key, static_cast<Int64>(sizeof(key)));
         fields[0] = v;
     }
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::SYSTEM_DATA , MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() , MYSQL_TYPE_BLOB, 0);
         v->SetData(data);
         fields[1] = v;
     }
@@ -1880,7 +1885,8 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
     }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-    auto valueStorageInfo = storageInfo->GetSubStorageByFieldName(StorageCommonDefine::SYSTEM_DATA);
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
+    auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
     data->Init(valueStorageInfo->GetCapacitySize());
     err = logic->OnSave(key, *data);
     if(err != Status::Success)
@@ -1935,20 +1941,20 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
     // 保存数据sql
     auto newUpdateSqlBuilder = KERNEL_NS::UpdateSqlBuilder::NewThreadLocal_UpdateSqlBuilder();
     newUpdateSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName())
-    .Set(StorageCommonDefine::SYSTEM_DATA, "?")
-    .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?", StorageCommonDefine::NUMBER_KEY));
+    .Set(valueStorageInfo->GetFieldName(), "?")
+    .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?", keyStorageInfo->GetFieldName().c_str()));
 
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(2);
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::SYSTEM_DATA , MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName(), MYSQL_TYPE_BLOB, 0);
         v->SetData(data);
         fields[0] = v;
     }
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::NUMBER_KEY , MYSQL_TYPE_LONGLONG, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName() , MYSQL_TYPE_LONGLONG, 0);
         v->Write(&key, static_cast<Int64>(sizeof(key)));
         fields[1] = v;
     }
@@ -2036,15 +2042,16 @@ void MysqlMgr::_OnKvSystemNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
     }
 
     // 保存数据sql
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     auto newDeleteSqlBuilder = KERNEL_NS::DeleteSqlBuilder::NewThreadLocal_DeleteSqlBuilder();
     newDeleteSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName())
-    .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?", StorageCommonDefine::NUMBER_KEY));
+    .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?", keyStorageInfo->GetFieldName().c_str()));
 
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(1);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::NUMBER_KEY, MYSQL_TYPE_LONGLONG, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_LONGLONG, 0);
         v->Write(&key, static_cast<Int64>(sizeof(key)));
         fields[0] = v;
     }
@@ -2133,7 +2140,7 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
     }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-    auto valueStorageInfo = storageInfo->GetSubStorageByFieldName(StorageCommonDefine::SYSTEM_DATA);
+    auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
     data->Init(valueStorageInfo->GetCapacitySize());
     err = logic->OnSave(key, *data);
     if(err != Status::Success)
@@ -2185,22 +2192,23 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
     }
 
     // 保存数据sql
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     auto newReplaceSqlBuilder = KERNEL_NS::ReplaceIntoSqlBuilder::NewThreadLocal_ReplaceIntoSqlBuilder();
     newReplaceSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName())
-    .Fields({StorageCommonDefine::NUMBER_KEY, StorageCommonDefine::SYSTEM_DATA})
+    .Fields({keyStorageInfo->GetFieldName(), valueStorageInfo->GetFieldName()})
     .Values({"?", "?"});
 
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(2);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::NUMBER_KEY, MYSQL_TYPE_LONGLONG, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_LONGLONG, 0);
         v->Write(&key, static_cast<Int64>(sizeof(key)));
         fields[0] = v;
     }
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::SYSTEM_DATA , MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() , MYSQL_TYPE_BLOB, 0);
         v->SetData(data);
         fields[1] = v;
     }
@@ -2288,7 +2296,7 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
     }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-    auto valueStorageInfo = storageInfo->GetSubStorageByFieldName(StorageCommonDefine::SYSTEM_DATA);
+    auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
     data->Init(valueStorageInfo->GetCapacitySize());
     err = logic->OnSave(key, *data);
     if(err != Status::Success)
@@ -2341,21 +2349,23 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
     }
 
     // 保存数据sql
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     auto newAddSqlBuilder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
-    newAddSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName()).Fields({StorageCommonDefine::STRING_KEY, StorageCommonDefine::SYSTEM_DATA})
+    newAddSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName()).Fields({keyStorageInfo->GetFieldName()
+    , valueStorageInfo->GetFieldName()})
     .Values({"?", "?"});
 
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(2);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::STRING_KEY , MYSQL_TYPE_VAR_STRING, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_VAR_STRING, 0);
         v->Write(key.data(), static_cast<Int64>(key.size()));
         fields[0] = v;
     }
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::SYSTEM_DATA , MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() , MYSQL_TYPE_BLOB, 0);
         v->SetData(data);
         fields[1] = v;
     }
@@ -2443,7 +2453,7 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
     }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-    auto valueStorageInfo = storageInfo->GetSubStorageByFieldName(StorageCommonDefine::SYSTEM_DATA);
+    auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
     data->Init(valueStorageInfo->GetCapacitySize());
     err = logic->OnSave(key, *data);
     if(err != Status::Success)
@@ -2495,22 +2505,23 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
     }
 
     // 保存数据sql
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     auto newUpdateSqlBuilder = KERNEL_NS::UpdateSqlBuilder::NewThreadLocal_UpdateSqlBuilder();
     newUpdateSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName())
-    .Set(StorageCommonDefine::SYSTEM_DATA, "?")
-    .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?", StorageCommonDefine::STRING_KEY));
+    .Set(valueStorageInfo->GetFieldName(), "?")
+    .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?", keyStorageInfo->GetFieldName().c_str()));
 
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(2);
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::SYSTEM_DATA ,  MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() ,  MYSQL_TYPE_BLOB, 0);
         v->SetData(data);
         fields[0] = v;
     }
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::STRING_KEY , MYSQL_TYPE_VAR_STRING, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_VAR_STRING, 0);
         v->Write(key.data(), static_cast<Int64>(key.size()));
         fields[1] = v;
     }
@@ -2599,15 +2610,16 @@ void MysqlMgr::_OnKvSystemStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
     }
 
     // 保存数据sql
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     auto newDeleteSqlBuilder = KERNEL_NS::DeleteSqlBuilder::NewThreadLocal_DeleteSqlBuilder();
     newDeleteSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName())
-    .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?", StorageCommonDefine::STRING_KEY));
+    .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?", keyStorageInfo->GetFieldName().c_str()));
 
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(1);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::STRING_KEY, MYSQL_TYPE_VAR_STRING, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_VAR_STRING, 0);
         v->Write(key.data(), static_cast<Int64>(key.size()));
         fields[0] = v;
     }
@@ -2696,7 +2708,7 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
     }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-    auto valueStorageInfo = storageInfo->GetSubStorageByFieldName(StorageCommonDefine::SYSTEM_DATA);
+    auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
     data->Init(valueStorageInfo->GetCapacitySize());
     err = logic->OnSave(key, *data);
     if(err != Status::Success)
@@ -2748,22 +2760,23 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
     }
 
     // 保存数据sql
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     auto newReplaceSqlBuilder = KERNEL_NS::ReplaceIntoSqlBuilder::NewThreadLocal_ReplaceIntoSqlBuilder();
     newReplaceSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName())
-    .Fields({StorageCommonDefine::STRING_KEY, StorageCommonDefine::SYSTEM_DATA})
+    .Fields({keyStorageInfo->GetFieldName(), valueStorageInfo->GetFieldName()})
     .Values({"?", "?"});
 
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(2);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::STRING_KEY ,  MYSQL_TYPE_VAR_STRING, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName() ,  MYSQL_TYPE_VAR_STRING, 0);
         v->Write(key.data(), static_cast<Int64>(key.size()));
         fields[0] = v;
     }
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), StorageCommonDefine::SYSTEM_DATA ,  MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() ,  MYSQL_TYPE_BLOB, 0);
         v->SetData(data);
         fields[1] = v;
     }
@@ -3081,7 +3094,7 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
             KERNEL_NS::UpdateSqlBuilder::DeleteThreadLocal_UpdateSqlBuilder(ptr);
     });
     updateBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
-    auto keyStorageInfo = storageInfo->GetKeyStorage();
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     
     bool hasModify = false;
     std::vector<KERNEL_NS::Field *> fieldDatas;
@@ -3284,9 +3297,8 @@ void MysqlMgr::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
                     ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
     }
 
-
     // 保存数据sql
-    auto keyStorageInfo = storageInfo->GetKeyStorage();
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     auto newDeleteSqlBuilder = KERNEL_NS::DeleteSqlBuilder::NewThreadLocal_DeleteSqlBuilder();
     newDeleteSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName())
     .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?", keyStorageInfo->GetFieldName().c_str()));
@@ -3816,7 +3828,7 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
             KERNEL_NS::UpdateSqlBuilder::DeleteThreadLocal_UpdateSqlBuilder(ptr);
     });
     updateBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
-    auto keyStorageInfo = storageInfo->GetKeyStorage();
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     
     bool hasModify = false;
     std::vector<KERNEL_NS::Field *> fieldDatas;
@@ -4017,7 +4029,7 @@ void MysqlMgr::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
     }
 
     // 保存数据sql
-    auto keyStorageInfo = storageInfo->GetKeyStorage();
+    auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
     auto newDeleteSqlBuilder = KERNEL_NS::DeleteSqlBuilder::NewThreadLocal_DeleteSqlBuilder();
     newDeleteSqlBuilder->DB(_currentServiceDBName).Table(storageInfo->GetTableName())
     .Where(KERNEL_NS::LibString().AppendFormat("`%s`=?",  keyStorageInfo->GetFieldName().c_str()));
@@ -4602,60 +4614,68 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
 {
     if(storageInfo->IsNeedStringKey())
     {
-        storageInfo->RemoveAllSubStorage();
+        if(!storageInfo->GetPrimaryKeyStorage())
+        {
+            // STRING key
+            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::STRING_KEY);
+            newStorageInfo->SetRelease([newStorageInfo](){
+                IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
+            });
+            newStorageInfo->AddFlags(StorageFlagType::NORMAL_STRING_FIELD_FLAG | 
+            StorageFlagType::MYSQL_FLAG | 
+            StorageFlagType::PRIMARY_FIELD_FLAG);
+            newStorageInfo->SetCapacitySize(StorageCapacityType::Cap256);
+            newStorageInfo->SetComment("auto make string primary field");
+            storageInfo->AddStorageInfo(newStorageInfo);
+        }
 
-        // STRING key
-        auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::STRING_KEY);
-        newStorageInfo->SetRelease([newStorageInfo](){
-            IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
-        });
-        newStorageInfo->AddFlags(StorageFlagType::NORMAL_STRING_FIELD_FLAG | 
-        StorageFlagType::MYSQL_FLAG | 
-        StorageFlagType::PRIMARY_FIELD_FLAG);
-        newStorageInfo->SetCapacitySize(StorageCapacityType::Cap256);
-        newStorageInfo->SetComment("auto make string primary field");
-        storageInfo->AddStorageInfo(newStorageInfo);
-
-        // BINARY
-        newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::SYSTEM_DATA);
-        newStorageInfo->SetRelease([newStorageInfo](){
-            IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
-        });
-        newStorageInfo->AddFlags(StorageFlagType::VARBINARY_FIELD_FLAG | 
-        StorageFlagType::MYSQL_FLAG);
-        newStorageInfo->SetCapacitySize(_defaultBlobOriginSize);
-        newStorageInfo->SetComment("auto make system data field");
-        storageInfo->AddStorageInfo(newStorageInfo);
+        if(!storageInfo->GetKvModeValueStorageInfo())
+        {
+            // BINARY
+            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::SYSTEM_DATA);
+            newStorageInfo->SetRelease([newStorageInfo](){
+                IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
+            });
+            newStorageInfo->AddFlags(StorageFlagType::VARBINARY_FIELD_FLAG | 
+            StorageFlagType::MYSQL_FLAG);
+            newStorageInfo->SetCapacitySize(_defaultBlobOriginSize);
+            newStorageInfo->SetComment("auto make system data field");
+            storageInfo->AddStorageInfo(newStorageInfo);
+        }
 
         return true;
     }
 
     if(storageInfo->IsNeedNumberKey())
     {
-        storageInfo->RemoveAllSubStorage();
+        if(!storageInfo->GetPrimaryKeyStorage())
+        {
+            // BIGINT key
+            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::NUMBER_KEY);
+            newStorageInfo->SetRelease([newStorageInfo](){
+                IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
+            });
+            newStorageInfo->AddFlags(StorageFlagType::INT64_NUMBER_FIELD_FLAG | 
+            StorageFlagType::UNSIGNED_NUMBER_FIELD_FLAG |
+            StorageFlagType::MYSQL_FLAG | 
+            StorageFlagType::PRIMARY_FIELD_FLAG);
+            newStorageInfo->SetComment("auto make 64bit number primary field");
+            storageInfo->AddStorageInfo(newStorageInfo);
+        }
 
-        // BIGINT key
-        auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::NUMBER_KEY);
-        newStorageInfo->SetRelease([newStorageInfo](){
-            IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
-        });
-        newStorageInfo->AddFlags(StorageFlagType::INT64_NUMBER_FIELD_FLAG | 
-        StorageFlagType::UNSIGNED_NUMBER_FIELD_FLAG |
-        StorageFlagType::MYSQL_FLAG | 
-        StorageFlagType::PRIMARY_FIELD_FLAG);
-        newStorageInfo->SetComment("auto make 64bit number primary field");
-        storageInfo->AddStorageInfo(newStorageInfo);
-
-        // BINARY
-        newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::SYSTEM_DATA);
-        newStorageInfo->SetRelease([newStorageInfo](){
-            IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
-        });
-        newStorageInfo->AddFlags(StorageFlagType::VARBINARY_FIELD_FLAG | 
-        StorageFlagType::MYSQL_FLAG);
-        newStorageInfo->SetCapacitySize(_defaultBlobOriginSize);
-        newStorageInfo->SetComment("auto make system data field");
-        storageInfo->AddStorageInfo(newStorageInfo);
+        if(!storageInfo->GetKvModeValueStorageInfo())
+        {
+            // BINARY
+            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::SYSTEM_DATA);
+            newStorageInfo->SetRelease([newStorageInfo](){
+                IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
+            });
+            newStorageInfo->AddFlags(StorageFlagType::VARBINARY_FIELD_FLAG | 
+            StorageFlagType::MYSQL_FLAG);
+            newStorageInfo->SetCapacitySize(_defaultBlobOriginSize);
+            newStorageInfo->SetComment("auto make system data field");
+            storageInfo->AddStorageInfo(newStorageInfo);
+        }
 
         return true;
     }

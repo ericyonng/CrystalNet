@@ -36,4 +36,5 @@
 #include <service/TestService/Comps/Test/Test.h>
 #include <service/TestService/Comps/DB/db.h>
 #include <service/TestService/Comps/User/User.h>
+#include <service/TestService/Comps/config/config.h>
 

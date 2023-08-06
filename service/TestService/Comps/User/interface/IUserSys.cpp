@@ -35,9 +35,9 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IUserSys);
 
-IUserSys::IUserSys(IUser *owner)
-:_owner(owner)
-,_userMgr(owner->GetUserMgr())
+IUserSys::IUserSys()
+:_userOwner(NULL)
+,_userMgr(NULL)
 {
     _SetType(ServiceCompType::USER_SYS_COMP);
 }
@@ -49,17 +49,63 @@ IUserSys::~IUserSys()
 
 Int64 IUserSys::Send(KERNEL_NS::LibPacket *packet) const
 {
-    return _owner->Send(packet);
+    return _userOwner->Send(packet);
 }
 
 void IUserSys::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
 {
-    _owner->Send(packets);
+    _userOwner->Send(packets);
 }
 
 Int64 IUserSys::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
 {
-    return _owner->Send(opcode, coder, packetId);
+    return _userOwner->Send(opcode, coder, packetId);
+}
+
+void IUserSys::MaskDirty()
+{
+    _userOwner->MaskDirty(this);
+}
+
+void IUserSys::OnLogin()
+{
+
+}
+
+void IUserSys::OnLoginFinish()
+{
+
+}
+
+void IUserSys::OnLogout()
+{
+
+}
+
+void IUserSys::OnUserCreated()
+{
+
+}
+
+Int32 IUserSys::_OnSysInit()
+{
+    _userOwner = GetOwner()->CastTo<IUser>();
+    _userMgr = _userOwner->GetUserMgr();
+
+    // 使用User的EventMgr
+    SetEventMgr(_userOwner->GetEventMgr());
+
+    // 操作数据库
+    SetStorageOperatorId(_userOwner->GetStorageOperatorId());
+
+    auto err = _OnUserSysInit();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("_OnUserSysInit fail err:%d, user:%s"), _userOwner->ToString().c_str());
+        return err;
+    }
+
+    return Status::Success;
 }
 
 SERVICE_END

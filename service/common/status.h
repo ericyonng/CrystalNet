@@ -57,5 +57,9 @@ namespace Status
         DBCheckDropTablesFail,                              // 清库失败
         DBError,                                            // db错误
         PurgeFail,                                          // 数据清洗失败
+        UserNotCreatedBefore,                               // 账户之前没有创建过
+        HaveNoRegisterInfo,                                 // 没有注册信息
+        TokenExpired,                                        // token失效
+        TokenError,                                         // 错误token
     };
 }

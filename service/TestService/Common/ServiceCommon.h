@@ -32,4 +32,5 @@
 #include <service/TestService/Common/EventEnums.h>
 #include <service/TestService/Common/ServicePollerEvent.h>
 #include <service/TestService/Common/ServiceLog.h>
+#include <service/TestService/Common/StorageHelper.h>
 

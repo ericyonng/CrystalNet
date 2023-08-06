@@ -22,12 +22,38 @@
   * 执行完mysql_real_query后必须再执行store_result/user_result才算完整的执行完sql，因为mysql_real_query只是把sql发过去, mysql还没真正执行完成
   
 * 配置
-  * my.ini lower_case_table_names 设置大小写敏感 lower_case_table_names=0
+  * my.ini lower_case_table_names windows下无法设置成大小写敏感，导致数据库名和表名都会被统一转成小写
+  
+    * ```
+      # Indicates how table and database names are stored on disk and used in MySQL.
+      # Value 0 = Table and database names are stored on disk using the lettercase specified in the CREATE 
+      #           TABLE or CREATE DATABASE statement. Name comparisons are case-sensitive. You should not 
+      #           set this variable to 0 if you are running MySQL on a system that has case-insensitive file 
+      #           names (such as Windows or macOS). If you force this variable to 0 with 
+      #           --lower-case-table-names=0 on a case-insensitive file system and access MyISAM tablenames 
+      #           using different lettercases, index corruption may result.
+      # Value 1 = Table names are stored in lowercase on disk and name comparisons are not case-sensitive. 
+      #           MySQL converts all table names to lowercase on storage and lookup. This behavior also applies 
+      #           to database names and table aliases.
+      # Value 2 = Table and database names are stored on disk using the lettercase specified in the CREATE TABLE 
+      #           or CREATE DATABASE statement, but MySQL converts them to lowercase on lookup. Name comparisons 
+      #           are not case-sensitive. This works only on file systems that are not case-sensitive! InnoDB 
+      #           table names and view names are stored in lowercase, as for lower_case_table_names=1.
+      lower_case_table_names=1
+      ```
+  
+      
+  
   * my.ini中配置最大连接数5000(my.ini)
+  
   * my.ini中配置最大包大小: max_allowed_packet=2048M
+  
   * my.ini中配置最大连接数:max_connections
+  
   * mysql连接是有上限的所以为了保证mysql可以被访问，需要对mysqlclient的连接控制,这时候就需要连接池，限制client-side的连接数量
+    
     * 在使用连接池时必须设置不可自动重连，因为自动重连时就会阻塞mysql_ping导致性能下降, 应该设置不重连, 手动重新连接
+    
   * MYSQL_OPT_MAX_ALLOWED_PACKET 设置mysql连接一次接收的最大包大小 最大建议设置2GB, 不超过3GB
     * UseResult：
       * 优点: 不会把所有的数据一次性全部取回本地缓存， 对于全表查询数据量比较大，但又不需要缓存所有数据来说是比较友好的

@@ -683,6 +683,10 @@ KERNEL_NS::CreateTableSqlBuilder *MysqlFieldTypeHelper::NewCreateTableSqlBuilder
 
         if(subStorageInfo->IsPrimaryField())
             createBuilder->PrimaryKey(subStorageInfo->GetFieldName());
+        else if(subStorageInfo->IsUniqueKeyField())
+        {
+            createBuilder->Unique(KERNEL_NS::LibString("uni_") + subStorageInfo->GetFieldName(), {subStorageInfo->GetFieldName()});
+        }
     }
     createBuilder->Comment(storageInfo->GetComment());
 

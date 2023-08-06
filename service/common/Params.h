@@ -61,6 +61,9 @@ namespace Params
         VAR_LOGIC,          // logic参数
         VAR_ERROR_INFO,     // VarErrInfoList
         VAR_MSG_QUEUE,      // 放一个消息队列
+
+        USER_OBJ,           // 用户对象 IUser *
+        USER_ID,            // 用户id
     };
 }
 

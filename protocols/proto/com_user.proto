@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+message UserBaseInfo
+{
+    // uid
+    uint64 UserId = 1;
+    // 账号
+    string AccountName = 2;
+    // 姓名
+    string Name = 3;
+    // 昵称
+    string Nickname = 4;
+    // 密码
+    string Pwd = 5;
+    // 绑定手机
+    uint64 BindPhone = 6;
+    // 最后登录时间
+    sint64 LastLoginTime = 7;
+    // 最后登录ip
+    string LastLoginIp = 8;
+    // 最后登录收集imei
+    string LastLoginPhoneImei = 9;
+    // 创建号的ip
+    string CreateIp = 10;
+    // 创建时间
+    sint64 CreateTime = 11;
+    // 创建的收集imei
+    string CreatePhoneImei = 12;
+    // 绑定的邮箱地址
+    string BindMailAddr = 13;
+}
+
+// 登录模式
+message LoginMode
+{
+    enum ENUMS
+    {
+        // 使用密码登录
+        PASSWORD = 0;
+        // 使用登录令牌登录
+        USE_LOGIN_TOKEN = 1;
+        // 注册登录
+        REGISTER = 2;
+    }
+}
+
+message RegisterUserInfo
+{
+    // 账号
+    string AccountName = 1;
+    // 昵称
+    string Nickname = 2;
+    // 密码
+    string Pwd = 3;
+    // 创建的收集imei
+    string CreatePhoneImei = 4;
+}
+
+// 登录信息
+message LoginInfo
+{
+    // 登录模式
+    sint32 LoginMode = 1;
+    // 账号
+    string AccountName = 2;
+    // 密码
+    string Pwd = 3;
+    // 登录令牌
+    string LoginToken = 4;
+    // 登录设备
+    string LoginPhoneImei = 5;
+
+    // 注册信息
+    oneof RegisterInfo
+    {
+        RegisterUserInfo UserRegisterInfo = 6;
+    }
+
+    // 鉴权:ip是黑白校验, 设备黑白校验, 账号黑白校验
+    // 产品id
+    string AppId = 7;
+    // 密文
+    string cypherText = 8;
+    // 原文
+    string originText = 9;
+    // 版本号
+    uint64 versionId = 10;
+}
+

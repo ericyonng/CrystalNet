@@ -56,7 +56,8 @@ public:
     const KERNEL_NS::PollerConfig &GetPollerConfig() const;
     const KERNEL_NS::LibString &GetProjectMainServiceName() const; // 获取项目功能名, 如：Gate, Login等
     const KERNEL_NS::LibString &GetMachineApplyId() const;
-    UInt16 GetMachineId() const; 
+    UInt32 GetMachineId() const; 
+    void SetMachineId(UInt32 machineId);
     const KERNEL_NS::LibIniFile *GetIni() const;
     KERNEL_NS::LibIniFile *GetIni();
     virtual const KERNEL_NS::LibString &GetAppAliasName() const;
@@ -162,9 +163,18 @@ ALWAYS_INLINE const KERNEL_NS::LibString &Application::GetMachineApplyId() const
     return _appConfig._machineApplyId;
 }
 
-ALWAYS_INLINE UInt16 Application::GetMachineId() const
+ALWAYS_INLINE UInt32 Application::GetMachineId() const
 {
     return _appConfig._machineId;
+}
+
+ALWAYS_INLINE void Application::SetMachineId(UInt32 machineId)
+{
+    _appConfig._machineId = machineId;
+
+    _configIni->Lock();
+    _configIni->WriteNumber(APPLICATION_CONFIG_SEG, MACHINE_ID_KEY, static_cast<UInt64>(machineId));
+    _configIni->Unlock();
 }
 
 ALWAYS_INLINE const KERNEL_NS::LibIniFile *Application::GetIni() const

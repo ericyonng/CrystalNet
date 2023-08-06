@@ -38,6 +38,7 @@
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
+#include "com_login.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_login_2eproto
@@ -52,6 +53,9 @@ struct TableStruct_login_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_login_2eproto;
+class LoginInfoNty;
+struct LoginInfoNtyDefaultTypeInternal;
+extern LoginInfoNtyDefaultTypeInternal _LoginInfoNty_default_instance_;
 class LoginReq;
 struct LoginReqDefaultTypeInternal;
 extern LoginReqDefaultTypeInternal _LoginReq_default_instance_;
@@ -59,6 +63,7 @@ class LoginRes;
 struct LoginResDefaultTypeInternal;
 extern LoginResDefaultTypeInternal _LoginRes_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
+template<> ::LoginInfoNty* Arena::CreateMaybeMessage<::LoginInfoNty>(Arena*);
 template<> ::LoginReq* Arena::CreateMaybeMessage<::LoginReq>(Arena*);
 template<> ::LoginRes* Arena::CreateMaybeMessage<::LoginRes>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
@@ -608,6 +613,277 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   union { Impl_ _impl_; };
   friend struct ::TableStruct_login_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(22)]
+class LoginInfoNty final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:LoginInfoNty) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LoginInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LoginInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline LoginInfoNty() : LoginInfoNty(nullptr) {}
+  ~LoginInfoNty() override;
+  explicit PROTOBUF_CONSTEXPR LoginInfoNty(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  LoginInfoNty(const LoginInfoNty& from);
+  LoginInfoNty(LoginInfoNty&& from) noexcept
+    : LoginInfoNty() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginInfoNty& operator=(const LoginInfoNty& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LoginInfoNty& operator=(LoginInfoNty&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const LoginInfoNty& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const LoginInfoNty* internal_default_instance() {
+    return reinterpret_cast<const LoginInfoNty*>(
+               &_LoginInfoNty_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(LoginInfoNty& a, LoginInfoNty& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LoginInfoNty* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LoginInfoNty* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  LoginInfoNty* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<LoginInfoNty>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const LoginInfoNty& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const LoginInfoNty& from) {
+    LoginInfoNty::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LoginInfoNty* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "LoginInfoNty";
+  }
+  protected:
+  explicit LoginInfoNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTokenFieldNumber = 1,
+    kKeyExpireTimeFieldNumber = 2,
+  };
+  // string Token = 1;
+  void clear_token();
+  const std::string& token() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_token(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_token();
+  PROTOBUF_NODISCARD std::string* release_token();
+  void set_allocated_token(std::string* token);
+  private:
+  const std::string& _internal_token() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_token(const std::string& value);
+  std::string* _internal_mutable_token();
+  public:
+
+  // sint64 KeyExpireTime = 2;
+  void clear_keyexpiretime();
+  int64_t keyexpiretime() const;
+  void set_keyexpiretime(int64_t value);
+  private:
+  int64_t _internal_keyexpiretime() const;
+  void _internal_set_keyexpiretime(int64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:LoginInfoNty)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr token_;
+    int64_t keyexpiretime_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_login_2eproto;
+};
 // ===================================================================
 
 
@@ -787,9 +1063,85 @@ inline void LoginRes::set_allocated_account(std::string* account) {
   // @@protoc_insertion_point(field_set_allocated:LoginRes.account)
 }
 
+// -------------------------------------------------------------------
+
+// LoginInfoNty
+
+// string Token = 1;
+inline void LoginInfoNty::clear_token() {
+  _impl_.token_.ClearToEmpty();
+}
+inline const std::string& LoginInfoNty::token() const {
+  // @@protoc_insertion_point(field_get:LoginInfoNty.Token)
+  return _internal_token();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void LoginInfoNty::set_token(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.token_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:LoginInfoNty.Token)
+}
+inline std::string* LoginInfoNty::mutable_token() {
+  std::string* _s = _internal_mutable_token();
+  // @@protoc_insertion_point(field_mutable:LoginInfoNty.Token)
+  return _s;
+}
+inline const std::string& LoginInfoNty::_internal_token() const {
+  return _impl_.token_.Get();
+}
+inline void LoginInfoNty::_internal_set_token(const std::string& value) {
+  
+  _impl_.token_.Set(value, GetArenaForAllocation());
+}
+inline std::string* LoginInfoNty::_internal_mutable_token() {
+  
+  return _impl_.token_.Mutable(GetArenaForAllocation());
+}
+inline std::string* LoginInfoNty::release_token() {
+  // @@protoc_insertion_point(field_release:LoginInfoNty.Token)
+  return _impl_.token_.Release();
+}
+inline void LoginInfoNty::set_allocated_token(std::string* token) {
+  if (token != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.token_.SetAllocated(token, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.token_.IsDefault()) {
+    _impl_.token_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:LoginInfoNty.Token)
+}
+
+// sint64 KeyExpireTime = 2;
+inline void LoginInfoNty::clear_keyexpiretime() {
+  _impl_.keyexpiretime_ = int64_t{0};
+}
+inline int64_t LoginInfoNty::_internal_keyexpiretime() const {
+  return _impl_.keyexpiretime_;
+}
+inline int64_t LoginInfoNty::keyexpiretime() const {
+  // @@protoc_insertion_point(field_get:LoginInfoNty.KeyExpireTime)
+  return _internal_keyexpiretime();
+}
+inline void LoginInfoNty::_internal_set_keyexpiretime(int64_t value) {
+  
+  _impl_.keyexpiretime_ = value;
+}
+inline void LoginInfoNty::set_keyexpiretime(int64_t value) {
+  _internal_set_keyexpiretime(value);
+  // @@protoc_insertion_point(field_set:LoginInfoNty.KeyExpireTime)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 
@@ -841,6 +1193,29 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new LoginRes(*dynamic_cast<const LoginRes *>(coder));
+    }
+
+};
+
+
+class LoginInfoNtyFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, LoginInfoNtyFactory);
+public:
+
+    virtual void Release() override {
+        LoginInfoNtyFactory::Delete_LoginInfoNtyFactory(this);
+    }
+
+    static LoginInfoNtyFactory *CreateFactory() {
+        return LoginInfoNtyFactory::New_LoginInfoNtyFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new LoginInfoNty();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new LoginInfoNty(*dynamic_cast<const LoginInfoNty *>(coder));
     }
 
 };

@@ -902,7 +902,7 @@ Int32 Application::_ReadBaseConfigs()
                     return Status::ConfigError;
                 }
             }
-            _appConfig._machineId = static_cast<UInt16>(cache);
+            _appConfig._machineId = static_cast<UInt32>(cache);
         }
         {// 注册成功机器时间
             UInt64 cache;

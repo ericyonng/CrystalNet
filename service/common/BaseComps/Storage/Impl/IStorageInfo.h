@@ -121,6 +121,9 @@ private:
 
         // 不自动清库(版本号切换时候会清库), 默认自动清库
         DISABLE_AUTO_DROP_POS,
+
+        // 作为unique key
+        AS_UNIQUE_KEY_FIELD_POS,
     };
 
 public:
@@ -231,6 +234,9 @@ public:
 
         // 不自动清库(版本号切换时候会清库), 默认自动清库
         DISABLE_AUTO_DROP_FLAG = (1LLU << DISABLE_AUTO_DROP_POS),
+
+        // 作为unique key
+        AS_UNIQUE_KEY_FIELD_FLAG = AS_FIELD_FLAG | (1LLU << AS_UNIQUE_KEY_FIELD_POS),
     };
 
     // 获取字符串类型的flags
@@ -413,8 +419,12 @@ public:
     // 作为表时候用
     void SetTableName(const KERNEL_NS::LibString &tableName);
     const KERNEL_NS::LibString &GetTableName() const;
-    const IStorageInfo *GetKeyStorage() const;
-    IStorageInfo *GetKeyStorage();
+    const IStorageInfo *GetPrimaryKeyStorage() const;
+    IStorageInfo *GetPrimaryKeyStorage();
+    const std::vector<IStorageInfo *> &GetUniqueKeyStorage() const;
+    std::vector<IStorageInfo *> &GetUniqueKeyStorage();
+    IStorageInfo *GetKvModeValueStorageInfo();
+    const IStorageInfo *GetKvModeValueStorageInfo() const;
 
     // 作为字段时候使用
     void SetFieldName(const KERNEL_NS::LibString &name);
@@ -475,6 +485,9 @@ public:
     // 是否主键
     bool IsPrimaryField() const;
 
+    // 是否唯一key
+    bool IsUniqueKeyField() const;
+
     // 是否是某个系统的存储数据(如果是,则可以使用SystemName去索引到该系统)
     bool IsSystemDataStorage() const;
 
@@ -482,7 +495,7 @@ public:
     bool IsLoadDataOnStartup() const;
 
     // 是否禁用自动清库
-    bool IsDisableAutoTruncate() const;
+    bool IsDisableAutoDrop() const;
 
     // 注释
     void SetComment(const KERNEL_NS::LibString &comment);
@@ -529,7 +542,9 @@ protected:
     std::vector<IStorageInfo *> _subStorageInfos;
     std::unordered_map<KERNEL_NS::LibString, IStorageInfo *> _objNameRefStorageInfo;
     std::unordered_map<KERNEL_NS::LibString, IStorageInfo *> _fieldNameRefStorageInfo;
-    IStorageInfo *_keyStorage;
+    IStorageInfo *_primaryKeyStorage;
+    std::vector<IStorageInfo *> _uniqueKeyStorages;
+    IStorageInfo *_kvModeValueStorage;
 
     // 作为字段时的名字
     KERNEL_NS::LibString _fieldName;
@@ -547,12 +562,14 @@ template<typename StorageFactory>
 ALWAYS_INLINE bool IStorageInfo::RegisterStorage()
 {
     auto newFactory = StorageFactory::FactoryCreate();
-    if(!AddStorageInfo(newFactory))
+    if(!AddStorageInfo(newFactory->Create()->CastTo<IStorageInfo>()))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("AddStorageInfo fail current system :%s"), GetSystemName().c_str());
+        newFactory->Release();
         return false;
     }
 
+    newFactory->Release();
     return true;   
 }
 
@@ -620,14 +637,34 @@ ALWAYS_INLINE const KERNEL_NS::LibString &IStorageInfo::GetTableName() const
     return _tableName;
 }
 
-ALWAYS_INLINE const IStorageInfo *IStorageInfo::GetKeyStorage() const
+ALWAYS_INLINE const IStorageInfo *IStorageInfo::GetPrimaryKeyStorage() const
 {
-    return _keyStorage;
+    return _primaryKeyStorage;
 }
 
-ALWAYS_INLINE IStorageInfo *IStorageInfo::GetKeyStorage()
+ALWAYS_INLINE IStorageInfo *IStorageInfo::GetPrimaryKeyStorage()
 {
-    return _keyStorage;
+    return _primaryKeyStorage;
+}
+
+ALWAYS_INLINE const std::vector<IStorageInfo *> &IStorageInfo::GetUniqueKeyStorage() const
+{
+    return _uniqueKeyStorages;
+}
+
+ALWAYS_INLINE std::vector<IStorageInfo *> &IStorageInfo::GetUniqueKeyStorage()
+{
+    return _uniqueKeyStorages;
+}
+
+ALWAYS_INLINE IStorageInfo *IStorageInfo::GetKvModeValueStorageInfo()
+{
+    return _kvModeValueStorage;
+}
+
+ALWAYS_INLINE const IStorageInfo *IStorageInfo::GetKvModeValueStorageInfo() const
+{
+    return _kvModeValueStorage;
 }
 
 ALWAYS_INLINE void IStorageInfo::SetFieldName(const KERNEL_NS::LibString &name)
@@ -701,18 +738,18 @@ ALWAYS_INLINE bool IStorageInfo::IsKvSystem() const
 
 ALWAYS_INLINE bool IStorageInfo::IsUsingNumberKey() const
 {
-    if(UNLIKELY(!_keyStorage))
+    if(UNLIKELY(!_primaryKeyStorage))
         return false;
 
-    return _keyStorage->IsNumberField();
+    return _primaryKeyStorage->IsNumberField();
 }
 
 ALWAYS_INLINE bool IStorageInfo::IsUsingStringKey() const
 {
-    if(UNLIKELY(!_keyStorage))
+    if(UNLIKELY(!_primaryKeyStorage))
         return false;
 
-    return _keyStorage->IsStringField();
+    return _primaryKeyStorage->IsStringField();
 }
 
 ALWAYS_INLINE bool IStorageInfo::IsNeedStringKey() const
@@ -835,6 +872,11 @@ ALWAYS_INLINE bool IStorageInfo::IsPrimaryField() const
     return HasFlags(StorageFlagType::PRIMARY_FIELD_FLAG);
 }
 
+ALWAYS_INLINE bool IStorageInfo::IsUniqueKeyField() const
+{
+    return HasFlags(StorageFlagType::AS_UNIQUE_KEY_FIELD_FLAG);
+}
+
 ALWAYS_INLINE bool IStorageInfo::IsSystemDataStorage() const
 {
     return HasFlags(StorageFlagType::SYSTEM_DATA_STORAGE_FLAG);
@@ -845,7 +887,7 @@ ALWAYS_INLINE bool IStorageInfo::IsLoadDataOnStartup() const
     return HasFlags(StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG);
 }
 
-ALWAYS_INLINE bool IStorageInfo::IsDisableAutoTruncate() const
+ALWAYS_INLINE bool IStorageInfo::IsDisableAutoDrop() const
 {
     return HasFlags(StorageFlagType::DISABLE_AUTO_DROP_FLAG);
 }
@@ -884,21 +926,21 @@ ALWAYS_INLINE bool IStorageInfo::AddStorageInfo(IStorageInfo *storageInfo)
 {
     if(UNLIKELY(storageInfo == this))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("cant add self storage info system name:%s"), storageInfo->GetSystemName().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("cant add self storage info system name:%s"), storageInfo->GetSystemName().c_str());
         return false;
     }
 
     auto iter = _objNameRefStorageInfo.find(storageInfo->GetSystemName());
     if(UNLIKELY(iter != _objNameRefStorageInfo.end()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("storage info already exists system name:%s, current system name:%s"), storageInfo->GetSystemName().c_str(), GetSystemName().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("storage info already exists system name:%s, current system name:%s"), storageInfo->GetSystemName().c_str(), GetSystemName().c_str());
         return false;
     }
 
     auto iterFieldName = _fieldNameRefStorageInfo.find(storageInfo->GetFieldName());
     if(UNLIKELY(iterFieldName != _fieldNameRefStorageInfo.end()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("storage info already exists, current system name:%s, exists system name:%s, will add system name:%s field name:%s")
+        g_Log->Error(LOGFMT_OBJ_TAG("storage info already exists, current system name:%s, exists system name:%s, will add system name:%s field name:%s")
             , GetSystemName().c_str(), storageInfo->GetSystemName().c_str(), storageInfo->GetFieldName().c_str());
         return false;
     }
@@ -910,7 +952,15 @@ ALWAYS_INLINE bool IStorageInfo::AddStorageInfo(IStorageInfo *storageInfo)
     AddFlags(StorageFlagType::MULTI_FIELD_SYSTEM_FLAG);
 
     if(storageInfo->IsPrimaryField())
-        _keyStorage = storageInfo;
+        _primaryKeyStorage = storageInfo;
+    else if(storageInfo->IsUniqueKeyField())
+        _uniqueKeyStorages.push_back(storageInfo);
+
+    // kv系统, 既不是主键, 也不是uniquekey, 那就是value
+    if(IsKvSystem() && 
+    (!storageInfo->IsPrimaryField()) && 
+    (!storageInfo->IsUniqueKeyField()))
+        _kvModeValueStorage = storageInfo;
 
     return true;
 }
@@ -980,7 +1030,7 @@ ALWAYS_INLINE void IStorageInfo::RemoveAllSubStorage()
     KERNEL_NS::ContainerUtil::DelContainer2(_subStorageInfos);
     _objNameRefStorageInfo.clear();
     _fieldNameRefStorageInfo.clear();
-    _keyStorage = NULL;
+    _primaryKeyStorage = NULL;
 }
 
 ALWAYS_INLINE void IStorageInfo::SetDataCountLimit(Int32 count)

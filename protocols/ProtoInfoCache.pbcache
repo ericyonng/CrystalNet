@@ -2,7 +2,7 @@
 
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginReq,Opcode:1,]
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginRes,Opcode:2,]
-/// ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,Md5:qcyAVNycj1W1SdLFreWO/w==,ModifyTime:1675339275,
+/// ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,Md5:NNTdKHH3J9qxCe0t9UDLzA==,ModifyTime:1691323866,
 
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Req,Opcode:5,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Res,Opcode:6,]
@@ -32,4 +32,10 @@
 
 /// ProtoName:comp_test.proto,ProtoPath:../../protocols/proto/comp_test.proto,Md5:PRTHpOLugYMZXIanIMcnfA==,ModifyTime:1690630535,
 
-/// ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,Md5:ESJrbrPEYbKoPQTkPuv/UA==,ModifyTime:1690127302,
+/// ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,Md5:ESJrbrPEYbKoPQTkPuv/UA==,ModifyTime:1691241254,
+
+/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:GEZGq5np+0aTEhT3K9/RFw==,ModifyTime:1691300740,
+
+/// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:b0fHzU0ZCouMn5Lsp7h2BA==,ModifyTime:1691309247,
+
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginInfoNty,Opcode:22,]

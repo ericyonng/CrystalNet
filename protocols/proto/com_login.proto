@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message UserLoginInfo
+{
+    // 生成的token = sha1(imei + ip + userid + key)
+    string Token = 1;
+    // 生成的随机密钥(8位随机数或字符)
+    string Key = 2;
+    // 密钥过期时间 精确到秒
+    sint64 KeyExpireTime = 3;
+}

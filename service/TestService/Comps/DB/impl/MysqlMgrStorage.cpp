@@ -72,7 +72,11 @@ bool MysqlMgrStorage::RegisterStorages()
     newStorageInfo->SetCapacitySize(StorageCapacityType::Cap64);
     newStorageInfo->SetComment("table name");
     newStorageInfo->SetFieldName(TABLE_NAME);
-    AddStorageInfo(newStorageInfo);
+    if(!AddStorageInfo(newStorageInfo))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("AddStorageInfo fail."));
+        return false;
+    }
 
     // simple info
     newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(SIMPLE_INFO);
@@ -84,7 +88,11 @@ bool MysqlMgrStorage::RegisterStorages()
     StorageFlagType::MYSQL_FLAG);
     newStorageInfo->SetComment("table simple info");
     newStorageInfo->SetFieldName(SIMPLE_INFO);
-    AddStorageInfo(newStorageInfo);
+    if(!AddStorageInfo(newStorageInfo))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("AddStorageInfo fail."));
+        return false;
+    }
 
     // 数量
     // newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(COUNT);

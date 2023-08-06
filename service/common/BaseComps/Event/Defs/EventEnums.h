@@ -136,6 +136,23 @@ namespace EventEnums
         SERVICE_STARTUP,                // service 启动完成
         SERVICE_EVENT_END = 200,
 
+        USER_CREATED,                   // user创建事件
+                                        /* user创建事件
+                                        * Attention: 
+                                        * @param(USER_OBJ):IUser * 用户对象
+                                        */
+
+        USER_LOGIN,                     // 用户登录事件
+                                        /* 用户登录事件
+                                        * Attention: 
+                                        * @param(USER_OBJ):IUser * 用户对象
+                                        */
+
+        USER_WILL_REMOVE,               // 用户移除事件
+                                        /* 用户登录事件
+                                        * Attention: 
+                                        * @param(USER_OBJ): IUser *用户对象 
+                                        */
 
         EVENT_COMMON_END = 65536,       // 公共事件集结束
     };

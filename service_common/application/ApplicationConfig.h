@@ -41,7 +41,7 @@ struct ApplicationConfig
 {
     KERNEL_NS::LibString _appAliasName;             // 程序别名:比如gs, ls等
     KERNEL_NS::LibString _projectMainServiceName;   // 项目主服务名 如:Login, Gate等
-    std::atomic<UInt16> _machineId = {0};       // 机器id(全球唯一,默认是0,此时应该向中心注册机器,获取机器id)
+    std::atomic<UInt32> _machineId = {0};       // 机器id(全球唯一,默认是0,此时应该向中心注册机器,获取机器id)
 
     // 机器注册信息 machineId没获取成功之前以下参数都会变化
     UInt64 _registerTime = 0;                   // 注册成功的机器注册时间微妙

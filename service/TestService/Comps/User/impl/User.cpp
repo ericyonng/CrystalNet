@@ -27,3 +27,576 @@
 */
 
 #include <pch.h>
+#include <Comps/User/impl/User.h>
+#include <Comps/User/interface/IUserSys.h>
+#include <Comps/User/interface/IUserMgr.h>
+
+SERVICE_BEGIN
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(PendingUser);
+
+PendingUser::PendingUser()
+:_status(UserStatus::USER_PENDING)
+,_loginInfo(NULL)
+,_byUserId(0)
+,_stub(0)
+,_cb(NULL)
+,_dbOperatorId(0)
+{
+
+}
+
+PendingUser::~PendingUser()
+{
+    CRYSTAL_RELEASE_SAFE(_cb);
+}
+
+KERNEL_NS::LibString PendingUser::ToString() const
+{
+    KERNEL_NS::LibString info;
+    info.AppendFormat("status:%d, login mode:%d, account name:%s, login token:%s, login phone imei:%s, appid:%s, versionId:%llu, _dbOperatorId:%d, byAccountName:%s, byUserId:%llu, cb owner:%s, cb handler:%s"
+    , _status, _loginInfo->loginmode(), _loginInfo->accountname().c_str(), _loginInfo->logintoken().c_str()
+    , _loginInfo->loginphoneimei().c_str(), _loginInfo->appid().c_str(), _loginInfo->versionid(), _dbOperatorId, _byAccountName.c_str()
+    , _byUserId, _cb ? _cb->GetOwnerRtti() : "NONE", _cb ? _cb->GetCallbackRtti() : "NONE");
+
+    return info;
+}
+
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(IUser);
+POOL_CREATE_OBJ_DEFAULT_IMPL(User);
+
+User::User(IUserMgr *userMgr)
+:_userMgr(userMgr)
+,_status(UserStatus::USER_CREATED)
+,_userBaseInfo(CRYSTAL_NEW(UserBaseInfo))
+{
+
+}
+
+User::~User()
+{
+    _Clear();
+}
+
+void User::Release()
+{
+    User::DeleteThreadLocal_User(this);
+}
+
+void User::OnRegisterComps()
+{
+
+}
+
+Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
+{
+    _userBaseInfo->set_userid(key);
+
+    // 基础信息的先
+    auto descriptor = UserBaseInfo::descriptor();
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kAccountNameFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("account name field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+           _userBaseInfo->set_accountname(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kNameFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("name field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+           _userBaseInfo->set_name(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kNicknameFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("nickname field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+            _userBaseInfo->set_nickname(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kPwdFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("pwd field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+            _userBaseInfo->set_pwd(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kBindPhoneFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("bindphone field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        UInt64 value = 0;
+        if(data->GetReadableSize())
+            data->Read(&value, data->GetReadableSize());
+        _userBaseInfo->set_bindphone(value);
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginTimeFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("last login time field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        UInt64 value = 0;
+        if(data->GetReadableSize())
+            data->Read(&value, data->GetReadableSize());
+        _userBaseInfo->set_lastlogintime(value);
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginIpFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("last login ip field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+            _userBaseInfo->set_lastloginip(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginPhoneImeiFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("last login phone imei field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+            _userBaseInfo->set_lastloginphoneimei(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreateIpFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("create ip field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+            _userBaseInfo->set_createip(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreateTimeFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("create time field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        UInt64 value = 0;
+        if(data->GetReadableSize())
+            data->Read(&value, data->GetReadableSize());
+        _userBaseInfo->set_createtime(value);
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreatePhoneImeiFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("create phone imei field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+            _userBaseInfo->set_createphoneimei(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
+    {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kBindMailAddrFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("bind mail addr field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+            _userBaseInfo->set_bindmailaddr(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
+    for(auto iter : _fieldNameRefUserSys)
+    {
+        auto &fieldName = iter.first;
+        auto userSys = iter.second;
+        auto iterData = fieldRefdb.find(fieldName);
+        if(iterData == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("user sys have no data key:%llu field name:%s, system name:%s"), key, fieldName.c_str(), userSys->GetObjName().c_str());
+            return Status::NotFound;
+        }
+
+        auto data = iterData->second;
+        auto err = userSys->OnLoaded(*data);
+        if(err != Status::Success)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("user sys load fail err:%d, key:%llu, field name:%s, system name:%s"), err, key, fieldName.c_str(), userSys->GetObjName().c_str());
+            return err;
+        }
+        g_Log->Info(LOGFMT_OBJ_TAG("[User Sys Loaded]user id:%llu, field name:%s, system name:%s, data loaded."), key, fieldName.c_str(), userSys->GetObjName().c_str());
+    }
+
+    return Status::Success;
+}
+
+Int32 User::OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
+{
+    // 基本信息全部持久化
+    auto descriptor = UserBaseInfo::descriptor();
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(sizeof(UInt64));
+        data->WriteUInt64(_userBaseInfo->userid());
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kUserIdFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->accountname().size()));
+        data->Write(_userBaseInfo->accountname().data(), static_cast<Int64>(_userBaseInfo->accountname().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kAccountNameFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->name().size()));
+        data->Write(_userBaseInfo->name().data(), static_cast<Int64>(_userBaseInfo->name().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kNameFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->nickname().size()));
+        data->Write(_userBaseInfo->nickname().data(), static_cast<Int64>(_userBaseInfo->nickname().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kNicknameFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->pwd().size()));
+        data->Write(_userBaseInfo->pwd().data(), static_cast<Int64>(_userBaseInfo->pwd().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kPwdFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(sizeof(UInt64)));
+        data->WriteUInt64(_userBaseInfo->bindphone());
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kBindPhoneFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(sizeof(UInt64)));
+        data->WriteUInt64(_userBaseInfo->lastlogintime());
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginTimeFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->lastloginip().size()));
+        data->Write(_userBaseInfo->lastloginip().data(), static_cast<Int64>(_userBaseInfo->lastloginip().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginIpFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->lastloginphoneimei().size()));
+        data->Write(_userBaseInfo->lastloginphoneimei().data(), static_cast<Int64>(_userBaseInfo->lastloginphoneimei().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastLoginPhoneImeiFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->createip().size()));
+        data->Write(_userBaseInfo->createip().data(), static_cast<Int64>(_userBaseInfo->createip().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreateIpFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(sizeof(UInt64)));
+        data->WriteUInt64(_userBaseInfo->createtime());
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreateTimeFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->createphoneimei().size()));
+        data->Write(_userBaseInfo->createphoneimei().data(), static_cast<Int64>(_userBaseInfo->createphoneimei().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kCreatePhoneImeiFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->bindmailaddr().size()));
+        data->Write(_userBaseInfo->bindmailaddr().data(), static_cast<Int64>(_userBaseInfo->bindmailaddr().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kBindMailAddrFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+
+    for(auto iter = _dirtySys.begin(); iter != _dirtySys.end();)
+    {
+        auto logic = *iter;
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        auto storageInfo = _GetStorageInfoBy(logic);
+        data->Init(static_cast<Int64>(storageInfo->GetCapacitySize()));
+        auto err = logic->OnSave(*data);
+        if(err != Status::Success)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("logic on save fail err:%d logic:%s, field name:%s")
+                    , logic->GetObjName().c_str(), storageInfo->GetFieldName().c_str());
+
+            KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(data);
+            return err;
+        }
+
+        fieldRefdb.insert(std::make_pair(storageInfo->GetFieldName(), data));
+
+        iter = _dirtySys.erase(iter);
+    }
+
+    return Status::Success;
+}
+
+IUserMgr *User::GetUserMgr()
+{
+    return _userMgr;
+}
+
+const IUserMgr *User::GetUserMgr() const
+{
+    return _userMgr;
+}
+
+Int64 User::Send(KERNEL_NS::LibPacket *packet) const
+{
+    // TODO:需要rpc
+    return Status::Success;
+}
+
+void User::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
+{
+    // TODO:
+}
+
+Int64 User::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const 
+{
+    // TODO:
+    return Status::Success;
+}
+
+void User::OnLogin()
+{
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnLogin();
+
+    // TODO:
+    g_Log->Info(LOGFMT_OBJ_TAG("login user:%s"), ToString().c_str());
+}
+
+void User::OnLoginFinish()
+{
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnLoginFinish();
+
+    // TODO:
+    g_Log->Info(LOGFMT_OBJ_TAG("OnLoginFinish user:%s"), ToString().c_str());
+}
+
+void User::OnLogout()
+{
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnLogout();
+
+    g_Log->Info(LOGFMT_OBJ_TAG("OnLogout user:%s"), ToString().c_str());
+}
+
+void User::OnUserCreated()
+{
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnUserCreated();
+
+    g_Log->Info(LOGFMT_OBJ_TAG("OnUserCreated user:%s"), ToString().c_str());
+}
+
+Int32 User::GetUserStatus() const
+{
+    return _status;
+}
+
+void User::SetUserStatus(Int32 status) 
+{
+    _status = status;
+}
+
+void User::MaskDirty(IUserSys *userSys)
+{
+    _dirtySys.insert(userSys);
+    _userMgr->MaskNumberKeyModifyDirty(_userBaseInfo->userid());
+}
+
+void User::MaskAddDirty()
+{
+    for(auto logic : _needStorageSys)
+        _dirtySys.insert(logic);
+
+    _userMgr->MaskNumberKeyAddDirty(_userBaseInfo->userid());
+}
+
+UserBaseInfo *User::GetUserBaseInfo()
+{
+    return _userBaseInfo;
+}
+
+const UserBaseInfo *User::GetUserBaseInfo() const 
+{
+    return _userBaseInfo;
+}
+
+UInt64 User::GetUserId() const 
+{ 
+    return _userBaseInfo->userid();
+}
+
+KERNEL_NS::LibString User::ToString() const
+{
+    KERNEL_NS::LibString info;
+    info.AppendFormat("user id:%llu, account name:%s", _userBaseInfo->userid(), _userBaseInfo->accountname().c_str());
+
+    // info.AppendFormat(", session infos:");
+    // auto sessionMgr = _userMgr->GetService()->GetComp<ISessionMgr>();
+    // if(_activeSession)
+    // {
+    //     auto sessionInfo = _activeSession->GetSessionInfo();
+    //     info.AppendFormat("[ session id:%llu, session type:%d, remote addr:%s:%hu ], "
+    //         , _activeSession->GetSessionId(), sessionInfo->_sessionType
+    //         ,  sessionInfo->_remoteAddr._ip.c_str()
+    //         , sessionInfo->_remoteAddr._port);
+    // }
+
+    return info;
+}
+
+Int32 User::_OnSysInit()
+{   
+    // 创建事件管理器
+    auto eventMgr = KERNEL_NS::EventManager::New_EventManager();
+    SetEventMgr(eventMgr);
+
+    _RegisterEvents();
+    return Status::Success;
+}
+
+Int32 User::_OnSysCompsCreated()
+{
+    // user需要存储的子系统
+    auto &allSubStorages = _userMgr->GetStorageInfo()->GetSubStorageInfos();
+    for(auto subStorageInfo : allSubStorages)
+    {
+        auto comp = GetComp(subStorageInfo->GetSystemName());
+        if(UNLIKELY(!comp))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("user sys have storage info but have no user sys obj please check system name:%s"), subStorageInfo->GetSystemName().c_str());
+            return Status::NotFound;
+        }
+
+        auto userSys = comp->CastTo<IUserSys>();
+        _needStorageSys.push_back(userSys);
+        _fieldNameRefUserSys.insert(std::make_pair(subStorageInfo->GetFieldName(), userSys));
+        _userSysRefStorageInfo.insert(std::make_pair(userSys, subStorageInfo));
+    }
+
+    return Status::Success;
+}
+
+void User::_OnSysClose()
+{
+    _Clear();
+}
+
+void User::_Clear()
+{
+   CRYSTAL_RELEASE_SAFE(_userBaseInfo);
+
+   auto eventMgr = GetEventMgr();
+   KERNEL_NS::EventManager::Delete_EventManager(eventMgr);
+   SetEventMgr(NULL);
+}
+
+void User::_RegisterEvents()
+{
+}
+
+SERVICE_END

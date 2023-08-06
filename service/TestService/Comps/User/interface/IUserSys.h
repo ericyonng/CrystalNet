@@ -29,18 +29,18 @@
 #pragma once
 
 #include <ServiceCompHeader.h>
+#include <Comps/User/interface/IUser.h>
+#include <Comps/User/interface/IUserMgr.h>
 
 SERVICE_BEGIN
 
-class IUser;
-class IUserMgr;
-
+// OnLoaded:user还没有添加到UserMgr字典中
 class IUserSys : public ILogicSys
 {
     POOL_CREATE_OBJ_DEFAULT_P1(ILogicSys, IUserSys);
 
 public:
-    IUserSys(IUser *owner);
+    IUserSys();
     ~IUserSys();
 
     IUser *GetUser();
@@ -96,19 +96,38 @@ public:
     // @return(Int64):返回packetId
     Int64 Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const;
   
+   virtual void MaskDirty() override;
+   virtual void MaskNumberKeyAddDirty(UInt64 key) final {}
+   virtual void MaskNumberKeyModifyDirty(UInt64 key) final {}
+   virtual void MaskNumberKeyDeleteDirty(UInt64 key) final {}
+   virtual void MaskStringKeyAddDirty(const KERNEL_NS::LibString &key) final {}
+   virtual void MaskStringKeyModifyDirty(const KERNEL_NS::LibString &key) final {}
+   virtual void MaskStringKeyDeleteDirty(const KERNEL_NS::LibString &key) final {}
+
+    virtual void OnLogin();
+    virtual void OnLoginFinish();
+    // 经登录之后状态都会是登录状态,除非玩家点击登出或者登录令牌过期,或者ip变更了
+    virtual void OnLogout();
+    virtual void OnUserCreated();
+
 protected:
-    IUser *_owner;
+    virtual Int32 _OnSysInit() final;
+    virtual Int32 _OnUserSysInit() { return Status::Success; }
+
+
+protected:
+    IUser *_userOwner;
     IUserMgr *_userMgr;
 };
 
 ALWAYS_INLINE IUser *IUserSys::GetUser()
 {
-    return _owner;
+    return _userOwner;
 }
 
 ALWAYS_INLINE const IUser *IUserSys::GetUser() const
 {
-    return _owner;
+    return _userOwner;
 }
 
 ALWAYS_INLINE IUserMgr *IUserSys::GetUserMgr()

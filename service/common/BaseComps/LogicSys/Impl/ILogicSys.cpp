@@ -142,6 +142,8 @@ Int32 ILogicSys::_OnHostInit()
     _serviceProxy = _service->GetServiceProxy();
     _app = _service->GetApp();
     _timerMgr = _service->GetTimerMgr();
+
+    // event mgr 可以被派生类使用SetEventMgr替换, 这里默认使用Service的EvengMgr
     _eventMgr = GetService()->GetEventMgr();
 
     FocusMethod(LogicInterestMethod::ON_PASS_DAY);
@@ -164,7 +166,9 @@ Int32 ILogicSys::_OnHostInit()
 
 Int32 ILogicSys::_OnCompsCreated()
 { 
-    _storage = GetCompByType(ServiceCompType::STORAGE_COMP)->CastTo<IStorageInfo>();
+    auto storage = GetCompByType(ServiceCompType::STORAGE_COMP);
+    if(storage)
+        _storage = storage->CastTo<IStorageInfo>();
 
     auto st = _OnSysCompsCreated();
     if(st != Status::Success)

@@ -43,15 +43,15 @@ public:
     // [41BITS TIME] + [10BITS INSTANCE] + [13BITS SEQ]
     enum LEN_LIMIT : UInt64
     {
-        TIME_BITS = 41,                             // 时间戳长度 高41位 建议用秒,可以使用比较久,毫秒太占用id位数
-        INSTANCE_BITS = 10,                         // 实例id位长
+        TIME_BITS = 31,                             // 时间流逝的间隔 高31位 建议用秒,可以使用比较久,毫秒太占用id位数
+        INSTANCE_BITS = 20,                         // 实例id位长
         SEQ_BITS = 13,                              // 自增id位长
     };
 
     enum MASK : UInt64
     {
-        TIME_BITS_LIMIT_MASK     = ((1llu << LEN_LIMIT::TIME_BITS) - 1),       // 默认的时间戳长度限制 41位
-        TIME_POS_MASK            = TIME_BITS_LIMIT_MASK << (LEN_LIMIT::INSTANCE_BITS + LEN_LIMIT::SEQ_BITS),     // 默认的时间戳长度限制 高41位全1 time值掩码, uid & TIME_POS_MASK 可以获得time
+        TIME_BITS_LIMIT_MASK     = ((1llu << LEN_LIMIT::TIME_BITS) - 1),       // 默认的时间戳长度限制 31位
+        TIME_POS_MASK            = TIME_BITS_LIMIT_MASK << (LEN_LIMIT::INSTANCE_BITS + LEN_LIMIT::SEQ_BITS),     // 默认的时间戳长度限制 高31位全1 time值掩码, uid & TIME_POS_MASK 可以获得time
         INSTANCE_BITS_LIMIT_MASK  = ((1llu << LEN_LIMIT::INSTANCE_BITS) - 1),                     // 机器码id长度限制
         INSTANCE_POS_MASK         = (INSTANCE_BITS_LIMIT_MASK << LEN_LIMIT::SEQ_BITS),  // instanceId值掩码, uid & INSTANCE_POS_MASK 可以获得instanceId
         SEQ_BITS_LIMIT_MASK      = ((1llu << LEN_LIMIT::SEQ_BITS) - 1),

@@ -57,6 +57,7 @@ public:
     static bool IsInt64(const KERNEL_NS::LibString &typeStr);
     static bool IsUInt64(const KERNEL_NS::LibString &typeStr);
     static bool IsNumber(const KERNEL_NS::LibString &typeStr);
+    static bool IsEnum(const KERNEL_NS::LibString &typeStr);
 
     // 赋值
     static bool Assign(bool &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo);
@@ -75,6 +76,7 @@ public:
     static bool Assign(std::unordered_map<DictKey, DictValue> &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo);
     template<typename DictKey, typename DictValue>
     static bool Assign(std::map<DictKey, DictValue> &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo);
+    static bool GetEnumName(KERNEL_NS::LibString &enumName, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo);
 
     // 序列化
     static void ToString(const bool &field, KERNEL_NS::LibString &dataInfo);
@@ -359,6 +361,19 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(std::map<DictKey, DictValue> &field, c
         field.insert(std::make_pair(keyField, valueField));
     }
 
+    return true;
+}
+
+ALWAYS_INLINE bool DataTypeHelper::GetEnumName(KERNEL_NS::LibString &enumName, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_string())
+    {
+        errInfo.AppendFormat("parse json fail, GetEnumName value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    enumName = jsonString.get<std::string>();
     return true;
 }
 

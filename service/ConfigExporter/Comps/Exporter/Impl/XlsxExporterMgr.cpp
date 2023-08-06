@@ -1496,6 +1496,72 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("\n");
     }
 
+    {// 导出所有枚举
+        bool hasEnums = false;
+        for(auto fieldInfo :  configInfo->_fieldInfos)
+        {
+            if(fieldInfo == NULL)
+                continue;
+
+            if(!SERVICE_COMMON_NS::DataTypeHelper::IsEnum(fieldInfo->_dataType))
+                continue;
+
+            // enum 名: 表名 + 字段名 + Enums
+            fileContent.AppendFormat("class %s%sEnums\n", className.FirstCharToUpper().c_str()
+            , fieldInfo->_fieldName.FirstCharToUpper().c_str());
+
+            fileContent.AppendFormat("{\npublic:\n");
+            fileContent.AppendFormat("    enum ENUMS\n");
+            fileContent.AppendFormat("    {\n");
+            fileContent.AppendFormat("        __UNKNOWN_ENUM = 0,\n\n");
+
+            // TODO:数据
+            std::set<KERNEL_NS::LibString> checkRepeat;
+            const Int32 count = static_cast<Int32>(configInfo->_values.size());
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                auto &columRefData = configInfo->_values[idx];
+                auto iter = columRefData.find(fieldInfo->_columnId);
+                if(iter == columRefData.end())
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("cant find field data, column id:%llu config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
+                            , fieldInfo->_columnId, configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                            , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+                    return false;
+                }
+
+                // 去重
+                if(checkRepeat.find(iter->second.strip()) != checkRepeat.end())
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("enum name repeat please check:%s, column id:%llu config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
+                            , iter->second.c_str(), fieldInfo->_columnId, configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                            , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+                    return false;
+                }
+
+                checkRepeat.insert(iter->second.strip());
+
+                if(fieldInfo->_desc.empty())
+                {
+                    fileContent.AppendFormat("        %s,\n\n", iter->second.strip().c_str());
+                }
+                else
+                {
+                    fileContent.AppendFormat("        %s,    // %s\n\n", iter->second.strip().c_str(), fieldInfo->_desc.c_str());
+                }
+            }
+
+            fileContent.AppendFormat("        __ENUM_MAX,\n\n");
+            fileContent.AppendFormat("    };\n");
+            fileContent.AppendFormat("};\n");
+
+            hasEnums = true;
+        }
+
+        if(hasEnums)
+            fileContent.AppendFormat("\n");
+    }
+
     {// 配置类
         fileContent.AppendFormat("class %s\n", className.c_str());
         fileContent.AppendFormat("{\n");
@@ -1926,6 +1992,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("       KERNEL_NS::LibString dataPart = lineData.GetRaw().substr(headerTailPos + 1, dataEndPos - headerTailPos);\n");
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("      // parse data through\n");
+
             fileContent.AppendFormat("      KERNEL_NS::LibString errInfo;\n");
             fileContent.AppendFormat("      if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(%s, dataPart, errInfo))\n", memberName.c_str());
             fileContent.AppendFormat("      {\n");
@@ -1933,6 +2000,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("          return false;\n");
             fileContent.AppendFormat("      }\n");
             fileContent.AppendFormat("\n");
+
             fileContent.AppendFormat("      startPos = static_cast<Int32>(dataEndPos);\n");
             fileContent.AppendFormat("      ++countFieldNum;\n");
 
@@ -2512,6 +2580,35 @@ bool XlsxExporterMgr::_ExportCppDatas(const XlsxConfigTableInfo *configInfo, KER
     }
     configDataContent.AppendFormat("\n");
 
+    // 枚举类型转数值
+    std::map<KERNEL_NS::LibString, std::map<KERNEL_NS::LibString, Int32>> fieldNameRefEnumNameRefValue;
+    for(auto fieldInfo :  configInfo->_fieldInfos)
+    {
+        if(fieldInfo == NULL)
+            continue;
+
+        const Int32 count = static_cast<Int32>(configInfo->_values.size());
+        Int32 enumaValue = 0;
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto &columnRefContent = configInfo->_values[idx];
+            auto iter = columnRefContent.find(fieldInfo->_columnId);
+            if(iter == columnRefContent.end())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("cant find field data, column id:%llu config:%s, sheet name:%s file name:%s, field name:%s, field data type:%s")
+                        , fieldInfo->_columnId, configInfo->_tableClassName.c_str(), configInfo->_wholeSheetName.c_str(), configInfo->_xlsxPath.c_str()
+                        , fieldInfo->_fieldName.c_str(), fieldInfo->_dataType.c_str());
+                continue;
+            }
+
+            auto iterEnumRefValue = fieldNameRefEnumNameRefValue.find(fieldInfo->_fieldName);
+            if(iterEnumRefValue == fieldNameRefEnumNameRefValue.end())
+                iterEnumRefValue = fieldNameRefEnumNameRefValue.insert(std::make_pair(fieldInfo->_fieldName, std::map<KERNEL_NS::LibString, Int32>())).first;
+
+            iterEnumRefValue->second.insert(std::make_pair(iter->second.strip(), ++enumaValue));
+        }
+    }
+    
     const Int32 lineCount = static_cast<Int32>(configInfo->_values.size());
     Int32 totalLine = 2;
     for(Int32 idx = 0; idx < lineCount; ++idx)
@@ -2543,6 +2640,14 @@ bool XlsxExporterMgr::_ExportCppDatas(const XlsxConfigTableInfo *configInfo, KER
                 else
                 {
                     value = content;
+                }
+
+                if(SERVICE_COMMON_NS::DataTypeHelper::IsEnum(fieldInfo->_dataType))
+                {
+                    auto iterEnumRefValue = fieldNameRefEnumNameRefValue.find(fieldInfo->_fieldName);
+                    auto &enumRefValue = iterEnumRefValue->second;
+                    auto iterValue = enumRefValue.find(content.strip());
+                    value = KERNEL_NS::StringUtil::Num2Str(iterValue->second);
                 }
 
                 SERVICE_COMMON_NS::DataTypeHelper::ToSimpleTypeString(fieldInfo->_dataType, value, dataContent);

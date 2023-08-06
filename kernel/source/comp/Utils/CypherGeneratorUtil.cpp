@@ -31,6 +31,4 @@
 
 KERNEL_BEGIN
 
-
-
 KERNEL_END

@@ -18,6 +18,7 @@ public static class PacketOpcode
         PlayerDataNty = 11,    // player.proto
         TitleInfoReq = 20,    // title.proto
         TitleInfoRes = 21,    // title.proto
-        OpcodeMax = 21,
+        LoginInfoNty = 22,    // login.proto
+        OpcodeMax = 22,
     }
 }

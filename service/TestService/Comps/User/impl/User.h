@@ -27,3 +27,109 @@
 */
 
 #pragma once
+
+#include <Comps/User/interface/IUser.h>
+#include <protocols/protocols.h>
+
+SERVICE_BEGIN
+
+class IUserMgr;
+class IUserSys;
+
+// 要有自己的事件对象
+class User : public IUser
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IUser, User);
+
+public:
+    User(IUserMgr *userMgr);
+    ~User();
+    void Release();
+
+   virtual void OnRegisterComps() override;
+
+   virtual Int32 OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb);
+   virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;
+
+    virtual IUserMgr *GetUserMgr() override;
+    virtual const IUserMgr *GetUserMgr() const override;
+
+    virtual Int64 Send(KERNEL_NS::LibPacket *packet) const override;
+    virtual void Send(const std::list<KERNEL_NS::LibPacket *> &packets) const override;
+    virtual Int64 Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const override;
+
+    virtual void OnLogin() override;
+    virtual void OnLoginFinish() override;
+    virtual void OnLogout() override;
+    virtual void OnUserCreated() override;
+
+
+    virtual Int32 GetUserStatus() const override;
+    virtual void SetUserStatus(Int32 status)  override;
+
+    virtual void MaskDirty(IUserSys *userSys) override;
+    virtual void MaskAddDirty() override;
+
+    virtual UserBaseInfo *GetUserBaseInfo() override;
+    virtual const UserBaseInfo *GetUserBaseInfo() const override;
+
+    virtual UInt64 GetUserId() const override;
+
+
+    // 标脏是key + logic地址或者字段名
+    virtual KERNEL_NS::LibString ToString() const override;
+
+private:
+    virtual Int32 _OnSysInit() override;
+    virtual Int32 _OnSysCompsCreated() override;
+    virtual void _OnSysClose() override;
+
+    IUserSys *_GetSysBy(const KERNEL_NS::LibString &fieldName);
+    const IUserSys *_GetSysBy(const KERNEL_NS::LibString &fieldName) const;
+    IStorageInfo *_GetStorageInfoBy(const IUserSys *userSys);
+    const IStorageInfo *_GetStorageInfoBy(const IUserSys *userSys) const;
+
+    void _Clear();
+
+    void _RegisterEvents();
+
+private:
+    IUserMgr *_userMgr;
+    Int32 _status;
+
+    /* 需要存储相关userSys */
+    std::vector<IUserSys *> _needStorageSys;
+    std::unordered_map<KERNEL_NS::LibString, IUserSys *> _fieldNameRefUserSys;
+    std::unordered_map<const IUserSys *, IStorageInfo *> _userSysRefStorageInfo;
+    mutable std::set<IUserSys *> _dirtySys;
+
+    // 用户基本信息
+    UserBaseInfo *_userBaseInfo;
+};
+
+ALWAYS_INLINE IUserSys *User::_GetSysBy(const KERNEL_NS::LibString &fieldName)
+{
+    auto iter = _fieldNameRefUserSys.find(fieldName);
+    return iter == _fieldNameRefUserSys.end() ? NULL : iter->second;
+}
+
+ALWAYS_INLINE const IUserSys *User::_GetSysBy(const KERNEL_NS::LibString &fieldName) const
+{
+    auto iter = _fieldNameRefUserSys.find(fieldName);
+    return iter == _fieldNameRefUserSys.end() ? NULL : iter->second;
+}
+
+ALWAYS_INLINE IStorageInfo *User::_GetStorageInfoBy(const IUserSys *userSys)
+{
+    auto iter = _userSysRefStorageInfo.find(userSys);
+    return iter == _userSysRefStorageInfo.end() ? NULL : iter->second;
+}
+
+ALWAYS_INLINE const IStorageInfo *User::_GetStorageInfoBy(const IUserSys *userSys) const
+{
+    auto iter = _userSysRefStorageInfo.find(userSys);
+    return iter == _userSysRefStorageInfo.end() ? NULL : iter->second;
+}
+
+SERVICE_END
+

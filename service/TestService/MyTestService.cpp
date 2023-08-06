@@ -143,6 +143,8 @@ void MyTestService::_OnServiceClear()
 
 void MyTestService::_OnServiceRegisterComps()
 {
+    // 配置表
+    RegisterComp<ConfigLoaderFactory>();
     // 会话管理
     RegisterComp<SessionMgrFactory>();
      // 系统逻辑管理
@@ -152,11 +154,17 @@ void MyTestService::_OnServiceRegisterComps()
     // 存储组件
     RegisterComp<MysqlMgrFactory>();
 
+    // 全球唯一id组件
+    RegisterComp<GlobalUidMgrFactory>();
+
     // 测试组件
     RegisterComp<MyServiceCompFactory>();
 
     // 测试
     RegisterComp<TestMgrFactory>();
+
+    // 用户系统
+    RegisterComp<UserMgrFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()
@@ -264,6 +272,11 @@ Int32 MyTestService::_OnServiceCompsCreated()
     }
 
     _dbLoadedEventStub = GetEventMgr()->AddListener(EventEnums::DB_LOADED_FINISH_ON_STARTUP, this, &MyTestService::_OnDbLoaded);
+
+    // 设置回调
+    auto mysqlMgr = GetComp<IMysqlMgr>();
+    auto globalUidMgr = GetComp<IGlobalUidMgr>();
+    globalUidMgr->SetUpdateLastIdCallback(mysqlMgr, &IMysqlMgr::PurgeAndWaitComplete);
 
     return Status::Success;
 }

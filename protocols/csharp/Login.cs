@@ -24,15 +24,17 @@ public static partial class LoginReflection {
   static LoginReflection() {
     byte[] descriptorData = global::System.Convert.FromBase64String(
         string.Concat(
-          "Cgtsb2dpbi5wcm90byIsCghMb2dpblJlcRIUCgdhY2NvdW50GAEgASgJSACI",
-          "AQFCCgoIX2FjY291bnQiTgoITG9naW5SZXMSFAoHZXJyQ29kZRgBIAEoEUgA",
-          "iAEBEhQKB2FjY291bnQYAiABKAlIAYgBAUIKCghfZXJyQ29kZUIKCghfYWNj",
-          "b3VudGIGcHJvdG8z"));
+          "Cgtsb2dpbi5wcm90bxoPY29tX2xvZ2luLnByb3RvIiwKCExvZ2luUmVxEhQK",
+          "B2FjY291bnQYASABKAlIAIgBAUIKCghfYWNjb3VudCJOCghMb2dpblJlcxIU",
+          "CgdlcnJDb2RlGAEgASgRSACIAQESFAoHYWNjb3VudBgCIAEoCUgBiAEBQgoK",
+          "CF9lcnJDb2RlQgoKCF9hY2NvdW50IjQKDExvZ2luSW5mb050eRINCgVUb2tl",
+          "bhgBIAEoCRIVCg1LZXlFeHBpcmVUaW1lGAIgASgSYgZwcm90bzM="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-        new pbr::FileDescriptor[] { },
+        new pbr::FileDescriptor[] { global::ComLoginReflection.Descriptor, },
         new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
           new pbr::GeneratedClrTypeInfo(typeof(global::LoginReq), global::LoginReq.Parser, new[]{ "Account" }, new[]{ "Account" }, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::LoginRes), global::LoginRes.Parser, new[]{ "ErrCode", "Account" }, new[]{ "ErrCode", "Account" }, null, null, null)
+          new pbr::GeneratedClrTypeInfo(typeof(global::LoginRes), global::LoginRes.Parser, new[]{ "ErrCode", "Account" }, new[]{ "ErrCode", "Account" }, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::LoginInfoNty), global::LoginInfoNty.Parser, new[]{ "Token", "KeyExpireTime" }, null, null, null, null)
         }));
   }
   #endregion
@@ -492,6 +494,242 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
         }
         case 18: {
           Account = input.ReadString();
+          break;
+        }
+      }
+    }
+  }
+  #endif
+
+}
+
+/// <summary>
+//// Opcode:
+/// </summary>
+[ProtoMessage(22)]
+public sealed partial class LoginInfoNty : pb::IMessage<LoginInfoNty>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    , pb::IBufferMessage
+#endif
+{
+  private static readonly pb::MessageParser<LoginInfoNty> _parser = new pb::MessageParser<LoginInfoNty>(() => new LoginInfoNty());
+  private pb::UnknownFieldSet _unknownFields;
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pb::MessageParser<LoginInfoNty> Parser { get { return _parser; } }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pbr::MessageDescriptor Descriptor {
+    get { return global::LoginReflection.Descriptor.MessageTypes[2]; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  pbr::MessageDescriptor pb::IMessage.Descriptor {
+    get { return Descriptor; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public LoginInfoNty() {
+    OnConstruction();
+  }
+
+  partial void OnConstruction();
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public LoginInfoNty(LoginInfoNty other) : this() {
+    token_ = other.token_;
+    keyExpireTime_ = other.keyExpireTime_;
+    _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public LoginInfoNty Clone() {
+    return new LoginInfoNty(this);
+  }
+
+  /// <summary>Field number for the "Token" field.</summary>
+  public const int TokenFieldNumber = 1;
+  private string token_ = "";
+  /// <summary>
+  /// 更新登录token
+  /// </summary>
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public string Token {
+    get { return token_; }
+    set {
+      token_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+    }
+  }
+
+  /// <summary>Field number for the "KeyExpireTime" field.</summary>
+  public const int KeyExpireTimeFieldNumber = 2;
+  private long keyExpireTime_;
+  /// <summary>
+  /// 过期时间(秒级时间戳)
+  /// </summary>
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public long KeyExpireTime {
+    get { return keyExpireTime_; }
+    set {
+      keyExpireTime_ = value;
+    }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override bool Equals(object other) {
+    return Equals(other as LoginInfoNty);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public bool Equals(LoginInfoNty other) {
+    if (ReferenceEquals(other, null)) {
+      return false;
+    }
+    if (ReferenceEquals(other, this)) {
+      return true;
+    }
+    if (Token != other.Token) return false;
+    if (KeyExpireTime != other.KeyExpireTime) return false;
+    return Equals(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override int GetHashCode() {
+    int hash = 1;
+    if (Token.Length != 0) hash ^= Token.GetHashCode();
+    if (KeyExpireTime != 0L) hash ^= KeyExpireTime.GetHashCode();
+    if (_unknownFields != null) {
+      hash ^= _unknownFields.GetHashCode();
+    }
+    return hash;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override string ToString() {
+    return pb::JsonFormatter.ToDiagnosticString(this);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void WriteTo(pb::CodedOutputStream output) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    output.WriteRawMessage(this);
+  #else
+    if (Token.Length != 0) {
+      output.WriteRawTag(10);
+      output.WriteString(Token);
+    }
+    if (KeyExpireTime != 0L) {
+      output.WriteRawTag(16);
+      output.WriteSInt64(KeyExpireTime);
+    }
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(output);
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+    if (Token.Length != 0) {
+      output.WriteRawTag(10);
+      output.WriteString(Token);
+    }
+    if (KeyExpireTime != 0L) {
+      output.WriteRawTag(16);
+      output.WriteSInt64(KeyExpireTime);
+    }
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(ref output);
+    }
+  }
+  #endif
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public int CalculateSize() {
+    int size = 0;
+    if (Token.Length != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeStringSize(Token);
+    }
+    if (KeyExpireTime != 0L) {
+      size += 1 + pb::CodedOutputStream.ComputeSInt64Size(KeyExpireTime);
+    }
+    if (_unknownFields != null) {
+      size += _unknownFields.CalculateSize();
+    }
+    return size;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(LoginInfoNty other) {
+    if (other == null) {
+      return;
+    }
+    if (other.Token.Length != 0) {
+      Token = other.Token;
+    }
+    if (other.KeyExpireTime != 0L) {
+      KeyExpireTime = other.KeyExpireTime;
+    }
+    _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(pb::CodedInputStream input) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    input.ReadRawMessage(this);
+  #else
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+      switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+          break;
+        case 10: {
+          Token = input.ReadString();
+          break;
+        }
+        case 16: {
+          KeyExpireTime = input.ReadSInt64();
+          break;
+        }
+      }
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+      switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+          break;
+        case 10: {
+          Token = input.ReadString();
+          break;
+        }
+        case 16: {
+          KeyExpireTime = input.ReadSInt64();
           break;
         }
       }

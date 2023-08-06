@@ -33,6 +33,46 @@
 SERVICE_BEGIN
 
 class IUserMgr;
+class IUserSys;
+class IUser;
+
+class UserStatus
+{
+public:
+    enum ENUMS
+    {
+        USER_PENDING = 0,
+        USER_ONLOADING,
+        USER_ONLOADED,
+
+        USER_CREATED,
+        USER_INITING,
+        USER_INITED,
+        USER_STARTING,
+        USER_STARTED,
+    };
+};
+
+// user处于未创建状态
+class PendingUser
+{
+    POOL_CREATE_OBJ_DEFAULT(PendingUser);
+
+public:
+    PendingUser();
+    ~PendingUser();
+
+    KERNEL_NS::LibString ToString() const;
+
+    Int32 _status;
+    KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> _loginInfo;
+    KERNEL_NS::LibString _byAccountName;
+    UInt64 _byUserId;
+    UInt64 _stub;
+    KERNEL_NS::IDelegate<void, Int32, PendingUser *,  IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *_cb;
+    KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> _var;
+    Int32 _dbOperatorId;
+};
 
 class IUser : public ILogicSys
 {
@@ -42,9 +82,9 @@ public:
     virtual IUserMgr *GetUserMgr() = 0;
     virtual const IUserMgr *GetUserMgr() const = 0;
 
-    virtual KERNEL_NS::ListenerStub AddListener(int id,
+    KERNEL_NS::ListenerStub AddListener(int id,
                                         KERNEL_NS::IDelegate<void, KERNEL_NS::LibEvent *> *listener,
-                                        const KERNEL_NS::ListenerStub &bindedStub = INVALID_LISTENER_STUB) = 0;
+                                        const KERNEL_NS::ListenerStub &bindedStub = INVALID_LISTENER_STUB);
     template <typename ObjectType>
     KERNEL_NS::ListenerStub AddListener(int id,
                                   ObjectType *obj,
@@ -57,7 +97,7 @@ public:
      *               specially, if return Error,  and fetch the last error is pending,
      *               it means operation will success on later, but pending at now.
      */
-    virtual int RemoveListener(int id) = 0;
+    virtual int RemoveListener(int id);
     /**
      * Remove event listener using listener stub.
      * @param[in] stub - event listener stub.
@@ -65,7 +105,7 @@ public:
      *               specially, if return Error, and fetch the last error is pending,
      *               it means operation will success on later, but pending at now.
      */
-    virtual int RemoveListener(const KERNEL_NS::ListenerStub &stub) = 0;
+    virtual int RemoveListener(const KERNEL_NS::ListenerStub &stub);
     /**
      * Remove event listener using listener stub and clear the listener stub.
      * @param[in] stub - event listener stub.
@@ -73,7 +113,7 @@ public:
      *               specially, if return Error, and fetch the last error is pending,
      *               it means operation will success on later, but pending at now.
      */
-    virtual int RemoveListenerX(KERNEL_NS::ListenerStub &stub) = 0;
+    virtual int RemoveListenerX(KERNEL_NS::ListenerStub &stub);
     /**
      * Fire the event. 处于isfiring中进行监听的事件，
      * FireEvent若在IsFiring状况下addlisten并在统一帧下Fire的话事件将在之后的某个合适时机触发
@@ -81,12 +121,69 @@ public:
      * @param[in] event - event object.
      * @return(Int32) FireEvResult, 为了降低复杂度,请保证统一征内事件不同时Add与Fire(IsFiring状态下)
      */
-    virtual Int32 FireEvent(KERNEL_NS::LibEvent *event) = 0;
+    virtual Int32 FireEvent(KERNEL_NS::LibEvent *event);
 
     virtual Int64 Send(KERNEL_NS::LibPacket *packet) const = 0;
     virtual void Send(const std::list<KERNEL_NS::LibPacket *> &packets) const = 0;
     virtual Int64 Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const = 0;
+
+    virtual void OnLogin() = 0;
+    virtual void OnLoginFinish() = 0;
+    virtual void OnLogout() = 0;
+    virtual void OnUserCreated() = 0;
+
+    // user状态
+    virtual Int32 GetUserStatus() const = 0;
+    virtual void SetUserStatus(Int32 status)  = 0;
+
+    // dirty相关
+    virtual void MaskDirty(IUserSys *userSys) = 0;
+    virtual void MaskAddDirty() = 0;
+
+    // 用户基本信息
+    virtual UserBaseInfo *GetUserBaseInfo() = 0;
+    virtual const UserBaseInfo *GetUserBaseInfo() const = 0;
+
+    // 用户id
+    virtual UInt64 GetUserId() const = 0;
 };
+
+ALWAYS_INLINE KERNEL_NS::ListenerStub IUser::AddListener(int id,
+                                        KERNEL_NS::IDelegate<void, KERNEL_NS::LibEvent *> *listener,
+                                        const KERNEL_NS::ListenerStub &bindedStub)
+{
+    return _eventMgr->AddListener(id, listener, bindedStub);
+}
+
+template <typename ObjectType>
+ALWAYS_INLINE KERNEL_NS::ListenerStub IUser::AddListener(int id,
+                                ObjectType *obj,
+                                void (ObjectType::*listener)(KERNEL_NS::LibEvent *),
+                                const KERNEL_NS::ListenerStub &bindedStub)
+{
+    auto delg = KERNEL_NS::DelegateFactory::Create(obj, listener);
+    return AddListener(id, delg, bindedStub);
+}
+
+ALWAYS_INLINE int IUser::RemoveListener(int id)
+{
+    return _eventMgr->RemoveListener(id);
+}
+
+ALWAYS_INLINE int IUser::RemoveListener(const KERNEL_NS::ListenerStub &stub)
+{
+    return _eventMgr->RemoveListener(stub);
+}
+
+ALWAYS_INLINE int IUser::RemoveListenerX(KERNEL_NS::ListenerStub &stub)
+{
+    return _eventMgr->RemoveListenerX(stub);
+}
+
+ALWAYS_INLINE Int32 IUser::FireEvent(KERNEL_NS::LibEvent *event)
+{
+    return _eventMgr->FireEvent(event);
+}
 
 SERVICE_END
 

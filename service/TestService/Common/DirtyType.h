@@ -32,14 +32,5 @@
 
 SERVICE_BEGIN
 
-class DirtyType
-{
-public:
-    enum ENUMS
-    {
-        Max,
-    };
-};
-
 SERVICE_END
 

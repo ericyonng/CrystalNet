@@ -95,6 +95,12 @@ bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibSt
         return true;
     }
 
+    if(IsEnum(copyTypeStr))
+    {
+        targetType.AppendFormat("Int32");
+        return true;
+    }
+
     // 解析array
     if(IsArray(copyTypeStr))
     {
@@ -343,7 +349,8 @@ bool DataTypeHelper::IsSimpleType(const KERNEL_NS::LibString &typeStr)
         IsUInt32(typeStr) ||
         IsInt64(typeStr) ||
         IsUInt64(typeStr) ||
-        IsString(typeStr)
+        IsString(typeStr) ||
+        IsEnum(typeStr)
      )
      {
          return true;
@@ -447,6 +454,16 @@ bool DataTypeHelper::IsNumber(const KERNEL_NS::LibString &typeStr)
     return IsInt8(typeStr) || IsUInt8(typeStr) || IsInt16(typeStr) || IsUInt16(typeStr) || IsInt32(typeStr) || IsUInt32(typeStr) || IsInt64(typeStr) || IsUInt64(typeStr); 
 }
 
+bool DataTypeHelper::IsEnum(const KERNEL_NS::LibString &typeStr)
+{
+    if((typeStr.GetRaw().substr(0, 4) == "enum") || 
+        (typeStr.GetRaw().substr(0, 4) == "ENUM") )
+        return true;
+
+    return false;
+}
+
+
 void DataTypeHelper::ToSimpleTypeString(const KERNEL_NS::LibString &typeStr, const KERNEL_NS::LibString &dataContent, KERNEL_NS::LibString &dataInfo)
 {
     if(IsBool(typeStr))
@@ -493,7 +510,7 @@ void DataTypeHelper::ToSimpleTypeString(const KERNEL_NS::LibString &typeStr, con
         return;
     }
 
-    if(IsInt32(typeStr))
+    if(IsInt32(typeStr) || IsEnum(typeStr))
     {
         Int32 value = KERNEL_NS::StringUtil::StringToInt32(dataContent.c_str());
         DataTypeHelper::ToString(value, dataInfo);
@@ -1007,6 +1024,37 @@ bool DataTypeHelper::CheckData(const KERNEL_NS::LibString &dataType, const KERNE
         return true;
     }
 
+    if(IsEnum(dataType))
+    {
+        if(value.empty())
+        {
+            errInfo.AppendFormat("enum type must have a string, data type:%s, value:%s\n", dataType.c_str(), value.c_str());
+            return false;
+        }
+
+        // 首字符必须是英文
+        if(!value.isalpha(value[0]))
+        {
+            errInfo.AppendFormat("enum fist char must be alpha, data type:%s, value:%s\n", dataType.c_str(), value.c_str());
+            return false;
+        }
+
+        // 其他只能是字符数值和下划线
+        const Int32 count = static_cast<Int32>(value.size());
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            if((!value.isalpha(value[idx])) && 
+            (!value.isdigit(value[idx])) && 
+            (value[idx] != '_'))
+            {
+                errInfo.AppendFormat("have invalid char in enum name, data type:%s, enum name:%s\n", dataType.c_str(), value.c_str());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     // 未知类型
     errInfo.AppendFormat("unknown data type:%s, value:%s\n", dataType.c_str(), value.c_str());
     return false;
@@ -1027,7 +1075,8 @@ KERNEL_NS::LibString DataTypeHelper::GetTypeDefaultValue(const KERNEL_NS::LibStr
         IsInt32(typeStr) ||
         IsUInt32(typeStr) ||
         IsInt64(typeStr) ||
-        IsUInt64(typeStr)
+        IsUInt64(typeStr) ||
+        IsEnum(typeStr)
     )
     {
         return "0";

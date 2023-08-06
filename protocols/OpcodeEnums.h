@@ -43,5 +43,6 @@ public:
     static constexpr Int32 OPCODE_PlayerDataNty = 11;    // player.proto
     static constexpr Int32 OPCODE_TitleInfoReq = 20;    // title.proto
     static constexpr Int32 OPCODE_TitleInfoRes = 21;    // title.proto
-    static constexpr Int32 OPCODE_MAX = 21;
+    static constexpr Int32 OPCODE_LoginInfoNty = 22;    // login.proto
+    static constexpr Int32 OPCODE_MAX = 22;
 };

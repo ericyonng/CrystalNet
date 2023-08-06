@@ -107,7 +107,6 @@ protected:
     virtual Int32 _OnSysCompsCreated() final;
     virtual Int32 _OnGlobalSysCompsCreated() { return Status::Success; }
 
-
     /*
     * 在组件 close 之后 global close
     * Attention:给IGlobalSys使用 派生类使用：_OnGlobalSysClose

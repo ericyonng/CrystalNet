@@ -5,6 +5,7 @@
 #include <protocols/cplusplus/login.pb.h>
 POOL_CREATE_OBJ_DEFAULT_IMPL(LoginReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(LoginResFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(LoginInfoNtyFactory);
 
 #include <algorithm>
 
@@ -52,7 +53,21 @@ struct LoginResDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginResDefaultTypeInternal _LoginRes_default_instance_;
-static ::_pb::Metadata file_level_metadata_login_2eproto[2];
+PROTOBUF_CONSTEXPR LoginInfoNty::LoginInfoNty(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.token_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.keyexpiretime_)*/int64_t{0}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct LoginInfoNtyDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR LoginInfoNtyDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~LoginInfoNtyDefaultTypeInternal() {}
+  union {
+    LoginInfoNty _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginInfoNtyDefaultTypeInternal _LoginInfoNty_default_instance_;
+static ::_pb::Metadata file_level_metadata_login_2eproto[3];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_login_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_login_2eproto = nullptr;
 
@@ -75,28 +90,43 @@ const uint32_t TableStruct_login_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pr
   PROTOBUF_FIELD_OFFSET(::LoginRes, _impl_.account_),
   1,
   0,
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::LoginInfoNty, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::LoginInfoNty, _impl_.token_),
+  PROTOBUF_FIELD_OFFSET(::LoginInfoNty, _impl_.keyexpiretime_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, 7, -1, sizeof(::LoginReq)},
   { 8, 16, -1, sizeof(::LoginRes)},
+  { 18, -1, -1, sizeof(::LoginInfoNty)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
   &::_LoginReq_default_instance_._instance,
   &::_LoginRes_default_instance_._instance,
+  &::_LoginInfoNty_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_login_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\013login.proto\",\n\010LoginReq\022\024\n\007account\030\001 \001"
-  "(\tH\000\210\001\001B\n\n\010_account\"N\n\010LoginRes\022\024\n\007errCo"
-  "de\030\001 \001(\021H\000\210\001\001\022\024\n\007account\030\002 \001(\tH\001\210\001\001B\n\n\010_"
-  "errCodeB\n\n\010_accountb\006proto3"
+  "\n\013login.proto\032\017com_login.proto\",\n\010LoginR"
+  "eq\022\024\n\007account\030\001 \001(\tH\000\210\001\001B\n\n\010_account\"N\n\010"
+  "LoginRes\022\024\n\007errCode\030\001 \001(\021H\000\210\001\001\022\024\n\007accoun"
+  "t\030\002 \001(\tH\001\210\001\001B\n\n\010_errCodeB\n\n\010_account\"4\n\014"
+  "LoginInfoNty\022\r\n\005Token\030\001 \001(\t\022\025\n\rKeyExpire"
+  "Time\030\002 \001(\022b\006proto3"
   ;
+static const ::_pbi::DescriptorTable* const descriptor_table_login_2eproto_deps[1] = {
+  &::descriptor_table_com_5flogin_2eproto,
+};
 static ::_pbi::once_flag descriptor_table_login_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_login_2eproto = {
-    false, false, 147, descriptor_table_protodef_login_2eproto,
+    false, false, 218, descriptor_table_protodef_login_2eproto,
     "login.proto",
-    &descriptor_table_login_2eproto_once, nullptr, 0, 2,
+    &descriptor_table_login_2eproto_once, descriptor_table_login_2eproto_deps, 1, 3,
     schemas, file_default_instances, TableStruct_login_2eproto::offsets,
     file_level_metadata_login_2eproto, file_level_enum_descriptors_login_2eproto,
     file_level_service_descriptors_login_2eproto,
@@ -579,6 +609,236 @@ void LoginRes::InternalSwap(LoginRes* other) {
       file_level_metadata_login_2eproto[1]);
 }
 
+// ===================================================================
+
+class LoginInfoNty::_Internal {
+ public:
+};
+
+LoginInfoNty::LoginInfoNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:LoginInfoNty)
+}
+LoginInfoNty::LoginInfoNty(const LoginInfoNty& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  LoginInfoNty* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.token_){}
+    , decltype(_impl_.keyexpiretime_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.token_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.token_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_token().empty()) {
+    _this->_impl_.token_.Set(from._internal_token(), 
+      _this->GetArenaForAllocation());
+  }
+  _this->_impl_.keyexpiretime_ = from._impl_.keyexpiretime_;
+  // @@protoc_insertion_point(copy_constructor:LoginInfoNty)
+}
+
+inline void LoginInfoNty::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.token_){}
+    , decltype(_impl_.keyexpiretime_){int64_t{0}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.token_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.token_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+LoginInfoNty::~LoginInfoNty() {
+  // @@protoc_insertion_point(destructor:LoginInfoNty)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void LoginInfoNty::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.token_.Destroy();
+}
+
+void LoginInfoNty::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void LoginInfoNty::Clear() {
+// @@protoc_insertion_point(message_clear_start:LoginInfoNty)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.token_.ClearToEmpty();
+  _impl_.keyexpiretime_ = int64_t{0};
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* LoginInfoNty::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // string Token = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_token();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "LoginInfoNty.Token"));
+        } else
+          goto handle_unusual;
+        continue;
+      // sint64 KeyExpireTime = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.keyexpiretime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* LoginInfoNty::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:LoginInfoNty)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string Token = 1;
+  if (!this->_internal_token().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_token().data(), static_cast<int>(this->_internal_token().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "LoginInfoNty.Token");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_token(), target);
+  }
+
+  // sint64 KeyExpireTime = 2;
+  if (this->_internal_keyexpiretime() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(2, this->_internal_keyexpiretime(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:LoginInfoNty)
+  return target;
+}
+
+size_t LoginInfoNty::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:LoginInfoNty)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string Token = 1;
+  if (!this->_internal_token().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_token());
+  }
+
+  // sint64 KeyExpireTime = 2;
+  if (this->_internal_keyexpiretime() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_keyexpiretime());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData LoginInfoNty::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    LoginInfoNty::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LoginInfoNty::GetClassData() const { return &_class_data_; }
+
+
+void LoginInfoNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<LoginInfoNty*>(&to_msg);
+  auto& from = static_cast<const LoginInfoNty&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:LoginInfoNty)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_token().empty()) {
+    _this->_internal_set_token(from._internal_token());
+  }
+  if (from._internal_keyexpiretime() != 0) {
+    _this->_internal_set_keyexpiretime(from._internal_keyexpiretime());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void LoginInfoNty::CopyFrom(const LoginInfoNty& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:LoginInfoNty)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool LoginInfoNty::IsInitialized() const {
+  return true;
+}
+
+void LoginInfoNty::InternalSwap(LoginInfoNty* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.token_, lhs_arena,
+      &other->_impl_.token_, rhs_arena
+  );
+  swap(_impl_.keyexpiretime_, other->_impl_.keyexpiretime_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata LoginInfoNty::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_login_2eproto_getter, &descriptor_table_login_2eproto_once,
+      file_level_metadata_login_2eproto[2]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::LoginReq*
@@ -588,6 +848,10 @@ Arena::CreateMaybeMessage< ::LoginReq >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::LoginRes*
 Arena::CreateMaybeMessage< ::LoginRes >(Arena* arena) {
   return Arena::CreateMessageInternal< ::LoginRes >(arena);
+}
+template<> PROTOBUF_NOINLINE ::LoginInfoNty*
+Arena::CreateMaybeMessage< ::LoginInfoNty >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::LoginInfoNty >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

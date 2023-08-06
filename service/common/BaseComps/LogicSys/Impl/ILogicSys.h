@@ -164,16 +164,16 @@ public:
   * 标脏
   */
 #ifdef CRYSTAL_STORAGE_ENABLE
-   void MaskDirty();
-   void MaskNumberKeyAddDirty(UInt64 key);
-   void MaskNumberKeyModifyDirty(UInt64 key);
-   void MaskNumberKeyDeleteDirty(UInt64 key);
-   void MaskStringKeyAddDirty(const KERNEL_NS::LibString &key);
-   void MaskStringKeyModifyDirty(const KERNEL_NS::LibString &key);
-   void MaskStringKeyDeleteDirty(const KERNEL_NS::LibString &key);
+   virtual void MaskDirty();
+   virtual void MaskNumberKeyAddDirty(UInt64 key);
+   virtual void MaskNumberKeyModifyDirty(UInt64 key);
+   virtual void MaskNumberKeyDeleteDirty(UInt64 key);
+   virtual void MaskStringKeyAddDirty(const KERNEL_NS::LibString &key);
+   virtual void MaskStringKeyModifyDirty(const KERNEL_NS::LibString &key);
+   virtual void MaskStringKeyDeleteDirty(const KERNEL_NS::LibString &key);
 #endif
 
-   /*
+   /* TODO:
    * 跨天 默认关注
    * @param(params):NULL
    */
@@ -209,6 +209,9 @@ public:
    void ClearFlag(UInt64 flag);
    // LogicSysFlagsType
    void ClearFlags();
+
+    template<typename CallbackType>
+    void Post(CallbackType &&cb);
  
     // 组件接口资源
 protected:
@@ -298,7 +301,7 @@ private:
    void _UnRegisterLogicEvents();
    void _Clear();
 
-private:
+protected:
     SERVICE_COMMON_NS::IService *_service;
     SERVICE_COMMON_NS::ServiceProxy *_serviceProxy;
     SERVICE_COMMON_NS::Application *_app;
@@ -435,6 +438,19 @@ ALWAYS_INLINE void ILogicSys::ClearFlag(UInt64 flag)
 ALWAYS_INLINE void ILogicSys::ClearFlags()
 {
     _flags.clear();
+}
+
+template<typename CallbackType>
+ALWAYS_INLINE void ILogicSys::Post(CallbackType &&cb)
+{
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->SetTimeOutHandler([cb](KERNEL_NS::LibTimer *t)
+    {
+        t->Cancel();
+        cb();
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+    timer->Schedule(0);
 }
 
 SERVICE_END

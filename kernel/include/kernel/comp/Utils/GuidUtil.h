@@ -80,6 +80,7 @@ public:
     // 单实例 性能是1500w+/s 调用耗时在66ns左右 , 在高并发(最高性能情况)下至少提供26年(起始时间设置成当下)的id使用
     // ,理论最高可以使用69000+年 建议时间单位：秒 
     static UInt64 Snowflake(SnowflakeInfo &snowflakeInfo);
+    static UInt64 Snowflake(SnowflakeInfo &snowflakeInfo, UInt64 addNum);
 
     // 获取时间,实例id, seqid
     static void GetSnowflakeIdPart(const UIDMaskInfo &maskInfo, UInt64 uid, UInt64 &idTime, UInt64 &instanceId, UInt64 &seq);
@@ -194,6 +195,19 @@ ALWAYS_INLINE UInt64 GuidUtil::Snowflake(SnowflakeInfo &snowflakeInfo)
         snowflakeInfo._lastTime += 1;
         snowflakeInfo._lastSeq = 1;
     }
+
+    // 3.组装id [time] + [instance] + [seq]
+    return snowflakeInfo.ToId();
+}
+
+ALWAYS_INLINE UInt64 GuidUtil::Snowflake(SnowflakeInfo &snowflakeInfo, UInt64 addNum)
+{
+    // 1.序号满,递增个时间单位,并重置成1
+    const auto &maskInfo = snowflakeInfo._maskInfo;
+    const auto multi = addNum / maskInfo._seqBitsLimitMask;
+    const auto left = addNum % maskInfo._seqBitsLimitMask;
+    snowflakeInfo._lastTime += multi;
+    snowflakeInfo._lastSeq = left;
 
     // 3.组装id [time] + [instance] + [seq]
     return snowflakeInfo.ToId();

@@ -8,7 +8,6 @@ cd %~dp0/tools/protogen/ && protogentool.exe --proto_path=../../protocols/proto 
 
 if %errorlevel% equ 0 (
 	echo Sussess generate protobuf files all!
-	pause
 	exit 1
 ) else (
     echo Failed to generate protobuf files error: %errorlevel%

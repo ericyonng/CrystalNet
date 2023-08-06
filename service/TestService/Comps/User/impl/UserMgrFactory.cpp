@@ -27,3 +27,24 @@
 */
 
 #include <pch.h>
+#include <Comps/User/impl/UserMgr.h>
+#include <Comps/User/impl/UserMgrFactory.h>
+
+SERVICE_BEGIN
+
+KERNEL_NS::CompFactory *UserMgrFactory::FactoryCreate()
+{
+    return KERNEL_NS::ObjPoolWrap<UserMgrFactory>::NewByAdapter(_buildType.V);
+}
+
+void UserMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<UserMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
+
+KERNEL_NS::CompObject *UserMgrFactory::Create() const
+{
+    return UserMgr::NewByAdapter_UserMgr(_buildType.V);
+}
+
+SERVICE_END
