@@ -82,6 +82,10 @@ public:
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL) override;
 
     Int32 LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingUser);
+    
+    virtual void Purge() override;
+    virtual void PurgeAndWait() override;
+   virtual void PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler) override;
 
 private:
     virtual Int32 _OnGlobalSysInit() override;

@@ -91,6 +91,14 @@ public:
     , CallbackType &&cb
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
 
+    virtual void Purge() = 0;
+    virtual void PurgeAndWait() = 0;
+
+   virtual void PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler) = 0;
+   template<typename CallbackType>
+   void PurgeEndWith(CallbackType &&cb);
+   template<typename ObjType>
+   void PurgeEndWith(ObjType *obj, void (ObjType::*handler)(Int32 errCode));
 };
 
 template<typename ObjType>
@@ -143,6 +151,20 @@ ALWAYS_INLINE Int32 IUserMgr::LoadUserBy(UInt64 userId
 {
     auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &);
     return LoadUser(userId, deleg, var);
+}
+
+template<typename CallbackType>
+ALWAYS_INLINE void IUserMgr::PurgeEndWith(CallbackType &&cb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32);
+    PurgeEndWith(delg);
+}
+
+template<typename ObjType>
+ALWAYS_INLINE void IUserMgr::PurgeEndWith(ObjType *obj, void (ObjType::*handler)(Int32 errCode))
+{
+    auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
+    PurgeEndWith(delg);
 }
 
 

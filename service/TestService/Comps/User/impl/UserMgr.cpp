@@ -83,6 +83,7 @@ void UserMgr::OnStartup()
         ev->SetParam(Params::USER_OBJ, user);
         GetEventMgr()->FireEvent(ev);
     }
+    _pendingLoginEventOnStartup.clear();
 
     _LruPopUser();
 
@@ -103,6 +104,10 @@ void UserMgr::OnStartup()
     registerInfo->set_nickname("123456");
     registerInfo->set_createphoneimei("123456");
     auto err = LoginBy(loginInfo, [this](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
+        user->GetUserBaseInfo()->set_nickname("aakkkkkkkkkkkkkkkkkkkkkkkkkkkkkdalkaldfaskldfaskdfasklfjaslkdfaslkdfalskdfaskdfjalksdjfaksfalskdfjaskdjfalksdjfaksdfjalskdfjaksldjfaklsjdfkasjdfkasjdfkasjdflkasjflaksdjflsakfjaskdjf");
+        user->MaskDirty();
+        user->PurgeAndWaitComplete();
+
         g_Log->Info(LOGFMT_OBJ_TAG("user login:%s"), user->ToString().c_str());
     });
 
@@ -374,6 +379,24 @@ Int32 UserMgr::LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::Smar
     }
 
     return Status::Success;
+}
+
+void UserMgr::Purge()
+{
+    auto dbMgr = GetGlobalSys<IMysqlMgr>();
+    dbMgr->Purge(this);
+}
+
+void UserMgr::PurgeAndWait()
+{
+    auto dbMgr = GetGlobalSys<IMysqlMgr>();
+    dbMgr->PurgeAndWaitComplete(this);
+}
+
+void UserMgr::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
+{
+    auto dbMgr = GetGlobalSys<IMysqlMgr>();
+    dbMgr->PurgeEndWith(handler);
 }
 
 Int32 UserMgr::_OnGlobalSysInit()

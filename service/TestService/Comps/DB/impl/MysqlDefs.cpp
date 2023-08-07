@@ -236,9 +236,9 @@ bool MysqlFieldTypeHelper::GetStringDataTypeBySize(UInt64 sz, bool onlyText, boo
     return false;
 }
 
-bool MysqlFieldTypeHelper::MakeFieldDescribe(const IStorageInfo *fieldDefine, KERNEL_NS::LibString &fieldDesc, bool isAddColumn)
+bool MysqlFieldTypeHelper::MakeFieldDescribe(const IStorageInfo *fieldDefine, KERNEL_NS::LibString &fieldDesc, bool isChangeColumnDescribe)
 {
-    if(!isAddColumn)
+    if(!isChangeColumnDescribe)
         fieldDesc.AppendFormat("%s ", fieldDefine->GetFieldName().c_str());
 
     if(fieldDefine->IsPrimaryField())

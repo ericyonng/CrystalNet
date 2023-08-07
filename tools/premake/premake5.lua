@@ -1200,3 +1200,101 @@ project "Gateway"
         postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", WIN_ROOT_DIR, _ACTION))
     filter {}
 	
+-- ****************************************************************************
+
+
+
+-- core library testsuite compile setting
+project "CenterServer"
+    -- language, kind
+    language "c++"
+    kind "ConsoleApp"
+	
+    -- symbols
+	debugdir(DEBUG_DIR)
+    symbols "On"
+
+    -- dependents
+    dependson {
+        "CrystalKernel",
+    }
+
+    -- 导入内核接口 宏定义
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB"}
+
+	enable_precompileheader("pch.h", ROOT_DIR .. "CenterServer/CenterServer_pch/pch.cpp")
+
+	includedirs {
+	    "../../",
+		"../../kernel/include/",
+		"../../CenterServer/",
+		"../../CenterServer/CenterServer_pch/",
+        "../../service/CenterService/config/code/",
+		"../../service/CenterService/",
+    }
+
+	-- 设置通用选项
+    set_common_options()
+	
+    -- files
+    files {
+		-- "../../3rd/protobuf/include/**.h",
+		-- "../../3rd/protobuf/include/**.cc",
+		"../../protocols/**.h",
+		"../../protocols/**.cc",
+		"../../protocols/**.cpp",
+		"../../service/common/**.h",
+		"../../service/common/**.cpp",
+        "../../service/CenterService/**.h",
+        "../../service/CenterService/**.cpp",
+		"../../service_common/**.h",
+        "../../service_common/**.cpp",
+        "../../CenterServer/**.h",
+        "../../CenterServer/**.cpp",
+        "../../service/CenterService/config/code/**.h",
+        "../../service/CenterService/config/code/**.cpp",
+    }
+
+    filter{ "system:windows"}		
+        libdirs { 
+            ROOT_DIR .. "3rd/"
+        }
+    filter{}
+
+    filter { "system:windows" }
+        links {
+            "ws2_32",
+            "Mswsock",
+            "DbgHelp",
+        }
+    filter{}
+
+	-- links
+    libdirs { OUTPUT_DIR }	
+	include_libfs(true, true)
+
+    -- debug target suffix define
+    filter { "configurations:debug*" }
+        targetsuffix "_debug"
+    filter {}
+
+    -- enable multithread compile
+    -- enable_multithread_comp("C++14")
+	enable_multithread_comp()
+
+    -- warnings
+    filter { "system:not windows" }
+        disablewarnings {
+            "invalid-source-encoding",
+        }
+    filter {}
+
+    -- optimize
+    set_optimize_opts()
+	
+	-- set post build commands.
+    filter { "system:windows" }
+        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", WIN_ROOT_DIR, _ACTION))
+    filter {}
+	
+-- ****************************************************************************

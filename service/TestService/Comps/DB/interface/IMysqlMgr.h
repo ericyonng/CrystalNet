@@ -81,6 +81,7 @@ public:
    void PurgeEndWith(CallbackType &&cb);
    template<typename ObjType>
    void PurgeEndWith(ObjType *obj, void (ObjType::*handler)(Int32 errCode));
+   virtual void Purge(ILogicSys *logic) = 0;
 
    // 同步接口
    virtual Int32 PurgeAndWaitComplete(ILogicSys *logic) = 0;

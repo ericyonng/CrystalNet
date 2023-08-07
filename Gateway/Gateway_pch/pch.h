@@ -27,8 +27,8 @@
  * Description: 
 */
 
-#ifndef __CLIENT_CLIENT_PCH_PCH_H__
-#define __CLIENT_CLIENT_PCH_PCH_H__
+#ifndef __GATEWAY_GATEWAY_PCH_PCH_H__
+#define __GATEWAY_GATEWAY_PCH_PCH_H__
 
 #pragma once
 

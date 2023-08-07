@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+message NODE_IPTYPE 
+{
+    enum TYPE_ENUMS 
+    {
+        IPV4 = 0;
+        IPV6 = 1;
+    }
+}
+
+// 服务器节点间的心跳信息
+message NodeHeartbeatInfo
+{
+    // 服务名
+    string ServiceName = 1;
+    // ip
+    string address = 2;
+    // ip类型
+    sint32 IpType = 3;
+    // 开放的互联端口
+    uint32 InnerLinkPort = 4;
+    // 监听的协议列表
+    repeated sint32 SubscribeOpcodes = 5;
+    
+    // api列表
+    repeated string ApiList = 6;
+}

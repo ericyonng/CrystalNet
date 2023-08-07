@@ -70,6 +70,9 @@ public:
    virtual void MaskDirty() override;
     virtual void MaskDirty(IUserSys *userSys) override;
     virtual void OnMaskAddDirty() override;
+    virtual void Purge() override;
+    virtual void PurgeAndWaitComplete() override;
+   virtual void PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler) override;
 
     virtual UserBaseInfo *GetUserBaseInfo() override;
     virtual const UserBaseInfo *GetUserBaseInfo() const override;

@@ -82,6 +82,7 @@ public:
 
     // 基于rdtsc
     static void InitFastTime();
+    static void ResetFastTime(Int64 nowTimeNanoseconds);
     static Int64 GetFastMicroTimestamp();
     static Int64 GetFastNanoTimestamp();
     
@@ -245,6 +246,12 @@ ALWAYS_INLINE void TimeUtil::InitFastTime()
 {
     _cpuBegin = KERNEL_NS::CrystalNativeRdTsc();
     _systemTimeBegin = TimeUtil::GetNanoTimestamp();
+}
+
+ALWAYS_INLINE void TimeUtil::ResetFastTime(Int64 nowTimeNanoseconds)
+{
+    _cpuBegin = KERNEL_NS::CrystalNativeRdTsc();
+    _systemTimeBegin = nowTimeNanoseconds;
 }
 
 ALWAYS_INLINE Int64 TimeUtil::GetFastMicroTimestamp()

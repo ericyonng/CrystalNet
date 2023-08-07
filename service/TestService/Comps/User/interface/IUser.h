@@ -141,6 +141,14 @@ public:
 
     virtual void MaskDirty(IUserSys *userSys) = 0;
     virtual void OnMaskAddDirty() = 0;
+    virtual void Purge() = 0;
+    virtual void PurgeAndWaitComplete() = 0;
+
+   virtual void PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler) = 0;
+   template<typename CallbackType>
+   void PurgeEndWith(CallbackType &&cb);
+   template<typename ObjType>
+   void PurgeEndWith(ObjType *obj, void (ObjType::*handler)(Int32 errCode));
 
     // 用户基本信息
     virtual UserBaseInfo *GetUserBaseInfo() = 0;
@@ -185,6 +193,20 @@ ALWAYS_INLINE int IUser::RemoveListenerX(KERNEL_NS::ListenerStub &stub)
 ALWAYS_INLINE Int32 IUser::FireEvent(KERNEL_NS::LibEvent *event)
 {
     return _eventMgr->FireEvent(event);
+}
+
+template<typename CallbackType>
+ALWAYS_INLINE void IUser::PurgeEndWith(CallbackType &&cb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32);
+    PurgeEndWith(delg);
+}
+
+template<typename ObjType>
+ALWAYS_INLINE void IUser::PurgeEndWith(ObjType *obj, void (ObjType::*handler)(Int32 errCode))
+{
+    auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
+    PurgeEndWith(delg);
 }
 
 SERVICE_END

@@ -72,6 +72,10 @@ public:
    // 同步接口, 持久化且等完成后回调
    virtual Int32 PurgeAndWaitComplete(ILogicSys *logic) override;
 
+    // 清洗数据
+   virtual void Purge(ILogicSys *logic) override;
+
+
    virtual Int32 OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const override;
    virtual Int32 OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) override;
 

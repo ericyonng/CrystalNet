@@ -773,6 +773,11 @@ Int32 MysqlMgr::PurgeAndWaitComplete(ILogicSys *logic)
     return errCode;
 }
 
+void MysqlMgr::Purge(ILogicSys *logic)
+{
+    _PurgeDirty(logic);
+}
+
 Int32 MysqlMgr::OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const
 {
     auto tableInfo = _GetTableInfo(key);
@@ -836,6 +841,7 @@ Int32 MysqlMgr::OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL_
 
 Int32 MysqlMgr::_OnGlobalSysInit()
 {
+    _disableAutoDrop = 1;
     _poller = GetService()->GetComp<KERNEL_NS::Poller>();
     _closeServiceStub = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &MysqlMgr::_CloseServiceEvent);
 
@@ -864,10 +870,16 @@ Int32 MysqlMgr::_OnGlobalSysInit()
         return Status::Failed;
     }
 
+    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableAutoDropDB", _disableAutoDrop))
+    {
+        _disableAutoDrop = 1;
+        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableAutoDropDB config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
+    }
+
     if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DbVersion", _curVersionNo))
     {
+        _disableAutoDrop = 1;
         g_Log->Warn(LOGFMT_OBJ_TAG("lack of MysqlCommon:DbVersion config in ini:%s"), ini->GetPath().c_str());
-        return Status::Failed;
     }
 
     if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "SystemOperatorUid", _systemOperatorUid))
@@ -882,20 +894,18 @@ Int32 MysqlMgr::_OnGlobalSysInit()
         return Status::Failed;
     }
 
+    _disableSystemTableAutoDrop = 1;
     if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableSystemTableAutoDrop", _disableSystemTableAutoDrop))
     {
+        _disableAutoDrop = 1;
         g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableSystemTableAutoDrop config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
-        return Status::Failed;
-    }
-
-    if(!ini->CheckReadNumber(GetService()->GetServiceName().c_str(), "DisableAutoDropDB", _disableAutoDrop))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:DisableAutoDropDB config in ini:%s"), _currentServiceDBName.c_str(), ini->GetPath().c_str());
-        return Status::Failed;
     }
 
     // 设置操作id
     SetStorageOperatorId(_systemOperatorUid);
+
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql mgr state: _disableAutoDrop:%d, db version:%lld, _disableSystemTableAutoDrop:%d, _purgeIntervalMs:%lld")
+        , _disableAutoDrop, _curVersionNo, _disableSystemTableAutoDrop, _purgeIntervalMs);
 
     return Status::Success;
 }
@@ -1748,7 +1758,7 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
         valueStorageInfo->SetCapacitySize(data->GetReadableSize());
 
         KERNEL_NS::LibString newDescribe;
-        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe))
+        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe, true))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                         , valueStorageInfo->ToString().c_str(), valueStorageInfo->GetFieldName().c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -1756,6 +1766,9 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
             KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(data);
             return;
         }
+
+        // 改表
+        alterModifyColumn->Modify(valueStorageInfo->GetFieldName(), newDescribe);
 
         UInt64 stub = 0;
         std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
@@ -1905,7 +1918,7 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
         valueStorageInfo->SetCapacitySize(data->GetReadableSize());
 
         KERNEL_NS::LibString newDescribe;
-        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe))
+        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe, true))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                         , valueStorageInfo->ToString().c_str(), valueStorageInfo->GetFieldName().c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -1913,6 +1926,9 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
             KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(data);
             return;
         }
+
+        // 改表
+        alterModifyColumn->Modify(valueStorageInfo->GetFieldName(), newDescribe);
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
@@ -2159,7 +2175,7 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
         valueStorageInfo->SetCapacitySize(data->GetReadableSize());
 
         KERNEL_NS::LibString newDescribe;
-        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe))
+        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe, true))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                         , valueStorageInfo->ToString().c_str(), valueStorageInfo->GetFieldName().c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -2167,6 +2183,8 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
             KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(data);
             return;
         }
+
+        alterModifyColumn->Modify(valueStorageInfo->GetFieldName(), newDescribe);
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
@@ -2315,7 +2333,7 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
         valueStorageInfo->SetCapacitySize(data->GetReadableSize());
 
         KERNEL_NS::LibString newDescribe;
-        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe))
+        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe, true))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                         , valueStorageInfo->ToString().c_str(), valueStorageInfo->GetFieldName().c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -2323,6 +2341,8 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
             KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(data);
             return;
         }
+
+        alterModifyColumn->Modify(valueStorageInfo->GetFieldName(), newDescribe);
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
@@ -2471,7 +2491,7 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
         valueStorageInfo->SetCapacitySize(data->GetReadableSize());
 
         KERNEL_NS::LibString newDescribe;
-        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe))
+        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe, true))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                         , valueStorageInfo->ToString().c_str(), valueStorageInfo->GetFieldName().c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -2479,6 +2499,7 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
             KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(data);
             return;
         }
+        alterModifyColumn->Modify(valueStorageInfo->GetFieldName(), newDescribe);
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
@@ -2726,7 +2747,7 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
         valueStorageInfo->SetCapacitySize(data->GetReadableSize());
 
         KERNEL_NS::LibString newDescribe;
-        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe))
+        if(!MysqlFieldTypeHelper::MakeFieldDescribe(valueStorageInfo, newDescribe, true))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                         , valueStorageInfo->ToString().c_str(), valueStorageInfo->GetFieldName().c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -2734,6 +2755,7 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
             KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(data);
             return;
         }
+        alterModifyColumn->Modify(valueStorageInfo->GetFieldName(), newDescribe);
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
@@ -2931,7 +2953,7 @@ void MysqlMgr::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64
             subStorage->SetCapacitySize(data->GetReadableSize());
 
             KERNEL_NS::LibString newDescribe;
-            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe))
+            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe, true))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                             , subStorage->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -3147,7 +3169,7 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
             subStorage->SetCapacitySize(data->GetReadableSize());
 
             KERNEL_NS::LibString newDescribe;
-            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe))
+            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe, true))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                             , subStorage->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -3462,7 +3484,7 @@ void MysqlMgr::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UI
             subStorage->SetCapacitySize(data->GetReadableSize());
 
             KERNEL_NS::LibString newDescribe;
-            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe))
+            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe, true))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                             , subStorage->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -3666,7 +3688,7 @@ void MysqlMgr::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::Lib
             subStorage->SetCapacitySize(data->GetReadableSize());
 
             KERNEL_NS::LibString newDescribe;
-            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe))
+            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe, true))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                             , subStorage->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -3880,7 +3902,7 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
             subStorage->SetCapacitySize(data->GetReadableSize());
 
             KERNEL_NS::LibString newDescribe;
-            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe))
+            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe, true))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                             , subStorage->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -4193,7 +4215,7 @@ void MysqlMgr::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS:
             subStorage->SetCapacitySize(data->GetReadableSize());
 
             KERNEL_NS::LibString newDescribe;
-            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe))
+            if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorage, newDescribe, true))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                             , subStorage->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -4851,7 +4873,7 @@ bool MysqlMgr::_ModifyDbNumberDataType(IStorageInfo *storageInfo, IStorageInfo *
             if(dataType != oldFieldType)
             {
                 KERNEL_NS::LibString newDescribe;
-                if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe))
+                if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe, true))
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                                 , subStorageInfo->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -4935,7 +4957,7 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
                 if(oldCapacitySize != subStorageInfo->GetCapacitySize())
                 {
                     KERNEL_NS::LibString newDescribe;
-                    if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe))
+                    if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe, true))
                     {
                         g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                                     , subStorageInfo->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -4976,7 +4998,7 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
             if(dataType != oldFieldType)
             {
                 KERNEL_NS::LibString newDescribe;
-                if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe))
+                if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe, true))
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                                 , subStorageInfo->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -5058,7 +5080,7 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
                 if(oldCapacitySize != subStorageInfo->GetCapacitySize())
                 {
                     KERNEL_NS::LibString newDescribe;
-                    if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe))
+                    if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe, true))
                     {
                         g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                                     , subStorageInfo->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
@@ -5099,7 +5121,7 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
             if(dataType != oldFieldType)
             {
                 KERNEL_NS::LibString newDescribe;
-                if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe))
+                if(!MysqlFieldTypeHelper::MakeFieldDescribe(subStorageInfo, newDescribe, true))
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("MakeFieldDescribe fail sub storage info:%s, fieldName:%s, table name:%s, system name:%s")
                                 , subStorageInfo->ToString().c_str(), fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());

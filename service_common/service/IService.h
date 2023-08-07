@@ -191,6 +191,9 @@ protected:
     // 在组件Close之后
     virtual void _OnHostClose() final;
 
+    //事件循环开始
+    virtual void _OnEventLoopStart() {}
+
 // 派生接口
 protected:
     // 清理数据
@@ -297,6 +300,7 @@ ALWAYS_INLINE const KERNEL_NS::Poller *IService::GetPoller() const
 
 ALWAYS_INLINE void IService::EventLoop()
 {
+    _OnEventLoopStart();
     _poller->EventLoop();
 }
 

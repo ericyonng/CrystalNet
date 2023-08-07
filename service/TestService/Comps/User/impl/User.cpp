@@ -31,6 +31,7 @@
 #include <Comps/User/interface/IUserSys.h>
 #include <Comps/User/interface/IUserMgr.h>
 #include <Comps/UserSys/UserSys.h>
+#include <Comps/DB/db.h>
 
 SERVICE_BEGIN
 
@@ -519,6 +520,22 @@ void User::OnMaskAddDirty()
 {
     for(auto logic : _needStorageSys)
         _dirtySys.insert(logic);
+}
+
+void User::Purge()
+{
+    _userMgr->Purge();
+}
+
+void User::PurgeAndWaitComplete()
+{
+    _userMgr->PurgeAndWait();
+}
+
+void User::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
+{
+    auto dbMgr = _userMgr->GetGlobalSys<IMysqlMgr>();
+    dbMgr->PurgeEndWith(handler);
 }
 
 UserBaseInfo *User::GetUserBaseInfo()

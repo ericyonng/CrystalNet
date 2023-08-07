@@ -151,3 +151,57 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, LoginInfoNtyFactory::CreateFactory()));
     }
+
+    {// NodeHeartbeatReq
+        auto info = OpcodeInfo();
+        info._opcode = 23;
+        info._opcodeName = "NodeHeartbeatReq";
+        info._protoFile = "heartbeat.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, NodeHeartbeatReqFactory::CreateFactory()));
+    }
+
+    {// NodeHeartbeatRes
+        auto info = OpcodeInfo();
+        info._opcode = 24;
+        info._opcodeName = "NodeHeartbeatRes";
+        info._protoFile = "heartbeat.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, NodeHeartbeatResFactory::CreateFactory()));
+    }
+
+    {// RegisterNodeReq
+        auto info = OpcodeInfo();
+        info._opcode = 25;
+        info._opcodeName = "RegisterNodeReq";
+        info._protoFile = "heartbeat.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, RegisterNodeReqFactory::CreateFactory()));
+    }
+
+    {// RegisterNodeRes
+        auto info = OpcodeInfo();
+        info._opcode = 26;
+        info._opcodeName = "RegisterNodeRes";
+        info._protoFile = "heartbeat.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, RegisterNodeResFactory::CreateFactory()));
+    }
+
+    {// GetNodeListReq
+        auto info = OpcodeInfo();
+        info._opcode = 27;
+        info._opcodeName = "GetNodeListReq";
+        info._protoFile = "heartbeat.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetNodeListReqFactory::CreateFactory()));
+    }
+
+    {// GetNodeListRes
+        auto info = OpcodeInfo();
+        info._opcode = 28;
+        info._opcodeName = "GetNodeListRes";
+        info._protoFile = "heartbeat.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetNodeListResFactory::CreateFactory()));
+    }

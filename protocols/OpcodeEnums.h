@@ -44,5 +44,11 @@ public:
     static constexpr Int32 OPCODE_TitleInfoReq = 20;    // title.proto
     static constexpr Int32 OPCODE_TitleInfoRes = 21;    // title.proto
     static constexpr Int32 OPCODE_LoginInfoNty = 22;    // login.proto
-    static constexpr Int32 OPCODE_MAX = 22;
+    static constexpr Int32 OPCODE_NodeHeartbeatReq = 23;    // heartbeat.proto
+    static constexpr Int32 OPCODE_NodeHeartbeatRes = 24;    // heartbeat.proto
+    static constexpr Int32 OPCODE_RegisterNodeReq = 25;    // heartbeat.proto
+    static constexpr Int32 OPCODE_RegisterNodeRes = 26;    // heartbeat.proto
+    static constexpr Int32 OPCODE_GetNodeListReq = 27;    // heartbeat.proto
+    static constexpr Int32 OPCODE_GetNodeListRes = 28;    // heartbeat.proto
+    static constexpr Int32 OPCODE_MAX = 28;
 };

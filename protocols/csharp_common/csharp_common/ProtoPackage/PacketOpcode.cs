@@ -19,6 +19,12 @@ public static class PacketOpcode
         TitleInfoReq = 20,    // title.proto
         TitleInfoRes = 21,    // title.proto
         LoginInfoNty = 22,    // login.proto
-        OpcodeMax = 22,
+        NodeHeartbeatReq = 23,    // heartbeat.proto
+        NodeHeartbeatRes = 24,    // heartbeat.proto
+        RegisterNodeReq = 25,    // heartbeat.proto
+        RegisterNodeRes = 26,    // heartbeat.proto
+        GetNodeListReq = 27,    // heartbeat.proto
+        GetNodeListRes = 28,    // heartbeat.proto
+        OpcodeMax = 28,
     }
 }
