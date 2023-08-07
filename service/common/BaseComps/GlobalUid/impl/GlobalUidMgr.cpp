@@ -166,7 +166,11 @@ void GlobalUidMgr::_InitGuid()
     {
         KERNEL_NS::GuidUtil::InitSnowFlake(_snowflakInfo, _machineId);
         _maxUid = _snowflakInfo.ToId();
-        MaskNumberKeyAddDirty(static_cast<UInt64>(_machineId));
+
+        #if CRYSTAL_STORAGE_ENABLE
+         MaskNumberKeyAddDirty(static_cast<UInt64>(_machineId));
+        #endif
+        
         _synStorageCb->Invoke(this);
     }
     else

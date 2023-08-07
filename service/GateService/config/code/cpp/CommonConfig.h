@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/TestService/config/xlsx/公共参数.xlsx
+// file path:../../service/GateService/config/xlsx/公共参数.xlsx
 // sheet name:公共参数|Common
 
 #ifndef __CONFIG_COMMON_CONFIG_H__
