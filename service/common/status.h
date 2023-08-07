@@ -61,5 +61,6 @@ namespace Status
         HaveNoRegisterInfo,                                 // 没有注册信息
         TokenExpired,                                        // token失效
         TokenError,                                         // 错误token
+        UserAllReadyExistsCantRegisterAgain,                // 用户已经存在不可重新注册
     };
 }

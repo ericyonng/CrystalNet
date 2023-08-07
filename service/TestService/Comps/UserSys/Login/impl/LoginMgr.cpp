@@ -79,7 +79,7 @@ Int32 LoginMgr::OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
 void LoginMgr::OnLogin()
 {
     const auto &nowTime = KERNEL_NS::LibTime::Now();
-    if(_loginInfo->keyexpiretime() == 0 || _loginInfo->keyexpiretime() <= nowTime.NowTimestamp())
+    if(_loginInfo->keyexpiretime() == 0 || _loginInfo->keyexpiretime() <= nowTime.GetSecTimestamp())
     {
         _Update(false);
     }
@@ -96,6 +96,11 @@ void LoginMgr::OnLoginFinish()
 Int32 LoginMgr::CheckLogin(const PendingUser *pendingUser) const
 {
     // 注册登录: pwd校验, 账号校验, 登录设备校验, 密文校验
+    if(!pendingUser->_loginInfo)
+    {// TODO:需要外部校验
+        return Status::Success;
+    }
+
     if(pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER)
     {// 
         return Status::Success;
@@ -103,7 +108,7 @@ Int32 LoginMgr::CheckLogin(const PendingUser *pendingUser) const
 
     // TODO:
     const auto &nowTime = KERNEL_NS::LibTime::Now();
-    if(_loginInfo->keyexpiretime() <= nowTime.NowTimestamp())
+    if(_loginInfo->keyexpiretime() <= nowTime.GetSecTimestamp())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("key expired user:%s, pendingUser:%s")
         , GetUser()->ToString().c_str(), pendingUser->ToString().c_str());
@@ -181,10 +186,12 @@ void LoginMgr::_Update(bool isNty)
     // 过期时间
     auto expireConfig = conmmonConfigMgr->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_EXPIRE_TIME);
     const auto &expireTime = KERNEL_NS::LibTime::Now() + KERNEL_NS::TimeSlice::FromSeconds(static_cast<Int64>(expireConfig->_value));
-    _loginInfo->set_keyexpiretime(expireTime.NowTimestamp());  
+    _loginInfo->set_keyexpiretime(expireTime.GetSecTimestamp());  
 
     // TODO:sha1(imei + ip + userid + key)
     // _loginInfo->set_token();
+
+    MaskDirty();
 
     if(isNty)
         _SendInfo();
@@ -193,17 +200,17 @@ void LoginMgr::_Update(bool isNty)
 void LoginMgr::_StartTimer()
 {
     const auto &nowTime = KERNEL_NS::LibTime::Now();
-    const auto diffSeconds = _loginInfo->keyexpiretime() > nowTime.NowTimestamp() ? (_loginInfo->keyexpiretime() - nowTime.NowTimestamp()) : 0;
+    const auto diffSeconds = _loginInfo->keyexpiretime() > nowTime.GetSecTimestamp() ? (_loginInfo->keyexpiretime() - nowTime.GetSecTimestamp()) : 0;
     _updateKey->Schedule(diffSeconds * 1000);
 }
 
 void LoginMgr::_SendInfo()
 {
-    auto nty = CRYSTAL_NEW(LoginInfoNty);
-    nty->set_token(_loginInfo->token());
-    nty->set_keyexpiretime(_loginInfo->keyexpiretime());
+    LoginInfoNty nty;
+    nty.set_token(_loginInfo->token());
+    nty.set_keyexpiretime(_loginInfo->keyexpiretime());
 
-    Send(Opcodes::OpcodeConst::OPCODE_LoginInfoNty, *nty);
+    Send(Opcodes::OpcodeConst::OPCODE_LoginInfoNty, nty);
 }
 
 

@@ -146,9 +146,6 @@ ALWAYS_INLINE bool GuidUtil::InitSnowFlake(SnowflakeInfo &historyInfo
     if(historyInfo._isInit)
         return true;
 
-    if(UNLIKELY(!instanceId || !lastTime))
-        return false;
-
     historyInfo._isInit = true;
     if(maskInfo)
     {
@@ -207,7 +204,7 @@ ALWAYS_INLINE UInt64 GuidUtil::Snowflake(SnowflakeInfo &snowflakeInfo, UInt64 ad
     const auto multi = addNum / maskInfo._seqBitsLimitMask;
     const auto left = addNum % maskInfo._seqBitsLimitMask;
     snowflakeInfo._lastTime += multi;
-    snowflakeInfo._lastSeq = left;
+    snowflakeInfo._lastSeq += left;
 
     // 3.组装id [time] + [instance] + [seq]
     return snowflakeInfo.ToId();

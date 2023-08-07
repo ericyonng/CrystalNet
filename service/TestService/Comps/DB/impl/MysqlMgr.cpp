@@ -1492,6 +1492,8 @@ void MysqlMgr::_LoadAllPublicData()
             continue;
 
         auto storageInfo = logic->GetStorageInfo();
+        if(!storageInfo->IsLoadDataOnStartup())
+            continue;
 
         // 查询库中所有表和字段: 需要校准:tbl_system_data, 1.表校准, 2.表字段校准
         KERNEL_NS::SelectSqlBuilder *selectBuilder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
@@ -1791,13 +1793,13 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
     fields.resize(2);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_LONGLONG, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), keyStorageInfo->GetInputMysqlDataType(), 0);
         v->Write(&key, static_cast<Int64>(sizeof(key)));
         fields[0] = v;
     }
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() , MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() , valueStorageInfo->GetInputMysqlDataType(), 0);
         v->SetData(data);
         fields[1] = v;
     }
@@ -1948,13 +1950,13 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
     fields.resize(2);
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName(), MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName(), valueStorageInfo->GetInputMysqlDataType(), 0);
         v->SetData(data);
         fields[0] = v;
     }
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName() , MYSQL_TYPE_LONGLONG, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName() , keyStorageInfo->GetInputMysqlDataType(), 0);
         v->Write(&key, static_cast<Int64>(sizeof(key)));
         fields[1] = v;
     }
@@ -2051,7 +2053,7 @@ void MysqlMgr::_OnKvSystemNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
     fields.resize(1);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_LONGLONG, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), keyStorageInfo->GetInputMysqlDataType(), 0);
         v->Write(&key, static_cast<Int64>(sizeof(key)));
         fields[0] = v;
     }
@@ -2202,13 +2204,13 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
     fields.resize(2);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_LONGLONG, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), keyStorageInfo->GetInputMysqlDataType(), 0);
         v->Write(&key, static_cast<Int64>(sizeof(key)));
         fields[0] = v;
     }
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() , MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() , valueStorageInfo->GetInputMysqlDataType(), 0);
         v->SetData(data);
         fields[1] = v;
     }
@@ -2359,13 +2361,13 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
     fields.resize(2);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_VAR_STRING, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), keyStorageInfo->GetInputMysqlDataType(), 0);
         v->Write(key.data(), static_cast<Int64>(key.size()));
         fields[0] = v;
     }
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() , MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() , valueStorageInfo->GetInputMysqlDataType(), 0);
         v->SetData(data);
         fields[1] = v;
     }
@@ -2515,13 +2517,13 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
     fields.resize(2);
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() ,  MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() ,  valueStorageInfo->GetInputMysqlDataType(), 0);
         v->SetData(data);
         fields[0] = v;
     }
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_VAR_STRING, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), keyStorageInfo->GetInputMysqlDataType(), 0);
         v->Write(key.data(), static_cast<Int64>(key.size()));
         fields[1] = v;
     }
@@ -2619,7 +2621,7 @@ void MysqlMgr::_OnKvSystemStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
     fields.resize(1);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_VAR_STRING, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), keyStorageInfo->GetInputMysqlDataType(), 0);
         v->Write(key.data(), static_cast<Int64>(key.size()));
         fields[0] = v;
     }
@@ -2770,13 +2772,13 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
     fields.resize(2);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName() ,  MYSQL_TYPE_VAR_STRING, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName() ,  keyStorageInfo->GetInputMysqlDataType(), 0);
         v->Write(key.data(), static_cast<Int64>(key.size()));
         fields[0] = v;
     }
 
     {// value
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() ,  MYSQL_TYPE_BLOB, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), valueStorageInfo->GetFieldName() ,  valueStorageInfo->GetInputMysqlDataType(), 0);
         v->SetData(data);
         fields[1] = v;
     }
@@ -4038,7 +4040,7 @@ void MysqlMgr::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
     fields.resize(1);
 
     {// key
-        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), MYSQL_TYPE_VAR_STRING, 0);
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), keyStorageInfo->GetFieldName(), keyStorageInfo->GetInputMysqlDataType(), 0);
         v->Write(key.data(), static_cast<Int64>(key.size()));
         fields[0] = v;
     }

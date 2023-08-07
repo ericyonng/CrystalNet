@@ -64,6 +64,8 @@ protected:
     void _OnGlobalSysClose() override;
     void _Clear();
 
+    void _InitGuid();
+
     UInt64 _curAllocUid;
     UInt64 _maxUid;
     UInt64 _aheadCount;

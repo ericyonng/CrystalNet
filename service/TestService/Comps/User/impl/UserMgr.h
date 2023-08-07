@@ -86,7 +86,9 @@ public:
 private:
     virtual Int32 _OnGlobalSysInit() override;
     virtual Int32 _OnGlobalSysCompsCreated() override;
+    virtual void _OnHostWillClose() override;
     virtual void _OnGlobalSysClose() override;
+    virtual void _OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev) override;
 
     PendingUser *_GetPendingByAccount(const KERNEL_NS::LibString &accountName);
     const PendingUser *_GetPendingByAccount(const KERNEL_NS::LibString &accountName) const;
@@ -118,6 +120,8 @@ private:
     std::map<KERNEL_NS::LibString, IUser *> _accountNameRefUser;
     std::list<IUser *> _lru;
     Int32 _lruCapacityLimit;    // 容量限制
+
+    std::vector<UInt64> _pendingLoginEventOnStartup;
 };
 
 ALWAYS_INLINE PendingUser *UserMgr::_GetPendingByAccount(const KERNEL_NS::LibString &accountName)

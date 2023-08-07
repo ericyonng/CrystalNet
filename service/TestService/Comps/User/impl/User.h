@@ -67,8 +67,9 @@ public:
     virtual Int32 GetUserStatus() const override;
     virtual void SetUserStatus(Int32 status)  override;
 
+   virtual void MaskDirty() override;
     virtual void MaskDirty(IUserSys *userSys) override;
-    virtual void MaskAddDirty() override;
+    virtual void OnMaskAddDirty() override;
 
     virtual UserBaseInfo *GetUserBaseInfo() override;
     virtual const UserBaseInfo *GetUserBaseInfo() const override;

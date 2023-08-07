@@ -30,6 +30,7 @@
 #include <Comps/User/impl/User.h>
 #include <Comps/User/interface/IUserSys.h>
 #include <Comps/User/interface/IUserMgr.h>
+#include <Comps/UserSys/UserSys.h>
 
 SERVICE_BEGIN
 
@@ -55,8 +56,10 @@ KERNEL_NS::LibString PendingUser::ToString() const
 {
     KERNEL_NS::LibString info;
     info.AppendFormat("status:%d, login mode:%d, account name:%s, login token:%s, login phone imei:%s, appid:%s, versionId:%llu, _dbOperatorId:%d, byAccountName:%s, byUserId:%llu, cb owner:%s, cb handler:%s"
-    , _status, _loginInfo->loginmode(), _loginInfo->accountname().c_str(), _loginInfo->logintoken().c_str()
-    , _loginInfo->loginphoneimei().c_str(), _loginInfo->appid().c_str(), _loginInfo->versionid(), _dbOperatorId, _byAccountName.c_str()
+    , _status, _loginInfo ? _loginInfo->loginmode() : -1, _loginInfo ? _loginInfo->accountname().c_str() : ""
+    , _loginInfo ? _loginInfo->logintoken().c_str() : ""
+    , _loginInfo ? _loginInfo->loginphoneimei().c_str() : "", _loginInfo ? _loginInfo->appid().c_str() : "", _loginInfo ? _loginInfo->versionid() : 0
+    , _dbOperatorId, _byAccountName.c_str()
     , _byUserId, _cb ? _cb->GetOwnerRtti() : "NONE", _cb ? _cb->GetCallbackRtti() : "NONE");
 
     return info;
@@ -86,7 +89,7 @@ void User::Release()
 
 void User::OnRegisterComps()
 {
-
+    RegisterComp<LoginMgrFactory>();
 }
 
 Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
@@ -501,18 +504,21 @@ void User::SetUserStatus(Int32 status)
     _status = status;
 }
 
+void User::MaskDirty()
+{
+    _userMgr->MaskNumberKeyModifyDirty(_userBaseInfo->userid());
+}
+
 void User::MaskDirty(IUserSys *userSys)
 {
     _dirtySys.insert(userSys);
     _userMgr->MaskNumberKeyModifyDirty(_userBaseInfo->userid());
 }
 
-void User::MaskAddDirty()
+void User::OnMaskAddDirty()
 {
     for(auto logic : _needStorageSys)
         _dirtySys.insert(logic);
-
-    _userMgr->MaskNumberKeyAddDirty(_userBaseInfo->userid());
 }
 
 UserBaseInfo *User::GetUserBaseInfo()
@@ -565,6 +571,9 @@ Int32 User::_OnSysCompsCreated()
     auto &allSubStorages = _userMgr->GetStorageInfo()->GetSubStorageInfos();
     for(auto subStorageInfo : allSubStorages)
     {
+        if(!subStorageInfo->IsSystemDataStorage())
+            continue;
+
         auto comp = GetComp(subStorageInfo->GetSystemName());
         if(UNLIKELY(!comp))
         {
@@ -583,7 +592,17 @@ Int32 User::_OnSysCompsCreated()
 
 void User::_OnSysClose()
 {
-    _Clear();
+    {
+        auto comps = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+        for(auto comp : comps)
+            comp->CastTo<ILogicSys>()->SetEventMgr(NULL);
+    }
+
+    {
+        auto comps = GetCompsByType(ServiceCompType::LOGIC_SYS);
+        for(auto comp : comps)
+            comp->CastTo<ILogicSys>()->SetEventMgr(NULL);
+    }
 }
 
 void User::_Clear()

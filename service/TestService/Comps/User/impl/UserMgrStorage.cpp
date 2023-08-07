@@ -62,6 +62,8 @@ bool UserMgrStorage::RegisterStorages()
     );
     SetTableName("tbl_user");
     SetComment("user data");
+    // 热加载100个
+    SetDataCountLimit(1000);
 
     // SetDataCountLimit(10);
     auto descriptor = UserBaseInfo::GetDescriptor();

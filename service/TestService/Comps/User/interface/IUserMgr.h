@@ -57,24 +57,24 @@ public:
 
     // @return(Int32):调用是否成功 Status
     template<typename ObjType>
-    Int32 Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
+    Int32 LoginBy(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
     ,  KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
 
     // @return(Int32):调用是否成功 Status
     template<typename CallbackType>
-    Int32 Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, CallbackType &&cb, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
+    Int32 LoginBy(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, CallbackType &&cb, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
 
     virtual Int32 LoadUser(const KERNEL_NS::LibString &accountName
     , KERNEL_NS::IDelegate<void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *cb
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL) = 0;
     
     template<typename ObjType>
-    Int32 LoadUser(const KERNEL_NS::LibString &accountName
+    Int32 LoadUserBy(const KERNEL_NS::LibString &accountName
     , ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
     ,  KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
     
     template<typename CallbackType>
-    Int32 LoadUser(const KERNEL_NS::LibString &accountName
+    Int32 LoadUserBy(const KERNEL_NS::LibString &accountName
     , CallbackType &&cb
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
 
@@ -83,18 +83,18 @@ public:
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL) = 0;
 
     template<typename ObjType>
-    Int32 LoadUser(UInt64 userId, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
+    Int32 LoadUserBy(UInt64 userId, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
     ,  KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
 
     template<typename CallbackType>
-    Int32 LoadUser(UInt64 userId 
+    Int32 LoadUserBy(UInt64 userId 
     , CallbackType &&cb
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
 
 };
 
 template<typename ObjType>
-ALWAYS_INLINE Int32 IUserMgr::Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
+ALWAYS_INLINE Int32 IUserMgr::LoginBy(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
 ,  KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
     auto deleg = KERNEL_NS::DelegateFactory::Create(obj, handler);
@@ -102,15 +102,15 @@ ALWAYS_INLINE Int32 IUserMgr::Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::Au
 }
 
 template<typename CallbackType>
-ALWAYS_INLINE Int32 IUserMgr::Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, CallbackType &&cb
+ALWAYS_INLINE Int32 IUserMgr::LoginBy(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, CallbackType &&cb
 , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
-    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &);
+    auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &);
     return Login(loginInfo, deleg, var);
 }
 
 template<typename ObjType>
-ALWAYS_INLINE Int32 IUserMgr::LoadUser(const KERNEL_NS::LibString &accountName
+ALWAYS_INLINE Int32 IUserMgr::LoadUserBy(const KERNEL_NS::LibString &accountName
 , ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
 ,  KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
@@ -119,16 +119,16 @@ ALWAYS_INLINE Int32 IUserMgr::LoadUser(const KERNEL_NS::LibString &accountName
 }
 
 template<typename CallbackType>
-ALWAYS_INLINE Int32 IUserMgr::LoadUser(const KERNEL_NS::LibString &accountName
+ALWAYS_INLINE Int32 IUserMgr::LoadUserBy(const KERNEL_NS::LibString &accountName
 , CallbackType &&cb
 , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
-    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &);
+    auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &);
     return LoadUser(accountName, deleg, var);
 }
 
 template<typename ObjType>
-ALWAYS_INLINE Int32 IUserMgr::LoadUser(UInt64 userId
+ALWAYS_INLINE Int32 IUserMgr::LoadUserBy(UInt64 userId
 , ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
 ,  KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
@@ -137,11 +137,11 @@ ALWAYS_INLINE Int32 IUserMgr::LoadUser(UInt64 userId
 }
 
 template<typename CallbackType>
-ALWAYS_INLINE Int32 IUserMgr::LoadUser(UInt64 userId
+ALWAYS_INLINE Int32 IUserMgr::LoadUserBy(UInt64 userId
 , CallbackType &&cb
 , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
-    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &);
+    auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &);
     return LoadUser(userId, deleg, var);
 }
 

@@ -137,8 +137,10 @@ public:
     virtual void SetUserStatus(Int32 status)  = 0;
 
     // dirty相关
+   virtual void MaskDirty() override = 0;
+
     virtual void MaskDirty(IUserSys *userSys) = 0;
-    virtual void MaskAddDirty() = 0;
+    virtual void OnMaskAddDirty() = 0;
 
     // 用户基本信息
     virtual UserBaseInfo *GetUserBaseInfo() = 0;

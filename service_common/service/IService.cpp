@@ -358,7 +358,7 @@ void IService::_OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg)
         KERNEL_NS::LibString notEndInfo;
         if(!CheckServiceModuleQuitEnd(notEndInfo))
         {
-            g_Log->Info(LOGFMT_OBJ_TAG("service module not end info:\n%s"), notEndInfo.c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("service module not end info:\n%s"), notEndInfo.c_str());
             return;
         }
 

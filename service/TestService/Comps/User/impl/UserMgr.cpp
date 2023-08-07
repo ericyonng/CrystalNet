@@ -72,6 +72,44 @@ void UserMgr::OnWillStartup()
 void UserMgr::OnStartup()
 {
     g_Log->Info(LOGFMT_OBJ_TAG("startup"));
+
+    for(auto userId : _pendingLoginEventOnStartup)
+    {
+        auto user = GetUser(userId);
+        if(UNLIKELY(!user))
+            continue;
+
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_LOGIN);
+        ev->SetParam(Params::USER_OBJ, user);
+        GetEventMgr()->FireEvent(ev);
+    }
+
+    _LruPopUser();
+
+    // 用户登录
+    KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> loginInfo = CRYSTAL_NEW(LoginInfo);
+    loginInfo->set_loginmode(LoginMode::REGISTER);
+    loginInfo->set_accountname("test_eric");
+    loginInfo->set_pwd("123456");
+    loginInfo->set_logintoken("123456");
+    loginInfo->set_loginphoneimei("123456");
+    loginInfo->set_appid("123456");
+    loginInfo->set_cyphertext("123456");
+    loginInfo->set_origintext("123456");
+    loginInfo->set_versionid(10101);
+    auto registerInfo = loginInfo->mutable_userregisterinfo();
+    registerInfo->set_accountname("test_eric");
+    registerInfo->set_pwd("123456");
+    registerInfo->set_nickname("123456");
+    registerInfo->set_createphoneimei("123456");
+    auto err = LoginBy(loginInfo, [this](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
+        g_Log->Info(LOGFMT_OBJ_TAG("user login:%s"), user->ToString().c_str());
+    });
+
+    if(err != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, user acount name:%s"), err, loginInfo->accountname().c_str());
+    }
 }
 
 Int32 UserMgr::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
@@ -111,8 +149,16 @@ Int32 UserMgr::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_
     }
     user->SetUserStatus(UserStatus::USER_ONLOADED);
 
+    _AddUser(user.AsSelf());
+
+    user->OnLogin();
+    user->OnLoginFinish();
+
+    _pendingLoginEventOnStartup.push_back(user->GetUserId());
+
     g_Log->Info(LOGFMT_OBJ_TAG("[user loaded]: %s"), user->ToString().c_str());
 
+    user.pop();
     return Status::Success;
 }
 
@@ -168,7 +214,7 @@ void UserMgr::MaskNumberKeyAddDirty(UInt64 key)
         return;
     }
 
-    user->MaskAddDirty();
+    user->OnMaskAddDirty();
 
     ILogicSys::MaskNumberKeyAddDirty(key);
 }
@@ -177,15 +223,6 @@ Int32 UserMgr::Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::R
     , KERNEL_NS::IDelegate<void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *cb
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
-    // TODO:获取分布式锁（LogicProxy做）
-    // 是否已经存在User, 
-    auto user = GetUser(loginInfo->accountname());
-    if(!user)
-    {
-        // 查库
-        return LoadUser(loginInfo->accountname(), cb, var);
-    }
-
     KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> pendingInfo = PendingUser::NewThreadLocal_PendingUser();
     pendingInfo.SetClosureDelegate([](void *p){
         auto ptr = reinterpret_cast<PendingUser *>(p);
@@ -194,6 +231,17 @@ Int32 UserMgr::Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::R
     pendingInfo->_cb = cb;
     pendingInfo->_var = var;
     pendingInfo->_byAccountName = loginInfo->accountname();
+    pendingInfo->_loginInfo = loginInfo;
+
+    // TODO:获取分布式锁（LogicProxy做）
+    // 是否已经存在User, 
+    auto user = GetUser(pendingInfo->_byAccountName);
+    if(!user)
+    {
+        // 查库
+        return LoadUser(pendingInfo->_byAccountName, pendingInfo);
+    }
+
     auto stubMgr = GetGlobalSys<IStubHandleMgr>();
     pendingInfo->_stub = stubMgr->NewStub();
 
@@ -297,7 +345,7 @@ Int32 UserMgr::LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::Smar
     auto dbOid = mysqlMgr->NewDbOperatorId();
     pendingUser->_dbOperatorId = dbOid;
     auto stubMgr = GetGlobalSys<IStubHandleMgr>();
-    pendingInfo->_stub = stubMgr->NewStub();
+    pendingUser->_stub = stubMgr->NewStub();
 
     // 添加到pending字典
     _AddUserPendingInfo(accountName, pendingUser);
@@ -317,7 +365,7 @@ Int32 UserMgr::LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::Smar
 
     std::vector<KERNEL_NS::SqlBuilder *> builders;
     builders.push_back(selectBuilder);
-    auto err = mysqlMgr->NewRequestBy(pendingInfo->_stub, mysqlMgr->GetCurrentServiceDbName(), dbOid, builders, fields, this, &UserMgr::_OnDbUserLoaded);
+    auto err = mysqlMgr->NewRequestBy(pendingUser->_stub, mysqlMgr->GetCurrentServiceDbName(), dbOid, builders, fields, this, &UserMgr::_OnDbUserLoaded);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, accountName:%s"), err, accountName.c_str());
@@ -345,13 +393,40 @@ Int32 UserMgr::_OnGlobalSysInit()
 
 Int32 UserMgr::_OnGlobalSysCompsCreated()
 {
+    // 用户不需要起服加载
+    auto storageInfo = GetStorageInfo();
+    if(LIKELY(storageInfo))
+        storageInfo->ClearFlags(StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG);
     return Status::Success;
+}
+
+void UserMgr::_OnHostWillClose()
+{
+    auto users = _lru;
+    for(auto user : users)
+        user->WillClose();
 }
 
 void UserMgr::_OnGlobalSysClose()
 {
+    auto users = _lru;
+    for(auto user : users)
+        user->Close();
+
     _Clear();
 }
+
+void UserMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
+{
+    auto allUsers = _lru;
+    ev->SetDontDelAfterFire(true);
+    for(auto user : allUsers)
+        user->FireEvent(ev);
+
+    ev->SetDontDelAfterFire(false);
+    IGlobalSys::_OnQuitServiceEventDefault(ev);
+}
+
 
 void UserMgr::_AddUserPendingInfo(UInt64 userId, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingInfo)
 {
@@ -450,8 +525,18 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     if(user)
     {
         g_Log->Info(LOGFMT_OBJ_TAG("user is already exists user:%s, pendingUser:%s"), user->ToString().c_str(), pendingUser->ToString().c_str());
+        // 校验登录
+        auto loginMgr = user->GetComp<ILoginMgr>();
+        auto err = loginMgr->CheckLogin(pendingUser);
+        if(err != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("check login fail err:%d, pending info:%s, userId:%llu"), err, pendingUser->ToString().c_str(), user->GetUserId());
+        }
+        
+        // TODO:记录登录信息
+
         if(LIKELY(pendingUser->_cb))
-            pendingUser->_cb->Invoke(Status::Success, pendingUser, user, pendingUser->_var);
+            pendingUser->_cb->Invoke(err, pendingUser, user, pendingUser->_var);
 
         if(!pendingUser->_byAccountName.empty())
         {
@@ -489,10 +574,19 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     // 没有user, 判断是否是注册
     Int32 err = Status::Success;
     const auto &curTime = KERNEL_NS::LibTime::Now(); 
+    bool isAlreadyExists = false;
     do
     {
         if(res->_datas.empty())
         {
+            // 是否有登录信息
+            if(!pendingUser->_loginInfo)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("user is not created before pending info:%s"), pendingUser->ToString().c_str());
+                err = Status::UserNotCreatedBefore;
+                break;
+            }
+
             // 不是注册则返回错误
             if(pendingUser->_loginInfo->loginmode() != LoginMode::REGISTER)
             {
@@ -570,9 +664,14 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 
             _AddUser(u.AsSelf());
             user = u.pop();
+            MaskNumberKeyAddDirty(user->GetUserId());
+
+            auto dbMgr = GetGlobalSys<IMysqlMgr>();
+            dbMgr->PurgeAndWaitComplete(this);
         }
         else
         {
+            isAlreadyExists = true;
             KERNEL_NS::SmartPtr<User, KERNEL_NS::AutoDelMethods::CustomDelete> u = User::NewThreadLocal_User(this);
             u.SetClosureDelegate([](void *p)
             {
@@ -613,13 +712,16 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             user = u.pop();
 
             // 校验登录
-            auto loginMgr = GetComp<ILoginMgr>();
+            auto loginMgr = user->GetComp<ILoginMgr>();
             err = loginMgr->CheckLogin(pendingUser);
             if(err != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("check login fail err:%d, pending info:%s, userId:%llu"), err, pendingUser->ToString().c_str(), userId);
                 break;
             }
+
+            // TODO:记录登录信息
+            user->MaskDirty();
         }
     } while (false);
 
@@ -643,7 +745,7 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     }
 
     // 创建user
-    if(pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER)
+    if((!isAlreadyExists) && pendingUser->_loginInfo && (pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER))
     {
         user->OnUserCreated();
     }
@@ -652,7 +754,7 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     user->OnLoginFinish();
 
     // 注册事件
-    if(pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER)
+    if((!isAlreadyExists) && pendingUser->_loginInfo && (pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER))
     {
         auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_CREATED);
         ev->SetParam(Params::USER_OBJ, user);
@@ -666,7 +768,16 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 
     // 处理回调
     if(LIKELY(pendingUser->_cb))
-        pendingUser->_cb->Invoke(Status::Success, pendingUser, user, pendingUser->_var);
+    {
+        if(isAlreadyExists && pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER)
+        {
+            pendingUser->_cb->Invoke(Status::UserAllReadyExistsCantRegisterAgain, pendingUser, user, pendingUser->_var);
+        }
+        else
+        {
+            pendingUser->_cb->Invoke(Status::Success, pendingUser, user, pendingUser->_var);
+        }
+    }
 
     if(!pendingUser->_byAccountName.empty())
     {

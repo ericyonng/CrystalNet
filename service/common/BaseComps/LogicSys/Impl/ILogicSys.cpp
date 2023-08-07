@@ -204,6 +204,9 @@ void ILogicSys::_RegisterLogicEvents()
 
 void ILogicSys::_UnRegisterLogicEvents()
 {
+    if(UNLIKELY(!_eventMgr))
+        return;
+        
     if(_quitServiceEventDefaltStub != INVALID_LISTENER_STUB)
         _eventMgr->RemoveListenerX(_quitServiceEventDefaltStub);
 }

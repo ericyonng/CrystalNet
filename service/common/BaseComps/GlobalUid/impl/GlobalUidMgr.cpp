@@ -68,18 +68,7 @@ Int32 GlobalUidMgr::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_
     if(LIKELY(bytes > 0))
         db.Read(&_maxUid, bytes);
 
-    if(_maxUid == 0)
-    {
-        KERNEL_NS::GuidUtil::InitSnowFlake(_snowflakInfo, _machineId);
-        _maxUid = _snowflakInfo.ToId();
-    }
-    else
-    {
-        KERNEL_NS::GuidUtil::InitSnowFlakeById(_snowflakInfo, _maxUid);
-    }
-
-    _curAllocUid = _maxUid;
-
+    _InitGuid();
     return Status::Success;
 }
 
@@ -96,12 +85,23 @@ Int32 GlobalUidMgr::OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::T
 
 UInt64 GlobalUidMgr::NewGuid()
 {
+    if(UNLIKELY(_maxUid == 0))
+        _InitGuid();
+
     if(UNLIKELY(_curAllocUid >= _maxUid))
     {
+        bool isAdd = _maxUid == 0;
         _maxUid = KERNEL_NS::GuidUtil::Snowflake(_snowflakInfo, _aheadCount);
 
         #if CRYSTAL_STORAGE_ENABLE
-         MaskNumberKeyModifyDirty(static_cast<UInt64>(_machineId));
+        if(UNLIKELY(isAdd))
+        {
+            MaskNumberKeyAddDirty(static_cast<UInt64>(_machineId));
+        }
+        else
+        {
+            MaskNumberKeyModifyDirty(static_cast<UInt64>(_machineId));
+        }
         #endif
         auto err = _synStorageCb->Invoke(this);
         if(err != Status::Success)
@@ -126,6 +126,8 @@ void GlobalUidMgr::SetUpdateLastIdCallback(KERNEL_NS::IDelegate<Int32, ILogicSys
 
 void GlobalUidMgr::OnStartup()
 {
+    _InitGuid();
+
     g_Log->Info(LOGFMT_OBJ_TAG("_maxUid :%llu, _aheadCount:%llu, _machineId:%u"), _maxUid, _aheadCount, _machineId);
 }
 
@@ -157,5 +159,23 @@ void GlobalUidMgr::_Clear()
 {
     CRYSTAL_RELEASE_SAFE(_synStorageCb);
 }
+
+void GlobalUidMgr::_InitGuid()
+{
+    if(_maxUid == 0)
+    {
+        KERNEL_NS::GuidUtil::InitSnowFlake(_snowflakInfo, _machineId);
+        _maxUid = _snowflakInfo.ToId();
+        MaskNumberKeyAddDirty(static_cast<UInt64>(_machineId));
+        _synStorageCb->Invoke(this);
+    }
+    else
+    {
+        KERNEL_NS::GuidUtil::InitSnowFlakeById(_snowflakInfo, _maxUid);
+    }
+
+    _curAllocUid = _maxUid;
+}
+
 
 SERVICE_END

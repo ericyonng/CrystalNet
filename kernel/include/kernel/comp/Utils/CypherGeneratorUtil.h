@@ -79,6 +79,7 @@ template<typename BuildType>
 inline void CypherGeneratorUtil::Gen(LibString &cypher, Int32 cypherBytes)
 {
     auto &randomEngine = _GetRandom(BuildType::V);
+    cypher.resize(static_cast<UInt64>(cypherBytes));
     auto &raw = cypher.GetRaw();
     for(Int32 i = 0; i < cypherBytes; ++i)
         raw[i] = static_cast<Int32>(randomEngine.Gen());
