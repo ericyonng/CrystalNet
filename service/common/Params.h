@@ -64,6 +64,8 @@ namespace Params
 
         USER_OBJ,           // 用户对象 IUser *
         USER_ID,            // 用户id
+        PACKET,             // 数据包
+        OPCODE,             // 协议号
     };
 }
 

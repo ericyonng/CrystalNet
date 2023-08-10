@@ -39,7 +39,7 @@
 /// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:b0fHzU0ZCouMn5Lsp7h2BA==,ModifyTime:1691309247,
 
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginInfoNty,Opcode:22,]
-/// ProtoName:com_heartbeat.proto,ProtoPath:../../protocols/proto/com_heartbeat.proto,Md5:+x8cBi+3c1j6mIEai6pyZA==,ModifyTime:1691417534,
+/// ProtoName:com_heartbeat.proto,ProtoPath:../../protocols/proto/com_heartbeat.proto,Md5:phKu8P79esF/grwLyPEQ7Q==,ModifyTime:1691471334,
 
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:GetNodeListReq,Opcode:27,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:GetNodeListRes,Opcode:28,]
@@ -47,4 +47,6 @@
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:NodeHeartbeatRes,Opcode:24,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeReq,Opcode:25,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeRes,Opcode:26,]
-/// ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,Md5:luaJglKWQ7vX+9fHboNnLw==,ModifyTime:1691418559,
+/// ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,Md5:T21QzSRt0rMPt6uQ/ygo5g==,ModifyTime:1691471381,
+
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatReq,Opcode:29,]

@@ -50,6 +50,10 @@ public:
         USER_INITED,
         USER_STARTING,
         USER_STARTED,
+
+        USER_LOGINED,
+        USER_LOGOUTING,
+        USER_LOGOUTED,
     };
 };
 
@@ -72,6 +76,7 @@ public:
     KERNEL_NS::IDelegate<void, Int32, PendingUser *,  IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *_cb;
     KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> _var;
     Int32 _dbOperatorId;
+    UInt64 _sessionId;
 };
 
 class IUser : public ILogicSys
@@ -156,6 +161,37 @@ public:
 
     // 用户id
     virtual UInt64 GetUserId() const = 0;
+
+    // 绑定会话
+    virtual void BindSession(UInt64 sessionId) = 0;
+    // 获取会话id
+    virtual UInt64 GetSessionId() const = 0;
+
+    // 登出
+    virtual void Logout() = 0;
+
+    // 是否登出
+    virtual bool IsLogined() const = 0;
+    // 是否在线
+    virtual bool IsLogout() const = 0;
+    // 获取用户登录的ip
+    virtual const KERNEL_NS::BriefSockAddr *GetUserAddr() const = 0;
+
+    // 获取lru时间
+    virtual Int64 GetLruTime() const = 0;
+    // 刷新lrutime
+    virtual void UpdateLrtTime() = 0;
+
+    // 获取心跳更新时间
+    virtual Int64 GetHeartbeatTime() const = 0;
+    // 刷新心跳更新时间
+    virtual void UpdateHeartbeatTime() = 0;
+
+    // IUser *operator->()
+    // {
+    //     // TODO:lru排序变化
+    //     return this;
+    // }
 };
 
 ALWAYS_INLINE KERNEL_NS::ListenerStub IUser::AddListener(int id,

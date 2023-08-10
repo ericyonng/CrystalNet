@@ -11,6 +11,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(CommonConfig);
 CommonConfig::CommonConfig()
 :_id(0)
 ,_value(0)
+,_int64Value(0)
 {
 }
 
@@ -20,7 +21,7 @@ bool CommonConfig::Parse(const KERNEL_NS::LibString &lineData)
 // format:column_{column id}_{data_len}:{json text}|...
 // example:column_1_10:{json text}|...
 
-    const Int32 fieldNum = 2;
+    const Int32 fieldNum = 4;
     Int32 countFieldNum = 0;
     Int32 startPos = 0;
 
@@ -154,6 +155,136 @@ bool CommonConfig::Parse(const KERNEL_NS::LibString &lineData)
       ++countFieldNum;
     }// _value
 
+    {// _int64Value
+        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        if(pos == std::string::npos)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("parse field:Int64Value, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            return false;
+        }
+
+       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       if(headerTailPos == std::string::npos)
+       {
+            g_Log->Error(LOGFMT_OBJ_TAG("parse field:Int64Value, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            return false;
+       }
+
+       // parse data
+       const KERNEL_NS::LibString headerInfo = lineData.GetRaw().substr(pos, headerTailPos - pos);
+       const auto headParts = headerInfo.Split('_');
+       if(headParts.empty())
+       {
+            g_Log->Error(LOGFMT_OBJ_TAG("parse field:Int64Value, bad line data not find sep symbol:_ in header info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"),
+            lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+            return false;
+       }
+
+       // check column id
+
+       const auto &columnIdString = headParts[1];
+       if(columnIdString.length() == 0)
+       {
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:Int64Value have no column id, bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           return false;
+       }
+       const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());
+       if(columnId != 4)
+       {
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:Int64Value, fail: bad comumn id, columnId:%llu, real column id:4, please check if config data is old version, line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           return false;
+       }
+
+       // data len
+       const auto &lenInfo = headParts[2];
+       if(lenInfo.length() == 0)
+       {
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:Int64Value fail: bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), lineData.c_str(), 
+           static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           return false;
+       }
+
+       const Int32 dataLen = KERNEL_NS::StringUtil::StringToInt32(lenInfo.c_str());
+       const auto dataEndPos = headerTailPos + static_cast<decltype(headerTailPos)>(dataLen);
+       KERNEL_NS::LibString dataPart = lineData.GetRaw().substr(headerTailPos + 1, dataEndPos - headerTailPos);
+
+      // parse data through
+      KERNEL_NS::LibString errInfo;
+      if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_int64Value, dataPart, errInfo))
+      {
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_int64Value, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          return false;
+      }
+
+      startPos = static_cast<Int32>(dataEndPos);
+      ++countFieldNum;
+    }// _int64Value
+
+    {// _stringValue
+        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        if(pos == std::string::npos)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            return false;
+        }
+
+       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       if(headerTailPos == std::string::npos)
+       {
+            g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
+            return false;
+       }
+
+       // parse data
+       const KERNEL_NS::LibString headerInfo = lineData.GetRaw().substr(pos, headerTailPos - pos);
+       const auto headParts = headerInfo.Split('_');
+       if(headParts.empty())
+       {
+            g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue, bad line data not find sep symbol:_ in header info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"),
+            lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+            return false;
+       }
+
+       // check column id
+
+       const auto &columnIdString = headParts[1];
+       if(columnIdString.length() == 0)
+       {
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue have no column id, bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d,"), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           return false;
+       }
+       const UInt64 columnId = KERNEL_NS::StringUtil::StringToUInt64(columnIdString.c_str());
+       if(columnId != 5)
+       {
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue, fail: bad comumn id, columnId:%llu, real column id:5, please check if config data is old version, line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), columnId, lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           return false;
+       }
+
+       // data len
+       const auto &lenInfo = headParts[2];
+       if(lenInfo.length() == 0)
+       {
+           g_Log->Error(LOGFMT_OBJ_TAG("parse field:StringValue fail: bad line data header len info line data:%s, pos:%d, headerTailPos:%d, startPos:%d, countFieldNum:%d"), lineData.c_str(), 
+           static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), startPos, countFieldNum);
+           return false;
+       }
+
+       const Int32 dataLen = KERNEL_NS::StringUtil::StringToInt32(lenInfo.c_str());
+       const auto dataEndPos = headerTailPos + static_cast<decltype(headerTailPos)>(dataLen);
+       KERNEL_NS::LibString dataPart = lineData.GetRaw().substr(headerTailPos + 1, dataEndPos - headerTailPos);
+
+      // parse data through
+      KERNEL_NS::LibString errInfo;
+      if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_stringValue, dataPart, errInfo))
+      {
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_stringValue, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          return false;
+      }
+
+      startPos = static_cast<Int32>(dataEndPos);
+      ++countFieldNum;
+    }// _stringValue
+
     if(countFieldNum != fieldNum)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("field num not enough countFieldNum:%d, need fieldNum:%d lineData:%s"), countFieldNum, fieldNum, lineData.c_str());
@@ -165,7 +296,7 @@ bool CommonConfig::Parse(const KERNEL_NS::LibString &lineData)
 
 void CommonConfig::Serialize(KERNEL_NS::LibString &lineData) const
 {
-    const Int32 fieldNum = 2;
+    const Int32 fieldNum = 4;
     Int32 countFieldNum = 0;
 
     {// _id
@@ -181,6 +312,20 @@ void CommonConfig::Serialize(KERNEL_NS::LibString &lineData) const
         lineData.AppendFormat("column_3_%d:%s|", static_cast<Int32>(data.size()), data.c_str());
         ++countFieldNum;
     }// _value
+
+    {// _int64Value
+        KERNEL_NS::LibString data;
+        SERVICE_COMMON_NS::DataTypeHelper::ToString(_int64Value, data);
+        lineData.AppendFormat("column_4_%d:%s|", static_cast<Int32>(data.size()), data.c_str());
+        ++countFieldNum;
+    }// _int64Value
+
+    {// _stringValue
+        KERNEL_NS::LibString data;
+        SERVICE_COMMON_NS::DataTypeHelper::ToString(_stringValue, data);
+        lineData.AppendFormat("column_5_%d:%s|", static_cast<Int32>(data.size()), data.c_str());
+        ++countFieldNum;
+    }// _stringValue
 
 
     if(countFieldNum != fieldNum)
@@ -277,9 +422,9 @@ Int32 CommonConfigMgr::Load()
             // first line data is field names
             if(line == 1)
             {
-                if(lineData != "Id|Value|")
+                if(lineData != "Id|Value|Int64Value|StringValue|")
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("current data not match this config data wholePath:%s, current data columns:%s, this config columns:Id|Value|"), wholePath.c_str(), lineData.c_str());
+                    g_Log->Error(LOGFMT_OBJ_TAG("current data not match this config data wholePath:%s, current data columns:%s, this config columns:Id|Value|Int64Value|StringValue|"), wholePath.c_str(), lineData.c_str());
                     return Status::Failed;
                 }
             }
@@ -358,21 +503,12 @@ Int32 CommonConfigMgr::Load()
     _configs.swap(*configs.AsSelf());
 
     _idRefConfig.clear();
-    _valueRefConfigs.clear();
 
     for(auto config : _configs)
     {
         // key:Id 
         {
             _idRefConfig.insert(std::make_pair(config->_id, config));
-        }
-
-        // key:Value 
-        {
-            auto iterConfigs = _valueRefConfigs.find(config->_value);
-            if(iterConfigs == _valueRefConfigs.end())
-                iterConfigs = _valueRefConfigs.insert(std::make_pair(config->_value, std::vector<CommonConfig *>())).first;
-            iterConfigs->second.push_back(config);
         }
 
     }
@@ -400,8 +536,6 @@ void CommonConfigMgr::_Clear()
     _dataMd5.clear();
     _idRefConfig.clear();
 
-    _valueRefConfigs.clear();
-
 
     KERNEL_NS::ContainerUtil::DelContainer(_configs, [](CommonConfig *ptr){
         CommonConfig::Delete_CommonConfig(ptr);
@@ -414,8 +548,8 @@ Int64 CommonConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDat
 
     Int64 readBytes = 0;
     KERNEL_NS::LibString content;
-    std::set<Int32> needFieldIds = {2, 3};
-    const Int32 fieldNum = 2;
+    std::set<Int32> needFieldIds = {2, 3, 4, 5};
+    const Int32 fieldNum = 4;
     Int32 count = 0;
     while(true)
     {

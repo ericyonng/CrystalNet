@@ -162,7 +162,7 @@ void GlobalUidMgr::_Clear()
 
 void GlobalUidMgr::_InitGuid()
 {
-    if(_maxUid == 0)
+    if(UNLIKELY(_maxUid == 0))
     {
         KERNEL_NS::GuidUtil::InitSnowFlake(_snowflakInfo, _machineId);
         _maxUid = _snowflakInfo.ToId();

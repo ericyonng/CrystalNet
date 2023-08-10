@@ -44,6 +44,7 @@ PendingUser::PendingUser()
 ,_stub(0)
 ,_cb(NULL)
 ,_dbOperatorId(0)
+,_sessionId(0)
 {
 
 }
@@ -56,12 +57,12 @@ PendingUser::~PendingUser()
 KERNEL_NS::LibString PendingUser::ToString() const
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("status:%d, login mode:%d, account name:%s, login token:%s, login phone imei:%s, appid:%s, versionId:%llu, _dbOperatorId:%d, byAccountName:%s, byUserId:%llu, cb owner:%s, cb handler:%s"
+    info.AppendFormat("status:%d, login mode:%d, account name:%s, login token:%s, login phone imei:%s, appid:%s, versionId:%llu, _dbOperatorId:%d, byAccountName:%s, byUserId:%llu, _sessionId:%llu cb owner:%s, cb handler:%s"
     , _status, _loginInfo ? _loginInfo->loginmode() : -1, _loginInfo ? _loginInfo->accountname().c_str() : ""
     , _loginInfo ? _loginInfo->logintoken().c_str() : ""
     , _loginInfo ? _loginInfo->loginphoneimei().c_str() : "", _loginInfo ? _loginInfo->appid().c_str() : "", _loginInfo ? _loginInfo->versionid() : 0
     , _dbOperatorId, _byAccountName.c_str()
-    , _byUserId, _cb ? _cb->GetOwnerRtti() : "NONE", _cb ? _cb->GetCallbackRtti() : "NONE");
+    , _byUserId, _sessionId, _cb ? _cb->GetOwnerRtti() : "NONE", _cb ? _cb->GetCallbackRtti() : "NONE");
 
     return info;
 }
@@ -74,6 +75,9 @@ User::User(IUserMgr *userMgr)
 :_userMgr(userMgr)
 ,_status(UserStatus::USER_CREATED)
 ,_userBaseInfo(CRYSTAL_NEW(UserBaseInfo))
+,_activedSessionId(0)
+,_lruTime(KERNEL_NS::LibTime::NowMilliTimestamp())
+,_heatbeatTime(KERNEL_NS::LibTime::NowMilliTimestamp())
 {
 
 }
@@ -443,18 +447,40 @@ const IUserMgr *User::GetUserMgr() const
 Int64 User::Send(KERNEL_NS::LibPacket *packet) const
 {
     // TODO:需要rpc
-    return Status::Success;
+    if(UNLIKELY(_activedSessionId == 0))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("no session cant send"));
+        packet->ReleaseUsingPool();
+        return -1;
+    }
+
+    return _userMgr->Send(_activedSessionId, packet);
 }
 
 void User::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
 {
-    // TODO:
+    // TODO:需要rpc
+    if(UNLIKELY(_activedSessionId == 0))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("no session cant send"));
+        for(auto iter : packets)
+            iter->ReleaseUsingPool();
+        return;
+    }
+
+    _userMgr->Send(_activedSessionId, packets);
 }
 
 Int64 User::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const 
 {
-    // TODO:
-    return Status::Success;
+    // TODO:需要rpc
+    if(UNLIKELY(_activedSessionId == 0))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("no session cant send"));
+        return -1;
+    }
+
+    return _userMgr->Send(_activedSessionId, opcode, coder, packetId);
 }
 
 void User::OnLogin()
@@ -473,7 +499,8 @@ void User::OnLoginFinish()
     for(auto userSys : userSyss)
         userSys->CastTo<IUserSys>()->OnLoginFinish();
 
-    // TODO:
+    SetUserStatus(UserStatus::USER_LOGINED);
+
     g_Log->Info(LOGFMT_OBJ_TAG("OnLoginFinish user:%s"), ToString().c_str());
 }
 
@@ -553,23 +580,105 @@ UInt64 User::GetUserId() const
     return _userBaseInfo->userid();
 }
 
+void User::BindSession(UInt64 sessionId)
+{
+    _activedSessionId = sessionId;
+
+    _userMgr->AddUserBySessionId(sessionId, this);
+}
+
+UInt64 User::GetSessionId() const
+{
+    return _activedSessionId;
+}
+
+void User::Logout()
+{
+    // 设置状态
+    SetUserStatus(UserStatus::USER_LOGOUTING);
+
+    // 事件
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_WILL_LOGOUT);
+    ev->SetParam(Params::USER_OBJ, this);
+    _userMgr->GetEventMgr()->FireEvent(ev);
+
+    // 执行OnLogout
+    OnLogout();
+
+    // 会话踢下线
+    if(_activedSessionId)
+    {
+        g_Log->Debug(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
+        _userMgr->CloseSession(_activedSessionId, 0, true, true);
+        _userMgr->RemoveUserBySessionId(_activedSessionId);
+        _activedSessionId = 0;
+    }
+
+    SetUserStatus(UserStatus::USER_LOGOUTED);
+
+    // 存库
+    PurgeAndWaitComplete();
+}
+
+bool User::IsLogined() const
+{
+    return _status == UserStatus::USER_LOGINED;
+}
+
+bool User::IsLogout() const
+{
+    return (_status == UserStatus::USER_LOGOUTING) || (_status == UserStatus::USER_LOGOUTED);
+}
+
+const KERNEL_NS::BriefSockAddr *User::GetUserAddr() const
+{
+    auto session = _userMgr->GetGlobalSys<ISessionMgr>()->GetSession(_activedSessionId);
+    if(UNLIKELY(!session))
+    {
+        return NULL;
+    }
+
+    return &(session->GetSessionInfo()->_remoteAddr);
+}
+
 KERNEL_NS::LibString User::ToString() const
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("user id:%llu, account name:%s", _userBaseInfo->userid(), _userBaseInfo->accountname().c_str());
+    info.AppendFormat("user id:%llu, account name:%s, status:%d", _userBaseInfo->userid(), _userBaseInfo->accountname().c_str(), _status);
 
-    // info.AppendFormat(", session infos:");
-    // auto sessionMgr = _userMgr->GetService()->GetComp<ISessionMgr>();
-    // if(_activeSession)
-    // {
-    //     auto sessionInfo = _activeSession->GetSessionInfo();
-    //     info.AppendFormat("[ session id:%llu, session type:%d, remote addr:%s:%hu ], "
-    //         , _activeSession->GetSessionId(), sessionInfo->_sessionType
-    //         ,  sessionInfo->_remoteAddr._ip.c_str()
-    //         , sessionInfo->_remoteAddr._port);
-    // }
+    info.AppendFormat(", session infos:");
+    auto sessionMgr = _userMgr->GetService()->GetComp<ISessionMgr>();
+    auto session = sessionMgr->GetSession(_activedSessionId);
+    if(session)
+    {
+        auto sessionInfo = session->GetSessionInfo();
+        info.AppendFormat("[ session id:%llu, session type:%d, remote addr:%s:%hu ], "
+            , _activedSessionId, sessionInfo->_sessionType
+            ,  sessionInfo->_remoteAddr._ip.c_str()
+            , sessionInfo->_remoteAddr._port);
+    }
 
     return info;
+}
+
+Int64 User::GetLruTime() const
+{
+    return _lruTime;
+}
+
+void User::UpdateLrtTime()
+{
+    _lruTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+}
+
+Int64 User::GetHeartbeatTime() const
+{
+    return _heatbeatTime;
+}
+
+void User::UpdateHeartbeatTime()
+{
+    _heatbeatTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 }
 
 Int32 User::_OnSysInit()

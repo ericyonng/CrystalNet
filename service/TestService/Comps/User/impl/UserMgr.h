@@ -29,6 +29,7 @@
 #pragma once
 
 #include <Comps/User/interface/IUserMgr.h>
+#include <Comps/User/impl/UserLruCompare.h>
 
 KERNEL_BEGIN
 
@@ -62,6 +63,8 @@ public:
     virtual const IUser *GetUser(UInt64 userId) const;
     virtual IUser *GetUser(const KERNEL_NS::LibString &accountName) override;
     virtual const IUser *GetUser(const KERNEL_NS::LibString &accountName) const override;
+    virtual const IUser *GetUserBySessionId(UInt64 sessionId) const override;
+    virtual IUser *GetUserBySessionId(UInt64 sessionId) override;
 
     virtual void MaskNumberKeyAddDirty(UInt64 key) override;
 
@@ -69,7 +72,7 @@ public:
     * @param(loginInfo):登录信息
     * @param(cb):回调, Rtn:void, Int32:错误码, IUser登录成功后的user对象, Variant:传入的透传参数
     */
-    virtual Int32 Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo
+    virtual Int32 Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo
     , KERNEL_NS::IDelegate<void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *cb
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL) override;
 
@@ -87,6 +90,10 @@ public:
     virtual void PurgeAndWait() override;
    virtual void PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler) override;
 
+    // 解除session的映射
+   virtual void RemoveUserBySessionId(UInt64 sessionId) override;
+   // 添加session映射
+   virtual void AddUserBySessionId(UInt64 sessionId, IUser *user) override;
 private:
     virtual Int32 _OnGlobalSysInit() override;
     virtual Int32 _OnGlobalSysCompsCreated() override;
@@ -107,6 +114,8 @@ private:
 
     void _AddUser(User *user);
     void _RemoveUser(User *user);
+    void _RemoveFromLru(IUser *user);
+    void _AddToLru(IUser *user);
     void _LruPopUser();
 
     void _OnDbUserLoaded(KERNEL_NS::MysqlResponse *res);
@@ -122,7 +131,8 @@ private:
 
     std::map<UInt64, IUser *> _userIdRefUser;
     std::map<KERNEL_NS::LibString, IUser *> _accountNameRefUser;
-    std::list<IUser *> _lru;
+    std::map<UInt64, IUser *> _sessionIdRefUser;
+    std::set<IUser *, UserLruCompare> _lru;
     Int32 _lruCapacityLimit;    // 容量限制
 
     std::vector<UInt64> _pendingLoginEventOnStartup;

@@ -54,6 +54,9 @@ struct TableStruct_heartbeat_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_heartbeat_2eproto;
+class ClientHeartbeatReq;
+struct ClientHeartbeatReqDefaultTypeInternal;
+extern ClientHeartbeatReqDefaultTypeInternal _ClientHeartbeatReq_default_instance_;
 class GetNodeListReq;
 struct GetNodeListReqDefaultTypeInternal;
 extern GetNodeListReqDefaultTypeInternal _GetNodeListReq_default_instance_;
@@ -73,6 +76,7 @@ class RegisterNodeRes;
 struct RegisterNodeResDefaultTypeInternal;
 extern RegisterNodeResDefaultTypeInternal _RegisterNodeRes_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
+template<> ::ClientHeartbeatReq* Arena::CreateMaybeMessage<::ClientHeartbeatReq>(Arena*);
 template<> ::GetNodeListReq* Arena::CreateMaybeMessage<::GetNodeListReq>(Arena*);
 template<> ::GetNodeListRes* Arena::CreateMaybeMessage<::GetNodeListRes>(Arena*);
 template<> ::NodeHeartbeatReq* Arena::CreateMaybeMessage<::NodeHeartbeatReq>(Arena*);
@@ -1630,6 +1634,231 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   union { Impl_ _impl_; };
   friend struct ::TableStruct_heartbeat_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(29)]
+class ClientHeartbeatReq final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:ClientHeartbeatReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ClientHeartbeatReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ClientHeartbeatReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ClientHeartbeatReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ClientHeartbeatReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ClientHeartbeatReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ClientHeartbeatReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline ClientHeartbeatReq() : ClientHeartbeatReq(nullptr) {}
+  explicit PROTOBUF_CONSTEXPR ClientHeartbeatReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ClientHeartbeatReq(const ClientHeartbeatReq& from);
+  ClientHeartbeatReq(ClientHeartbeatReq&& from) noexcept
+    : ClientHeartbeatReq() {
+    *this = ::std::move(from);
+  }
+
+  inline ClientHeartbeatReq& operator=(const ClientHeartbeatReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ClientHeartbeatReq& operator=(ClientHeartbeatReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ClientHeartbeatReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ClientHeartbeatReq* internal_default_instance() {
+    return reinterpret_cast<const ClientHeartbeatReq*>(
+               &_ClientHeartbeatReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(ClientHeartbeatReq& a, ClientHeartbeatReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ClientHeartbeatReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ClientHeartbeatReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ClientHeartbeatReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ClientHeartbeatReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const ClientHeartbeatReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const ClientHeartbeatReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "ClientHeartbeatReq";
+  }
+  protected:
+  explicit ClientHeartbeatReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:ClientHeartbeatReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+  };
+  friend struct ::TableStruct_heartbeat_2eproto;
+};
 // ===================================================================
 
 
@@ -1948,9 +2177,15 @@ GetNodeListRes::nodeinfolist() const {
   return _impl_.nodeinfolist_;
 }
 
+// -------------------------------------------------------------------
+
+// ClientHeartbeatReq
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -2102,6 +2337,29 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new GetNodeListRes(*dynamic_cast<const GetNodeListRes *>(coder));
+    }
+
+};
+
+
+class ClientHeartbeatReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, ClientHeartbeatReqFactory);
+public:
+
+    virtual void Release() override {
+        ClientHeartbeatReqFactory::Delete_ClientHeartbeatReqFactory(this);
+    }
+
+    static ClientHeartbeatReqFactory *CreateFactory() {
+        return ClientHeartbeatReqFactory::New_ClientHeartbeatReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ClientHeartbeatReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ClientHeartbeatReq(*dynamic_cast<const ClientHeartbeatReq *>(coder));
     }
 
 };

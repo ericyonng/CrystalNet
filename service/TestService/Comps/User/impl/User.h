@@ -79,9 +79,31 @@ public:
 
     virtual UInt64 GetUserId() const override;
 
+    // 绑定会话
+    virtual void BindSession(UInt64 sessionId) override;
+    // 获取会话id
+    virtual UInt64 GetSessionId() const override;
+
+    virtual void Logout() override;
+
+    // 是否登出
+    virtual bool IsLogined() const override;
+    // 是否在线
+    virtual bool IsLogout() const override;
+
+    virtual const KERNEL_NS::BriefSockAddr *GetUserAddr() const override;
 
     // 标脏是key + logic地址或者字段名
     virtual KERNEL_NS::LibString ToString() const override;
+
+    // 获取lru时间
+    virtual Int64 GetLruTime() const override;
+    // 刷新lrutime
+    virtual void UpdateLrtTime() override;
+    // 获取心跳更新时间
+    virtual Int64 GetHeartbeatTime() const override;
+    // 刷新心跳更新时间
+    virtual void UpdateHeartbeatTime() override;
 
 private:
     virtual Int32 _OnSysInit() override;
@@ -109,6 +131,10 @@ private:
 
     // 用户基本信息
     UserBaseInfo *_userBaseInfo;
+
+    UInt64 _activedSessionId;
+    Int64 _lruTime;
+    Int64 _heatbeatTime;
 };
 
 ALWAYS_INLINE IUserSys *User::_GetSysBy(const KERNEL_NS::LibString &fieldName)

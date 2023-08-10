@@ -53,6 +53,7 @@ Int64 IGlobalSys::Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const
     if(UNLIKELY(!session))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu"), sessionId);
+        packet->ReleaseUsingPool();
         return -1;
     }
 
@@ -72,6 +73,9 @@ void IGlobalSys::Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> 
     if(UNLIKELY(!session))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu"), sessionId);
+        for(auto iter : packets)
+            iter->ReleaseUsingPool();
+            
         return;
     }
     

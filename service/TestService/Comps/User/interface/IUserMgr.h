@@ -45,24 +45,26 @@ public:
     virtual const IUser *GetUser(UInt64 userId) const = 0;
     virtual IUser *GetUser(const KERNEL_NS::LibString &accountName) = 0;
     virtual const IUser *GetUser(const KERNEL_NS::LibString &accountName) const = 0;
+    virtual const IUser *GetUserBySessionId(UInt64 sessionId) const = 0;
+    virtual IUser *GetUserBySessionId(UInt64 sessionId) = 0;
 
     /* 登录
     * @param(loginInfo):登录信息
     * @param(cb):回调, Rtn:void, Int32:错误码, IUser登录成功后的user对象, Variant:传入的透传参数
     * @return(Int32):调用是否成功 Status
     */
-    virtual Int32 Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo
+    virtual Int32 Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo
     , KERNEL_NS::IDelegate<void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *cb
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL) = 0;
 
     // @return(Int32):调用是否成功 Status
     template<typename ObjType>
-    Int32 LoginBy(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
+    Int32 LoginBy(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
     ,  KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
 
     // @return(Int32):调用是否成功 Status
     template<typename CallbackType>
-    Int32 LoginBy(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, CallbackType &&cb, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
+    Int32 LoginBy(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, CallbackType &&cb, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
 
     virtual Int32 LoadUser(const KERNEL_NS::LibString &accountName
     , KERNEL_NS::IDelegate<void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *cb
@@ -99,22 +101,27 @@ public:
    void PurgeEndWith(CallbackType &&cb);
    template<typename ObjType>
    void PurgeEndWith(ObjType *obj, void (ObjType::*handler)(Int32 errCode));
+
+    // 解除session的映射
+   virtual void RemoveUserBySessionId(UInt64 sessionId) = 0;
+   // 添加session映射
+   virtual void AddUserBySessionId(UInt64 sessionId, IUser *user) = 0;
 };
 
 template<typename ObjType>
-ALWAYS_INLINE Int32 IUserMgr::LoginBy(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
+ALWAYS_INLINE Int32 IUserMgr::LoginBy(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, ObjType *obj, void (ObjType::*handler)(Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &)
 ,  KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
     auto deleg = KERNEL_NS::DelegateFactory::Create(obj, handler);
-    return Login(loginInfo, deleg, var);
+    return Login(sessionId, loginInfo, deleg, var);
 }
 
 template<typename CallbackType>
-ALWAYS_INLINE Int32 IUserMgr::LoginBy(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, CallbackType &&cb
+ALWAYS_INLINE Int32 IUserMgr::LoginBy(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo, CallbackType &&cb
 , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
     auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &);
-    return Login(loginInfo, deleg, var);
+    return Login(sessionId, loginInfo, deleg, var);
 }
 
 template<typename ObjType>

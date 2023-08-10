@@ -44,3 +44,10 @@ message GetNodeListRes
     repeated NodeHeartbeatInfo NodeInfoList = 1;
 }
 
+// 客户端的心跳
+/// Opcode:
+message ClientHeartbeatReq 
+{
+
+}
+

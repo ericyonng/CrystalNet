@@ -134,25 +134,14 @@ namespace EventEnums
 
         SERVICE_WILL_STARTUP,           // service启动完成
         SERVICE_STARTUP,                // service 启动完成
+        SERVICE_MSG_RECV,               // service来消息了
+                                        /* service来消息了
+                                        * Attention: 
+                                        * @param(SESSION_ID):Int32 错误码
+                                        * @param(OPCODE):Int32
+                                        * @param(PACKET):LibPacket * Ptr
+                                        */
         SERVICE_EVENT_END = 200,
-
-        USER_CREATED,                   // user创建事件
-                                        /* user创建事件
-                                        * Attention: 
-                                        * @param(USER_OBJ):IUser * 用户对象
-                                        */
-
-        USER_LOGIN,                     // 用户登录事件
-                                        /* 用户登录事件
-                                        * Attention: 
-                                        * @param(USER_OBJ):IUser * 用户对象
-                                        */
-
-        USER_WILL_REMOVE,               // 用户移除事件
-                                        /* 用户登录事件
-                                        * Attention: 
-                                        * @param(USER_OBJ): IUser *用户对象 
-                                        */
 
         EVENT_COMMON_END = 65536,       // 公共事件集结束
     };

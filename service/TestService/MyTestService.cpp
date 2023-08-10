@@ -478,6 +478,13 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
             g_Log->Warn(LOGFMT_NON_OBJ_TAG(MyTestService, "sessionId:%llu, packetid:%lld, opcode:%d,[%s], costMs:%llu ms. "),  sessionId, packetId, opcode, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.", costMs);
         };
             
+        // 来消息了
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_MSG_RECV);
+        ev->SetParam(Params::SESSION_ID, sessionId);
+        ev->SetParam(Params::OPCODE, opcode);
+        ev->SetParam(Params::PACKET, packet);
+        _eventMgr->FireEvent(ev);
+        
         PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
         handler->Invoke(packet);
         if(LIKELY(packet))

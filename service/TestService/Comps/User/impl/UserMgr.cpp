@@ -37,6 +37,8 @@
 #include <Comps/DB/db.h>
 #include <Comps/UserSys/UserSys.h>
 #include <Comps/config/config.h>
+#include <Comps/User/impl/UserSessionMgr.h>
+#include <Comps/User/impl/UserSessionMgrFactory.h>
 
 SERVICE_BEGIN
 
@@ -62,6 +64,9 @@ void UserMgr::Release()
 void UserMgr::OnRegisterComps()
 {
     RegisterComp<UserMgrStorageFactory>();
+
+    // 会话管理
+    RegisterComp<UserSessionMgrFactory>();
 }
 
 void UserMgr::OnWillStartup()
@@ -103,7 +108,7 @@ void UserMgr::OnStartup()
     registerInfo->set_pwd("123456");
     registerInfo->set_nickname("123456");
     registerInfo->set_createphoneimei("123456");
-    auto err = LoginBy(loginInfo, [this](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
+    auto err = LoginBy(0, loginInfo, [this](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
         user->GetUserBaseInfo()->set_nickname("aakkkkkkkkkkkkkkkkkkkkkkkkkkkkkdalkaldfaskldfaskdfasklfjaslkdfaslkdfalskdfaskdfjalksdjfaksfalskdfjaskdjfalksdjfaksdfjalskdfjaksldjfaklsjdfkasjdfkasjdfkasjdflkasjflaksdjflsakfjaskdjf");
         user->MaskDirty();
         user->PurgeAndWaitComplete();
@@ -210,6 +215,18 @@ const IUser *UserMgr::GetUser(const KERNEL_NS::LibString &accountName) const
     return iter == _accountNameRefUser.end() ? NULL : iter->second;
 }
 
+const IUser *UserMgr::GetUserBySessionId(UInt64 sessionId) const
+{
+    auto iter = _sessionIdRefUser.find(sessionId);
+    return iter == _sessionIdRefUser.end() ? NULL : iter->second;
+}
+
+IUser *UserMgr::GetUserBySessionId(UInt64 sessionId)
+{
+    auto iter = _sessionIdRefUser.find(sessionId);
+    return iter == _sessionIdRefUser.end() ? NULL : iter->second;
+}
+
 void UserMgr::MaskNumberKeyAddDirty(UInt64 key)
 {
     auto user = GetUser(key);
@@ -224,7 +241,7 @@ void UserMgr::MaskNumberKeyAddDirty(UInt64 key)
     ILogicSys::MaskNumberKeyAddDirty(key);
 }
 
-Int32 UserMgr::Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo
+Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> &loginInfo
     , KERNEL_NS::IDelegate<void, Int32, PendingUser *, IUser *, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &> *cb
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var)
 {
@@ -237,6 +254,7 @@ Int32 UserMgr::Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::R
     pendingInfo->_var = var;
     pendingInfo->_byAccountName = loginInfo->accountname();
     pendingInfo->_loginInfo = loginInfo;
+    pendingInfo->_sessionId = sessionId;
 
     // TODO:获取分布式锁（LogicProxy做）
     // 是否已经存在User, 
@@ -249,6 +267,41 @@ Int32 UserMgr::Login(KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::R
 
     auto stubMgr = GetGlobalSys<IStubHandleMgr>();
     pendingInfo->_stub = stubMgr->NewStub();
+
+    Int32 err = Status::Success;
+    if(LIKELY(pendingInfo->_sessionId))
+    {
+        const auto &curTime = KERNEL_NS::LibTime::Now();
+
+        // 校验登录
+        auto loginMgr = user->GetComp<ILoginMgr>();
+        err = loginMgr->CheckLogin(pendingInfo);
+        if(err != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("check login fail err:%d, pending info:%s, userId:%llu"), err, pendingInfo->ToString().c_str(), user->GetUserId());
+        }
+        else
+        {
+            // 顶号
+            if(user->IsLogined())
+                user->Logout();
+
+            user->OnLogin();
+            user->BindSession(pendingInfo->_sessionId);
+            user->OnLoginFinish();
+        }
+
+        auto loginInfo = pendingInfo->_loginInfo;
+        auto baseInfo = user->GetUserBaseInfo();
+        auto addr = user->GetUserAddr();
+        baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
+        baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
+        baseInfo->set_lastloginip(addr->_ip.GetRaw());
+    }
+
+    _RemoveFromLru(user);
+    user->UpdateLrtTime();
+    _AddToLru(user);
 
     if(LIKELY(cb))
         cb->Invoke(Status::Success, pendingInfo, user, var);
@@ -399,6 +452,23 @@ void UserMgr::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
     dbMgr->PurgeEndWith(handler);
 }
 
+void UserMgr::RemoveUserBySessionId(UInt64 sessionId)
+{
+    _sessionIdRefUser.erase(sessionId);
+}
+
+void UserMgr::AddUserBySessionId(UInt64 sessionId, IUser *user)
+{
+    auto iter = _sessionIdRefUser.find(sessionId);
+    if(UNLIKELY(iter != _sessionIdRefUser.end()))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("duplicate session id:%llu with user, exists user:%s, new user:%s"), sessionId, iter->second->ToString().c_str(), user->ToString().c_str());
+        return;
+    }
+
+    _sessionIdRefUser.insert(std::make_pair(sessionId, user));
+}
+
 Int32 UserMgr::_OnGlobalSysInit()
 {
     auto ini = GetApp()->GetIni();
@@ -487,14 +557,23 @@ void UserMgr::_AddUser(User *user)
 {
     _userIdRefUser.insert(std::make_pair(user->GetUserId(), user));
     _accountNameRefUser.insert(std::make_pair(user->GetUserBaseInfo()->accountname(), user));
-
-    _lru.push_back(user);
 }
 
 void UserMgr::_RemoveUser(User *user)
 {
     _userIdRefUser.erase(user->GetUserId());
     _accountNameRefUser.erase(user->GetUserBaseInfo()->accountname());
+    _RemoveFromLru(user);
+}
+
+void UserMgr::_RemoveFromLru(IUser *user)
+{
+    _lru.erase(user);
+}
+
+void UserMgr::_AddToLru(IUser *user)
+{
+    _lru.insert(user);
 }
 
 void UserMgr::_LruPopUser()
@@ -502,10 +581,14 @@ void UserMgr::_LruPopUser()
     if(LIKELY(static_cast<Int32>(_lru.size()) < _lruCapacityLimit))
         return; 
 
-    auto expiredlUser = _lru.front()->CastTo<User>();
-    _lru.pop_front();
+    auto firstNode = _lru.begin();
+    auto expiredlUser = (*firstNode)->CastTo<User>();
+    _lru.erase(firstNode);
 
-    expiredlUser->OnLogout();
+    // 踢掉
+    if(expiredlUser->IsLogined())
+        expiredlUser->Logout();
+
     auto mysqlMgr = GetGlobalSys<IMysqlMgr>();
     mysqlMgr->PurgeAndWaitComplete(this);
 
@@ -524,6 +607,7 @@ void UserMgr::_LruPopUser()
 void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 {
     g_Log->Info(LOGFMT_OBJ_TAG("mysql res:%s"), res->ToString().c_str());
+    const auto &curTime = KERNEL_NS::LibTime::Now(); 
 
     // 可能之前有load过user导致pengding 一起处理
     auto pendingUser = _GetPendingByStub(res->_stub);
@@ -548,14 +632,40 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     if(user)
     {
         g_Log->Info(LOGFMT_OBJ_TAG("user is already exists user:%s, pendingUser:%s"), user->ToString().c_str(), pendingUser->ToString().c_str());
-        // 校验登录
-        auto loginMgr = user->GetComp<ILoginMgr>();
-        auto err = loginMgr->CheckLogin(pendingUser);
-        if(err != Status::Success)
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("check login fail err:%d, pending info:%s, userId:%llu"), err, pendingUser->ToString().c_str(), user->GetUserId());
-        }
         
+        _RemoveFromLru(user);
+        user->UpdateLrtTime();
+        _AddToLru(user);
+
+        Int32 err = Status::Success;
+        if(pendingUser->_sessionId)
+        {
+            // 校验登录
+            auto loginMgr = user->GetComp<ILoginMgr>();
+            err = loginMgr->CheckLogin(pendingUser);
+            if(err != Status::Success)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("check login fail err:%d, pending info:%s, userId:%llu"), err, pendingUser->ToString().c_str(), user->GetUserId());
+            }
+            else
+            {
+                // 顶号
+                if(user->IsLogined())
+                    user->Logout();
+
+                user->OnLogin();
+                user->BindSession(pendingUser->_sessionId);
+                user->OnLoginFinish();
+            }
+
+            auto loginInfo = pendingUser->_loginInfo;
+            auto baseInfo = user->GetUserBaseInfo();
+            auto addr = user->GetUserAddr();
+            baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
+            baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
+            baseInfo->set_lastloginip(addr->_ip.GetRaw());
+        }
+
         // TODO:记录登录信息
 
         if(LIKELY(pendingUser->_cb))
@@ -596,7 +706,6 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 
     // 没有user, 判断是否是注册
     Int32 err = Status::Success;
-    const auto &curTime = KERNEL_NS::LibTime::Now(); 
     bool isAlreadyExists = false;
     do
     {
@@ -654,10 +763,6 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             baseInfo->set_accountname(registerInfo.accountname());
             baseInfo->set_nickname(registerInfo.nickname());
             baseInfo->set_pwd(registerInfo.pwd());
-
-            baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
-            baseInfo->set_lastloginphoneimei(registerInfo.createphoneimei());
-
             baseInfo->set_createtime(curTime.GetMilliTimestamp());
             baseInfo->set_createphoneimei(registerInfo.createphoneimei());
 
@@ -734,19 +839,35 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             _AddUser(u.AsSelf());
             user = u.pop();
 
-            // 校验登录
-            auto loginMgr = user->GetComp<ILoginMgr>();
-            err = loginMgr->CheckLogin(pendingUser);
-            if(err != Status::Success)
+            if(pendingUser->_sessionId)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("check login fail err:%d, pending info:%s, userId:%llu"), err, pendingUser->ToString().c_str(), userId);
-                break;
+                // 校验登录
+                auto loginMgr = user->GetComp<ILoginMgr>();
+                err = loginMgr->CheckLogin(pendingUser);
+                if(err != Status::Success)
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("check login fail err:%d, pending info:%s, userId:%llu"), err, pendingUser->ToString().c_str(), userId);
+                    break;
+                }
             }
 
-            // TODO:记录登录信息
-            user->MaskDirty();
+            // token = 收集imei + ip + userId
+            // baseInfo->set_logintoken()
+
+            // TODO:
+            // baseInfo->set_userid();
+            // baseInfo->set_lastloginip()
+            // baseInfo->set_createip()
+
         }
     } while (false);
+
+    if(LIKELY(user))
+    {
+        _RemoveFromLru(user);
+        user->UpdateLrtTime();
+        _AddToLru(user);
+    }
 
     if(err != Status::Success)
     {
@@ -773,8 +894,28 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
         user->OnUserCreated();
     }
 
-    user->OnLogin();
-    user->OnLoginFinish();
+    // 登录
+    if(pendingUser->_sessionId)
+    {
+        user->OnLogin();
+        user->BindSession(pendingUser->_sessionId);
+        user->OnLoginFinish();
+    }
+
+    auto loginInfo = pendingUser->_loginInfo;
+    auto &registerInfo = pendingUser->_loginInfo->userregisterinfo();
+    auto baseInfo = user->GetUserBaseInfo();
+
+    // 最后登录信息
+    if(pendingUser->_sessionId)
+    {
+        auto addr = user->GetUserAddr();
+        baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
+        baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
+        baseInfo->set_lastloginip(addr->_ip.GetRaw());
+    }
+    
+    user->MaskDirty();
 
     // 注册事件
     if((!isAlreadyExists) && pendingUser->_loginInfo && (pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER))
@@ -785,9 +926,12 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     }
 
     // 登录事件
-    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_LOGIN);
-    ev->SetParam(Params::USER_OBJ, user);
-    GetEventMgr()->FireEvent(ev);
+    if(pendingUser->_sessionId)
+    {
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_LOGIN);
+        ev->SetParam(Params::USER_OBJ, user);
+        GetEventMgr()->FireEvent(ev);
+    }
 
     // 处理回调
     if(LIKELY(pendingUser->_cb))

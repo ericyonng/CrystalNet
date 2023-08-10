@@ -9,6 +9,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(RegisterNodeReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(RegisterNodeResFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(GetNodeListReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(GetNodeListResFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ClientHeartbeatReqFactory);
 
 #include <algorithm>
 
@@ -104,7 +105,18 @@ struct GetNodeListResDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetNodeListResDefaultTypeInternal _GetNodeListRes_default_instance_;
-static ::_pb::Metadata file_level_metadata_heartbeat_2eproto[6];
+PROTOBUF_CONSTEXPR ClientHeartbeatReq::ClientHeartbeatReq(
+    ::_pbi::ConstantInitialized) {}
+struct ClientHeartbeatReqDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ClientHeartbeatReqDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ClientHeartbeatReqDefaultTypeInternal() {}
+  union {
+    ClientHeartbeatReq _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ClientHeartbeatReqDefaultTypeInternal _ClientHeartbeatReq_default_instance_;
+static ::_pb::Metadata file_level_metadata_heartbeat_2eproto[7];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_heartbeat_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_heartbeat_2eproto = nullptr;
 
@@ -151,6 +163,12 @@ const uint32_t TableStruct_heartbeat_2eproto::offsets[] PROTOBUF_SECTION_VARIABL
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::GetNodeListRes, _impl_.nodeinfolist_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::ClientHeartbeatReq, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::NodeHeartbeatReq)},
@@ -159,6 +177,7 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 20, -1, -1, sizeof(::RegisterNodeRes)},
   { 27, -1, -1, sizeof(::GetNodeListReq)},
   { 35, -1, -1, sizeof(::GetNodeListRes)},
+  { 42, -1, -1, sizeof(::ClientHeartbeatReq)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -168,6 +187,7 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::_RegisterNodeRes_default_instance_._instance,
   &::_GetNodeListReq_default_instance_._instance,
   &::_GetNodeListRes_default_instance_._instance,
+  &::_ClientHeartbeatReq_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_heartbeat_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -179,16 +199,17 @@ const char descriptor_table_protodef_heartbeat_2eproto[] PROTOBUF_SECTION_VARIAB
   "F\n\016GetNodeListReq\022\023\n\013ClusterName\030\001 \001(\t\022\037"
   "\n\027CareNodeServiceNameList\030\002 \003(\t\":\n\016GetNo"
   "deListRes\022(\n\014NodeInfoList\030\001 \003(\0132\022.NodeHe"
-  "artbeatInfob\006proto3"
+  "artbeatInfo\"\024\n\022ClientHeartbeatReqb\006proto"
+  "3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_heartbeat_2eproto_deps[1] = {
   &::descriptor_table_com_5fheartbeat_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_heartbeat_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_heartbeat_2eproto = {
-    false, false, 339, descriptor_table_protodef_heartbeat_2eproto,
+    false, false, 361, descriptor_table_protodef_heartbeat_2eproto,
     "heartbeat.proto",
-    &descriptor_table_heartbeat_2eproto_once, descriptor_table_heartbeat_2eproto_deps, 1, 6,
+    &descriptor_table_heartbeat_2eproto_once, descriptor_table_heartbeat_2eproto_deps, 1, 7,
     schemas, file_default_instances, TableStruct_heartbeat_2eproto::offsets,
     file_level_metadata_heartbeat_2eproto, file_level_enum_descriptors_heartbeat_2eproto,
     file_level_service_descriptors_heartbeat_2eproto,
@@ -1225,6 +1246,46 @@ void GetNodeListRes::InternalSwap(GetNodeListRes* other) {
       file_level_metadata_heartbeat_2eproto[5]);
 }
 
+// ===================================================================
+
+class ClientHeartbeatReq::_Internal {
+ public:
+};
+
+ClientHeartbeatReq::ClientHeartbeatReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
+  // @@protoc_insertion_point(arena_constructor:ClientHeartbeatReq)
+}
+ClientHeartbeatReq::ClientHeartbeatReq(const ClientHeartbeatReq& from)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
+  ClientHeartbeatReq* const _this = this; (void)_this;
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:ClientHeartbeatReq)
+}
+
+
+
+
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ClientHeartbeatReq::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl,
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl,
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ClientHeartbeatReq::GetClassData() const { return &_class_data_; }
+
+
+
+
+
+
+
+::PROTOBUF_NAMESPACE_ID::Metadata ClientHeartbeatReq::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_heartbeat_2eproto_getter, &descriptor_table_heartbeat_2eproto_once,
+      file_level_metadata_heartbeat_2eproto[6]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::NodeHeartbeatReq*
@@ -1250,6 +1311,10 @@ Arena::CreateMaybeMessage< ::GetNodeListReq >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::GetNodeListRes*
 Arena::CreateMaybeMessage< ::GetNodeListRes >(Arena* arena) {
   return Arena::CreateMessageInternal< ::GetNodeListRes >(arena);
+}
+template<> PROTOBUF_NOINLINE ::ClientHeartbeatReq*
+Arena::CreateMaybeMessage< ::ClientHeartbeatReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::ClientHeartbeatReq >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

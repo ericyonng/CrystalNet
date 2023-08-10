@@ -26,6 +26,10 @@ public:
 
         USER_LOGIN_KEY_CHAR_COUNT,    // id
 
+        USER_LOGIN_EXPIRE_TIME,    // id
+
+        USER_HEARTBEAT_EXPIRE_TIME,    // id
+
         __ENUM_MAX,
 
     };
@@ -46,6 +50,10 @@ public:
     Int32 _id;    // id
 
     Int32 _value;
+
+    Int64 _int64Value;
+
+    KERNEL_NS::LibString _stringValue;
 
 
 };
@@ -74,10 +82,6 @@ public:
     const std::map<Int32, CommonConfig *> &GetAllIdRefConfigs() const;
     const CommonConfig * GetConfigById(const Int32 &key) const;
 
-    // by Value
-    const std::map<Int32, std::vector<CommonConfig *>> &GetAllValueRefConfigs() const;
-    const std::vector<CommonConfig *> &GetConfigsByValue(const Int32 &key) const;
-
 private:
     virtual void _OnClose() override;
     void _Clear();
@@ -87,7 +91,6 @@ private:
     std::vector<CommonConfig *> _configs;
     KERNEL_NS::LibString _dataMd5;
     std::map<Int32, CommonConfig *> _idRefConfig;
-    std::map<Int32, std::vector<CommonConfig *>> _valueRefConfigs;
 
 };
 
@@ -106,17 +109,6 @@ ALWAYS_INLINE const CommonConfig * CommonConfigMgr::GetConfigById(const Int32 &k
 {
     auto iter = _idRefConfig.find(key);
     return iter == _idRefConfig.end() ? NULL : iter->second;
-}
-
-ALWAYS_INLINE const std::map<Int32, std::vector<CommonConfig *>> &CommonConfigMgr::GetAllValueRefConfigs() const
-{
-    return _valueRefConfigs;
-}
-
-ALWAYS_INLINE const std::vector<CommonConfig *> &CommonConfigMgr::GetConfigsByValue(const Int32 &key) const
-{
-    auto iterConfigs = _valueRefConfigs.find(key);
-    return iterConfigs == _valueRefConfigs.end() ? s_empty : iterConfigs->second;
 }
 
 
