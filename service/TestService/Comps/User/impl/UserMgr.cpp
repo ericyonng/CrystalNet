@@ -93,9 +93,13 @@ void UserMgr::OnStartup()
     _LruPopUser();
 
     // 用户登录
+    KERNEL_NS::LibString randAccount;
+    auto &random = KERNEL_NS::LibInt64Random<KERNEL_NS::_Build::TL>::GetInstance();
+    randAccount.AppendFormat("test_eric_%lld", random.Gen(0, 127));
+    
     KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> loginInfo = CRYSTAL_NEW(LoginInfo);
     loginInfo->set_loginmode(LoginMode::REGISTER);
-    loginInfo->set_accountname("test_eric");
+    loginInfo->set_accountname(randAccount.GetRaw());
     loginInfo->set_pwd("123456");
     loginInfo->set_logintoken("123456");
     loginInfo->set_loginphoneimei("123456");

@@ -157,6 +157,11 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
 {
     auto sessionId = ev->GetParam(Params::SESSION_ID).AsUInt64();
     auto sessionType = ev->GetParam(Params::SESSION_TYPE).AsInt32();
+    auto isLinker = ev->GetParam(Params::IS_FROM_LINKER).AsBool();
+    auto isFromConnect = ev->GetParam(Params::IS_FROM_CONNECT).AsBool();
+
+    if(isLinker || isFromConnect)
+        return;
 
     // 关注用户的会话
     if((sessionType != SessionType::OUTER) && (sessionType != SessionType::OUTER_NO_LIMIT))
@@ -164,9 +169,13 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
 
     auto expireConfig = _userMgr->GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_EXPIRE_TIME);
     KERNEL_NS::SmartPtr<LoginPendingInfo, KERNEL_NS::AutoDelMethods::CustomDelete> pending = LoginPendingInfo::NewThreadLocal_LoginPendingInfo(sessionId);
+    pending.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<LoginPendingInfo *>(p);
+        LoginPendingInfo::DeleteThreadLocal_LoginPendingInfo(ptr);
+    });
     pending->_expiredTime = KERNEL_NS::LibTime::NowTimestamp() + expireConfig->_int64Value;
 
-    _sessionIdRefLoginPendingInfo.insert(std::make_pair(sessionId, pending));
+    _sessionIdRefLoginPendingInfo.insert(std::make_pair(sessionId, pending.pop()));
     pending->_timer->SetTimeOutHandler([this, sessionId](KERNEL_NS::LibTimer *t)
     {
         auto iter = _sessionIdRefLoginPendingInfo.find(sessionId);
