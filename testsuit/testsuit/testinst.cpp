@@ -223,7 +223,7 @@ void TestInst::Run(int argc, char const *argv[])
     // //TestRttiUtil::Run();
     // //TestContainerUtil::Run();
     // // TestSystemUtil::Run();
-    // TestEncrypt::Run();
+    // TestEncrypt::Run(argc, argv);
     // TestFile::Run();
     // TestLog::Run();
     // TestStream::Run();

@@ -40,6 +40,7 @@ IUserSys::IUserSys()
 ,_userMgr(NULL)
 {
     _SetType(ServiceCompType::USER_SYS_COMP);
+    AddFlag(LogicSysFlagsType::DISABLE_FOCUS_BY_SERVICE_FLAG);
 }
 
 IUserSys::~IUserSys()

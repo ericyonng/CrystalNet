@@ -183,9 +183,9 @@ public:
     virtual void UpdateLrtTime() = 0;
 
     // 获取心跳更新时间
-    virtual Int64 GetHeartbeatTime() const = 0;
+    virtual Int64 GetHeartbeatExpireTime() const = 0;
     // 刷新心跳更新时间
-    virtual void UpdateHeartbeatTime() = 0;
+    virtual void UpdateHeartbeatExpireTime(Int64 spanTimeInMs) = 0;
 
     // IUser *operator->()
     // {

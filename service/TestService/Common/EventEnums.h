@@ -59,7 +59,7 @@ namespace EventEnums
         USER_WILL_REMOVE,               // 用户移除事件
                                         /* 用户登录事件
                                         * Attention: 
-                                        * @param(USER_OBJ): IUser *用户对象 
+                                        * @param(USER_ID): userId 
                                         */
 
         DB_LOADED_FINISH_ON_STARTUP,         // db加载完毕事件

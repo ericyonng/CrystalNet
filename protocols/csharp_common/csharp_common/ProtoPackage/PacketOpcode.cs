@@ -26,6 +26,7 @@ public static class PacketOpcode
         GetNodeListReq = 27,    // heartbeat.proto
         GetNodeListRes = 28,    // heartbeat.proto
         ClientHeartbeatReq = 29,    // heartbeat.proto
-        OpcodeMax = 29,
+        ClientHeartbeatRes = 30,    // heartbeat.proto
+        OpcodeMax = 30,
     }
 }

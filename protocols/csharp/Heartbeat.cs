@@ -31,8 +31,8 @@ public static partial class HeartbeatReflection {
           "ZXMSDwoHRXJyQ29kZRgBIAEoESJGCg5HZXROb2RlTGlzdFJlcRITCgtDbHVz",
           "dGVyTmFtZRgBIAEoCRIfChdDYXJlTm9kZVNlcnZpY2VOYW1lTGlzdBgCIAMo",
           "CSI6Cg5HZXROb2RlTGlzdFJlcxIoCgxOb2RlSW5mb0xpc3QYASADKAsyEi5O",
-          "b2RlSGVhcnRiZWF0SW5mbyIUChJDbGllbnRIZWFydGJlYXRSZXFiBnByb3Rv",
-          "Mw=="));
+          "b2RlSGVhcnRiZWF0SW5mbyIUChJDbGllbnRIZWFydGJlYXRSZXEiKgoSQ2xp",
+          "ZW50SGVhcnRiZWF0UmVzEhQKDFNlcnZlclRpbWVNcxgBIAEoEmIGcHJvdG8z"));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { global::ComHeartbeatReflection.Descriptor, },
         new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -42,7 +42,8 @@ public static partial class HeartbeatReflection {
           new pbr::GeneratedClrTypeInfo(typeof(global::RegisterNodeRes), global::RegisterNodeRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::GetNodeListReq), global::GetNodeListReq.Parser, new[]{ "ClusterName", "CareNodeServiceNameList" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::GetNodeListRes), global::GetNodeListRes.Parser, new[]{ "NodeInfoList" }, null, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::ClientHeartbeatReq), global::ClientHeartbeatReq.Parser, null, null, null, null, null)
+          new pbr::GeneratedClrTypeInfo(typeof(global::ClientHeartbeatReq), global::ClientHeartbeatReq.Parser, null, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::ClientHeartbeatRes), global::ClientHeartbeatRes.Parser, new[]{ "ServerTimeMs" }, null, null, null, null)
         }));
   }
   #endregion
@@ -1355,6 +1356,202 @@ public sealed partial class ClientHeartbeatReq : pb::IMessage<ClientHeartbeatReq
         default:
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
           break;
+      }
+    }
+  }
+  #endif
+
+}
+
+/// <summary>
+//// Opcode:
+/// </summary>
+[ProtoMessage(30)]
+public sealed partial class ClientHeartbeatRes : pb::IMessage<ClientHeartbeatRes>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    , pb::IBufferMessage
+#endif
+{
+  private static readonly pb::MessageParser<ClientHeartbeatRes> _parser = new pb::MessageParser<ClientHeartbeatRes>(() => new ClientHeartbeatRes());
+  private pb::UnknownFieldSet _unknownFields;
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pb::MessageParser<ClientHeartbeatRes> Parser { get { return _parser; } }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pbr::MessageDescriptor Descriptor {
+    get { return global::HeartbeatReflection.Descriptor.MessageTypes[7]; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  pbr::MessageDescriptor pb::IMessage.Descriptor {
+    get { return Descriptor; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public ClientHeartbeatRes() {
+    OnConstruction();
+  }
+
+  partial void OnConstruction();
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public ClientHeartbeatRes(ClientHeartbeatRes other) : this() {
+    serverTimeMs_ = other.serverTimeMs_;
+    _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public ClientHeartbeatRes Clone() {
+    return new ClientHeartbeatRes(this);
+  }
+
+  /// <summary>Field number for the "ServerTimeMs" field.</summary>
+  public const int ServerTimeMsFieldNumber = 1;
+  private long serverTimeMs_;
+  /// <summary>
+  /// 服务器时间
+  /// </summary>
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public long ServerTimeMs {
+    get { return serverTimeMs_; }
+    set {
+      serverTimeMs_ = value;
+    }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override bool Equals(object other) {
+    return Equals(other as ClientHeartbeatRes);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public bool Equals(ClientHeartbeatRes other) {
+    if (ReferenceEquals(other, null)) {
+      return false;
+    }
+    if (ReferenceEquals(other, this)) {
+      return true;
+    }
+    if (ServerTimeMs != other.ServerTimeMs) return false;
+    return Equals(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override int GetHashCode() {
+    int hash = 1;
+    if (ServerTimeMs != 0L) hash ^= ServerTimeMs.GetHashCode();
+    if (_unknownFields != null) {
+      hash ^= _unknownFields.GetHashCode();
+    }
+    return hash;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override string ToString() {
+    return pb::JsonFormatter.ToDiagnosticString(this);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void WriteTo(pb::CodedOutputStream output) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    output.WriteRawMessage(this);
+  #else
+    if (ServerTimeMs != 0L) {
+      output.WriteRawTag(8);
+      output.WriteSInt64(ServerTimeMs);
+    }
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(output);
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+    if (ServerTimeMs != 0L) {
+      output.WriteRawTag(8);
+      output.WriteSInt64(ServerTimeMs);
+    }
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(ref output);
+    }
+  }
+  #endif
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public int CalculateSize() {
+    int size = 0;
+    if (ServerTimeMs != 0L) {
+      size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ServerTimeMs);
+    }
+    if (_unknownFields != null) {
+      size += _unknownFields.CalculateSize();
+    }
+    return size;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(ClientHeartbeatRes other) {
+    if (other == null) {
+      return;
+    }
+    if (other.ServerTimeMs != 0L) {
+      ServerTimeMs = other.ServerTimeMs;
+    }
+    _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(pb::CodedInputStream input) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    input.ReadRawMessage(this);
+  #else
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+      switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+          break;
+        case 8: {
+          ServerTimeMs = input.ReadSInt64();
+          break;
+        }
+      }
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+      switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+          break;
+        case 8: {
+          ServerTimeMs = input.ReadSInt64();
+          break;
+        }
       }
     }
   }

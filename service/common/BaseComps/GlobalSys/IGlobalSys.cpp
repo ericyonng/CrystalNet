@@ -31,6 +31,27 @@
 #include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
 #include <service/common/BaseComps/Storage/storage.h>
 
+#ifndef DISABLE_OPCODES
+    #include <protocols/protocols.h>
+#endif
+
+static const KERNEL_NS::LibString OpcodeToString(Int32 opcode)
+{
+    #if DISABLE_OPCODES
+        return "DISABLE OPCODES";
+
+    #else
+        auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
+        if(UNLIKELY(!opcodeInfo))
+        {
+            return "UNKNOWN OPCODE";
+        }
+
+        return opcodeInfo->_opcodeName;
+    #endif
+
+}
+
 SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IGlobalSys);
@@ -52,7 +73,7 @@ Int64 IGlobalSys::Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const
     auto session = sessionMgr->GetSession(sessionId);
     if(UNLIKELY(!session))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu"), sessionId);
+        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu, opcode:%d,%s"), sessionId, packet->GetOpcode(), OpcodeToString(packet->GetOpcode()));
         packet->ReleaseUsingPool();
         return -1;
     }
@@ -93,7 +114,7 @@ Int64 IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &
     auto session = sessionMgr->GetSession(sessionId);
     if(UNLIKELY(!session))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu"), sessionId);
+        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu, opcode:%d, %s"), sessionId, opcode, OpcodeToString(opcode).c_str());
         return -1;
     }
 
@@ -101,7 +122,7 @@ Int64 IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &
     auto newCoderFactory = sessionInfo->_protocolStack->GetCoderFactory(opcode);
     if(UNLIKELY(!newCoderFactory))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("bad opcode:%d, sessionInfo:%s"), opcode, sessionInfo->ToString().c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("bad opcode:%d,%s, sessionInfo:%s"), opcode, OpcodeToString(opcode).c_str(), sessionInfo->ToString().c_str());
         return -1;
     }
 

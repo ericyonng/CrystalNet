@@ -95,7 +95,7 @@ namespace EventEnums
                                 * @param(STUB):UInt64 stub 存根
                                 */
 
-        ADD_LISTEN_RES,         //  添加监听回调事件 
+        ADD_LISTEN_RES,         //  添加监听回调事件  晚于 SESSION_CREATED事件
                                 /* 添加监听回调事件
                                 * Attention: 
                                 * @param(ERROR_CODE):Int32 错误码
@@ -108,7 +108,7 @@ namespace EventEnums
                                 * @param(SESSION_ID):UInt64 会话id
                                 */
 
-        ASYN_CONNECT_RES,       //  连接回调事件 
+        ASYN_CONNECT_RES,       //  连接回调事件 晚于 SESSION_CREATED事件
                                 /* 连接回调事件
                                 * Attention: 
                                 * @param(ERROR_CODE):Int32 错误码

@@ -46,7 +46,6 @@ PendingUser::PendingUser()
 ,_dbOperatorId(0)
 ,_sessionId(0)
 {
-
 }
 
 PendingUser::~PendingUser()
@@ -79,7 +78,7 @@ User::User(IUserMgr *userMgr)
 ,_lruTime(KERNEL_NS::LibTime::NowMilliTimestamp())
 ,_heatbeatTime(KERNEL_NS::LibTime::NowMilliTimestamp())
 {
-
+    AddFlag(LogicSysFlagsType::DISABLE_FOCUS_BY_SERVICE_FLAG);
 }
 
 User::~User()
@@ -410,6 +409,15 @@ Int32 User::OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStre
         fieldRefdb.insert(std::make_pair(fieldName, data));
     }
 
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(_userBaseInfo->pwdsalt().size()));
+        data->Write(_userBaseInfo->pwdsalt().data(), static_cast<Int64>(_userBaseInfo->pwdsalt().size()));
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kPwdSaltFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
+
     for(auto iter = _dirtySys.begin(); iter != _dirtySys.end();)
     {
         auto logic = *iter;
@@ -671,14 +679,14 @@ void User::UpdateLrtTime()
     _lruTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 }
 
-Int64 User::GetHeartbeatTime() const
+Int64 User::GetHeartbeatExpireTime() const
 {
     return _heatbeatTime;
 }
 
-void User::UpdateHeartbeatTime()
+void User::UpdateHeartbeatExpireTime(Int64 spanTimeInMs)
 {
-    _heatbeatTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    _heatbeatTime = KERNEL_NS::LibTime::NowMilliTimestamp() + spanTimeInMs;
 }
 
 Int32 User::_OnSysInit()

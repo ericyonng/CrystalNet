@@ -1941,7 +1941,7 @@ Int32 IocpTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, b
     if(errCode != Status::Success && errCode != Status::SockError_Pending)
     {
         IoData::DeleteThreadLocal_IoData(newIoData);
-        g_Log->NetError(LOGFMT_OBJ_TAG("post connect fail errCode:%d, pending info:%s"), connectPendingInfo->ToString().c_str());
+        g_Log->NetError(LOGFMT_OBJ_TAG("post connect fail errCode:%d, pending info:%s"), errCode, connectPendingInfo->ToString().c_str());
         return errCode;
     }
 

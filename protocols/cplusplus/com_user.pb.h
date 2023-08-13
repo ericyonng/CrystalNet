@@ -333,15 +333,16 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     kNameFieldNumber = 3,
     kNicknameFieldNumber = 4,
     kPwdFieldNumber = 5,
-    kLastLoginIpFieldNumber = 8,
-    kLastLoginPhoneImeiFieldNumber = 9,
-    kCreateIpFieldNumber = 10,
-    kCreatePhoneImeiFieldNumber = 12,
-    kBindMailAddrFieldNumber = 13,
+    kPwdSaltFieldNumber = 6,
+    kLastLoginIpFieldNumber = 9,
+    kLastLoginPhoneImeiFieldNumber = 10,
+    kCreateIpFieldNumber = 11,
+    kCreatePhoneImeiFieldNumber = 13,
+    kBindMailAddrFieldNumber = 14,
     kUserIdFieldNumber = 1,
-    kBindPhoneFieldNumber = 6,
-    kLastLoginTimeFieldNumber = 7,
-    kCreateTimeFieldNumber = 11,
+    kBindPhoneFieldNumber = 7,
+    kLastLoginTimeFieldNumber = 8,
+    kCreateTimeFieldNumber = 12,
   };
   // string AccountName = 2;
   void clear_accountname();
@@ -399,7 +400,21 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   std::string* _internal_mutable_pwd();
   public:
 
-  // string LastLoginIp = 8;
+  // string PwdSalt = 6;
+  void clear_pwdsalt();
+  const std::string& pwdsalt() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_pwdsalt(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_pwdsalt();
+  PROTOBUF_NODISCARD std::string* release_pwdsalt();
+  void set_allocated_pwdsalt(std::string* pwdsalt);
+  private:
+  const std::string& _internal_pwdsalt() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_pwdsalt(const std::string& value);
+  std::string* _internal_mutable_pwdsalt();
+  public:
+
+  // string LastLoginIp = 9;
   void clear_lastloginip();
   const std::string& lastloginip() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -413,7 +428,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   std::string* _internal_mutable_lastloginip();
   public:
 
-  // string LastLoginPhoneImei = 9;
+  // string LastLoginPhoneImei = 10;
   void clear_lastloginphoneimei();
   const std::string& lastloginphoneimei() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -427,7 +442,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   std::string* _internal_mutable_lastloginphoneimei();
   public:
 
-  // string CreateIp = 10;
+  // string CreateIp = 11;
   void clear_createip();
   const std::string& createip() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -441,7 +456,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   std::string* _internal_mutable_createip();
   public:
 
-  // string CreatePhoneImei = 12;
+  // string CreatePhoneImei = 13;
   void clear_createphoneimei();
   const std::string& createphoneimei() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -455,7 +470,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   std::string* _internal_mutable_createphoneimei();
   public:
 
-  // string BindMailAddr = 13;
+  // string BindMailAddr = 14;
   void clear_bindmailaddr();
   const std::string& bindmailaddr() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -478,7 +493,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   void _internal_set_userid(uint64_t value);
   public:
 
-  // uint64 BindPhone = 6;
+  // uint64 BindPhone = 7;
   void clear_bindphone();
   uint64_t bindphone() const;
   void set_bindphone(uint64_t value);
@@ -487,7 +502,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   void _internal_set_bindphone(uint64_t value);
   public:
 
-  // sint64 LastLoginTime = 7;
+  // sint64 LastLoginTime = 8;
   void clear_lastlogintime();
   int64_t lastlogintime() const;
   void set_lastlogintime(int64_t value);
@@ -496,7 +511,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   void _internal_set_lastlogintime(int64_t value);
   public:
 
-  // sint64 CreateTime = 11;
+  // sint64 CreateTime = 12;
   void clear_createtime();
   int64_t createtime() const;
   void set_createtime(int64_t value);
@@ -517,6 +532,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr nickname_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr pwd_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr pwdsalt_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr lastloginip_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr lastloginphoneimei_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr createip_;
@@ -1249,7 +1265,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     return *internal_default_instance();
   }
   enum RegisterInfoCase {
-    kUserRegisterInfo = 6,
+    kUserRegisterInfo = 8,
     REGISTERINFO_NOT_SET = 0,
   };
 
@@ -1335,12 +1351,14 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     kPwdFieldNumber = 3,
     kLoginTokenFieldNumber = 4,
     kLoginPhoneImeiFieldNumber = 5,
-    kAppIdFieldNumber = 7,
-    kCypherTextFieldNumber = 8,
-    kOriginTextFieldNumber = 9,
-    kVersionIdFieldNumber = 10,
+    kTargetIpFieldNumber = 6,
+    kAppIdFieldNumber = 9,
+    kCypherTextFieldNumber = 10,
+    kOriginTextFieldNumber = 11,
     kLoginModeFieldNumber = 1,
-    kUserRegisterInfoFieldNumber = 6,
+    kPortFieldNumber = 7,
+    kVersionIdFieldNumber = 12,
+    kUserRegisterInfoFieldNumber = 8,
   };
   // string AccountName = 2;
   void clear_accountname();
@@ -1398,7 +1416,21 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   std::string* _internal_mutable_loginphoneimei();
   public:
 
-  // string AppId = 7;
+  // string TargetIp = 6;
+  void clear_targetip();
+  const std::string& targetip() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_targetip(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_targetip();
+  PROTOBUF_NODISCARD std::string* release_targetip();
+  void set_allocated_targetip(std::string* targetip);
+  private:
+  const std::string& _internal_targetip() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_targetip(const std::string& value);
+  std::string* _internal_mutable_targetip();
+  public:
+
+  // string AppId = 9;
   void clear_appid();
   const std::string& appid() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1412,7 +1444,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   std::string* _internal_mutable_appid();
   public:
 
-  // string cypherText = 8;
+  // string cypherText = 10;
   void clear_cyphertext();
   const std::string& cyphertext() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1426,7 +1458,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   std::string* _internal_mutable_cyphertext();
   public:
 
-  // string originText = 9;
+  // string originText = 11;
   void clear_origintext();
   const std::string& origintext() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1440,15 +1472,6 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   std::string* _internal_mutable_origintext();
   public:
 
-  // uint64 versionId = 10;
-  void clear_versionid();
-  uint64_t versionid() const;
-  void set_versionid(uint64_t value);
-  private:
-  uint64_t _internal_versionid() const;
-  void _internal_set_versionid(uint64_t value);
-  public:
-
   // sint32 LoginMode = 1;
   void clear_loginmode();
   int32_t loginmode() const;
@@ -1458,7 +1481,25 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   void _internal_set_loginmode(int32_t value);
   public:
 
-  // .RegisterUserInfo UserRegisterInfo = 6;
+  // uint32 Port = 7;
+  void clear_port();
+  uint32_t port() const;
+  void set_port(uint32_t value);
+  private:
+  uint32_t _internal_port() const;
+  void _internal_set_port(uint32_t value);
+  public:
+
+  // uint64 versionId = 12;
+  void clear_versionid();
+  uint64_t versionid() const;
+  void set_versionid(uint64_t value);
+  private:
+  uint64_t _internal_versionid() const;
+  void _internal_set_versionid(uint64_t value);
+  public:
+
+  // .RegisterUserInfo UserRegisterInfo = 8;
   bool has_userregisterinfo() const;
   private:
   bool _internal_has_userregisterinfo() const;
@@ -1494,11 +1535,13 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr pwd_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr logintoken_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr loginphoneimei_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr targetip_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr appid_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr cyphertext_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr origintext_;
-    uint64_t versionid_;
     int32_t loginmode_;
+    uint32_t port_;
+    uint64_t versionid_;
     union RegisterInfoUnion {
       constexpr RegisterInfoUnion() : _constinit_{} {}
         ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
@@ -1742,7 +1785,57 @@ inline void UserBaseInfo::set_allocated_pwd(std::string* pwd) {
   // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.Pwd)
 }
 
-// uint64 BindPhone = 6;
+// string PwdSalt = 6;
+inline void UserBaseInfo::clear_pwdsalt() {
+  _impl_.pwdsalt_.ClearToEmpty();
+}
+inline const std::string& UserBaseInfo::pwdsalt() const {
+  // @@protoc_insertion_point(field_get:UserBaseInfo.PwdSalt)
+  return _internal_pwdsalt();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void UserBaseInfo::set_pwdsalt(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.pwdsalt_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:UserBaseInfo.PwdSalt)
+}
+inline std::string* UserBaseInfo::mutable_pwdsalt() {
+  std::string* _s = _internal_mutable_pwdsalt();
+  // @@protoc_insertion_point(field_mutable:UserBaseInfo.PwdSalt)
+  return _s;
+}
+inline const std::string& UserBaseInfo::_internal_pwdsalt() const {
+  return _impl_.pwdsalt_.Get();
+}
+inline void UserBaseInfo::_internal_set_pwdsalt(const std::string& value) {
+  
+  _impl_.pwdsalt_.Set(value, GetArenaForAllocation());
+}
+inline std::string* UserBaseInfo::_internal_mutable_pwdsalt() {
+  
+  return _impl_.pwdsalt_.Mutable(GetArenaForAllocation());
+}
+inline std::string* UserBaseInfo::release_pwdsalt() {
+  // @@protoc_insertion_point(field_release:UserBaseInfo.PwdSalt)
+  return _impl_.pwdsalt_.Release();
+}
+inline void UserBaseInfo::set_allocated_pwdsalt(std::string* pwdsalt) {
+  if (pwdsalt != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.pwdsalt_.SetAllocated(pwdsalt, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.pwdsalt_.IsDefault()) {
+    _impl_.pwdsalt_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.PwdSalt)
+}
+
+// uint64 BindPhone = 7;
 inline void UserBaseInfo::clear_bindphone() {
   _impl_.bindphone_ = uint64_t{0u};
 }
@@ -1762,7 +1855,7 @@ inline void UserBaseInfo::set_bindphone(uint64_t value) {
   // @@protoc_insertion_point(field_set:UserBaseInfo.BindPhone)
 }
 
-// sint64 LastLoginTime = 7;
+// sint64 LastLoginTime = 8;
 inline void UserBaseInfo::clear_lastlogintime() {
   _impl_.lastlogintime_ = int64_t{0};
 }
@@ -1782,7 +1875,7 @@ inline void UserBaseInfo::set_lastlogintime(int64_t value) {
   // @@protoc_insertion_point(field_set:UserBaseInfo.LastLoginTime)
 }
 
-// string LastLoginIp = 8;
+// string LastLoginIp = 9;
 inline void UserBaseInfo::clear_lastloginip() {
   _impl_.lastloginip_.ClearToEmpty();
 }
@@ -1832,7 +1925,7 @@ inline void UserBaseInfo::set_allocated_lastloginip(std::string* lastloginip) {
   // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.LastLoginIp)
 }
 
-// string LastLoginPhoneImei = 9;
+// string LastLoginPhoneImei = 10;
 inline void UserBaseInfo::clear_lastloginphoneimei() {
   _impl_.lastloginphoneimei_.ClearToEmpty();
 }
@@ -1882,7 +1975,7 @@ inline void UserBaseInfo::set_allocated_lastloginphoneimei(std::string* lastlogi
   // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.LastLoginPhoneImei)
 }
 
-// string CreateIp = 10;
+// string CreateIp = 11;
 inline void UserBaseInfo::clear_createip() {
   _impl_.createip_.ClearToEmpty();
 }
@@ -1932,7 +2025,7 @@ inline void UserBaseInfo::set_allocated_createip(std::string* createip) {
   // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.CreateIp)
 }
 
-// sint64 CreateTime = 11;
+// sint64 CreateTime = 12;
 inline void UserBaseInfo::clear_createtime() {
   _impl_.createtime_ = int64_t{0};
 }
@@ -1952,7 +2045,7 @@ inline void UserBaseInfo::set_createtime(int64_t value) {
   // @@protoc_insertion_point(field_set:UserBaseInfo.CreateTime)
 }
 
-// string CreatePhoneImei = 12;
+// string CreatePhoneImei = 13;
 inline void UserBaseInfo::clear_createphoneimei() {
   _impl_.createphoneimei_.ClearToEmpty();
 }
@@ -2002,7 +2095,7 @@ inline void UserBaseInfo::set_allocated_createphoneimei(std::string* createphone
   // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.CreatePhoneImei)
 }
 
-// string BindMailAddr = 13;
+// string BindMailAddr = 14;
 inline void UserBaseInfo::clear_bindmailaddr() {
   _impl_.bindmailaddr_.ClearToEmpty();
 }
@@ -2484,7 +2577,77 @@ inline void LoginInfo::set_allocated_loginphoneimei(std::string* loginphoneimei)
   // @@protoc_insertion_point(field_set_allocated:LoginInfo.LoginPhoneImei)
 }
 
-// .RegisterUserInfo UserRegisterInfo = 6;
+// string TargetIp = 6;
+inline void LoginInfo::clear_targetip() {
+  _impl_.targetip_.ClearToEmpty();
+}
+inline const std::string& LoginInfo::targetip() const {
+  // @@protoc_insertion_point(field_get:LoginInfo.TargetIp)
+  return _internal_targetip();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void LoginInfo::set_targetip(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.targetip_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:LoginInfo.TargetIp)
+}
+inline std::string* LoginInfo::mutable_targetip() {
+  std::string* _s = _internal_mutable_targetip();
+  // @@protoc_insertion_point(field_mutable:LoginInfo.TargetIp)
+  return _s;
+}
+inline const std::string& LoginInfo::_internal_targetip() const {
+  return _impl_.targetip_.Get();
+}
+inline void LoginInfo::_internal_set_targetip(const std::string& value) {
+  
+  _impl_.targetip_.Set(value, GetArenaForAllocation());
+}
+inline std::string* LoginInfo::_internal_mutable_targetip() {
+  
+  return _impl_.targetip_.Mutable(GetArenaForAllocation());
+}
+inline std::string* LoginInfo::release_targetip() {
+  // @@protoc_insertion_point(field_release:LoginInfo.TargetIp)
+  return _impl_.targetip_.Release();
+}
+inline void LoginInfo::set_allocated_targetip(std::string* targetip) {
+  if (targetip != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.targetip_.SetAllocated(targetip, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.targetip_.IsDefault()) {
+    _impl_.targetip_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:LoginInfo.TargetIp)
+}
+
+// uint32 Port = 7;
+inline void LoginInfo::clear_port() {
+  _impl_.port_ = 0u;
+}
+inline uint32_t LoginInfo::_internal_port() const {
+  return _impl_.port_;
+}
+inline uint32_t LoginInfo::port() const {
+  // @@protoc_insertion_point(field_get:LoginInfo.Port)
+  return _internal_port();
+}
+inline void LoginInfo::_internal_set_port(uint32_t value) {
+  
+  _impl_.port_ = value;
+}
+inline void LoginInfo::set_port(uint32_t value) {
+  _internal_set_port(value);
+  // @@protoc_insertion_point(field_set:LoginInfo.Port)
+}
+
+// .RegisterUserInfo UserRegisterInfo = 8;
 inline bool LoginInfo::_internal_has_userregisterinfo() const {
   return RegisterInfo_case() == kUserRegisterInfo;
 }
@@ -2558,7 +2721,7 @@ inline ::RegisterUserInfo* LoginInfo::mutable_userregisterinfo() {
   return _msg;
 }
 
-// string AppId = 7;
+// string AppId = 9;
 inline void LoginInfo::clear_appid() {
   _impl_.appid_.ClearToEmpty();
 }
@@ -2608,7 +2771,7 @@ inline void LoginInfo::set_allocated_appid(std::string* appid) {
   // @@protoc_insertion_point(field_set_allocated:LoginInfo.AppId)
 }
 
-// string cypherText = 8;
+// string cypherText = 10;
 inline void LoginInfo::clear_cyphertext() {
   _impl_.cyphertext_.ClearToEmpty();
 }
@@ -2658,7 +2821,7 @@ inline void LoginInfo::set_allocated_cyphertext(std::string* cyphertext) {
   // @@protoc_insertion_point(field_set_allocated:LoginInfo.cypherText)
 }
 
-// string originText = 9;
+// string originText = 11;
 inline void LoginInfo::clear_origintext() {
   _impl_.origintext_.ClearToEmpty();
 }
@@ -2708,7 +2871,7 @@ inline void LoginInfo::set_allocated_origintext(std::string* origintext) {
   // @@protoc_insertion_point(field_set_allocated:LoginInfo.originText)
 }
 
-// uint64 versionId = 10;
+// uint64 versionId = 12;
 inline void LoginInfo::clear_versionid() {
   _impl_.versionid_ = uint64_t{0u};
 }

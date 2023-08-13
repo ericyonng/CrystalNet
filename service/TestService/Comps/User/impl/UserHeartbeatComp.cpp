@@ -39,10 +39,10 @@ bool UserHeartbeatComp::operator()(const IUser *l, const IUser *r) const
     if(l == r)
         return false;
 
-    if(l->GetHeartbeatTime() == r->GetHeartbeatTime())
+    if(l->GetHeartbeatExpireTime() == r->GetHeartbeatExpireTime())
         return l < r;
 
-    return l->GetHeartbeatTime() < r->GetHeartbeatTime();
+    return l->GetHeartbeatExpireTime() < r->GetHeartbeatExpireTime();
 }
 
 SERVICE_END

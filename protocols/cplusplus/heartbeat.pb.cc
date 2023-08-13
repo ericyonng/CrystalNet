@@ -10,6 +10,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(RegisterNodeResFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(GetNodeListReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(GetNodeListResFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ClientHeartbeatReqFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ClientHeartbeatResFactory);
 
 #include <algorithm>
 
@@ -116,7 +117,20 @@ struct ClientHeartbeatReqDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ClientHeartbeatReqDefaultTypeInternal _ClientHeartbeatReq_default_instance_;
-static ::_pb::Metadata file_level_metadata_heartbeat_2eproto[7];
+PROTOBUF_CONSTEXPR ClientHeartbeatRes::ClientHeartbeatRes(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.servertimems_)*/int64_t{0}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct ClientHeartbeatResDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ClientHeartbeatResDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ClientHeartbeatResDefaultTypeInternal() {}
+  union {
+    ClientHeartbeatRes _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ClientHeartbeatResDefaultTypeInternal _ClientHeartbeatRes_default_instance_;
+static ::_pb::Metadata file_level_metadata_heartbeat_2eproto[8];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_heartbeat_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_heartbeat_2eproto = nullptr;
 
@@ -169,6 +183,13 @@ const uint32_t TableStruct_heartbeat_2eproto::offsets[] PROTOBUF_SECTION_VARIABL
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::ClientHeartbeatRes, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::ClientHeartbeatRes, _impl_.servertimems_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::NodeHeartbeatReq)},
@@ -178,6 +199,7 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 27, -1, -1, sizeof(::GetNodeListReq)},
   { 35, -1, -1, sizeof(::GetNodeListRes)},
   { 42, -1, -1, sizeof(::ClientHeartbeatReq)},
+  { 48, -1, -1, sizeof(::ClientHeartbeatRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -188,6 +210,7 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::_GetNodeListReq_default_instance_._instance,
   &::_GetNodeListRes_default_instance_._instance,
   &::_ClientHeartbeatReq_default_instance_._instance,
+  &::_ClientHeartbeatRes_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_heartbeat_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -199,17 +222,18 @@ const char descriptor_table_protodef_heartbeat_2eproto[] PROTOBUF_SECTION_VARIAB
   "F\n\016GetNodeListReq\022\023\n\013ClusterName\030\001 \001(\t\022\037"
   "\n\027CareNodeServiceNameList\030\002 \003(\t\":\n\016GetNo"
   "deListRes\022(\n\014NodeInfoList\030\001 \003(\0132\022.NodeHe"
-  "artbeatInfo\"\024\n\022ClientHeartbeatReqb\006proto"
-  "3"
+  "artbeatInfo\"\024\n\022ClientHeartbeatReq\"*\n\022Cli"
+  "entHeartbeatRes\022\024\n\014ServerTimeMs\030\001 \001(\022b\006p"
+  "roto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_heartbeat_2eproto_deps[1] = {
   &::descriptor_table_com_5fheartbeat_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_heartbeat_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_heartbeat_2eproto = {
-    false, false, 361, descriptor_table_protodef_heartbeat_2eproto,
+    false, false, 405, descriptor_table_protodef_heartbeat_2eproto,
     "heartbeat.proto",
-    &descriptor_table_heartbeat_2eproto_once, descriptor_table_heartbeat_2eproto_deps, 1, 7,
+    &descriptor_table_heartbeat_2eproto_once, descriptor_table_heartbeat_2eproto_deps, 1, 8,
     schemas, file_default_instances, TableStruct_heartbeat_2eproto::offsets,
     file_level_metadata_heartbeat_2eproto, file_level_enum_descriptors_heartbeat_2eproto,
     file_level_service_descriptors_heartbeat_2eproto,
@@ -1286,6 +1310,184 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ClientHeartbeatReq::GetClassDa
       file_level_metadata_heartbeat_2eproto[6]);
 }
 
+// ===================================================================
+
+class ClientHeartbeatRes::_Internal {
+ public:
+};
+
+ClientHeartbeatRes::ClientHeartbeatRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:ClientHeartbeatRes)
+}
+ClientHeartbeatRes::ClientHeartbeatRes(const ClientHeartbeatRes& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  ClientHeartbeatRes* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.servertimems_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.servertimems_ = from._impl_.servertimems_;
+  // @@protoc_insertion_point(copy_constructor:ClientHeartbeatRes)
+}
+
+inline void ClientHeartbeatRes::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.servertimems_){int64_t{0}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+ClientHeartbeatRes::~ClientHeartbeatRes() {
+  // @@protoc_insertion_point(destructor:ClientHeartbeatRes)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void ClientHeartbeatRes::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void ClientHeartbeatRes::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void ClientHeartbeatRes::Clear() {
+// @@protoc_insertion_point(message_clear_start:ClientHeartbeatRes)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.servertimems_ = int64_t{0};
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* ClientHeartbeatRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // sint64 ServerTimeMs = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.servertimems_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* ClientHeartbeatRes::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:ClientHeartbeatRes)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // sint64 ServerTimeMs = 1;
+  if (this->_internal_servertimems() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(1, this->_internal_servertimems(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:ClientHeartbeatRes)
+  return target;
+}
+
+size_t ClientHeartbeatRes::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:ClientHeartbeatRes)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // sint64 ServerTimeMs = 1;
+  if (this->_internal_servertimems() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_servertimems());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ClientHeartbeatRes::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    ClientHeartbeatRes::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ClientHeartbeatRes::GetClassData() const { return &_class_data_; }
+
+
+void ClientHeartbeatRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<ClientHeartbeatRes*>(&to_msg);
+  auto& from = static_cast<const ClientHeartbeatRes&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:ClientHeartbeatRes)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_servertimems() != 0) {
+    _this->_internal_set_servertimems(from._internal_servertimems());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ClientHeartbeatRes::CopyFrom(const ClientHeartbeatRes& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:ClientHeartbeatRes)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ClientHeartbeatRes::IsInitialized() const {
+  return true;
+}
+
+void ClientHeartbeatRes::InternalSwap(ClientHeartbeatRes* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.servertimems_, other->_impl_.servertimems_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata ClientHeartbeatRes::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_heartbeat_2eproto_getter, &descriptor_table_heartbeat_2eproto_once,
+      file_level_metadata_heartbeat_2eproto[7]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::NodeHeartbeatReq*
@@ -1315,6 +1517,10 @@ Arena::CreateMaybeMessage< ::GetNodeListRes >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::ClientHeartbeatReq*
 Arena::CreateMaybeMessage< ::ClientHeartbeatReq >(Arena* arena) {
   return Arena::CreateMessageInternal< ::ClientHeartbeatReq >(arena);
+}
+template<> PROTOBUF_NOINLINE ::ClientHeartbeatRes*
+Arena::CreateMaybeMessage< ::ClientHeartbeatRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::ClientHeartbeatRes >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

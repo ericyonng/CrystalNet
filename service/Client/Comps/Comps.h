@@ -34,4 +34,5 @@
 #include <service/Client/Comps/StubHandle/StubHandle.h>
 #include <service/Client/Comps/SysLogic/SysLogic.h>
 #include <service/Client/Comps/Test/Test.h>
+#include <Comps/User/user.h>
 

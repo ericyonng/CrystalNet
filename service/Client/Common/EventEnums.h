@@ -35,6 +35,24 @@ namespace EventEnums
     enum 
     {
         TEST_SERVICE_EVENT_BEGIN = EventEnums::EVENT_COMMON_END + 1,
-        
+
+        USER_LOGIN,                     // 用户登录事件
+                                        /* 用户登录事件
+                                        * Attention: 
+                                        * @param(USER_OBJ):IUser * 用户对象
+                                        */
+
+        USER_WILL_LOGOUT,              // 用户登出事件
+                                        /* 用户登出事件
+                                        * Attention: 
+                                        * @param(USER_OBJ):IUser * 用户对象
+                                        */
+
+
+        USER_WILL_REMOVE,               // 用户移除事件
+                                        /* 用户登录事件
+                                        * Attention: 
+                                        * @param(USER_ID): userId 
+                                        */
     };
 }

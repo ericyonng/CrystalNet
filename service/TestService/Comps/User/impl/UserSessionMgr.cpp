@@ -124,7 +124,7 @@ void UserSessionMgr::_RestartHeartbeatTimer()
         return;
 
     auto firstUser = *_userHeartbeatQueue.begin();
-    const auto expireTime = firstUser->GetHeartbeatTime() + _heartbeatExpireTime;
+    const auto expireTime = firstUser->GetHeartbeatExpireTime();
     const auto nowTime = KERNEL_NS::LibTime::NowMilliTimestamp();
     const auto diff = expireTime > nowTime ? (expireTime - nowTime) : 0;
     _heartbeatTimer->Schedule(diff);
@@ -211,7 +211,7 @@ void UserSessionMgr::_OnMsgRecv(KERNEL_NS::LibEvent *ev)
 
     if(user->IsLogined())
     {
-        user->UpdateHeartbeatTime();
+        user->UpdateHeartbeatExpireTime(_heartbeatExpireTime * 1000);
         _AddToHeartbeatQueue(user);
     }
 
@@ -274,11 +274,15 @@ void UserSessionMgr::_OnHeartbeatReq(KERNEL_NS::LibPacket *&packet)
 
     if(user->IsLogined())
     {
-        user->UpdateHeartbeatTime();
+        user->UpdateHeartbeatExpireTime(_heartbeatExpireTime * 1000);
         _AddToHeartbeatQueue(user);
     }
 
     _RestartHeartbeatTimer();
+
+    ClientHeartbeatRes res;
+    res.set_servertimems(KERNEL_NS::LibTime::NowMilliTimestamp());
+    user->Send(Opcodes::OpcodeConst::OPCODE_ClientHeartbeatRes, res, packet->GetPacketId());
 }
 
 void UserSessionMgr::_OnHeartbeatTimeOut(KERNEL_NS::LibTimer *t)
@@ -289,7 +293,7 @@ void UserSessionMgr::_OnHeartbeatTimeOut(KERNEL_NS::LibTimer *t)
     for(auto iter = _userHeartbeatQueue.begin(); iter != _userHeartbeatQueue.end();)
     {
         auto user = *iter;
-        if(user->GetHeartbeatTime() > nowTime)
+        if(user->GetHeartbeatExpireTime() > nowTime)
             break;
 
         iter = _userHeartbeatQueue.erase(iter);

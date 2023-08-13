@@ -24,16 +24,16 @@ public static partial class LoginReflection {
   static LoginReflection() {
     byte[] descriptorData = global::System.Convert.FromBase64String(
         string.Concat(
-          "Cgtsb2dpbi5wcm90bxoPY29tX2xvZ2luLnByb3RvIiwKCExvZ2luUmVxEhQK",
-          "B2FjY291bnQYASABKAlIAIgBAUIKCghfYWNjb3VudCJOCghMb2dpblJlcxIU",
-          "CgdlcnJDb2RlGAEgASgRSACIAQESFAoHYWNjb3VudBgCIAEoCUgBiAEBQgoK",
-          "CF9lcnJDb2RlQgoKCF9hY2NvdW50IjQKDExvZ2luSW5mb050eRINCgVUb2tl",
-          "bhgBIAEoCRIVCg1LZXlFeHBpcmVUaW1lGAIgASgSYgZwcm90bzM="));
+          "Cgtsb2dpbi5wcm90bxoPY29tX2xvZ2luLnByb3RvGg5jb21fdXNlci5wcm90",
+          "byItCghMb2dpblJlcRIhCg1Mb2dpblVzZXJJbmZvGAEgASgLMgouTG9naW5J",
+          "bmZvIj8KCExvZ2luUmVzEg8KB2VyckNvZGUYASABKBESDgoGVXNlcklkGAIg",
+          "ASgEEhIKClNlcnZlclRpbWUYAyABKBIiNAoMTG9naW5JbmZvTnR5Eg0KBVRv",
+          "a2VuGAEgASgJEhUKDUtleUV4cGlyZVRpbWUYAiABKBJiBnByb3RvMw=="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-        new pbr::FileDescriptor[] { global::ComLoginReflection.Descriptor, },
+        new pbr::FileDescriptor[] { global::ComLoginReflection.Descriptor, global::ComUserReflection.Descriptor, },
         new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-          new pbr::GeneratedClrTypeInfo(typeof(global::LoginReq), global::LoginReq.Parser, new[]{ "Account" }, new[]{ "Account" }, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::LoginRes), global::LoginRes.Parser, new[]{ "ErrCode", "Account" }, new[]{ "ErrCode", "Account" }, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::LoginReq), global::LoginReq.Parser, new[]{ "LoginUserInfo" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::LoginRes), global::LoginRes.Parser, new[]{ "ErrCode", "UserId", "ServerTime" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::LoginInfoNty), global::LoginInfoNty.Parser, new[]{ "Token", "KeyExpireTime" }, null, null, null, null)
         }));
   }
@@ -79,7 +79,7 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public LoginReq(LoginReq other) : this() {
-    account_ = other.account_;
+    loginUserInfo_ = other.loginUserInfo_ != null ? other.loginUserInfo_.Clone() : null;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
 
@@ -89,28 +89,16 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
     return new LoginReq(this);
   }
 
-  /// <summary>Field number for the "account" field.</summary>
-  public const int AccountFieldNumber = 1;
-  private string account_;
+  /// <summary>Field number for the "LoginUserInfo" field.</summary>
+  public const int LoginUserInfoFieldNumber = 1;
+  private global::LoginInfo loginUserInfo_;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string Account {
-    get { return account_ ?? ""; }
+  public global::LoginInfo LoginUserInfo {
+    get { return loginUserInfo_; }
     set {
-      account_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      loginUserInfo_ = value;
     }
-  }
-  /// <summary>Gets whether the "account" field is set</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public bool HasAccount {
-    get { return account_ != null; }
-  }
-  /// <summary>Clears the value of the "account" field</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void ClearAccount() {
-    account_ = null;
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -128,7 +116,7 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
     if (ReferenceEquals(other, this)) {
       return true;
     }
-    if (Account != other.Account) return false;
+    if (!object.Equals(LoginUserInfo, other.LoginUserInfo)) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
 
@@ -136,7 +124,7 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override int GetHashCode() {
     int hash = 1;
-    if (HasAccount) hash ^= Account.GetHashCode();
+    if (loginUserInfo_ != null) hash ^= LoginUserInfo.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
     }
@@ -155,9 +143,9 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     output.WriteRawMessage(this);
   #else
-    if (HasAccount) {
+    if (loginUserInfo_ != null) {
       output.WriteRawTag(10);
-      output.WriteString(Account);
+      output.WriteMessage(LoginUserInfo);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(output);
@@ -169,9 +157,9 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (HasAccount) {
+    if (loginUserInfo_ != null) {
       output.WriteRawTag(10);
-      output.WriteString(Account);
+      output.WriteMessage(LoginUserInfo);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(ref output);
@@ -183,8 +171,8 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public int CalculateSize() {
     int size = 0;
-    if (HasAccount) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(Account);
+    if (loginUserInfo_ != null) {
+      size += 1 + pb::CodedOutputStream.ComputeMessageSize(LoginUserInfo);
     }
     if (_unknownFields != null) {
       size += _unknownFields.CalculateSize();
@@ -198,8 +186,11 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
     if (other == null) {
       return;
     }
-    if (other.HasAccount) {
-      Account = other.Account;
+    if (other.loginUserInfo_ != null) {
+      if (loginUserInfo_ == null) {
+        LoginUserInfo = new global::LoginInfo();
+      }
+      LoginUserInfo.MergeFrom(other.LoginUserInfo);
     }
     _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
   }
@@ -217,7 +208,10 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
           break;
         case 10: {
-          Account = input.ReadString();
+          if (loginUserInfo_ == null) {
+            LoginUserInfo = new global::LoginInfo();
+          }
+          input.ReadMessage(LoginUserInfo);
           break;
         }
       }
@@ -236,7 +230,10 @@ public sealed partial class LoginReq : pb::IMessage<LoginReq>
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
           break;
         case 10: {
-          Account = input.ReadString();
+          if (loginUserInfo_ == null) {
+            LoginUserInfo = new global::LoginInfo();
+          }
+          input.ReadMessage(LoginUserInfo);
           break;
         }
       }
@@ -257,7 +254,6 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
 {
   private static readonly pb::MessageParser<LoginRes> _parser = new pb::MessageParser<LoginRes>(() => new LoginRes());
   private pb::UnknownFieldSet _unknownFields;
-  private int _hasBits0;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public static pb::MessageParser<LoginRes> Parser { get { return _parser; } }
@@ -285,9 +281,9 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public LoginRes(LoginRes other) : this() {
-    _hasBits0 = other._hasBits0;
     errCode_ = other.errCode_;
-    account_ = other.account_;
+    userId_ = other.userId_;
+    serverTime_ = other.serverTime_;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
 
@@ -303,47 +299,34 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public int ErrCode {
-    get { if ((_hasBits0 & 1) != 0) { return errCode_; } else { return 0; } }
+    get { return errCode_; }
     set {
-      _hasBits0 |= 1;
       errCode_ = value;
     }
   }
-  /// <summary>Gets whether the "errCode" field is set</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public bool HasErrCode {
-    get { return (_hasBits0 & 1) != 0; }
-  }
-  /// <summary>Clears the value of the "errCode" field</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void ClearErrCode() {
-    _hasBits0 &= ~1;
-  }
 
-  /// <summary>Field number for the "account" field.</summary>
-  public const int AccountFieldNumber = 2;
-  private string account_;
+  /// <summary>Field number for the "UserId" field.</summary>
+  public const int UserIdFieldNumber = 2;
+  private ulong userId_;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string Account {
-    get { return account_ ?? ""; }
+  public ulong UserId {
+    get { return userId_; }
     set {
-      account_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      userId_ = value;
     }
   }
-  /// <summary>Gets whether the "account" field is set</summary>
+
+  /// <summary>Field number for the "ServerTime" field.</summary>
+  public const int ServerTimeFieldNumber = 3;
+  private long serverTime_;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public bool HasAccount {
-    get { return account_ != null; }
-  }
-  /// <summary>Clears the value of the "account" field</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void ClearAccount() {
-    account_ = null;
+  public long ServerTime {
+    get { return serverTime_; }
+    set {
+      serverTime_ = value;
+    }
   }
 
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -362,7 +345,8 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
       return true;
     }
     if (ErrCode != other.ErrCode) return false;
-    if (Account != other.Account) return false;
+    if (UserId != other.UserId) return false;
+    if (ServerTime != other.ServerTime) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
 
@@ -370,8 +354,9 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override int GetHashCode() {
     int hash = 1;
-    if (HasErrCode) hash ^= ErrCode.GetHashCode();
-    if (HasAccount) hash ^= Account.GetHashCode();
+    if (ErrCode != 0) hash ^= ErrCode.GetHashCode();
+    if (UserId != 0UL) hash ^= UserId.GetHashCode();
+    if (ServerTime != 0L) hash ^= ServerTime.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
     }
@@ -390,13 +375,17 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     output.WriteRawMessage(this);
   #else
-    if (HasErrCode) {
+    if (ErrCode != 0) {
       output.WriteRawTag(8);
       output.WriteSInt32(ErrCode);
     }
-    if (HasAccount) {
-      output.WriteRawTag(18);
-      output.WriteString(Account);
+    if (UserId != 0UL) {
+      output.WriteRawTag(16);
+      output.WriteUInt64(UserId);
+    }
+    if (ServerTime != 0L) {
+      output.WriteRawTag(24);
+      output.WriteSInt64(ServerTime);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(output);
@@ -408,13 +397,17 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (HasErrCode) {
+    if (ErrCode != 0) {
       output.WriteRawTag(8);
       output.WriteSInt32(ErrCode);
     }
-    if (HasAccount) {
-      output.WriteRawTag(18);
-      output.WriteString(Account);
+    if (UserId != 0UL) {
+      output.WriteRawTag(16);
+      output.WriteUInt64(UserId);
+    }
+    if (ServerTime != 0L) {
+      output.WriteRawTag(24);
+      output.WriteSInt64(ServerTime);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(ref output);
@@ -426,11 +419,14 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public int CalculateSize() {
     int size = 0;
-    if (HasErrCode) {
+    if (ErrCode != 0) {
       size += 1 + pb::CodedOutputStream.ComputeSInt32Size(ErrCode);
     }
-    if (HasAccount) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(Account);
+    if (UserId != 0UL) {
+      size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UserId);
+    }
+    if (ServerTime != 0L) {
+      size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ServerTime);
     }
     if (_unknownFields != null) {
       size += _unknownFields.CalculateSize();
@@ -444,11 +440,14 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
     if (other == null) {
       return;
     }
-    if (other.HasErrCode) {
+    if (other.ErrCode != 0) {
       ErrCode = other.ErrCode;
     }
-    if (other.HasAccount) {
-      Account = other.Account;
+    if (other.UserId != 0UL) {
+      UserId = other.UserId;
+    }
+    if (other.ServerTime != 0L) {
+      ServerTime = other.ServerTime;
     }
     _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
   }
@@ -469,8 +468,12 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
           ErrCode = input.ReadSInt32();
           break;
         }
-        case 18: {
-          Account = input.ReadString();
+        case 16: {
+          UserId = input.ReadUInt64();
+          break;
+        }
+        case 24: {
+          ServerTime = input.ReadSInt64();
           break;
         }
       }
@@ -492,8 +495,12 @@ public sealed partial class LoginRes : pb::IMessage<LoginRes>
           ErrCode = input.ReadSInt32();
           break;
         }
-        case 18: {
-          Account = input.ReadString();
+        case 16: {
+          UserId = input.ReadUInt64();
+          break;
+        }
+        case 24: {
+          ServerTime = input.ReadSInt64();
           break;
         }
       }

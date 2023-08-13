@@ -26,9 +26,8 @@ namespace _pbi = _pb::internal;
 
 PROTOBUF_CONSTEXPR LoginReq::LoginReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_._has_bits_)*/{}
-  , /*decltype(_impl_._cached_size_)*/{}
-  , /*decltype(_impl_.account_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}} {}
+    /*decltype(_impl_.loginuserinfo_)*/nullptr
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct LoginReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR LoginReqDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -40,10 +39,10 @@ struct LoginReqDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginReqDefaultTypeInternal _LoginReq_default_instance_;
 PROTOBUF_CONSTEXPR LoginRes::LoginRes(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_._has_bits_)*/{}
-  , /*decltype(_impl_._cached_size_)*/{}
-  , /*decltype(_impl_.account_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.errcode_)*/0} {}
+    /*decltype(_impl_.userid_)*/uint64_t{0u}
+  , /*decltype(_impl_.servertime_)*/int64_t{0}
+  , /*decltype(_impl_.errcode_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct LoginResDefaultTypeInternal {
   PROTOBUF_CONSTEXPR LoginResDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -72,24 +71,22 @@ static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_login
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_login_2eproto = nullptr;
 
 const uint32_t TableStruct_login_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::LoginReq, _impl_._has_bits_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::LoginReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::LoginReq, _impl_.account_),
-  0,
-  PROTOBUF_FIELD_OFFSET(::LoginRes, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::LoginReq, _impl_.loginuserinfo_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::LoginRes, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::LoginRes, _impl_.errcode_),
-  PROTOBUF_FIELD_OFFSET(::LoginRes, _impl_.account_),
-  1,
-  0,
+  PROTOBUF_FIELD_OFFSET(::LoginRes, _impl_.userid_),
+  PROTOBUF_FIELD_OFFSET(::LoginRes, _impl_.servertime_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::LoginInfoNty, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -100,9 +97,9 @@ const uint32_t TableStruct_login_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pr
   PROTOBUF_FIELD_OFFSET(::LoginInfoNty, _impl_.keyexpiretime_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 7, -1, sizeof(::LoginReq)},
-  { 8, 16, -1, sizeof(::LoginRes)},
-  { 18, -1, -1, sizeof(::LoginInfoNty)},
+  { 0, -1, -1, sizeof(::LoginReq)},
+  { 7, -1, -1, sizeof(::LoginRes)},
+  { 16, -1, -1, sizeof(::LoginInfoNty)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -112,21 +109,22 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_login_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\013login.proto\032\017com_login.proto\",\n\010LoginR"
-  "eq\022\024\n\007account\030\001 \001(\tH\000\210\001\001B\n\n\010_account\"N\n\010"
-  "LoginRes\022\024\n\007errCode\030\001 \001(\021H\000\210\001\001\022\024\n\007accoun"
-  "t\030\002 \001(\tH\001\210\001\001B\n\n\010_errCodeB\n\n\010_account\"4\n\014"
-  "LoginInfoNty\022\r\n\005Token\030\001 \001(\t\022\025\n\rKeyExpire"
-  "Time\030\002 \001(\022b\006proto3"
+  "\n\013login.proto\032\017com_login.proto\032\016com_user"
+  ".proto\"-\n\010LoginReq\022!\n\rLoginUserInfo\030\001 \001("
+  "\0132\n.LoginInfo\"\?\n\010LoginRes\022\017\n\007errCode\030\001 \001"
+  "(\021\022\016\n\006UserId\030\002 \001(\004\022\022\n\nServerTime\030\003 \001(\022\"4"
+  "\n\014LoginInfoNty\022\r\n\005Token\030\001 \001(\t\022\025\n\rKeyExpi"
+  "reTime\030\002 \001(\022b\006proto3"
   ;
-static const ::_pbi::DescriptorTable* const descriptor_table_login_2eproto_deps[1] = {
+static const ::_pbi::DescriptorTable* const descriptor_table_login_2eproto_deps[2] = {
   &::descriptor_table_com_5flogin_2eproto,
+  &::descriptor_table_com_5fuser_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_login_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_login_2eproto = {
-    false, false, 218, descriptor_table_protodef_login_2eproto,
+    false, false, 220, descriptor_table_protodef_login_2eproto,
     "login.proto",
-    &descriptor_table_login_2eproto_once, descriptor_table_login_2eproto_deps, 1, 3,
+    &descriptor_table_login_2eproto_once, descriptor_table_login_2eproto_deps, 2, 3,
     schemas, file_default_instances, TableStruct_login_2eproto::offsets,
     file_level_metadata_login_2eproto, file_level_enum_descriptors_login_2eproto,
     file_level_service_descriptors_login_2eproto,
@@ -142,12 +140,19 @@ PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_in
 
 class LoginReq::_Internal {
  public:
-  using HasBits = decltype(std::declval<LoginReq>()._impl_._has_bits_);
-  static void set_has_account(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
+  static const ::LoginInfo& loginuserinfo(const LoginReq* msg);
 };
 
+const ::LoginInfo&
+LoginReq::_Internal::loginuserinfo(const LoginReq* msg) {
+  return *msg->_impl_.loginuserinfo_;
+}
+void LoginReq::clear_loginuserinfo() {
+  if (GetArenaForAllocation() == nullptr && _impl_.loginuserinfo_ != nullptr) {
+    delete _impl_.loginuserinfo_;
+  }
+  _impl_.loginuserinfo_ = nullptr;
+}
 LoginReq::LoginReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -158,18 +163,12 @@ LoginReq::LoginReq(const LoginReq& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   LoginReq* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_._has_bits_){from._impl_._has_bits_}
-    , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.account_){}};
+      decltype(_impl_.loginuserinfo_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  _impl_.account_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.account_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_account()) {
-    _this->_impl_.account_.Set(from._internal_account(), 
-      _this->GetArenaForAllocation());
+  if (from._internal_has_loginuserinfo()) {
+    _this->_impl_.loginuserinfo_ = new ::LoginInfo(*from._impl_.loginuserinfo_);
   }
   // @@protoc_insertion_point(copy_constructor:LoginReq)
 }
@@ -179,14 +178,9 @@ inline void LoginReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_._has_bits_){}
+      decltype(_impl_.loginuserinfo_){nullptr}
     , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.account_){}
   };
-  _impl_.account_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.account_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 LoginReq::~LoginReq() {
@@ -200,7 +194,7 @@ LoginReq::~LoginReq() {
 
 inline void LoginReq::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.account_.Destroy();
+  if (this != internal_default_instance()) delete _impl_.loginuserinfo_;
 }
 
 void LoginReq::SetCachedSize(int size) const {
@@ -213,28 +207,24 @@ void LoginReq::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    _impl_.account_.ClearNonDefaultToEmpty();
+  if (GetArenaForAllocation() == nullptr && _impl_.loginuserinfo_ != nullptr) {
+    delete _impl_.loginuserinfo_;
   }
-  _impl_._has_bits_.Clear();
+  _impl_.loginuserinfo_ = nullptr;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* LoginReq::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  _Internal::HasBits has_bits{};
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // optional string account = 1;
+      // .LoginInfo LoginUserInfo = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
-          auto str = _internal_mutable_account();
-          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          ptr = ctx->ParseMessage(_internal_mutable_loginuserinfo(), ptr);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "LoginReq.account"));
         } else
           goto handle_unusual;
         continue;
@@ -254,7 +244,6 @@ const char* LoginReq::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
     CHK_(ptr != nullptr);
   }  // while
 message_done:
-  _impl_._has_bits_.Or(has_bits);
   return ptr;
 failure:
   ptr = nullptr;
@@ -268,14 +257,11 @@ uint8_t* LoginReq::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // optional string account = 1;
-  if (_internal_has_account()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_account().data(), static_cast<int>(this->_internal_account().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "LoginReq.account");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_account(), target);
+  // .LoginInfo LoginUserInfo = 1;
+  if (this->_internal_has_loginuserinfo()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(1, _Internal::loginuserinfo(this),
+        _Internal::loginuserinfo(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -294,12 +280,11 @@ size_t LoginReq::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // optional string account = 1;
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  // .LoginInfo LoginUserInfo = 1;
+  if (this->_internal_has_loginuserinfo()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_account());
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *_impl_.loginuserinfo_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -320,8 +305,9 @@ void LoginReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_account()) {
-    _this->_internal_set_account(from._internal_account());
+  if (from._internal_has_loginuserinfo()) {
+    _this->_internal_mutable_loginuserinfo()->::LoginInfo::MergeFrom(
+        from._internal_loginuserinfo());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -339,14 +325,8 @@ bool LoginReq::IsInitialized() const {
 
 void LoginReq::InternalSwap(LoginReq* other) {
   using std::swap;
-  auto* lhs_arena = GetArenaForAllocation();
-  auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &_impl_.account_, lhs_arena,
-      &other->_impl_.account_, rhs_arena
-  );
+  swap(_impl_.loginuserinfo_, other->_impl_.loginuserinfo_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata LoginReq::GetMetadata() const {
@@ -359,13 +339,6 @@ void LoginReq::InternalSwap(LoginReq* other) {
 
 class LoginRes::_Internal {
  public:
-  using HasBits = decltype(std::declval<LoginRes>()._impl_._has_bits_);
-  static void set_has_errcode(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_account(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
 };
 
 LoginRes::LoginRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -378,21 +351,15 @@ LoginRes::LoginRes(const LoginRes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   LoginRes* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_._has_bits_){from._impl_._has_bits_}
-    , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.account_){}
-    , decltype(_impl_.errcode_){}};
+      decltype(_impl_.userid_){}
+    , decltype(_impl_.servertime_){}
+    , decltype(_impl_.errcode_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  _impl_.account_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.account_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (from._internal_has_account()) {
-    _this->_impl_.account_.Set(from._internal_account(), 
-      _this->GetArenaForAllocation());
-  }
-  _this->_impl_.errcode_ = from._impl_.errcode_;
+  ::memcpy(&_impl_.userid_, &from._impl_.userid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.errcode_) -
+    reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.errcode_));
   // @@protoc_insertion_point(copy_constructor:LoginRes)
 }
 
@@ -401,15 +368,11 @@ inline void LoginRes::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_._has_bits_){}
-    , /*decltype(_impl_._cached_size_)*/{}
-    , decltype(_impl_.account_){}
+      decltype(_impl_.userid_){uint64_t{0u}}
+    , decltype(_impl_.servertime_){int64_t{0}}
     , decltype(_impl_.errcode_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
   };
-  _impl_.account_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.account_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 LoginRes::~LoginRes() {
@@ -423,7 +386,6 @@ LoginRes::~LoginRes() {
 
 inline void LoginRes::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.account_.Destroy();
 }
 
 void LoginRes::SetCachedSize(int size) const {
@@ -436,38 +398,39 @@ void LoginRes::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    _impl_.account_.ClearNonDefaultToEmpty();
-  }
-  _impl_.errcode_ = 0;
-  _impl_._has_bits_.Clear();
+  ::memset(&_impl_.userid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.errcode_) -
+      reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.errcode_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* LoginRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  _Internal::HasBits has_bits{};
   while (!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // optional sint32 errCode = 1;
+      // sint32 errCode = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _Internal::set_has_errcode(&has_bits);
           _impl_.errcode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // optional string account = 2;
+      // uint64 UserId = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
-          auto str = _internal_mutable_account();
-          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "LoginRes.account"));
+        } else
+          goto handle_unusual;
+        continue;
+      // sint64 ServerTime = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _impl_.servertime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
+          CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
@@ -487,7 +450,6 @@ const char* LoginRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
     CHK_(ptr != nullptr);
   }  // while
 message_done:
-  _impl_._has_bits_.Or(has_bits);
   return ptr;
 failure:
   ptr = nullptr;
@@ -501,20 +463,22 @@ uint8_t* LoginRes::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // optional sint32 errCode = 1;
-  if (_internal_has_errcode()) {
+  // sint32 errCode = 1;
+  if (this->_internal_errcode() != 0) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_errcode(), target);
   }
 
-  // optional string account = 2;
-  if (_internal_has_account()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_account().data(), static_cast<int>(this->_internal_account().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "LoginRes.account");
-    target = stream->WriteStringMaybeAliased(
-        2, this->_internal_account(), target);
+  // uint64 UserId = 2;
+  if (this->_internal_userid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_userid(), target);
+  }
+
+  // sint64 ServerTime = 3;
+  if (this->_internal_servertime() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(3, this->_internal_servertime(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -533,21 +497,21 @@ size_t LoginRes::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    // optional string account = 2;
-    if (cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_account());
-    }
-
-    // optional sint32 errCode = 1;
-    if (cached_has_bits & 0x00000002u) {
-      total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_errcode());
-    }
-
+  // uint64 UserId = 2;
+  if (this->_internal_userid() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_userid());
   }
+
+  // sint64 ServerTime = 3;
+  if (this->_internal_servertime() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_servertime());
+  }
+
+  // sint32 errCode = 1;
+  if (this->_internal_errcode() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_errcode());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -566,15 +530,14 @@ void LoginRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
-      _this->_internal_set_account(from._internal_account());
-    }
-    if (cached_has_bits & 0x00000002u) {
-      _this->_impl_.errcode_ = from._impl_.errcode_;
-    }
-    _this->_impl_._has_bits_[0] |= cached_has_bits;
+  if (from._internal_userid() != 0) {
+    _this->_internal_set_userid(from._internal_userid());
+  }
+  if (from._internal_servertime() != 0) {
+    _this->_internal_set_servertime(from._internal_servertime());
+  }
+  if (from._internal_errcode() != 0) {
+    _this->_internal_set_errcode(from._internal_errcode());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -592,15 +555,13 @@ bool LoginRes::IsInitialized() const {
 
 void LoginRes::InternalSwap(LoginRes* other) {
   using std::swap;
-  auto* lhs_arena = GetArenaForAllocation();
-  auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &_impl_.account_, lhs_arena,
-      &other->_impl_.account_, rhs_arena
-  );
-  swap(_impl_.errcode_, other->_impl_.errcode_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(LoginRes, _impl_.errcode_)
+      + sizeof(LoginRes::_impl_.errcode_)
+      - PROTOBUF_FIELD_OFFSET(LoginRes, _impl_.userid_)>(
+          reinterpret_cast<char*>(&_impl_.userid_),
+          reinterpret_cast<char*>(&other->_impl_.userid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata LoginRes::GetMetadata() const {

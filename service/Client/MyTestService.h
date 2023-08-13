@@ -108,6 +108,8 @@ protected:
     KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode);
     const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode) const;
 
+    virtual void _OnEventLoopStart() override;
+
 private:
     void _Clear();
     void _OnFrameTimer(KERNEL_NS::LibTimer *timer);

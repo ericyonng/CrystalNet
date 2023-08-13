@@ -106,26 +106,87 @@ Int32 LoginMgr::CheckLogin(const PendingUser *pendingUser) const
         return Status::Success;
     }
 
-    // TODO:
-    const auto &nowTime = KERNEL_NS::LibTime::Now();
-    if(_loginInfo->keyexpiretime() <= nowTime.GetSecTimestamp())
+    auto &rsa = _userMgr->GetRsa();
+    auto &loginInfo = *pendingUser->_loginInfo;
+    if(loginInfo.cyphertext().empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("key expired user:%s, pendingUser:%s")
-        , GetUser()->ToString().c_str(), pendingUser->ToString().c_str());
-        return Status::TokenExpired;
+        g_Log->Warn(LOGFMT_OBJ_TAG("cypher test is empty user:%s"), _userOwner->ToString().c_str());
+        return Status::Failed;
+    }
+
+    const auto &cypherRaw = KERNEL_NS::LibBase64::Decode(loginInfo.cyphertext());
+    if(cypherRaw.empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("cypher test is empty user:%s"), _userOwner->ToString().c_str());
+        return Status::Failed;
+    }
+    KERNEL_NS::LibString textRaw;
+    rsa.PrivateKeyDecrypt(cypherRaw, textRaw);
+    if(textRaw.empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("client not no author user:%s"), _userOwner->ToString().c_str());
+        return Status::Failed;
+    }
+    const auto &encodeText = KERNEL_NS::LibBase64::Encode(textRaw);
+    if(encodeText.GetRaw() != loginInfo.origintext())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("client not no author user:%s"), _userOwner->ToString().c_str());
+        return Status::Failed;
     }
 
     // TODO:
-    auto userBaseInfo = _userOwner->GetUserBaseInfo();
-    KERNEL_NS::LibString buildToken = userBaseInfo->lastloginphoneimei() + userBaseInfo->lastloginip() + KERNEL_NS::StringUtil::Num2Str(GetUser()->GetUserId()) + _loginInfo->key();
-    buildToken = KERNEL_NS::LibDigest::MakeSha1(buildToken);
-    buildToken = KERNEL_NS::LibBase64::Encode(buildToken);
-    if(buildToken != pendingUser->_loginInfo->logintoken())
+    const auto &nowTime = KERNEL_NS::LibTime::Now();
+    if(pendingUser->_loginInfo->loginmode() == LoginMode::USE_LOGIN_TOKEN)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("token error user:%s, pending:%s")
+        if(_loginInfo->keyexpiretime() <= nowTime.GetSecTimestamp())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("key expired user:%s, pendingUser:%s")
             , GetUser()->ToString().c_str(), pendingUser->ToString().c_str());
-        return Status::TokenError;
+            return Status::TokenExpired;
+        }
+
+        auto userBaseInfo = _userOwner->GetUserBaseInfo();
+        const auto keyText = KERNEL_NS::LibBase64::Decode(_loginInfo->key());
+        KERNEL_NS::LibString buildToken = userBaseInfo->lastloginphoneimei() + userBaseInfo->lastloginip() + KERNEL_NS::StringUtil::Num2Str(GetUser()->GetUserId()) + keyText;
+        buildToken = KERNEL_NS::LibDigest::MakeSha256(buildToken);
+        buildToken = KERNEL_NS::LibBase64::Encode(buildToken);
+        if(buildToken != pendingUser->_loginInfo->logintoken())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("token error user:%s, pending:%s")
+                , GetUser()->ToString().c_str(), pendingUser->ToString().c_str());
+            return Status::TokenError;
+        }
     }
+    else
+    {// 校验密码
+        if(pendingUser->_loginInfo->pwd().empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("pwd invalid user:%s"), _userOwner->ToString().c_str());
+            return Status::InvalidPwd;
+        }
+
+        auto userInfo = _userOwner->GetUserBaseInfo();
+        // 还原密码
+        const auto cypherPwd = KERNEL_NS::LibBase64::Decode(pendingUser->_loginInfo->pwd());
+        KERNEL_NS::LibString pwd;
+        rsa.PrivateKeyDecrypt(cypherPwd, pwd);
+        if(pwd.empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("pwd empty user:%s"), _userOwner->ToString().c_str());
+            return Status::InvalidPwd;
+        }
+
+        const auto &salt = KERNEL_NS::LibBase64::Decode(userInfo->pwdsalt());
+        pwd.GetRaw().insert(pwd.size() / 2, salt.GetRaw());
+        const auto &merge = KERNEL_NS::LibDigest::MakeSha256(pwd);
+        const auto &encodePwd = KERNEL_NS::LibBase64::Encode(merge);
+        if(userInfo->pwd() != encodePwd.GetRaw())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("invalid pwd user:%s"), _userOwner->ToString().c_str());
+            return Status::InvalidPwd;
+        }
+    }
+
     return Status::Success;
 }
 
@@ -181,15 +242,26 @@ void LoginMgr::_Update(bool isNty)
         if(keyText.GetRaw() != _loginInfo->key())
             break;
     }
-    _loginInfo->set_key(keyText.GetRaw());
+    auto encodeKeyText = KERNEL_NS::LibBase64::Encode(keyText);
+    _loginInfo->set_key(encodeKeyText.GetRaw());
 
     // 过期时间
     auto expireConfig = conmmonConfigMgr->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_EXPIRE_TIME);
     const auto &expireTime = KERNEL_NS::LibTime::Now() + KERNEL_NS::TimeSlice::FromSeconds(static_cast<Int64>(expireConfig->_value));
     _loginInfo->set_keyexpiretime(expireTime.GetSecTimestamp());  
 
-    // TODO:sha1(imei + ip + userid + key)
-    // _loginInfo->set_token();
+    // TODO:sha256(imei + ip + userid + key)
+    auto addr = _userOwner->GetUserAddr();
+    const auto &imei = _userOwner->GetUserBaseInfo()->lastloginphoneimei();
+    KERNEL_NS::LibString token;
+    token.AppendData(imei.c_str(), static_cast<Int64>(imei.size()));
+    token.AppendData(addr->_ip)
+    .AppendFormat("%llu", _userOwner->GetUserId());
+    token.AppendData(keyText);
+
+    const auto &temp = KERNEL_NS::LibDigest::MakeSha256(token);
+    const auto &finalToken = KERNEL_NS::LibBase64::Encode(temp);
+    _loginInfo->set_token(finalToken.GetRaw());
 
     MaskDirty();
 

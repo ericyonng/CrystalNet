@@ -100,16 +100,41 @@ void UserMgr::OnStartup()
     KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> loginInfo = CRYSTAL_NEW(LoginInfo);
     loginInfo->set_loginmode(LoginMode::REGISTER);
     loginInfo->set_accountname(randAccount.GetRaw());
-    loginInfo->set_pwd("123456");
+    
+    KERNEL_NS::LibString pwd;
+    KERNEL_NS::LibString pwdText = "12345678";
+    _rsa.PubKeyEncrypt(pwdText, pwd);
+    auto newPwd = KERNEL_NS::LibBase64::Encode(pwd);
+    auto tempPwd = KERNEL_NS::LibBase64::Decode(newPwd);
+    
+    if(tempPwd.size() < 128)
+        tempPwd.resize(128);
+    KERNEL_NS::LibString coverPwd;
+    _rsa.PrivateKeyDecrypt(tempPwd, coverPwd);
+
+    loginInfo->set_pwd(newPwd.GetRaw());
+
     loginInfo->set_logintoken("123456");
     loginInfo->set_loginphoneimei("123456");
     loginInfo->set_appid("123456");
-    loginInfo->set_cyphertext("123456");
-    loginInfo->set_origintext("123456");
+
+    KERNEL_NS::LibString randText = "123456";
+    KERNEL_NS::LibString cypherText;
+    _rsa.PubKeyEncrypt(randText, cypherText);
+    auto newCypherText = KERNEL_NS::LibBase64::Encode(cypherText);
+    auto cypherTextTemp = KERNEL_NS::LibBase64::Decode(newCypherText);
+    if(cypherTextTemp.size() < 128)
+        cypherTextTemp.resize(128);
+
+    KERNEL_NS::LibString coverText;
+    _rsa.PrivateKeyDecrypt(cypherTextTemp, coverText);
+
+    loginInfo->set_cyphertext(newCypherText.GetRaw());
+    loginInfo->set_origintext(randText.GetRaw());
     loginInfo->set_versionid(10101);
     auto registerInfo = loginInfo->mutable_userregisterinfo();
     registerInfo->set_accountname("test_eric");
-    registerInfo->set_pwd("123456");
+    registerInfo->set_pwd(newPwd.GetRaw());
     registerInfo->set_nickname("123456");
     registerInfo->set_createphoneimei("123456");
     auto err = LoginBy(0, loginInfo, [this](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
@@ -290,8 +315,12 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
             if(user->IsLogined())
                 user->Logout();
 
-            user->OnLogin();
             user->BindSession(pendingInfo->_sessionId);
+            user->OnLogin();
+
+            if(LIKELY(cb))
+                cb->Invoke(Status::Success, pendingInfo, user, var);
+
             user->OnLoginFinish();
         }
 
@@ -307,8 +336,8 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
     user->UpdateLrtTime();
     _AddToLru(user);
 
-    if(LIKELY(cb))
-        cb->Invoke(Status::Success, pendingInfo, user, var);
+    // if(LIKELY(cb))
+    //     cb->Invoke(Status::Success, pendingInfo, user, var);
 
     g_Log->Info(LOGFMT_OBJ_TAG("user already onlin user :%s, pending:%s"), user->ToString().c_str(), pendingInfo->ToString().c_str());
 
@@ -473,6 +502,11 @@ void UserMgr::AddUserBySessionId(UInt64 sessionId, IUser *user)
     _sessionIdRefUser.insert(std::make_pair(sessionId, user));
 }
 
+KERNEL_NS::LibRsa &UserMgr::GetRsa() const
+{
+    return _rsa;
+}
+
 Int32 UserMgr::_OnGlobalSysInit()
 {
     auto ini = GetApp()->GetIni();
@@ -482,8 +516,29 @@ Int32 UserMgr::_OnGlobalSysInit()
         return Status::Failed;
     }
 
+    if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "RsaPrivateKey", _rsaPrivateKey))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:RsaPrivateKey config in ini:%s"), GetService()->GetServiceName().c_str(), ini->GetPath().c_str());
+        return Status::Failed;
+    }
+    if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "RsaPublicKey", _rsaPubKey))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:RsaPublicKey config in ini:%s"), GetService()->GetServiceName().c_str(), ini->GetPath().c_str());
+        return Status::Failed;
+    }
+    _rsaPrivateKeyRaw = KERNEL_NS::LibBase64::Decode(_rsaPrivateKey);
+    _rsaPubKeyRaw = KERNEL_NS::LibBase64::Decode(_rsaPubKey);
+    if(!_rsa.ImportKey(&_rsaPubKeyRaw, &_rsaPrivateKeyRaw))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("ImportKey fail _rsaPrivateKey:%s, _rsaPubKey:%s")
+        , _rsaPrivateKey.c_str(), _rsaPubKey.c_str());
+        return Status::Failed;
+    }
+
     auto commonMgr = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>();
     _lruCapacityLimit = commonMgr->GetConfigById(CommonConfigIdEnums::USER_LRU_CAPACITY_LIMIT)->_value;
+
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginReq, this, &UserMgr::_OnClientLoginReq);
 
     return Status::Success;
 }
@@ -598,7 +653,7 @@ void UserMgr::_LruPopUser()
 
     // 即将移除user
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_WILL_REMOVE);
-    ev->SetParam(Params::USER_ID, expiredlUser->CastTo<IUser>());
+    ev->SetParam(Params::USER_ID, expiredlUser->GetUserId());
     GetEventMgr()->FireEvent(ev);
 
     _RemoveUser(expiredlUser);
@@ -657,8 +712,12 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
                 if(user->IsLogined())
                     user->Logout();
 
-                user->OnLogin();
                 user->BindSession(pendingUser->_sessionId);
+                user->OnLogin();
+
+                if(LIKELY(pendingUser->_cb))
+                    pendingUser->_cb->Invoke(err, pendingUser, user, pendingUser->_var);
+
                 user->OnLoginFinish();
             }
 
@@ -669,11 +728,11 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
             baseInfo->set_lastloginip(addr->_ip.GetRaw());
         }
-
-        // TODO:记录登录信息
-
-        if(LIKELY(pendingUser->_cb))
-            pendingUser->_cb->Invoke(err, pendingUser, user, pendingUser->_var);
+        else
+        {
+            if(LIKELY(pendingUser->_cb))
+                pendingUser->_cb->Invoke(err, pendingUser, user, pendingUser->_var);
+        }
 
         if(!pendingUser->_byAccountName.empty())
         {
@@ -682,6 +741,28 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
         else
         {
             _RemovePendingInfo(pendingUser->_byUserId);
+        }
+
+        // 处理其他回调
+        {
+            auto pendingByAccount = _GetPendingByAccount(user->GetUserBaseInfo()->accountname());
+            if(UNLIKELY(pendingByAccount))
+            {
+                if(pendingByAccount->_cb)
+                    pendingByAccount->_cb->Invoke(Status::Success, pendingByAccount, user, pendingByAccount->_var);
+            
+                _RemovePendingInfo(user->GetUserBaseInfo()->accountname());
+            }
+        }
+        {
+            auto pendingByAccount = _GetPendingByUserId(user->GetUserId());
+            if(UNLIKELY(pendingByAccount))
+            {
+                if(pendingByAccount->_cb)
+                    pendingByAccount->_cb->Invoke(Status::Success, pendingByAccount, user, pendingByAccount->_var);
+            
+                _RemovePendingInfo(user->GetUserId());
+            }
         }
 
         return;
@@ -740,7 +821,7 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             }
 
             // 校验注册信息
-            err = _CheckRegisterInfo(pendingUser->_loginInfo->userregisterinfo());
+            err = _CheckRegisterInfo(*(pendingUser->_loginInfo));
             if(err != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("check regiseter info fail err:%d pending info:%s"), err, pendingUser->ToString().c_str());
@@ -766,7 +847,7 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             auto baseInfo = u->GetUserBaseInfo();
             baseInfo->set_accountname(registerInfo.accountname());
             baseInfo->set_nickname(registerInfo.nickname());
-            baseInfo->set_pwd(registerInfo.pwd());
+            _BuildPwd(baseInfo, registerInfo.pwd());
             baseInfo->set_createtime(curTime.GetMilliTimestamp());
             baseInfo->set_createphoneimei(registerInfo.createphoneimei());
 
@@ -875,6 +956,8 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 
     if(err != Status::Success)
     {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user fail err:%d, pending info:%s"), err, pendingUser->ToString().c_str());
+
         if(LIKELY(pendingUser->_cb))
         {
             pendingUser->_cb->Invoke(err, pendingUser, NULL, pendingUser->_var);
@@ -892,6 +975,8 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
         return;
     }
 
+    user->BindSession(pendingUser->_sessionId);
+
     // 创建user
     if((!isAlreadyExists) && pendingUser->_loginInfo && (pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER))
     {
@@ -902,7 +987,18 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     if(pendingUser->_sessionId)
     {
         user->OnLogin();
-        user->BindSession(pendingUser->_sessionId);
+        // 处理回调
+        if(LIKELY(pendingUser->_cb))
+        {
+            if(isAlreadyExists && pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER)
+            {
+                pendingUser->_cb->Invoke(Status::UserAllReadyExistsCantRegisterAgain, pendingUser, user, pendingUser->_var);
+            }
+            else
+            {
+                pendingUser->_cb->Invoke(Status::Success, pendingUser, user, pendingUser->_var);
+            }
+        }
         user->OnLoginFinish();
     }
 
@@ -936,17 +1032,19 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
         ev->SetParam(Params::USER_OBJ, user);
         GetEventMgr()->FireEvent(ev);
     }
-
-    // 处理回调
-    if(LIKELY(pendingUser->_cb))
+    else
     {
-        if(isAlreadyExists && pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER)
+        // 处理回调
+        if(LIKELY(pendingUser->_cb))
         {
-            pendingUser->_cb->Invoke(Status::UserAllReadyExistsCantRegisterAgain, pendingUser, user, pendingUser->_var);
-        }
-        else
-        {
-            pendingUser->_cb->Invoke(Status::Success, pendingUser, user, pendingUser->_var);
+            if(isAlreadyExists && pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER)
+            {
+                pendingUser->_cb->Invoke(Status::UserAllReadyExistsCantRegisterAgain, pendingUser, user, pendingUser->_var);
+            }
+            else
+            {
+                pendingUser->_cb->Invoke(Status::Success, pendingUser, user, pendingUser->_var);
+            }
         }
     }
 
@@ -985,12 +1083,148 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     _LruPopUser();
 }
 
-Int32 UserMgr::_CheckRegisterInfo(const RegisterUserInfo &regiseterInfo) const
+Int32 UserMgr::_CheckRegisterInfo(const LoginInfo &loginInfo) const
 {
+    auto &regiseterInfo = loginInfo.userregisterinfo();
+    if(!KERNEL_NS::StringUtil::IsUtf8String(regiseterInfo.accountname()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("account name not utf8:%s"), regiseterInfo.accountname().c_str());
+        return Status::InvalidChar;
+    }
+    if((!regiseterInfo.nickname().empty()) && (!KERNEL_NS::StringUtil::IsUtf8String(regiseterInfo.nickname())))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("nick name not utf8:%s"), regiseterInfo.nickname().c_str());
+        return Status::InvalidChar;
+    }
+    if(regiseterInfo.pwd().empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("pwd empty"));
+        return Status::Failed;
+    }
+    if(regiseterInfo.createphoneimei().empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("imei empty"));
+        return Status::Failed;
+    }
+
+    {// 只能英文数字 + _
+       KERNEL_NS::LibString str = regiseterInfo.accountname();
+        const Int32 len = static_cast<Int32>(str.size());
+        for(Int32 idx = 0; idx < len; ++idx)
+        {
+            auto &ch = str[idx];
+            if((!KERNEL_NS::LibString::isalpha(ch)) && 
+                (!KERNEL_NS::LibString::isdigit(ch)) && 
+                (ch != '_'))
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("account name invalid char :%s")
+                , regiseterInfo.accountname().c_str());
+                return Status::InvalidChar;
+            }
+        }
+    }
+
+    // 密码需要解成明文, 检查格式再加密成sha1
+    auto pwdRaw = KERNEL_NS::LibBase64::Decode(regiseterInfo.pwd());
+    if(pwdRaw.empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("invalid pwd empty"));
+        return Status::Failed;
+    }
+
+    KERNEL_NS::LibString plainPwdText;
+    _rsa.PrivateKeyDecrypt(pwdRaw, plainPwdText);
+    if(UNLIKELY(plainPwdText.empty()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("pwd empty"));
+        return Status::Failed;
+    }
+
+    auto commonConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_CHAR_COUNT);
+    if(static_cast<Int32>(plainPwdText.length()) < commonConfig->_value)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("pwd less than :%d, size:%d plainPwdText:%s")
+                , commonConfig->_value, static_cast<Int32>(plainPwdText.length())
+                , plainPwdText.c_str());
+
+        return Status::Failed;
+    }
+
+    if(loginInfo.cyphertext().empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("cypher test is empty"));
+        return Status::Failed;
+    }
+
+    const auto &cypherRaw = KERNEL_NS::LibBase64::Decode(loginInfo.cyphertext());
+    if(cypherRaw.empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("cypher test is empty"));
+        return Status::Failed;
+    }
+    KERNEL_NS::LibString textRaw;
+    _rsa.PrivateKeyDecrypt(cypherRaw, textRaw);
+    if(textRaw.empty())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("client not no author"));
+        return Status::Failed;
+    }
+    if(textRaw.GetRaw() != loginInfo.origintext())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("client not no author"));
+        return Status::Failed;
+    }
+
     // TODO: 有没有被封禁ip, 有没有被封禁设备id,得添加一个封禁模块(BanMgr)
     // 密码是否合法:至少8个字符
     // 设备imei
     return Status::Success;
+}
+
+void UserMgr::_BuildPwd(UserBaseInfo *baseInfo, const std::string &pwd)
+{
+    auto pwdRaw = KERNEL_NS::LibBase64::Decode(pwd);
+    KERNEL_NS::LibString plainPwdText;
+    _rsa.PrivateKeyDecrypt(pwdRaw, plainPwdText);
+
+    // pwd = base64(sha256(pwd + salt))
+    KERNEL_NS::LibString saltKey;
+    KERNEL_NS::CypherGeneratorUtil::Gen<KERNEL_NS::_Build::TL>(saltKey, 8);
+    auto encodeKey = KERNEL_NS::LibBase64::Encode(saltKey);
+    baseInfo->set_pwdsalt(encodeKey.GetRaw());
+
+    plainPwdText.GetRaw().insert(plainPwdText.size()/2, saltKey.GetRaw());
+    KERNEL_NS::LibString finalPwd = KERNEL_NS::LibDigest::MakeSha256(plainPwdText);
+    finalPwd = KERNEL_NS::LibBase64::Encode(finalPwd);
+    baseInfo->set_pwd(finalPwd.GetRaw());
+}
+
+void UserMgr::_OnClientLoginReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto req = packet->GetCoder<LoginReq>();
+    auto sessionId = packet->GetSessionId();
+
+    KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> loginInfo = req->mutable_loginuserinfo();
+    req->unsafe_arena_release_loginuserinfo();
+
+    g_Log->Info(LOGFMT_OBJ_TAG("user will login account name:%s, sessionId:%llu"), loginInfo->accountname().c_str(), sessionId);
+
+    auto err = LoginBy(sessionId, loginInfo, [this, sessionId](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
+
+        LoginRes res;
+        res.set_errcode(errCode);
+
+        if(user)
+            res.set_userid(user->GetUserId());
+
+        Send(sessionId, Opcodes::OpcodeConst::OPCODE_LoginRes, res);
+    });
+
+    if(err != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, sessionId:%llu"), err, sessionId);
+    }
+    
 }
 
 void UserMgr::_Clear()

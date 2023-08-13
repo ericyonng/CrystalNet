@@ -1117,7 +1117,6 @@ void TestSql::Run()
         {// pb
             KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB, 0);
             LoginReq req;
-            req.set_account("abc");
             KERNEL_NS::LibString info;
             req.SerializeToString(&info.GetRaw());
 
@@ -1163,7 +1162,6 @@ void TestSql::Run()
         {// pb
             KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB, 0);
             LoginReq req;
-            req.set_account("kk liw");
             KERNEL_NS::LibString info;
             req.SerializeToString(&info.GetRaw());
 
@@ -1219,8 +1217,8 @@ void TestSql::Run()
                 KERNEL_NS::LibString blob;
                 pbField->GetBlob(blob);
 
-                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert id:%lld, affected rows:%lld seqId:%llu id:%lld, account:%s, record:%s")
-                    , insertId, affectedRows, seqId, id, req.account().c_str(), record->ToString().c_str());
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert id:%lld, affected rows:%lld seqId:%llu id:%lld, record:%s")
+                    , insertId, affectedRows, seqId, id, record->ToString().c_str());
             }
 
             g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert id:%lld, affected rows:%lld seqId:%llu, "), insertId, affectedRows, seqId);

@@ -56,9 +56,10 @@ public:
 class LogicSysFlagsType
 {
 public:
-    enum FLAG_ENUMS
+    enum FLAG_ENUMS : UInt64
     {
-
+        // 不被service关注
+        DISABLE_FOCUS_BY_SERVICE_FLAG = 1,
     };
 };
 

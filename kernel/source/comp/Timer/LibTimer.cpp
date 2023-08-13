@@ -32,6 +32,7 @@
 #include <kernel/comp/Variant/variant_inc.h>
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/Utils/TlsUtil.h>
+#include <kernel/comp/Log/log.h>
 
 
 KERNEL_BEGIN
@@ -50,6 +51,9 @@ LibTimer::LibTimer(TimerMgr *mgr)
         auto defObj = TlsUtil::GetDefTls();
         if(LIKELY(defObj))
             _mgr = defObj->_pollerTimerMgr;
+
+        if(UNLIKELY(!_mgr))
+            g_Log->Error(LOGFMT_OBJ_TAG("timer mgr is null please check"));
     }
 
     _data = _mgr->NewTimeData(this);

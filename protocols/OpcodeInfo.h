@@ -214,3 +214,12 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ClientHeartbeatReqFactory::CreateFactory()));
     }
+
+    {// ClientHeartbeatRes
+        auto info = OpcodeInfo();
+        info._opcode = 30;
+        info._opcodeName = "ClientHeartbeatRes";
+        info._protoFile = "heartbeat.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ClientHeartbeatResFactory::CreateFactory()));
+    }

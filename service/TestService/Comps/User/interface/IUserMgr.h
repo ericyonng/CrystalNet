@@ -106,6 +106,8 @@ public:
    virtual void RemoveUserBySessionId(UInt64 sessionId) = 0;
    // 添加session映射
    virtual void AddUserBySessionId(UInt64 sessionId, IUser *user) = 0;
+
+   virtual KERNEL_NS::LibRsa &GetRsa() const = 0;
 };
 
 template<typename ObjType>

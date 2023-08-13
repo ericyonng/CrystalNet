@@ -154,7 +154,10 @@ void MyTestService::_OnServiceRegisterComps()
     RegisterComp<MyServiceCompFactory>();
 
     // 测试
-    RegisterComp<TestMgrFactory>();
+    // RegisterComp<TestMgrFactory>();
+
+    // 用户管理
+    RegisterComp<ClientUserMgrFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()
@@ -565,5 +568,15 @@ bool MyTestService::_CheckOpcodeEnable(Int32 opcode)
 {
     return Opcodes::CheckOpcode(opcode);
 }
+
+void MyTestService::_OnEventLoopStart()
+{
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_WILL_STARTUP);
+    GetEventMgr()->FireEvent(ev);
+
+    ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
+    GetEventMgr()->FireEvent(ev);
+}
+
 
 SERVICE_END

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+message ClientUserStatus 
+{
+    enum ENUMS
+    {
+        // 未登录
+        UNLOGIN = 0;
+        // 登录中
+        LOGINING = 1;
+        // 登录完成
+        LOGINED = 2;
+        // 登出中(定时15秒切换状态)
+        LOGOUTING = 3;
+        // 登出完成
+        LOGOUTED = 4;
+    }
+}
+
+message ClientUserInfo
+{
+    // uid
+    uint64 UserId = 1;
+    // 账号
+    string AccountName = 2;
+    // 姓名
+    string Name = 3;
+    // 昵称
+    string Nickname = 4;
+    // 手机设备imei
+    string PhoneImei = 5;
+    // 登录状态 ClientUserStatus
+    sint32 ClientStatus = 6;
+    // token
+    string LastToken = 7;
+    // token过期时间
+    sint64 TokenExpireTime = 8;
+}

@@ -101,9 +101,9 @@ public:
     // 刷新lrutime
     virtual void UpdateLrtTime() override;
     // 获取心跳更新时间
-    virtual Int64 GetHeartbeatTime() const override;
+    virtual Int64 GetHeartbeatExpireTime() const override;
     // 刷新心跳更新时间
-    virtual void UpdateHeartbeatTime() override;
+    virtual void UpdateHeartbeatExpireTime(Int64 spanTimeInMs) override;
 
 private:
     virtual Int32 _OnSysInit() override;

@@ -51,5 +51,6 @@ public:
     static constexpr Int32 OPCODE_GetNodeListReq = 27;    // heartbeat.proto
     static constexpr Int32 OPCODE_GetNodeListRes = 28;    // heartbeat.proto
     static constexpr Int32 OPCODE_ClientHeartbeatReq = 29;    // heartbeat.proto
-    static constexpr Int32 OPCODE_MAX = 29;
+    static constexpr Int32 OPCODE_ClientHeartbeatRes = 30;    // heartbeat.proto
+    static constexpr Int32 OPCODE_MAX = 30;
 };

@@ -32,6 +32,7 @@
 #pragma once
 
 #include <protocols/cplusplus/com.pb.h>
+#include <protocols/cplusplus/com_client_user.pb.h>
 #include <protocols/cplusplus/com_heartbeat.pb.h>
 #include <protocols/cplusplus/com_login.pb.h>
 #include <protocols/cplusplus/com_player.pb.h>

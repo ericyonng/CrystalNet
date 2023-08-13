@@ -580,6 +580,7 @@ project "client"
 		"../../kernel/include/",
 		"../../client/",
 		"../../client/client_pch/",
+		"../../service/Client/",
     }
 	
 	-- 设置通用选项

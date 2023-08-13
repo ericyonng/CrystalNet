@@ -30,6 +30,7 @@
 
 #include <Comps/User/interface/IUserMgr.h>
 #include <Comps/User/impl/UserLruCompare.h>
+#include <protocols/protocols.h>
 
 KERNEL_BEGIN
 
@@ -94,6 +95,9 @@ public:
    virtual void RemoveUserBySessionId(UInt64 sessionId) override;
    // 添加session映射
    virtual void AddUserBySessionId(UInt64 sessionId, IUser *user) override;
+
+   virtual KERNEL_NS::LibRsa &GetRsa() const override;
+
 private:
     virtual Int32 _OnGlobalSysInit() override;
     virtual Int32 _OnGlobalSysCompsCreated() override;
@@ -120,7 +124,9 @@ private:
 
     void _OnDbUserLoaded(KERNEL_NS::MysqlResponse *res);
 
-    Int32 _CheckRegisterInfo(const RegisterUserInfo &regiseterInfo) const;
+    Int32 _CheckRegisterInfo(const LoginInfo &loginInfo) const;
+    void _BuildPwd(UserBaseInfo *baseInfo, const std::string &pwd);
+    void _OnClientLoginReq(KERNEL_NS::LibPacket *&packet);
 
     void _Clear();
 
@@ -136,6 +142,11 @@ private:
     Int32 _lruCapacityLimit;    // 容量限制
 
     std::vector<UInt64> _pendingLoginEventOnStartup;
+    KERNEL_NS::LibString _rsaPrivateKey;
+    KERNEL_NS::LibString _rsaPrivateKeyRaw;
+    KERNEL_NS::LibString _rsaPubKey;
+    KERNEL_NS::LibString _rsaPubKeyRaw;
+    mutable KERNEL_NS::LibRsa _rsa;
 };
 
 ALWAYS_INLINE PendingUser *UserMgr::_GetPendingByAccount(const KERNEL_NS::LibString &accountName)

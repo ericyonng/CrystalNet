@@ -39,6 +39,7 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
 #include "com_login.pb.h"
+#include "com_user.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_login_2eproto
@@ -298,25 +299,25 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAccountFieldNumber = 1,
+    kLoginUserInfoFieldNumber = 1,
   };
-  // optional string account = 1;
-  bool has_account() const;
+  // .LoginInfo LoginUserInfo = 1;
+  bool has_loginuserinfo() const;
   private:
-  bool _internal_has_account() const;
+  bool _internal_has_loginuserinfo() const;
   public:
-  void clear_account();
-  const std::string& account() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_account(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_account();
-  PROTOBUF_NODISCARD std::string* release_account();
-  void set_allocated_account(std::string* account);
+  void clear_loginuserinfo();
+  const ::LoginInfo& loginuserinfo() const;
+  PROTOBUF_NODISCARD ::LoginInfo* release_loginuserinfo();
+  ::LoginInfo* mutable_loginuserinfo();
+  void set_allocated_loginuserinfo(::LoginInfo* loginuserinfo);
   private:
-  const std::string& _internal_account() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_account(const std::string& value);
-  std::string* _internal_mutable_account();
+  const ::LoginInfo& _internal_loginuserinfo() const;
+  ::LoginInfo* _internal_mutable_loginuserinfo();
   public:
+  void unsafe_arena_set_allocated_loginuserinfo(
+      ::LoginInfo* loginuserinfo);
+  ::LoginInfo* unsafe_arena_release_loginuserinfo();
 
   // @@protoc_insertion_point(class_scope:LoginReq)
  private:
@@ -326,9 +327,8 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+    ::LoginInfo* loginuserinfo_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr account_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_login_2eproto;
@@ -563,32 +563,29 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   // accessors -------------------------------------------------------
 
   enum : int {
-    kAccountFieldNumber = 2,
+    kUserIdFieldNumber = 2,
+    kServerTimeFieldNumber = 3,
     kErrCodeFieldNumber = 1,
   };
-  // optional string account = 2;
-  bool has_account() const;
+  // uint64 UserId = 2;
+  void clear_userid();
+  uint64_t userid() const;
+  void set_userid(uint64_t value);
   private:
-  bool _internal_has_account() const;
-  public:
-  void clear_account();
-  const std::string& account() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_account(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_account();
-  PROTOBUF_NODISCARD std::string* release_account();
-  void set_allocated_account(std::string* account);
-  private:
-  const std::string& _internal_account() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_account(const std::string& value);
-  std::string* _internal_mutable_account();
+  uint64_t _internal_userid() const;
+  void _internal_set_userid(uint64_t value);
   public:
 
-  // optional sint32 errCode = 1;
-  bool has_errcode() const;
+  // sint64 ServerTime = 3;
+  void clear_servertime();
+  int64_t servertime() const;
+  void set_servertime(int64_t value);
   private:
-  bool _internal_has_errcode() const;
+  int64_t _internal_servertime() const;
+  void _internal_set_servertime(int64_t value);
   public:
+
+  // sint32 errCode = 1;
   void clear_errcode();
   int32_t errcode() const;
   void set_errcode(int32_t value);
@@ -605,10 +602,10 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr account_;
+    uint64_t userid_;
+    int64_t servertime_;
     int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_login_2eproto;
@@ -895,89 +892,98 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 #endif  // __GNUC__
 // LoginReq
 
-// optional string account = 1;
-inline bool LoginReq::_internal_has_account() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
-  return value;
+// .LoginInfo LoginUserInfo = 1;
+inline bool LoginReq::_internal_has_loginuserinfo() const {
+  return this != internal_default_instance() && _impl_.loginuserinfo_ != nullptr;
 }
-inline bool LoginReq::has_account() const {
-  return _internal_has_account();
+inline bool LoginReq::has_loginuserinfo() const {
+  return _internal_has_loginuserinfo();
 }
-inline void LoginReq::clear_account() {
-  _impl_.account_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
+inline const ::LoginInfo& LoginReq::_internal_loginuserinfo() const {
+  const ::LoginInfo* p = _impl_.loginuserinfo_;
+  return p != nullptr ? *p : reinterpret_cast<const ::LoginInfo&>(
+      ::_LoginInfo_default_instance_);
 }
-inline const std::string& LoginReq::account() const {
-  // @@protoc_insertion_point(field_get:LoginReq.account)
-  return _internal_account();
+inline const ::LoginInfo& LoginReq::loginuserinfo() const {
+  // @@protoc_insertion_point(field_get:LoginReq.LoginUserInfo)
+  return _internal_loginuserinfo();
 }
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void LoginReq::set_account(ArgT0&& arg0, ArgT... args) {
- _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.account_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginReq.account)
-}
-inline std::string* LoginReq::mutable_account() {
-  std::string* _s = _internal_mutable_account();
-  // @@protoc_insertion_point(field_mutable:LoginReq.account)
-  return _s;
-}
-inline const std::string& LoginReq::_internal_account() const {
-  return _impl_.account_.Get();
-}
-inline void LoginReq::_internal_set_account(const std::string& value) {
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.account_.Set(value, GetArenaForAllocation());
-}
-inline std::string* LoginReq::_internal_mutable_account() {
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.account_.Mutable(GetArenaForAllocation());
-}
-inline std::string* LoginReq::release_account() {
-  // @@protoc_insertion_point(field_release:LoginReq.account)
-  if (!_internal_has_account()) {
-    return nullptr;
+inline void LoginReq::unsafe_arena_set_allocated_loginuserinfo(
+    ::LoginInfo* loginuserinfo) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.loginuserinfo_);
   }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* p = _impl_.account_.Release();
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.account_.IsDefault()) {
-    _impl_.account_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  return p;
-}
-inline void LoginReq::set_allocated_account(std::string* account) {
-  if (account != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.loginuserinfo_ = loginuserinfo;
+  if (loginuserinfo) {
+    
   } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
+    
   }
-  _impl_.account_.SetAllocated(account, GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.account_.IsDefault()) {
-    _impl_.account_.Set("", GetArenaForAllocation());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:LoginReq.LoginUserInfo)
+}
+inline ::LoginInfo* LoginReq::release_loginuserinfo() {
+  
+  ::LoginInfo* temp = _impl_.loginuserinfo_;
+  _impl_.loginuserinfo_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginReq.account)
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::LoginInfo* LoginReq::unsafe_arena_release_loginuserinfo() {
+  // @@protoc_insertion_point(field_release:LoginReq.LoginUserInfo)
+  
+  ::LoginInfo* temp = _impl_.loginuserinfo_;
+  _impl_.loginuserinfo_ = nullptr;
+  return temp;
+}
+inline ::LoginInfo* LoginReq::_internal_mutable_loginuserinfo() {
+  
+  if (_impl_.loginuserinfo_ == nullptr) {
+    auto* p = CreateMaybeMessage<::LoginInfo>(GetArenaForAllocation());
+    _impl_.loginuserinfo_ = p;
+  }
+  return _impl_.loginuserinfo_;
+}
+inline ::LoginInfo* LoginReq::mutable_loginuserinfo() {
+  ::LoginInfo* _msg = _internal_mutable_loginuserinfo();
+  // @@protoc_insertion_point(field_mutable:LoginReq.LoginUserInfo)
+  return _msg;
+}
+inline void LoginReq::set_allocated_loginuserinfo(::LoginInfo* loginuserinfo) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.loginuserinfo_);
+  }
+  if (loginuserinfo) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(loginuserinfo));
+    if (message_arena != submessage_arena) {
+      loginuserinfo = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, loginuserinfo, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.loginuserinfo_ = loginuserinfo;
+  // @@protoc_insertion_point(field_set_allocated:LoginReq.LoginUserInfo)
 }
 
 // -------------------------------------------------------------------
 
 // LoginRes
 
-// optional sint32 errCode = 1;
-inline bool LoginRes::_internal_has_errcode() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
-  return value;
-}
-inline bool LoginRes::has_errcode() const {
-  return _internal_has_errcode();
-}
+// sint32 errCode = 1;
 inline void LoginRes::clear_errcode() {
   _impl_.errcode_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline int32_t LoginRes::_internal_errcode() const {
   return _impl_.errcode_;
@@ -987,7 +993,7 @@ inline int32_t LoginRes::errcode() const {
   return _internal_errcode();
 }
 inline void LoginRes::_internal_set_errcode(int32_t value) {
-  _impl_._has_bits_[0] |= 0x00000002u;
+  
   _impl_.errcode_ = value;
 }
 inline void LoginRes::set_errcode(int32_t value) {
@@ -995,72 +1001,44 @@ inline void LoginRes::set_errcode(int32_t value) {
   // @@protoc_insertion_point(field_set:LoginRes.errCode)
 }
 
-// optional string account = 2;
-inline bool LoginRes::_internal_has_account() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
-  return value;
+// uint64 UserId = 2;
+inline void LoginRes::clear_userid() {
+  _impl_.userid_ = uint64_t{0u};
 }
-inline bool LoginRes::has_account() const {
-  return _internal_has_account();
+inline uint64_t LoginRes::_internal_userid() const {
+  return _impl_.userid_;
 }
-inline void LoginRes::clear_account() {
-  _impl_.account_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
+inline uint64_t LoginRes::userid() const {
+  // @@protoc_insertion_point(field_get:LoginRes.UserId)
+  return _internal_userid();
 }
-inline const std::string& LoginRes::account() const {
-  // @@protoc_insertion_point(field_get:LoginRes.account)
-  return _internal_account();
+inline void LoginRes::_internal_set_userid(uint64_t value) {
+  
+  _impl_.userid_ = value;
 }
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void LoginRes::set_account(ArgT0&& arg0, ArgT... args) {
- _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.account_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginRes.account)
+inline void LoginRes::set_userid(uint64_t value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:LoginRes.UserId)
 }
-inline std::string* LoginRes::mutable_account() {
-  std::string* _s = _internal_mutable_account();
-  // @@protoc_insertion_point(field_mutable:LoginRes.account)
-  return _s;
+
+// sint64 ServerTime = 3;
+inline void LoginRes::clear_servertime() {
+  _impl_.servertime_ = int64_t{0};
 }
-inline const std::string& LoginRes::_internal_account() const {
-  return _impl_.account_.Get();
+inline int64_t LoginRes::_internal_servertime() const {
+  return _impl_.servertime_;
 }
-inline void LoginRes::_internal_set_account(const std::string& value) {
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.account_.Set(value, GetArenaForAllocation());
+inline int64_t LoginRes::servertime() const {
+  // @@protoc_insertion_point(field_get:LoginRes.ServerTime)
+  return _internal_servertime();
 }
-inline std::string* LoginRes::_internal_mutable_account() {
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.account_.Mutable(GetArenaForAllocation());
+inline void LoginRes::_internal_set_servertime(int64_t value) {
+  
+  _impl_.servertime_ = value;
 }
-inline std::string* LoginRes::release_account() {
-  // @@protoc_insertion_point(field_release:LoginRes.account)
-  if (!_internal_has_account()) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* p = _impl_.account_.Release();
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.account_.IsDefault()) {
-    _impl_.account_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  return p;
-}
-inline void LoginRes::set_allocated_account(std::string* account) {
-  if (account != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  _impl_.account_.SetAllocated(account, GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.account_.IsDefault()) {
-    _impl_.account_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginRes.account)
+inline void LoginRes::set_servertime(int64_t value) {
+  _internal_set_servertime(value);
+  // @@protoc_insertion_point(field_set:LoginRes.ServerTime)
 }
 
 // -------------------------------------------------------------------

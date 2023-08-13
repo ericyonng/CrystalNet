@@ -24,29 +24,30 @@ public static partial class ComUserReflection {
   static ComUserReflection() {
     byte[] descriptorData = global::System.Convert.FromBase64String(
         string.Concat(
-          "Cg5jb21fdXNlci5wcm90byKQAgoMVXNlckJhc2VJbmZvEg4KBlVzZXJJZBgB",
+          "Cg5jb21fdXNlci5wcm90byKhAgoMVXNlckJhc2VJbmZvEg4KBlVzZXJJZBgB",
           "IAEoBBITCgtBY2NvdW50TmFtZRgCIAEoCRIMCgROYW1lGAMgASgJEhAKCE5p",
-          "Y2tuYW1lGAQgASgJEgsKA1B3ZBgFIAEoCRIRCglCaW5kUGhvbmUYBiABKAQS",
-          "FQoNTGFzdExvZ2luVGltZRgHIAEoEhITCgtMYXN0TG9naW5JcBgIIAEoCRIa",
-          "ChJMYXN0TG9naW5QaG9uZUltZWkYCSABKAkSEAoIQ3JlYXRlSXAYCiABKAkS",
-          "EgoKQ3JlYXRlVGltZRgLIAEoEhIXCg9DcmVhdGVQaG9uZUltZWkYDCABKAkS",
-          "FAoMQmluZE1haWxBZGRyGA0gASgJIkUKCUxvZ2luTW9kZSI4CgVFTlVNUxIM",
-          "CghQQVNTV09SRBAAEhMKD1VTRV9MT0dJTl9UT0tFThABEgwKCFJFR0lTVEVS",
-          "EAIiXwoQUmVnaXN0ZXJVc2VySW5mbxITCgtBY2NvdW50TmFtZRgBIAEoCRIQ",
-          "CghOaWNrbmFtZRgCIAEoCRILCgNQd2QYAyABKAkSFwoPQ3JlYXRlUGhvbmVJ",
-          "bWVpGAQgASgJIvUBCglMb2dpbkluZm8SEQoJTG9naW5Nb2RlGAEgASgREhMK",
-          "C0FjY291bnROYW1lGAIgASgJEgsKA1B3ZBgDIAEoCRISCgpMb2dpblRva2Vu",
-          "GAQgASgJEhYKDkxvZ2luUGhvbmVJbWVpGAUgASgJEi0KEFVzZXJSZWdpc3Rl",
-          "ckluZm8YBiABKAsyES5SZWdpc3RlclVzZXJJbmZvSAASDQoFQXBwSWQYByAB",
-          "KAkSEgoKY3lwaGVyVGV4dBgIIAEoCRISCgpvcmlnaW5UZXh0GAkgASgJEhEK",
-          "CXZlcnNpb25JZBgKIAEoBEIOCgxSZWdpc3RlckluZm9iBnByb3RvMw=="));
+          "Y2tuYW1lGAQgASgJEgsKA1B3ZBgFIAEoCRIPCgdQd2RTYWx0GAYgASgJEhEK",
+          "CUJpbmRQaG9uZRgHIAEoBBIVCg1MYXN0TG9naW5UaW1lGAggASgSEhMKC0xh",
+          "c3RMb2dpbklwGAkgASgJEhoKEkxhc3RMb2dpblBob25lSW1laRgKIAEoCRIQ",
+          "CghDcmVhdGVJcBgLIAEoCRISCgpDcmVhdGVUaW1lGAwgASgSEhcKD0NyZWF0",
+          "ZVBob25lSW1laRgNIAEoCRIUCgxCaW5kTWFpbEFkZHIYDiABKAkiRQoJTG9n",
+          "aW5Nb2RlIjgKBUVOVU1TEgwKCFBBU1NXT1JEEAASEwoPVVNFX0xPR0lOX1RP",
+          "S0VOEAESDAoIUkVHSVNURVIQAiJfChBSZWdpc3RlclVzZXJJbmZvEhMKC0Fj",
+          "Y291bnROYW1lGAEgASgJEhAKCE5pY2tuYW1lGAIgASgJEgsKA1B3ZBgDIAEo",
+          "CRIXCg9DcmVhdGVQaG9uZUltZWkYBCABKAkilQIKCUxvZ2luSW5mbxIRCglM",
+          "b2dpbk1vZGUYASABKBESEwoLQWNjb3VudE5hbWUYAiABKAkSCwoDUHdkGAMg",
+          "ASgJEhIKCkxvZ2luVG9rZW4YBCABKAkSFgoOTG9naW5QaG9uZUltZWkYBSAB",
+          "KAkSEAoIVGFyZ2V0SXAYBiABKAkSDAoEUG9ydBgHIAEoDRItChBVc2VyUmVn",
+          "aXN0ZXJJbmZvGAggASgLMhEuUmVnaXN0ZXJVc2VySW5mb0gAEg0KBUFwcElk",
+          "GAkgASgJEhIKCmN5cGhlclRleHQYCiABKAkSEgoKb3JpZ2luVGV4dBgLIAEo",
+          "CRIRCgl2ZXJzaW9uSWQYDCABKARCDgoMUmVnaXN0ZXJJbmZvYgZwcm90bzM="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-          new pbr::GeneratedClrTypeInfo(typeof(global::UserBaseInfo), global::UserBaseInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "Pwd", "BindPhone", "LastLoginTime", "LastLoginIp", "LastLoginPhoneImei", "CreateIp", "CreateTime", "CreatePhoneImei", "BindMailAddr" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::UserBaseInfo), global::UserBaseInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "Pwd", "PwdSalt", "BindPhone", "LastLoginTime", "LastLoginIp", "LastLoginPhoneImei", "CreateIp", "CreateTime", "CreatePhoneImei", "BindMailAddr" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::LoginMode), global::LoginMode.Parser, null, null, new[]{ typeof(global::LoginMode.Types.ENUMS) }, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::RegisterUserInfo), global::RegisterUserInfo.Parser, new[]{ "AccountName", "Nickname", "Pwd", "CreatePhoneImei" }, null, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::LoginInfo), global::LoginInfo.Parser, new[]{ "LoginMode", "AccountName", "Pwd", "LoginToken", "LoginPhoneImei", "UserRegisterInfo", "AppId", "CypherText", "OriginText", "VersionId" }, new[]{ "RegisterInfo" }, null, null, null)
+          new pbr::GeneratedClrTypeInfo(typeof(global::LoginInfo), global::LoginInfo.Parser, new[]{ "LoginMode", "AccountName", "Pwd", "LoginToken", "LoginPhoneImei", "TargetIp", "Port", "UserRegisterInfo", "AppId", "CypherText", "OriginText", "VersionId" }, new[]{ "RegisterInfo" }, null, null, null)
         }));
   }
   #endregion
@@ -92,6 +93,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
     name_ = other.name_;
     nickname_ = other.nickname_;
     pwd_ = other.pwd_;
+    pwdSalt_ = other.pwdSalt_;
     bindPhone_ = other.bindPhone_;
     lastLoginTime_ = other.lastLoginTime_;
     lastLoginIp_ = other.lastLoginIp_;
@@ -184,8 +186,23 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
     }
   }
 
+  /// <summary>Field number for the "PwdSalt" field.</summary>
+  public const int PwdSaltFieldNumber = 6;
+  private string pwdSalt_ = "";
+  /// <summary>
+  /// 盐
+  /// </summary>
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public string PwdSalt {
+    get { return pwdSalt_; }
+    set {
+      pwdSalt_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+    }
+  }
+
   /// <summary>Field number for the "BindPhone" field.</summary>
-  public const int BindPhoneFieldNumber = 6;
+  public const int BindPhoneFieldNumber = 7;
   private ulong bindPhone_;
   /// <summary>
   /// 绑定手机
@@ -200,7 +217,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
   }
 
   /// <summary>Field number for the "LastLoginTime" field.</summary>
-  public const int LastLoginTimeFieldNumber = 7;
+  public const int LastLoginTimeFieldNumber = 8;
   private long lastLoginTime_;
   /// <summary>
   /// 最后登录时间
@@ -215,7 +232,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
   }
 
   /// <summary>Field number for the "LastLoginIp" field.</summary>
-  public const int LastLoginIpFieldNumber = 8;
+  public const int LastLoginIpFieldNumber = 9;
   private string lastLoginIp_ = "";
   /// <summary>
   /// 最后登录ip
@@ -230,7 +247,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
   }
 
   /// <summary>Field number for the "LastLoginPhoneImei" field.</summary>
-  public const int LastLoginPhoneImeiFieldNumber = 9;
+  public const int LastLoginPhoneImeiFieldNumber = 10;
   private string lastLoginPhoneImei_ = "";
   /// <summary>
   /// 最后登录收集imei
@@ -245,7 +262,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
   }
 
   /// <summary>Field number for the "CreateIp" field.</summary>
-  public const int CreateIpFieldNumber = 10;
+  public const int CreateIpFieldNumber = 11;
   private string createIp_ = "";
   /// <summary>
   /// 创建号的ip
@@ -260,7 +277,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
   }
 
   /// <summary>Field number for the "CreateTime" field.</summary>
-  public const int CreateTimeFieldNumber = 11;
+  public const int CreateTimeFieldNumber = 12;
   private long createTime_;
   /// <summary>
   /// 创建时间
@@ -275,7 +292,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
   }
 
   /// <summary>Field number for the "CreatePhoneImei" field.</summary>
-  public const int CreatePhoneImeiFieldNumber = 12;
+  public const int CreatePhoneImeiFieldNumber = 13;
   private string createPhoneImei_ = "";
   /// <summary>
   /// 创建的收集imei
@@ -290,7 +307,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
   }
 
   /// <summary>Field number for the "BindMailAddr" field.</summary>
-  public const int BindMailAddrFieldNumber = 13;
+  public const int BindMailAddrFieldNumber = 14;
   private string bindMailAddr_ = "";
   /// <summary>
   /// 绑定的邮箱地址
@@ -324,6 +341,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
     if (Name != other.Name) return false;
     if (Nickname != other.Nickname) return false;
     if (Pwd != other.Pwd) return false;
+    if (PwdSalt != other.PwdSalt) return false;
     if (BindPhone != other.BindPhone) return false;
     if (LastLoginTime != other.LastLoginTime) return false;
     if (LastLoginIp != other.LastLoginIp) return false;
@@ -344,6 +362,7 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
     if (Name.Length != 0) hash ^= Name.GetHashCode();
     if (Nickname.Length != 0) hash ^= Nickname.GetHashCode();
     if (Pwd.Length != 0) hash ^= Pwd.GetHashCode();
+    if (PwdSalt.Length != 0) hash ^= PwdSalt.GetHashCode();
     if (BindPhone != 0UL) hash ^= BindPhone.GetHashCode();
     if (LastLoginTime != 0L) hash ^= LastLoginTime.GetHashCode();
     if (LastLoginIp.Length != 0) hash ^= LastLoginIp.GetHashCode();
@@ -390,36 +409,40 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
       output.WriteRawTag(42);
       output.WriteString(Pwd);
     }
+    if (PwdSalt.Length != 0) {
+      output.WriteRawTag(50);
+      output.WriteString(PwdSalt);
+    }
     if (BindPhone != 0UL) {
-      output.WriteRawTag(48);
+      output.WriteRawTag(56);
       output.WriteUInt64(BindPhone);
     }
     if (LastLoginTime != 0L) {
-      output.WriteRawTag(56);
+      output.WriteRawTag(64);
       output.WriteSInt64(LastLoginTime);
     }
     if (LastLoginIp.Length != 0) {
-      output.WriteRawTag(66);
+      output.WriteRawTag(74);
       output.WriteString(LastLoginIp);
     }
     if (LastLoginPhoneImei.Length != 0) {
-      output.WriteRawTag(74);
+      output.WriteRawTag(82);
       output.WriteString(LastLoginPhoneImei);
     }
     if (CreateIp.Length != 0) {
-      output.WriteRawTag(82);
+      output.WriteRawTag(90);
       output.WriteString(CreateIp);
     }
     if (CreateTime != 0L) {
-      output.WriteRawTag(88);
+      output.WriteRawTag(96);
       output.WriteSInt64(CreateTime);
     }
     if (CreatePhoneImei.Length != 0) {
-      output.WriteRawTag(98);
+      output.WriteRawTag(106);
       output.WriteString(CreatePhoneImei);
     }
     if (BindMailAddr.Length != 0) {
-      output.WriteRawTag(106);
+      output.WriteRawTag(114);
       output.WriteString(BindMailAddr);
     }
     if (_unknownFields != null) {
@@ -452,36 +475,40 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
       output.WriteRawTag(42);
       output.WriteString(Pwd);
     }
+    if (PwdSalt.Length != 0) {
+      output.WriteRawTag(50);
+      output.WriteString(PwdSalt);
+    }
     if (BindPhone != 0UL) {
-      output.WriteRawTag(48);
+      output.WriteRawTag(56);
       output.WriteUInt64(BindPhone);
     }
     if (LastLoginTime != 0L) {
-      output.WriteRawTag(56);
+      output.WriteRawTag(64);
       output.WriteSInt64(LastLoginTime);
     }
     if (LastLoginIp.Length != 0) {
-      output.WriteRawTag(66);
+      output.WriteRawTag(74);
       output.WriteString(LastLoginIp);
     }
     if (LastLoginPhoneImei.Length != 0) {
-      output.WriteRawTag(74);
+      output.WriteRawTag(82);
       output.WriteString(LastLoginPhoneImei);
     }
     if (CreateIp.Length != 0) {
-      output.WriteRawTag(82);
+      output.WriteRawTag(90);
       output.WriteString(CreateIp);
     }
     if (CreateTime != 0L) {
-      output.WriteRawTag(88);
+      output.WriteRawTag(96);
       output.WriteSInt64(CreateTime);
     }
     if (CreatePhoneImei.Length != 0) {
-      output.WriteRawTag(98);
+      output.WriteRawTag(106);
       output.WriteString(CreatePhoneImei);
     }
     if (BindMailAddr.Length != 0) {
-      output.WriteRawTag(106);
+      output.WriteRawTag(114);
       output.WriteString(BindMailAddr);
     }
     if (_unknownFields != null) {
@@ -508,6 +535,9 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
     }
     if (Pwd.Length != 0) {
       size += 1 + pb::CodedOutputStream.ComputeStringSize(Pwd);
+    }
+    if (PwdSalt.Length != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeStringSize(PwdSalt);
     }
     if (BindPhone != 0UL) {
       size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BindPhone);
@@ -559,6 +589,9 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
     }
     if (other.Pwd.Length != 0) {
       Pwd = other.Pwd;
+    }
+    if (other.PwdSalt.Length != 0) {
+      PwdSalt = other.PwdSalt;
     }
     if (other.BindPhone != 0UL) {
       BindPhone = other.BindPhone;
@@ -619,35 +652,39 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
           Pwd = input.ReadString();
           break;
         }
-        case 48: {
-          BindPhone = input.ReadUInt64();
+        case 50: {
+          PwdSalt = input.ReadString();
           break;
         }
         case 56: {
+          BindPhone = input.ReadUInt64();
+          break;
+        }
+        case 64: {
           LastLoginTime = input.ReadSInt64();
           break;
         }
-        case 66: {
+        case 74: {
           LastLoginIp = input.ReadString();
           break;
         }
-        case 74: {
+        case 82: {
           LastLoginPhoneImei = input.ReadString();
           break;
         }
-        case 82: {
+        case 90: {
           CreateIp = input.ReadString();
           break;
         }
-        case 88: {
+        case 96: {
           CreateTime = input.ReadSInt64();
           break;
         }
-        case 98: {
+        case 106: {
           CreatePhoneImei = input.ReadString();
           break;
         }
-        case 106: {
+        case 114: {
           BindMailAddr = input.ReadString();
           break;
         }
@@ -686,35 +723,39 @@ public sealed partial class UserBaseInfo : pb::IMessage<UserBaseInfo>
           Pwd = input.ReadString();
           break;
         }
-        case 48: {
-          BindPhone = input.ReadUInt64();
+        case 50: {
+          PwdSalt = input.ReadString();
           break;
         }
         case 56: {
+          BindPhone = input.ReadUInt64();
+          break;
+        }
+        case 64: {
           LastLoginTime = input.ReadSInt64();
           break;
         }
-        case 66: {
+        case 74: {
           LastLoginIp = input.ReadString();
           break;
         }
-        case 74: {
+        case 82: {
           LastLoginPhoneImei = input.ReadString();
           break;
         }
-        case 82: {
+        case 90: {
           CreateIp = input.ReadString();
           break;
         }
-        case 88: {
+        case 96: {
           CreateTime = input.ReadSInt64();
           break;
         }
-        case 98: {
+        case 106: {
           CreatePhoneImei = input.ReadString();
           break;
         }
-        case 106: {
+        case 114: {
           BindMailAddr = input.ReadString();
           break;
         }
@@ -1257,6 +1298,8 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
     pwd_ = other.pwd_;
     loginToken_ = other.loginToken_;
     loginPhoneImei_ = other.loginPhoneImei_;
+    targetIp_ = other.targetIp_;
+    port_ = other.port_;
     appId_ = other.appId_;
     cypherText_ = other.cypherText_;
     originText_ = other.originText_;
@@ -1351,8 +1394,38 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
     }
   }
 
+  /// <summary>Field number for the "TargetIp" field.</summary>
+  public const int TargetIpFieldNumber = 6;
+  private string targetIp_ = "";
+  /// <summary>
+  /// 登录目标ip
+  /// </summary>
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public string TargetIp {
+    get { return targetIp_; }
+    set {
+      targetIp_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+    }
+  }
+
+  /// <summary>Field number for the "Port" field.</summary>
+  public const int PortFieldNumber = 7;
+  private uint port_;
+  /// <summary>
+  /// 登录目标端口
+  /// </summary>
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public uint Port {
+    get { return port_; }
+    set {
+      port_ = value;
+    }
+  }
+
   /// <summary>Field number for the "UserRegisterInfo" field.</summary>
-  public const int UserRegisterInfoFieldNumber = 6;
+  public const int UserRegisterInfoFieldNumber = 8;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public global::RegisterUserInfo UserRegisterInfo {
@@ -1364,7 +1437,7 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
   }
 
   /// <summary>Field number for the "AppId" field.</summary>
-  public const int AppIdFieldNumber = 7;
+  public const int AppIdFieldNumber = 9;
   private string appId_ = "";
   /// <summary>
   /// 鉴权:ip是黑白校验, 设备黑白校验, 账号黑白校验
@@ -1380,7 +1453,7 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
   }
 
   /// <summary>Field number for the "cypherText" field.</summary>
-  public const int CypherTextFieldNumber = 8;
+  public const int CypherTextFieldNumber = 10;
   private string cypherText_ = "";
   /// <summary>
   /// 密文
@@ -1395,7 +1468,7 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
   }
 
   /// <summary>Field number for the "originText" field.</summary>
-  public const int OriginTextFieldNumber = 9;
+  public const int OriginTextFieldNumber = 11;
   private string originText_ = "";
   /// <summary>
   /// 原文
@@ -1410,7 +1483,7 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
   }
 
   /// <summary>Field number for the "versionId" field.</summary>
-  public const int VersionIdFieldNumber = 10;
+  public const int VersionIdFieldNumber = 12;
   private ulong versionId_;
   /// <summary>
   /// 版本号
@@ -1428,7 +1501,7 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
   /// <summary>Enum of possible cases for the "RegisterInfo" oneof.</summary>
   public enum RegisterInfoOneofCase {
     None = 0,
-    UserRegisterInfo = 6,
+    UserRegisterInfo = 8,
   }
   private RegisterInfoOneofCase registerInfoCase_ = RegisterInfoOneofCase.None;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1464,6 +1537,8 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
     if (Pwd != other.Pwd) return false;
     if (LoginToken != other.LoginToken) return false;
     if (LoginPhoneImei != other.LoginPhoneImei) return false;
+    if (TargetIp != other.TargetIp) return false;
+    if (Port != other.Port) return false;
     if (!object.Equals(UserRegisterInfo, other.UserRegisterInfo)) return false;
     if (AppId != other.AppId) return false;
     if (CypherText != other.CypherText) return false;
@@ -1482,6 +1557,8 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
     if (Pwd.Length != 0) hash ^= Pwd.GetHashCode();
     if (LoginToken.Length != 0) hash ^= LoginToken.GetHashCode();
     if (LoginPhoneImei.Length != 0) hash ^= LoginPhoneImei.GetHashCode();
+    if (TargetIp.Length != 0) hash ^= TargetIp.GetHashCode();
+    if (Port != 0) hash ^= Port.GetHashCode();
     if (registerInfoCase_ == RegisterInfoOneofCase.UserRegisterInfo) hash ^= UserRegisterInfo.GetHashCode();
     if (AppId.Length != 0) hash ^= AppId.GetHashCode();
     if (CypherText.Length != 0) hash ^= CypherText.GetHashCode();
@@ -1526,24 +1603,32 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
       output.WriteRawTag(42);
       output.WriteString(LoginPhoneImei);
     }
-    if (registerInfoCase_ == RegisterInfoOneofCase.UserRegisterInfo) {
+    if (TargetIp.Length != 0) {
       output.WriteRawTag(50);
+      output.WriteString(TargetIp);
+    }
+    if (Port != 0) {
+      output.WriteRawTag(56);
+      output.WriteUInt32(Port);
+    }
+    if (registerInfoCase_ == RegisterInfoOneofCase.UserRegisterInfo) {
+      output.WriteRawTag(66);
       output.WriteMessage(UserRegisterInfo);
     }
     if (AppId.Length != 0) {
-      output.WriteRawTag(58);
+      output.WriteRawTag(74);
       output.WriteString(AppId);
     }
     if (CypherText.Length != 0) {
-      output.WriteRawTag(66);
+      output.WriteRawTag(82);
       output.WriteString(CypherText);
     }
     if (OriginText.Length != 0) {
-      output.WriteRawTag(74);
+      output.WriteRawTag(90);
       output.WriteString(OriginText);
     }
     if (VersionId != 0UL) {
-      output.WriteRawTag(80);
+      output.WriteRawTag(96);
       output.WriteUInt64(VersionId);
     }
     if (_unknownFields != null) {
@@ -1576,24 +1661,32 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
       output.WriteRawTag(42);
       output.WriteString(LoginPhoneImei);
     }
-    if (registerInfoCase_ == RegisterInfoOneofCase.UserRegisterInfo) {
+    if (TargetIp.Length != 0) {
       output.WriteRawTag(50);
+      output.WriteString(TargetIp);
+    }
+    if (Port != 0) {
+      output.WriteRawTag(56);
+      output.WriteUInt32(Port);
+    }
+    if (registerInfoCase_ == RegisterInfoOneofCase.UserRegisterInfo) {
+      output.WriteRawTag(66);
       output.WriteMessage(UserRegisterInfo);
     }
     if (AppId.Length != 0) {
-      output.WriteRawTag(58);
+      output.WriteRawTag(74);
       output.WriteString(AppId);
     }
     if (CypherText.Length != 0) {
-      output.WriteRawTag(66);
+      output.WriteRawTag(82);
       output.WriteString(CypherText);
     }
     if (OriginText.Length != 0) {
-      output.WriteRawTag(74);
+      output.WriteRawTag(90);
       output.WriteString(OriginText);
     }
     if (VersionId != 0UL) {
-      output.WriteRawTag(80);
+      output.WriteRawTag(96);
       output.WriteUInt64(VersionId);
     }
     if (_unknownFields != null) {
@@ -1620,6 +1713,12 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
     }
     if (LoginPhoneImei.Length != 0) {
       size += 1 + pb::CodedOutputStream.ComputeStringSize(LoginPhoneImei);
+    }
+    if (TargetIp.Length != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeStringSize(TargetIp);
+    }
+    if (Port != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Port);
     }
     if (registerInfoCase_ == RegisterInfoOneofCase.UserRegisterInfo) {
       size += 1 + pb::CodedOutputStream.ComputeMessageSize(UserRegisterInfo);
@@ -1662,6 +1761,12 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
     }
     if (other.LoginPhoneImei.Length != 0) {
       LoginPhoneImei = other.LoginPhoneImei;
+    }
+    if (other.TargetIp.Length != 0) {
+      TargetIp = other.TargetIp;
+    }
+    if (other.Port != 0) {
+      Port = other.Port;
     }
     if (other.AppId.Length != 0) {
       AppId = other.AppId;
@@ -1720,6 +1825,14 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
           break;
         }
         case 50: {
+          TargetIp = input.ReadString();
+          break;
+        }
+        case 56: {
+          Port = input.ReadUInt32();
+          break;
+        }
+        case 66: {
           global::RegisterUserInfo subBuilder = new global::RegisterUserInfo();
           if (registerInfoCase_ == RegisterInfoOneofCase.UserRegisterInfo) {
             subBuilder.MergeFrom(UserRegisterInfo);
@@ -1728,19 +1841,19 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
           UserRegisterInfo = subBuilder;
           break;
         }
-        case 58: {
+        case 74: {
           AppId = input.ReadString();
           break;
         }
-        case 66: {
+        case 82: {
           CypherText = input.ReadString();
           break;
         }
-        case 74: {
+        case 90: {
           OriginText = input.ReadString();
           break;
         }
-        case 80: {
+        case 96: {
           VersionId = input.ReadUInt64();
           break;
         }
@@ -1780,6 +1893,14 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
           break;
         }
         case 50: {
+          TargetIp = input.ReadString();
+          break;
+        }
+        case 56: {
+          Port = input.ReadUInt32();
+          break;
+        }
+        case 66: {
           global::RegisterUserInfo subBuilder = new global::RegisterUserInfo();
           if (registerInfoCase_ == RegisterInfoOneofCase.UserRegisterInfo) {
             subBuilder.MergeFrom(UserRegisterInfo);
@@ -1788,19 +1909,19 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
           UserRegisterInfo = subBuilder;
           break;
         }
-        case 58: {
+        case 74: {
           AppId = input.ReadString();
           break;
         }
-        case 66: {
+        case 82: {
           CypherText = input.ReadString();
           break;
         }
-        case 74: {
+        case 90: {
           OriginText = input.ReadString();
           break;
         }
-        case 80: {
+        case 96: {
           VersionId = input.ReadUInt64();
           break;
         }

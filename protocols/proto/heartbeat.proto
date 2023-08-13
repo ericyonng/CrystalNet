@@ -51,3 +51,10 @@ message ClientHeartbeatReq
 
 }
 
+/// Opcode:
+message ClientHeartbeatRes
+{
+    // 服务器时间
+    sint64 ServerTimeMs = 1;
+}
+

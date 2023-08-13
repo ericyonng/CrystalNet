@@ -518,5 +518,17 @@ void TestEncrypt::Run(int argc, char const *argv[])
     KERNEL_NS::LibString hexStr;
     KERNEL_NS::StringUtil::ToHexString(md5Out, hexStr);
     std::cout << hexStr << std::endl;
+
+    // 生成rsa
+    KERNEL_NS::LibRsa rsa;
+    rsa.GenKey();
+
+    auto &pubKey = rsa.GetPubKey();
+    auto &privateKey = rsa.GetPrivateKey();
+    auto pubKeyEncode = KERNEL_NS::LibBase64::Encode(pubKey);
+    auto privateKeyEncode = KERNEL_NS::LibBase64::Encode(privateKey);
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestEncrypt, "pubKeyEncode:%s"), pubKeyEncode.c_str());
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestEncrypt, "privateKeyEncode:%s"), privateKeyEncode.c_str());
 }
 

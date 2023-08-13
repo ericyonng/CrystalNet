@@ -463,6 +463,15 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
         }
 
         const auto opcode = packet->GetOpcode();
+        const auto sessionId = packet->GetSessionId();
+
+        // 来消息了
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_MSG_RECV);
+        ev->SetParam(Params::SESSION_ID, sessionId);
+        ev->SetParam(Params::OPCODE, opcode);
+        ev->SetParam(Params::PACKET, packet);
+        _eventMgr->FireEvent(ev);
+
         auto handler = _GetMsgHandler(opcode);
         if(UNLIKELY(!handler))
         {
@@ -471,20 +480,12 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
             continue;
         }
 
-        const auto sessionId = packet->GetSessionId();
         const auto packetId = packet->GetPacketId();
         auto &&outputLogFunc = [sessionId, packetId, opcode](UInt64 costMs){
             const auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
             g_Log->Warn(LOGFMT_NON_OBJ_TAG(MyTestService, "sessionId:%llu, packetid:%lld, opcode:%d,[%s], costMs:%llu ms. "),  sessionId, packetId, opcode, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.", costMs);
         };
             
-        // 来消息了
-        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_MSG_RECV);
-        ev->SetParam(Params::SESSION_ID, sessionId);
-        ev->SetParam(Params::OPCODE, opcode);
-        ev->SetParam(Params::PACKET, packet);
-        _eventMgr->FireEvent(ev);
-        
         PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
         handler->Invoke(packet);
         if(LIKELY(packet))

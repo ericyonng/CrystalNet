@@ -39,7 +39,6 @@ void TestProtobuf::Run()
     g_Log->Custom("OPCODE_LoginReq:%s", Opcodes::GetOpcodeInfo(Opcodes::OpcodeConst::OPCODE_LoginReq)->ToString().c_str());
 
     LoginReq *req = new LoginReq;
-    req->set_account("abc");
 
     KERNEL_NS::LibString info;
     std::string data;
@@ -50,7 +49,6 @@ void TestProtobuf::Run()
     LoginReq *req2 = new LoginReq;
     req2->ParseFromString(info.GetRaw());
     req2->PrintDebugString();
-    g_Log->Custom("account:%s", req2->account().c_str());
 
     Opcodes::Destroy();
 }

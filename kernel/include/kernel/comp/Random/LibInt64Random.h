@@ -132,9 +132,7 @@ ALWAYS_INLINE Rtn &LibInt64RandomInstance::GetInstance(_Build::TL::Type)
     DEF_STATIC_THREAD_LOCAL_DECLEAR  SmartPtr<Rtn> instance;
     if(UNLIKELY(!instance))
     {
-        instance =  KERNEL_NS::AllocUtil::GetStaticThreadLocalTemplateObjNoFree<Rtn>([]()-> void *{
-            return new Rtn(minValue, maxValue);
-        });
+        instance = new Rtn(minValue, maxValue);
     }
     return *instance;
 }

@@ -12,22 +12,24 @@ message UserBaseInfo
     string Nickname = 4;
     // 密码
     string Pwd = 5;
+    // 盐
+    string PwdSalt = 6;
     // 绑定手机
-    uint64 BindPhone = 6;
+    uint64 BindPhone = 7;
     // 最后登录时间
-    sint64 LastLoginTime = 7;
+    sint64 LastLoginTime = 8;
     // 最后登录ip
-    string LastLoginIp = 8;
+    string LastLoginIp = 9;
     // 最后登录收集imei
-    string LastLoginPhoneImei = 9;
+    string LastLoginPhoneImei = 10;
     // 创建号的ip
-    string CreateIp = 10;
+    string CreateIp = 11;
     // 创建时间
-    sint64 CreateTime = 11;
+    sint64 CreateTime = 12;
     // 创建的收集imei
-    string CreatePhoneImei = 12;
+    string CreatePhoneImei = 13;
     // 绑定的邮箱地址
-    string BindMailAddr = 13;
+    string BindMailAddr = 14;
 }
 
 // 登录模式
@@ -69,21 +71,25 @@ message LoginInfo
     string LoginToken = 4;
     // 登录设备
     string LoginPhoneImei = 5;
+    // 登录目标ip
+    string TargetIp = 6;
+    // 登录目标端口
+    uint32 Port = 7;
 
     // 注册信息
     oneof RegisterInfo
     {
-        RegisterUserInfo UserRegisterInfo = 6;
+        RegisterUserInfo UserRegisterInfo = 8;
     }
 
     // 鉴权:ip是黑白校验, 设备黑白校验, 账号黑白校验
     // 产品id
-    string AppId = 7;
+    string AppId = 9;
     // 密文
-    string cypherText = 8;
+    string cypherText = 10;
     // 原文
-    string originText = 9;
+    string originText = 11;
     // 版本号
-    uint64 versionId = 10;
+    uint64 versionId = 12;
 }
 

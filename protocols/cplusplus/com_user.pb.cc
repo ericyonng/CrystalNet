@@ -31,6 +31,7 @@ PROTOBUF_CONSTEXPR UserBaseInfo::UserBaseInfo(
   , /*decltype(_impl_.name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.nickname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.pwd_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.pwdsalt_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.lastloginip_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.lastloginphoneimei_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.createip_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
@@ -83,11 +84,13 @@ PROTOBUF_CONSTEXPR LoginInfo::LoginInfo(
   , /*decltype(_impl_.pwd_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.logintoken_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.loginphoneimei_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.targetip_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.appid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.cyphertext_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.origintext_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.versionid_)*/uint64_t{0u}
   , /*decltype(_impl_.loginmode_)*/0
+  , /*decltype(_impl_.port_)*/0u
+  , /*decltype(_impl_.versionid_)*/uint64_t{0u}
   , /*decltype(_impl_.RegisterInfo_)*/{}
   , /*decltype(_impl_._cached_size_)*/{}
   , /*decltype(_impl_._oneof_case_)*/{}} {}
@@ -116,6 +119,7 @@ const uint32_t TableStruct_com_5fuser_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
   PROTOBUF_FIELD_OFFSET(::UserBaseInfo, _impl_.name_),
   PROTOBUF_FIELD_OFFSET(::UserBaseInfo, _impl_.nickname_),
   PROTOBUF_FIELD_OFFSET(::UserBaseInfo, _impl_.pwd_),
+  PROTOBUF_FIELD_OFFSET(::UserBaseInfo, _impl_.pwdsalt_),
   PROTOBUF_FIELD_OFFSET(::UserBaseInfo, _impl_.bindphone_),
   PROTOBUF_FIELD_OFFSET(::UserBaseInfo, _impl_.lastlogintime_),
   PROTOBUF_FIELD_OFFSET(::UserBaseInfo, _impl_.lastloginip_),
@@ -151,6 +155,8 @@ const uint32_t TableStruct_com_5fuser_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
   PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.pwd_),
   PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.logintoken_),
   PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.loginphoneimei_),
+  PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.targetip_),
+  PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.port_),
   ::_pbi::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.appid_),
   PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.cyphertext_),
@@ -160,9 +166,9 @@ const uint32_t TableStruct_com_5fuser_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::UserBaseInfo)},
-  { 19, -1, -1, sizeof(::LoginMode)},
-  { 25, -1, -1, sizeof(::RegisterUserInfo)},
-  { 35, -1, -1, sizeof(::LoginInfo)},
+  { 20, -1, -1, sizeof(::LoginMode)},
+  { 26, -1, -1, sizeof(::RegisterUserInfo)},
+  { 36, -1, -1, sizeof(::LoginInfo)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -173,28 +179,30 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\016com_user.proto\"\220\002\n\014UserBaseInfo\022\016\n\006Use"
+  "\n\016com_user.proto\"\241\002\n\014UserBaseInfo\022\016\n\006Use"
   "rId\030\001 \001(\004\022\023\n\013AccountName\030\002 \001(\t\022\014\n\004Name\030\003"
-  " \001(\t\022\020\n\010Nickname\030\004 \001(\t\022\013\n\003Pwd\030\005 \001(\t\022\021\n\tB"
-  "indPhone\030\006 \001(\004\022\025\n\rLastLoginTime\030\007 \001(\022\022\023\n"
-  "\013LastLoginIp\030\010 \001(\t\022\032\n\022LastLoginPhoneImei"
-  "\030\t \001(\t\022\020\n\010CreateIp\030\n \001(\t\022\022\n\nCreateTime\030\013"
-  " \001(\022\022\027\n\017CreatePhoneImei\030\014 \001(\t\022\024\n\014BindMai"
-  "lAddr\030\r \001(\t\"E\n\tLoginMode\"8\n\005ENUMS\022\014\n\010PAS"
-  "SWORD\020\000\022\023\n\017USE_LOGIN_TOKEN\020\001\022\014\n\010REGISTER"
-  "\020\002\"_\n\020RegisterUserInfo\022\023\n\013AccountName\030\001 "
-  "\001(\t\022\020\n\010Nickname\030\002 \001(\t\022\013\n\003Pwd\030\003 \001(\t\022\027\n\017Cr"
-  "eatePhoneImei\030\004 \001(\t\"\365\001\n\tLoginInfo\022\021\n\tLog"
-  "inMode\030\001 \001(\021\022\023\n\013AccountName\030\002 \001(\t\022\013\n\003Pwd"
-  "\030\003 \001(\t\022\022\n\nLoginToken\030\004 \001(\t\022\026\n\016LoginPhone"
-  "Imei\030\005 \001(\t\022-\n\020UserRegisterInfo\030\006 \001(\0132\021.R"
-  "egisterUserInfoH\000\022\r\n\005AppId\030\007 \001(\t\022\022\n\ncyph"
-  "erText\030\010 \001(\t\022\022\n\noriginText\030\t \001(\t\022\021\n\tvers"
-  "ionId\030\n \001(\004B\016\n\014RegisterInfob\006proto3"
+  " \001(\t\022\020\n\010Nickname\030\004 \001(\t\022\013\n\003Pwd\030\005 \001(\t\022\017\n\007P"
+  "wdSalt\030\006 \001(\t\022\021\n\tBindPhone\030\007 \001(\004\022\025\n\rLastL"
+  "oginTime\030\010 \001(\022\022\023\n\013LastLoginIp\030\t \001(\t\022\032\n\022L"
+  "astLoginPhoneImei\030\n \001(\t\022\020\n\010CreateIp\030\013 \001("
+  "\t\022\022\n\nCreateTime\030\014 \001(\022\022\027\n\017CreatePhoneImei"
+  "\030\r \001(\t\022\024\n\014BindMailAddr\030\016 \001(\t\"E\n\tLoginMod"
+  "e\"8\n\005ENUMS\022\014\n\010PASSWORD\020\000\022\023\n\017USE_LOGIN_TO"
+  "KEN\020\001\022\014\n\010REGISTER\020\002\"_\n\020RegisterUserInfo\022"
+  "\023\n\013AccountName\030\001 \001(\t\022\020\n\010Nickname\030\002 \001(\t\022\013"
+  "\n\003Pwd\030\003 \001(\t\022\027\n\017CreatePhoneImei\030\004 \001(\t\"\225\002\n"
+  "\tLoginInfo\022\021\n\tLoginMode\030\001 \001(\021\022\023\n\013Account"
+  "Name\030\002 \001(\t\022\013\n\003Pwd\030\003 \001(\t\022\022\n\nLoginToken\030\004 "
+  "\001(\t\022\026\n\016LoginPhoneImei\030\005 \001(\t\022\020\n\010TargetIp\030"
+  "\006 \001(\t\022\014\n\004Port\030\007 \001(\r\022-\n\020UserRegisterInfo\030"
+  "\010 \001(\0132\021.RegisterUserInfoH\000\022\r\n\005AppId\030\t \001("
+  "\t\022\022\n\ncypherText\030\n \001(\t\022\022\n\noriginText\030\013 \001("
+  "\t\022\021\n\tversionId\030\014 \001(\004B\016\n\014RegisterInfob\006pr"
+  "oto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fuser_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fuser_2eproto = {
-    false, false, 715, descriptor_table_protodef_com_5fuser_2eproto,
+    false, false, 764, descriptor_table_protodef_com_5fuser_2eproto,
     "com_user.proto",
     &descriptor_table_com_5fuser_2eproto_once, nullptr, 0, 4,
     schemas, file_default_instances, TableStruct_com_5fuser_2eproto::offsets,
@@ -251,6 +259,7 @@ UserBaseInfo::UserBaseInfo(const UserBaseInfo& from)
     , decltype(_impl_.name_){}
     , decltype(_impl_.nickname_){}
     , decltype(_impl_.pwd_){}
+    , decltype(_impl_.pwdsalt_){}
     , decltype(_impl_.lastloginip_){}
     , decltype(_impl_.lastloginphoneimei_){}
     , decltype(_impl_.createip_){}
@@ -293,6 +302,14 @@ UserBaseInfo::UserBaseInfo(const UserBaseInfo& from)
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_pwd().empty()) {
     _this->_impl_.pwd_.Set(from._internal_pwd(), 
+      _this->GetArenaForAllocation());
+  }
+  _impl_.pwdsalt_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.pwdsalt_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_pwdsalt().empty()) {
+    _this->_impl_.pwdsalt_.Set(from._internal_pwdsalt(), 
       _this->GetArenaForAllocation());
   }
   _impl_.lastloginip_.InitDefault();
@@ -350,6 +367,7 @@ inline void UserBaseInfo::SharedCtor(
     , decltype(_impl_.name_){}
     , decltype(_impl_.nickname_){}
     , decltype(_impl_.pwd_){}
+    , decltype(_impl_.pwdsalt_){}
     , decltype(_impl_.lastloginip_){}
     , decltype(_impl_.lastloginphoneimei_){}
     , decltype(_impl_.createip_){}
@@ -376,6 +394,10 @@ inline void UserBaseInfo::SharedCtor(
   _impl_.pwd_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.pwd_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.pwdsalt_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.pwdsalt_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   _impl_.lastloginip_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -414,6 +436,7 @@ inline void UserBaseInfo::SharedDtor() {
   _impl_.name_.Destroy();
   _impl_.nickname_.Destroy();
   _impl_.pwd_.Destroy();
+  _impl_.pwdsalt_.Destroy();
   _impl_.lastloginip_.Destroy();
   _impl_.lastloginphoneimei_.Destroy();
   _impl_.createip_.Destroy();
@@ -435,6 +458,7 @@ void UserBaseInfo::Clear() {
   _impl_.name_.ClearToEmpty();
   _impl_.nickname_.ClearToEmpty();
   _impl_.pwd_.ClearToEmpty();
+  _impl_.pwdsalt_.ClearToEmpty();
   _impl_.lastloginip_.ClearToEmpty();
   _impl_.lastloginphoneimei_.ClearToEmpty();
   _impl_.createip_.ClearToEmpty();
@@ -500,25 +524,35 @@ const char* UserBaseInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // uint64 BindPhone = 6;
+      // string PwdSalt = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+          auto str = _internal_mutable_pwdsalt();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "UserBaseInfo.PwdSalt"));
+        } else
+          goto handle_unusual;
+        continue;
+      // uint64 BindPhone = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
           _impl_.bindphone_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // sint64 LastLoginTime = 7;
-      case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
+      // sint64 LastLoginTime = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
           _impl_.lastlogintime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // string LastLoginIp = 8;
-      case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+      // string LastLoginIp = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           auto str = _internal_mutable_lastloginip();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -526,9 +560,9 @@ const char* UserBaseInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // string LastLoginPhoneImei = 9;
-      case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+      // string LastLoginPhoneImei = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           auto str = _internal_mutable_lastloginphoneimei();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -536,9 +570,9 @@ const char* UserBaseInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // string CreateIp = 10;
-      case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+      // string CreateIp = 11;
+      case 11:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           auto str = _internal_mutable_createip();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -546,17 +580,17 @@ const char* UserBaseInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // sint64 CreateTime = 11;
-      case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 88)) {
+      // sint64 CreateTime = 12;
+      case 12:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 96)) {
           _impl_.createtime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // string CreatePhoneImei = 12;
-      case 12:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
+      // string CreatePhoneImei = 13;
+      case 13:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
           auto str = _internal_mutable_createphoneimei();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -564,9 +598,9 @@ const char* UserBaseInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // string BindMailAddr = 13;
-      case 13:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
+      // string BindMailAddr = 14;
+      case 14:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
           auto str = _internal_mutable_bindmailaddr();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -649,72 +683,82 @@ uint8_t* UserBaseInfo::_InternalSerialize(
         5, this->_internal_pwd(), target);
   }
 
-  // uint64 BindPhone = 6;
+  // string PwdSalt = 6;
+  if (!this->_internal_pwdsalt().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_pwdsalt().data(), static_cast<int>(this->_internal_pwdsalt().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "UserBaseInfo.PwdSalt");
+    target = stream->WriteStringMaybeAliased(
+        6, this->_internal_pwdsalt(), target);
+  }
+
+  // uint64 BindPhone = 7;
   if (this->_internal_bindphone() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(6, this->_internal_bindphone(), target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(7, this->_internal_bindphone(), target);
   }
 
-  // sint64 LastLoginTime = 7;
+  // sint64 LastLoginTime = 8;
   if (this->_internal_lastlogintime() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(7, this->_internal_lastlogintime(), target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(8, this->_internal_lastlogintime(), target);
   }
 
-  // string LastLoginIp = 8;
+  // string LastLoginIp = 9;
   if (!this->_internal_lastloginip().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_lastloginip().data(), static_cast<int>(this->_internal_lastloginip().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "UserBaseInfo.LastLoginIp");
     target = stream->WriteStringMaybeAliased(
-        8, this->_internal_lastloginip(), target);
+        9, this->_internal_lastloginip(), target);
   }
 
-  // string LastLoginPhoneImei = 9;
+  // string LastLoginPhoneImei = 10;
   if (!this->_internal_lastloginphoneimei().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_lastloginphoneimei().data(), static_cast<int>(this->_internal_lastloginphoneimei().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "UserBaseInfo.LastLoginPhoneImei");
     target = stream->WriteStringMaybeAliased(
-        9, this->_internal_lastloginphoneimei(), target);
+        10, this->_internal_lastloginphoneimei(), target);
   }
 
-  // string CreateIp = 10;
+  // string CreateIp = 11;
   if (!this->_internal_createip().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_createip().data(), static_cast<int>(this->_internal_createip().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "UserBaseInfo.CreateIp");
     target = stream->WriteStringMaybeAliased(
-        10, this->_internal_createip(), target);
+        11, this->_internal_createip(), target);
   }
 
-  // sint64 CreateTime = 11;
+  // sint64 CreateTime = 12;
   if (this->_internal_createtime() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(11, this->_internal_createtime(), target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(12, this->_internal_createtime(), target);
   }
 
-  // string CreatePhoneImei = 12;
+  // string CreatePhoneImei = 13;
   if (!this->_internal_createphoneimei().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_createphoneimei().data(), static_cast<int>(this->_internal_createphoneimei().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "UserBaseInfo.CreatePhoneImei");
     target = stream->WriteStringMaybeAliased(
-        12, this->_internal_createphoneimei(), target);
+        13, this->_internal_createphoneimei(), target);
   }
 
-  // string BindMailAddr = 13;
+  // string BindMailAddr = 14;
   if (!this->_internal_bindmailaddr().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_bindmailaddr().data(), static_cast<int>(this->_internal_bindmailaddr().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "UserBaseInfo.BindMailAddr");
     target = stream->WriteStringMaybeAliased(
-        13, this->_internal_bindmailaddr(), target);
+        14, this->_internal_bindmailaddr(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -761,35 +805,42 @@ size_t UserBaseInfo::ByteSizeLong() const {
         this->_internal_pwd());
   }
 
-  // string LastLoginIp = 8;
+  // string PwdSalt = 6;
+  if (!this->_internal_pwdsalt().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_pwdsalt());
+  }
+
+  // string LastLoginIp = 9;
   if (!this->_internal_lastloginip().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_lastloginip());
   }
 
-  // string LastLoginPhoneImei = 9;
+  // string LastLoginPhoneImei = 10;
   if (!this->_internal_lastloginphoneimei().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_lastloginphoneimei());
   }
 
-  // string CreateIp = 10;
+  // string CreateIp = 11;
   if (!this->_internal_createip().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_createip());
   }
 
-  // string CreatePhoneImei = 12;
+  // string CreatePhoneImei = 13;
   if (!this->_internal_createphoneimei().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_createphoneimei());
   }
 
-  // string BindMailAddr = 13;
+  // string BindMailAddr = 14;
   if (!this->_internal_bindmailaddr().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
@@ -801,17 +852,17 @@ size_t UserBaseInfo::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_userid());
   }
 
-  // uint64 BindPhone = 6;
+  // uint64 BindPhone = 7;
   if (this->_internal_bindphone() != 0) {
     total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_bindphone());
   }
 
-  // sint64 LastLoginTime = 7;
+  // sint64 LastLoginTime = 8;
   if (this->_internal_lastlogintime() != 0) {
     total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_lastlogintime());
   }
 
-  // sint64 CreateTime = 11;
+  // sint64 CreateTime = 12;
   if (this->_internal_createtime() != 0) {
     total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_createtime());
   }
@@ -845,6 +896,9 @@ void UserBaseInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::P
   }
   if (!from._internal_pwd().empty()) {
     _this->_internal_set_pwd(from._internal_pwd());
+  }
+  if (!from._internal_pwdsalt().empty()) {
+    _this->_internal_set_pwdsalt(from._internal_pwdsalt());
   }
   if (!from._internal_lastloginip().empty()) {
     _this->_internal_set_lastloginip(from._internal_lastloginip());
@@ -907,6 +961,10 @@ void UserBaseInfo::InternalSwap(UserBaseInfo* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.pwd_, lhs_arena,
       &other->_impl_.pwd_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.pwdsalt_, lhs_arena,
+      &other->_impl_.pwdsalt_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.lastloginip_, lhs_arena,
@@ -1375,11 +1433,13 @@ LoginInfo::LoginInfo(const LoginInfo& from)
     , decltype(_impl_.pwd_){}
     , decltype(_impl_.logintoken_){}
     , decltype(_impl_.loginphoneimei_){}
+    , decltype(_impl_.targetip_){}
     , decltype(_impl_.appid_){}
     , decltype(_impl_.cyphertext_){}
     , decltype(_impl_.origintext_){}
-    , decltype(_impl_.versionid_){}
     , decltype(_impl_.loginmode_){}
+    , decltype(_impl_.port_){}
+    , decltype(_impl_.versionid_){}
     , decltype(_impl_.RegisterInfo_){}
     , /*decltype(_impl_._cached_size_)*/{}
     , /*decltype(_impl_._oneof_case_)*/{}};
@@ -1417,6 +1477,14 @@ LoginInfo::LoginInfo(const LoginInfo& from)
     _this->_impl_.loginphoneimei_.Set(from._internal_loginphoneimei(), 
       _this->GetArenaForAllocation());
   }
+  _impl_.targetip_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.targetip_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_targetip().empty()) {
+    _this->_impl_.targetip_.Set(from._internal_targetip(), 
+      _this->GetArenaForAllocation());
+  }
   _impl_.appid_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.appid_.Set("", GetArenaForAllocation());
@@ -1441,9 +1509,9 @@ LoginInfo::LoginInfo(const LoginInfo& from)
     _this->_impl_.origintext_.Set(from._internal_origintext(), 
       _this->GetArenaForAllocation());
   }
-  ::memcpy(&_impl_.versionid_, &from._impl_.versionid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.loginmode_) -
-    reinterpret_cast<char*>(&_impl_.versionid_)) + sizeof(_impl_.loginmode_));
+  ::memcpy(&_impl_.loginmode_, &from._impl_.loginmode_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.versionid_) -
+    reinterpret_cast<char*>(&_impl_.loginmode_)) + sizeof(_impl_.versionid_));
   clear_has_RegisterInfo();
   switch (from.RegisterInfo_case()) {
     case kUserRegisterInfo: {
@@ -1467,11 +1535,13 @@ inline void LoginInfo::SharedCtor(
     , decltype(_impl_.pwd_){}
     , decltype(_impl_.logintoken_){}
     , decltype(_impl_.loginphoneimei_){}
+    , decltype(_impl_.targetip_){}
     , decltype(_impl_.appid_){}
     , decltype(_impl_.cyphertext_){}
     , decltype(_impl_.origintext_){}
-    , decltype(_impl_.versionid_){uint64_t{0u}}
     , decltype(_impl_.loginmode_){0}
+    , decltype(_impl_.port_){0u}
+    , decltype(_impl_.versionid_){uint64_t{0u}}
     , decltype(_impl_.RegisterInfo_){}
     , /*decltype(_impl_._cached_size_)*/{}
     , /*decltype(_impl_._oneof_case_)*/{}
@@ -1491,6 +1561,10 @@ inline void LoginInfo::SharedCtor(
   _impl_.loginphoneimei_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.loginphoneimei_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.targetip_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.targetip_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   _impl_.appid_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1522,6 +1596,7 @@ inline void LoginInfo::SharedDtor() {
   _impl_.pwd_.Destroy();
   _impl_.logintoken_.Destroy();
   _impl_.loginphoneimei_.Destroy();
+  _impl_.targetip_.Destroy();
   _impl_.appid_.Destroy();
   _impl_.cyphertext_.Destroy();
   _impl_.origintext_.Destroy();
@@ -1561,12 +1636,13 @@ void LoginInfo::Clear() {
   _impl_.pwd_.ClearToEmpty();
   _impl_.logintoken_.ClearToEmpty();
   _impl_.loginphoneimei_.ClearToEmpty();
+  _impl_.targetip_.ClearToEmpty();
   _impl_.appid_.ClearToEmpty();
   _impl_.cyphertext_.ClearToEmpty();
   _impl_.origintext_.ClearToEmpty();
-  ::memset(&_impl_.versionid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.loginmode_) -
-      reinterpret_cast<char*>(&_impl_.versionid_)) + sizeof(_impl_.loginmode_));
+  ::memset(&_impl_.loginmode_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.versionid_) -
+      reinterpret_cast<char*>(&_impl_.loginmode_)) + sizeof(_impl_.versionid_));
   clear_RegisterInfo();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1625,17 +1701,35 @@ const char* LoginInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx
         } else
           goto handle_unusual;
         continue;
-      // .RegisterUserInfo UserRegisterInfo = 6;
+      // string TargetIp = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+          auto str = _internal_mutable_targetip();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "LoginInfo.TargetIp"));
+        } else
+          goto handle_unusual;
+        continue;
+      // uint32 Port = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
+          _impl_.port_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // .RegisterUserInfo UserRegisterInfo = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ctx->ParseMessage(_internal_mutable_userregisterinfo(), ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // string AppId = 7;
-      case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+      // string AppId = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           auto str = _internal_mutable_appid();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -1643,9 +1737,9 @@ const char* LoginInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx
         } else
           goto handle_unusual;
         continue;
-      // string cypherText = 8;
-      case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+      // string cypherText = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           auto str = _internal_mutable_cyphertext();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -1653,9 +1747,9 @@ const char* LoginInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx
         } else
           goto handle_unusual;
         continue;
-      // string originText = 9;
-      case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+      // string originText = 11;
+      case 11:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           auto str = _internal_mutable_origintext();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -1663,9 +1757,9 @@ const char* LoginInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx
         } else
           goto handle_unusual;
         continue;
-      // uint64 versionId = 10;
-      case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 80)) {
+      // uint64 versionId = 12;
+      case 12:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 96)) {
           _impl_.versionid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
@@ -1746,47 +1840,63 @@ uint8_t* LoginInfo::_InternalSerialize(
         5, this->_internal_loginphoneimei(), target);
   }
 
-  // .RegisterUserInfo UserRegisterInfo = 6;
+  // string TargetIp = 6;
+  if (!this->_internal_targetip().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_targetip().data(), static_cast<int>(this->_internal_targetip().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "LoginInfo.TargetIp");
+    target = stream->WriteStringMaybeAliased(
+        6, this->_internal_targetip(), target);
+  }
+
+  // uint32 Port = 7;
+  if (this->_internal_port() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(7, this->_internal_port(), target);
+  }
+
+  // .RegisterUserInfo UserRegisterInfo = 8;
   if (_internal_has_userregisterinfo()) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(6, _Internal::userregisterinfo(this),
+      InternalWriteMessage(8, _Internal::userregisterinfo(this),
         _Internal::userregisterinfo(this).GetCachedSize(), target, stream);
   }
 
-  // string AppId = 7;
+  // string AppId = 9;
   if (!this->_internal_appid().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_appid().data(), static_cast<int>(this->_internal_appid().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "LoginInfo.AppId");
     target = stream->WriteStringMaybeAliased(
-        7, this->_internal_appid(), target);
+        9, this->_internal_appid(), target);
   }
 
-  // string cypherText = 8;
+  // string cypherText = 10;
   if (!this->_internal_cyphertext().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_cyphertext().data(), static_cast<int>(this->_internal_cyphertext().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "LoginInfo.cypherText");
     target = stream->WriteStringMaybeAliased(
-        8, this->_internal_cyphertext(), target);
+        10, this->_internal_cyphertext(), target);
   }
 
-  // string originText = 9;
+  // string originText = 11;
   if (!this->_internal_origintext().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_origintext().data(), static_cast<int>(this->_internal_origintext().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "LoginInfo.originText");
     target = stream->WriteStringMaybeAliased(
-        9, this->_internal_origintext(), target);
+        11, this->_internal_origintext(), target);
   }
 
-  // uint64 versionId = 10;
+  // uint64 versionId = 12;
   if (this->_internal_versionid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(10, this->_internal_versionid(), target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(12, this->_internal_versionid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1833,30 +1943,32 @@ size_t LoginInfo::ByteSizeLong() const {
         this->_internal_loginphoneimei());
   }
 
-  // string AppId = 7;
+  // string TargetIp = 6;
+  if (!this->_internal_targetip().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_targetip());
+  }
+
+  // string AppId = 9;
   if (!this->_internal_appid().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_appid());
   }
 
-  // string cypherText = 8;
+  // string cypherText = 10;
   if (!this->_internal_cyphertext().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_cyphertext());
   }
 
-  // string originText = 9;
+  // string originText = 11;
   if (!this->_internal_origintext().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_origintext());
-  }
-
-  // uint64 versionId = 10;
-  if (this->_internal_versionid() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_versionid());
   }
 
   // sint32 LoginMode = 1;
@@ -1864,8 +1976,18 @@ size_t LoginInfo::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_loginmode());
   }
 
+  // uint32 Port = 7;
+  if (this->_internal_port() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_port());
+  }
+
+  // uint64 versionId = 12;
+  if (this->_internal_versionid() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_versionid());
+  }
+
   switch (RegisterInfo_case()) {
-    // .RegisterUserInfo UserRegisterInfo = 6;
+    // .RegisterUserInfo UserRegisterInfo = 8;
     case kUserRegisterInfo: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -1906,6 +2028,9 @@ void LoginInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROT
   if (!from._internal_loginphoneimei().empty()) {
     _this->_internal_set_loginphoneimei(from._internal_loginphoneimei());
   }
+  if (!from._internal_targetip().empty()) {
+    _this->_internal_set_targetip(from._internal_targetip());
+  }
   if (!from._internal_appid().empty()) {
     _this->_internal_set_appid(from._internal_appid());
   }
@@ -1915,11 +2040,14 @@ void LoginInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROT
   if (!from._internal_origintext().empty()) {
     _this->_internal_set_origintext(from._internal_origintext());
   }
-  if (from._internal_versionid() != 0) {
-    _this->_internal_set_versionid(from._internal_versionid());
-  }
   if (from._internal_loginmode() != 0) {
     _this->_internal_set_loginmode(from._internal_loginmode());
+  }
+  if (from._internal_port() != 0) {
+    _this->_internal_set_port(from._internal_port());
+  }
+  if (from._internal_versionid() != 0) {
+    _this->_internal_set_versionid(from._internal_versionid());
   }
   switch (from.RegisterInfo_case()) {
     case kUserRegisterInfo: {
@@ -1967,6 +2095,10 @@ void LoginInfo::InternalSwap(LoginInfo* other) {
       &other->_impl_.loginphoneimei_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.targetip_, lhs_arena,
+      &other->_impl_.targetip_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.appid_, lhs_arena,
       &other->_impl_.appid_, rhs_arena
   );
@@ -1979,11 +2111,11 @@ void LoginInfo::InternalSwap(LoginInfo* other) {
       &other->_impl_.origintext_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(LoginInfo, _impl_.loginmode_)
-      + sizeof(LoginInfo::_impl_.loginmode_)
-      - PROTOBUF_FIELD_OFFSET(LoginInfo, _impl_.versionid_)>(
-          reinterpret_cast<char*>(&_impl_.versionid_),
-          reinterpret_cast<char*>(&other->_impl_.versionid_));
+      PROTOBUF_FIELD_OFFSET(LoginInfo, _impl_.versionid_)
+      + sizeof(LoginInfo::_impl_.versionid_)
+      - PROTOBUF_FIELD_OFFSET(LoginInfo, _impl_.loginmode_)>(
+          reinterpret_cast<char*>(&_impl_.loginmode_),
+          reinterpret_cast<char*>(&other->_impl_.loginmode_));
   swap(_impl_.RegisterInfo_, other->_impl_.RegisterInfo_);
   swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
 }
