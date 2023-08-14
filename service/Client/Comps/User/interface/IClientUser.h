@@ -72,6 +72,7 @@ public:
     // 设置登录信息
     virtual void SetLoginInfo(const LoginInfo &loginInfo) = 0;
     virtual const LoginInfo &GetLoginInfo() const = 0;
+    virtual LoginInfo &GetLoginInfo() = 0;
 
 
     // 是否登出

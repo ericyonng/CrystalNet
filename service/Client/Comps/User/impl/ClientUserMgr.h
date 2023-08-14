@@ -86,6 +86,7 @@ private:
     KERNEL_NS::LibString _rsaPublicKeyRaw;
     KERNEL_NS::LibRsa _rsa;
     AddrConfig *_targetAddrConfig;  // 测试的目标地址
+    KERNEL_NS::LibString _testLoginAccountName;
 };
 
 SERVICE_END

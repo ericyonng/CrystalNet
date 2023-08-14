@@ -276,6 +276,20 @@ Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS:
             _userBaseInfo->set_bindmailaddr(std::string(data->GetReadBegin(), data->GetReadableSize()));
     }
 
+   {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kPwdSaltFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("pwd salt field data not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        if(data->GetReadableSize())
+            _userBaseInfo->set_pwdsalt(std::string(data->GetReadBegin(), data->GetReadableSize()));
+    }
+
     for(auto iter : _fieldNameRefUserSys)
     {
         auto &fieldName = iter.first;

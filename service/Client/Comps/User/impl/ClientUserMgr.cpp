@@ -82,7 +82,10 @@ void ClientUserMgr::OnStartup()
     KERNEL_NS::LibString accountName;
     auto &random = KERNEL_NS::LibInt64Random<KERNEL_NS::_Build::TL>::GetInstance();
 
-    accountName.AppendFormat("bot_user_%lld", random.Gen(0, 127));
+    if(_testLoginAccountName.empty())
+        accountName.AppendFormat("bot_user_%lld", random.Gen(0, 127));
+    else
+        accountName = _testLoginAccountName;
     LoginInfo loginInfo;
     loginInfo.set_loginmode(LoginMode::REGISTER);
     loginInfo.set_accountname(accountName.GetRaw());
@@ -294,6 +297,8 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
         }
     }
 
+    ini->ReadStr(GetService()->GetServiceName().c_str(), "TestLoginAccountName", _testLoginAccountName);
+
     return Status::Success;
 }
 
@@ -325,7 +330,24 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
     auto loginRes = packet->GetCoder<LoginRes>();
     if(loginRes->errcode() != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("login fail err:%d, user:%s"), loginRes->errcode(), user->ToString().c_str());
+        // 账号已存在直接登录
+        if(loginRes->errcode() == Status::UserAllReadyExistsCantRegisterAgain)
+        {
+            user->SetUserStatus(ClientUserStatus::UNLOGIN);
+            auto &loginInfo = user->GetLoginInfo();
+            g_Log->Warn(LOGFMT_OBJ_TAG("account exists turn login directerly account:%s"), loginInfo.accountname().c_str());
+            loginInfo.set_loginmode(LoginMode::PASSWORD);
+            auto errCode = user->Login();
+            if(errCode != Status::Success)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("login fail errCode:%d, account:%s"), errCode, loginInfo.accountname().c_str());
+            }
+        }
+        else
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("login fail err:%d, user:%s"), loginRes->errcode(), user->ToString().c_str());
+        }
+
         return;
     }
 

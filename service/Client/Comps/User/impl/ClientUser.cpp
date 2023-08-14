@@ -254,6 +254,13 @@ Int32 ClientUser::Login()
     }
 
     _clientInfo->set_clientstatus(ClientUserStatus::LOGINING);
+
+    if(UNLIKELY(_activedSessionId))
+    {
+        _userMgr->CloseSession(_activedSessionId, 0, true, true);
+        _userMgr->RemoveUserBySessionId(_activedSessionId);
+        _activedSessionId = 0;
+    }
     
     // 创建session并
     auto sysMgr = _userMgr->GetGlobalSys<ISysLogicMgr>();
@@ -277,6 +284,11 @@ void ClientUser::SetLoginInfo(const LoginInfo &loginInfo)
 }
 
 const LoginInfo &ClientUser::GetLoginInfo() const 
+{
+    return _loginInfo;
+}
+
+LoginInfo &ClientUser::GetLoginInfo()
 {
     return _loginInfo;
 }

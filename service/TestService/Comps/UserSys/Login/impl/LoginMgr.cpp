@@ -98,12 +98,14 @@ Int32 LoginMgr::CheckLogin(const PendingUser *pendingUser) const
     // 注册登录: pwd校验, 账号校验, 登录设备校验, 密文校验
     if(!pendingUser->_loginInfo)
     {// TODO:需要外部校验
-        return Status::Success;
+        g_Log->Warn(LOGFMT_OBJ_TAG("have no login info user:%s"), _userOwner->ToString().c_str());
+        return Status::ParamError;
     }
 
     if(pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER)
     {// 
-        return Status::Success;
+        g_Log->Warn(LOGFMT_OBJ_TAG("user already exists user:%s"), _userOwner->ToString().c_str());
+        return Status::UserAllReadyExistsCantRegisterAgain;
     }
 
     auto &rsa = _userMgr->GetRsa();
@@ -127,8 +129,7 @@ Int32 LoginMgr::CheckLogin(const PendingUser *pendingUser) const
         g_Log->Warn(LOGFMT_OBJ_TAG("client not no author user:%s"), _userOwner->ToString().c_str());
         return Status::Failed;
     }
-    const auto &encodeText = KERNEL_NS::LibBase64::Encode(textRaw);
-    if(encodeText.GetRaw() != loginInfo.origintext())
+    if(textRaw.GetRaw() != loginInfo.origintext())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("client not no author user:%s"), _userOwner->ToString().c_str());
         return Status::Failed;

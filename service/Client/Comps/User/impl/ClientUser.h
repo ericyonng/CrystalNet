@@ -77,6 +77,7 @@ public:
     virtual Int32 Login() override;
     virtual void SetLoginInfo(const LoginInfo &loginInfo) override;
     virtual const LoginInfo &GetLoginInfo() const override;
+    virtual LoginInfo &GetLoginInfo() override;
 
     // 是否登出
     virtual bool IsLogined() const override;

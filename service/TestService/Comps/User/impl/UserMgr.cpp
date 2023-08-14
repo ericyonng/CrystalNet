@@ -308,21 +308,23 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("check login fail err:%d, pending info:%s, userId:%llu"), err, pendingInfo->ToString().c_str(), user->GetUserId());
-        }
-        else
-        {
-            // 顶号
-            if(user->IsLogined())
-                user->Logout();
-
-            user->BindSession(pendingInfo->_sessionId);
-            user->OnLogin();
-
             if(LIKELY(cb))
-                cb->Invoke(Status::Success, pendingInfo, user, var);
+                cb->Invoke(err, pendingInfo, user, var);
 
-            user->OnLoginFinish();
+            return err;
         }
+
+        // 顶号
+        if(user->IsLogined())
+            user->Logout();
+
+        user->BindSession(pendingInfo->_sessionId);
+        user->OnLogin();
+
+        if(LIKELY(cb))
+            cb->Invoke(Status::Success, pendingInfo, user, var);
+
+        user->OnLoginFinish();
 
         auto loginInfo = pendingInfo->_loginInfo;
         auto baseInfo = user->GetUserBaseInfo();
