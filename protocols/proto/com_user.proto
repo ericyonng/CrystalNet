@@ -93,3 +93,20 @@ message LoginInfo
     uint64 versionId = 12;
 }
 
+message LogoutReason 
+{
+    enum ENUMS 
+    {
+        // 其他地方登录
+        LOGIN_OTHER_PLACE = 0;
+        // 其他原因
+        OTHER_REASON = 1;
+        // 玩家主动退登
+        USER_LOGOUT = 2;
+        // 空闲
+        USER_IDLE = 3;
+        // 超时
+        TIMEOUT = 4;
+    }
+}
+

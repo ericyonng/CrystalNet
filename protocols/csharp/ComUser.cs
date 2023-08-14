@@ -40,14 +40,18 @@ public static partial class ComUserReflection {
           "KAkSEAoIVGFyZ2V0SXAYBiABKAkSDAoEUG9ydBgHIAEoDRItChBVc2VyUmVn",
           "aXN0ZXJJbmZvGAggASgLMhEuUmVnaXN0ZXJVc2VySW5mb0gAEg0KBUFwcElk",
           "GAkgASgJEhIKCmN5cGhlclRleHQYCiABKAkSEgoKb3JpZ2luVGV4dBgLIAEo",
-          "CRIRCgl2ZXJzaW9uSWQYDCABKARCDgoMUmVnaXN0ZXJJbmZvYgZwcm90bzM="));
+          "CRIRCgl2ZXJzaW9uSWQYDCABKARCDgoMUmVnaXN0ZXJJbmZvIm0KDExvZ291",
+          "dFJlYXNvbiJdCgVFTlVNUxIVChFMT0dJTl9PVEhFUl9QTEFDRRAAEhAKDE9U",
+          "SEVSX1JFQVNPThABEg8KC1VTRVJfTE9HT1VUEAISDQoJVVNFUl9JRExFEAMS",
+          "CwoHVElNRU9VVBAEYgZwcm90bzM="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
           new pbr::GeneratedClrTypeInfo(typeof(global::UserBaseInfo), global::UserBaseInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "Pwd", "PwdSalt", "BindPhone", "LastLoginTime", "LastLoginIp", "LastLoginPhoneImei", "CreateIp", "CreateTime", "CreatePhoneImei", "BindMailAddr" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::LoginMode), global::LoginMode.Parser, null, null, new[]{ typeof(global::LoginMode.Types.ENUMS) }, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::RegisterUserInfo), global::RegisterUserInfo.Parser, new[]{ "AccountName", "Nickname", "Pwd", "CreatePhoneImei" }, null, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::LoginInfo), global::LoginInfo.Parser, new[]{ "LoginMode", "AccountName", "Pwd", "LoginToken", "LoginPhoneImei", "TargetIp", "Port", "UserRegisterInfo", "AppId", "CypherText", "OriginText", "VersionId" }, new[]{ "RegisterInfo" }, null, null, null)
+          new pbr::GeneratedClrTypeInfo(typeof(global::LoginInfo), global::LoginInfo.Parser, new[]{ "LoginMode", "AccountName", "Pwd", "LoginToken", "LoginPhoneImei", "TargetIp", "Port", "UserRegisterInfo", "AppId", "CypherText", "OriginText", "VersionId" }, new[]{ "RegisterInfo" }, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::LogoutReason), global::LogoutReason.Parser, null, null, new[]{ typeof(global::LogoutReason.Types.ENUMS) }, null, null)
         }));
   }
   #endregion
@@ -1929,6 +1933,189 @@ public sealed partial class LoginInfo : pb::IMessage<LoginInfo>
     }
   }
   #endif
+
+}
+
+public sealed partial class LogoutReason : pb::IMessage<LogoutReason>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    , pb::IBufferMessage
+#endif
+{
+  private static readonly pb::MessageParser<LogoutReason> _parser = new pb::MessageParser<LogoutReason>(() => new LogoutReason());
+  private pb::UnknownFieldSet _unknownFields;
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pb::MessageParser<LogoutReason> Parser { get { return _parser; } }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pbr::MessageDescriptor Descriptor {
+    get { return global::ComUserReflection.Descriptor.MessageTypes[4]; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  pbr::MessageDescriptor pb::IMessage.Descriptor {
+    get { return Descriptor; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public LogoutReason() {
+    OnConstruction();
+  }
+
+  partial void OnConstruction();
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public LogoutReason(LogoutReason other) : this() {
+    _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public LogoutReason Clone() {
+    return new LogoutReason(this);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override bool Equals(object other) {
+    return Equals(other as LogoutReason);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public bool Equals(LogoutReason other) {
+    if (ReferenceEquals(other, null)) {
+      return false;
+    }
+    if (ReferenceEquals(other, this)) {
+      return true;
+    }
+    return Equals(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override int GetHashCode() {
+    int hash = 1;
+    if (_unknownFields != null) {
+      hash ^= _unknownFields.GetHashCode();
+    }
+    return hash;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override string ToString() {
+    return pb::JsonFormatter.ToDiagnosticString(this);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void WriteTo(pb::CodedOutputStream output) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    output.WriteRawMessage(this);
+  #else
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(output);
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(ref output);
+    }
+  }
+  #endif
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public int CalculateSize() {
+    int size = 0;
+    if (_unknownFields != null) {
+      size += _unknownFields.CalculateSize();
+    }
+    return size;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(LogoutReason other) {
+    if (other == null) {
+      return;
+    }
+    _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(pb::CodedInputStream input) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    input.ReadRawMessage(this);
+  #else
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+      switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+          break;
+      }
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+      switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+          break;
+      }
+    }
+  }
+  #endif
+
+  #region Nested types
+  /// <summary>Container for nested types declared in the LogoutReason message type.</summary>
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static partial class Types {
+    public enum ENUMS {
+      /// <summary>
+      /// 其他地方登录
+      /// </summary>
+      [pbr::OriginalName("LOGIN_OTHER_PLACE")] LoginOtherPlace = 0,
+      /// <summary>
+      /// 其他原因
+      /// </summary>
+      [pbr::OriginalName("OTHER_REASON")] OtherReason = 1,
+      /// <summary>
+      /// 玩家主动退登
+      /// </summary>
+      [pbr::OriginalName("USER_LOGOUT")] UserLogout = 2,
+      /// <summary>
+      /// 空闲
+      /// </summary>
+      [pbr::OriginalName("USER_IDLE")] UserIdle = 3,
+      /// <summary>
+      /// 超时
+      /// </summary>
+      [pbr::OriginalName("TIMEOUT")] Timeout = 4,
+    }
+
+  }
+  #endregion
 
 }
 

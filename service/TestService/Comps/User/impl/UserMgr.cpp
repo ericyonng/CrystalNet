@@ -316,7 +316,7 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
 
         // 顶号
         if(user->IsLogined())
-            user->Logout();
+            user->Logout(LogoutReason::LOGIN_OTHER_PLACE);
 
         user->BindSession(pendingInfo->_sessionId);
         user->OnLogin();
@@ -541,6 +541,7 @@ Int32 UserMgr::_OnGlobalSysInit()
     _lruCapacityLimit = commonMgr->GetConfigById(CommonConfigIdEnums::USER_LRU_CAPACITY_LIMIT)->_value;
 
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginReq, this, &UserMgr::_OnClientLoginReq);
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LogoutReq, this, &UserMgr::_OnClientLogoutReq);
 
     return Status::Success;
 }
@@ -648,7 +649,7 @@ void UserMgr::_LruPopUser()
 
     // 踢掉
     if(expiredlUser->IsLogined())
-        expiredlUser->Logout();
+        expiredlUser->Logout(LogoutReason::USER_IDLE);
 
     auto mysqlMgr = GetGlobalSys<IMysqlMgr>();
     mysqlMgr->PurgeAndWaitComplete(this);
@@ -712,7 +713,7 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             {
                 // 顶号
                 if(user->IsLogined())
-                    user->Logout();
+                    user->Logout(LogoutReason::LOGIN_OTHER_PLACE);
 
                 user->BindSession(pendingUser->_sessionId);
                 user->OnLogin();
@@ -1226,7 +1227,18 @@ void UserMgr::_OnClientLoginReq(KERNEL_NS::LibPacket *&packet)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, sessionId:%llu"), err, sessionId);
     }
-    
+}
+
+void UserMgr::_OnClientLogoutReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto sessionId = packet->GetSessionId();
+    auto user = GetUserBySessionId(sessionId);
+    if(UNLIKELY(!user))
+    {
+        return;
+    }
+
+    user->Logout(LogoutReason::USER_LOGOUT);
 }
 
 void UserMgr::_Clear()

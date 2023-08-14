@@ -223,3 +223,21 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ClientHeartbeatResFactory::CreateFactory()));
     }
+
+    {// LogoutReq
+        auto info = OpcodeInfo();
+        info._opcode = 31;
+        info._opcodeName = "LogoutReq";
+        info._protoFile = "login.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, LogoutReqFactory::CreateFactory()));
+    }
+
+    {// LogoutNty
+        auto info = OpcodeInfo();
+        info._opcode = 32;
+        info._opcodeName = "LogoutNty";
+        info._protoFile = "login.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, LogoutNtyFactory::CreateFactory()));
+    }

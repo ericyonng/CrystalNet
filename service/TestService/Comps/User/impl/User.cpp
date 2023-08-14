@@ -614,7 +614,7 @@ UInt64 User::GetSessionId() const
     return _activedSessionId;
 }
 
-void User::Logout()
+void User::Logout(Int32 logoutReason)
 {
     // 设置状态
     SetUserStatus(UserStatus::USER_LOGOUTING);
@@ -631,7 +631,13 @@ void User::Logout()
     if(_activedSessionId)
     {
         g_Log->Debug(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
-        _userMgr->CloseSession(_activedSessionId, 0, true, true);
+        
+        LogoutNty nty;
+        nty.set_logoutreason(logoutReason);
+        Send(Opcodes::OpcodeConst::OPCODE_LogoutNty, nty);
+
+        // 5秒后关闭
+        _userMgr->CloseSession(_activedSessionId, 5000, true, true);
         _userMgr->RemoveUserBySessionId(_activedSessionId);
         _activedSessionId = 0;
     }

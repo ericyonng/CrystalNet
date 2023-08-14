@@ -25,3 +25,17 @@ message LoginInfoNty
     // 过期时间(秒级时间戳)
     sint64 KeyExpireTime = 2;
 }
+
+/// Opcode:
+message LogoutReq 
+{
+
+}
+
+/// Opcode:
+message LogoutNty 
+{
+    // LogoutReason
+    sint32 LogoutReason = 1;
+}
+

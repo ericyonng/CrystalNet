@@ -264,6 +264,7 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
 
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginRes, this, &ClientUserMgr::_OnLoginRes);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_ClientHeartbeatRes, this, &ClientUserMgr::_OnClientHeartbeatRes);
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LogoutNty, this, &ClientUserMgr::_OnClientLogoutNty);
     
     auto ini = GetApp()->GetIni();
     if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "UserRsaPublicKey", _rsaPublicKey) || _rsaPublicKey.empty())
@@ -410,6 +411,21 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
     timer->Schedule(15 * 1000);
 
     _RestartHeartbeatTimer();
+
+    // TODO:测试
+    // auto logoutTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    // logoutTimer->SetTimeOutHandler([sessionId, this](KERNEL_NS::LibTimer *t){
+    //     auto user = GetUserBySessinId(sessionId);
+    //     if(UNLIKELY(!user))
+    //     {
+    //         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    //         return;
+    //     }
+
+    //     user->Logout();
+    //     KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    // });
+    // logoutTimer->Schedule(5000);
 }
 
 void ClientUserMgr::_OnClientHeartbeatRes(KERNEL_NS::LibPacket *&packet)
@@ -428,6 +444,17 @@ void ClientUserMgr::_OnClientHeartbeatRes(KERNEL_NS::LibPacket *&packet)
     _heartbeatQueue.insert(user);
 
     _RestartHeartbeatTimer();
+}
+
+void ClientUserMgr::_OnClientLogoutNty(KERNEL_NS::LibPacket *&packet)
+{
+    auto user = GetUserBySessinId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        return;
+    }
+ 
+    user->OnLogout();
 }
 
 void ClientUserMgr::_RestartHeartbeatTimer()

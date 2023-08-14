@@ -84,7 +84,7 @@ public:
     // 获取会话id
     virtual UInt64 GetSessionId() const override;
 
-    virtual void Logout() override;
+    virtual void Logout(Int32 logoutReason) override;
 
     // 是否登出
     virtual bool IsLogined() const override;

@@ -60,6 +60,9 @@ extern LoginInfoDefaultTypeInternal _LoginInfo_default_instance_;
 class LoginMode;
 struct LoginModeDefaultTypeInternal;
 extern LoginModeDefaultTypeInternal _LoginMode_default_instance_;
+class LogoutReason;
+struct LogoutReasonDefaultTypeInternal;
+extern LogoutReasonDefaultTypeInternal _LogoutReason_default_instance_;
 class RegisterUserInfo;
 struct RegisterUserInfoDefaultTypeInternal;
 extern RegisterUserInfoDefaultTypeInternal _RegisterUserInfo_default_instance_;
@@ -69,6 +72,7 @@ extern UserBaseInfoDefaultTypeInternal _UserBaseInfo_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::LoginInfo* Arena::CreateMaybeMessage<::LoginInfo>(Arena*);
 template<> ::LoginMode* Arena::CreateMaybeMessage<::LoginMode>(Arena*);
+template<> ::LogoutReason* Arena::CreateMaybeMessage<::LogoutReason>(Arena*);
 template<> ::RegisterUserInfo* Arena::CreateMaybeMessage<::RegisterUserInfo>(Arena*);
 template<> ::UserBaseInfo* Arena::CreateMaybeMessage<::UserBaseInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
@@ -98,6 +102,34 @@ inline bool LoginMode_ENUMS_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, LoginMode_ENUMS* value) {
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<LoginMode_ENUMS>(
     LoginMode_ENUMS_descriptor(), name, value);
+}
+enum LogoutReason_ENUMS : int {
+  LogoutReason_ENUMS_LOGIN_OTHER_PLACE = 0,
+  LogoutReason_ENUMS_OTHER_REASON = 1,
+  LogoutReason_ENUMS_USER_LOGOUT = 2,
+  LogoutReason_ENUMS_USER_IDLE = 3,
+  LogoutReason_ENUMS_TIMEOUT = 4,
+  LogoutReason_ENUMS_LogoutReason_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
+  LogoutReason_ENUMS_LogoutReason_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
+};
+bool LogoutReason_ENUMS_IsValid(int value);
+constexpr LogoutReason_ENUMS LogoutReason_ENUMS_ENUMS_MIN = LogoutReason_ENUMS_LOGIN_OTHER_PLACE;
+constexpr LogoutReason_ENUMS LogoutReason_ENUMS_ENUMS_MAX = LogoutReason_ENUMS_TIMEOUT;
+constexpr int LogoutReason_ENUMS_ENUMS_ARRAYSIZE = LogoutReason_ENUMS_ENUMS_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* LogoutReason_ENUMS_descriptor();
+template<typename T>
+inline const std::string& LogoutReason_ENUMS_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, LogoutReason_ENUMS>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function LogoutReason_ENUMS_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    LogoutReason_ENUMS_descriptor(), enum_t_value);
+}
+inline bool LogoutReason_ENUMS_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, LogoutReason_ENUMS* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<LogoutReason_ENUMS>(
+    LogoutReason_ENUMS_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -1554,6 +1586,267 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
   union { Impl_ _impl_; };
   friend struct ::TableStruct_com_5fuser_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0)]
+class LogoutReason final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:LogoutReason) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LogoutReason failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LogoutReason failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LogoutReason failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LogoutReason failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LogoutReason failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LogoutReason failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline LogoutReason() : LogoutReason(nullptr) {}
+  explicit PROTOBUF_CONSTEXPR LogoutReason(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  LogoutReason(const LogoutReason& from);
+  LogoutReason(LogoutReason&& from) noexcept
+    : LogoutReason() {
+    *this = ::std::move(from);
+  }
+
+  inline LogoutReason& operator=(const LogoutReason& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LogoutReason& operator=(LogoutReason&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const LogoutReason& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const LogoutReason* internal_default_instance() {
+    return reinterpret_cast<const LogoutReason*>(
+               &_LogoutReason_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(LogoutReason& a, LogoutReason& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LogoutReason* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LogoutReason* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  LogoutReason* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<LogoutReason>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const LogoutReason& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const LogoutReason& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "LogoutReason";
+  }
+  protected:
+  explicit LogoutReason(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  typedef LogoutReason_ENUMS ENUMS;
+  static constexpr ENUMS LOGIN_OTHER_PLACE =
+    LogoutReason_ENUMS_LOGIN_OTHER_PLACE;
+  static constexpr ENUMS OTHER_REASON =
+    LogoutReason_ENUMS_OTHER_REASON;
+  static constexpr ENUMS USER_LOGOUT =
+    LogoutReason_ENUMS_USER_LOGOUT;
+  static constexpr ENUMS USER_IDLE =
+    LogoutReason_ENUMS_USER_IDLE;
+  static constexpr ENUMS TIMEOUT =
+    LogoutReason_ENUMS_TIMEOUT;
+  static inline bool ENUMS_IsValid(int value) {
+    return LogoutReason_ENUMS_IsValid(value);
+  }
+  static constexpr ENUMS ENUMS_MIN =
+    LogoutReason_ENUMS_ENUMS_MIN;
+  static constexpr ENUMS ENUMS_MAX =
+    LogoutReason_ENUMS_ENUMS_MAX;
+  static constexpr int ENUMS_ARRAYSIZE =
+    LogoutReason_ENUMS_ENUMS_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
+  ENUMS_descriptor() {
+    return LogoutReason_ENUMS_descriptor();
+  }
+  template<typename T>
+  static inline const std::string& ENUMS_Name(T enum_t_value) {
+    static_assert(::std::is_same<T, ENUMS>::value ||
+      ::std::is_integral<T>::value,
+      "Incorrect type passed to function ENUMS_Name.");
+    return LogoutReason_ENUMS_Name(enum_t_value);
+  }
+  static inline bool ENUMS_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
+      ENUMS* value) {
+    return LogoutReason_ENUMS_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:LogoutReason)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+  };
+  friend struct ::TableStruct_com_5fuser_2eproto;
+};
 // ===================================================================
 
 
@@ -2900,9 +3193,15 @@ inline void LoginInfo::clear_has_RegisterInfo() {
 inline LoginInfo::RegisterInfoCase LoginInfo::RegisterInfo_case() const {
   return LoginInfo::RegisterInfoCase(_impl_._oneof_case_[0]);
 }
+// -------------------------------------------------------------------
+
+// LogoutReason
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -2919,6 +3218,11 @@ template <> struct is_proto_enum< ::LoginMode_ENUMS> : ::std::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::LoginMode_ENUMS>() {
   return ::LoginMode_ENUMS_descriptor();
+}
+template <> struct is_proto_enum< ::LogoutReason_ENUMS> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::LogoutReason_ENUMS>() {
+  return ::LogoutReason_ENUMS_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE
@@ -3014,6 +3318,29 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new LoginInfo(*dynamic_cast<const LoginInfo *>(coder));
+    }
+
+};
+
+
+class LogoutReasonFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, LogoutReasonFactory);
+public:
+
+    virtual void Release() override {
+        LogoutReasonFactory::Delete_LogoutReasonFactory(this);
+    }
+
+    static LogoutReasonFactory *CreateFactory() {
+        return LogoutReasonFactory::New_LogoutReasonFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new LogoutReason();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new LogoutReason(*dynamic_cast<const LogoutReason *>(coder));
     }
 
 };

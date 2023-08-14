@@ -7,6 +7,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(UserBaseInfoFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(LoginModeFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(RegisterUserInfoFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(LoginInfoFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(LogoutReasonFactory);
 
 #include <algorithm>
 
@@ -103,8 +104,19 @@ struct LoginInfoDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginInfoDefaultTypeInternal _LoginInfo_default_instance_;
-static ::_pb::Metadata file_level_metadata_com_5fuser_2eproto[4];
-static const ::_pb::EnumDescriptor* file_level_enum_descriptors_com_5fuser_2eproto[1];
+PROTOBUF_CONSTEXPR LogoutReason::LogoutReason(
+    ::_pbi::ConstantInitialized) {}
+struct LogoutReasonDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR LogoutReasonDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~LogoutReasonDefaultTypeInternal() {}
+  union {
+    LogoutReason _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LogoutReasonDefaultTypeInternal _LogoutReason_default_instance_;
+static ::_pb::Metadata file_level_metadata_com_5fuser_2eproto[5];
+static const ::_pb::EnumDescriptor* file_level_enum_descriptors_com_5fuser_2eproto[2];
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_5fuser_2eproto = nullptr;
 
 const uint32_t TableStruct_com_5fuser_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -163,12 +175,19 @@ const uint32_t TableStruct_com_5fuser_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
   PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.origintext_),
   PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.versionid_),
   PROTOBUF_FIELD_OFFSET(::LoginInfo, _impl_.RegisterInfo_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::LogoutReason, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::UserBaseInfo)},
   { 20, -1, -1, sizeof(::LoginMode)},
   { 26, -1, -1, sizeof(::RegisterUserInfo)},
   { 36, -1, -1, sizeof(::LoginInfo)},
+  { 55, -1, -1, sizeof(::LogoutReason)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -176,6 +195,7 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::_LoginMode_default_instance_._instance,
   &::_RegisterUserInfo_default_instance_._instance,
   &::_LoginInfo_default_instance_._instance,
+  &::_LogoutReason_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -197,14 +217,16 @@ const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIA
   "\006 \001(\t\022\014\n\004Port\030\007 \001(\r\022-\n\020UserRegisterInfo\030"
   "\010 \001(\0132\021.RegisterUserInfoH\000\022\r\n\005AppId\030\t \001("
   "\t\022\022\n\ncypherText\030\n \001(\t\022\022\n\noriginText\030\013 \001("
-  "\t\022\021\n\tversionId\030\014 \001(\004B\016\n\014RegisterInfob\006pr"
-  "oto3"
+  "\t\022\021\n\tversionId\030\014 \001(\004B\016\n\014RegisterInfo\"m\n\014"
+  "LogoutReason\"]\n\005ENUMS\022\025\n\021LOGIN_OTHER_PLA"
+  "CE\020\000\022\020\n\014OTHER_REASON\020\001\022\017\n\013USER_LOGOUT\020\002\022"
+  "\r\n\tUSER_IDLE\020\003\022\013\n\007TIMEOUT\020\004b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fuser_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fuser_2eproto = {
-    false, false, 764, descriptor_table_protodef_com_5fuser_2eproto,
+    false, false, 875, descriptor_table_protodef_com_5fuser_2eproto,
     "com_user.proto",
-    &descriptor_table_com_5fuser_2eproto_once, nullptr, 0, 4,
+    &descriptor_table_com_5fuser_2eproto_once, nullptr, 0, 5,
     schemas, file_default_instances, TableStruct_com_5fuser_2eproto::offsets,
     file_level_metadata_com_5fuser_2eproto, file_level_enum_descriptors_com_5fuser_2eproto,
     file_level_service_descriptors_com_5fuser_2eproto,
@@ -237,6 +259,33 @@ constexpr LoginMode_ENUMS LoginMode::REGISTER;
 constexpr LoginMode_ENUMS LoginMode::ENUMS_MIN;
 constexpr LoginMode_ENUMS LoginMode::ENUMS_MAX;
 constexpr int LoginMode::ENUMS_ARRAYSIZE;
+#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* LogoutReason_ENUMS_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_com_5fuser_2eproto);
+  return file_level_enum_descriptors_com_5fuser_2eproto[1];
+}
+bool LogoutReason_ENUMS_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
+constexpr LogoutReason_ENUMS LogoutReason::LOGIN_OTHER_PLACE;
+constexpr LogoutReason_ENUMS LogoutReason::OTHER_REASON;
+constexpr LogoutReason_ENUMS LogoutReason::USER_LOGOUT;
+constexpr LogoutReason_ENUMS LogoutReason::USER_IDLE;
+constexpr LogoutReason_ENUMS LogoutReason::TIMEOUT;
+constexpr LogoutReason_ENUMS LogoutReason::ENUMS_MIN;
+constexpr LogoutReason_ENUMS LogoutReason::ENUMS_MAX;
+constexpr int LogoutReason::ENUMS_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 
 // ===================================================================
@@ -2126,6 +2175,46 @@ void LoginInfo::InternalSwap(LoginInfo* other) {
       file_level_metadata_com_5fuser_2eproto[3]);
 }
 
+// ===================================================================
+
+class LogoutReason::_Internal {
+ public:
+};
+
+LogoutReason::LogoutReason(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
+  // @@protoc_insertion_point(arena_constructor:LogoutReason)
+}
+LogoutReason::LogoutReason(const LogoutReason& from)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
+  LogoutReason* const _this = this; (void)_this;
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:LogoutReason)
+}
+
+
+
+
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData LogoutReason::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl,
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl,
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LogoutReason::GetClassData() const { return &_class_data_; }
+
+
+
+
+
+
+
+::PROTOBUF_NAMESPACE_ID::Metadata LogoutReason::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_com_5fuser_2eproto_getter, &descriptor_table_com_5fuser_2eproto_once,
+      file_level_metadata_com_5fuser_2eproto[4]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::UserBaseInfo*
@@ -2143,6 +2232,10 @@ Arena::CreateMaybeMessage< ::RegisterUserInfo >(Arena* arena) {
 template<> PROTOBUF_NOINLINE ::LoginInfo*
 Arena::CreateMaybeMessage< ::LoginInfo >(Arena* arena) {
   return Arena::CreateMessageInternal< ::LoginInfo >(arena);
+}
+template<> PROTOBUF_NOINLINE ::LogoutReason*
+Arena::CreateMaybeMessage< ::LogoutReason >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::LogoutReason >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

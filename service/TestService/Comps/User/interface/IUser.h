@@ -168,7 +168,7 @@ public:
     virtual UInt64 GetSessionId() const = 0;
 
     // 登出
-    virtual void Logout() = 0;
+    virtual void Logout(Int32 logoutReason) = 0;
 
     // 是否登出
     virtual bool IsLogined() const = 0;

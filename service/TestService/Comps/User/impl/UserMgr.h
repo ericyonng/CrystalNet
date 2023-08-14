@@ -127,6 +127,7 @@ private:
     Int32 _CheckRegisterInfo(const LoginInfo &loginInfo) const;
     void _BuildPwd(UserBaseInfo *baseInfo, const std::string &pwd);
     void _OnClientLoginReq(KERNEL_NS::LibPacket *&packet);
+    void _OnClientLogoutReq(KERNEL_NS::LibPacket *&packet);
 
     void _Clear();
 

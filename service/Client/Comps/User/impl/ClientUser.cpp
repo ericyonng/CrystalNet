@@ -155,9 +155,25 @@ void ClientUser::OnLoginFinish()
 
 void ClientUser::OnLogout()
 {
+    // 事件
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_WILL_LOGOUT);
+    ev->SetParam(Params::USER_OBJ, this);
+    _userMgr->GetEventMgr()->FireEvent(ev);
+
     auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
     for(auto userSys : userSyss)
         userSys->CastTo<IClientSys>()->OnLogout();
+
+    // 会话踢下线
+    if(_activedSessionId)
+    {
+        g_Log->Debug(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
+        _userMgr->CloseSession(_activedSessionId, 0, true, true);
+        _userMgr->RemoveUserBySessionId(_activedSessionId);
+        _activedSessionId = 0;
+    }
+
+    SetUserStatus(ClientUserStatus::LOGOUTED);
 
     g_Log->Info(LOGFMT_OBJ_TAG("OnLogout user:%s"), ToString().c_str());
 }
@@ -213,24 +229,8 @@ void ClientUser::Logout()
     // todo 发送logout消息, 定时15秒退出
     SetUserStatus(ClientUserStatus::LOGOUTING);
 
-    // 事件
-    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_WILL_LOGOUT);
-    ev->SetParam(Params::USER_OBJ, this);
-    _userMgr->GetEventMgr()->FireEvent(ev);
-
-    // 执行OnLogout
-    OnLogout();
-
-    // 会话踢下线
-    if(_activedSessionId)
-    {
-        g_Log->Debug(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
-        _userMgr->CloseSession(_activedSessionId, 0, true, true);
-        _userMgr->RemoveUserBySessionId(_activedSessionId);
-        _activedSessionId = 0;
-    }
-
-    SetUserStatus(ClientUserStatus::LOGOUTED);
+    LogoutReq req;
+    Send(Opcodes::OpcodeConst::OPCODE_LogoutReq, req);
 }
 
 Int32 ClientUser::Login()

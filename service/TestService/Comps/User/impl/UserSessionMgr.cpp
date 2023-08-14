@@ -256,7 +256,7 @@ void UserSessionMgr::_OnSessionWillDestroy(KERNEL_NS::LibEvent *ev)
     if(UNLIKELY(user))
     {
         if(user->IsLogined())
-            user->Logout();
+            user->Logout(LogoutReason::OTHER_REASON);
 
         _RemoveFromHeartbeatQueue(user);
         _RestartHeartbeatTimer();
@@ -300,7 +300,7 @@ void UserSessionMgr::_OnHeartbeatTimeOut(KERNEL_NS::LibTimer *t)
 
         auto session = sessionMgr->GetSession(user->GetSessionId());
         if(LIKELY(session))
-            user->Logout();
+            user->Logout(LogoutReason::TIMEOUT);
     }
 
     _RestartHeartbeatTimer();

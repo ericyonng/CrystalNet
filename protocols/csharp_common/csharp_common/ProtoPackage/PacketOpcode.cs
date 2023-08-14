@@ -27,6 +27,8 @@ public static class PacketOpcode
         GetNodeListRes = 28,    // heartbeat.proto
         ClientHeartbeatReq = 29,    // heartbeat.proto
         ClientHeartbeatRes = 30,    // heartbeat.proto
-        OpcodeMax = 30,
+        LogoutReq = 31,    // login.proto
+        LogoutNty = 32,    // login.proto
+        OpcodeMax = 32,
     }
 }

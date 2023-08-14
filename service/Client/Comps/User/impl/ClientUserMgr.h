@@ -70,6 +70,7 @@ protected:
 
     void _OnLoginRes(KERNEL_NS::LibPacket *&packet);
     void _OnClientHeartbeatRes(KERNEL_NS::LibPacket *&packet);
+    void _OnClientLogoutNty(KERNEL_NS::LibPacket *&packet);
 
     void _RestartHeartbeatTimer();
     void _OnHeartbeatTimeOut(KERNEL_NS::LibTimer *t);
