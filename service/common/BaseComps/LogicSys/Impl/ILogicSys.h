@@ -212,7 +212,7 @@ public:
    void ClearFlags();
 
     template<typename CallbackType>
-    void Post(CallbackType &&cb);
+    void Post(CallbackType &&cb, Int64 ms = 0);
  
     // 组件接口资源
 protected:
@@ -442,7 +442,7 @@ ALWAYS_INLINE void ILogicSys::ClearFlags()
 }
 
 template<typename CallbackType>
-ALWAYS_INLINE void ILogicSys::Post(CallbackType &&cb)
+ALWAYS_INLINE void ILogicSys::Post(CallbackType &&cb, Int64 ms)
 {
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     timer->SetTimeOutHandler([cb](KERNEL_NS::LibTimer *t)
@@ -451,7 +451,7 @@ ALWAYS_INLINE void ILogicSys::Post(CallbackType &&cb)
         cb();
         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
     });
-    timer->Schedule(0);
+    timer->Schedule(ms);
 }
 
 SERVICE_END

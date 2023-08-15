@@ -175,7 +175,7 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
     });
     pending->_expiredTime = KERNEL_NS::LibTime::NowTimestamp() + expireConfig->_int64Value;
 
-    _sessionIdRefLoginPendingInfo.insert(std::make_pair(sessionId, pending.pop()));
+    _sessionIdRefLoginPendingInfo.insert(std::make_pair(sessionId, pending.AsSelf()));
     pending->_timer->SetTimeOutHandler([this, sessionId](KERNEL_NS::LibTimer *t)
     {
         auto iter = _sessionIdRefLoginPendingInfo.find(sessionId);
@@ -198,6 +198,9 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
 
         LoginPendingInfo::DeleteThreadLocal_LoginPendingInfo(pending);
     });
+
+    pending->_timer->Schedule(expireConfig->_int64Value * 1000);
+    pending.pop();
 }
 
 void UserSessionMgr::_OnMsgRecv(KERNEL_NS::LibEvent *ev)
