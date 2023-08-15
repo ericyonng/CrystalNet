@@ -52,8 +52,12 @@ end
 function set_common_options()
     -- rdynamic coredump符号
     filter { "language:c++", "system:not windows" }
+        -- buildoptions {
+        --     "-std=c++11 -Winvalid-pch -DLINUX -Wall -rdynamic -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
+        -- }
+        -- -Winvalid-pch是禁用pch加速, 需要移除
         buildoptions {
-            "-std=c++11 -Winvalid-pch -DLINUX -Wall -rdynamic -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
+            "-std=c++11 -DLINUX -Wall -rdynamic -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
         }
     filter {}
 	filter { "configurations:debug*", "language:c++", "system:not windows" }
