@@ -64,7 +64,7 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
         // 1.解码包头
         CrystalMsgHeader header;
         {
-            if(streamCache.GetReadableSize() < 2)
+            if(streamCache.GetReadableSize() < MsgHeaderStructure::LEN_SIZE)
             {
                 // g_Log->NetDebug(LOGFMT_OBJ_TAG("data not reach parsing header size session:%s, stream readable size:%llu")
                 //                 , session->ToString().c_str(), streamCache.GetReadableSize());
@@ -73,7 +73,7 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
             }
 
             // 格式:2字节长度 + json字符串数据
-            streamCache.Read(&header._len, 2);
+            streamCache.Read(&header._len, MsgHeaderStructure::LEN_SIZE);
 
             if(header._len > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT)
             {
