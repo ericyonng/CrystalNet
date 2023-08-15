@@ -179,3 +179,163 @@ function DefOverride1(a:any, b?:any):string{
 console.log('test override:' + DefOverride1(1))
 console.log('test override:' + DefOverride1("test override", 100))
 
+var str = new String("hello world");
+var number_arr:number[] = new Array(4)
+number_arr[0] = 1
+number_arr[1] = 3
+
+var normal_arr:number[] = [1, 2]
+// 数组解构
+var [xx,yy] = normal_arr
+var [xx,yy] = number_arr
+console.log("xx:" + xx)
+console.log("yy:" + yy)
+
+// 字典类型
+let dict = new Map()
+dict.set("nima", 1)
+dict.set("op", 2)
+console.log(dict.get("nima"))
+
+for(var k of dict.keys()){
+    console.log(k)
+}
+
+for(var [k, v] of dict){
+    console.log(k, "=>", v)
+}
+
+// 元组
+var tup_arr = ["hello", 12, "begin"]
+tup_arr.push(12)
+tup_arr.push("be")
+tup_arr[0] = 12
+for(v of tup_arr)
+{
+    console.log(v)
+}
+
+// 联合类型 把值的类型限定了
+var union_val :number|string
+union_val = 12
+console.log("数字为:", union_val)
+union_val = "beginsdfa"
+console.log("字符串：", union_val)
+
+// 如果赋值其它类型就会报错：
+// union_val = true
+
+// 联合类型数组(要么是数值数组, 要么是字符串数组，元组就报错)
+var union_arr: number[]|string[]
+// union_arr = ["dafasf", 123]
+union_arr = ["dafasf"]
+union_arr = [1233]
+
+// 接口类型
+interface IApi {
+    nameOfApi:string,
+    // 方法是一个lambda
+    handle: ()=>string
+}
+
+// 实现一个接口就是创建一个对象出来
+var customVar:IApi = {
+    nameOfApi:"custom",
+    handle: ():string => "hello custom api"
+}
+
+console.log(customVar.nameOfApi, customVar.handle())
+
+// 联合类型下的接口
+interface IUnionApi{
+    nameOfApi:string,
+
+    // 意思是handle既可以是字符串数组, 也可以是字符串, 还可以是由lambda返回的字符串
+    handle:string[]|string|(()=>string)
+}
+
+var unonCustomVar:IUnionApi = {
+    nameOfApi:"union custom",
+    handle:()=>"from lambda"
+}
+
+var unonCustomVar2:IUnionApi = {
+    nameOfApi:"union custom",
+    handle:["from string ", "array"]
+}
+
+var unonCustomVar3:IUnionApi = {
+    nameOfApi:"union custom",
+    handle:"from string "
+}
+
+var fn:any = unonCustomVar.handle
+console.log(unonCustomVar.nameOfApi, fn())
+console.log(unonCustomVar2.nameOfApi, unonCustomVar2.handle)
+console.log(unonCustomVar3.nameOfApi, unonCustomVar3.handle)
+
+// 接口和数组
+interface interfaceAndArr {
+    [index:number]:string
+}
+
+// 正确下标索引是number，value是string
+var list2:interfaceAndArr = ["hello", "diff"]
+// 错误:元素2不是string
+// var list2:interfaceAndArr = ["hello", 2]
+
+// 接口继承
+interface testForJicheng{
+    age:number
+}
+
+// extentds可以支持多继承 extends a,b,c...
+interface SunOfTest extends testForJicheng{
+    sunName:string
+}
+
+// 派生接口的实例 sun 接口需要使用<interfacename>
+var sun = <SunOfTest>{}
+// 此时sun中的成员都是undefined
+console.log(sun)
+sun.age = 15
+sun.sunName = "beslfkja"
+console.log(sun)
+
+// 类
+class Person {
+    // 字段
+    _personName:string;
+
+    constructor(personName:string){
+        this._personName = personName
+    }
+
+    Disp():void{
+        console.log("name:", this._personName)
+    }
+}
+
+var my_person = new Person("first person")
+my_person.Disp()
+
+// 类的继承
+class Person2{
+    // 字段
+    _sex:number
+    _name:string
+
+    constructor(){
+        this._sex = 1
+        this._name = "dasfdlkas"
+    }
+}
+
+class PersonSun extends Person2{
+    _my_style:number
+
+    constructor()
+    {
+        this._my_style = 1
+    }
+}

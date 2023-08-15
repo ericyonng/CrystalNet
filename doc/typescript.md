@@ -20,6 +20,9 @@
 
     * ```
       tsc app.ts
+      
+      # 有些需要指定版本下才能使用，比如Map需要es6
+      tsc --target es6 .\helloworld.ts
       ```
 
 
@@ -78,3 +81,25 @@ TypeScript 转换为 JavaScript 过程如下图：
   复制
 
   一旦你打开另一个终端，这个问题就应该解决了。
+
+* 记忆点
+
+  * 接口类的声明和实现
+
+    * ```
+      // 接口类型
+      interface IApi {
+          nameOfApi:string,
+          // 方法是一个lambda
+          handle: ()=>string
+      }
+      
+      // 实现一个接口就是创建一个对象出来
+      var customVar:IApi = {
+          nameOfApi:"custom",
+          handle: ():string => "hello custom api"
+      }
+      
+      ```
+
+      
