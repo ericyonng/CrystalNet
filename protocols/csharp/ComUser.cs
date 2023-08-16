@@ -40,10 +40,10 @@ public static partial class ComUserReflection {
           "KAkSEAoIVGFyZ2V0SXAYBiABKAkSDAoEUG9ydBgHIAEoDRItChBVc2VyUmVn",
           "aXN0ZXJJbmZvGAggASgLMhEuUmVnaXN0ZXJVc2VySW5mb0gAEg0KBUFwcElk",
           "GAkgASgJEhIKCmN5cGhlclRleHQYCiABKAkSEgoKb3JpZ2luVGV4dBgLIAEo",
-          "CRIRCgl2ZXJzaW9uSWQYDCABKARCDgoMUmVnaXN0ZXJJbmZvIm0KDExvZ291",
-          "dFJlYXNvbiJdCgVFTlVNUxIVChFMT0dJTl9PVEhFUl9QTEFDRRAAEhAKDE9U",
+          "CRIRCgl2ZXJzaW9uSWQYDCABKARCDgoMUmVnaXN0ZXJJbmZvIn8KDExvZ291",
+          "dFJlYXNvbiJvCgVFTlVNUxIVChFMT0dJTl9PVEhFUl9QTEFDRRAAEhAKDE9U",
           "SEVSX1JFQVNPThABEg8KC1VTRVJfTE9HT1VUEAISDQoJVVNFUl9JRExFEAMS",
-          "CwoHVElNRU9VVBAEYgZwcm90bzM="));
+          "CwoHVElNRU9VVBAEEhAKDENMT1NFX1NFUlZFUhAFYgZwcm90bzM="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -2112,6 +2112,10 @@ public sealed partial class LogoutReason : pb::IMessage<LogoutReason>
       /// 超时
       /// </summary>
       [pbr::OriginalName("TIMEOUT")] Timeout = 4,
+      /// <summary>
+      /// 关服
+      /// </summary>
+      [pbr::OriginalName("CLOSE_SERVER")] CloseServer = 5,
     }
 
   }

@@ -571,6 +571,14 @@ void User::OnMaskAddDirty()
         _dirtySys.insert(logic);
 }
 
+void User::MaskDirtyAll()
+{
+    for(auto logic : _needStorageSys)
+        _dirtySys.insert(logic);
+
+    MaskDirty();
+}
+
 void User::Purge()
 {
     _userMgr->Purge();
@@ -643,6 +651,9 @@ void User::Logout(Int32 logoutReason)
     }
 
     SetUserStatus(UserStatus::USER_LOGOUTED);
+
+    // 所有组件标脏
+    MaskDirtyAll();
 
     // 存库
     PurgeAndWaitComplete();

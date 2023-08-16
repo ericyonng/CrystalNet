@@ -217,14 +217,15 @@ const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIA
   "\006 \001(\t\022\014\n\004Port\030\007 \001(\r\022-\n\020UserRegisterInfo\030"
   "\010 \001(\0132\021.RegisterUserInfoH\000\022\r\n\005AppId\030\t \001("
   "\t\022\022\n\ncypherText\030\n \001(\t\022\022\n\noriginText\030\013 \001("
-  "\t\022\021\n\tversionId\030\014 \001(\004B\016\n\014RegisterInfo\"m\n\014"
-  "LogoutReason\"]\n\005ENUMS\022\025\n\021LOGIN_OTHER_PLA"
+  "\t\022\021\n\tversionId\030\014 \001(\004B\016\n\014RegisterInfo\"\177\n\014"
+  "LogoutReason\"o\n\005ENUMS\022\025\n\021LOGIN_OTHER_PLA"
   "CE\020\000\022\020\n\014OTHER_REASON\020\001\022\017\n\013USER_LOGOUT\020\002\022"
-  "\r\n\tUSER_IDLE\020\003\022\013\n\007TIMEOUT\020\004b\006proto3"
+  "\r\n\tUSER_IDLE\020\003\022\013\n\007TIMEOUT\020\004\022\020\n\014CLOSE_SER"
+  "VER\020\005b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fuser_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fuser_2eproto = {
-    false, false, 875, descriptor_table_protodef_com_5fuser_2eproto,
+    false, false, 893, descriptor_table_protodef_com_5fuser_2eproto,
     "com_user.proto",
     &descriptor_table_com_5fuser_2eproto_once, nullptr, 0, 5,
     schemas, file_default_instances, TableStruct_com_5fuser_2eproto::offsets,
@@ -271,6 +272,7 @@ bool LogoutReason_ENUMS_IsValid(int value) {
     case 2:
     case 3:
     case 4:
+    case 5:
       return true;
     default:
       return false;
@@ -283,6 +285,7 @@ constexpr LogoutReason_ENUMS LogoutReason::OTHER_REASON;
 constexpr LogoutReason_ENUMS LogoutReason::USER_LOGOUT;
 constexpr LogoutReason_ENUMS LogoutReason::USER_IDLE;
 constexpr LogoutReason_ENUMS LogoutReason::TIMEOUT;
+constexpr LogoutReason_ENUMS LogoutReason::CLOSE_SERVER;
 constexpr LogoutReason_ENUMS LogoutReason::ENUMS_MIN;
 constexpr LogoutReason_ENUMS LogoutReason::ENUMS_MAX;
 constexpr int LogoutReason::ENUMS_ARRAYSIZE;

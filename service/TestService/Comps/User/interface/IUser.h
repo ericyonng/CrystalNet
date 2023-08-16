@@ -146,6 +146,7 @@ public:
 
     virtual void MaskDirty(IUserSys *userSys) = 0;
     virtual void OnMaskAddDirty() = 0;
+    virtual void MaskDirtyAll() = 0;
     virtual void Purge() = 0;
     virtual void PurgeAndWaitComplete() = 0;
 

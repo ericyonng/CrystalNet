@@ -4472,7 +4472,9 @@ void MysqlMgr::_OnPurge(KERNEL_NS::LibTimer *t)
     }
 
     nowCounter.Update();
-    g_Log->Info(LOGFMT_OBJ_TAG("purge cost time %llu (ms), all logic count:%lld"), (nowCounter - startCounter).GetTotalMilliseconds(), dirtyCount);
+    const auto useTime = (nowCounter - startCounter).GetTotalMilliseconds();
+    if(useTime >= 5)
+        g_Log->Info(LOGFMT_OBJ_TAG("purge cost time %llu (ms), all logic count:%lld"), useTime, dirtyCount);
 }
 
 void MysqlMgr::_Clear()

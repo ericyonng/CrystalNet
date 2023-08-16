@@ -116,31 +116,31 @@ void TestMgr::OnWillStartup()
     for(auto iter : _datas)
         g_Log->Info(LOGFMT_OBJ_TAG("test mgr key:%llu, Account:%s"), iter.first, iter.second->account().c_str());
 
-    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-    timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
+    // auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    // timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
         
-        if(GetService()->IsServiceModuleQuit(this))
-        {
-            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
-            return;
-        }
+    //     if(GetService()->IsServiceModuleQuit(this))
+    //     {
+    //         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    //         return;
+    //     }
 
-        for(auto idx = 0; idx < 10; ++idx)
-             _MakeNewTestData();
+    //     for(auto idx = 0; idx < 10; ++idx)
+    //          _MakeNewTestData();
 
-        auto maxId = _maxId;
-        GetService()->GetComp<IMysqlMgr>()->PurgeEndWith([maxId, this](Int32 errCode){
-            g_Log->Info(LOGFMT_OBJ_TAG("purge finished maxId:%llu, errCode:%d"), maxId, errCode);
-        });
+    //     auto maxId = _maxId;
+    //     GetService()->GetComp<IMysqlMgr>()->PurgeEndWith([maxId, this](Int32 errCode){
+    //         g_Log->Info(LOGFMT_OBJ_TAG("purge finished maxId:%llu, errCode:%d"), maxId, errCode);
+    //     });
 
-        // for(auto idx = 0; idx < 10; ++idx)
-        //      _MakeNewTestData();
+    //     // for(auto idx = 0; idx < 10; ++idx)
+    //     //      _MakeNewTestData();
 
-        // 同步调用
-         // GetService()->GetComp<IMysqlMgr>()->PurgeAndWaitComplete(this);
-    });
+    //     // 同步调用
+    //      // GetService()->GetComp<IMysqlMgr>()->PurgeAndWaitComplete(this);
+    // });
 
-    timer->Schedule(1000);
+    // timer->Schedule(1000);
 }
 
 void TestMgr::OnStartup()

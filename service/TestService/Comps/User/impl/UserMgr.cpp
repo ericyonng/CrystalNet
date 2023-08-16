@@ -332,6 +332,7 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
         baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
         baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
         baseInfo->set_lastloginip(addr->_ip.GetRaw());
+        user->MaskDirty();
     }
 
     _RemoveFromLru(user);
@@ -575,8 +576,9 @@ void UserMgr::_OnQuitServiceEventDefault(KERNEL_NS::LibEvent *ev)
 {
     auto allUsers = _lru;
     ev->SetDontDelAfterFire(true);
+    
     for(auto user : allUsers)
-        user->FireEvent(ev);
+        user->Logout(LogoutReason::CLOSE_SERVER);
 
     ev->SetDontDelAfterFire(false);
     IGlobalSys::_OnQuitServiceEventDefault(ev);
@@ -731,6 +733,7 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
                 baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
                 baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
                 baseInfo->set_lastloginip(addr->_ip.GetRaw());
+                user->MaskDirty();
             }
         }
         else

@@ -107,6 +107,8 @@ message LogoutReason
         USER_IDLE = 3;
         // 超时
         TIMEOUT = 4;
+        // 关服
+        CLOSE_SERVER = 5;
     }
 }
 

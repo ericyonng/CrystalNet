@@ -260,7 +260,7 @@ LibString Field::GetValueTextCompatible() const
     case MYSQL_TYPE_LONG_BLOB:
     case MYSQL_TYPE_BLOB:
     {// 二进制的打印成hex格式
-        data.AppendFormat("[HEX DATA]:");
+        data.AppendFormat("[HEX DATA]:\n");
         StringUtil::ToHexStringView(attach.GetReadBegin(), attach.GetReadableSize(), data);
     }break;
     default:
