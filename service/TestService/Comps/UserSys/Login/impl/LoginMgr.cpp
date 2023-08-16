@@ -93,6 +93,12 @@ void LoginMgr::OnLoginFinish()
     _SendInfo();
 }
 
+void LoginMgr::OnLogout()
+{
+    if(LIKELY(_updateKey))
+        _updateKey->Cancel();
+}
+
 Int32 LoginMgr::CheckLogin(const PendingUser *pendingUser) const
 {
     // 注册登录: pwd校验, 账号校验, 登录设备校验, 密文校验

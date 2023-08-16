@@ -47,6 +47,7 @@ public:
     virtual void OnRegisterComps() override;
     virtual void OnLogin() override;
     virtual void OnLoginFinish() override;
+    virtual void OnLogout() override;
 
     virtual Int32 CheckLogin(const PendingUser *pendingUser) const override;
 
