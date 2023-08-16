@@ -252,11 +252,12 @@ void LoginMgr::_Update(bool isNty)
     _loginInfo->set_keyexpiretime(expireTime.GetSecTimestamp());  
 
     // TODO:sha256(imei + ip + userid + key)
-    auto addr = _userOwner->GetUserAddr();
     const auto &imei = _userOwner->GetUserBaseInfo()->lastloginphoneimei();
     KERNEL_NS::LibString token;
     token.AppendData(imei.c_str(), static_cast<Int64>(imei.size()));
-    token.AppendData(addr->_ip)
+
+    auto addr = _userOwner->GetUserAddr();
+    token.AppendData(addr ? addr->_ip : _userOwner->GetUserBaseInfo()->lastloginip())
     .AppendFormat("%llu", _userOwner->GetUserId());
     token.AppendData(keyText);
 

@@ -325,17 +325,140 @@ class Person2{
     _sex:number
     _name:string
 
-    constructor(){
-        this._sex = 1
-        this._name = "dasfdlkas"
+    constructor(sex:number, person_name:string){
+        this._sex = sex
+        this._name = person_name
     }
 }
 
+// 子类构造需要调用super，super就是父类的同名构造
 class PersonSun extends Person2{
     _my_style:number
 
     constructor()
     {
+        super(1, "hello");
         this._my_style = 1
     }
+
+    Disp():void{
+        console.log('mystyle:', this._my_style, ', sex:', this._sex, ', name:', this._name)
+    }
 }
+
+var new_sun2 = new PersonSun();
+new_sun2.Disp()
+
+// 继承方法的重写
+class PersonSun2 extends PersonSun{
+    Disp(): void {
+        console.log('use person sun2')
+    }
+}
+
+var new_sun3 = new PersonSun2()
+new_sun3.Disp()
+
+// 类的静态成员
+class PersonStatic{
+    static num:number;
+
+    static Disp():void{
+        console.log('static invoke num:', PersonStatic.num)
+    }
+}
+
+PersonStatic.Disp()
+
+// 用于判断是否属于某个类型，instanceof后面可以是类本身也可以是基类, 两者返回的都一样
+var obj = new PersonSun2()
+var isPersonSun2 = obj instanceof PersonSun
+console.log('isPersonSun2:', isPersonSun2)
+isPersonSun2 = obj instanceof PersonSun2
+console.log('isPersonSun2:', isPersonSun2)
+
+// Person不是obj的基类所以返回false
+isPersonSun2 = obj instanceof Person
+console.log('isPersonSun2:', isPersonSun2)
+
+// 类实现接口
+interface ILoan{
+    interest:number
+
+    Disp():string;
+}
+
+class AgriLoan implements ILoan{
+    interest: number;
+    rebate:number;
+
+    constructor(interest:number, rebate:number){
+        this.interest = interest;
+        this.rebate = rebate;
+    }
+
+    Disp(): string {
+        return 'this is agriloan'
+    }
+}
+
+var new_agriloan = new AgriLoan(1, 2)
+console.log(new_agriloan.Disp())
+
+// ts的对象是一组键值对的实例
+var new_ts_obj = {
+    "a":'a_value',
+    2:'2_value',
+    handle:function():string{
+        return 'obj_handle'
+    },
+    arr:['nihao', 155, 'baga'],
+
+    // key模板
+    moban:function(){}
+}
+
+console.log(new_ts_obj.handle())
+
+// 给对象添加方法 必须先在对象中有个模板
+// new_ts_obj.sayHello = function():string{}
+// moban 真实的实现
+new_ts_obj.moban = function():string{
+    return 'hello moban';
+}
+console.log(new_ts_obj.moban())
+
+// 对象作为参数传递给函数
+var sites = {
+    x:1,
+    y:3,
+    z:100,
+}
+// 对象作为参数需要把成员声明出来
+var invoke_sites = function(obj:{x:number, y:number}):number
+{
+    return obj.x + obj.y
+}
+console.log(invoke_sites(sites))
+
+// 鸭子类型实践
+interface IPoint{
+    x:number
+    y:number
+}
+
+// 传入
+function addPoint(a:IPoint, b:IPoint):IPoint{
+    return {x:a.x + b.x, y:a.y + b.y}
+}
+
+console.log(addPoint({x:1, y:1}, {x:2, y:2}))
+
+// 引用其他的模块
+
+// import ns_test = require("./ns_test")
+/// <reference path = "./ns_test" />
+import { TestNs } from "./ns_test";
+
+var my_shape = TestNs.ShapeFactory()
+console.log(my_shape.draw())

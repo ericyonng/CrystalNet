@@ -706,8 +706,10 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             auto loginMgr = user->GetComp<ILoginMgr>();
             err = loginMgr->CheckLogin(pendingUser);
             if(err != Status::Success)
-            {
+            {// 登录失败
                 g_Log->Warn(LOGFMT_OBJ_TAG("check login fail err:%d, pending info:%s, userId:%llu"), err, pendingUser->ToString().c_str(), user->GetUserId());
+                if(LIKELY(pendingUser->_cb))
+                    pendingUser->_cb->Invoke(err, pendingUser, user, pendingUser->_var);
             }
             else
             {
@@ -722,14 +724,14 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
                     pendingUser->_cb->Invoke(err, pendingUser, user, pendingUser->_var);
 
                 user->OnLoginFinish();
-            }
 
-            auto loginInfo = pendingUser->_loginInfo;
-            auto baseInfo = user->GetUserBaseInfo();
-            auto addr = user->GetUserAddr();
-            baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
-            baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
-            baseInfo->set_lastloginip(addr->_ip.GetRaw());
+                auto loginInfo = pendingUser->_loginInfo;
+                auto baseInfo = user->GetUserBaseInfo();
+                auto addr = user->GetUserAddr();
+                baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
+                baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
+                baseInfo->set_lastloginip(addr->_ip.GetRaw());
+            }
         }
         else
         {

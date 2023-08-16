@@ -184,6 +184,7 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
 
         // 已经登录了那么就移除pending
         auto user = _userMgr->GetUserBySessionId(sessionId);
+        _RemoveFromHeartbeatQueue(user);
 
         // 未在规定时间内登录的移除连接
         if(!user || !user->IsLogined())
@@ -192,6 +193,7 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
         }
         else
         {// 开启心跳
+            user->UpdateHeartbeatExpireTime(_heartbeatExpireTime * 1000);
             _AddToHeartbeatQueue(user);
             _RestartHeartbeatTimer();
         }

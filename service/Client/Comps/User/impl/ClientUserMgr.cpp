@@ -454,6 +454,9 @@ void ClientUserMgr::_OnClientLogoutNty(KERNEL_NS::LibPacket *&packet)
         return;
     }
  
+    auto nty = packet->GetCoder<LogoutNty>();
+    g_Log->Warn(LOGFMT_OBJ_TAG("client logout reason:%d, user:%s"), nty->logoutreason(), user->ToString().c_str());
+
     user->OnLogout();
 }
 
