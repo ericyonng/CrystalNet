@@ -72,6 +72,7 @@ public:
     UInt64 GetProtoVersionNumber() const;
 
     Int32 GetType() const;
+    virtual void SetOpenPorotoLog(bool enable){}
 
 protected:
     UInt64 _protoVersionNumber = 0;     // 协议版本号

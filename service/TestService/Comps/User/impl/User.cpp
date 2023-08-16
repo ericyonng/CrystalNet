@@ -77,6 +77,7 @@ User::User(IUserMgr *userMgr)
 ,_activedSessionId(0)
 ,_lruTime(KERNEL_NS::LibTime::NowMilliTimestamp())
 ,_heatbeatTime(KERNEL_NS::LibTime::NowMilliTimestamp())
+,_curMaxPacketId(0)
 {
     AddFlag(LogicSysFlagsType::DISABLE_FOCUS_BY_SERVICE_FLAG);
 }
@@ -502,7 +503,7 @@ Int64 User::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) c
         return -1;
     }
 
-    return _userMgr->Send(_activedSessionId, opcode, coder, packetId);
+    return _userMgr->Send(_activedSessionId, opcode, coder, packetId > 0 ? packetId : NewPacketId());
 }
 
 void User::OnLogin()
@@ -657,6 +658,9 @@ void User::Logout(Int32 logoutReason)
 
     // 存库
     PurgeAndWaitComplete();
+
+    // 清空包id
+    _curMaxPacketId = 0;
 }
 
 bool User::IsLogined() const
@@ -683,7 +687,8 @@ const KERNEL_NS::BriefSockAddr *User::GetUserAddr() const
 KERNEL_NS::LibString User::ToString() const
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("user id:%llu, account name:%s, status:%d", _userBaseInfo->userid(), _userBaseInfo->accountname().c_str(), _status);
+    info.AppendFormat("user id:%llu, account name:%s, status:%d, max packet id:%lld"
+    , _userBaseInfo->userid(), _userBaseInfo->accountname().c_str(), _status, _curMaxPacketId);
 
     info.AppendFormat(", session infos:");
     auto sessionMgr = _userMgr->GetService()->GetComp<ISessionMgr>();
@@ -718,6 +723,11 @@ Int64 User::GetHeartbeatExpireTime() const
 void User::UpdateHeartbeatExpireTime(Int64 spanTimeInMs)
 {
     _heatbeatTime = KERNEL_NS::LibTime::NowMilliTimestamp() + spanTimeInMs;
+}
+
+Int64 User::NewPacketId() const
+{
+    return ++_curMaxPacketId;
 }
 
 Int32 User::_OnSysInit()

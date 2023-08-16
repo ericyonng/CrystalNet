@@ -64,7 +64,7 @@ public:
     void SetMaxRecvMsgContentBytes(UInt64 maxBytesLimit);
     UInt64 GetMaxRecvMsgContentBytes() const;
 
-    void SetProtocolLogEnable(bool enable = true) { _enableProtocolLog = enable; }
+    virtual void SetOpenPorotoLog(bool enable) override{ _enableProtocolLog = enable;}
 
 private:
     UInt64 _maxRecvContenBytes = 0;

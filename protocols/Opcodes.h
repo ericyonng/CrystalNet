@@ -60,6 +60,7 @@ struct OpcodeInfo
     {
         KERNEL_NS::LibString info;
         info.AppendFormat("opcode:%d, "     , _opcode)
+            .AppendFormat("nolog:%s, "     , _noLog ?  "true" : "false")
             .AppendFormat("name:%s, "       , _opcodeName.c_str())
             .AppendFormat("proto file:%s, " , _protoFile.c_str())
             ;
@@ -68,6 +69,7 @@ struct OpcodeInfo
     }
 
     Int32 _opcode = 0;                  // 协议id
+    bool _noLog = false;                // 消息需不需要打印日志
     KERNEL_NS::LibString _opcodeName;   // 协议名
     KERNEL_NS::LibString _protoFile;    // 协议所属文件名
 };
@@ -91,6 +93,9 @@ public:
     // 是否存在
     static bool CheckOpcode(Int32 opcode);
     static bool CheckOpcode(const KERNEL_NS::LibString &opcodeName);
+
+    // 是否需要日志打印
+    static bool IsNeedLog(Int32 opcode);
 
     // 获取opcode信息
     static const OpcodeInfo *GetOpcodeInfo(Int32 opcode);
@@ -146,6 +151,15 @@ ALWAYS_INLINE bool Opcodes::CheckOpcode(const KERNEL_NS::LibString &opcodeName)
 {
     auto iter = _opcodeNameRefInfo.find(opcodeName);
     return iter != _opcodeNameRefInfo.end();
+}
+
+ALWAYS_INLINE bool Opcodes::IsNeedLog(Int32 opcode)
+{
+    auto opcodeInfo = GetOpcodeInfo(opcode);
+    if(UNLIKELY(!opcodeInfo))
+        return false;
+
+    return !(opcodeInfo->_noLog);
 }
 
 ALWAYS_INLINE const OpcodeInfo *Opcodes::GetOpcodeInfo(Int32 opcode)

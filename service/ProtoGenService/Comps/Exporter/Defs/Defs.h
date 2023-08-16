@@ -66,6 +66,7 @@ public:
     static const KERNEL_NS::LibString ProtoPath;
     static const KERNEL_NS::LibString MessageName;
     static const KERNEL_NS::LibString Opcode;
+    static const KERNEL_NS::LibString NoLog;
     static const KERNEL_NS::LibString Md5;
     static const KERNEL_NS::LibString ModifyTime;
 };

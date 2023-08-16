@@ -93,6 +93,7 @@ struct ServiceConfig
 
     ServiceConfig()
     :_centerAddr(AddrConfig::Create()) 
+    ,_protoStackOpenLog(false)
     {
 
     }
@@ -114,6 +115,7 @@ struct ServiceConfig
 
     AddrConfig *_centerAddr;    // 控制中心
     std::unordered_map<UInt16, Int32> _portRefSessionType;  // 端口的会话类型配置 PORT_SESSION_TYPE
+    bool _protoStackOpenLog;
 };
 
 SERVICE_END

@@ -7,6 +7,9 @@
 // KERNEL_INCLUDED
 #include <kernel/kernel.h>
 #include <service_common/ServiceCommon.h>
+#include <google/protobuf/util/json_util.h>
+#include <google/protobuf/text_format.h>
+
 #ifdef GetMessage
  #undef GetMessage
 #endif
@@ -78,7 +81,7 @@ PROTOBUF_NAMESPACE_CLOSE
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(7)]
+// AnnotaionInfo[opcode(7), nolog(false)]
 class PlayerDataReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:PlayerDataReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -184,6 +187,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 
@@ -363,7 +377,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(8)]
+// AnnotaionInfo[opcode(8), nolog(false)]
 class PlayerDataRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:PlayerDataRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -469,6 +483,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 
@@ -663,7 +688,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(9)]
+// AnnotaionInfo[opcode(9), nolog(false)]
 class ModifyPlayerNameReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ModifyPlayerNameReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -769,6 +794,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 
@@ -928,7 +964,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(10)]
+// AnnotaionInfo[opcode(10), nolog(false)]
 class ModifyPlayerNameRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ModifyPlayerNameRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -1034,6 +1070,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 
@@ -1188,7 +1235,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(11)]
+// AnnotaionInfo[opcode(11), nolog(false)]
 class PlayerDataNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:PlayerDataNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -1294,6 +1341,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 

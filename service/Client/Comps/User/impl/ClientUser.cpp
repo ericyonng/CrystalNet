@@ -129,7 +129,7 @@ Int64 ClientUser::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packe
         return -1;
     }
 
-    return _userMgr->Send(_activedSessionId, opcode, coder, packetId);
+    return _userMgr->Send(_activedSessionId, opcode, coder, packetId > 0 ? packetId : NewPacketId());
 }
 
 void ClientUser::OnLogin()
@@ -329,7 +329,7 @@ void ClientUser::UpdateHeartbeatExpireTime()
     _heartbeatExpireTime = KERNEL_NS::LibTime::NowMilliTimestamp() + 30 * 1000;
 }
 
-Int64 ClientUser::NewPacketId()
+Int64 ClientUser::NewPacketId() const
 {
     return ++_maxPacketId;
 }
@@ -339,10 +339,10 @@ KERNEL_NS::LibString ClientUser::ToString() const
     auto descriptor = ClientUserStatus::descriptor();
     const auto &statusName = ClientUserStatus::ENUMS_Name(_clientInfo->clientstatus());
     KERNEL_NS::LibString info;
-    info.AppendFormat("account name:%s, user id:%llu, last token:%s, token expire time:%lld, client status:%d,%s, _activedSessionId:%llu, _heartbeatTime:%lld, current server time:%lld"
+    info.AppendFormat("account name:%s, user id:%llu, last token:%s, token expire time:%lld, client status:%d,%s, _activedSessionId:%llu, _heartbeatTime:%lld, current server time:%lld, max packet id:%lld"
     , _clientInfo->accountname().c_str(), _clientInfo->userid(), _clientInfo->lasttoken().c_str()
     , _clientInfo->tokenexpiretime(), _clientInfo->clientstatus(), statusName.c_str(), _activedSessionId
-    , _heartbeatExpireTime, GetNowServerTime());
+    , _heartbeatExpireTime, GetNowServerTime(), _maxPacketId);
 
     return info;
 }

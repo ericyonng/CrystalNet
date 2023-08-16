@@ -35,6 +35,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(MessageInfo);
 
 MessageInfo::MessageInfo()
 :_opcode(0)
+,_noLog(false)
 {
 
 }
@@ -60,6 +61,14 @@ void MessageInfo::FieldsFromAnnotations(Int32 &maxOpcode)
             
             maxOpcode = std::max<Int32>(_opcode, maxOpcode);
         }
+
+        if(kv.first == ProtobufMessageParam::NoLog)
+        {
+            if(kv.second.length() != 0)
+            {
+                _noLog = (kv.second.strip().tolower()) == "true";
+            } 
+        }
     }
 }
 
@@ -70,6 +79,7 @@ PbCaheInfo MessageInfo::ToPbCache(const KERNEL_NS::LibString &protoName, const K
     info._protoName = protoName;
     info._protoPath = protoPath;
     info._opcode = _opcode;
+    info._noLog = _noLog;
 
     return info;
 }

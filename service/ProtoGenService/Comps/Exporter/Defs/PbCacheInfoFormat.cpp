@@ -38,6 +38,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(PbCacheFileContent);
 PbCaheInfo::PbCaheInfo()
 :_opcode(0)
 ,_line(0)
+,_noLog(false)
 {
 
 }
@@ -70,6 +71,7 @@ KERNEL_NS::LibString PbCaheInfo::ToPbChacheString() const
         .AppendFormat("%s%s%s%s", ProtobufMessageParam::ProtoPath.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _protoPath.c_str(), ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s%s%s%s", ProtobufMessageParam::MessageName.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _messageName.c_str(), ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s%s%d%s", ProtobufMessageParam::Opcode.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _opcode, ProtobufMessageParam::CacheSegSepFlag.c_str())
+        .AppendFormat("%s%s%s%s", ProtobufMessageParam::NoLog.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _noLog?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s", ProtobufMessageParam::MessageEndFlag.c_str())
         ;
 
@@ -82,6 +84,12 @@ KERNEL_NS::LibString PbCaheInfo::GetAnnotationValue(const KERNEL_NS::LibString &
     if(annotationKey == ProtobufMessageParam::Opcode)
     {
         value.AppendFormat("%d", _opcode);
+        return value;
+    }
+
+    if(annotationKey == ProtobufMessageParam::NoLog)
+    {
+        value.AppendFormat("%s", _noLog ? "true":"false");
         return value;
     }
 
@@ -288,6 +296,10 @@ bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibStrin
         {
             pbCache->_opcode = KERNEL_NS::StringUtil::StringToInt32(kv.second.c_str());
             maxOpcode = std::max<Int32>(maxOpcode, pbCache->_opcode);
+        }
+        else if(kv.first == ProtobufMessageParam::NoLog)
+        {
+            pbCache->_noLog = (kv.second.strip().tolower()) == "true";
         }
     }
 

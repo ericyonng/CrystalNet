@@ -107,6 +107,9 @@ public:
     // 刷新心跳更新时间
     virtual void UpdateHeartbeatExpireTime(Int64 spanTimeInMs) override;
 
+    // 以user为单位的PacketId
+    virtual Int64 NewPacketId() const override;
+
 private:
     virtual Int32 _OnSysInit() override;
     virtual Int32 _OnSysCompsCreated() override;
@@ -137,6 +140,7 @@ private:
     UInt64 _activedSessionId;
     Int64 _lruTime;
     Int64 _heatbeatTime;
+    mutable Int64 _curMaxPacketId;
 };
 
 ALWAYS_INLINE IUserSys *User::_GetSysBy(const KERNEL_NS::LibString &fieldName)

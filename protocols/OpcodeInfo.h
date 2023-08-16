@@ -29,6 +29,7 @@
     {// LoginReq
         auto info = OpcodeInfo();
         info._opcode = 1;
+        info._noLog = false;
         info._opcodeName = "LoginReq";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -38,6 +39,7 @@
     {// LoginRes
         auto info = OpcodeInfo();
         info._opcode = 2;
+        info._noLog = false;
         info._opcodeName = "LoginRes";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -47,6 +49,7 @@
     {// TestOpcodeReq
         auto info = OpcodeInfo();
         info._opcode = 3;
+        info._noLog = false;
         info._opcodeName = "TestOpcodeReq";
         info._protoFile = "test_opcode.proto";
         _allOpcodeInfo.push_back(info);
@@ -56,6 +59,7 @@
     {// TestOpcodeRes
         auto info = OpcodeInfo();
         info._opcode = 4;
+        info._noLog = false;
         info._opcodeName = "TestOpcodeRes";
         info._protoFile = "test_opcode.proto";
         _allOpcodeInfo.push_back(info);
@@ -65,6 +69,7 @@
     {// TestOpcode2Req
         auto info = OpcodeInfo();
         info._opcode = 5;
+        info._noLog = false;
         info._opcodeName = "TestOpcode2Req";
         info._protoFile = "test_opcode.proto";
         _allOpcodeInfo.push_back(info);
@@ -74,6 +79,7 @@
     {// TestOpcode2Res
         auto info = OpcodeInfo();
         info._opcode = 6;
+        info._noLog = false;
         info._opcodeName = "TestOpcode2Res";
         info._protoFile = "test_opcode.proto";
         _allOpcodeInfo.push_back(info);
@@ -83,6 +89,7 @@
     {// PlayerDataReq
         auto info = OpcodeInfo();
         info._opcode = 7;
+        info._noLog = false;
         info._opcodeName = "PlayerDataReq";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -92,6 +99,7 @@
     {// PlayerDataRes
         auto info = OpcodeInfo();
         info._opcode = 8;
+        info._noLog = false;
         info._opcodeName = "PlayerDataRes";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -101,6 +109,7 @@
     {// ModifyPlayerNameReq
         auto info = OpcodeInfo();
         info._opcode = 9;
+        info._noLog = false;
         info._opcodeName = "ModifyPlayerNameReq";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -110,6 +119,7 @@
     {// ModifyPlayerNameRes
         auto info = OpcodeInfo();
         info._opcode = 10;
+        info._noLog = false;
         info._opcodeName = "ModifyPlayerNameRes";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -119,6 +129,7 @@
     {// PlayerDataNty
         auto info = OpcodeInfo();
         info._opcode = 11;
+        info._noLog = false;
         info._opcodeName = "PlayerDataNty";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -128,6 +139,7 @@
     {// TitleInfoReq
         auto info = OpcodeInfo();
         info._opcode = 20;
+        info._noLog = false;
         info._opcodeName = "TitleInfoReq";
         info._protoFile = "title.proto";
         _allOpcodeInfo.push_back(info);
@@ -137,6 +149,7 @@
     {// TitleInfoRes
         auto info = OpcodeInfo();
         info._opcode = 21;
+        info._noLog = false;
         info._opcodeName = "TitleInfoRes";
         info._protoFile = "title.proto";
         _allOpcodeInfo.push_back(info);
@@ -146,6 +159,7 @@
     {// LoginInfoNty
         auto info = OpcodeInfo();
         info._opcode = 22;
+        info._noLog = false;
         info._opcodeName = "LoginInfoNty";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -155,6 +169,7 @@
     {// NodeHeartbeatReq
         auto info = OpcodeInfo();
         info._opcode = 23;
+        info._noLog = true;
         info._opcodeName = "NodeHeartbeatReq";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -164,6 +179,7 @@
     {// NodeHeartbeatRes
         auto info = OpcodeInfo();
         info._opcode = 24;
+        info._noLog = true;
         info._opcodeName = "NodeHeartbeatRes";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -173,6 +189,7 @@
     {// RegisterNodeReq
         auto info = OpcodeInfo();
         info._opcode = 25;
+        info._noLog = false;
         info._opcodeName = "RegisterNodeReq";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -182,6 +199,7 @@
     {// RegisterNodeRes
         auto info = OpcodeInfo();
         info._opcode = 26;
+        info._noLog = false;
         info._opcodeName = "RegisterNodeRes";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -191,6 +209,7 @@
     {// GetNodeListReq
         auto info = OpcodeInfo();
         info._opcode = 27;
+        info._noLog = false;
         info._opcodeName = "GetNodeListReq";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -200,6 +219,7 @@
     {// GetNodeListRes
         auto info = OpcodeInfo();
         info._opcode = 28;
+        info._noLog = false;
         info._opcodeName = "GetNodeListRes";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -209,6 +229,7 @@
     {// ClientHeartbeatReq
         auto info = OpcodeInfo();
         info._opcode = 29;
+        info._noLog = true;
         info._opcodeName = "ClientHeartbeatReq";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -218,6 +239,7 @@
     {// ClientHeartbeatRes
         auto info = OpcodeInfo();
         info._opcode = 30;
+        info._noLog = true;
         info._opcodeName = "ClientHeartbeatRes";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -227,6 +249,7 @@
     {// LogoutReq
         auto info = OpcodeInfo();
         info._opcode = 31;
+        info._noLog = false;
         info._opcodeName = "LogoutReq";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -236,6 +259,7 @@
     {// LogoutNty
         auto info = OpcodeInfo();
         info._opcode = 32;
+        info._noLog = false;
         info._opcodeName = "LogoutNty";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);

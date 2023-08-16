@@ -7,6 +7,9 @@
 // KERNEL_INCLUDED
 #include <kernel/kernel.h>
 #include <service_common/ServiceCommon.h>
+#include <google/protobuf/util/json_util.h>
+#include <google/protobuf/text_format.h>
+
 #ifdef GetMessage
  #undef GetMessage
 #endif
@@ -137,7 +140,7 @@ inline bool CreatureAttrKey_ENUM_Parse(
 }
 // ===================================================================
 
-// AnnotaionInfo[opcode(0)]
+// AnnotaionInfo[opcode(0), nolog(false)]
 class CreatureAttrKey final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CreatureAttrKey) */ , public KERNEL_NS::ICoder {
 public:
@@ -243,6 +246,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 

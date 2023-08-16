@@ -89,7 +89,7 @@ public:
     virtual void UpdateHeartbeatExpireTime() = 0;
 
     // 包id
-    virtual Int64 NewPacketId() = 0;
+    virtual Int64 NewPacketId() const = 0;
 };
 
 SERVICE_END

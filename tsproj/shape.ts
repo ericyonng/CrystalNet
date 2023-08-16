@@ -21,35 +21,10 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-10-19 23:38:55
+ * Date: 2023-08-16 13:49:46
  * Author: Eric Yonng
  * Description: 
 */
-
-#pragma once
-
-#include <service/ProtoGenService/ServiceCompHeader.h>
-#include <service/ProtoGenService/Comps/Exporter/Defs/PbCacheInfoFormat.h>
-
-SERVICE_BEGIN
-
-struct MessageInfo
-{
-    POOL_CREATE_OBJ_DEFAULT(MessageInfo);
-
-    MessageInfo();
-
-    void Release();
-
-    void FieldsFromAnnotations(Int32 &maxOpcode);
-
-    PbCaheInfo ToPbCache(const KERNEL_NS::LibString &protoName, const KERNEL_NS::LibString &protoPath) const;
-
-    KERNEL_NS::LibString _messageName;
-    Int32 _opcode;
-    bool _noLog;
-    
-    std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> _annotationParamNameRefValue;  // 注解kv
-};
-
-SERVICE_END
+export interface IShape{
+    draw();
+}

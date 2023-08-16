@@ -21,35 +21,43 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-10-19 23:38:55
+ * Date: 2023-08-16 13:32:46
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+import { IShape } from "./shape";
 
-#include <service/ProtoGenService/ServiceCompHeader.h>
-#include <service/ProtoGenService/Comps/Exporter/Defs/PbCacheInfoFormat.h>
+// 命名空间举例
 
-SERVICE_BEGIN
+// 要外部可用需要在命名空间中导出接口或者类型 export
+export namespace TestNs{
+    export interface IBasePoint{
+        // 接口disp
+        Disp:()=>string,
+    }
+    export class Point3D{}
 
-struct MessageInfo
-{
-    POOL_CREATE_OBJ_DEFAULT(MessageInfo);
+    // IBasePoint的工厂函数
+    export function PointFactory(point_type:number):any{
+        if(point_type == 1)
+            return new VectorPoint();
+    }
 
-    MessageInfo();
+    // shape工厂
+    export function ShapeFactory():IShape{
+        return new MyShape();
+    }
+}
 
-    void Release();
+class VectorPoint implements TestNs.IBasePoint{
+    // 实现接口
+    Disp: () => "VectorPoint";
+}
 
-    void FieldsFromAnnotations(Int32 &maxOpcode);
+class MyShape implements IShape{
+    draw() {
+        console.log('myshape draw')
+    }
+}
 
-    PbCaheInfo ToPbCache(const KERNEL_NS::LibString &protoName, const KERNEL_NS::LibString &protoPath) const;
-
-    KERNEL_NS::LibString _messageName;
-    Int32 _opcode;
-    bool _noLog;
-    
-    std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> _annotationParamNameRefValue;  // 注解kv
-};
-
-SERVICE_END

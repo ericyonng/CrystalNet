@@ -51,7 +51,7 @@ public static partial class HeartbeatReflection {
 }
 #region Messages
 /// <summary>
-//// Opcode:
+//// Opcode:, NoLog:true
 /// </summary>
 [ProtoMessage(23)]
 public sealed partial class NodeHeartbeatReq : pb::IMessage<NodeHeartbeatReq>
@@ -207,7 +207,7 @@ public sealed partial class NodeHeartbeatReq : pb::IMessage<NodeHeartbeatReq>
 }
 
 /// <summary>
-//// Opcode:
+//// Opcode:, NoLog:true
 /// </summary>
 [ProtoMessage(24)]
 public sealed partial class NodeHeartbeatRes : pb::IMessage<NodeHeartbeatRes>
@@ -1208,7 +1208,7 @@ public sealed partial class GetNodeListRes : pb::IMessage<GetNodeListRes>
 
 /// <summary>
 /// 客户端的心跳
-//// Opcode:
+//// Opcode:, NoLog:true
 /// </summary>
 [ProtoMessage(29)]
 public sealed partial class ClientHeartbeatReq : pb::IMessage<ClientHeartbeatReq>
@@ -1364,7 +1364,7 @@ public sealed partial class ClientHeartbeatReq : pb::IMessage<ClientHeartbeatReq
 }
 
 /// <summary>
-//// Opcode:
+//// Opcode:, NoLog:true
 /// </summary>
 [ProtoMessage(30)]
 public sealed partial class ClientHeartbeatRes : pb::IMessage<ClientHeartbeatRes>

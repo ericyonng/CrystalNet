@@ -449,7 +449,9 @@ bool ExporterMgr::_ModifyCppPbHeader(const KERNEL_NS::LibString &pbHeaderName, s
             "",
             "// KERNEL_INCLUDED",
             "#include <kernel/kernel.h>", 
-            "#include <service_common/ServiceCommon.h>"
+            "#include <service_common/ServiceCommon.h>",
+            "#include <google/protobuf/util/json_util.h>",
+            "#include <google/protobuf/text_format.h>",
             "",
             "#ifdef GetMessage",
             " #undef GetMessage",
@@ -491,7 +493,7 @@ bool ExporterMgr::_ModifyCppPbHeader(const KERNEL_NS::LibString &pbHeaderName, s
                 classNames.push_back(className);
 
                 // 2.类前注解
-                const auto annotationInfo = KERNEL_NS::LibString().AppendFormat("// AnnotaionInfo[opcode(%d)]", messageInfo->_opcode);
+                const auto annotationInfo = KERNEL_NS::LibString().AppendFormat("// AnnotaionInfo[opcode(%d), nolog(%s)]", messageInfo->_opcode, messageInfo->_noLog ? "true" : "false");
                 addLineDatasBefore.push_back(annotationInfo);
 
                 // 3.添加基类
@@ -786,6 +788,20 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("}");
     }
     addLines.push_back("");
+
+    {// 8.添加CoderToString 方法
+        addLines.push_back("virtual KERNEL_NS::LibString CoderToString() const override {");
+        addLines.push_back("    KERNEL_NS::LibString data;");
+        addLines.push_back("    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())");
+        addLines.push_back("    {");
+        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"Turn JsonString fail:%%s\"), KERNEL_NS::RttiUtil::GetByObj(this));");
+        addLines.push_back("        return \"\";");
+        addLines.push_back("    }");
+        addLines.push_back("");
+        addLines.push_back("    return data;");
+        addLines.push_back("}");
+    }
+    addLines.push_back("");
 }
 
 void ExporterMgr::_CollectCppClassFactoryDeclearAdds(const KERNEL_NS::LibString &className, std::vector<KERNEL_NS::LibString> &addLines, std::vector<KERNEL_NS::LibString> &newClassFactoryNames)
@@ -1050,6 +1066,7 @@ void ExporterMgr::_GenOpcodeInfo()
 
         lines.push_back("        auto info = OpcodeInfo();");
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._opcode = %d;", messageInfo->_opcode));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._noLog = %s;", messageInfo->_noLog ? "true" : "false"));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._opcodeName = \"%s\";", messageInfo->_messageName.c_str()));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._protoFile = \"%s\";", messageInfo->_protoName.c_str()));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        _allOpcodeInfo.push_back(info);"));
@@ -1581,6 +1598,8 @@ bool ExporterMgr::_ScanAProto(const KERNEL_NS::FindFileInfo &fileInfo, const KER
                     if(annotationPairParts.empty())
                         continue;
 
+                    annotationPairParts[0].strip();
+
                     auto iterKey = annotationParamNameRefValue.find(annotationPairParts[0]);
                     if(iterKey != annotationParamNameRefValue.end())
                     {
@@ -1591,6 +1610,7 @@ bool ExporterMgr::_ScanAProto(const KERNEL_NS::FindFileInfo &fileInfo, const KER
 
                     if(annotationPairParts.size() > 1)
                     {
+                        annotationPairParts[1].strip();
                         iterKey = annotationParamNameRefValue.insert(std::make_pair(annotationPairParts[0], annotationPairParts[1])).first;
                     }
                     else

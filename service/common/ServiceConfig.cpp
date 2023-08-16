@@ -389,6 +389,15 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
         }
     }
 
+    {// 是否开启网络协议日志打印
+        KERNEL_NS::LibString cache;
+        _protoStackOpenLog = false;
+        if(ini->ReadStr(seg.c_str(), "ProtoStackOpenLog", cache))
+        {
+            _protoStackOpenLog = (cache.strip().tolower()) == "true";
+        }
+    }
+
     return true;
 }
 SERVICE_END

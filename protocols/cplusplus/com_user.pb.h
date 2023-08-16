@@ -7,6 +7,9 @@
 // KERNEL_INCLUDED
 #include <kernel/kernel.h>
 #include <service_common/ServiceCommon.h>
+#include <google/protobuf/util/json_util.h>
+#include <google/protobuf/text_format.h>
+
 #ifdef GetMessage
  #undef GetMessage
 #endif
@@ -134,7 +137,7 @@ inline bool LogoutReason_ENUMS_Parse(
 }
 // ===================================================================
 
-// AnnotaionInfo[opcode(0)]
+// AnnotaionInfo[opcode(0), nolog(false)]
 class UserBaseInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:UserBaseInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -240,6 +243,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 
@@ -582,7 +596,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0)]
+// AnnotaionInfo[opcode(0), nolog(false)]
 class LoginMode final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:LoginMode) */ , public KERNEL_NS::ICoder {
 public:
@@ -688,6 +702,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 
@@ -839,7 +864,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0)]
+// AnnotaionInfo[opcode(0), nolog(false)]
 class RegisterUserInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:RegisterUserInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -945,6 +970,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 
@@ -1147,7 +1183,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0)]
+// AnnotaionInfo[opcode(0), nolog(false)]
 class LoginInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:LoginInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -1253,6 +1289,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 
@@ -1589,7 +1636,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0)]
+// AnnotaionInfo[opcode(0), nolog(false)]
 class LogoutReason final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:LogoutReason) */ , public KERNEL_NS::ICoder {
 public:
@@ -1695,6 +1742,17 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     }
 
     return true;
+}
+
+virtual KERNEL_NS::LibString CoderToString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
 }
 
 

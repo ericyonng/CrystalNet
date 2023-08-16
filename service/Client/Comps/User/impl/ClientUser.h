@@ -93,7 +93,7 @@ public:
     // 刷新心跳更新时间
     virtual void UpdateHeartbeatExpireTime() override;
 
-    virtual Int64 NewPacketId() override;
+    virtual Int64 NewPacketId() const override;
 
 private:
     virtual Int32 _OnSysInit() override;
@@ -123,6 +123,6 @@ private:
     Int64 _lastCpuBegin;
 
     Int64 _heartbeatExpireTime;
-    Int64 _maxPacketId;
+    mutable Int64 _maxPacketId;
 };
 SERVICE_END

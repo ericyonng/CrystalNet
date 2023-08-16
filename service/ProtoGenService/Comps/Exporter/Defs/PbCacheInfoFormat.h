@@ -52,6 +52,7 @@ struct PbCaheInfo
     KERNEL_NS::LibString _protoPath;    // 文件完整的路径
     Int32 _opcode;
     Int32 _line;
+    bool _noLog;    // 不打印日志, 和opcode互相配合
 };
 
 // 排序

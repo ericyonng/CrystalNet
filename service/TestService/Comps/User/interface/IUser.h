@@ -193,6 +193,9 @@ public:
     //     // TODO:lru排序变化
     //     return this;
     // }
+
+    // 以user为单位的packetId计数
+    virtual Int64 NewPacketId() const = 0;
 };
 
 ALWAYS_INLINE KERNEL_NS::ListenerStub IUser::AddListener(int id,

@@ -1,13 +1,13 @@
 syntax = "proto3";
 import "com_heartbeat.proto";
 
-/// Opcode:
+/// Opcode:, NoLog:true
 message NodeHeartbeatReq
 {
 
 }
 
-/// Opcode:
+/// Opcode:, NoLog:true
 message NodeHeartbeatRes 
 {
     // 当前服务器对时
@@ -45,13 +45,13 @@ message GetNodeListRes
 }
 
 // 客户端的心跳
-/// Opcode:
+/// Opcode:, NoLog:true
 message ClientHeartbeatReq 
 {
 
 }
 
-/// Opcode:
+/// Opcode:, NoLog:true
 message ClientHeartbeatRes
 {
     // 服务器时间

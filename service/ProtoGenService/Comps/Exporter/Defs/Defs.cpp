@@ -50,6 +50,7 @@ const KERNEL_NS::LibString ProtobufMessageParam::ProtoName = "ProtoName";
 const KERNEL_NS::LibString ProtobufMessageParam::ProtoPath = "ProtoPath";
 const KERNEL_NS::LibString ProtobufMessageParam::MessageName = "MessageName";
 const KERNEL_NS::LibString ProtobufMessageParam::Opcode = "Opcode";
+const KERNEL_NS::LibString ProtobufMessageParam::NoLog = "NoLog";
 const KERNEL_NS::LibString ProtobufMessageParam::Md5 = "Md5";
 const KERNEL_NS::LibString ProtobufMessageParam::ModifyTime = "ModifyTime";
 

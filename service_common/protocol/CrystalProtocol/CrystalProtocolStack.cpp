@@ -66,6 +66,16 @@ static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
     return opcodeName;
 }
 
+static ALWAYS_INLINE bool IsNeedLog(Int32 opcode)
+{
+    #ifndef DISABLE_OPCODES
+        return Opcodes::IsNeedLog(opcode);
+    #else
+        return false;
+    #endif
+
+}
+
 CrystalProtocolStack::~CrystalProtocolStack()
 {
 }
@@ -199,11 +209,13 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
             packet->SetOpcode(header._opcodeId);
             packet->SetCoder(coder);
 
-            if(UNLIKELY(_enableProtocolLog))
+            if(_enableProtocolLog && IsNeedLog(header._opcodeId))
             {
-                g_Log->NetInfo(LOGFMT_OBJ_TAG("parse packet suc packet:%s, msg len:%u, session info:%s")
-                            , StackPacketToString(packet).c_str()
-                            , header._len, session->ToString().c_str());
+                auto &localAddr = addr->GetLocalBriefAddr();
+                auto &remoteAddr = addr->GetRemoteBriefAddr();
+               g_Log->NetInfo(LOGFMT_OBJ_TAG("[RECV: session id:%llu, local:%s:%hu <= remote:%s:%hu, header:%s]\n[coder data]:\n%s")
+               , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
+               , header.ToString().c_str(), coder->CoderToString().c_str()); 
             }
 
             if(LIKELY(option._sessionRecvPacketStackLimit != 0))
@@ -330,11 +342,15 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
         // 8.写入完成跳过包数据
         stream->ShiftWritePos(contentSize);
 
-        if(UNLIKELY(_enableProtocolLog))
+        if(_enableProtocolLog && IsNeedLog(header._opcodeId))
         {
-            g_Log->NetInfo(LOGFMT_OBJ_TAG("packet to bin suc packet:%s, msg len:%u, session:%s")
-                        , StackPacketToString(packet).c_str()
-                        , header._len, session->ToString().c_str());
+            auto sock = session->GetSock();
+            auto addr = sock->GetAddr();
+            auto &localAddr = addr->GetLocalBriefAddr();
+            auto &remoteAddr = addr->GetRemoteBriefAddr();
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("[SEND: session id:%llu, local:%s:%hu => remote:%s:%hu, header:%s]\n[coder data]:\n%s")
+            , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
+            , header.ToString().c_str(), coder->CoderToString().c_str()); 
         }
 
         handledBytes += static_cast<UInt64>(header._len);

@@ -561,6 +561,7 @@ Int32 MyTestService::_InitProtocolStack()
         auto stack = SERVICE_COMMON_NS::CrystalProtocolStackFactory::Create(idx, limit);
         if(stack)
         {
+            stack->SetOpenPorotoLog(_serviceConfig->_protoStackOpenLog);
             // opcode解析
             _stackTypeRefProtocolStack.insert(std::make_pair(idx, stack));
 

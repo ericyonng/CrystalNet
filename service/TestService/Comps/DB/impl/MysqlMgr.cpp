@@ -1732,12 +1732,12 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
     auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
@@ -1892,12 +1892,12 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
     auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
@@ -2052,12 +2052,12 @@ void MysqlMgr::_OnKvSystemNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 保存数据sql
     auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
@@ -2150,12 +2150,12 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
     auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
@@ -2308,12 +2308,12 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
     auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
@@ -2467,12 +2467,12 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
     auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
@@ -2625,12 +2625,12 @@ void MysqlMgr::_OnKvSystemStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 保存数据sql
     auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
@@ -2723,12 +2723,12 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
     auto valueStorageInfo = storageInfo->GetKvModeValueStorageInfo();
@@ -2881,12 +2881,12 @@ void MysqlMgr::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 多字段但是不是kv系统的: 1.获取持久化数据, 2.根据持久化数据大小判断是否需要modify字段(由于是运行时不考虑增删字段, 只考虑修改大小, 而且必须比当前系统StorageInfo中的容量大)
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> dbInfo;
@@ -3086,12 +3086,12 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 多字段但是不是kv系统的: 1.获取持久化数据, 2.根据持久化数据大小判断是否需要modify字段(由于是运行时不考虑增删字段, 只考虑修改大小, 而且必须比当前系统StorageInfo中的容量大)
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> dbInfo;
@@ -3314,12 +3314,12 @@ void MysqlMgr::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 保存数据sql
     auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
@@ -3412,12 +3412,12 @@ void MysqlMgr::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UI
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 多字段但是不是kv系统的: 1.获取持久化数据, 2.根据持久化数据大小判断是否需要modify字段(由于是运行时不考虑增删字段, 只考虑修改大小, 而且必须比当前系统StorageInfo中的容量大)
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> dbInfo;
@@ -3617,12 +3617,12 @@ void MysqlMgr::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::Lib
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 多字段但是不是kv系统的: 1.获取持久化数据, 2.根据持久化数据大小判断是否需要modify字段(由于是运行时不考虑增删字段, 只考虑修改大小, 而且必须比当前系统StorageInfo中的容量大)
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> dbInfo;
@@ -3820,12 +3820,12 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 多字段但是不是kv系统的: 1.获取持久化数据, 2.根据持久化数据大小判断是否需要modify字段(由于是运行时不考虑增删字段, 只考虑修改大小, 而且必须比当前系统StorageInfo中的容量大)
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> dbInfo;
@@ -4045,12 +4045,12 @@ void MysqlMgr::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 保存数据sql
     auto keyStorageInfo = storageInfo->GetPrimaryKeyStorage();
@@ -4143,12 +4143,12 @@ void MysqlMgr::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS:
     Int32 err = Status::Success;
 
     // 如果oid没有指定, 需要告警
-    auto oid = logic->GetStorageOperatorId();
-    if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
-                    ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
-    }
+    // auto oid = logic->GetStorageOperatorId();
+    // if(!storageInfo->IsLoadDataOnStartup() && oid == _systemOperatorUid)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("system is not load on startup, cant use system operator uid, need get a new oid from mysql mgr for mysql balance table name:%s, system name:%s")
+    //                 ,storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+    // }
 
     // 多字段但是不是kv系统的: 1.获取持久化数据, 2.根据持久化数据大小判断是否需要modify字段(由于是运行时不考虑增删字段, 只考虑修改大小, 而且必须比当前系统StorageInfo中的容量大)
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> dbInfo;

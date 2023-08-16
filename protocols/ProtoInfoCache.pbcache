@@ -1,32 +1,32 @@
 /// ProtoName:com.proto,ProtoPath:../../protocols/proto/com.proto,Md5:Enafacr+PhFFBgCVyZLyrQ==,ModifyTime:1675339274,
 
-[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginReq,Opcode:1,]
-[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginRes,Opcode:2,]
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginReq,Opcode:1,NoLog:false,]
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginRes,Opcode:2,NoLog:false,]
 /// ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,Md5:PY4K+mW1mVJky7Y5Maz92g==,ModifyTime:1691998873,
 
-[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Req,Opcode:5,]
-[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Res,Opcode:6,]
-[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcodeReq,Opcode:3,]
-[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcodeRes,Opcode:4,]
+[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Req,Opcode:5,NoLog:false,]
+[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Res,Opcode:6,NoLog:false,]
+[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcodeReq,Opcode:3,NoLog:false,]
+[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcodeRes,Opcode:4,NoLog:false,]
 /// ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,Md5:JZ9cbZtagTX2H6d0MTRbkQ==,ModifyTime:1689508466,
 
 
-[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:PlayerDataReq,Opcode:7,]
-[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:PlayerDataRes,Opcode:8,]
+[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:PlayerDataReq,Opcode:7,NoLog:false,]
+[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:PlayerDataRes,Opcode:8,NoLog:false,]
 /// ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,Md5:dDi+Mv1hZFT0i4q0/pUStQ==,ModifyTime:1675339275,
 
 /// ProtoName:com_player.proto,ProtoPath:../../protocols/proto/com_player.proto,Md5:GbNL5eEQfq+258N5nvsvJg==,ModifyTime:1675339274,
 
-[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:ModifyPlayerNameReq,Opcode:9,]
-[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:ModifyPlayerNameRes,Opcode:10,]
-[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:PlayerDataNty,Opcode:11,]
+[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:ModifyPlayerNameReq,Opcode:9,NoLog:false,]
+[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:ModifyPlayerNameRes,Opcode:10,NoLog:false,]
+[ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:PlayerDataNty,Opcode:11,NoLog:false,]
 
 
 
 /// ProtoName:com_title.proto,ProtoPath:../../protocols/proto/com_title.proto,Md5:6Bhe94ymEiMLLVYHawH+Xw==,ModifyTime:1675339274,
 
-[ProtoName:title.proto,ProtoPath:../../protocols/proto/title.proto,MessageName:TitleInfoReq,Opcode:20,]
-[ProtoName:title.proto,ProtoPath:../../protocols/proto/title.proto,MessageName:TitleInfoRes,Opcode:21,]
+[ProtoName:title.proto,ProtoPath:../../protocols/proto/title.proto,MessageName:TitleInfoReq,Opcode:20,NoLog:false,]
+[ProtoName:title.proto,ProtoPath:../../protocols/proto/title.proto,MessageName:TitleInfoRes,Opcode:21,NoLog:false,]
 /// ProtoName:title.proto,ProtoPath:../../protocols/proto/title.proto,Md5:QoVFvdVPVJD6sbhZvDETYA==,ModifyTime:1675339275,
 
 
@@ -38,20 +38,20 @@
 
 /// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:b0fHzU0ZCouMn5Lsp7h2BA==,ModifyTime:1691309247,
 
-[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginInfoNty,Opcode:22,]
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginInfoNty,Opcode:22,NoLog:false,]
 /// ProtoName:com_heartbeat.proto,ProtoPath:../../protocols/proto/com_heartbeat.proto,Md5:phKu8P79esF/grwLyPEQ7Q==,ModifyTime:1691471334,
 
-[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:GetNodeListReq,Opcode:27,]
-[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:GetNodeListRes,Opcode:28,]
-[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:NodeHeartbeatReq,Opcode:23,]
-[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:NodeHeartbeatRes,Opcode:24,]
-[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeReq,Opcode:25,]
-[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeRes,Opcode:26,]
-/// ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,Md5:Hx+T8FfaEJH5Rc/GG3S9LQ==,ModifyTime:1691847301,
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:GetNodeListReq,Opcode:27,NoLog:false,]
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:GetNodeListRes,Opcode:28,NoLog:false,]
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:NodeHeartbeatReq,Opcode:23,NoLog:true,]
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:NodeHeartbeatRes,Opcode:24,NoLog:true,]
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeReq,Opcode:25,NoLog:false,]
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeRes,Opcode:26,NoLog:false,]
+/// ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,Md5:a3hyKfPqd16aoJTktCURjw==,ModifyTime:1692203127,
 
-[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatReq,Opcode:29,]
-[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatRes,Opcode:30,]
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatReq,Opcode:29,NoLog:true,]
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatRes,Opcode:30,NoLog:true,]
 /// ProtoName:com_client_user.proto,ProtoPath:../../protocols/proto/com_client_user.proto,Md5:cY/tAwiVHO8WhJjPfMiJiA==,ModifyTime:1691919042,
 
-[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutNty,Opcode:32,]
-[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutReq,Opcode:31,]
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutNty,Opcode:32,NoLog:false,]
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutReq,Opcode:31,NoLog:false,]

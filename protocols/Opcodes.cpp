@@ -77,9 +77,7 @@ Int32 Opcodes::Init()
         }
 
         // 2.3 新建OpcodeInfo
-        auto newInfo = OpcodeInfo::New_OpcodeInfo(opcodeInfo._opcode
-                                                , opcodeInfo._opcodeName
-                                                , opcodeInfo._protoFile);
+        auto newInfo = OpcodeInfo::New_OpcodeInfo(opcodeInfo);
 
         // 2.4 建立字典
         _opcodeIdRefInfo.insert(std::make_pair(newInfo->_opcode, newInfo));
