@@ -45,7 +45,6 @@ public:
         OUTER = BEGIN,      // 外部的，可以以此辨别是否要提高安全性等考虑
         INNER = 1,      // 内部的通信 包括db，各个节点间等
         OUTER_NO_LIMIT = 2,      // 外部的无限制的
-        JSON_STACK = 3,     // 使用json协议
         END,
     };
 
@@ -57,8 +56,6 @@ public:
             return SessionType::OUTER_NO_LIMIT;
         if(sessionType == "INNER")
             return SessionType::INNER;
-        if(sessionType == "JSON_STACK")
-            return SessionType::JSON_STACK;
 
         return SessionType::UNKNOWN;
     }
