@@ -1,7 +1,6 @@
 @echo off
 
 Rem Generate visual studio project files
-Rem This file is a part of llbc library
 
 SET CUR_PATH=%~dp0
 

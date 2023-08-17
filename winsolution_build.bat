@@ -1,7 +1,6 @@
 @echo off
 
 Rem Generate visual studio project files
-Rem This file is a part of llbc library
 
 echo Visual Studio solution and project files generate tool.
 echo For now supported Visual Studio versions:
