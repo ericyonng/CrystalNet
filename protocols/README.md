@@ -24,7 +24,7 @@
 
    ```protobuf
    Opcode:xxx opcode用来指定协议号，如果:后面是空的，即缺省指定，那么会自动生成协议号
-   
+   NoLog:true/false 用来指定是不是不需要打印协议的网络日志
    ```
    
 4. 关于pbcache文件

@@ -30,15 +30,41 @@
 
 --------
 
+# 快速构建
+
+* Linux
+
+  * 构建: onekeybuild_linux.sh debug clean // 生成debug版本，在生成前clean表示清理原先生成的结果，默认不填写debug表示release版本或者显示指定release
+
+  * 运行
+
+    start.sh/stop.sh 运行或者关闭
+
+    或者：linux_run.sh testsuit
+
+* Windows
+
+  * 构建：winsolution_build.bat （选择vs2019, vs2022生成solution），请使用指定版本vs编译
+  * 编译可以使用自动化脚本编译:winms_onekey_build.bat(需要输入参数)/MsIncreaceBuildDebug.bat/MsIncreaceBuildRelease.bat/MsRebuildDebug.bat/MsRebuildRelease.bat, 需要脚本中指定MsBuild.exe的路径, 以及需要编译的vs版本
+  * start.bat/stop.bat 运行或者关闭
+
+* 导表工具
+
+  * update_configs.bat/update_configs.sh
+
+* 协议导出工具
+
+  * protoc.bat/protoc.sh
+
+----
+
+# 简介
+
 * 晶石框架是一个简易轻量的服务端框架，是在FrightenStone的基础上大改，完善的，基于C++11及以上
 * 旨在开发出一套跨平台，代码简洁可读性高，执行高效的框架
 * 框架正在持续开发中，接受各种建议吐槽
 * **Attention**:region 注释会尽量使用简洁的英文，CI可能会报错哈QVQ
 * 多个重要组件移植于[LLBC](https://github.com/lailongwei/llbc "Source from lailongwei:llbc")、 [nlohmann/Json](https://github.com/nlohmann/json "json")、 [OpenSSL](https://github.com/openssl/openssl)， 再次感谢开源作者的贡献，开发过程中给予了我很大的帮助
-* windows下kernel不生成dll，而是把代码插入到exe工程中
-* 使用ECS时千万警惕循环依赖：A <= B <= A <= ... 循环往复把系统资源耗光
-* 注意如果基类的命名空间与派生类的命名空间不同，则不可以使用Comp<Ixxx>(), 不可以使用基类类型来获取对象，因为注册的时候是根据派生类全名来推导基类名并注册进去的
-* 在模版函数中的lambda表达式中调用inline函数且该函数带有局部的static变量有可能导致变量多次初始化
 
 --------
 
@@ -60,6 +86,10 @@
 
 # 注意
 
+* windows下kernel不生成dll，而是把代码插入到exe工程中
+* 使用ECS时千万警惕循环依赖：A <= B <= A <= ... 循环往复把系统资源耗光
+* 注意如果基类的命名空间与派生类的命名空间不同，则不可以使用Comp<Ixxx>(), 不可以使用基类类型来获取对象，因为注册的时候是根据派生类全名来推导基类名并注册进去的
+* 在模版函数中的lambda表达式中调用inline函数且该函数带有局部的static变量有可能导致变量多次初始化
 * linux 内核版本3.9.0以上才有reuseport特性
 * windows 下dll, exe拥有各自的堆栈空间，各自的全局变量都会各自初始化，所以注意全局变量以及static变量可能出现的重复初始化以及释放问题，建议为了只使用一个堆栈空间，windows下一个程序只有一个exe不依赖dll或者说依赖dll，但是不依赖dll中的全局变量
 * thread_local 关键字 gcc 8.0以下有bug，相关连接:https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60702
@@ -206,30 +236,7 @@
 * windows下依赖DbgHelp(默认自带)
 * Mysql8.0可选组件（需要环境安装mysql8.0服务端, 需要把libmysqlclient.so拷贝到公共路径或者和程序运行目录同级目录即可）
 
-# 快速使用
-
-* Linux
-
-  * 构建: onekeybuild_linux.sh debug clean // 生成debug版本，在生成前clean表示清理原先生成的结果，默认不填写debug表示release版本或者显示指定release
-
-  * 运行
-
-    start.sh/stop.sh 运行或者关闭
-
-    或者：linux_run.sh testsuit
-
-* Windows
-  * 构建：winsolution_build.bat （选择vs2019, vs2022生成solution），请使用指定版本vs编译
-  * 编译可以使用自动化脚本编译:winms_onekey_build.bat(需要输入参数)/MsIncreaceBuildDebug.bat/MsIncreaceBuildRelease.bat/MsRebuildDebug.bat/MsRebuildRelease.bat, 需要脚本中指定MsBuild.exe的路径, 以及需要编译的vs版本
-  * start.bat/stop.bat 运行或者关闭
-  
-* 导表工具
-
-  * update_configs.bat/update_configs.sh
-
-* 协议导出工具
-
-  * protoc.bat/protoc.sh
+* * 
 
 # 环境构建
 
