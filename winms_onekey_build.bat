@@ -44,7 +44,7 @@ if not exist %SLN_PATH% (
     exit 1
 )
 
-:: 执行rebuild release
+:: 执行
 cd %MSBUILD_PATH%
 MSBuild.exe %SLN_PATH%  /t:%FINAL_BUILD% /p:Configuration=%Ver%
 
