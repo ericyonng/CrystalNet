@@ -25,7 +25,6 @@ echo Ver:%Ver%
 :: 重编或者增量编译
 echo choose Rebuild y/n:
 set /p VsBuildType=Please input:
-pause
 
 SET FINAL_BUILD=build
 if '%VsBuildType%' == 'y' SET FINAL_BUILD=Rebuild
@@ -47,3 +46,4 @@ if not exist %SLN_PATH% (
 cd %MSBUILD_PATH%
 MSBuild.exe %SLN_PATH%  /t:%FINAL_BUILD% /p:Configuration=%Ver%
 
+pause
