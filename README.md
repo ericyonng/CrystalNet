@@ -220,6 +220,7 @@
 
 * Windows
   * 构建：winsolution_build.bat （选择vs2019, vs2022生成solution），请使用指定版本vs编译
+  * 编译可以使用自动化脚本编译:MsIncreaceBuildDebug.bat/MsIncreaceBuildRelease.bat/MsRebuildDebug.bat/MsRebuildRelease.bat, 需要脚本中指定MsBuild.exe的路径, 以及需要编译的vs版本
   * start.bat/stop.bat 运行或者关闭
   
 * 导表工具
