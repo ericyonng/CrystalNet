@@ -55,18 +55,24 @@ struct TableStruct_com_5ftitle_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5ftitle_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class TitleInfo;
 struct TitleInfoDefaultTypeInternal;
 extern TitleInfoDefaultTypeInternal _TitleInfo_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::TitleInfo* Arena::CreateMaybeMessage<::TitleInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::TitleInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TitleInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class TitleInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:TitleInfo) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TitleInfo) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -286,7 +292,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "TitleInfo";
+    return "CRYSTAL_NET.service.TitleInfo";
   }
   protected:
   explicit TitleInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -324,7 +330,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_titlecfgid(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:TitleInfo)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TitleInfo)
  private:
   class _Internal;
 
@@ -358,7 +364,7 @@ inline int32_t TitleInfo::_internal_titlecfgid() const {
   return _impl_.titlecfgid_;
 }
 inline int32_t TitleInfo::titlecfgid() const {
-  // @@protoc_insertion_point(field_get:TitleInfo.titleCfgId)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TitleInfo.titleCfgId)
   return _internal_titlecfgid();
 }
 inline void TitleInfo::_internal_set_titlecfgid(int32_t value) {
@@ -367,7 +373,7 @@ inline void TitleInfo::_internal_set_titlecfgid(int32_t value) {
 }
 inline void TitleInfo::set_titlecfgid(int32_t value) {
   _internal_set_titlecfgid(value);
-  // @@protoc_insertion_point(field_set:TitleInfo.titleCfgId)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TitleInfo.titleCfgId)
 }
 
 // sint64 expiredTs = 2;
@@ -378,7 +384,7 @@ inline int64_t TitleInfo::_internal_expiredts() const {
   return _impl_.expiredts_;
 }
 inline int64_t TitleInfo::expiredts() const {
-  // @@protoc_insertion_point(field_get:TitleInfo.expiredTs)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TitleInfo.expiredTs)
   return _internal_expiredts();
 }
 inline void TitleInfo::_internal_set_expiredts(int64_t value) {
@@ -387,7 +393,7 @@ inline void TitleInfo::_internal_set_expiredts(int64_t value) {
 }
 inline void TitleInfo::set_expiredts(int64_t value) {
   _internal_set_expiredts(value);
-  // @@protoc_insertion_point(field_set:TitleInfo.expiredTs)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TitleInfo.expiredTs)
 }
 
 #ifdef __GNUC__
@@ -396,6 +402,8 @@ inline void TitleInfo::set_expiredts(int64_t value) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 // @@protoc_insertion_point(global_scope)
 
@@ -414,11 +422,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new TitleInfo();
+        return new ::CRYSTAL_NET::service::TitleInfo();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new TitleInfo(*dynamic_cast<const TitleInfo *>(coder));
+        return new ::CRYSTAL_NET::service::TitleInfo(*dynamic_cast<const ::CRYSTAL_NET::service::TitleInfo *>(coder));
     }
 
 };

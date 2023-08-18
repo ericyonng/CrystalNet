@@ -573,7 +573,7 @@ bool ExporterMgr::_ModifyCppPbHeader(const KERNEL_NS::LibString &pbHeaderName, s
                     {
                         std::vector<KERNEL_NS::LibString> addFactoryLines;
                         for(auto &className : classNames)
-                            _CollectCppClassFactoryDeclearAdds(className, addFactoryLines, newClassFactoryNames);
+                            _CollectCppClassFactoryDeclearAdds(protoFileInfo->_packageName, className, addFactoryLines, newClassFactoryNames);
 
                         lines.insert(lines.begin() + idx, addFactoryLines.begin(), addFactoryLines.end());
                         break;
@@ -804,7 +804,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
     addLines.push_back("");
 }
 
-void ExporterMgr::_CollectCppClassFactoryDeclearAdds(const KERNEL_NS::LibString &className, std::vector<KERNEL_NS::LibString> &addLines, std::vector<KERNEL_NS::LibString> &newClassFactoryNames)
+void ExporterMgr::_CollectCppClassFactoryDeclearAdds(const KERNEL_NS::LibString &packageName, const KERNEL_NS::LibString &className, std::vector<KERNEL_NS::LibString> &addLines, std::vector<KERNEL_NS::LibString> &newClassFactoryNames)
 {
     addLines.push_back("");
 
@@ -829,14 +829,14 @@ void ExporterMgr::_CollectCppClassFactoryDeclearAdds(const KERNEL_NS::LibString 
 
     // Create
     addLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual KERNEL_NS::ICoder *Create() const override {"));
-    addLines.push_back(KERNEL_NS::LibString().AppendFormat("        return new %s();", className.c_str()));
+    addLines.push_back(KERNEL_NS::LibString().AppendFormat("        return new ::%s::%s();", packageName.c_str(), className.c_str()));
     addLines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
     addLines.push_back(KERNEL_NS::LibString());
 
     // virtual ICoder *Create(const ICoder *coder) = 0;
     // Create
     addLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {"));
-    addLines.push_back(KERNEL_NS::LibString().AppendFormat("        return new %s(*dynamic_cast<const %s *>(coder));", className.c_str(), className.c_str()));
+    addLines.push_back(KERNEL_NS::LibString().AppendFormat("        return new ::%s::%s(*dynamic_cast<const ::%s::%s *>(coder));", packageName.c_str(), className.c_str(), packageName.c_str(), className.c_str()));
     addLines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
     addLines.push_back(KERNEL_NS::LibString());
 
@@ -1530,6 +1530,9 @@ bool ExporterMgr::_ScanAProto(const KERNEL_NS::FindFileInfo &fileInfo, const KER
         }
         
         lineData.strip();
+
+        if(protoInfo->_packageName.empty())
+            ProtobuffHelper::GetPackageName(lineData, protoInfo->_packageName);
 
         // 判断是不是message
         if(ProtobuffHelper::HasMessage(lineData))

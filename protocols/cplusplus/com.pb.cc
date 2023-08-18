@@ -22,6 +22,8 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace CRYSTAL_NET {
+namespace service {
 PROTOBUF_CONSTEXPR CreatureAttrKey::CreatureAttrKey(
     ::_pbi::ConstantInitialized) {}
 struct CreatureAttrKeyDefaultTypeInternal {
@@ -33,48 +35,50 @@ struct CreatureAttrKeyDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CreatureAttrKeyDefaultTypeInternal _CreatureAttrKey_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_com_2eproto[1];
 static const ::_pb::EnumDescriptor* file_level_enum_descriptors_com_2eproto[1];
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_2eproto = nullptr;
 
 const uint32_t TableStruct_com_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CreatureAttrKey, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::CreatureAttrKey, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::CreatureAttrKey)},
+  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::CreatureAttrKey)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_CreatureAttrKey_default_instance_._instance,
+  &::CRYSTAL_NET::service::_CreatureAttrKey_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_com_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\tcom.proto\"\360\004\n\017CreatureAttrKey\"\334\004\n\004ENUM"
-  "\022\t\n\005BEGIN\020\000\022\007\n\003Atk\020\001\022\007\n\003Def\020\002\022\t\n\005HpLmt\020\003"
-  "\022\t\n\005HpRcv\020\004\022\010\n\004Cure\020\005\022\014\n\010AngerLmt\020\006\022\014\n\010A"
-  "ngerRcv\020\007\022\t\n\005Anger\020\010\022\006\n\002Hp\020\t\022\013\n\007MoveSpd\020"
-  "\n\022\n\n\006ActSpd\020\013\022\014\n\010MMoveSpd\020\014\022\013\n\007MActSpd\020\r"
-  "\022\013\n\007ExtraHp\020\016\022\014\n\010VMoveSpd\020\017\022\n\n\006BuffHp\020\021\022"
-  "\r\n\tBuffHpLmt\020\022\022\024\n\020BuffHpBloodSpeed\020\023\022\010\n\004"
-  "Crit\020e\022\007\n\003Res\020f\022\007\n\003Hit\020g\022\007\n\003Prr\020h\022\007\n\003Ddg"
-  "\020i\022\010\n\004Crid\020j\022\010\n\004Crrd\020k\022\t\n\005Critv\020l\022\010\n\004Res"
-  "v\020m\022\010\n\004Hitv\020n\022\010\n\004Prrv\020o\022\010\n\004Ddgv\020p\022\013\n\006Atk"
-  "Add\020\227\001\022\013\n\006DefAdd\020\230\001\022\r\n\010HpLmtAdd\020\231\001\022\t\n\004Pe"
-  "dm\020\311\001\022\t\n\004Prdm\020\312\001\022\t\n\004Medm\020\313\001\022\t\n\004Mrdm\020\314\001\022\t"
-  "\n\004Sedm\020\315\001\022\t\n\004Srdm\020\316\001\022\t\n\004Ardm\020\322\001\022\007\n\002Lv\020\373\001"
-  "\022\014\n\007AwakeLv\020\374\001\022\013\n\006ExpLmt\020\375\001\022\010\n\003Exp\020\376\001\022\013\n"
-  "\006ExpMul\020\377\001\022\013\n\006ExpAdd\020\200\002\022\014\n\007GoldMul\020\201\002\022\016\n"
-  "\tDoubleExp\020\202\002\022\n\n\005VipLv\020\216\002\022\013\n\006Forces\020\253\002b\006"
-  "proto3"
+  "\n\tcom.proto\022\023CRYSTAL_NET.service\"\360\004\n\017Cre"
+  "atureAttrKey\"\334\004\n\004ENUM\022\t\n\005BEGIN\020\000\022\007\n\003Atk\020"
+  "\001\022\007\n\003Def\020\002\022\t\n\005HpLmt\020\003\022\t\n\005HpRcv\020\004\022\010\n\004Cure"
+  "\020\005\022\014\n\010AngerLmt\020\006\022\014\n\010AngerRcv\020\007\022\t\n\005Anger\020"
+  "\010\022\006\n\002Hp\020\t\022\013\n\007MoveSpd\020\n\022\n\n\006ActSpd\020\013\022\014\n\010MM"
+  "oveSpd\020\014\022\013\n\007MActSpd\020\r\022\013\n\007ExtraHp\020\016\022\014\n\010VM"
+  "oveSpd\020\017\022\n\n\006BuffHp\020\021\022\r\n\tBuffHpLmt\020\022\022\024\n\020B"
+  "uffHpBloodSpeed\020\023\022\010\n\004Crit\020e\022\007\n\003Res\020f\022\007\n\003"
+  "Hit\020g\022\007\n\003Prr\020h\022\007\n\003Ddg\020i\022\010\n\004Crid\020j\022\010\n\004Crr"
+  "d\020k\022\t\n\005Critv\020l\022\010\n\004Resv\020m\022\010\n\004Hitv\020n\022\010\n\004Pr"
+  "rv\020o\022\010\n\004Ddgv\020p\022\013\n\006AtkAdd\020\227\001\022\013\n\006DefAdd\020\230\001"
+  "\022\r\n\010HpLmtAdd\020\231\001\022\t\n\004Pedm\020\311\001\022\t\n\004Prdm\020\312\001\022\t\n"
+  "\004Medm\020\313\001\022\t\n\004Mrdm\020\314\001\022\t\n\004Sedm\020\315\001\022\t\n\004Srdm\020\316"
+  "\001\022\t\n\004Ardm\020\322\001\022\007\n\002Lv\020\373\001\022\014\n\007AwakeLv\020\374\001\022\013\n\006E"
+  "xpLmt\020\375\001\022\010\n\003Exp\020\376\001\022\013\n\006ExpMul\020\377\001\022\013\n\006ExpAd"
+  "d\020\200\002\022\014\n\007GoldMul\020\201\002\022\016\n\tDoubleExp\020\202\002\022\n\n\005Vi"
+  "pLv\020\216\002\022\013\n\006Forces\020\253\002b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_2eproto = {
-    false, false, 646, descriptor_table_protodef_com_2eproto,
+    false, false, 667, descriptor_table_protodef_com_2eproto,
     "com.proto",
     &descriptor_table_com_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_com_2eproto::offsets,
@@ -87,6 +91,8 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_com_2epr
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_com_2eproto(&descriptor_table_com_2eproto);
+namespace CRYSTAL_NET {
+namespace service {
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CreatureAttrKey_ENUM_descriptor() {
   ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_com_2eproto);
   return file_level_enum_descriptors_com_2eproto[0];
@@ -216,13 +222,13 @@ class CreatureAttrKey::_Internal {
 CreatureAttrKey::CreatureAttrKey(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
-  // @@protoc_insertion_point(arena_constructor:CreatureAttrKey)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.CreatureAttrKey)
 }
 CreatureAttrKey::CreatureAttrKey(const CreatureAttrKey& from)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
   CreatureAttrKey* const _this = this; (void)_this;
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:CreatureAttrKey)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.CreatureAttrKey)
 }
 
 
@@ -248,10 +254,12 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*CreatureAttrKey::GetClassData(
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::CreatureAttrKey*
-Arena::CreateMaybeMessage< ::CreatureAttrKey >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CreatureAttrKey >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::CreatureAttrKey*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::CreatureAttrKey >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::CreatureAttrKey >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

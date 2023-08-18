@@ -57,16 +57,22 @@ struct TableStruct_com_5fheartbeat_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5fheartbeat_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class NODE_IPTYPE;
 struct NODE_IPTYPEDefaultTypeInternal;
 extern NODE_IPTYPEDefaultTypeInternal _NODE_IPTYPE_default_instance_;
 class NodeHeartbeatInfo;
 struct NodeHeartbeatInfoDefaultTypeInternal;
 extern NodeHeartbeatInfoDefaultTypeInternal _NodeHeartbeatInfo_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::NODE_IPTYPE* Arena::CreateMaybeMessage<::NODE_IPTYPE>(Arena*);
-template<> ::NodeHeartbeatInfo* Arena::CreateMaybeMessage<::NodeHeartbeatInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::NODE_IPTYPE* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::NODE_IPTYPE>(Arena*);
+template<> ::CRYSTAL_NET::service::NodeHeartbeatInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::NodeHeartbeatInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 enum NODE_IPTYPE_TYPE_ENUMS : int {
   NODE_IPTYPE_TYPE_ENUMS_IPV4 = 0,
@@ -97,7 +103,7 @@ inline bool NODE_IPTYPE_TYPE_ENUMS_Parse(
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class NODE_IPTYPE final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:NODE_IPTYPE) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.NODE_IPTYPE) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -302,7 +308,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "NODE_IPTYPE";
+    return "CRYSTAL_NET.service.NODE_IPTYPE";
   }
   protected:
   explicit NODE_IPTYPE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -348,7 +354,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:NODE_IPTYPE)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.NODE_IPTYPE)
  private:
   class _Internal;
 
@@ -363,7 +369,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class NodeHeartbeatInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:NodeHeartbeatInfo) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.NodeHeartbeatInfo) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -583,7 +589,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "NodeHeartbeatInfo";
+    return "CRYSTAL_NET.service.NodeHeartbeatInfo";
   }
   protected:
   explicit NodeHeartbeatInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -699,7 +705,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_innerlinkport(uint32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:NodeHeartbeatInfo)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.NodeHeartbeatInfo)
  private:
   class _Internal;
 
@@ -739,7 +745,7 @@ inline void NodeHeartbeatInfo::clear_servicename() {
   _impl_.servicename_.ClearToEmpty();
 }
 inline const std::string& NodeHeartbeatInfo::servicename() const {
-  // @@protoc_insertion_point(field_get:NodeHeartbeatInfo.ServiceName)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.NodeHeartbeatInfo.ServiceName)
   return _internal_servicename();
 }
 template <typename ArgT0, typename... ArgT>
@@ -747,11 +753,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void NodeHeartbeatInfo::set_servicename(ArgT0&& arg0, ArgT... args) {
  
  _impl_.servicename_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:NodeHeartbeatInfo.ServiceName)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.NodeHeartbeatInfo.ServiceName)
 }
 inline std::string* NodeHeartbeatInfo::mutable_servicename() {
   std::string* _s = _internal_mutable_servicename();
-  // @@protoc_insertion_point(field_mutable:NodeHeartbeatInfo.ServiceName)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.NodeHeartbeatInfo.ServiceName)
   return _s;
 }
 inline const std::string& NodeHeartbeatInfo::_internal_servicename() const {
@@ -766,7 +772,7 @@ inline std::string* NodeHeartbeatInfo::_internal_mutable_servicename() {
   return _impl_.servicename_.Mutable(GetArenaForAllocation());
 }
 inline std::string* NodeHeartbeatInfo::release_servicename() {
-  // @@protoc_insertion_point(field_release:NodeHeartbeatInfo.ServiceName)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.NodeHeartbeatInfo.ServiceName)
   return _impl_.servicename_.Release();
 }
 inline void NodeHeartbeatInfo::set_allocated_servicename(std::string* servicename) {
@@ -781,7 +787,7 @@ inline void NodeHeartbeatInfo::set_allocated_servicename(std::string* servicenam
     _impl_.servicename_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:NodeHeartbeatInfo.ServiceName)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.NodeHeartbeatInfo.ServiceName)
 }
 
 // string address = 2;
@@ -789,7 +795,7 @@ inline void NodeHeartbeatInfo::clear_address() {
   _impl_.address_.ClearToEmpty();
 }
 inline const std::string& NodeHeartbeatInfo::address() const {
-  // @@protoc_insertion_point(field_get:NodeHeartbeatInfo.address)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.NodeHeartbeatInfo.address)
   return _internal_address();
 }
 template <typename ArgT0, typename... ArgT>
@@ -797,11 +803,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void NodeHeartbeatInfo::set_address(ArgT0&& arg0, ArgT... args) {
  
  _impl_.address_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:NodeHeartbeatInfo.address)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.NodeHeartbeatInfo.address)
 }
 inline std::string* NodeHeartbeatInfo::mutable_address() {
   std::string* _s = _internal_mutable_address();
-  // @@protoc_insertion_point(field_mutable:NodeHeartbeatInfo.address)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.NodeHeartbeatInfo.address)
   return _s;
 }
 inline const std::string& NodeHeartbeatInfo::_internal_address() const {
@@ -816,7 +822,7 @@ inline std::string* NodeHeartbeatInfo::_internal_mutable_address() {
   return _impl_.address_.Mutable(GetArenaForAllocation());
 }
 inline std::string* NodeHeartbeatInfo::release_address() {
-  // @@protoc_insertion_point(field_release:NodeHeartbeatInfo.address)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.NodeHeartbeatInfo.address)
   return _impl_.address_.Release();
 }
 inline void NodeHeartbeatInfo::set_allocated_address(std::string* address) {
@@ -831,7 +837,7 @@ inline void NodeHeartbeatInfo::set_allocated_address(std::string* address) {
     _impl_.address_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:NodeHeartbeatInfo.address)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.NodeHeartbeatInfo.address)
 }
 
 // sint32 IpType = 3;
@@ -842,7 +848,7 @@ inline int32_t NodeHeartbeatInfo::_internal_iptype() const {
   return _impl_.iptype_;
 }
 inline int32_t NodeHeartbeatInfo::iptype() const {
-  // @@protoc_insertion_point(field_get:NodeHeartbeatInfo.IpType)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.NodeHeartbeatInfo.IpType)
   return _internal_iptype();
 }
 inline void NodeHeartbeatInfo::_internal_set_iptype(int32_t value) {
@@ -851,7 +857,7 @@ inline void NodeHeartbeatInfo::_internal_set_iptype(int32_t value) {
 }
 inline void NodeHeartbeatInfo::set_iptype(int32_t value) {
   _internal_set_iptype(value);
-  // @@protoc_insertion_point(field_set:NodeHeartbeatInfo.IpType)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.NodeHeartbeatInfo.IpType)
 }
 
 // uint32 InnerLinkPort = 4;
@@ -862,7 +868,7 @@ inline uint32_t NodeHeartbeatInfo::_internal_innerlinkport() const {
   return _impl_.innerlinkport_;
 }
 inline uint32_t NodeHeartbeatInfo::innerlinkport() const {
-  // @@protoc_insertion_point(field_get:NodeHeartbeatInfo.InnerLinkPort)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.NodeHeartbeatInfo.InnerLinkPort)
   return _internal_innerlinkport();
 }
 inline void NodeHeartbeatInfo::_internal_set_innerlinkport(uint32_t value) {
@@ -871,7 +877,7 @@ inline void NodeHeartbeatInfo::_internal_set_innerlinkport(uint32_t value) {
 }
 inline void NodeHeartbeatInfo::set_innerlinkport(uint32_t value) {
   _internal_set_innerlinkport(value);
-  // @@protoc_insertion_point(field_set:NodeHeartbeatInfo.InnerLinkPort)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.NodeHeartbeatInfo.InnerLinkPort)
 }
 
 // repeated sint32 SubscribeOpcodes = 5;
@@ -888,19 +894,19 @@ inline int32_t NodeHeartbeatInfo::_internal_subscribeopcodes(int index) const {
   return _impl_.subscribeopcodes_.Get(index);
 }
 inline int32_t NodeHeartbeatInfo::subscribeopcodes(int index) const {
-  // @@protoc_insertion_point(field_get:NodeHeartbeatInfo.SubscribeOpcodes)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.NodeHeartbeatInfo.SubscribeOpcodes)
   return _internal_subscribeopcodes(index);
 }
 inline void NodeHeartbeatInfo::set_subscribeopcodes(int index, int32_t value) {
   _impl_.subscribeopcodes_.Set(index, value);
-  // @@protoc_insertion_point(field_set:NodeHeartbeatInfo.SubscribeOpcodes)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.NodeHeartbeatInfo.SubscribeOpcodes)
 }
 inline void NodeHeartbeatInfo::_internal_add_subscribeopcodes(int32_t value) {
   _impl_.subscribeopcodes_.Add(value);
 }
 inline void NodeHeartbeatInfo::add_subscribeopcodes(int32_t value) {
   _internal_add_subscribeopcodes(value);
-  // @@protoc_insertion_point(field_add:NodeHeartbeatInfo.SubscribeOpcodes)
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.NodeHeartbeatInfo.SubscribeOpcodes)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
 NodeHeartbeatInfo::_internal_subscribeopcodes() const {
@@ -908,7 +914,7 @@ NodeHeartbeatInfo::_internal_subscribeopcodes() const {
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
 NodeHeartbeatInfo::subscribeopcodes() const {
-  // @@protoc_insertion_point(field_list:NodeHeartbeatInfo.SubscribeOpcodes)
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.NodeHeartbeatInfo.SubscribeOpcodes)
   return _internal_subscribeopcodes();
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
@@ -917,7 +923,7 @@ NodeHeartbeatInfo::_internal_mutable_subscribeopcodes() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
 NodeHeartbeatInfo::mutable_subscribeopcodes() {
-  // @@protoc_insertion_point(field_mutable_list:NodeHeartbeatInfo.SubscribeOpcodes)
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.NodeHeartbeatInfo.SubscribeOpcodes)
   return _internal_mutable_subscribeopcodes();
 }
 
@@ -933,66 +939,66 @@ inline void NodeHeartbeatInfo::clear_apilist() {
 }
 inline std::string* NodeHeartbeatInfo::add_apilist() {
   std::string* _s = _internal_add_apilist();
-  // @@protoc_insertion_point(field_add_mutable:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_add_mutable:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
   return _s;
 }
 inline const std::string& NodeHeartbeatInfo::_internal_apilist(int index) const {
   return _impl_.apilist_.Get(index);
 }
 inline const std::string& NodeHeartbeatInfo::apilist(int index) const {
-  // @@protoc_insertion_point(field_get:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
   return _internal_apilist(index);
 }
 inline std::string* NodeHeartbeatInfo::mutable_apilist(int index) {
-  // @@protoc_insertion_point(field_mutable:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
   return _impl_.apilist_.Mutable(index);
 }
 inline void NodeHeartbeatInfo::set_apilist(int index, const std::string& value) {
   _impl_.apilist_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
 }
 inline void NodeHeartbeatInfo::set_apilist(int index, std::string&& value) {
   _impl_.apilist_.Mutable(index)->assign(std::move(value));
-  // @@protoc_insertion_point(field_set:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
 }
 inline void NodeHeartbeatInfo::set_apilist(int index, const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   _impl_.apilist_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set_char:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
 }
 inline void NodeHeartbeatInfo::set_apilist(int index, const char* value, size_t size) {
   _impl_.apilist_.Mutable(index)->assign(
     reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
 }
 inline std::string* NodeHeartbeatInfo::_internal_add_apilist() {
   return _impl_.apilist_.Add();
 }
 inline void NodeHeartbeatInfo::add_apilist(const std::string& value) {
   _impl_.apilist_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
 }
 inline void NodeHeartbeatInfo::add_apilist(std::string&& value) {
   _impl_.apilist_.Add(std::move(value));
-  // @@protoc_insertion_point(field_add:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
 }
 inline void NodeHeartbeatInfo::add_apilist(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   _impl_.apilist_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add_char:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
 }
 inline void NodeHeartbeatInfo::add_apilist(const char* value, size_t size) {
   _impl_.apilist_.Add()->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_add_pointer:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
 NodeHeartbeatInfo::apilist() const {
-  // @@protoc_insertion_point(field_list:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
   return _impl_.apilist_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
 NodeHeartbeatInfo::mutable_apilist() {
-  // @@protoc_insertion_point(field_mutable_list:NodeHeartbeatInfo.ApiList)
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.NodeHeartbeatInfo.ApiList)
   return &_impl_.apilist_;
 }
 
@@ -1004,13 +1010,15 @@ NodeHeartbeatInfo::mutable_apilist() {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 PROTOBUF_NAMESPACE_OPEN
 
-template <> struct is_proto_enum< ::NODE_IPTYPE_TYPE_ENUMS> : ::std::true_type {};
+template <> struct is_proto_enum< ::CRYSTAL_NET::service::NODE_IPTYPE_TYPE_ENUMS> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::NODE_IPTYPE_TYPE_ENUMS>() {
-  return ::NODE_IPTYPE_TYPE_ENUMS_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::NODE_IPTYPE_TYPE_ENUMS>() {
+  return ::CRYSTAL_NET::service::NODE_IPTYPE_TYPE_ENUMS_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE
@@ -1032,11 +1040,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new NODE_IPTYPE();
+        return new ::CRYSTAL_NET::service::NODE_IPTYPE();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new NODE_IPTYPE(*dynamic_cast<const NODE_IPTYPE *>(coder));
+        return new ::CRYSTAL_NET::service::NODE_IPTYPE(*dynamic_cast<const ::CRYSTAL_NET::service::NODE_IPTYPE *>(coder));
     }
 
 };
@@ -1055,11 +1063,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new NodeHeartbeatInfo();
+        return new ::CRYSTAL_NET::service::NodeHeartbeatInfo();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new NodeHeartbeatInfo(*dynamic_cast<const NodeHeartbeatInfo *>(coder));
+        return new ::CRYSTAL_NET::service::NodeHeartbeatInfo(*dynamic_cast<const ::CRYSTAL_NET::service::NodeHeartbeatInfo *>(coder));
     }
 
 };

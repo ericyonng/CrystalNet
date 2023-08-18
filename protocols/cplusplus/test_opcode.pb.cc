@@ -26,6 +26,8 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace CRYSTAL_NET {
+namespace service {
 PROTOBUF_CONSTEXPR TestOpcodeReq::TestOpcodeReq(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_._has_bits_)*/{}
@@ -99,89 +101,92 @@ struct TestOpcode2ResDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TestOpcode2ResDefaultTypeInternal _TestOpcode2Res_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_test_5fopcode_2eproto[5];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_test_5fopcode_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_test_5fopcode_2eproto = nullptr;
 
 const uint32_t TableStruct_test_5fopcode_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeReq, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeReq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeReq, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeReq, _impl_.content_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeReq, _impl_.content_),
   0,
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeRes, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeRes, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeRes, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeRes, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeRes, _impl_.content_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeRes, _impl_.content_),
   0,
-  PROTOBUF_FIELD_OFFSET(::TestOpcode2Req, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::TestOpcode2Req, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcode2Req, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcode2Req, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::TestOpcode2Req, _impl_.id_),
-  PROTOBUF_FIELD_OFFSET(::TestOpcode2Req, _impl_.content_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcode2Req, _impl_.id_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcode2Req, _impl_.content_),
   1,
   0,
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeInfo, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeInfo, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeInfo, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeInfo, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeInfo, _impl_.errcode_),
-  PROTOBUF_FIELD_OFFSET(::TestOpcodeInfo, _impl_.errmsg_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeInfo, _impl_.errcode_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcodeInfo, _impl_.errmsg_),
   1,
   0,
-  PROTOBUF_FIELD_OFFSET(::TestOpcode2Res, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::TestOpcode2Res, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcode2Res, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcode2Res, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::TestOpcode2Res, _impl_.id_info_),
-  PROTOBUF_FIELD_OFFSET(::TestOpcode2Res, _impl_.testinfo_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcode2Res, _impl_.id_info_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcode2Res, _impl_.testinfo_),
   1,
   0,
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 7, -1, sizeof(::TestOpcodeReq)},
-  { 8, 15, -1, sizeof(::TestOpcodeRes)},
-  { 16, 24, -1, sizeof(::TestOpcode2Req)},
-  { 26, 34, -1, sizeof(::TestOpcodeInfo)},
-  { 36, 44, -1, sizeof(::TestOpcode2Res)},
+  { 0, 7, -1, sizeof(::CRYSTAL_NET::service::TestOpcodeReq)},
+  { 8, 15, -1, sizeof(::CRYSTAL_NET::service::TestOpcodeRes)},
+  { 16, 24, -1, sizeof(::CRYSTAL_NET::service::TestOpcode2Req)},
+  { 26, 34, -1, sizeof(::CRYSTAL_NET::service::TestOpcodeInfo)},
+  { 36, 44, -1, sizeof(::CRYSTAL_NET::service::TestOpcode2Res)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_TestOpcodeReq_default_instance_._instance,
-  &::_TestOpcodeRes_default_instance_._instance,
-  &::_TestOpcode2Req_default_instance_._instance,
-  &::_TestOpcodeInfo_default_instance_._instance,
-  &::_TestOpcode2Res_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TestOpcodeReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TestOpcodeRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TestOpcode2Req_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TestOpcodeInfo_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TestOpcode2Res_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_test_5fopcode_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\021test_opcode.proto\"1\n\rTestOpcodeReq\022\024\n\007"
-  "content\030\001 \001(\014H\000\210\001\001B\n\n\010_content\"1\n\rTestOp"
-  "codeRes\022\024\n\007content\030\001 \001(\014H\000\210\001\001B\n\n\010_conten"
-  "t\"J\n\016TestOpcode2Req\022\017\n\002id\030\001 \001(\021H\000\210\001\001\022\024\n\007"
-  "content\030\002 \001(\tH\001\210\001\001B\005\n\003_idB\n\n\010_content\"R\n"
-  "\016TestOpcodeInfo\022\024\n\007errCode\030\001 \001(\021H\000\210\001\001\022\023\n"
-  "\006errMsg\030\002 \001(\tH\001\210\001\001B\n\n\010_errCodeB\t\n\007_errMs"
-  "g\"g\n\016TestOpcode2Res\022\024\n\007id_info\030\001 \001(\005H\000\210\001"
-  "\001\022&\n\010testInfo\030\002 \001(\0132\017.TestOpcodeInfoH\001\210\001"
-  "\001B\n\n\010_id_infoB\013\n\t_testInfob\006proto3"
+  "\n\021test_opcode.proto\022\023CRYSTAL_NET.service"
+  "\"1\n\rTestOpcodeReq\022\024\n\007content\030\001 \001(\014H\000\210\001\001B"
+  "\n\n\010_content\"1\n\rTestOpcodeRes\022\024\n\007content\030"
+  "\001 \001(\014H\000\210\001\001B\n\n\010_content\"J\n\016TestOpcode2Req"
+  "\022\017\n\002id\030\001 \001(\021H\000\210\001\001\022\024\n\007content\030\002 \001(\tH\001\210\001\001B"
+  "\005\n\003_idB\n\n\010_content\"R\n\016TestOpcodeInfo\022\024\n\007"
+  "errCode\030\001 \001(\021H\000\210\001\001\022\023\n\006errMsg\030\002 \001(\tH\001\210\001\001B"
+  "\n\n\010_errCodeB\t\n\007_errMsg\"{\n\016TestOpcode2Res"
+  "\022\024\n\007id_info\030\001 \001(\005H\000\210\001\001\022:\n\010testInfo\030\002 \001(\013"
+  "2#.CRYSTAL_NET.service.TestOpcodeInfoH\001\210"
+  "\001\001B\n\n\010_id_infoB\013\n\t_testInfob\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_test_5fopcode_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_test_5fopcode_2eproto = {
-    false, false, 394, descriptor_table_protodef_test_5fopcode_2eproto,
+    false, false, 435, descriptor_table_protodef_test_5fopcode_2eproto,
     "test_opcode.proto",
     &descriptor_table_test_5fopcode_2eproto_once, nullptr, 0, 5,
     schemas, file_default_instances, TableStruct_test_5fopcode_2eproto::offsets,
@@ -194,6 +199,8 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_test_5fo
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_test_5fopcode_2eproto(&descriptor_table_test_5fopcode_2eproto);
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
@@ -209,7 +216,7 @@ TestOpcodeReq::TestOpcodeReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:TestOpcodeReq)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TestOpcodeReq)
 }
 TestOpcodeReq::TestOpcodeReq(const TestOpcodeReq& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -228,7 +235,7 @@ TestOpcodeReq::TestOpcodeReq(const TestOpcodeReq& from)
     _this->_impl_.content_.Set(from._internal_content(), 
       _this->GetArenaForAllocation());
   }
-  // @@protoc_insertion_point(copy_constructor:TestOpcodeReq)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TestOpcodeReq)
 }
 
 inline void TestOpcodeReq::SharedCtor(
@@ -247,7 +254,7 @@ inline void TestOpcodeReq::SharedCtor(
 }
 
 TestOpcodeReq::~TestOpcodeReq() {
-  // @@protoc_insertion_point(destructor:TestOpcodeReq)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.TestOpcodeReq)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -265,7 +272,7 @@ void TestOpcodeReq::SetCachedSize(int size) const {
 }
 
 void TestOpcodeReq::Clear() {
-// @@protoc_insertion_point(message_clear_start:TestOpcodeReq)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.TestOpcodeReq)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -320,7 +327,7 @@ failure:
 
 uint8_t* TestOpcodeReq::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:TestOpcodeReq)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.TestOpcodeReq)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -334,12 +341,12 @@ uint8_t* TestOpcodeReq::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:TestOpcodeReq)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.TestOpcodeReq)
   return target;
 }
 
 size_t TestOpcodeReq::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:TestOpcodeReq)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.TestOpcodeReq)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -367,7 +374,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestOpcodeReq::GetClassData() 
 void TestOpcodeReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<TestOpcodeReq*>(&to_msg);
   auto& from = static_cast<const TestOpcodeReq&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:TestOpcodeReq)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.TestOpcodeReq)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -379,7 +386,7 @@ void TestOpcodeReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::
 }
 
 void TestOpcodeReq::CopyFrom(const TestOpcodeReq& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:TestOpcodeReq)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.TestOpcodeReq)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -421,7 +428,7 @@ TestOpcodeRes::TestOpcodeRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:TestOpcodeRes)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TestOpcodeRes)
 }
 TestOpcodeRes::TestOpcodeRes(const TestOpcodeRes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -440,7 +447,7 @@ TestOpcodeRes::TestOpcodeRes(const TestOpcodeRes& from)
     _this->_impl_.content_.Set(from._internal_content(), 
       _this->GetArenaForAllocation());
   }
-  // @@protoc_insertion_point(copy_constructor:TestOpcodeRes)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TestOpcodeRes)
 }
 
 inline void TestOpcodeRes::SharedCtor(
@@ -459,7 +466,7 @@ inline void TestOpcodeRes::SharedCtor(
 }
 
 TestOpcodeRes::~TestOpcodeRes() {
-  // @@protoc_insertion_point(destructor:TestOpcodeRes)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.TestOpcodeRes)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -477,7 +484,7 @@ void TestOpcodeRes::SetCachedSize(int size) const {
 }
 
 void TestOpcodeRes::Clear() {
-// @@protoc_insertion_point(message_clear_start:TestOpcodeRes)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.TestOpcodeRes)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -532,7 +539,7 @@ failure:
 
 uint8_t* TestOpcodeRes::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:TestOpcodeRes)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.TestOpcodeRes)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -546,12 +553,12 @@ uint8_t* TestOpcodeRes::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:TestOpcodeRes)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.TestOpcodeRes)
   return target;
 }
 
 size_t TestOpcodeRes::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:TestOpcodeRes)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.TestOpcodeRes)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -579,7 +586,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestOpcodeRes::GetClassData() 
 void TestOpcodeRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<TestOpcodeRes*>(&to_msg);
   auto& from = static_cast<const TestOpcodeRes&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:TestOpcodeRes)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.TestOpcodeRes)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -591,7 +598,7 @@ void TestOpcodeRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::
 }
 
 void TestOpcodeRes::CopyFrom(const TestOpcodeRes& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:TestOpcodeRes)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.TestOpcodeRes)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -636,7 +643,7 @@ TestOpcode2Req::TestOpcode2Req(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:TestOpcode2Req)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TestOpcode2Req)
 }
 TestOpcode2Req::TestOpcode2Req(const TestOpcode2Req& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -657,7 +664,7 @@ TestOpcode2Req::TestOpcode2Req(const TestOpcode2Req& from)
       _this->GetArenaForAllocation());
   }
   _this->_impl_.id_ = from._impl_.id_;
-  // @@protoc_insertion_point(copy_constructor:TestOpcode2Req)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TestOpcode2Req)
 }
 
 inline void TestOpcode2Req::SharedCtor(
@@ -677,7 +684,7 @@ inline void TestOpcode2Req::SharedCtor(
 }
 
 TestOpcode2Req::~TestOpcode2Req() {
-  // @@protoc_insertion_point(destructor:TestOpcode2Req)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.TestOpcode2Req)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -695,7 +702,7 @@ void TestOpcode2Req::SetCachedSize(int size) const {
 }
 
 void TestOpcode2Req::Clear() {
-// @@protoc_insertion_point(message_clear_start:TestOpcode2Req)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.TestOpcode2Req)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -731,7 +738,7 @@ const char* TestOpcode2Req::_InternalParse(const char* ptr, ::_pbi::ParseContext
           auto str = _internal_mutable_content();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "TestOpcode2Req.content"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.TestOpcode2Req.content"));
         } else
           goto handle_unusual;
         continue;
@@ -761,7 +768,7 @@ failure:
 
 uint8_t* TestOpcode2Req::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:TestOpcode2Req)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.TestOpcode2Req)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -776,7 +783,7 @@ uint8_t* TestOpcode2Req::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_content().data(), static_cast<int>(this->_internal_content().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "TestOpcode2Req.content");
+      "CRYSTAL_NET.service.TestOpcode2Req.content");
     target = stream->WriteStringMaybeAliased(
         2, this->_internal_content(), target);
   }
@@ -785,12 +792,12 @@ uint8_t* TestOpcode2Req::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:TestOpcode2Req)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.TestOpcode2Req)
   return target;
 }
 
 size_t TestOpcode2Req::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:TestOpcode2Req)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.TestOpcode2Req)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -825,7 +832,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestOpcode2Req::GetClassData()
 void TestOpcode2Req::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<TestOpcode2Req*>(&to_msg);
   auto& from = static_cast<const TestOpcode2Req&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:TestOpcode2Req)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.TestOpcode2Req)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -844,7 +851,7 @@ void TestOpcode2Req::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
 }
 
 void TestOpcode2Req::CopyFrom(const TestOpcode2Req& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:TestOpcode2Req)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.TestOpcode2Req)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -890,7 +897,7 @@ TestOpcodeInfo::TestOpcodeInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:TestOpcodeInfo)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TestOpcodeInfo)
 }
 TestOpcodeInfo::TestOpcodeInfo(const TestOpcodeInfo& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -911,7 +918,7 @@ TestOpcodeInfo::TestOpcodeInfo(const TestOpcodeInfo& from)
       _this->GetArenaForAllocation());
   }
   _this->_impl_.errcode_ = from._impl_.errcode_;
-  // @@protoc_insertion_point(copy_constructor:TestOpcodeInfo)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TestOpcodeInfo)
 }
 
 inline void TestOpcodeInfo::SharedCtor(
@@ -931,7 +938,7 @@ inline void TestOpcodeInfo::SharedCtor(
 }
 
 TestOpcodeInfo::~TestOpcodeInfo() {
-  // @@protoc_insertion_point(destructor:TestOpcodeInfo)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.TestOpcodeInfo)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -949,7 +956,7 @@ void TestOpcodeInfo::SetCachedSize(int size) const {
 }
 
 void TestOpcodeInfo::Clear() {
-// @@protoc_insertion_point(message_clear_start:TestOpcodeInfo)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.TestOpcodeInfo)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -985,7 +992,7 @@ const char* TestOpcodeInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
           auto str = _internal_mutable_errmsg();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "TestOpcodeInfo.errMsg"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.TestOpcodeInfo.errMsg"));
         } else
           goto handle_unusual;
         continue;
@@ -1015,7 +1022,7 @@ failure:
 
 uint8_t* TestOpcodeInfo::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:TestOpcodeInfo)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.TestOpcodeInfo)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1030,7 +1037,7 @@ uint8_t* TestOpcodeInfo::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_errmsg().data(), static_cast<int>(this->_internal_errmsg().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "TestOpcodeInfo.errMsg");
+      "CRYSTAL_NET.service.TestOpcodeInfo.errMsg");
     target = stream->WriteStringMaybeAliased(
         2, this->_internal_errmsg(), target);
   }
@@ -1039,12 +1046,12 @@ uint8_t* TestOpcodeInfo::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:TestOpcodeInfo)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.TestOpcodeInfo)
   return target;
 }
 
 size_t TestOpcodeInfo::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:TestOpcodeInfo)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.TestOpcodeInfo)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -1079,7 +1086,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestOpcodeInfo::GetClassData()
 void TestOpcodeInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<TestOpcodeInfo*>(&to_msg);
   auto& from = static_cast<const TestOpcodeInfo&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:TestOpcodeInfo)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.TestOpcodeInfo)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1098,7 +1105,7 @@ void TestOpcodeInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
 }
 
 void TestOpcodeInfo::CopyFrom(const TestOpcodeInfo& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:TestOpcodeInfo)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.TestOpcodeInfo)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1135,13 +1142,13 @@ class TestOpcode2Res::_Internal {
   static void set_has_id_info(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
   }
-  static const ::TestOpcodeInfo& testinfo(const TestOpcode2Res* msg);
+  static const ::CRYSTAL_NET::service::TestOpcodeInfo& testinfo(const TestOpcode2Res* msg);
   static void set_has_testinfo(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
 };
 
-const ::TestOpcodeInfo&
+const ::CRYSTAL_NET::service::TestOpcodeInfo&
 TestOpcode2Res::_Internal::testinfo(const TestOpcode2Res* msg) {
   return *msg->_impl_.testinfo_;
 }
@@ -1149,7 +1156,7 @@ TestOpcode2Res::TestOpcode2Res(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:TestOpcode2Res)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TestOpcode2Res)
 }
 TestOpcode2Res::TestOpcode2Res(const TestOpcode2Res& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -1162,10 +1169,10 @@ TestOpcode2Res::TestOpcode2Res(const TestOpcode2Res& from)
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_testinfo()) {
-    _this->_impl_.testinfo_ = new ::TestOpcodeInfo(*from._impl_.testinfo_);
+    _this->_impl_.testinfo_ = new ::CRYSTAL_NET::service::TestOpcodeInfo(*from._impl_.testinfo_);
   }
   _this->_impl_.id_info_ = from._impl_.id_info_;
-  // @@protoc_insertion_point(copy_constructor:TestOpcode2Res)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TestOpcode2Res)
 }
 
 inline void TestOpcode2Res::SharedCtor(
@@ -1181,7 +1188,7 @@ inline void TestOpcode2Res::SharedCtor(
 }
 
 TestOpcode2Res::~TestOpcode2Res() {
-  // @@protoc_insertion_point(destructor:TestOpcode2Res)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.TestOpcode2Res)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -1199,7 +1206,7 @@ void TestOpcode2Res::SetCachedSize(int size) const {
 }
 
 void TestOpcode2Res::Clear() {
-// @@protoc_insertion_point(message_clear_start:TestOpcode2Res)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.TestOpcode2Res)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1230,7 +1237,7 @@ const char* TestOpcode2Res::_InternalParse(const char* ptr, ::_pbi::ParseContext
         } else
           goto handle_unusual;
         continue;
-      // optional .TestOpcodeInfo testInfo = 2;
+      // optional .CRYSTAL_NET.service.TestOpcodeInfo testInfo = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_testinfo(), ptr);
@@ -1264,7 +1271,7 @@ failure:
 
 uint8_t* TestOpcode2Res::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:TestOpcode2Res)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.TestOpcode2Res)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1274,7 +1281,7 @@ uint8_t* TestOpcode2Res::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_id_info(), target);
   }
 
-  // optional .TestOpcodeInfo testInfo = 2;
+  // optional .CRYSTAL_NET.service.TestOpcodeInfo testInfo = 2;
   if (_internal_has_testinfo()) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(2, _Internal::testinfo(this),
@@ -1285,12 +1292,12 @@ uint8_t* TestOpcode2Res::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:TestOpcode2Res)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.TestOpcode2Res)
   return target;
 }
 
 size_t TestOpcode2Res::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:TestOpcode2Res)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.TestOpcode2Res)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -1299,7 +1306,7 @@ size_t TestOpcode2Res::ByteSizeLong() const {
 
   cached_has_bits = _impl_._has_bits_[0];
   if (cached_has_bits & 0x00000003u) {
-    // optional .TestOpcodeInfo testInfo = 2;
+    // optional .CRYSTAL_NET.service.TestOpcodeInfo testInfo = 2;
     if (cached_has_bits & 0x00000001u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -1325,7 +1332,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestOpcode2Res::GetClassData()
 void TestOpcode2Res::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<TestOpcode2Res*>(&to_msg);
   auto& from = static_cast<const TestOpcode2Res&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:TestOpcode2Res)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.TestOpcode2Res)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1333,7 +1340,7 @@ void TestOpcode2Res::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
   cached_has_bits = from._impl_._has_bits_[0];
   if (cached_has_bits & 0x00000003u) {
     if (cached_has_bits & 0x00000001u) {
-      _this->_internal_mutable_testinfo()->::TestOpcodeInfo::MergeFrom(
+      _this->_internal_mutable_testinfo()->::CRYSTAL_NET::service::TestOpcodeInfo::MergeFrom(
           from._internal_testinfo());
     }
     if (cached_has_bits & 0x00000002u) {
@@ -1345,7 +1352,7 @@ void TestOpcode2Res::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
 }
 
 void TestOpcode2Res::CopyFrom(const TestOpcode2Res& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:TestOpcode2Res)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.TestOpcode2Res)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1374,26 +1381,28 @@ void TestOpcode2Res::InternalSwap(TestOpcode2Res* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::TestOpcodeReq*
-Arena::CreateMaybeMessage< ::TestOpcodeReq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::TestOpcodeReq >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TestOpcodeReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestOpcodeReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TestOpcodeReq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::TestOpcodeRes*
-Arena::CreateMaybeMessage< ::TestOpcodeRes >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::TestOpcodeRes >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TestOpcodeRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestOpcodeRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TestOpcodeRes >(arena);
 }
-template<> PROTOBUF_NOINLINE ::TestOpcode2Req*
-Arena::CreateMaybeMessage< ::TestOpcode2Req >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::TestOpcode2Req >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TestOpcode2Req*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestOpcode2Req >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TestOpcode2Req >(arena);
 }
-template<> PROTOBUF_NOINLINE ::TestOpcodeInfo*
-Arena::CreateMaybeMessage< ::TestOpcodeInfo >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::TestOpcodeInfo >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TestOpcodeInfo*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestOpcodeInfo >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TestOpcodeInfo >(arena);
 }
-template<> PROTOBUF_NOINLINE ::TestOpcode2Res*
-Arena::CreateMaybeMessage< ::TestOpcode2Res >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::TestOpcode2Res >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TestOpcode2Res*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestOpcode2Res >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TestOpcode2Res >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

@@ -23,6 +23,8 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace CRYSTAL_NET {
+namespace service {
 PROTOBUF_CONSTEXPR TitleInfoReq::TitleInfoReq(
     ::_pbi::ConstantInitialized) {}
 struct TitleInfoReqDefaultTypeInternal {
@@ -48,47 +50,50 @@ struct TitleInfoResDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TitleInfoResDefaultTypeInternal _TitleInfoRes_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_title_2eproto[2];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_title_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_title_2eproto = nullptr;
 
 const uint32_t TableStruct_title_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::TitleInfoReq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TitleInfoReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::TitleInfoRes, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TitleInfoRes, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::TitleInfoRes, _impl_.errcode_),
-  PROTOBUF_FIELD_OFFSET(::TitleInfoRes, _impl_.titlelist_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TitleInfoRes, _impl_.errcode_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TitleInfoRes, _impl_.titlelist_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::TitleInfoReq)},
-  { 6, -1, -1, sizeof(::TitleInfoRes)},
+  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::TitleInfoReq)},
+  { 6, -1, -1, sizeof(::CRYSTAL_NET::service::TitleInfoRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_TitleInfoReq_default_instance_._instance,
-  &::_TitleInfoRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TitleInfoReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TitleInfoRes_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_title_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\013title.proto\032\017com_title.proto\"\016\n\014TitleI"
-  "nfoReq\">\n\014TitleInfoRes\022\017\n\007errCode\030\001 \001(\021\022"
-  "\035\n\ttitleList\030\002 \003(\0132\n.TitleInfob\006proto3"
+  "\n\013title.proto\022\023CRYSTAL_NET.service\032\017com_"
+  "title.proto\"\016\n\014TitleInfoReq\"R\n\014TitleInfo"
+  "Res\022\017\n\007errCode\030\001 \001(\021\0221\n\ttitleList\030\002 \003(\0132"
+  "\036.CRYSTAL_NET.service.TitleInfob\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_title_2eproto_deps[1] = {
   &::descriptor_table_com_5ftitle_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_title_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_title_2eproto = {
-    false, false, 118, descriptor_table_protodef_title_2eproto,
+    false, false, 159, descriptor_table_protodef_title_2eproto,
     "title.proto",
     &descriptor_table_title_2eproto_once, descriptor_table_title_2eproto_deps, 1, 2,
     schemas, file_default_instances, TableStruct_title_2eproto::offsets,
@@ -101,6 +106,8 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_title_2e
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_title_2eproto(&descriptor_table_title_2eproto);
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
@@ -111,13 +118,13 @@ class TitleInfoReq::_Internal {
 TitleInfoReq::TitleInfoReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
-  // @@protoc_insertion_point(arena_constructor:TitleInfoReq)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TitleInfoReq)
 }
 TitleInfoReq::TitleInfoReq(const TitleInfoReq& from)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
   TitleInfoReq* const _this = this; (void)_this;
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:TitleInfoReq)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TitleInfoReq)
 }
 
 
@@ -155,7 +162,7 @@ TitleInfoRes::TitleInfoRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:TitleInfoRes)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TitleInfoRes)
 }
 TitleInfoRes::TitleInfoRes(const TitleInfoRes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -167,7 +174,7 @@ TitleInfoRes::TitleInfoRes(const TitleInfoRes& from)
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _this->_impl_.errcode_ = from._impl_.errcode_;
-  // @@protoc_insertion_point(copy_constructor:TitleInfoRes)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TitleInfoRes)
 }
 
 inline void TitleInfoRes::SharedCtor(
@@ -182,7 +189,7 @@ inline void TitleInfoRes::SharedCtor(
 }
 
 TitleInfoRes::~TitleInfoRes() {
-  // @@protoc_insertion_point(destructor:TitleInfoRes)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.TitleInfoRes)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -200,7 +207,7 @@ void TitleInfoRes::SetCachedSize(int size) const {
 }
 
 void TitleInfoRes::Clear() {
-// @@protoc_insertion_point(message_clear_start:TitleInfoRes)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.TitleInfoRes)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -224,7 +231,7 @@ const char* TitleInfoRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // repeated .TitleInfo titleList = 2;
+      // repeated .CRYSTAL_NET.service.TitleInfo titleList = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr -= 1;
@@ -262,7 +269,7 @@ failure:
 
 uint8_t* TitleInfoRes::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:TitleInfoRes)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.TitleInfoRes)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -272,7 +279,7 @@ uint8_t* TitleInfoRes::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_errcode(), target);
   }
 
-  // repeated .TitleInfo titleList = 2;
+  // repeated .CRYSTAL_NET.service.TitleInfo titleList = 2;
   for (unsigned i = 0,
       n = static_cast<unsigned>(this->_internal_titlelist_size()); i < n; i++) {
     const auto& repfield = this->_internal_titlelist(i);
@@ -284,19 +291,19 @@ uint8_t* TitleInfoRes::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:TitleInfoRes)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.TitleInfoRes)
   return target;
 }
 
 size_t TitleInfoRes::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:TitleInfoRes)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.TitleInfoRes)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .TitleInfo titleList = 2;
+  // repeated .CRYSTAL_NET.service.TitleInfo titleList = 2;
   total_size += 1UL * this->_internal_titlelist_size();
   for (const auto& msg : this->_impl_.titlelist_) {
     total_size +=
@@ -321,7 +328,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TitleInfoRes::GetClassData() c
 void TitleInfoRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<TitleInfoRes*>(&to_msg);
   auto& from = static_cast<const TitleInfoRes&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:TitleInfoRes)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.TitleInfoRes)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -334,7 +341,7 @@ void TitleInfoRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::P
 }
 
 void TitleInfoRes::CopyFrom(const TitleInfoRes& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:TitleInfoRes)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.TitleInfoRes)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -358,14 +365,16 @@ void TitleInfoRes::InternalSwap(TitleInfoRes* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::TitleInfoReq*
-Arena::CreateMaybeMessage< ::TitleInfoReq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::TitleInfoReq >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TitleInfoReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TitleInfoReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TitleInfoReq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::TitleInfoRes*
-Arena::CreateMaybeMessage< ::TitleInfoRes >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::TitleInfoRes >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TitleInfoRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TitleInfoRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TitleInfoRes >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

@@ -1,4 +1,7 @@
 syntax = "proto3";
+
+package CRYSTAL_NET.service;
+
 import "com_login.proto";
 import "com_user.proto";
 

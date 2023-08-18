@@ -55,18 +55,24 @@ struct TableStruct_com_5flogin_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5flogin_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class UserLoginInfo;
 struct UserLoginInfoDefaultTypeInternal;
 extern UserLoginInfoDefaultTypeInternal _UserLoginInfo_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::UserLoginInfo* Arena::CreateMaybeMessage<::UserLoginInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::UserLoginInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserLoginInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class UserLoginInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:UserLoginInfo) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserLoginInfo) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -286,7 +292,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "UserLoginInfo";
+    return "CRYSTAL_NET.service.UserLoginInfo";
   }
   protected:
   explicit UserLoginInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -344,7 +350,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_keyexpiretime(int64_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:UserLoginInfo)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserLoginInfo)
  private:
   class _Internal;
 
@@ -376,7 +382,7 @@ inline void UserLoginInfo::clear_token() {
   _impl_.token_.ClearToEmpty();
 }
 inline const std::string& UserLoginInfo::token() const {
-  // @@protoc_insertion_point(field_get:UserLoginInfo.Token)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserLoginInfo.Token)
   return _internal_token();
 }
 template <typename ArgT0, typename... ArgT>
@@ -384,11 +390,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserLoginInfo::set_token(ArgT0&& arg0, ArgT... args) {
  
  _impl_.token_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserLoginInfo.Token)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserLoginInfo.Token)
 }
 inline std::string* UserLoginInfo::mutable_token() {
   std::string* _s = _internal_mutable_token();
-  // @@protoc_insertion_point(field_mutable:UserLoginInfo.Token)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserLoginInfo.Token)
   return _s;
 }
 inline const std::string& UserLoginInfo::_internal_token() const {
@@ -403,7 +409,7 @@ inline std::string* UserLoginInfo::_internal_mutable_token() {
   return _impl_.token_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserLoginInfo::release_token() {
-  // @@protoc_insertion_point(field_release:UserLoginInfo.Token)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserLoginInfo.Token)
   return _impl_.token_.Release();
 }
 inline void UserLoginInfo::set_allocated_token(std::string* token) {
@@ -418,7 +424,7 @@ inline void UserLoginInfo::set_allocated_token(std::string* token) {
     _impl_.token_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserLoginInfo.Token)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserLoginInfo.Token)
 }
 
 // string Key = 2;
@@ -426,7 +432,7 @@ inline void UserLoginInfo::clear_key() {
   _impl_.key_.ClearToEmpty();
 }
 inline const std::string& UserLoginInfo::key() const {
-  // @@protoc_insertion_point(field_get:UserLoginInfo.Key)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserLoginInfo.Key)
   return _internal_key();
 }
 template <typename ArgT0, typename... ArgT>
@@ -434,11 +440,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserLoginInfo::set_key(ArgT0&& arg0, ArgT... args) {
  
  _impl_.key_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserLoginInfo.Key)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserLoginInfo.Key)
 }
 inline std::string* UserLoginInfo::mutable_key() {
   std::string* _s = _internal_mutable_key();
-  // @@protoc_insertion_point(field_mutable:UserLoginInfo.Key)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserLoginInfo.Key)
   return _s;
 }
 inline const std::string& UserLoginInfo::_internal_key() const {
@@ -453,7 +459,7 @@ inline std::string* UserLoginInfo::_internal_mutable_key() {
   return _impl_.key_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserLoginInfo::release_key() {
-  // @@protoc_insertion_point(field_release:UserLoginInfo.Key)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserLoginInfo.Key)
   return _impl_.key_.Release();
 }
 inline void UserLoginInfo::set_allocated_key(std::string* key) {
@@ -468,7 +474,7 @@ inline void UserLoginInfo::set_allocated_key(std::string* key) {
     _impl_.key_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserLoginInfo.Key)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserLoginInfo.Key)
 }
 
 // sint64 KeyExpireTime = 3;
@@ -479,7 +485,7 @@ inline int64_t UserLoginInfo::_internal_keyexpiretime() const {
   return _impl_.keyexpiretime_;
 }
 inline int64_t UserLoginInfo::keyexpiretime() const {
-  // @@protoc_insertion_point(field_get:UserLoginInfo.KeyExpireTime)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserLoginInfo.KeyExpireTime)
   return _internal_keyexpiretime();
 }
 inline void UserLoginInfo::_internal_set_keyexpiretime(int64_t value) {
@@ -488,7 +494,7 @@ inline void UserLoginInfo::_internal_set_keyexpiretime(int64_t value) {
 }
 inline void UserLoginInfo::set_keyexpiretime(int64_t value) {
   _internal_set_keyexpiretime(value);
-  // @@protoc_insertion_point(field_set:UserLoginInfo.KeyExpireTime)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserLoginInfo.KeyExpireTime)
 }
 
 #ifdef __GNUC__
@@ -497,6 +503,8 @@ inline void UserLoginInfo::set_keyexpiretime(int64_t value) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 // @@protoc_insertion_point(global_scope)
 
@@ -515,11 +523,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new UserLoginInfo();
+        return new ::CRYSTAL_NET::service::UserLoginInfo();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new UserLoginInfo(*dynamic_cast<const UserLoginInfo *>(coder));
+        return new ::CRYSTAL_NET::service::UserLoginInfo(*dynamic_cast<const ::CRYSTAL_NET::service::UserLoginInfo *>(coder));
     }
 
 };

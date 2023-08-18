@@ -1,4 +1,5 @@
 syntax = "proto3";
+package CRYSTAL_NET.service;
 
 /// Opcode:
 message TestOpcodeReq

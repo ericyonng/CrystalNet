@@ -55,18 +55,24 @@ struct TableStruct_com_5fplayer_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5fplayer_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class PlayerData;
 struct PlayerDataDefaultTypeInternal;
 extern PlayerDataDefaultTypeInternal _PlayerData_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::PlayerData* Arena::CreateMaybeMessage<::PlayerData>(Arena*);
+template<> ::CRYSTAL_NET::service::PlayerData* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::PlayerData>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class PlayerData final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:PlayerData) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.PlayerData) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -286,7 +292,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "PlayerData";
+    return "CRYSTAL_NET.service.PlayerData";
   }
   protected:
   explicit PlayerData(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -370,7 +376,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_sex(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:PlayerData)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.PlayerData)
  private:
   class _Internal;
 
@@ -412,7 +418,7 @@ inline void PlayerData::clear_account() {
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& PlayerData::account() const {
-  // @@protoc_insertion_point(field_get:PlayerData.account)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.PlayerData.account)
   return _internal_account();
 }
 template <typename ArgT0, typename... ArgT>
@@ -420,11 +426,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void PlayerData::set_account(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
  _impl_.account_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:PlayerData.account)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.PlayerData.account)
 }
 inline std::string* PlayerData::mutable_account() {
   std::string* _s = _internal_mutable_account();
-  // @@protoc_insertion_point(field_mutable:PlayerData.account)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.PlayerData.account)
   return _s;
 }
 inline const std::string& PlayerData::_internal_account() const {
@@ -439,7 +445,7 @@ inline std::string* PlayerData::_internal_mutable_account() {
   return _impl_.account_.Mutable(GetArenaForAllocation());
 }
 inline std::string* PlayerData::release_account() {
-  // @@protoc_insertion_point(field_release:PlayerData.account)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.PlayerData.account)
   if (!_internal_has_account()) {
     return nullptr;
   }
@@ -464,7 +470,7 @@ inline void PlayerData::set_allocated_account(std::string* account) {
     _impl_.account_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:PlayerData.account)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.PlayerData.account)
 }
 
 // optional sint64 playerId = 2;
@@ -483,7 +489,7 @@ inline int64_t PlayerData::_internal_playerid() const {
   return _impl_.playerid_;
 }
 inline int64_t PlayerData::playerid() const {
-  // @@protoc_insertion_point(field_get:PlayerData.playerId)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.PlayerData.playerId)
   return _internal_playerid();
 }
 inline void PlayerData::_internal_set_playerid(int64_t value) {
@@ -492,7 +498,7 @@ inline void PlayerData::_internal_set_playerid(int64_t value) {
 }
 inline void PlayerData::set_playerid(int64_t value) {
   _internal_set_playerid(value);
-  // @@protoc_insertion_point(field_set:PlayerData.playerId)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.PlayerData.playerId)
 }
 
 // optional sint32 sex = 3;
@@ -511,7 +517,7 @@ inline int32_t PlayerData::_internal_sex() const {
   return _impl_.sex_;
 }
 inline int32_t PlayerData::sex() const {
-  // @@protoc_insertion_point(field_get:PlayerData.sex)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.PlayerData.sex)
   return _internal_sex();
 }
 inline void PlayerData::_internal_set_sex(int32_t value) {
@@ -520,7 +526,7 @@ inline void PlayerData::_internal_set_sex(int32_t value) {
 }
 inline void PlayerData::set_sex(int32_t value) {
   _internal_set_sex(value);
-  // @@protoc_insertion_point(field_set:PlayerData.sex)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.PlayerData.sex)
 }
 
 // optional string name = 4;
@@ -536,7 +542,7 @@ inline void PlayerData::clear_name() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline const std::string& PlayerData::name() const {
-  // @@protoc_insertion_point(field_get:PlayerData.name)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.PlayerData.name)
   return _internal_name();
 }
 template <typename ArgT0, typename... ArgT>
@@ -544,11 +550,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void PlayerData::set_name(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000002u;
  _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:PlayerData.name)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.PlayerData.name)
 }
 inline std::string* PlayerData::mutable_name() {
   std::string* _s = _internal_mutable_name();
-  // @@protoc_insertion_point(field_mutable:PlayerData.name)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.PlayerData.name)
   return _s;
 }
 inline const std::string& PlayerData::_internal_name() const {
@@ -563,7 +569,7 @@ inline std::string* PlayerData::_internal_mutable_name() {
   return _impl_.name_.Mutable(GetArenaForAllocation());
 }
 inline std::string* PlayerData::release_name() {
-  // @@protoc_insertion_point(field_release:PlayerData.name)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.PlayerData.name)
   if (!_internal_has_name()) {
     return nullptr;
   }
@@ -588,7 +594,7 @@ inline void PlayerData::set_allocated_name(std::string* name) {
     _impl_.name_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:PlayerData.name)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.PlayerData.name)
 }
 
 #ifdef __GNUC__
@@ -597,6 +603,8 @@ inline void PlayerData::set_allocated_name(std::string* name) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 // @@protoc_insertion_point(global_scope)
 
@@ -615,11 +623,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new PlayerData();
+        return new ::CRYSTAL_NET::service::PlayerData();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new PlayerData(*dynamic_cast<const PlayerData *>(coder));
+        return new ::CRYSTAL_NET::service::PlayerData(*dynamic_cast<const ::CRYSTAL_NET::service::PlayerData *>(coder));
     }
 
 };

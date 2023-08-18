@@ -57,16 +57,22 @@ struct TableStruct_com_5fclient_5fuser_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5fclient_5fuser_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class ClientUserInfo;
 struct ClientUserInfoDefaultTypeInternal;
 extern ClientUserInfoDefaultTypeInternal _ClientUserInfo_default_instance_;
 class ClientUserStatus;
 struct ClientUserStatusDefaultTypeInternal;
 extern ClientUserStatusDefaultTypeInternal _ClientUserStatus_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::ClientUserInfo* Arena::CreateMaybeMessage<::ClientUserInfo>(Arena*);
-template<> ::ClientUserStatus* Arena::CreateMaybeMessage<::ClientUserStatus>(Arena*);
+template<> ::CRYSTAL_NET::service::ClientUserInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ClientUserInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::ClientUserStatus* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ClientUserStatus>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 enum ClientUserStatus_ENUMS : int {
   ClientUserStatus_ENUMS_UNLOGIN = 0,
@@ -100,7 +106,7 @@ inline bool ClientUserStatus_ENUMS_Parse(
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class ClientUserStatus final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:ClientUserStatus) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClientUserStatus) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -305,7 +311,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "ClientUserStatus";
+    return "CRYSTAL_NET.service.ClientUserStatus";
   }
   protected:
   explicit ClientUserStatus(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -357,7 +363,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:ClientUserStatus)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ClientUserStatus)
  private:
   class _Internal;
 
@@ -372,7 +378,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class ClientUserInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ClientUserInfo) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClientUserInfo) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -592,7 +598,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "ClientUserInfo";
+    return "CRYSTAL_NET.service.ClientUserInfo";
   }
   protected:
   explicit ClientUserInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -715,7 +721,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_clientstatus(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:ClientUserInfo)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ClientUserInfo)
  private:
   class _Internal;
 
@@ -759,7 +765,7 @@ inline uint64_t ClientUserInfo::_internal_userid() const {
   return _impl_.userid_;
 }
 inline uint64_t ClientUserInfo::userid() const {
-  // @@protoc_insertion_point(field_get:ClientUserInfo.UserId)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.UserId)
   return _internal_userid();
 }
 inline void ClientUserInfo::_internal_set_userid(uint64_t value) {
@@ -768,7 +774,7 @@ inline void ClientUserInfo::_internal_set_userid(uint64_t value) {
 }
 inline void ClientUserInfo::set_userid(uint64_t value) {
   _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:ClientUserInfo.UserId)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.UserId)
 }
 
 // string AccountName = 2;
@@ -776,7 +782,7 @@ inline void ClientUserInfo::clear_accountname() {
   _impl_.accountname_.ClearToEmpty();
 }
 inline const std::string& ClientUserInfo::accountname() const {
-  // @@protoc_insertion_point(field_get:ClientUserInfo.AccountName)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.AccountName)
   return _internal_accountname();
 }
 template <typename ArgT0, typename... ArgT>
@@ -784,11 +790,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void ClientUserInfo::set_accountname(ArgT0&& arg0, ArgT... args) {
  
  _impl_.accountname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:ClientUserInfo.AccountName)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.AccountName)
 }
 inline std::string* ClientUserInfo::mutable_accountname() {
   std::string* _s = _internal_mutable_accountname();
-  // @@protoc_insertion_point(field_mutable:ClientUserInfo.AccountName)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.ClientUserInfo.AccountName)
   return _s;
 }
 inline const std::string& ClientUserInfo::_internal_accountname() const {
@@ -803,7 +809,7 @@ inline std::string* ClientUserInfo::_internal_mutable_accountname() {
   return _impl_.accountname_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ClientUserInfo::release_accountname() {
-  // @@protoc_insertion_point(field_release:ClientUserInfo.AccountName)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.ClientUserInfo.AccountName)
   return _impl_.accountname_.Release();
 }
 inline void ClientUserInfo::set_allocated_accountname(std::string* accountname) {
@@ -818,7 +824,7 @@ inline void ClientUserInfo::set_allocated_accountname(std::string* accountname) 
     _impl_.accountname_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:ClientUserInfo.AccountName)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.ClientUserInfo.AccountName)
 }
 
 // string Name = 3;
@@ -826,7 +832,7 @@ inline void ClientUserInfo::clear_name() {
   _impl_.name_.ClearToEmpty();
 }
 inline const std::string& ClientUserInfo::name() const {
-  // @@protoc_insertion_point(field_get:ClientUserInfo.Name)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.Name)
   return _internal_name();
 }
 template <typename ArgT0, typename... ArgT>
@@ -834,11 +840,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void ClientUserInfo::set_name(ArgT0&& arg0, ArgT... args) {
  
  _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:ClientUserInfo.Name)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.Name)
 }
 inline std::string* ClientUserInfo::mutable_name() {
   std::string* _s = _internal_mutable_name();
-  // @@protoc_insertion_point(field_mutable:ClientUserInfo.Name)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.ClientUserInfo.Name)
   return _s;
 }
 inline const std::string& ClientUserInfo::_internal_name() const {
@@ -853,7 +859,7 @@ inline std::string* ClientUserInfo::_internal_mutable_name() {
   return _impl_.name_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ClientUserInfo::release_name() {
-  // @@protoc_insertion_point(field_release:ClientUserInfo.Name)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.ClientUserInfo.Name)
   return _impl_.name_.Release();
 }
 inline void ClientUserInfo::set_allocated_name(std::string* name) {
@@ -868,7 +874,7 @@ inline void ClientUserInfo::set_allocated_name(std::string* name) {
     _impl_.name_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:ClientUserInfo.Name)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.ClientUserInfo.Name)
 }
 
 // string Nickname = 4;
@@ -876,7 +882,7 @@ inline void ClientUserInfo::clear_nickname() {
   _impl_.nickname_.ClearToEmpty();
 }
 inline const std::string& ClientUserInfo::nickname() const {
-  // @@protoc_insertion_point(field_get:ClientUserInfo.Nickname)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.Nickname)
   return _internal_nickname();
 }
 template <typename ArgT0, typename... ArgT>
@@ -884,11 +890,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void ClientUserInfo::set_nickname(ArgT0&& arg0, ArgT... args) {
  
  _impl_.nickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:ClientUserInfo.Nickname)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.Nickname)
 }
 inline std::string* ClientUserInfo::mutable_nickname() {
   std::string* _s = _internal_mutable_nickname();
-  // @@protoc_insertion_point(field_mutable:ClientUserInfo.Nickname)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.ClientUserInfo.Nickname)
   return _s;
 }
 inline const std::string& ClientUserInfo::_internal_nickname() const {
@@ -903,7 +909,7 @@ inline std::string* ClientUserInfo::_internal_mutable_nickname() {
   return _impl_.nickname_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ClientUserInfo::release_nickname() {
-  // @@protoc_insertion_point(field_release:ClientUserInfo.Nickname)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.ClientUserInfo.Nickname)
   return _impl_.nickname_.Release();
 }
 inline void ClientUserInfo::set_allocated_nickname(std::string* nickname) {
@@ -918,7 +924,7 @@ inline void ClientUserInfo::set_allocated_nickname(std::string* nickname) {
     _impl_.nickname_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:ClientUserInfo.Nickname)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.ClientUserInfo.Nickname)
 }
 
 // string PhoneImei = 5;
@@ -926,7 +932,7 @@ inline void ClientUserInfo::clear_phoneimei() {
   _impl_.phoneimei_.ClearToEmpty();
 }
 inline const std::string& ClientUserInfo::phoneimei() const {
-  // @@protoc_insertion_point(field_get:ClientUserInfo.PhoneImei)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.PhoneImei)
   return _internal_phoneimei();
 }
 template <typename ArgT0, typename... ArgT>
@@ -934,11 +940,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void ClientUserInfo::set_phoneimei(ArgT0&& arg0, ArgT... args) {
  
  _impl_.phoneimei_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:ClientUserInfo.PhoneImei)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.PhoneImei)
 }
 inline std::string* ClientUserInfo::mutable_phoneimei() {
   std::string* _s = _internal_mutable_phoneimei();
-  // @@protoc_insertion_point(field_mutable:ClientUserInfo.PhoneImei)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.ClientUserInfo.PhoneImei)
   return _s;
 }
 inline const std::string& ClientUserInfo::_internal_phoneimei() const {
@@ -953,7 +959,7 @@ inline std::string* ClientUserInfo::_internal_mutable_phoneimei() {
   return _impl_.phoneimei_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ClientUserInfo::release_phoneimei() {
-  // @@protoc_insertion_point(field_release:ClientUserInfo.PhoneImei)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.ClientUserInfo.PhoneImei)
   return _impl_.phoneimei_.Release();
 }
 inline void ClientUserInfo::set_allocated_phoneimei(std::string* phoneimei) {
@@ -968,7 +974,7 @@ inline void ClientUserInfo::set_allocated_phoneimei(std::string* phoneimei) {
     _impl_.phoneimei_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:ClientUserInfo.PhoneImei)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.ClientUserInfo.PhoneImei)
 }
 
 // sint32 ClientStatus = 6;
@@ -979,7 +985,7 @@ inline int32_t ClientUserInfo::_internal_clientstatus() const {
   return _impl_.clientstatus_;
 }
 inline int32_t ClientUserInfo::clientstatus() const {
-  // @@protoc_insertion_point(field_get:ClientUserInfo.ClientStatus)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.ClientStatus)
   return _internal_clientstatus();
 }
 inline void ClientUserInfo::_internal_set_clientstatus(int32_t value) {
@@ -988,7 +994,7 @@ inline void ClientUserInfo::_internal_set_clientstatus(int32_t value) {
 }
 inline void ClientUserInfo::set_clientstatus(int32_t value) {
   _internal_set_clientstatus(value);
-  // @@protoc_insertion_point(field_set:ClientUserInfo.ClientStatus)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.ClientStatus)
 }
 
 // string LastToken = 7;
@@ -996,7 +1002,7 @@ inline void ClientUserInfo::clear_lasttoken() {
   _impl_.lasttoken_.ClearToEmpty();
 }
 inline const std::string& ClientUserInfo::lasttoken() const {
-  // @@protoc_insertion_point(field_get:ClientUserInfo.LastToken)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.LastToken)
   return _internal_lasttoken();
 }
 template <typename ArgT0, typename... ArgT>
@@ -1004,11 +1010,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void ClientUserInfo::set_lasttoken(ArgT0&& arg0, ArgT... args) {
  
  _impl_.lasttoken_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:ClientUserInfo.LastToken)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.LastToken)
 }
 inline std::string* ClientUserInfo::mutable_lasttoken() {
   std::string* _s = _internal_mutable_lasttoken();
-  // @@protoc_insertion_point(field_mutable:ClientUserInfo.LastToken)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.ClientUserInfo.LastToken)
   return _s;
 }
 inline const std::string& ClientUserInfo::_internal_lasttoken() const {
@@ -1023,7 +1029,7 @@ inline std::string* ClientUserInfo::_internal_mutable_lasttoken() {
   return _impl_.lasttoken_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ClientUserInfo::release_lasttoken() {
-  // @@protoc_insertion_point(field_release:ClientUserInfo.LastToken)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.ClientUserInfo.LastToken)
   return _impl_.lasttoken_.Release();
 }
 inline void ClientUserInfo::set_allocated_lasttoken(std::string* lasttoken) {
@@ -1038,7 +1044,7 @@ inline void ClientUserInfo::set_allocated_lasttoken(std::string* lasttoken) {
     _impl_.lasttoken_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:ClientUserInfo.LastToken)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.ClientUserInfo.LastToken)
 }
 
 // sint64 TokenExpireTime = 8;
@@ -1049,7 +1055,7 @@ inline int64_t ClientUserInfo::_internal_tokenexpiretime() const {
   return _impl_.tokenexpiretime_;
 }
 inline int64_t ClientUserInfo::tokenexpiretime() const {
-  // @@protoc_insertion_point(field_get:ClientUserInfo.TokenExpireTime)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.TokenExpireTime)
   return _internal_tokenexpiretime();
 }
 inline void ClientUserInfo::_internal_set_tokenexpiretime(int64_t value) {
@@ -1058,7 +1064,7 @@ inline void ClientUserInfo::_internal_set_tokenexpiretime(int64_t value) {
 }
 inline void ClientUserInfo::set_tokenexpiretime(int64_t value) {
   _internal_set_tokenexpiretime(value);
-  // @@protoc_insertion_point(field_set:ClientUserInfo.TokenExpireTime)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.TokenExpireTime)
 }
 
 #ifdef __GNUC__
@@ -1069,13 +1075,15 @@ inline void ClientUserInfo::set_tokenexpiretime(int64_t value) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 PROTOBUF_NAMESPACE_OPEN
 
-template <> struct is_proto_enum< ::ClientUserStatus_ENUMS> : ::std::true_type {};
+template <> struct is_proto_enum< ::CRYSTAL_NET::service::ClientUserStatus_ENUMS> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::ClientUserStatus_ENUMS>() {
-  return ::ClientUserStatus_ENUMS_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::ClientUserStatus_ENUMS>() {
+  return ::CRYSTAL_NET::service::ClientUserStatus_ENUMS_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE
@@ -1097,11 +1105,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new ClientUserStatus();
+        return new ::CRYSTAL_NET::service::ClientUserStatus();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ClientUserStatus(*dynamic_cast<const ClientUserStatus *>(coder));
+        return new ::CRYSTAL_NET::service::ClientUserStatus(*dynamic_cast<const ::CRYSTAL_NET::service::ClientUserStatus *>(coder));
     }
 
 };
@@ -1120,11 +1128,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new ClientUserInfo();
+        return new ::CRYSTAL_NET::service::ClientUserInfo();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ClientUserInfo(*dynamic_cast<const ClientUserInfo *>(coder));
+        return new ::CRYSTAL_NET::service::ClientUserInfo(*dynamic_cast<const ::CRYSTAL_NET::service::ClientUserInfo *>(coder));
     }
 
 };

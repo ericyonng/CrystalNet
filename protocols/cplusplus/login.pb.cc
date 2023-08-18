@@ -26,6 +26,8 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace CRYSTAL_NET {
+namespace service {
 PROTOBUF_CONSTEXPR LoginReq::LoginReq(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.loginuserinfo_)*/nullptr
@@ -92,73 +94,76 @@ struct LogoutNtyDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LogoutNtyDefaultTypeInternal _LogoutNty_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_login_2eproto[5];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_login_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_login_2eproto = nullptr;
 
 const uint32_t TableStruct_login_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::LoginReq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::LoginReq, _impl_.loginuserinfo_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginReq, _impl_.loginuserinfo_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::LoginRes, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginRes, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::LoginRes, _impl_.errcode_),
-  PROTOBUF_FIELD_OFFSET(::LoginRes, _impl_.userid_),
-  PROTOBUF_FIELD_OFFSET(::LoginRes, _impl_.servertime_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginRes, _impl_.errcode_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginRes, _impl_.userid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginRes, _impl_.servertime_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::LoginInfoNty, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginInfoNty, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::LoginInfoNty, _impl_.token_),
-  PROTOBUF_FIELD_OFFSET(::LoginInfoNty, _impl_.keyexpiretime_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginInfoNty, _impl_.token_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginInfoNty, _impl_.keyexpiretime_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::LogoutReq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LogoutReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::LogoutNty, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LogoutNty, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::LogoutNty, _impl_.logoutreason_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LogoutNty, _impl_.logoutreason_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::LoginReq)},
-  { 7, -1, -1, sizeof(::LoginRes)},
-  { 16, -1, -1, sizeof(::LoginInfoNty)},
-  { 24, -1, -1, sizeof(::LogoutReq)},
-  { 30, -1, -1, sizeof(::LogoutNty)},
+  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::LoginReq)},
+  { 7, -1, -1, sizeof(::CRYSTAL_NET::service::LoginRes)},
+  { 16, -1, -1, sizeof(::CRYSTAL_NET::service::LoginInfoNty)},
+  { 24, -1, -1, sizeof(::CRYSTAL_NET::service::LogoutReq)},
+  { 30, -1, -1, sizeof(::CRYSTAL_NET::service::LogoutNty)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_LoginReq_default_instance_._instance,
-  &::_LoginRes_default_instance_._instance,
-  &::_LoginInfoNty_default_instance_._instance,
-  &::_LogoutReq_default_instance_._instance,
-  &::_LogoutNty_default_instance_._instance,
+  &::CRYSTAL_NET::service::_LoginReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_LoginRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_LoginInfoNty_default_instance_._instance,
+  &::CRYSTAL_NET::service::_LogoutReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_LogoutNty_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_login_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\013login.proto\032\017com_login.proto\032\016com_user"
-  ".proto\"-\n\010LoginReq\022!\n\rLoginUserInfo\030\001 \001("
-  "\0132\n.LoginInfo\"\?\n\010LoginRes\022\017\n\007errCode\030\001 \001"
-  "(\021\022\016\n\006UserId\030\002 \001(\004\022\022\n\nServerTime\030\003 \001(\022\"4"
-  "\n\014LoginInfoNty\022\r\n\005Token\030\001 \001(\t\022\025\n\rKeyExpi"
-  "reTime\030\002 \001(\022\"\013\n\tLogoutReq\"!\n\tLogoutNty\022\024"
-  "\n\014LogoutReason\030\001 \001(\021b\006proto3"
+  "\n\013login.proto\022\023CRYSTAL_NET.service\032\017com_"
+  "login.proto\032\016com_user.proto\"A\n\010LoginReq\022"
+  "5\n\rLoginUserInfo\030\001 \001(\0132\036.CRYSTAL_NET.ser"
+  "vice.LoginInfo\"\?\n\010LoginRes\022\017\n\007errCode\030\001 "
+  "\001(\021\022\016\n\006UserId\030\002 \001(\004\022\022\n\nServerTime\030\003 \001(\022\""
+  "4\n\014LoginInfoNty\022\r\n\005Token\030\001 \001(\t\022\025\n\rKeyExp"
+  "ireTime\030\002 \001(\022\"\013\n\tLogoutReq\"!\n\tLogoutNty\022"
+  "\024\n\014LogoutReason\030\001 \001(\021b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_login_2eproto_deps[2] = {
   &::descriptor_table_com_5flogin_2eproto,
@@ -166,7 +171,7 @@ static const ::_pbi::DescriptorTable* const descriptor_table_login_2eproto_deps[
 };
 static ::_pbi::once_flag descriptor_table_login_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_login_2eproto = {
-    false, false, 268, descriptor_table_protodef_login_2eproto,
+    false, false, 309, descriptor_table_protodef_login_2eproto,
     "login.proto",
     &descriptor_table_login_2eproto_once, descriptor_table_login_2eproto_deps, 2, 5,
     schemas, file_default_instances, TableStruct_login_2eproto::offsets,
@@ -179,15 +184,17 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_login_2e
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_login_2eproto(&descriptor_table_login_2eproto);
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 class LoginReq::_Internal {
  public:
-  static const ::LoginInfo& loginuserinfo(const LoginReq* msg);
+  static const ::CRYSTAL_NET::service::LoginInfo& loginuserinfo(const LoginReq* msg);
 };
 
-const ::LoginInfo&
+const ::CRYSTAL_NET::service::LoginInfo&
 LoginReq::_Internal::loginuserinfo(const LoginReq* msg) {
   return *msg->_impl_.loginuserinfo_;
 }
@@ -201,7 +208,7 @@ LoginReq::LoginReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:LoginReq)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.LoginReq)
 }
 LoginReq::LoginReq(const LoginReq& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -212,9 +219,9 @@ LoginReq::LoginReq(const LoginReq& from)
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_loginuserinfo()) {
-    _this->_impl_.loginuserinfo_ = new ::LoginInfo(*from._impl_.loginuserinfo_);
+    _this->_impl_.loginuserinfo_ = new ::CRYSTAL_NET::service::LoginInfo(*from._impl_.loginuserinfo_);
   }
-  // @@protoc_insertion_point(copy_constructor:LoginReq)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.LoginReq)
 }
 
 inline void LoginReq::SharedCtor(
@@ -228,7 +235,7 @@ inline void LoginReq::SharedCtor(
 }
 
 LoginReq::~LoginReq() {
-  // @@protoc_insertion_point(destructor:LoginReq)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.LoginReq)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -246,7 +253,7 @@ void LoginReq::SetCachedSize(int size) const {
 }
 
 void LoginReq::Clear() {
-// @@protoc_insertion_point(message_clear_start:LoginReq)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.LoginReq)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -264,7 +271,7 @@ const char* LoginReq::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // .LoginInfo LoginUserInfo = 1;
+      // .CRYSTAL_NET.service.LoginInfo LoginUserInfo = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_loginuserinfo(), ptr);
@@ -297,11 +304,11 @@ failure:
 
 uint8_t* LoginReq::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:LoginReq)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.LoginReq)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // .LoginInfo LoginUserInfo = 1;
+  // .CRYSTAL_NET.service.LoginInfo LoginUserInfo = 1;
   if (this->_internal_has_loginuserinfo()) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(1, _Internal::loginuserinfo(this),
@@ -312,19 +319,19 @@ uint8_t* LoginReq::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:LoginReq)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.LoginReq)
   return target;
 }
 
 size_t LoginReq::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:LoginReq)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.LoginReq)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // .LoginInfo LoginUserInfo = 1;
+  // .CRYSTAL_NET.service.LoginInfo LoginUserInfo = 1;
   if (this->_internal_has_loginuserinfo()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -344,20 +351,20 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LoginReq::GetClassData() const
 void LoginReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<LoginReq*>(&to_msg);
   auto& from = static_cast<const LoginReq&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:LoginReq)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.LoginReq)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from._internal_has_loginuserinfo()) {
-    _this->_internal_mutable_loginuserinfo()->::LoginInfo::MergeFrom(
+    _this->_internal_mutable_loginuserinfo()->::CRYSTAL_NET::service::LoginInfo::MergeFrom(
         from._internal_loginuserinfo());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void LoginReq::CopyFrom(const LoginReq& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:LoginReq)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.LoginReq)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -389,7 +396,7 @@ LoginRes::LoginRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:LoginRes)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.LoginRes)
 }
 LoginRes::LoginRes(const LoginRes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -404,7 +411,7 @@ LoginRes::LoginRes(const LoginRes& from)
   ::memcpy(&_impl_.userid_, &from._impl_.userid_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.errcode_) -
     reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.errcode_));
-  // @@protoc_insertion_point(copy_constructor:LoginRes)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.LoginRes)
 }
 
 inline void LoginRes::SharedCtor(
@@ -420,7 +427,7 @@ inline void LoginRes::SharedCtor(
 }
 
 LoginRes::~LoginRes() {
-  // @@protoc_insertion_point(destructor:LoginRes)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.LoginRes)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -437,7 +444,7 @@ void LoginRes::SetCachedSize(int size) const {
 }
 
 void LoginRes::Clear() {
-// @@protoc_insertion_point(message_clear_start:LoginRes)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.LoginRes)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -503,7 +510,7 @@ failure:
 
 uint8_t* LoginRes::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:LoginRes)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.LoginRes)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -529,12 +536,12 @@ uint8_t* LoginRes::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:LoginRes)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.LoginRes)
   return target;
 }
 
 size_t LoginRes::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:LoginRes)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.LoginRes)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -569,7 +576,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LoginRes::GetClassData() const
 void LoginRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<LoginRes*>(&to_msg);
   auto& from = static_cast<const LoginRes&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:LoginRes)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.LoginRes)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -587,7 +594,7 @@ void LoginRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
 }
 
 void LoginRes::CopyFrom(const LoginRes& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:LoginRes)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.LoginRes)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -624,7 +631,7 @@ LoginInfoNty::LoginInfoNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:LoginInfoNty)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.LoginInfoNty)
 }
 LoginInfoNty::LoginInfoNty(const LoginInfoNty& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -644,7 +651,7 @@ LoginInfoNty::LoginInfoNty(const LoginInfoNty& from)
       _this->GetArenaForAllocation());
   }
   _this->_impl_.keyexpiretime_ = from._impl_.keyexpiretime_;
-  // @@protoc_insertion_point(copy_constructor:LoginInfoNty)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.LoginInfoNty)
 }
 
 inline void LoginInfoNty::SharedCtor(
@@ -663,7 +670,7 @@ inline void LoginInfoNty::SharedCtor(
 }
 
 LoginInfoNty::~LoginInfoNty() {
-  // @@protoc_insertion_point(destructor:LoginInfoNty)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.LoginInfoNty)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -681,7 +688,7 @@ void LoginInfoNty::SetCachedSize(int size) const {
 }
 
 void LoginInfoNty::Clear() {
-// @@protoc_insertion_point(message_clear_start:LoginInfoNty)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.LoginInfoNty)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -703,7 +710,7 @@ const char* LoginInfoNty::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
           auto str = _internal_mutable_token();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "LoginInfoNty.Token"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.LoginInfoNty.Token"));
         } else
           goto handle_unusual;
         continue;
@@ -740,7 +747,7 @@ failure:
 
 uint8_t* LoginInfoNty::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:LoginInfoNty)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.LoginInfoNty)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -749,7 +756,7 @@ uint8_t* LoginInfoNty::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_token().data(), static_cast<int>(this->_internal_token().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "LoginInfoNty.Token");
+      "CRYSTAL_NET.service.LoginInfoNty.Token");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_token(), target);
   }
@@ -764,12 +771,12 @@ uint8_t* LoginInfoNty::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:LoginInfoNty)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.LoginInfoNty)
   return target;
 }
 
 size_t LoginInfoNty::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:LoginInfoNty)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.LoginInfoNty)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -801,7 +808,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LoginInfoNty::GetClassData() c
 void LoginInfoNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<LoginInfoNty*>(&to_msg);
   auto& from = static_cast<const LoginInfoNty&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:LoginInfoNty)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.LoginInfoNty)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -816,7 +823,7 @@ void LoginInfoNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::P
 }
 
 void LoginInfoNty::CopyFrom(const LoginInfoNty& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:LoginInfoNty)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.LoginInfoNty)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -853,13 +860,13 @@ class LogoutReq::_Internal {
 LogoutReq::LogoutReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
-  // @@protoc_insertion_point(arena_constructor:LogoutReq)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.LogoutReq)
 }
 LogoutReq::LogoutReq(const LogoutReq& from)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
   LogoutReq* const _this = this; (void)_this;
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:LogoutReq)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.LogoutReq)
 }
 
 
@@ -894,7 +901,7 @@ LogoutNty::LogoutNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:LogoutNty)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.LogoutNty)
 }
 LogoutNty::LogoutNty(const LogoutNty& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -905,7 +912,7 @@ LogoutNty::LogoutNty(const LogoutNty& from)
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _this->_impl_.logoutreason_ = from._impl_.logoutreason_;
-  // @@protoc_insertion_point(copy_constructor:LogoutNty)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.LogoutNty)
 }
 
 inline void LogoutNty::SharedCtor(
@@ -919,7 +926,7 @@ inline void LogoutNty::SharedCtor(
 }
 
 LogoutNty::~LogoutNty() {
-  // @@protoc_insertion_point(destructor:LogoutNty)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.LogoutNty)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -936,7 +943,7 @@ void LogoutNty::SetCachedSize(int size) const {
 }
 
 void LogoutNty::Clear() {
-// @@protoc_insertion_point(message_clear_start:LogoutNty)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.LogoutNty)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -984,7 +991,7 @@ failure:
 
 uint8_t* LogoutNty::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:LogoutNty)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.LogoutNty)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -998,12 +1005,12 @@ uint8_t* LogoutNty::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:LogoutNty)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.LogoutNty)
   return target;
 }
 
 size_t LogoutNty::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:LogoutNty)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.LogoutNty)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -1028,7 +1035,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LogoutNty::GetClassData() cons
 void LogoutNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<LogoutNty*>(&to_msg);
   auto& from = static_cast<const LogoutNty&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:LogoutNty)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.LogoutNty)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1040,7 +1047,7 @@ void LogoutNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROT
 }
 
 void LogoutNty::CopyFrom(const LogoutNty& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:LogoutNty)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.LogoutNty)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1063,26 +1070,28 @@ void LogoutNty::InternalSwap(LogoutNty* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::LoginReq*
-Arena::CreateMaybeMessage< ::LoginReq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::LoginReq >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::LoginReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::LoginReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::LoginReq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::LoginRes*
-Arena::CreateMaybeMessage< ::LoginRes >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::LoginRes >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::LoginRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::LoginRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::LoginRes >(arena);
 }
-template<> PROTOBUF_NOINLINE ::LoginInfoNty*
-Arena::CreateMaybeMessage< ::LoginInfoNty >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::LoginInfoNty >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::LoginInfoNty*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::LoginInfoNty >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::LoginInfoNty >(arena);
 }
-template<> PROTOBUF_NOINLINE ::LogoutReq*
-Arena::CreateMaybeMessage< ::LogoutReq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::LogoutReq >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::LogoutReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::LogoutReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::LogoutReq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::LogoutNty*
-Arena::CreateMaybeMessage< ::LogoutNty >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::LogoutNty >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::LogoutNty*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::LogoutNty >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::LogoutNty >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

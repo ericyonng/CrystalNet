@@ -9,695 +9,699 @@ using pb = global::Google.Protobuf;
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
 using scg = global::System.Collections.Generic;
+namespace CRYSTALNET.Service {
+
 using ProtoPackage.Attributes;
 
-/// <summary>Holder for reflection information generated from com_client_user.proto</summary>
-public static partial class ComClientUserReflection {
+  /// <summary>Holder for reflection information generated from com_client_user.proto</summary>
+  public static partial class ComClientUserReflection {
 
-  #region Descriptor
-  /// <summary>File descriptor for com_client_user.proto</summary>
-  public static pbr::FileDescriptor Descriptor {
-    get { return descriptor; }
-  }
-  private static pbr::FileDescriptor descriptor;
+    #region Descriptor
+    /// <summary>File descriptor for com_client_user.proto</summary>
+    public static pbr::FileDescriptor Descriptor {
+      get { return descriptor; }
+    }
+    private static pbr::FileDescriptor descriptor;
 
-  static ComClientUserReflection() {
-    byte[] descriptorData = global::System.Convert.FromBase64String(
-        string.Concat(
-          "ChVjb21fY2xpZW50X3VzZXIucHJvdG8iYAoQQ2xpZW50VXNlclN0YXR1cyJM",
-          "CgVFTlVNUxILCgdVTkxPR0lOEAASDAoITE9HSU5JTkcQARILCgdMT0dJTkVE",
-          "EAISDQoJTE9HT1VUSU5HEAMSDAoITE9HT1VURUQQBCKqAQoOQ2xpZW50VXNl",
-          "ckluZm8SDgoGVXNlcklkGAEgASgEEhMKC0FjY291bnROYW1lGAIgASgJEgwK",
-          "BE5hbWUYAyABKAkSEAoITmlja25hbWUYBCABKAkSEQoJUGhvbmVJbWVpGAUg",
-          "ASgJEhQKDENsaWVudFN0YXR1cxgGIAEoERIRCglMYXN0VG9rZW4YByABKAkS",
-          "FwoPVG9rZW5FeHBpcmVUaW1lGAggASgSYgZwcm90bzM="));
-    descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-        new pbr::FileDescriptor[] { },
-        new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-          new pbr::GeneratedClrTypeInfo(typeof(global::ClientUserStatus), global::ClientUserStatus.Parser, null, null, new[]{ typeof(global::ClientUserStatus.Types.ENUMS) }, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::ClientUserInfo), global::ClientUserInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "PhoneImei", "ClientStatus", "LastToken", "TokenExpireTime" }, null, null, null, null)
-        }));
+    static ComClientUserReflection() {
+      byte[] descriptorData = global::System.Convert.FromBase64String(
+          string.Concat(
+            "ChVjb21fY2xpZW50X3VzZXIucHJvdG8SE0NSWVNUQUxfTkVULnNlcnZpY2Ui",
+            "YAoQQ2xpZW50VXNlclN0YXR1cyJMCgVFTlVNUxILCgdVTkxPR0lOEAASDAoI",
+            "TE9HSU5JTkcQARILCgdMT0dJTkVEEAISDQoJTE9HT1VUSU5HEAMSDAoITE9H",
+            "T1VURUQQBCKqAQoOQ2xpZW50VXNlckluZm8SDgoGVXNlcklkGAEgASgEEhMK",
+            "C0FjY291bnROYW1lGAIgASgJEgwKBE5hbWUYAyABKAkSEAoITmlja25hbWUY",
+            "BCABKAkSEQoJUGhvbmVJbWVpGAUgASgJEhQKDENsaWVudFN0YXR1cxgGIAEo",
+            "ERIRCglMYXN0VG9rZW4YByABKAkSFwoPVG9rZW5FeHBpcmVUaW1lGAggASgS",
+            "YgZwcm90bzM="));
+      descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
+          new pbr::FileDescriptor[] { },
+          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.ClientUserStatus), global::CRYSTALNET.Service.ClientUserStatus.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.ClientUserStatus.Types.ENUMS) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.ClientUserInfo), global::CRYSTALNET.Service.ClientUserInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "PhoneImei", "ClientStatus", "LastToken", "TokenExpireTime" }, null, null, null, null)
+          }));
+    }
+    #endregion
+
   }
+  #region Messages
+  public sealed partial class ClientUserStatus : pb::IMessage<ClientUserStatus>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ClientUserStatus> _parser = new pb::MessageParser<ClientUserStatus>(() => new ClientUserStatus());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<ClientUserStatus> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComClientUserReflection.Descriptor.MessageTypes[0]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ClientUserStatus() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ClientUserStatus(ClientUserStatus other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ClientUserStatus Clone() {
+      return new ClientUserStatus(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as ClientUserStatus);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(ClientUserStatus other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(ClientUserStatus other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+        }
+      }
+    }
+    #endif
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the ClientUserStatus message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static partial class Types {
+      public enum ENUMS {
+        /// <summary>
+        /// 未登录
+        /// </summary>
+        [pbr::OriginalName("UNLOGIN")] Unlogin = 0,
+        /// <summary>
+        /// 登录中
+        /// </summary>
+        [pbr::OriginalName("LOGINING")] Logining = 1,
+        /// <summary>
+        /// 登录完成
+        /// </summary>
+        [pbr::OriginalName("LOGINED")] Logined = 2,
+        /// <summary>
+        /// 登出中(定时15秒切换状态)
+        /// </summary>
+        [pbr::OriginalName("LOGOUTING")] Logouting = 3,
+        /// <summary>
+        /// 登出完成
+        /// </summary>
+        [pbr::OriginalName("LOGOUTED")] Logouted = 4,
+      }
+
+    }
+    #endregion
+
+  }
+
+  public sealed partial class ClientUserInfo : pb::IMessage<ClientUserInfo>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ClientUserInfo> _parser = new pb::MessageParser<ClientUserInfo>(() => new ClientUserInfo());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<ClientUserInfo> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComClientUserReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ClientUserInfo() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ClientUserInfo(ClientUserInfo other) : this() {
+      userId_ = other.userId_;
+      accountName_ = other.accountName_;
+      name_ = other.name_;
+      nickname_ = other.nickname_;
+      phoneImei_ = other.phoneImei_;
+      clientStatus_ = other.clientStatus_;
+      lastToken_ = other.lastToken_;
+      tokenExpireTime_ = other.tokenExpireTime_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ClientUserInfo Clone() {
+      return new ClientUserInfo(this);
+    }
+
+    /// <summary>Field number for the "UserId" field.</summary>
+    public const int UserIdFieldNumber = 1;
+    private ulong userId_;
+    /// <summary>
+    /// uid
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong UserId {
+      get { return userId_; }
+      set {
+        userId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "AccountName" field.</summary>
+    public const int AccountNameFieldNumber = 2;
+    private string accountName_ = "";
+    /// <summary>
+    /// 账号
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string AccountName {
+      get { return accountName_; }
+      set {
+        accountName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "Name" field.</summary>
+    public const int NameFieldNumber = 3;
+    private string name_ = "";
+    /// <summary>
+    /// 姓名
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "Nickname" field.</summary>
+    public const int NicknameFieldNumber = 4;
+    private string nickname_ = "";
+    /// <summary>
+    /// 昵称
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Nickname {
+      get { return nickname_; }
+      set {
+        nickname_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "PhoneImei" field.</summary>
+    public const int PhoneImeiFieldNumber = 5;
+    private string phoneImei_ = "";
+    /// <summary>
+    /// 手机设备imei
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string PhoneImei {
+      get { return phoneImei_; }
+      set {
+        phoneImei_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "ClientStatus" field.</summary>
+    public const int ClientStatusFieldNumber = 6;
+    private int clientStatus_;
+    /// <summary>
+    /// 登录状态 ClientUserStatus
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ClientStatus {
+      get { return clientStatus_; }
+      set {
+        clientStatus_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "LastToken" field.</summary>
+    public const int LastTokenFieldNumber = 7;
+    private string lastToken_ = "";
+    /// <summary>
+    /// token
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string LastToken {
+      get { return lastToken_; }
+      set {
+        lastToken_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "TokenExpireTime" field.</summary>
+    public const int TokenExpireTimeFieldNumber = 8;
+    private long tokenExpireTime_;
+    /// <summary>
+    /// token过期时间
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long TokenExpireTime {
+      get { return tokenExpireTime_; }
+      set {
+        tokenExpireTime_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as ClientUserInfo);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(ClientUserInfo other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (UserId != other.UserId) return false;
+      if (AccountName != other.AccountName) return false;
+      if (Name != other.Name) return false;
+      if (Nickname != other.Nickname) return false;
+      if (PhoneImei != other.PhoneImei) return false;
+      if (ClientStatus != other.ClientStatus) return false;
+      if (LastToken != other.LastToken) return false;
+      if (TokenExpireTime != other.TokenExpireTime) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (UserId != 0UL) hash ^= UserId.GetHashCode();
+      if (AccountName.Length != 0) hash ^= AccountName.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Nickname.Length != 0) hash ^= Nickname.GetHashCode();
+      if (PhoneImei.Length != 0) hash ^= PhoneImei.GetHashCode();
+      if (ClientStatus != 0) hash ^= ClientStatus.GetHashCode();
+      if (LastToken.Length != 0) hash ^= LastToken.GetHashCode();
+      if (TokenExpireTime != 0L) hash ^= TokenExpireTime.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (UserId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(UserId);
+      }
+      if (AccountName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(AccountName);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Name);
+      }
+      if (Nickname.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Nickname);
+      }
+      if (PhoneImei.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(PhoneImei);
+      }
+      if (ClientStatus != 0) {
+        output.WriteRawTag(48);
+        output.WriteSInt32(ClientStatus);
+      }
+      if (LastToken.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(LastToken);
+      }
+      if (TokenExpireTime != 0L) {
+        output.WriteRawTag(64);
+        output.WriteSInt64(TokenExpireTime);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (UserId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(UserId);
+      }
+      if (AccountName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(AccountName);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Name);
+      }
+      if (Nickname.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(Nickname);
+      }
+      if (PhoneImei.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(PhoneImei);
+      }
+      if (ClientStatus != 0) {
+        output.WriteRawTag(48);
+        output.WriteSInt32(ClientStatus);
+      }
+      if (LastToken.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(LastToken);
+      }
+      if (TokenExpireTime != 0L) {
+        output.WriteRawTag(64);
+        output.WriteSInt64(TokenExpireTime);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (UserId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UserId);
+      }
+      if (AccountName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(AccountName);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (Nickname.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Nickname);
+      }
+      if (PhoneImei.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(PhoneImei);
+      }
+      if (ClientStatus != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(ClientStatus);
+      }
+      if (LastToken.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(LastToken);
+      }
+      if (TokenExpireTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TokenExpireTime);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(ClientUserInfo other) {
+      if (other == null) {
+        return;
+      }
+      if (other.UserId != 0UL) {
+        UserId = other.UserId;
+      }
+      if (other.AccountName.Length != 0) {
+        AccountName = other.AccountName;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      if (other.Nickname.Length != 0) {
+        Nickname = other.Nickname;
+      }
+      if (other.PhoneImei.Length != 0) {
+        PhoneImei = other.PhoneImei;
+      }
+      if (other.ClientStatus != 0) {
+        ClientStatus = other.ClientStatus;
+      }
+      if (other.LastToken.Length != 0) {
+        LastToken = other.LastToken;
+      }
+      if (other.TokenExpireTime != 0L) {
+        TokenExpireTime = other.TokenExpireTime;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            UserId = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            AccountName = input.ReadString();
+            break;
+          }
+          case 26: {
+            Name = input.ReadString();
+            break;
+          }
+          case 34: {
+            Nickname = input.ReadString();
+            break;
+          }
+          case 42: {
+            PhoneImei = input.ReadString();
+            break;
+          }
+          case 48: {
+            ClientStatus = input.ReadSInt32();
+            break;
+          }
+          case 58: {
+            LastToken = input.ReadString();
+            break;
+          }
+          case 64: {
+            TokenExpireTime = input.ReadSInt64();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            UserId = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            AccountName = input.ReadString();
+            break;
+          }
+          case 26: {
+            Name = input.ReadString();
+            break;
+          }
+          case 34: {
+            Nickname = input.ReadString();
+            break;
+          }
+          case 42: {
+            PhoneImei = input.ReadString();
+            break;
+          }
+          case 48: {
+            ClientStatus = input.ReadSInt32();
+            break;
+          }
+          case 58: {
+            LastToken = input.ReadString();
+            break;
+          }
+          case 64: {
+            TokenExpireTime = input.ReadSInt64();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   #endregion
 
 }
-#region Messages
-public sealed partial class ClientUserStatus : pb::IMessage<ClientUserStatus>
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    , pb::IBufferMessage
-#endif
-{
-  private static readonly pb::MessageParser<ClientUserStatus> _parser = new pb::MessageParser<ClientUserStatus>(() => new ClientUserStatus());
-  private pb::UnknownFieldSet _unknownFields;
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public static pb::MessageParser<ClientUserStatus> Parser { get { return _parser; } }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public static pbr::MessageDescriptor Descriptor {
-    get { return global::ComClientUserReflection.Descriptor.MessageTypes[0]; }
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  pbr::MessageDescriptor pb::IMessage.Descriptor {
-    get { return Descriptor; }
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public ClientUserStatus() {
-    OnConstruction();
-  }
-
-  partial void OnConstruction();
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public ClientUserStatus(ClientUserStatus other) : this() {
-    _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public ClientUserStatus Clone() {
-    return new ClientUserStatus(this);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public override bool Equals(object other) {
-    return Equals(other as ClientUserStatus);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public bool Equals(ClientUserStatus other) {
-    if (ReferenceEquals(other, null)) {
-      return false;
-    }
-    if (ReferenceEquals(other, this)) {
-      return true;
-    }
-    return Equals(_unknownFields, other._unknownFields);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public override int GetHashCode() {
-    int hash = 1;
-    if (_unknownFields != null) {
-      hash ^= _unknownFields.GetHashCode();
-    }
-    return hash;
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public override string ToString() {
-    return pb::JsonFormatter.ToDiagnosticString(this);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void WriteTo(pb::CodedOutputStream output) {
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    output.WriteRawMessage(this);
-  #else
-    if (_unknownFields != null) {
-      _unknownFields.WriteTo(output);
-    }
-  #endif
-  }
-
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (_unknownFields != null) {
-      _unknownFields.WriteTo(ref output);
-    }
-  }
-  #endif
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public int CalculateSize() {
-    int size = 0;
-    if (_unknownFields != null) {
-      size += _unknownFields.CalculateSize();
-    }
-    return size;
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void MergeFrom(ClientUserStatus other) {
-    if (other == null) {
-      return;
-    }
-    _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void MergeFrom(pb::CodedInputStream input) {
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    input.ReadRawMessage(this);
-  #else
-    uint tag;
-    while ((tag = input.ReadTag()) != 0) {
-      switch(tag) {
-        default:
-          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-          break;
-      }
-    }
-  #endif
-  }
-
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-    uint tag;
-    while ((tag = input.ReadTag()) != 0) {
-      switch(tag) {
-        default:
-          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-          break;
-      }
-    }
-  }
-  #endif
-
-  #region Nested types
-  /// <summary>Container for nested types declared in the ClientUserStatus message type.</summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public static partial class Types {
-    public enum ENUMS {
-      /// <summary>
-      /// 未登录
-      /// </summary>
-      [pbr::OriginalName("UNLOGIN")] Unlogin = 0,
-      /// <summary>
-      /// 登录中
-      /// </summary>
-      [pbr::OriginalName("LOGINING")] Logining = 1,
-      /// <summary>
-      /// 登录完成
-      /// </summary>
-      [pbr::OriginalName("LOGINED")] Logined = 2,
-      /// <summary>
-      /// 登出中(定时15秒切换状态)
-      /// </summary>
-      [pbr::OriginalName("LOGOUTING")] Logouting = 3,
-      /// <summary>
-      /// 登出完成
-      /// </summary>
-      [pbr::OriginalName("LOGOUTED")] Logouted = 4,
-    }
-
-  }
-  #endregion
-
-}
-
-public sealed partial class ClientUserInfo : pb::IMessage<ClientUserInfo>
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    , pb::IBufferMessage
-#endif
-{
-  private static readonly pb::MessageParser<ClientUserInfo> _parser = new pb::MessageParser<ClientUserInfo>(() => new ClientUserInfo());
-  private pb::UnknownFieldSet _unknownFields;
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public static pb::MessageParser<ClientUserInfo> Parser { get { return _parser; } }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public static pbr::MessageDescriptor Descriptor {
-    get { return global::ComClientUserReflection.Descriptor.MessageTypes[1]; }
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  pbr::MessageDescriptor pb::IMessage.Descriptor {
-    get { return Descriptor; }
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public ClientUserInfo() {
-    OnConstruction();
-  }
-
-  partial void OnConstruction();
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public ClientUserInfo(ClientUserInfo other) : this() {
-    userId_ = other.userId_;
-    accountName_ = other.accountName_;
-    name_ = other.name_;
-    nickname_ = other.nickname_;
-    phoneImei_ = other.phoneImei_;
-    clientStatus_ = other.clientStatus_;
-    lastToken_ = other.lastToken_;
-    tokenExpireTime_ = other.tokenExpireTime_;
-    _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public ClientUserInfo Clone() {
-    return new ClientUserInfo(this);
-  }
-
-  /// <summary>Field number for the "UserId" field.</summary>
-  public const int UserIdFieldNumber = 1;
-  private ulong userId_;
-  /// <summary>
-  /// uid
-  /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public ulong UserId {
-    get { return userId_; }
-    set {
-      userId_ = value;
-    }
-  }
-
-  /// <summary>Field number for the "AccountName" field.</summary>
-  public const int AccountNameFieldNumber = 2;
-  private string accountName_ = "";
-  /// <summary>
-  /// 账号
-  /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string AccountName {
-    get { return accountName_; }
-    set {
-      accountName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-    }
-  }
-
-  /// <summary>Field number for the "Name" field.</summary>
-  public const int NameFieldNumber = 3;
-  private string name_ = "";
-  /// <summary>
-  /// 姓名
-  /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string Name {
-    get { return name_; }
-    set {
-      name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-    }
-  }
-
-  /// <summary>Field number for the "Nickname" field.</summary>
-  public const int NicknameFieldNumber = 4;
-  private string nickname_ = "";
-  /// <summary>
-  /// 昵称
-  /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string Nickname {
-    get { return nickname_; }
-    set {
-      nickname_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-    }
-  }
-
-  /// <summary>Field number for the "PhoneImei" field.</summary>
-  public const int PhoneImeiFieldNumber = 5;
-  private string phoneImei_ = "";
-  /// <summary>
-  /// 手机设备imei
-  /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string PhoneImei {
-    get { return phoneImei_; }
-    set {
-      phoneImei_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-    }
-  }
-
-  /// <summary>Field number for the "ClientStatus" field.</summary>
-  public const int ClientStatusFieldNumber = 6;
-  private int clientStatus_;
-  /// <summary>
-  /// 登录状态 ClientUserStatus
-  /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public int ClientStatus {
-    get { return clientStatus_; }
-    set {
-      clientStatus_ = value;
-    }
-  }
-
-  /// <summary>Field number for the "LastToken" field.</summary>
-  public const int LastTokenFieldNumber = 7;
-  private string lastToken_ = "";
-  /// <summary>
-  /// token
-  /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string LastToken {
-    get { return lastToken_; }
-    set {
-      lastToken_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-    }
-  }
-
-  /// <summary>Field number for the "TokenExpireTime" field.</summary>
-  public const int TokenExpireTimeFieldNumber = 8;
-  private long tokenExpireTime_;
-  /// <summary>
-  /// token过期时间
-  /// </summary>
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public long TokenExpireTime {
-    get { return tokenExpireTime_; }
-    set {
-      tokenExpireTime_ = value;
-    }
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public override bool Equals(object other) {
-    return Equals(other as ClientUserInfo);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public bool Equals(ClientUserInfo other) {
-    if (ReferenceEquals(other, null)) {
-      return false;
-    }
-    if (ReferenceEquals(other, this)) {
-      return true;
-    }
-    if (UserId != other.UserId) return false;
-    if (AccountName != other.AccountName) return false;
-    if (Name != other.Name) return false;
-    if (Nickname != other.Nickname) return false;
-    if (PhoneImei != other.PhoneImei) return false;
-    if (ClientStatus != other.ClientStatus) return false;
-    if (LastToken != other.LastToken) return false;
-    if (TokenExpireTime != other.TokenExpireTime) return false;
-    return Equals(_unknownFields, other._unknownFields);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public override int GetHashCode() {
-    int hash = 1;
-    if (UserId != 0UL) hash ^= UserId.GetHashCode();
-    if (AccountName.Length != 0) hash ^= AccountName.GetHashCode();
-    if (Name.Length != 0) hash ^= Name.GetHashCode();
-    if (Nickname.Length != 0) hash ^= Nickname.GetHashCode();
-    if (PhoneImei.Length != 0) hash ^= PhoneImei.GetHashCode();
-    if (ClientStatus != 0) hash ^= ClientStatus.GetHashCode();
-    if (LastToken.Length != 0) hash ^= LastToken.GetHashCode();
-    if (TokenExpireTime != 0L) hash ^= TokenExpireTime.GetHashCode();
-    if (_unknownFields != null) {
-      hash ^= _unknownFields.GetHashCode();
-    }
-    return hash;
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public override string ToString() {
-    return pb::JsonFormatter.ToDiagnosticString(this);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void WriteTo(pb::CodedOutputStream output) {
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    output.WriteRawMessage(this);
-  #else
-    if (UserId != 0UL) {
-      output.WriteRawTag(8);
-      output.WriteUInt64(UserId);
-    }
-    if (AccountName.Length != 0) {
-      output.WriteRawTag(18);
-      output.WriteString(AccountName);
-    }
-    if (Name.Length != 0) {
-      output.WriteRawTag(26);
-      output.WriteString(Name);
-    }
-    if (Nickname.Length != 0) {
-      output.WriteRawTag(34);
-      output.WriteString(Nickname);
-    }
-    if (PhoneImei.Length != 0) {
-      output.WriteRawTag(42);
-      output.WriteString(PhoneImei);
-    }
-    if (ClientStatus != 0) {
-      output.WriteRawTag(48);
-      output.WriteSInt32(ClientStatus);
-    }
-    if (LastToken.Length != 0) {
-      output.WriteRawTag(58);
-      output.WriteString(LastToken);
-    }
-    if (TokenExpireTime != 0L) {
-      output.WriteRawTag(64);
-      output.WriteSInt64(TokenExpireTime);
-    }
-    if (_unknownFields != null) {
-      _unknownFields.WriteTo(output);
-    }
-  #endif
-  }
-
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (UserId != 0UL) {
-      output.WriteRawTag(8);
-      output.WriteUInt64(UserId);
-    }
-    if (AccountName.Length != 0) {
-      output.WriteRawTag(18);
-      output.WriteString(AccountName);
-    }
-    if (Name.Length != 0) {
-      output.WriteRawTag(26);
-      output.WriteString(Name);
-    }
-    if (Nickname.Length != 0) {
-      output.WriteRawTag(34);
-      output.WriteString(Nickname);
-    }
-    if (PhoneImei.Length != 0) {
-      output.WriteRawTag(42);
-      output.WriteString(PhoneImei);
-    }
-    if (ClientStatus != 0) {
-      output.WriteRawTag(48);
-      output.WriteSInt32(ClientStatus);
-    }
-    if (LastToken.Length != 0) {
-      output.WriteRawTag(58);
-      output.WriteString(LastToken);
-    }
-    if (TokenExpireTime != 0L) {
-      output.WriteRawTag(64);
-      output.WriteSInt64(TokenExpireTime);
-    }
-    if (_unknownFields != null) {
-      _unknownFields.WriteTo(ref output);
-    }
-  }
-  #endif
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public int CalculateSize() {
-    int size = 0;
-    if (UserId != 0UL) {
-      size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UserId);
-    }
-    if (AccountName.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(AccountName);
-    }
-    if (Name.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
-    }
-    if (Nickname.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(Nickname);
-    }
-    if (PhoneImei.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(PhoneImei);
-    }
-    if (ClientStatus != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeSInt32Size(ClientStatus);
-    }
-    if (LastToken.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(LastToken);
-    }
-    if (TokenExpireTime != 0L) {
-      size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TokenExpireTime);
-    }
-    if (_unknownFields != null) {
-      size += _unknownFields.CalculateSize();
-    }
-    return size;
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void MergeFrom(ClientUserInfo other) {
-    if (other == null) {
-      return;
-    }
-    if (other.UserId != 0UL) {
-      UserId = other.UserId;
-    }
-    if (other.AccountName.Length != 0) {
-      AccountName = other.AccountName;
-    }
-    if (other.Name.Length != 0) {
-      Name = other.Name;
-    }
-    if (other.Nickname.Length != 0) {
-      Nickname = other.Nickname;
-    }
-    if (other.PhoneImei.Length != 0) {
-      PhoneImei = other.PhoneImei;
-    }
-    if (other.ClientStatus != 0) {
-      ClientStatus = other.ClientStatus;
-    }
-    if (other.LastToken.Length != 0) {
-      LastToken = other.LastToken;
-    }
-    if (other.TokenExpireTime != 0L) {
-      TokenExpireTime = other.TokenExpireTime;
-    }
-    _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-  }
-
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public void MergeFrom(pb::CodedInputStream input) {
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    input.ReadRawMessage(this);
-  #else
-    uint tag;
-    while ((tag = input.ReadTag()) != 0) {
-      switch(tag) {
-        default:
-          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-          break;
-        case 8: {
-          UserId = input.ReadUInt64();
-          break;
-        }
-        case 18: {
-          AccountName = input.ReadString();
-          break;
-        }
-        case 26: {
-          Name = input.ReadString();
-          break;
-        }
-        case 34: {
-          Nickname = input.ReadString();
-          break;
-        }
-        case 42: {
-          PhoneImei = input.ReadString();
-          break;
-        }
-        case 48: {
-          ClientStatus = input.ReadSInt32();
-          break;
-        }
-        case 58: {
-          LastToken = input.ReadString();
-          break;
-        }
-        case 64: {
-          TokenExpireTime = input.ReadSInt64();
-          break;
-        }
-      }
-    }
-  #endif
-  }
-
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-    uint tag;
-    while ((tag = input.ReadTag()) != 0) {
-      switch(tag) {
-        default:
-          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-          break;
-        case 8: {
-          UserId = input.ReadUInt64();
-          break;
-        }
-        case 18: {
-          AccountName = input.ReadString();
-          break;
-        }
-        case 26: {
-          Name = input.ReadString();
-          break;
-        }
-        case 34: {
-          Nickname = input.ReadString();
-          break;
-        }
-        case 42: {
-          PhoneImei = input.ReadString();
-          break;
-        }
-        case 48: {
-          ClientStatus = input.ReadSInt32();
-          break;
-        }
-        case 58: {
-          LastToken = input.ReadString();
-          break;
-        }
-        case 64: {
-          TokenExpireTime = input.ReadSInt64();
-          break;
-        }
-      }
-    }
-  }
-  #endif
-
-}
-
-#endregion
-
 
 #endregion Designer generated code

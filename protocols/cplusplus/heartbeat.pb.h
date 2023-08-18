@@ -57,6 +57,8 @@ struct TableStruct_heartbeat_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_heartbeat_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class ClientHeartbeatReq;
 struct ClientHeartbeatReqDefaultTypeInternal;
 extern ClientHeartbeatReqDefaultTypeInternal _ClientHeartbeatReq_default_instance_;
@@ -81,22 +83,26 @@ extern RegisterNodeReqDefaultTypeInternal _RegisterNodeReq_default_instance_;
 class RegisterNodeRes;
 struct RegisterNodeResDefaultTypeInternal;
 extern RegisterNodeResDefaultTypeInternal _RegisterNodeRes_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::ClientHeartbeatReq* Arena::CreateMaybeMessage<::ClientHeartbeatReq>(Arena*);
-template<> ::ClientHeartbeatRes* Arena::CreateMaybeMessage<::ClientHeartbeatRes>(Arena*);
-template<> ::GetNodeListReq* Arena::CreateMaybeMessage<::GetNodeListReq>(Arena*);
-template<> ::GetNodeListRes* Arena::CreateMaybeMessage<::GetNodeListRes>(Arena*);
-template<> ::NodeHeartbeatReq* Arena::CreateMaybeMessage<::NodeHeartbeatReq>(Arena*);
-template<> ::NodeHeartbeatRes* Arena::CreateMaybeMessage<::NodeHeartbeatRes>(Arena*);
-template<> ::RegisterNodeReq* Arena::CreateMaybeMessage<::RegisterNodeReq>(Arena*);
-template<> ::RegisterNodeRes* Arena::CreateMaybeMessage<::RegisterNodeRes>(Arena*);
+template<> ::CRYSTAL_NET::service::ClientHeartbeatReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ClientHeartbeatReq>(Arena*);
+template<> ::CRYSTAL_NET::service::ClientHeartbeatRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ClientHeartbeatRes>(Arena*);
+template<> ::CRYSTAL_NET::service::GetNodeListReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetNodeListReq>(Arena*);
+template<> ::CRYSTAL_NET::service::GetNodeListRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetNodeListRes>(Arena*);
+template<> ::CRYSTAL_NET::service::NodeHeartbeatReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::NodeHeartbeatReq>(Arena*);
+template<> ::CRYSTAL_NET::service::NodeHeartbeatRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::NodeHeartbeatRes>(Arena*);
+template<> ::CRYSTAL_NET::service::RegisterNodeReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::RegisterNodeReq>(Arena*);
+template<> ::CRYSTAL_NET::service::RegisterNodeRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::RegisterNodeRes>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 // AnnotaionInfo[opcode(23), nolog(true)]
 class NodeHeartbeatReq final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:NodeHeartbeatReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.NodeHeartbeatReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -301,7 +307,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "NodeHeartbeatReq";
+    return "CRYSTAL_NET.service.NodeHeartbeatReq";
   }
   protected:
   explicit NodeHeartbeatReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -317,7 +323,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:NodeHeartbeatReq)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.NodeHeartbeatReq)
  private:
   class _Internal;
 
@@ -332,7 +338,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(24), nolog(true)]
 class NodeHeartbeatRes final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:NodeHeartbeatRes) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.NodeHeartbeatRes) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -552,7 +558,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "NodeHeartbeatRes";
+    return "CRYSTAL_NET.service.NodeHeartbeatRes";
   }
   protected:
   explicit NodeHeartbeatRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -580,7 +586,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_nowtimenanoseconds(int64_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:NodeHeartbeatRes)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.NodeHeartbeatRes)
  private:
   class _Internal;
 
@@ -598,7 +604,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(25), nolog(false)]
 class RegisterNodeReq final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:RegisterNodeReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.RegisterNodeReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -818,7 +824,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "RegisterNodeReq";
+    return "CRYSTAL_NET.service.RegisterNodeReq";
   }
   protected:
   explicit RegisterNodeReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -837,25 +843,25 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   enum : int {
     kNodeInfoFieldNumber = 1,
   };
-  // .NodeHeartbeatInfo NodeInfo = 1;
+  // .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfo = 1;
   bool has_nodeinfo() const;
   private:
   bool _internal_has_nodeinfo() const;
   public:
   void clear_nodeinfo();
-  const ::NodeHeartbeatInfo& nodeinfo() const;
-  PROTOBUF_NODISCARD ::NodeHeartbeatInfo* release_nodeinfo();
-  ::NodeHeartbeatInfo* mutable_nodeinfo();
-  void set_allocated_nodeinfo(::NodeHeartbeatInfo* nodeinfo);
+  const ::CRYSTAL_NET::service::NodeHeartbeatInfo& nodeinfo() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::NodeHeartbeatInfo* release_nodeinfo();
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* mutable_nodeinfo();
+  void set_allocated_nodeinfo(::CRYSTAL_NET::service::NodeHeartbeatInfo* nodeinfo);
   private:
-  const ::NodeHeartbeatInfo& _internal_nodeinfo() const;
-  ::NodeHeartbeatInfo* _internal_mutable_nodeinfo();
+  const ::CRYSTAL_NET::service::NodeHeartbeatInfo& _internal_nodeinfo() const;
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* _internal_mutable_nodeinfo();
   public:
   void unsafe_arena_set_allocated_nodeinfo(
-      ::NodeHeartbeatInfo* nodeinfo);
-  ::NodeHeartbeatInfo* unsafe_arena_release_nodeinfo();
+      ::CRYSTAL_NET::service::NodeHeartbeatInfo* nodeinfo);
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* unsafe_arena_release_nodeinfo();
 
-  // @@protoc_insertion_point(class_scope:RegisterNodeReq)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.RegisterNodeReq)
  private:
   class _Internal;
 
@@ -863,7 +869,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::NodeHeartbeatInfo* nodeinfo_;
+    ::CRYSTAL_NET::service::NodeHeartbeatInfo* nodeinfo_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -873,7 +879,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(26), nolog(false)]
 class RegisterNodeRes final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:RegisterNodeRes) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.RegisterNodeRes) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1093,7 +1099,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "RegisterNodeRes";
+    return "CRYSTAL_NET.service.RegisterNodeRes";
   }
   protected:
   explicit RegisterNodeRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1121,7 +1127,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_errcode(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:RegisterNodeRes)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.RegisterNodeRes)
  private:
   class _Internal;
 
@@ -1139,7 +1145,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(27), nolog(false)]
 class GetNodeListReq final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:GetNodeListReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetNodeListReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1359,7 +1365,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "GetNodeListReq";
+    return "CRYSTAL_NET.service.GetNodeListReq";
   }
   protected:
   explicit GetNodeListReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1417,7 +1423,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   std::string* _internal_mutable_clustername();
   public:
 
-  // @@protoc_insertion_point(class_scope:GetNodeListReq)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.GetNodeListReq)
  private:
   class _Internal;
 
@@ -1436,7 +1442,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(28), nolog(false)]
 class GetNodeListRes final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:GetNodeListRes) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetNodeListRes) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1656,7 +1662,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "GetNodeListRes";
+    return "CRYSTAL_NET.service.GetNodeListRes";
   }
   protected:
   explicit GetNodeListRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1675,25 +1681,25 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   enum : int {
     kNodeInfoListFieldNumber = 1,
   };
-  // repeated .NodeHeartbeatInfo NodeInfoList = 1;
+  // repeated .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfoList = 1;
   int nodeinfolist_size() const;
   private:
   int _internal_nodeinfolist_size() const;
   public:
   void clear_nodeinfolist();
-  ::NodeHeartbeatInfo* mutable_nodeinfolist(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::NodeHeartbeatInfo >*
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* mutable_nodeinfolist(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::NodeHeartbeatInfo >*
       mutable_nodeinfolist();
   private:
-  const ::NodeHeartbeatInfo& _internal_nodeinfolist(int index) const;
-  ::NodeHeartbeatInfo* _internal_add_nodeinfolist();
+  const ::CRYSTAL_NET::service::NodeHeartbeatInfo& _internal_nodeinfolist(int index) const;
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* _internal_add_nodeinfolist();
   public:
-  const ::NodeHeartbeatInfo& nodeinfolist(int index) const;
-  ::NodeHeartbeatInfo* add_nodeinfolist();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::NodeHeartbeatInfo >&
+  const ::CRYSTAL_NET::service::NodeHeartbeatInfo& nodeinfolist(int index) const;
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* add_nodeinfolist();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::NodeHeartbeatInfo >&
       nodeinfolist() const;
 
-  // @@protoc_insertion_point(class_scope:GetNodeListRes)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.GetNodeListRes)
  private:
   class _Internal;
 
@@ -1701,7 +1707,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::NodeHeartbeatInfo > nodeinfolist_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::NodeHeartbeatInfo > nodeinfolist_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1711,7 +1717,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(29), nolog(true)]
 class ClientHeartbeatReq final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:ClientHeartbeatReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClientHeartbeatReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1916,7 +1922,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "ClientHeartbeatReq";
+    return "CRYSTAL_NET.service.ClientHeartbeatReq";
   }
   protected:
   explicit ClientHeartbeatReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1932,7 +1938,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:ClientHeartbeatReq)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ClientHeartbeatReq)
  private:
   class _Internal;
 
@@ -1947,7 +1953,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(30), nolog(true)]
 class ClientHeartbeatRes final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ClientHeartbeatRes) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClientHeartbeatRes) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -2167,7 +2173,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "ClientHeartbeatRes";
+    return "CRYSTAL_NET.service.ClientHeartbeatRes";
   }
   protected:
   explicit ClientHeartbeatRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -2195,7 +2201,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_servertimems(int64_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:ClientHeartbeatRes)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ClientHeartbeatRes)
  private:
   class _Internal;
 
@@ -2232,7 +2238,7 @@ inline int64_t NodeHeartbeatRes::_internal_nowtimenanoseconds() const {
   return _impl_.nowtimenanoseconds_;
 }
 inline int64_t NodeHeartbeatRes::nowtimenanoseconds() const {
-  // @@protoc_insertion_point(field_get:NodeHeartbeatRes.NowTimeNanoseconds)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.NodeHeartbeatRes.NowTimeNanoseconds)
   return _internal_nowtimenanoseconds();
 }
 inline void NodeHeartbeatRes::_internal_set_nowtimenanoseconds(int64_t value) {
@@ -2241,31 +2247,31 @@ inline void NodeHeartbeatRes::_internal_set_nowtimenanoseconds(int64_t value) {
 }
 inline void NodeHeartbeatRes::set_nowtimenanoseconds(int64_t value) {
   _internal_set_nowtimenanoseconds(value);
-  // @@protoc_insertion_point(field_set:NodeHeartbeatRes.NowTimeNanoseconds)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.NodeHeartbeatRes.NowTimeNanoseconds)
 }
 
 // -------------------------------------------------------------------
 
 // RegisterNodeReq
 
-// .NodeHeartbeatInfo NodeInfo = 1;
+// .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfo = 1;
 inline bool RegisterNodeReq::_internal_has_nodeinfo() const {
   return this != internal_default_instance() && _impl_.nodeinfo_ != nullptr;
 }
 inline bool RegisterNodeReq::has_nodeinfo() const {
   return _internal_has_nodeinfo();
 }
-inline const ::NodeHeartbeatInfo& RegisterNodeReq::_internal_nodeinfo() const {
-  const ::NodeHeartbeatInfo* p = _impl_.nodeinfo_;
-  return p != nullptr ? *p : reinterpret_cast<const ::NodeHeartbeatInfo&>(
-      ::_NodeHeartbeatInfo_default_instance_);
+inline const ::CRYSTAL_NET::service::NodeHeartbeatInfo& RegisterNodeReq::_internal_nodeinfo() const {
+  const ::CRYSTAL_NET::service::NodeHeartbeatInfo* p = _impl_.nodeinfo_;
+  return p != nullptr ? *p : reinterpret_cast<const ::CRYSTAL_NET::service::NodeHeartbeatInfo&>(
+      ::CRYSTAL_NET::service::_NodeHeartbeatInfo_default_instance_);
 }
-inline const ::NodeHeartbeatInfo& RegisterNodeReq::nodeinfo() const {
-  // @@protoc_insertion_point(field_get:RegisterNodeReq.NodeInfo)
+inline const ::CRYSTAL_NET::service::NodeHeartbeatInfo& RegisterNodeReq::nodeinfo() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.RegisterNodeReq.NodeInfo)
   return _internal_nodeinfo();
 }
 inline void RegisterNodeReq::unsafe_arena_set_allocated_nodeinfo(
-    ::NodeHeartbeatInfo* nodeinfo) {
+    ::CRYSTAL_NET::service::NodeHeartbeatInfo* nodeinfo) {
   if (GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.nodeinfo_);
   }
@@ -2275,11 +2281,11 @@ inline void RegisterNodeReq::unsafe_arena_set_allocated_nodeinfo(
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:RegisterNodeReq.NodeInfo)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.RegisterNodeReq.NodeInfo)
 }
-inline ::NodeHeartbeatInfo* RegisterNodeReq::release_nodeinfo() {
+inline ::CRYSTAL_NET::service::NodeHeartbeatInfo* RegisterNodeReq::release_nodeinfo() {
   
-  ::NodeHeartbeatInfo* temp = _impl_.nodeinfo_;
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* temp = _impl_.nodeinfo_;
   _impl_.nodeinfo_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
@@ -2292,27 +2298,27 @@ inline ::NodeHeartbeatInfo* RegisterNodeReq::release_nodeinfo() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::NodeHeartbeatInfo* RegisterNodeReq::unsafe_arena_release_nodeinfo() {
-  // @@protoc_insertion_point(field_release:RegisterNodeReq.NodeInfo)
+inline ::CRYSTAL_NET::service::NodeHeartbeatInfo* RegisterNodeReq::unsafe_arena_release_nodeinfo() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.RegisterNodeReq.NodeInfo)
   
-  ::NodeHeartbeatInfo* temp = _impl_.nodeinfo_;
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* temp = _impl_.nodeinfo_;
   _impl_.nodeinfo_ = nullptr;
   return temp;
 }
-inline ::NodeHeartbeatInfo* RegisterNodeReq::_internal_mutable_nodeinfo() {
+inline ::CRYSTAL_NET::service::NodeHeartbeatInfo* RegisterNodeReq::_internal_mutable_nodeinfo() {
   
   if (_impl_.nodeinfo_ == nullptr) {
-    auto* p = CreateMaybeMessage<::NodeHeartbeatInfo>(GetArenaForAllocation());
+    auto* p = CreateMaybeMessage<::CRYSTAL_NET::service::NodeHeartbeatInfo>(GetArenaForAllocation());
     _impl_.nodeinfo_ = p;
   }
   return _impl_.nodeinfo_;
 }
-inline ::NodeHeartbeatInfo* RegisterNodeReq::mutable_nodeinfo() {
-  ::NodeHeartbeatInfo* _msg = _internal_mutable_nodeinfo();
-  // @@protoc_insertion_point(field_mutable:RegisterNodeReq.NodeInfo)
+inline ::CRYSTAL_NET::service::NodeHeartbeatInfo* RegisterNodeReq::mutable_nodeinfo() {
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* _msg = _internal_mutable_nodeinfo();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.RegisterNodeReq.NodeInfo)
   return _msg;
 }
-inline void RegisterNodeReq::set_allocated_nodeinfo(::NodeHeartbeatInfo* nodeinfo) {
+inline void RegisterNodeReq::set_allocated_nodeinfo(::CRYSTAL_NET::service::NodeHeartbeatInfo* nodeinfo) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.nodeinfo_);
@@ -2330,7 +2336,7 @@ inline void RegisterNodeReq::set_allocated_nodeinfo(::NodeHeartbeatInfo* nodeinf
     
   }
   _impl_.nodeinfo_ = nodeinfo;
-  // @@protoc_insertion_point(field_set_allocated:RegisterNodeReq.NodeInfo)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.RegisterNodeReq.NodeInfo)
 }
 
 // -------------------------------------------------------------------
@@ -2345,7 +2351,7 @@ inline int32_t RegisterNodeRes::_internal_errcode() const {
   return _impl_.errcode_;
 }
 inline int32_t RegisterNodeRes::errcode() const {
-  // @@protoc_insertion_point(field_get:RegisterNodeRes.ErrCode)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.RegisterNodeRes.ErrCode)
   return _internal_errcode();
 }
 inline void RegisterNodeRes::_internal_set_errcode(int32_t value) {
@@ -2354,7 +2360,7 @@ inline void RegisterNodeRes::_internal_set_errcode(int32_t value) {
 }
 inline void RegisterNodeRes::set_errcode(int32_t value) {
   _internal_set_errcode(value);
-  // @@protoc_insertion_point(field_set:RegisterNodeRes.ErrCode)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.RegisterNodeRes.ErrCode)
 }
 
 // -------------------------------------------------------------------
@@ -2366,7 +2372,7 @@ inline void GetNodeListReq::clear_clustername() {
   _impl_.clustername_.ClearToEmpty();
 }
 inline const std::string& GetNodeListReq::clustername() const {
-  // @@protoc_insertion_point(field_get:GetNodeListReq.ClusterName)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.GetNodeListReq.ClusterName)
   return _internal_clustername();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2374,11 +2380,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void GetNodeListReq::set_clustername(ArgT0&& arg0, ArgT... args) {
  
  _impl_.clustername_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:GetNodeListReq.ClusterName)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.GetNodeListReq.ClusterName)
 }
 inline std::string* GetNodeListReq::mutable_clustername() {
   std::string* _s = _internal_mutable_clustername();
-  // @@protoc_insertion_point(field_mutable:GetNodeListReq.ClusterName)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.GetNodeListReq.ClusterName)
   return _s;
 }
 inline const std::string& GetNodeListReq::_internal_clustername() const {
@@ -2393,7 +2399,7 @@ inline std::string* GetNodeListReq::_internal_mutable_clustername() {
   return _impl_.clustername_.Mutable(GetArenaForAllocation());
 }
 inline std::string* GetNodeListReq::release_clustername() {
-  // @@protoc_insertion_point(field_release:GetNodeListReq.ClusterName)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.GetNodeListReq.ClusterName)
   return _impl_.clustername_.Release();
 }
 inline void GetNodeListReq::set_allocated_clustername(std::string* clustername) {
@@ -2408,7 +2414,7 @@ inline void GetNodeListReq::set_allocated_clustername(std::string* clustername) 
     _impl_.clustername_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:GetNodeListReq.ClusterName)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.GetNodeListReq.ClusterName)
 }
 
 // repeated string CareNodeServiceNameList = 2;
@@ -2423,66 +2429,66 @@ inline void GetNodeListReq::clear_carenodeservicenamelist() {
 }
 inline std::string* GetNodeListReq::add_carenodeservicenamelist() {
   std::string* _s = _internal_add_carenodeservicenamelist();
-  // @@protoc_insertion_point(field_add_mutable:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_add_mutable:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
   return _s;
 }
 inline const std::string& GetNodeListReq::_internal_carenodeservicenamelist(int index) const {
   return _impl_.carenodeservicenamelist_.Get(index);
 }
 inline const std::string& GetNodeListReq::carenodeservicenamelist(int index) const {
-  // @@protoc_insertion_point(field_get:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
   return _internal_carenodeservicenamelist(index);
 }
 inline std::string* GetNodeListReq::mutable_carenodeservicenamelist(int index) {
-  // @@protoc_insertion_point(field_mutable:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
   return _impl_.carenodeservicenamelist_.Mutable(index);
 }
 inline void GetNodeListReq::set_carenodeservicenamelist(int index, const std::string& value) {
   _impl_.carenodeservicenamelist_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
 }
 inline void GetNodeListReq::set_carenodeservicenamelist(int index, std::string&& value) {
   _impl_.carenodeservicenamelist_.Mutable(index)->assign(std::move(value));
-  // @@protoc_insertion_point(field_set:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
 }
 inline void GetNodeListReq::set_carenodeservicenamelist(int index, const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   _impl_.carenodeservicenamelist_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set_char:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
 }
 inline void GetNodeListReq::set_carenodeservicenamelist(int index, const char* value, size_t size) {
   _impl_.carenodeservicenamelist_.Mutable(index)->assign(
     reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
 }
 inline std::string* GetNodeListReq::_internal_add_carenodeservicenamelist() {
   return _impl_.carenodeservicenamelist_.Add();
 }
 inline void GetNodeListReq::add_carenodeservicenamelist(const std::string& value) {
   _impl_.carenodeservicenamelist_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
 }
 inline void GetNodeListReq::add_carenodeservicenamelist(std::string&& value) {
   _impl_.carenodeservicenamelist_.Add(std::move(value));
-  // @@protoc_insertion_point(field_add:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
 }
 inline void GetNodeListReq::add_carenodeservicenamelist(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   _impl_.carenodeservicenamelist_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add_char:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
 }
 inline void GetNodeListReq::add_carenodeservicenamelist(const char* value, size_t size) {
   _impl_.carenodeservicenamelist_.Add()->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_add_pointer:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
 GetNodeListReq::carenodeservicenamelist() const {
-  // @@protoc_insertion_point(field_list:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
   return _impl_.carenodeservicenamelist_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
 GetNodeListReq::mutable_carenodeservicenamelist() {
-  // @@protoc_insertion_point(field_mutable_list:GetNodeListReq.CareNodeServiceNameList)
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList)
   return &_impl_.carenodeservicenamelist_;
 }
 
@@ -2490,40 +2496,40 @@ GetNodeListReq::mutable_carenodeservicenamelist() {
 
 // GetNodeListRes
 
-// repeated .NodeHeartbeatInfo NodeInfoList = 1;
+// repeated .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfoList = 1;
 inline int GetNodeListRes::_internal_nodeinfolist_size() const {
   return _impl_.nodeinfolist_.size();
 }
 inline int GetNodeListRes::nodeinfolist_size() const {
   return _internal_nodeinfolist_size();
 }
-inline ::NodeHeartbeatInfo* GetNodeListRes::mutable_nodeinfolist(int index) {
-  // @@protoc_insertion_point(field_mutable:GetNodeListRes.NodeInfoList)
+inline ::CRYSTAL_NET::service::NodeHeartbeatInfo* GetNodeListRes::mutable_nodeinfolist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.GetNodeListRes.NodeInfoList)
   return _impl_.nodeinfolist_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::NodeHeartbeatInfo >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::NodeHeartbeatInfo >*
 GetNodeListRes::mutable_nodeinfolist() {
-  // @@protoc_insertion_point(field_mutable_list:GetNodeListRes.NodeInfoList)
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.GetNodeListRes.NodeInfoList)
   return &_impl_.nodeinfolist_;
 }
-inline const ::NodeHeartbeatInfo& GetNodeListRes::_internal_nodeinfolist(int index) const {
+inline const ::CRYSTAL_NET::service::NodeHeartbeatInfo& GetNodeListRes::_internal_nodeinfolist(int index) const {
   return _impl_.nodeinfolist_.Get(index);
 }
-inline const ::NodeHeartbeatInfo& GetNodeListRes::nodeinfolist(int index) const {
-  // @@protoc_insertion_point(field_get:GetNodeListRes.NodeInfoList)
+inline const ::CRYSTAL_NET::service::NodeHeartbeatInfo& GetNodeListRes::nodeinfolist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.GetNodeListRes.NodeInfoList)
   return _internal_nodeinfolist(index);
 }
-inline ::NodeHeartbeatInfo* GetNodeListRes::_internal_add_nodeinfolist() {
+inline ::CRYSTAL_NET::service::NodeHeartbeatInfo* GetNodeListRes::_internal_add_nodeinfolist() {
   return _impl_.nodeinfolist_.Add();
 }
-inline ::NodeHeartbeatInfo* GetNodeListRes::add_nodeinfolist() {
-  ::NodeHeartbeatInfo* _add = _internal_add_nodeinfolist();
-  // @@protoc_insertion_point(field_add:GetNodeListRes.NodeInfoList)
+inline ::CRYSTAL_NET::service::NodeHeartbeatInfo* GetNodeListRes::add_nodeinfolist() {
+  ::CRYSTAL_NET::service::NodeHeartbeatInfo* _add = _internal_add_nodeinfolist();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.GetNodeListRes.NodeInfoList)
   return _add;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::NodeHeartbeatInfo >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::NodeHeartbeatInfo >&
 GetNodeListRes::nodeinfolist() const {
-  // @@protoc_insertion_point(field_list:GetNodeListRes.NodeInfoList)
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.GetNodeListRes.NodeInfoList)
   return _impl_.nodeinfolist_;
 }
 
@@ -2543,7 +2549,7 @@ inline int64_t ClientHeartbeatRes::_internal_servertimems() const {
   return _impl_.servertimems_;
 }
 inline int64_t ClientHeartbeatRes::servertimems() const {
-  // @@protoc_insertion_point(field_get:ClientHeartbeatRes.ServerTimeMs)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientHeartbeatRes.ServerTimeMs)
   return _internal_servertimems();
 }
 inline void ClientHeartbeatRes::_internal_set_servertimems(int64_t value) {
@@ -2552,7 +2558,7 @@ inline void ClientHeartbeatRes::_internal_set_servertimems(int64_t value) {
 }
 inline void ClientHeartbeatRes::set_servertimems(int64_t value) {
   _internal_set_servertimems(value);
-  // @@protoc_insertion_point(field_set:ClientHeartbeatRes.ServerTimeMs)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientHeartbeatRes.ServerTimeMs)
 }
 
 #ifdef __GNUC__
@@ -2575,6 +2581,8 @@ inline void ClientHeartbeatRes::set_servertimems(int64_t value) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 // @@protoc_insertion_point(global_scope)
 
@@ -2593,11 +2601,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new NodeHeartbeatReq();
+        return new ::CRYSTAL_NET::service::NodeHeartbeatReq();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new NodeHeartbeatReq(*dynamic_cast<const NodeHeartbeatReq *>(coder));
+        return new ::CRYSTAL_NET::service::NodeHeartbeatReq(*dynamic_cast<const ::CRYSTAL_NET::service::NodeHeartbeatReq *>(coder));
     }
 
 };
@@ -2616,11 +2624,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new NodeHeartbeatRes();
+        return new ::CRYSTAL_NET::service::NodeHeartbeatRes();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new NodeHeartbeatRes(*dynamic_cast<const NodeHeartbeatRes *>(coder));
+        return new ::CRYSTAL_NET::service::NodeHeartbeatRes(*dynamic_cast<const ::CRYSTAL_NET::service::NodeHeartbeatRes *>(coder));
     }
 
 };
@@ -2639,11 +2647,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new RegisterNodeReq();
+        return new ::CRYSTAL_NET::service::RegisterNodeReq();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new RegisterNodeReq(*dynamic_cast<const RegisterNodeReq *>(coder));
+        return new ::CRYSTAL_NET::service::RegisterNodeReq(*dynamic_cast<const ::CRYSTAL_NET::service::RegisterNodeReq *>(coder));
     }
 
 };
@@ -2662,11 +2670,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new RegisterNodeRes();
+        return new ::CRYSTAL_NET::service::RegisterNodeRes();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new RegisterNodeRes(*dynamic_cast<const RegisterNodeRes *>(coder));
+        return new ::CRYSTAL_NET::service::RegisterNodeRes(*dynamic_cast<const ::CRYSTAL_NET::service::RegisterNodeRes *>(coder));
     }
 
 };
@@ -2685,11 +2693,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new GetNodeListReq();
+        return new ::CRYSTAL_NET::service::GetNodeListReq();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new GetNodeListReq(*dynamic_cast<const GetNodeListReq *>(coder));
+        return new ::CRYSTAL_NET::service::GetNodeListReq(*dynamic_cast<const ::CRYSTAL_NET::service::GetNodeListReq *>(coder));
     }
 
 };
@@ -2708,11 +2716,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new GetNodeListRes();
+        return new ::CRYSTAL_NET::service::GetNodeListRes();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new GetNodeListRes(*dynamic_cast<const GetNodeListRes *>(coder));
+        return new ::CRYSTAL_NET::service::GetNodeListRes(*dynamic_cast<const ::CRYSTAL_NET::service::GetNodeListRes *>(coder));
     }
 
 };
@@ -2731,11 +2739,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new ClientHeartbeatReq();
+        return new ::CRYSTAL_NET::service::ClientHeartbeatReq();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ClientHeartbeatReq(*dynamic_cast<const ClientHeartbeatReq *>(coder));
+        return new ::CRYSTAL_NET::service::ClientHeartbeatReq(*dynamic_cast<const ::CRYSTAL_NET::service::ClientHeartbeatReq *>(coder));
     }
 
 };
@@ -2754,11 +2762,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new ClientHeartbeatRes();
+        return new ::CRYSTAL_NET::service::ClientHeartbeatRes();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ClientHeartbeatRes(*dynamic_cast<const ClientHeartbeatRes *>(coder));
+        return new ::CRYSTAL_NET::service::ClientHeartbeatRes(*dynamic_cast<const ::CRYSTAL_NET::service::ClientHeartbeatRes *>(coder));
     }
 
 };

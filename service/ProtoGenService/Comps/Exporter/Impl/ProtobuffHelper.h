@@ -67,6 +67,9 @@ public:
 
     // 是否注释行
     static bool IsNoteLine(const KERNEL_NS::LibString &lineData);
+
+    // 获取package名
+    static bool GetPackageName(const KERNEL_NS::LibString &lineData, KERNEL_NS::LibString &packageName);
 };
 
 SERVICE_END

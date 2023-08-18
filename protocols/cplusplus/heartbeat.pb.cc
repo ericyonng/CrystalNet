@@ -29,6 +29,8 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace CRYSTAL_NET {
+namespace service {
 PROTOBUF_CONSTEXPR NodeHeartbeatReq::NodeHeartbeatReq(
     ::_pbi::ConstantInitialized) {}
 struct NodeHeartbeatReqDefaultTypeInternal {
@@ -130,108 +132,111 @@ struct ClientHeartbeatResDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ClientHeartbeatResDefaultTypeInternal _ClientHeartbeatRes_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_heartbeat_2eproto[8];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_heartbeat_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_heartbeat_2eproto = nullptr;
 
 const uint32_t TableStruct_heartbeat_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::NodeHeartbeatReq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::NodeHeartbeatReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::NodeHeartbeatRes, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::NodeHeartbeatRes, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::NodeHeartbeatRes, _impl_.nowtimenanoseconds_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::NodeHeartbeatRes, _impl_.nowtimenanoseconds_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::RegisterNodeReq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::RegisterNodeReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::RegisterNodeReq, _impl_.nodeinfo_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::RegisterNodeReq, _impl_.nodeinfo_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::RegisterNodeRes, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::RegisterNodeRes, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::RegisterNodeRes, _impl_.errcode_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::RegisterNodeRes, _impl_.errcode_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::GetNodeListReq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::GetNodeListReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::GetNodeListReq, _impl_.clustername_),
-  PROTOBUF_FIELD_OFFSET(::GetNodeListReq, _impl_.carenodeservicenamelist_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::GetNodeListReq, _impl_.clustername_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::GetNodeListReq, _impl_.carenodeservicenamelist_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::GetNodeListRes, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::GetNodeListRes, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::GetNodeListRes, _impl_.nodeinfolist_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::GetNodeListRes, _impl_.nodeinfolist_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::ClientHeartbeatReq, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientHeartbeatReq, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::ClientHeartbeatRes, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientHeartbeatRes, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::ClientHeartbeatRes, _impl_.servertimems_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientHeartbeatRes, _impl_.servertimems_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::NodeHeartbeatReq)},
-  { 6, -1, -1, sizeof(::NodeHeartbeatRes)},
-  { 13, -1, -1, sizeof(::RegisterNodeReq)},
-  { 20, -1, -1, sizeof(::RegisterNodeRes)},
-  { 27, -1, -1, sizeof(::GetNodeListReq)},
-  { 35, -1, -1, sizeof(::GetNodeListRes)},
-  { 42, -1, -1, sizeof(::ClientHeartbeatReq)},
-  { 48, -1, -1, sizeof(::ClientHeartbeatRes)},
+  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::NodeHeartbeatReq)},
+  { 6, -1, -1, sizeof(::CRYSTAL_NET::service::NodeHeartbeatRes)},
+  { 13, -1, -1, sizeof(::CRYSTAL_NET::service::RegisterNodeReq)},
+  { 20, -1, -1, sizeof(::CRYSTAL_NET::service::RegisterNodeRes)},
+  { 27, -1, -1, sizeof(::CRYSTAL_NET::service::GetNodeListReq)},
+  { 35, -1, -1, sizeof(::CRYSTAL_NET::service::GetNodeListRes)},
+  { 42, -1, -1, sizeof(::CRYSTAL_NET::service::ClientHeartbeatReq)},
+  { 48, -1, -1, sizeof(::CRYSTAL_NET::service::ClientHeartbeatRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_NodeHeartbeatReq_default_instance_._instance,
-  &::_NodeHeartbeatRes_default_instance_._instance,
-  &::_RegisterNodeReq_default_instance_._instance,
-  &::_RegisterNodeRes_default_instance_._instance,
-  &::_GetNodeListReq_default_instance_._instance,
-  &::_GetNodeListRes_default_instance_._instance,
-  &::_ClientHeartbeatReq_default_instance_._instance,
-  &::_ClientHeartbeatRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_NodeHeartbeatReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_NodeHeartbeatRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_RegisterNodeReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_RegisterNodeRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_GetNodeListReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_GetNodeListRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_ClientHeartbeatReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_ClientHeartbeatRes_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_heartbeat_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\017heartbeat.proto\032\023com_heartbeat.proto\"\022"
-  "\n\020NodeHeartbeatReq\".\n\020NodeHeartbeatRes\022\032"
-  "\n\022NowTimeNanoseconds\030\001 \001(\022\"7\n\017RegisterNo"
-  "deReq\022$\n\010NodeInfo\030\001 \001(\0132\022.NodeHeartbeatI"
-  "nfo\"\"\n\017RegisterNodeRes\022\017\n\007ErrCode\030\001 \001(\021\""
-  "F\n\016GetNodeListReq\022\023\n\013ClusterName\030\001 \001(\t\022\037"
-  "\n\027CareNodeServiceNameList\030\002 \003(\t\":\n\016GetNo"
-  "deListRes\022(\n\014NodeInfoList\030\001 \003(\0132\022.NodeHe"
-  "artbeatInfo\"\024\n\022ClientHeartbeatReq\"*\n\022Cli"
-  "entHeartbeatRes\022\024\n\014ServerTimeMs\030\001 \001(\022b\006p"
-  "roto3"
+  "\n\017heartbeat.proto\022\023CRYSTAL_NET.service\032\023"
+  "com_heartbeat.proto\"\022\n\020NodeHeartbeatReq\""
+  ".\n\020NodeHeartbeatRes\022\032\n\022NowTimeNanosecond"
+  "s\030\001 \001(\022\"K\n\017RegisterNodeReq\0228\n\010NodeInfo\030\001"
+  " \001(\0132&.CRYSTAL_NET.service.NodeHeartbeat"
+  "Info\"\"\n\017RegisterNodeRes\022\017\n\007ErrCode\030\001 \001(\021"
+  "\"F\n\016GetNodeListReq\022\023\n\013ClusterName\030\001 \001(\t\022"
+  "\037\n\027CareNodeServiceNameList\030\002 \003(\t\"N\n\016GetN"
+  "odeListRes\022<\n\014NodeInfoList\030\001 \003(\0132&.CRYST"
+  "AL_NET.service.NodeHeartbeatInfo\"\024\n\022Clie"
+  "ntHeartbeatReq\"*\n\022ClientHeartbeatRes\022\024\n\014"
+  "ServerTimeMs\030\001 \001(\022b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_heartbeat_2eproto_deps[1] = {
   &::descriptor_table_com_5fheartbeat_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_heartbeat_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_heartbeat_2eproto = {
-    false, false, 405, descriptor_table_protodef_heartbeat_2eproto,
+    false, false, 466, descriptor_table_protodef_heartbeat_2eproto,
     "heartbeat.proto",
     &descriptor_table_heartbeat_2eproto_once, descriptor_table_heartbeat_2eproto_deps, 1, 8,
     schemas, file_default_instances, TableStruct_heartbeat_2eproto::offsets,
@@ -244,6 +249,8 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_heartbea
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_heartbeat_2eproto(&descriptor_table_heartbeat_2eproto);
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
@@ -254,13 +261,13 @@ class NodeHeartbeatReq::_Internal {
 NodeHeartbeatReq::NodeHeartbeatReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
-  // @@protoc_insertion_point(arena_constructor:NodeHeartbeatReq)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.NodeHeartbeatReq)
 }
 NodeHeartbeatReq::NodeHeartbeatReq(const NodeHeartbeatReq& from)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
   NodeHeartbeatReq* const _this = this; (void)_this;
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:NodeHeartbeatReq)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.NodeHeartbeatReq)
 }
 
 
@@ -295,7 +302,7 @@ NodeHeartbeatRes::NodeHeartbeatRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:NodeHeartbeatRes)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.NodeHeartbeatRes)
 }
 NodeHeartbeatRes::NodeHeartbeatRes(const NodeHeartbeatRes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -306,7 +313,7 @@ NodeHeartbeatRes::NodeHeartbeatRes(const NodeHeartbeatRes& from)
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _this->_impl_.nowtimenanoseconds_ = from._impl_.nowtimenanoseconds_;
-  // @@protoc_insertion_point(copy_constructor:NodeHeartbeatRes)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.NodeHeartbeatRes)
 }
 
 inline void NodeHeartbeatRes::SharedCtor(
@@ -320,7 +327,7 @@ inline void NodeHeartbeatRes::SharedCtor(
 }
 
 NodeHeartbeatRes::~NodeHeartbeatRes() {
-  // @@protoc_insertion_point(destructor:NodeHeartbeatRes)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.NodeHeartbeatRes)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -337,7 +344,7 @@ void NodeHeartbeatRes::SetCachedSize(int size) const {
 }
 
 void NodeHeartbeatRes::Clear() {
-// @@protoc_insertion_point(message_clear_start:NodeHeartbeatRes)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.NodeHeartbeatRes)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -385,7 +392,7 @@ failure:
 
 uint8_t* NodeHeartbeatRes::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:NodeHeartbeatRes)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.NodeHeartbeatRes)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -399,12 +406,12 @@ uint8_t* NodeHeartbeatRes::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:NodeHeartbeatRes)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.NodeHeartbeatRes)
   return target;
 }
 
 size_t NodeHeartbeatRes::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:NodeHeartbeatRes)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.NodeHeartbeatRes)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -429,7 +436,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*NodeHeartbeatRes::GetClassData
 void NodeHeartbeatRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<NodeHeartbeatRes*>(&to_msg);
   auto& from = static_cast<const NodeHeartbeatRes&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:NodeHeartbeatRes)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.NodeHeartbeatRes)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -441,7 +448,7 @@ void NodeHeartbeatRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const
 }
 
 void NodeHeartbeatRes::CopyFrom(const NodeHeartbeatRes& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:NodeHeartbeatRes)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.NodeHeartbeatRes)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -467,10 +474,10 @@ void NodeHeartbeatRes::InternalSwap(NodeHeartbeatRes* other) {
 
 class RegisterNodeReq::_Internal {
  public:
-  static const ::NodeHeartbeatInfo& nodeinfo(const RegisterNodeReq* msg);
+  static const ::CRYSTAL_NET::service::NodeHeartbeatInfo& nodeinfo(const RegisterNodeReq* msg);
 };
 
-const ::NodeHeartbeatInfo&
+const ::CRYSTAL_NET::service::NodeHeartbeatInfo&
 RegisterNodeReq::_Internal::nodeinfo(const RegisterNodeReq* msg) {
   return *msg->_impl_.nodeinfo_;
 }
@@ -484,7 +491,7 @@ RegisterNodeReq::RegisterNodeReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:RegisterNodeReq)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.RegisterNodeReq)
 }
 RegisterNodeReq::RegisterNodeReq(const RegisterNodeReq& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -495,9 +502,9 @@ RegisterNodeReq::RegisterNodeReq(const RegisterNodeReq& from)
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_nodeinfo()) {
-    _this->_impl_.nodeinfo_ = new ::NodeHeartbeatInfo(*from._impl_.nodeinfo_);
+    _this->_impl_.nodeinfo_ = new ::CRYSTAL_NET::service::NodeHeartbeatInfo(*from._impl_.nodeinfo_);
   }
-  // @@protoc_insertion_point(copy_constructor:RegisterNodeReq)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.RegisterNodeReq)
 }
 
 inline void RegisterNodeReq::SharedCtor(
@@ -511,7 +518,7 @@ inline void RegisterNodeReq::SharedCtor(
 }
 
 RegisterNodeReq::~RegisterNodeReq() {
-  // @@protoc_insertion_point(destructor:RegisterNodeReq)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.RegisterNodeReq)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -529,7 +536,7 @@ void RegisterNodeReq::SetCachedSize(int size) const {
 }
 
 void RegisterNodeReq::Clear() {
-// @@protoc_insertion_point(message_clear_start:RegisterNodeReq)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.RegisterNodeReq)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -547,7 +554,7 @@ const char* RegisterNodeReq::_InternalParse(const char* ptr, ::_pbi::ParseContex
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // .NodeHeartbeatInfo NodeInfo = 1;
+      // .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfo = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_nodeinfo(), ptr);
@@ -580,11 +587,11 @@ failure:
 
 uint8_t* RegisterNodeReq::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:RegisterNodeReq)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.RegisterNodeReq)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // .NodeHeartbeatInfo NodeInfo = 1;
+  // .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfo = 1;
   if (this->_internal_has_nodeinfo()) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(1, _Internal::nodeinfo(this),
@@ -595,19 +602,19 @@ uint8_t* RegisterNodeReq::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:RegisterNodeReq)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.RegisterNodeReq)
   return target;
 }
 
 size_t RegisterNodeReq::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:RegisterNodeReq)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.RegisterNodeReq)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // .NodeHeartbeatInfo NodeInfo = 1;
+  // .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfo = 1;
   if (this->_internal_has_nodeinfo()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -627,20 +634,20 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RegisterNodeReq::GetClassData(
 void RegisterNodeReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<RegisterNodeReq*>(&to_msg);
   auto& from = static_cast<const RegisterNodeReq&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:RegisterNodeReq)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.RegisterNodeReq)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from._internal_has_nodeinfo()) {
-    _this->_internal_mutable_nodeinfo()->::NodeHeartbeatInfo::MergeFrom(
+    _this->_internal_mutable_nodeinfo()->::CRYSTAL_NET::service::NodeHeartbeatInfo::MergeFrom(
         from._internal_nodeinfo());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void RegisterNodeReq::CopyFrom(const RegisterNodeReq& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:RegisterNodeReq)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.RegisterNodeReq)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -672,7 +679,7 @@ RegisterNodeRes::RegisterNodeRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:RegisterNodeRes)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.RegisterNodeRes)
 }
 RegisterNodeRes::RegisterNodeRes(const RegisterNodeRes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -683,7 +690,7 @@ RegisterNodeRes::RegisterNodeRes(const RegisterNodeRes& from)
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _this->_impl_.errcode_ = from._impl_.errcode_;
-  // @@protoc_insertion_point(copy_constructor:RegisterNodeRes)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.RegisterNodeRes)
 }
 
 inline void RegisterNodeRes::SharedCtor(
@@ -697,7 +704,7 @@ inline void RegisterNodeRes::SharedCtor(
 }
 
 RegisterNodeRes::~RegisterNodeRes() {
-  // @@protoc_insertion_point(destructor:RegisterNodeRes)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.RegisterNodeRes)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -714,7 +721,7 @@ void RegisterNodeRes::SetCachedSize(int size) const {
 }
 
 void RegisterNodeRes::Clear() {
-// @@protoc_insertion_point(message_clear_start:RegisterNodeRes)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.RegisterNodeRes)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -762,7 +769,7 @@ failure:
 
 uint8_t* RegisterNodeRes::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:RegisterNodeRes)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.RegisterNodeRes)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -776,12 +783,12 @@ uint8_t* RegisterNodeRes::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:RegisterNodeRes)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.RegisterNodeRes)
   return target;
 }
 
 size_t RegisterNodeRes::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:RegisterNodeRes)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.RegisterNodeRes)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -806,7 +813,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RegisterNodeRes::GetClassData(
 void RegisterNodeRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<RegisterNodeRes*>(&to_msg);
   auto& from = static_cast<const RegisterNodeRes&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:RegisterNodeRes)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.RegisterNodeRes)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -818,7 +825,7 @@ void RegisterNodeRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const 
 }
 
 void RegisterNodeRes::CopyFrom(const RegisterNodeRes& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:RegisterNodeRes)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.RegisterNodeRes)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -850,7 +857,7 @@ GetNodeListReq::GetNodeListReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:GetNodeListReq)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.GetNodeListReq)
 }
 GetNodeListReq::GetNodeListReq(const GetNodeListReq& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -869,7 +876,7 @@ GetNodeListReq::GetNodeListReq(const GetNodeListReq& from)
     _this->_impl_.clustername_.Set(from._internal_clustername(), 
       _this->GetArenaForAllocation());
   }
-  // @@protoc_insertion_point(copy_constructor:GetNodeListReq)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.GetNodeListReq)
 }
 
 inline void GetNodeListReq::SharedCtor(
@@ -888,7 +895,7 @@ inline void GetNodeListReq::SharedCtor(
 }
 
 GetNodeListReq::~GetNodeListReq() {
-  // @@protoc_insertion_point(destructor:GetNodeListReq)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.GetNodeListReq)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -907,7 +914,7 @@ void GetNodeListReq::SetCachedSize(int size) const {
 }
 
 void GetNodeListReq::Clear() {
-// @@protoc_insertion_point(message_clear_start:GetNodeListReq)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.GetNodeListReq)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -929,7 +936,7 @@ const char* GetNodeListReq::_InternalParse(const char* ptr, ::_pbi::ParseContext
           auto str = _internal_mutable_clustername();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "GetNodeListReq.ClusterName"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.GetNodeListReq.ClusterName"));
         } else
           goto handle_unusual;
         continue;
@@ -942,7 +949,7 @@ const char* GetNodeListReq::_InternalParse(const char* ptr, ::_pbi::ParseContext
             auto str = _internal_add_carenodeservicenamelist();
             ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
-            CHK_(::_pbi::VerifyUTF8(str, "GetNodeListReq.CareNodeServiceNameList"));
+            CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList"));
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else
@@ -973,7 +980,7 @@ failure:
 
 uint8_t* GetNodeListReq::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:GetNodeListReq)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.GetNodeListReq)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -982,7 +989,7 @@ uint8_t* GetNodeListReq::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_clustername().data(), static_cast<int>(this->_internal_clustername().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "GetNodeListReq.ClusterName");
+      "CRYSTAL_NET.service.GetNodeListReq.ClusterName");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_clustername(), target);
   }
@@ -993,7 +1000,7 @@ uint8_t* GetNodeListReq::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "GetNodeListReq.CareNodeServiceNameList");
+      "CRYSTAL_NET.service.GetNodeListReq.CareNodeServiceNameList");
     target = stream->WriteString(2, s, target);
   }
 
@@ -1001,12 +1008,12 @@ uint8_t* GetNodeListReq::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:GetNodeListReq)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.GetNodeListReq)
   return target;
 }
 
 size_t GetNodeListReq::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:GetNodeListReq)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.GetNodeListReq)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -1041,7 +1048,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetNodeListReq::GetClassData()
 void GetNodeListReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<GetNodeListReq*>(&to_msg);
   auto& from = static_cast<const GetNodeListReq&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:GetNodeListReq)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.GetNodeListReq)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1054,7 +1061,7 @@ void GetNodeListReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
 }
 
 void GetNodeListReq::CopyFrom(const GetNodeListReq& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:GetNodeListReq)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.GetNodeListReq)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1095,7 +1102,7 @@ GetNodeListRes::GetNodeListRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:GetNodeListRes)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.GetNodeListRes)
 }
 GetNodeListRes::GetNodeListRes(const GetNodeListRes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -1105,7 +1112,7 @@ GetNodeListRes::GetNodeListRes(const GetNodeListRes& from)
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:GetNodeListRes)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.GetNodeListRes)
 }
 
 inline void GetNodeListRes::SharedCtor(
@@ -1119,7 +1126,7 @@ inline void GetNodeListRes::SharedCtor(
 }
 
 GetNodeListRes::~GetNodeListRes() {
-  // @@protoc_insertion_point(destructor:GetNodeListRes)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.GetNodeListRes)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -1137,7 +1144,7 @@ void GetNodeListRes::SetCachedSize(int size) const {
 }
 
 void GetNodeListRes::Clear() {
-// @@protoc_insertion_point(message_clear_start:GetNodeListRes)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.GetNodeListRes)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1152,7 +1159,7 @@ const char* GetNodeListRes::_InternalParse(const char* ptr, ::_pbi::ParseContext
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated .NodeHeartbeatInfo NodeInfoList = 1;
+      // repeated .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfoList = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr -= 1;
@@ -1190,11 +1197,11 @@ failure:
 
 uint8_t* GetNodeListRes::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:GetNodeListRes)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.GetNodeListRes)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .NodeHeartbeatInfo NodeInfoList = 1;
+  // repeated .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfoList = 1;
   for (unsigned i = 0,
       n = static_cast<unsigned>(this->_internal_nodeinfolist_size()); i < n; i++) {
     const auto& repfield = this->_internal_nodeinfolist(i);
@@ -1206,19 +1213,19 @@ uint8_t* GetNodeListRes::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:GetNodeListRes)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.GetNodeListRes)
   return target;
 }
 
 size_t GetNodeListRes::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:GetNodeListRes)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.GetNodeListRes)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .NodeHeartbeatInfo NodeInfoList = 1;
+  // repeated .CRYSTAL_NET.service.NodeHeartbeatInfo NodeInfoList = 1;
   total_size += 1UL * this->_internal_nodeinfolist_size();
   for (const auto& msg : this->_impl_.nodeinfolist_) {
     total_size +=
@@ -1238,7 +1245,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetNodeListRes::GetClassData()
 void GetNodeListRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<GetNodeListRes*>(&to_msg);
   auto& from = static_cast<const GetNodeListRes&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:GetNodeListRes)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.GetNodeListRes)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1248,7 +1255,7 @@ void GetNodeListRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
 }
 
 void GetNodeListRes::CopyFrom(const GetNodeListRes& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:GetNodeListRes)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.GetNodeListRes)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1279,13 +1286,13 @@ class ClientHeartbeatReq::_Internal {
 ClientHeartbeatReq::ClientHeartbeatReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
-  // @@protoc_insertion_point(arena_constructor:ClientHeartbeatReq)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.ClientHeartbeatReq)
 }
 ClientHeartbeatReq::ClientHeartbeatReq(const ClientHeartbeatReq& from)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
   ClientHeartbeatReq* const _this = this; (void)_this;
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:ClientHeartbeatReq)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.ClientHeartbeatReq)
 }
 
 
@@ -1320,7 +1327,7 @@ ClientHeartbeatRes::ClientHeartbeatRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:ClientHeartbeatRes)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.ClientHeartbeatRes)
 }
 ClientHeartbeatRes::ClientHeartbeatRes(const ClientHeartbeatRes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -1331,7 +1338,7 @@ ClientHeartbeatRes::ClientHeartbeatRes(const ClientHeartbeatRes& from)
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _this->_impl_.servertimems_ = from._impl_.servertimems_;
-  // @@protoc_insertion_point(copy_constructor:ClientHeartbeatRes)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.ClientHeartbeatRes)
 }
 
 inline void ClientHeartbeatRes::SharedCtor(
@@ -1345,7 +1352,7 @@ inline void ClientHeartbeatRes::SharedCtor(
 }
 
 ClientHeartbeatRes::~ClientHeartbeatRes() {
-  // @@protoc_insertion_point(destructor:ClientHeartbeatRes)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.ClientHeartbeatRes)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -1362,7 +1369,7 @@ void ClientHeartbeatRes::SetCachedSize(int size) const {
 }
 
 void ClientHeartbeatRes::Clear() {
-// @@protoc_insertion_point(message_clear_start:ClientHeartbeatRes)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.ClientHeartbeatRes)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1410,7 +1417,7 @@ failure:
 
 uint8_t* ClientHeartbeatRes::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:ClientHeartbeatRes)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.ClientHeartbeatRes)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1424,12 +1431,12 @@ uint8_t* ClientHeartbeatRes::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:ClientHeartbeatRes)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.ClientHeartbeatRes)
   return target;
 }
 
 size_t ClientHeartbeatRes::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:ClientHeartbeatRes)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.ClientHeartbeatRes)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -1454,7 +1461,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ClientHeartbeatRes::GetClassDa
 void ClientHeartbeatRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<ClientHeartbeatRes*>(&to_msg);
   auto& from = static_cast<const ClientHeartbeatRes&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ClientHeartbeatRes)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.ClientHeartbeatRes)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1466,7 +1473,7 @@ void ClientHeartbeatRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, con
 }
 
 void ClientHeartbeatRes::CopyFrom(const ClientHeartbeatRes& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ClientHeartbeatRes)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.ClientHeartbeatRes)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1489,38 +1496,40 @@ void ClientHeartbeatRes::InternalSwap(ClientHeartbeatRes* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::NodeHeartbeatReq*
-Arena::CreateMaybeMessage< ::NodeHeartbeatReq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::NodeHeartbeatReq >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::NodeHeartbeatReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::NodeHeartbeatReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::NodeHeartbeatReq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::NodeHeartbeatRes*
-Arena::CreateMaybeMessage< ::NodeHeartbeatRes >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::NodeHeartbeatRes >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::NodeHeartbeatRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::NodeHeartbeatRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::NodeHeartbeatRes >(arena);
 }
-template<> PROTOBUF_NOINLINE ::RegisterNodeReq*
-Arena::CreateMaybeMessage< ::RegisterNodeReq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::RegisterNodeReq >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::RegisterNodeReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::RegisterNodeReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::RegisterNodeReq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::RegisterNodeRes*
-Arena::CreateMaybeMessage< ::RegisterNodeRes >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::RegisterNodeRes >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::RegisterNodeRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::RegisterNodeRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::RegisterNodeRes >(arena);
 }
-template<> PROTOBUF_NOINLINE ::GetNodeListReq*
-Arena::CreateMaybeMessage< ::GetNodeListReq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::GetNodeListReq >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::GetNodeListReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::GetNodeListReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::GetNodeListReq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::GetNodeListRes*
-Arena::CreateMaybeMessage< ::GetNodeListRes >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::GetNodeListRes >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::GetNodeListRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::GetNodeListRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::GetNodeListRes >(arena);
 }
-template<> PROTOBUF_NOINLINE ::ClientHeartbeatReq*
-Arena::CreateMaybeMessage< ::ClientHeartbeatReq >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ClientHeartbeatReq >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::ClientHeartbeatReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ClientHeartbeatReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::ClientHeartbeatReq >(arena);
 }
-template<> PROTOBUF_NOINLINE ::ClientHeartbeatRes*
-Arena::CreateMaybeMessage< ::ClientHeartbeatRes >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ClientHeartbeatRes >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::ClientHeartbeatRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ClientHeartbeatRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::ClientHeartbeatRes >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

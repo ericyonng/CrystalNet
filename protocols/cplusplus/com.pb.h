@@ -57,12 +57,18 @@ struct TableStruct_com_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class CreatureAttrKey;
 struct CreatureAttrKeyDefaultTypeInternal;
 extern CreatureAttrKeyDefaultTypeInternal _CreatureAttrKey_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::CreatureAttrKey* Arena::CreateMaybeMessage<::CreatureAttrKey>(Arena*);
+template<> ::CRYSTAL_NET::service::CreatureAttrKey* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CreatureAttrKey>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 enum CreatureAttrKey_ENUM : int {
   CreatureAttrKey_ENUM_BEGIN = 0,
@@ -142,7 +148,7 @@ inline bool CreatureAttrKey_ENUM_Parse(
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class CreatureAttrKey final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CreatureAttrKey) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.CreatureAttrKey) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -347,7 +353,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "CreatureAttrKey";
+    return "CRYSTAL_NET.service.CreatureAttrKey";
   }
   protected:
   explicit CreatureAttrKey(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -491,7 +497,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:CreatureAttrKey)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.CreatureAttrKey)
  private:
   class _Internal;
 
@@ -519,13 +525,15 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 PROTOBUF_NAMESPACE_OPEN
 
-template <> struct is_proto_enum< ::CreatureAttrKey_ENUM> : ::std::true_type {};
+template <> struct is_proto_enum< ::CRYSTAL_NET::service::CreatureAttrKey_ENUM> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::CreatureAttrKey_ENUM>() {
-  return ::CreatureAttrKey_ENUM_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::CreatureAttrKey_ENUM>() {
+  return ::CRYSTAL_NET::service::CreatureAttrKey_ENUM_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE
@@ -547,11 +555,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new CreatureAttrKey();
+        return new ::CRYSTAL_NET::service::CreatureAttrKey();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new CreatureAttrKey(*dynamic_cast<const CreatureAttrKey *>(coder));
+        return new ::CRYSTAL_NET::service::CreatureAttrKey(*dynamic_cast<const ::CRYSTAL_NET::service::CreatureAttrKey *>(coder));
     }
 
 };

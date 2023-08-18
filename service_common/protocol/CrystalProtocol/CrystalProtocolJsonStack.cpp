@@ -93,7 +93,7 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
         }
 
         // 2.剩余包数据是否够解析包体
-        if(streamCache.GetReadableSize() < (header._len - 2))
+        if(streamCache.GetReadableSize() < (header._len - MsgHeaderStructure::LEN_SIZE))
         {
             // g_Log->NetDebug(LOGFMT_OBJ_TAG("data not reach msg body data len session:%s, stream readable size:%lld, msg len:%u")
             //     , session->ToString().c_str(), streamCache.GetReadableSize(), (header._len - static_cast<UInt32>(MsgHeaderStructure::MSG_HEADER_SIZE)));
@@ -103,13 +103,17 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
 
         // 4.创建编码器并解码
         KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> safeDecode;
-        const Int64 msgBodySize = static_cast<Int64>(header._len - 2);
+        const Int64 msgBodySize = static_cast<Int64>(header._len - MsgHeaderStructure::LEN_SIZE);
         safeDecode.Attach(const_cast<Byte8 *>(streamCache.GetReadBegin()), msgBodySize, 0, msgBodySize);
         KERNEL_NS::LibString dataStr;
         dataStr.AppendData(safeDecode.GetReadBegin(), static_cast<Int64>(msgBodySize));
 
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("session id:%llu, addr:%s recv data len:%u, data:\n%s")
-        , session->GetId(), session->GetSock()->GetAddr()->ToString().c_str(), msgBodySize, dataStr.c_str());
+        const auto &jsonObj = nlohmann::json::parse(dataStr.c_str(), NULL, false);
+        const auto isJson = jsonObj.is_object();
+
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("session id:%llu, addr:%s recv data len:%u, data:\n%s, is json:%d")
+        , session->GetId(), session->GetSock()->GetAddr()->ToString().c_str(), msgBodySize, dataStr.c_str(), isJson);
+
 
         // const auto &jsonString = nlohmann::json::parse(dataStr.c_str(), NULL, false);
         // if(!jsonString.is_object())

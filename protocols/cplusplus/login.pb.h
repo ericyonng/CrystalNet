@@ -58,6 +58,8 @@ struct TableStruct_login_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_login_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class LoginInfoNty;
 struct LoginInfoNtyDefaultTypeInternal;
 extern LoginInfoNtyDefaultTypeInternal _LoginInfoNty_default_instance_;
@@ -73,19 +75,23 @@ extern LogoutNtyDefaultTypeInternal _LogoutNty_default_instance_;
 class LogoutReq;
 struct LogoutReqDefaultTypeInternal;
 extern LogoutReqDefaultTypeInternal _LogoutReq_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::LoginInfoNty* Arena::CreateMaybeMessage<::LoginInfoNty>(Arena*);
-template<> ::LoginReq* Arena::CreateMaybeMessage<::LoginReq>(Arena*);
-template<> ::LoginRes* Arena::CreateMaybeMessage<::LoginRes>(Arena*);
-template<> ::LogoutNty* Arena::CreateMaybeMessage<::LogoutNty>(Arena*);
-template<> ::LogoutReq* Arena::CreateMaybeMessage<::LogoutReq>(Arena*);
+template<> ::CRYSTAL_NET::service::LoginInfoNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginInfoNty>(Arena*);
+template<> ::CRYSTAL_NET::service::LoginReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginReq>(Arena*);
+template<> ::CRYSTAL_NET::service::LoginRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginRes>(Arena*);
+template<> ::CRYSTAL_NET::service::LogoutNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LogoutNty>(Arena*);
+template<> ::CRYSTAL_NET::service::LogoutReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LogoutReq>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 // AnnotaionInfo[opcode(1), nolog(false)]
 class LoginReq final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:LoginReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -305,7 +311,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "LoginReq";
+    return "CRYSTAL_NET.service.LoginReq";
   }
   protected:
   explicit LoginReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -324,25 +330,25 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   enum : int {
     kLoginUserInfoFieldNumber = 1,
   };
-  // .LoginInfo LoginUserInfo = 1;
+  // .CRYSTAL_NET.service.LoginInfo LoginUserInfo = 1;
   bool has_loginuserinfo() const;
   private:
   bool _internal_has_loginuserinfo() const;
   public:
   void clear_loginuserinfo();
-  const ::LoginInfo& loginuserinfo() const;
-  PROTOBUF_NODISCARD ::LoginInfo* release_loginuserinfo();
-  ::LoginInfo* mutable_loginuserinfo();
-  void set_allocated_loginuserinfo(::LoginInfo* loginuserinfo);
+  const ::CRYSTAL_NET::service::LoginInfo& loginuserinfo() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::LoginInfo* release_loginuserinfo();
+  ::CRYSTAL_NET::service::LoginInfo* mutable_loginuserinfo();
+  void set_allocated_loginuserinfo(::CRYSTAL_NET::service::LoginInfo* loginuserinfo);
   private:
-  const ::LoginInfo& _internal_loginuserinfo() const;
-  ::LoginInfo* _internal_mutable_loginuserinfo();
+  const ::CRYSTAL_NET::service::LoginInfo& _internal_loginuserinfo() const;
+  ::CRYSTAL_NET::service::LoginInfo* _internal_mutable_loginuserinfo();
   public:
   void unsafe_arena_set_allocated_loginuserinfo(
-      ::LoginInfo* loginuserinfo);
-  ::LoginInfo* unsafe_arena_release_loginuserinfo();
+      ::CRYSTAL_NET::service::LoginInfo* loginuserinfo);
+  ::CRYSTAL_NET::service::LoginInfo* unsafe_arena_release_loginuserinfo();
 
-  // @@protoc_insertion_point(class_scope:LoginReq)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LoginReq)
  private:
   class _Internal;
 
@@ -350,7 +356,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::LoginInfo* loginuserinfo_;
+    ::CRYSTAL_NET::service::LoginInfo* loginuserinfo_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -360,7 +366,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(2), nolog(false)]
 class LoginRes final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:LoginRes) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginRes) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -580,7 +586,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "LoginRes";
+    return "CRYSTAL_NET.service.LoginRes";
   }
   protected:
   explicit LoginRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -628,7 +634,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_errcode(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:LoginRes)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LoginRes)
  private:
   class _Internal;
 
@@ -648,7 +654,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(22), nolog(false)]
 class LoginInfoNty final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:LoginInfoNty) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginInfoNty) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -868,7 +874,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "LoginInfoNty";
+    return "CRYSTAL_NET.service.LoginInfoNty";
   }
   protected:
   explicit LoginInfoNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -911,7 +917,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_keyexpiretime(int64_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:LoginInfoNty)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LoginInfoNty)
  private:
   class _Internal;
 
@@ -930,7 +936,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(31), nolog(false)]
 class LogoutReq final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:LogoutReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LogoutReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1135,7 +1141,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "LogoutReq";
+    return "CRYSTAL_NET.service.LogoutReq";
   }
   protected:
   explicit LogoutReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1151,7 +1157,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:LogoutReq)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LogoutReq)
  private:
   class _Internal;
 
@@ -1166,7 +1172,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(32), nolog(false)]
 class LogoutNty final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:LogoutNty) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LogoutNty) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1386,7 +1392,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "LogoutNty";
+    return "CRYSTAL_NET.service.LogoutNty";
   }
   protected:
   explicit LogoutNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1414,7 +1420,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_logoutreason(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:LogoutNty)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LogoutNty)
  private:
   class _Internal;
 
@@ -1439,24 +1445,24 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 #endif  // __GNUC__
 // LoginReq
 
-// .LoginInfo LoginUserInfo = 1;
+// .CRYSTAL_NET.service.LoginInfo LoginUserInfo = 1;
 inline bool LoginReq::_internal_has_loginuserinfo() const {
   return this != internal_default_instance() && _impl_.loginuserinfo_ != nullptr;
 }
 inline bool LoginReq::has_loginuserinfo() const {
   return _internal_has_loginuserinfo();
 }
-inline const ::LoginInfo& LoginReq::_internal_loginuserinfo() const {
-  const ::LoginInfo* p = _impl_.loginuserinfo_;
-  return p != nullptr ? *p : reinterpret_cast<const ::LoginInfo&>(
-      ::_LoginInfo_default_instance_);
+inline const ::CRYSTAL_NET::service::LoginInfo& LoginReq::_internal_loginuserinfo() const {
+  const ::CRYSTAL_NET::service::LoginInfo* p = _impl_.loginuserinfo_;
+  return p != nullptr ? *p : reinterpret_cast<const ::CRYSTAL_NET::service::LoginInfo&>(
+      ::CRYSTAL_NET::service::_LoginInfo_default_instance_);
 }
-inline const ::LoginInfo& LoginReq::loginuserinfo() const {
-  // @@protoc_insertion_point(field_get:LoginReq.LoginUserInfo)
+inline const ::CRYSTAL_NET::service::LoginInfo& LoginReq::loginuserinfo() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginReq.LoginUserInfo)
   return _internal_loginuserinfo();
 }
 inline void LoginReq::unsafe_arena_set_allocated_loginuserinfo(
-    ::LoginInfo* loginuserinfo) {
+    ::CRYSTAL_NET::service::LoginInfo* loginuserinfo) {
   if (GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.loginuserinfo_);
   }
@@ -1466,11 +1472,11 @@ inline void LoginReq::unsafe_arena_set_allocated_loginuserinfo(
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:LoginReq.LoginUserInfo)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.LoginReq.LoginUserInfo)
 }
-inline ::LoginInfo* LoginReq::release_loginuserinfo() {
+inline ::CRYSTAL_NET::service::LoginInfo* LoginReq::release_loginuserinfo() {
   
-  ::LoginInfo* temp = _impl_.loginuserinfo_;
+  ::CRYSTAL_NET::service::LoginInfo* temp = _impl_.loginuserinfo_;
   _impl_.loginuserinfo_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
@@ -1483,27 +1489,27 @@ inline ::LoginInfo* LoginReq::release_loginuserinfo() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::LoginInfo* LoginReq::unsafe_arena_release_loginuserinfo() {
-  // @@protoc_insertion_point(field_release:LoginReq.LoginUserInfo)
+inline ::CRYSTAL_NET::service::LoginInfo* LoginReq::unsafe_arena_release_loginuserinfo() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginReq.LoginUserInfo)
   
-  ::LoginInfo* temp = _impl_.loginuserinfo_;
+  ::CRYSTAL_NET::service::LoginInfo* temp = _impl_.loginuserinfo_;
   _impl_.loginuserinfo_ = nullptr;
   return temp;
 }
-inline ::LoginInfo* LoginReq::_internal_mutable_loginuserinfo() {
+inline ::CRYSTAL_NET::service::LoginInfo* LoginReq::_internal_mutable_loginuserinfo() {
   
   if (_impl_.loginuserinfo_ == nullptr) {
-    auto* p = CreateMaybeMessage<::LoginInfo>(GetArenaForAllocation());
+    auto* p = CreateMaybeMessage<::CRYSTAL_NET::service::LoginInfo>(GetArenaForAllocation());
     _impl_.loginuserinfo_ = p;
   }
   return _impl_.loginuserinfo_;
 }
-inline ::LoginInfo* LoginReq::mutable_loginuserinfo() {
-  ::LoginInfo* _msg = _internal_mutable_loginuserinfo();
-  // @@protoc_insertion_point(field_mutable:LoginReq.LoginUserInfo)
+inline ::CRYSTAL_NET::service::LoginInfo* LoginReq::mutable_loginuserinfo() {
+  ::CRYSTAL_NET::service::LoginInfo* _msg = _internal_mutable_loginuserinfo();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginReq.LoginUserInfo)
   return _msg;
 }
-inline void LoginReq::set_allocated_loginuserinfo(::LoginInfo* loginuserinfo) {
+inline void LoginReq::set_allocated_loginuserinfo(::CRYSTAL_NET::service::LoginInfo* loginuserinfo) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.loginuserinfo_);
@@ -1521,7 +1527,7 @@ inline void LoginReq::set_allocated_loginuserinfo(::LoginInfo* loginuserinfo) {
     
   }
   _impl_.loginuserinfo_ = loginuserinfo;
-  // @@protoc_insertion_point(field_set_allocated:LoginReq.LoginUserInfo)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginReq.LoginUserInfo)
 }
 
 // -------------------------------------------------------------------
@@ -1536,7 +1542,7 @@ inline int32_t LoginRes::_internal_errcode() const {
   return _impl_.errcode_;
 }
 inline int32_t LoginRes::errcode() const {
-  // @@protoc_insertion_point(field_get:LoginRes.errCode)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginRes.errCode)
   return _internal_errcode();
 }
 inline void LoginRes::_internal_set_errcode(int32_t value) {
@@ -1545,7 +1551,7 @@ inline void LoginRes::_internal_set_errcode(int32_t value) {
 }
 inline void LoginRes::set_errcode(int32_t value) {
   _internal_set_errcode(value);
-  // @@protoc_insertion_point(field_set:LoginRes.errCode)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginRes.errCode)
 }
 
 // uint64 UserId = 2;
@@ -1556,7 +1562,7 @@ inline uint64_t LoginRes::_internal_userid() const {
   return _impl_.userid_;
 }
 inline uint64_t LoginRes::userid() const {
-  // @@protoc_insertion_point(field_get:LoginRes.UserId)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginRes.UserId)
   return _internal_userid();
 }
 inline void LoginRes::_internal_set_userid(uint64_t value) {
@@ -1565,7 +1571,7 @@ inline void LoginRes::_internal_set_userid(uint64_t value) {
 }
 inline void LoginRes::set_userid(uint64_t value) {
   _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:LoginRes.UserId)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginRes.UserId)
 }
 
 // sint64 ServerTime = 3;
@@ -1576,7 +1582,7 @@ inline int64_t LoginRes::_internal_servertime() const {
   return _impl_.servertime_;
 }
 inline int64_t LoginRes::servertime() const {
-  // @@protoc_insertion_point(field_get:LoginRes.ServerTime)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginRes.ServerTime)
   return _internal_servertime();
 }
 inline void LoginRes::_internal_set_servertime(int64_t value) {
@@ -1585,7 +1591,7 @@ inline void LoginRes::_internal_set_servertime(int64_t value) {
 }
 inline void LoginRes::set_servertime(int64_t value) {
   _internal_set_servertime(value);
-  // @@protoc_insertion_point(field_set:LoginRes.ServerTime)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginRes.ServerTime)
 }
 
 // -------------------------------------------------------------------
@@ -1597,7 +1603,7 @@ inline void LoginInfoNty::clear_token() {
   _impl_.token_.ClearToEmpty();
 }
 inline const std::string& LoginInfoNty::token() const {
-  // @@protoc_insertion_point(field_get:LoginInfoNty.Token)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfoNty.Token)
   return _internal_token();
 }
 template <typename ArgT0, typename... ArgT>
@@ -1605,11 +1611,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void LoginInfoNty::set_token(ArgT0&& arg0, ArgT... args) {
  
  _impl_.token_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginInfoNty.Token)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfoNty.Token)
 }
 inline std::string* LoginInfoNty::mutable_token() {
   std::string* _s = _internal_mutable_token();
-  // @@protoc_insertion_point(field_mutable:LoginInfoNty.Token)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfoNty.Token)
   return _s;
 }
 inline const std::string& LoginInfoNty::_internal_token() const {
@@ -1624,7 +1630,7 @@ inline std::string* LoginInfoNty::_internal_mutable_token() {
   return _impl_.token_.Mutable(GetArenaForAllocation());
 }
 inline std::string* LoginInfoNty::release_token() {
-  // @@protoc_insertion_point(field_release:LoginInfoNty.Token)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfoNty.Token)
   return _impl_.token_.Release();
 }
 inline void LoginInfoNty::set_allocated_token(std::string* token) {
@@ -1639,7 +1645,7 @@ inline void LoginInfoNty::set_allocated_token(std::string* token) {
     _impl_.token_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginInfoNty.Token)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfoNty.Token)
 }
 
 // sint64 KeyExpireTime = 2;
@@ -1650,7 +1656,7 @@ inline int64_t LoginInfoNty::_internal_keyexpiretime() const {
   return _impl_.keyexpiretime_;
 }
 inline int64_t LoginInfoNty::keyexpiretime() const {
-  // @@protoc_insertion_point(field_get:LoginInfoNty.KeyExpireTime)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfoNty.KeyExpireTime)
   return _internal_keyexpiretime();
 }
 inline void LoginInfoNty::_internal_set_keyexpiretime(int64_t value) {
@@ -1659,7 +1665,7 @@ inline void LoginInfoNty::_internal_set_keyexpiretime(int64_t value) {
 }
 inline void LoginInfoNty::set_keyexpiretime(int64_t value) {
   _internal_set_keyexpiretime(value);
-  // @@protoc_insertion_point(field_set:LoginInfoNty.KeyExpireTime)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfoNty.KeyExpireTime)
 }
 
 // -------------------------------------------------------------------
@@ -1678,7 +1684,7 @@ inline int32_t LogoutNty::_internal_logoutreason() const {
   return _impl_.logoutreason_;
 }
 inline int32_t LogoutNty::logoutreason() const {
-  // @@protoc_insertion_point(field_get:LogoutNty.LogoutReason)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LogoutNty.LogoutReason)
   return _internal_logoutreason();
 }
 inline void LogoutNty::_internal_set_logoutreason(int32_t value) {
@@ -1687,7 +1693,7 @@ inline void LogoutNty::_internal_set_logoutreason(int32_t value) {
 }
 inline void LogoutNty::set_logoutreason(int32_t value) {
   _internal_set_logoutreason(value);
-  // @@protoc_insertion_point(field_set:LogoutNty.LogoutReason)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LogoutNty.LogoutReason)
 }
 
 #ifdef __GNUC__
@@ -1704,6 +1710,8 @@ inline void LogoutNty::set_logoutreason(int32_t value) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 // @@protoc_insertion_point(global_scope)
 
@@ -1722,11 +1730,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new LoginReq();
+        return new ::CRYSTAL_NET::service::LoginReq();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new LoginReq(*dynamic_cast<const LoginReq *>(coder));
+        return new ::CRYSTAL_NET::service::LoginReq(*dynamic_cast<const ::CRYSTAL_NET::service::LoginReq *>(coder));
     }
 
 };
@@ -1745,11 +1753,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new LoginRes();
+        return new ::CRYSTAL_NET::service::LoginRes();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new LoginRes(*dynamic_cast<const LoginRes *>(coder));
+        return new ::CRYSTAL_NET::service::LoginRes(*dynamic_cast<const ::CRYSTAL_NET::service::LoginRes *>(coder));
     }
 
 };
@@ -1768,11 +1776,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new LoginInfoNty();
+        return new ::CRYSTAL_NET::service::LoginInfoNty();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new LoginInfoNty(*dynamic_cast<const LoginInfoNty *>(coder));
+        return new ::CRYSTAL_NET::service::LoginInfoNty(*dynamic_cast<const ::CRYSTAL_NET::service::LoginInfoNty *>(coder));
     }
 
 };
@@ -1791,11 +1799,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new LogoutReq();
+        return new ::CRYSTAL_NET::service::LogoutReq();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new LogoutReq(*dynamic_cast<const LogoutReq *>(coder));
+        return new ::CRYSTAL_NET::service::LogoutReq(*dynamic_cast<const ::CRYSTAL_NET::service::LogoutReq *>(coder));
     }
 
 };
@@ -1814,11 +1822,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new LogoutNty();
+        return new ::CRYSTAL_NET::service::LogoutNty();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new LogoutNty(*dynamic_cast<const LogoutNty *>(coder));
+        return new ::CRYSTAL_NET::service::LogoutNty(*dynamic_cast<const ::CRYSTAL_NET::service::LogoutNty *>(coder));
     }
 
 };

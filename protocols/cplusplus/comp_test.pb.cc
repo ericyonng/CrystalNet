@@ -22,6 +22,8 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace CRYSTAL_NET {
+namespace service {
 PROTOBUF_CONSTEXPR TestMgrData::TestMgrData(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.account_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
@@ -36,35 +38,38 @@ struct TestMgrDataDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TestMgrDataDefaultTypeInternal _TestMgrData_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_comp_5ftest_2eproto[1];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_comp_5ftest_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_comp_5ftest_2eproto = nullptr;
 
 const uint32_t TableStruct_comp_5ftest_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::TestMgrData, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestMgrData, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::TestMgrData, _impl_.account_),
-  PROTOBUF_FIELD_OFFSET(::TestMgrData, _impl_.testid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestMgrData, _impl_.account_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestMgrData, _impl_.testid_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::TestMgrData)},
+  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::TestMgrData)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_TestMgrData_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TestMgrData_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_comp_5ftest_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\017comp_test.proto\".\n\013TestMgrData\022\017\n\007Acco"
-  "unt\030\001 \001(\t\022\016\n\006TestId\030\002 \001(\022b\006proto3"
+  "\n\017comp_test.proto\022\023CRYSTAL_NET.service\"."
+  "\n\013TestMgrData\022\017\n\007Account\030\001 \001(\t\022\016\n\006TestId"
+  "\030\002 \001(\022b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_comp_5ftest_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_comp_5ftest_2eproto = {
-    false, false, 73, descriptor_table_protodef_comp_5ftest_2eproto,
+    false, false, 94, descriptor_table_protodef_comp_5ftest_2eproto,
     "comp_test.proto",
     &descriptor_table_comp_5ftest_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_comp_5ftest_2eproto::offsets,
@@ -77,6 +82,8 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_comp_5ft
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_comp_5ftest_2eproto(&descriptor_table_comp_5ftest_2eproto);
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
@@ -88,7 +95,7 @@ TestMgrData::TestMgrData(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:TestMgrData)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TestMgrData)
 }
 TestMgrData::TestMgrData(const TestMgrData& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -108,7 +115,7 @@ TestMgrData::TestMgrData(const TestMgrData& from)
       _this->GetArenaForAllocation());
   }
   _this->_impl_.testid_ = from._impl_.testid_;
-  // @@protoc_insertion_point(copy_constructor:TestMgrData)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TestMgrData)
 }
 
 inline void TestMgrData::SharedCtor(
@@ -127,7 +134,7 @@ inline void TestMgrData::SharedCtor(
 }
 
 TestMgrData::~TestMgrData() {
-  // @@protoc_insertion_point(destructor:TestMgrData)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.TestMgrData)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -145,7 +152,7 @@ void TestMgrData::SetCachedSize(int size) const {
 }
 
 void TestMgrData::Clear() {
-// @@protoc_insertion_point(message_clear_start:TestMgrData)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.TestMgrData)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -167,7 +174,7 @@ const char* TestMgrData::_InternalParse(const char* ptr, ::_pbi::ParseContext* c
           auto str = _internal_mutable_account();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "TestMgrData.Account"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.TestMgrData.Account"));
         } else
           goto handle_unusual;
         continue;
@@ -204,7 +211,7 @@ failure:
 
 uint8_t* TestMgrData::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:TestMgrData)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.TestMgrData)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -213,7 +220,7 @@ uint8_t* TestMgrData::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_account().data(), static_cast<int>(this->_internal_account().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "TestMgrData.Account");
+      "CRYSTAL_NET.service.TestMgrData.Account");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_account(), target);
   }
@@ -228,12 +235,12 @@ uint8_t* TestMgrData::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:TestMgrData)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.TestMgrData)
   return target;
 }
 
 size_t TestMgrData::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:TestMgrData)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.TestMgrData)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -265,7 +272,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestMgrData::GetClassData() co
 void TestMgrData::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<TestMgrData*>(&to_msg);
   auto& from = static_cast<const TestMgrData&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:TestMgrData)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.TestMgrData)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -280,7 +287,7 @@ void TestMgrData::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PR
 }
 
 void TestMgrData::CopyFrom(const TestMgrData& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:TestMgrData)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.TestMgrData)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -309,10 +316,12 @@ void TestMgrData::InternalSwap(TestMgrData* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::TestMgrData*
-Arena::CreateMaybeMessage< ::TestMgrData >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::TestMgrData >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TestMgrData*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestMgrData >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TestMgrData >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

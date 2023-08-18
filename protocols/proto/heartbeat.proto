@@ -1,4 +1,6 @@
 syntax = "proto3";
+package CRYSTAL_NET.service;
+
 import "com_heartbeat.proto";
 
 /// Opcode:, NoLog:true

@@ -55,18 +55,24 @@ struct TableStruct_com_5fsystem_5ftable_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5fsystem_5ftable_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class SimpleInfo;
 struct SimpleInfoDefaultTypeInternal;
 extern SimpleInfoDefaultTypeInternal _SimpleInfo_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::SimpleInfo* Arena::CreateMaybeMessage<::SimpleInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::SimpleInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SimpleInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class SimpleInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:SimpleInfo) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SimpleInfo) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -286,7 +292,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "SimpleInfo";
+    return "CRYSTAL_NET.service.SimpleInfo";
   }
   protected:
   explicit SimpleInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -334,7 +340,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_versionno(int64_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:SimpleInfo)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SimpleInfo)
  private:
   class _Internal;
 
@@ -369,7 +375,7 @@ inline int64_t SimpleInfo::_internal_maxincid() const {
   return _impl_.maxincid_;
 }
 inline int64_t SimpleInfo::maxincid() const {
-  // @@protoc_insertion_point(field_get:SimpleInfo.MaxIncId)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleInfo.MaxIncId)
   return _internal_maxincid();
 }
 inline void SimpleInfo::_internal_set_maxincid(int64_t value) {
@@ -378,7 +384,7 @@ inline void SimpleInfo::_internal_set_maxincid(int64_t value) {
 }
 inline void SimpleInfo::set_maxincid(int64_t value) {
   _internal_set_maxincid(value);
-  // @@protoc_insertion_point(field_set:SimpleInfo.MaxIncId)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleInfo.MaxIncId)
 }
 
 // sint64 DirtyCount = 2;
@@ -389,7 +395,7 @@ inline int64_t SimpleInfo::_internal_dirtycount() const {
   return _impl_.dirtycount_;
 }
 inline int64_t SimpleInfo::dirtycount() const {
-  // @@protoc_insertion_point(field_get:SimpleInfo.DirtyCount)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleInfo.DirtyCount)
   return _internal_dirtycount();
 }
 inline void SimpleInfo::_internal_set_dirtycount(int64_t value) {
@@ -398,7 +404,7 @@ inline void SimpleInfo::_internal_set_dirtycount(int64_t value) {
 }
 inline void SimpleInfo::set_dirtycount(int64_t value) {
   _internal_set_dirtycount(value);
-  // @@protoc_insertion_point(field_set:SimpleInfo.DirtyCount)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleInfo.DirtyCount)
 }
 
 // sint64 VersionNo = 3;
@@ -409,7 +415,7 @@ inline int64_t SimpleInfo::_internal_versionno() const {
   return _impl_.versionno_;
 }
 inline int64_t SimpleInfo::versionno() const {
-  // @@protoc_insertion_point(field_get:SimpleInfo.VersionNo)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleInfo.VersionNo)
   return _internal_versionno();
 }
 inline void SimpleInfo::_internal_set_versionno(int64_t value) {
@@ -418,7 +424,7 @@ inline void SimpleInfo::_internal_set_versionno(int64_t value) {
 }
 inline void SimpleInfo::set_versionno(int64_t value) {
   _internal_set_versionno(value);
-  // @@protoc_insertion_point(field_set:SimpleInfo.VersionNo)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleInfo.VersionNo)
 }
 
 #ifdef __GNUC__
@@ -427,6 +433,8 @@ inline void SimpleInfo::set_versionno(int64_t value) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 // @@protoc_insertion_point(global_scope)
 
@@ -445,11 +453,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new SimpleInfo();
+        return new ::CRYSTAL_NET::service::SimpleInfo();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new SimpleInfo(*dynamic_cast<const SimpleInfo *>(coder));
+        return new ::CRYSTAL_NET::service::SimpleInfo(*dynamic_cast<const ::CRYSTAL_NET::service::SimpleInfo *>(coder));
     }
 
 };

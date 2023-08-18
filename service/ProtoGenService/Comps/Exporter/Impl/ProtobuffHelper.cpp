@@ -318,4 +318,42 @@ bool ProtobuffHelper::IsNoteLine(const KERNEL_NS::LibString &lineData)
     return std::regex_match(lineData.GetRaw(), pattern);
 }
 
+bool ProtobuffHelper::GetPackageName(const KERNEL_NS::LibString &lineData, KERNEL_NS::LibString &packageName)
+{
+    static const KERNEL_NS::LibString packageFlag = "package ";
+    const auto &leftLineData = lineData.strip();
+    if(leftLineData.size() < packageFlag.size())
+        return false;
+
+    if(leftLineData.GetRaw().substr(0, packageFlag.size()) != packageFlag.GetRaw())
+        return false;
+
+    packageName = leftLineData.GetRaw().substr(packageFlag.size());
+    packageName.strip();
+
+    // 英文下划线数值
+    const Int32 count = static_cast<Int32>(packageName.size());
+    Int32 lastValidIndex = -1;
+    for(Int32 idx = 0; idx < count; ++idx)
+    {
+        const Byte8 ch = packageName[idx];
+        if(ch != '.' && !CheckValidName(ch))
+            break;
+
+        lastValidIndex = idx;
+    }
+
+    if(lastValidIndex < 0)
+    {
+        packageName.clear();
+        return false;
+    }
+
+    packageName = packageName.GetRaw().substr(0, lastValidIndex + 1);
+    packageName.strip();
+    packageName.strip('.');
+    packageName.findreplace(".", "::");
+    return true;
+}
+
 SERVICE_END

@@ -57,22 +57,28 @@ struct TableStruct_title_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_title_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class TitleInfoReq;
 struct TitleInfoReqDefaultTypeInternal;
 extern TitleInfoReqDefaultTypeInternal _TitleInfoReq_default_instance_;
 class TitleInfoRes;
 struct TitleInfoResDefaultTypeInternal;
 extern TitleInfoResDefaultTypeInternal _TitleInfoRes_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::TitleInfoReq* Arena::CreateMaybeMessage<::TitleInfoReq>(Arena*);
-template<> ::TitleInfoRes* Arena::CreateMaybeMessage<::TitleInfoRes>(Arena*);
+template<> ::CRYSTAL_NET::service::TitleInfoReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TitleInfoReq>(Arena*);
+template<> ::CRYSTAL_NET::service::TitleInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TitleInfoRes>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 // AnnotaionInfo[opcode(20), nolog(false)]
 class TitleInfoReq final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:TitleInfoReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TitleInfoReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -277,7 +283,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "TitleInfoReq";
+    return "CRYSTAL_NET.service.TitleInfoReq";
   }
   protected:
   explicit TitleInfoReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -293,7 +299,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:TitleInfoReq)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TitleInfoReq)
  private:
   class _Internal;
 
@@ -308,7 +314,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(21), nolog(false)]
 class TitleInfoRes final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:TitleInfoRes) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TitleInfoRes) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -528,7 +534,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "TitleInfoRes";
+    return "CRYSTAL_NET.service.TitleInfoRes";
   }
   protected:
   explicit TitleInfoRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -548,22 +554,22 @@ virtual KERNEL_NS::LibString CoderToString() const override {
     kTitleListFieldNumber = 2,
     kErrCodeFieldNumber = 1,
   };
-  // repeated .TitleInfo titleList = 2;
+  // repeated .CRYSTAL_NET.service.TitleInfo titleList = 2;
   int titlelist_size() const;
   private:
   int _internal_titlelist_size() const;
   public:
   void clear_titlelist();
-  ::TitleInfo* mutable_titlelist(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::TitleInfo >*
+  ::CRYSTAL_NET::service::TitleInfo* mutable_titlelist(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TitleInfo >*
       mutable_titlelist();
   private:
-  const ::TitleInfo& _internal_titlelist(int index) const;
-  ::TitleInfo* _internal_add_titlelist();
+  const ::CRYSTAL_NET::service::TitleInfo& _internal_titlelist(int index) const;
+  ::CRYSTAL_NET::service::TitleInfo* _internal_add_titlelist();
   public:
-  const ::TitleInfo& titlelist(int index) const;
-  ::TitleInfo* add_titlelist();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::TitleInfo >&
+  const ::CRYSTAL_NET::service::TitleInfo& titlelist(int index) const;
+  ::CRYSTAL_NET::service::TitleInfo* add_titlelist();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TitleInfo >&
       titlelist() const;
 
   // sint32 errCode = 1;
@@ -575,7 +581,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_errcode(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:TitleInfoRes)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TitleInfoRes)
  private:
   class _Internal;
 
@@ -583,7 +589,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::TitleInfo > titlelist_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TitleInfo > titlelist_;
     int32_t errcode_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -613,7 +619,7 @@ inline int32_t TitleInfoRes::_internal_errcode() const {
   return _impl_.errcode_;
 }
 inline int32_t TitleInfoRes::errcode() const {
-  // @@protoc_insertion_point(field_get:TitleInfoRes.errCode)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TitleInfoRes.errCode)
   return _internal_errcode();
 }
 inline void TitleInfoRes::_internal_set_errcode(int32_t value) {
@@ -622,43 +628,43 @@ inline void TitleInfoRes::_internal_set_errcode(int32_t value) {
 }
 inline void TitleInfoRes::set_errcode(int32_t value) {
   _internal_set_errcode(value);
-  // @@protoc_insertion_point(field_set:TitleInfoRes.errCode)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TitleInfoRes.errCode)
 }
 
-// repeated .TitleInfo titleList = 2;
+// repeated .CRYSTAL_NET.service.TitleInfo titleList = 2;
 inline int TitleInfoRes::_internal_titlelist_size() const {
   return _impl_.titlelist_.size();
 }
 inline int TitleInfoRes::titlelist_size() const {
   return _internal_titlelist_size();
 }
-inline ::TitleInfo* TitleInfoRes::mutable_titlelist(int index) {
-  // @@protoc_insertion_point(field_mutable:TitleInfoRes.titleList)
+inline ::CRYSTAL_NET::service::TitleInfo* TitleInfoRes::mutable_titlelist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TitleInfoRes.titleList)
   return _impl_.titlelist_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::TitleInfo >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TitleInfo >*
 TitleInfoRes::mutable_titlelist() {
-  // @@protoc_insertion_point(field_mutable_list:TitleInfoRes.titleList)
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.TitleInfoRes.titleList)
   return &_impl_.titlelist_;
 }
-inline const ::TitleInfo& TitleInfoRes::_internal_titlelist(int index) const {
+inline const ::CRYSTAL_NET::service::TitleInfo& TitleInfoRes::_internal_titlelist(int index) const {
   return _impl_.titlelist_.Get(index);
 }
-inline const ::TitleInfo& TitleInfoRes::titlelist(int index) const {
-  // @@protoc_insertion_point(field_get:TitleInfoRes.titleList)
+inline const ::CRYSTAL_NET::service::TitleInfo& TitleInfoRes::titlelist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TitleInfoRes.titleList)
   return _internal_titlelist(index);
 }
-inline ::TitleInfo* TitleInfoRes::_internal_add_titlelist() {
+inline ::CRYSTAL_NET::service::TitleInfo* TitleInfoRes::_internal_add_titlelist() {
   return _impl_.titlelist_.Add();
 }
-inline ::TitleInfo* TitleInfoRes::add_titlelist() {
-  ::TitleInfo* _add = _internal_add_titlelist();
-  // @@protoc_insertion_point(field_add:TitleInfoRes.titleList)
+inline ::CRYSTAL_NET::service::TitleInfo* TitleInfoRes::add_titlelist() {
+  ::CRYSTAL_NET::service::TitleInfo* _add = _internal_add_titlelist();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.TitleInfoRes.titleList)
   return _add;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::TitleInfo >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TitleInfo >&
 TitleInfoRes::titlelist() const {
-  // @@protoc_insertion_point(field_list:TitleInfoRes.titleList)
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.TitleInfoRes.titleList)
   return _impl_.titlelist_;
 }
 
@@ -670,6 +676,8 @@ TitleInfoRes::titlelist() const {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 // @@protoc_insertion_point(global_scope)
 
@@ -688,11 +696,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new TitleInfoReq();
+        return new ::CRYSTAL_NET::service::TitleInfoReq();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new TitleInfoReq(*dynamic_cast<const TitleInfoReq *>(coder));
+        return new ::CRYSTAL_NET::service::TitleInfoReq(*dynamic_cast<const ::CRYSTAL_NET::service::TitleInfoReq *>(coder));
     }
 
 };
@@ -711,11 +719,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new TitleInfoRes();
+        return new ::CRYSTAL_NET::service::TitleInfoRes();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new TitleInfoRes(*dynamic_cast<const TitleInfoRes *>(coder));
+        return new ::CRYSTAL_NET::service::TitleInfoRes(*dynamic_cast<const ::CRYSTAL_NET::service::TitleInfoRes *>(coder));
     }
 
 };

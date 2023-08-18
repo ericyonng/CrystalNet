@@ -23,6 +23,8 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace CRYSTAL_NET {
+namespace service {
 PROTOBUF_CONSTEXPR ClientUserStatus::ClientUserStatus(
     ::_pbi::ConstantInitialized) {}
 struct ClientUserStatusDefaultTypeInternal {
@@ -54,55 +56,58 @@ struct ClientUserInfoDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ClientUserInfoDefaultTypeInternal _ClientUserInfo_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_com_5fclient_5fuser_2eproto[2];
 static const ::_pb::EnumDescriptor* file_level_enum_descriptors_com_5fclient_5fuser_2eproto[1];
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_5fclient_5fuser_2eproto = nullptr;
 
 const uint32_t TableStruct_com_5fclient_5fuser_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::ClientUserStatus, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserStatus, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::ClientUserInfo, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::ClientUserInfo, _impl_.userid_),
-  PROTOBUF_FIELD_OFFSET(::ClientUserInfo, _impl_.accountname_),
-  PROTOBUF_FIELD_OFFSET(::ClientUserInfo, _impl_.name_),
-  PROTOBUF_FIELD_OFFSET(::ClientUserInfo, _impl_.nickname_),
-  PROTOBUF_FIELD_OFFSET(::ClientUserInfo, _impl_.phoneimei_),
-  PROTOBUF_FIELD_OFFSET(::ClientUserInfo, _impl_.clientstatus_),
-  PROTOBUF_FIELD_OFFSET(::ClientUserInfo, _impl_.lasttoken_),
-  PROTOBUF_FIELD_OFFSET(::ClientUserInfo, _impl_.tokenexpiretime_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.userid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.accountname_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.name_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.nickname_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.phoneimei_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.clientstatus_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.lasttoken_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.tokenexpiretime_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::ClientUserStatus)},
-  { 6, -1, -1, sizeof(::ClientUserInfo)},
+  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::ClientUserStatus)},
+  { 6, -1, -1, sizeof(::CRYSTAL_NET::service::ClientUserInfo)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_ClientUserStatus_default_instance_._instance,
-  &::_ClientUserInfo_default_instance_._instance,
+  &::CRYSTAL_NET::service::_ClientUserStatus_default_instance_._instance,
+  &::CRYSTAL_NET::service::_ClientUserInfo_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_com_5fclient_5fuser_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\025com_client_user.proto\"`\n\020ClientUserSta"
-  "tus\"L\n\005ENUMS\022\013\n\007UNLOGIN\020\000\022\014\n\010LOGINING\020\001\022"
-  "\013\n\007LOGINED\020\002\022\r\n\tLOGOUTING\020\003\022\014\n\010LOGOUTED\020"
-  "\004\"\252\001\n\016ClientUserInfo\022\016\n\006UserId\030\001 \001(\004\022\023\n\013"
-  "AccountName\030\002 \001(\t\022\014\n\004Name\030\003 \001(\t\022\020\n\010Nickn"
-  "ame\030\004 \001(\t\022\021\n\tPhoneImei\030\005 \001(\t\022\024\n\014ClientSt"
-  "atus\030\006 \001(\021\022\021\n\tLastToken\030\007 \001(\t\022\027\n\017TokenEx"
-  "pireTime\030\010 \001(\022b\006proto3"
+  "\n\025com_client_user.proto\022\023CRYSTAL_NET.ser"
+  "vice\"`\n\020ClientUserStatus\"L\n\005ENUMS\022\013\n\007UNL"
+  "OGIN\020\000\022\014\n\010LOGINING\020\001\022\013\n\007LOGINED\020\002\022\r\n\tLOG"
+  "OUTING\020\003\022\014\n\010LOGOUTED\020\004\"\252\001\n\016ClientUserInf"
+  "o\022\016\n\006UserId\030\001 \001(\004\022\023\n\013AccountName\030\002 \001(\t\022\014"
+  "\n\004Name\030\003 \001(\t\022\020\n\010Nickname\030\004 \001(\t\022\021\n\tPhoneI"
+  "mei\030\005 \001(\t\022\024\n\014ClientStatus\030\006 \001(\021\022\021\n\tLastT"
+  "oken\030\007 \001(\t\022\027\n\017TokenExpireTime\030\010 \001(\022b\006pro"
+  "to3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fclient_5fuser_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fclient_5fuser_2eproto = {
-    false, false, 302, descriptor_table_protodef_com_5fclient_5fuser_2eproto,
+    false, false, 323, descriptor_table_protodef_com_5fclient_5fuser_2eproto,
     "com_client_user.proto",
     &descriptor_table_com_5fclient_5fuser_2eproto_once, nullptr, 0, 2,
     schemas, file_default_instances, TableStruct_com_5fclient_5fuser_2eproto::offsets,
@@ -115,6 +120,8 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_com_5fcl
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_com_5fclient_5fuser_2eproto(&descriptor_table_com_5fclient_5fuser_2eproto);
+namespace CRYSTAL_NET {
+namespace service {
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ClientUserStatus_ENUMS_descriptor() {
   ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_com_5fclient_5fuser_2eproto);
   return file_level_enum_descriptors_com_5fclient_5fuser_2eproto[0];
@@ -152,13 +159,13 @@ class ClientUserStatus::_Internal {
 ClientUserStatus::ClientUserStatus(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
-  // @@protoc_insertion_point(arena_constructor:ClientUserStatus)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.ClientUserStatus)
 }
 ClientUserStatus::ClientUserStatus(const ClientUserStatus& from)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
   ClientUserStatus* const _this = this; (void)_this;
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:ClientUserStatus)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.ClientUserStatus)
 }
 
 
@@ -193,7 +200,7 @@ ClientUserInfo::ClientUserInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:ClientUserInfo)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.ClientUserInfo)
 }
 ClientUserInfo::ClientUserInfo(const ClientUserInfo& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -253,7 +260,7 @@ ClientUserInfo::ClientUserInfo(const ClientUserInfo& from)
   ::memcpy(&_impl_.userid_, &from._impl_.userid_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.clientstatus_) -
     reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.clientstatus_));
-  // @@protoc_insertion_point(copy_constructor:ClientUserInfo)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.ClientUserInfo)
 }
 
 inline void ClientUserInfo::SharedCtor(
@@ -294,7 +301,7 @@ inline void ClientUserInfo::SharedCtor(
 }
 
 ClientUserInfo::~ClientUserInfo() {
-  // @@protoc_insertion_point(destructor:ClientUserInfo)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.ClientUserInfo)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -316,7 +323,7 @@ void ClientUserInfo::SetCachedSize(int size) const {
 }
 
 void ClientUserInfo::Clear() {
-// @@protoc_insertion_point(message_clear_start:ClientUserInfo)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.ClientUserInfo)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -352,7 +359,7 @@ const char* ClientUserInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
           auto str = _internal_mutable_accountname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ClientUserInfo.AccountName"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.ClientUserInfo.AccountName"));
         } else
           goto handle_unusual;
         continue;
@@ -362,7 +369,7 @@ const char* ClientUserInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
           auto str = _internal_mutable_name();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ClientUserInfo.Name"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.ClientUserInfo.Name"));
         } else
           goto handle_unusual;
         continue;
@@ -372,7 +379,7 @@ const char* ClientUserInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
           auto str = _internal_mutable_nickname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ClientUserInfo.Nickname"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.ClientUserInfo.Nickname"));
         } else
           goto handle_unusual;
         continue;
@@ -382,7 +389,7 @@ const char* ClientUserInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
           auto str = _internal_mutable_phoneimei();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ClientUserInfo.PhoneImei"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.ClientUserInfo.PhoneImei"));
         } else
           goto handle_unusual;
         continue;
@@ -400,7 +407,7 @@ const char* ClientUserInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
           auto str = _internal_mutable_lasttoken();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ClientUserInfo.LastToken"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.ClientUserInfo.LastToken"));
         } else
           goto handle_unusual;
         continue;
@@ -437,7 +444,7 @@ failure:
 
 uint8_t* ClientUserInfo::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:ClientUserInfo)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.ClientUserInfo)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -452,7 +459,7 @@ uint8_t* ClientUserInfo::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_accountname().data(), static_cast<int>(this->_internal_accountname().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ClientUserInfo.AccountName");
+      "CRYSTAL_NET.service.ClientUserInfo.AccountName");
     target = stream->WriteStringMaybeAliased(
         2, this->_internal_accountname(), target);
   }
@@ -462,7 +469,7 @@ uint8_t* ClientUserInfo::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ClientUserInfo.Name");
+      "CRYSTAL_NET.service.ClientUserInfo.Name");
     target = stream->WriteStringMaybeAliased(
         3, this->_internal_name(), target);
   }
@@ -472,7 +479,7 @@ uint8_t* ClientUserInfo::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_nickname().data(), static_cast<int>(this->_internal_nickname().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ClientUserInfo.Nickname");
+      "CRYSTAL_NET.service.ClientUserInfo.Nickname");
     target = stream->WriteStringMaybeAliased(
         4, this->_internal_nickname(), target);
   }
@@ -482,7 +489,7 @@ uint8_t* ClientUserInfo::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_phoneimei().data(), static_cast<int>(this->_internal_phoneimei().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ClientUserInfo.PhoneImei");
+      "CRYSTAL_NET.service.ClientUserInfo.PhoneImei");
     target = stream->WriteStringMaybeAliased(
         5, this->_internal_phoneimei(), target);
   }
@@ -498,7 +505,7 @@ uint8_t* ClientUserInfo::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_lasttoken().data(), static_cast<int>(this->_internal_lasttoken().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ClientUserInfo.LastToken");
+      "CRYSTAL_NET.service.ClientUserInfo.LastToken");
     target = stream->WriteStringMaybeAliased(
         7, this->_internal_lasttoken(), target);
   }
@@ -513,12 +520,12 @@ uint8_t* ClientUserInfo::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:ClientUserInfo)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.ClientUserInfo)
   return target;
 }
 
 size_t ClientUserInfo::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:ClientUserInfo)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.ClientUserInfo)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -588,7 +595,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ClientUserInfo::GetClassData()
 void ClientUserInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<ClientUserInfo*>(&to_msg);
   auto& from = static_cast<const ClientUserInfo&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ClientUserInfo)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.ClientUserInfo)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -621,7 +628,7 @@ void ClientUserInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
 }
 
 void ClientUserInfo::CopyFrom(const ClientUserInfo& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ClientUserInfo)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.ClientUserInfo)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -671,14 +678,16 @@ void ClientUserInfo::InternalSwap(ClientUserInfo* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::ClientUserStatus*
-Arena::CreateMaybeMessage< ::ClientUserStatus >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ClientUserStatus >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::ClientUserStatus*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ClientUserStatus >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::ClientUserStatus >(arena);
 }
-template<> PROTOBUF_NOINLINE ::ClientUserInfo*
-Arena::CreateMaybeMessage< ::ClientUserInfo >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ClientUserInfo >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::ClientUserInfo*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ClientUserInfo >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::ClientUserInfo >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

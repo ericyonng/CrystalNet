@@ -55,6 +55,7 @@ struct ProtoContentInfo
     KERNEL_NS::LibString _fullPathName;                     // 文件全名,带路径的
     std::map<Int32, KERNEL_NS::LibString> _lineRefContent;  // 每行的数据
     std::map<KERNEL_NS::LibString, MessageInfo *> _messageNameRefMessageInfo;   // pb消息相关信息
+    KERNEL_NS::LibString _packageName;
 };
 
 SERVICE_END

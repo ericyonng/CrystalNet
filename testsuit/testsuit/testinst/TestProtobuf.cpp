@@ -38,7 +38,7 @@ void TestProtobuf::Run()
 
     g_Log->Custom("OPCODE_LoginReq:%s", Opcodes::GetOpcodeInfo(Opcodes::OpcodeConst::OPCODE_LoginReq)->ToString().c_str());
 
-    LoginReq *req = new LoginReq;
+    ::CRYSTAL_NET::service::LoginReq *req = new ::CRYSTAL_NET::service::LoginReq;
 
     KERNEL_NS::LibString info;
     std::string data;
@@ -46,7 +46,7 @@ void TestProtobuf::Run()
     info = data;
     req->PrintDebugString();
 
-    LoginReq *req2 = new LoginReq;
+    ::CRYSTAL_NET::service::LoginReq *req2 = new ::CRYSTAL_NET::service::LoginReq;
     req2->ParseFromString(info.GetRaw());
     req2->PrintDebugString();
 

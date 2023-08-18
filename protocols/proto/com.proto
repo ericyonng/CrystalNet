@@ -1,5 +1,6 @@
 
 syntax = "proto3";
+package CRYSTAL_NET.service;
 
 // 属性类型枚举
 message CreatureAttrKey

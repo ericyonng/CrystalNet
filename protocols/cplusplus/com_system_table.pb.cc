@@ -22,6 +22,8 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace CRYSTAL_NET {
+namespace service {
 PROTOBUF_CONSTEXPR SimpleInfo::SimpleInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.maxincid_)*/int64_t{0}
@@ -37,37 +39,40 @@ struct SimpleInfoDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SimpleInfoDefaultTypeInternal _SimpleInfo_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_com_5fsystem_5ftable_2eproto[1];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_com_5fsystem_5ftable_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_5fsystem_5ftable_2eproto = nullptr;
 
 const uint32_t TableStruct_com_5fsystem_5ftable_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::SimpleInfo, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SimpleInfo, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::SimpleInfo, _impl_.maxincid_),
-  PROTOBUF_FIELD_OFFSET(::SimpleInfo, _impl_.dirtycount_),
-  PROTOBUF_FIELD_OFFSET(::SimpleInfo, _impl_.versionno_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SimpleInfo, _impl_.maxincid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SimpleInfo, _impl_.dirtycount_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SimpleInfo, _impl_.versionno_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::SimpleInfo)},
+  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::SimpleInfo)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_SimpleInfo_default_instance_._instance,
+  &::CRYSTAL_NET::service::_SimpleInfo_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_com_5fsystem_5ftable_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\026com_system_table.proto\"E\n\nSimpleInfo\022\020"
-  "\n\010MaxIncId\030\001 \001(\022\022\022\n\nDirtyCount\030\002 \001(\022\022\021\n\t"
-  "VersionNo\030\003 \001(\022b\006proto3"
+  "\n\026com_system_table.proto\022\023CRYSTAL_NET.se"
+  "rvice\"E\n\nSimpleInfo\022\020\n\010MaxIncId\030\001 \001(\022\022\022\n"
+  "\nDirtyCount\030\002 \001(\022\022\021\n\tVersionNo\030\003 \001(\022b\006pr"
+  "oto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fsystem_5ftable_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fsystem_5ftable_2eproto = {
-    false, false, 103, descriptor_table_protodef_com_5fsystem_5ftable_2eproto,
+    false, false, 124, descriptor_table_protodef_com_5fsystem_5ftable_2eproto,
     "com_system_table.proto",
     &descriptor_table_com_5fsystem_5ftable_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_com_5fsystem_5ftable_2eproto::offsets,
@@ -80,6 +85,8 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_com_5fsy
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_com_5fsystem_5ftable_2eproto(&descriptor_table_com_5fsystem_5ftable_2eproto);
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
@@ -91,7 +98,7 @@ SimpleInfo::SimpleInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:SimpleInfo)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.SimpleInfo)
 }
 SimpleInfo::SimpleInfo(const SimpleInfo& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -106,7 +113,7 @@ SimpleInfo::SimpleInfo(const SimpleInfo& from)
   ::memcpy(&_impl_.maxincid_, &from._impl_.maxincid_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.versionno_) -
     reinterpret_cast<char*>(&_impl_.maxincid_)) + sizeof(_impl_.versionno_));
-  // @@protoc_insertion_point(copy_constructor:SimpleInfo)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.SimpleInfo)
 }
 
 inline void SimpleInfo::SharedCtor(
@@ -122,7 +129,7 @@ inline void SimpleInfo::SharedCtor(
 }
 
 SimpleInfo::~SimpleInfo() {
-  // @@protoc_insertion_point(destructor:SimpleInfo)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.SimpleInfo)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -139,7 +146,7 @@ void SimpleInfo::SetCachedSize(int size) const {
 }
 
 void SimpleInfo::Clear() {
-// @@protoc_insertion_point(message_clear_start:SimpleInfo)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.SimpleInfo)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -205,7 +212,7 @@ failure:
 
 uint8_t* SimpleInfo::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:SimpleInfo)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.SimpleInfo)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -231,12 +238,12 @@ uint8_t* SimpleInfo::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:SimpleInfo)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.SimpleInfo)
   return target;
 }
 
 size_t SimpleInfo::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:SimpleInfo)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.SimpleInfo)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -271,7 +278,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*SimpleInfo::GetClassData() con
 void SimpleInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<SimpleInfo*>(&to_msg);
   auto& from = static_cast<const SimpleInfo&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:SimpleInfo)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.SimpleInfo)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -289,7 +296,7 @@ void SimpleInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PRO
 }
 
 void SimpleInfo::CopyFrom(const SimpleInfo& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:SimpleInfo)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.SimpleInfo)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -317,10 +324,12 @@ void SimpleInfo::InternalSwap(SimpleInfo* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::SimpleInfo*
-Arena::CreateMaybeMessage< ::SimpleInfo >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::SimpleInfo >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::SimpleInfo*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::SimpleInfo >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::SimpleInfo >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

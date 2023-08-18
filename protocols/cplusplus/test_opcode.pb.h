@@ -55,6 +55,8 @@ struct TableStruct_test_5fopcode_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_test_5fopcode_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class TestOpcode2Req;
 struct TestOpcode2ReqDefaultTypeInternal;
 extern TestOpcode2ReqDefaultTypeInternal _TestOpcode2Req_default_instance_;
@@ -70,19 +72,23 @@ extern TestOpcodeReqDefaultTypeInternal _TestOpcodeReq_default_instance_;
 class TestOpcodeRes;
 struct TestOpcodeResDefaultTypeInternal;
 extern TestOpcodeResDefaultTypeInternal _TestOpcodeRes_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::TestOpcode2Req* Arena::CreateMaybeMessage<::TestOpcode2Req>(Arena*);
-template<> ::TestOpcode2Res* Arena::CreateMaybeMessage<::TestOpcode2Res>(Arena*);
-template<> ::TestOpcodeInfo* Arena::CreateMaybeMessage<::TestOpcodeInfo>(Arena*);
-template<> ::TestOpcodeReq* Arena::CreateMaybeMessage<::TestOpcodeReq>(Arena*);
-template<> ::TestOpcodeRes* Arena::CreateMaybeMessage<::TestOpcodeRes>(Arena*);
+template<> ::CRYSTAL_NET::service::TestOpcode2Req* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TestOpcode2Req>(Arena*);
+template<> ::CRYSTAL_NET::service::TestOpcode2Res* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TestOpcode2Res>(Arena*);
+template<> ::CRYSTAL_NET::service::TestOpcodeInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TestOpcodeInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::TestOpcodeReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TestOpcodeReq>(Arena*);
+template<> ::CRYSTAL_NET::service::TestOpcodeRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TestOpcodeRes>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 // AnnotaionInfo[opcode(3), nolog(false)]
 class TestOpcodeReq final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:TestOpcodeReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcodeReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -302,7 +308,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "TestOpcodeReq";
+    return "CRYSTAL_NET.service.TestOpcodeReq";
   }
   protected:
   explicit TestOpcodeReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -339,7 +345,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   std::string* _internal_mutable_content();
   public:
 
-  // @@protoc_insertion_point(class_scope:TestOpcodeReq)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOpcodeReq)
  private:
   class _Internal;
 
@@ -358,7 +364,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(4), nolog(false)]
 class TestOpcodeRes final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:TestOpcodeRes) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcodeRes) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -578,7 +584,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "TestOpcodeRes";
+    return "CRYSTAL_NET.service.TestOpcodeRes";
   }
   protected:
   explicit TestOpcodeRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -615,7 +621,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   std::string* _internal_mutable_content();
   public:
 
-  // @@protoc_insertion_point(class_scope:TestOpcodeRes)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOpcodeRes)
  private:
   class _Internal;
 
@@ -634,7 +640,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(5), nolog(false)]
 class TestOpcode2Req final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:TestOpcode2Req) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcode2Req) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -854,7 +860,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "TestOpcode2Req";
+    return "CRYSTAL_NET.service.TestOpcode2Req";
   }
   protected:
   explicit TestOpcode2Req(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -905,7 +911,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_id(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:TestOpcode2Req)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOpcode2Req)
  private:
   class _Internal;
 
@@ -925,7 +931,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class TestOpcodeInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:TestOpcodeInfo) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcodeInfo) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1145,7 +1151,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "TestOpcodeInfo";
+    return "CRYSTAL_NET.service.TestOpcodeInfo";
   }
   protected:
   explicit TestOpcodeInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1196,7 +1202,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_errcode(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:TestOpcodeInfo)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOpcodeInfo)
  private:
   class _Internal;
 
@@ -1216,7 +1222,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(6), nolog(false)]
 class TestOpcode2Res final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:TestOpcode2Res) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcode2Res) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1436,7 +1442,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "TestOpcode2Res";
+    return "CRYSTAL_NET.service.TestOpcode2Res";
   }
   protected:
   explicit TestOpcode2Res(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1456,23 +1462,23 @@ virtual KERNEL_NS::LibString CoderToString() const override {
     kTestInfoFieldNumber = 2,
     kIdInfoFieldNumber = 1,
   };
-  // optional .TestOpcodeInfo testInfo = 2;
+  // optional .CRYSTAL_NET.service.TestOpcodeInfo testInfo = 2;
   bool has_testinfo() const;
   private:
   bool _internal_has_testinfo() const;
   public:
   void clear_testinfo();
-  const ::TestOpcodeInfo& testinfo() const;
-  PROTOBUF_NODISCARD ::TestOpcodeInfo* release_testinfo();
-  ::TestOpcodeInfo* mutable_testinfo();
-  void set_allocated_testinfo(::TestOpcodeInfo* testinfo);
+  const ::CRYSTAL_NET::service::TestOpcodeInfo& testinfo() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::TestOpcodeInfo* release_testinfo();
+  ::CRYSTAL_NET::service::TestOpcodeInfo* mutable_testinfo();
+  void set_allocated_testinfo(::CRYSTAL_NET::service::TestOpcodeInfo* testinfo);
   private:
-  const ::TestOpcodeInfo& _internal_testinfo() const;
-  ::TestOpcodeInfo* _internal_mutable_testinfo();
+  const ::CRYSTAL_NET::service::TestOpcodeInfo& _internal_testinfo() const;
+  ::CRYSTAL_NET::service::TestOpcodeInfo* _internal_mutable_testinfo();
   public:
   void unsafe_arena_set_allocated_testinfo(
-      ::TestOpcodeInfo* testinfo);
-  ::TestOpcodeInfo* unsafe_arena_release_testinfo();
+      ::CRYSTAL_NET::service::TestOpcodeInfo* testinfo);
+  ::CRYSTAL_NET::service::TestOpcodeInfo* unsafe_arena_release_testinfo();
 
   // optional int32 id_info = 1;
   bool has_id_info() const;
@@ -1487,7 +1493,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_id_info(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:TestOpcode2Res)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOpcode2Res)
  private:
   class _Internal;
 
@@ -1497,7 +1503,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-    ::TestOpcodeInfo* testinfo_;
+    ::CRYSTAL_NET::service::TestOpcodeInfo* testinfo_;
     int32_t id_info_;
   };
   union { Impl_ _impl_; };
@@ -1527,7 +1533,7 @@ inline void TestOpcodeReq::clear_content() {
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestOpcodeReq::content() const {
-  // @@protoc_insertion_point(field_get:TestOpcodeReq.content)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeReq.content)
   return _internal_content();
 }
 template <typename ArgT0, typename... ArgT>
@@ -1535,11 +1541,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void TestOpcodeReq::set_content(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
  _impl_.content_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:TestOpcodeReq.content)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeReq.content)
 }
 inline std::string* TestOpcodeReq::mutable_content() {
   std::string* _s = _internal_mutable_content();
-  // @@protoc_insertion_point(field_mutable:TestOpcodeReq.content)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOpcodeReq.content)
   return _s;
 }
 inline const std::string& TestOpcodeReq::_internal_content() const {
@@ -1554,7 +1560,7 @@ inline std::string* TestOpcodeReq::_internal_mutable_content() {
   return _impl_.content_.Mutable(GetArenaForAllocation());
 }
 inline std::string* TestOpcodeReq::release_content() {
-  // @@protoc_insertion_point(field_release:TestOpcodeReq.content)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOpcodeReq.content)
   if (!_internal_has_content()) {
     return nullptr;
   }
@@ -1579,7 +1585,7 @@ inline void TestOpcodeReq::set_allocated_content(std::string* content) {
     _impl_.content_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:TestOpcodeReq.content)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOpcodeReq.content)
 }
 
 // -------------------------------------------------------------------
@@ -1599,7 +1605,7 @@ inline void TestOpcodeRes::clear_content() {
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestOpcodeRes::content() const {
-  // @@protoc_insertion_point(field_get:TestOpcodeRes.content)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeRes.content)
   return _internal_content();
 }
 template <typename ArgT0, typename... ArgT>
@@ -1607,11 +1613,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void TestOpcodeRes::set_content(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
  _impl_.content_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:TestOpcodeRes.content)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeRes.content)
 }
 inline std::string* TestOpcodeRes::mutable_content() {
   std::string* _s = _internal_mutable_content();
-  // @@protoc_insertion_point(field_mutable:TestOpcodeRes.content)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOpcodeRes.content)
   return _s;
 }
 inline const std::string& TestOpcodeRes::_internal_content() const {
@@ -1626,7 +1632,7 @@ inline std::string* TestOpcodeRes::_internal_mutable_content() {
   return _impl_.content_.Mutable(GetArenaForAllocation());
 }
 inline std::string* TestOpcodeRes::release_content() {
-  // @@protoc_insertion_point(field_release:TestOpcodeRes.content)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOpcodeRes.content)
   if (!_internal_has_content()) {
     return nullptr;
   }
@@ -1651,7 +1657,7 @@ inline void TestOpcodeRes::set_allocated_content(std::string* content) {
     _impl_.content_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:TestOpcodeRes.content)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOpcodeRes.content)
 }
 
 // -------------------------------------------------------------------
@@ -1674,7 +1680,7 @@ inline int32_t TestOpcode2Req::_internal_id() const {
   return _impl_.id_;
 }
 inline int32_t TestOpcode2Req::id() const {
-  // @@protoc_insertion_point(field_get:TestOpcode2Req.id)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcode2Req.id)
   return _internal_id();
 }
 inline void TestOpcode2Req::_internal_set_id(int32_t value) {
@@ -1683,7 +1689,7 @@ inline void TestOpcode2Req::_internal_set_id(int32_t value) {
 }
 inline void TestOpcode2Req::set_id(int32_t value) {
   _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:TestOpcode2Req.id)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcode2Req.id)
 }
 
 // optional string content = 2;
@@ -1699,7 +1705,7 @@ inline void TestOpcode2Req::clear_content() {
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestOpcode2Req::content() const {
-  // @@protoc_insertion_point(field_get:TestOpcode2Req.content)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcode2Req.content)
   return _internal_content();
 }
 template <typename ArgT0, typename... ArgT>
@@ -1707,11 +1713,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void TestOpcode2Req::set_content(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
  _impl_.content_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:TestOpcode2Req.content)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcode2Req.content)
 }
 inline std::string* TestOpcode2Req::mutable_content() {
   std::string* _s = _internal_mutable_content();
-  // @@protoc_insertion_point(field_mutable:TestOpcode2Req.content)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOpcode2Req.content)
   return _s;
 }
 inline const std::string& TestOpcode2Req::_internal_content() const {
@@ -1726,7 +1732,7 @@ inline std::string* TestOpcode2Req::_internal_mutable_content() {
   return _impl_.content_.Mutable(GetArenaForAllocation());
 }
 inline std::string* TestOpcode2Req::release_content() {
-  // @@protoc_insertion_point(field_release:TestOpcode2Req.content)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOpcode2Req.content)
   if (!_internal_has_content()) {
     return nullptr;
   }
@@ -1751,7 +1757,7 @@ inline void TestOpcode2Req::set_allocated_content(std::string* content) {
     _impl_.content_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:TestOpcode2Req.content)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOpcode2Req.content)
 }
 
 // -------------------------------------------------------------------
@@ -1774,7 +1780,7 @@ inline int32_t TestOpcodeInfo::_internal_errcode() const {
   return _impl_.errcode_;
 }
 inline int32_t TestOpcodeInfo::errcode() const {
-  // @@protoc_insertion_point(field_get:TestOpcodeInfo.errCode)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeInfo.errCode)
   return _internal_errcode();
 }
 inline void TestOpcodeInfo::_internal_set_errcode(int32_t value) {
@@ -1783,7 +1789,7 @@ inline void TestOpcodeInfo::_internal_set_errcode(int32_t value) {
 }
 inline void TestOpcodeInfo::set_errcode(int32_t value) {
   _internal_set_errcode(value);
-  // @@protoc_insertion_point(field_set:TestOpcodeInfo.errCode)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeInfo.errCode)
 }
 
 // optional string errMsg = 2;
@@ -1799,7 +1805,7 @@ inline void TestOpcodeInfo::clear_errmsg() {
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestOpcodeInfo::errmsg() const {
-  // @@protoc_insertion_point(field_get:TestOpcodeInfo.errMsg)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeInfo.errMsg)
   return _internal_errmsg();
 }
 template <typename ArgT0, typename... ArgT>
@@ -1807,11 +1813,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void TestOpcodeInfo::set_errmsg(ArgT0&& arg0, ArgT... args) {
  _impl_._has_bits_[0] |= 0x00000001u;
  _impl_.errmsg_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:TestOpcodeInfo.errMsg)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeInfo.errMsg)
 }
 inline std::string* TestOpcodeInfo::mutable_errmsg() {
   std::string* _s = _internal_mutable_errmsg();
-  // @@protoc_insertion_point(field_mutable:TestOpcodeInfo.errMsg)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOpcodeInfo.errMsg)
   return _s;
 }
 inline const std::string& TestOpcodeInfo::_internal_errmsg() const {
@@ -1826,7 +1832,7 @@ inline std::string* TestOpcodeInfo::_internal_mutable_errmsg() {
   return _impl_.errmsg_.Mutable(GetArenaForAllocation());
 }
 inline std::string* TestOpcodeInfo::release_errmsg() {
-  // @@protoc_insertion_point(field_release:TestOpcodeInfo.errMsg)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOpcodeInfo.errMsg)
   if (!_internal_has_errmsg()) {
     return nullptr;
   }
@@ -1851,7 +1857,7 @@ inline void TestOpcodeInfo::set_allocated_errmsg(std::string* errmsg) {
     _impl_.errmsg_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:TestOpcodeInfo.errMsg)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOpcodeInfo.errMsg)
 }
 
 // -------------------------------------------------------------------
@@ -1874,7 +1880,7 @@ inline int32_t TestOpcode2Res::_internal_id_info() const {
   return _impl_.id_info_;
 }
 inline int32_t TestOpcode2Res::id_info() const {
-  // @@protoc_insertion_point(field_get:TestOpcode2Res.id_info)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcode2Res.id_info)
   return _internal_id_info();
 }
 inline void TestOpcode2Res::_internal_set_id_info(int32_t value) {
@@ -1883,10 +1889,10 @@ inline void TestOpcode2Res::_internal_set_id_info(int32_t value) {
 }
 inline void TestOpcode2Res::set_id_info(int32_t value) {
   _internal_set_id_info(value);
-  // @@protoc_insertion_point(field_set:TestOpcode2Res.id_info)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcode2Res.id_info)
 }
 
-// optional .TestOpcodeInfo testInfo = 2;
+// optional .CRYSTAL_NET.service.TestOpcodeInfo testInfo = 2;
 inline bool TestOpcode2Res::_internal_has_testinfo() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   PROTOBUF_ASSUME(!value || _impl_.testinfo_ != nullptr);
@@ -1899,17 +1905,17 @@ inline void TestOpcode2Res::clear_testinfo() {
   if (_impl_.testinfo_ != nullptr) _impl_.testinfo_->Clear();
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const ::TestOpcodeInfo& TestOpcode2Res::_internal_testinfo() const {
-  const ::TestOpcodeInfo* p = _impl_.testinfo_;
-  return p != nullptr ? *p : reinterpret_cast<const ::TestOpcodeInfo&>(
-      ::_TestOpcodeInfo_default_instance_);
+inline const ::CRYSTAL_NET::service::TestOpcodeInfo& TestOpcode2Res::_internal_testinfo() const {
+  const ::CRYSTAL_NET::service::TestOpcodeInfo* p = _impl_.testinfo_;
+  return p != nullptr ? *p : reinterpret_cast<const ::CRYSTAL_NET::service::TestOpcodeInfo&>(
+      ::CRYSTAL_NET::service::_TestOpcodeInfo_default_instance_);
 }
-inline const ::TestOpcodeInfo& TestOpcode2Res::testinfo() const {
-  // @@protoc_insertion_point(field_get:TestOpcode2Res.testInfo)
+inline const ::CRYSTAL_NET::service::TestOpcodeInfo& TestOpcode2Res::testinfo() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcode2Res.testInfo)
   return _internal_testinfo();
 }
 inline void TestOpcode2Res::unsafe_arena_set_allocated_testinfo(
-    ::TestOpcodeInfo* testinfo) {
+    ::CRYSTAL_NET::service::TestOpcodeInfo* testinfo) {
   if (GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.testinfo_);
   }
@@ -1919,11 +1925,11 @@ inline void TestOpcode2Res::unsafe_arena_set_allocated_testinfo(
   } else {
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:TestOpcode2Res.testInfo)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.TestOpcode2Res.testInfo)
 }
-inline ::TestOpcodeInfo* TestOpcode2Res::release_testinfo() {
+inline ::CRYSTAL_NET::service::TestOpcodeInfo* TestOpcode2Res::release_testinfo() {
   _impl_._has_bits_[0] &= ~0x00000001u;
-  ::TestOpcodeInfo* temp = _impl_.testinfo_;
+  ::CRYSTAL_NET::service::TestOpcodeInfo* temp = _impl_.testinfo_;
   _impl_.testinfo_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
@@ -1936,27 +1942,27 @@ inline ::TestOpcodeInfo* TestOpcode2Res::release_testinfo() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::TestOpcodeInfo* TestOpcode2Res::unsafe_arena_release_testinfo() {
-  // @@protoc_insertion_point(field_release:TestOpcode2Res.testInfo)
+inline ::CRYSTAL_NET::service::TestOpcodeInfo* TestOpcode2Res::unsafe_arena_release_testinfo() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOpcode2Res.testInfo)
   _impl_._has_bits_[0] &= ~0x00000001u;
-  ::TestOpcodeInfo* temp = _impl_.testinfo_;
+  ::CRYSTAL_NET::service::TestOpcodeInfo* temp = _impl_.testinfo_;
   _impl_.testinfo_ = nullptr;
   return temp;
 }
-inline ::TestOpcodeInfo* TestOpcode2Res::_internal_mutable_testinfo() {
+inline ::CRYSTAL_NET::service::TestOpcodeInfo* TestOpcode2Res::_internal_mutable_testinfo() {
   _impl_._has_bits_[0] |= 0x00000001u;
   if (_impl_.testinfo_ == nullptr) {
-    auto* p = CreateMaybeMessage<::TestOpcodeInfo>(GetArenaForAllocation());
+    auto* p = CreateMaybeMessage<::CRYSTAL_NET::service::TestOpcodeInfo>(GetArenaForAllocation());
     _impl_.testinfo_ = p;
   }
   return _impl_.testinfo_;
 }
-inline ::TestOpcodeInfo* TestOpcode2Res::mutable_testinfo() {
-  ::TestOpcodeInfo* _msg = _internal_mutable_testinfo();
-  // @@protoc_insertion_point(field_mutable:TestOpcode2Res.testInfo)
+inline ::CRYSTAL_NET::service::TestOpcodeInfo* TestOpcode2Res::mutable_testinfo() {
+  ::CRYSTAL_NET::service::TestOpcodeInfo* _msg = _internal_mutable_testinfo();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOpcode2Res.testInfo)
   return _msg;
 }
-inline void TestOpcode2Res::set_allocated_testinfo(::TestOpcodeInfo* testinfo) {
+inline void TestOpcode2Res::set_allocated_testinfo(::CRYSTAL_NET::service::TestOpcodeInfo* testinfo) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
     delete _impl_.testinfo_;
@@ -1973,7 +1979,7 @@ inline void TestOpcode2Res::set_allocated_testinfo(::TestOpcodeInfo* testinfo) {
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
   _impl_.testinfo_ = testinfo;
-  // @@protoc_insertion_point(field_set_allocated:TestOpcode2Res.testInfo)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOpcode2Res.testInfo)
 }
 
 #ifdef __GNUC__
@@ -1990,6 +1996,8 @@ inline void TestOpcode2Res::set_allocated_testinfo(::TestOpcodeInfo* testinfo) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 // @@protoc_insertion_point(global_scope)
 
@@ -2008,11 +2016,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new TestOpcodeReq();
+        return new ::CRYSTAL_NET::service::TestOpcodeReq();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new TestOpcodeReq(*dynamic_cast<const TestOpcodeReq *>(coder));
+        return new ::CRYSTAL_NET::service::TestOpcodeReq(*dynamic_cast<const ::CRYSTAL_NET::service::TestOpcodeReq *>(coder));
     }
 
 };
@@ -2031,11 +2039,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new TestOpcodeRes();
+        return new ::CRYSTAL_NET::service::TestOpcodeRes();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new TestOpcodeRes(*dynamic_cast<const TestOpcodeRes *>(coder));
+        return new ::CRYSTAL_NET::service::TestOpcodeRes(*dynamic_cast<const ::CRYSTAL_NET::service::TestOpcodeRes *>(coder));
     }
 
 };
@@ -2054,11 +2062,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new TestOpcode2Req();
+        return new ::CRYSTAL_NET::service::TestOpcode2Req();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new TestOpcode2Req(*dynamic_cast<const TestOpcode2Req *>(coder));
+        return new ::CRYSTAL_NET::service::TestOpcode2Req(*dynamic_cast<const ::CRYSTAL_NET::service::TestOpcode2Req *>(coder));
     }
 
 };
@@ -2077,11 +2085,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new TestOpcodeInfo();
+        return new ::CRYSTAL_NET::service::TestOpcodeInfo();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new TestOpcodeInfo(*dynamic_cast<const TestOpcodeInfo *>(coder));
+        return new ::CRYSTAL_NET::service::TestOpcodeInfo(*dynamic_cast<const ::CRYSTAL_NET::service::TestOpcodeInfo *>(coder));
     }
 
 };
@@ -2100,11 +2108,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new TestOpcode2Res();
+        return new ::CRYSTAL_NET::service::TestOpcode2Res();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new TestOpcode2Res(*dynamic_cast<const TestOpcode2Res *>(coder));
+        return new ::CRYSTAL_NET::service::TestOpcode2Res(*dynamic_cast<const ::CRYSTAL_NET::service::TestOpcode2Res *>(coder));
     }
 
 };

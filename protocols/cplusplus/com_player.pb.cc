@@ -22,6 +22,8 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
+namespace CRYSTAL_NET {
+namespace service {
 PROTOBUF_CONSTEXPR PlayerData::PlayerData(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_._has_bits_)*/{}
@@ -39,44 +41,46 @@ struct PlayerDataDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 PlayerDataDefaultTypeInternal _PlayerData_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 static ::_pb::Metadata file_level_metadata_com_5fplayer_2eproto[1];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_com_5fplayer_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_5fplayer_2eproto = nullptr;
 
 const uint32_t TableStruct_com_5fplayer_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::PlayerData, _impl_._has_bits_),
-  PROTOBUF_FIELD_OFFSET(::PlayerData, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::PlayerData, _impl_._has_bits_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::PlayerData, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::PlayerData, _impl_.account_),
-  PROTOBUF_FIELD_OFFSET(::PlayerData, _impl_.playerid_),
-  PROTOBUF_FIELD_OFFSET(::PlayerData, _impl_.sex_),
-  PROTOBUF_FIELD_OFFSET(::PlayerData, _impl_.name_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::PlayerData, _impl_.account_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::PlayerData, _impl_.playerid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::PlayerData, _impl_.sex_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::PlayerData, _impl_.name_),
   0,
   2,
   3,
   1,
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 10, -1, sizeof(::PlayerData)},
+  { 0, 10, -1, sizeof(::CRYSTAL_NET::service::PlayerData)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::_PlayerData_default_instance_._instance,
+  &::CRYSTAL_NET::service::_PlayerData_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_com_5fplayer_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\020com_player.proto\"\210\001\n\nPlayerData\022\024\n\007acc"
-  "ount\030\001 \001(\tH\000\210\001\001\022\025\n\010playerId\030\002 \001(\022H\001\210\001\001\022\020"
-  "\n\003sex\030\003 \001(\021H\002\210\001\001\022\021\n\004name\030\004 \001(\tH\003\210\001\001B\n\n\010_"
-  "accountB\013\n\t_playerIdB\006\n\004_sexB\007\n\005_nameb\006p"
-  "roto3"
+  "\n\020com_player.proto\022\023CRYSTAL_NET.service\""
+  "\210\001\n\nPlayerData\022\024\n\007account\030\001 \001(\tH\000\210\001\001\022\025\n\010"
+  "playerId\030\002 \001(\022H\001\210\001\001\022\020\n\003sex\030\003 \001(\021H\002\210\001\001\022\021\n"
+  "\004name\030\004 \001(\tH\003\210\001\001B\n\n\010_accountB\013\n\t_playerI"
+  "dB\006\n\004_sexB\007\n\005_nameb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fplayer_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fplayer_2eproto = {
-    false, false, 165, descriptor_table_protodef_com_5fplayer_2eproto,
+    false, false, 186, descriptor_table_protodef_com_5fplayer_2eproto,
     "com_player.proto",
     &descriptor_table_com_5fplayer_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_com_5fplayer_2eproto::offsets,
@@ -89,6 +93,8 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_com_5fpl
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_com_5fplayer_2eproto(&descriptor_table_com_5fplayer_2eproto);
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
@@ -113,7 +119,7 @@ PlayerData::PlayerData(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:PlayerData)
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.PlayerData)
 }
 PlayerData::PlayerData(const PlayerData& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -146,7 +152,7 @@ PlayerData::PlayerData(const PlayerData& from)
   ::memcpy(&_impl_.playerid_, &from._impl_.playerid_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.sex_) -
     reinterpret_cast<char*>(&_impl_.playerid_)) + sizeof(_impl_.sex_));
-  // @@protoc_insertion_point(copy_constructor:PlayerData)
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.PlayerData)
 }
 
 inline void PlayerData::SharedCtor(
@@ -172,7 +178,7 @@ inline void PlayerData::SharedCtor(
 }
 
 PlayerData::~PlayerData() {
-  // @@protoc_insertion_point(destructor:PlayerData)
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.PlayerData)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -191,7 +197,7 @@ void PlayerData::SetCachedSize(int size) const {
 }
 
 void PlayerData::Clear() {
-// @@protoc_insertion_point(message_clear_start:PlayerData)
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.PlayerData)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -227,7 +233,7 @@ const char* PlayerData::_InternalParse(const char* ptr, ::_pbi::ParseContext* ct
           auto str = _internal_mutable_account();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "PlayerData.account"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.PlayerData.account"));
         } else
           goto handle_unusual;
         continue;
@@ -255,7 +261,7 @@ const char* PlayerData::_InternalParse(const char* ptr, ::_pbi::ParseContext* ct
           auto str = _internal_mutable_name();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "PlayerData.name"));
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.PlayerData.name"));
         } else
           goto handle_unusual;
         continue;
@@ -285,7 +291,7 @@ failure:
 
 uint8_t* PlayerData::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:PlayerData)
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.PlayerData)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -294,7 +300,7 @@ uint8_t* PlayerData::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_account().data(), static_cast<int>(this->_internal_account().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "PlayerData.account");
+      "CRYSTAL_NET.service.PlayerData.account");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_account(), target);
   }
@@ -316,7 +322,7 @@ uint8_t* PlayerData::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "PlayerData.name");
+      "CRYSTAL_NET.service.PlayerData.name");
     target = stream->WriteStringMaybeAliased(
         4, this->_internal_name(), target);
   }
@@ -325,12 +331,12 @@ uint8_t* PlayerData::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:PlayerData)
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.PlayerData)
   return target;
 }
 
 size_t PlayerData::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:PlayerData)
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.PlayerData)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -377,7 +383,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*PlayerData::GetClassData() con
 void PlayerData::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<PlayerData*>(&to_msg);
   auto& from = static_cast<const PlayerData&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:PlayerData)
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.PlayerData)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -402,7 +408,7 @@ void PlayerData::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PRO
 }
 
 void PlayerData::CopyFrom(const PlayerData& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:PlayerData)
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.PlayerData)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -441,10 +447,12 @@ void PlayerData::InternalSwap(PlayerData* other) {
 }
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::PlayerData*
-Arena::CreateMaybeMessage< ::PlayerData >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::PlayerData >(arena);
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::PlayerData*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::PlayerData >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::PlayerData >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

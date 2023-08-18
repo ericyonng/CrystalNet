@@ -55,18 +55,24 @@ struct TableStruct_comp_5ftest_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_comp_5ftest_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class TestMgrData;
 struct TestMgrDataDefaultTypeInternal;
 extern TestMgrDataDefaultTypeInternal _TestMgrData_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::TestMgrData* Arena::CreateMaybeMessage<::TestMgrData>(Arena*);
+template<> ::CRYSTAL_NET::service::TestMgrData* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TestMgrData>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 // ===================================================================
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class TestMgrData final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:TestMgrData) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestMgrData) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -286,7 +292,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "TestMgrData";
+    return "CRYSTAL_NET.service.TestMgrData";
   }
   protected:
   explicit TestMgrData(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -329,7 +335,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_testid(int64_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:TestMgrData)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestMgrData)
  private:
   class _Internal;
 
@@ -360,7 +366,7 @@ inline void TestMgrData::clear_account() {
   _impl_.account_.ClearToEmpty();
 }
 inline const std::string& TestMgrData::account() const {
-  // @@protoc_insertion_point(field_get:TestMgrData.Account)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestMgrData.Account)
   return _internal_account();
 }
 template <typename ArgT0, typename... ArgT>
@@ -368,11 +374,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void TestMgrData::set_account(ArgT0&& arg0, ArgT... args) {
  
  _impl_.account_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:TestMgrData.Account)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestMgrData.Account)
 }
 inline std::string* TestMgrData::mutable_account() {
   std::string* _s = _internal_mutable_account();
-  // @@protoc_insertion_point(field_mutable:TestMgrData.Account)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestMgrData.Account)
   return _s;
 }
 inline const std::string& TestMgrData::_internal_account() const {
@@ -387,7 +393,7 @@ inline std::string* TestMgrData::_internal_mutable_account() {
   return _impl_.account_.Mutable(GetArenaForAllocation());
 }
 inline std::string* TestMgrData::release_account() {
-  // @@protoc_insertion_point(field_release:TestMgrData.Account)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestMgrData.Account)
   return _impl_.account_.Release();
 }
 inline void TestMgrData::set_allocated_account(std::string* account) {
@@ -402,7 +408,7 @@ inline void TestMgrData::set_allocated_account(std::string* account) {
     _impl_.account_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:TestMgrData.Account)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestMgrData.Account)
 }
 
 // sint64 TestId = 2;
@@ -413,7 +419,7 @@ inline int64_t TestMgrData::_internal_testid() const {
   return _impl_.testid_;
 }
 inline int64_t TestMgrData::testid() const {
-  // @@protoc_insertion_point(field_get:TestMgrData.TestId)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestMgrData.TestId)
   return _internal_testid();
 }
 inline void TestMgrData::_internal_set_testid(int64_t value) {
@@ -422,7 +428,7 @@ inline void TestMgrData::_internal_set_testid(int64_t value) {
 }
 inline void TestMgrData::set_testid(int64_t value) {
   _internal_set_testid(value);
-  // @@protoc_insertion_point(field_set:TestMgrData.TestId)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestMgrData.TestId)
 }
 
 #ifdef __GNUC__
@@ -431,6 +437,8 @@ inline void TestMgrData::set_testid(int64_t value) {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 // @@protoc_insertion_point(global_scope)
 
@@ -449,11 +457,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new TestMgrData();
+        return new ::CRYSTAL_NET::service::TestMgrData();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new TestMgrData(*dynamic_cast<const TestMgrData *>(coder));
+        return new ::CRYSTAL_NET::service::TestMgrData(*dynamic_cast<const ::CRYSTAL_NET::service::TestMgrData *>(coder));
     }
 
 };

@@ -458,7 +458,23 @@ console.log(addPoint({x:1, y:1}, {x:2, y:2}))
 
 // import ns_test = require("./ns_test")
 /// <reference path = "./ns_test" />
-import { TestNs } from "./ns_test";
+// import { TestNs } from "./ns_test";
 
-var my_shape = TestNs.ShapeFactory()
-console.log(my_shape.draw())
+// var my_shape = TestNs.ShapeFactory()
+// console.log(my_shape.draw())
+
+/// <reference path = "./js/exports_allpbs" />
+// declare const proto;
+// var atk = proto.service.CreatureAttrKey.ENUM.ATK
+// console.log("atk:", atk)
+var obj3 = {
+    "a":12,
+    "d":13,
+}
+
+var obj3str = JSON.stringify(obj3)
+console.log("obj3str:", obj3str)
+
+var objparse = JSON.parse(obj3str)
+console.log("objparse:", objparse)
+

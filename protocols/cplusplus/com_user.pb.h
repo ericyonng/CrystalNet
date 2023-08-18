@@ -57,6 +57,8 @@ struct TableStruct_com_5fuser_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5fuser_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
 class LoginInfo;
 struct LoginInfoDefaultTypeInternal;
 extern LoginInfoDefaultTypeInternal _LoginInfo_default_instance_;
@@ -72,13 +74,17 @@ extern RegisterUserInfoDefaultTypeInternal _RegisterUserInfo_default_instance_;
 class UserBaseInfo;
 struct UserBaseInfoDefaultTypeInternal;
 extern UserBaseInfoDefaultTypeInternal _UserBaseInfo_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
-template<> ::LoginInfo* Arena::CreateMaybeMessage<::LoginInfo>(Arena*);
-template<> ::LoginMode* Arena::CreateMaybeMessage<::LoginMode>(Arena*);
-template<> ::LogoutReason* Arena::CreateMaybeMessage<::LogoutReason>(Arena*);
-template<> ::RegisterUserInfo* Arena::CreateMaybeMessage<::RegisterUserInfo>(Arena*);
-template<> ::UserBaseInfo* Arena::CreateMaybeMessage<::UserBaseInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::LoginInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::LoginMode* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginMode>(Arena*);
+template<> ::CRYSTAL_NET::service::LogoutReason* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LogoutReason>(Arena*);
+template<> ::CRYSTAL_NET::service::RegisterUserInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::RegisterUserInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::UserBaseInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserBaseInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
+namespace CRYSTAL_NET {
+namespace service {
 
 enum LoginMode_ENUMS : int {
   LoginMode_ENUMS_PASSWORD = 0,
@@ -139,7 +145,7 @@ inline bool LogoutReason_ENUMS_Parse(
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class UserBaseInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:UserBaseInfo) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserBaseInfo) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -359,7 +365,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "UserBaseInfo";
+    return "CRYSTAL_NET.service.UserBaseInfo";
   }
   protected:
   explicit UserBaseInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -567,7 +573,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_createtime(int64_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:UserBaseInfo)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserBaseInfo)
  private:
   class _Internal;
 
@@ -598,7 +604,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class LoginMode final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:LoginMode) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginMode) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -803,7 +809,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "LoginMode";
+    return "CRYSTAL_NET.service.LoginMode";
   }
   protected:
   explicit LoginMode(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -851,7 +857,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:LoginMode)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LoginMode)
  private:
   class _Internal;
 
@@ -866,7 +872,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class RegisterUserInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:RegisterUserInfo) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.RegisterUserInfo) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1086,7 +1092,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "RegisterUserInfo";
+    return "CRYSTAL_NET.service.RegisterUserInfo";
   }
   protected:
   explicit RegisterUserInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1164,7 +1170,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   std::string* _internal_mutable_createphoneimei();
   public:
 
-  // @@protoc_insertion_point(class_scope:RegisterUserInfo)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.RegisterUserInfo)
  private:
   class _Internal;
 
@@ -1185,7 +1191,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class LoginInfo final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:LoginInfo) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginInfo) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1410,7 +1416,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "LoginInfo";
+    return "CRYSTAL_NET.service.LoginInfo";
   }
   protected:
   explicit LoginInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1579,27 +1585,27 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   void _internal_set_versionid(uint64_t value);
   public:
 
-  // .RegisterUserInfo UserRegisterInfo = 8;
+  // .CRYSTAL_NET.service.RegisterUserInfo UserRegisterInfo = 8;
   bool has_userregisterinfo() const;
   private:
   bool _internal_has_userregisterinfo() const;
   public:
   void clear_userregisterinfo();
-  const ::RegisterUserInfo& userregisterinfo() const;
-  PROTOBUF_NODISCARD ::RegisterUserInfo* release_userregisterinfo();
-  ::RegisterUserInfo* mutable_userregisterinfo();
-  void set_allocated_userregisterinfo(::RegisterUserInfo* userregisterinfo);
+  const ::CRYSTAL_NET::service::RegisterUserInfo& userregisterinfo() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::RegisterUserInfo* release_userregisterinfo();
+  ::CRYSTAL_NET::service::RegisterUserInfo* mutable_userregisterinfo();
+  void set_allocated_userregisterinfo(::CRYSTAL_NET::service::RegisterUserInfo* userregisterinfo);
   private:
-  const ::RegisterUserInfo& _internal_userregisterinfo() const;
-  ::RegisterUserInfo* _internal_mutable_userregisterinfo();
+  const ::CRYSTAL_NET::service::RegisterUserInfo& _internal_userregisterinfo() const;
+  ::CRYSTAL_NET::service::RegisterUserInfo* _internal_mutable_userregisterinfo();
   public:
   void unsafe_arena_set_allocated_userregisterinfo(
-      ::RegisterUserInfo* userregisterinfo);
-  ::RegisterUserInfo* unsafe_arena_release_userregisterinfo();
+      ::CRYSTAL_NET::service::RegisterUserInfo* userregisterinfo);
+  ::CRYSTAL_NET::service::RegisterUserInfo* unsafe_arena_release_userregisterinfo();
 
   void clear_RegisterInfo();
   RegisterInfoCase RegisterInfo_case() const;
-  // @@protoc_insertion_point(class_scope:LoginInfo)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LoginInfo)
  private:
   class _Internal;
   void set_has_userregisterinfo();
@@ -1625,7 +1631,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
     union RegisterInfoUnion {
       constexpr RegisterInfoUnion() : _constinit_{} {}
         ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
-      ::RegisterUserInfo* userregisterinfo_;
+      ::CRYSTAL_NET::service::RegisterUserInfo* userregisterinfo_;
     } RegisterInfo_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     uint32_t _oneof_case_[1];
@@ -1638,7 +1644,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
 // AnnotaionInfo[opcode(0), nolog(false)]
 class LogoutReason final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:LogoutReason) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LogoutReason) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1843,7 +1849,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "LogoutReason";
+    return "CRYSTAL_NET.service.LogoutReason";
   }
   protected:
   explicit LogoutReason(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -1897,7 +1903,7 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:LogoutReason)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LogoutReason)
  private:
   class _Internal;
 
@@ -1927,7 +1933,7 @@ inline uint64_t UserBaseInfo::_internal_userid() const {
   return _impl_.userid_;
 }
 inline uint64_t UserBaseInfo::userid() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.UserId)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.UserId)
   return _internal_userid();
 }
 inline void UserBaseInfo::_internal_set_userid(uint64_t value) {
@@ -1936,7 +1942,7 @@ inline void UserBaseInfo::_internal_set_userid(uint64_t value) {
 }
 inline void UserBaseInfo::set_userid(uint64_t value) {
   _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:UserBaseInfo.UserId)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.UserId)
 }
 
 // string AccountName = 2;
@@ -1944,7 +1950,7 @@ inline void UserBaseInfo::clear_accountname() {
   _impl_.accountname_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::accountname() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.AccountName)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.AccountName)
   return _internal_accountname();
 }
 template <typename ArgT0, typename... ArgT>
@@ -1952,11 +1958,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_accountname(ArgT0&& arg0, ArgT... args) {
  
  _impl_.accountname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.AccountName)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.AccountName)
 }
 inline std::string* UserBaseInfo::mutable_accountname() {
   std::string* _s = _internal_mutable_accountname();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.AccountName)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.AccountName)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_accountname() const {
@@ -1971,7 +1977,7 @@ inline std::string* UserBaseInfo::_internal_mutable_accountname() {
   return _impl_.accountname_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_accountname() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.AccountName)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.AccountName)
   return _impl_.accountname_.Release();
 }
 inline void UserBaseInfo::set_allocated_accountname(std::string* accountname) {
@@ -1986,7 +1992,7 @@ inline void UserBaseInfo::set_allocated_accountname(std::string* accountname) {
     _impl_.accountname_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.AccountName)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.AccountName)
 }
 
 // string Name = 3;
@@ -1994,7 +2000,7 @@ inline void UserBaseInfo::clear_name() {
   _impl_.name_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::name() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.Name)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.Name)
   return _internal_name();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2002,11 +2008,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_name(ArgT0&& arg0, ArgT... args) {
  
  _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.Name)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.Name)
 }
 inline std::string* UserBaseInfo::mutable_name() {
   std::string* _s = _internal_mutable_name();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.Name)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.Name)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_name() const {
@@ -2021,7 +2027,7 @@ inline std::string* UserBaseInfo::_internal_mutable_name() {
   return _impl_.name_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_name() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.Name)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.Name)
   return _impl_.name_.Release();
 }
 inline void UserBaseInfo::set_allocated_name(std::string* name) {
@@ -2036,7 +2042,7 @@ inline void UserBaseInfo::set_allocated_name(std::string* name) {
     _impl_.name_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.Name)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.Name)
 }
 
 // string Nickname = 4;
@@ -2044,7 +2050,7 @@ inline void UserBaseInfo::clear_nickname() {
   _impl_.nickname_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::nickname() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.Nickname)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.Nickname)
   return _internal_nickname();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2052,11 +2058,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_nickname(ArgT0&& arg0, ArgT... args) {
  
  _impl_.nickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.Nickname)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.Nickname)
 }
 inline std::string* UserBaseInfo::mutable_nickname() {
   std::string* _s = _internal_mutable_nickname();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.Nickname)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.Nickname)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_nickname() const {
@@ -2071,7 +2077,7 @@ inline std::string* UserBaseInfo::_internal_mutable_nickname() {
   return _impl_.nickname_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_nickname() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.Nickname)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.Nickname)
   return _impl_.nickname_.Release();
 }
 inline void UserBaseInfo::set_allocated_nickname(std::string* nickname) {
@@ -2086,7 +2092,7 @@ inline void UserBaseInfo::set_allocated_nickname(std::string* nickname) {
     _impl_.nickname_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.Nickname)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.Nickname)
 }
 
 // string Pwd = 5;
@@ -2094,7 +2100,7 @@ inline void UserBaseInfo::clear_pwd() {
   _impl_.pwd_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::pwd() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.Pwd)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.Pwd)
   return _internal_pwd();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2102,11 +2108,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_pwd(ArgT0&& arg0, ArgT... args) {
  
  _impl_.pwd_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.Pwd)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.Pwd)
 }
 inline std::string* UserBaseInfo::mutable_pwd() {
   std::string* _s = _internal_mutable_pwd();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.Pwd)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.Pwd)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_pwd() const {
@@ -2121,7 +2127,7 @@ inline std::string* UserBaseInfo::_internal_mutable_pwd() {
   return _impl_.pwd_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_pwd() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.Pwd)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.Pwd)
   return _impl_.pwd_.Release();
 }
 inline void UserBaseInfo::set_allocated_pwd(std::string* pwd) {
@@ -2136,7 +2142,7 @@ inline void UserBaseInfo::set_allocated_pwd(std::string* pwd) {
     _impl_.pwd_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.Pwd)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.Pwd)
 }
 
 // string PwdSalt = 6;
@@ -2144,7 +2150,7 @@ inline void UserBaseInfo::clear_pwdsalt() {
   _impl_.pwdsalt_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::pwdsalt() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.PwdSalt)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.PwdSalt)
   return _internal_pwdsalt();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2152,11 +2158,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_pwdsalt(ArgT0&& arg0, ArgT... args) {
  
  _impl_.pwdsalt_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.PwdSalt)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.PwdSalt)
 }
 inline std::string* UserBaseInfo::mutable_pwdsalt() {
   std::string* _s = _internal_mutable_pwdsalt();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.PwdSalt)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.PwdSalt)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_pwdsalt() const {
@@ -2171,7 +2177,7 @@ inline std::string* UserBaseInfo::_internal_mutable_pwdsalt() {
   return _impl_.pwdsalt_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_pwdsalt() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.PwdSalt)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.PwdSalt)
   return _impl_.pwdsalt_.Release();
 }
 inline void UserBaseInfo::set_allocated_pwdsalt(std::string* pwdsalt) {
@@ -2186,7 +2192,7 @@ inline void UserBaseInfo::set_allocated_pwdsalt(std::string* pwdsalt) {
     _impl_.pwdsalt_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.PwdSalt)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.PwdSalt)
 }
 
 // uint64 BindPhone = 7;
@@ -2197,7 +2203,7 @@ inline uint64_t UserBaseInfo::_internal_bindphone() const {
   return _impl_.bindphone_;
 }
 inline uint64_t UserBaseInfo::bindphone() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.BindPhone)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.BindPhone)
   return _internal_bindphone();
 }
 inline void UserBaseInfo::_internal_set_bindphone(uint64_t value) {
@@ -2206,7 +2212,7 @@ inline void UserBaseInfo::_internal_set_bindphone(uint64_t value) {
 }
 inline void UserBaseInfo::set_bindphone(uint64_t value) {
   _internal_set_bindphone(value);
-  // @@protoc_insertion_point(field_set:UserBaseInfo.BindPhone)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.BindPhone)
 }
 
 // sint64 LastLoginTime = 8;
@@ -2217,7 +2223,7 @@ inline int64_t UserBaseInfo::_internal_lastlogintime() const {
   return _impl_.lastlogintime_;
 }
 inline int64_t UserBaseInfo::lastlogintime() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.LastLoginTime)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.LastLoginTime)
   return _internal_lastlogintime();
 }
 inline void UserBaseInfo::_internal_set_lastlogintime(int64_t value) {
@@ -2226,7 +2232,7 @@ inline void UserBaseInfo::_internal_set_lastlogintime(int64_t value) {
 }
 inline void UserBaseInfo::set_lastlogintime(int64_t value) {
   _internal_set_lastlogintime(value);
-  // @@protoc_insertion_point(field_set:UserBaseInfo.LastLoginTime)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.LastLoginTime)
 }
 
 // string LastLoginIp = 9;
@@ -2234,7 +2240,7 @@ inline void UserBaseInfo::clear_lastloginip() {
   _impl_.lastloginip_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::lastloginip() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.LastLoginIp)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.LastLoginIp)
   return _internal_lastloginip();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2242,11 +2248,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_lastloginip(ArgT0&& arg0, ArgT... args) {
  
  _impl_.lastloginip_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.LastLoginIp)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.LastLoginIp)
 }
 inline std::string* UserBaseInfo::mutable_lastloginip() {
   std::string* _s = _internal_mutable_lastloginip();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.LastLoginIp)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.LastLoginIp)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_lastloginip() const {
@@ -2261,7 +2267,7 @@ inline std::string* UserBaseInfo::_internal_mutable_lastloginip() {
   return _impl_.lastloginip_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_lastloginip() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.LastLoginIp)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.LastLoginIp)
   return _impl_.lastloginip_.Release();
 }
 inline void UserBaseInfo::set_allocated_lastloginip(std::string* lastloginip) {
@@ -2276,7 +2282,7 @@ inline void UserBaseInfo::set_allocated_lastloginip(std::string* lastloginip) {
     _impl_.lastloginip_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.LastLoginIp)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.LastLoginIp)
 }
 
 // string LastLoginPhoneImei = 10;
@@ -2284,7 +2290,7 @@ inline void UserBaseInfo::clear_lastloginphoneimei() {
   _impl_.lastloginphoneimei_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::lastloginphoneimei() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.LastLoginPhoneImei)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.LastLoginPhoneImei)
   return _internal_lastloginphoneimei();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2292,11 +2298,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_lastloginphoneimei(ArgT0&& arg0, ArgT... args) {
  
  _impl_.lastloginphoneimei_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.LastLoginPhoneImei)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.LastLoginPhoneImei)
 }
 inline std::string* UserBaseInfo::mutable_lastloginphoneimei() {
   std::string* _s = _internal_mutable_lastloginphoneimei();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.LastLoginPhoneImei)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.LastLoginPhoneImei)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_lastloginphoneimei() const {
@@ -2311,7 +2317,7 @@ inline std::string* UserBaseInfo::_internal_mutable_lastloginphoneimei() {
   return _impl_.lastloginphoneimei_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_lastloginphoneimei() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.LastLoginPhoneImei)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.LastLoginPhoneImei)
   return _impl_.lastloginphoneimei_.Release();
 }
 inline void UserBaseInfo::set_allocated_lastloginphoneimei(std::string* lastloginphoneimei) {
@@ -2326,7 +2332,7 @@ inline void UserBaseInfo::set_allocated_lastloginphoneimei(std::string* lastlogi
     _impl_.lastloginphoneimei_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.LastLoginPhoneImei)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.LastLoginPhoneImei)
 }
 
 // string CreateIp = 11;
@@ -2334,7 +2340,7 @@ inline void UserBaseInfo::clear_createip() {
   _impl_.createip_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::createip() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.CreateIp)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.CreateIp)
   return _internal_createip();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2342,11 +2348,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_createip(ArgT0&& arg0, ArgT... args) {
  
  _impl_.createip_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.CreateIp)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.CreateIp)
 }
 inline std::string* UserBaseInfo::mutable_createip() {
   std::string* _s = _internal_mutable_createip();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.CreateIp)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.CreateIp)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_createip() const {
@@ -2361,7 +2367,7 @@ inline std::string* UserBaseInfo::_internal_mutable_createip() {
   return _impl_.createip_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_createip() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.CreateIp)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.CreateIp)
   return _impl_.createip_.Release();
 }
 inline void UserBaseInfo::set_allocated_createip(std::string* createip) {
@@ -2376,7 +2382,7 @@ inline void UserBaseInfo::set_allocated_createip(std::string* createip) {
     _impl_.createip_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.CreateIp)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.CreateIp)
 }
 
 // sint64 CreateTime = 12;
@@ -2387,7 +2393,7 @@ inline int64_t UserBaseInfo::_internal_createtime() const {
   return _impl_.createtime_;
 }
 inline int64_t UserBaseInfo::createtime() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.CreateTime)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.CreateTime)
   return _internal_createtime();
 }
 inline void UserBaseInfo::_internal_set_createtime(int64_t value) {
@@ -2396,7 +2402,7 @@ inline void UserBaseInfo::_internal_set_createtime(int64_t value) {
 }
 inline void UserBaseInfo::set_createtime(int64_t value) {
   _internal_set_createtime(value);
-  // @@protoc_insertion_point(field_set:UserBaseInfo.CreateTime)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.CreateTime)
 }
 
 // string CreatePhoneImei = 13;
@@ -2404,7 +2410,7 @@ inline void UserBaseInfo::clear_createphoneimei() {
   _impl_.createphoneimei_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::createphoneimei() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.CreatePhoneImei)
   return _internal_createphoneimei();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2412,11 +2418,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_createphoneimei(ArgT0&& arg0, ArgT... args) {
  
  _impl_.createphoneimei_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.CreatePhoneImei)
 }
 inline std::string* UserBaseInfo::mutable_createphoneimei() {
   std::string* _s = _internal_mutable_createphoneimei();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.CreatePhoneImei)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_createphoneimei() const {
@@ -2431,7 +2437,7 @@ inline std::string* UserBaseInfo::_internal_mutable_createphoneimei() {
   return _impl_.createphoneimei_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_createphoneimei() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.CreatePhoneImei)
   return _impl_.createphoneimei_.Release();
 }
 inline void UserBaseInfo::set_allocated_createphoneimei(std::string* createphoneimei) {
@@ -2446,7 +2452,7 @@ inline void UserBaseInfo::set_allocated_createphoneimei(std::string* createphone
     _impl_.createphoneimei_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.CreatePhoneImei)
 }
 
 // string BindMailAddr = 14;
@@ -2454,7 +2460,7 @@ inline void UserBaseInfo::clear_bindmailaddr() {
   _impl_.bindmailaddr_.ClearToEmpty();
 }
 inline const std::string& UserBaseInfo::bindmailaddr() const {
-  // @@protoc_insertion_point(field_get:UserBaseInfo.BindMailAddr)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.BindMailAddr)
   return _internal_bindmailaddr();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2462,11 +2468,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void UserBaseInfo::set_bindmailaddr(ArgT0&& arg0, ArgT... args) {
  
  _impl_.bindmailaddr_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:UserBaseInfo.BindMailAddr)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.BindMailAddr)
 }
 inline std::string* UserBaseInfo::mutable_bindmailaddr() {
   std::string* _s = _internal_mutable_bindmailaddr();
-  // @@protoc_insertion_point(field_mutable:UserBaseInfo.BindMailAddr)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserBaseInfo.BindMailAddr)
   return _s;
 }
 inline const std::string& UserBaseInfo::_internal_bindmailaddr() const {
@@ -2481,7 +2487,7 @@ inline std::string* UserBaseInfo::_internal_mutable_bindmailaddr() {
   return _impl_.bindmailaddr_.Mutable(GetArenaForAllocation());
 }
 inline std::string* UserBaseInfo::release_bindmailaddr() {
-  // @@protoc_insertion_point(field_release:UserBaseInfo.BindMailAddr)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserBaseInfo.BindMailAddr)
   return _impl_.bindmailaddr_.Release();
 }
 inline void UserBaseInfo::set_allocated_bindmailaddr(std::string* bindmailaddr) {
@@ -2496,7 +2502,7 @@ inline void UserBaseInfo::set_allocated_bindmailaddr(std::string* bindmailaddr) 
     _impl_.bindmailaddr_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:UserBaseInfo.BindMailAddr)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.BindMailAddr)
 }
 
 // -------------------------------------------------------------------
@@ -2512,7 +2518,7 @@ inline void RegisterUserInfo::clear_accountname() {
   _impl_.accountname_.ClearToEmpty();
 }
 inline const std::string& RegisterUserInfo::accountname() const {
-  // @@protoc_insertion_point(field_get:RegisterUserInfo.AccountName)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.RegisterUserInfo.AccountName)
   return _internal_accountname();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2520,11 +2526,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void RegisterUserInfo::set_accountname(ArgT0&& arg0, ArgT... args) {
  
  _impl_.accountname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:RegisterUserInfo.AccountName)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.RegisterUserInfo.AccountName)
 }
 inline std::string* RegisterUserInfo::mutable_accountname() {
   std::string* _s = _internal_mutable_accountname();
-  // @@protoc_insertion_point(field_mutable:RegisterUserInfo.AccountName)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.RegisterUserInfo.AccountName)
   return _s;
 }
 inline const std::string& RegisterUserInfo::_internal_accountname() const {
@@ -2539,7 +2545,7 @@ inline std::string* RegisterUserInfo::_internal_mutable_accountname() {
   return _impl_.accountname_.Mutable(GetArenaForAllocation());
 }
 inline std::string* RegisterUserInfo::release_accountname() {
-  // @@protoc_insertion_point(field_release:RegisterUserInfo.AccountName)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.RegisterUserInfo.AccountName)
   return _impl_.accountname_.Release();
 }
 inline void RegisterUserInfo::set_allocated_accountname(std::string* accountname) {
@@ -2554,7 +2560,7 @@ inline void RegisterUserInfo::set_allocated_accountname(std::string* accountname
     _impl_.accountname_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:RegisterUserInfo.AccountName)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.RegisterUserInfo.AccountName)
 }
 
 // string Nickname = 2;
@@ -2562,7 +2568,7 @@ inline void RegisterUserInfo::clear_nickname() {
   _impl_.nickname_.ClearToEmpty();
 }
 inline const std::string& RegisterUserInfo::nickname() const {
-  // @@protoc_insertion_point(field_get:RegisterUserInfo.Nickname)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.RegisterUserInfo.Nickname)
   return _internal_nickname();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2570,11 +2576,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void RegisterUserInfo::set_nickname(ArgT0&& arg0, ArgT... args) {
  
  _impl_.nickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:RegisterUserInfo.Nickname)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.RegisterUserInfo.Nickname)
 }
 inline std::string* RegisterUserInfo::mutable_nickname() {
   std::string* _s = _internal_mutable_nickname();
-  // @@protoc_insertion_point(field_mutable:RegisterUserInfo.Nickname)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.RegisterUserInfo.Nickname)
   return _s;
 }
 inline const std::string& RegisterUserInfo::_internal_nickname() const {
@@ -2589,7 +2595,7 @@ inline std::string* RegisterUserInfo::_internal_mutable_nickname() {
   return _impl_.nickname_.Mutable(GetArenaForAllocation());
 }
 inline std::string* RegisterUserInfo::release_nickname() {
-  // @@protoc_insertion_point(field_release:RegisterUserInfo.Nickname)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.RegisterUserInfo.Nickname)
   return _impl_.nickname_.Release();
 }
 inline void RegisterUserInfo::set_allocated_nickname(std::string* nickname) {
@@ -2604,7 +2610,7 @@ inline void RegisterUserInfo::set_allocated_nickname(std::string* nickname) {
     _impl_.nickname_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:RegisterUserInfo.Nickname)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.RegisterUserInfo.Nickname)
 }
 
 // string Pwd = 3;
@@ -2612,7 +2618,7 @@ inline void RegisterUserInfo::clear_pwd() {
   _impl_.pwd_.ClearToEmpty();
 }
 inline const std::string& RegisterUserInfo::pwd() const {
-  // @@protoc_insertion_point(field_get:RegisterUserInfo.Pwd)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.RegisterUserInfo.Pwd)
   return _internal_pwd();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2620,11 +2626,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void RegisterUserInfo::set_pwd(ArgT0&& arg0, ArgT... args) {
  
  _impl_.pwd_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:RegisterUserInfo.Pwd)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.RegisterUserInfo.Pwd)
 }
 inline std::string* RegisterUserInfo::mutable_pwd() {
   std::string* _s = _internal_mutable_pwd();
-  // @@protoc_insertion_point(field_mutable:RegisterUserInfo.Pwd)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.RegisterUserInfo.Pwd)
   return _s;
 }
 inline const std::string& RegisterUserInfo::_internal_pwd() const {
@@ -2639,7 +2645,7 @@ inline std::string* RegisterUserInfo::_internal_mutable_pwd() {
   return _impl_.pwd_.Mutable(GetArenaForAllocation());
 }
 inline std::string* RegisterUserInfo::release_pwd() {
-  // @@protoc_insertion_point(field_release:RegisterUserInfo.Pwd)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.RegisterUserInfo.Pwd)
   return _impl_.pwd_.Release();
 }
 inline void RegisterUserInfo::set_allocated_pwd(std::string* pwd) {
@@ -2654,7 +2660,7 @@ inline void RegisterUserInfo::set_allocated_pwd(std::string* pwd) {
     _impl_.pwd_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:RegisterUserInfo.Pwd)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.RegisterUserInfo.Pwd)
 }
 
 // string CreatePhoneImei = 4;
@@ -2662,7 +2668,7 @@ inline void RegisterUserInfo::clear_createphoneimei() {
   _impl_.createphoneimei_.ClearToEmpty();
 }
 inline const std::string& RegisterUserInfo::createphoneimei() const {
-  // @@protoc_insertion_point(field_get:RegisterUserInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.RegisterUserInfo.CreatePhoneImei)
   return _internal_createphoneimei();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2670,11 +2676,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void RegisterUserInfo::set_createphoneimei(ArgT0&& arg0, ArgT... args) {
  
  _impl_.createphoneimei_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:RegisterUserInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.RegisterUserInfo.CreatePhoneImei)
 }
 inline std::string* RegisterUserInfo::mutable_createphoneimei() {
   std::string* _s = _internal_mutable_createphoneimei();
-  // @@protoc_insertion_point(field_mutable:RegisterUserInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.RegisterUserInfo.CreatePhoneImei)
   return _s;
 }
 inline const std::string& RegisterUserInfo::_internal_createphoneimei() const {
@@ -2689,7 +2695,7 @@ inline std::string* RegisterUserInfo::_internal_mutable_createphoneimei() {
   return _impl_.createphoneimei_.Mutable(GetArenaForAllocation());
 }
 inline std::string* RegisterUserInfo::release_createphoneimei() {
-  // @@protoc_insertion_point(field_release:RegisterUserInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.RegisterUserInfo.CreatePhoneImei)
   return _impl_.createphoneimei_.Release();
 }
 inline void RegisterUserInfo::set_allocated_createphoneimei(std::string* createphoneimei) {
@@ -2704,7 +2710,7 @@ inline void RegisterUserInfo::set_allocated_createphoneimei(std::string* createp
     _impl_.createphoneimei_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:RegisterUserInfo.CreatePhoneImei)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.RegisterUserInfo.CreatePhoneImei)
 }
 
 // -------------------------------------------------------------------
@@ -2719,7 +2725,7 @@ inline int32_t LoginInfo::_internal_loginmode() const {
   return _impl_.loginmode_;
 }
 inline int32_t LoginInfo::loginmode() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.LoginMode)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.LoginMode)
   return _internal_loginmode();
 }
 inline void LoginInfo::_internal_set_loginmode(int32_t value) {
@@ -2728,7 +2734,7 @@ inline void LoginInfo::_internal_set_loginmode(int32_t value) {
 }
 inline void LoginInfo::set_loginmode(int32_t value) {
   _internal_set_loginmode(value);
-  // @@protoc_insertion_point(field_set:LoginInfo.LoginMode)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.LoginMode)
 }
 
 // string AccountName = 2;
@@ -2736,7 +2742,7 @@ inline void LoginInfo::clear_accountname() {
   _impl_.accountname_.ClearToEmpty();
 }
 inline const std::string& LoginInfo::accountname() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.AccountName)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.AccountName)
   return _internal_accountname();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2744,11 +2750,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_accountname(ArgT0&& arg0, ArgT... args) {
  
  _impl_.accountname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginInfo.AccountName)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.AccountName)
 }
 inline std::string* LoginInfo::mutable_accountname() {
   std::string* _s = _internal_mutable_accountname();
-  // @@protoc_insertion_point(field_mutable:LoginInfo.AccountName)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfo.AccountName)
   return _s;
 }
 inline const std::string& LoginInfo::_internal_accountname() const {
@@ -2763,7 +2769,7 @@ inline std::string* LoginInfo::_internal_mutable_accountname() {
   return _impl_.accountname_.Mutable(GetArenaForAllocation());
 }
 inline std::string* LoginInfo::release_accountname() {
-  // @@protoc_insertion_point(field_release:LoginInfo.AccountName)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfo.AccountName)
   return _impl_.accountname_.Release();
 }
 inline void LoginInfo::set_allocated_accountname(std::string* accountname) {
@@ -2778,7 +2784,7 @@ inline void LoginInfo::set_allocated_accountname(std::string* accountname) {
     _impl_.accountname_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginInfo.AccountName)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfo.AccountName)
 }
 
 // string Pwd = 3;
@@ -2786,7 +2792,7 @@ inline void LoginInfo::clear_pwd() {
   _impl_.pwd_.ClearToEmpty();
 }
 inline const std::string& LoginInfo::pwd() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.Pwd)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.Pwd)
   return _internal_pwd();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2794,11 +2800,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_pwd(ArgT0&& arg0, ArgT... args) {
  
  _impl_.pwd_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginInfo.Pwd)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.Pwd)
 }
 inline std::string* LoginInfo::mutable_pwd() {
   std::string* _s = _internal_mutable_pwd();
-  // @@protoc_insertion_point(field_mutable:LoginInfo.Pwd)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfo.Pwd)
   return _s;
 }
 inline const std::string& LoginInfo::_internal_pwd() const {
@@ -2813,7 +2819,7 @@ inline std::string* LoginInfo::_internal_mutable_pwd() {
   return _impl_.pwd_.Mutable(GetArenaForAllocation());
 }
 inline std::string* LoginInfo::release_pwd() {
-  // @@protoc_insertion_point(field_release:LoginInfo.Pwd)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfo.Pwd)
   return _impl_.pwd_.Release();
 }
 inline void LoginInfo::set_allocated_pwd(std::string* pwd) {
@@ -2828,7 +2834,7 @@ inline void LoginInfo::set_allocated_pwd(std::string* pwd) {
     _impl_.pwd_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginInfo.Pwd)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfo.Pwd)
 }
 
 // string LoginToken = 4;
@@ -2836,7 +2842,7 @@ inline void LoginInfo::clear_logintoken() {
   _impl_.logintoken_.ClearToEmpty();
 }
 inline const std::string& LoginInfo::logintoken() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.LoginToken)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.LoginToken)
   return _internal_logintoken();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2844,11 +2850,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_logintoken(ArgT0&& arg0, ArgT... args) {
  
  _impl_.logintoken_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginInfo.LoginToken)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.LoginToken)
 }
 inline std::string* LoginInfo::mutable_logintoken() {
   std::string* _s = _internal_mutable_logintoken();
-  // @@protoc_insertion_point(field_mutable:LoginInfo.LoginToken)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfo.LoginToken)
   return _s;
 }
 inline const std::string& LoginInfo::_internal_logintoken() const {
@@ -2863,7 +2869,7 @@ inline std::string* LoginInfo::_internal_mutable_logintoken() {
   return _impl_.logintoken_.Mutable(GetArenaForAllocation());
 }
 inline std::string* LoginInfo::release_logintoken() {
-  // @@protoc_insertion_point(field_release:LoginInfo.LoginToken)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfo.LoginToken)
   return _impl_.logintoken_.Release();
 }
 inline void LoginInfo::set_allocated_logintoken(std::string* logintoken) {
@@ -2878,7 +2884,7 @@ inline void LoginInfo::set_allocated_logintoken(std::string* logintoken) {
     _impl_.logintoken_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginInfo.LoginToken)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfo.LoginToken)
 }
 
 // string LoginPhoneImei = 5;
@@ -2886,7 +2892,7 @@ inline void LoginInfo::clear_loginphoneimei() {
   _impl_.loginphoneimei_.ClearToEmpty();
 }
 inline const std::string& LoginInfo::loginphoneimei() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.LoginPhoneImei)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.LoginPhoneImei)
   return _internal_loginphoneimei();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2894,11 +2900,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_loginphoneimei(ArgT0&& arg0, ArgT... args) {
  
  _impl_.loginphoneimei_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginInfo.LoginPhoneImei)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.LoginPhoneImei)
 }
 inline std::string* LoginInfo::mutable_loginphoneimei() {
   std::string* _s = _internal_mutable_loginphoneimei();
-  // @@protoc_insertion_point(field_mutable:LoginInfo.LoginPhoneImei)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfo.LoginPhoneImei)
   return _s;
 }
 inline const std::string& LoginInfo::_internal_loginphoneimei() const {
@@ -2913,7 +2919,7 @@ inline std::string* LoginInfo::_internal_mutable_loginphoneimei() {
   return _impl_.loginphoneimei_.Mutable(GetArenaForAllocation());
 }
 inline std::string* LoginInfo::release_loginphoneimei() {
-  // @@protoc_insertion_point(field_release:LoginInfo.LoginPhoneImei)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfo.LoginPhoneImei)
   return _impl_.loginphoneimei_.Release();
 }
 inline void LoginInfo::set_allocated_loginphoneimei(std::string* loginphoneimei) {
@@ -2928,7 +2934,7 @@ inline void LoginInfo::set_allocated_loginphoneimei(std::string* loginphoneimei)
     _impl_.loginphoneimei_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginInfo.LoginPhoneImei)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfo.LoginPhoneImei)
 }
 
 // string TargetIp = 6;
@@ -2936,7 +2942,7 @@ inline void LoginInfo::clear_targetip() {
   _impl_.targetip_.ClearToEmpty();
 }
 inline const std::string& LoginInfo::targetip() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.TargetIp)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.TargetIp)
   return _internal_targetip();
 }
 template <typename ArgT0, typename... ArgT>
@@ -2944,11 +2950,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_targetip(ArgT0&& arg0, ArgT... args) {
  
  _impl_.targetip_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginInfo.TargetIp)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.TargetIp)
 }
 inline std::string* LoginInfo::mutable_targetip() {
   std::string* _s = _internal_mutable_targetip();
-  // @@protoc_insertion_point(field_mutable:LoginInfo.TargetIp)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfo.TargetIp)
   return _s;
 }
 inline const std::string& LoginInfo::_internal_targetip() const {
@@ -2963,7 +2969,7 @@ inline std::string* LoginInfo::_internal_mutable_targetip() {
   return _impl_.targetip_.Mutable(GetArenaForAllocation());
 }
 inline std::string* LoginInfo::release_targetip() {
-  // @@protoc_insertion_point(field_release:LoginInfo.TargetIp)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfo.TargetIp)
   return _impl_.targetip_.Release();
 }
 inline void LoginInfo::set_allocated_targetip(std::string* targetip) {
@@ -2978,7 +2984,7 @@ inline void LoginInfo::set_allocated_targetip(std::string* targetip) {
     _impl_.targetip_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginInfo.TargetIp)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfo.TargetIp)
 }
 
 // uint32 Port = 7;
@@ -2989,7 +2995,7 @@ inline uint32_t LoginInfo::_internal_port() const {
   return _impl_.port_;
 }
 inline uint32_t LoginInfo::port() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.Port)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.Port)
   return _internal_port();
 }
 inline void LoginInfo::_internal_set_port(uint32_t value) {
@@ -2998,10 +3004,10 @@ inline void LoginInfo::_internal_set_port(uint32_t value) {
 }
 inline void LoginInfo::set_port(uint32_t value) {
   _internal_set_port(value);
-  // @@protoc_insertion_point(field_set:LoginInfo.Port)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.Port)
 }
 
-// .RegisterUserInfo UserRegisterInfo = 8;
+// .CRYSTAL_NET.service.RegisterUserInfo UserRegisterInfo = 8;
 inline bool LoginInfo::_internal_has_userregisterinfo() const {
   return RegisterInfo_case() == kUserRegisterInfo;
 }
@@ -3019,11 +3025,11 @@ inline void LoginInfo::clear_userregisterinfo() {
     clear_has_RegisterInfo();
   }
 }
-inline ::RegisterUserInfo* LoginInfo::release_userregisterinfo() {
-  // @@protoc_insertion_point(field_release:LoginInfo.UserRegisterInfo)
+inline ::CRYSTAL_NET::service::RegisterUserInfo* LoginInfo::release_userregisterinfo() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfo.UserRegisterInfo)
   if (_internal_has_userregisterinfo()) {
     clear_has_RegisterInfo();
-    ::RegisterUserInfo* temp = _impl_.RegisterInfo_.userregisterinfo_;
+    ::CRYSTAL_NET::service::RegisterUserInfo* temp = _impl_.RegisterInfo_.userregisterinfo_;
     if (GetArenaForAllocation() != nullptr) {
       temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
     }
@@ -3033,45 +3039,45 @@ inline ::RegisterUserInfo* LoginInfo::release_userregisterinfo() {
     return nullptr;
   }
 }
-inline const ::RegisterUserInfo& LoginInfo::_internal_userregisterinfo() const {
+inline const ::CRYSTAL_NET::service::RegisterUserInfo& LoginInfo::_internal_userregisterinfo() const {
   return _internal_has_userregisterinfo()
       ? *_impl_.RegisterInfo_.userregisterinfo_
-      : reinterpret_cast< ::RegisterUserInfo&>(::_RegisterUserInfo_default_instance_);
+      : reinterpret_cast< ::CRYSTAL_NET::service::RegisterUserInfo&>(::CRYSTAL_NET::service::_RegisterUserInfo_default_instance_);
 }
-inline const ::RegisterUserInfo& LoginInfo::userregisterinfo() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.UserRegisterInfo)
+inline const ::CRYSTAL_NET::service::RegisterUserInfo& LoginInfo::userregisterinfo() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.UserRegisterInfo)
   return _internal_userregisterinfo();
 }
-inline ::RegisterUserInfo* LoginInfo::unsafe_arena_release_userregisterinfo() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:LoginInfo.UserRegisterInfo)
+inline ::CRYSTAL_NET::service::RegisterUserInfo* LoginInfo::unsafe_arena_release_userregisterinfo() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:CRYSTAL_NET.service.LoginInfo.UserRegisterInfo)
   if (_internal_has_userregisterinfo()) {
     clear_has_RegisterInfo();
-    ::RegisterUserInfo* temp = _impl_.RegisterInfo_.userregisterinfo_;
+    ::CRYSTAL_NET::service::RegisterUserInfo* temp = _impl_.RegisterInfo_.userregisterinfo_;
     _impl_.RegisterInfo_.userregisterinfo_ = nullptr;
     return temp;
   } else {
     return nullptr;
   }
 }
-inline void LoginInfo::unsafe_arena_set_allocated_userregisterinfo(::RegisterUserInfo* userregisterinfo) {
+inline void LoginInfo::unsafe_arena_set_allocated_userregisterinfo(::CRYSTAL_NET::service::RegisterUserInfo* userregisterinfo) {
   clear_RegisterInfo();
   if (userregisterinfo) {
     set_has_userregisterinfo();
     _impl_.RegisterInfo_.userregisterinfo_ = userregisterinfo;
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:LoginInfo.UserRegisterInfo)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.LoginInfo.UserRegisterInfo)
 }
-inline ::RegisterUserInfo* LoginInfo::_internal_mutable_userregisterinfo() {
+inline ::CRYSTAL_NET::service::RegisterUserInfo* LoginInfo::_internal_mutable_userregisterinfo() {
   if (!_internal_has_userregisterinfo()) {
     clear_RegisterInfo();
     set_has_userregisterinfo();
-    _impl_.RegisterInfo_.userregisterinfo_ = CreateMaybeMessage< ::RegisterUserInfo >(GetArenaForAllocation());
+    _impl_.RegisterInfo_.userregisterinfo_ = CreateMaybeMessage< ::CRYSTAL_NET::service::RegisterUserInfo >(GetArenaForAllocation());
   }
   return _impl_.RegisterInfo_.userregisterinfo_;
 }
-inline ::RegisterUserInfo* LoginInfo::mutable_userregisterinfo() {
-  ::RegisterUserInfo* _msg = _internal_mutable_userregisterinfo();
-  // @@protoc_insertion_point(field_mutable:LoginInfo.UserRegisterInfo)
+inline ::CRYSTAL_NET::service::RegisterUserInfo* LoginInfo::mutable_userregisterinfo() {
+  ::CRYSTAL_NET::service::RegisterUserInfo* _msg = _internal_mutable_userregisterinfo();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfo.UserRegisterInfo)
   return _msg;
 }
 
@@ -3080,7 +3086,7 @@ inline void LoginInfo::clear_appid() {
   _impl_.appid_.ClearToEmpty();
 }
 inline const std::string& LoginInfo::appid() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.AppId)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.AppId)
   return _internal_appid();
 }
 template <typename ArgT0, typename... ArgT>
@@ -3088,11 +3094,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_appid(ArgT0&& arg0, ArgT... args) {
  
  _impl_.appid_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginInfo.AppId)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.AppId)
 }
 inline std::string* LoginInfo::mutable_appid() {
   std::string* _s = _internal_mutable_appid();
-  // @@protoc_insertion_point(field_mutable:LoginInfo.AppId)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfo.AppId)
   return _s;
 }
 inline const std::string& LoginInfo::_internal_appid() const {
@@ -3107,7 +3113,7 @@ inline std::string* LoginInfo::_internal_mutable_appid() {
   return _impl_.appid_.Mutable(GetArenaForAllocation());
 }
 inline std::string* LoginInfo::release_appid() {
-  // @@protoc_insertion_point(field_release:LoginInfo.AppId)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfo.AppId)
   return _impl_.appid_.Release();
 }
 inline void LoginInfo::set_allocated_appid(std::string* appid) {
@@ -3122,7 +3128,7 @@ inline void LoginInfo::set_allocated_appid(std::string* appid) {
     _impl_.appid_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginInfo.AppId)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfo.AppId)
 }
 
 // string cypherText = 10;
@@ -3130,7 +3136,7 @@ inline void LoginInfo::clear_cyphertext() {
   _impl_.cyphertext_.ClearToEmpty();
 }
 inline const std::string& LoginInfo::cyphertext() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.cypherText)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.cypherText)
   return _internal_cyphertext();
 }
 template <typename ArgT0, typename... ArgT>
@@ -3138,11 +3144,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_cyphertext(ArgT0&& arg0, ArgT... args) {
  
  _impl_.cyphertext_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginInfo.cypherText)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.cypherText)
 }
 inline std::string* LoginInfo::mutable_cyphertext() {
   std::string* _s = _internal_mutable_cyphertext();
-  // @@protoc_insertion_point(field_mutable:LoginInfo.cypherText)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfo.cypherText)
   return _s;
 }
 inline const std::string& LoginInfo::_internal_cyphertext() const {
@@ -3157,7 +3163,7 @@ inline std::string* LoginInfo::_internal_mutable_cyphertext() {
   return _impl_.cyphertext_.Mutable(GetArenaForAllocation());
 }
 inline std::string* LoginInfo::release_cyphertext() {
-  // @@protoc_insertion_point(field_release:LoginInfo.cypherText)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfo.cypherText)
   return _impl_.cyphertext_.Release();
 }
 inline void LoginInfo::set_allocated_cyphertext(std::string* cyphertext) {
@@ -3172,7 +3178,7 @@ inline void LoginInfo::set_allocated_cyphertext(std::string* cyphertext) {
     _impl_.cyphertext_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginInfo.cypherText)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfo.cypherText)
 }
 
 // string originText = 11;
@@ -3180,7 +3186,7 @@ inline void LoginInfo::clear_origintext() {
   _impl_.origintext_.ClearToEmpty();
 }
 inline const std::string& LoginInfo::origintext() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.originText)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.originText)
   return _internal_origintext();
 }
 template <typename ArgT0, typename... ArgT>
@@ -3188,11 +3194,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_origintext(ArgT0&& arg0, ArgT... args) {
  
  _impl_.origintext_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:LoginInfo.originText)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.originText)
 }
 inline std::string* LoginInfo::mutable_origintext() {
   std::string* _s = _internal_mutable_origintext();
-  // @@protoc_insertion_point(field_mutable:LoginInfo.originText)
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LoginInfo.originText)
   return _s;
 }
 inline const std::string& LoginInfo::_internal_origintext() const {
@@ -3207,7 +3213,7 @@ inline std::string* LoginInfo::_internal_mutable_origintext() {
   return _impl_.origintext_.Mutable(GetArenaForAllocation());
 }
 inline std::string* LoginInfo::release_origintext() {
-  // @@protoc_insertion_point(field_release:LoginInfo.originText)
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LoginInfo.originText)
   return _impl_.origintext_.Release();
 }
 inline void LoginInfo::set_allocated_origintext(std::string* origintext) {
@@ -3222,7 +3228,7 @@ inline void LoginInfo::set_allocated_origintext(std::string* origintext) {
     _impl_.origintext_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:LoginInfo.originText)
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfo.originText)
 }
 
 // uint64 versionId = 12;
@@ -3233,7 +3239,7 @@ inline uint64_t LoginInfo::_internal_versionid() const {
   return _impl_.versionid_;
 }
 inline uint64_t LoginInfo::versionid() const {
-  // @@protoc_insertion_point(field_get:LoginInfo.versionId)
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.versionId)
   return _internal_versionid();
 }
 inline void LoginInfo::_internal_set_versionid(uint64_t value) {
@@ -3242,7 +3248,7 @@ inline void LoginInfo::_internal_set_versionid(uint64_t value) {
 }
 inline void LoginInfo::set_versionid(uint64_t value) {
   _internal_set_versionid(value);
-  // @@protoc_insertion_point(field_set:LoginInfo.versionId)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.versionId)
 }
 
 inline bool LoginInfo::has_RegisterInfo() const {
@@ -3272,18 +3278,20 @@ inline LoginInfo::RegisterInfoCase LoginInfo::RegisterInfo_case() const {
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace service
+}  // namespace CRYSTAL_NET
 
 PROTOBUF_NAMESPACE_OPEN
 
-template <> struct is_proto_enum< ::LoginMode_ENUMS> : ::std::true_type {};
+template <> struct is_proto_enum< ::CRYSTAL_NET::service::LoginMode_ENUMS> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::LoginMode_ENUMS>() {
-  return ::LoginMode_ENUMS_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::LoginMode_ENUMS>() {
+  return ::CRYSTAL_NET::service::LoginMode_ENUMS_descriptor();
 }
-template <> struct is_proto_enum< ::LogoutReason_ENUMS> : ::std::true_type {};
+template <> struct is_proto_enum< ::CRYSTAL_NET::service::LogoutReason_ENUMS> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::LogoutReason_ENUMS>() {
-  return ::LogoutReason_ENUMS_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::LogoutReason_ENUMS>() {
+  return ::CRYSTAL_NET::service::LogoutReason_ENUMS_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE
@@ -3305,11 +3313,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new UserBaseInfo();
+        return new ::CRYSTAL_NET::service::UserBaseInfo();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new UserBaseInfo(*dynamic_cast<const UserBaseInfo *>(coder));
+        return new ::CRYSTAL_NET::service::UserBaseInfo(*dynamic_cast<const ::CRYSTAL_NET::service::UserBaseInfo *>(coder));
     }
 
 };
@@ -3328,11 +3336,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new LoginMode();
+        return new ::CRYSTAL_NET::service::LoginMode();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new LoginMode(*dynamic_cast<const LoginMode *>(coder));
+        return new ::CRYSTAL_NET::service::LoginMode(*dynamic_cast<const ::CRYSTAL_NET::service::LoginMode *>(coder));
     }
 
 };
@@ -3351,11 +3359,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new RegisterUserInfo();
+        return new ::CRYSTAL_NET::service::RegisterUserInfo();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new RegisterUserInfo(*dynamic_cast<const RegisterUserInfo *>(coder));
+        return new ::CRYSTAL_NET::service::RegisterUserInfo(*dynamic_cast<const ::CRYSTAL_NET::service::RegisterUserInfo *>(coder));
     }
 
 };
@@ -3374,11 +3382,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new LoginInfo();
+        return new ::CRYSTAL_NET::service::LoginInfo();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new LoginInfo(*dynamic_cast<const LoginInfo *>(coder));
+        return new ::CRYSTAL_NET::service::LoginInfo(*dynamic_cast<const ::CRYSTAL_NET::service::LoginInfo *>(coder));
     }
 
 };
@@ -3397,11 +3405,11 @@ public:
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new LogoutReason();
+        return new ::CRYSTAL_NET::service::LogoutReason();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new LogoutReason(*dynamic_cast<const LogoutReason *>(coder));
+        return new ::CRYSTAL_NET::service::LogoutReason(*dynamic_cast<const ::CRYSTAL_NET::service::LogoutReason *>(coder));
     }
 
 };

@@ -1116,7 +1116,7 @@ void TestSql::Run()
 
         {// pb
             KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB, 0);
-            LoginReq req;
+            ::CRYSTAL_NET::service::LoginReq req;
             KERNEL_NS::LibString info;
             req.SerializeToString(&info.GetRaw());
 
@@ -1161,7 +1161,7 @@ void TestSql::Run()
 
         {// pb
             KERNEL_NS::Field *v = KERNEL_NS::Field::Create("tbl_test_stmt", "Pb", MYSQL_TYPE_BLOB, 0);
-            LoginReq req;
+            ::CRYSTAL_NET::service::LoginReq req;
             KERNEL_NS::LibString info;
             req.SerializeToString(&info.GetRaw());
 
@@ -1211,7 +1211,7 @@ void TestSql::Run()
                 field->GetString(acc);
 
                 auto pbField = record->GetField("Pb");
-                LoginReq req;
+                ::CRYSTAL_NET::service::LoginReq req;
                 req.ParseFromArray(pbField->GetData()->GetReadBegin(), static_cast<Int32>(pbField->GetData()->GetReadableSize()));
 
                 KERNEL_NS::LibString blob;
