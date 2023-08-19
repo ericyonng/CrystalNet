@@ -49,6 +49,8 @@
 
 8. windows下 根据protobuf官方的方法生成静态库
 
+9. protobuf 下bytes转成json的时候会使用base64编码
+
    
 
 ### proto文件结构/格式约束

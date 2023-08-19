@@ -8,7 +8,7 @@
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Res,Opcode:6,NoLog:false,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcodeReq,Opcode:3,NoLog:false,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcodeRes,Opcode:4,NoLog:false,]
-/// ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,Md5:FbJYRpvrr6cdbqs5x4xYKA==,ModifyTime:1692361759,
+/// ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,Md5:tb4kr6cbQqR/n6ii0L4BTQ==,ModifyTime:1692463141,
 
 
 [ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:PlayerDataReq,Opcode:7,NoLog:false,]

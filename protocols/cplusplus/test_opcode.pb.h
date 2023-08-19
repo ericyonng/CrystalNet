@@ -194,15 +194,36 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     return true;
 }
 
-virtual KERNEL_NS::LibString CoderToString() const override {
+virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
         return "";
     }
 
     return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
 }
 
 
@@ -326,12 +347,9 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   enum : int {
     kContentFieldNumber = 1,
+    kTestIdFieldNumber = 2,
   };
-  // optional bytes content = 1;
-  bool has_content() const;
-  private:
-  bool _internal_has_content() const;
-  public:
+  // string content = 1;
   void clear_content();
   const std::string& content() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -345,6 +363,15 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   std::string* _internal_mutable_content();
   public:
 
+  // sint64 TestId = 2;
+  void clear_testid();
+  int64_t testid() const;
+  void set_testid(int64_t value);
+  private:
+  int64_t _internal_testid() const;
+  void _internal_set_testid(int64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOpcodeReq)
  private:
   class _Internal;
@@ -353,9 +380,9 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
+    int64_t testid_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_test_5fopcode_2eproto;
@@ -470,15 +497,36 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     return true;
 }
 
-virtual KERNEL_NS::LibString CoderToString() const override {
+virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
         return "";
     }
 
     return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
 }
 
 
@@ -602,12 +650,9 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 
   enum : int {
     kContentFieldNumber = 1,
+    kTestIdFieldNumber = 2,
   };
-  // optional bytes content = 1;
-  bool has_content() const;
-  private:
-  bool _internal_has_content() const;
-  public:
+  // string content = 1;
   void clear_content();
   const std::string& content() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -621,6 +666,15 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   std::string* _internal_mutable_content();
   public:
 
+  // sint64 TestId = 2;
+  void clear_testid();
+  int64_t testid() const;
+  void set_testid(int64_t value);
+  private:
+  int64_t _internal_testid() const;
+  void _internal_set_testid(int64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOpcodeRes)
  private:
   class _Internal;
@@ -629,9 +683,9 @@ virtual KERNEL_NS::LibString CoderToString() const override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
+    int64_t testid_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_test_5fopcode_2eproto;
@@ -746,15 +800,36 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     return true;
 }
 
-virtual KERNEL_NS::LibString CoderToString() const override {
+virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
         return "";
     }
 
     return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
 }
 
 
@@ -1037,15 +1112,36 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     return true;
 }
 
-virtual KERNEL_NS::LibString CoderToString() const override {
+virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
         return "";
     }
 
     return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
 }
 
 
@@ -1328,15 +1424,36 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
     return true;
 }
 
-virtual KERNEL_NS::LibString CoderToString() const override {
+virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
         return "";
     }
 
     return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
 }
 
 
@@ -1520,17 +1637,9 @@ virtual KERNEL_NS::LibString CoderToString() const override {
 #endif  // __GNUC__
 // TestOpcodeReq
 
-// optional bytes content = 1;
-inline bool TestOpcodeReq::_internal_has_content() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
-  return value;
-}
-inline bool TestOpcodeReq::has_content() const {
-  return _internal_has_content();
-}
+// string content = 1;
 inline void TestOpcodeReq::clear_content() {
   _impl_.content_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestOpcodeReq::content() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeReq.content)
@@ -1539,8 +1648,8 @@ inline const std::string& TestOpcodeReq::content() const {
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void TestOpcodeReq::set_content(ArgT0&& arg0, ArgT... args) {
- _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.content_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ 
+ _impl_.content_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeReq.content)
 }
 inline std::string* TestOpcodeReq::mutable_content() {
@@ -1552,32 +1661,22 @@ inline const std::string& TestOpcodeReq::_internal_content() const {
   return _impl_.content_.Get();
 }
 inline void TestOpcodeReq::_internal_set_content(const std::string& value) {
-  _impl_._has_bits_[0] |= 0x00000001u;
+  
   _impl_.content_.Set(value, GetArenaForAllocation());
 }
 inline std::string* TestOpcodeReq::_internal_mutable_content() {
-  _impl_._has_bits_[0] |= 0x00000001u;
+  
   return _impl_.content_.Mutable(GetArenaForAllocation());
 }
 inline std::string* TestOpcodeReq::release_content() {
   // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOpcodeReq.content)
-  if (!_internal_has_content()) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* p = _impl_.content_.Release();
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.content_.IsDefault()) {
-    _impl_.content_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  return p;
+  return _impl_.content_.Release();
 }
 inline void TestOpcodeReq::set_allocated_content(std::string* content) {
   if (content != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
+    
   } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
+    
   }
   _impl_.content_.SetAllocated(content, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1588,21 +1687,33 @@ inline void TestOpcodeReq::set_allocated_content(std::string* content) {
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOpcodeReq.content)
 }
 
+// sint64 TestId = 2;
+inline void TestOpcodeReq::clear_testid() {
+  _impl_.testid_ = int64_t{0};
+}
+inline int64_t TestOpcodeReq::_internal_testid() const {
+  return _impl_.testid_;
+}
+inline int64_t TestOpcodeReq::testid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeReq.TestId)
+  return _internal_testid();
+}
+inline void TestOpcodeReq::_internal_set_testid(int64_t value) {
+  
+  _impl_.testid_ = value;
+}
+inline void TestOpcodeReq::set_testid(int64_t value) {
+  _internal_set_testid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeReq.TestId)
+}
+
 // -------------------------------------------------------------------
 
 // TestOpcodeRes
 
-// optional bytes content = 1;
-inline bool TestOpcodeRes::_internal_has_content() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
-  return value;
-}
-inline bool TestOpcodeRes::has_content() const {
-  return _internal_has_content();
-}
+// string content = 1;
 inline void TestOpcodeRes::clear_content() {
   _impl_.content_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& TestOpcodeRes::content() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeRes.content)
@@ -1611,8 +1722,8 @@ inline const std::string& TestOpcodeRes::content() const {
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void TestOpcodeRes::set_content(ArgT0&& arg0, ArgT... args) {
- _impl_._has_bits_[0] |= 0x00000001u;
- _impl_.content_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ 
+ _impl_.content_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeRes.content)
 }
 inline std::string* TestOpcodeRes::mutable_content() {
@@ -1624,32 +1735,22 @@ inline const std::string& TestOpcodeRes::_internal_content() const {
   return _impl_.content_.Get();
 }
 inline void TestOpcodeRes::_internal_set_content(const std::string& value) {
-  _impl_._has_bits_[0] |= 0x00000001u;
+  
   _impl_.content_.Set(value, GetArenaForAllocation());
 }
 inline std::string* TestOpcodeRes::_internal_mutable_content() {
-  _impl_._has_bits_[0] |= 0x00000001u;
+  
   return _impl_.content_.Mutable(GetArenaForAllocation());
 }
 inline std::string* TestOpcodeRes::release_content() {
   // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOpcodeRes.content)
-  if (!_internal_has_content()) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* p = _impl_.content_.Release();
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.content_.IsDefault()) {
-    _impl_.content_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  return p;
+  return _impl_.content_.Release();
 }
 inline void TestOpcodeRes::set_allocated_content(std::string* content) {
   if (content != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
+    
   } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
+    
   }
   _impl_.content_.SetAllocated(content, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -1658,6 +1759,26 @@ inline void TestOpcodeRes::set_allocated_content(std::string* content) {
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOpcodeRes.content)
+}
+
+// sint64 TestId = 2;
+inline void TestOpcodeRes::clear_testid() {
+  _impl_.testid_ = int64_t{0};
+}
+inline int64_t TestOpcodeRes::_internal_testid() const {
+  return _impl_.testid_;
+}
+inline int64_t TestOpcodeRes::testid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeRes.TestId)
+  return _internal_testid();
+}
+inline void TestOpcodeRes::_internal_set_testid(int64_t value) {
+  
+  _impl_.testid_ = value;
+}
+inline void TestOpcodeRes::set_testid(int64_t value) {
+  _internal_set_testid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeRes.TestId)
 }
 
 // -------------------------------------------------------------------

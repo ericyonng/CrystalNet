@@ -72,6 +72,8 @@ namespace Status
         PollerFail = 26,                                        // poller失败
         DummyHandle = 27,                                       // 伪处理
         LibraryError = 28,                                      // 来自库的报错
+        ToJsonFail = 29,                                        // 转json失败
+        FromJsonFail = 30,                                      // 从json反序列化失败
         
 
         // SOCKET[500, 599]

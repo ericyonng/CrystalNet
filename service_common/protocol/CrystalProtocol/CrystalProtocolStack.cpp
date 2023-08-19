@@ -213,9 +213,11 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
             {
                 auto &localAddr = addr->GetLocalBriefAddr();
                 auto &remoteAddr = addr->GetRemoteBriefAddr();
+                std::string jsonString;
+                coder->ToJsonString(&jsonString);
                g_Log->NetInfo(LOGFMT_OBJ_TAG("[RECV: session id:%llu, local:%s:%hu <= remote:%s:%hu, header:%s]\n[coder data]:\n%s")
                , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
-               , header.ToString().c_str(), coder->CoderToString().c_str()); 
+               , header.ToString().c_str(), jsonString.c_str()); 
             }
 
             if(LIKELY(option._sessionRecvPacketStackLimit != 0))
@@ -295,6 +297,7 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
         {
             g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail have no coder, packet:%s, session:%s"), StackPacketToString(packet).c_str(), session->ToString().c_str());
             errCode = Status::CoderFail;
+            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
             break;
         }
         const auto contentEnd = stream->GetWriteBytes();
@@ -306,6 +309,7 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
             g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail content size over limit content size:%lld, limit:%d, packet:%s, session:%s")
                             ,contentSize, MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT, StackPacketToString(packet).c_str(), session->ToString().c_str());
             stream->ShiftWritePos(-(contentSize));
+            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
             errCode = Status::CoderFail;
             break;
         }
@@ -317,6 +321,8 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
             g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail packet content size over session packet content limit, content size:%lld, sessionType:%d, limit:%llu, packet:%s, session:%s")
             , contentSize, session->GetSessionType(), sessionPacketContentLimit, StackPacketToString(packet).c_str(), session->ToString().c_str());
             errCode = Status::CoderFail;
+            stream->ShiftWritePos(-(contentSize));
+            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
             break;
         }
 
@@ -348,9 +354,12 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
             auto addr = sock->GetAddr();
             auto &localAddr = addr->GetLocalBriefAddr();
             auto &remoteAddr = addr->GetRemoteBriefAddr();
+            std::string jsonString;
+            coder->ToJsonString(&jsonString);
+
             g_Log->NetInfo(LOGFMT_OBJ_TAG("[SEND: session id:%llu, local:%s:%hu => remote:%s:%hu, header:%s]\n[coder data]:\n%s")
             , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
-            , header.ToString().c_str(), coder->CoderToString().c_str()); 
+            , header.ToString().c_str(), jsonString.c_str()); 
         }
 
         handledBytes += static_cast<UInt64>(header._len);

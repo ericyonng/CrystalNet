@@ -6,8 +6,6 @@ cd %~dp0/tools/protogen/ && protogentool.exe --proto_path=../../protocols/proto 
 
 ::%~dp0/tools/protobuf-net/ProtoGen/protoc.exe --proto_path=%~dp0/protocols/proto --cpp_out=%~dp0/protocols/cplusplus %~dp0/protocols/proto/com.proto
 
-echo protobuf => ts
-
 cd %CUR_PATH%/tools/protobuf/bin
 for %%i in (../../../protocols/proto/*.proto) do (
     protoc.exe --js_out=import_style=es6,binary:../../../protocols/js/ --proto_path=../../../protocols/proto %%i

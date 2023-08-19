@@ -26,21 +26,21 @@ using ProtoPackage.Attributes;
     static TestOpcodeReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChF0ZXN0X29wY29kZS5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSIxCg1U",
-            "ZXN0T3Bjb2RlUmVxEhQKB2NvbnRlbnQYASABKAxIAIgBAUIKCghfY29udGVu",
-            "dCIxCg1UZXN0T3Bjb2RlUmVzEhQKB2NvbnRlbnQYASABKAxIAIgBAUIKCghf",
-            "Y29udGVudCJKCg5UZXN0T3Bjb2RlMlJlcRIPCgJpZBgBIAEoEUgAiAEBEhQK",
-            "B2NvbnRlbnQYAiABKAlIAYgBAUIFCgNfaWRCCgoIX2NvbnRlbnQiUgoOVGVz",
-            "dE9wY29kZUluZm8SFAoHZXJyQ29kZRgBIAEoEUgAiAEBEhMKBmVyck1zZxgC",
-            "IAEoCUgBiAEBQgoKCF9lcnJDb2RlQgkKB19lcnJNc2ciewoOVGVzdE9wY29k",
-            "ZTJSZXMSFAoHaWRfaW5mbxgBIAEoBUgAiAEBEjoKCHRlc3RJbmZvGAIgASgL",
-            "MiMuQ1JZU1RBTF9ORVQuc2VydmljZS5UZXN0T3Bjb2RlSW5mb0gBiAEBQgoK",
-            "CF9pZF9pbmZvQgsKCV90ZXN0SW5mb2IGcHJvdG8z"));
+            "ChF0ZXN0X29wY29kZS5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSIwCg1U",
+            "ZXN0T3Bjb2RlUmVxEg8KB2NvbnRlbnQYASABKAkSDgoGVGVzdElkGAIgASgS",
+            "IjAKDVRlc3RPcGNvZGVSZXMSDwoHY29udGVudBgBIAEoCRIOCgZUZXN0SWQY",
+            "AiABKBIiSgoOVGVzdE9wY29kZTJSZXESDwoCaWQYASABKBFIAIgBARIUCgdj",
+            "b250ZW50GAIgASgJSAGIAQFCBQoDX2lkQgoKCF9jb250ZW50IlIKDlRlc3RP",
+            "cGNvZGVJbmZvEhQKB2VyckNvZGUYASABKBFIAIgBARITCgZlcnJNc2cYAiAB",
+            "KAlIAYgBAUIKCghfZXJyQ29kZUIJCgdfZXJyTXNnInsKDlRlc3RPcGNvZGUy",
+            "UmVzEhQKB2lkX2luZm8YASABKAVIAIgBARI6Cgh0ZXN0SW5mbxgCIAEoCzIj",
+            "LkNSWVNUQUxfTkVULnNlcnZpY2UuVGVzdE9wY29kZUluZm9IAYgBAUIKCghf",
+            "aWRfaW5mb0ILCglfdGVzdEluZm9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.TestOpcodeReq), global::CRYSTALNET.Service.TestOpcodeReq.Parser, new[]{ "Content" }, new[]{ "Content" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.TestOpcodeRes), global::CRYSTALNET.Service.TestOpcodeRes.Parser, new[]{ "Content" }, new[]{ "Content" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.TestOpcodeReq), global::CRYSTALNET.Service.TestOpcodeReq.Parser, new[]{ "Content", "TestId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.TestOpcodeRes), global::CRYSTALNET.Service.TestOpcodeRes.Parser, new[]{ "Content", "TestId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.TestOpcode2Req), global::CRYSTALNET.Service.TestOpcode2Req.Parser, new[]{ "Id", "Content" }, new[]{ "Id", "Content" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.TestOpcodeInfo), global::CRYSTALNET.Service.TestOpcodeInfo.Parser, new[]{ "ErrCode", "ErrMsg" }, new[]{ "ErrCode", "ErrMsg" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.TestOpcode2Res), global::CRYSTALNET.Service.TestOpcode2Res.Parser, new[]{ "IdInfo", "TestInfo" }, new[]{ "IdInfo", "TestInfo" }, null, null, null)
@@ -51,6 +51,7 @@ using ProtoPackage.Attributes;
   }
   #region Messages
   /// <summary>
+  /// bytes 数据结构转json的时候会转成base64编码
   //// Opcode:
   /// </summary>
 [ProtoMessage(3)]
@@ -89,6 +90,7 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public TestOpcodeReq(TestOpcodeReq other) : this() {
       content_ = other.content_;
+      testId_ = other.testId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -100,26 +102,26 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "content" field.</summary>
     public const int ContentFieldNumber = 1;
-    private pb::ByteString content_;
+    private string content_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pb::ByteString Content {
-      get { return content_ ?? pb::ByteString.Empty; }
+    public string Content {
+      get { return content_; }
       set {
         content_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
-    /// <summary>Gets whether the "content" field is set</summary>
+
+    /// <summary>Field number for the "TestId" field.</summary>
+    public const int TestIdFieldNumber = 2;
+    private long testId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasContent {
-      get { return content_ != null; }
-    }
-    /// <summary>Clears the value of the "content" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearContent() {
-      content_ = null;
+    public long TestId {
+      get { return testId_; }
+      set {
+        testId_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -138,6 +140,7 @@ using ProtoPackage.Attributes;
         return true;
       }
       if (Content != other.Content) return false;
+      if (TestId != other.TestId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -145,7 +148,8 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (HasContent) hash ^= Content.GetHashCode();
+      if (Content.Length != 0) hash ^= Content.GetHashCode();
+      if (TestId != 0L) hash ^= TestId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -164,9 +168,13 @@ using ProtoPackage.Attributes;
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (HasContent) {
+      if (Content.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteBytes(Content);
+        output.WriteString(Content);
+      }
+      if (TestId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(TestId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -178,9 +186,13 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasContent) {
+      if (Content.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteBytes(Content);
+        output.WriteString(Content);
+      }
+      if (TestId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(TestId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -192,8 +204,11 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (HasContent) {
-        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Content);
+      if (Content.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Content);
+      }
+      if (TestId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TestId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -207,8 +222,11 @@ using ProtoPackage.Attributes;
       if (other == null) {
         return;
       }
-      if (other.HasContent) {
+      if (other.Content.Length != 0) {
         Content = other.Content;
+      }
+      if (other.TestId != 0L) {
+        TestId = other.TestId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -226,7 +244,11 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            Content = input.ReadBytes();
+            Content = input.ReadString();
+            break;
+          }
+          case 16: {
+            TestId = input.ReadSInt64();
             break;
           }
         }
@@ -245,7 +267,11 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            Content = input.ReadBytes();
+            Content = input.ReadString();
+            break;
+          }
+          case 16: {
+            TestId = input.ReadSInt64();
             break;
           }
         }
@@ -294,6 +320,7 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public TestOpcodeRes(TestOpcodeRes other) : this() {
       content_ = other.content_;
+      testId_ = other.testId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -305,26 +332,26 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "content" field.</summary>
     public const int ContentFieldNumber = 1;
-    private pb::ByteString content_;
+    private string content_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pb::ByteString Content {
-      get { return content_ ?? pb::ByteString.Empty; }
+    public string Content {
+      get { return content_; }
       set {
         content_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
-    /// <summary>Gets whether the "content" field is set</summary>
+
+    /// <summary>Field number for the "TestId" field.</summary>
+    public const int TestIdFieldNumber = 2;
+    private long testId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasContent {
-      get { return content_ != null; }
-    }
-    /// <summary>Clears the value of the "content" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearContent() {
-      content_ = null;
+    public long TestId {
+      get { return testId_; }
+      set {
+        testId_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -343,6 +370,7 @@ using ProtoPackage.Attributes;
         return true;
       }
       if (Content != other.Content) return false;
+      if (TestId != other.TestId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -350,7 +378,8 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (HasContent) hash ^= Content.GetHashCode();
+      if (Content.Length != 0) hash ^= Content.GetHashCode();
+      if (TestId != 0L) hash ^= TestId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -369,9 +398,13 @@ using ProtoPackage.Attributes;
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (HasContent) {
+      if (Content.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteBytes(Content);
+        output.WriteString(Content);
+      }
+      if (TestId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(TestId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -383,9 +416,13 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasContent) {
+      if (Content.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteBytes(Content);
+        output.WriteString(Content);
+      }
+      if (TestId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(TestId);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -397,8 +434,11 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (HasContent) {
-        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Content);
+      if (Content.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Content);
+      }
+      if (TestId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TestId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -412,8 +452,11 @@ using ProtoPackage.Attributes;
       if (other == null) {
         return;
       }
-      if (other.HasContent) {
+      if (other.Content.Length != 0) {
         Content = other.Content;
+      }
+      if (other.TestId != 0L) {
+        TestId = other.TestId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -431,7 +474,11 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            Content = input.ReadBytes();
+            Content = input.ReadString();
+            break;
+          }
+          case 16: {
+            TestId = input.ReadSInt64();
             break;
           }
         }
@@ -450,7 +497,11 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            Content = input.ReadBytes();
+            Content = input.ReadString();
+            break;
+          }
+          case 16: {
+            TestId = input.ReadSInt64();
             break;
           }
         }

@@ -220,10 +220,11 @@ void TestMgr::_OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet)
         return;
 
     auto req = packet->GetCoder<TestOpcodeReq>();
-    // g_Log->Custom("req:%s", req->DebugString().c_str());
+    g_Log->Custom("req:%s", req->DebugString().c_str());
 
     TestOpcodeRes res;
     res.set_content(req->content());
+    res.set_testid(req->testid());
     Send(packet->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestOpcodeRes, res, packet->GetPacketId());
 }
 

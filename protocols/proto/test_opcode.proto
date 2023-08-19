@@ -1,16 +1,19 @@
 syntax = "proto3";
 package CRYSTAL_NET.service;
 
+// bytes 数据结构转json的时候会转成base64编码
 /// Opcode:
 message TestOpcodeReq
 {
-    optional bytes content = 1;
+    string content = 1;
+    sint64 TestId = 2;
 }
 
 /// Opcode:
 message TestOpcodeRes
 {
-    optional bytes content = 1;
+    string content = 1;
+    sint64 TestId = 2;
 }
 
 /// Opcode:

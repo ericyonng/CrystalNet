@@ -29,9 +29,51 @@
 #include <pch.h>
 #include <service_common/protocol/CrystalProtocol/CrystalProtocolJsonStack.h>
 #include "service_common/protocol/CrystalProtocol/CrystalMsgHeader.h"
-
+#ifndef DISABLE_OPCODES
+ #include <protocols/protocols.h>
+#endif
 
 SERVICE_COMMON_BEGIN
+
+static ALWAYS_INLINE KERNEL_NS::LibString StackPacketToString(const KERNEL_NS::LibPacket *packet)
+{
+    KERNEL_NS::LibString &&packetString = packet->ToString();
+
+    #ifndef DISABLE_OPCODES
+    auto opcodeInfo = Opcodes::GetOpcodeInfo(packet->GetOpcode());
+    if(LIKELY(opcodeInfo))
+        packetString.AppendFormat(", opcode name:%s", opcodeInfo->_opcodeName.c_str());
+    else
+        packetString.AppendFormat(", unknown opcode");
+    #endif
+
+    return packetString;
+}
+
+static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
+{
+    KERNEL_NS::LibString opcodeName;
+
+    #ifndef DISABLE_OPCODES
+    auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
+    if(LIKELY(opcodeInfo))
+        opcodeName.AppendFormat("opcode name:%s", opcodeInfo->_opcodeName.c_str());
+    else
+        opcodeName.AppendFormat("unknown opcode");
+    #endif
+
+    return opcodeName;
+}
+
+static ALWAYS_INLINE bool IsNeedLog(Int32 opcode)
+{
+    #ifndef DISABLE_OPCODES
+        return Opcodes::IsNeedLog(opcode);
+    #else
+        return false;
+    #endif
+
+}
 
 CrystalProtocolJsonStack::~CrystalProtocolJsonStack()
 {
@@ -64,7 +106,7 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
         // 1.解码包头
         CrystalMsgHeader header;
         {
-            if(streamCache.GetReadableSize() < MsgHeaderStructure::LEN_SIZE)
+            if(streamCache.GetReadableSize() < MsgHeaderStructure::MSG_HEADER_SIZE)
             {
                 // g_Log->NetDebug(LOGFMT_OBJ_TAG("data not reach parsing header size session:%s, stream readable size:%llu")
                 //                 , session->ToString().c_str(), streamCache.GetReadableSize());
@@ -72,8 +114,11 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
                 break;
             }
 
-            // 格式:2字节长度 + json字符串数据
             streamCache.Read(&header._len, MsgHeaderStructure::LEN_SIZE);
+            streamCache.Read(&header._protocolVersion, MsgHeaderStructure::PROTOCOL_VERSION_SIZE);
+            streamCache.Read(&header._flags, MsgHeaderStructure::FLAGS_SIZE);
+            streamCache.Read(&header._opcodeId, MsgHeaderStructure::OPCODE_SIZE);
+            streamCache.Read(&header._packetId, MsgHeaderStructure::PACKET_ID_SIZE);
 
             if(header._len > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT)
             {
@@ -90,10 +135,18 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
                 errCode = Status::ParsingPacketFail;
                 break;
             }
+
+            if(header._packetId < 0)
+            {
+                g_Log->NetWarn(LOGFMT_OBJ_TAG("bad msg:bad packet id:%lld, header:%s, session:%s")
+                            , header._packetId, header.ToString().c_str(), session->ToString().c_str());
+                errCode = Status::ParsingPacketFail;
+                break;
+            }
         }
 
         // 2.剩余包数据是否够解析包体
-        if(streamCache.GetReadableSize() < (header._len - MsgHeaderStructure::LEN_SIZE))
+        if(streamCache.GetReadableSize() < (header._len - MsgHeaderStructure::MSG_HEADER_SIZE))
         {
             // g_Log->NetDebug(LOGFMT_OBJ_TAG("data not reach msg body data len session:%s, stream readable size:%lld, msg len:%u")
             //     , session->ToString().c_str(), streamCache.GetReadableSize(), (header._len - static_cast<UInt32>(MsgHeaderStructure::MSG_HEADER_SIZE)));
@@ -101,32 +154,80 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
             break;
         }
 
+        // 3.校验opcode
+        auto coderFactory = GetCoderFactory(header._opcodeId);
+        if(!coderFactory)
+        {
+            g_Log->NetWarn(LOGFMT_OBJ_TAG("have no opcode coder opcodeId:%d, header:%s, session:%s")
+            , header._opcodeId, header.ToString().c_str(), session->ToString().c_str());
+            errCode = Status::ParsingPacketFail;
+            break;
+        }
+
         // 4.创建编码器并解码
-        KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> safeDecode;
-        const Int64 msgBodySize = static_cast<Int64>(header._len - MsgHeaderStructure::LEN_SIZE);
-        safeDecode.Attach(const_cast<Byte8 *>(streamCache.GetReadBegin()), msgBodySize, 0, msgBodySize);
-        KERNEL_NS::LibString dataStr;
-        dataStr.AppendData(safeDecode.GetReadBegin(), static_cast<Int64>(msgBodySize));
-
-        const auto &jsonObj = nlohmann::json::parse(dataStr.c_str(), NULL, false);
-        const auto isJson = jsonObj.is_object();
-
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("session id:%llu, addr:%s recv data len:%u, data:\n%s, is json:%d")
-        , session->GetId(), session->GetSock()->GetAddr()->ToString().c_str(), msgBodySize, dataStr.c_str(), isJson);
-
-
-        // const auto &jsonString = nlohmann::json::parse(dataStr.c_str(), NULL, false);
-        // if(!jsonString.is_object())
-        // {
-        //     g_Log->NetWarn(LOGFMT_OBJ_TAG("json parse fail header len:%u session id:%llu, session addr:%s")
-        //             , header._len, session->GetId(), session->GetSock()->GetAddr()->ToString().c_str());
-        // }
-
+        auto coder = coderFactory->Create();
+        const auto msgBodySize = header._len - MsgHeaderStructure::MSG_HEADER_SIZE;
+        if(!coder->FromJsonString(streamCache.GetReadBegin(), msgBodySize))
+        {
+            g_Log->NetWarn(LOGFMT_OBJ_TAG("coder FromJsonString fail opcode:%d, header:%s, session:%s"), header._opcodeId, header.ToString().c_str(), session->ToString().c_str());
+            errCode = Status::ParsingPacketFail;
+            coder->Release();
+            break;
+        }
         streamCache.ShiftReadPos(msgBodySize);
 
-        // 5.解码成功一个包
+        // 5.创建消息包 限速保护
+        if(LIKELY(session->CheckUpdateRecvSpeed()))
+        {
+            if (UNLIKELY(!parsedPacket))
+            {
+                parsedPacket = KERNEL_NS::LibList<KERNEL_NS::LibPacket *>::New_LibList();
+                recvPacketsBatch->PushBack(parsedPacket);
+            }
+
+            KERNEL_NS::LibPacket *packet = KERNEL_NS::LibPacket::New_LibPacket();
+            packet->SetSessionId(session->GetId());
+            auto sock = session->GetSock();
+            auto addr = sock->GetAddr();
+            packet->SetLocalAddr(addr->GetLocalBriefAddr());
+            packet->SetRemoteAddr(addr->GetRemoteBriefAddr());
+            packet->SetPacketId(header._packetId);
+            packet->SetOpcode(header._opcodeId);
+            packet->SetCoder(coder);
+
+            if(_enableProtocolLog && IsNeedLog(header._opcodeId))
+            {
+                auto &localAddr = addr->GetLocalBriefAddr();
+                auto &remoteAddr = addr->GetRemoteBriefAddr();
+                std::string jsonString;
+                coder->ToJsonString(&jsonString);
+               g_Log->NetInfo(LOGFMT_OBJ_TAG("[RECV: session id:%llu, local:%s:%hu <= remote:%s:%hu, header:%s]\n[coder data]:\n%s")
+               , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
+               , header.ToString().c_str(), jsonString.c_str()); 
+            }
+
+            if(LIKELY(option._sessionRecvPacketStackLimit != 0))
+            {
+                if(parsedPacket->GetAmount() >= option._sessionRecvPacketStackLimit)
+                {
+                    parsedPacket = KERNEL_NS::LibList<KERNEL_NS::LibPacket *>::New_LibList();
+                    recvPacketsBatch->PushBack(parsedPacket);
+                }
+            }
+
+            parsedPacket->PushBack(packet);
+            ++packetCount;
+        }
+        else
+        {
+            auto addr = session->GetSock()->GetAddr();
+            g_Log->NetWarn(LOGFMT_OBJ_TAG("session speed over limit[%llu] per %llu ms, sessionId:%llu, %s ")
+                , option._sessionRecvPacketSpeedLimit, option._sessionRecvPacketSpeedTimeUnitMs
+                , session->GetId(), addr->ToString().c_str());
+        }
+
+        // 6.解码成功一个包
         handledBytes += header._len;
-        ++packetCount;
         stream.ShiftReadPos(header._len);
     }
 
@@ -141,9 +242,144 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
 , KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *stream
 , UInt64 &handledBytes)
 {
+   #if _DEBUG
+    auto &&outputLogFunc = [](UInt64 costMs){
+        g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
+    };
+        
+    PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 5);
+    #endif
+    
+    Int32 errCode = Status::Success;
+    handledBytes = 0;
+    do
+    {
+        // 1.校验coder是否存在
+        auto coder = packet->GetCoder();
+        if(UNLIKELY(!coder))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("packet have no coder session:%s, packet:%s"), session->ToString().c_str(), StackPacketToString(packet).c_str());
+            errCode = Status::Error;
+            break;
+        }
+
+    #if _DEBUG 
+        const auto opcode = packet->GetOpcode();
+        const auto sessionId = packet->GetSessionId();
+        auto &&outputLogFunc = [opcode, sessionId](UInt64 costMs){
+            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "sessionId:%llu, opcode:%d, %s, costMs:%llu ms.")
+            , sessionId, opcode, StackOpcodeToString(opcode).c_str(), costMs);
+        };
+            
+        PERFORMANCE_RECORD_DEF(middlePr, outputLogFunc, 5);
+    #endif
+
+        // 2.预留header空间
+        stream->ShiftWritePos(MsgHeaderStructure::MSG_HEADER_SIZE);
+
+        // 3.编码数据
+        
+        const auto contentStart = stream->GetWriteBytes();
+        std::string jsonString;
+        if(!coder->ToJsonString(&jsonString))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("coder ToJsonString fail, packet:%s, session:%s"), StackPacketToString(packet).c_str(), session->ToString().c_str());
+            errCode = Status::ToJsonFail;
+            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+            break;
+        }
+
+        if(UNLIKELY(!jsonString.empty()))
+        {
+            if(UNLIKELY(!stream->Write(jsonString.data(), static_cast<Int64>(jsonString.size()))))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write json data to stream fail, packet:%s, session:%s"), StackPacketToString(packet).c_str(), session->ToString().c_str());
+                errCode = Status::Failed;
+                stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+                break;
+            }
+        }
+        const auto contentEnd = stream->GetWriteBytes();
+        const auto contentSize = contentEnd - contentStart;
+
+        // 4.长度限制(不能超过最大长度)
+        if((MsgHeaderStructure::MSG_HEADER_SIZE + contentSize) > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail content size over limit content size:%lld, limit:%d, packet:%s, session:%s")
+                            ,contentSize, MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT, StackPacketToString(packet).c_str(), session->ToString().c_str());
+            stream->ShiftWritePos(-(contentSize));
+            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+            errCode = Status::CoderFail;
+            break;
+        }
+
+        // 有包内容大小限制
+        const auto sessionPacketContentLimit = session->GetOption()._sessionSendPacketContentLimit;
+        if(sessionPacketContentLimit && contentSize > static_cast<Int64>(sessionPacketContentLimit))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail packet content size over session packet content limit, content size:%lld, sessionType:%d, limit:%llu, packet:%s, session:%s")
+            , contentSize, session->GetSessionType(), sessionPacketContentLimit, StackPacketToString(packet).c_str(), session->ToString().c_str());
+            errCode = Status::CoderFail;
+            stream->ShiftWritePos(-(contentSize));
+            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+            break;
+        }
+
+        // 5.编码包头
+        CrystalMsgHeader header;
+        // header._len = contentSize;
+        header._len = static_cast<UInt32>(MsgHeaderStructure::MSG_HEADER_SIZE + contentSize);
+        header._protocolVersion = GetProtoVersionNumber();
+
+        // 6.TODO:包特性暂时不设置 
+        header._flags = 0;
+        header._opcodeId = packet->GetOpcode();
+        header._packetId = packet->GetPacketId();
+
+        // 7.往回拨len字节写入header
+        stream->ShiftWritePos(-static_cast<Int64>(header._len));
+        stream->Write(&header._len, MsgHeaderStructure::LEN_SIZE);
+        stream->Write(&header._protocolVersion, MsgHeaderStructure::PROTOCOL_VERSION_SIZE);
+        stream->Write(&header._flags, MsgHeaderStructure::FLAGS_SIZE);
+        stream->Write(&header._opcodeId, MsgHeaderStructure::OPCODE_SIZE);
+        stream->Write(&header._packetId, MsgHeaderStructure::PACKET_ID_SIZE);
+
+        // 8.写入完成跳过包数据
+        stream->ShiftWritePos(contentSize);
+
+        if(_enableProtocolLog && IsNeedLog(header._opcodeId))
+        {
+            auto sock = session->GetSock();
+            auto addr = sock->GetAddr();
+            auto &localAddr = addr->GetLocalBriefAddr();
+            auto &remoteAddr = addr->GetRemoteBriefAddr();
+            std::string jsonString;
+            coder->ToJsonString(&jsonString);
+
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("[SEND: session id:%llu, local:%s:%hu => remote:%s:%hu, header:%s]\n[coder data]:\n%s")
+            , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
+            , header.ToString().c_str(), jsonString.c_str()); 
+        }
+
+        handledBytes += static_cast<UInt64>(header._len);
+    } while (0);
+
     // g_Log->NetInfo(LOGFMT_OBJ_TAG("packet to bin end errCode:%d, handledBytes:%llu session:%s"), errCode, handledBytes, session->ToString().c_str());
-    return Status::Failed;
+    return errCode;
 }
+
+#ifndef DISABLE_OPCODES
+KERNEL_NS::ICoderFactory *CrystalProtocolJsonStack::GetCoderFactory(Int32 opcode)
+{
+    return Opcodes::GetCoderFactory(opcode);
+}
+
+void CrystalProtocolJsonStack::RegisterCoderFactory(Int32 opcode, KERNEL_NS::ICoderFactory *factory)
+{
+    Opcodes::RegisterCoderFactory(opcode, factory);
+}
+
+#else
 
 KERNEL_NS::ICoderFactory *CrystalProtocolJsonStack::GetCoderFactory(Int32 opcode)
 {
@@ -152,7 +388,9 @@ KERNEL_NS::ICoderFactory *CrystalProtocolJsonStack::GetCoderFactory(Int32 opcode
 
 void CrystalProtocolJsonStack::RegisterCoderFactory(Int32 opcode, KERNEL_NS::ICoderFactory *factory)
 {
-    factory->Release();
+    
 }
+
+#endif
 
 SERVICE_COMMON_END
