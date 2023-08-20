@@ -523,7 +523,7 @@ void TestEncrypt::Run(int argc, char const *argv[])
     KERNEL_NS::LibRsa rsa;
     rsa.GenKey();
 
-    auto &pubKey = rsa.GetPubKey();
+    auto &pubKey = rsa.GetPubPkc1Key();
     auto &privateKey = rsa.GetPrivateKey();
     auto pubKeyEncode = KERNEL_NS::LibBase64::Encode(pubKey);
     auto privateKeyEncode = KERNEL_NS::LibBase64::Encode(privateKey);

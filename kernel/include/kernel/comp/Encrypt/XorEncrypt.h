@@ -41,25 +41,32 @@ class KERNEL_EXPORT XorEncrypt
 public:
     static void Encrypt(const Byte8 *key, Int32 keySize, const Byte8 *plainText, Int32 plainSize, Byte8 *cypherText);
     static void Decrypt(const Byte8 *key, Int32 keySize, const Byte8 *cypherText, Int32 cypherSize, Byte8 *plainText);
+    static void Decrypt(const Byte8 *key, Int32 keySize, const Byte8 *cypherText, Int32 cypherSize, LibString &plainText);
 
     static void EncryptStringBuffer(const LibString &key, const LibString &plainText, LibString &cypherText);
     static void DecryptStringBuffer(const LibString &key, const LibString &cypherText, LibString &plainText);
 
 };
 
-inline void XorEncrypt::Encrypt(const Byte8 *key, Int32 keySize, const Byte8 *plainText, Int32 plainSize, Byte8 *cypherText)
+ALWAYS_INLINE void XorEncrypt::Encrypt(const Byte8 *key, Int32 keySize, const Byte8 *plainText, Int32 plainSize, Byte8 *cypherText)
 {
     for(Int32 i = 0; i < plainSize; ++i)
         cypherText[i] = plainText[i] ^ key[i % keySize];
 }
 
-inline void XorEncrypt::Decrypt(const Byte8 *key, Int32 keySize, const Byte8 *cypherText, Int32 cypherSize, Byte8 *plainText)
+ALWAYS_INLINE void XorEncrypt::Decrypt(const Byte8 *key, Int32 keySize, const Byte8 *cypherText, Int32 cypherSize, Byte8 *plainText)
 {
     for(Int32 i = 0; i < cypherSize; ++i)
         plainText[i] = cypherText[i] ^ key[i % keySize];
 }
 
-inline void XorEncrypt::EncryptStringBuffer(const LibString &key, const LibString &plainText, LibString &cypherText)
+ALWAYS_INLINE void XorEncrypt::Decrypt(const Byte8 *key, Int32 keySize, const Byte8 *cypherText, Int32 cypherSize, LibString &plainText)
+{
+    for(Int32 i = 0; i < cypherSize; ++i)
+        plainText[i] = cypherText[i] ^ key[i % keySize];
+}
+
+ALWAYS_INLINE void XorEncrypt::EncryptStringBuffer(const LibString &key, const LibString &plainText, LibString &cypherText)
 {
     const Int32 keySize = static_cast<Int32>(key.size());
     const auto &plainRaw = plainText.GetRaw();
@@ -70,7 +77,7 @@ inline void XorEncrypt::EncryptStringBuffer(const LibString &key, const LibStrin
         cypherRaw[i] = plainRaw[i] ^ keyRaw[i % keySize];
 }
 
-inline void XorEncrypt::DecryptStringBuffer(const LibString &key, const LibString &cypherText, LibString &plainText)
+ALWAYS_INLINE void XorEncrypt::DecryptStringBuffer(const LibString &key, const LibString &cypherText, LibString &plainText)
 {
     const Int32 keySize = static_cast<Int32>(key.size());
     auto &plainRaw = plainText.GetRaw();

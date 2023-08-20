@@ -100,7 +100,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(23), nolog(true)]
+// AnnotaionInfo[opcode(23), nolog(true), XorEncrypt(false), KeyBase64(false)]
 class NodeHeartbeatReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.NodeHeartbeatReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -357,7 +357,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(24), nolog(true)]
+// AnnotaionInfo[opcode(24), nolog(true), XorEncrypt(false), KeyBase64(false)]
 class NodeHeartbeatRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.NodeHeartbeatRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -644,7 +644,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(25), nolog(false)]
+// AnnotaionInfo[opcode(25), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class RegisterNodeReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.RegisterNodeReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -940,7 +940,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(26), nolog(false)]
+// AnnotaionInfo[opcode(26), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class RegisterNodeRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.RegisterNodeRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -1227,7 +1227,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(27), nolog(false)]
+// AnnotaionInfo[opcode(27), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class GetNodeListReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetNodeListReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -1545,7 +1545,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(28), nolog(false)]
+// AnnotaionInfo[opcode(28), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class GetNodeListRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetNodeListRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -1841,7 +1841,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(29), nolog(true)]
+// AnnotaionInfo[opcode(29), nolog(true), XorEncrypt(false), KeyBase64(false)]
 class ClientHeartbeatReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClientHeartbeatReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -2098,7 +2098,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(30), nolog(true)]
+// AnnotaionInfo[opcode(30), nolog(true), XorEncrypt(false), KeyBase64(false)]
 class ClientHeartbeatRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClientHeartbeatRes) */ , public KERNEL_NS::ICoder {
 public:

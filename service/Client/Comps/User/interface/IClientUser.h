@@ -68,7 +68,7 @@ public:
     virtual UInt64 GetSessionId() const  = 0;
 
     virtual void Logout()  = 0;
-    virtual Int32 Login() = 0;
+    virtual Int32 Login(Int32 stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) = 0;
     // 设置登录信息
     virtual void SetLoginInfo(const LoginInfo &loginInfo) = 0;
     virtual const LoginInfo &GetLoginInfo() const = 0;

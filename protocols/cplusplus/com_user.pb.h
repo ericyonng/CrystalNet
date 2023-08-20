@@ -143,7 +143,7 @@ inline bool LogoutReason_ENUMS_Parse(
 }
 // ===================================================================
 
-// AnnotaionInfo[opcode(0), nolog(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class UserBaseInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserBaseInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -623,7 +623,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class LoginMode final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginMode) */ , public KERNEL_NS::ICoder {
 public:
@@ -912,7 +912,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class RegisterUserInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.RegisterUserInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -1252,7 +1252,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class LoginInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -1726,7 +1726,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class LogoutReason final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LogoutReason) */ , public KERNEL_NS::ICoder {
 public:

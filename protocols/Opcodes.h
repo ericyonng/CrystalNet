@@ -61,6 +61,7 @@ struct OpcodeInfo
         KERNEL_NS::LibString info;
         info.AppendFormat("opcode:%d, "     , _opcode)
             .AppendFormat("nolog:%s, "     , _noLog ?  "true" : "false")
+            .AppendFormat("_msgFlags:%x, "     , _msgFlags)
             .AppendFormat("name:%s, "       , _opcodeName.c_str())
             .AppendFormat("proto file:%s, " , _protoFile.c_str())
             ;
@@ -70,6 +71,7 @@ struct OpcodeInfo
 
     Int32 _opcode = 0;                  // 协议id
     bool _noLog = false;                // 消息需不需要打印日志
+    UInt32 _msgFlags = 0;                  // MsgFlagsType
     KERNEL_NS::LibString _opcodeName;   // 协议名
     KERNEL_NS::LibString _protoFile;    // 协议所属文件名
 };
@@ -96,6 +98,9 @@ public:
 
     // 是否需要日志打印
     static bool IsNeedLog(Int32 opcode);
+
+    // 获取flags
+    static UInt32 GetFlags(Int32 opcode);
 
     // 获取opcode信息
     static const OpcodeInfo *GetOpcodeInfo(Int32 opcode);
@@ -160,6 +165,15 @@ ALWAYS_INLINE bool Opcodes::IsNeedLog(Int32 opcode)
         return false;
 
     return !(opcodeInfo->_noLog);
+}
+
+ALWAYS_INLINE UInt32 Opcodes::GetFlags(Int32 opcode)
+{
+    auto opcodeInfo = GetOpcodeInfo(opcode);
+    if(UNLIKELY(!opcodeInfo))
+        return 0;
+
+    return opcodeInfo->_msgFlags;
 }
 
 ALWAYS_INLINE const OpcodeInfo *Opcodes::GetOpcodeInfo(Int32 opcode)

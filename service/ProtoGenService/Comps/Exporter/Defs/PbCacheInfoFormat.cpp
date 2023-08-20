@@ -39,6 +39,8 @@ PbCaheInfo::PbCaheInfo()
 :_opcode(0)
 ,_line(0)
 ,_noLog(false)
+,_isXorEncrypt(false)
+,_isKeyBase64(false)
 {
 
 }
@@ -72,6 +74,8 @@ KERNEL_NS::LibString PbCaheInfo::ToPbChacheString() const
         .AppendFormat("%s%s%s%s", ProtobufMessageParam::MessageName.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _messageName.c_str(), ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s%s%d%s", ProtobufMessageParam::Opcode.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _opcode, ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s%s%s%s", ProtobufMessageParam::NoLog.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _noLog?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
+        .AppendFormat("%s%s%s%s", ProtobufMessageParam::XorEncrypt.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _isXorEncrypt?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
+        .AppendFormat("%s%s%s%s", ProtobufMessageParam::KeyBase64.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _isKeyBase64?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s", ProtobufMessageParam::MessageEndFlag.c_str())
         ;
 
@@ -90,6 +94,18 @@ KERNEL_NS::LibString PbCaheInfo::GetAnnotationValue(const KERNEL_NS::LibString &
     if(annotationKey == ProtobufMessageParam::NoLog)
     {
         value.AppendFormat("%s", _noLog ? "true":"false");
+        return value;
+    }
+
+    if(annotationKey == ProtobufMessageParam::XorEncrypt)
+    {
+        value.AppendFormat("%s", _isXorEncrypt ? "true":"false");
+        return value;
+    }
+
+    if(annotationKey == ProtobufMessageParam::KeyBase64)
+    {
+        value.AppendFormat("%s", _isKeyBase64 ? "true":"false");
         return value;
     }
 
@@ -300,6 +316,14 @@ bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibStrin
         else if(kv.first == ProtobufMessageParam::NoLog)
         {
             pbCache->_noLog = (kv.second.strip().tolower()) == "true";
+        }
+        else if(kv.first == ProtobufMessageParam::XorEncrypt)
+        {
+            pbCache->_isXorEncrypt = (kv.second.strip().tolower()) == "true";
+        }
+        else if(kv.first == ProtobufMessageParam::KeyBase64)
+        {
+            pbCache->_isKeyBase64 = (kv.second.strip().tolower()) == "true";
         }
     }
 

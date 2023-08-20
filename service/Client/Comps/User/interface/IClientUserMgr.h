@@ -40,7 +40,7 @@ class IClientUserMgr : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IClientUserMgr);
 
 public:
-    virtual Int32 Login(const LoginInfo &loginInfo) = 0;
+    virtual Int32 Login(const LoginInfo &loginInfo, Int32 stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) = 0;
 
     virtual void AddUserBySessionId(UInt64 sessionId, IClientUser *user) = 0;
     virtual void RemoveUserBySessionId(UInt64 sessionId) = 0;

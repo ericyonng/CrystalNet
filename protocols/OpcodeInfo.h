@@ -30,6 +30,8 @@
         auto info = OpcodeInfo();
         info._opcode = 1;
         info._noLog = false;
+        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::XOR_ENCRYPT_FLAG;
+        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::KEY_IN_BASE64_FLAG;
         info._opcodeName = "LoginReq";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -40,6 +42,8 @@
         auto info = OpcodeInfo();
         info._opcode = 2;
         info._noLog = false;
+        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::XOR_ENCRYPT_FLAG;
+        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::KEY_IN_BASE64_FLAG;
         info._opcodeName = "LoginRes";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -160,6 +164,8 @@
         auto info = OpcodeInfo();
         info._opcode = 22;
         info._noLog = false;
+        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::XOR_ENCRYPT_FLAG;
+        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::KEY_IN_BASE64_FLAG;
         info._opcodeName = "LoginInfoNty";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);

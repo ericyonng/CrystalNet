@@ -233,7 +233,7 @@ void ClientUser::Logout()
     Send(Opcodes::OpcodeConst::OPCODE_LogoutReq, req);
 }
 
-Int32 ClientUser::Login()
+Int32 ClientUser::Login(Int32 stackType)
 {
     if(IsLogined())
     {
@@ -266,7 +266,7 @@ Int32 ClientUser::Login()
     auto sysMgr = _userMgr->GetGlobalSys<ISysLogicMgr>();
     UInt64 stub = 0;
     auto err = sysMgr->AsynTcpConnect(_loginInfo.targetip(), _loginInfo.port(), stub, this, &ClientUser::_OnLoginConnectRes,  "127.0.0.1", 0, NULL, 3, 30,  PriorityLevelDefine::OUTER1, SessionType::OUTER
-    , KERNEL_NS::SocketUtil::IsIpv4(_loginInfo.targetip()) ? AF_INET : AF_INET6);
+    , KERNEL_NS::SocketUtil::IsIpv4(_loginInfo.targetip()) ? AF_INET : AF_INET6, stackType);
 
     if(err != Status::Success)
     {

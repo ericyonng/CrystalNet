@@ -33,6 +33,7 @@
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/LibList.h>
 #include <kernel/comp/LibStream.h>
+#include <kernel/comp/Encrypt/Encrypt.h>
 
 KERNEL_BEGIN
 
@@ -74,9 +75,17 @@ public:
     Int32 GetType() const;
     virtual void SetOpenPorotoLog(bool enable){}
 
+    LibRsa &GetParsingRsa();
+    const LibRsa &GetParsingRsa() const;
+
+    LibRsa &GetPacketToBinRsa();
+    const LibRsa &GetPacketToBinRsa() const;
+
 protected:
     UInt64 _protoVersionNumber = 0;     // 协议版本号
     Int32 _type = 0;                    // 协议栈类型
+    LibRsa _parsingRsa;
+    LibRsa _packetToBinRsa;
 };
 
 inline void IProtocolStack::SetProtoVersionNumber(UInt64 ver)
@@ -92,6 +101,26 @@ inline UInt64 IProtocolStack::GetProtoVersionNumber() const
 inline Int32 IProtocolStack::GetType() const
 {
     return _type;
+}
+
+ALWAYS_INLINE LibRsa &IProtocolStack::GetParsingRsa()
+{
+    return _parsingRsa;
+}
+
+ALWAYS_INLINE const LibRsa &IProtocolStack::GetParsingRsa() const
+{
+    return _parsingRsa;
+}
+
+ALWAYS_INLINE LibRsa &IProtocolStack::GetPacketToBinRsa()
+{
+    return _packetToBinRsa;
+}
+
+ALWAYS_INLINE const LibRsa &IProtocolStack::GetPacketToBinRsa() const
+{
+    return _packetToBinRsa;
 }
 
 KERNEL_END

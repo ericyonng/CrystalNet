@@ -104,7 +104,7 @@ inline bool ClientUserStatus_ENUMS_Parse(
 }
 // ===================================================================
 
-// AnnotaionInfo[opcode(0), nolog(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class ClientUserStatus final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClientUserStatus) */ , public KERNEL_NS::ICoder {
 public:
@@ -397,7 +397,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class ClientUserInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClientUserInfo) */ , public KERNEL_NS::ICoder {
 public:

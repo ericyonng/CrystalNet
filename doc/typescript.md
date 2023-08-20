@@ -1,3 +1,7 @@
+* typescript 语法注意点
+
+  * number是双精度, 其在53位以上的值不保证精度, 所以如果是53位以上整数需要分成两个number来处理
+
 * 环境
 
   * 安装npm工具（和nodejs一起安装的https://nodejs.org/zh-cn/download）

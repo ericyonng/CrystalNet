@@ -52,17 +52,35 @@ public:
     template<typename BuildType = _Build::MT>
     static void Gen(LibString &cypher, Int32 cypherBytes);
 
+    template<typename BuildType = _Build::MT>
+    static void SpeedGen(Byte8 *cypher, Int32 cypherBytes);
+    template<typename BuildType = _Build::MT>
+    static void SpeedGen(LibString &cypher, Int32 cypherBytes);
+
 private:
     static LibInt64Random<_Build::MT> &_GetRandom(_Build::MT::Type);
     static LibInt64Random<_Build::TL> &_GetRandom(_Build::TL::Type);
+
+    static LibInt64Random<_Build::MT> &_GetViewRandom(_Build::MT::Type);
+    static LibInt64Random<_Build::TL> &_GetViewRandom(_Build::TL::Type);
 };
 
 ALWAYS_INLINE LibInt64Random<_Build::MT> &CypherGeneratorUtil::_GetRandom(_Build::MT::Type)
 {
-    return LibInt64Random<_Build::MT>::GetInstance<1, 127>();
+    return LibInt64Random<_Build::MT>::GetInstance<1, 4294967295>();
 }
 
 ALWAYS_INLINE LibInt64Random<_Build::TL> &CypherGeneratorUtil::_GetRandom(_Build::TL::Type)
+{
+    return LibInt64Random<_Build::TL>::GetInstance<1, 4294967295>();
+}
+
+ALWAYS_INLINE LibInt64Random<_Build::MT> &CypherGeneratorUtil::_GetViewRandom(_Build::MT::Type)
+{
+    return LibInt64Random<_Build::MT>::GetInstance<1, 127>();
+}
+
+ALWAYS_INLINE LibInt64Random<_Build::TL> &CypherGeneratorUtil::_GetViewRandom(_Build::TL::Type)
 {
     return LibInt64Random<_Build::TL>::GetInstance<1, 127>();
 }
@@ -70,7 +88,7 @@ ALWAYS_INLINE LibInt64Random<_Build::TL> &CypherGeneratorUtil::_GetRandom(_Build
 template<typename BuildType>
 inline void CypherGeneratorUtil::Gen(Byte8 *cypher, Int32 cypherBytes)
 {
-    auto &randomEngine = _GetRandom(BuildType::V);
+    auto &randomEngine = _GetViewRandom(BuildType::V);
     for(Int32 i = 0; i < cypherBytes; ++i)
         cypher[i] = static_cast<Int32>(randomEngine.Gen());
 }
@@ -78,11 +96,66 @@ inline void CypherGeneratorUtil::Gen(Byte8 *cypher, Int32 cypherBytes)
 template<typename BuildType>
 inline void CypherGeneratorUtil::Gen(LibString &cypher, Int32 cypherBytes)
 {
-    auto &randomEngine = _GetRandom(BuildType::V);
+    auto &randomEngine = _GetViewRandom(BuildType::V);
     cypher.resize(static_cast<UInt64>(cypherBytes));
     auto &raw = cypher.GetRaw();
     for(Int32 i = 0; i < cypherBytes; ++i)
         raw[i] = static_cast<Int32>(randomEngine.Gen());
+}
+
+template<typename BuildType>
+inline void CypherGeneratorUtil::SpeedGen(Byte8 *cypher, Int32 cypherBytes)
+{
+    auto &randomEngine = _GetRandom(BuildType::V);
+
+    const Int32 loopCount = cypherBytes / 4;
+    UInt32 *p = (UInt32 *)(cypher);
+    // 每次产生4个字节的数据
+    for(Int32 i = 0; i < loopCount; ++i)
+    {
+        *p = static_cast<UInt32>(randomEngine.Gen());
+        p += 1;
+    }
+
+    const Int32 leftBytes = cypherBytes % 4;
+    if(UNLIKELY(leftBytes != 0))
+    {
+        Byte8 *b = (Byte8 *)(p);
+        for(Int32 i = 0; i < leftBytes; ++i)
+        {
+            *b = static_cast<U8>(randomEngine.Gen());
+            ++b;
+        }
+    }
+}
+
+
+template<typename BuildType>
+inline void CypherGeneratorUtil::SpeedGen(LibString &cypher, Int32 cypherBytes)
+{
+    auto &randomEngine = _GetRandom(BuildType::V);
+    cypher.resize(static_cast<UInt64>(cypherBytes));
+    auto &raw = cypher.GetRaw();
+
+    // 每次产生4个字节的数据
+    const Int32 loopCount = cypherBytes / 4;
+    UInt32 *p = (UInt32 *)(raw.data());
+    for(Int32 i = 0; i < loopCount; ++i)
+    {
+        *p = static_cast<UInt32>(randomEngine.Gen());
+        p += 1;
+    }
+
+    const Int32 leftBytes = cypherBytes % 4;
+    if(UNLIKELY(leftBytes != 0))
+    {
+        Byte8 *b = (Byte8 *)(p);
+        for(Int32 i = 0; i < leftBytes; ++i)
+        {
+            *b = static_cast<U8>(randomEngine.Gen());
+            ++b;
+        }
+    }
 }
 
 KERNEL_END

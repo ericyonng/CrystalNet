@@ -5,13 +5,13 @@ package CRYSTAL_NET.service;
 import "com_login.proto";
 import "com_user.proto";
 
-/// Opcode:
+/// Opcode:, XorEncrypt:true, KeyBase64:true
 message LoginReq
 {
     LoginInfo LoginUserInfo = 1;
 }
 
-/// Opcode:
+/// Opcode:, XorEncrypt:true, KeyBase64:true
 message LoginRes
 {
     sint32 errCode = 1;
@@ -20,7 +20,7 @@ message LoginRes
     sint64 ServerTime = 3;
 }
 
-/// Opcode:
+/// Opcode:, XorEncrypt:true, KeyBase64:true
 message LoginInfoNty 
 {
     // 更新登录token

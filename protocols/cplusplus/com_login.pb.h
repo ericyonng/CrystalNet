@@ -70,7 +70,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(0), nolog(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class UserLoginInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserLoginInfo) */ , public KERNEL_NS::ICoder {
 public:

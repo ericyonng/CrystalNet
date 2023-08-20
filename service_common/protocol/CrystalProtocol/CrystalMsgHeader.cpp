@@ -56,8 +56,8 @@ static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
 KERNEL_NS::LibString CrystalMsgHeader::ToString() const
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("opcode:%u,%s flag:%x, packetId:%lld, len:%u, protocol version:%llu"
-    , _opcodeId, StackOpcodeToString(_opcodeId).c_str(), _flags, _packetId, _len, _protocolVersion);
+    info.AppendFormat("opcode:%u,%s flag:%x, packetId:%lld, len:%u, protocol version:%llu, _keyLen:%U"
+    , _opcodeId, StackOpcodeToString(_opcodeId).c_str(), _flags, _packetId, _len, _protocolVersion, _keyLen);
 
     return info;
 }

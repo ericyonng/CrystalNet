@@ -36,6 +36,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(MessageInfo);
 MessageInfo::MessageInfo()
 :_opcode(0)
 ,_noLog(false)
+,_isXorEncrypt(false)
+,_isKeyBase64(false)
 {
 
 }
@@ -69,6 +71,22 @@ void MessageInfo::FieldsFromAnnotations(Int32 &maxOpcode)
                 _noLog = (kv.second.strip().tolower()) == "true";
             } 
         }
+
+        if(kv.first == ProtobufMessageParam::XorEncrypt)
+        {
+            if(kv.second.length() != 0)
+            {
+                _isXorEncrypt = (kv.second.strip().tolower()) == "true";
+            } 
+        }
+
+        if(kv.first == ProtobufMessageParam::KeyBase64)
+        {
+            if(kv.second.length() != 0)
+            {
+                _isKeyBase64 = (kv.second.strip().tolower()) == "true";
+            } 
+        }
     }
 }
 
@@ -80,6 +98,8 @@ PbCaheInfo MessageInfo::ToPbCache(const KERNEL_NS::LibString &protoName, const K
     info._protoPath = protoPath;
     info._opcode = _opcode;
     info._noLog = _noLog;
+    info._isXorEncrypt = _isXorEncrypt;
+    info._isKeyBase64 = _isKeyBase64;
 
     return info;
 }

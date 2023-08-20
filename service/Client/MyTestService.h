@@ -134,6 +134,9 @@ private:
 
     // 协议消息处理器
     std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *> _opcodeRefHandler;
+
+    KERNEL_NS::LibString _rsaPubKey;
+    KERNEL_NS::LibString _rsaPrivKey;
 };
 
 ALWAYS_INLINE KERNEL_NS::TimerMgr *MyTestService::GetTimerMgr()

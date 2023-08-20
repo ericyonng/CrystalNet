@@ -493,7 +493,8 @@ bool ExporterMgr::_ModifyCppPbHeader(const KERNEL_NS::LibString &pbHeaderName, s
                 classNames.push_back(className);
 
                 // 2.类前注解
-                const auto annotationInfo = KERNEL_NS::LibString().AppendFormat("// AnnotaionInfo[opcode(%d), nolog(%s)]", messageInfo->_opcode, messageInfo->_noLog ? "true" : "false");
+                const auto annotationInfo = KERNEL_NS::LibString().AppendFormat("// AnnotaionInfo[opcode(%d), nolog(%s), XorEncrypt(%s), KeyBase64(%s)]"
+                , messageInfo->_opcode, messageInfo->_noLog ? "true" : "false", messageInfo->_isXorEncrypt ? "true" : "false", messageInfo->_isKeyBase64 ? "true" : "false");
                 addLineDatasBefore.push_back(annotationInfo);
 
                 // 3.添加基类
@@ -1094,6 +1095,13 @@ void ExporterMgr::_GenOpcodeInfo()
         lines.push_back("        auto info = OpcodeInfo();");
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._opcode = %d;", messageInfo->_opcode));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._noLog = %s;", messageInfo->_noLog ? "true" : "false"));
+
+        // 加密
+        if(messageInfo->_isXorEncrypt)
+            lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::XOR_ENCRYPT_FLAG;"));
+        if(messageInfo->_isKeyBase64)
+            lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::KEY_IN_BASE64_FLAG;"));
+
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._opcodeName = \"%s\";", messageInfo->_messageName.c_str()));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._protoFile = \"%s\";", messageInfo->_protoName.c_str()));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        _allOpcodeInfo.push_back(info);"));

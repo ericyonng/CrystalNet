@@ -237,6 +237,23 @@ Int32 MyTestService::_OnServiceInit()
             return Status::CfgError;
         }
 
+        if(!ini->ReadStr(GetServiceName().c_str(), "RsaPrivateKey", _rsaPrivKey) || _rsaPrivKey.empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:RsaPrivateKey config in ini:%s"), GetServiceName().c_str(), ini->GetPath().c_str());
+            return Status::Failed;
+        }
+        if(!ini->ReadStr(GetServiceName().c_str(), "RsaPublicKey", _rsaPubKey) || _rsaPubKey.empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:RsaPublicKey config in ini:%s"), GetServiceName().c_str(), ini->GetPath().c_str());
+            return Status::Failed;
+        }
+
+        // base64解码
+        _rsaPubKey.strip();
+        _rsaPubKey = KERNEL_NS::LibBase64::Decode(_rsaPubKey);
+        _rsaPrivKey.strip();
+        _rsaPrivKey = KERNEL_NS::LibBase64::Decode(_rsaPrivKey);
+
         ini->Unlock();
     }
 
@@ -564,6 +581,24 @@ Int32 MyTestService::_InitProtocolStack()
             stack->SetOpenPorotoLog(_serviceConfig->_protoStackOpenLog);
             // opcode解析
             _stackTypeRefProtocolStack.insert(std::make_pair(idx, stack));
+
+            // 消息到来是要公钥加密私钥解密
+            auto &parsingRsa = stack->GetParsingRsa();
+            parsingRsa.SetMode(KERNEL_NS::LibRsa::PUB_ENCRYPT_PRIV_DECRYPT);
+            if(!parsingRsa.ImportKey(&(this->_rsaPubKey), &(this->_rsaPrivKey), KERNEL_NS::LibRsa::PUB_PKC8_FLAG))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("rsa import fail pubkey:%s, priv key:%s"), this->_rsaPubKey.c_str(), this->_rsaPrivKey.c_str());
+                return Status::Failed;
+            }
+
+            // 消息发出去是私钥加密公钥解密
+            auto &packetToBinRsa = stack->GetPacketToBinRsa();
+            packetToBinRsa.SetMode(KERNEL_NS::LibRsa::PRIV_ENCRYPT_PUB_DECRYPT);
+            if(!packetToBinRsa.ImportKey(&(this->_rsaPubKey), &(this->_rsaPrivKey), KERNEL_NS::LibRsa::PUB_PKC8_FLAG))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("rsa import fail pubkey:%s, priv key:%s"), this->_rsaPubKey.c_str(), this->_rsaPrivKey.c_str());
+                return Status::Failed;
+            }
 
             // 默认协议栈是CRYSTAL_PROTOCOL, 如果端口没有指定使用的协议栈则默认使用CRYSTAL_PROTOCOL
             if(idx == SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL)

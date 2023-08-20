@@ -74,7 +74,7 @@ public:
     virtual UInt64 GetSessionId() const override;
 
     virtual void Logout() override;
-    virtual Int32 Login() override;
+    virtual Int32 Login(Int32 stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) override;
     virtual void SetLoginInfo(const LoginInfo &loginInfo) override;
     virtual const LoginInfo &GetLoginInfo() const override;
     virtual LoginInfo &GetLoginInfo() override;

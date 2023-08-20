@@ -529,9 +529,12 @@ Int32 UserMgr::_OnGlobalSysInit()
         g_Log->Warn(LOGFMT_OBJ_TAG("lack of %s:RsaPublicKey config in ini:%s"), GetService()->GetServiceName().c_str(), ini->GetPath().c_str());
         return Status::Failed;
     }
+    _rsaPrivateKey.strip();
+    _rsaPubKey.strip();
+
     _rsaPrivateKeyRaw = KERNEL_NS::LibBase64::Decode(_rsaPrivateKey);
     _rsaPubKeyRaw = KERNEL_NS::LibBase64::Decode(_rsaPubKey);
-    if(!_rsa.ImportKey(&_rsaPubKeyRaw, &_rsaPrivateKeyRaw))
+    if(!_rsa.ImportKey(&_rsaPubKeyRaw, &_rsaPrivateKeyRaw, KERNEL_NS::LibRsa::PUB_PKC8_FLAG))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("ImportKey fail _rsaPrivateKey:%s, _rsaPubKey:%s")
         , _rsaPrivateKey.c_str(), _rsaPubKey.c_str());
@@ -1223,7 +1226,10 @@ void UserMgr::_OnClientLoginReq(KERNEL_NS::LibPacket *&packet)
         res.set_errcode(errCode);
 
         if(user)
+        {
             res.set_userid(user->GetUserId());
+            res.set_servertime(KERNEL_NS::LibTime::NowMilliTimestamp());
+        }
 
         Send(sessionId, Opcodes::OpcodeConst::OPCODE_LoginRes, res);
     });

@@ -48,6 +48,8 @@ struct MessageInfo
     KERNEL_NS::LibString _messageName;
     Int32 _opcode;
     bool _noLog;
+    bool _isXorEncrypt;
+    bool _isKeyBase64;
     
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> _annotationParamNameRefValue;  // 注解kv
 };

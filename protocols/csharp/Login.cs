@@ -48,7 +48,7 @@ using ProtoPackage.Attributes;
   }
   #region Messages
   /// <summary>
-  //// Opcode:
+  //// Opcode:, XorEncrypt:true, KeyBase64:true
   /// </summary>
 [ProtoMessage(1)]
   public sealed partial class LoginReq : pb::IMessage<LoginReq>
@@ -250,7 +250,7 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  //// Opcode:
+  //// Opcode:, XorEncrypt:true, KeyBase64:true
   /// </summary>
 [ProtoMessage(2)]
   public sealed partial class LoginRes : pb::IMessage<LoginRes>
@@ -520,7 +520,7 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  //// Opcode:
+  //// Opcode:, XorEncrypt:true, KeyBase64:true
   /// </summary>
 [ProtoMessage(22)]
   public sealed partial class LoginInfoNty : pb::IMessage<LoginInfoNty>

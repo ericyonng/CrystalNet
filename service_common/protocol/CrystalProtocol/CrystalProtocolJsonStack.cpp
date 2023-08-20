@@ -75,6 +75,15 @@ static ALWAYS_INLINE bool IsNeedLog(Int32 opcode)
 
 }
 
+static ALWAYS_INLINE UInt32 GetProtoFlags(Int32 opcode)
+{
+    #ifndef DISABLE_OPCODES
+        return Opcodes::GetFlags(opcode);
+    #else
+        return false;
+    #endif
+}
+
 CrystalProtocolJsonStack::~CrystalProtocolJsonStack()
 {
 }
@@ -119,6 +128,7 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
             streamCache.Read(&header._flags, MsgHeaderStructure::FLAGS_SIZE);
             streamCache.Read(&header._opcodeId, MsgHeaderStructure::OPCODE_SIZE);
             streamCache.Read(&header._packetId, MsgHeaderStructure::PACKET_ID_SIZE);
+            streamCache.Read(&header._keyLen, MsgHeaderStructure::KEY_LEN_SIZE);
 
             if(header._len > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT)
             {
@@ -146,7 +156,8 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
         }
 
         // 2.剩余包数据是否够解析包体
-        if(streamCache.GetReadableSize() < (header._len - MsgHeaderStructure::MSG_HEADER_SIZE))
+        auto leftLen = (header._len - MsgHeaderStructure::MSG_HEADER_SIZE);
+        if(streamCache.GetReadableSize() < leftLen)
         {
             // g_Log->NetDebug(LOGFMT_OBJ_TAG("data not reach msg body data len session:%s, stream readable size:%lld, msg len:%u")
             //     , session->ToString().c_str(), streamCache.GetReadableSize(), (header._len - static_cast<UInt32>(MsgHeaderStructure::MSG_HEADER_SIZE)));
@@ -164,17 +175,74 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
             break;
         }
 
+        // 解密
+        if((header._flags & MsgFlagsType::XOR_ENCRYPT_FLAG) == MsgFlagsType::XOR_ENCRYPT_FLAG)
+        {
+            if(header._keyLen == 0 || header._keyLen > leftLen)
+            {
+                g_Log->NetWarn(LOGFMT_OBJ_TAG("bad key len:%u, header:%s, session:%s")
+                            , header._keyLen, header.ToString().c_str(), session->ToString().c_str());
+                errCode = Status::ParsingPacketFail;
+                break;
+            }
+
+            // 加了一层base64
+            UInt32 keyLen = header._keyLen;
+            if((header._flags & MsgFlagsType::KEY_IN_BASE64_FLAG) == MsgFlagsType::KEY_IN_BASE64_FLAG)
+            {
+                UInt64 decodeLen = KERNEL_NS::LibBase64::CalcDecodeLen(streamCache.GetReadBegin(), header._keyLen);
+                if(UNLIKELY(!KERNEL_NS::LibBase64::Decode(streamCache.GetReadBegin(), header._keyLen, streamCache.GetReadBegin(), decodeLen)))
+                {
+                    g_Log->NetWarn(LOGFMT_OBJ_TAG("base 64 decode fail key len:%u, header:%s, session:%s")
+                                , header._keyLen, header.ToString().c_str(), session->ToString().c_str());
+                    errCode = Status::ParsingPacketFail;
+                    break;
+                }
+
+                keyLen = static_cast<UInt32>(decodeLen);
+            }
+
+            // 解出key
+            KERNEL_NS::LibString plaintextKey;
+            if(_parsingRsa.IsPubEncryptPrivDecrypt())
+            {
+                _parsingRsa.PrivateKeyDecrypt((const U8 *)streamCache.GetReadBegin(), keyLen, plaintextKey);
+            }
+            else
+            {
+                _parsingRsa.PubKeyDecrypt((const U8 *)streamCache.GetReadBegin(), keyLen, plaintextKey);
+            }
+            if(plaintextKey.empty())
+            {
+                g_Log->NetWarn(LOGFMT_OBJ_TAG("decrypt key fail key len:%u, header:%s, session:%s")
+                            , header._keyLen, header.ToString().c_str(), session->ToString().c_str());
+                errCode = Status::ParsingPacketFail;
+                break;
+            }
+            streamCache.ShiftReadPos(header._keyLen);
+            leftLen -= header._keyLen;
+
+            // 解密正文
+            if(LIKELY(leftLen != 0))
+            {
+                KERNEL_NS::XorEncrypt::Decrypt(plaintextKey.data(), static_cast<Int32>(plaintextKey.size()), streamCache.GetReadBegin(), leftLen, streamCache.GetReadBegin());
+            }
+        }
+
         // 4.创建编码器并解码
         auto coder = coderFactory->Create();
-        const auto msgBodySize = header._len - MsgHeaderStructure::MSG_HEADER_SIZE;
-        if(!coder->FromJsonString(streamCache.GetReadBegin(), msgBodySize))
+        if(LIKELY(leftLen != 0))
         {
-            g_Log->NetWarn(LOGFMT_OBJ_TAG("coder FromJsonString fail opcode:%d, header:%s, session:%s"), header._opcodeId, header.ToString().c_str(), session->ToString().c_str());
-            errCode = Status::ParsingPacketFail;
-            coder->Release();
-            break;
+            if(!coder->FromJsonString(streamCache.GetReadBegin(), leftLen))
+            {
+                g_Log->NetWarn(LOGFMT_OBJ_TAG("coder FromJsonString fail opcode:%d, header:%s, session:%s"), header._opcodeId, header.ToString().c_str(), session->ToString().c_str());
+                errCode = Status::ParsingPacketFail;
+                coder->Release();
+                break;
+            }
+
+            streamCache.ShiftReadPos(leftLen);
         }
-        streamCache.ShiftReadPos(msgBodySize);
 
         // 5.创建消息包 限速保护
         if(LIKELY(session->CheckUpdateRecvSpeed()))
@@ -224,6 +292,8 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
             g_Log->NetWarn(LOGFMT_OBJ_TAG("session speed over limit[%llu] per %llu ms, sessionId:%llu, %s ")
                 , option._sessionRecvPacketSpeedLimit, option._sessionRecvPacketSpeedTimeUnitMs
                 , session->GetId(), addr->ToString().c_str());
+
+            coder->Release();
         }
 
         // 6.解码成功一个包
@@ -277,15 +347,64 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
         // 2.预留header空间
         stream->ShiftWritePos(MsgHeaderStructure::MSG_HEADER_SIZE);
 
-        // 3.编码数据
-        
+        // 包特性
+        UInt32 headerFlags = 0;
+
+        const auto flags = GetProtoFlags(packet->GetOpcode());
+        Int64 keySize = 0; 
+        KERNEL_NS::LibString key;
+        if(UNLIKELY((flags & MsgFlagsType::XOR_ENCRYPT_FLAG) == MsgFlagsType::XOR_ENCRYPT_FLAG))
+        {// 需要加密
+            headerFlags |= MsgFlagsType::XOR_ENCRYPT_FLAG;
+
+            // 先生成key
+            KERNEL_NS::CypherGeneratorUtil::SpeedGen<KERNEL_NS::_Build::TL>(key, KERNEL_NS::CypherGeneratorUtil::CYPHER_128BIT);
+
+            // rsa加密
+            auto &rsa = GetPacketToBinRsa();
+            KERNEL_NS::LibString cypherKey;
+
+            if(rsa.IsPubEncryptPrivDecrypt())
+            {
+                rsa.PubKeyEncrypt(key, cypherKey);
+            }
+            else
+            {
+                rsa.PrivateKeyEncrypt(key, cypherKey);
+            }
+            if(UNLIKELY(cypherKey.empty()))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("rsa encrypt fail rsa mode:%d session:%s, packet:%s"), rsa.GetMode(), session->ToString().c_str(), StackPacketToString(packet).c_str());
+                errCode = Status::Error;
+                stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+                break;
+            }
+
+            // base64编码
+            if(UNLIKELY((flags & MsgFlagsType::KEY_IN_BASE64_FLAG) == MsgFlagsType::KEY_IN_BASE64_FLAG))
+            {
+                headerFlags |= MsgFlagsType::KEY_IN_BASE64_FLAG;
+
+                KERNEL_NS::LibString finalKey;
+                KERNEL_NS::LibBase64::Encode(cypherKey.data(), static_cast<UInt64>(cypherKey.size()), finalKey);
+
+                keySize = static_cast<Int64>(finalKey.size());
+                stream->Write(finalKey.data(), keySize);
+            }
+            else
+            {
+                keySize = static_cast<Int64>(cypherKey.size());
+                stream->Write(cypherKey.data(), keySize);
+            }
+        }
+
         const auto contentStart = stream->GetWriteBytes();
         std::string jsonString;
         if(!coder->ToJsonString(&jsonString))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("coder ToJsonString fail, packet:%s, session:%s"), StackPacketToString(packet).c_str(), session->ToString().c_str());
             errCode = Status::ToJsonFail;
-            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE + keySize)));
             break;
         }
 
@@ -295,20 +414,31 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write json data to stream fail, packet:%s, session:%s"), StackPacketToString(packet).c_str(), session->ToString().c_str());
                 errCode = Status::Failed;
-                stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+                stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE + keySize)));
                 break;
             }
         }
         const auto contentEnd = stream->GetWriteBytes();
         const auto contentSize = contentEnd - contentStart;
 
+        // 加密数据
+        if(UNLIKELY(!key.empty()))
+        {
+            if((flags & MsgFlagsType::XOR_ENCRYPT_FLAG) == MsgFlagsType::XOR_ENCRYPT_FLAG)
+            {
+                stream->ShiftWritePos(-(contentSize));
+                KERNEL_NS::XorEncrypt::Encrypt(key.data(), static_cast<Int32>(key.size()), stream->GetWriteBegin(), static_cast<Int32>(contentSize), stream->GetWriteBegin());
+                stream->ShiftWritePos(contentSize);
+            }
+        }
+
         // 4.长度限制(不能超过最大长度)
-        if((MsgHeaderStructure::MSG_HEADER_SIZE + contentSize) > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT)
+        if((MsgHeaderStructure::MSG_HEADER_SIZE + keySize + contentSize) > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("coder encode fail content size over limit content size:%lld, limit:%d, packet:%s, session:%s")
                             ,contentSize, MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT, StackPacketToString(packet).c_str(), session->ToString().c_str());
             stream->ShiftWritePos(-(contentSize));
-            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE + keySize)));
             errCode = Status::CoderFail;
             break;
         }
@@ -321,20 +451,21 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
             , contentSize, session->GetSessionType(), sessionPacketContentLimit, StackPacketToString(packet).c_str(), session->ToString().c_str());
             errCode = Status::CoderFail;
             stream->ShiftWritePos(-(contentSize));
-            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+            stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE + keySize)));
             break;
         }
 
         // 5.编码包头
         CrystalMsgHeader header;
         // header._len = contentSize;
-        header._len = static_cast<UInt32>(MsgHeaderStructure::MSG_HEADER_SIZE + contentSize);
+        header._len = static_cast<UInt32>(MsgHeaderStructure::MSG_HEADER_SIZE + keySize + contentSize);
         header._protocolVersion = GetProtoVersionNumber();
 
         // 6.TODO:包特性暂时不设置 
-        header._flags = 0;
+        header._flags = headerFlags;
         header._opcodeId = packet->GetOpcode();
         header._packetId = packet->GetPacketId();
+        header._keyLen = static_cast<UInt32>(keySize);
 
         // 7.往回拨len字节写入header
         stream->ShiftWritePos(-static_cast<Int64>(header._len));
@@ -343,9 +474,10 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
         stream->Write(&header._flags, MsgHeaderStructure::FLAGS_SIZE);
         stream->Write(&header._opcodeId, MsgHeaderStructure::OPCODE_SIZE);
         stream->Write(&header._packetId, MsgHeaderStructure::PACKET_ID_SIZE);
+        stream->Write(&header._keyLen, MsgHeaderStructure::KEY_LEN_SIZE);
 
         // 8.写入完成跳过包数据
-        stream->ShiftWritePos(contentSize);
+        stream->ShiftWritePos(keySize + contentSize);
 
         if(_enableProtocolLog && IsNeedLog(header._opcodeId))
         {

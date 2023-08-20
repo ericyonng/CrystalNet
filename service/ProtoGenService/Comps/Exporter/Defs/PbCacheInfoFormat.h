@@ -53,6 +53,8 @@ struct PbCaheInfo
     Int32 _opcode;
     Int32 _line;
     bool _noLog;    // 不打印日志, 和opcode互相配合
+    bool _isXorEncrypt;
+    bool _isKeyBase64;
 };
 
 // 排序

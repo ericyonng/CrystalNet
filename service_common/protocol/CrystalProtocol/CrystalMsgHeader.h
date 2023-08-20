@@ -43,6 +43,31 @@
 
 SERVICE_COMMON_BEGIN
 
+// 协议生成时候: XorEncrypt:true, KeyBase64:true等
+class MsgFlagsType
+{
+    enum FLAG_POS_ENUMS : UInt32
+    {
+        XOR_ENCRYPT_FLAG_POS = 0,
+        AES_ENCRYPT_FLAG_POS,
+        RSA_ENCRYPT_FLAG_POS,
+        KEY_IN_BASE64_FLAG_POS,
+    };
+public:
+    // 加密方法互斥, 按照xor=>aes=>rsa优先级
+    enum FLAGS_TYPE :UInt32
+    {
+        // xor 加密
+        XOR_ENCRYPT_FLAG = 1U << XOR_ENCRYPT_FLAG_POS,
+        // aes 加密
+        AES_ENCRYPT_FLAG = 1U << AES_ENCRYPT_FLAG_POS,
+        // rsa 加密
+        RSA_ENCRYPT_FLAG = 1U << RSA_ENCRYPT_FLAG_POS,
+        // key使用了base64
+        KEY_IN_BASE64_FLAG = 1U << KEY_IN_BASE64_FLAG_POS,
+    };
+};
+
 struct CrystalMsgHeader
 {
     POOL_CREATE_OBJ_DEFAULT(CrystalMsgHeader);
@@ -53,6 +78,7 @@ struct CrystalMsgHeader
     ,_flags(0)
     ,_opcodeId(0)
     ,_packetId(0)
+    ,_keyLen(0)
     {
 
     }
@@ -64,6 +90,7 @@ struct CrystalMsgHeader
     UInt32 _flags;          // 包特性位标记
     UInt32 _opcodeId;       // 操作码
     Int64 _packetId;        // 最高位为0 
+    UInt32 _keyLen;         // key的长度
 };
 
 struct MsgHeaderStructure
@@ -88,8 +115,12 @@ struct MsgHeaderStructure
     static constexpr Int32 PACKET_ID_START_POS = OPCODE_START_POS + OPCODE_SIZE;   // packetId开始
     static constexpr Int32 PACKET_ID_SIZE = 8;           // packetid大小
 
+    // key len
+    static constexpr Int32 KEY_LEN_SIZE_START_POS = PACKET_ID_START_POS + PACKET_ID_SIZE;   // KEY LEN
+    static constexpr Int32 KEY_LEN_SIZE = 4;
+
     // 消息头大小 = 长度大小 + 版本号大小 + flags大小 + opcode大小 + packetid大小
-    static constexpr Int32 MSG_HEADER_SIZE = LEN_SIZE + PROTOCOL_VERSION_SIZE + FLAGS_SIZE + OPCODE_SIZE + PACKET_ID_SIZE;    // 消息头大小
+    static constexpr Int32 MSG_HEADER_SIZE = LEN_SIZE + PROTOCOL_VERSION_SIZE + FLAGS_SIZE + OPCODE_SIZE + PACKET_ID_SIZE + KEY_LEN_SIZE;    // 消息头大小
     
     // 消息体开始与最大大小 可以进行_len的校验
     static constexpr Int32 MSG_BODY_START_POS = MSG_HEADER_SIZE;  // 消息体起始位置

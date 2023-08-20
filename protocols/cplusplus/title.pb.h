@@ -76,7 +76,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(20), nolog(false)]
+// AnnotaionInfo[opcode(20), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class TitleInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TitleInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -333,7 +333,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(21), nolog(false)]
+// AnnotaionInfo[opcode(21), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class TitleInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TitleInfoRes) */ , public KERNEL_NS::ICoder {
 public:

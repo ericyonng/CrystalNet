@@ -109,7 +109,7 @@ void ClientUserMgr::OnStartup()
     registerInfo->set_pwd(loginInfo.pwd());
     registerInfo->set_nickname("123456");
     registerInfo->set_createphoneimei("123456");
-    auto err = Login(loginInfo);
+    auto err = Login(loginInfo, _targetAddrConfig->_remoteProtocolStackType);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, account name:%s")
@@ -121,7 +121,7 @@ void ClientUserMgr::OnStartup()
     }
 }
 
-Int32 ClientUserMgr::Login(const LoginInfo &loginInfo)
+Int32 ClientUserMgr::Login(const LoginInfo &loginInfo, Int32 stackType)
 {
     IClientUser *finalUser = NULL;
     Int32 err = Status::Success;
@@ -134,7 +134,7 @@ Int32 ClientUserMgr::Login(const LoginInfo &loginInfo)
                 return Status::Success;
 
             user->SetLoginInfo(loginInfo);
-            err = user->Login();
+            err = user->Login(stackType);
             finalUser = user;
             break;
         }
@@ -172,7 +172,7 @@ Int32 ClientUserMgr::Login(const LoginInfo &loginInfo)
         _accountNameRefUser.insert(std::make_pair(clientInfo->accountname(), newUser.AsSelf()));
 
         newUser->SetLoginInfo(loginInfo);
-        err = newUser->Login();
+        err = newUser->Login(stackType);
         if(err != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("login fail err:%d, user:%s"), err, newUser->ToString().c_str());
@@ -273,9 +273,10 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
 
         return Status::Failed;
     }
+    _rsaPublicKey.strip();
 
     _rsaPublicKeyRaw = KERNEL_NS::LibBase64::Decode(_rsaPublicKey);
-    if(!_rsa.ImportKey(&_rsaPublicKeyRaw, NULL))
+    if(!_rsa.ImportKey(&_rsaPublicKeyRaw, NULL, KERNEL_NS::LibRsa::PUB_PKC8_FLAG))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("ImportKey fail"));
         return Status::Failed;
@@ -338,7 +339,7 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
             auto &loginInfo = user->GetLoginInfo();
             g_Log->Warn(LOGFMT_OBJ_TAG("account exists turn login directerly account:%s"), loginInfo.accountname().c_str());
             loginInfo.set_loginmode(LoginMode::PASSWORD);
-            auto errCode = user->Login();
+            auto errCode = user->Login(_targetAddrConfig->_remoteProtocolStackType);
             if(errCode != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("login fail errCode:%d, account:%s"), errCode, loginInfo.accountname().c_str());
