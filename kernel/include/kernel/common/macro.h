@@ -330,20 +330,20 @@ private:                                                                        
 
     #undef CRYSTAL_TRACE
     #define CRYSTAL_TRACE(fmt, ...)                                                         \
-    KERNEL_NS::LockConsole();                                                   \
+    {KERNEL_NS::LockConsole();                                                   \
     printf("file[%s],line[%d]:" fmt "\n", __FILE__, __LINE__,  ##__VA_ARGS__);              \
-    KERNEL_NS::UnlockConsole()
+    KERNEL_NS::UnlockConsole();}
 
 #else
     #undef CRYSTAL_TRACE
     #ifdef _DEBUG
         #define CRYSTAL_TRACE(fmt, ...)                                                         \
-        KERNEL_NS::LockConsole();                                                   \
+        {KERNEL_NS::LockConsole();                                                   \
         printf("file[%s],line[%d]:" fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__);               \
-        KERNEL_NS::UnlockConsole()
+        KERNEL_NS::UnlockConsole();}
 
     #else
-        #define CRYSTAL_TRACE(fmt, ...)  KERNEL_NS::LockConsole(); printf("file[%s],line[%d]:" fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); KERNEL_NS::UnlockConsole()
+        #define CRYSTAL_TRACE(fmt, ...)  {KERNEL_NS::LockConsole(); printf("file[%s],line[%d]:" fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); KERNEL_NS::UnlockConsole();}
 
     #endif
 
