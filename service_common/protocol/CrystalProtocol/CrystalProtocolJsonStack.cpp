@@ -352,49 +352,55 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
 
         const auto flags = GetProtoFlags(packet->GetOpcode());
         Int64 keySize = 0; 
-        KERNEL_NS::LibString key;
         if(UNLIKELY((flags & MsgFlagsType::XOR_ENCRYPT_FLAG) == MsgFlagsType::XOR_ENCRYPT_FLAG))
         {// 需要加密
-            headerFlags |= MsgFlagsType::XOR_ENCRYPT_FLAG;
-
-            // 先生成key
-            KERNEL_NS::CypherGeneratorUtil::SpeedGen<KERNEL_NS::_Build::TL>(key, KERNEL_NS::CypherGeneratorUtil::CYPHER_128BIT);
-
-            // rsa加密
-            auto &rsa = GetPacketToBinRsa();
-            KERNEL_NS::LibString cypherKey;
-
-            if(rsa.IsPubEncryptPrivDecrypt())
+            if(!UpdateKey())
             {
-                rsa.PubKeyEncrypt(key, cypherKey);
-            }
-            else
-            {
-                rsa.PrivateKeyEncrypt(key, cypherKey);
-            }
-            if(UNLIKELY(cypherKey.empty()))
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("rsa encrypt fail rsa mode:%d session:%s, packet:%s"), rsa.GetMode(), session->ToString().c_str(), StackPacketToString(packet).c_str());
+                g_Log->Error(LOGFMT_OBJ_TAG("UpdateKey fail session:%s, packet:%s"), session->ToString().c_str(), StackPacketToString(packet).c_str());
                 errCode = Status::Error;
                 stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
                 break;
             }
+
+            headerFlags |= MsgFlagsType::XOR_ENCRYPT_FLAG;
+
+            // // 先生成key
+            // KERNEL_NS::CypherGeneratorUtil::SpeedGen<KERNEL_NS::_Build::TL>(key, KERNEL_NS::CypherGeneratorUtil::CYPHER_128BIT);
+
+            // // rsa加密
+            // auto &rsa = GetPacketToBinRsa();
+            // KERNEL_NS::LibString cypherKey;
+
+            // if(rsa.IsPubEncryptPrivDecrypt())
+            // {
+            //     rsa.PubKeyEncrypt(key, cypherKey);
+            // }
+            // else
+            // {
+            //     rsa.PrivateKeyEncrypt(key, cypherKey);
+            // }
+            // if(UNLIKELY(cypherKey.empty()))
+            // {
+            //     g_Log->Error(LOGFMT_OBJ_TAG("rsa encrypt fail rsa mode:%d session:%s, packet:%s"), rsa.GetMode(), session->ToString().c_str(), StackPacketToString(packet).c_str());
+            //     errCode = Status::Error;
+            //     stream->ShiftWritePos(-(static_cast<Int64>(MsgHeaderStructure::MSG_HEADER_SIZE)));
+            //     break;
+            // }
 
             // base64编码
             if(UNLIKELY((flags & MsgFlagsType::KEY_IN_BASE64_FLAG) == MsgFlagsType::KEY_IN_BASE64_FLAG))
             {
                 headerFlags |= MsgFlagsType::KEY_IN_BASE64_FLAG;
 
-                KERNEL_NS::LibString finalKey;
-                KERNEL_NS::LibBase64::Encode(cypherKey.data(), static_cast<UInt64>(cypherKey.size()), finalKey);
-
-                keySize = static_cast<Int64>(finalKey.size());
-                stream->Write(finalKey.data(), keySize);
+                const auto &base64Key = GetBase64Key();
+                keySize = static_cast<Int64>(base64Key.size());
+                stream->Write(base64Key.data(), keySize);
             }
             else
             {
-                keySize = static_cast<Int64>(cypherKey.size());
-                stream->Write(cypherKey.data(), keySize);
+                const auto &key = GetCypherKey();
+                keySize = static_cast<Int64>(key.size());
+                stream->Write(key.data(), keySize);
             }
         }
 
@@ -422,9 +428,10 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
         const auto contentSize = contentEnd - contentStart;
 
         // 加密数据
+        const auto &key = GetKey();
         if(UNLIKELY(!key.empty()))
         {
-            if((flags & MsgFlagsType::XOR_ENCRYPT_FLAG) == MsgFlagsType::XOR_ENCRYPT_FLAG)
+            if((contentSize > 0) && ((flags & MsgFlagsType::XOR_ENCRYPT_FLAG) == MsgFlagsType::XOR_ENCRYPT_FLAG))
             {
                 stream->ShiftWritePos(-(contentSize));
                 KERNEL_NS::XorEncrypt::Encrypt(key.data(), static_cast<Int32>(key.size()), stream->GetWriteBegin(), static_cast<Int32>(contentSize), stream->GetWriteBegin());

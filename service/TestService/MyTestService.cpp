@@ -579,6 +579,8 @@ Int32 MyTestService::_InitProtocolStack()
         if(stack)
         {
             stack->SetOpenPorotoLog(_serviceConfig->_protoStackOpenLog);
+            stack->SetKeyExpireTimeIntervalMs(_serviceConfig->_encryptKeyExpireTime);
+            
             // opcode解析
             _stackTypeRefProtocolStack.insert(std::make_pair(idx, stack));
 

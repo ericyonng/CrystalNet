@@ -548,6 +548,8 @@ Int32 MyTestService::_InitProtocolStack()
         {
             // opcode解析
             _stackTypeRefProtocolStack.insert(std::make_pair(idx, stack));
+            stack->SetKeyExpireTimeIntervalMs(_serviceConfig->_encryptKeyExpireTime);
+            stack->SetOpenPorotoLog(_serviceConfig->_protoStackOpenLog);
 
             // 消息到来是要私钥加密公钥解密
             auto &parsingRsa = stack->GetParsingRsa();

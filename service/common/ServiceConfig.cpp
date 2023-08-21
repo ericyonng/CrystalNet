@@ -398,6 +398,12 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
         }
     }
 
+    {// 是否开启网络协议日志打印
+        KERNEL_NS::LibString cache;
+        _encryptKeyExpireTime = 3000;
+        ini->CheckReadNumber(seg.c_str(), "EncryptKeyExpireTime", _encryptKeyExpireTime);
+    }
+
     return true;
 }
 SERVICE_END

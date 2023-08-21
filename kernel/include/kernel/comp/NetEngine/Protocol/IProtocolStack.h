@@ -33,7 +33,11 @@
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/LibList.h>
 #include <kernel/comp/LibStream.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/LibTime.h>
 #include <kernel/comp/Encrypt/Encrypt.h>
+#include <kernel/comp/Coder/coder.h>
+#include <kernel/comp/Utils/CypherGeneratorUtil.h>
 
 KERNEL_BEGIN
 
@@ -81,11 +85,23 @@ public:
     LibRsa &GetPacketToBinRsa();
     const LibRsa &GetPacketToBinRsa() const;
 
+    void SetKeyExpireTimeIntervalMs(Int64 interval);
+    bool UpdateKey();
+    const KERNEL_NS::LibString &GetKey() const;
+    const KERNEL_NS::LibString &GetCypherKey() const;
+    const KERNEL_NS::LibString &GetBase64Key() const;
+
 protected:
     UInt64 _protoVersionNumber = 0;     // 协议版本号
     Int32 _type = 0;                    // 协议栈类型
     LibRsa _parsingRsa;
     LibRsa _packetToBinRsa;
+
+    KERNEL_NS::LibString _key;          // 生成的key
+    KERNEL_NS::LibString _cypherKey;    // 加密后的key
+    KERNEL_NS::LibString _base64Key;    // base64的key
+    Int64 _expireTime = 0;                  // key过期时间
+    Int64 _expireIntervalMs = 3000;         // key过期时间间隔
 };
 
 inline void IProtocolStack::SetProtoVersionNumber(UInt64 ver)
@@ -121,6 +137,61 @@ ALWAYS_INLINE LibRsa &IProtocolStack::GetPacketToBinRsa()
 ALWAYS_INLINE const LibRsa &IProtocolStack::GetPacketToBinRsa() const
 {
     return _packetToBinRsa;
+}
+
+ALWAYS_INLINE void IProtocolStack::SetKeyExpireTimeIntervalMs(Int64 interval)
+{
+    _expireIntervalMs = (interval > 0) ? interval : _expireIntervalMs;
+}
+
+ALWAYS_INLINE bool IProtocolStack::UpdateKey()
+{
+    const auto nowTime = LibTime::NowMilliTimestamp();
+    if(LIKELY(_expireTime > nowTime))
+        return true;
+
+    _expireTime = nowTime + _expireIntervalMs;
+
+    _key.clear();
+    _base64Key.clear();
+    _cypherKey.clear();
+    KERNEL_NS::CypherGeneratorUtil::SpeedGen<KERNEL_NS::_Build::TL>(_key, KERNEL_NS::CypherGeneratorUtil::CYPHER_128BIT);
+    
+    if(_packetToBinRsa.IsPubEncryptPrivDecrypt())
+    {
+        _packetToBinRsa.PubKeyEncrypt(_key, _cypherKey);
+    }
+    else
+    {
+        _packetToBinRsa.PrivateKeyEncrypt(_key, _cypherKey);
+    }
+
+    if(UNLIKELY(_cypherKey.empty()))
+    {
+        _expireTime = nowTime;
+        _key.clear();
+        _base64Key.clear();
+        return false;
+    }
+
+    KERNEL_NS::LibBase64::Encode(_cypherKey.data(), static_cast<UInt64>(_cypherKey.size()), _base64Key);
+
+    return true;
+}
+
+ALWAYS_INLINE const KERNEL_NS::LibString &IProtocolStack::GetKey() const
+{
+    return _key;
+}
+
+ALWAYS_INLINE const KERNEL_NS::LibString &IProtocolStack::GetCypherKey() const
+{
+    return _cypherKey;
+}
+
+ALWAYS_INLINE const KERNEL_NS::LibString &IProtocolStack::GetBase64Key() const
+{
+    return _base64Key;
 }
 
 KERNEL_END

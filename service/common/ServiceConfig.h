@@ -94,6 +94,7 @@ struct ServiceConfig
     ServiceConfig()
     :_centerAddr(AddrConfig::Create()) 
     ,_protoStackOpenLog(false)
+    ,_encryptKeyExpireTime(3000)
     {
 
     }
@@ -116,6 +117,7 @@ struct ServiceConfig
     AddrConfig *_centerAddr;    // 控制中心
     std::unordered_map<UInt16, Int32> _portRefSessionType;  // 端口的会话类型配置 PORT_SESSION_TYPE
     bool _protoStackOpenLog;
+    Int64 _encryptKeyExpireTime;
 };
 
 SERVICE_END

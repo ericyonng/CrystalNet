@@ -236,6 +236,8 @@
         auto info = OpcodeInfo();
         info._opcode = 29;
         info._noLog = true;
+        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::XOR_ENCRYPT_FLAG;
+        info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::KEY_IN_BASE64_FLAG;
         info._opcodeName = "ClientHeartbeatReq";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);

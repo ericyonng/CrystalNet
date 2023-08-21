@@ -1841,7 +1841,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(29), nolog(true), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(29), nolog(true), XorEncrypt(true), KeyBase64(true)]
 class ClientHeartbeatReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClientHeartbeatReq) */ , public KERNEL_NS::ICoder {
 public:

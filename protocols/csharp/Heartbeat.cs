@@ -1212,7 +1212,7 @@ using ProtoPackage.Attributes;
 
   /// <summary>
   /// 客户端的心跳
-  //// Opcode:, NoLog:true
+  //// Opcode:, NoLog:true, XorEncrypt:true, KeyBase64:true
   /// </summary>
 [ProtoMessage(29)]
   public sealed partial class ClientHeartbeatReq : pb::IMessage<ClientHeartbeatReq>

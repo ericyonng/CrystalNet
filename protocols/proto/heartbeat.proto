@@ -47,7 +47,7 @@ message GetNodeListRes
 }
 
 // 客户端的心跳
-/// Opcode:, NoLog:true
+/// Opcode:, NoLog:true, XorEncrypt:true, KeyBase64:true
 message ClientHeartbeatReq 
 {
 

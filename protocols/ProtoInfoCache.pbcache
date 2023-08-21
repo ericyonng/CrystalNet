@@ -47,9 +47,9 @@
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:NodeHeartbeatRes,Opcode:24,NoLog:true,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeReq,Opcode:25,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeRes,Opcode:26,NoLog:false,XorEncrypt:false,KeyBase64:false,]
-/// ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,Md5:H+Pazw5xnrrpoKRGV5GaHQ==,ModifyTime:1692361743,
+/// ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,Md5:5n2cna8iTjLPP6007fCnVA==,ModifyTime:1692597902,
 
-[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatReq,Opcode:29,NoLog:true,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatReq,Opcode:29,NoLog:true,XorEncrypt:true,KeyBase64:true,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatRes,Opcode:30,NoLog:true,XorEncrypt:false,KeyBase64:false,]
 /// ProtoName:com_client_user.proto,ProtoPath:../../protocols/proto/com_client_user.proto,Md5:vaFhp79apqM7sObiP2yY9A==,ModifyTime:1692361696,
 
