@@ -75,6 +75,9 @@ protected:
     void _AddCsharpNamespace(std::vector<KERNEL_NS::LibString> &lines);
     void _ProtoMessageAttribute(const ProtoContentInfo *protoFile, std::vector<KERNEL_NS::LibString> &lines);
 
+    // 生成ts
+    bool _GenTs();
+
     // pbcache file加载
     bool _LoadPbCache();
 
@@ -96,6 +99,7 @@ private:
     KERNEL_NS::LibString _protoPath;        // proto路径（相对于工具）
     KERNEL_NS::LibString _cppOutPath;       // cpp out路径（相对于工具）
     KERNEL_NS::LibString _csharpOutPath;    // csharp生成路径（相对于工具）
+    KERNEL_NS::LibString _tsOutPath;        // ts生成路径 (相对于工具)
     KERNEL_NS::LibString _cppProtocPath;    // cpp生成工具路径（相对于工具）
     KERNEL_NS::LibString _csharpProtocPath; // csharp生成工具路径（相对于工具）
     KERNEL_NS::LibString _googleProtoIncludePath;   // proto库目录
