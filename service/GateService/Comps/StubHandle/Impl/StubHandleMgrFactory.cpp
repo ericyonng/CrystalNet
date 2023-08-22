@@ -44,7 +44,8 @@ void StubHandleMgrFactory::Release()
 
 KERNEL_NS::CompObject *StubHandleMgrFactory::Create() const
 {
-    return StubHandleMgr::NewByAdapter_StubHandleMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, StubHandleMgr);
+    return comp;
 }
 
 SERVICE_END

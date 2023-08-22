@@ -42,6 +42,7 @@ void ServiceRegisterMgrFactory::Release()
 
 KERNEL_NS::CompObject *ServiceRegisterMgrFactory::Create() const
 {
-    return ServiceRegisterMgr::NewByAdapter_ServiceRegisterMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, ServiceRegisterMgr);
+    return comp;
 }
 SERVICE_END

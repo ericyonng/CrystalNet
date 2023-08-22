@@ -44,7 +44,8 @@ void PollerMgrFactory::Release()
 
 CompObject *PollerMgrFactory::Create() const
 {
-    return PollerMgr::NewByAdapter_PollerMgr(PollerMgrFactory::_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, PollerMgr);
+    return comp;
 }
 
 KERNEL_END

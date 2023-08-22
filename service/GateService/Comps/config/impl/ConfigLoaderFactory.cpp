@@ -44,7 +44,8 @@ void ConfigLoaderFactory::Release()
 
 KERNEL_NS::CompObject *ConfigLoaderFactory::Create() const
 {
-    return ConfigLoader::NewByAdapter_ConfigLoader(_buildType.V);
+    CREATE_CRYSTAL_COMP_INS(comp, ConfigLoader, SERVICE_COMMON_NS);
+    return comp;
 }
 
 SERVICE_END

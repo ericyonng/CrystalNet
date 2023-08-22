@@ -44,7 +44,8 @@ void SessionMgrFactory::Release()
 
 KERNEL_NS::CompObject *SessionMgrFactory::Create() const
 {
-    return SessionMgr::NewByAdapter_SessionMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, SessionMgr);
+    return comp;
 }
 
 SERVICE_END

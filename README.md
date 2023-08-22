@@ -561,7 +561,8 @@
       
       virtual KERNEL_NS::CompObject *Create() const
       {
-          return CompC::NewByAdapter_CompC(_buildType.V);
+           CREATE_CRYSTAL_COMP(comp, CompC);
+           return comp;
       }
   };
   
@@ -579,7 +580,8 @@
      
       virtual KERNEL_NS::CompObject *Create() const
       {
-          return HostC::NewByAdapter_HostC(_buildType.V);
+           CREATE_CRYSTAL_COMP(comp, HostC);
+           return comp;
       }
   };
   

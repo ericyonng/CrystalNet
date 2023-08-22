@@ -38,6 +38,18 @@ KERNEL_BEGIN
 
 class CompObject;
 
+#undef CREATE_CRYSTAL_COMP
+// 创建组件并设置接口类id, 前提是有接口类才能使用否则, 接口类id在IObject中默认是0
+#define CREATE_CRYSTAL_COMP(VAR, T)                                 \
+auto VAR = T::NewByAdapter_##T(_buildType.V);                       \
+VAR->SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<I##T>())
+
+#undef CREATE_CRYSTAL_COMP_INS
+// 提供接口类的命名空间 INS:接口命名空间
+#define CREATE_CRYSTAL_COMP_INS(VAR, T, INTERFACE_TYPE_NS)          \
+auto VAR = T::NewByAdapter_##T(_buildType.V);                       \
+VAR->SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<INTERFACE_TYPE_NS::I##T>())
+
 class KERNEL_EXPORT CompFactory
 {
     // 创建factory对象时候使用创建的方法类型

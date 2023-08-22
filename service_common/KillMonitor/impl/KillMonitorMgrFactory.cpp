@@ -43,7 +43,8 @@ void KillMonitorMgrFactory::Release()
 
 KERNEL_NS::CompObject *KillMonitorMgrFactory::Create() const
 {
-    return KillMonitorMgr::NewByAdapter_KillMonitorMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, KillMonitorMgr);
+    return comp;
 }
 
 SERVICE_COMMON_END

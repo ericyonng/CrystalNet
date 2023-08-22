@@ -520,9 +520,9 @@ void CompHostObject::_DestroyComps()
         comp->Release();
     });
 
-    _compNameRefComps.clear();
-    _icompNameRefComps.clear();
+    _compTypeIdRefComps.clear();
     _compIdRefComp.clear();
+    _compObjNameRefComps.clear();
 
     if(g_Log->IsEnable(LogLevel::Info)) 
        g_Log->Info(LOGFMT_OBJ_TAG("destroyed comps over of host:%s"), _objName.c_str());
@@ -533,23 +533,26 @@ void CompHostObject::_AddComp(CompObject *comp)
     _comps.push_back(comp);
     _compIdRefComp.insert(std::make_pair(comp->GetId(), comp));
 
-    // 名字映射
-    const auto &compName = comp->GetObjName();
-    auto iterComps = _compNameRefComps.find(compName);
-    if(iterComps == _compNameRefComps.end())
-        iterComps = _compNameRefComps.insert(std::make_pair(compName, std::vector<CompObject *>())).first;
-    auto &comps = iterComps->second;
-    comps.push_back(comp);
+    // 类型id映射
+    {
+        const auto typeId = KERNEL_NS::RttiUtil::GetTypeIdByObj(comp);
+        auto iterComps = _compTypeIdRefComps.find(typeId);
+        if(iterComps == _compTypeIdRefComps.end())
+            iterComps = _compTypeIdRefComps.insert(std::make_pair(typeId, std::vector<CompObject *>())).first;
+        auto &comps = iterComps->second;
+        comps.push_back(comp);
+    }
 
-    // 获取接口名
-    const auto &icompName = StringUtil::InterfaceObjName(compName);
-    
-    // 接口名字映射
-    auto iterIComps = _icompNameRefComps.find(icompName);
-    if(iterIComps == _icompNameRefComps.end())
-        iterIComps = _icompNameRefComps.insert(std::make_pair(icompName, std::vector<CompObject *>())).first;
-    auto &icomps = iterIComps->second;
-    icomps.push_back(comp);
+    // 接口类型id映射
+    const auto interfaceTypeId = comp->GetInterfaceTypeId();
+    if(LIKELY(interfaceTypeId))
+    {
+        auto iterComps = _compTypeIdRefComps.find(interfaceTypeId);
+        if(iterComps == _compTypeIdRefComps.end())
+            iterComps = _compTypeIdRefComps.insert(std::make_pair(interfaceTypeId, std::vector<CompObject *>())).first;
+        auto &comps = iterComps->second;
+        comps.push_back(comp);
+    }
 
     // 类型映射
     if(comp->GetType())
@@ -558,6 +561,16 @@ void CompHostObject::_AddComp(CompObject *comp)
         if(iterTypeComps == _compTypeRefComps.end())
             iterTypeComps = _compTypeRefComps.insert(std::make_pair(comp->GetType(), std::vector<CompObject *>())).first;
         iterTypeComps->second.push_back(comp);
+    }
+
+    // 类型名映射
+    const auto &objName = comp->GetObjName();
+    {
+        auto iterComps = _compObjNameRefComps.find(objName);
+        if(iterComps == _compObjNameRefComps.end())
+            iterComps = _compObjNameRefComps.insert(std::make_pair(objName, std::vector<CompObject *>())).first;
+
+        iterComps->second.push_back(comp);
     }
 }
 
@@ -594,71 +607,83 @@ bool CompHostObject::_ReplaceComp(CompObject *oldComp, CompObject *comp)
         _compIdRefComp.insert(std::make_pair(comp->GetId(), comp));
     }
 
-    // 名字映射
-    const auto &compName = comp->GetObjName();
-    auto iterComps = _compNameRefComps.find(compName);
-    if(iterComps == _compNameRefComps.end())
-        iterComps = _compNameRefComps.insert(std::make_pair(compName, std::vector<CompObject *>())).first;
-    auto &comps = iterComps->second;
-    {
-        const Int32 compAmount = static_cast<Int32>(comps.size());
-        for(Int32 idx = 0; idx < compAmount; ++idx)
+    {// 类型名映射
+        const auto &objName = oldComp->GetObjName();
+        auto iterComps = _compObjNameRefComps.find(objName);
+        if(iterComps == _compObjNameRefComps.end())
+            iterComps = _compObjNameRefComps.insert(std::make_pair(objName, std::vector<CompObject *>())).first;
+
+        auto &comps = iterComps->second;
         {
-            if(comps[idx] == oldComp)
+            const Int32 compAmount = static_cast<Int32>(comps.size());
+            for(Int32 idx = 0; idx < compAmount; ++idx)
             {
-                comps[idx] = comp;
-                break;
+                if(comps[idx] == oldComp)
+                {
+                    comps[idx] = comp;
+                    break;
+                }
             }
         }
     }
 
-    // 命名空间检测
-    LibString copyCompName = compName;
-    auto splitNameSpace = copyCompName.Split("::", -1, false, true);
-    Int32 splitSize = static_cast<Int32>(splitNameSpace.size());
-
-    // 去末尾空
-    for(Int32 idx = splitSize - 1; idx >= 0; --idx)
+    // 类型映射
     {
-        if(splitNameSpace[idx].empty())
+        const auto typeId = KERNEL_NS::RttiUtil::GetTypeIdByObj(comp);
+        auto iterComps = _compTypeIdRefComps.find(typeId);
+        if(iterComps == _compTypeIdRefComps.end())
+            iterComps = _compTypeIdRefComps.insert(std::make_pair(typeId, std::vector<CompObject *>())).first;
+        auto &comps = iterComps->second;
         {
-            splitNameSpace.erase(splitNameSpace.begin() + idx);
+            const Int32 compAmount = static_cast<Int32>(comps.size());
+            for(Int32 idx = 0; idx < compAmount; ++idx)
+            {
+                if(comps[idx] == oldComp)
+                {
+                    comps[idx] = comp;
+                    break;
+                }
+            }
         }
-        else
-            break;
     }
 
-    LibString icompName;
-    splitSize = static_cast<Int32>(splitNameSpace.size());
-    for(Int32 idx = 0; idx < splitSize; ++idx)
+    // 旧的接口类型id移除
+    bool isInterfaceReplace = false;
+    const auto oldInterfaceTypeId = oldComp->GetInterfaceTypeId();
+    if(oldInterfaceTypeId)
     {
-        if(idx == splitSize -1)
-            icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
+        auto iterOldComps = _compTypeIdRefComps.find(oldInterfaceTypeId);
+        if(iterOldComps != _compTypeIdRefComps.end())
+        {
+            auto &comps = iterOldComps->second;
+            {
+                const Int32 compAmount = static_cast<Int32>(comps.size());
+                for(Int32 idx = 0; idx < compAmount; ++idx)
+                {
+                    if(comps[idx] == oldComp)
+                    {
+                        comps[idx] = comp;
+                        isInterfaceReplace = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
-        if(!splitNameSpace[idx].empty())
-            icompName.AppendFormat("%s", splitNameSpace[idx].c_str());
-
-        if(idx != splitSize -1)
-            icompName.AppendFormat("::");
+    // 新组件的接口映射
+    {
+        const auto newInterfaceTypeId = comp->GetInterfaceTypeId();
+        if(!isInterfaceReplace && newInterfaceTypeId)
+        {
+            auto iterComps = _compTypeIdRefComps.find(newInterfaceTypeId);
+            if(iterComps == _compTypeIdRefComps.end())
+                iterComps = _compTypeIdRefComps.insert(std::make_pair(newInterfaceTypeId, std::vector<CompObject *>())).first;
+            auto &comps = iterComps->second;
+            comps.push_back(comp);
+        }
     }
     
-    // 接口名字映射
-    auto iterIComps = _icompNameRefComps.find(icompName);
-    if(iterIComps == _icompNameRefComps.end())
-        iterIComps = _icompNameRefComps.insert(std::make_pair(icompName, std::vector<CompObject *>())).first;
-    auto &icomps = iterIComps->second;
-    {
-        const Int32 compAmount = static_cast<Int32>(icomps.size());
-        for(Int32 idx = 0; idx < compAmount; ++idx)
-        {
-            if(icomps[idx] == oldComp)
-            {
-                icomps[idx] = comp;
-                break;
-            }
-        }
-    }
-
     // 类型映射
     if(comp->GetType())
     {

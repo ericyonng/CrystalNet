@@ -44,7 +44,8 @@ void SysLogicMgrFactory::Release()
 
 KERNEL_NS::CompObject *SysLogicMgrFactory::Create() const
 {
-    return SysLogicMgr::NewByAdapter_SysLogicMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, SysLogicMgr);
+    return comp;
 }
 
 SERVICE_END

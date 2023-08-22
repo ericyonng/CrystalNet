@@ -45,7 +45,8 @@ void ExporterMgrFactory::Release()
 
 KERNEL_NS::CompObject *ExporterMgrFactory::Create() const
 {
-    return ExporterMgr::NewByAdapter_ExporterMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, ExporterMgr);
+    return comp;
 }
 
 SERVICE_END

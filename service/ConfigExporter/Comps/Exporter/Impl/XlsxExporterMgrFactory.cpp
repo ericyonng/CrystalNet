@@ -44,7 +44,8 @@ void XlsxExporterMgrFactory::Release()
 
 KERNEL_NS::CompObject *XlsxExporterMgrFactory::Create() const
 {
-    return XlsxExporterMgr::NewByAdapter_XlsxExporterMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, XlsxExporterMgr);
+    return comp;
 }
 
 SERVICE_END

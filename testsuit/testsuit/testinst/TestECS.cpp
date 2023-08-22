@@ -711,7 +711,8 @@ public:
 
     virtual KERNEL_NS::CompObject *Create() const
     {
-        return CompC::NewByAdapter_CompC(_buildType.V);
+        CREATE_CRYSTAL_COMP(comp, CompC);
+        return comp;
     }
 };
 
@@ -914,11 +915,11 @@ void TestECS::Run()
         }
 
         // 替换组件c
-        // KERNEL_NS::CompObject *compc = CompC::NewByAdapter_CompC(CompCFactory::_buildType.V);
-        // compc->Init();
-        // compc->Start();
+        compc = CompC::NewByAdapter_CompC(CompCFactory::_buildType.V);
+        compc->Init();
+        compc->Start();
 
-        // hostb->ReplaceComp(compc);
+        hostb->ReplaceComp(compc);
 
         // 动态移除组件
         hostb->RemoveComp<CompC>();

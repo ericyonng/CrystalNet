@@ -128,10 +128,15 @@ public:
     ObjType *GetComp();
     template<typename ObjType>
     const ObjType *GetComp() const;
-    CompObject *GetComp(const LibString &compRttiName);
-    const CompObject *GetComp(const LibString &compRttiName) const;
-    std::vector<CompObject *> &GetComps(const LibString &compRttiName);
-    const std::vector<CompObject *> &GetComps(const LibString &compRttiName) const;
+    CompObject *GetCompByTypeId(UInt64 typeId);
+    const CompObject *GetCompByTypeId(UInt64 typeId) const;
+    std::vector<CompObject *> &GetCompsByTypeId(UInt64 typeId);
+    const std::vector<CompObject *> &GetCompsByTypeId(UInt64 typeId) const;
+
+    CompObject *GetCompByName(const LibString &objName);
+    const CompObject *GetCompByName(const LibString &objName) const;
+    std::vector<CompObject *> &GetCompsByName(const LibString &objName);
+    const std::vector<CompObject *> &GetCompsByName(const LibString &objName) const;
 
     // 替换已有组件 同时必须校验循环依赖 TODO:找到组件, 存在的要对组件执行Close以及移除操作, 用于比如热更配置（在另外一个线程创建ConfigLoader并加载好配置后替换掉原有的ConfigLoader）
     template<typename ObjType>
@@ -188,8 +193,11 @@ private:
     std::vector<_WillRegComp> _willRegComps;
 
     std::vector<CompObject *> _comps;
-    std::unordered_map<LibString, std::vector<CompObject *>> _compNameRefComps;
-    std::unordered_map<LibString, std::vector<CompObject *>> _icompNameRefComps;
+    // std::unordered_map<LibString, std::vector<CompObject *>> _icompNameRefComps;
+
+    std::unordered_map<UInt64, std::vector<CompObject *>> _compTypeIdRefComps;
+    std::unordered_map<LibString, std::vector<CompObject *>> _compObjNameRefComps;
+
     std::unordered_map<UInt64, CompObject *> _compIdRefComp;
     std::unordered_map<Int32, std::vector<CompObject *>> _compTypeRefComps;
 
@@ -215,8 +223,8 @@ template<typename CompType>
 ALWAYS_INLINE void CompHostObject::RemoveComp()
 {
     // 替换已有组件 TODO:找到组件, 存在的要对组件执行Close以及移除操作
-    const KERNEL_NS::LibString compName = RttiUtil::GetByType<CompType>();
-    auto comp = GetComp(compName);
+    const UInt64 typeId = RttiUtil::GetTypeId<CompType>();
+    auto comp = GetCompByTypeId(typeId);
     if(UNLIKELY(!comp))
     {
         // 找不到有可能还没注册
@@ -228,10 +236,9 @@ ALWAYS_INLINE void CompHostObject::RemoveComp()
             if(!regComp._comp)
                 continue;
             
-            const LibString willRegCompName = RttiUtil::GetByObj(regComp._comp);
-            const LibString iWillRegCompName = StringUtil::InterfaceObjName(willRegCompName);
-            if((compName != willRegCompName) && 
-                (compName != iWillRegCompName))
+            const auto willRegTypeId = RttiUtil::GetTypeIdByObj(regComp._comp);
+            const auto iWillRegTypeId = regComp._comp->GetInterfaceTypeId();
+            if((typeId != willRegTypeId) && (typeId != iWillRegTypeId))
                 continue;
 
             regComp._comp->WillClose();
@@ -248,7 +255,7 @@ ALWAYS_INLINE void CompHostObject::RemoveComp()
     do
     {
         _RemoveComp(comp);
-    } while ((comp = GetComp(compName)) != NULL);
+    } while ((comp = GetCompByTypeId(typeId)) != NULL);
 }
 
 ALWAYS_INLINE void CompHostObject::RemoveComp(CompObject *comp)
@@ -262,7 +269,7 @@ ALWAYS_INLINE void CompHostObject::RemoveComp(CompObject *comp)
 template<typename CompFactoryType>
 ALWAYS_INLINE void CompHostObject::RemoveCompFactory()
 {
-    const LibString factoryName = RttiUtil::GetByType<CompFactoryType>();
+    const auto typeId = RttiUtil::GetTypeId<CompFactoryType>();
     const Int32 count = static_cast<Int32>(_willRegComps.size());
     for(Int32 idx = count -1; idx >= 0; --idx)
     {
@@ -270,8 +277,8 @@ ALWAYS_INLINE void CompHostObject::RemoveCompFactory()
         if(!regInfo._factory)
             continue;
 
-        const LibString &name = RttiUtil::GetByObj(regInfo._factory);
-        if(name != factoryName)
+        const auto factoryTypeId = RttiUtil::GetTypeIdByObj(regInfo._factory);
+        if(typeId != factoryTypeId)
             continue;
 
         regInfo._factory->Release();
@@ -294,71 +301,75 @@ ALWAYS_INLINE CompObject *CompHostObject::GetComp(UInt64 objectId)
 template<typename ObjType>
 ALWAYS_INLINE ObjType *CompHostObject::GetComp()
 {
-    const KERNEL_NS::LibString &compName = RttiUtil::GetByType<ObjType>();
-    if(UNLIKELY(compName == ""))
+    const auto typeId = RttiUtil::GetTypeId<ObjType>();
+    if(UNLIKELY(typeId == 0))
         return NULL;
 
-    return KernelCastTo<ObjType>(GetComp(compName));
+    return KernelCastTo<ObjType>(GetCompByTypeId(typeId));
 }
 
 template<typename ObjType>
 ALWAYS_INLINE const ObjType *CompHostObject::GetComp() const
 {
-    const KERNEL_NS::LibString &compName = RttiUtil::GetByType<ObjType>();
-    if(UNLIKELY(compName == ""))
+    const auto typeId = RttiUtil::GetTypeId<ObjType>();
+    if(UNLIKELY(typeId == 0))
         return NULL;
 
-    return reinterpret_cast<const ObjType *>(GetComp(compName));
+    return KernelCastTo<ObjType>(GetCompByTypeId(typeId));
 }
 
-ALWAYS_INLINE CompObject *CompHostObject::GetComp(const LibString &compRttiName)
+ALWAYS_INLINE CompObject *CompHostObject::GetCompByTypeId(UInt64 typeId)
 {
-    // 先从接口中获得
-    auto iterIComp = _icompNameRefComps.find(compRttiName);
-    if(iterIComp != _icompNameRefComps.end() && !iterIComp->second.empty())
-        return iterIComp->second[0];
-
-    auto iter = _compNameRefComps.find(compRttiName);
-    if(iter == _compNameRefComps.end() || iter->second.empty())
+    auto iter = _compTypeIdRefComps.find(typeId);
+    if(iter == _compTypeIdRefComps.end() || iter->second.empty())
         return NULL;
 
     return iter->second[0];
 }
 
-ALWAYS_INLINE const CompObject *CompHostObject::GetComp(const LibString &compRttiName) const
+ALWAYS_INLINE const CompObject *CompHostObject::GetCompByTypeId(UInt64 typeId) const
 {
-    // 先从接口中获得
-    auto iterIComp = _icompNameRefComps.find(compRttiName);
-    if(iterIComp != _icompNameRefComps.end() && !iterIComp->second.empty())
-        return iterIComp->second[0];
-
-    auto iter = _compNameRefComps.find(compRttiName);
-    if(iter == _compNameRefComps.end() || iter->second.empty())
+    auto iter = _compTypeIdRefComps.find(typeId);
+    if(iter == _compTypeIdRefComps.end() || iter->second.empty())
         return NULL;
 
     return iter->second[0];
 }
 
-ALWAYS_INLINE std::vector<CompObject *> &CompHostObject::GetComps(const LibString &compRttiName)
+ALWAYS_INLINE std::vector<CompObject *> &CompHostObject::GetCompsByTypeId(UInt64 typeId)
 {
-    // 先从接口中获得
-    auto iterIComp = _icompNameRefComps.find(compRttiName);
-    if(iterIComp != _icompNameRefComps.end() && !iterIComp->second.empty())
-        return iterIComp->second;
-
-    auto iter = _compNameRefComps.find(compRttiName);
-    return iter == _compNameRefComps.end() ? CompHostObject::_emptyComps : iter->second;
+    auto iter = _compTypeIdRefComps.find(typeId);
+    return iter == _compTypeIdRefComps.end() ? CompHostObject::_emptyComps : iter->second;
 }
 
-ALWAYS_INLINE const std::vector<CompObject *> &CompHostObject::GetComps(const LibString &compRttiName) const
+ALWAYS_INLINE const std::vector<CompObject *> &CompHostObject::GetCompsByTypeId(UInt64 typeId) const
 {
-    // 先从接口中获得
-    auto iterIComp = _icompNameRefComps.find(compRttiName);
-    if(iterIComp != _icompNameRefComps.end() && !iterIComp->second.empty())
-        return iterIComp->second;
+    auto iter = _compTypeIdRefComps.find(typeId);
+    return iter == _compTypeIdRefComps.end() ? CompHostObject::_emptyComps : iter->second;
+}
 
-    auto iter = _compNameRefComps.find(compRttiName);
-    return iter == _compNameRefComps.end() ? CompHostObject::_emptyComps : iter->second;
+ALWAYS_INLINE CompObject *CompHostObject::GetCompByName(const LibString &objName)
+{
+    auto iter = _compObjNameRefComps.find(objName);
+    return iter == _compObjNameRefComps.end() ? NULL : iter->second[0];
+}
+
+ALWAYS_INLINE const CompObject *CompHostObject::GetCompByName(const LibString &objName) const
+{
+    auto iter = _compObjNameRefComps.find(objName);
+    return iter == _compObjNameRefComps.end() ? NULL : iter->second[0];
+}
+
+ALWAYS_INLINE std::vector<CompObject *> &CompHostObject::GetCompsByName(const LibString &objName)
+{
+    auto iter = _compObjNameRefComps.find(objName);
+    return iter == _compObjNameRefComps.end() ? CompHostObject::_emptyComps : iter->second;
+}
+
+ALWAYS_INLINE const std::vector<CompObject *> &CompHostObject::GetCompsByName(const LibString &objName) const
+{
+    auto iter = _compObjNameRefComps.find(objName);
+    return iter == _compObjNameRefComps.end() ? CompHostObject::_emptyComps : iter->second;
 }
 
 ALWAYS_INLINE CompObject *CompHostObject::GetCompByType(Int32 type)
@@ -410,8 +421,8 @@ template<typename ObjType>
 ALWAYS_INLINE bool CompHostObject::ReplaceComp(ObjType *comp)
 {
 // 替换已有组件 TODO:找到组件, 存在的要对组件执行Close以及移除操作
-    const KERNEL_NS::LibString compType = RttiUtil::GetByObj(comp);
-    auto oldComp = GetComp(compType);
+    const auto typeId = RttiUtil::GetTypeIdByObj(comp);
+    auto oldComp = GetCompByTypeId(typeId);
     if(oldComp == comp)
         return true;
 
@@ -461,10 +472,10 @@ ALWAYS_INLINE void CompHostObject::_RemoveComp(CompObject *comp)
         _compIdRefComp.erase(comp->GetId());
 
         // 组件名容器中移除
-        const auto &compName = comp->GetObjName();
+        const auto typeId = KERNEL_NS::RttiUtil::GetTypeIdByObj(comp);
         {
-            auto iterComps = _compNameRefComps.find(compName);
-            if(iterComps != _compNameRefComps.end())
+            auto iterComps = _compTypeIdRefComps.find(typeId);
+            if(iterComps != _compTypeIdRefComps.end())
             {
                 auto &comps = iterComps->second;
                 const Int32 countComp = static_cast<Int32>(comps.size());
@@ -475,14 +486,17 @@ ALWAYS_INLINE void CompHostObject::_RemoveComp(CompObject *comp)
 
                     comps.erase(comps.begin() + idxComp);
                 }
+
+                if(comps.empty())
+                    _compTypeIdRefComps.erase(iterComps);
             }
         }
 
         // 接口名容器中移除
-        const auto &icompName = StringUtil::InterfaceObjName(compName);
+        const auto interfaceTypeId = comp->GetInterfaceTypeId();
         {
-            auto iterComps = _icompNameRefComps.find(icompName);
-            if(iterComps != _icompNameRefComps.end())
+            auto iterComps = _compTypeIdRefComps.find(interfaceTypeId);
+            if(iterComps != _compTypeIdRefComps.end())
             {
                 auto &comps = iterComps->second;
                 const Int32 countComp = static_cast<Int32>(comps.size());
@@ -493,6 +507,29 @@ ALWAYS_INLINE void CompHostObject::_RemoveComp(CompObject *comp)
 
                     comps.erase(comps.begin() + idxComp);
                 }
+
+                if(comps.empty())
+                    _compTypeIdRefComps.erase(iterComps);
+            }
+        }
+
+        // 从名字容器中移除
+        {
+            auto iterComps = _compObjNameRefComps.find(comp->GetObjName());
+            if(iterComps != _compObjNameRefComps.end())
+            {
+                auto &comps = iterComps->second;
+                const Int32 countComp = static_cast<Int32>(comps.size());
+                for(Int32 idxComp = countComp - 1; idxComp >= 0; --idxComp)
+                {
+                    if(comps[idxComp] != comp)
+                        continue;
+
+                    comps.erase(comps.begin() + idxComp);
+                }
+
+                if(comps.empty())
+                    _compObjNameRefComps.erase(iterComps);
             }
         }
 
@@ -510,6 +547,9 @@ ALWAYS_INLINE void CompHostObject::_RemoveComp(CompObject *comp)
 
                     comps.erase(comps.begin() + idxComp);
                 }
+
+                if(comps.empty())
+                    _compTypeRefComps.erase(iterComps);
             }
         }
     }

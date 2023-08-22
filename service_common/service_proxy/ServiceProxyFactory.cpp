@@ -44,6 +44,7 @@ void ServiceProxyFactory::Release()
 
 KERNEL_NS::CompObject *ServiceProxyFactory::Create() const
 {
-    return ServiceProxy::NewByAdapter_ServiceProxy(_buildType.V);
+    CREATE_CRYSTAL_COMP_INS(comp, ServiceProxy, KERNEL_NS);
+    return comp;
 }
 SERVICE_COMMON_END

@@ -50,6 +50,7 @@ IObject::IObject()
     ,_owner(NULL)
     ,_maxFocusTypeEnumEnd(ObjFocusInterfaceFlag::END)
     ,_errCode{Status::Success}
+    ,_interfaceTypeId(0)
 {
 }
 
@@ -66,6 +67,10 @@ Int32 IObject::OnCreated()
     _objName = RttiUtil::GetByObj(this);
     if(UNLIKELY(GetType() == 0))
         g_Log->Debug(LOGFMT_OBJ_TAG("have no type this comp comp obj name:%s"), GetObjName().c_str());
+
+    // 检查有没有接口类落网之鱼
+    if(UNLIKELY(_interfaceTypeId == 0))
+        g_Log->Warn(LOGFMT_OBJ_TAG("_interfaceTypeId is zero please check _objName:%s."), _objName.c_str());
 
     auto st = _OnCreated();
     if(UNLIKELY(st != Status::Success))

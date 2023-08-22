@@ -41,9 +41,9 @@
 #include <kernel/comp/memory/memory.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/BitUtil.h>
+#include <kernel/comp/Utils/RttiUtil.h>
 
 KERNEL_BEGIN
-
 
 // 组件关注的接口 外部可以调用SetFocus扩展,关注的接口可以不仅限于框架提供的接口
 class KERNEL_EXPORT ObjFocusInterfaceFlag
@@ -108,6 +108,9 @@ public:
     // 用于组件的刷新
     virtual void OnUpdate() {}
 
+    void SetInterfaceTypeId(UInt64 id);
+    UInt64 GetInterfaceTypeId() const;
+    
     // 派生类统一重载接口
 protected:
     virtual Int32 _OnCreated() { return Status::Success; }
@@ -192,11 +195,24 @@ private:
     Int32 _maxFocusTypeEnumEnd;
     std::unordered_map<Int32, UInt64> _focusInterfaceBitmapFlag;
     std::atomic<Int32> _errCode;
+
+    // 指定的接口类typeid
+    UInt64 _interfaceTypeId;
 };
 
 ALWAYS_INLINE Int32 IObject::GetErrCode() const
 {
     return _errCode;
+}
+
+ALWAYS_INLINE void IObject::SetInterfaceTypeId(UInt64 id)
+{
+    _interfaceTypeId = id;
+}
+
+ALWAYS_INLINE UInt64 IObject::GetInterfaceTypeId() const
+{
+    return _interfaceTypeId;
 }
 
 ALWAYS_INLINE UInt64 IObject::GetId() const

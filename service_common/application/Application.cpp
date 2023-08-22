@@ -48,6 +48,7 @@ Application::Application()
 ,_statisticsInfoCache(StatisticsInfo::New_StatisticsInfo())
 ,_maxEventType(KERNEL_NS::PollerEventType::EvMax)
 {
+    SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<IApplication>());
 }
 
 Application::~Application()

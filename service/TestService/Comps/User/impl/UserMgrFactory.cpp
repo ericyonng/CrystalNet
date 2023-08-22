@@ -44,7 +44,8 @@ void UserMgrFactory::Release()
 
 KERNEL_NS::CompObject *UserMgrFactory::Create() const
 {
-    return UserMgr::NewByAdapter_UserMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, UserMgr);
+    return comp;
 }
 
 SERVICE_END

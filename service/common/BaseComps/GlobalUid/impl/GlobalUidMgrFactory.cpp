@@ -44,7 +44,8 @@ void GlobalUidMgrFactory::Release()
 
 KERNEL_NS::CompObject *GlobalUidMgrFactory::Create() const
 {
-    return GlobalUidMgr::NewByAdapter_GlobalUidMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, GlobalUidMgr);
+    return comp;
 }
 
 SERVICE_END

@@ -44,7 +44,8 @@ void LoginMgrFactory::Release()
 
 KERNEL_NS::CompObject *LoginMgrFactory::Create() const
 {
-    return LoginMgr::NewByAdapter_LoginMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, LoginMgr);
+    return comp;
 }
 
 SERVICE_END

@@ -45,6 +45,11 @@ public:
     static const Byte8 *GetByObj(ObjType *obj);
     static const Byte8 *GetByTypeName(const char *rawTypeName);
 
+    template<typename ObjType>
+    static UInt64 GetTypeId();
+    template<typename ObjType>
+    static UInt64 GetTypeIdByObj(ObjType *obj);
+
     // 存在碰撞的可能性，不建议使用
     template<typename ObjType>
     static UInt64 GetTypeHashCode();
@@ -73,6 +78,20 @@ inline UInt64 RttiUtil::GetTypeHashCode()
 {
     return typeid(ObjType).hash_code();
 }
+
+template<typename ObjType>
+ALWAYS_INLINE UInt64 RttiUtil::GetTypeId()
+{
+    DEF_STATIC_THREAD_LOCAL_DECLEAR UInt64 s_objTypeId = typeid(ObjType).hash_code();
+    return s_objTypeId;
+}
+
+template<typename ObjType>
+ALWAYS_INLINE UInt64 RttiUtil::GetTypeIdByObj(ObjType *obj)
+{
+    return typeid(*obj).hash_code();
+}
+
 KERNEL_END
 
 

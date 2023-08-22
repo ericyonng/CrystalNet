@@ -44,7 +44,8 @@ void MysqlMgrFactory::Release()
 
 KERNEL_NS::CompObject *MysqlMgrFactory::Create() const
 {
-    return MysqlMgr::NewByAdapter_MysqlMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, MysqlMgr);
+    return comp;
 }
 
 SERVICE_END

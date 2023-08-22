@@ -44,7 +44,8 @@ void TestMgrFactory::Release()
 
 KERNEL_NS::CompObject *TestMgrFactory::Create() const
 {
-    return TestMgr::NewByAdapter_TestMgr(_buildType.V);
+    CREATE_CRYSTAL_COMP(comp, TestMgr);
+    return comp;
 }
 
 SERVICE_END

@@ -80,6 +80,7 @@ User::User(IUserMgr *userMgr)
 ,_curMaxPacketId(0)
 {
     AddFlag(LogicSysFlagsType::DISABLE_FOCUS_BY_SERVICE_FLAG);
+    SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<IUser>());
 }
 
 User::~User()
@@ -749,7 +750,7 @@ Int32 User::_OnSysCompsCreated()
         if(!subStorageInfo->IsSystemDataStorage())
             continue;
 
-        auto comp = GetComp(subStorageInfo->GetSystemName());
+        auto comp = GetCompByName(subStorageInfo->GetSystemName());
         if(UNLIKELY(!comp))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("user sys have storage info but have no user sys obj please check system name:%s"), subStorageInfo->GetSystemName().c_str());
