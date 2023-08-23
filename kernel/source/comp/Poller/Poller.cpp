@@ -267,12 +267,10 @@ void Poller::EventLoop()
 
     LibCpuCounter deadline;
     LibCpuCounter nowCounter;
-
-    #ifdef _DEBUG
-     LibCpuCounter performaceStart;
-    #endif
+    LibCpuCounter performaceStart;
 
     const UInt64 pollerId = GetId();
+    const UInt64 curThreadId = _workThreadId.load();
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
     UInt64 mergeNumber = 0;
@@ -298,15 +296,11 @@ void Poller::EventLoop()
             mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
 
         // 处理事件
-        #ifdef _DEBUG
-         UInt64 curConsumeEventsCount = 0;
-        #endif
-
+        UInt64 curConsumeEventsCount = 0;
         Int32 detectTimeoutLoopCount = _loopDetectTimeout;
-        deadline.Update() += _maxPieceTime;
-        #ifdef _DEBUG
-         performaceStart = deadline;
-        #endif
+
+         performaceStart = deadline.Update();
+        deadline += _maxPieceTime;
 
         for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber != 0);)
         {
@@ -326,10 +320,7 @@ void Poller::EventLoop()
                 --_eventAmountLeft;
                 --mergeNumber;
                 ++_consumEventCount;
-
-                #ifdef _DEBUG
                  ++curConsumeEventsCount;
-                #endif
             }
 
             listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
@@ -347,7 +338,7 @@ void Poller::EventLoop()
         // 脏处理
         if(UNLIKELY(_dirtyHelper->HasDirty()))
         {
-            _dirtyHelper->Purge(deadline, &errLog);
+            _dirtyHelper->Purge(&errLog);
             if(UNLIKELY(!errLog.empty()))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
@@ -359,12 +350,12 @@ void Poller::EventLoop()
         _timerMgr->Drive();
 
         // 当前帧性能信息记录
-        #ifdef _DEBUG
-            const auto &elapseTime = nowCounter.Update() - performaceStart;
-            g_Log->Debug(LOGFMT_OBJ_TAG("poller performance poller id:%llu, \n"
-                                        "_maxPieceTimeInMicroseconds:%lld, threadId:%llu, use microseconds:%llu, curConsumeEventsCount:%llu")
-                                        , pollerId, _maxPieceTime.GetTotalMicroseconds(), _workThreadId.load(), elapseTime.GetTotalMicroseconds(), curConsumeEventsCount);
-        #endif
+        const auto &elapseTime = nowCounter.Update() - performaceStart;
+        if(UNLIKELY(elapseTime >= _maxPieceTime))
+        {
+            g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu")
+            , pollerId, curThreadId, elapseTime.GetTotalMilliseconds(), _maxPieceTime.GetTotalMilliseconds(), curConsumeEventsCount);
+        }
     }
 
     const auto leftElemCount = GetPriorityEvenetsQueueElemCount(*priorityEvents);

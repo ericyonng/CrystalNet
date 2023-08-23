@@ -84,6 +84,13 @@ public:
     LibCpuSlice &SetMicroseconds(UInt64 microseconds);
     LibCpuSlice &SetNanoseconds(UInt64 nanoseconds);
 
+    bool operator>=(const LibCpuSlice &other) const;
+    bool operator>(const LibCpuSlice &other) const;
+    bool operator<=(const LibCpuSlice &other) const;
+    bool operator<(const LibCpuSlice &other) const;
+    bool operator==(const LibCpuSlice &other) const;
+    bool operator!=(const LibCpuSlice &other) const;
+
 private:
     UInt64 _count;
 };
@@ -164,6 +171,36 @@ ALWAYS_INLINE LibCpuSlice &LibCpuSlice::SetNanoseconds(UInt64 nanoseconds)
     _count = nanoseconds * LibCpuFrequency::_countPerNanoSecond;
 
     return *this;
+}
+
+ALWAYS_INLINE bool LibCpuSlice::operator>=(const LibCpuSlice &other) const
+{
+    return _count >= other._count;
+}
+
+ALWAYS_INLINE bool LibCpuSlice::operator>(const LibCpuSlice &other) const
+{
+    return _count > other._count;
+}
+
+ALWAYS_INLINE bool LibCpuSlice::operator<=(const LibCpuSlice &other) const
+{
+    return _count <= other._count;
+}
+
+ALWAYS_INLINE bool LibCpuSlice::operator<(const LibCpuSlice &other) const
+{
+    return _count < other._count;
+}
+
+ALWAYS_INLINE bool LibCpuSlice::operator==(const LibCpuSlice &other) const
+{
+    return _count == other._count;
+}
+
+ALWAYS_INLINE bool LibCpuSlice::operator!=(const LibCpuSlice &other) const
+{
+    return _count != other._count;
 }
 
 class KERNEL_EXPORT LibCpuCounter

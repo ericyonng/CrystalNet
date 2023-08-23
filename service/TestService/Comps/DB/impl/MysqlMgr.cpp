@@ -193,9 +193,8 @@ void MysqlMgr::MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key, bo
     {
         auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
         const auto &startCounter = KERNEL_NS::LibCpuCounter::Current();
-        const auto &deadLine = nowCounter + _poller->GetMaxPieceTime();
         KERNEL_NS::LibString err;
-        dirtyHelper->Purge(deadLine, &err);
+        dirtyHelper->Purge(&err);
         if(UNLIKELY(!err.empty()))
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
@@ -256,9 +255,8 @@ void MysqlMgr::MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key,
     {
         auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
         const auto &startCounter = KERNEL_NS::LibCpuCounter::Current();
-        const auto &deadLine = nowCounter + _poller->GetMaxPieceTime();
         KERNEL_NS::LibString err;
-        dirtyHelper->Purge(deadLine, &err);
+        dirtyHelper->Purge(&err);
         if(UNLIKELY(!err.empty()))
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
@@ -306,9 +304,8 @@ void MysqlMgr::MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, UInt64 key,
     {
         auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
         const auto &startCounter = KERNEL_NS::LibCpuCounter::Current();
-        const auto &deadLine = nowCounter + _poller->GetMaxPieceTime();
         KERNEL_NS::LibString err;
-        dirtyHelper->Purge(deadLine, &err);
+        dirtyHelper->Purge(&err);
         if(UNLIKELY(!err.empty()))
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
@@ -360,9 +357,8 @@ void MysqlMgr::MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_N
     {
         auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
         const auto &startCounter = KERNEL_NS::LibCpuCounter::Current();
-        const auto &deadLine = nowCounter + _poller->GetMaxPieceTime();
         KERNEL_NS::LibString err;
-        dirtyHelper->Purge(deadLine, &err);
+        dirtyHelper->Purge(&err);
         if(UNLIKELY(!err.empty()))
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
@@ -424,9 +420,8 @@ void MysqlMgr::MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNE
     {
         auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
         const auto &startCounter = KERNEL_NS::LibCpuCounter::Current();
-        const auto &deadLine = nowCounter + _poller->GetMaxPieceTime();
         KERNEL_NS::LibString err;
-        dirtyHelper->Purge(deadLine, &err);
+        dirtyHelper->Purge(&err);
         if(UNLIKELY(!err.empty()))
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
@@ -475,9 +470,8 @@ void MysqlMgr::MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const KERNE
     {
         auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
         const auto &startCounter = KERNEL_NS::LibCpuCounter::Current();
-        const auto &deadLine = nowCounter + _poller->GetMaxPieceTime();
         KERNEL_NS::LibString err;
-        dirtyHelper->Purge(deadLine, &err);
+        dirtyHelper->Purge(&err);
         if(UNLIKELY(!err.empty()))
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
@@ -523,9 +517,6 @@ void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
         return;
     }
 
-    auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
-    auto &&startCounter = KERNEL_NS::LibCpuCounter::Current();
-    auto &&deadLine = KERNEL_NS::LibCpuCounter(0);
     KERNEL_NS::LibString err;
     auto counter = reinterpret_cast<Int64 *>(KERNEL_ALLOC_MEMORY_TL(sizeof(Int64)));
     *counter = 0;
@@ -558,7 +549,7 @@ void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
                 }
             }
 
-            iterNumberKey->second->Purge(deadLine, &err);
+            iterNumberKey->second->Purge(&err);
             if(!iterNumberKey->second->HasDirty())
             {
                 iter = _dirtyLogics.erase(iter);
@@ -595,7 +586,7 @@ void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
                 }
             }
 
-            iterStringKey->second->Purge(deadLine, &err);
+            iterStringKey->second->Purge(&err);
             if(!iterStringKey->second->HasDirty())
             {
                 iter = _dirtyLogics.erase(iter);
@@ -630,9 +621,6 @@ Int32 MysqlMgr::PurgeAndWaitComplete(ILogicSys *logic)
     if(UNLIKELY(iter == _dirtyLogics.end()))
         return Status::Success;
 
-    auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
-    auto &&startCounter = KERNEL_NS::LibCpuCounter::Current();
-    auto &&deadLine = KERNEL_NS::LibCpuCounter(0);
     KERNEL_NS::LibString err;
     auto counter = reinterpret_cast<Int64 *>(KERNEL_ALLOC_MEMORY_TL(sizeof(Int64)));
     *counter = 0;
@@ -663,7 +651,7 @@ Int32 MysqlMgr::PurgeAndWaitComplete(ILogicSys *logic)
                 }
             }
 
-            iterNumberKey->second->Purge(deadLine, &err);
+            iterNumberKey->second->Purge(&err);
             if(!iterNumberKey->second->HasDirty())
             {
                 iter = _dirtyLogics.erase(iter);
@@ -695,7 +683,7 @@ Int32 MysqlMgr::PurgeAndWaitComplete(ILogicSys *logic)
                 }
             }
 
-            iterStringKey->second->Purge(deadLine, &err);
+            iterStringKey->second->Purge(&err);
             if(!iterStringKey->second->HasDirty())
             {
                 iter = _dirtyLogics.erase(iter);
@@ -4404,7 +4392,6 @@ void MysqlMgr::_OnPurge(KERNEL_NS::LibTimer *t)
 
     auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
     const auto &startCounter = KERNEL_NS::LibCpuCounter::Current();
-    const auto &deadLine =  KERNEL_NS::LibCpuCounter(0);
     auto poller = GetService()->GetPoller();
     for(auto iter = _dirtyLogics.begin(); iter != _dirtyLogics.end();)
     {
@@ -4416,7 +4403,7 @@ void MysqlMgr::_OnPurge(KERNEL_NS::LibTimer *t)
             if(LIKELY(iterDirtyHelper != _logicRefNumberDirtyHelper.end()))
             {
                 KERNEL_NS::LibString err;
-                iterDirtyHelper->second->Purge(deadLine, &err);
+                iterDirtyHelper->second->Purge(&err);
                 if(UNLIKELY(!err.empty()))
                     g_Log->Warn(LOGFMT_OBJ_TAG("purge err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
@@ -4444,7 +4431,7 @@ void MysqlMgr::_OnPurge(KERNEL_NS::LibTimer *t)
             if(LIKELY(iterDirtyHelper != _logicRefStringDirtyHelper.end()))
             {
                 KERNEL_NS::LibString err;
-                iterDirtyHelper->second->Purge(deadLine, &err);
+                iterDirtyHelper->second->Purge(&err);
                 if(UNLIKELY(!err.empty()))
                     g_Log->Warn(LOGFMT_OBJ_TAG("purge err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
@@ -4539,16 +4526,13 @@ void MysqlMgr::_PurgeDirty(const ILogicSys *logic)
     if(UNLIKELY(_dirtyLogics.find(logic) == _dirtyLogics.end()))
         return;
 
-    auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
-    auto &&startCounter = KERNEL_NS::LibCpuCounter::Current();
-    auto &&deadLine = KERNEL_NS::LibCpuCounter(0);
     KERNEL_NS::LibString err;
     do
     {
         auto iterNumberKey = _logicRefNumberDirtyHelper.find(logic);
         if(iterNumberKey != _logicRefNumberDirtyHelper.end())
         {
-            iterNumberKey->second->Purge(deadLine, &err);
+            iterNumberKey->second->Purge(&err);
 
             if(!iterNumberKey->second->HasDirty())
                 _dirtyLogics.erase(logic);
@@ -4558,7 +4542,7 @@ void MysqlMgr::_PurgeDirty(const ILogicSys *logic)
         auto iterStringKey = _logicRefStringDirtyHelper.find(logic);
         if(iterStringKey != _logicRefStringDirtyHelper.end())
         {
-            iterStringKey->second->Purge(deadLine, &err);
+            iterStringKey->second->Purge(&err);
 
             if(!iterStringKey->second->HasDirty())
                 _dirtyLogics.erase(logic);

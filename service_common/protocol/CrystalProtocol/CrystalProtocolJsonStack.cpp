@@ -169,10 +169,13 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
         auto coderFactory = GetCoderFactory(header._opcodeId);
         if(!coderFactory)
         {
-            g_Log->NetWarn(LOGFMT_OBJ_TAG("have no opcode coder opcodeId:%d, header:%s, session:%s")
+            g_Log->NetWarn(LOGFMT_OBJ_TAG("have no opcode coder will skip, opcodeId:%d, header:%s, session:%s")
             , header._opcodeId, header.ToString().c_str(), session->ToString().c_str());
-            errCode = Status::ParsingPacketFail;
-            break;
+
+            // 跳过这个包
+            handledBytes += header._len;
+            stream.ShiftReadPos(header._len);
+            continue;
         }
 
         // 解密

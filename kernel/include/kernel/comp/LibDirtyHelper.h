@@ -215,8 +215,7 @@ public:
     bool IsInPurge() const;
     UInt64 GetLoaded() const;
     // 脏标记需要在回调中移除,否则一直在
-    void Purge(const LibCpuCounter &deadline, LibString *errorLog = NULL);
-    void Purge(const LibCpuCounter &deadline, Variant *addVar, LibString *errorLog = NULL);
+    void Purge(LibString *errorLog = NULL);
 
 private:
     void _AfterPurge();
@@ -351,7 +350,7 @@ inline Variant *LibDirtyHelper<KeyType, MaskValue>::MaskDirty(KeyType k, Int32 d
 }
 
 template<typename KeyType, typename MaskValue>
-inline void LibDirtyHelper<KeyType, MaskValue>::Clear(KeyType k, Int32 dirtyType)
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Clear(KeyType k, Int32 dirtyType)
 {
     DirtyMask<KeyType, MaskValue> *mask = GetMask(k);
     if(LIKELY(mask))
@@ -359,7 +358,7 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Clear(KeyType k, Int32 dirtyType
 }
 
 template<typename KeyType, typename MaskValue>
-inline void LibDirtyHelper<KeyType, MaskValue>::Clear(KeyType k)
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Clear(KeyType k)
 {
     DirtyMask<KeyType, MaskValue> *mask = GetMask(k);
     if(LIKELY(mask))
@@ -367,7 +366,7 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Clear(KeyType k)
 }
 
 template<typename KeyType, typename MaskValue>
-inline bool LibDirtyHelper<KeyType, MaskValue>::IsDirty(KeyType k, Int32 dirtyType) const
+ALWAYS_INLINE bool LibDirtyHelper<KeyType, MaskValue>::IsDirty(KeyType k, Int32 dirtyType) const
 {
     auto mask = GetMask(k);
     if(UNLIKELY(!mask))
@@ -377,7 +376,7 @@ inline bool LibDirtyHelper<KeyType, MaskValue>::IsDirty(KeyType k, Int32 dirtyTy
 }
 
 template<typename KeyType, typename MaskValue>
-inline const DirtyMask<KeyType, MaskValue> *LibDirtyHelper<KeyType, MaskValue>::GetMask(KeyType k) const
+ALWAYS_INLINE const DirtyMask<KeyType, MaskValue> *LibDirtyHelper<KeyType, MaskValue>::GetMask(KeyType k) const
 {
     auto iter = _keyRefMask.find(k);
     DirtyMask<KeyType, MaskValue> *mask = NULL;
@@ -396,7 +395,7 @@ inline const DirtyMask<KeyType, MaskValue> *LibDirtyHelper<KeyType, MaskValue>::
 }
 
 template<typename KeyType, typename MaskValue>
-inline DirtyMask<KeyType, MaskValue> *LibDirtyHelper<KeyType, MaskValue>::GetMask(KeyType k)
+ALWAYS_INLINE DirtyMask<KeyType, MaskValue> *LibDirtyHelper<KeyType, MaskValue>::GetMask(KeyType k)
 {
     auto iter = _keyRefMask.find(k);
     DirtyMask<KeyType, MaskValue> *mask = NULL;
@@ -421,19 +420,19 @@ ALWAYS_INLINE std::map<KeyType, DirtyMask<KeyType, MaskValue> *> &LibDirtyHelper
 }
 
 template<typename KeyType, typename MaskValue>
-inline bool LibDirtyHelper<KeyType, MaskValue>::IsInPurge() const
+ALWAYS_INLINE bool LibDirtyHelper<KeyType, MaskValue>::IsInPurge() const
 {
     return _inPurge > 0;
 }
 
 template<typename KeyType, typename MaskValue>
-inline UInt64 LibDirtyHelper<KeyType, MaskValue>::GetLoaded() const
+ALWAYS_INLINE UInt64 LibDirtyHelper<KeyType, MaskValue>::GetLoaded() const
 {
     return _keyRefMask.size();
 }
 
 template<typename KeyType, typename MaskValue>
-inline bool LibDirtyHelper<KeyType, MaskValue>::HasDirty() const
+ALWAYS_INLINE bool LibDirtyHelper<KeyType, MaskValue>::HasDirty() const
 {
     return !_keyRefMask.empty();
 }
@@ -446,13 +445,11 @@ ALWAYS_INLINE bool LibDirtyHelper<KeyType, MaskValue>::HasDirty(const KeyType &k
 }
 
 template<typename KeyType, typename MaskValue>
-inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &deadline, LibString *errorLog)
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Purge(LibString *errorLog)
 {
     ++_inPurge;
-    LibCpuCounter performanceTemp;
     for(auto iter = _keyRefMask.begin(); iter != _keyRefMask.end();)
     {
-        bool isTimeout = false;
         auto mask = iter->second;
         if(UNLIKELY(!mask))
         {
@@ -478,15 +475,6 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &deadl
             {
                 mask->ClearFlag(i);
             }
-
-            if(LIKELY(deadline.GetCurCount() != 0))
-            {
-                if(UNLIKELY(performanceTemp.Update() >=  deadline))
-                {
-                    isTimeout = true;
-                    break;
-                }
-            }
         }
 
         // 没有脏之后移除, 还有脏表示下次还需要继续
@@ -499,17 +487,13 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Purge(const LibCpuCounter &deadl
         {
             ++iter;
         }
-
-        // 片超时
-        if(UNLIKELY(isTimeout || ((deadline.GetCurCount() > 0) && (performanceTemp.Update() >=  deadline))))
-            break;
     }
 
     _AfterPurge();
 }
 
 template<typename KeyType, typename MaskValue>
-inline void LibDirtyHelper<KeyType, MaskValue>::_AfterPurge()
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::_AfterPurge()
 {
     --_inPurge;
     if(_inPurge <= 0)
