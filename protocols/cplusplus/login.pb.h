@@ -385,7 +385,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(2), nolog(false), XorEncrypt(true), KeyBase64(true)]
+// AnnotaionInfo[opcode(2), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class LoginRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -694,7 +694,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(22), nolog(false), XorEncrypt(true), KeyBase64(true)]
+// AnnotaionInfo[opcode(22), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class LoginInfoNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginInfoNty) */ , public KERNEL_NS::ICoder {
 public:

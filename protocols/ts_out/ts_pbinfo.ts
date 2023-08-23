@@ -45,8 +45,8 @@ export namespace ts_pbinfo{
       getIsXorEncrypt():boolean {return LoginRes.XorEncrypt; }
       getIsKeyBase64():boolean {return LoginRes.KeyBase64; }
       static OPCODE:number = 2;
-      static XorEncrypt:boolean = true;
-      static KeyBase64:boolean = true;
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
     }
 
 
@@ -177,8 +177,8 @@ export namespace ts_pbinfo{
       getIsXorEncrypt():boolean {return LoginInfoNty.XorEncrypt; }
       getIsKeyBase64():boolean {return LoginInfoNty.KeyBase64; }
       static OPCODE:number = 22;
-      static XorEncrypt:boolean = true;
-      static KeyBase64:boolean = true;
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
     }
 
 

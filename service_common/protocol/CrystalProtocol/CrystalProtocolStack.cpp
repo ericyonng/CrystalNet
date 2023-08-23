@@ -130,9 +130,9 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
             streamCache.Read(&header._packetId, MsgHeaderStructure::PACKET_ID_SIZE);
             streamCache.Read(&header._keyLen, MsgHeaderStructure::KEY_LEN_SIZE);
 
-            if(header._len > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT)
+            if((header._len < MsgHeaderStructure::MSG_HEADER_SIZE) || (header._len > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT))
             {
-                g_Log->NetWarn(LOGFMT_OBJ_TAG("bad msg:len over limit limit:%d, header:%s, session:%s")
+                g_Log->NetWarn(LOGFMT_OBJ_TAG("bad msg len, len limit:%d, header:%s, session:%s")
                                 ,  MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT, header.ToString().c_str(), session->ToString().c_str());
                 errCode = Status::ParsingPacketFail;
                 break;
@@ -153,6 +153,7 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
                 errCode = Status::ParsingPacketFail;
                 break;
             }
+
         }
 
         // 2.剩余包数据是否够解析包体

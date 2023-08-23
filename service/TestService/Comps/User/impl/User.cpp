@@ -614,6 +614,13 @@ UInt64 User::GetUserId() const
 
 void User::BindSession(UInt64 sessionId)
 {
+    // 判断session是不是存在
+    if(_userMgr->GetGlobalSys<ISessionMgr>()->GetSession(sessionId) == NULL)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("session not exists session id:%llu, user:%s"), sessionId, ToString().c_str());
+        return;
+    }
+
     _activedSessionId = sessionId;
 
     _userMgr->AddUserBySessionId(sessionId, this);

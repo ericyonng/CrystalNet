@@ -684,6 +684,14 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
         return;
     }
 
+    // 判断session是否存在
+    if(GetGlobalSys<ISessionMgr>()->GetSession(pendingUser->_sessionId) == NULL)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("session is disconnected before user loaded session id:%llu, pending user:%s")
+        , pendingUser->_sessionId, pendingUser->ToString().c_str());
+        pendingUser->_sessionId = 0;
+    }
+
     // 再次确认是否有User
     IUser *user = NULL;
     if(pendingUser->_byAccountName.empty())
@@ -986,7 +994,8 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
         return;
     }
 
-    user->BindSession(pendingUser->_sessionId);
+    if(pendingUser->_sessionId)
+        user->BindSession(pendingUser->_sessionId);
 
     // 创建user
     if((!isAlreadyExists) && pendingUser->_loginInfo && (pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER))

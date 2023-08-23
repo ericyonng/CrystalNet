@@ -1,8 +1,8 @@
 /// ProtoName:com.proto,ProtoPath:../../protocols/proto/com.proto,Md5:k9W1LHfmDX6XaXYesIFqyA==,ModifyTime:1692361730,
 
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginReq,Opcode:1,NoLog:false,XorEncrypt:true,KeyBase64:true,]
-[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginRes,Opcode:2,NoLog:false,XorEncrypt:true,KeyBase64:true,]
-/// ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,Md5:yOztPvF6u2sHatE0+Mc5hQ==,ModifyTime:1692565841,
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginRes,Opcode:2,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+/// ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,Md5:j3RvxJRGbHhsBo3UmqeYTA==,ModifyTime:1692771818,
 
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Req,Opcode:5,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Res,Opcode:6,NoLog:false,XorEncrypt:false,KeyBase64:false,]
@@ -38,7 +38,7 @@
 
 /// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:V8DDSbQk2nbuLhc+ljEQQw==,ModifyTime:1692361682,
 
-[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginInfoNty,Opcode:22,NoLog:false,XorEncrypt:true,KeyBase64:true,]
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginInfoNty,Opcode:22,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 /// ProtoName:com_heartbeat.proto,ProtoPath:../../protocols/proto/com_heartbeat.proto,Md5:wWig2Fg+bfKr+Vg0N0LWLg==,ModifyTime:1692361701,
 
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:GetNodeListReq,Opcode:27,NoLog:false,XorEncrypt:false,KeyBase64:false,]

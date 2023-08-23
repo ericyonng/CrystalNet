@@ -250,7 +250,7 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  //// Opcode:, XorEncrypt:true, KeyBase64:true
+  //// Opcode:
   /// </summary>
 [ProtoMessage(2)]
   public sealed partial class LoginRes : pb::IMessage<LoginRes>
@@ -520,7 +520,7 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  //// Opcode:, XorEncrypt:true, KeyBase64:true
+  //// Opcode:
   /// </summary>
 [ProtoMessage(22)]
   public sealed partial class LoginInfoNty : pb::IMessage<LoginInfoNty>

@@ -130,7 +130,7 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
             streamCache.Read(&header._packetId, MsgHeaderStructure::PACKET_ID_SIZE);
             streamCache.Read(&header._keyLen, MsgHeaderStructure::KEY_LEN_SIZE);
 
-            if(header._len > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT)
+            if((header._len < MsgHeaderStructure::MSG_HEADER_SIZE) || (header._len > MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT))
             {
                 g_Log->NetWarn(LOGFMT_OBJ_TAG("bad msg:len over limit limit:%d, header:%s, session:%s")
                                 ,  MsgHeaderStructure::MSG_BODY_MAX_SIZE_LIMIT, header.ToString().c_str(), session->ToString().c_str());

@@ -11,7 +11,7 @@ message LoginReq
     LoginInfo LoginUserInfo = 1;
 }
 
-/// Opcode:, XorEncrypt:true, KeyBase64:true
+/// Opcode:
 message LoginRes
 {
     sint32 errCode = 1;
@@ -20,7 +20,7 @@ message LoginRes
     sint64 ServerTime = 3;
 }
 
-/// Opcode:, XorEncrypt:true, KeyBase64:true
+/// Opcode:
 message LoginInfoNty 
 {
     // 更新登录token

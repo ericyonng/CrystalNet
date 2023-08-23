@@ -47,6 +47,7 @@ ClientUser::ClientUser(IClientUserMgr *userMgr)
 ,_maxPacketId(0)
 {
     AddFlag(LogicSysFlagsType::DISABLE_FOCUS_BY_SERVICE_FLAG);
+    SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<IClientUser>());
 }
 
 ClientUser::~ClientUser()
