@@ -1502,9 +1502,11 @@ bool ExporterMgr::_GenTs()
         lines.push_back(KERNEL_NS::LibString().AppendFormat("      getOpcode():number {return %s.OPCODE; }", messageInfo->_messageName.c_str()));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("      getIsXorEncrypt():boolean {return %s.XorEncrypt; }", messageInfo->_messageName.c_str()));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("      getIsKeyBase64():boolean {return %s.KeyBase64; }", messageInfo->_messageName.c_str()));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("      getOpcodeName():string {return %s.OPCODE_NAME; }", messageInfo->_messageName.c_str()));
 
 
         lines.push_back(KERNEL_NS::LibString().AppendFormat("      static OPCODE:number = %d;", messageInfo->_opcode));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("      static OPCODE_NAME:string = \"%s\";", messageInfo->_messageName.c_str()));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("      static XorEncrypt:boolean = %s;", messageInfo->_isXorEncrypt ? "true" : "false"));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("      static KeyBase64:boolean = %s;", messageInfo->_isKeyBase64 ? "true" : "false"));
         lines.push_back("    }");

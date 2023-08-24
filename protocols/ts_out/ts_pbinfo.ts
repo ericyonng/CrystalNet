@@ -33,7 +33,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return LoginReq.OPCODE; }
       getIsXorEncrypt():boolean {return LoginReq.XorEncrypt; }
       getIsKeyBase64():boolean {return LoginReq.KeyBase64; }
+      getOpcodeName():string {return LoginReq.OPCODE_NAME; }
       static OPCODE:number = 1;
+      static OPCODE_NAME:string = "LoginReq";
       static XorEncrypt:boolean = true;
       static KeyBase64:boolean = true;
     }
@@ -44,7 +46,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return LoginRes.OPCODE; }
       getIsXorEncrypt():boolean {return LoginRes.XorEncrypt; }
       getIsKeyBase64():boolean {return LoginRes.KeyBase64; }
+      getOpcodeName():string {return LoginRes.OPCODE_NAME; }
       static OPCODE:number = 2;
+      static OPCODE_NAME:string = "LoginRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -55,7 +59,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return TestOpcodeReq.OPCODE; }
       getIsXorEncrypt():boolean {return TestOpcodeReq.XorEncrypt; }
       getIsKeyBase64():boolean {return TestOpcodeReq.KeyBase64; }
+      getOpcodeName():string {return TestOpcodeReq.OPCODE_NAME; }
       static OPCODE:number = 3;
+      static OPCODE_NAME:string = "TestOpcodeReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -66,7 +72,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return TestOpcodeRes.OPCODE; }
       getIsXorEncrypt():boolean {return TestOpcodeRes.XorEncrypt; }
       getIsKeyBase64():boolean {return TestOpcodeRes.KeyBase64; }
+      getOpcodeName():string {return TestOpcodeRes.OPCODE_NAME; }
       static OPCODE:number = 4;
+      static OPCODE_NAME:string = "TestOpcodeRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -77,7 +85,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return TestOpcode2Req.OPCODE; }
       getIsXorEncrypt():boolean {return TestOpcode2Req.XorEncrypt; }
       getIsKeyBase64():boolean {return TestOpcode2Req.KeyBase64; }
+      getOpcodeName():string {return TestOpcode2Req.OPCODE_NAME; }
       static OPCODE:number = 5;
+      static OPCODE_NAME:string = "TestOpcode2Req";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -88,7 +98,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return TestOpcode2Res.OPCODE; }
       getIsXorEncrypt():boolean {return TestOpcode2Res.XorEncrypt; }
       getIsKeyBase64():boolean {return TestOpcode2Res.KeyBase64; }
+      getOpcodeName():string {return TestOpcode2Res.OPCODE_NAME; }
       static OPCODE:number = 6;
+      static OPCODE_NAME:string = "TestOpcode2Res";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -99,7 +111,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return PlayerDataReq.OPCODE; }
       getIsXorEncrypt():boolean {return PlayerDataReq.XorEncrypt; }
       getIsKeyBase64():boolean {return PlayerDataReq.KeyBase64; }
+      getOpcodeName():string {return PlayerDataReq.OPCODE_NAME; }
       static OPCODE:number = 7;
+      static OPCODE_NAME:string = "PlayerDataReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -110,7 +124,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return PlayerDataRes.OPCODE; }
       getIsXorEncrypt():boolean {return PlayerDataRes.XorEncrypt; }
       getIsKeyBase64():boolean {return PlayerDataRes.KeyBase64; }
+      getOpcodeName():string {return PlayerDataRes.OPCODE_NAME; }
       static OPCODE:number = 8;
+      static OPCODE_NAME:string = "PlayerDataRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -121,7 +137,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return ModifyPlayerNameReq.OPCODE; }
       getIsXorEncrypt():boolean {return ModifyPlayerNameReq.XorEncrypt; }
       getIsKeyBase64():boolean {return ModifyPlayerNameReq.KeyBase64; }
+      getOpcodeName():string {return ModifyPlayerNameReq.OPCODE_NAME; }
       static OPCODE:number = 9;
+      static OPCODE_NAME:string = "ModifyPlayerNameReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -132,7 +150,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return ModifyPlayerNameRes.OPCODE; }
       getIsXorEncrypt():boolean {return ModifyPlayerNameRes.XorEncrypt; }
       getIsKeyBase64():boolean {return ModifyPlayerNameRes.KeyBase64; }
+      getOpcodeName():string {return ModifyPlayerNameRes.OPCODE_NAME; }
       static OPCODE:number = 10;
+      static OPCODE_NAME:string = "ModifyPlayerNameRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -143,7 +163,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return PlayerDataNty.OPCODE; }
       getIsXorEncrypt():boolean {return PlayerDataNty.XorEncrypt; }
       getIsKeyBase64():boolean {return PlayerDataNty.KeyBase64; }
+      getOpcodeName():string {return PlayerDataNty.OPCODE_NAME; }
       static OPCODE:number = 11;
+      static OPCODE_NAME:string = "PlayerDataNty";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -154,7 +176,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return TitleInfoReq.OPCODE; }
       getIsXorEncrypt():boolean {return TitleInfoReq.XorEncrypt; }
       getIsKeyBase64():boolean {return TitleInfoReq.KeyBase64; }
+      getOpcodeName():string {return TitleInfoReq.OPCODE_NAME; }
       static OPCODE:number = 20;
+      static OPCODE_NAME:string = "TitleInfoReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -165,7 +189,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return TitleInfoRes.OPCODE; }
       getIsXorEncrypt():boolean {return TitleInfoRes.XorEncrypt; }
       getIsKeyBase64():boolean {return TitleInfoRes.KeyBase64; }
+      getOpcodeName():string {return TitleInfoRes.OPCODE_NAME; }
       static OPCODE:number = 21;
+      static OPCODE_NAME:string = "TitleInfoRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -176,7 +202,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return LoginInfoNty.OPCODE; }
       getIsXorEncrypt():boolean {return LoginInfoNty.XorEncrypt; }
       getIsKeyBase64():boolean {return LoginInfoNty.KeyBase64; }
+      getOpcodeName():string {return LoginInfoNty.OPCODE_NAME; }
       static OPCODE:number = 22;
+      static OPCODE_NAME:string = "LoginInfoNty";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -187,7 +215,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return NodeHeartbeatReq.OPCODE; }
       getIsXorEncrypt():boolean {return NodeHeartbeatReq.XorEncrypt; }
       getIsKeyBase64():boolean {return NodeHeartbeatReq.KeyBase64; }
+      getOpcodeName():string {return NodeHeartbeatReq.OPCODE_NAME; }
       static OPCODE:number = 23;
+      static OPCODE_NAME:string = "NodeHeartbeatReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -198,7 +228,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return NodeHeartbeatRes.OPCODE; }
       getIsXorEncrypt():boolean {return NodeHeartbeatRes.XorEncrypt; }
       getIsKeyBase64():boolean {return NodeHeartbeatRes.KeyBase64; }
+      getOpcodeName():string {return NodeHeartbeatRes.OPCODE_NAME; }
       static OPCODE:number = 24;
+      static OPCODE_NAME:string = "NodeHeartbeatRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -209,7 +241,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return RegisterNodeReq.OPCODE; }
       getIsXorEncrypt():boolean {return RegisterNodeReq.XorEncrypt; }
       getIsKeyBase64():boolean {return RegisterNodeReq.KeyBase64; }
+      getOpcodeName():string {return RegisterNodeReq.OPCODE_NAME; }
       static OPCODE:number = 25;
+      static OPCODE_NAME:string = "RegisterNodeReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -220,7 +254,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return RegisterNodeRes.OPCODE; }
       getIsXorEncrypt():boolean {return RegisterNodeRes.XorEncrypt; }
       getIsKeyBase64():boolean {return RegisterNodeRes.KeyBase64; }
+      getOpcodeName():string {return RegisterNodeRes.OPCODE_NAME; }
       static OPCODE:number = 26;
+      static OPCODE_NAME:string = "RegisterNodeRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -231,7 +267,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return GetNodeListReq.OPCODE; }
       getIsXorEncrypt():boolean {return GetNodeListReq.XorEncrypt; }
       getIsKeyBase64():boolean {return GetNodeListReq.KeyBase64; }
+      getOpcodeName():string {return GetNodeListReq.OPCODE_NAME; }
       static OPCODE:number = 27;
+      static OPCODE_NAME:string = "GetNodeListReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -242,7 +280,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return GetNodeListRes.OPCODE; }
       getIsXorEncrypt():boolean {return GetNodeListRes.XorEncrypt; }
       getIsKeyBase64():boolean {return GetNodeListRes.KeyBase64; }
+      getOpcodeName():string {return GetNodeListRes.OPCODE_NAME; }
       static OPCODE:number = 28;
+      static OPCODE_NAME:string = "GetNodeListRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -253,7 +293,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return ClientHeartbeatReq.OPCODE; }
       getIsXorEncrypt():boolean {return ClientHeartbeatReq.XorEncrypt; }
       getIsKeyBase64():boolean {return ClientHeartbeatReq.KeyBase64; }
+      getOpcodeName():string {return ClientHeartbeatReq.OPCODE_NAME; }
       static OPCODE:number = 29;
+      static OPCODE_NAME:string = "ClientHeartbeatReq";
       static XorEncrypt:boolean = true;
       static KeyBase64:boolean = true;
     }
@@ -264,7 +306,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return ClientHeartbeatRes.OPCODE; }
       getIsXorEncrypt():boolean {return ClientHeartbeatRes.XorEncrypt; }
       getIsKeyBase64():boolean {return ClientHeartbeatRes.KeyBase64; }
+      getOpcodeName():string {return ClientHeartbeatRes.OPCODE_NAME; }
       static OPCODE:number = 30;
+      static OPCODE_NAME:string = "ClientHeartbeatRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -275,7 +319,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return LogoutReq.OPCODE; }
       getIsXorEncrypt():boolean {return LogoutReq.XorEncrypt; }
       getIsKeyBase64():boolean {return LogoutReq.KeyBase64; }
+      getOpcodeName():string {return LogoutReq.OPCODE_NAME; }
       static OPCODE:number = 31;
+      static OPCODE_NAME:string = "LogoutReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -286,7 +332,9 @@ export namespace ts_pbinfo{
       getOpcode():number {return LogoutNty.OPCODE; }
       getIsXorEncrypt():boolean {return LogoutNty.XorEncrypt; }
       getIsKeyBase64():boolean {return LogoutNty.KeyBase64; }
+      getOpcodeName():string {return LogoutNty.OPCODE_NAME; }
       static OPCODE:number = 32;
+      static OPCODE_NAME:string = "LogoutNty";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
