@@ -387,13 +387,18 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req)
     res->_var = req->_var;
     req->_var = NULL;
 
-    auto &&cb = [this, req, &res](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
+    UInt32 mysqlDbErr = 0;
+    Int32 finalErrCode = Status::Success;
+    auto &&cb = [this, req, &res, &mysqlDbErr, &finalErrCode](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
     Int64 insertId, Int64 affectedRows, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &records)
     {
         if(errCode != Status::Success)
         {
-            g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("sql using stmt fail, errCode:%d, seq id:%llu, maxInsertId:%lld, totalAffectedRows:%lld req:"
-            , errCode, seqId, res->_maxInsertId, res->_affectedRows), req->Dump());
+            g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("sql using stmt fail, errCode:%d, mysqlErrno:%u seq id:%llu, maxInsertId:%lld, totalAffectedRows:%lld req:"
+            , errCode, mysqlErrno, seqId, res->_maxInsertId, res->_affectedRows), req->Dump());
+
+            finalErrCode = errCode;
+            mysqlDbErr = mysqlErrno;
 
             res->_errCode = errCode;
             res->_mysqlErrno = mysqlErrno;
@@ -401,6 +406,9 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req)
 
             return;
         }
+
+        res->_errCode = Status::Success;
+        res->_mysqlErrno = 0;
 
         if(res->_maxInsertId < insertId)
             res->_maxInsertId = insertId;
@@ -423,6 +431,31 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req)
             // 因为网络断开需要重试
             if(IS_MYSQL_NETWORK_ERROR(res->_mysqlErrno))
             {
+                // 重连
+                auto leftPingTimes = _cfg._retryWhenError;
+                bool isReconnected = false;
+                for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
+                {
+                    if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSqlUsingStmt fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+                    {
+                        isReconnected = true;
+                        break;
+                    }
+
+                    g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu"), req->_seqId);
+                    KERNEL_NS::SystemUtil::ThreadSleep(1000);
+                }
+                
+                if(!isReconnected)
+                {
+                    g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSqlUsingStmt fail of mysql disconnected req:"), req->Dump());
+                    break;
+                }
+
+                // 断开的错误重连后不算需要重置
+                finalErrCode = Status::Success;
+                mysqlDbErr = 0;
+
                 bool isSuccess = false;
                 const Int32 leftRetryTimes = _cfg._retryWhenError;
                 if(leftRetryTimes > 0)
@@ -474,7 +507,19 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req)
             auto builder = req->_builders[idx];
             failBuilder.AppendData(builder->Dump()).AppendFormat("\n");
         }
-        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error mysql db:%s connection:%s request dump:\n", ToString().c_str(), curConn->ToString().c_str())
+
+        if((mysqlDbErr != 0) && (res->_mysqlErrno == 0))
+        {
+            res->_mysqlErrno = mysqlDbErr;
+        }
+
+        if(finalErrCode != Status::Success)
+            res->_errCode = finalErrCode;
+        else if(res->_errCode == Status::Success)
+        {
+            res->_errCode = Status::Failed;
+        }
+        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql db:%s connection:%s errCode:%d, mysqlerrno:%u, finalErrCode:%d, mysqlDbErr:%u request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno, finalErrCode, mysqlDbErr)
                     , req->Dump(), LibString().AppendFormat("\nfail sqls:\n"), failBuilder);
     }
 
@@ -515,7 +560,9 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
     res->_var = req->_var;
     req->_var = NULL;
 
-    auto &&cb = [this, req, &res](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
+    UInt32 mysqlDbErr = 0;
+    UInt32 finalErrCode = Status::Success;
+    auto &&cb = [this, req, &res, &mysqlDbErr, &finalErrCode](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
     Int64 insertId, Int64 affectedRows, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &records)
     {
         if(res->_maxInsertId < insertId)
@@ -528,12 +575,19 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
             g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("sql using stmt fail, errCode:%d, seq id:%llu, maxInsertId:%lld, totalAffectedRows:%lld req:"
             , errCode, seqId, res->_maxInsertId, res->_affectedRows), req->ToString().c_str());
 
+            finalErrCode = errCode;
+            mysqlDbErr = mysqlErrno;
+
             res->_errCode = errCode;
             res->_mysqlErrno = mysqlErrno;
             res->_isRequestSendToMysql = isSendToMysql;
 
+
             return;
         }
+
+        res->_errCode = Status::Success;
+        res->_mysqlErrno = 0;
 
         for(auto &rec : records)
             res->_datas.push_back(rec);
@@ -551,6 +605,31 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
             // 因为网络断开需要重试
             if(IS_MYSQL_NETWORK_ERROR(res->_mysqlErrno))
             {
+                // 重连
+                bool isReconnected = false;
+                auto leftPingTimes = _cfg._retryWhenError;
+                for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
+                {
+                    if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSql fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+                    {
+                        isReconnected = true;
+                        break;
+                    }
+
+                    g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSql fail try reconnect seq id:%llu"), req->_seqId);
+                    KERNEL_NS::SystemUtil::ThreadSleep(1000);
+                }
+
+                if(!isReconnected)
+                {
+                    g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail of mysql disconnected req:"), req->Dump());
+                    break;
+                }
+
+                // 断开的错误重连后不算需要重置
+                finalErrCode = Status::Success;
+                mysqlDbErr = 0;
+
                 bool isSuccess = false;
                 const Int32 leftRetryTimes = _cfg._retryWhenError;
                 if(leftRetryTimes > 0)
@@ -603,7 +682,19 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
             failBuilder.AppendData(builder->Dump()).AppendFormat("\n");
         }
 
-        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error mysql:%s connection:%s request dump:\n", ToString().c_str(), curConn->ToString().c_str())
+        if((mysqlDbErr != 0) && (res->_mysqlErrno == 0))
+        {
+            res->_mysqlErrno = mysqlDbErr;
+        }
+
+        if(finalErrCode != Status::Success)
+            res->_errCode = finalErrCode;
+        else if(res->_errCode == Status::Success)
+        {
+            res->_errCode = Status::Failed;
+        }
+
+        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql:%s connection:%s errCode:%d, mysqlerrno:%u, finalErrCode:%d, mysqlDbErr:%u request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno, finalErrCode, mysqlDbErr)
                     , req->Dump(), LibString().AppendFormat("\nfail sqls:\n"), failBuilder);
     }
 
@@ -625,7 +716,7 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
     }
 }
 
-// TODO:失败时需要重试, 以及dump失败的sql
+// TODO:失败时需要重试, 以及dump失败的sql, 因为开启事务执行的是多条sql, 所以不建议失败重试, 否则会造成不一致的情况(sql被其他线程执行覆盖)
 void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
 {
    SmartPtr<MysqlResponse, AutoDelMethods::CustomDelete> res = MysqlResponse::New_MysqlResponse();

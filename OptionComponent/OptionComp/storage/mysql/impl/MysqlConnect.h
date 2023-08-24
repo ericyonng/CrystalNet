@@ -100,6 +100,8 @@ public:
     
     void Close();
 
+    void OnMysqlDisconnect();
+
     // stmt执行sql结果: MysqlConnect*, UInt64(seqId), Int32(runErrCode), UInt32(mysqlerr), bool(是否发送到mysqlserver), Int64(InsertId), Int64(AffectedRows), std::vector<SmartPtr<Record>>(数据),
     bool ExecuteSqlUsingStmt(const SqlBuilder &builder, UInt64 seqId, const std::vector<Field *> &fields, IDelegate<void, MysqlConnect *, UInt64, Int32, UInt32, bool, Int64, Int64, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &> *cb = NULL);
     template<typename CallbackType>
@@ -123,7 +125,7 @@ public:
     // std::tuple<Int32, LibString> TestMulti();
 
     // 执行ping判断连接是否在
-    bool Ping();
+    bool Ping(const LibString &content);
 
     // 获取上次新增一条数据操作产生的id(这个id是在标识了自增属性的字段, 一张表只能有一个自增id字段), 如果上次是其他非造成新增数据的sql则获取的结果是0
     // 如果表没有自增字段则返回0,开启事务时需要在最后一条Insert的时候获取InsertId的结果不然Commit等操作会影响InsertId结果
@@ -283,6 +285,11 @@ ALWAYS_INLINE bool MysqlConnect::ExecuteSqlUsingTransAction(const std::vector<Sq
     delg->Release();
 
     return ret;
+}
+
+ALWAYS_INLINE bool MysqlConnect::Ping(const LibString &content)
+{
+    return _Ping(content);
 }
 
 ALWAYS_INLINE const std::unordered_map<Int32, MysqlOperateInfo> &MysqlConnect::GetOperationInfos() const

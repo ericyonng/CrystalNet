@@ -57,6 +57,8 @@ public:
 
     // 重置, 重新预编译等
     bool OnMysqlReconnect();
+    void OnMysqlDisconnect();
+    bool IsConnected() const;
 
     void StartParam(UInt64 seqId);
     void BindParam(Field *field);
@@ -83,6 +85,8 @@ private:
     // 绑定字段信息, 只执行一次，除非重连 Fetch result set meta information
     UInt32 _ObtainResultSetMetadata();
 
+    void _OnMysqlDisconnect();
+
 private:
     MysqlConnect *_conn;
     const LibString _sql;
@@ -90,6 +94,7 @@ private:
     MYSQL_STMT *_stmt;
     bool _isError;
     bool _isInit;
+    bool _isConnected;
     Int64 _paramCount;
     MYSQL_BIND *_bindParams;        // 绑定的参数数组
     Int32 _curBindParamIndex;       // 当前可绑定的索引位置

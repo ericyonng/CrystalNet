@@ -72,6 +72,12 @@ void MysqlConnect::Close()
     g_Log->Info(LOGFMT_OBJ_TAG("mysql connection closed %s"), ToString().c_str());
 }
 
+void MysqlConnect::OnMysqlDisconnect()
+{
+    for(auto iter : _stmtIdRefPrepareStmt)
+        iter.second->OnMysqlDisconnect();
+}
+
 Int64 MysqlConnect::GetLastInsertIdOfAutoIncField() const
 {
     return static_cast<Int64>(mysql_insert_id(_mysql));
@@ -399,7 +405,15 @@ bool MysqlConnect::_ExecuteSqlUsingStmt(const LibString &sql, UInt64 seqId, cons
             g_Log->Warn(LOGFMT_OBJ_TAG("stmt create fail"));
             return false;
         }
+    }
 
+    if(UNLIKELY(!stmt->IsConnected()))
+    {
+        if(UNLIKELY(!stmt->OnMysqlReconnect()))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("stmt reconnect fail seqId:%llu"), seqId);
+            return false;
+        }
     }
 
     auto ret = stmt->Execute(seqId, fields, cb);

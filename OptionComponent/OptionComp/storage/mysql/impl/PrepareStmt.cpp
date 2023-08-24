@@ -44,6 +44,7 @@ PrepareStmt::PrepareStmt(MysqlConnect *conn, const LibString &sql, UInt64 id)
 ,_stmt(NULL)
 ,_isError(false)
 ,_isInit(false)
+,_isConnected(false)
 ,_paramCount(0)
 ,_bindParams(NULL)
 ,_curBindParamIndex(0)
@@ -108,6 +109,7 @@ bool PrepareStmt::Init()
     _paramCount = static_cast<Int64>(mysql_stmt_param_count(_stmt));
 
     _isInit = true;
+    _isConnected = true;
     return true;
 }
 
@@ -125,7 +127,21 @@ bool PrepareStmt::OnMysqlReconnect()
     _isInit = false;
     _isError = false;
 
-    return Init();
+    auto ret = Init();
+
+    g_Log->Info(LOGFMT_OBJ_TAG("stmt reconnect ret:%d, stmt info:%s"), ret, ToString().c_str());
+
+    return ret;
+}
+
+void PrepareStmt::OnMysqlDisconnect()
+{
+    _isConnected = false;
+}
+
+bool PrepareStmt::IsConnected() const
+{
+    return _isConnected;
 }
 
 void PrepareStmt::StartParam(UInt64 seqId)
@@ -174,10 +190,13 @@ UInt32 PrepareStmt::CommitParam()
         if(ret != 0)
         {
             UInt32 errNo = mysql_errno(_conn->GetMysql());
+            auto stmtErr = mysql_stmt_errno(_stmt);
+            if(IS_MYSQL_NETWORK_ERROR(stmtErr))
+                _OnMysqlDisconnect();
 
             _conn->_UpdateLastMysqlErrno();
-            g_Log->Warn(LOGFMT_OBJ_TAG("mysql_stmt_bind_param fail error:%s, errNo:%u, mysql stmt:%s,%u"), mysql_error(_conn->GetMysql()), errNo, mysql_stmt_error(_stmt), mysql_stmt_errno(_stmt));
-            return errNo;
+            g_Log->Warn(LOGFMT_OBJ_TAG("mysql_stmt_bind_param fail error:%s, errNo:%u, mysql stmt:%s,%u"), mysql_error(_conn->GetMysql()), errNo, mysql_stmt_error(_stmt), stmtErr);
+            return stmtErr != 0 ? stmtErr : errNo;
         }
     }
 
@@ -194,11 +213,14 @@ UInt32 PrepareStmt::CommitParam()
                 auto field = _paramValues[idx];
                 UInt32 errNo = mysql_errno(_conn->GetMysql());
                 _conn->_UpdateLastMysqlErrno();
-                UInt32 stmtErrNo = mysql_stmt_errno(_stmt);
+                auto stmtErr = mysql_stmt_errno(_stmt);
+                if(IS_MYSQL_NETWORK_ERROR(stmtErr))
+                    _OnMysqlDisconnect();
 
                 g_Log->Warn(LOGFMT_OBJ_TAG("mysql_stmt_send_long_data fail error:%s, errNo:%u, stmt mysql err:%s, stmtErrNo:%u bind field:%s")
-                            , mysql_error(_conn->GetMysql()), errNo, mysql_stmt_error(_stmt), stmtErrNo, field ? field->ToString().c_str() : "");
-                return errNo;
+                            , mysql_error(_conn->GetMysql()), errNo, mysql_stmt_error(_stmt), stmtErr, field ? field->ToString().c_str() : "");
+
+                return stmtErr != 0 ? stmtErr : errNo;
             }
         }
     }
@@ -266,11 +288,15 @@ UInt32 PrepareStmt::Execute()
     {
         int errNo = mysql_errno(_conn->GetMysql());
         _conn->_UpdateLastMysqlErrno();
+        auto stmtErr = mysql_stmt_errno(_stmt);
+        if(IS_MYSQL_NETWORK_ERROR(stmtErr))
+            _OnMysqlDisconnect();
 
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql_stmt_execute fail error:%s, stmt err:%s,%u prepare stmt info:"
-        , mysql_error(_conn->GetMysql()), mysql_stmt_error(_stmt), mysql_stmt_errno(_stmt))
+        , mysql_error(_conn->GetMysql()), mysql_stmt_error(_stmt), stmtErr)
                     , ToString());
-        return errNo;
+
+        return stmtErr != 0 ? stmtErr : errNo;
     }
 
     return 0;
@@ -313,19 +339,22 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
     {
         ret = mysql_errno(_conn->GetMysql());
         _conn->_UpdateLastMysqlErrno();
+        auto stmtErr = mysql_stmt_errno(_stmt);
+        if(IS_MYSQL_NETWORK_ERROR(stmtErr))
+            _OnMysqlDisconnect();
 
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT()
-        , LibString().AppendFormat("mysql_stmt_store_result fail error:%s, stmt err:%s, %u", mysql_error(_conn->GetMysql()), mysql_stmt_error(_stmt), mysql_stmt_errno(_stmt))
+        , LibString().AppendFormat("mysql_stmt_store_result fail error:%s, ret:%u, stmt err:%s, %u", mysql_error(_conn->GetMysql()), ret, mysql_stmt_error(_stmt), stmtErr)
         , ToString());
 
         if(LIKELY(cb))
         {
             std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> emptyRecords;
-            cb->Invoke(_conn, _seqId, Status::Failed, ret, true, 0, 0, emptyRecords);
+            cb->Invoke(_conn, _seqId, Status::Failed, stmtErr != 0 ? stmtErr : ret, true, 0, 0, emptyRecords);
         }
 
         mysql_stmt_free_result(_stmt);
-        return ret;
+        return stmtErr != 0 ? stmtErr : ret;
     }
 
     std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> allRecords;
@@ -363,17 +392,20 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
     {
         ret = mysql_errno(_conn->GetMysql());
         _conn->_UpdateLastMysqlErrno();
+        auto stmtErr = mysql_stmt_errno(_stmt);
+        if(IS_MYSQL_NETWORK_ERROR(stmtErr))
+            _OnMysqlDisconnect();
 
         if(LIKELY(cb))
         {
             std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> emptyRecords;
-            cb->Invoke(_conn, _seqId, Status::Failed, ret, true, 0, 0, emptyRecords);
+            cb->Invoke(_conn, _seqId, Status::Failed, stmtErr != 0 ? stmtErr : ret, true, 0, 0, emptyRecords);
         }
 
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql_stmt_fetch error stmt err:%s,%u mysql err:%s,%u allRecords:%llu"
-        , mysql_stmt_error(_stmt), mysql_stmt_errno(_stmt), mysql_error(_conn->GetMysql()), mysql_errno(_conn->GetMysql()), static_cast<UInt64>(allRecords.size())), ToString());
+        , mysql_stmt_error(_stmt), stmtErr, mysql_error(_conn->GetMysql()), mysql_errno(_conn->GetMysql()), static_cast<UInt64>(allRecords.size())), ToString());
         mysql_stmt_free_result(_stmt);
-        return ret;
+        return stmtErr != 0 ? stmtErr : ret;
     }
 
     if(LIKELY(cb))
@@ -470,6 +502,9 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
     {
         ret = mysql_errno(_conn->GetMysql());
         auto stmtErr = mysql_stmt_errno(_stmt);
+        if(IS_MYSQL_NETWORK_ERROR(stmtErr))
+            _OnMysqlDisconnect();
+
         if(ret == 0 && stmtErr == 0)
         {
             auto fieldCount = mysql_stmt_field_count(_stmt);
@@ -491,7 +526,7 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
         , LibString().AppendFormat("mysql_stmt_result_metadata fail mysql error:%s,%u, stmt err:%s,%u prepare stmt info:",  mysql_error(_conn->GetMysql()), ret, mysql_stmt_error(_stmt), stmtErr)
         , ToString());
 
-        return ret;
+        return stmtErr != 0 ? stmtErr : ret;
     }
     
     _hasRecords = true;
@@ -542,16 +577,19 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
     {
         ret = mysql_errno(_conn->GetMysql());
         _conn->_UpdateLastMysqlErrno();
+        auto stmtErr = mysql_stmt_errno(_stmt);
+        if(IS_MYSQL_NETWORK_ERROR(stmtErr))
+            _OnMysqlDisconnect();
 
         _ClearBindResult();
         
         g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT()
         , LibString().AppendFormat("mysql_stmt_bind_result fail stmt errNo:%u, stmt error:%s, mysql err:%s,%u prepare stmt info:"
-                    , mysql_stmt_errno(_stmt), mysql_stmt_error(_stmt), mysql_error(_conn->GetMysql()), mysql_errno(_conn->GetMysql()))
+                    , stmtErr, mysql_stmt_error(_stmt), mysql_error(_conn->GetMysql()), mysql_errno(_conn->GetMysql()))
         , ToString());
 
         mysql_free_result(prepareMetaResult);
-        return ret;
+        return stmtErr != 0 ? stmtErr : ret;
     }
 
     mysql_free_result(prepareMetaResult);
@@ -560,5 +598,11 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
     return 0;
 }
 
+void PrepareStmt::_OnMysqlDisconnect()
+{
+    OnMysqlDisconnect();
+    
+    _conn->OnMysqlDisconnect();
+}
 
 KERNEL_END
