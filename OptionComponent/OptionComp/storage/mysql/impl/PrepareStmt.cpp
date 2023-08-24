@@ -84,6 +84,12 @@ bool PrepareStmt::Init()
     if(mysql_stmt_prepare(_stmt, _sql.c_str(), static_cast<ULong>(_sql.length() + 1)) != 0)
     {
         auto errNo = mysql_errno(mysqlObj);
+        auto stmtErrNo = mysql_stmt_errno(_stmt);
+        if(stmtErrNo != 0)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("fail mysql_stmt_prepare stmt err:%s, %u"), mysql_stmt_error(_stmt), mysql_stmt_errno(_stmt));
+        }
+
         _conn->_UpdateLastMysqlErrno();
         if(!IS_MYSQL_NETWORK_ERROR(errNo))
         {
@@ -168,8 +174,9 @@ UInt32 PrepareStmt::CommitParam()
         if(ret != 0)
         {
             UInt32 errNo = mysql_errno(_conn->GetMysql());
+
             _conn->_UpdateLastMysqlErrno();
-            g_Log->Warn(LOGFMT_OBJ_TAG("mysql_stmt_bind_param fail error:%s"), mysql_error(_conn->GetMysql()));
+            g_Log->Warn(LOGFMT_OBJ_TAG("mysql_stmt_bind_param fail error:%s, errNo:%u, mysql stmt:%s,%u"), mysql_error(_conn->GetMysql()), errNo, mysql_stmt_error(_stmt), mysql_stmt_errno(_stmt));
             return errNo;
         }
     }
@@ -187,9 +194,10 @@ UInt32 PrepareStmt::CommitParam()
                 auto field = _paramValues[idx];
                 UInt32 errNo = mysql_errno(_conn->GetMysql());
                 _conn->_UpdateLastMysqlErrno();
+                UInt32 stmtErrNo = mysql_stmt_errno(_stmt);
 
-                g_Log->Warn(LOGFMT_OBJ_TAG("mysql_stmt_send_long_data fail error:%s, bind field:%s")
-                            , mysql_error(_conn->GetMysql()), field ? field->ToString().c_str() : "");
+                g_Log->Warn(LOGFMT_OBJ_TAG("mysql_stmt_send_long_data fail error:%s, errNo:%u, stmt mysql err:%s, stmtErrNo:%u bind field:%s")
+                            , mysql_error(_conn->GetMysql()), errNo, mysql_stmt_error(_stmt), stmtErrNo, field ? field->ToString().c_str() : "");
                 return errNo;
             }
         }
@@ -259,7 +267,8 @@ UInt32 PrepareStmt::Execute()
         int errNo = mysql_errno(_conn->GetMysql());
         _conn->_UpdateLastMysqlErrno();
 
-        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql_stmt_execute fail error:%s, prepare stmt info:", mysql_error(_conn->GetMysql()))
+        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql_stmt_execute fail error:%s, stmt err:%s,%u prepare stmt info:"
+        , mysql_error(_conn->GetMysql()), mysql_stmt_error(_stmt), mysql_stmt_errno(_stmt))
                     , ToString());
         return errNo;
     }
@@ -306,7 +315,7 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
         _conn->_UpdateLastMysqlErrno();
 
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT()
-        , LibString().AppendFormat("mysql_stmt_store_result fail error:%s", mysql_error(_conn->GetMysql()))
+        , LibString().AppendFormat("mysql_stmt_store_result fail error:%s, stmt err:%s, %u", mysql_error(_conn->GetMysql()), mysql_stmt_error(_stmt), mysql_stmt_errno(_stmt))
         , ToString());
 
         if(LIKELY(cb))
@@ -361,7 +370,8 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
             cb->Invoke(_conn, _seqId, Status::Failed, ret, true, 0, 0, emptyRecords);
         }
 
-        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql_stmt_fetch error :%s, allRecords:%llu", mysql_stmt_error(_stmt), static_cast<UInt64>(allRecords.size())), ToString());
+        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql_stmt_fetch error stmt err:%s,%u mysql err:%s,%u allRecords:%llu"
+        , mysql_stmt_error(_stmt), mysql_stmt_errno(_stmt), mysql_error(_conn->GetMysql()), mysql_errno(_conn->GetMysql()), static_cast<UInt64>(allRecords.size())), ToString());
         mysql_stmt_free_result(_stmt);
         return ret;
     }
@@ -459,7 +469,8 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
     if(!prepareMetaResult)
     {
         ret = mysql_errno(_conn->GetMysql());
-        if(ret == 0)
+        auto stmtErr = mysql_stmt_errno(_stmt);
+        if(ret == 0 && stmtErr == 0)
         {
             auto fieldCount = mysql_stmt_field_count(_stmt);
             if(fieldCount == 0)
@@ -477,7 +488,7 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
 
         // 错误发生
         g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT()
-        , LibString().AppendFormat("mysql_stmt_result_metadata fail error:%s, prepare stmt info:",  mysql_error(_conn->GetMysql()))
+        , LibString().AppendFormat("mysql_stmt_result_metadata fail mysql error:%s,%u, stmt err:%s,%u prepare stmt info:",  mysql_error(_conn->GetMysql()), ret, mysql_stmt_error(_stmt), stmtErr)
         , ToString());
 
         return ret;
@@ -535,8 +546,8 @@ UInt32 PrepareStmt::_ObtainResultSetMetadata()
         _ClearBindResult();
         
         g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT()
-        , LibString().AppendFormat("mysql_stmt_bind_result fail stmt errNo:%u, stmt error:%s, prepare stmt info:"
-                    , mysql_stmt_errno(_stmt), mysql_stmt_error(_stmt))
+        , LibString().AppendFormat("mysql_stmt_bind_result fail stmt errNo:%u, stmt error:%s, mysql err:%s,%u prepare stmt info:"
+                    , mysql_stmt_errno(_stmt), mysql_stmt_error(_stmt), mysql_error(_conn->GetMysql()), mysql_errno(_conn->GetMysql()))
         , ToString());
 
         mysql_free_result(prepareMetaResult);
