@@ -762,17 +762,58 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
         res->_isRequestSendToMysql = isSendToMysql;
     };
 
-    if(!curConn->ExecuteSqlUsingTransAction(req->_builders, req->_seqId, cb))
+    // 先执行ping
+    auto leftPingTimes = _cfg._retryWhenError;
+    bool isConnected = false;
+    const auto &pingStr = KERNEL_NS::LibString().AppendFormat("Before ExecuteSqlUsingTransAction detect connected seq id:%llu", req->_seqId);
+    for(Int32 idx = 0; idx < leftPingTimes; ++idx)
     {
-        const Int32 count = static_cast<Int32>(req->_builders.size());
-        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error  mysql:%s, connection:%s request dump:\n", ToString().c_str(), curConn->ToString().c_str())
-                    , req->Dump());
-
-        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail req:"), req->Dump());
+        if(LIKELY(curConn->Ping(pingStr)))
+        {
+            isConnected = true;
+            break;
+        }
     }
+
+    do
+    {
+
+        if(UNLIKELY(!isConnected))
+        {
+            res->_errCode = Status::Failed;
+            g_Log->Warn(LOGFMT_OBJ_TAG("ping mysql fail please check use ping times:%d seq id:%llu."), leftPingTimes, req->_seqId);
+            break;
+        }
+
+        if(!curConn->ExecuteSqlUsingTransAction(req->_builders, req->_seqId, cb))
+        {
+            const Int32 count = static_cast<Int32>(req->_builders.size());
+            g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error  mysql:%s, connection:%s request dump:\n", ToString().c_str(), curConn->ToString().c_str())
+                        , req->Dump());
+
+            g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail req:"), req->Dump());
+        }
+
+
+    } while (false);
 
     g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
                     , res->_seqId, res->_dbName.c_str(), res->_affectedRows, res->_maxInsertId, res->_isRequestSendToMysql, res->_errCode, res->_mysqlErrno));
+
+    // 有失败, 则打印剩余失败的sql
+    if(res->_errCode != Status::Success)
+    {
+        LibString failBuilder;
+        const Int32 count = static_cast<Int32>(req->_builders.size());
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto builder = req->_builders[idx];
+            failBuilder.AppendData(builder->Dump()).AppendFormat("\n");
+        }
+
+        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql db:%s connection:%s errCode:%d, mysqlerrno:%u, request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno)
+                    , req->Dump(), LibString().AppendFormat("\nfail sqls:\n"), failBuilder);
+    }
 
     // 使用指定的消息队列
     if(req->_msgQueue)
@@ -790,6 +831,7 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
 
         res.pop();
     }
+
 }
 
 void MysqlDB::_Clear()

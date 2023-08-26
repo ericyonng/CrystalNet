@@ -352,28 +352,19 @@ ALWAYS_INLINE bool MysqlConnect::_ExcuteSql(const LibString &sql, UInt64 seqId, 
                 _FetchRows(res, seqId, cb);
             else
             {// 有字段信息但是没有数据结果
+                auto ret = _UpdateLastMysqlErrno();
                 if(LIKELY(cb))
-                {
-                    UInt32 ret = 0;
-                    if(!res)
-                        ret = _UpdateLastMysqlErrno();
-
                     cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, 0, 0, s_empty);
-                } 
             }
         }
         else
         {// 没有数据可回来, 那么回传InsertId, 和AffectedRow
             auto lastInsertId = GetLastInsertIdOfAutoIncField();
             auto lastAffectedRows = GetLastAffectedRow();
-            if(LIKELY(cb))
-            {
-                UInt32 ret = 0;
-                if(!res)
-                    ret = _UpdateLastMysqlErrno();
+            auto ret = _UpdateLastMysqlErrno();
 
+            if(LIKELY(cb))
                 cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, lastInsertId, lastAffectedRows, s_empty);
-            }
         }
 
         if(LIKELY(res))
@@ -401,80 +392,143 @@ ALWAYS_INLINE bool MysqlConnect::_ExcuteSqlUsingTransAction(const LibString &sql
         return false;
     }
 
-    // 开启事务
-    std::vector<KERNEL_NS::LibString> sqlsParts;
-    sqlsParts.push_back(StartTransActionSqlBuilder().ToSql());
-    sqlsParts.push_back(SetAutoCommitSqlBuilder().SetAutoCommit(false).ToSql());
-
-    // 执行sql
-    sqlsParts.push_back(sqls);
-
-    // 提交事务
-    sqlsParts.push_back(CommitTransActionSqlBuilder().ToSql());
-    sqlsParts.push_back(SetAutoCommitSqlBuilder().SetAutoCommit(true).ToSql());
-
-    // 发送到mysql执行
-    if(!_ExcuteSql(seqId, StringUtil::ToString(sqlsParts, ";")))
+    // 开启事务（网络断开会自动rollback）
     {
-        if(LIKELY(cb))
-            cb->Invoke(this, seqId, Status::Failed, _lastErrno, false, 0, 0, s_empty);
+        std::vector<KERNEL_NS::LibString> sqlsParts;
+        sqlsParts.push_back(StartTransActionSqlBuilder().ToSql());
+        sqlsParts.push_back(SetAutoCommitSqlBuilder().SetAutoCommit(false).ToSql());
 
-        return false;
-    }
-
-    // 获取结果集
-    Int32 loop = 0;
-    const Int32 resultStart = 2;
-    const Int32 resultEnd = resultStart + sqlCount - 1;
-    do
-    {
-        bool hasFieldsCount = false;
-        auto res = _StoreResult(hasFieldsCount);
-
-        // 只有在 resultStart 和 resultEnd之间才是sql执行的结果
-        if(loop >= resultStart && loop <= resultEnd)
+        // 发送到mysql执行
+        if(!_ExcuteSql(seqId, StringUtil::ToString(sqlsParts, ";")))
         {
-            if(hasFieldsCount)
-            {// 查询
-                if(res)
-                    _FetchRows(res, seqId, cb);
-                else
-                {// 有字段信息但是没有数据结果
-                    if(LIKELY(cb))
-                    {
-                        UInt32 ret = 0;
-                        if(!res)
-                            ret = _UpdateLastMysqlErrno();
+            if(LIKELY(cb))
+                cb->Invoke(this, seqId, Status::Failed, _lastErrno, false, 0, 0, s_empty);
 
-                        cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, 0, 0, s_empty);
-                    } 
-                }
-            }
-            else
-            {// 其他物结果的
-                auto lastInsertId = GetLastInsertIdOfAutoIncField();
-                auto lastAffectedRows = GetLastAffectedRow();
-                if(LIKELY(cb))
-                {
-                    UInt32 ret = 0;
-                    if(!res)
-                        ret = _UpdateLastMysqlErrno();
-
-                    cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, lastInsertId, lastAffectedRows, s_empty);
-                }
-            } 
+            return false;
         }
 
-        if(LIKELY(res))
-            _FreeRes(res);
+        do
+        {
+            bool hasFieldsCount = false;
+            auto res = _StoreResult(hasFieldsCount);
 
-        ++loop;
-        
-    } while (HasNextResult());
+            if(LIKELY(res))
+                _FreeRes(res);
+        } while (HasNextResult());
 
-    AddOpCount(MysqlOperateType::CompleteQuery, sqlCount);
+        AddOpCount(MysqlOperateType::CompleteQuery);
+    }
 
-    return true;
+    bool isFailed = false;
+    {
+        // 执行sql
+
+        // 发送到mysql执行
+        if(!_ExcuteSql(seqId, sqls))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("excute sqls fail seq id:%llu"), seqId);
+
+            if(LIKELY(cb))
+                cb->Invoke(this, seqId, Status::Failed, _lastErrno, false, 0, 0, s_empty);
+
+            isFailed = true;
+        }
+        else
+        {
+            // 获取结果集
+            do
+            {
+                bool hasFieldsCount = false;
+                auto res = _StoreResult(hasFieldsCount);
+
+                // 只有在 resultStart 和 resultEnd之间才是sql执行的结果
+                if(hasFieldsCount)
+                {// 查询
+                    auto ret = _UpdateLastMysqlErrno();
+                    if(UNLIKELY(ret != 0))
+                        isFailed = true;
+
+                    if(res)
+                        _FetchRows(res, seqId, cb);
+                    else
+                    {// 有字段信息但是没有数据结果
+                        if(LIKELY(cb))
+                            cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, 0, 0, s_empty);
+                    }
+                }
+                else
+                {// 其他物结果的
+                    auto lastInsertId = GetLastInsertIdOfAutoIncField();
+                    auto lastAffectedRows = GetLastAffectedRow();
+                    auto ret = _UpdateLastMysqlErrno();
+                    if(UNLIKELY(ret != 0))
+                        isFailed = true;
+
+                    if(LIKELY(cb))
+                        cb->Invoke(this, seqId, ret == 0 ? Status::Success : Status::Failed, ret, true, lastInsertId, lastAffectedRows, s_empty);
+                } 
+
+                if(LIKELY(res))
+                    _FreeRes(res);
+
+            } while (HasNextResult());
+
+            AddOpCount(MysqlOperateType::CompleteQuery, sqlCount);
+        }
+
+        if(UNLIKELY(isFailed))
+        {
+            // rollback
+            std::vector<KERNEL_NS::LibString> sqlsParts;
+            sqlsParts.push_back(RollbackSqlBuilder().ToSql());
+            if(!_ExcuteSql(seqId, StringUtil::ToString(sqlsParts, ";")))
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("rollback fail seq id:%llu"), seqId);
+                return false;
+            }
+
+            do
+            {
+                bool hasFieldsCount = false;
+                auto res = _StoreResult(hasFieldsCount);
+
+                if(LIKELY(res))
+                    _FreeRes(res);
+            } while (HasNextResult());
+
+            AddOpCount(MysqlOperateType::CompleteQuery);
+        }
+    }
+
+    // 提交事务
+    {
+        std::vector<KERNEL_NS::LibString> sqlsParts;
+        sqlsParts.push_back(CommitTransActionSqlBuilder().ToSql());
+        sqlsParts.push_back(SetAutoCommitSqlBuilder().SetAutoCommit(true).ToSql());
+
+        // 发送到mysql执行
+        if(!_ExcuteSql(seqId, StringUtil::ToString(sqlsParts, ";")))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("commit sqls fail seq id:%llu"), seqId);
+            if(LIKELY(cb))
+                cb->Invoke(this, seqId, Status::Failed, _lastErrno, false, 0, 0, s_empty);
+
+            return false;
+        }
+
+        do
+        {
+            bool hasFieldsCount = false;
+            auto res = _StoreResult(hasFieldsCount);
+
+            if(LIKELY(res))
+                _FreeRes(res);
+        } while (HasNextResult());
+
+        AddOpCount(MysqlOperateType::CompleteQuery);
+    }
+
+    return !isFailed;
 }
 
 KERNEL_END

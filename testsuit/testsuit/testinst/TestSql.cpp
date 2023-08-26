@@ -979,11 +979,31 @@ void TestSql::Run()
         KERNEL_NS::DropTableSqlBuilder builder;
         builder.DB("rpg").Table("tbl_role");
         mysqlConnection->ExecuteSql(builder, 1);
+        builder.Clear();
+        builder.DB("rpg").Table("tbl_role2");
+        mysqlConnection->ExecuteSql(builder, 1);
     }
 
     {// 创建表
         KERNEL_NS::CreateTableSqlBuilder builder;
         builder.DB("rpg").Table("tbl_role")
+        .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'id'")
+        // .Field("Id BIGINT NOT NULL DEFAULT 0 COMMENT \"id\"")
+        // .Field("Id2 BIGINT NOT NULL AUTO_INCREMENT COMMENT \"Id2\"")
+        .Field("RoleId INT NOT NULL COMMENT '角色id'")
+        .Field("UserId VARCHAR(4096) NOT NULL DEFAULT '' COMMENT '账号id'")
+        .Field("Name VARCHAR(4096) NOT NULL DEFAULT '' COMMENT '名字'")
+        .Field("TestText TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'test text'")
+        .Field("LoginTime INT DEFAULT 0 COMMENT '登录时间'")
+        .PrimaryKey("Id")
+        .Comment("role table")
+        ;
+        mysqlConnection->ExecuteSql(builder, 1);
+    }
+
+    {// 创建表
+        KERNEL_NS::CreateTableSqlBuilder builder;
+        builder.DB("rpg").Table("tbl_role2")
         .Field("Id BIGINT NOT NULL AUTO_INCREMENT COMMENT 'id'")
         // .Field("Id BIGINT NOT NULL DEFAULT 0 COMMENT \"id\"")
         // .Field("Id2 BIGINT NOT NULL AUTO_INCREMENT COMMENT \"Id2\"")
@@ -1061,6 +1081,61 @@ void TestSql::Run()
         });
         auto elapseMs = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(cpucount);
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "select %d record cost:%llu ms"), selectCount, elapseMs);
+    }
+
+    // 使用事务
+    {
+    {
+        // 开启事务插入数据
+        Int64 incId = 0;
+        std::vector<KERNEL_NS::SqlBuilder *> multiSql;
+        // for(Int64 idx = 0; idx < count; ++idx)
+        // {
+        //     auto builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
+        //     builder->DB("rpg").Table("tbl_role2")
+        //     .Fields({"RoleId", "UserId", "Name"})
+        //     .Values({"100101", "\"b\"", "\"a\""});
+
+        //     multiSql.push_back(builder);
+        // }
+
+        auto builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
+        builder->DB("rpg").Table("tbl_role2")
+        .Fields({"Id", "RoleId", "UserId", "Name"})
+        .Values({"1", "100101", "\"b\"","\"a\""});
+        multiSql.push_back(builder);
+        builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
+        builder->DB("rpg").Table("tbl_role2")
+        .Fields({"Id", "RoleId", "UserId", "Name"})
+        .Values({"1", "100101", "\"b\"","\"a\""});
+        multiSql.push_back(builder);
+
+        // 使用事务执行sql
+        Int32 resCount = 0;
+        Int64 affectedRowCount = 0;
+
+        const auto cpucount = KERNEL_NS::LibCpuCounter::Current();
+        mysqlConnection->ExecuteSqlUsingTransAction(multiSql, 1, [&incId, &resCount, &affectedRowCount, count](KERNEL_NS::MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
+    Int64 insertId, Int64 affectedRows, std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::Record, KERNEL_NS::AutoDelMethods::CustomDelete>> &records){
+            if(!isSendToMysql)
+            {
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestSql, "send to mysql fail"));
+                return;
+            }
+
+            ++resCount;
+            if(incId <  insertId)
+                incId = insertId;
+
+            affectedRowCount += affectedRows;
+
+        });
+        auto elapseMs = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(cpucount);
+
+        KERNEL_NS::ContainerUtil::DelContainer2(multiSql);
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestSql, "insert %lld record cost:%llu ms, last inc id:%lld, resCount:%d, affectedRowCount:%lld"), count, elapseMs, incId, resCount, affectedRowCount);
+    }
     }
 
     // -------- stmt 接口 ----------------------

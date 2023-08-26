@@ -286,14 +286,13 @@ UInt32 PrepareStmt::Execute()
     auto ret = mysql_stmt_execute(_stmt);
     if(ret != 0)
     {
-        int errNo = mysql_errno(_conn->GetMysql());
-        _conn->_UpdateLastMysqlErrno();
+        auto errNo = _conn->_UpdateLastMysqlErrno();
         auto stmtErr = mysql_stmt_errno(_stmt);
         if(IS_MYSQL_NETWORK_ERROR(stmtErr))
             _OnMysqlDisconnect();
 
-        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql_stmt_execute fail error:%s, stmt err:%s,%u prepare stmt info:"
-        , mysql_error(_conn->GetMysql()), mysql_stmt_error(_stmt), stmtErr)
+        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql_stmt_execute fail error:%s errNo:%u, stmt err:%s,%u prepare stmt info:"
+        , mysql_error(_conn->GetMysql()), errNo, mysql_stmt_error(_stmt), stmtErr)
                     , ToString());
 
         return stmtErr != 0 ? stmtErr : errNo;

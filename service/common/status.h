@@ -64,5 +64,6 @@ namespace Status
         UserAllReadyExistsCantRegisterAgain,                // 用户已经存在不可重新注册
         InvalidChar,                                        // 非法字符
         InvalidPwd,                                         // 错误密码
+        MysqlNetworkError,                                  // mysql网络问题
     };
 }
