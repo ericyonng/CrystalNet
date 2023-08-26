@@ -436,8 +436,10 @@ ALWAYS_INLINE bool MysqlConnect::_ExcuteSqlUsingTransAction(const LibString &sql
         else
         {
             // 获取结果集
+            Int32 loopCount = 0;
             do
             {
+                ++loopCount;
                 bool hasFieldsCount = false;
                 auto res = _StoreResult(hasFieldsCount);
 
@@ -472,6 +474,12 @@ ALWAYS_INLINE bool MysqlConnect::_ExcuteSqlUsingTransAction(const LibString &sql
                     _FreeRes(res);
 
             } while (HasNextResult());
+
+            if(loopCount != sqlCount)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("execute sql not all seq id:%llu"), seqId);
+                isFailed = true;
+            }
 
             AddOpCount(MysqlOperateType::CompleteQuery, sqlCount);
         }

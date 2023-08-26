@@ -979,9 +979,9 @@ void TestSql::Run()
         KERNEL_NS::DropTableSqlBuilder builder;
         builder.DB("rpg").Table("tbl_role");
         mysqlConnection->ExecuteSql(builder, 1);
-        builder.Clear();
-        builder.DB("rpg").Table("tbl_role2");
-        mysqlConnection->ExecuteSql(builder, 1);
+        // builder.Clear();
+        // builder.DB("rpg").Table("tbl_role2");
+        // mysqlConnection->ExecuteSql(builder, 1);
     }
 
     {// 创建表
@@ -1102,12 +1102,17 @@ void TestSql::Run()
         auto builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
         builder->DB("rpg").Table("tbl_role2")
         .Fields({"Id", "RoleId", "UserId", "Name"})
-        .Values({"1", "100101", "\"b\"","\"a\""});
+        .Values({"3", "100101", "\"b\"","\"a\""});
         multiSql.push_back(builder);
         builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
         builder->DB("rpg").Table("tbl_role2")
         .Fields({"Id", "RoleId", "UserId", "Name"})
         .Values({"1", "100101", "\"b\"","\"a\""});
+        multiSql.push_back(builder);
+        builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
+        builder->DB("rpg").Table("tbl_role2")
+        .Fields({"Id", "RoleId", "UserId", "Name"})
+        .Values({"4", "100101", "\"b\"","\"a\""});
         multiSql.push_back(builder);
 
         // 使用事务执行sql

@@ -32,11 +32,19 @@
 #include <service_common/service_proxy/ServiceProxy.h>
 #include <service_common/service/service.h>
 
+#if CRYSTAL_STORAGE_ENABLE
+ #include <OptionComp/storage/mysql/mysqlcomp.h>
+#endif
+
 SERVICE_COMMON_BEGIN
 
 Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactory, int argc, char const *argv[], const KERNEL_NS::LibString &configPath, const KERNEL_NS::LibString &memoryIniConfig)
 {
    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application will start."));
+
+   #if CRYSTAL_STORAGE_ENABLE
+    mysql_library_init(0, 0, 0);
+   #endif
 
     // 设置配置
     if(memoryIniConfig.empty())
@@ -97,6 +105,10 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
             printf("\napplication quit finish.\n");
 
         }
+
+        #if CRYSTAL_STORAGE_ENABLE
+            mysql_library_end();
+        #endif
 #else
         app->SinalFinish(Status::Success);
         // app->WillClose();
@@ -105,6 +117,9 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
         while (true)
             KERNEL_NS::SystemUtil::ThreadSleep(1000);
 
+        #if CRYSTAL_STORAGE_ENABLE
+            mysql_library_end();
+        #endif
         // g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close finished."));
 
         // KERNEL_NS::KernelUtil::OnSignalClose();
@@ -155,6 +170,10 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
     app->WillClose();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close..."));
     app->Close();
+
+   #if CRYSTAL_STORAGE_ENABLE
+    mysql_library_end();
+   #endif
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application close finish..."));
 
