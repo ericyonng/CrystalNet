@@ -1102,7 +1102,7 @@ void TestSql::Run()
         auto builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
         builder->DB("rpg").Table("tbl_role2")
         .Fields({"Id", "RoleId", "UserId", "Name"})
-        .Values({"3", "100101", "\"b\"","\"a\""});
+        .Values({"10", "100101", "\"b\"","\"a\""});
         multiSql.push_back(builder);
         builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
         builder->DB("rpg").Table("tbl_role2")
@@ -1112,7 +1112,7 @@ void TestSql::Run()
         builder = KERNEL_NS::InsertSqlBuilder::NewThreadLocal_InsertSqlBuilder();
         builder->DB("rpg").Table("tbl_role2")
         .Fields({"Id", "RoleId", "UserId", "Name"})
-        .Values({"4", "100101", "\"b\"","\"a\""});
+        .Values({"11", "100101", "\"b\"","\"a\""});
         multiSql.push_back(builder);
 
         // 使用事务执行sql

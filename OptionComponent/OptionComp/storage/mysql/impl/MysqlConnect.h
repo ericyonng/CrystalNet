@@ -477,8 +477,23 @@ ALWAYS_INLINE bool MysqlConnect::_ExcuteSqlUsingTransAction(const LibString &sql
 
             if(loopCount != sqlCount)
             {
+                auto oldv = isFailed;
                 g_Log->Warn(LOGFMT_OBJ_TAG("execute sql not all seq id:%llu"), seqId);
                 isFailed = true;
+                if(oldv != isFailed)
+                {
+                    auto lastInsertId = GetLastInsertIdOfAutoIncField();
+                    auto lastAffectedRows = GetLastAffectedRow();
+                    auto ret = _UpdateLastMysqlErrno();
+                    if(ret != 0)
+                    {
+                        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error:%u,%s connection:%s sqls:\n", ret, _lastErrString.c_str(), ToString().c_str())
+                                    , sqls);
+                    }
+
+                    if(LIKELY(cb))
+                        cb->Invoke(this, seqId, Status::Failed, ret, true, lastInsertId, lastAffectedRows, s_empty);
+                }
             }
 
             AddOpCount(MysqlOperateType::CompleteQuery, sqlCount);
