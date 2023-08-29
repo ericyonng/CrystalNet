@@ -79,7 +79,7 @@ public:
   /*
   * 关闭会话
   */
-  void CloseSession(UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite) const;
+  void CloseSession(UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite) const;
 
   /*
   * ip 黑白名单控制

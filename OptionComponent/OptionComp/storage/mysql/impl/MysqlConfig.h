@@ -64,6 +64,7 @@ struct MysqlConfig
     bool _enableMultiStatements;    // 支持一次执行多条sql
     Int32 _retryWhenError;      // sql执行失败(网络断开)重试次数
     Int32 _dbThreadNum;         // db线程数量
+    Int64 _pingIntervalSeconds;    // 间隔多长时间Ping一次, 维持mysql 连接活跃
 };
 
 KERNEL_END

@@ -84,7 +84,7 @@ public:
     void PostAddlisten(Int32 level, LibListenInfo *listenInfo);
     void PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList);
     void PostConnect(Int32 level, LibConnectInfo *connectInfo);
-    void PostCloseSession(UInt64 fromServiceId, Int32 level, UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite);
+    void PostCloseSession(UInt64 fromServiceId, Int32 level, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
     void PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList);
     void PostQuitServiceSessionsEvent(UInt64 serviceId, Int32 level = 0);
 

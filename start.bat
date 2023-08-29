@@ -8,5 +8,5 @@ echo    vs2019
 echo    vs2022
 set /p choose=Please input:
 
-cd %CUR_PATH%/output/%choose% && start testsuit.exe
+cd %CUR_PATH%/output/%choose% && start testsuit_debug.exe
 

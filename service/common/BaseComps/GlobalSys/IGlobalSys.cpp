@@ -141,7 +141,7 @@ Int64 IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &
 }
 
 
-void IGlobalSys::CloseSession(UInt64 sessionId, Int64 closeMillisecondTime, bool forbidRead, bool forbidWrite) const
+void IGlobalSys::CloseSession(UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite) const
 {
     const ISessionMgr *sessionMgr = GetGlobalSys<ISessionMgr>();
     auto session = sessionMgr->GetSession(sessionId);
@@ -154,7 +154,7 @@ void IGlobalSys::CloseSession(UInt64 sessionId, Int64 closeMillisecondTime, bool
     auto sessionInfo = session->GetSessionInfo();
     auto service = IGlobalSys::GetCurrentService();
     auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->TcpCloseSession(sessionInfo->_pollerId, GetService()->GetServiceId(), sessionInfo->_priorityLevel, sessionId, closeMillisecondTime, forbidRead, forbidWrite);
+    serviceProxy->TcpCloseSession(sessionInfo->_pollerId, GetService()->GetServiceId(), sessionInfo->_priorityLevel, sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
 }
 
 void IGlobalSys::AddWhite(const KERNEL_NS::LibString &ip, Int32 level)

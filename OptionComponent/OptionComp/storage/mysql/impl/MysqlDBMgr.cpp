@@ -543,6 +543,12 @@ Int32 MysqlDBMgr::_ReadToConfig(const LibString &dbSeg, MysqlConfig &config) con
         config._dbThreadNum = value;
     }
 
+    {// Ping时间间隔
+        Int64 value = 3600;
+        _ini->CheckReadNumber(dbSeg.c_str(), "PingIntervalSeconds", value);
+        config._pingIntervalSeconds = value;
+    }
+
     return Status::Success;
 }
 

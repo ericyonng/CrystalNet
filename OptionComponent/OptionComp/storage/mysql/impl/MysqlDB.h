@@ -107,9 +107,9 @@ private:
     void _OnWorker(LibThread *t, KERNEL_NS::Variant *var);
 
     // request 处理
-    void _StmtHandler(MysqlConnect *curConn, MysqlRequest *req);
-    void _NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req);
-    void _SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest *req);
+    void _StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &pingExpireTime);
+    void _NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &pingExpireTime);
+    void _SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &pingExpireTime);
 
     void _Clear();
 
@@ -133,7 +133,7 @@ private:
     Int32 _msgLevel;   // 消息管道的优先级  
     Int32 _eventType;   // 事件类型   
     
-    typedef void (MysqlDB::*MsgHandler)(MysqlConnect *conn, MysqlRequest *);
+    typedef void (MysqlDB::*MsgHandler)(MysqlConnect *conn, MysqlRequest *, Int64 &);
     std::vector<MsgHandler> _msgHandler;
 };
 

@@ -306,6 +306,8 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
 
         auto msgQueue = workerBalance->_msgQueue;
         auto &eventGuard = workerBalance->_eventGuard;
+        
+        Int64 pingExpireTime = 0;
         while (!t->IsDestroy())
         {
             if(msgQueue->IsEmpty())
@@ -345,7 +347,7 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
                     
                     // TODO:性能监控日志输出优化
                     PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 100);
-                    (this->*handler)(workerBalance->_conn, req);
+                    (this->*handler)(workerBalance->_conn, req, pingExpireTime);
                 } while (false);
 
                 MysqlRequest::Delete_MysqlRequest(req);
@@ -368,7 +370,7 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
     _isReady = false;
 }
 
-void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req)
+void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &pingExpireTime)
 {
     SmartPtr<MysqlResponse, AutoDelMethods::CustomDelete> res = MysqlResponse::New_MysqlResponse();
     res.SetClosureDelegate([](void *p){
@@ -421,78 +423,109 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req)
         res->_isRequestSendToMysql = isSendToMysql;
     };
 
+    const auto &curTime = KERNEL_NS::LibTime::NowTimestamp();
+    bool isReconnected = true;
+    if((pingExpireTime == 0) || (curTime >= pingExpireTime))
+    {
+        pingExpireTime = curConn->GetConfig()._pingIntervalSeconds + curTime;
+
+        curConn->OnMysqlDisconnect();
+
+        // 重连
+        auto leftPingTimes = _cfg._retryWhenError;
+        isReconnected = false;
+        for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
+        {
+            if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSqlUsingStmt fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+            {
+                isReconnected = true;
+                break;
+            }
+
+            g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu"), req->_seqId);
+            KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        }
+    }
+
     Int32 idx = 0;
     const Int32 count = static_cast<Int32>(req->_builders.size());
-    for(; idx < count; ++idx)
+    if(LIKELY(isReconnected))
     {
-        auto builder = req->_builders[idx];
-        if(!curConn->ExecuteSqlUsingStmt(*builder, req->_seqId, req->_fields, cb))
+        for(; idx < count; ++idx)
         {
-            // 因为网络断开需要重试
-            if(IS_MYSQL_NETWORK_ERROR(res->_mysqlErrno))
+            auto builder = req->_builders[idx];
+            if(!curConn->ExecuteSqlUsingStmt(*builder, req->_seqId, req->_fields, cb))
             {
-                // 重连
-                auto leftPingTimes = _cfg._retryWhenError;
-                bool isReconnected = false;
-                for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
+                // 因为网络断开需要重试
+                if(IS_MYSQL_NETWORK_ERROR(res->_mysqlErrno))
                 {
-                    if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSqlUsingStmt fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+                    // 重连
+                    auto leftPingTimes = _cfg._retryWhenError;
+                    bool isReconnected = false;
+                    for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
                     {
-                        isReconnected = true;
+                        if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSqlUsingStmt fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+                        {
+                            isReconnected = true;
+                            break;
+                        }
+
+                        g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu"), req->_seqId);
+                        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+                    }
+                    
+                    if(!isReconnected)
+                    {
+                        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSqlUsingStmt fail of mysql disconnected req:"), req->Dump());
                         break;
                     }
 
-                    g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu"), req->_seqId);
-                    KERNEL_NS::SystemUtil::ThreadSleep(1000);
-                }
-                
-                if(!isReconnected)
-                {
-                    g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSqlUsingStmt fail of mysql disconnected req:"), req->Dump());
-                    break;
-                }
+                    // 断开的错误重连后不算需要重置
+                    finalErrCode = Status::Success;
+                    mysqlDbErr = 0;
 
-                // 断开的错误重连后不算需要重置
-                finalErrCode = Status::Success;
-                mysqlDbErr = 0;
-
-                bool isSuccess = false;
-                const Int32 leftRetryTimes = _cfg._retryWhenError;
-                if(leftRetryTimes > 0)
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("mysql network interrupt and will retry %d times mostly"), leftRetryTimes);
-
-                    for(Int32 idx = 0; idx < leftRetryTimes; ++idx)
+                    bool isSuccess = false;
+                    const Int32 leftRetryTimes = _cfg._retryWhenError;
+                    if(leftRetryTimes > 0)
                     {
-                        if(curConn->ExecuteSqlUsingStmt(*builder, req->_seqId, req->_fields, cb))
+                        g_Log->Warn(LOGFMT_OBJ_TAG("mysql network interrupt and will retry %d times mostly"), leftRetryTimes);
+
+                        for(Int32 idx = 0; idx < leftRetryTimes; ++idx)
                         {
-                            isSuccess = true;
-                            break;
+                            if(curConn->ExecuteSqlUsingStmt(*builder, req->_seqId, req->_fields, cb))
+                            {
+                                isSuccess = true;
+                                break;
+                            }
                         }
                     }
-                }
-                else
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("mysql network interrupt and will retry many times util success mysql:%s, connection:%s."), ToString().c_str(), curConn->ToString().c_str());
-                    
-                    for(;;)
+                    else
                     {
-                        if(curConn->ExecuteSqlUsingStmt(*builder, req->_seqId, req->_fields, cb))
+                        g_Log->Warn(LOGFMT_OBJ_TAG("mysql network interrupt and will retry many times util success mysql:%s, connection:%s."), ToString().c_str(), curConn->ToString().c_str());
+                        
+                        for(;;)
                         {
-                            isSuccess = true;
-                            break;
+                            if(curConn->ExecuteSqlUsingStmt(*builder, req->_seqId, req->_fields, cb))
+                            {
+                                isSuccess = true;
+                                break;
+                            }
                         }
                     }
+
+                    // 成功则继续下一个sql, 错误则中断并打印未执行成功的sql
+                    if(isSuccess)
+                    continue;
                 }
 
-                // 成功则继续下一个sql, 错误则中断并打印未执行成功的sql
-                if(isSuccess)
-                   continue;
+                g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail req:"), req->Dump());
+                break;
             }
-
-            g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail req:"), req->Dump());
-            break;
         }
+    }
+    else
+    {
+        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSqlUsingStmt fail of mysql disconnected req:"), req->Dump());
     }
 
     g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
@@ -541,7 +574,7 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req)
 }
 
 // TODO:失败时需要重试, 以及dump失败的sql
-void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
+void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &pingExpireTime)
 {
     SmartPtr<MysqlResponse, AutoDelMethods::CustomDelete> res = MysqlResponse::New_MysqlResponse();
     res.SetClosureDelegate([](void *p){
@@ -595,78 +628,111 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
         res->_isRequestSendToMysql = isSendToMysql;
     };
 
+
+    const auto &curTime = KERNEL_NS::LibTime::NowTimestamp();
+    bool isReconnected = true;
+    if((pingExpireTime == 0) || (curTime >= pingExpireTime))
+    {
+        pingExpireTime = curConn->GetConfig()._pingIntervalSeconds + curTime;
+
+        curConn->OnMysqlDisconnect();
+
+        // 重连
+        auto leftPingTimes = _cfg._retryWhenError;
+        isReconnected = false;
+        for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
+        {
+            if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSql fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+            {
+                isReconnected = true;
+                break;
+            }
+
+            g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSql fail try reconnect seq id:%llu"), req->_seqId);
+            KERNEL_NS::SystemUtil::ThreadSleep(1000);
+        }
+    }
+
     Int32 idx = 0;
     const Int32 count = static_cast<Int32>(req->_builders.size());
-    for(; idx < count; ++idx)
+
+    if(LIKELY(isReconnected))
     {
-        auto builder = req->_builders[idx];
-        if(!curConn->ExecuteSql(*builder, req->_seqId, cb))
+        for(; idx < count; ++idx)
         {
-            // 因为网络断开需要重试
-            if(IS_MYSQL_NETWORK_ERROR(res->_mysqlErrno))
+            auto builder = req->_builders[idx];
+            if(!curConn->ExecuteSql(*builder, req->_seqId, cb))
             {
-                // 重连
-                bool isReconnected = false;
-                auto leftPingTimes = _cfg._retryWhenError;
-                for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
+                // 因为网络断开需要重试
+                if(IS_MYSQL_NETWORK_ERROR(res->_mysqlErrno))
                 {
-                    if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSql fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+                    // 重连
+                    bool isReconnected = false;
+                    auto leftPingTimes = _cfg._retryWhenError;
+                    for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
                     {
-                        isReconnected = true;
+                        if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSql fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+                        {
+                            isReconnected = true;
+                            break;
+                        }
+
+                        g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSql fail try reconnect seq id:%llu"), req->_seqId);
+                        KERNEL_NS::SystemUtil::ThreadSleep(1000);
+                    }
+
+                    if(!isReconnected)
+                    {
+                        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail of mysql disconnected req:"), req->Dump());
                         break;
                     }
 
-                    g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSql fail try reconnect seq id:%llu"), req->_seqId);
-                    KERNEL_NS::SystemUtil::ThreadSleep(1000);
-                }
+                    // 断开的错误重连后不算需要重置
+                    finalErrCode = Status::Success;
+                    mysqlDbErr = 0;
 
-                if(!isReconnected)
-                {
-                    g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail of mysql disconnected req:"), req->Dump());
-                    break;
-                }
-
-                // 断开的错误重连后不算需要重置
-                finalErrCode = Status::Success;
-                mysqlDbErr = 0;
-
-                bool isSuccess = false;
-                const Int32 leftRetryTimes = _cfg._retryWhenError;
-                if(leftRetryTimes > 0)
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("mysql network interrupt and will retry %d times mostly"), leftRetryTimes);
-
-                    for(Int32 idx = 0; idx < leftRetryTimes; ++idx)
+                    bool isSuccess = false;
+                    const Int32 leftRetryTimes = _cfg._retryWhenError;
+                    if(leftRetryTimes > 0)
                     {
-                        if(curConn->ExecuteSql(*builder, req->_seqId, cb))
+                        g_Log->Warn(LOGFMT_OBJ_TAG("mysql network interrupt and will retry %d times mostly"), leftRetryTimes);
+
+                        for(Int32 idx = 0; idx < leftRetryTimes; ++idx)
                         {
-                            isSuccess = true;
-                            break;
+                            if(curConn->ExecuteSql(*builder, req->_seqId, cb))
+                            {
+                                isSuccess = true;
+                                break;
+                            }
                         }
                     }
-                }
-                else
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("mysql network interrupt and will retry many times util success mysql:%s connection:%s."), ToString().c_str(), curConn->ToString().c_str());
-                    
-                    for(;;)
+                    else
                     {
-                        if(curConn->ExecuteSql(*builder, req->_seqId, cb))
+                        g_Log->Warn(LOGFMT_OBJ_TAG("mysql network interrupt and will retry many times util success mysql:%s connection:%s."), ToString().c_str(), curConn->ToString().c_str());
+                        
+                        for(;;)
                         {
-                            isSuccess = true;
-                            break;
+                            if(curConn->ExecuteSql(*builder, req->_seqId, cb))
+                            {
+                                isSuccess = true;
+                                break;
+                            }
                         }
                     }
+
+                    // 成功则继续下一个sql, 错误则中断并打印未执行成功的sql
+                    if(isSuccess)
+                    continue;
                 }
 
-                // 成功则继续下一个sql, 错误则中断并打印未执行成功的sql
-                if(isSuccess)
-                   continue;
+                g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail req:"), req->Dump());
+                break;
             }
-
-            g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail req:"), req->Dump());
-            break;
         }
+    }
+    else
+    {
+        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail of mysql disconnected req:"), req->Dump());
     }
 
     g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
@@ -717,7 +783,7 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
 }
 
 // TODO:失败时需要重试, 以及dump失败的sql, 因为开启事务执行的是多条sql, 所以不建议失败重试, 否则会造成不一致的情况(sql被其他线程执行覆盖)
-void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest *req)
+void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &pingExpireTime)
 {
    SmartPtr<MysqlResponse, AutoDelMethods::CustomDelete> res = MysqlResponse::New_MysqlResponse();
     res.SetClosureDelegate([](void *p){

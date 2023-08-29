@@ -63,10 +63,10 @@ LibTimer::~LibTimer()
 {
     if(LIKELY(_data))
         _mgr->OnTimerDestroy(_data);
-        
-    CRYSTAL_DELETE_SAFE(_timeroutHandler);
-    CRYSTAL_DELETE_SAFE(_cancelHandler);
     _data = NULL;
+
+    CRYSTAL_DELETE_SAFE(_cancelHandler);
+    CRYSTAL_DELETE_SAFE(_timeroutHandler);
 }
 
 void LibTimer::Cancel()

@@ -43,6 +43,7 @@ MysqlConfig::MysqlConfig()
 ,_enableMultiStatements(true)
 ,_retryWhenError(10)
 ,_dbThreadNum(1)
+,_pingIntervalSeconds(3600)
 {
 
 }
@@ -50,9 +51,9 @@ MysqlConfig::MysqlConfig()
 LibString MysqlConfig::ToString() const
 {
     LibString info;
-    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%hu bind ip:%s \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu _enableMultiStatements:%d, _retryWhenError:%d, _dbThreadNum:%d"
+    info.AppendFormat("host:%s user:%s pwd:%s db:%s port:%hu bind ip:%s \ncharset:%s db charset:%s db collate:%s autoreconnect:%d \nmaxpacketsize:%llu _enableMultiStatements:%d, _retryWhenError:%d, _dbThreadNum:%d, _pingIntervalSeconds:%lld"
         , _host.c_str(), _user.c_str(), _pwd.c_str(), _dbName.c_str(), _port, _bindIp.c_str(), _charset.c_str(), _dbCharset.c_str(), _dbCollate.c_str(),
-         _autoReconnect, _maxPacketSize, _enableMultiStatements, _retryWhenError, _dbThreadNum);
+         _autoReconnect, _maxPacketSize, _enableMultiStatements, _retryWhenError, _dbThreadNum, _pingIntervalSeconds);
 
     return info;
 }
