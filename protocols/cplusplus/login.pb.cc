@@ -163,7 +163,7 @@ const char descriptor_table_protodef_login_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "\001(\021\022\016\n\006UserId\030\002 \001(\004\022\022\n\nServerTime\030\003 \001(\022\""
   "4\n\014LoginInfoNty\022\r\n\005Token\030\001 \001(\t\022\025\n\rKeyExp"
   "ireTime\030\002 \001(\022\"\013\n\tLogoutReq\"!\n\tLogoutNty\022"
-  "\024\n\014LogoutReason\030\001 \001(\021b\006proto3"
+  "\024\n\014LogoutReason\030\001 \001(\021B\003\370\001\001b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_login_2eproto_deps[2] = {
   &::descriptor_table_com_5flogin_2eproto,
@@ -171,7 +171,7 @@ static const ::_pbi::DescriptorTable* const descriptor_table_login_2eproto_deps[
 };
 static ::_pbi::once_flag descriptor_table_login_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_login_2eproto = {
-    false, false, 309, descriptor_table_protodef_login_2eproto,
+    false, false, 314, descriptor_table_protodef_login_2eproto,
     "login.proto",
     &descriptor_table_login_2eproto_once, descriptor_table_login_2eproto_deps, 2, 5,
     schemas, file_default_instances, TableStruct_login_2eproto::offsets,

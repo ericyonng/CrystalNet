@@ -110,6 +110,8 @@ message LogoutReason
         TIMEOUT = 4;
         // 关服
         CLOSE_SERVER = 5;
+        // 登录其他账号
+        LOG_IN_OTHER_ACCOUNT = 6;
     }
 }
 

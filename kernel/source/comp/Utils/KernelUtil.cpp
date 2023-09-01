@@ -141,7 +141,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     // 变体类型识别初始化
     KERNEL_NS::VariantRtti::InitRttiTypeNames();
     // 初始化id
-    KERNEL_NS::LibThreadGlobalId::GenId();
+    const auto threadGlobalId = KERNEL_NS::LibThreadGlobalId::GenId();
     // 全局内存池 先于所有对象创建
     g_MemoryPool = KERNEL_NS::MemoryPool::GetDefaultInstance();
     err = g_MemoryPool->Init();
@@ -153,7 +153,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     // 主线程初始化
     const auto mainThreadId = SystemUtil::GetCurrentThreadId();
-    ThreadTool::OnInit(NULL, NULL, mainThreadId, "main thread tls memory pool");
+    ThreadTool::OnInit(NULL, NULL, mainThreadId, threadGlobalId, "main thread tls memory pool");
 
     // cpu信息
     g_cpu = KERNEL_NS::LibCpuInfo::GetInstance();

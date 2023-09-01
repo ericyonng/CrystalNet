@@ -67,11 +67,11 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_com_5flogin_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\017com_login.proto\022\023CRYSTAL_NET.service\"B"
   "\n\rUserLoginInfo\022\r\n\005Token\030\001 \001(\t\022\013\n\003Key\030\002 "
-  "\001(\t\022\025\n\rKeyExpireTime\030\003 \001(\022b\006proto3"
+  "\001(\t\022\025\n\rKeyExpireTime\030\003 \001(\022B\003\370\001\001b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5flogin_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5flogin_2eproto = {
-    false, false, 114, descriptor_table_protodef_com_5flogin_2eproto,
+    false, false, 119, descriptor_table_protodef_com_5flogin_2eproto,
     "com_login.proto",
     &descriptor_table_com_5flogin_2eproto_once, nullptr, 0, 1,
     schemas, file_default_instances, TableStruct_com_5flogin_2eproto::offsets,

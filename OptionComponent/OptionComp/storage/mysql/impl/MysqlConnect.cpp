@@ -542,11 +542,14 @@ bool MysqlConnect::_Ping(const LibString &content)
     if(ret == 0)
     {
         _isConnected = true;
+        if(g_Log->IsEnable(LogLevel::DumpSql))
+            g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql ping success connection id:%llu, content:%s", _id, content.c_str()));
+
         return true;
     }
 
     _UpdateLastMysqlErrno();
-    g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql disconnected connection info:%s, mysql error:%s\ncontent:.", ToString().c_str(), mysql_error(_mysql))
+    g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("mysql disconnected connection info:%s, mysql error:%s, %u\ncontent:.", ToString().c_str(), _lastErrString.c_str(), _lastErrno)
                 , content);
 
     _isConnected = false;

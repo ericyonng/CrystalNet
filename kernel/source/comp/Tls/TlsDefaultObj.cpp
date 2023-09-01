@@ -35,6 +35,7 @@ KERNEL_BEGIN
 TlsDefaultObj::TlsDefaultObj()
     :_objTypeName("TlsDefaultObj")
     ,_threadId(0)
+    ,_threadGlobalId(0)
     ,_thread(NULL)
     ,_threadPool(NULL)
     ,_pollerTimerMgr(NULL)

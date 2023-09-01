@@ -28,7 +28,7 @@ using ProtoPackage.Attributes;
           string.Concat(
             "Cg9jb21fbG9naW4ucHJvdG8SE0NSWVNUQUxfTkVULnNlcnZpY2UiQgoNVXNl",
             "ckxvZ2luSW5mbxINCgVUb2tlbhgBIAEoCRILCgNLZXkYAiABKAkSFQoNS2V5",
-            "RXhwaXJlVGltZRgDIAEoEmIGcHJvdG8z"));
+            "RXhwaXJlVGltZRgDIAEoEkID+AEBYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {

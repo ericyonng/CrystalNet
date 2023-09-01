@@ -631,8 +631,17 @@ UInt64 User::GetSessionId() const
     return _activedSessionId;
 }
 
-void User::Logout(Int32 logoutReason)
+void User::Logout(Int32 logoutReason, bool disconnect)
 {
+    if(UNLIKELY(IsLogout()))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("user is already logout user:%s, logoutReason:%d,%s, disconnect:%d")
+        , ToString().c_str(), logoutReason, LogoutReason::ENUMS_Name(logoutReason).c_str(), disconnect);
+        return;
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("user will logout disconnect:%d user:%s"), disconnect, ToString().c_str());
+
     // 设置状态
     SetUserStatus(UserStatus::USER_LOGOUTING);
 
@@ -647,14 +656,19 @@ void User::Logout(Int32 logoutReason)
     // 会话踢下线
     if(_activedSessionId)
     {
-        g_Log->Debug(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
+        g_Log->Info(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
         
         LogoutNty nty;
         nty.set_logoutreason(logoutReason);
         Send(Opcodes::OpcodeConst::OPCODE_LogoutNty, nty);
 
         // 5秒后关闭
-        _userMgr->CloseSession(_activedSessionId, 5000, true, true);
+        if(disconnect)
+        {
+            g_Log->Info(LOGFMT_OBJ_TAG("user close session %s"), ToString().c_str());
+            _userMgr->CloseSession(_activedSessionId, 5000, true, true);
+        }
+        
         _userMgr->RemoveUserBySessionId(_activedSessionId);
         _activedSessionId = 0;
     }
@@ -669,6 +683,7 @@ void User::Logout(Int32 logoutReason)
 
     // 清空包id
     _curMaxPacketId = 0;
+    g_Log->Info(LOGFMT_OBJ_TAG("user logouted disconnect:%d user:%s"), disconnect, ToString().c_str());
 }
 
 bool User::IsLogined() const

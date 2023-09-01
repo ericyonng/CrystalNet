@@ -425,7 +425,7 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
 
     const auto &curTime = KERNEL_NS::LibTime::NowTimestamp();
     bool isReconnected = true;
-    if((pingExpireTime == 0) || (curTime >= pingExpireTime))
+    if((pingExpireTime == 0) || (curTime >= pingExpireTime) || !curConn->IsConnected())
     {
         pingExpireTime = curConn->GetConfig()._pingIntervalSeconds + curTime;
 
@@ -434,15 +434,16 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
         // 重连
         auto leftPingTimes = _cfg._retryWhenError;
         isReconnected = false;
+        const auto &pingContent = KERNEL_NS::LibString().AppendFormat("ExecuteSqlUsingStmt fail of network disconnected, try reconnect seq id:%llu", req->_seqId);
         for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
         {
-            if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSqlUsingStmt fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+            if(curConn->Ping(pingContent))
             {
                 isReconnected = true;
                 break;
             }
 
-            g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu"), req->_seqId);
+            g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
             KERNEL_NS::SystemUtil::ThreadSleep(1000);
         }
     }
@@ -462,15 +463,16 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
                     // 重连
                     auto leftPingTimes = _cfg._retryWhenError;
                     bool isReconnected = false;
+                    const auto &pingContent = KERNEL_NS::LibString().AppendFormat("ExecuteSqlUsingStmt fail of network disconnected, try reconnect seq id:%llu", req->_seqId);
                     for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
                     {
-                        if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSqlUsingStmt fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+                        if(curConn->Ping(pingContent))
                         {
                             isReconnected = true;
                             break;
                         }
 
-                        g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu"), req->_seqId);
+                        g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
                         KERNEL_NS::SystemUtil::ThreadSleep(1000);
                     }
                     
@@ -631,7 +633,7 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
 
     const auto &curTime = KERNEL_NS::LibTime::NowTimestamp();
     bool isReconnected = true;
-    if((pingExpireTime == 0) || (curTime >= pingExpireTime))
+    if((pingExpireTime == 0) || (curTime >= pingExpireTime) || !curConn->IsConnected())
     {
         pingExpireTime = curConn->GetConfig()._pingIntervalSeconds + curTime;
 
@@ -640,15 +642,16 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
         // 重连
         auto leftPingTimes = _cfg._retryWhenError;
         isReconnected = false;
+        const auto &pingContent = KERNEL_NS::LibString().AppendFormat("ExecuteSql fail of network disconnected, try reconnect seq id:%llu", req->_seqId);
         for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
         {
-            if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSql fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+            if(curConn->Ping(pingContent))
             {
                 isReconnected = true;
                 break;
             }
 
-            g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSql fail try reconnect seq id:%llu"), req->_seqId);
+            g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSql fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
             KERNEL_NS::SystemUtil::ThreadSleep(1000);
         }
     }
@@ -669,15 +672,16 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
                     // 重连
                     bool isReconnected = false;
                     auto leftPingTimes = _cfg._retryWhenError;
+                    const auto &pingContent = KERNEL_NS::LibString().AppendFormat("ExecuteSql fail of network disconnected, try reconnect seq id:%llu", req->_seqId);
                     for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
                     {
-                        if(curConn->Ping(KERNEL_NS::LibString().AppendFormat("ExecuteSql fail of network disconnected, try reconnect seq id:%llu", req->_seqId)))
+                        if(curConn->Ping(pingContent))
                         {
                             isReconnected = true;
                             break;
                         }
 
-                        g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSql fail try reconnect seq id:%llu"), req->_seqId);
+                        g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSql fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
                         KERNEL_NS::SystemUtil::ThreadSleep(1000);
                     }
 
@@ -829,22 +833,35 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
     };
 
     // 先执行ping
+    const auto &curTime = KERNEL_NS::LibTime::NowTimestamp();
+    bool isReconnected = true;
     auto leftPingTimes = _cfg._retryWhenError;
-    bool isConnected = false;
-    const auto &pingStr = KERNEL_NS::LibString().AppendFormat("Before ExecuteSqlUsingTransAction detect connected seq id:%llu", req->_seqId);
-    for(Int32 idx = 0; idx < leftPingTimes; ++idx)
+    if((pingExpireTime == 0) || (curTime >= pingExpireTime) || !curConn->IsConnected())
     {
-        if(LIKELY(curConn->Ping(pingStr)))
+        const auto &pingStr = KERNEL_NS::LibString().AppendFormat("Before ExecuteSqlUsingTransAction detect connected seq id:%llu", req->_seqId);
+        pingExpireTime = curConn->GetConfig()._pingIntervalSeconds + curTime;
+
+        curConn->OnMysqlDisconnect();
+
+        // 重连
+        isReconnected = false;
+        for(Int32 retryIndex = 0; retryIndex < leftPingTimes; ++retryIndex)
         {
-            isConnected = true;
-            break;
+            if(curConn->Ping(pingStr))
+            {
+                isReconnected = true;
+                break;
+            }
+
+            g_Log->Info(LOGFMT_OBJ_TAG("_SqlWithTransActionSqlHandler fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
+            KERNEL_NS::SystemUtil::ThreadSleep(1000);
         }
     }
 
     do
     {
 
-        if(UNLIKELY(!isConnected))
+        if(UNLIKELY(!isReconnected))
         {
             res->_errCode = Status::Failed;
             g_Log->Warn(LOGFMT_OBJ_TAG("ping mysql fail please check use ping times:%d seq id:%llu."), leftPingTimes, req->_seqId);

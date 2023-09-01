@@ -32,6 +32,7 @@
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/thread/ThreadTool.h>
+#include <kernel/comp/thread/LibThreadGlobalId.h>
 
 KERNEL_BEGIN
 
@@ -74,7 +75,8 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
     // 当前线程id
     const auto threadId = SystemUtil::GetCurrentThreadId();
 
-    ThreadTool::OnInit(NULL, pool, threadId, "thread pool tls memory pool");
+    const auto threadGlobalId = LibThreadGlobalId::GenId();
+    ThreadTool::OnInit(NULL, pool, threadId, threadGlobalId,  "thread pool tls memory pool");
 
     bool isEmpty = false;
     while(isWorking.load() || !isEmpty)

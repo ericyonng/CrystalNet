@@ -62,6 +62,8 @@ public:
     char rtti[TlsDefs::LIB_RTTI_BUF_SIZE];
     // 线程id
     UInt64 _threadId;
+    // 线程全局id（LibThreadGlobalId生成的自增id）
+    UInt64 _threadGlobalId;
     // 线程
     LibThread *_thread;
     // 线程池

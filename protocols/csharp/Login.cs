@@ -32,7 +32,7 @@ using ProtoPackage.Attributes;
             "PwoITG9naW5SZXMSDwoHZXJyQ29kZRgBIAEoERIOCgZVc2VySWQYAiABKAQS",
             "EgoKU2VydmVyVGltZRgDIAEoEiI0CgxMb2dpbkluZm9OdHkSDQoFVG9rZW4Y",
             "ASABKAkSFQoNS2V5RXhwaXJlVGltZRgCIAEoEiILCglMb2dvdXRSZXEiIQoJ",
-            "TG9nb3V0TnR5EhQKDExvZ291dFJlYXNvbhgBIAEoEWIGcHJvdG8z"));
+            "TG9nb3V0TnR5EhQKDExvZ291dFJlYXNvbhgBIAEoEUID+AEBYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComLoginReflection.Descriptor, global::CRYSTALNET.Service.ComUserReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {

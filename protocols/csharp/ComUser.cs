@@ -43,10 +43,11 @@ using ProtoPackage.Attributes;
             "UG9ydBgHIAEoDRJBChBVc2VyUmVnaXN0ZXJJbmZvGAggASgLMiUuQ1JZU1RB",
             "TF9ORVQuc2VydmljZS5SZWdpc3RlclVzZXJJbmZvSAASDQoFQXBwSWQYCSAB",
             "KAkSEgoKY3lwaGVyVGV4dBgKIAEoCRISCgpvcmlnaW5UZXh0GAsgASgJEhEK",
-            "CXZlcnNpb25JZBgMIAEoBEIOCgxSZWdpc3RlckluZm8ifwoMTG9nb3V0UmVh",
-            "c29uIm8KBUVOVU1TEhUKEUxPR0lOX09USEVSX1BMQUNFEAASEAoMT1RIRVJf",
-            "UkVBU09OEAESDwoLVVNFUl9MT0dPVVQQAhINCglVU0VSX0lETEUQAxILCgdU",
-            "SU1FT1VUEAQSEAoMQ0xPU0VfU0VSVkVSEAViBnByb3RvMw=="));
+            "CXZlcnNpb25JZBgMIAEoBEIOCgxSZWdpc3RlckluZm8imgEKDExvZ291dFJl",
+            "YXNvbiKJAQoFRU5VTVMSFQoRTE9HSU5fT1RIRVJfUExBQ0UQABIQCgxPVEhF",
+            "Ul9SRUFTT04QARIPCgtVU0VSX0xPR09VVBACEg0KCVVTRVJfSURMRRADEgsK",
+            "B1RJTUVPVVQQBBIQCgxDTE9TRV9TRVJWRVIQBRIYChRMT0dfSU5fT1RIRVJf",
+            "QUNDT1VOVBAGYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -2119,6 +2120,10 @@ using ProtoPackage.Attributes;
         /// 关服
         /// </summary>
         [pbr::OriginalName("CLOSE_SERVER")] CloseServer = 5,
+        /// <summary>
+        /// 登录其他账号
+        /// </summary>
+        [pbr::OriginalName("LOG_IN_OTHER_ACCOUNT")] LogInOtherAccount = 6,
       }
 
     }

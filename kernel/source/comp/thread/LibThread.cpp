@@ -54,7 +54,7 @@ void LibThread::LibThreadHandlerLogic(void *param)
     libThread->_threadId = SystemUtil::GetCurrentThreadId();
 
     // 初始化
-    ThreadTool::OnInit(libThread, NULL, libThread->_threadId, "lib thread local tls memorypool");
+    ThreadTool::OnInit(libThread, NULL, libThread->_threadId, libThread->GetId(), "lib thread local tls memorypool");
 
     bool isEmpty = false;
     while(!isDestroy.load() || !isEmpty)

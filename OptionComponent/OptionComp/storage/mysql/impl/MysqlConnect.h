@@ -164,6 +164,8 @@ public:
 
     void AddOpCount(Int32 type, Int64 count = 1) const;
 
+    bool IsConnected() const;
+
 private:
     MYSQL_RES *_StoreResult(bool &isSqlWithFieldsCountReturn) const;
     MYSQL_RES *_UseResult(bool &isSqlWithFieldsCountReturn) const;
@@ -552,6 +554,11 @@ ALWAYS_INLINE bool MysqlConnect::_ExcuteSqlUsingTransAction(const LibString &sql
     }
 
     return !isFailed;
+}
+
+ALWAYS_INLINE bool MysqlConnect::IsConnected() const
+{
+    return _isConnected;
 }
 
 KERNEL_END

@@ -168,8 +168,8 @@ public:
     // 获取会话id
     virtual UInt64 GetSessionId() const = 0;
 
-    // 登出
-    virtual void Logout(Int32 logoutReason) = 0;
+    // 登出 disconnect:logout 的同时断开session, 有可能同一个会话不同账号登录
+    virtual void Logout(Int32 logoutReason, bool disconnect = true) = 0;
 
     // 是否登出
     virtual bool IsLogined() const = 0;

@@ -2,7 +2,7 @@
 
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginReq,Opcode:1,NoLog:false,XorEncrypt:true,KeyBase64:true,]
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginRes,Opcode:2,NoLog:false,XorEncrypt:false,KeyBase64:false,]
-/// ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,Md5:j3RvxJRGbHhsBo3UmqeYTA==,ModifyTime:1692771818,
+/// ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,Md5:cTBTI+u9wR2kO2TjSLKD2A==,ModifyTime:1693475723,
 
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Req,Opcode:5,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Res,Opcode:6,NoLog:false,XorEncrypt:false,KeyBase64:false,]
@@ -34,9 +34,9 @@
 
 /// ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,Md5:c0Fbk007EjrRWNurFc8b1Q==,ModifyTime:1692361715,
 
-/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:/2jxGVV+y0gzmvP9B8wGZA==,ModifyTime:1692361725,
+/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:WkDhzygyq2DJQKBf0rCJhA==,ModifyTime:1693448470,
 
-/// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:V8DDSbQk2nbuLhc+ljEQQw==,ModifyTime:1692361682,
+/// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:JRP2AJHv8EggvaSBDetgvA==,ModifyTime:1693475814,
 
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginInfoNty,Opcode:22,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 /// ProtoName:com_heartbeat.proto,ProtoPath:../../protocols/proto/com_heartbeat.proto,Md5:wWig2Fg+bfKr+Vg0N0LWLg==,ModifyTime:1692361701,

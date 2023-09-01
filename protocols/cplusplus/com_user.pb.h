@@ -119,12 +119,13 @@ enum LogoutReason_ENUMS : int {
   LogoutReason_ENUMS_USER_IDLE = 3,
   LogoutReason_ENUMS_TIMEOUT = 4,
   LogoutReason_ENUMS_CLOSE_SERVER = 5,
+  LogoutReason_ENUMS_LOG_IN_OTHER_ACCOUNT = 6,
   LogoutReason_ENUMS_LogoutReason_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   LogoutReason_ENUMS_LogoutReason_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool LogoutReason_ENUMS_IsValid(int value);
 constexpr LogoutReason_ENUMS LogoutReason_ENUMS_ENUMS_MIN = LogoutReason_ENUMS_LOGIN_OTHER_PLACE;
-constexpr LogoutReason_ENUMS LogoutReason_ENUMS_ENUMS_MAX = LogoutReason_ENUMS_CLOSE_SERVER;
+constexpr LogoutReason_ENUMS LogoutReason_ENUMS_ENUMS_MAX = LogoutReason_ENUMS_LOG_IN_OTHER_ACCOUNT;
 constexpr int LogoutReason_ENUMS_ENUMS_ARRAYSIZE = LogoutReason_ENUMS_ENUMS_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* LogoutReason_ENUMS_descriptor();
@@ -1981,6 +1982,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     LogoutReason_ENUMS_TIMEOUT;
   static constexpr ENUMS CLOSE_SERVER =
     LogoutReason_ENUMS_CLOSE_SERVER;
+  static constexpr ENUMS LOG_IN_OTHER_ACCOUNT =
+    LogoutReason_ENUMS_LOG_IN_OTHER_ACCOUNT;
   static inline bool ENUMS_IsValid(int value) {
     return LogoutReason_ENUMS_IsValid(value);
   }

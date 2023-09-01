@@ -135,6 +135,7 @@ private:
     std::map<UInt64, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete>> _stubRefPendingUser;
     std::map<KERNEL_NS::LibString, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete>> _accountNameRefPendingUser;
     std::map<UInt64, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete>> _userIdRefPendingUser;
+    std::set<UInt64> _loginPendingSessions;
 
     std::map<UInt64, IUser *> _userIdRefUser;
     std::map<KERNEL_NS::LibString, IUser *> _accountNameRefUser;

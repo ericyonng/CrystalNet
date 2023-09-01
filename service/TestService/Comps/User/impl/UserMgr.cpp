@@ -285,6 +285,25 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
     pendingInfo->_loginInfo = loginInfo;
     pendingInfo->_sessionId = sessionId;
 
+    {// 相同会话都在login拒绝掉
+        if(_loginPendingSessions.find(sessionId) != _loginPendingSessions.end())
+        {
+            g_Log->Info(LOGFMT_OBJ_TAG("repeate login in same session and pending info:%s"), pendingInfo->ToString().c_str());
+            if(LIKELY(cb))
+                cb->Invoke(Status::RepeateLogin, pendingInfo, NULL, var);
+            return Status::RepeateLogin;
+        }
+    }
+
+    {// 相同session可能登录不同账号
+        auto user = GetUserBySessionId(sessionId);
+        if(UNLIKELY(user))
+        {
+            g_Log->Info(LOGFMT_OBJ_TAG("login in same session and will logout exists account pending info:%s, user:%s"), pendingInfo->ToString().c_str(), user->ToString().c_str());
+            user->Logout(LogoutReason::LOG_IN_OTHER_ACCOUNT, false);
+        }
+    }
+
     // TODO:获取分布式锁（LogicProxy做）
     // 是否已经存在User, 
     auto user = GetUser(pendingInfo->_byAccountName);
@@ -314,7 +333,10 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
             return err;
         }
 
-        // 顶号
+        if(pendingInfo->_sessionId == user->GetSessionId())
+            g_Log->Warn(LOGFMT_OBJ_TAG("user repeate login in same session user:%s"), user->ToString().c_str());
+
+        // 不同会话顶号
         if(user->IsLogined())
             user->Logout(LogoutReason::LOGIN_OTHER_PLACE);
 
@@ -325,13 +347,13 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
             cb->Invoke(Status::Success, pendingInfo, user, var);
 
         user->OnLoginFinish();
-
         auto loginInfo = pendingInfo->_loginInfo;
         auto baseInfo = user->GetUserBaseInfo();
         auto addr = user->GetUserAddr();
         baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
         baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
         baseInfo->set_lastloginip(addr->_ip.GetRaw());
+
         user->MaskDirty();
     }
 
@@ -342,7 +364,7 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
     // if(LIKELY(cb))
     //     cb->Invoke(Status::Success, pendingInfo, user, var);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("user already onlin user :%s, pending:%s"), user->ToString().c_str(), pendingInfo->ToString().c_str());
+    g_Log->Info(LOGFMT_OBJ_TAG("user already online user :%s, pending:%s"), user->ToString().c_str(), pendingInfo->ToString().c_str());
 
     return Status::Success;
 }
@@ -499,6 +521,7 @@ void UserMgr::AddUserBySessionId(UInt64 sessionId, IUser *user)
     if(UNLIKELY(iter != _sessionIdRefUser.end()))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("duplicate session id:%llu with user, exists user:%s, new user:%s"), sessionId, iter->second->ToString().c_str(), user->ToString().c_str());
+        iter->second = user;
         return;
     }
 
@@ -592,12 +615,16 @@ void UserMgr::_AddUserPendingInfo(UInt64 userId, KERNEL_NS::SmartPtr<PendingUser
 {
     _userIdRefPendingUser.insert(std::make_pair(userId, pendingInfo));
     _stubRefPendingUser.insert(std::make_pair(pendingInfo->_stub, pendingInfo));
+    if(pendingInfo->_sessionId)
+        _loginPendingSessions.insert(pendingInfo->_sessionId);
 }
 
 void UserMgr::_AddUserPendingInfo(const KERNEL_NS::LibString &accountName, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingInfo)
 {
     _accountNameRefPendingUser.insert(std::make_pair(accountName, pendingInfo));
     _stubRefPendingUser.insert(std::make_pair(pendingInfo->_stub, pendingInfo));
+    if(pendingInfo->_sessionId)
+        _loginPendingSessions.insert(pendingInfo->_sessionId);
 }
 
 void UserMgr::_RemovePendingInfo(const KERNEL_NS::LibString &accountName)
@@ -606,6 +633,8 @@ void UserMgr::_RemovePendingInfo(const KERNEL_NS::LibString &accountName)
     if(UNLIKELY(iter == _accountNameRefPendingUser.end()))
         return;
 
+    if(iter->second->_sessionId)
+        _loginPendingSessions.erase(iter->second->_sessionId);
     _stubRefPendingUser.erase(iter->second->_stub);
     _accountNameRefPendingUser.erase(iter);
 }
@@ -615,6 +644,9 @@ void UserMgr::_RemovePendingInfo(UInt64 userId)
     auto iter = _userIdRefPendingUser.find(userId);
     if(iter == _userIdRefPendingUser.end())
         return;
+
+    if(iter->second->_sessionId)
+        _loginPendingSessions.erase(iter->second->_sessionId);
 
     _stubRefPendingUser.erase(iter->second->_stub);
     _userIdRefPendingUser.erase(iter);
@@ -728,7 +760,7 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             {
                 // 顶号
                 if(user->IsLogined())
-                    user->Logout(LogoutReason::LOGIN_OTHER_PLACE);
+                    user->Logout(LogoutReason::LOGIN_OTHER_PLACE, pendingUser->_sessionId != user->GetSessionId());
 
                 user->BindSession(pendingUser->_sessionId);
                 user->OnLogin();

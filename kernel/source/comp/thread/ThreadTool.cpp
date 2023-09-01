@@ -35,7 +35,7 @@
 
 KERNEL_BEGIN
 
-void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId, const Byte8 *tlsMemPoolReason)
+void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId, UInt64 threadGlobalId, const Byte8 *tlsMemPoolReason)
 {
     // tls
     auto tlsStack = TlsUtil::GetTlsStack();
@@ -43,6 +43,7 @@ void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId,
     defTls->_threadId = threadId;
     defTls->_thread = thread;
     defTls->_threadPool = pool;
+    defTls->_threadGlobalId = threadGlobalId;
 
     // 注册到内存中央收集器
     auto centerMemroyCollector = CenterMemoryCollector::GetInstance();
