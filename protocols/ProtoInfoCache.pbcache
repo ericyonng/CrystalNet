@@ -56,3 +56,5 @@
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutNty,Opcode:32,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutReq,Opcode:31,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 
+
+

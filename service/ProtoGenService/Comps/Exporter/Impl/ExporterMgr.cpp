@@ -1189,7 +1189,7 @@ void ExporterMgr::_GenAllPbs()
         auto relationPath = _cppOutPath - _basePath + KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath);
 
         const auto protoFileName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(protoInfo->_protoName);
-        lines.push_back(KERNEL_NS::LibString().AppendFormat("#include <%s/%s.pb.h>"
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("#include <%s%s.pb.h>"
             , relationPath.c_str(), protoFileName.c_str()));
     }
 
