@@ -327,19 +327,26 @@ bool ExporterMgr::_GenCplusplus()
 
         g_Log->Custom("[PROTO GEN CPP] %s ...", protoInfo->_protoInfo._fileName.c_str());
 
+        const auto fullProtoPath = appPath + _protoPath;
+        auto rootPath = appPath + protoInfo->_protoInfo._rootPath;
+        auto fullPath = appPath + protoInfo->_fullPathName;
+        auto relationPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath + "/");
+
+        KERNEL_NS::DirectoryUtil::CreateDir(appPath + _cppOutPath + relationPath);
+
         // 2.0的proto需要绝对路径的proto
         #if CRYSTAL_TARGET_PLATFORM_WINDOWS
             cmd.AppendFormat("cd %s && %s --cpp_out=%s --proto_path=%s %s"
             , (appPath + protocPath).c_str()
             , (protocName).c_str()
-            , (appPath + _cppOutPath).c_str()
+            , (appPath + _cppOutPath + relationPath).c_str()
             , (appPath + protoInfo->_protoInfo._rootPath).c_str()
             // , (appPath + protoInfo->_fullPathName).c_str());
             , protoInfo->_protoInfo._fileName.c_str());
         #else
             cmd.AppendFormat("%s --cpp_out=%s --proto_path=%s %s"
             , (appPath + protocPath + protocName).c_str()
-            , (appPath + _cppOutPath).c_str()
+            , (appPath + _cppOutPath + relationPath).c_str()
             , (appPath + protoInfo->_protoInfo._rootPath).c_str()
             // , (appPath + protoInfo->_fullPathName).c_str());
             , protoInfo->_protoInfo._fileName.c_str());
@@ -364,10 +371,11 @@ bool ExporterMgr::_GenCplusplus()
             // 新的路径 = coutPath + 相对路径名 + 文件名
             auto rootPath = appPath + protoInfo->_protoInfo._rootPath;
             auto fullPath = appPath + protoInfo->_fullPathName;
-            auto relationPath = fullPath - rootPath;
+            const auto fullProtoPath = appPath + _protoPath;
+            auto relationPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath + "/");
 
-            KERNEL_NS::DirectoryUtil::CreateDir(KERNEL_NS::DirectoryUtil::GetFileDirInPath(coutPath + relationPath + "/"));
-            auto pbHeaderName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(coutPath + relationPath) + ".pb.h";
+            KERNEL_NS::DirectoryUtil::CreateDir(KERNEL_NS::DirectoryUtil::GetFileDirInPath(coutPath + relationPath));
+            auto pbHeaderName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(coutPath + relationPath + protoInfo->_protoInfo._fileName) + ".pb.h";
             KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(pbHeaderName.c_str());
             if(!fp)
             {
@@ -408,8 +416,10 @@ bool ExporterMgr::_GenCplusplus()
             // 新的路径 = coutPath + 相对路径名 + 文件名
             auto rootPath = appPath + protoInfo->_protoInfo._rootPath;
             auto fullPath = appPath + protoInfo->_fullPathName;
-            auto relationPath = fullPath - rootPath;
-            auto pbCCName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(coutPath + relationPath) + ".pb.cc";
+            const auto fullProtoPath = appPath + _protoPath;
+            auto relationPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath + "/");
+
+            auto pbCCName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(coutPath + relationPath + protoInfo->_protoInfo._fileName) + ".pb.cc";
             KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(pbCCName.c_str());
             if(!fp)
             {
@@ -909,7 +919,9 @@ bool ExporterMgr::_ModifyCppPbCC(const KERNEL_NS::LibString &pbCCName, std::vect
 
         auto rootPath = appPath + protoFileInfo->_protoInfo._rootPath;
         auto fullPath = appPath + protoFileInfo->_fullPathName;
-        auto relationPath = fullPath - rootPath;
+        const auto fullProtoPath = appPath + _protoPath;
+        auto relationPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath + "/");
+        
         auto cppOutRelationPath = _cppOutPath - _basePath;
 
         // cc相对于工程根目录的相对路径
@@ -943,7 +955,8 @@ bool ExporterMgr::_ModifyCppPbCC(const KERNEL_NS::LibString &pbCCName, std::vect
 
         auto rootPath = appPath + protoFileInfo->_protoInfo._rootPath;
         auto fullPath = appPath + protoFileInfo->_fullPathName;
-        auto relationPath = fullPath - rootPath;
+        const auto fullProtoPath = appPath + _protoPath;
+        auto relationPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath + "/");
         auto cppOutRelationPath = _cppOutPath - _basePath;
         auto headerRelationPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(cppOutRelationPath + relationPath);
         
@@ -1163,11 +1176,18 @@ void ExporterMgr::_GenAllPbs()
     for(auto kv : _pbCacheContent->_lineRefProtoFileInfo)
         sortedArray.insert(kv.second);
 
-    const auto relationPath = _cppOutPath - _basePath;
+    const auto appFullPath = GetServiceProxy()->GetApp()->GetAppPath();
+    const auto appPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(appFullPath);
+    
+    const auto fullProtoPath = appPath + _protoPath;
+
     const Int64 arrSize = static_cast<Int64>(sortedArray.size());
     for(Int64 idx = 0; idx < arrSize; ++idx)
     {
         auto protoInfo = sortedArray[idx];
+        auto rootPath = appPath + protoInfo->_protoPath;
+        auto relationPath = _cppOutPath - _basePath + KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath);
+
         const auto protoFileName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(protoInfo->_protoName);
         lines.push_back(KERNEL_NS::LibString().AppendFormat("#include <%s/%s.pb.h>"
             , relationPath.c_str(), protoFileName.c_str()));
@@ -1295,19 +1315,25 @@ bool ExporterMgr::_GenCSharp()
 
         g_Log->Custom("[PROTO GEN CSHARP] %s ...", protoInfo->_protoInfo._fileName.c_str());
 
+        auto rootPath = appPath + protoInfo->_protoInfo._rootPath;
+        auto fullPath = appPath + protoInfo->_fullPathName;
+        const auto fullProtoPath = appPath + _protoPath;
+        auto relationPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath + "/");
+        KERNEL_NS::DirectoryUtil::CreateDir(appPath + _csharpOutPath + relationPath);
+
         // 2.0的proto需要绝对路径的proto
         #if CRYSTAL_TARGET_PLATFORM_WINDOWS
             cmd.AppendFormat("cd %s && %s --csharp_out=%s --proto_path=%s %s"
             , (appPath + protocPath).c_str()
             , (protocName).c_str()
-            , (appPath + _csharpOutPath).c_str()
+            , (appPath + _csharpOutPath + relationPath).c_str()
             , (appPath + protoInfo->_protoInfo._rootPath).c_str()
             // , (appPath + protoInfo->_fullPathName).c_str());
             , protoInfo->_protoInfo._fileName.c_str());
         #else
             cmd.AppendFormat("%s --csharp_out=%s --proto_path=%s %s"
             , (appPath + protocPath + protocName).c_str()
-            , (appPath + _csharpOutPath).c_str()
+            , (appPath + _csharpOutPath + relationPath).c_str()
             , (appPath + protoInfo->_protoInfo._rootPath).c_str()
             // , (appPath + protoInfo->_fullPathName).c_str());
             , protoInfo->_protoInfo._fileName.c_str());
@@ -1331,9 +1357,9 @@ bool ExporterMgr::_GenCSharp()
         auto protoName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(KERNEL_NS::DirectoryUtil::GetFileNameInPath(protoInfo->_fullPathName));
         auto csharpFileName = ProtobuffHelper::TreatCsharpName(protoName);
 
-        auto rootPath = appPath + protoInfo->_protoInfo._rootPath;
-        auto fullPath = appPath + protoInfo->_fullPathName;
-        auto relationPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(fullPath - rootPath);
+        rootPath = appPath + protoInfo->_protoInfo._rootPath;
+        fullPath = appPath + protoInfo->_fullPathName;
+        relationPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath + "/");
         
         auto wholeCSharpName = csharpOutPath + relationPath + csharpFileName + ".cs";
         KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(wholeCSharpName.c_str());
@@ -1893,14 +1919,14 @@ void ExporterMgr::_RemoveInvalidFiles(PbCacheFileInfo *cacheFile)
     // 相对路径 = 完整路径 - 完整protoPath路径
     const auto fullProtoPath = appPath + _protoPath;
     const auto protoFullPath = appPath + cacheFile->_protoPath;
-    const auto relationPath = protoFullPath - fullProtoPath;
+    const auto relationPath = protoFullPath - fullProtoPath + "/";
     const auto protoName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(cacheFile->_protoName);
 
     // .pb.h完整路径 = 完整的cppOut路径 + 相对路径
     {
         const auto fullCppOutPath = appPath + _cppOutPath;
-        const auto pbHeaderPath = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fullCppOutPath + relationPath) + ".pb.h";
-        const auto pbCCPath = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fullCppOutPath + relationPath) + ".pb.cc";
+        const auto pbHeaderPath = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fullCppOutPath + relationPath + protoName) + ".pb.h";
+        const auto pbCCPath = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(fullCppOutPath + relationPath + protoName) + ".pb.cc";
         if(KERNEL_NS::FileUtil::IsFileExist(pbHeaderPath.c_str()))
             KERNEL_NS::FileUtil::DelFileCStyle(pbHeaderPath.c_str());
         if(KERNEL_NS::FileUtil::IsFileExist(pbCCPath.c_str()))

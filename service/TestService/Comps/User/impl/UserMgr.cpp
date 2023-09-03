@@ -342,11 +342,11 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
 
         user->BindSession(pendingInfo->_sessionId);
         user->OnLogin();
+        user->OnLoginFinish();
 
         if(LIKELY(cb))
             cb->Invoke(Status::Success, pendingInfo, user, var);
 
-        user->OnLoginFinish();
         auto loginInfo = pendingInfo->_loginInfo;
         auto baseInfo = user->GetUserBaseInfo();
         auto addr = user->GetUserAddr();
@@ -764,11 +764,10 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 
                 user->BindSession(pendingUser->_sessionId);
                 user->OnLogin();
+                user->OnLoginFinish();
 
                 if(LIKELY(pendingUser->_cb))
                     pendingUser->_cb->Invoke(err, pendingUser, user, pendingUser->_var);
-
-                user->OnLoginFinish();
 
                 auto loginInfo = pendingUser->_loginInfo;
                 auto baseInfo = user->GetUserBaseInfo();
@@ -1039,6 +1038,8 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     if(pendingUser->_sessionId)
     {
         user->OnLogin();
+        user->OnLoginFinish();
+
         // 处理回调
         if(LIKELY(pendingUser->_cb))
         {
@@ -1051,7 +1052,6 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
                 pendingUser->_cb->Invoke(Status::Success, pendingUser, user, pendingUser->_var);
             }
         }
-        user->OnLoginFinish();
     }
 
     auto loginInfo = pendingUser->_loginInfo;

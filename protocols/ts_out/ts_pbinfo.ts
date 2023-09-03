@@ -340,6 +340,58 @@ export namespace ts_pbinfo{
     }
 
 
+    // libarary.proto 
+    export class GetLibraryInfoReq {
+      getOpcode():number {return GetLibraryInfoReq.OPCODE; }
+      getIsXorEncrypt():boolean {return GetLibraryInfoReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetLibraryInfoReq.KeyBase64; }
+      getOpcodeName():string {return GetLibraryInfoReq.OPCODE_NAME; }
+      static OPCODE:number = 33;
+      static OPCODE_NAME:string = "GetLibraryInfoReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // libarary.proto 
+    export class GetLibraryInfoRes {
+      getOpcode():number {return GetLibraryInfoRes.OPCODE; }
+      getIsXorEncrypt():boolean {return GetLibraryInfoRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetLibraryInfoRes.KeyBase64; }
+      getOpcodeName():string {return GetLibraryInfoRes.OPCODE_NAME; }
+      static OPCODE:number = 34;
+      static OPCODE_NAME:string = "GetLibraryInfoRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // libarary.proto 
+    export class CreateLibraryReq {
+      getOpcode():number {return CreateLibraryReq.OPCODE; }
+      getIsXorEncrypt():boolean {return CreateLibraryReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return CreateLibraryReq.KeyBase64; }
+      getOpcodeName():string {return CreateLibraryReq.OPCODE_NAME; }
+      static OPCODE:number = 35;
+      static OPCODE_NAME:string = "CreateLibraryReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // libarary.proto 
+    export class CreateLibraryRes {
+      getOpcode():number {return CreateLibraryRes.OPCODE; }
+      getIsXorEncrypt():boolean {return CreateLibraryRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return CreateLibraryRes.KeyBase64; }
+      getOpcodeName():string {return CreateLibraryRes.OPCODE_NAME; }
+      static OPCODE:number = 36;
+      static OPCODE_NAME:string = "CreateLibraryRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -388,7 +440,15 @@ export namespace ts_pbinfo{
 
           [LogoutReq.OPCODE]: new LogoutReq(),
 
-          [LogoutNty.OPCODE]: new LogoutNty()
+          [LogoutNty.OPCODE]: new LogoutNty(),
+
+          [GetLibraryInfoReq.OPCODE]: new GetLibraryInfoReq(),
+
+          [GetLibraryInfoRes.OPCODE]: new GetLibraryInfoRes(),
+
+          [CreateLibraryReq.OPCODE]: new CreateLibraryReq(),
+
+          [CreateLibraryRes.OPCODE]: new CreateLibraryRes()
 
 
       }

@@ -55,6 +55,9 @@ console.log(numArr)
 let metas: [string, number] = ['hello', 2]
 console.log(metas)
 
+// 删除数组元素 start:索引, deleteCount:删除个数
+metas.splice(1, 1)
+
 // 枚举
 enum Color {Red, Green, Blue};
 let c: Color = Color.Blue;
