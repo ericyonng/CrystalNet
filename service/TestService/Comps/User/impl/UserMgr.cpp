@@ -92,63 +92,63 @@ void UserMgr::OnStartup()
 
     _LruPopUser();
 
-    // 用户登录
-    KERNEL_NS::LibString randAccount;
-    auto &random = KERNEL_NS::LibInt64Random<KERNEL_NS::_Build::TL>::GetInstance();
-    randAccount.AppendFormat("test_eric_%lld", random.Gen(0, 127));
+    // // 用户登录
+    // KERNEL_NS::LibString randAccount;
+    // auto &random = KERNEL_NS::LibInt64Random<KERNEL_NS::_Build::TL>::GetInstance();
+    // randAccount.AppendFormat("test_eric_%lld", random.Gen(0, 127));
     
-    KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> loginInfo = CRYSTAL_NEW(LoginInfo);
-    loginInfo->set_loginmode(LoginMode::REGISTER);
-    loginInfo->set_accountname(randAccount.GetRaw());
+    // KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> loginInfo = CRYSTAL_NEW(LoginInfo);
+    // loginInfo->set_loginmode(LoginMode::REGISTER);
+    // loginInfo->set_accountname(randAccount.GetRaw());
     
-    KERNEL_NS::LibString pwd;
-    KERNEL_NS::LibString pwdText = "12345678";
-    _rsa.PubKeyEncrypt(pwdText, pwd);
-    auto newPwd = KERNEL_NS::LibBase64::Encode(pwd);
-    auto tempPwd = KERNEL_NS::LibBase64::Decode(newPwd);
+    // KERNEL_NS::LibString pwd;
+    // KERNEL_NS::LibString pwdText = "12345678";
+    // _rsa.PubKeyEncrypt(pwdText, pwd);
+    // auto newPwd = KERNEL_NS::LibBase64::Encode(pwd);
+    // auto tempPwd = KERNEL_NS::LibBase64::Decode(newPwd);
     
-    if(tempPwd.size() < 128)
-        tempPwd.resize(128);
-    KERNEL_NS::LibString coverPwd;
-    _rsa.PrivateKeyDecrypt(tempPwd, coverPwd);
+    // if(tempPwd.size() < 128)
+    //     tempPwd.resize(128);
+    // KERNEL_NS::LibString coverPwd;
+    // _rsa.PrivateKeyDecrypt(tempPwd, coverPwd);
 
-    loginInfo->set_pwd(newPwd.GetRaw());
+    // loginInfo->set_pwd(newPwd.GetRaw());
 
-    loginInfo->set_logintoken("123456");
-    loginInfo->set_loginphoneimei("123456");
-    loginInfo->set_appid("123456");
+    // loginInfo->set_logintoken("123456");
+    // loginInfo->set_loginphoneimei("123456");
+    // loginInfo->set_appid("123456");
 
-    KERNEL_NS::LibString randText = "123456";
-    KERNEL_NS::LibString cypherText;
-    _rsa.PubKeyEncrypt(randText, cypherText);
-    auto newCypherText = KERNEL_NS::LibBase64::Encode(cypherText);
-    auto cypherTextTemp = KERNEL_NS::LibBase64::Decode(newCypherText);
-    if(cypherTextTemp.size() < 128)
-        cypherTextTemp.resize(128);
+    // KERNEL_NS::LibString randText = "123456";
+    // KERNEL_NS::LibString cypherText;
+    // _rsa.PubKeyEncrypt(randText, cypherText);
+    // auto newCypherText = KERNEL_NS::LibBase64::Encode(cypherText);
+    // auto cypherTextTemp = KERNEL_NS::LibBase64::Decode(newCypherText);
+    // if(cypherTextTemp.size() < 128)
+    //     cypherTextTemp.resize(128);
 
-    KERNEL_NS::LibString coverText;
-    _rsa.PrivateKeyDecrypt(cypherTextTemp, coverText);
+    // KERNEL_NS::LibString coverText;
+    // _rsa.PrivateKeyDecrypt(cypherTextTemp, coverText);
 
-    loginInfo->set_cyphertext(newCypherText.GetRaw());
-    loginInfo->set_origintext(randText.GetRaw());
-    loginInfo->set_versionid(10101);
-    auto registerInfo = loginInfo->mutable_userregisterinfo();
-    registerInfo->set_accountname("test_eric");
-    registerInfo->set_pwd(newPwd.GetRaw());
-    registerInfo->set_nickname("123456");
-    registerInfo->set_createphoneimei("123456");
-    auto err = LoginBy(0, loginInfo, [this](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
-        user->GetUserBaseInfo()->set_nickname("aakkkkkkkkkkkkkkkkkkkkkkkkkkkkkdalkaldfaskldfaskdfasklfjaslkdfaslkdfalskdfaskdfjalksdjfaksfalskdfjaskdjfalksdjfaksdfjalskdfjaksldjfaklsjdfkasjdfkasjdfkasjdflkasjflaksdjflsakfjaskdjf");
-        user->MaskDirty();
-        user->PurgeAndWaitComplete();
+    // loginInfo->set_cyphertext(newCypherText.GetRaw());
+    // loginInfo->set_origintext(randText.GetRaw());
+    // loginInfo->set_versionid(10101);
+    // auto registerInfo = loginInfo->mutable_userregisterinfo();
+    // registerInfo->set_accountname(randAccount.GetRaw());
+    // registerInfo->set_pwd(newPwd.GetRaw());
+    // registerInfo->set_nickname("123456");
+    // registerInfo->set_createphoneimei("123456");
+    // auto err = LoginBy(0, loginInfo, [this](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
+    //     user->GetUserBaseInfo()->set_nickname("aakkkkkkkkkkkkkkkkkkkkkkkkkkkkkdalkaldfaskldfaskdfasklfjaslkdfaslkdfalskdfaskdfjalksdjfaksfalskdfjaskdjfalksdjfaksdfjalskdfjaksldjfaklsjdfkasjdfkasjdfkasjdflkasjflaksdjflsakfjaskdjf");
+    //     user->MaskDirty();
+    //     user->PurgeAndWaitComplete();
 
-        g_Log->Info(LOGFMT_OBJ_TAG("user login:%s"), user->ToString().c_str());
-    });
+    //     g_Log->Info(LOGFMT_OBJ_TAG("user login:%s"), user->ToString().c_str());
+    // });
 
-    if(err != Status::Success)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, user acount name:%s"), err, loginInfo->accountname().c_str());
-    }
+    // if(err != Status::Success)
+    // {
+    //     g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, user acount name:%s"), err, loginInfo->accountname().c_str());
+    // }
 }
 
 Int32 UserMgr::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
@@ -284,6 +284,20 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
     pendingInfo->_byAccountName = loginInfo->accountname();
     pendingInfo->_loginInfo = loginInfo;
     pendingInfo->_sessionId = sessionId;
+
+    // 参数校验
+    {
+        if(loginInfo->loginmode() == LoginMode::REGISTER)
+        {
+            if(loginInfo->accountname() != loginInfo->userregisterinfo().accountname())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("account name not same between login info and register info session id:%llu, account name:%s, register account name:%s"), sessionId, loginInfo->accountname().c_str(), loginInfo->userregisterinfo().accountname().c_str());
+                if(LIKELY(cb))
+                    cb->Invoke(Status::RepeateLogin, pendingInfo, NULL, var);
+                return Status::CheckAccountFail;
+            }
+        }
+    }
 
     {// 相同会话都在login拒绝掉
         if(_loginPendingSessions.find(sessionId) != _loginPendingSessions.end())

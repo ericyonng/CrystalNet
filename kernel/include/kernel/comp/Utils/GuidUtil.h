@@ -201,10 +201,11 @@ ALWAYS_INLINE UInt64 GuidUtil::Snowflake(SnowflakeInfo &snowflakeInfo, UInt64 ad
 {
     // 1.序号满,递增个时间单位,并重置成1
     const auto &maskInfo = snowflakeInfo._maskInfo;
-    const auto multi = addNum / maskInfo._seqBitsLimitMask;
-    const auto left = addNum % maskInfo._seqBitsLimitMask;
+    const auto lastSeq = addNum + snowflakeInfo._lastSeq;
+    const auto multi = lastSeq / maskInfo._seqBitsLimitMask;
+    const auto left = lastSeq % maskInfo._seqBitsLimitMask;
     snowflakeInfo._lastTime += multi;
-    snowflakeInfo._lastSeq += left;
+    snowflakeInfo._lastSeq = left;
 
     // 3.组装id [time] + [instance] + [seq]
     return snowflakeInfo.ToId();

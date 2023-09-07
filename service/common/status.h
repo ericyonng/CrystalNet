@@ -66,5 +66,6 @@ namespace Status
         InvalidPwd,                                         // 错误密码
         MysqlNetworkError,                                  // mysql网络问题
         RepeateLogin,                                       // 重复登录
+        CheckAccountFail,                                   // 账号校验失败
     };
 }

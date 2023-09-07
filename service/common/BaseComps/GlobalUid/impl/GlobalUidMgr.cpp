@@ -90,22 +90,17 @@ UInt64 GlobalUidMgr::NewGuid()
 
     if(UNLIKELY(_curAllocUid >= _maxUid))
     {
-        bool isAdd = _maxUid == 0;
-        _maxUid = KERNEL_NS::GuidUtil::Snowflake(_snowflakInfo, _aheadCount);
+        _curAllocUid = KERNEL_NS::GuidUtil::Snowflake(_snowflakInfo);
+        _maxUid = KERNEL_NS::GuidUtil::Snowflake(_snowflakInfo, _aheadCount - 1);
 
         #if CRYSTAL_STORAGE_ENABLE
-        if(UNLIKELY(isAdd))
-        {
-            MaskNumberKeyAddDirty(static_cast<UInt64>(_machineId));
-        }
-        else
-        {
             MaskNumberKeyModifyDirty(static_cast<UInt64>(_machineId));
-        }
         #endif
         auto err = _synStorageCb->Invoke(this);
         if(err != Status::Success)
             g_Log->Error(LOGFMT_OBJ_TAG("storage guid fail err:%d, guid mgr:%s"), err, ToString().c_str());
+
+        return _curAllocUid;
     }
 
     return ++_curAllocUid;
@@ -113,7 +108,7 @@ UInt64 GlobalUidMgr::NewGuid()
 
 void GlobalUidMgr::SetGetIdAheadCount(Int32 aheadCount)
 {
-    _aheadCount = static_cast<UInt64>(aheadCount);
+    _aheadCount = static_cast<UInt64>(aheadCount > 0 ? aheadCount : 1);
 }
 
 void GlobalUidMgr::SetUpdateLastIdCallback(KERNEL_NS::IDelegate<Int32, ILogicSys *> *deleg)
