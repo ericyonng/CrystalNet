@@ -30,6 +30,20 @@ public:
 
         USER_HEARTBEAT_EXPIRE_TIME,    // id
 
+        USER_LOGIN_KEY_CHAR_COUNT_MAX_LEN,    // id
+
+        NAME_MAX_LEN,    // id
+
+        BORROW_COUNT_LIMIT,    // id
+
+        ORDER_SAVE_DAYS,    // id
+
+        OVERDUE_DAYS,    // id
+
+        CONTENT_LIMIT,    // id
+
+        FIRST_DAY_OF_WEEK,    // id
+
         __ENUM_MAX,
 
     };

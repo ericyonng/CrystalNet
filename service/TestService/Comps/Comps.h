@@ -29,12 +29,17 @@
 #pragma once
 
 #include <service/common/BaseComps/BaseComps.h>
-#include <service/TestService/Comps/MyServiceComp/MyServiceComp.h>
-#include <service/TestService/Comps/PlayerSys/PlayerSys.h>
-#include <service/TestService/Comps/StubHandle/StubHandle.h>
-#include <service/TestService/Comps/SysLogic/SysLogic.h>
-#include <service/TestService/Comps/Test/Test.h>
-#include <service/TestService/Comps/DB/db.h>
-#include <service/TestService/Comps/User/User.h>
-#include <service/TestService/Comps/config/config.h>
+#include <Comps/EventRelay/EventRelay.h>
+#include <Comps/MyServiceComp/MyServiceComp.h>
+#include <Comps/PlayerSys/PlayerSys.h>
+#include <Comps/StubHandle/StubHandle.h>
+#include <Comps/SysLogic/SysLogic.h>
+#include <Comps/Test/Test.h>
+#include <Comps/DB/db.h>
+#include <Comps/User/User.h>
+#include <Comps/config/config.h>
+#include <Comps/NickName/nickname.h>
+#include <Comps/Library/library.h>
+#include <Comps/InviteCode/InviteCode.h>
+#include <Comps/PassTime/PassTime.h>
 

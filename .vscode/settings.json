@@ -181,5 +181,7 @@
         "cstdarg": "cpp",
         "variant": "cpp",
         "simple_api.h": "c"
-    }
+    },
+    "editor.tabCompletion": "on",
+    "diffEditor.codeLens": true
 }

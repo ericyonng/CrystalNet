@@ -55,7 +55,7 @@ void LoginMgrStorage::Release()
 bool LoginMgrStorage::RegisterStorages()
 {
     // 当前系统属性设置(kv 系统, mysql存储, 某个系统的数据)
-    AddFlags(StorageFlagType::BLOB_BINARY_FIELD_FLAG | 
+    AddFlags(StorageFlagType::NORMAL_TEXT_STRING_FIELD_FLAG | 
     StorageFlagType::MYSQL_FLAG | 
     StorageFlagType::SYSTEM_DATA_STORAGE_FLAG
     );

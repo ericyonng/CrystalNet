@@ -56,7 +56,7 @@ void LoginMgr::Release()
 
 Int32 LoginMgr::OnLoaded(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
 {
-    if(UNLIKELY(!_loginInfo->Decode(db)))
+    if(UNLIKELY(!_loginInfo->FromJsonString(db.GetReadBegin(), static_cast<size_t>(db.GetReadableSize()))))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("decode fail user:%s"), _userOwner->ToString().c_str());
         return Status::ParseFail;
@@ -67,9 +67,16 @@ Int32 LoginMgr::OnLoaded(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
 
 Int32 LoginMgr::OnSave(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const
 {
-    if(UNLIKELY(!_loginInfo->Encode(db)))
+    KERNEL_NS::LibString data;
+    if(UNLIKELY(!_loginInfo->ToJsonString(&(data.GetRaw()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("encode fail user:%s"), _userOwner->ToString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("serialize as json string fail user:%s"), GetUser()->ToString().c_str());
+        return Status::SerializeFail;
+    }
+
+    if(!db.Write(data.data(), static_cast<Int64>(data.size())))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("write to stream fail user:%s"), GetUser()->ToString().c_str());
         return Status::SerializeFail;
     }
 
@@ -197,6 +204,11 @@ Int32 LoginMgr::CheckLogin(const PendingUser *pendingUser) const
     return Status::Success;
 }
 
+const UserLoginInfo *LoginMgr::GetLoginInfo() const
+{
+    return _loginInfo;
+}
+
 void LoginMgr::OnRegisterComps()
 {
 
@@ -270,6 +282,11 @@ void LoginMgr::_Update(bool isNty)
     const auto &temp = KERNEL_NS::LibDigest::MakeSha256(token);
     const auto &finalToken = KERNEL_NS::LibBase64::Encode(temp);
     _loginInfo->set_token(finalToken.GetRaw());
+
+    // 事件
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::LOGIN_TOKEN_CHANGED);
+    ev->SetParam(Params::USER_OBJ, GetUser());
+    FireEvent(ev);
 
     MaskDirty();
 

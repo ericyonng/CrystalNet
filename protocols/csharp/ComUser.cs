@@ -26,32 +26,32 @@ using ProtoPackage.Attributes;
     static ComUserReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg5jb21fdXNlci5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSKhAgoMVXNl",
+            "Cg5jb21fdXNlci5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSK6AgoMVXNl",
             "ckJhc2VJbmZvEg4KBlVzZXJJZBgBIAEoBBITCgtBY2NvdW50TmFtZRgCIAEo",
             "CRIMCgROYW1lGAMgASgJEhAKCE5pY2tuYW1lGAQgASgJEgsKA1B3ZBgFIAEo",
             "CRIPCgdQd2RTYWx0GAYgASgJEhEKCUJpbmRQaG9uZRgHIAEoBBIVCg1MYXN0",
             "TG9naW5UaW1lGAggASgSEhMKC0xhc3RMb2dpbklwGAkgASgJEhoKEkxhc3RM",
             "b2dpblBob25lSW1laRgKIAEoCRIQCghDcmVhdGVJcBgLIAEoCRISCgpDcmVh",
             "dGVUaW1lGAwgASgSEhcKD0NyZWF0ZVBob25lSW1laRgNIAEoCRIUCgxCaW5k",
-            "TWFpbEFkZHIYDiABKAkiRQoJTG9naW5Nb2RlIjgKBUVOVU1TEgwKCFBBU1NX",
-            "T1JEEAASEwoPVVNFX0xPR0lOX1RPS0VOEAESDAoIUkVHSVNURVIQAiJfChBS",
-            "ZWdpc3RlclVzZXJJbmZvEhMKC0FjY291bnROYW1lGAEgASgJEhAKCE5pY2tu",
-            "YW1lGAIgASgJEgsKA1B3ZBgDIAEoCRIXCg9DcmVhdGVQaG9uZUltZWkYBCAB",
-            "KAkiqQIKCUxvZ2luSW5mbxIRCglMb2dpbk1vZGUYASABKBESEwoLQWNjb3Vu",
-            "dE5hbWUYAiABKAkSCwoDUHdkGAMgASgJEhIKCkxvZ2luVG9rZW4YBCABKAkS",
-            "FgoOTG9naW5QaG9uZUltZWkYBSABKAkSEAoIVGFyZ2V0SXAYBiABKAkSDAoE",
-            "UG9ydBgHIAEoDRJBChBVc2VyUmVnaXN0ZXJJbmZvGAggASgLMiUuQ1JZU1RB",
-            "TF9ORVQuc2VydmljZS5SZWdpc3RlclVzZXJJbmZvSAASDQoFQXBwSWQYCSAB",
-            "KAkSEgoKY3lwaGVyVGV4dBgKIAEoCRISCgpvcmlnaW5UZXh0GAsgASgJEhEK",
-            "CXZlcnNpb25JZBgMIAEoBEIOCgxSZWdpc3RlckluZm8imgEKDExvZ291dFJl",
-            "YXNvbiKJAQoFRU5VTVMSFQoRTE9HSU5fT1RIRVJfUExBQ0UQABIQCgxPVEhF",
-            "Ul9SRUFTT04QARIPCgtVU0VSX0xPR09VVBACEg0KCVVTRVJfSURMRRADEgsK",
-            "B1RJTUVPVVQQBBIQCgxDTE9TRV9TRVJWRVIQBRIYChRMT0dfSU5fT1RIRVJf",
-            "QUNDT1VOVBAGYgZwcm90bzM="));
+            "TWFpbEFkZHIYDiABKAkSFwoPTGFzdFBhc3NEYXlUaW1lGA8gASgSIkUKCUxv",
+            "Z2luTW9kZSI4CgVFTlVNUxIMCghQQVNTV09SRBAAEhMKD1VTRV9MT0dJTl9U",
+            "T0tFThABEgwKCFJFR0lTVEVSEAIiXwoQUmVnaXN0ZXJVc2VySW5mbxITCgtB",
+            "Y2NvdW50TmFtZRgBIAEoCRIQCghOaWNrbmFtZRgCIAEoCRILCgNQd2QYAyAB",
+            "KAkSFwoPQ3JlYXRlUGhvbmVJbWVpGAQgASgJIqkCCglMb2dpbkluZm8SEQoJ",
+            "TG9naW5Nb2RlGAEgASgREhMKC0FjY291bnROYW1lGAIgASgJEgsKA1B3ZBgD",
+            "IAEoCRISCgpMb2dpblRva2VuGAQgASgJEhYKDkxvZ2luUGhvbmVJbWVpGAUg",
+            "ASgJEhAKCFRhcmdldElwGAYgASgJEgwKBFBvcnQYByABKA0SQQoQVXNlclJl",
+            "Z2lzdGVySW5mbxgIIAEoCzIlLkNSWVNUQUxfTkVULnNlcnZpY2UuUmVnaXN0",
+            "ZXJVc2VySW5mb0gAEg0KBUFwcElkGAkgASgJEhIKCmN5cGhlclRleHQYCiAB",
+            "KAkSEgoKb3JpZ2luVGV4dBgLIAEoCRIRCgl2ZXJzaW9uSWQYDCABKARCDgoM",
+            "UmVnaXN0ZXJJbmZvIpoBCgxMb2dvdXRSZWFzb24iiQEKBUVOVU1TEhUKEUxP",
+            "R0lOX09USEVSX1BMQUNFEAASEAoMT1RIRVJfUkVBU09OEAESDwoLVVNFUl9M",
+            "T0dPVVQQAhINCglVU0VSX0lETEUQAxILCgdUSU1FT1VUEAQSEAoMQ0xPU0Vf",
+            "U0VSVkVSEAUSGAoUTE9HX0lOX09USEVSX0FDQ09VTlQQBmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserBaseInfo), global::CRYSTALNET.Service.UserBaseInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "Pwd", "PwdSalt", "BindPhone", "LastLoginTime", "LastLoginIp", "LastLoginPhoneImei", "CreateIp", "CreateTime", "CreatePhoneImei", "BindMailAddr" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserBaseInfo), global::CRYSTALNET.Service.UserBaseInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "Pwd", "PwdSalt", "BindPhone", "LastLoginTime", "LastLoginIp", "LastLoginPhoneImei", "CreateIp", "CreateTime", "CreatePhoneImei", "BindMailAddr", "LastPassDayTime" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LoginMode), global::CRYSTALNET.Service.LoginMode.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.LoginMode.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.RegisterUserInfo), global::CRYSTALNET.Service.RegisterUserInfo.Parser, new[]{ "AccountName", "Nickname", "Pwd", "CreatePhoneImei" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LoginInfo), global::CRYSTALNET.Service.LoginInfo.Parser, new[]{ "LoginMode", "AccountName", "Pwd", "LoginToken", "LoginPhoneImei", "TargetIp", "Port", "UserRegisterInfo", "AppId", "CypherText", "OriginText", "VersionId" }, new[]{ "RegisterInfo" }, null, null, null),
@@ -110,6 +110,7 @@ using ProtoPackage.Attributes;
       createTime_ = other.createTime_;
       createPhoneImei_ = other.createPhoneImei_;
       bindMailAddr_ = other.bindMailAddr_;
+      lastPassDayTime_ = other.lastPassDayTime_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -329,6 +330,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "LastPassDayTime" field.</summary>
+    public const int LastPassDayTimeFieldNumber = 15;
+    private long lastPassDayTime_;
+    /// <summary>
+    /// 上次跨天时间
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long LastPassDayTime {
+      get { return lastPassDayTime_; }
+      set {
+        lastPassDayTime_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -358,6 +374,7 @@ using ProtoPackage.Attributes;
       if (CreateTime != other.CreateTime) return false;
       if (CreatePhoneImei != other.CreatePhoneImei) return false;
       if (BindMailAddr != other.BindMailAddr) return false;
+      if (LastPassDayTime != other.LastPassDayTime) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -379,6 +396,7 @@ using ProtoPackage.Attributes;
       if (CreateTime != 0L) hash ^= CreateTime.GetHashCode();
       if (CreatePhoneImei.Length != 0) hash ^= CreatePhoneImei.GetHashCode();
       if (BindMailAddr.Length != 0) hash ^= BindMailAddr.GetHashCode();
+      if (LastPassDayTime != 0L) hash ^= LastPassDayTime.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -453,6 +471,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(114);
         output.WriteString(BindMailAddr);
       }
+      if (LastPassDayTime != 0L) {
+        output.WriteRawTag(120);
+        output.WriteSInt64(LastPassDayTime);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -519,6 +541,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(114);
         output.WriteString(BindMailAddr);
       }
+      if (LastPassDayTime != 0L) {
+        output.WriteRawTag(120);
+        output.WriteSInt64(LastPassDayTime);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -570,6 +596,9 @@ using ProtoPackage.Attributes;
       }
       if (BindMailAddr.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(BindMailAddr);
+      }
+      if (LastPassDayTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(LastPassDayTime);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -624,6 +653,9 @@ using ProtoPackage.Attributes;
       }
       if (other.BindMailAddr.Length != 0) {
         BindMailAddr = other.BindMailAddr;
+      }
+      if (other.LastPassDayTime != 0L) {
+        LastPassDayTime = other.LastPassDayTime;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -696,6 +728,10 @@ using ProtoPackage.Attributes;
             BindMailAddr = input.ReadString();
             break;
           }
+          case 120: {
+            LastPassDayTime = input.ReadSInt64();
+            break;
+          }
         }
       }
     #endif
@@ -765,6 +801,10 @@ using ProtoPackage.Attributes;
           }
           case 114: {
             BindMailAddr = input.ReadString();
+            break;
+          }
+          case 120: {
+            LastPassDayTime = input.ReadSInt64();
             break;
           }
         }

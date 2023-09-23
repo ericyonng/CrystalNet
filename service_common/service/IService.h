@@ -178,6 +178,8 @@ public:
 protected:
     // 在组件初始化前
     virtual Int32 _OnHostInit() final;
+    // 带优先级组件创建
+    virtual Int32 _OnPriorityLevelCompsCreated() final;
     // 所有组件创建完成
     virtual Int32 _OnCompsCreated() final;
     // 在组件启动之前

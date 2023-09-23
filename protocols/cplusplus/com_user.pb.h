@@ -418,6 +418,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kBindPhoneFieldNumber = 7,
     kLastLoginTimeFieldNumber = 8,
     kCreateTimeFieldNumber = 12,
+    kLastPassDayTimeFieldNumber = 15,
   };
   // string AccountName = 2;
   void clear_accountname();
@@ -595,6 +596,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_createtime(int64_t value);
   public:
 
+  // sint64 LastPassDayTime = 15;
+  void clear_lastpassdaytime();
+  int64_t lastpassdaytime() const;
+  void set_lastpassdaytime(int64_t value);
+  private:
+  int64_t _internal_lastpassdaytime() const;
+  void _internal_set_lastpassdaytime(int64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserBaseInfo)
  private:
   class _Internal;
@@ -617,6 +627,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     uint64_t bindphone_;
     int64_t lastlogintime_;
     int64_t createtime_;
+    int64_t lastpassdaytime_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -2611,6 +2622,26 @@ inline void UserBaseInfo::set_allocated_bindmailaddr(std::string* bindmailaddr) 
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserBaseInfo.BindMailAddr)
+}
+
+// sint64 LastPassDayTime = 15;
+inline void UserBaseInfo::clear_lastpassdaytime() {
+  _impl_.lastpassdaytime_ = int64_t{0};
+}
+inline int64_t UserBaseInfo::_internal_lastpassdaytime() const {
+  return _impl_.lastpassdaytime_;
+}
+inline int64_t UserBaseInfo::lastpassdaytime() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.LastPassDayTime)
+  return _internal_lastpassdaytime();
+}
+inline void UserBaseInfo::_internal_set_lastpassdaytime(int64_t value) {
+  
+  _impl_.lastpassdaytime_ = value;
+}
+inline void UserBaseInfo::set_lastpassdaytime(int64_t value) {
+  _internal_set_lastpassdaytime(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.LastPassDayTime)
 }
 
 // -------------------------------------------------------------------

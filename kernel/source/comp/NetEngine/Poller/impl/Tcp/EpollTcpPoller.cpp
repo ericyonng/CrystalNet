@@ -284,11 +284,9 @@ bool EpollTcpPoller::_TryHandleConnecting(UInt64 sessionId, Int32 events)
     return true;
 }
 
-Int32 EpollTcpPoller::_OnCompsCreated()
+Int32 EpollTcpPoller::_OnPriorityLevelCompsCreated()
 {
     _poller = GetComp<Poller>();
-    _memoryCleaner = GetComp<TlsMemoryCleanerComp>();
-
     TimeSlice span(0, 0, _cfg->_maxPieceTimeInMicroseconds);
     _poller->SetMaxPriorityLevel(_cfg->_maxPriorityLevel);
     _poller->SetMaxPieceTime(span);
@@ -317,6 +315,13 @@ Int32 EpollTcpPoller::_OnCompsCreated()
     dirtyHelper->SetHandler(PollerDirty::CLOSE, deleg);
     deleg = DelegateFactory::Create(this, &EpollTcpPoller::_OnDirtySessionAccept);
     dirtyHelper->SetHandler(PollerDirty::ACCEPT, deleg);
+
+    return Status::Success;
+}
+
+Int32 EpollTcpPoller::_OnCompsCreated()
+{
+    _memoryCleaner = GetComp<TlsMemoryCleanerComp>();
 
     // ip rule mgr 设置
     auto ipRuleMgr = GetComp<IpRuleMgr>();

@@ -99,6 +99,8 @@ protected:
     virtual void OnRegisterComps() override;  
     // 在组件初始化前
     virtual Int32 _OnHostInit() override;
+    // 优先级组件创建完成
+    virtual Int32 _OnPriorityLevelCompsCreated() override;
     // 所有组件创建完成
     virtual Int32 _OnCompsCreated() override;
     // 在组件启动之前

@@ -67,5 +67,23 @@ namespace Status
         MysqlNetworkError,                                  // mysql网络问题
         RepeateLogin,                                       // 重复登录
         CheckAccountFail,                                   // 账号校验失败
+        NameTooLong,                                        // 名字过长
+        InvalidNickname,                                    // 无效名
+        InvalidInviteCode,                                  // 无效邀请码
+        InvalidName,                                        // 无效名
+        InvalidContent,                                     // 无效内容
+        LibraryNotFound,                                    // 图书馆不存在
+        AlreadyMemberOfLibrary,                             // 已经是图书馆成员不可再加入
+        NotJoinAnyLibrary,                                  // 没加入任何图书馆
+        CantQuitLibrary,                                    // 当前不可退出
+        HaveBookBorrowedNotReturnBack,                      // 还有书还没还
+        NeedBindPhone,                                      // 必须绑定收集
+        InvalidPhoneNubmer,                                 // 手机号不合法
+        NotMember,                                          // 不是图书馆成员
+        MemberIsLocked,                                     // 被锁定无法操作
+        NotLibrarian,                                       // 不是馆长不可操作
+        NotManager,                                         // 不是管理员
+        AuthNotEnough,                                      // 权限不足
+        LoadUserFail,                                       // 加载玩家失败
     };
 }

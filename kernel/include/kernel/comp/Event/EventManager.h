@@ -198,7 +198,7 @@ protected:
 
 inline EventManager::_Listener::_Listener()
     : _stub(INVALID_LISTENER_STUB)
-    , _evId(0)
+    , _evId(-1)
     , _listenCallBack(NULL)
 {
 }

@@ -45,6 +45,9 @@ public:
     virtual void Release() override;
 
     CompObject* Create() const override;
+
+    // poller属于高优先级创建
+    virtual Int32 GetPriorityLevel() const { return CompPriorityLevel::HIGH; }
 };
 
 KERNEL_END

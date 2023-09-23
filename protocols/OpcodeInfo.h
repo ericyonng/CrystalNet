@@ -269,3 +269,193 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, LogoutNtyFactory::CreateFactory()));
     }
+
+    {// UserClientInfoNty
+        auto info = OpcodeInfo();
+        info._opcode = 37;
+        info._noLog = false;
+        info._opcodeName = "UserClientInfoNty";
+        info._protoFile = "user.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, UserClientInfoNtyFactory::CreateFactory()));
+    }
+
+    {// GetLibraryInfoReq
+        auto info = OpcodeInfo();
+        info._opcode = 42;
+        info._noLog = false;
+        info._opcodeName = "GetLibraryInfoReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetLibraryInfoReqFactory::CreateFactory()));
+    }
+
+    {// GetLibraryInfoRes
+        auto info = OpcodeInfo();
+        info._opcode = 43;
+        info._noLog = false;
+        info._opcodeName = "GetLibraryInfoRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetLibraryInfoResFactory::CreateFactory()));
+    }
+
+    {// CreateLibraryReq
+        auto info = OpcodeInfo();
+        info._opcode = 44;
+        info._noLog = false;
+        info._opcodeName = "CreateLibraryReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, CreateLibraryReqFactory::CreateFactory()));
+    }
+
+    {// CreateLibraryRes
+        auto info = OpcodeInfo();
+        info._opcode = 45;
+        info._noLog = false;
+        info._opcodeName = "CreateLibraryRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, CreateLibraryResFactory::CreateFactory()));
+    }
+
+    {// LibraryInfoNty
+        auto info = OpcodeInfo();
+        info._opcode = 46;
+        info._noLog = false;
+        info._opcodeName = "LibraryInfoNty";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, LibraryInfoNtyFactory::CreateFactory()));
+    }
+
+    {// JoinLibraryReq
+        auto info = OpcodeInfo();
+        info._opcode = 47;
+        info._noLog = false;
+        info._opcodeName = "JoinLibraryReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, JoinLibraryReqFactory::CreateFactory()));
+    }
+
+    {// JoinLibraryRes
+        auto info = OpcodeInfo();
+        info._opcode = 48;
+        info._noLog = false;
+        info._opcodeName = "JoinLibraryRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, JoinLibraryResFactory::CreateFactory()));
+    }
+
+    {// GetLibraryListReq
+        auto info = OpcodeInfo();
+        info._opcode = 49;
+        info._noLog = false;
+        info._opcodeName = "GetLibraryListReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetLibraryListReqFactory::CreateFactory()));
+    }
+
+    {// GetLibraryListRes
+        auto info = OpcodeInfo();
+        info._opcode = 50;
+        info._noLog = false;
+        info._opcodeName = "GetLibraryListRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetLibraryListResFactory::CreateFactory()));
+    }
+
+    {// QuitLibraryReq
+        auto info = OpcodeInfo();
+        info._opcode = 51;
+        info._noLog = false;
+        info._opcodeName = "QuitLibraryReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, QuitLibraryReqFactory::CreateFactory()));
+    }
+
+    {// QuitLibraryRes
+        auto info = OpcodeInfo();
+        info._opcode = 52;
+        info._noLog = false;
+        info._opcodeName = "QuitLibraryRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, QuitLibraryResFactory::CreateFactory()));
+    }
+
+    {// TransferLibraianReq
+        auto info = OpcodeInfo();
+        info._opcode = 53;
+        info._noLog = false;
+        info._opcodeName = "TransferLibraianReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, TransferLibraianReqFactory::CreateFactory()));
+    }
+
+    {// TransferLibraianRes
+        auto info = OpcodeInfo();
+        info._opcode = 54;
+        info._noLog = false;
+        info._opcodeName = "TransferLibraianRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, TransferLibraianResFactory::CreateFactory()));
+    }
+
+    {// ModifyMemberInfoReq
+        auto info = OpcodeInfo();
+        info._opcode = 55;
+        info._noLog = false;
+        info._opcodeName = "ModifyMemberInfoReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ModifyMemberInfoReqFactory::CreateFactory()));
+    }
+
+    {// ModifyMemberInfoRes
+        auto info = OpcodeInfo();
+        info._opcode = 56;
+        info._noLog = false;
+        info._opcodeName = "ModifyMemberInfoRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ModifyMemberInfoResFactory::CreateFactory()));
+    }
+
+    {// UserLibraryInfoNty
+        auto info = OpcodeInfo();
+        info._opcode = 57;
+        info._noLog = false;
+        info._opcodeName = "UserLibraryInfoNty";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, UserLibraryInfoNtyFactory::CreateFactory()));
+    }
+
+    {// ModifyUserInfoReq
+        auto info = OpcodeInfo();
+        info._opcode = 58;
+        info._noLog = false;
+        info._opcodeName = "ModifyUserInfoReq";
+        info._protoFile = "user.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ModifyUserInfoReqFactory::CreateFactory()));
+    }
+
+    {// ModifyUserInfoRes
+        auto info = OpcodeInfo();
+        info._opcode = 59;
+        info._noLog = false;
+        info._opcodeName = "ModifyUserInfoRes";
+        info._protoFile = "user.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ModifyUserInfoResFactory::CreateFactory()));
+    }

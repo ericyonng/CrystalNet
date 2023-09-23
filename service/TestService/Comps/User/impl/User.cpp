@@ -32,6 +32,8 @@
 #include <Comps/User/interface/IUserMgr.h>
 #include <Comps/UserSys/UserSys.h>
 #include <Comps/DB/db.h>
+#include <protocols/protocols.h>
+#include <Comps/config/config.h>
 
 SERVICE_BEGIN
 
@@ -96,6 +98,7 @@ void User::Release()
 void User::OnRegisterComps()
 {
     RegisterComp<LoginMgrFactory>();
+    RegisterComp<LibraryMgrFactory>();
 }
 
 Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
@@ -292,6 +295,22 @@ Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS:
             _userBaseInfo->set_pwdsalt(std::string(data->GetReadBegin(), data->GetReadableSize()));
     }
 
+   {
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastPassDayTimeFieldNumber)->name();
+        auto iter = fieldRefdb.find(fieldName);
+        if(iter == fieldRefdb.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("last pass day time not found fieldName:%s, key:%llu"), fieldName.c_str(), key);
+            return Status::NotFound;
+        }
+
+        auto data = iter->second;
+        Int64 value = 0;
+        if(data->GetReadableSize())
+            data->Read(&value, data->GetReadableSize());
+        _userBaseInfo->set_lastpassdaytime(value);
+    }
+
     for(auto iter : _fieldNameRefUserSys)
     {
         auto &fieldName = iter.first;
@@ -433,6 +452,14 @@ Int32 User::OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStre
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kPwdSaltFieldNumber)->name();
         fieldRefdb.insert(std::make_pair(fieldName, data));
     }
+    {
+        auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+        data->Init(static_cast<Int64>(sizeof(Int64)));
+        data->WriteInt64(_userBaseInfo->lastpassdaytime());
+
+        const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kLastPassDayTimeFieldNumber)->name();
+        fieldRefdb.insert(std::make_pair(fieldName, data));
+    }
 
     for(auto iter = _dirtySys.begin(); iter != _dirtySys.end();)
     {
@@ -507,8 +534,137 @@ Int64 User::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) c
     return _userMgr->Send(_activedSessionId, opcode, coder, packetId > 0 ? packetId : NewPacketId());
 }
 
-void User::OnLogin()
+Int64 User::Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId) const
 {
+    // TODO:需要rpc
+    if(UNLIKELY(_activedSessionId == 0))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("no session cant send"));
+        return -1;
+    }
+
+    auto ret = _userMgr->Send(_activedSessionId, opcode, *coder, packetId > 0 ? packetId : NewPacketId());
+    coder->Release();
+
+    return ret;
+}
+
+void User::OnUserObjCreated()
+{
+    // 执行跨天
+    const auto &nowTime = KERNEL_NS::LibTime::Now();
+    if(_userBaseInfo->lastpassdaytime() == 0)
+    {
+        _userBaseInfo->set_lastpassdaytime(nowTime.GetMilliTimestamp());
+        MaskDirty();
+    }
+
+    const auto &lastPassDayTime = KERNEL_NS::LibTime::FromMilliSeconds(_userBaseInfo->lastpassdaytime());
+    if(nowTime.GetLocalDay() != lastPassDayTime.GetLocalDay())
+    {
+        _userBaseInfo->set_lastpassdaytime(nowTime.GetMilliTimestamp());
+        MaskDirty();
+
+        // 跨天
+        _DoPassDay(nowTime);
+
+        // 跨周
+        const auto firstDayOfWeekConfig = _userMgr->GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::FIRST_DAY_OF_WEEK);
+        if(nowTime.GetLocalDayOfWeek() == firstDayOfWeekConfig->_value)
+            _DoPassWeek(nowTime);
+
+        // 跨月
+        if(nowTime.GetLocalMonth() != lastPassDayTime.GetLocalMonth())
+            _DoPassMonth(nowTime);
+
+        // 跨年
+        if(nowTime.GetLocalYear() != lastPassDayTime.GetLocalYear())
+            _DoPassYear(nowTime);
+
+        _DoPassEnd(nowTime);
+    }
+}
+
+void User::OnPassDay(const KERNEL_NS::LibTime &nowTime)
+{
+    if(_userBaseInfo->lastpassdaytime() == 0)
+    {
+        _userBaseInfo->set_lastpassdaytime(nowTime.GetMilliTimestamp());
+        MaskDirty();
+    }
+
+    // 执行跨天
+    const auto &lastPassDayTime = KERNEL_NS::LibTime::FromMilliSeconds(_userBaseInfo->lastpassdaytime());
+    if(nowTime.GetLocalDay() != lastPassDayTime.GetLocalDay())
+        _DoPassDay(nowTime);
+}
+
+void User::OnPassWeek(const KERNEL_NS::LibTime &nowTime)
+{
+    if(_userBaseInfo->lastpassdaytime() == 0)
+    {
+        _userBaseInfo->set_lastpassdaytime(nowTime.GetMilliTimestamp());
+        MaskDirty();
+    }
+
+    // 执行跨天
+    const auto &lastPassDayTime = KERNEL_NS::LibTime::FromMilliSeconds(_userBaseInfo->lastpassdaytime());
+    // 判断是否跨过
+    if(nowTime.GetLocalDay() != lastPassDayTime.GetLocalDay())
+        _DoPassWeek(nowTime);
+}
+
+void User::OnPassMonth(const KERNEL_NS::LibTime &nowTime)
+{
+    if(_userBaseInfo->lastpassdaytime() == 0)
+    {
+        _userBaseInfo->set_lastpassdaytime(nowTime.GetMilliTimestamp());
+        MaskDirty();
+    }
+
+    // 执行跨天
+    const auto &lastPassDayTime = KERNEL_NS::LibTime::FromMilliSeconds(_userBaseInfo->lastpassdaytime());
+    // 判断是否跨过
+    if(nowTime.GetLocalDay() != lastPassDayTime.GetLocalDay())
+        _DoPassMonth(nowTime);
+}
+
+void User::OnPassYear(const KERNEL_NS::LibTime &nowTime)
+{
+    if(_userBaseInfo->lastpassdaytime() == 0)
+    {
+        _userBaseInfo->set_lastpassdaytime(nowTime.GetMilliTimestamp());
+        MaskDirty();
+    }
+
+    // 执行跨天
+    const auto &lastPassDayTime = KERNEL_NS::LibTime::FromMilliSeconds(_userBaseInfo->lastpassdaytime());
+    // 判断是否跨过
+    if(nowTime.GetLocalDay() != lastPassDayTime.GetLocalDay())
+        _DoPassYear(nowTime);
+}
+
+void User::OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime)
+{
+    if(_userBaseInfo->lastpassdaytime() == 0)
+    {
+        _userBaseInfo->set_lastpassdaytime(nowTime.GetMilliTimestamp());
+        MaskDirty();
+    }
+
+    // 执行跨天
+    const auto &lastPassDayTime = KERNEL_NS::LibTime::FromMilliSeconds(_userBaseInfo->lastpassdaytime());
+    if(nowTime.GetLocalDay() != lastPassDayTime.GetLocalDay()) 
+    {
+        _userBaseInfo->set_lastpassdaytime(nowTime.GetMilliTimestamp());
+
+        _DoPassEnd(nowTime);
+        MaskDirty();
+    }
+}
+
+void User::OnLogin()
+{    
     auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
     for(auto userSys : userSyss)
         userSys->CastTo<IUserSys>()->OnLogin();
@@ -524,6 +680,9 @@ void User::OnLoginFinish()
         userSys->CastTo<IUserSys>()->OnLoginFinish();
 
     SetUserStatus(UserStatus::USER_LOGINED);
+
+    _SendClientUserInfo();
+
 
     g_Log->Info(LOGFMT_OBJ_TAG("OnLoginFinish user:%s"), ToString().c_str());
 }
@@ -753,6 +912,21 @@ Int64 User::NewPacketId() const
     return ++_curMaxPacketId;
 }
 
+const std::string &User::GetNickname() const
+{
+    return GetUserBaseInfo()->nickname();
+}
+
+void User::BindPhone(UInt64 phoneNumber)
+{
+    _userBaseInfo->set_bindphone(phoneNumber);
+    MaskDirty();
+
+    // TODO:系统日志
+    
+    _SendClientUserInfo();
+}
+
 Int32 User::_OnSysInit()
 {   
     // 创建事件管理器
@@ -803,6 +977,48 @@ void User::_OnSysClose()
     }
 }
 
+void User::_DoPassDay(const KERNEL_NS::LibTime &nowTime)
+{
+    _DoUserPassDayBeforeUserSys();
+
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnPassDay(nowTime);
+}
+
+void User::_DoPassWeek(const KERNEL_NS::LibTime &nowTime)
+{
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnPassWeek(nowTime);
+}
+
+void User::_DoPassMonth(const KERNEL_NS::LibTime &nowTime)
+{
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnPassMonth(nowTime);
+}
+
+void User::_DoPassYear(const KERNEL_NS::LibTime &nowTime)
+{
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnPassYear(nowTime);
+}
+
+void User::_DoPassEnd(const KERNEL_NS::LibTime &nowTime)
+{
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnPassTimeEnd(nowTime);
+}
+
+void User::_DoUserPassDayBeforeUserSys()
+{
+
+}
+
 void User::_Clear()
 {
    CRYSTAL_RELEASE_SAFE(_userBaseInfo);
@@ -815,5 +1031,32 @@ void User::_Clear()
 void User::_RegisterEvents()
 {
 }
+
+ClientUserInfo *User::_BuildUserClientInfo() const
+{
+    auto clientInfo = CRYSTAL_NEW(ClientUserInfo);
+    auto userInfo = GetUserBaseInfo();
+    clientInfo->set_userid(userInfo->userid());
+    clientInfo->set_accountname(userInfo->accountname());
+    clientInfo->set_name(userInfo->name());
+    clientInfo->set_nickname(userInfo->nickname());
+    clientInfo->set_phoneimei(userInfo->lastloginphoneimei());
+    clientInfo->set_bindphone(userInfo->bindphone());
+
+    auto loginMgr = GetSys<ILoginMgr>();
+    clientInfo->set_lasttoken(loginMgr->GetLoginInfo()->token());
+    clientInfo->set_tokenexpiretime(loginMgr->GetLoginInfo()->keyexpiretime());
+
+    return clientInfo;
+}
+
+void User::_SendClientUserInfo() const
+{
+    auto &&nty = UserClientInfoNty();
+    *nty.mutable_clientinfo() = *_BuildUserClientInfo();
+
+    Send(Opcodes::OpcodeConst::OPCODE_UserClientInfoNty, nty);
+}
+
 
 SERVICE_END

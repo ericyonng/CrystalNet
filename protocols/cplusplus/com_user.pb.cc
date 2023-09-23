@@ -44,6 +44,7 @@ PROTOBUF_CONSTEXPR UserBaseInfo::UserBaseInfo(
   , /*decltype(_impl_.bindphone_)*/uint64_t{0u}
   , /*decltype(_impl_.lastlogintime_)*/int64_t{0}
   , /*decltype(_impl_.createtime_)*/int64_t{0}
+  , /*decltype(_impl_.lastpassdaytime_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct UserBaseInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR UserBaseInfoDefaultTypeInternal()
@@ -144,6 +145,7 @@ const uint32_t TableStruct_com_5fuser_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserBaseInfo, _impl_.createtime_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserBaseInfo, _impl_.createphoneimei_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserBaseInfo, _impl_.bindmailaddr_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserBaseInfo, _impl_.lastpassdaytime_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LoginMode, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -188,10 +190,10 @@ const uint32_t TableStruct_com_5fuser_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::UserBaseInfo)},
-  { 20, -1, -1, sizeof(::CRYSTAL_NET::service::LoginMode)},
-  { 26, -1, -1, sizeof(::CRYSTAL_NET::service::RegisterUserInfo)},
-  { 36, -1, -1, sizeof(::CRYSTAL_NET::service::LoginInfo)},
-  { 55, -1, -1, sizeof(::CRYSTAL_NET::service::LogoutReason)},
+  { 21, -1, -1, sizeof(::CRYSTAL_NET::service::LoginMode)},
+  { 27, -1, -1, sizeof(::CRYSTAL_NET::service::RegisterUserInfo)},
+  { 37, -1, -1, sizeof(::CRYSTAL_NET::service::LoginInfo)},
+  { 56, -1, -1, sizeof(::CRYSTAL_NET::service::LogoutReason)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -203,7 +205,7 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 
 const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\016com_user.proto\022\023CRYSTAL_NET.service\"\241\002"
+  "\n\016com_user.proto\022\023CRYSTAL_NET.service\"\272\002"
   "\n\014UserBaseInfo\022\016\n\006UserId\030\001 \001(\004\022\023\n\013Accoun"
   "tName\030\002 \001(\t\022\014\n\004Name\030\003 \001(\t\022\020\n\010Nickname\030\004 "
   "\001(\t\022\013\n\003Pwd\030\005 \001(\t\022\017\n\007PwdSalt\030\006 \001(\t\022\021\n\tBin"
@@ -211,27 +213,27 @@ const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIA
   "astLoginIp\030\t \001(\t\022\032\n\022LastLoginPhoneImei\030\n"
   " \001(\t\022\020\n\010CreateIp\030\013 \001(\t\022\022\n\nCreateTime\030\014 \001"
   "(\022\022\027\n\017CreatePhoneImei\030\r \001(\t\022\024\n\014BindMailA"
-  "ddr\030\016 \001(\t\"E\n\tLoginMode\"8\n\005ENUMS\022\014\n\010PASSW"
-  "ORD\020\000\022\023\n\017USE_LOGIN_TOKEN\020\001\022\014\n\010REGISTER\020\002"
-  "\"_\n\020RegisterUserInfo\022\023\n\013AccountName\030\001 \001("
-  "\t\022\020\n\010Nickname\030\002 \001(\t\022\013\n\003Pwd\030\003 \001(\t\022\027\n\017Crea"
-  "tePhoneImei\030\004 \001(\t\"\251\002\n\tLoginInfo\022\021\n\tLogin"
-  "Mode\030\001 \001(\021\022\023\n\013AccountName\030\002 \001(\t\022\013\n\003Pwd\030\003"
-  " \001(\t\022\022\n\nLoginToken\030\004 \001(\t\022\026\n\016LoginPhoneIm"
-  "ei\030\005 \001(\t\022\020\n\010TargetIp\030\006 \001(\t\022\014\n\004Port\030\007 \001(\r"
-  "\022A\n\020UserRegisterInfo\030\010 \001(\0132%.CRYSTAL_NET"
-  ".service.RegisterUserInfoH\000\022\r\n\005AppId\030\t \001"
-  "(\t\022\022\n\ncypherText\030\n \001(\t\022\022\n\noriginText\030\013 \001"
-  "(\t\022\021\n\tversionId\030\014 \001(\004B\016\n\014RegisterInfo\"\232\001"
-  "\n\014LogoutReason\"\211\001\n\005ENUMS\022\025\n\021LOGIN_OTHER_"
-  "PLACE\020\000\022\020\n\014OTHER_REASON\020\001\022\017\n\013USER_LOGOUT"
-  "\020\002\022\r\n\tUSER_IDLE\020\003\022\013\n\007TIMEOUT\020\004\022\020\n\014CLOSE_"
-  "SERVER\020\005\022\030\n\024LOG_IN_OTHER_ACCOUNT\020\006b\006prot"
-  "o3"
+  "ddr\030\016 \001(\t\022\027\n\017LastPassDayTime\030\017 \001(\022\"E\n\tLo"
+  "ginMode\"8\n\005ENUMS\022\014\n\010PASSWORD\020\000\022\023\n\017USE_LO"
+  "GIN_TOKEN\020\001\022\014\n\010REGISTER\020\002\"_\n\020RegisterUse"
+  "rInfo\022\023\n\013AccountName\030\001 \001(\t\022\020\n\010Nickname\030\002"
+  " \001(\t\022\013\n\003Pwd\030\003 \001(\t\022\027\n\017CreatePhoneImei\030\004 \001"
+  "(\t\"\251\002\n\tLoginInfo\022\021\n\tLoginMode\030\001 \001(\021\022\023\n\013A"
+  "ccountName\030\002 \001(\t\022\013\n\003Pwd\030\003 \001(\t\022\022\n\nLoginTo"
+  "ken\030\004 \001(\t\022\026\n\016LoginPhoneImei\030\005 \001(\t\022\020\n\010Tar"
+  "getIp\030\006 \001(\t\022\014\n\004Port\030\007 \001(\r\022A\n\020UserRegiste"
+  "rInfo\030\010 \001(\0132%.CRYSTAL_NET.service.Regist"
+  "erUserInfoH\000\022\r\n\005AppId\030\t \001(\t\022\022\n\ncypherTex"
+  "t\030\n \001(\t\022\022\n\noriginText\030\013 \001(\t\022\021\n\tversionId"
+  "\030\014 \001(\004B\016\n\014RegisterInfo\"\232\001\n\014LogoutReason\""
+  "\211\001\n\005ENUMS\022\025\n\021LOGIN_OTHER_PLACE\020\000\022\020\n\014OTHE"
+  "R_REASON\020\001\022\017\n\013USER_LOGOUT\020\002\022\r\n\tUSER_IDLE"
+  "\020\003\022\013\n\007TIMEOUT\020\004\022\020\n\014CLOSE_SERVER\020\005\022\030\n\024LOG"
+  "_IN_OTHER_ACCOUNT\020\006b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fuser_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fuser_2eproto = {
-    false, false, 962, descriptor_table_protodef_com_5fuser_2eproto,
+    false, false, 987, descriptor_table_protodef_com_5fuser_2eproto,
     "com_user.proto",
     &descriptor_table_com_5fuser_2eproto_once, nullptr, 0, 5,
     schemas, file_default_instances, TableStruct_com_5fuser_2eproto::offsets,
@@ -331,6 +333,7 @@ UserBaseInfo::UserBaseInfo(const UserBaseInfo& from)
     , decltype(_impl_.bindphone_){}
     , decltype(_impl_.lastlogintime_){}
     , decltype(_impl_.createtime_){}
+    , decltype(_impl_.lastpassdaytime_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -415,8 +418,8 @@ UserBaseInfo::UserBaseInfo(const UserBaseInfo& from)
       _this->GetArenaForAllocation());
   }
   ::memcpy(&_impl_.userid_, &from._impl_.userid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.createtime_) -
-    reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.createtime_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.lastpassdaytime_) -
+    reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.lastpassdaytime_));
   // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.UserBaseInfo)
 }
 
@@ -439,6 +442,7 @@ inline void UserBaseInfo::SharedCtor(
     , decltype(_impl_.bindphone_){uint64_t{0u}}
     , decltype(_impl_.lastlogintime_){int64_t{0}}
     , decltype(_impl_.createtime_){int64_t{0}}
+    , decltype(_impl_.lastpassdaytime_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.accountname_.InitDefault();
@@ -527,8 +531,8 @@ void UserBaseInfo::Clear() {
   _impl_.createphoneimei_.ClearToEmpty();
   _impl_.bindmailaddr_.ClearToEmpty();
   ::memset(&_impl_.userid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.createtime_) -
-      reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.createtime_));
+      reinterpret_cast<char*>(&_impl_.lastpassdaytime_) -
+      reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.lastpassdaytime_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -667,6 +671,14 @@ const char* UserBaseInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
           CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.UserBaseInfo.BindMailAddr"));
+        } else
+          goto handle_unusual;
+        continue;
+      // sint64 LastPassDayTime = 15;
+      case 15:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 120)) {
+          _impl_.lastpassdaytime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
+          CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
@@ -823,6 +835,12 @@ uint8_t* UserBaseInfo::_InternalSerialize(
         14, this->_internal_bindmailaddr(), target);
   }
 
+  // sint64 LastPassDayTime = 15;
+  if (this->_internal_lastpassdaytime() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(15, this->_internal_lastpassdaytime(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -929,6 +947,11 @@ size_t UserBaseInfo::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_createtime());
   }
 
+  // sint64 LastPassDayTime = 15;
+  if (this->_internal_lastpassdaytime() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_lastpassdaytime());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -988,6 +1011,9 @@ void UserBaseInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::P
   }
   if (from._internal_createtime() != 0) {
     _this->_internal_set_createtime(from._internal_createtime());
+  }
+  if (from._internal_lastpassdaytime() != 0) {
+    _this->_internal_set_lastpassdaytime(from._internal_lastpassdaytime());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1049,8 +1075,8 @@ void UserBaseInfo::InternalSwap(UserBaseInfo* other) {
       &other->_impl_.bindmailaddr_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(UserBaseInfo, _impl_.createtime_)
-      + sizeof(UserBaseInfo::_impl_.createtime_)
+      PROTOBUF_FIELD_OFFSET(UserBaseInfo, _impl_.lastpassdaytime_)
+      + sizeof(UserBaseInfo::_impl_.lastpassdaytime_)
       - PROTOBUF_FIELD_OFFSET(UserBaseInfo, _impl_.userid_)>(
           reinterpret_cast<char*>(&_impl_.userid_),
           reinterpret_cast<char*>(&other->_impl_.userid_));

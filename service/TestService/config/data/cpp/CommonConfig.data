@@ -1,7 +1,14 @@
 Id|Value|Int64Value|StringValue|
-7
+14
 column_2_1:1|column_3_4:1000|column_4_4:1000|column_5_6:"\"\""|
 column_2_1:2|column_3_5:86000|column_4_5:86000|column_5_6:"\"\""|
 column_2_1:3|column_3_1:8|column_4_1:8|column_5_6:"\"\""|
 column_2_1:4|column_3_2:15|column_4_2:15|column_5_6:"\"\""|
 column_2_1:5|column_3_2:30|column_4_2:30|column_5_6:"\"\""|
+column_2_1:6|column_3_2:20|column_4_2:20|column_5_6:"\"\""|
+column_2_1:7|column_3_2:32|column_4_2:32|column_5_6:"\"\""|
+column_2_1:8|column_3_3:100|column_4_3:100|column_5_6:"\"\""|
+column_2_1:9|column_3_3:365|column_4_3:365|column_5_6:"\"\""|
+column_2_2:10|column_3_1:7|column_4_1:7|column_5_6:"\"\""|
+column_2_2:11|column_3_4:1024|column_4_4:1024|column_5_6:"\"\""|
+column_2_2:12|column_3_1:0|column_4_1:0|column_5_6:"\"\""|

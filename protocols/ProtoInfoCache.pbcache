@@ -34,7 +34,7 @@
 
 /// ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,Md5:c0Fbk007EjrRWNurFc8b1Q==,ModifyTime:1692361715,
 
-/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:WkDhzygyq2DJQKBf0rCJhA==,ModifyTime:1693448470,
+/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:AkWAu5vNT7971hTk8t1CUw==,ModifyTime:1694949901,
 
 /// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:JRP2AJHv8EggvaSBDetgvA==,ModifyTime:1693475814,
 
@@ -47,14 +47,49 @@
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:NodeHeartbeatRes,Opcode:24,NoLog:true,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeReq,Opcode:25,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:RegisterNodeRes,Opcode:26,NoLog:false,XorEncrypt:false,KeyBase64:false,]
-/// ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,Md5:5n2cna8iTjLPP6007fCnVA==,ModifyTime:1692597902,
+/// ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,Md5:5n2cna8iTjLPP6007fCnVA==,ModifyTime:1693771432,
 
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatReq,Opcode:29,NoLog:true,XorEncrypt:true,KeyBase64:true,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatRes,Opcode:30,NoLog:true,XorEncrypt:false,KeyBase64:false,]
-/// ProtoName:com_client_user.proto,ProtoPath:../../protocols/proto/com_client_user.proto,Md5:vaFhp79apqM7sObiP2yY9A==,ModifyTime:1692361696,
+/// ProtoName:com_client_user.proto,ProtoPath:../../protocols/proto/com_client_user.proto,Md5:fMNRDe4LdLeUI/zTk/p/Pg==,ModifyTime:1694976534,
 
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutNty,Opcode:32,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutReq,Opcode:31,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 
 
 
+
+
+
+[ProtoName:user.proto,ProtoPath:../../protocols/proto/user.proto,MessageName:UserClientInfoNty,Opcode:37,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+/// ProtoName:user.proto,ProtoPath:../../protocols/proto/user.proto,Md5:MYofl4WMB4aN+nWacVhBGw==,ModifyTime:1694977368,
+
+
+
+
+/// ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,Md5:er8Ru4IADpKZGRjaKRoxDA==,ModifyTime:1695214581,
+
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:CreateLibraryReq,Opcode:44,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:CreateLibraryRes,Opcode:45,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryInfoReq,Opcode:42,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryInfoRes,Opcode:43,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+/// ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,Md5:KRiplQ2njpedOUdqiZwZ3A==,ModifyTime:1694977238,
+
+/// ProtoName:com_book.proto,ProtoPath:../../protocols/proto/library/com_book.proto,Md5:rk4qNjfbhpd6zj8wESAhZQ==,ModifyTime:1694865809,
+
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:LibraryInfoNty,Opcode:46,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryListReq,Opcode:49,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryListRes,Opcode:50,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:JoinLibraryReq,Opcode:47,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:JoinLibraryRes,Opcode:48,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:QuitLibraryReq,Opcode:51,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:QuitLibraryRes,Opcode:52,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+/// ProtoName:com_passtime.proto,ProtoPath:../../protocols/proto/com_passtime.proto,Md5:McdrAiDx92Fn4WgVtvWrhA==,ModifyTime:1694951989,
+
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:ModifyMemberInfoReq,Opcode:55,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:ModifyMemberInfoRes,Opcode:56,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:TransferLibraianReq,Opcode:53,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:TransferLibraianRes,Opcode:54,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:UserLibraryInfoNty,Opcode:57,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:user.proto,ProtoPath:../../protocols/proto/user.proto,MessageName:ModifyUserInfoReq,Opcode:58,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:user.proto,ProtoPath:../../protocols/proto/user.proto,MessageName:ModifyUserInfoRes,Opcode:59,NoLog:false,XorEncrypt:false,KeyBase64:false,]

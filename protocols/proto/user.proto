@@ -1,0 +1,39 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_user.proto";
+import "com_client_user.proto";
+
+/// Opcode:
+message UserClientInfoNty
+{
+    ClientUserInfo ClientInfo = 1;
+}
+
+// 修改密码
+message ModifyPwdInfo 
+{
+    string OldPwd = 1;
+    string NewPwd = 2;
+}
+
+// 修改用户信息 TODO:
+/// Opcode:
+message ModifyUserInfoReq
+{
+    // 修改信息
+    oneof ModifyInfo
+    {
+        // 修改密码
+        ModifyPwdInfo PwdInfo = 1;
+        // 修改昵称
+        string Nickname = 2;
+    }
+}
+
+// 修改用户信息
+/// Opcode:
+message ModifyUserInfoRes
+{
+    sint32 ErrCode = 1;
+}

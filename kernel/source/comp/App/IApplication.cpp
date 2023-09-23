@@ -171,8 +171,7 @@ Int32 IApplication::_OnHostInit()
     return Status::Success;
 }
 
-// 所有组件创建完成
-Int32 IApplication::_OnCompsCreated()
+Int32 IApplication::_OnPriorityLevelCompsCreated()
 {
     _poller = GetComp<Poller>();
 
@@ -191,6 +190,13 @@ Int32 IApplication::_OnCompsCreated()
 
     defObj->_poller = _poller;
     defObj->_pollerTimerMgr = _poller->GetTimerMgr();
+
+    return Status::Success;
+}
+
+// 所有组件创建完成
+Int32 IApplication::_OnCompsCreated()
+{
 
     g_Log->Info(LOGFMT_OBJ_TAG("app %s comps created."), _appName.c_str());
     return Status::Success;

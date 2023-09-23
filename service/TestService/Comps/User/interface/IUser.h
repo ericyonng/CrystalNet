@@ -131,7 +131,10 @@ public:
     virtual Int64 Send(KERNEL_NS::LibPacket *packet) const = 0;
     virtual void Send(const std::list<KERNEL_NS::LibPacket *> &packets) const = 0;
     virtual Int64 Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const = 0;
+    virtual Int64 Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId = -1) const = 0;
 
+    // user对象创建
+    virtual void OnUserObjCreated() = 0;
     virtual void OnLogin() = 0;
     virtual void OnLoginFinish() = 0;
     virtual void OnLogout() = 0;
@@ -196,6 +199,10 @@ public:
 
     // 以user为单位的packetId计数
     virtual Int64 NewPacketId() const = 0;
+
+    virtual const std::string &GetNickname() const = 0;
+
+    virtual void BindPhone(UInt64 phoneNumber) = 0;
 };
 
 ALWAYS_INLINE KERNEL_NS::ListenerStub IUser::AddListener(int id,

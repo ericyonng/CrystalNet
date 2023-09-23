@@ -22,6 +22,19 @@
 
 **CreateTime**: 10/11/2020
 
+## Languages（剔除第三方代码和生成的代码后）
+| language | files | code | comment | blank | total |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| C++ | 1,078 | 105,580 | 46,550 | 28,171 | 180,301 |
+| Markdown | 25 | 2,284 | 0 | 806 | 3,090 |
+| Lua | 2 | 910 | 252 | 267 | 1,429 |
+| TypeScript | 3 | 320 | 155 | 104 | 579 |
+| JavaScript | 3 | 279 | 111 | 3 | 393 |
+| Batch | 16 | 261 | 5 | 132 | 398 |
+| Shell Script | 19 | 246 | 266 | 135 | 647 |
+| YAML | 3 | 65 | 19 | 16 | 100 |
+
+
 # 构建状态
 
 **Linux**: [![Build](https://app.travis-ci.com/ericyonng/CrystalNet.svg?branch=main)](http://travis-ci.com)

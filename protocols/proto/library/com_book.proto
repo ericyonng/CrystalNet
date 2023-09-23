@@ -1,0 +1,36 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+// 图书类型
+message BookType 
+{
+    enum  ENUMS 
+    {
+        UNKNOWN = 0;
+    }
+}
+
+// 书籍信息, 数据存储:id, isbn(unique), bookInfo json
+message BookInfo 
+{
+    // 唯一id, 同一个isbn, 同一个id
+    uint64 Id = 1;
+    // 图书类型 BookType
+    sint32 BookType = 2;
+    // 书名
+    string BookName = 3;
+    // 书isbn码
+    string IsbnCode = 4;
+    // 封面
+    bytes BookCoverImage = 5;
+    // 封面图片类型
+    string BookCoverImageType = 6;
+    // 价格(单位分)
+    uint64 Price = 7;
+    // 是否上架
+    sint32 IsOnShelves = 8;
+    // 库存
+    uint64 Count = 9;
+    // 被借数量
+    uint64 BorrowedCount = 10;
+}

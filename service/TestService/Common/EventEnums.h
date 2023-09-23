@@ -63,5 +63,28 @@ namespace EventEnums
                                         */
 
         DB_LOADED_FINISH_ON_STARTUP,         // db加载完毕事件
+
+        REMOVE_LIBRARY_MEMBER,          // 移除成员事件
+                                        /* 用户登录事件
+                                        * Attention: 
+                                        * @param(USER_ID): userid
+                                        */
+
+        JOIN_LIBRARY_MEMBER,            // 加入图书馆事件
+                                        /* 加入图书馆事件
+                                        * Attention: 
+                                        * @param(USER_ID): userid
+                                        * @param(LIBRARY_ID): 图书馆id
+                                        */
+        USER_OBJ_CREATED,               // 用户对象创建事件
+                                        /* 用户对象创建事件
+                                        * Attention: 
+                                        * @param(USER_OBJ): 用户对象
+                                        */
+        LOGIN_TOKEN_CHANGED,            // 用户登录token变更
+                                        /* 用户对象创建事件
+                                        * Attention: 
+                                        * @param(USER_OBJ): 用户对象
+                                        */
     };
 }

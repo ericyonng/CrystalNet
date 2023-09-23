@@ -340,53 +340,248 @@ export namespace ts_pbinfo{
     }
 
 
-    // libarary.proto 
+    // user.proto 
+    export class UserClientInfoNty {
+      getOpcode():number {return UserClientInfoNty.OPCODE; }
+      getIsXorEncrypt():boolean {return UserClientInfoNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return UserClientInfoNty.KeyBase64; }
+      getOpcodeName():string {return UserClientInfoNty.OPCODE_NAME; }
+      static OPCODE:number = 37;
+      static OPCODE_NAME:string = "UserClientInfoNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
     export class GetLibraryInfoReq {
       getOpcode():number {return GetLibraryInfoReq.OPCODE; }
       getIsXorEncrypt():boolean {return GetLibraryInfoReq.XorEncrypt; }
       getIsKeyBase64():boolean {return GetLibraryInfoReq.KeyBase64; }
       getOpcodeName():string {return GetLibraryInfoReq.OPCODE_NAME; }
-      static OPCODE:number = 33;
+      static OPCODE:number = 42;
       static OPCODE_NAME:string = "GetLibraryInfoReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
 
 
-    // libarary.proto 
+    // library.proto 
     export class GetLibraryInfoRes {
       getOpcode():number {return GetLibraryInfoRes.OPCODE; }
       getIsXorEncrypt():boolean {return GetLibraryInfoRes.XorEncrypt; }
       getIsKeyBase64():boolean {return GetLibraryInfoRes.KeyBase64; }
       getOpcodeName():string {return GetLibraryInfoRes.OPCODE_NAME; }
-      static OPCODE:number = 34;
+      static OPCODE:number = 43;
       static OPCODE_NAME:string = "GetLibraryInfoRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
 
 
-    // libarary.proto 
+    // library.proto 
     export class CreateLibraryReq {
       getOpcode():number {return CreateLibraryReq.OPCODE; }
       getIsXorEncrypt():boolean {return CreateLibraryReq.XorEncrypt; }
       getIsKeyBase64():boolean {return CreateLibraryReq.KeyBase64; }
       getOpcodeName():string {return CreateLibraryReq.OPCODE_NAME; }
-      static OPCODE:number = 35;
+      static OPCODE:number = 44;
       static OPCODE_NAME:string = "CreateLibraryReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
 
 
-    // libarary.proto 
+    // library.proto 
     export class CreateLibraryRes {
       getOpcode():number {return CreateLibraryRes.OPCODE; }
       getIsXorEncrypt():boolean {return CreateLibraryRes.XorEncrypt; }
       getIsKeyBase64():boolean {return CreateLibraryRes.KeyBase64; }
       getOpcodeName():string {return CreateLibraryRes.OPCODE_NAME; }
-      static OPCODE:number = 36;
+      static OPCODE:number = 45;
       static OPCODE_NAME:string = "CreateLibraryRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class LibraryInfoNty {
+      getOpcode():number {return LibraryInfoNty.OPCODE; }
+      getIsXorEncrypt():boolean {return LibraryInfoNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return LibraryInfoNty.KeyBase64; }
+      getOpcodeName():string {return LibraryInfoNty.OPCODE_NAME; }
+      static OPCODE:number = 46;
+      static OPCODE_NAME:string = "LibraryInfoNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class JoinLibraryReq {
+      getOpcode():number {return JoinLibraryReq.OPCODE; }
+      getIsXorEncrypt():boolean {return JoinLibraryReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return JoinLibraryReq.KeyBase64; }
+      getOpcodeName():string {return JoinLibraryReq.OPCODE_NAME; }
+      static OPCODE:number = 47;
+      static OPCODE_NAME:string = "JoinLibraryReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class JoinLibraryRes {
+      getOpcode():number {return JoinLibraryRes.OPCODE; }
+      getIsXorEncrypt():boolean {return JoinLibraryRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return JoinLibraryRes.KeyBase64; }
+      getOpcodeName():string {return JoinLibraryRes.OPCODE_NAME; }
+      static OPCODE:number = 48;
+      static OPCODE_NAME:string = "JoinLibraryRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetLibraryListReq {
+      getOpcode():number {return GetLibraryListReq.OPCODE; }
+      getIsXorEncrypt():boolean {return GetLibraryListReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetLibraryListReq.KeyBase64; }
+      getOpcodeName():string {return GetLibraryListReq.OPCODE_NAME; }
+      static OPCODE:number = 49;
+      static OPCODE_NAME:string = "GetLibraryListReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetLibraryListRes {
+      getOpcode():number {return GetLibraryListRes.OPCODE; }
+      getIsXorEncrypt():boolean {return GetLibraryListRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetLibraryListRes.KeyBase64; }
+      getOpcodeName():string {return GetLibraryListRes.OPCODE_NAME; }
+      static OPCODE:number = 50;
+      static OPCODE_NAME:string = "GetLibraryListRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class QuitLibraryReq {
+      getOpcode():number {return QuitLibraryReq.OPCODE; }
+      getIsXorEncrypt():boolean {return QuitLibraryReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return QuitLibraryReq.KeyBase64; }
+      getOpcodeName():string {return QuitLibraryReq.OPCODE_NAME; }
+      static OPCODE:number = 51;
+      static OPCODE_NAME:string = "QuitLibraryReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class QuitLibraryRes {
+      getOpcode():number {return QuitLibraryRes.OPCODE; }
+      getIsXorEncrypt():boolean {return QuitLibraryRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return QuitLibraryRes.KeyBase64; }
+      getOpcodeName():string {return QuitLibraryRes.OPCODE_NAME; }
+      static OPCODE:number = 52;
+      static OPCODE_NAME:string = "QuitLibraryRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class TransferLibraianReq {
+      getOpcode():number {return TransferLibraianReq.OPCODE; }
+      getIsXorEncrypt():boolean {return TransferLibraianReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return TransferLibraianReq.KeyBase64; }
+      getOpcodeName():string {return TransferLibraianReq.OPCODE_NAME; }
+      static OPCODE:number = 53;
+      static OPCODE_NAME:string = "TransferLibraianReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class TransferLibraianRes {
+      getOpcode():number {return TransferLibraianRes.OPCODE; }
+      getIsXorEncrypt():boolean {return TransferLibraianRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return TransferLibraianRes.KeyBase64; }
+      getOpcodeName():string {return TransferLibraianRes.OPCODE_NAME; }
+      static OPCODE:number = 54;
+      static OPCODE_NAME:string = "TransferLibraianRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class ModifyMemberInfoReq {
+      getOpcode():number {return ModifyMemberInfoReq.OPCODE; }
+      getIsXorEncrypt():boolean {return ModifyMemberInfoReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return ModifyMemberInfoReq.KeyBase64; }
+      getOpcodeName():string {return ModifyMemberInfoReq.OPCODE_NAME; }
+      static OPCODE:number = 55;
+      static OPCODE_NAME:string = "ModifyMemberInfoReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class ModifyMemberInfoRes {
+      getOpcode():number {return ModifyMemberInfoRes.OPCODE; }
+      getIsXorEncrypt():boolean {return ModifyMemberInfoRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return ModifyMemberInfoRes.KeyBase64; }
+      getOpcodeName():string {return ModifyMemberInfoRes.OPCODE_NAME; }
+      static OPCODE:number = 56;
+      static OPCODE_NAME:string = "ModifyMemberInfoRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class UserLibraryInfoNty {
+      getOpcode():number {return UserLibraryInfoNty.OPCODE; }
+      getIsXorEncrypt():boolean {return UserLibraryInfoNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return UserLibraryInfoNty.KeyBase64; }
+      getOpcodeName():string {return UserLibraryInfoNty.OPCODE_NAME; }
+      static OPCODE:number = 57;
+      static OPCODE_NAME:string = "UserLibraryInfoNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // user.proto 
+    export class ModifyUserInfoReq {
+      getOpcode():number {return ModifyUserInfoReq.OPCODE; }
+      getIsXorEncrypt():boolean {return ModifyUserInfoReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return ModifyUserInfoReq.KeyBase64; }
+      getOpcodeName():string {return ModifyUserInfoReq.OPCODE_NAME; }
+      static OPCODE:number = 58;
+      static OPCODE_NAME:string = "ModifyUserInfoReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // user.proto 
+    export class ModifyUserInfoRes {
+      getOpcode():number {return ModifyUserInfoRes.OPCODE; }
+      getIsXorEncrypt():boolean {return ModifyUserInfoRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return ModifyUserInfoRes.KeyBase64; }
+      getOpcodeName():string {return ModifyUserInfoRes.OPCODE_NAME; }
+      static OPCODE:number = 59;
+      static OPCODE_NAME:string = "ModifyUserInfoRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -442,13 +637,43 @@ export namespace ts_pbinfo{
 
           [LogoutNty.OPCODE]: new LogoutNty(),
 
+          [UserClientInfoNty.OPCODE]: new UserClientInfoNty(),
+
           [GetLibraryInfoReq.OPCODE]: new GetLibraryInfoReq(),
 
           [GetLibraryInfoRes.OPCODE]: new GetLibraryInfoRes(),
 
           [CreateLibraryReq.OPCODE]: new CreateLibraryReq(),
 
-          [CreateLibraryRes.OPCODE]: new CreateLibraryRes()
+          [CreateLibraryRes.OPCODE]: new CreateLibraryRes(),
+
+          [LibraryInfoNty.OPCODE]: new LibraryInfoNty(),
+
+          [JoinLibraryReq.OPCODE]: new JoinLibraryReq(),
+
+          [JoinLibraryRes.OPCODE]: new JoinLibraryRes(),
+
+          [GetLibraryListReq.OPCODE]: new GetLibraryListReq(),
+
+          [GetLibraryListRes.OPCODE]: new GetLibraryListRes(),
+
+          [QuitLibraryReq.OPCODE]: new QuitLibraryReq(),
+
+          [QuitLibraryRes.OPCODE]: new QuitLibraryRes(),
+
+          [TransferLibraianReq.OPCODE]: new TransferLibraianReq(),
+
+          [TransferLibraianRes.OPCODE]: new TransferLibraianRes(),
+
+          [ModifyMemberInfoReq.OPCODE]: new ModifyMemberInfoReq(),
+
+          [ModifyMemberInfoRes.OPCODE]: new ModifyMemberInfoRes(),
+
+          [UserLibraryInfoNty.OPCODE]: new UserLibraryInfoNty(),
+
+          [ModifyUserInfoReq.OPCODE]: new ModifyUserInfoReq(),
+
+          [ModifyUserInfoRes.OPCODE]: new ModifyUserInfoRes()
 
 
       }

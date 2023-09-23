@@ -54,6 +54,7 @@ void UserMgrStorage::Release()
     UserMgrStorage::DeleteByAdapter_UserMgrStorage(UserMgrStorageFactory::_buildType.V, this);
 }
 
+// 所有user系统存储都需要在这里注册Storage, 因为启动要自动建表
 bool UserMgrStorage::RegisterStorages()
 {
     // 当前系统属性设置(kv 系统, mysql存储, 某个系统的数据)
@@ -81,6 +82,13 @@ bool UserMgrStorage::RegisterStorages()
     if(!RegisterStorage<LoginMgrStorageFactory>())
     {
         g_Log->Error(LOGFMT_OBJ_TAG("register LoginMgrStorageFactory fail"));
+        return false;
+    }
+
+    // librarymgr
+    if(!RegisterStorage<LibraryMgrStorageFactory>())
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("register LibraryMgrStorageFactory fail"));
         return false;
     }
 

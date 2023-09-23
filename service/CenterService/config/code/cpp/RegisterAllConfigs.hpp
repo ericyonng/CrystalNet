@@ -3,4 +3,5 @@
 RegisterComp<SERVICE_NS::CommonConfigMgrFactory>();
 RegisterComp<SERVICE_NS::ExampleConfigMgrFactory>();
 RegisterComp<SERVICE_NS::GoalConfigMgrFactory>();
+RegisterComp<SERVICE_NS::InviteCodeConfigMgrFactory>();
 RegisterComp<SERVICE_NS::ItemConfigMgrFactory>();

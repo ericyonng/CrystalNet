@@ -13,7 +13,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/service/TestService/config/code/**"
             ],
             "defines": [
                 "_DEBUG",

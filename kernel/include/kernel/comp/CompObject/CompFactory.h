@@ -50,6 +50,18 @@ VAR->SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<I##T>())
 auto VAR = T::NewByAdapter_##T(_buildType.V);                       \
 VAR->SetInterfaceTypeId(KERNEL_NS::RttiUtil::GetTypeId<INTERFACE_TYPE_NS::I##T>())
 
+class KERNEL_EXPORT CompPriorityLevel
+{
+public:
+    enum ENUMS
+    {
+        NONE = 0,       // 无差别
+        HIGH = 1,       // 高优先级
+        MIDDLE = 2,     // 次优先级
+        LOW = 3,        // 低优先级
+    };
+};
+
 class KERNEL_EXPORT CompFactory
 {
     // 创建factory对象时候使用创建的方法类型
@@ -63,6 +75,8 @@ public:
 
     virtual CompObject *Create() const = 0;
 
+    // 组件优先级
+    virtual Int32 GetPriorityLevel() const { return CompPriorityLevel::NONE; }
     // 派生类无需要重写以下静态接口任意一个
     // static KERNEL_NS::CompFactory *FactoryCreate();
     // static std::vector<KERNEL_NS::CompFactory *> FactoryCreate();

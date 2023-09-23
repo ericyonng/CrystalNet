@@ -45,6 +45,7 @@ PROTOBUF_CONSTEXPR ClientUserInfo::ClientUserInfo(
   , /*decltype(_impl_.lasttoken_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.userid_)*/uint64_t{0u}
   , /*decltype(_impl_.tokenexpiretime_)*/int64_t{0}
+  , /*decltype(_impl_.bindphone_)*/uint64_t{0u}
   , /*decltype(_impl_.clientstatus_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ClientUserInfoDefaultTypeInternal {
@@ -83,6 +84,7 @@ const uint32_t TableStruct_com_5fclient_5fuser_2eproto::offsets[] PROTOBUF_SECTI
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.clientstatus_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.lasttoken_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.tokenexpiretime_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClientUserInfo, _impl_.bindphone_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::ClientUserStatus)},
@@ -98,16 +100,16 @@ const char descriptor_table_protodef_com_5fclient_5fuser_2eproto[] PROTOBUF_SECT
   "\n\025com_client_user.proto\022\023CRYSTAL_NET.ser"
   "vice\"`\n\020ClientUserStatus\"L\n\005ENUMS\022\013\n\007UNL"
   "OGIN\020\000\022\014\n\010LOGINING\020\001\022\013\n\007LOGINED\020\002\022\r\n\tLOG"
-  "OUTING\020\003\022\014\n\010LOGOUTED\020\004\"\252\001\n\016ClientUserInf"
+  "OUTING\020\003\022\014\n\010LOGOUTED\020\004\"\275\001\n\016ClientUserInf"
   "o\022\016\n\006UserId\030\001 \001(\004\022\023\n\013AccountName\030\002 \001(\t\022\014"
   "\n\004Name\030\003 \001(\t\022\020\n\010Nickname\030\004 \001(\t\022\021\n\tPhoneI"
   "mei\030\005 \001(\t\022\024\n\014ClientStatus\030\006 \001(\021\022\021\n\tLastT"
-  "oken\030\007 \001(\t\022\027\n\017TokenExpireTime\030\010 \001(\022b\006pro"
-  "to3"
+  "oken\030\007 \001(\t\022\027\n\017TokenExpireTime\030\010 \001(\022\022\021\n\tB"
+  "indPhone\030\t \001(\004b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fclient_5fuser_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fclient_5fuser_2eproto = {
-    false, false, 323, descriptor_table_protodef_com_5fclient_5fuser_2eproto,
+    false, false, 342, descriptor_table_protodef_com_5fclient_5fuser_2eproto,
     "com_client_user.proto",
     &descriptor_table_com_5fclient_5fuser_2eproto_once, nullptr, 0, 2,
     schemas, file_default_instances, TableStruct_com_5fclient_5fuser_2eproto::offsets,
@@ -213,6 +215,7 @@ ClientUserInfo::ClientUserInfo(const ClientUserInfo& from)
     , decltype(_impl_.lasttoken_){}
     , decltype(_impl_.userid_){}
     , decltype(_impl_.tokenexpiretime_){}
+    , decltype(_impl_.bindphone_){}
     , decltype(_impl_.clientstatus_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
@@ -275,6 +278,7 @@ inline void ClientUserInfo::SharedCtor(
     , decltype(_impl_.lasttoken_){}
     , decltype(_impl_.userid_){uint64_t{0u}}
     , decltype(_impl_.tokenexpiretime_){int64_t{0}}
+    , decltype(_impl_.bindphone_){uint64_t{0u}}
     , decltype(_impl_.clientstatus_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -419,6 +423,14 @@ const char* ClientUserInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
         } else
           goto handle_unusual;
         continue;
+      // uint64 BindPhone = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 72)) {
+          _impl_.bindphone_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
       default:
         goto handle_unusual;
     }  // switch
@@ -516,6 +528,12 @@ uint8_t* ClientUserInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteSInt64ToArray(8, this->_internal_tokenexpiretime(), target);
   }
 
+  // uint64 BindPhone = 9;
+  if (this->_internal_bindphone() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(9, this->_internal_bindphone(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -577,6 +595,11 @@ size_t ClientUserInfo::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_tokenexpiretime());
   }
 
+  // uint64 BindPhone = 9;
+  if (this->_internal_bindphone() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_bindphone());
+  }
+
   // sint32 ClientStatus = 6;
   if (this->_internal_clientstatus() != 0) {
     total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_clientstatus());
@@ -620,6 +643,9 @@ void ClientUserInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
   }
   if (from._internal_tokenexpiretime() != 0) {
     _this->_internal_set_tokenexpiretime(from._internal_tokenexpiretime());
+  }
+  if (from._internal_bindphone() != 0) {
+    _this->_internal_set_bindphone(from._internal_bindphone());
   }
   if (from._internal_clientstatus() != 0) {
     _this->_internal_set_clientstatus(from._internal_clientstatus());

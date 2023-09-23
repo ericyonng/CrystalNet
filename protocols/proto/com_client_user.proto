@@ -36,4 +36,6 @@ message ClientUserInfo
     string LastToken = 7;
     // token过期时间
     sint64 TokenExpireTime = 8;
+    // 绑定手机
+    uint64 BindPhone = 9;
 }

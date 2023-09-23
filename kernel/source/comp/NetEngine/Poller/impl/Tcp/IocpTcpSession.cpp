@@ -387,13 +387,15 @@ void IocpTcpSession::ContinueRecv()
             else if(ret == 0)
             {
                 auto err = SystemUtil::GetErrNo(true);
+                KERNEL_NS::LibString errString;
                 if (err != 0)
                 {
-                    const auto& errString = SystemUtil::GetErrString(err);
-                    ForbidRecv();
-                    g_Log->NetInfo(LOGFMT_OBJ_TAG("socket close by peer, err:%d,%s session info = %s, and will close after parsing packets"), err, errString.c_str(), ToString().c_str());
-                    _MaskClose(CloseSessionInfo::REMOTE_DISONNECT);
+                    errString = SystemUtil::GetErrString(err);
                 }
+                
+                g_Log->NetInfo(LOGFMT_OBJ_TAG("socket close by peer, err:%d,%s session info = %s, and will close after parsing packets"), err, errString.c_str(), ToString().c_str());
+                ForbidRecv();
+                _MaskClose(CloseSessionInfo::REMOTE_DISONNECT);
 
                 break;
             }

@@ -35,6 +35,7 @@ SERVICE_BEGIN
 
 class IUserMgr;
 class IUserSys;
+class ClientUserInfo;
 
 // 要有自己的事件对象
 class User : public IUser
@@ -57,7 +58,15 @@ public:
     virtual Int64 Send(KERNEL_NS::LibPacket *packet) const override;
     virtual void Send(const std::list<KERNEL_NS::LibPacket *> &packets) const override;
     virtual Int64 Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const override;
+    virtual Int64 Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId = -1) const override;
 
+    virtual void OnPassDay(const KERNEL_NS::LibTime &nowTime) override;
+    virtual void OnPassWeek(const KERNEL_NS::LibTime &nowTime) override;
+    virtual void OnPassMonth(const KERNEL_NS::LibTime &nowTime) override;
+    virtual void OnPassYear(const KERNEL_NS::LibTime &nowTime) override;
+    virtual void OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime) override;
+
+    virtual void OnUserObjCreated() override;
     virtual void OnLogin() override;
     virtual void OnLoginFinish() override;
     virtual void OnLogout() override;
@@ -109,11 +118,23 @@ public:
 
     // 以user为单位的PacketId
     virtual Int64 NewPacketId() const override;
+    // 昵称
+    virtual const std::string &GetNickname() const override;
+    // 绑定手机
+    virtual void BindPhone(UInt64 phoneNumber);
 
 private:
-    virtual Int32 _OnSysInit() override;
+    virtual Int32 _OnSysInit() final;
     virtual Int32 _OnSysCompsCreated() override;
     virtual void _OnSysClose() override;
+
+    void _DoPassDay(const KERNEL_NS::LibTime &nowTime);
+    void _DoPassWeek(const KERNEL_NS::LibTime &nowTime);
+    void _DoPassMonth(const KERNEL_NS::LibTime &nowTime);
+    void _DoPassYear(const KERNEL_NS::LibTime &nowTime);
+    void _DoPassEnd(const KERNEL_NS::LibTime &nowTime);
+
+    void _DoUserPassDayBeforeUserSys();
 
     IUserSys *_GetSysBy(const KERNEL_NS::LibString &fieldName);
     const IUserSys *_GetSysBy(const KERNEL_NS::LibString &fieldName) const;
@@ -123,6 +144,10 @@ private:
     void _Clear();
 
     void _RegisterEvents();
+
+    ClientUserInfo *_BuildUserClientInfo() const;
+
+    void _SendClientUserInfo() const;
 
 private:
     IUserMgr *_userMgr;

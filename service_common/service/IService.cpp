@@ -200,7 +200,7 @@ Int32 IService::_OnHostInit()
     return Status::Success;
 }
 
-Int32 IService::_OnCompsCreated()
+Int32 IService::_OnPriorityLevelCompsCreated()
 {
     _poller = GetComp<KERNEL_NS::Poller>();
 
@@ -222,6 +222,11 @@ Int32 IService::_OnCompsCreated()
     defObj->_poller = _poller;
     defObj->_pollerTimerMgr = _poller->GetTimerMgr();
 
+    return Status::Success;
+}
+
+Int32 IService::_OnCompsCreated()
+{
     auto memoryCleaner = GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
     memoryCleaner->SetTimerMgr(_poller->GetTimerMgr());
 

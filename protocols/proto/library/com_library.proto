@@ -1,0 +1,109 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+// 按照权限大小排
+message RoleType
+{
+    enum ENUMS 
+    {
+        // 无权限
+        NoAuth = 0;
+        // 普通成员
+        NormalMember = 1;
+        // 管理员
+        Manager = 2;
+        // 馆长
+        Librarian = 3;
+    }
+}
+
+// 管理员信息(包含馆长)
+message LibararyManagerInfo
+{
+    // 管理员id
+    uint64 UserId = 1;
+}
+
+message BorrowBookInfo 
+{
+    // book id
+    uint64 BookId = 1;
+    // isbn码
+    string IsbnCode = 2;
+    // 借阅数量
+    uint64 BorrowCount = 3;
+    // 借阅时间
+    uint64 BorrowTime = 4;
+    // 预计归还时间
+    uint64 PlanGiveBackTime = 5;
+    // 实际归还时间
+    uint64 RealGiveBackTime = 6;
+}
+
+// 借还订单信息
+message BorrowOrderInfo
+{
+    // 订单号
+    uint64 OrderId = 1;
+    // 借的书
+    repeated BorrowBookInfo BorrowBookList = 2;
+    // 订单创建时间
+    uint64 CreateOrderTime = 3;
+}
+
+// 会员信息(包括管理员等)
+message MemberInfo 
+{
+    // user id
+    uint64 UserId = 1;
+    // 角色 RoleType
+    sint32 Role = 2;
+    // 会员昵称
+    string Nickname = 3;
+    // 当前借阅图书列表 只有有权限的人才会看到订单详情, 其他人只能看自己的
+    repeated BorrowOrderInfo BorrowList = 4;
+    // 锁定操作超时时间
+    sint64 LockTimestampMs = 5;
+}
+
+message LibraryInfo 
+{
+    // 唯一id
+    uint64 Id = 1;
+    // 图书馆名
+    string Name = 2;
+    // 图书馆地址
+    string Address = 3;
+    // 图书馆经营时间
+    string OpenTime = 4;
+    // 图书馆联系电话
+    string TelphoneNumber = 5;
+    // 馆长id
+    uint64 LibrarianUserId = 6;
+    // 馆长名
+    string LibrarianUserNickname = 7;
+    // 管理员列表
+    repeated LibararyManagerInfo ManagerInfoList = 8;
+    // 会员列表
+    repeated MemberInfo MemberList = 9;
+}
+
+// 玩家的图书馆数据
+message UserLibraryInfo 
+{
+    // 图书馆id
+    uint64 LibraryId = 1;
+}
+
+// 图书馆预览数据
+message LibraryPreviewInfo
+{
+    // 图书馆id
+    uint64 Id = 1;
+    // 图书馆名
+    string Name = 2;
+    // 馆长id
+    uint64 LibrarianUserId = 3;
+    // 馆长昵称
+    string LibrarianNickname = 4;
+}

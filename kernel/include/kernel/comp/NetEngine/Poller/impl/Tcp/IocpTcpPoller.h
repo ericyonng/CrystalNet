@@ -106,6 +106,8 @@ private:
 private:
     // 在组件初始化前
     Int32 _OnHostInit() override;
+    // 优先级组件创建完成
+    Int32 _OnPriorityLevelCompsCreated() override;
     // 所有组件创建完成
     Int32 _OnCompsCreated() override;
     // 在组件启动之前

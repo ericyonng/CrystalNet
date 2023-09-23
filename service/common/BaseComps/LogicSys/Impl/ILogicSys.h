@@ -176,27 +176,30 @@ public:
 
    /* TODO:
    * 跨天 默认关注
-   * @param(params):NULL
+   * @param(nowTime):必须使用nowTime作为当前时间来保证 OnPassDay/OnPassWeek/OnPassMonth/OnPassYear/OnPassTimeEnd 处理的时间是一致的
    */
-  virtual void OnPassDay(KERNEL_NS::Variant *params) {}
+  virtual void OnPassDay(const KERNEL_NS::LibTime &nowTime) {}
 
    /*
    * 跨周 需要 FocusMethod 才生效
    * @param(params):NULL
    */
-  virtual void OnPassWeek(KERNEL_NS::Variant *params) {}
+  virtual void OnPassWeek(const KERNEL_NS::LibTime &nowTime) {}
 
    /*
    * 跨月 需要 FocusMethod 才生效
    * @param(params):NULL
    */
-  virtual void OnPassMonth(KERNEL_NS::Variant *params) {}
+  virtual void OnPassMonth(const KERNEL_NS::LibTime &nowTime) {}
 
   /*
   * 跨年 需要 FocusMethod 才生效
   * @param(params):NULL
   */
- virtual void OnPassYear(KERNEL_NS::Variant *params) {}
+ virtual void OnPassYear(const KERNEL_NS::LibTime &nowTime) {}
+
+ // pass time end
+ virtual void OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime) {}
 
     /* logic sys的特性
     * flags LogicSysFlagsType

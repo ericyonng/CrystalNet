@@ -664,6 +664,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kLastTokenFieldNumber = 7,
     kUserIdFieldNumber = 1,
     kTokenExpireTimeFieldNumber = 8,
+    kBindPhoneFieldNumber = 9,
     kClientStatusFieldNumber = 6,
   };
   // string AccountName = 2;
@@ -754,6 +755,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_tokenexpiretime(int64_t value);
   public:
 
+  // uint64 BindPhone = 9;
+  void clear_bindphone();
+  uint64_t bindphone() const;
+  void set_bindphone(uint64_t value);
+  private:
+  uint64_t _internal_bindphone() const;
+  void _internal_set_bindphone(uint64_t value);
+  public:
+
   // sint32 ClientStatus = 6;
   void clear_clientstatus();
   int32_t clientstatus() const;
@@ -778,6 +788,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr lasttoken_;
     uint64_t userid_;
     int64_t tokenexpiretime_;
+    uint64_t bindphone_;
     int32_t clientstatus_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -1107,6 +1118,26 @@ inline void ClientUserInfo::_internal_set_tokenexpiretime(int64_t value) {
 inline void ClientUserInfo::set_tokenexpiretime(int64_t value) {
   _internal_set_tokenexpiretime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.TokenExpireTime)
+}
+
+// uint64 BindPhone = 9;
+inline void ClientUserInfo::clear_bindphone() {
+  _impl_.bindphone_ = uint64_t{0u};
+}
+inline uint64_t ClientUserInfo::_internal_bindphone() const {
+  return _impl_.bindphone_;
+}
+inline uint64_t ClientUserInfo::bindphone() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.BindPhone)
+  return _internal_bindphone();
+}
+inline void ClientUserInfo::_internal_set_bindphone(uint64_t value) {
+  
+  _impl_.bindphone_ = value;
+}
+inline void ClientUserInfo::set_bindphone(uint64_t value) {
+  _internal_set_bindphone(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.BindPhone)
 }
 
 #ifdef __GNUC__

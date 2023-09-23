@@ -29,16 +29,16 @@ using ProtoPackage.Attributes;
             "ChVjb21fY2xpZW50X3VzZXIucHJvdG8SE0NSWVNUQUxfTkVULnNlcnZpY2Ui",
             "YAoQQ2xpZW50VXNlclN0YXR1cyJMCgVFTlVNUxILCgdVTkxPR0lOEAASDAoI",
             "TE9HSU5JTkcQARILCgdMT0dJTkVEEAISDQoJTE9HT1VUSU5HEAMSDAoITE9H",
-            "T1VURUQQBCKqAQoOQ2xpZW50VXNlckluZm8SDgoGVXNlcklkGAEgASgEEhMK",
+            "T1VURUQQBCK9AQoOQ2xpZW50VXNlckluZm8SDgoGVXNlcklkGAEgASgEEhMK",
             "C0FjY291bnROYW1lGAIgASgJEgwKBE5hbWUYAyABKAkSEAoITmlja25hbWUY",
             "BCABKAkSEQoJUGhvbmVJbWVpGAUgASgJEhQKDENsaWVudFN0YXR1cxgGIAEo",
             "ERIRCglMYXN0VG9rZW4YByABKAkSFwoPVG9rZW5FeHBpcmVUaW1lGAggASgS",
-            "YgZwcm90bzM="));
+            "EhEKCUJpbmRQaG9uZRgJIAEoBGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.ClientUserStatus), global::CRYSTALNET.Service.ClientUserStatus.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.ClientUserStatus.Types.ENUMS) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.ClientUserInfo), global::CRYSTALNET.Service.ClientUserInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "PhoneImei", "ClientStatus", "LastToken", "TokenExpireTime" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.ClientUserInfo), global::CRYSTALNET.Service.ClientUserInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "PhoneImei", "ClientStatus", "LastToken", "TokenExpireTime", "BindPhone" }, null, null, null, null)
           }));
     }
     #endregion
@@ -270,6 +270,7 @@ using ProtoPackage.Attributes;
       clientStatus_ = other.clientStatus_;
       lastToken_ = other.lastToken_;
       tokenExpireTime_ = other.tokenExpireTime_;
+      bindPhone_ = other.bindPhone_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -399,6 +400,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "BindPhone" field.</summary>
+    public const int BindPhoneFieldNumber = 9;
+    private ulong bindPhone_;
+    /// <summary>
+    /// 绑定手机
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong BindPhone {
+      get { return bindPhone_; }
+      set {
+        bindPhone_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -422,6 +438,7 @@ using ProtoPackage.Attributes;
       if (ClientStatus != other.ClientStatus) return false;
       if (LastToken != other.LastToken) return false;
       if (TokenExpireTime != other.TokenExpireTime) return false;
+      if (BindPhone != other.BindPhone) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -437,6 +454,7 @@ using ProtoPackage.Attributes;
       if (ClientStatus != 0) hash ^= ClientStatus.GetHashCode();
       if (LastToken.Length != 0) hash ^= LastToken.GetHashCode();
       if (TokenExpireTime != 0L) hash ^= TokenExpireTime.GetHashCode();
+      if (BindPhone != 0UL) hash ^= BindPhone.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -487,6 +505,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(64);
         output.WriteSInt64(TokenExpireTime);
       }
+      if (BindPhone != 0UL) {
+        output.WriteRawTag(72);
+        output.WriteUInt64(BindPhone);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -529,6 +551,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(64);
         output.WriteSInt64(TokenExpireTime);
       }
+      if (BindPhone != 0UL) {
+        output.WriteRawTag(72);
+        output.WriteUInt64(BindPhone);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -562,6 +588,9 @@ using ProtoPackage.Attributes;
       }
       if (TokenExpireTime != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(TokenExpireTime);
+      }
+      if (BindPhone != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BindPhone);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -598,6 +627,9 @@ using ProtoPackage.Attributes;
       }
       if (other.TokenExpireTime != 0L) {
         TokenExpireTime = other.TokenExpireTime;
+      }
+      if (other.BindPhone != 0UL) {
+        BindPhone = other.BindPhone;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -646,6 +678,10 @@ using ProtoPackage.Attributes;
             TokenExpireTime = input.ReadSInt64();
             break;
           }
+          case 72: {
+            BindPhone = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -691,6 +727,10 @@ using ProtoPackage.Attributes;
           }
           case 64: {
             TokenExpireTime = input.ReadSInt64();
+            break;
+          }
+          case 72: {
+            BindPhone = input.ReadUInt64();
             break;
           }
         }

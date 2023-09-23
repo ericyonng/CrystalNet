@@ -29,6 +29,25 @@ public static class PacketOpcode
         ClientHeartbeatRes = 30,    // heartbeat.proto
         LogoutReq = 31,    // login.proto
         LogoutNty = 32,    // login.proto
-        OpcodeMax = 32,
+        UserClientInfoNty = 37,    // user.proto
+        GetLibraryInfoReq = 42,    // library.proto
+        GetLibraryInfoRes = 43,    // library.proto
+        CreateLibraryReq = 44,    // library.proto
+        CreateLibraryRes = 45,    // library.proto
+        LibraryInfoNty = 46,    // library.proto
+        JoinLibraryReq = 47,    // library.proto
+        JoinLibraryRes = 48,    // library.proto
+        GetLibraryListReq = 49,    // library.proto
+        GetLibraryListRes = 50,    // library.proto
+        QuitLibraryReq = 51,    // library.proto
+        QuitLibraryRes = 52,    // library.proto
+        TransferLibraianReq = 53,    // library.proto
+        TransferLibraianRes = 54,    // library.proto
+        ModifyMemberInfoReq = 55,    // library.proto
+        ModifyMemberInfoRes = 56,    // library.proto
+        UserLibraryInfoNty = 57,    // library.proto
+        ModifyUserInfoReq = 58,    // user.proto
+        ModifyUserInfoRes = 59,    // user.proto
+        OpcodeMax = 59,
     }
 }

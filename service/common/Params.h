@@ -36,7 +36,7 @@ SERVICE_BEGIN
 
 namespace Params
 {
-    enum ENUMS : Int32
+    enum : Int32
     {
         UNKNOWN = 0,        // 未知
         SESSION_ID,     // 会话id UInt64
@@ -66,6 +66,8 @@ namespace Params
         USER_ID,            // 用户id
         PACKET,             // 数据包
         OPCODE,             // 协议号
+
+        COMMON_MAX_ENUM,
     };
 }
 

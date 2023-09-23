@@ -729,10 +729,10 @@ Int32 IocpTcpPoller::_OnHostInit()
     return Status::Success;
 }
 
-Int32 IocpTcpPoller::_OnCompsCreated()
+
+Int32 IocpTcpPoller::_OnPriorityLevelCompsCreated()
 {
     _poller = GetComp<Poller>();
-    _memoryCleaner = GetComp<TlsMemoryCleanerComp>();
 
     TimeSlice span(0, 0, _cfg->_maxPieceTimeInMicroseconds);
     _poller->SetMaxPriorityLevel(_cfg->_maxPriorityLevel);
@@ -762,6 +762,14 @@ Int32 IocpTcpPoller::_OnCompsCreated()
     dirtyHelper->SetHandler(PollerDirty::CLOSE, deleg);
     deleg = DelegateFactory::Create(this, &IocpTcpPoller::_OnDirtySessionAccept);
     dirtyHelper->SetHandler(PollerDirty::ACCEPT, deleg);
+
+    return Status::Success;
+}
+
+Int32 IocpTcpPoller::_OnCompsCreated()
+{
+    _memoryCleaner = GetComp<TlsMemoryCleanerComp>();
+
 
     // ip rule mgr 设置
     auto ipRuleMgr = GetComp<IpRuleMgr>();

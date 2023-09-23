@@ -34,6 +34,7 @@
 SERVICE_BEGIN
 
 class PendingUser;
+class UserLoginInfo;
  
 class ILoginMgr : public IUserSys
 {
@@ -41,6 +42,7 @@ class ILoginMgr : public IUserSys
 
 public:
     virtual Int32 CheckLogin(const PendingUser *pendingUser) const = 0;
+    virtual const UserLoginInfo *GetLoginInfo() const = 0;
 };
 
 SERVICE_END

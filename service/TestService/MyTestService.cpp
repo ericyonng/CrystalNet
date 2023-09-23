@@ -143,6 +143,8 @@ void MyTestService::_OnServiceClear()
 
 void MyTestService::_OnServiceRegisterComps()
 {
+    // 事件转发器 从Service 转发到其他事件管理器
+    RegisterComp<EventRelayGlobalFactory>();
     // 配置表
     RegisterComp<ConfigLoaderFactory>();
     // 会话管理
@@ -157,6 +159,9 @@ void MyTestService::_OnServiceRegisterComps()
     // 全球唯一id组件
     RegisterComp<GlobalUidMgrFactory>();
 
+    // 跨时间组件
+    RegisterComp<PassTimeGlobalFactory>();
+
     // 测试组件
     RegisterComp<MyServiceCompFactory>();
 
@@ -165,6 +170,15 @@ void MyTestService::_OnServiceRegisterComps()
 
     // 用户系统
     RegisterComp<UserMgrFactory>();
+
+    // 昵称系统
+    RegisterComp<NicknameGlobalFactory>();
+
+    // 图书馆
+    RegisterComp<LibraryGlobalFactory>();
+
+    // 邀请码
+    RegisterComp<InviteCodeGlobalFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()
@@ -536,6 +550,10 @@ void MyTestService::_OnPollerWillDestroy(KERNEL_NS::Poller *poller)
 
 void MyTestService::_OnDbLoaded(KERNEL_NS::LibEvent *ev)
 {
+    // 先执行跨天
+    auto passTimeGlobal = GetComp<IPassTimeGlobal>();
+    passTimeGlobal->CheckPassTime();
+    
     ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_WILL_STARTUP);
     GetEventMgr()->FireEvent(ev);
 

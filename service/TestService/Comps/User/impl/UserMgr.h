@@ -98,6 +98,12 @@ public:
 
    virtual KERNEL_NS::LibRsa &GetRsa() const override;
 
+   virtual void OnPassDay(const KERNEL_NS::LibTime &nowTime) override;
+   virtual void OnPassWeek(const KERNEL_NS::LibTime &nowTime) override;
+   virtual void OnPassMonth(const KERNEL_NS::LibTime &nowTime) override;
+   virtual void OnPassYear(const KERNEL_NS::LibTime &nowTime) override;
+   virtual void OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime) override;
+
 private:
     virtual Int32 _OnGlobalSysInit() override;
     virtual Int32 _OnGlobalSysCompsCreated() override;

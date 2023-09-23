@@ -103,10 +103,9 @@ protected:
         return Status::Success;
     }
 
-    virtual Int32 _OnCompsCreated() override
+    virtual Int32 _OnPriorityLevelCompsCreated() override
     {
         auto poller = GetComp<KERNEL_NS::Poller>();
-
         poller->SetMaxPriorityLevel(8);
         poller->SetPepareEventWorkerHandler(this, &HostObj::_OnPollerPrepare);
         poller->SetEventWorkerCloseHandler(this, &HostObj::_OnPollerWillDestroy);
@@ -117,6 +116,11 @@ protected:
         auto delg = KERNEL_NS::DelegateFactory::Create(this, &HostObj::_OnDirty);
         dirtyHelper->SetHandler(0, delg);
 
+        return Status::Success;
+    }
+
+    virtual Int32 _OnCompsCreated() override
+    {
         return Status::Success;
     }
 

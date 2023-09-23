@@ -31,6 +31,8 @@ message UserBaseInfo
     string CreatePhoneImei = 13;
     // 绑定的邮箱地址
     string BindMailAddr = 14;
+    // 上次跨天时间
+    sint64 LastPassDayTime = 15;
 }
 
 // 登录模式

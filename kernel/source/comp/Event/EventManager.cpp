@@ -73,7 +73,7 @@ EventManager::~EventManager()
 
 ListenerStub EventManager::AddListener(int id, IDelegate<void, LibEvent *> *listener, const ListenerStub &bindedStub /*= INVALID_LISTENER_STUB*/)
 {
-    if(id <= 0 || listener == NULL)
+    if(id < 0 || listener == NULL)
     {
         CRYSTAL_RELEASE_SAFE(listener);
         return INVALID_LISTENER_STUB;
@@ -168,6 +168,29 @@ Int32 EventManager::FireEvent(LibEvent *event)
 
     Int32 res = FireEvResult::Fail;
     const Int32 evId = event->GetId();
+
+    // 监听所有事件的回调
+    auto iterAllEvs = _listeners.find(0);
+    if(iterAllEvs != _listeners.end())
+    {
+        _Listeners &listeners = iterAllEvs->second;
+        for(_Listeners::iterator lIt = listeners.begin();
+            lIt != listeners.end();
+            ++lIt)
+        {
+            _Listener &listener = *lIt;
+            if(listener._listenCallBack)
+                listener._listenCallBack->Invoke(event);
+        }
+
+        res = FireEvResult::Success;
+    }
+    else if(_delayAddOpRefCount.find(0) != _delayAddOpRefCount.end())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("attention: fire event[%d] with delay listen all events please check if it is a terrible design, it cant fire event when listen is not finish!"), evId);
+    }
+
+    res = FireEvResult::Fail;
     _ListenersMap::iterator mIt = _listeners.find(evId);
     if(mIt != _listeners.end())
     {
@@ -247,7 +270,7 @@ int EventManager::ProcessEventOperation(EventManager::_Op &op)
     }
     else if(op._op == EventManager::REMOVE)
     {// 移除事件
-        if(listener._evId > 0)
+        if(listener._evId >= 0)
         {
             _delayAddOpRefCount.erase(listener._evId);
             _ListenersMap::iterator mIt = _listeners.find(listener._evId);

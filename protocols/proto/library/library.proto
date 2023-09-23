@@ -1,0 +1,155 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_library.proto";
+
+/// Opcode:
+message GetLibraryInfoReq
+{
+
+}
+
+// 图书馆信息, 登录成功后主动推送
+/// Opcode:
+message LibraryInfoNty 
+{
+    LibraryInfo LibraryInfo = 1;
+}
+
+/// Opcode:
+message GetLibraryInfoRes
+{
+    sint32 ErrCode = 1;
+}
+
+/// Opcode:
+message CreateLibraryReq
+{
+    // 邀请码
+    string InviteCode = 1;
+    // 管名
+    string Name = 2;
+    // 书馆地址
+    string Address = 3;
+    // 书馆经营时间
+    string OpenTime = 4;
+    // 书馆联系电话
+    string TelphoneNumber = 5;
+    // 必须绑定手机号
+    uint64 BindPhone = 6;
+}
+
+/// Opcode:
+message CreateLibraryRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 加入图书馆: 不在图书馆内, 
+/// Opcode:
+message JoinLibraryReq 
+{
+    uint64 LibraryId = 1;
+}
+
+// 加入图书馆:刚开始是无权限的, 只有让管理员添加成为会员才有权限借阅
+/// Opcode:
+message JoinLibraryRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 退出: 必须把书还完
+/// Opcode:
+message QuitLibraryReq
+{
+
+}
+
+// 退出
+/// Opcode:
+message QuitLibraryRes
+{
+    // 错误码
+    sint32 ErrCode = 1;
+}
+
+// 获取图书馆列表
+/// Opcode:
+message GetLibraryListReq
+{
+
+}
+
+// 获取图书馆列表
+/// Opcode:
+message GetLibraryListRes
+{
+    repeated LibraryPreviewInfo LibraryPreviewInfoList = 1;
+}
+
+// 转让馆长:只能转让给管理员, 转让后降级成管理员 TODO:
+/// Opcode:
+message TransferLibraianReq 
+{
+    uint64 TargetUserId = 1;
+}
+
+// 转让馆长
+/// Opcode:
+message TransferLibraianRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 修改权限 馆长不可修改自己的权限, 只能转让, 管理员不可以将自己升级, 只能管理员修改权限 TODO:
+/// Opcode:
+message ModifyMemberInfoReq
+{
+    uint64 memberUserId = 1;
+
+    // 修改角色
+    oneof ModifyRole
+    {
+        sint32 newRole = 2;
+    }
+
+    // 修改手机号
+    oneof ModifyPhoneNumber
+    {
+        uint64 newMemberPhone = 3;
+    }
+}
+
+/// Opcode:
+message ModifyMemberInfoRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 用户的图书馆简要信息
+/// Opcode:
+message UserLibraryInfoNty
+{
+    UserLibraryInfo UserLibraryInfo = 1;
+}
+
+// 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管
+
+// 获取图书馆信息（图书馆地址,图书馆联系电话, 图书馆管理员姓名, 图书馆管理员联系方式, 图书馆管理员昵称）
+// 转让馆长
+// 添加管理员账号,
+// 移除管理员账号
+// 权限设置
+// 图书馆角色设置
+// 图书数据
+// 图书分类
+// 最新上架图书()
+// 图书点赞
+// 上架新书, 下架书
+// 录书(录书不一定会上架)
+// 借书
+// 还书
+// 已借
+// 逾期待还列表
+// 

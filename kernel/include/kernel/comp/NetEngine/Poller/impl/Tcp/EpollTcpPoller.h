@@ -103,6 +103,8 @@ private:
     bool _TryHandleConnecting(UInt64 sessionId, Int32 events);
 
 private:
+    // 优先级组件创建完成
+    Int32 _OnPriorityLevelCompsCreated() override;
     // 所有组件创建完成
     Int32 _OnCompsCreated() override;
     // 在组件初始化前

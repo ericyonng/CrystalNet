@@ -68,6 +68,8 @@ protected:
     virtual Int32 _OnHostCreated();
     // 在组件初始化前 必须重写
     virtual Int32 _OnHostInit() = 0;
+    // 带优先级的组件创建完成
+    virtual Int32 _OnPriorityLevelCompsCreated();
     // 所有组件创建完成
     virtual Int32 _OnCompsCreated();
     // 在组件启动之前 请勿在WillStart及之前的接口启动线程，此时都是线程不安全的状态
@@ -191,6 +193,7 @@ private:
 
     };
     std::vector<_WillRegComp> _willRegComps;
+    std::map<Int32, std::vector<_WillRegComp>> _priorityLevelRefWillRegComp;
 
     std::vector<CompObject *> _comps;
     // std::unordered_map<LibString, std::vector<CompObject *>> _icompNameRefComps;

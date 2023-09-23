@@ -54,5 +54,24 @@ public:
     static constexpr Int32 OPCODE_ClientHeartbeatRes = 30;    // heartbeat.proto
     static constexpr Int32 OPCODE_LogoutReq = 31;    // login.proto
     static constexpr Int32 OPCODE_LogoutNty = 32;    // login.proto
-    static constexpr Int32 OPCODE_MAX = 32;
+    static constexpr Int32 OPCODE_UserClientInfoNty = 37;    // user.proto
+    static constexpr Int32 OPCODE_GetLibraryInfoReq = 42;    // library.proto
+    static constexpr Int32 OPCODE_GetLibraryInfoRes = 43;    // library.proto
+    static constexpr Int32 OPCODE_CreateLibraryReq = 44;    // library.proto
+    static constexpr Int32 OPCODE_CreateLibraryRes = 45;    // library.proto
+    static constexpr Int32 OPCODE_LibraryInfoNty = 46;    // library.proto
+    static constexpr Int32 OPCODE_JoinLibraryReq = 47;    // library.proto
+    static constexpr Int32 OPCODE_JoinLibraryRes = 48;    // library.proto
+    static constexpr Int32 OPCODE_GetLibraryListReq = 49;    // library.proto
+    static constexpr Int32 OPCODE_GetLibraryListRes = 50;    // library.proto
+    static constexpr Int32 OPCODE_QuitLibraryReq = 51;    // library.proto
+    static constexpr Int32 OPCODE_QuitLibraryRes = 52;    // library.proto
+    static constexpr Int32 OPCODE_TransferLibraianReq = 53;    // library.proto
+    static constexpr Int32 OPCODE_TransferLibraianRes = 54;    // library.proto
+    static constexpr Int32 OPCODE_ModifyMemberInfoReq = 55;    // library.proto
+    static constexpr Int32 OPCODE_ModifyMemberInfoRes = 56;    // library.proto
+    static constexpr Int32 OPCODE_UserLibraryInfoNty = 57;    // library.proto
+    static constexpr Int32 OPCODE_ModifyUserInfoReq = 58;    // user.proto
+    static constexpr Int32 OPCODE_ModifyUserInfoRes = 59;    // user.proto
+    static constexpr Int32 OPCODE_MAX = 59;
 };

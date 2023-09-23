@@ -39,6 +39,7 @@
 #include <Comps/config/config.h>
 #include <Comps/User/impl/UserSessionMgr.h>
 #include <Comps/User/impl/UserSessionMgrFactory.h>
+#include <Comps/NickName/nickname.h>
 
 SERVICE_BEGIN
 
@@ -78,16 +79,17 @@ void UserMgr::OnStartup()
 {
     g_Log->Info(LOGFMT_OBJ_TAG("startup"));
 
-    for(auto userId : _pendingLoginEventOnStartup)
-    {
-        auto user = GetUser(userId);
-        if(UNLIKELY(!user))
-            continue;
+    // TODO:需不需要抛事件?
+    // for(auto userId : _pendingLoginEventOnStartup)
+    // {
+    //     auto user = GetUser(userId);
+    //     if(UNLIKELY(!user))
+    //         continue;
 
-        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_LOGIN);
-        ev->SetParam(Params::USER_OBJ, user);
-        GetEventMgr()->FireEvent(ev);
-    }
+    //     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_LOGIN);
+    //     ev->SetParam(Params::USER_OBJ, user);
+    //     GetEventMgr()->FireEvent(ev);
+    // }
     _pendingLoginEventOnStartup.clear();
 
     _LruPopUser();
@@ -189,10 +191,6 @@ Int32 UserMgr::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_
     user->SetUserStatus(UserStatus::USER_ONLOADED);
 
     _AddUser(user.AsSelf());
-
-    user->OnLogin();
-    user->OnLoginFinish();
-
     _pendingLoginEventOnStartup.push_back(user->GetUserId());
 
     g_Log->Info(LOGFMT_OBJ_TAG("[user loaded]: %s"), user->ToString().c_str());
@@ -547,6 +545,36 @@ KERNEL_NS::LibRsa &UserMgr::GetRsa() const
     return _rsa;
 }
 
+void UserMgr::OnPassDay(const KERNEL_NS::LibTime &nowTime)
+{
+    for(auto iter : _userIdRefUser)
+        iter.second->OnPassDay(nowTime);
+}
+
+void UserMgr::OnPassWeek(const KERNEL_NS::LibTime &nowTime)
+{
+    for(auto iter : _userIdRefUser)
+        iter.second->OnPassWeek(nowTime);
+}
+
+void UserMgr::OnPassMonth(const KERNEL_NS::LibTime &nowTime)
+{
+    for(auto iter : _userIdRefUser)
+        iter.second->OnPassMonth(nowTime);
+}
+
+void UserMgr::OnPassYear(const KERNEL_NS::LibTime &nowTime)
+{
+    for(auto iter : _userIdRefUser)
+        iter.second->OnPassYear(nowTime);
+}
+
+void UserMgr::OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime)
+{
+    for(auto iter : _userIdRefUser)
+        iter.second->OnPassTimeEnd(nowTime);
+}
+
 Int32 UserMgr::_OnGlobalSysInit()
 {
     auto ini = GetApp()->GetIni();
@@ -691,30 +719,31 @@ void UserMgr::_AddToLru(IUser *user)
 
 void UserMgr::_LruPopUser()
 {
-    if(LIKELY(static_cast<Int32>(_lru.size()) < _lruCapacityLimit))
-        return; 
+    for(;static_cast<Int32>(_lru.size()) > _lruCapacityLimit;)
+    {
+        auto firstNode = _lru.begin();
+        auto expiredlUser = (*firstNode)->CastTo<User>();
+        _lru.erase(firstNode);
 
-    auto firstNode = _lru.begin();
-    auto expiredlUser = (*firstNode)->CastTo<User>();
-    _lru.erase(firstNode);
+        // 踢掉
+        if(expiredlUser->IsLogined())
+            expiredlUser->Logout(LogoutReason::USER_IDLE);
 
-    // 踢掉
-    if(expiredlUser->IsLogined())
-        expiredlUser->Logout(LogoutReason::USER_IDLE);
+        auto mysqlMgr = GetGlobalSys<IMysqlMgr>();
+        mysqlMgr->PurgeAndWaitComplete(this);
 
-    auto mysqlMgr = GetGlobalSys<IMysqlMgr>();
-    mysqlMgr->PurgeAndWaitComplete(this);
+        // 即将移除user
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_WILL_REMOVE);
+        ev->SetParam(Params::USER_ID, expiredlUser->GetUserId());
+        GetEventMgr()->FireEvent(ev);
 
-    // 即将移除user
-    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_WILL_REMOVE);
-    ev->SetParam(Params::USER_ID, expiredlUser->GetUserId());
-    GetEventMgr()->FireEvent(ev);
+        _RemoveUser(expiredlUser);
 
-    _RemoveUser(expiredlUser);
-
-    expiredlUser->WillClose();
-    expiredlUser->Close();
-    User::DeleteThreadLocal_User(expiredlUser);
+        expiredlUser->WillClose();
+        expiredlUser->Close();
+        User::DeleteThreadLocal_User(expiredlUser);
+    }
+    
 }
 
 void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
@@ -892,6 +921,19 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
                 break;
             }
 
+            // 自动生成昵称
+            auto nicknameGlobal = GetGlobalSys<INicknameGlobal>();
+            if(pendingUser->_loginInfo->userregisterinfo().nickname().empty())
+            {
+                KERNEL_NS::LibString nickname;
+                nicknameGlobal->GenRandNickname(nickname);
+                pendingUser->_loginInfo->mutable_userregisterinfo()->set_nickname(nickname.GetRaw());
+            }
+            else
+            {
+                nicknameGlobal->AddUsedNickname(pendingUser->_loginInfo->userregisterinfo().nickname());
+            }
+            
             // 是注册则创建user账号
             KERNEL_NS::SmartPtr<User, KERNEL_NS::AutoDelMethods::CustomDelete> u = User::NewThreadLocal_User(this);
             u.SetClosureDelegate([](void *p)
@@ -1013,6 +1055,10 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 
     if(LIKELY(user))
     {
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_OBJ_CREATED);
+        ev->SetParam(Params::USER_OBJ, user);
+        GetEventMgr()->FireEvent(ev);
+        
         _RemoveFromLru(user);
         user->UpdateLrtTime();
         _AddToLru(user);
@@ -1047,6 +1093,9 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     {
         user->OnUserCreated();
     }
+
+    // 创建对象时调用
+    user->OnUserObjCreated();
 
     // 登录
     if(pendingUser->_sessionId)
@@ -1157,10 +1206,20 @@ Int32 UserMgr::_CheckRegisterInfo(const LoginInfo &loginInfo) const
         g_Log->Warn(LOGFMT_OBJ_TAG("account name not utf8:%s"), regiseterInfo.accountname().c_str());
         return Status::InvalidChar;
     }
-    if((!regiseterInfo.nickname().empty()) && (!KERNEL_NS::StringUtil::IsUtf8String(regiseterInfo.nickname())))
+    if((!regiseterInfo.nickname().empty()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("nick name not utf8:%s"), regiseterInfo.nickname().c_str());
-        return Status::InvalidChar;
+        if(!KERNEL_NS::StringUtil::IsUtf8String(regiseterInfo.nickname()))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("nick name not utf8:%s"), regiseterInfo.nickname().c_str());
+            return Status::InvalidChar;
+        }
+
+        auto nicknameGlobal = GetGlobalSys<INicknameGlobal>();
+        if(!nicknameGlobal->CheckNickname(regiseterInfo.nickname()))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("nick name not utf8:%s"), regiseterInfo.nickname().c_str());
+            return Status::InvalidNickname;
+        }
     }
     if(regiseterInfo.pwd().empty())
     {
@@ -1207,10 +1266,19 @@ Int32 UserMgr::_CheckRegisterInfo(const LoginInfo &loginInfo) const
     }
 
     auto commonConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_CHAR_COUNT);
+    auto maxKenLenCommonConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::USER_LOGIN_KEY_CHAR_COUNT_MAX_LEN);
     if(static_cast<Int32>(plainPwdText.length()) < commonConfig->_value)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("pwd less than :%d, size:%d plainPwdText:%s")
                 , commonConfig->_value, static_cast<Int32>(plainPwdText.length())
+                , plainPwdText.c_str());
+
+        return Status::Failed;
+    }
+    if(static_cast<Int32>(plainPwdText.length()) > maxKenLenCommonConfig->_value)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("pwd more than :%d, size:%d plainPwdText:%s")
+                , maxKenLenCommonConfig->_value, static_cast<Int32>(plainPwdText.length())
                 , plainPwdText.c_str());
 
         return Status::Failed;
@@ -1239,6 +1307,14 @@ Int32 UserMgr::_CheckRegisterInfo(const LoginInfo &loginInfo) const
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("client not no author"));
         return Status::Failed;
+    }
+
+    auto nameMaxLenConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::NAME_MAX_LEN);
+    KERNEL_NS::LibString accountname = regiseterInfo.accountname();
+    if(static_cast<Int32>(accountname.length_with_utf8()) > nameMaxLenConfig->_value)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("name len too long account name:%s"), regiseterInfo.accountname());
+        return Status::NameTooLong;
     }
 
     // TODO: 有没有被封禁ip, 有没有被封禁设备id,得添加一个封禁模块(BanMgr)

@@ -222,6 +222,19 @@ Int32 CompHostObject::RegisterComp(CompFactory *factory)
     }
 
     // 是否被注册过
+    for(auto iter : _priorityLevelRefWillRegComp)
+    {
+        for(auto iterRegComp : iter.second)
+        {
+            if(iterRegComp._factory == factory)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory));
+                return Status::Repeat;
+            }
+        }
+    }
+
+    // 是否被注册过
     for(auto iter = _willRegComps.begin(); iter != _willRegComps.end(); ++iter)
     {
         if(iter->_factory == factory)
@@ -231,7 +244,19 @@ Int32 CompHostObject::RegisterComp(CompFactory *factory)
         }
     }
 
-    _willRegComps.push_back(_WillRegComp(factory));
+    if(LIKELY(factory->GetPriorityLevel() == CompPriorityLevel::NONE))
+    {
+        _willRegComps.push_back(_WillRegComp(factory));
+    }
+    else
+    {
+        const auto priorityLevel = factory->GetPriorityLevel();
+        auto iter = _priorityLevelRefWillRegComp.find(priorityLevel);
+        if(iter == _priorityLevelRefWillRegComp.end())
+            iter = _priorityLevelRefWillRegComp.insert(std::make_pair(priorityLevel, std::vector<_WillRegComp>())).first;
+        iter->second.push_back(_WillRegComp(factory));
+    }
+
     return Status::Success;
 }
 
@@ -261,6 +286,24 @@ Int32 CompHostObject::RegisterComp(const std::vector<CompFactory *> &factorys)
         if(UNLIKELY(isRegister))
             continue;
 
+        // 是否被注册过
+        isRegister = false;
+        for(auto iter : _priorityLevelRefWillRegComp)
+        {
+            for(auto iterRegComp : iter.second)
+            {
+                if(iterRegComp._factory == factory)
+                {
+                    isRegister = true;
+                    g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory));
+                    break;
+                }
+            }
+        }
+
+        if(UNLIKELY(isRegister))
+            continue;
+
         toRegister.push_back(factory);
     }
 
@@ -271,7 +314,20 @@ Int32 CompHostObject::RegisterComp(const std::vector<CompFactory *> &factorys)
     }
 
     for(auto factory : toRegister)
-        _willRegComps.push_back(_WillRegComp(factory));
+    {
+        if(LIKELY(factory->GetPriorityLevel() == CompPriorityLevel::NONE))
+        {
+            _willRegComps.push_back(_WillRegComp(factory));
+        }
+        else
+        {
+            const auto priorityLevel = factory->GetPriorityLevel();
+            auto iter = _priorityLevelRefWillRegComp.find(priorityLevel);
+            if(iter == _priorityLevelRefWillRegComp.end())
+                iter = _priorityLevelRefWillRegComp.insert(std::make_pair(priorityLevel, std::vector<_WillRegComp>())).first;
+            iter->second.push_back(_WillRegComp(factory));
+        }
+    }
 
     return Status::Success;
 }
@@ -336,6 +392,14 @@ Int32 CompHostObject::_OnHostCreated()
     return Status::Success;
 }
 
+Int32 CompHostObject::_OnPriorityLevelCompsCreated()
+{
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("_OnPriorityLevelCompsCreated host comp name:%s"), GetObjName().c_str());
+
+    return Status::Success;
+}
+
 Int32 CompHostObject::_OnCompsCreated()
 {
     if(g_Log->IsEnable(LogLevel::Debug))
@@ -346,7 +410,75 @@ Int32 CompHostObject::_OnCompsCreated()
 
 Int32 CompHostObject::_InitComps()
 {
+    // 优先级的先处理
     bool initSuccess = true;
+    for(auto iter = _priorityLevelRefWillRegComp.begin(); iter != _priorityLevelRefWillRegComp.end(); ++iter)
+    {
+        auto &regComps = iter->second;
+        for(auto &willRegComp : regComps)
+        {
+            // 取得comp
+            CompObject *newComp = NULL;
+            if(willRegComp._factory)
+            {
+                newComp = willRegComp._factory->Create();
+                willRegComp._factory->Release();
+                willRegComp._factory = NULL;
+            }
+            else
+            {
+                newComp = willRegComp._comp;
+                willRegComp._comp = NULL;
+            }
+
+            ASSERT(newComp);
+            newComp->BindOwner(this);
+
+            Int32 ret = newComp->OnCreated();
+            if(ret != Status::Success)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("comp created fail ret:%d, comp name:%s, host comp name:%s"), ret, RttiUtil::GetByObj(newComp), GetObjName().c_str());
+                
+                initSuccess = false;
+                newComp->WillClose();
+                newComp->Close();
+                newComp->Release();
+                newComp = NULL;
+
+                _OnWillCloseComps();
+                _CloseComps();
+                _DestroyComps();
+                _DestroyWillRegComps();
+                break;
+            }
+
+            _AddComp(newComp);
+
+            // 设置关注接口
+            _MaskIfFocus(newComp);
+        }
+    }
+
+    // 失败与否
+    if(!initSuccess)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("create priority level comps fail this host comp name:%s."), GetObjName().c_str());
+        return Status::Failed;
+    }
+
+    _priorityLevelRefWillRegComp.clear();
+    Int32 ret = _OnPriorityLevelCompsCreated();
+    if(ret != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("priority level comps created fail host comp name:%s, ret:%d"), GetObjName().c_str(), ret);
+        _OnWillCloseComps();
+        _CloseComps();
+        _DestroyComps();
+        _DestroyWillRegComps();
+        return ret;
+    }
+
+    initSuccess = true;
     for(auto iter = this->_willRegComps.begin(); iter != _willRegComps.end(); ++iter)
     {
         // 取得comp
@@ -401,7 +533,7 @@ Int32 CompHostObject::_InitComps()
     _willRegComps.clear();
 
     // 组件创建成功
-    Int32 ret = _OnCompsCreated();
+    ret = _OnCompsCreated();
     if(ret != Status::Success)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("comps created fail host comp name:%s, ret:%d"), GetObjName().c_str(), ret);
@@ -511,6 +643,24 @@ void CompHostObject::_DestroyWillRegComps()
             regComp._comp = NULL;
         }
     });
+
+    for(auto iter = _priorityLevelRefWillRegComp.begin(); iter != _priorityLevelRefWillRegComp.end();)
+    {
+        ContainerUtil::DelContainer(iter->second, [](_WillRegComp &regComp){
+            if(regComp._factory)
+            {
+                regComp._factory->Release();
+                regComp._factory = NULL;
+            }
+            else if(regComp._comp)
+            {
+                regComp._comp->Release();
+                regComp._comp = NULL;
+            }
+        });
+
+        iter = _priorityLevelRefWillRegComp.erase(iter);
+    }
 }
 
 void CompHostObject::_DestroyComps()
