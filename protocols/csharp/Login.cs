@@ -31,8 +31,9 @@ using ProtoPackage.Attributes;
             "ZXJJbmZvGAEgASgLMh4uQ1JZU1RBTF9ORVQuc2VydmljZS5Mb2dpbkluZm8i",
             "PwoITG9naW5SZXMSDwoHZXJyQ29kZRgBIAEoERIOCgZVc2VySWQYAiABKAQS",
             "EgoKU2VydmVyVGltZRgDIAEoEiI0CgxMb2dpbkluZm9OdHkSDQoFVG9rZW4Y",
-            "ASABKAkSFQoNS2V5RXhwaXJlVGltZRgCIAEoEiILCglMb2dvdXRSZXEiIQoJ",
-            "TG9nb3V0TnR5EhQKDExvZ291dFJlYXNvbhgBIAEoEUID+AEBYgZwcm90bzM="));
+            "ASABKAkSFQoNS2V5RXhwaXJlVGltZRgCIAEoEiILCglMb2dvdXRSZXEiLQoJ",
+            "TG9nb3V0TnR5EhQKDExvZ291dFJlYXNvbhgBIAEoERIKCgJpcBgCIAEoCUID",
+            "+AEBYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComLoginReflection.Descriptor, global::CRYSTALNET.Service.ComUserReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -40,7 +41,7 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LoginRes), global::CRYSTALNET.Service.LoginRes.Parser, new[]{ "ErrCode", "UserId", "ServerTime" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LoginInfoNty), global::CRYSTALNET.Service.LoginInfoNty.Parser, new[]{ "Token", "KeyExpireTime" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LogoutReq), global::CRYSTALNET.Service.LogoutReq.Parser, null, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LogoutNty), global::CRYSTALNET.Service.LogoutNty.Parser, new[]{ "LogoutReason" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LogoutNty), global::CRYSTALNET.Service.LogoutNty.Parser, new[]{ "LogoutReason", "Ip" }, null, null, null, null)
           }));
     }
     #endregion
@@ -950,6 +951,7 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public LogoutNty(LogoutNty other) : this() {
       logoutReason_ = other.logoutReason_;
+      ip_ = other.ip_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -974,6 +976,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "ip" field.</summary>
+    public const int IpFieldNumber = 2;
+    private string ip_ = "";
+    /// <summary>
+    /// 告知最后登陆的ip
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Ip {
+      get { return ip_; }
+      set {
+        ip_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -990,6 +1007,7 @@ using ProtoPackage.Attributes;
         return true;
       }
       if (LogoutReason != other.LogoutReason) return false;
+      if (Ip != other.Ip) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -998,6 +1016,7 @@ using ProtoPackage.Attributes;
     public override int GetHashCode() {
       int hash = 1;
       if (LogoutReason != 0) hash ^= LogoutReason.GetHashCode();
+      if (Ip.Length != 0) hash ^= Ip.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1020,6 +1039,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(8);
         output.WriteSInt32(LogoutReason);
       }
+      if (Ip.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Ip);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1034,6 +1057,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(8);
         output.WriteSInt32(LogoutReason);
       }
+      if (Ip.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(Ip);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1046,6 +1073,9 @@ using ProtoPackage.Attributes;
       int size = 0;
       if (LogoutReason != 0) {
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(LogoutReason);
+      }
+      if (Ip.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Ip);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1061,6 +1091,9 @@ using ProtoPackage.Attributes;
       }
       if (other.LogoutReason != 0) {
         LogoutReason = other.LogoutReason;
+      }
+      if (other.Ip.Length != 0) {
+        Ip = other.Ip;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1081,6 +1114,10 @@ using ProtoPackage.Attributes;
             LogoutReason = input.ReadSInt32();
             break;
           }
+          case 18: {
+            Ip = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -1098,6 +1135,10 @@ using ProtoPackage.Attributes;
             break;
           case 8: {
             LogoutReason = input.ReadSInt32();
+            break;
+          }
+          case 18: {
+            Ip = input.ReadString();
             break;
           }
         }

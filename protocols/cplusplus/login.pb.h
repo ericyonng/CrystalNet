@@ -1514,8 +1514,23 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // accessors -------------------------------------------------------
 
   enum : int {
+    kIpFieldNumber = 2,
     kLogoutReasonFieldNumber = 1,
   };
+  // string ip = 2;
+  void clear_ip();
+  const std::string& ip() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_ip(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_ip();
+  PROTOBUF_NODISCARD std::string* release_ip();
+  void set_allocated_ip(std::string* ip);
+  private:
+  const std::string& _internal_ip() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ip(const std::string& value);
+  std::string* _internal_mutable_ip();
+  public:
+
   // sint32 LogoutReason = 1;
   void clear_logoutreason();
   int32_t logoutreason() const;
@@ -1533,6 +1548,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ip_;
     int32_t logoutreason_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -1799,6 +1815,56 @@ inline void LogoutNty::_internal_set_logoutreason(int32_t value) {
 inline void LogoutNty::set_logoutreason(int32_t value) {
   _internal_set_logoutreason(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LogoutNty.LogoutReason)
+}
+
+// string ip = 2;
+inline void LogoutNty::clear_ip() {
+  _impl_.ip_.ClearToEmpty();
+}
+inline const std::string& LogoutNty::ip() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LogoutNty.ip)
+  return _internal_ip();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void LogoutNty::set_ip(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.ip_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LogoutNty.ip)
+}
+inline std::string* LogoutNty::mutable_ip() {
+  std::string* _s = _internal_mutable_ip();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LogoutNty.ip)
+  return _s;
+}
+inline const std::string& LogoutNty::_internal_ip() const {
+  return _impl_.ip_.Get();
+}
+inline void LogoutNty::_internal_set_ip(const std::string& value) {
+  
+  _impl_.ip_.Set(value, GetArenaForAllocation());
+}
+inline std::string* LogoutNty::_internal_mutable_ip() {
+  
+  return _impl_.ip_.Mutable(GetArenaForAllocation());
+}
+inline std::string* LogoutNty::release_ip() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.LogoutNty.ip)
+  return _impl_.ip_.Release();
+}
+inline void LogoutNty::set_allocated_ip(std::string* ip) {
+  if (ip != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.ip_.SetAllocated(ip, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.ip_.IsDefault()) {
+    _impl_.ip_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LogoutNty.ip)
 }
 
 #ifdef __GNUC__

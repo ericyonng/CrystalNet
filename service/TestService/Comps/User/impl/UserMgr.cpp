@@ -312,7 +312,7 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
         if(UNLIKELY(user))
         {
             g_Log->Info(LOGFMT_OBJ_TAG("login in same session and will logout exists account pending info:%s, user:%s"), pendingInfo->ToString().c_str(), user->ToString().c_str());
-            user->Logout(LogoutReason::LOG_IN_OTHER_ACCOUNT, false);
+            user->Logout(LogoutReason::LOG_IN_OTHER_ACCOUNT, false, sessionId);
         }
     }
 
@@ -350,7 +350,7 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
 
         // 不同会话顶号
         if(user->IsLogined())
-            user->Logout(LogoutReason::LOGIN_OTHER_PLACE);
+            user->Logout(LogoutReason::LOGIN_OTHER_PLACE, true, sessionId);
 
         user->BindSession(pendingInfo->_sessionId);
         user->OnLogin();
@@ -803,7 +803,7 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             {
                 // 顶号
                 if(user->IsLogined())
-                    user->Logout(LogoutReason::LOGIN_OTHER_PLACE, pendingUser->_sessionId != user->GetSessionId());
+                    user->Logout(LogoutReason::LOGIN_OTHER_PLACE, pendingUser->_sessionId != user->GetSessionId(), pendingUser->_sessionId);
 
                 user->BindSession(pendingUser->_sessionId);
                 user->OnLogin();

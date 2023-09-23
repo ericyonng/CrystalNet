@@ -790,7 +790,7 @@ UInt64 User::GetSessionId() const
     return _activedSessionId;
 }
 
-void User::Logout(Int32 logoutReason, bool disconnect)
+void User::Logout(Int32 logoutReason, bool disconnect, UInt64 willLoginSessionId)
 {
     if(UNLIKELY(IsLogout()))
     {
@@ -817,8 +817,12 @@ void User::Logout(Int32 logoutReason, bool disconnect)
     {
         g_Log->Info(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
         
+        auto addr = GetUserAddr();
+
+        auto willLoginSession = _userMgr->GetGlobalSys<ISessionMgr>()->GetSession(willLoginSessionId);
         LogoutNty nty;
         nty.set_logoutreason(logoutReason);
+        nty.set_ip(willLoginSession ? willLoginSession->GetSessionInfo()->_remoteAddr._ip.GetRaw() : "NONE");
         Send(Opcodes::OpcodeConst::OPCODE_LogoutNty, nty);
 
         // 5秒后关闭

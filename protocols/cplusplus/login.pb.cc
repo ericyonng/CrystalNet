@@ -83,7 +83,8 @@ struct LogoutReqDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LogoutReqDefaultTypeInternal _LogoutReq_default_instance_;
 PROTOBUF_CONSTEXPR LogoutNty::LogoutNty(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.logoutreason_)*/0
+    /*decltype(_impl_.ip_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.logoutreason_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct LogoutNtyDefaultTypeInternal {
   PROTOBUF_CONSTEXPR LogoutNtyDefaultTypeInternal()
@@ -138,6 +139,7 @@ const uint32_t TableStruct_login_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(pr
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LogoutNty, _impl_.logoutreason_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LogoutNty, _impl_.ip_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::LoginReq)},
@@ -162,8 +164,9 @@ const char descriptor_table_protodef_login_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   "vice.LoginInfo\"\?\n\010LoginRes\022\017\n\007errCode\030\001 "
   "\001(\021\022\016\n\006UserId\030\002 \001(\004\022\022\n\nServerTime\030\003 \001(\022\""
   "4\n\014LoginInfoNty\022\r\n\005Token\030\001 \001(\t\022\025\n\rKeyExp"
-  "ireTime\030\002 \001(\022\"\013\n\tLogoutReq\"!\n\tLogoutNty\022"
-  "\024\n\014LogoutReason\030\001 \001(\021B\003\370\001\001b\006proto3"
+  "ireTime\030\002 \001(\022\"\013\n\tLogoutReq\"-\n\tLogoutNty\022"
+  "\024\n\014LogoutReason\030\001 \001(\021\022\n\n\002ip\030\002 \001(\tB\003\370\001\001b\006"
+  "proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_login_2eproto_deps[2] = {
   &::descriptor_table_com_5flogin_2eproto,
@@ -171,7 +174,7 @@ static const ::_pbi::DescriptorTable* const descriptor_table_login_2eproto_deps[
 };
 static ::_pbi::once_flag descriptor_table_login_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_login_2eproto = {
-    false, false, 314, descriptor_table_protodef_login_2eproto,
+    false, false, 326, descriptor_table_protodef_login_2eproto,
     "login.proto",
     &descriptor_table_login_2eproto_once, descriptor_table_login_2eproto_deps, 2, 5,
     schemas, file_default_instances, TableStruct_login_2eproto::offsets,
@@ -907,10 +910,19 @@ LogoutNty::LogoutNty(const LogoutNty& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   LogoutNty* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.logoutreason_){}
+      decltype(_impl_.ip_){}
+    , decltype(_impl_.logoutreason_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.ip_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.ip_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_ip().empty()) {
+    _this->_impl_.ip_.Set(from._internal_ip(), 
+      _this->GetArenaForAllocation());
+  }
   _this->_impl_.logoutreason_ = from._impl_.logoutreason_;
   // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.LogoutNty)
 }
@@ -920,9 +932,14 @@ inline void LogoutNty::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.logoutreason_){0}
+      decltype(_impl_.ip_){}
+    , decltype(_impl_.logoutreason_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
+  _impl_.ip_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.ip_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 LogoutNty::~LogoutNty() {
@@ -936,6 +953,7 @@ LogoutNty::~LogoutNty() {
 
 inline void LogoutNty::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.ip_.Destroy();
 }
 
 void LogoutNty::SetCachedSize(int size) const {
@@ -948,6 +966,7 @@ void LogoutNty::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  _impl_.ip_.ClearToEmpty();
   _impl_.logoutreason_ = 0;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -963,6 +982,16 @@ const char* LogoutNty::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _impl_.logoutreason_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
           CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string ip = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          auto str = _internal_mutable_ip();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.LogoutNty.ip"));
         } else
           goto handle_unusual;
         continue;
@@ -1001,6 +1030,16 @@ uint8_t* LogoutNty::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_logoutreason(), target);
   }
 
+  // string ip = 2;
+  if (!this->_internal_ip().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_ip().data(), static_cast<int>(this->_internal_ip().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.LogoutNty.ip");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_ip(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1016,6 +1055,13 @@ size_t LogoutNty::ByteSizeLong() const {
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // string ip = 2;
+  if (!this->_internal_ip().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_ip());
+  }
 
   // sint32 LogoutReason = 1;
   if (this->_internal_logoutreason() != 0) {
@@ -1040,6 +1086,9 @@ void LogoutNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROT
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (!from._internal_ip().empty()) {
+    _this->_internal_set_ip(from._internal_ip());
+  }
   if (from._internal_logoutreason() != 0) {
     _this->_internal_set_logoutreason(from._internal_logoutreason());
   }
@@ -1059,7 +1108,13 @@ bool LogoutNty::IsInitialized() const {
 
 void LogoutNty::InternalSwap(LogoutNty* other) {
   using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.ip_, lhs_arena,
+      &other->_impl_.ip_, rhs_arena
+  );
   swap(_impl_.logoutreason_, other->_impl_.logoutreason_);
 }
 

@@ -159,15 +159,16 @@ Int32 LoginMgr::CheckLogin(const PendingUser *pendingUser) const
             return Status::TokenExpired;
         }
 
-        auto userBaseInfo = _userOwner->GetUserBaseInfo();
-        const auto keyText = KERNEL_NS::LibBase64::Decode(_loginInfo->key());
-        KERNEL_NS::LibString buildToken = userBaseInfo->lastloginphoneimei() + userBaseInfo->lastloginip() + KERNEL_NS::StringUtil::Num2Str(GetUser()->GetUserId()) + keyText;
-        buildToken = KERNEL_NS::LibDigest::MakeSha256(buildToken);
-        buildToken = KERNEL_NS::LibBase64::Encode(buildToken);
-        if(buildToken != pendingUser->_loginInfo->logintoken())
+        // sha256(imei + ip + userid + key)
+        // auto userBaseInfo = _userOwner->GetUserBaseInfo();
+        // const auto keyText = KERNEL_NS::LibBase64::Decode(_loginInfo->key());
+        // KERNEL_NS::LibString buildToken = userBaseInfo->lastloginphoneimei() + userBaseInfo->lastloginip() + KERNEL_NS::StringUtil::Num2Str(GetUser()->GetUserId()) + keyText;
+        // buildToken = KERNEL_NS::LibDigest::MakeSha256(buildToken);
+        // buildToken = KERNEL_NS::LibBase64::Encode(buildToken);
+        if(_loginInfo->token() != pendingUser->_loginInfo->logintoken())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("token error user:%s, pending:%s")
-                , GetUser()->ToString().c_str(), pendingUser->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("token error user:%s, pending:%s, buildToken:%s, user login token:%s")
+                , GetUser()->ToString().c_str(), pendingUser->ToString().c_str(), _loginInfo->token().c_str(), pendingUser->_loginInfo->logintoken().c_str());
             return Status::TokenError;
         }
     }
@@ -289,6 +290,8 @@ void LoginMgr::_Update(bool isNty)
     FireEvent(ev);
 
     MaskDirty();
+
+    g_Log->Info(LOGFMT_OBJ_TAG("update token user:%s, token:%s"), GetUser()->ToString().c_str(), _loginInfo->ToJsonString().c_str());
 
     if(isNty)
         _SendInfo();

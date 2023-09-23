@@ -172,7 +172,7 @@ public:
     virtual UInt64 GetSessionId() const = 0;
 
     // 登出 disconnect:logout 的同时断开session, 有可能同一个会话不同账号登录
-    virtual void Logout(Int32 logoutReason, bool disconnect = true) = 0;
+    virtual void Logout(Int32 logoutReason, bool disconnect = true, UInt64 willLoginSessionId = 0) = 0;
 
     // 是否登出
     virtual bool IsLogined() const = 0;

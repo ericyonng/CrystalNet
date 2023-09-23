@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/GateService/config/xlsx/鍏叡鍙傛暟.xlsx
+// file path:../../service/GateService/config/xlsx/公共参数.xlsx
 // sheet name:鍏叡鍙傛暟|Common
 
 #ifndef __CONFIG_COMMON_CONFIG_H__

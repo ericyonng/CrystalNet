@@ -41,5 +41,7 @@ message LogoutNty
 {
     // LogoutReason
     sint32 LogoutReason = 1;
+    // 告知最后登陆的ip
+    string ip = 2;
 }
 

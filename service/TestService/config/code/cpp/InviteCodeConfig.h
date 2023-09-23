@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/TestService/config/xlsx/é‚€è¯·ç .xlsx
+// file path:../../service/TestService/config/xlsx/ÑûÇëÂë.xlsx
 // sheet name:é‚€è¯·ç |InviteCode
 
 #ifndef __CONFIG_INVITECODE_CONFIG_H__

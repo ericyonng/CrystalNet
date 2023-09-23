@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/GateService/config/xlsx/Itemé“å…·.xlsx
+// file path:../../service/GateService/config/xlsx/ItemµÀ¾ß.xlsx
 // sheet name:é“å…·|Item
 
 #ifndef __CONFIG_ITEM_CONFIG_H__
