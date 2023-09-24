@@ -52,6 +52,7 @@ public:
         USER_STARTED,
 
         USER_LOGINED,
+        CLIENT_LOGIN_ENDING,
         USER_LOGOUTING,
         USER_LOGOUTED,
     };
@@ -140,7 +141,7 @@ public:
     virtual void OnLogout() = 0;
     virtual void OnUserCreated() = 0;
 
-    // user状态
+    // user状态 ClientUserStatus
     virtual Int32 GetUserStatus() const = 0;
     virtual void SetUserStatus(Int32 status)  = 0;
 
@@ -174,9 +175,9 @@ public:
     // 登出 disconnect:logout 的同时断开session, 有可能同一个会话不同账号登录
     virtual void Logout(Int32 logoutReason, bool disconnect = true, UInt64 willLoginSessionId = 0) = 0;
 
-    // 是否登出
-    virtual bool IsLogined() const = 0;
     // 是否在线
+    virtual bool IsLogined() const = 0;
+    // 是否登出
     virtual bool IsLogout() const = 0;
     // 获取用户登录的ip
     virtual const KERNEL_NS::BriefSockAddr *GetUserAddr() const = 0;

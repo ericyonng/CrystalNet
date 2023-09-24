@@ -86,5 +86,11 @@ namespace EventEnums
                                         * Attention: 
                                         * @param(USER_OBJ): 用户对象
                                         */
+
+        CLIENT_USER_LOGIN_FINISH,       // 客户端登陆结束
+                                        /* 客户端登陆结束
+                                        * Attention: 
+                                        * @param(USER_OBJ): 用户对象
+                                        */
     };
 }

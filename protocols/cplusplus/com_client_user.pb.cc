@@ -98,18 +98,20 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_com_5fclient_5fuser_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\025com_client_user.proto\022\023CRYSTAL_NET.ser"
-  "vice\"`\n\020ClientUserStatus\"L\n\005ENUMS\022\013\n\007UNL"
-  "OGIN\020\000\022\014\n\010LOGINING\020\001\022\013\n\007LOGINED\020\002\022\r\n\tLOG"
-  "OUTING\020\003\022\014\n\010LOGOUTED\020\004\"\275\001\n\016ClientUserInf"
-  "o\022\016\n\006UserId\030\001 \001(\004\022\023\n\013AccountName\030\002 \001(\t\022\014"
-  "\n\004Name\030\003 \001(\t\022\020\n\010Nickname\030\004 \001(\t\022\021\n\tPhoneI"
-  "mei\030\005 \001(\t\022\024\n\014ClientStatus\030\006 \001(\021\022\021\n\tLastT"
-  "oken\030\007 \001(\t\022\027\n\017TokenExpireTime\030\010 \001(\022\022\021\n\tB"
-  "indPhone\030\t \001(\004b\006proto3"
+  "vice\"\232\001\n\020ClientUserStatus\"\205\001\n\005ENUMS\022\013\n\007U"
+  "NLOGIN\020\000\022\014\n\010LOGINING\020\001\022\013\n\007LOGINED\020\002\022\027\n\023C"
+  "LIENT_LOGIN_ENDING\020\003\022\036\n\032CLIENT_LOGIN_END"
+  "ING_FINISH\020\004\022\r\n\tLOGOUTING\020\005\022\014\n\010LOGOUTED\020"
+  "\006\"\275\001\n\016ClientUserInfo\022\016\n\006UserId\030\001 \001(\004\022\023\n\013"
+  "AccountName\030\002 \001(\t\022\014\n\004Name\030\003 \001(\t\022\020\n\010Nickn"
+  "ame\030\004 \001(\t\022\021\n\tPhoneImei\030\005 \001(\t\022\024\n\014ClientSt"
+  "atus\030\006 \001(\021\022\021\n\tLastToken\030\007 \001(\t\022\027\n\017TokenEx"
+  "pireTime\030\010 \001(\022\022\021\n\tBindPhone\030\t \001(\004b\006proto"
+  "3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fclient_5fuser_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fclient_5fuser_2eproto = {
-    false, false, 342, descriptor_table_protodef_com_5fclient_5fuser_2eproto,
+    false, false, 401, descriptor_table_protodef_com_5fclient_5fuser_2eproto,
     "com_client_user.proto",
     &descriptor_table_com_5fclient_5fuser_2eproto_once, nullptr, 0, 2,
     schemas, file_default_instances, TableStruct_com_5fclient_5fuser_2eproto::offsets,
@@ -135,6 +137,8 @@ bool ClientUserStatus_ENUMS_IsValid(int value) {
     case 2:
     case 3:
     case 4:
+    case 5:
+    case 6:
       return true;
     default:
       return false;
@@ -145,6 +149,8 @@ bool ClientUserStatus_ENUMS_IsValid(int value) {
 constexpr ClientUserStatus_ENUMS ClientUserStatus::UNLOGIN;
 constexpr ClientUserStatus_ENUMS ClientUserStatus::LOGINING;
 constexpr ClientUserStatus_ENUMS ClientUserStatus::LOGINED;
+constexpr ClientUserStatus_ENUMS ClientUserStatus::CLIENT_LOGIN_ENDING;
+constexpr ClientUserStatus_ENUMS ClientUserStatus::CLIENT_LOGIN_ENDING_FINISH;
 constexpr ClientUserStatus_ENUMS ClientUserStatus::LOGOUTING;
 constexpr ClientUserStatus_ENUMS ClientUserStatus::LOGOUTED;
 constexpr ClientUserStatus_ENUMS ClientUserStatus::ENUMS_MIN;

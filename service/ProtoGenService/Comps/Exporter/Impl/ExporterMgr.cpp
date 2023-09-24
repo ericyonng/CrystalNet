@@ -1574,6 +1574,21 @@ bool ExporterMgr::_GenTs()
     return true;
 }
 
+bool ExporterMgr::_GenTsExtends()
+{
+    // 1.获取所有message信息
+    // 2.添加protobuf 数据类型的parser 
+    // protobuf data type: double/float/int32/uint32/uint64/sint32/sint64/fixed32/fixed64/sfixed32/sfixed64/bool/string/bytes/
+    // double/float/int32/uint32/uint64/sint32/sint64/fixed32/fixed64/sfixed32/sfixed64 => number parseFloat()
+    // bool => true/false v == true
+    // string => string
+    // bytes => base64 string => string
+
+    // 3.识别protobuf repeated/bytes
+    return true;
+}
+
+
 bool ExporterMgr::_LoadPbCache()
 {
     const auto pbcacheFile = _protoPath + "/../" + ProtobufMessageParam::ProtoInfoCacheFile;

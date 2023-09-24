@@ -85,5 +85,6 @@ namespace Status
         NotManager,                                         // 不是管理员
         AuthNotEnough,                                      // 权限不足
         LoadUserFail,                                       // 加载玩家失败
+        LoginStatusError,                                   // 登录状态失败
     };
 }

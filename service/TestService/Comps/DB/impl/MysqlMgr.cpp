@@ -4567,12 +4567,26 @@ bool MysqlMgr::_CheckStorageInfo(const IStorageInfo *storageInfo)
         return false;
     }
 
+    if(storageInfo->IsKvSystem())
+    {
+        if(!storageInfo->GetKvModeValueStorageInfo())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("kv system need a value field at least table name:%s, logic:%s")
+                    , storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+            return false;
+        }
+    }
+
     // 校验字段名
     auto &allSubStorageInfo = storageInfo->GetSubStorageInfos();
+    bool hasPrimaryKey = false;
     for(auto subStorageInfo : allSubStorageInfo)
     {
         if(!subStorageInfo->IsAsField())
             continue;
+
+        if(subStorageInfo->IsPrimaryField())
+            hasPrimaryKey = true;
 
         if(subStorageInfo->GetFieldName().size() > KERNEL_NS::MysqlLimit::_fieldNameLimit)
         {
@@ -4581,6 +4595,13 @@ bool MysqlMgr::_CheckStorageInfo(const IStorageInfo *storageInfo)
                     , storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
             return false;
         }
+    }
+
+    if(!hasPrimaryKey)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("need a primary key at least table name:%s, logic:%s")
+                , storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+        return false;
     }
 
     // 多字段的必须至少有两个字段

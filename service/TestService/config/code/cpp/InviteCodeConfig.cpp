@@ -1,4 +1,4 @@
-// Generate by ConfigExporter, Dont modify it!!!
+// Generate by ConfigExporter_debug, Dont modify it!!!
 // file path:../../service/TestService/config/xlsx/ÑûÇëÂë.xlsx
 // sheet name:é‚€è¯·ç |InviteCode
 

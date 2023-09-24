@@ -442,9 +442,11 @@ ALWAYS_INLINE void DataTypeHelper::ToString(const UInt64 &field, KERNEL_NS::LibS
 
 ALWAYS_INLINE void DataTypeHelper::ToString(const KERNEL_NS::LibString &field, KERNEL_NS::LibString &dataInfo)
 {
-    nlohmann::json result;
-    result = field.GetRaw();
-    dataInfo << result.dump();
+    const auto &jsonString = nlohmann::json::parse(field.c_str(), NULL, false);
+    if(!jsonString.is_string())
+        return;
+
+    dataInfo << jsonString.dump();
 }
 
 template<typename ArrayElemType>

@@ -258,7 +258,9 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
     }
 
     auto req = packet->GetCoder<CreateLibraryReq>();
-
+    auto inviteCodeGlobal = GetGlobalSys<IInviteCodeGlobal>();
+    const CommonConfig *isNeedInviteCodeConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CREATE_LIBRARY_NEED_INVITE_CODE);
+    auto isNeedInviteCode = (!isNeedInviteCodeConfig || (isNeedInviteCodeConfig->_value > 0));
     CreateLibraryRes res;
     Int32 errCode = Status::Success;
     res.set_errcode(errCode);
@@ -281,13 +283,24 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
                     , user->ToString().c_str(), packet->ToString().c_str());
             break;
         }
-        auto inviteCodeGlobal = GetGlobalSys<IInviteCodeGlobal>();
-        if(inviteCodeGlobal->IsUsed(req->invitecode()))
+
+        if(isNeedInviteCode)
         {
-            errCode = Status::InvalidInviteCode;
-            g_Log->Warn(LOGFMT_OBJ_TAG("invite code is used before user:%s, packet:%s")
-                    , user->ToString().c_str(), packet->ToString().c_str());
-            break;
+            if(inviteCodeGlobal->IsUsed(req->invitecode()))
+            {
+                errCode = Status::InvalidInviteCode;
+                g_Log->Warn(LOGFMT_OBJ_TAG("invite code is used before user:%s, packet:%s, invitecode:%s")
+                        , user->ToString().c_str(), packet->ToString().c_str(), req->invitecode().c_str());
+                break;
+            }
+
+            if(!inviteCodeGlobal->IsValidCode(req->invitecode()))
+            {
+                errCode = Status::InvalidInviteCode;
+                g_Log->Warn(LOGFMT_OBJ_TAG("invite code is invalid, user:%s, packet:%s, invitecode:%s")
+                        , user->ToString().c_str(), packet->ToString().c_str(), req->invitecode().c_str());
+                break;
+            }
         }
 
         // 校验名字
@@ -351,11 +364,17 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
 
     } while (false);
 
-    auto library = _CreateLibrary(user, req->name(), req->address(), req->opentime(), req->telphonenumber(), req->bindphone());
-    if(!library)
+    if(errCode == Status::Success)
     {
-        errCode = Status::Failed;
-        g_Log->Warn(LOGFMT_OBJ_TAG("create library fail user:%s, packet:%s"), user->ToString().c_str(), packet->ToString().c_str());
+        if(isNeedInviteCode)
+            inviteCodeGlobal->AddUsedInviteCode(req->invitecode());
+
+        auto library = _CreateLibrary(user, req->name(), req->address(), req->opentime(), req->telphonenumber(), req->bindphone());
+        if(!library)
+        {
+            errCode = Status::Failed;
+            g_Log->Warn(LOGFMT_OBJ_TAG("create library fail user:%s, packet:%s"), user->ToString().c_str(), packet->ToString().c_str());
+        }
     }
 
     res.set_errcode(errCode);
@@ -871,6 +890,9 @@ LibraryInfo *LibraryGlobal::_CreateLibrary(IUser *user, const KERNEL_NS::LibStri
     // 加入成员
     _JoinMember(newLibrary, user, RoleType_ENUMS_Librarian);
 
+    // 图书馆信息
+    this->_SendLibraryInfoNty(user, newLibrary);
+
     // TODO:系统日志
     g_Log->Info(LOGFMT_OBJ_TAG("create new library, create user:%s, new library:%s"), user->ToString().c_str(), newLibrary->ToJsonString().c_str());
     return newLibrary;
@@ -898,6 +920,7 @@ void LibraryGlobal::_JoinMember(LibraryInfo *libraryInfo, IUser *user, Int32 rol
 
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::JOIN_LIBRARY_MEMBER);
     ev->SetParam(Params::USER_ID, user->GetUserId());
+    ev->SetParam(Params::USER_OBJ, user);
     ev->SetParam(Params::LIBRARY_ID, libraryInfo->id());
     GetEventMgr()->FireEvent(ev);
     

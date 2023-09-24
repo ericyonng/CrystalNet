@@ -63,6 +63,10 @@ private:
     void _OnUserObjWillRemove(KERNEL_NS::LibEvent *ev);
 
     void _EventFromUserToGlobal(KERNEL_NS::LibEvent *ev);
+
+    void _DisableFromRelayToUser(UInt64 userId, Int32 eventId);
+    bool _IsEventInCircleHandling(UInt64 userId, Int32 eventId) const;
+    void _OnEventFromUserHandled(UInt64 userId, Int32 eventId);
     
 private:
     KERNEL_NS::ListenerStub _removeLibraryMemberStub;
@@ -71,6 +75,38 @@ private:
     KERNEL_NS::ListenerStub _userObjWillRemoveStub;
 
     std::map<UInt64, KERNEL_NS::ListenerStub> _fromUserToGlobalStub;
+
+    // 避免从user => relay => user死循环
+    std::map<UInt64, std::set<Int32>> _userIdRefHandlingEventFromUser;
 };
+
+ALWAYS_INLINE void EventRelayGlobal::_DisableFromRelayToUser(UInt64 userId, Int32 eventId)
+{
+    auto iter = _userIdRefHandlingEventFromUser.find(userId);
+    if(iter == _userIdRefHandlingEventFromUser.end())
+        iter = _userIdRefHandlingEventFromUser.insert(std::make_pair(userId, std::set<Int32>())).first;
+
+    iter->second.insert(eventId);
+}
+
+ALWAYS_INLINE bool EventRelayGlobal::_IsEventInCircleHandling(UInt64 userId, Int32 eventId) const
+{
+    auto iter = _userIdRefHandlingEventFromUser.find(userId);
+    if(iter == _userIdRefHandlingEventFromUser.end())
+        return false;
+
+    return iter->second.find(eventId) != iter->second.end();
+}
+
+ALWAYS_INLINE void EventRelayGlobal::_OnEventFromUserHandled(UInt64 userId, Int32 eventId)
+{
+    auto iter = _userIdRefHandlingEventFromUser.find(userId);
+    if(iter == _userIdRefHandlingEventFromUser.end())
+        return;
+
+    iter->second.erase(eventId);
+    if(iter->second.empty())
+        _userIdRefHandlingEventFromUser.erase(iter);
+}
 
 SERVICE_END

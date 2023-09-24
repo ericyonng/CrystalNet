@@ -459,3 +459,23 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ModifyUserInfoResFactory::CreateFactory()));
     }
+
+    {// LoginFinishReq
+        auto info = OpcodeInfo();
+        info._opcode = 60;
+        info._noLog = false;
+        info._opcodeName = "LoginFinishReq";
+        info._protoFile = "login.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, LoginFinishReqFactory::CreateFactory()));
+    }
+
+    {// LoginFinishRes
+        auto info = OpcodeInfo();
+        info._opcode = 61;
+        info._noLog = false;
+        info._opcodeName = "LoginFinishRes";
+        info._protoFile = "login.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, LoginFinishResFactory::CreateFactory()));
+    }

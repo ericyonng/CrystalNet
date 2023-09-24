@@ -265,6 +265,7 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginRes, this, &ClientUserMgr::_OnLoginRes);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_ClientHeartbeatRes, this, &ClientUserMgr::_OnClientHeartbeatRes);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LogoutNty, this, &ClientUserMgr::_OnClientLogoutNty);
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginFinishRes, this, &ClientUserMgr::_OnLoginFinishRes);
     
     auto ini = GetApp()->GetIni();
     if(!ini->ReadStr(GetService()->GetServiceName().c_str(), "UserRsaPublicKey", _rsaPublicKey) || _rsaPublicKey.empty())
@@ -359,8 +360,27 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
         return;
     }
 
-    user->SetServerTime(loginRes->servertime());
     auto clientInfo = user->GetClientInfo();
+    if(clientInfo->clientstatus() != ClientUserStatus::LOGINING)
+    {
+        if((clientInfo->clientstatus() == ClientUserStatus::CLIENT_LOGIN_ENDING) || 
+         clientInfo->clientstatus() == ClientUserStatus::CLIENT_LOGIN_ENDING_FINISH)
+         {
+            g_Log->Warn(LOGFMT_OBJ_TAG("repeate login res user:%s"), user->ToString().c_str());
+            return;
+         }
+
+         if(!user->IsLogout())
+         {
+            user->Logout();
+         }
+
+         g_Log->Warn(LOGFMT_OBJ_TAG("client status err user:%s"), user->ToString().c_str());
+        return;
+    }
+
+
+    user->SetServerTime(loginRes->servertime());
     clientInfo->set_userid(loginRes->userid());
     clientInfo->set_clientstatus(ClientUserStatus::LOGINED);
 
@@ -413,6 +433,11 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
 
     _RestartHeartbeatTimer();
 
+    // 登陆结束消息
+    LoginFinishReq req;
+    user->Send(Opcodes::OpcodeConst::OPCODE_LoginFinishReq, req);
+    user->SetUserStatus(ClientUserStatus::CLIENT_LOGIN_ENDING);
+
     // TODO:测试
     // auto logoutTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     // logoutTimer->SetTimeOutHandler([sessionId, this](KERNEL_NS::LibTimer *t){
@@ -460,6 +485,30 @@ void ClientUserMgr::_OnClientLogoutNty(KERNEL_NS::LibPacket *&packet)
     g_Log->Warn(LOGFMT_OBJ_TAG("client logout reason:%d,%s, user:%s"), nty->logoutreason(), reasonName.c_str(), user->ToString().c_str());
 
     user->OnLogout();
+}
+
+void ClientUserMgr::_OnLoginFinishRes(KERNEL_NS::LibPacket *&packet)
+{
+    auto user = GetUserBySessinId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    if(user->GetUserStatus() != ClientUserStatus::CLIENT_LOGIN_ENDING)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user status error, user:%s"), user->ToString().c_str());
+
+        if(!user->IsLogout())
+            user->Logout();
+        return;
+    }
+
+    user->SetUserStatus(ClientUserStatus::CLIENT_LOGIN_ENDING_FINISH);
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::CLIENT_USER_LOGIN_FINISH);
+    ev->SetParam(Params::USER_OBJ, user);
+    GetEventMgr()->FireEvent(ev);
 }
 
 void ClientUserMgr::_RestartHeartbeatTimer()

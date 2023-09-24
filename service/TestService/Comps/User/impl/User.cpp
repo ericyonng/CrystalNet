@@ -851,7 +851,7 @@ void User::Logout(Int32 logoutReason, bool disconnect, UInt64 willLoginSessionId
 
 bool User::IsLogined() const
 {
-    return _status == UserStatus::USER_LOGINED;
+    return _status == UserStatus::USER_LOGINED || _status == UserStatus::CLIENT_LOGIN_ENDING;
 }
 
 bool User::IsLogout() const

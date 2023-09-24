@@ -296,7 +296,10 @@ LoginInfo &ClientUser::GetLoginInfo()
 
 bool ClientUser::IsLogined() const
 {
-    return GetUserStatus() == ClientUserStatus::LOGINED;
+    auto status = GetUserStatus();
+    return (status == ClientUserStatus::LOGINED) || 
+    (status == ClientUserStatus::CLIENT_LOGIN_ENDING) ||
+    (status == ClientUserStatus::CLIENT_LOGIN_ENDING_FINISH);
 }
 
 bool ClientUser::IsLogining() const

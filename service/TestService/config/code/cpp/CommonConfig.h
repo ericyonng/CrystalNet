@@ -44,6 +44,8 @@ public:
 
         FIRST_DAY_OF_WEEK,    // id
 
+        CREATE_LIBRARY_NEED_INVITE_CODE,    // id
+
         __ENUM_MAX,
 
     };

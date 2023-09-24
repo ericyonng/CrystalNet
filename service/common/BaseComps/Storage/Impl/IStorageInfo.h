@@ -945,11 +945,28 @@ ALWAYS_INLINE bool IStorageInfo::AddStorageInfo(IStorageInfo *storageInfo)
         return false;
     }
 
+    // 不可以有两个primary key
+    if(_primaryKeyStorage && storageInfo->IsPrimaryField())
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("primary key is already exists, current system name:%s, exists system name:%s, will add system name:%s field name:%s")
+            , GetSystemName().c_str(), storageInfo->GetSystemName().c_str(), storageInfo->GetFieldName().c_str());
+        return false;
+    }
+
     _subStorageInfos.push_back(storageInfo);
     _objNameRefStorageInfo.insert(std::make_pair(storageInfo->GetSystemName(), storageInfo));
     _fieldNameRefStorageInfo.insert(std::make_pair(storageInfo->GetFieldName(), storageInfo));
 
     AddFlags(StorageFlagType::MULTI_FIELD_SYSTEM_FLAG);
+
+    // table有了索引了, 那么就是value, 因为有了primarykey后, 可能value根据需求也会是unique key
+    if(IsKvSystem())
+    {
+        if(_primaryKeyStorage || !_uniqueKeyStorages.empty())
+        {
+            _kvModeValueStorage = storageInfo;
+        }
+    }
 
     if(storageInfo->IsPrimaryField())
         _primaryKeyStorage = storageInfo;
@@ -957,10 +974,10 @@ ALWAYS_INLINE bool IStorageInfo::AddStorageInfo(IStorageInfo *storageInfo)
         _uniqueKeyStorages.push_back(storageInfo);
 
     // kv系统, 既不是主键, 也不是uniquekey, 那就是value
-    if(IsKvSystem() && 
-    (!storageInfo->IsPrimaryField()) && 
-    (!storageInfo->IsUniqueKeyField()))
-        _kvModeValueStorage = storageInfo;
+    // if(IsKvSystem() && 
+    // (!storageInfo->IsPrimaryField()) && 
+    // (!storageInfo->IsUniqueKeyField()))
+    //     _kvModeValueStorage = storageInfo;
 
     return true;
 }

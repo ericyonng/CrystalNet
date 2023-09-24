@@ -611,6 +611,7 @@ Int32 UserMgr::_OnGlobalSysInit()
 
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginReq, this, &UserMgr::_OnClientLoginReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LogoutReq, this, &UserMgr::_OnClientLogoutReq);
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_LoginFinishReq, this, &UserMgr::_OnLoginFinishReq);
 
     return Status::Success;
 }
@@ -1369,6 +1370,42 @@ void UserMgr::_OnClientLoginReq(KERNEL_NS::LibPacket *&packet)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, sessionId:%llu"), err, sessionId);
     }
+}
+
+void UserMgr::_OnLoginFinishReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto sessionId = packet->GetSessionId();
+    auto user = GetUserBySessionId(sessionId);
+    if(UNLIKELY(!user))
+    {
+        return;
+    }
+
+    Int32 errCode = Status::Success;
+    do
+    {
+        auto status = user->GetUserStatus();
+        if(status != UserStatus::USER_LOGINED)
+        {
+            errCode = Status::LoginStatusError;
+            g_Log->Warn(LOGFMT_OBJ_TAG("user status error user:%s, status:%d,%s")
+            , user->ToString().c_str(), status, ClientUserStatus::ENUMS_Name(status).c_str());
+
+            break;
+        }
+
+        user->SetUserStatus(UserStatus::CLIENT_LOGIN_ENDING);
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::CLIENT_USER_LOGIN_FINISH);
+        ev->SetParam(Params::USER_OBJ, user);
+        user->FireEvent(ev);
+
+        g_Log->Info(LOGFMT_OBJ_TAG("client user login finished user:%s"), user->ToString().c_str());
+        
+    } while (false);
+    
+    LoginFinishRes res;
+    res.set_errcode(errCode);
+    user->Send(Opcodes::OpcodeConst::OPCODE_LoginFinishRes, res, packet->GetPacketId());
 }
 
 void UserMgr::_OnClientLogoutReq(KERNEL_NS::LibPacket *&packet)

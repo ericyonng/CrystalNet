@@ -77,6 +77,7 @@ protected:
 
     // 生成ts
     bool _GenTs();
+    bool _GenTsExtends();
 
     // pbcache file加载
     bool _LoadPbCache();

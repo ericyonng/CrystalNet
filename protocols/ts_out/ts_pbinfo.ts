@@ -587,6 +587,32 @@ export namespace ts_pbinfo{
     }
 
 
+    // login.proto 
+    export class LoginFinishReq {
+      getOpcode():number {return LoginFinishReq.OPCODE; }
+      getIsXorEncrypt():boolean {return LoginFinishReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return LoginFinishReq.KeyBase64; }
+      getOpcodeName():string {return LoginFinishReq.OPCODE_NAME; }
+      static OPCODE:number = 60;
+      static OPCODE_NAME:string = "LoginFinishReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // login.proto 
+    export class LoginFinishRes {
+      getOpcode():number {return LoginFinishRes.OPCODE; }
+      getIsXorEncrypt():boolean {return LoginFinishRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return LoginFinishRes.KeyBase64; }
+      getOpcodeName():string {return LoginFinishRes.OPCODE_NAME; }
+      static OPCODE:number = 61;
+      static OPCODE_NAME:string = "LoginFinishRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -673,7 +699,11 @@ export namespace ts_pbinfo{
 
           [ModifyUserInfoReq.OPCODE]: new ModifyUserInfoReq(),
 
-          [ModifyUserInfoRes.OPCODE]: new ModifyUserInfoRes()
+          [ModifyUserInfoRes.OPCODE]: new ModifyUserInfoRes(),
+
+          [LoginFinishReq.OPCODE]: new LoginFinishReq(),
+
+          [LoginFinishRes.OPCODE]: new LoginFinishRes()
 
 
       }

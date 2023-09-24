@@ -11,10 +11,14 @@ message ClientUserStatus
         LOGINING = 1;
         // 登录完成
         LOGINED = 2;
+        // 登录结束
+        CLIENT_LOGIN_ENDING = 3;
+        // 登陆结束的结束
+        CLIENT_LOGIN_ENDING_FINISH = 4;
         // 登出中(定时15秒切换状态)
-        LOGOUTING = 3;
+        LOGOUTING = 5;
         // 登出完成
-        LOGOUTED = 4;
+        LOGOUTED = 6;
     }
 }
 

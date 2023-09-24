@@ -121,12 +121,25 @@ void EventRelayGlobal::_OnRemoveLibraryMember(KERNEL_NS::LibEvent *ev)
         return;
     }
 
+    // 避免从global => relay => user => global 的死循环
+    const auto eventId = ev->GetId();
+    if(_IsEventInCircleHandling(user->GetUserId(), ev->GetId()))
+    {
+        g_Log->Debug(LOGFMT_OBJ_TAG("skip remove library member event in circle handle user id:%llu, eventid:%d")
+        , userId, ev->GetId());
+        return;
+    }
+
+    _DisableFromRelayToUser(userId, eventId);
+
     auto oldStatus = ev->IsDontDelAfterFire();
     ev->SetDontDelAfterFire(true);
 
     user->FireEvent(ev);
 
     ev->SetDontDelAfterFire(oldStatus);
+
+    _OnEventFromUserHandled(userId, eventId);
 }
 
 void EventRelayGlobal::_OnJoinLibraryMember(KERNEL_NS::LibEvent *ev)
@@ -145,12 +158,24 @@ void EventRelayGlobal::_OnJoinLibraryMember(KERNEL_NS::LibEvent *ev)
         return;
     }
 
+    const auto eventId = ev->GetId();
+    if(_IsEventInCircleHandling(user->GetUserId(), eventId))
+    {
+        g_Log->Debug(LOGFMT_OBJ_TAG("skip join library member event in circle handle user id:%llu, eventid:%d")
+        , userId, ev->GetId());
+        return;
+    }
+
+    _DisableFromRelayToUser(userId, eventId);
+
     auto oldStatus = ev->IsDontDelAfterFire();
     ev->SetDontDelAfterFire(true);
 
     user->FireEvent(ev);
 
     ev->SetDontDelAfterFire(oldStatus);
+
+    _OnEventFromUserHandled(userId, eventId);
 }
 
 void EventRelayGlobal::_OnUserObjCreated(KERNEL_NS::LibEvent *ev)
@@ -183,18 +208,32 @@ void EventRelayGlobal::_OnUserObjWillRemove(KERNEL_NS::LibEvent *ev)
 
 void EventRelayGlobal::_EventFromUserToGlobal(KERNEL_NS::LibEvent *ev)
 {
-    // 必须要带USER_OBJ参数
+    // 必须要带USER_OBJ参数, 没带的不处理
     auto user = ev->GetParam(Params::USER_OBJ).AsPtr<IUser>();
     if(!user)
+    {
         g_Log->Error(LOGFMT_OBJ_TAG("relay from user to global event need USER_OBJ param please check evId:%d"), ev->GetId());
-        
-    g_Log->Info(LOGFMT_OBJ_TAG("recieve event from user evId:%d"), ev->GetId());
+        return;
+    }
+
+    const auto userId = user->GetUserId();
+    const auto eventId = ev->GetId();
+    if(_IsEventInCircleHandling(userId, eventId))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("event is in circle user id:%llu, event:%d"), userId, eventId);
+        return;
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("recieve event from user userId:%llu, evId:%d"), userId, ev->GetId());
+
+    _DisableFromRelayToUser(userId, ev->GetId());
 
     auto flag = ev->IsDontDelAfterFire();
     ev->SetDontDelAfterFire(true);
     GetEventMgr()->FireEvent(ev);
-
     ev->SetDontDelAfterFire(flag);
+
+    _OnEventFromUserHandled(userId, eventId);
 }
 
 SERVICE_END

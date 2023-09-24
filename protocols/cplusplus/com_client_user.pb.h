@@ -78,8 +78,10 @@ enum ClientUserStatus_ENUMS : int {
   ClientUserStatus_ENUMS_UNLOGIN = 0,
   ClientUserStatus_ENUMS_LOGINING = 1,
   ClientUserStatus_ENUMS_LOGINED = 2,
-  ClientUserStatus_ENUMS_LOGOUTING = 3,
-  ClientUserStatus_ENUMS_LOGOUTED = 4,
+  ClientUserStatus_ENUMS_CLIENT_LOGIN_ENDING = 3,
+  ClientUserStatus_ENUMS_CLIENT_LOGIN_ENDING_FINISH = 4,
+  ClientUserStatus_ENUMS_LOGOUTING = 5,
+  ClientUserStatus_ENUMS_LOGOUTED = 6,
   ClientUserStatus_ENUMS_ClientUserStatus_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   ClientUserStatus_ENUMS_ClientUserStatus_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
@@ -353,6 +355,10 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ClientUserStatus_ENUMS_LOGINING;
   static constexpr ENUMS LOGINED =
     ClientUserStatus_ENUMS_LOGINED;
+  static constexpr ENUMS CLIENT_LOGIN_ENDING =
+    ClientUserStatus_ENUMS_CLIENT_LOGIN_ENDING;
+  static constexpr ENUMS CLIENT_LOGIN_ENDING_FINISH =
+    ClientUserStatus_ENUMS_CLIENT_LOGIN_ENDING_FINISH;
   static constexpr ENUMS LOGOUTING =
     ClientUserStatus_ENUMS_LOGOUTING;
   static constexpr ENUMS LOGOUTED =

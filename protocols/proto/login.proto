@@ -45,3 +45,15 @@ message LogoutNty
     string ip = 2;
 }
 
+/// Opcode:
+message LoginFinishReq
+{
+    
+}
+
+/// Opcode:
+message LoginFinishRes
+{
+    sint32 ErrCode = 1;
+}
+

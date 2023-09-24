@@ -48,6 +48,8 @@ public static class PacketOpcode
         UserLibraryInfoNty = 57,    // library.proto
         ModifyUserInfoReq = 58,    // user.proto
         ModifyUserInfoRes = 59,    // user.proto
-        OpcodeMax = 59,
+        LoginFinishReq = 60,    // login.proto
+        LoginFinishRes = 61,    // login.proto
+        OpcodeMax = 61,
     }
 }

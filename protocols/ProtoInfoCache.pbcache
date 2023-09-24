@@ -2,7 +2,7 @@
 
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginReq,Opcode:1,NoLog:false,XorEncrypt:true,KeyBase64:true,]
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginRes,Opcode:2,NoLog:false,XorEncrypt:false,KeyBase64:false,]
-/// ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,Md5:wUjWUT2sqA+ua8IHvt2FLg==,ModifyTime:1695479339,
+/// ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,Md5:c0MDmIeWA49WxHeCgxPrTQ==,ModifyTime:1695524103,
 
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Req,Opcode:5,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Res,Opcode:6,NoLog:false,XorEncrypt:false,KeyBase64:false,]
@@ -51,7 +51,7 @@
 
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatReq,Opcode:29,NoLog:true,XorEncrypt:true,KeyBase64:true,]
 [ProtoName:heartbeat.proto,ProtoPath:../../protocols/proto/heartbeat.proto,MessageName:ClientHeartbeatRes,Opcode:30,NoLog:true,XorEncrypt:false,KeyBase64:false,]
-/// ProtoName:com_client_user.proto,ProtoPath:../../protocols/proto/com_client_user.proto,Md5:fMNRDe4LdLeUI/zTk/p/Pg==,ModifyTime:1695461922,
+/// ProtoName:com_client_user.proto,ProtoPath:../../protocols/proto/com_client_user.proto,Md5:c7+b7qpKAeFOEhwuPZbxXA==,ModifyTime:1695526469,
 
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutNty,Opcode:32,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LogoutReq,Opcode:31,NoLog:false,XorEncrypt:false,KeyBase64:false,]
@@ -93,3 +93,5 @@
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:UserLibraryInfoNty,Opcode:57,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:user.proto,ProtoPath:../../protocols/proto/user.proto,MessageName:ModifyUserInfoReq,Opcode:58,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:user.proto,ProtoPath:../../protocols/proto/user.proto,MessageName:ModifyUserInfoRes,Opcode:59,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginFinishReq,Opcode:60,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginFinishRes,Opcode:61,NoLog:false,XorEncrypt:false,KeyBase64:false,]

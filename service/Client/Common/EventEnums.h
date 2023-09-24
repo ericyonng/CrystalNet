@@ -54,5 +54,11 @@ namespace EventEnums
                                         * Attention: 
                                         * @param(USER_ID): userId 
                                         */
+
+        CLIENT_USER_LOGIN_FINISH,       // 用户登陆完成
+                                        /* 用户登陆完成
+                                        * Attention: 
+                                        * @param(USER_OBJ):IUser * 用户对象
+                                        */
     };
 }

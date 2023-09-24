@@ -27,13 +27,14 @@ using ProtoPackage.Attributes;
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChVjb21fY2xpZW50X3VzZXIucHJvdG8SE0NSWVNUQUxfTkVULnNlcnZpY2Ui",
-            "YAoQQ2xpZW50VXNlclN0YXR1cyJMCgVFTlVNUxILCgdVTkxPR0lOEAASDAoI",
-            "TE9HSU5JTkcQARILCgdMT0dJTkVEEAISDQoJTE9HT1VUSU5HEAMSDAoITE9H",
-            "T1VURUQQBCK9AQoOQ2xpZW50VXNlckluZm8SDgoGVXNlcklkGAEgASgEEhMK",
-            "C0FjY291bnROYW1lGAIgASgJEgwKBE5hbWUYAyABKAkSEAoITmlja25hbWUY",
-            "BCABKAkSEQoJUGhvbmVJbWVpGAUgASgJEhQKDENsaWVudFN0YXR1cxgGIAEo",
-            "ERIRCglMYXN0VG9rZW4YByABKAkSFwoPVG9rZW5FeHBpcmVUaW1lGAggASgS",
-            "EhEKCUJpbmRQaG9uZRgJIAEoBGIGcHJvdG8z"));
+            "mgEKEENsaWVudFVzZXJTdGF0dXMihQEKBUVOVU1TEgsKB1VOTE9HSU4QABIM",
+            "CghMT0dJTklORxABEgsKB0xPR0lORUQQAhIXChNDTElFTlRfTE9HSU5fRU5E",
+            "SU5HEAMSHgoaQ0xJRU5UX0xPR0lOX0VORElOR19GSU5JU0gQBBINCglMT0dP",
+            "VVRJTkcQBRIMCghMT0dPVVRFRBAGIr0BCg5DbGllbnRVc2VySW5mbxIOCgZV",
+            "c2VySWQYASABKAQSEwoLQWNjb3VudE5hbWUYAiABKAkSDAoETmFtZRgDIAEo",
+            "CRIQCghOaWNrbmFtZRgEIAEoCRIRCglQaG9uZUltZWkYBSABKAkSFAoMQ2xp",
+            "ZW50U3RhdHVzGAYgASgREhEKCUxhc3RUb2tlbhgHIAEoCRIXCg9Ub2tlbkV4",
+            "cGlyZVRpbWUYCCABKBISEQoJQmluZFBob25lGAkgASgEYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -214,13 +215,21 @@ using ProtoPackage.Attributes;
         /// </summary>
         [pbr::OriginalName("LOGINED")] Logined = 2,
         /// <summary>
+        /// 登录结束
+        /// </summary>
+        [pbr::OriginalName("CLIENT_LOGIN_ENDING")] ClientLoginEnding = 3,
+        /// <summary>
+        /// 登陆结束的结束
+        /// </summary>
+        [pbr::OriginalName("CLIENT_LOGIN_ENDING_FINISH")] ClientLoginEndingFinish = 4,
+        /// <summary>
         /// 登出中(定时15秒切换状态)
         /// </summary>
-        [pbr::OriginalName("LOGOUTING")] Logouting = 3,
+        [pbr::OriginalName("LOGOUTING")] Logouting = 5,
         /// <summary>
         /// 登出完成
         /// </summary>
-        [pbr::OriginalName("LOGOUTED")] Logouted = 4,
+        [pbr::OriginalName("LOGOUTED")] Logouted = 6,
       }
 
     }

@@ -60,6 +60,12 @@ struct TableStruct_login_2eproto {
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_login_2eproto;
 namespace CRYSTAL_NET {
 namespace service {
+class LoginFinishReq;
+struct LoginFinishReqDefaultTypeInternal;
+extern LoginFinishReqDefaultTypeInternal _LoginFinishReq_default_instance_;
+class LoginFinishRes;
+struct LoginFinishResDefaultTypeInternal;
+extern LoginFinishResDefaultTypeInternal _LoginFinishRes_default_instance_;
 class LoginInfoNty;
 struct LoginInfoNtyDefaultTypeInternal;
 extern LoginInfoNtyDefaultTypeInternal _LoginInfoNty_default_instance_;
@@ -78,6 +84,8 @@ extern LogoutReqDefaultTypeInternal _LogoutReq_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
+template<> ::CRYSTAL_NET::service::LoginFinishReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginFinishReq>(Arena*);
+template<> ::CRYSTAL_NET::service::LoginFinishRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginFinishRes>(Arena*);
 template<> ::CRYSTAL_NET::service::LoginInfoNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginInfoNty>(Arena*);
 template<> ::CRYSTAL_NET::service::LoginReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginReq>(Arena*);
 template<> ::CRYSTAL_NET::service::LoginRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginRes>(Arena*);
@@ -1555,6 +1563,550 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   union { Impl_ _impl_; };
   friend struct ::TableStruct_login_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(60), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class LoginFinishReq final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginFinishReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginFinishReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginFinishReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginFinishReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginFinishReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LoginFinishReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LoginFinishReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline LoginFinishReq() : LoginFinishReq(nullptr) {}
+  explicit PROTOBUF_CONSTEXPR LoginFinishReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  LoginFinishReq(const LoginFinishReq& from);
+  LoginFinishReq(LoginFinishReq&& from) noexcept
+    : LoginFinishReq() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginFinishReq& operator=(const LoginFinishReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LoginFinishReq& operator=(LoginFinishReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const LoginFinishReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const LoginFinishReq* internal_default_instance() {
+    return reinterpret_cast<const LoginFinishReq*>(
+               &_LoginFinishReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(LoginFinishReq& a, LoginFinishReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LoginFinishReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LoginFinishReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  LoginFinishReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<LoginFinishReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const LoginFinishReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const LoginFinishReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.LoginFinishReq";
+  }
+  protected:
+  explicit LoginFinishReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LoginFinishReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+  };
+  friend struct ::TableStruct_login_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(61), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class LoginFinishRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginFinishRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginFinishRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginFinishRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginFinishRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message LoginFinishRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LoginFinishRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message LoginFinishRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline LoginFinishRes() : LoginFinishRes(nullptr) {}
+  ~LoginFinishRes() override;
+  explicit PROTOBUF_CONSTEXPR LoginFinishRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  LoginFinishRes(const LoginFinishRes& from);
+  LoginFinishRes(LoginFinishRes&& from) noexcept
+    : LoginFinishRes() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginFinishRes& operator=(const LoginFinishRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LoginFinishRes& operator=(LoginFinishRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const LoginFinishRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const LoginFinishRes* internal_default_instance() {
+    return reinterpret_cast<const LoginFinishRes*>(
+               &_LoginFinishRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(LoginFinishRes& a, LoginFinishRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LoginFinishRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LoginFinishRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  LoginFinishRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<LoginFinishRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const LoginFinishRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const LoginFinishRes& from) {
+    LoginFinishRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LoginFinishRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.LoginFinishRes";
+  }
+  protected:
+  explicit LoginFinishRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrCodeFieldNumber = 1,
+  };
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LoginFinishRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_login_2eproto;
+};
 // ===================================================================
 
 
@@ -1867,9 +2419,41 @@ inline void LogoutNty::set_allocated_ip(std::string* ip) {
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LogoutNty.ip)
 }
 
+// -------------------------------------------------------------------
+
+// LoginFinishReq
+
+// -------------------------------------------------------------------
+
+// LoginFinishRes
+
+// sint32 ErrCode = 1;
+inline void LoginFinishRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t LoginFinishRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t LoginFinishRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginFinishRes.ErrCode)
+  return _internal_errcode();
+}
+inline void LoginFinishRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void LoginFinishRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginFinishRes.ErrCode)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -1998,6 +2582,52 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::LogoutNty(*dynamic_cast<const ::CRYSTAL_NET::service::LogoutNty *>(coder));
+    }
+
+};
+
+
+class LoginFinishReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, LoginFinishReqFactory);
+public:
+
+    virtual void Release() override {
+        LoginFinishReqFactory::Delete_LoginFinishReqFactory(this);
+    }
+
+    static LoginFinishReqFactory *CreateFactory() {
+        return LoginFinishReqFactory::New_LoginFinishReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::LoginFinishReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::LoginFinishReq(*dynamic_cast<const ::CRYSTAL_NET::service::LoginFinishReq *>(coder));
+    }
+
+};
+
+
+class LoginFinishResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, LoginFinishResFactory);
+public:
+
+    virtual void Release() override {
+        LoginFinishResFactory::Delete_LoginFinishResFactory(this);
+    }
+
+    static LoginFinishResFactory *CreateFactory() {
+        return LoginFinishResFactory::New_LoginFinishResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::LoginFinishRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::LoginFinishRes(*dynamic_cast<const ::CRYSTAL_NET::service::LoginFinishRes *>(coder));
     }
 
 };
