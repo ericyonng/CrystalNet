@@ -1588,6 +1588,258 @@ bool ExporterMgr::_GenTsExtends()
     return true;
 }
 
+bool ExporterMgr::_GrammarAnalyze()
+{
+    // g_Log->Custom("[PROTO GRAMMER ANALYZE] PROTO PATH:%s", _protoPath.c_str());
+
+    // auto nowTs = KERNEL_NS::LibTime::Now();
+    // auto traverseCallback = [this, &nowTs] (const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentPathContinue) -> bool {
+
+    //     bool isContinue = true;
+    //     do
+    //     {
+    //         // 过滤目录
+    //         if(KERNEL_NS::FileUtil::IsDir(fileInfo))
+    //             break;
+
+    //         // 过滤非proto
+    //         if(KERNEL_NS::FileUtil::ExtractFileExtension(fileInfo._fileName) != KERNEL_NS::LibString(".proto"))
+    //             break;
+
+    //         KERNEL_NS::LibString fullPath = fileInfo._rootPath;
+    //         if(fileInfo._rootPath.at(fileInfo._rootPath.length() - 1) != '/')
+    //             fullPath.AppendFormat("/");
+
+    //         const auto &fullFilePath = fullPath + fileInfo._fileName;
+
+    //         // md5有变化才会被扫描到
+    //         if(!_ScanAProto(fileInfo, fullFilePath, isParentPathContinue))
+    //         {
+    //             isContinue = false;
+    //             break;
+    //         }
+
+    //     } while (false);
+        
+    //     return isContinue;
+    // };
+
+    // auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(traverseCallback, bool, const KERNEL_NS::FindFileInfo &, bool &);
+    // KERNEL_NS::DirectoryUtil::TraverseDirRecursively(_protoPath, delg);
+    // delg->Release();
+
+    // g_Log->Custom("SCAN PROTOS IN PROTO PATH:%s END", _protoPath.c_str());
+
+    return true;
+}
+
+bool ExporterMgr::_ScanProtoDataType(const KERNEL_NS::FindFileInfo &fileInfo, const KERNEL_NS::LibString &fullFilePath, bool &isParentPathContinue)
+{
+//     // 嵌套的数据类型会按照堆栈顺序变化域, 比如当前扫描到 message A { message B { message C { 则域message C 的所在域是 ::A::B:: 链表数据是：[A, B], 当生成C的数据类型时，数据C会携带当前属于它的域
+//     std::list<KERNEL_NS::LibString> _currentArea;
+    
+//     // 当前的数据类型是链表的最后一个节点, 语法分析其实是一个堆栈结构, 当内部不再有内嵌的数据类型, 且数据类型符合message xxx {}, 那么这个数据类型封闭, 且会被弹栈, 接下来的部分就是弹栈后栈顶的数据类型部分
+//     std::list<KERNEL_NS::SmartPtr<ProtobufDataTypeInfo, KERNEL_NS::AutoDelMethods::Release>> _handlingDataTypes;
+
+//   // 加载文件内容到内存
+//     KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(fullFilePath.c_str());
+//     if(!fp)
+//     {
+//         g_Log->Warn(LOGFMT_OBJ_TAG("proto not found:%s"), fullFilePath.c_str());
+//         isParentPathContinue = false;
+//         return false;
+//     }
+
+//     fp.SetClosureDelegate([](void *ptr){
+//         auto filePtr = reinterpret_cast<FILE *>(ptr);
+//         KERNEL_NS::FileUtil::CloseFile(*filePtr);
+//     });
+    
+
+//     // 扫描proto message/注解
+//     Int32 currentLine = 0;
+
+//     KERNEL_NS::LibString packageName;
+//     KERNEL_NS::SmartPtr<ProtobufDataTypeInfo, KERNEL_NS::AutoDelMethods::Release> currentDataType;
+//     while(!KERNEL_NS::FileUtil::IsEnd(*fp))
+//     {
+//         KERNEL_NS::LibString lineData;
+//         KERNEL_NS::FileUtil::ReadUtf8OneLine(*fp, lineData);
+
+//         lineData.strip();
+
+//         // 跳过注释
+//         if(ProtobuffHelper::IsNoteLine(lineData))
+//             continue;
+
+//         // 移除注释
+//         ProtobuffHelper::RemoveNotePart(lineData);
+
+//         if(packageName.empty())
+//         {
+//             ProtobuffHelper::GetPackageName(lineData, packageName, "_");
+
+//             if(!packageName.empty())
+//                 _currentArea.push_back(packageName);
+//         }
+
+//         // 判断是不是message
+//         if(ProtobuffHelper::HasMessage(lineData))
+//         {
+//             // 提取message名 在message 之后 空格之前
+//             auto dragMessageName = ProtobuffHelper::DragMessageSeg(lineData);
+//             if(dragMessageName.empty())
+//             {
+//                 g_Log->Error(LOGFMT_OBJ_TAG("illegal message name :%s in proto file:%s"), dragMessageName.c_str(), fullFilePath.c_str());
+//                 return false;
+//             }
+
+//             dragMessageName.strip();
+//             // message 名称是连续的英文 + _ + 数字 且首字母是非数字构成
+//             if(!ProtobuffHelper::CheckValidMessage(dragMessageName))
+//             {
+//                 g_Log->Error(LOGFMT_OBJ_TAG("invalid message name :%s in proto file:%s"), dragMessageName.c_str(), fullFilePath.c_str());
+//                 return false;
+//             }
+
+
+//             // 类型冲突判断
+//             KERNEL_NS::LibString fullArea;
+//             for(auto &item : _currentArea)
+//                 fullArea.AppendData(item);
+//             const auto &fulllMessageName = fullArea + dragMessageName;
+//             auto iter = _dataTypeRefPbDataTypeInfo.find(fulllMessageName);
+//             if(iter != _dataTypeRefPbDataTypeInfo.end())
+//             {
+//                 g_Log->Error(LOGFMT_OBJ_TAG("repeate message:%s, full message name:%s, in proto file:%s"), dragMessageName.c_str(), fulllMessageName.c_str(), fullFilePath.c_str());
+//                 return false;
+//             }
+
+//             // 创建新的数据处理
+//             KERNEL_NS::SmartPtr<ProtobufDataTypeInfo, KERNEL_NS::AutoDelMethods::Release> dataType = ProtobufDataTypeInfo::Create();
+//             dataType->_protoFileName = fileInfo._fileName;
+//             dataType->_area = _currentArea;
+//             dataType->_dataTypeName = dragMessageName;
+//             _dataTypeRefPbDataTypeInfo.insert(std::make_pair(fulllMessageName, dataType));
+//             _handlingDataTypes.push_back(dataType);
+//             currentDataType = dataType;
+
+//             continue;
+//         }
+
+//         // 不是消息也不是注释应该是类型的部分
+//         if
+        
+
+//             KERNEL_NS::SmartPtr<MessageInfo, KERNEL_NS::AutoDelMethods::Release> messageInfo = MessageInfo::New_MessageInfo();
+//             messageInfo->_messageName = dragMessageName;
+//             auto &annotationParamNameRefValue = messageInfo->_annotationParamNameRefValue;
+
+//             Int32 annnotationEnable = 0;
+//             for(auto iter = lineRefProtoData.rbegin(); iter != lineRefProtoData.rend(); ++iter)
+//             {
+//                 if(iter->first == currentLine)
+//                     continue;
+
+//                 auto reverseLine = iter->second;
+
+//                 reverseLine.lstrip();
+//                 const Int32 oldAnnotationEnable = annnotationEnable;
+//                 if(ProtobuffHelper::HasAnnotation(reverseLine))
+//                     ++annnotationEnable;
+//                 else if(!reverseLine.empty()) // 非空行则打断
+//                     break;
+//                 else
+//                     annnotationEnable = 0;
+
+//                 // 注解行不连续则停止解析
+//                 if(oldAnnotationEnable != 0 && (annnotationEnable == 0))
+//                     break;
+
+//                 // 不是注解行 需要从第一个注解行开始解析
+//                 if(annnotationEnable == 0)
+//                     continue;
+                
+//                 auto dragParams = reverseLine.DragAfter(ProtobufMessageParam::ParamLineBegin);
+//                 dragParams.strip();
+//                 auto annotationParts = dragParams.Split(ProtobufMessageParam::CacheSegSepFlag);
+//                 if(annotationParts.empty())
+//                     continue;
+
+//                 // 解析注解
+//                 for(auto &annotationPairsStr : annotationParts)
+//                 {
+//                     auto annotationPairParts = annotationPairsStr.Split(ProtobufMessageParam::CacheKVSepFlag);
+//                     if(annotationPairParts.empty())
+//                         continue;
+
+//                     annotationPairParts[0].strip();
+
+//                     auto iterKey = annotationParamNameRefValue.find(annotationPairParts[0]);
+//                     if(iterKey != annotationParamNameRefValue.end())
+//                     {
+//                         g_Log->Error(LOGFMT_OBJ_TAG("repeate annotation :%s in proto file:%s, annotationPairsStr:%s, reverseLine:%s, annotation key:%s")
+//                                     , dragMessageName.c_str(), fullFilePath.c_str(), annotationPairsStr.c_str(), reverseLine.c_str(), annotationPairParts[0].c_str());
+//                         return false;
+//                     }
+
+//                     if(annotationPairParts.size() > 1)
+//                     {
+//                         annotationPairParts[1].strip();
+//                         iterKey = annotationParamNameRefValue.insert(std::make_pair(annotationPairParts[0], annotationPairParts[1])).first;
+//                     }
+//                     else
+//                     {
+//                         iterKey = annotationParamNameRefValue.insert(std::make_pair(annotationPairParts[0], KERNEL_NS::LibString())).first;
+//                     }
+
+//                     // 若注解没有值先从缓存中拿
+//                     if(iterKey->second.empty())
+//                         iterKey->second = _pbCacheContent->GetMessageAnnotationValue(fullFilePath,  messageInfo->_messageName, annotationPairParts[0]);
+//                 }
+//             }
+
+//             // 放入字典
+//             messageInfo->FieldsFromAnnotations(_maxOpcode);
+//             messageInfoDict.insert(std::make_pair(messageInfo->_messageName, messageInfo.AsSelf()));
+//             messageInfo.pop();
+//         }
+//     }
+    
+//     KERNEL_NS::LibString protoMd5;
+//     if(!KERNEL_NS::LibDigest::MakeMd5Final(*ctx, protoMd5))
+//     {
+//         g_Log->Warn(LOGFMT_OBJ_TAG("md5 final fail fullFilePath:%s"), fullFilePath.c_str());
+//         return false;
+//     }
+    
+//     protoInfo->_md5 = KERNEL_NS::LibBase64::Encode(protoMd5);
+
+//     // md5是否变化
+//     auto iterPbCache = _pbCacheContent->_protoPathRefFileInfo.find(fullFilePath);
+//     bool isProtoFileChanged = true;
+//     if(iterPbCache != _pbCacheContent->_protoPathRefFileInfo.end())
+//     {
+//         auto pbCache = iterPbCache->second;
+//         if(pbCache->_md5 == protoInfo->_md5)
+//             isProtoFileChanged = false;
+//     }
+//     protoInfo->_isMd5Change = isProtoFileChanged;
+
+//     // 文件变化或者强制重新生成
+//     if(isProtoFileChanged || _forceGenAll)
+//     {
+//         g_Log->Custom("PROTO WILL GEN:%s...", protoInfo->_protoInfo._fileName.c_str());
+//         _protoNameRefProtoInfo.insert(std::make_pair(protoInfo->_fullPathName, protoInfo.AsSelf()));
+//     }
+
+//     g_Log->Info(LOGFMT_OBJ_TAG("PROTO INFO:%s"), protoInfo->ToString().c_str());
+    
+//     protoInfo.pop();
+
+    return true;
+}
+
 
 bool ExporterMgr::_LoadPbCache()
 {

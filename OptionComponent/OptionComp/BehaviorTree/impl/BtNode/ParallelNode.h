@@ -21,14 +21,48 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-25 02:02:21
+ * Date: 2023-09-27 21:52:00
  * Author: Eric Yonng
- * Description: 
+ * Description:
 */
 
-#include <pch.h>
-#include <service/ProtoGenService/Comps/Exporter/Defs/TsRawInfo.h>
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_BEHAVIOR_TREE_IMPL_BTNODE_PARALLEL_NODE_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_BEHAVIOR_TREE_IMPL_BTNODE_PARALLEL_NODE_H__
 
-SERVICE_BEGIN
+#pragma once
 
-SERVICE_END
+#include <OptionComp/BehaviorTree/impl/IBtNode.h>
+#include <kernel/comp/Delegate/Delegate.h>
+
+KERNEL_BEGIN
+
+class ParallelNode : public IBtNode
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IBtNode, ParallelNode);
+
+public:
+    ParallelNode(IBtNode *parent);
+    ~ParallelNode();
+    void Release();
+
+    static ParallelNode *Create(IBtNode *parent);
+
+protected:
+    virtual void _OnTick(const KERNEL_NS::LibTime &nowTime) override;
+    virtual Int32 _OnInit() override { return Status::Success; }
+    virtual void _OnClose() override { }
+};
+
+ALWAYS_INLINE void ParallelNode::Release()
+{
+    ParallelNode::DeleteThreadLocal_ParallelNode(this);
+}
+
+ALWAYS_INLINE ParallelNode *ParallelNode::Create(IBtNode *parent)
+{
+    return ParallelNode::NewThreadLocal_ParallelNode(parent);
+}
+
+KERNEL_END
+
+#endif

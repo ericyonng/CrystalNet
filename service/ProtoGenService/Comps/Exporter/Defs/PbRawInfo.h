@@ -27,7 +27,6 @@
 */
 
 #include <service/ProtoGenService/ServiceCompHeader.h>
-#include <service/ProtoGenService/Comps/Exporter/Defs/PbCacheInfoFormat.h>
 
 SERVICE_BEGIN
 
@@ -37,6 +36,7 @@ private:
     enum ENUMS_POS : UInt64
     {
         ENUM_FLAG_POS = 0,
+        ENUM_VALUE_FLAG_POS,
         NUMBER_FLAG_POS,
         STRING_FLAG_POS,
         BOOLEAN_FLAG_POS,
@@ -60,6 +60,7 @@ public:
     enum ENUMS : UInt64
     {
         ENUM_FLAG = (1LLU << ENUM_FLAG_POS),
+        ENUM_VALUE_FLAG = (1LLU << ENUM_VALUE_FLAG_POS),
 
         // 数值
         NUMBER_FLAG = (1LLU << NUMBER_FLAG_POS),
@@ -90,21 +91,56 @@ public:
 
 // 需要注意枚举类型 enum 跳过parser生成
 // XXX = value
-struct TsProtobufFieldRawInfo
+struct ProtobufFieldInfo
 {
+    POOL_CREATE_OBJ_DEFAULT(ProtobufFieldInfo);
+
+    void Release()
+    {
+        ProtobufFieldInfo::DeleteThreadLocal_ProtobufFieldInfo(this);
+    }
+
+    static ProtobufFieldInfo *Create()
+    {
+        return ProtobufFieldInfo::NewThreadLocal_ProtobufFieldInfo();
+    }
+
     // protobuf 每个字段的id
-    Int32 tagId = 0;
+    Int32 _tagId = 0;
     // ProtoBuffAttributeFlags
-    UInt64 flags = 0;
+    UInt64 _flags = 0;
     // 字段名
-    KERNEL_NS::LibString fieldName;
+    KERNEL_NS::LibString _fieldName;    // 若是枚举值, 则fieldName是枚举名, tagId是枚举值
     // 数据类型
-    KERNEL_NS::LibString fieldDataType;
+    KERNEL_NS::LibString _fieldDataType;
+    // 命名空间
+    KERNEL_NS::LibString _namespace;
 };
 
-struct TsProtobufMessageRawInfo
+struct ProtobufDataTypeInfo
 {
-    std::map<Int32, TsProtobufFieldRawInfo> _tagIdRefRawInfo;
+    POOL_CREATE_OBJ_DEFAULT(ProtobufDataTypeInfo);
+    
+    void Release()
+    {
+        ProtobufDataTypeInfo::DeleteThreadLocal_ProtobufDataTypeInfo(this);
+    }
+
+    static ProtobufDataTypeInfo *Create()
+    {
+        return ProtobufDataTypeInfo::NewThreadLocal_ProtobufDataTypeInfo();
+    }
+
+    KERNEL_NS::LibString _protoFileName;
+    std::list<KERNEL_NS::LibString> _area; // 所在命名空间下
+    KERNEL_NS::LibString _dataTypeName;
+    UInt64 _flags = 0;
+    std::map<Int32, KERNEL_NS::SmartPtr<ProtobufFieldInfo, KERNEL_NS::AutoDelMethods::Release>> _tagIdRefFieldInfo;
+
+    bool _isStarting = false; // {开始
+    bool _isScanEnd = false;  // }结束
 };
+
+
 
 SERVICE_END

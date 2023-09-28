@@ -37,6 +37,7 @@ class ProtobuffHelper
 public:
     // 提取message名
     static KERNEL_NS::LibString DragMessageSeg(const KERNEL_NS::LibString &lineData);
+    static KERNEL_NS::LibString DragMessageSeg(const KERNEL_NS::LibString &lineData, Int32 &endPos);
     static KERNEL_NS::LibString DragClass(const KERNEL_NS::LibString &lineData);
     // 有没有message
     static bool HasMessage(const KERNEL_NS::LibString &lineData);
@@ -69,7 +70,10 @@ public:
     static bool IsNoteLine(const KERNEL_NS::LibString &lineData);
 
     // 获取package名
-    static bool GetPackageName(const KERNEL_NS::LibString &lineData, KERNEL_NS::LibString &packageName);
+    static bool GetPackageName(const KERNEL_NS::LibString &lineData, KERNEL_NS::LibString &packageName, const KERNEL_NS::LibString &replaceDotWith = "::");
+
+    // 是否类型开始
+    static void RemoveNotePart(KERNEL_NS::LibString &lineData);
 };
 
 SERVICE_END

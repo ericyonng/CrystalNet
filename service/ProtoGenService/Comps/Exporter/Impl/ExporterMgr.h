@@ -30,6 +30,7 @@
 #pragma once
 
 #include <service/ProtoGenService/Comps/Exporter/Interface/IExporterMgr.h>
+#include <service/ProtoGenService/Comps/Exporter/Defs/PbRawInfo.h>
 
 SERVICE_BEGIN
 
@@ -79,6 +80,10 @@ protected:
     bool _GenTs();
     bool _GenTsExtends();
 
+    // protobuf语法分析
+    bool _GrammarAnalyze();
+    bool _ScanProtoDataType(const KERNEL_NS::FindFileInfo &fileInfo, const KERNEL_NS::LibString &fullFilePath, bool &isParentPathContinue);
+
     // pbcache file加载
     bool _LoadPbCache();
 
@@ -113,6 +118,9 @@ private:
 
     // pb cache file内容
     PbCacheFileContent *_pbCacheContent;
+
+    // 数据类型全名 => 数据类型 , 类型全名 = 完整的域名 + 类型名 中间没有任何符号
+    std::map<KERNEL_NS::LibString, KERNEL_NS::SmartPtr<ProtobufDataTypeInfo, KERNEL_NS::AutoDelMethods::Release>> _dataTypeRefPbDataTypeInfo;
 
     KERNEL_NS::ListenerStub _closeServiceStub;
 };
