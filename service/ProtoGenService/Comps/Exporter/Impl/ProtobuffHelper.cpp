@@ -73,14 +73,14 @@ KERNEL_NS::LibString ProtobuffHelper::DragMessageSeg(const KERNEL_NS::LibString 
     return dragMessageName.GetRaw().substr(0, maxValidLen);
 }
 
-KERNEL_NS::LibString ProtobuffHelper::DragMessageSeg(const KERNEL_NS::LibString &lineData, Int32 &endPos)
+KERNEL_NS::LibString ProtobuffHelper::DragMessageSeg(const KERNEL_NS::LibString &lineData, size_t &endPos)
 {
     if(!lineData.IsStartsWith(ProtobufMessageParam::Message))
         return KERNEL_NS::LibString();
 
     auto cache = lineData.strip();
-    auto dragMessageName = cache.DragAfter(ProtobufMessageParam::Message);
-    dragMessageName.strip();
+    size_t startPos = std::string::npos;
+    auto dragMessageName = cache.DragAfter(ProtobufMessageParam::Message, startPos, endPos);
 
     // 移除注释
     auto sepPos = dragMessageName.GetRaw().find('/');
@@ -91,6 +91,7 @@ KERNEL_NS::LibString ProtobuffHelper::DragMessageSeg(const KERNEL_NS::LibString 
         if(doubleSep == std::string::npos)
             return KERNEL_NS::LibString();
 
+        endPos = startPos + sepPos - 1;
         dragMessageName = dragMessageName.GetRaw().substr(0, sepPos);
     }
 
@@ -393,56 +394,160 @@ bool ProtobuffHelper::GetPackageName(const KERNEL_NS::LibString &lineData, KERNE
     packageName = packageName.GetRaw().substr(0, lastValidIndex + 1);
     packageName.strip();
     packageName.strip('.');
-    packageName.findreplace(".", replaceDotWith);
+    if(!replaceDotWith.empty())
+        packageName.findreplace(".", replaceDotWith);
     return true;
 }
 
-void ProtobuffHelper::RemoveNotePart(KERNEL_NS::LibString &lineData)
+bool ProtobuffHelper::HasSyntax(const KERNEL_NS::LibString &content)
 {
-    // 剔除多行注释
-    bool isNoteOn = false;
-    Int32 startPos = 0;
-    while(true)
+    auto &&cache = content.strip();
+    return KERNEL_NS::StringUtil::IsMatch(cache, "^syntax *= *\" *proto3 *\".*");
+}
+
+bool ProtobuffHelper::IsField(const KERNEL_NS::LibString &content)
+{
+    if(KERNEL_NS::StringUtil::IsMatch(content, "^ *([a-z]|[A-Z]|[0-9])* *([a-z]|[A-Z]|[0-9]|_){1,} {1,}([a-z]|[A-Z]|[0-9]|_){1,} *= *[0-9]{1,} *;"))
     {
-        if(startPos == lineData.length())
-            break;
-
-        auto multiStart = lineData.GetRaw().find("/*", startPos);
-        if(multiStart != std::string::npos)
-        {
-            isNoteOn = true;
-
-            startPos = multiStart + 1;
-            if(lineData.length() == multiStart + 1)
-                break;
-
-            auto endFlagPos = lineData.GetRaw().find("*/", startPos);
-            if(endFlagPos == std::string::npos)
-                break;
-
-            isNoteOn = false;
-            startPos = endFlagPos + 1;
-        }
-        else
-        {
-            break;
-        }
+        return true;
     }
 
-    if(isNoteOn)
+    return IsEnumField(content);
+}
+
+bool ProtobuffHelper::IsEnumField(const KERNEL_NS::LibString &content)
+{
+    return KERNEL_NS::StringUtil::IsMatch(content, "^ *([a-z]|[A-Z]|[0-9]|_){1,} *= *([0-9]){1,} *;");
+}
+
+bool ProtobuffHelper::IsImport(const KERNEL_NS::LibString &content)
+{
+    return KERNEL_NS::StringUtil::IsMatch(content, "^ *import *\".*\";.*");
+}
+
+bool ProtobuffHelper::HasUnitStart(const KERNEL_NS::LibString &content)
+{
+    return KERNEL_NS::StringUtil::IsMatch(content, "^ *\\{");
+}
+
+bool ProtobuffHelper::HasUnitEnd(const KERNEL_NS::LibString &content)
+{
+    return KERNEL_NS::StringUtil::IsMatch(content, "^ *\\}");
+}
+
+bool ProtobuffHelper::IsOneOf(const KERNEL_NS::LibString &content)
+{
+    return KERNEL_NS::StringUtil::IsMatch(content, "^ *oneof *.*");
+}
+
+bool ProtobuffHelper::IsMapDataType(const KERNEL_NS::LibString &dataType)
+{
+    return KERNEL_NS::StringUtil::IsMatch(dataType, " *Map<.*") || KERNEL_NS::StringUtil::IsMatch(dataType, " *map<.*");
+}
+
+bool ProtobuffHelper::GetEnumDataTypeDefine(const KERNEL_NS::LibString &validData, KERNEL_NS::LibString &dataType)
+{
+    if(!KERNEL_NS::StringUtil::IsMatch(validData, " *enum {1,}([a-z]|[A-Z]|[0-9]|_){1,} *.*"))
+        return false;
+    
+    auto &&parts = validData.Split(" ");
+    const Int32 count = static_cast<Int32>(parts.size());
+    std::vector<KERNEL_NS::LibString> finalParts;
+    for(Int32 idx = 0; idx < count; ++idx)
     {
-        lineData.clear();
-        return;
+        auto &item = parts[idx];
+        item.strip();
+        if(item.empty())
+            continue;
+
+        finalParts.push_back(item);
     }
 
-    // TODO:
-    lineData.GetRaw().substr();
+    if(finalParts.size() < 2)
+        return false;
 
-    auto pos = lineData.GetRaw().find("//");
+    dataType = finalParts[1];
+
+    return true;
+}
+
+bool ProtobuffHelper::GetOneOfName(const KERNEL_NS::LibString &content, KERNEL_NS::LibString &name)
+{
+    auto &&cache = content.strip();
+    if(!cache.IsStartsWith(ProtobufMessageParam::Oneof))
+        return false;
+
+    auto oneofName = cache.DragAfter(ProtobufMessageParam::Oneof);
+    oneofName.strip();
+
+    // 移除注释
+    auto sepPos = oneofName.GetRaw().find('/');
+    if(sepPos != std::string::npos)
+    {
+        // 注释格式错误
+        auto doubleSep =  oneofName.GetRaw().find("//");
+        if(doubleSep == std::string::npos)
+            return false;
+
+        oneofName = oneofName.GetRaw().substr(0, sepPos);
+    }
+
+    oneofName.strip();
+
+    // 从非命名格式字符断开
+    const Int32 len = static_cast<Int32>(oneofName.size());
+    Int32 maxValidLen = len;
+    for(Int32 idx = 0; idx < len; ++idx)
+    {
+        if(ProtobuffHelper::CheckValidName(oneofName[idx]))
+            continue;
+
+        maxValidLen = idx;
+        break;
+    }
+    
+    if(maxValidLen == 0)
+        return false;
+    
+    name = oneofName.GetRaw().substr(0, maxValidLen);
+
+    return true;
+}
+
+void ProtobuffHelper::BuildComments(Int32 currentLine, const std::vector<KERNEL_NS::LibString> &lineDatas, std::vector<KERNEL_NS::LibString> &comments)
+{
+    // 注释
+    bool isCommentStart = false;
+    for(Int32 idx = currentLine - 1; idx >= 0; --idx)
+    {
+        auto item = lineDatas[idx];
+        item.strip();
+        if(item.empty())
+        {
+            if(!isCommentStart)
+                continue;
+
+            break;
+        }
+
+        if(!ProtobuffHelper::IsNoteLine(item))
+        {
+            break;
+        }
+
+        isCommentStart = true;
+        comments.insert(comments.begin(), item);
+    }
+}
+
+void ProtobuffHelper::GetComment(const KERNEL_NS::LibString &validData, KERNEL_NS::LibString &comment)
+{
+    auto pos = validData.GetRaw().find("//");
     if(pos == std::string::npos)
         return;
 
-    lineData = lineData.GetRaw().substr(0, pos);
+    comment = validData.GetRaw().substr(pos + strlen("//"));
 }
+
 
 SERVICE_END

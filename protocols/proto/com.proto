@@ -5,7 +5,7 @@ package CRYSTAL_NET.service;
 // 属性类型枚举
 message CreatureAttrKey
 {
-    enum ENUM
+    enum     ENUM
     {
         BEGIN = 0;  // 开始
         Atk = 1; // 攻击

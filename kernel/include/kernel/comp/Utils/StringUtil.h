@@ -113,6 +113,9 @@ public:
 	static LibString RemoveNameSpace(const LibString &name);
 	// 转成接口类
 	static LibString InterfaceObjName(const LibString &name);
+
+	// 正则表达式匹配
+	static bool IsMatch(const LibString &content, const LibString &matchStr);
 };
 
 inline size_t StringUtil::snprintf(std::string &str, const char *format, va_list ap)
@@ -1217,6 +1220,12 @@ ALWAYS_INLINE LibString StringUtil::InterfaceObjName(const LibString &name)
 
 	return icompName;
 }
+
+ALWAYS_INLINE bool StringUtil::IsMatch(const LibString &content, const LibString &matchStr)
+{
+	return std::regex_match(content.GetRaw(), std::regex(matchStr.c_str()));
+}
+
 
 KERNEL_END
 

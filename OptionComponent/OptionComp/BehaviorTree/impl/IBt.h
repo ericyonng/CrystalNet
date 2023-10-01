@@ -39,6 +39,7 @@
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/TimeSlice.h>
 #include <OptionComp/BehaviorTree/impl/BtNodeData.h>
+#include <kernel/comp/Delegate/Delegate.h>
 
 KERNEL_BEGIN
 
@@ -82,6 +83,8 @@ public:
     bool IsRunning() const;
     bool IsFinished() const;
     bool IsClosed() const;
+    bool IsSuccess() const;
+    bool IsFailure() const;
 
 protected:
     virtual void _OnTick(LibTimer *t);
@@ -100,6 +103,8 @@ protected:
     bool _isClosed;
 
     Int32 _state;  // BtState
+    bool _isSuccess;
+    bool _isFailure;
     const UInt64 _id;
 
     IBtNode *_root;
@@ -166,6 +171,17 @@ ALWAYS_INLINE bool IBt::IsClosed() const
 {
     return _isClosed;
 }
+
+ALWAYS_INLINE bool IBt::IsSuccess() const
+{
+    return _isSuccess;
+}
+
+ALWAYS_INLINE bool IBt::IsFailure() const
+{
+    return _isFailure;
+}
+
 
 KERNEL_END
 

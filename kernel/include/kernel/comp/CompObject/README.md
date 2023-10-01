@@ -78,7 +78,10 @@
           
           // 在组件初始化前 必须重写，在创建组件之前调用，是对宿主自己的初始化
           virtual Int32 _OnHostInit() = 0;
-          
+      
+      	// 优先级的组件先完成创建
+           virtual Int32 _OnPriorityLevelCompsCreated();
+      
            // 所有组件创建完成, 这个是在组件创建完成，但还没初始化时候调用, 可以对组件进行设置，可缺省，如果有需要对组件进行设置时候才重写
           virtual Int32 _OnCompsCreated();
           
@@ -112,6 +115,10 @@
           virtual void Release() = 0;
       	// 创建组件的方法
           virtual CompObject *Create() const = 0;
+      
+      	// 带优先级的组件的优先级, 如果带优先级则会先于其他没带优先级的组件先创建, 用于解决依赖关系问题
+          virtual Int32 GetPriorityLevel() const { return CompPriorityLevel::NONE; }
+      
       ```
 
 * 注意

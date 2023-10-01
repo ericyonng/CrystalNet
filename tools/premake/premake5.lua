@@ -681,6 +681,7 @@ project "protogentool"
 		"../../kernel/include/",
 		"../../ProtoGen/",
 		"../../ProtoGen/protogen_pch/",
+		"../../OptionComponent/",
     }
 	
 	-- 设置通用选项
@@ -698,6 +699,8 @@ project "protogentool"
         "../../service_common/**.cpp",
         "../../ProtoGen/**.h",
         "../../ProtoGen/**.cpp",
+		"../../OptionComponent/OptionComp/CodeAnalyze/**.h",
+		"../../OptionComponent/OptionComp/CodeAnalyze/**.cpp",
     }
 
     -- 工具不需要动态库连接

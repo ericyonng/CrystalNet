@@ -320,6 +320,7 @@ public:
     LibString stripString(const LibString &str) const;
 
     LibString DragAfter(const LibString &start) const;
+    LibString DragAfter(const LibString &start, size_t &startPos, size_t &endPos) const;
     LibString DragBefore(const LibString &start) const;
     LibString DragRange(const LibString &startStr, const LibString &endStr) const;
 
@@ -1488,6 +1489,20 @@ ALWAYS_INLINE LibString LibString::DragAfter(const LibString &start) const
     
     return _raw.substr(pos + start._raw.size());
 }
+
+ALWAYS_INLINE LibString LibString::DragAfter(const LibString &start, size_t &startPos, size_t &endPos) const
+{
+    auto pos =  _raw.find(start._raw);
+    if(pos == std::string::npos)
+        return LibString();
+
+    endPos = pos + start._raw.size() - 1;
+    startPos = pos;
+    const auto &subStr = _raw.substr(pos + start._raw.size());
+    endPos += subStr.size();
+    return subStr;
+}
+
 
 ALWAYS_INLINE LibString LibString::DragBefore(const LibString &start) const
 {

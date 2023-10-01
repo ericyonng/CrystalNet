@@ -53,6 +53,7 @@ public:
 
 protected:
     Int32 _OnGlobalSysInit() override;
+    Int32 _OnGlobalSysCompsCreated() override;
     Int32 _OnHostStart() override;
     void _OnGlobalSysClose() override;
 
@@ -123,6 +124,9 @@ private:
     std::map<KERNEL_NS::LibString, KERNEL_NS::SmartPtr<ProtobufDataTypeInfo, KERNEL_NS::AutoDelMethods::Release>> _dataTypeRefPbDataTypeInfo;
 
     KERNEL_NS::ListenerStub _closeServiceStub;
+
+    // protobuf基本数据类型
+    std::set<KERNEL_NS::LibString> _protobufBaseDataType;
 };
 
 SERVICE_END

@@ -38,6 +38,8 @@ IBt::IBt(UInt64 id)
 :_isInited(false)
 ,_isClosed(false)
 ,_state(BtState::CREATED)
+,_isSuccess(false)
+,_isFailure(false)
 ,_id(id)
 ,_root(NULL)
 ,_timer(NULL)
@@ -85,6 +87,8 @@ Int32 IBt::Init()
 
     _isInited = true;
     _isClosed = false;
+    _isSuccess = false;
+    _isFailure = false;
     SetState(BtState::INITED);
 
     _timer->Schedule(_interval);
@@ -156,7 +160,14 @@ void IBt::_OnTick(LibTimer *t)
         _root->Tick(_nowTime);
 
         if(_root->IsFinished())
+        {
             SetState(BtState::FINISHED);
+
+            if(_root->IsSuccess())
+                _isSuccess = true;
+            else
+                _isFailure = true;
+        }
     }
 
     if(UNLIKELY(GetState() == BtState::FINISHED))

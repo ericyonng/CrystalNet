@@ -21,52 +21,61 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-10-19 00:58:07
+ * Date: 2023-09-29 17:35:33
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_UTILS_DEFS_FIND_FILE_INFO_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_UTILS_DEFS_FIND_FILE_INFO_H__
-
-#pragma once
-
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/LibString.h>
+#include <pch.h>
+#include <OptionComp/CodeAnalyze/impl/CodeUnit.h>
 
 KERNEL_BEGIN
+POOL_CREATE_OBJ_DEFAULT_IMPL(CodeUnit);
 
-struct KERNEL_EXPORT FindFileInfo
+POOL_CREATE_OBJ_DEFAULT_IMPL(CodeUnitStack);
+
+CodeUnit::CodeUnit()
 {
-    enum ENUMS : UInt64
-    {
-        F_FILE = 1LLU,
-        F_DIR = (1LLU << 1),
-    };
 
-    LibString ToString() const
-    {
-        LibString info;
-        info
-            .AppendFormat("file name:%s, ", _fileName.c_str())
-            .AppendFormat("root path:%s, ", _rootPath.c_str())
-            .AppendFormat("extension:%s, ", _extension.c_str())
-            .AppendFormat("full name:%s, ", _fullName.c_str())
-            .AppendFormat("file attr:%llx, ", _fileAttr)
-            .AppendFormat("modify time:%lld, ", _modifyTime)
-            ;
+}
 
-        return info;
-    }
+CodeUnit::~CodeUnit()
+{
 
-    LibString _fileName;     // 文件名
-    LibString _extension;    // 扩展名 .xxx
-    LibString _rootPath;    // 文件所在目录路径
-    LibString _fullName;    // 文件完整名
-    UInt64 _fileAttr = 0;   // 文件属性
-    Int64 _modifyTime = 0;  // 文件修改时间
-};
+}
+
+void CodeUnit::Release()
+{
+    CodeUnit::DeleteThreadLocal_CodeUnit(this);
+}
+
+SmartPtr<CodeUnit, AutoDelMethods::Release> CodeUnit::CreateCodeUnit()
+{
+    return CodeUnit::NewThreadLocal_CodeUnit();
+}
+
+SmartPtr<CodeUnit, AutoDelMethods::Release> CodeUnitStack::_nullUnit;
+
+CodeUnitStack::CodeUnitStack()
+{
+
+}
+
+CodeUnitStack::~CodeUnitStack()
+{
+
+}
+
+void CodeUnitStack::Release()
+{
+    CodeUnitStack::DeleteThreadLocal_CodeUnitStack(this);
+}
+
+SmartPtr<CodeUnitStack, AutoDelMethods::Release> CodeUnitStack::Create()
+{
+    return CodeUnitStack::NewThreadLocal_CodeUnitStack();
+}
+
 
 KERNEL_END
 
-#endif

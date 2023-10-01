@@ -29,15 +29,32 @@
 #pragma once
 
 #include <service/ProtoGenService/ServiceCompHeader.h>
+#include <OptionComp/CodeAnalyze/CodeAnalyze.h>
 
 SERVICE_BEGIN
+
+class CodeUnitFlagsExt
+{
+public:
+    enum POS_ENUMS:UInt64
+    {
+        BEGIN = KERNEL_NS::CodeUnitFlags::MAX_POS,
+
+        ONEOF_FIELD_FLAG_POS,
+    };
+
+    enum FLAG_ENUMS:UInt64
+    {
+        ONEOF_FIELD_FLAG = KERNEL_NS::CodeUnitFlags::FIELD_FLAG | (1LLU << ONEOF_FIELD_FLAG_POS),
+    };
+};
 
 class ProtobuffHelper
 {
 public:
     // 提取message名
     static KERNEL_NS::LibString DragMessageSeg(const KERNEL_NS::LibString &lineData);
-    static KERNEL_NS::LibString DragMessageSeg(const KERNEL_NS::LibString &lineData, Int32 &endPos);
+    static KERNEL_NS::LibString DragMessageSeg(const KERNEL_NS::LibString &lineData, size_t &endPos);
     static KERNEL_NS::LibString DragClass(const KERNEL_NS::LibString &lineData);
     // 有没有message
     static bool HasMessage(const KERNEL_NS::LibString &lineData);
@@ -72,8 +89,24 @@ public:
     // 获取package名
     static bool GetPackageName(const KERNEL_NS::LibString &lineData, KERNEL_NS::LibString &packageName, const KERNEL_NS::LibString &replaceDotWith = "::");
 
-    // 是否类型开始
-    static void RemoveNotePart(KERNEL_NS::LibString &lineData);
+    // 是否 syntax
+    static bool HasSyntax(const KERNEL_NS::LibString &content);
+
+    // 是否字段
+    static bool IsField(const KERNEL_NS::LibString &content);
+    static bool IsEnumField(const KERNEL_NS::LibString &content);
+    static bool IsImport(const KERNEL_NS::LibString &content);
+    static bool HasUnitStart(const KERNEL_NS::LibString &content);
+    static bool HasUnitEnd(const KERNEL_NS::LibString &content);
+    static bool IsOneOf(const KERNEL_NS::LibString &content);
+    static bool IsMapDataType(const KERNEL_NS::LibString &dataType);
+    static bool GetEnumDataTypeDefine(const KERNEL_NS::LibString &validData, KERNEL_NS::LibString &dataType);
+
+    static bool GetOneOfName(const KERNEL_NS::LibString &content, KERNEL_NS::LibString &name);
+
+    static void BuildComments(Int32 currentLine, const std::vector<KERNEL_NS::LibString> &lineDatas, std::vector<KERNEL_NS::LibString> &comments);
+
+    static void GetComment(const KERNEL_NS::LibString &validData, KERNEL_NS::LibString &comment);
 };
 
 SERVICE_END

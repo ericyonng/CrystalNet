@@ -67,7 +67,7 @@ protected:
 
     virtual Int32 _OnHostCreated();
     // 在组件初始化前 必须重写
-    virtual Int32 _OnHostInit() = 0;
+    virtual Int32 _OnHostInit() { return Status::Success; };
     // 带优先级的组件创建完成
     virtual Int32 _OnPriorityLevelCompsCreated();
     // 所有组件创建完成
@@ -75,7 +75,7 @@ protected:
     // 在组件启动之前 请勿在WillStart及之前的接口启动线程，此时都是线程不安全的状态
     virtual Int32 _OnHostWillStart(){ return Status::Success; }
     // 组件启动之后 此时可以启动线程 必须重写
-    virtual Int32 _OnHostStart() = 0;
+    virtual Int32 _OnHostStart() { return Status::Success; };
     // 在组件willclose之前 host若内部有多线程,应该要在组件的willclose之前结束掉线程,避免资源的竞争
     virtual void _OnHostBeforeCompsWillClose() {}
     // 在组件willclose之后
@@ -83,7 +83,7 @@ protected:
     // 在组件close之前
     virtual void _OnHostBeforeCompsClose() {}
     // 在组件Close之后 必须重写
-    virtual void _OnHostClose() = 0;
+    virtual void _OnHostClose() {};
     // 在组件更新之前
     virtual void _OnWillHostUpdate() {}
     // 在组件更新之后
@@ -104,7 +104,7 @@ public:
 // // 功能api
 public:
     // 注册组件 // 注意递归死循环,若HostC中有HostA, HostA中也有HostC那么将导致死循环
-    virtual void OnRegisterComps() = 0;  
+    virtual void OnRegisterComps() {};  
 
     // 注册
     template<typename CompFactoryType>

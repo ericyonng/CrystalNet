@@ -34,6 +34,7 @@
 // #include <protocols/protocols.h>
 #include <service/ProtoGenService/ServiceFactory.h>
 #include <service/ProtoGenService/ProtoGenService.h>
+#include <OptionComp/CodeAnalyze/CodeAnalyze.h>
 
 SERVICE_BEGIN
 
@@ -122,6 +123,9 @@ void ProtoGenService::_OnServiceRegisterComps()
 
     /* exporters */
     RegisterComp<ExporterMgrFactory>();
+
+    // 代码分析
+    RegisterComp<KERNEL_NS::CodeAnalyzeMgrFactory>();
 }
 
 Int32 ProtoGenService::_OnServiceInit()
@@ -225,6 +229,10 @@ Int32 ProtoGenService::_OnServiceCompsCreated()
             GetOwner()->SetErrCode(this, Status::Failed);
         return Status::Failed;
     }
+
+    auto comp = GetComp<KERNEL_NS::ICodeAnalyzeMgr>();
+    comp->SetCommentFlag("//");
+    comp->SetMultiCommentFlag("/*", "*/");
 
     return Status::Success;
 }

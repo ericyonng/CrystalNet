@@ -51,6 +51,7 @@ public:
 
     // message 
     static const KERNEL_NS::LibString Message;
+    static const KERNEL_NS::LibString Oneof;
     static const KERNEL_NS::LibString ClassFlag;
     
     // proto 协议信息缓存文件

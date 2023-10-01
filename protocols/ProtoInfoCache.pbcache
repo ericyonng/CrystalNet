@@ -1,4 +1,4 @@
-/// ProtoName:com.proto,ProtoPath:../../protocols/proto/com.proto,Md5:k9W1LHfmDX6XaXYesIFqyA==,ModifyTime:1695461922,
+/// ProtoName:com.proto,ProtoPath:../../protocols/proto/com.proto,Md5:bxtcSpQp1mKMWRKH51jf5g==,ModifyTime:1696167408,
 
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginReq,Opcode:1,NoLog:false,XorEncrypt:true,KeyBase64:true,]
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginRes,Opcode:2,NoLog:false,XorEncrypt:false,KeyBase64:false,]

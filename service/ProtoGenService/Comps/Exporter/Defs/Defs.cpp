@@ -36,6 +36,7 @@ const KERNEL_NS::LibString ProtobufMessageParam::ParamLineBegin = "///";
 
 const KERNEL_NS::LibString ProtobufMessageParam::AsPacket = "@as_acket";
 const KERNEL_NS::LibString ProtobufMessageParam::Message = "message";
+const KERNEL_NS::LibString ProtobufMessageParam::Oneof = "oneof";
 const KERNEL_NS::LibString ProtobufMessageParam::ClassFlag = "class ";
 
 const KERNEL_NS::LibString ProtobufMessageParam::ProtoInfoCacheFile = "ProtoInfoCache.pbcache";

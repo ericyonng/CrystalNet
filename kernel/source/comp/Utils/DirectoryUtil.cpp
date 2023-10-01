@@ -184,7 +184,20 @@ bool DirectoryUtil::_TraverseDirRecursively(const LibString &dir
 
         FindFileInfo findFile;
         findFile._fileName = findData.name;
+        findFile._extension = FileUtil::ExtractFileExtension(findFile._fileName);
         findFile._rootPath = dir;
+
+        findFile._fullName = dir;
+        if(findFile._fullName.length() > 0)
+        {
+            const auto &lastSymbol = findFile._fullName[findFile._fullName.length() - 1];
+            if(lastSymbol != '/' && lastSymbol != '\\')
+            {
+                findFile._fullName += '/';
+            }
+        }
+        findFile._fullName += findFile._fileName;
+
         findFile._modifyTime = static_cast<Int64>(findData.time_write);
         if(findData.attrib & _A_ARCH)
             findFile._fileAttr |= FindFileInfo::F_FILE;

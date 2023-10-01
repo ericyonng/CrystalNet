@@ -89,6 +89,7 @@
 #include <testsuit/testinst/TestSql.h>
 #include <testsuit/testinst/TestCenterMemoryCollector.h>
 #include <testsuit/testinst/TestBt.h>
+#include <testsuit/testinst/TestCodeAnalyze.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -244,7 +245,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
-    // TestService::Run(argc, argv);
+    TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     // TestList::Run();
     // TestDirectoryUtil::Run();
@@ -262,8 +263,9 @@ void TestInst::Run(int argc, char const *argv[])
     // TestCharset::Run();
     // TestSql::Run();
     // TestCenterMemoryCollector::Run();
-    TestBt::Run();
-
+    // TestBt::Run();
+    // TestCodeAnalyze::Run();
+    
     // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();
     // pool->Init(0, 4);
     // pool->AddTask(&TestPool, false);
