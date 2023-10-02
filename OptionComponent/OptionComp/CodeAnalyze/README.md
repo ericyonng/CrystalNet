@@ -1,3 +1,31 @@
+<!--
+ *  MIT License
+ *  
+ *  Copyright (c) 2020 ericyonng<120453674@qq.com>
+ *  
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *  
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
+ *  
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *  SOFTWARE.
+ * 
+ * @Date: 2023-09-29 14:58:47
+ * @Author: Eric Yonng
+ * @Description: 
+ -->
+
 # 代码分析器
 
 #### 目的
@@ -37,4 +65,5 @@
   * 流程
     * 识别语法单元 => 创建语法单元 => 当前新创建的语法单元会被嵌套到栈顶语法单元作为其子单元 => 新创建的语法单元入栈 => 之后扫描的内容属于当前栈顶的语法单元 => 语法单元结束 => 弹栈 => 识别语法单元 => ...
   * 所有创建的语法单元信息都会被保存到一个字典中，用于后续生成所有的类型信息或者不同语言生成对应的语言代码
+  
 
