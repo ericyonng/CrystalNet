@@ -71,6 +71,9 @@ extern LogoutReasonDefaultTypeInternal _LogoutReason_default_instance_;
 class RegisterUserInfo;
 struct RegisterUserInfoDefaultTypeInternal;
 extern RegisterUserInfoDefaultTypeInternal _RegisterUserInfo_default_instance_;
+class SimpleUserInfo;
+struct SimpleUserInfoDefaultTypeInternal;
+extern SimpleUserInfoDefaultTypeInternal _SimpleUserInfo_default_instance_;
 class UserBaseInfo;
 struct UserBaseInfoDefaultTypeInternal;
 extern UserBaseInfoDefaultTypeInternal _UserBaseInfo_default_instance_;
@@ -81,6 +84,7 @@ template<> ::CRYSTAL_NET::service::LoginInfo* Arena::CreateMaybeMessage<::CRYSTA
 template<> ::CRYSTAL_NET::service::LoginMode* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LoginMode>(Arena*);
 template<> ::CRYSTAL_NET::service::LogoutReason* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LogoutReason>(Arena*);
 template<> ::CRYSTAL_NET::service::RegisterUserInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::RegisterUserInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::SimpleUserInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SimpleUserInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::UserBaseInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserBaseInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace CRYSTAL_NET {
@@ -2033,6 +2037,320 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   friend struct ::TableStruct_com_5fuser_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class SimpleUserInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SimpleUserInfo) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SimpleUserInfo failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SimpleUserInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SimpleUserInfo failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SimpleUserInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SimpleUserInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SimpleUserInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline SimpleUserInfo() : SimpleUserInfo(nullptr) {}
+  ~SimpleUserInfo() override;
+  explicit PROTOBUF_CONSTEXPR SimpleUserInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  SimpleUserInfo(const SimpleUserInfo& from);
+  SimpleUserInfo(SimpleUserInfo&& from) noexcept
+    : SimpleUserInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline SimpleUserInfo& operator=(const SimpleUserInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline SimpleUserInfo& operator=(SimpleUserInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const SimpleUserInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const SimpleUserInfo* internal_default_instance() {
+    return reinterpret_cast<const SimpleUserInfo*>(
+               &_SimpleUserInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(SimpleUserInfo& a, SimpleUserInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(SimpleUserInfo* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(SimpleUserInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  SimpleUserInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<SimpleUserInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const SimpleUserInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const SimpleUserInfo& from) {
+    SimpleUserInfo::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(SimpleUserInfo* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.SimpleUserInfo";
+  }
+  protected:
+  explicit SimpleUserInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kNicknameFieldNumber = 2,
+    kUserIdFieldNumber = 1,
+    kBindPhoneFieldNumber = 3,
+  };
+  // string Nickname = 2;
+  void clear_nickname();
+  const std::string& nickname() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_nickname(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_nickname();
+  PROTOBUF_NODISCARD std::string* release_nickname();
+  void set_allocated_nickname(std::string* nickname);
+  private:
+  const std::string& _internal_nickname() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_nickname(const std::string& value);
+  std::string* _internal_mutable_nickname();
+  public:
+
+  // uint64 UserId = 1;
+  void clear_userid();
+  uint64_t userid() const;
+  void set_userid(uint64_t value);
+  private:
+  uint64_t _internal_userid() const;
+  void _internal_set_userid(uint64_t value);
+  public:
+
+  // uint64 BindPhone = 3;
+  void clear_bindphone();
+  uint64_t bindphone() const;
+  void set_bindphone(uint64_t value);
+  private:
+  uint64_t _internal_bindphone() const;
+  void _internal_set_bindphone(uint64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SimpleUserInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr nickname_;
+    uint64_t userid_;
+    uint64_t bindphone_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5fuser_2eproto;
+};
 // ===================================================================
 
 
@@ -3403,9 +3721,105 @@ inline LoginInfo::RegisterInfoCase LoginInfo::RegisterInfo_case() const {
 
 // LogoutReason
 
+// -------------------------------------------------------------------
+
+// SimpleUserInfo
+
+// uint64 UserId = 1;
+inline void SimpleUserInfo::clear_userid() {
+  _impl_.userid_ = uint64_t{0u};
+}
+inline uint64_t SimpleUserInfo::_internal_userid() const {
+  return _impl_.userid_;
+}
+inline uint64_t SimpleUserInfo::userid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleUserInfo.UserId)
+  return _internal_userid();
+}
+inline void SimpleUserInfo::_internal_set_userid(uint64_t value) {
+  
+  _impl_.userid_ = value;
+}
+inline void SimpleUserInfo::set_userid(uint64_t value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleUserInfo.UserId)
+}
+
+// string Nickname = 2;
+inline void SimpleUserInfo::clear_nickname() {
+  _impl_.nickname_.ClearToEmpty();
+}
+inline const std::string& SimpleUserInfo::nickname() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleUserInfo.Nickname)
+  return _internal_nickname();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void SimpleUserInfo::set_nickname(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.nickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleUserInfo.Nickname)
+}
+inline std::string* SimpleUserInfo::mutable_nickname() {
+  std::string* _s = _internal_mutable_nickname();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.SimpleUserInfo.Nickname)
+  return _s;
+}
+inline const std::string& SimpleUserInfo::_internal_nickname() const {
+  return _impl_.nickname_.Get();
+}
+inline void SimpleUserInfo::_internal_set_nickname(const std::string& value) {
+  
+  _impl_.nickname_.Set(value, GetArenaForAllocation());
+}
+inline std::string* SimpleUserInfo::_internal_mutable_nickname() {
+  
+  return _impl_.nickname_.Mutable(GetArenaForAllocation());
+}
+inline std::string* SimpleUserInfo::release_nickname() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.SimpleUserInfo.Nickname)
+  return _impl_.nickname_.Release();
+}
+inline void SimpleUserInfo::set_allocated_nickname(std::string* nickname) {
+  if (nickname != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.nickname_.SetAllocated(nickname, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.nickname_.IsDefault()) {
+    _impl_.nickname_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.SimpleUserInfo.Nickname)
+}
+
+// uint64 BindPhone = 3;
+inline void SimpleUserInfo::clear_bindphone() {
+  _impl_.bindphone_ = uint64_t{0u};
+}
+inline uint64_t SimpleUserInfo::_internal_bindphone() const {
+  return _impl_.bindphone_;
+}
+inline uint64_t SimpleUserInfo::bindphone() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleUserInfo.BindPhone)
+  return _internal_bindphone();
+}
+inline void SimpleUserInfo::_internal_set_bindphone(uint64_t value) {
+  
+  _impl_.bindphone_ = value;
+}
+inline void SimpleUserInfo::set_bindphone(uint64_t value) {
+  _internal_set_bindphone(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleUserInfo.BindPhone)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -3549,6 +3963,29 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::LogoutReason(*dynamic_cast<const ::CRYSTAL_NET::service::LogoutReason *>(coder));
+    }
+
+};
+
+
+class SimpleUserInfoFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, SimpleUserInfoFactory);
+public:
+
+    virtual void Release() override {
+        SimpleUserInfoFactory::Delete_SimpleUserInfoFactory(this);
+    }
+
+    static SimpleUserInfoFactory *CreateFactory() {
+        return SimpleUserInfoFactory::New_SimpleUserInfoFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::SimpleUserInfo();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::SimpleUserInfo(*dynamic_cast<const ::CRYSTAL_NET::service::SimpleUserInfo *>(coder));
     }
 
 };

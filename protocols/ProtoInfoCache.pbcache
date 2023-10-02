@@ -34,7 +34,7 @@
 
 /// ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,Md5:c0Fbk007EjrRWNurFc8b1Q==,ModifyTime:1695461922,
 
-/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:AkWAu5vNT7971hTk8t1CUw==,ModifyTime:1695461922,
+/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:XBrf/Nfu5Nh07ipgCJBsSw==,ModifyTime:1696256190,
 
 /// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:JRP2AJHv8EggvaSBDetgvA==,ModifyTime:1695461922,
 
@@ -67,13 +67,13 @@
 
 
 
-/// ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,Md5:er8Ru4IADpKZGRjaKRoxDA==,ModifyTime:1695461922,
+/// ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,Md5:UhAUe9tVQwGgjZrZOxcd/w==,ModifyTime:1696270904,
 
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:CreateLibraryReq,Opcode:44,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:CreateLibraryRes,Opcode:45,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryInfoReq,Opcode:42,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryInfoRes,Opcode:43,NoLog:false,XorEncrypt:false,KeyBase64:false,]
-/// ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,Md5:KRiplQ2njpedOUdqiZwZ3A==,ModifyTime:1695461922,
+/// ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,Md5:BXRHz9XdcOQhlY28H35j4A==,ModifyTime:1696271023,
 
 /// ProtoName:com_book.proto,ProtoPath:../../protocols/proto/library/com_book.proto,Md5:rk4qNjfbhpd6zj8wESAhZQ==,ModifyTime:1695461922,
 
@@ -95,3 +95,5 @@
 [ProtoName:user.proto,ProtoPath:../../protocols/proto/user.proto,MessageName:ModifyUserInfoRes,Opcode:59,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginFinishReq,Opcode:60,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:login.proto,ProtoPath:../../protocols/proto/login.proto,MessageName:LoginFinishRes,Opcode:61,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryMemberSimpleInfoReq,Opcode:62,NoLog:false,XorEncrypt:false,KeyBase64:false,]
+[ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryMemberSimpleInfoRes,Opcode:63,NoLog:false,XorEncrypt:false,KeyBase64:false,]

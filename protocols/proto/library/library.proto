@@ -2,6 +2,7 @@ syntax = "proto3";
 package CRYSTAL_NET.service;
 
 import "com_library.proto";
+import "com_user.proto";
 
 /// Opcode:
 message GetLibraryInfoReq
@@ -132,6 +133,21 @@ message ModifyMemberInfoRes
 message UserLibraryInfoNty
 {
     UserLibraryInfo UserLibraryInfo = 1;
+}
+
+// 获取用户信息
+/// Opcode:
+message GetLibraryMemberSimpleInfoReq
+{
+    
+}
+
+// 获取用户信息
+/// Opcode:
+message GetLibraryMemberSimpleInfoRes
+{
+    sint32 ErrCode = 1;
+    repeated SimpleUserInfo SimpleUserInfoList = 2;
 }
 
 // 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管

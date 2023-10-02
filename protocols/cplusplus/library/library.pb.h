@@ -43,6 +43,7 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
 #include "com_library.pb.h"
+#include "com_user.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_library_2eproto
@@ -77,6 +78,12 @@ extern GetLibraryListReqDefaultTypeInternal _GetLibraryListReq_default_instance_
 class GetLibraryListRes;
 struct GetLibraryListResDefaultTypeInternal;
 extern GetLibraryListResDefaultTypeInternal _GetLibraryListRes_default_instance_;
+class GetLibraryMemberSimpleInfoReq;
+struct GetLibraryMemberSimpleInfoReqDefaultTypeInternal;
+extern GetLibraryMemberSimpleInfoReqDefaultTypeInternal _GetLibraryMemberSimpleInfoReq_default_instance_;
+class GetLibraryMemberSimpleInfoRes;
+struct GetLibraryMemberSimpleInfoResDefaultTypeInternal;
+extern GetLibraryMemberSimpleInfoResDefaultTypeInternal _GetLibraryMemberSimpleInfoRes_default_instance_;
 class JoinLibraryReq;
 struct JoinLibraryReqDefaultTypeInternal;
 extern JoinLibraryReqDefaultTypeInternal _JoinLibraryReq_default_instance_;
@@ -116,6 +123,8 @@ template<> ::CRYSTAL_NET::service::GetLibraryInfoReq* Arena::CreateMaybeMessage<
 template<> ::CRYSTAL_NET::service::GetLibraryInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetLibraryInfoRes>(Arena*);
 template<> ::CRYSTAL_NET::service::GetLibraryListReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetLibraryListReq>(Arena*);
 template<> ::CRYSTAL_NET::service::GetLibraryListRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetLibraryListRes>(Arena*);
+template<> ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq>(Arena*);
+template<> ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes>(Arena*);
 template<> ::CRYSTAL_NET::service::JoinLibraryReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::JoinLibraryReq>(Arena*);
 template<> ::CRYSTAL_NET::service::JoinLibraryRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::JoinLibraryRes>(Arena*);
 template<> ::CRYSTAL_NET::service::LibraryInfoNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibraryInfoNty>(Arena*);
@@ -4801,6 +4810,570 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   union { Impl_ _impl_; };
   friend struct ::TableStruct_library_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(62), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class GetLibraryMemberSimpleInfoReq final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline GetLibraryMemberSimpleInfoReq() : GetLibraryMemberSimpleInfoReq(nullptr) {}
+  explicit PROTOBUF_CONSTEXPR GetLibraryMemberSimpleInfoReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GetLibraryMemberSimpleInfoReq(const GetLibraryMemberSimpleInfoReq& from);
+  GetLibraryMemberSimpleInfoReq(GetLibraryMemberSimpleInfoReq&& from) noexcept
+    : GetLibraryMemberSimpleInfoReq() {
+    *this = ::std::move(from);
+  }
+
+  inline GetLibraryMemberSimpleInfoReq& operator=(const GetLibraryMemberSimpleInfoReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetLibraryMemberSimpleInfoReq& operator=(GetLibraryMemberSimpleInfoReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GetLibraryMemberSimpleInfoReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GetLibraryMemberSimpleInfoReq* internal_default_instance() {
+    return reinterpret_cast<const GetLibraryMemberSimpleInfoReq*>(
+               &_GetLibraryMemberSimpleInfoReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    16;
+
+  friend void swap(GetLibraryMemberSimpleInfoReq& a, GetLibraryMemberSimpleInfoReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GetLibraryMemberSimpleInfoReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetLibraryMemberSimpleInfoReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GetLibraryMemberSimpleInfoReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<GetLibraryMemberSimpleInfoReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const GetLibraryMemberSimpleInfoReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const GetLibraryMemberSimpleInfoReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.GetLibraryMemberSimpleInfoReq";
+  }
+  protected:
+  explicit GetLibraryMemberSimpleInfoReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+  };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(63), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class GetLibraryMemberSimpleInfoRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline GetLibraryMemberSimpleInfoRes() : GetLibraryMemberSimpleInfoRes(nullptr) {}
+  ~GetLibraryMemberSimpleInfoRes() override;
+  explicit PROTOBUF_CONSTEXPR GetLibraryMemberSimpleInfoRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GetLibraryMemberSimpleInfoRes(const GetLibraryMemberSimpleInfoRes& from);
+  GetLibraryMemberSimpleInfoRes(GetLibraryMemberSimpleInfoRes&& from) noexcept
+    : GetLibraryMemberSimpleInfoRes() {
+    *this = ::std::move(from);
+  }
+
+  inline GetLibraryMemberSimpleInfoRes& operator=(const GetLibraryMemberSimpleInfoRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetLibraryMemberSimpleInfoRes& operator=(GetLibraryMemberSimpleInfoRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GetLibraryMemberSimpleInfoRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GetLibraryMemberSimpleInfoRes* internal_default_instance() {
+    return reinterpret_cast<const GetLibraryMemberSimpleInfoRes*>(
+               &_GetLibraryMemberSimpleInfoRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    17;
+
+  friend void swap(GetLibraryMemberSimpleInfoRes& a, GetLibraryMemberSimpleInfoRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GetLibraryMemberSimpleInfoRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetLibraryMemberSimpleInfoRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GetLibraryMemberSimpleInfoRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<GetLibraryMemberSimpleInfoRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const GetLibraryMemberSimpleInfoRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const GetLibraryMemberSimpleInfoRes& from) {
+    GetLibraryMemberSimpleInfoRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GetLibraryMemberSimpleInfoRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes";
+  }
+  protected:
+  explicit GetLibraryMemberSimpleInfoRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kSimpleUserInfoListFieldNumber = 2,
+    kErrCodeFieldNumber = 1,
+  };
+  // repeated .CRYSTAL_NET.service.SimpleUserInfo SimpleUserInfoList = 2;
+  int simpleuserinfolist_size() const;
+  private:
+  int _internal_simpleuserinfolist_size() const;
+  public:
+  void clear_simpleuserinfolist();
+  ::CRYSTAL_NET::service::SimpleUserInfo* mutable_simpleuserinfolist(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SimpleUserInfo >*
+      mutable_simpleuserinfolist();
+  private:
+  const ::CRYSTAL_NET::service::SimpleUserInfo& _internal_simpleuserinfolist(int index) const;
+  ::CRYSTAL_NET::service::SimpleUserInfo* _internal_add_simpleuserinfolist();
+  public:
+  const ::CRYSTAL_NET::service::SimpleUserInfo& simpleuserinfolist(int index) const;
+  ::CRYSTAL_NET::service::SimpleUserInfo* add_simpleuserinfolist();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SimpleUserInfo >&
+      simpleuserinfolist() const;
+
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SimpleUserInfo > simpleuserinfolist_;
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
 // ===================================================================
 
 
@@ -5623,9 +6196,78 @@ inline void UserLibraryInfoNty::set_allocated_userlibraryinfo(::CRYSTAL_NET::ser
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserLibraryInfoNty.UserLibraryInfo)
 }
 
+// -------------------------------------------------------------------
+
+// GetLibraryMemberSimpleInfoReq
+
+// -------------------------------------------------------------------
+
+// GetLibraryMemberSimpleInfoRes
+
+// sint32 ErrCode = 1;
+inline void GetLibraryMemberSimpleInfoRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t GetLibraryMemberSimpleInfoRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t GetLibraryMemberSimpleInfoRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes.ErrCode)
+  return _internal_errcode();
+}
+inline void GetLibraryMemberSimpleInfoRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void GetLibraryMemberSimpleInfoRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes.ErrCode)
+}
+
+// repeated .CRYSTAL_NET.service.SimpleUserInfo SimpleUserInfoList = 2;
+inline int GetLibraryMemberSimpleInfoRes::_internal_simpleuserinfolist_size() const {
+  return _impl_.simpleuserinfolist_.size();
+}
+inline int GetLibraryMemberSimpleInfoRes::simpleuserinfolist_size() const {
+  return _internal_simpleuserinfolist_size();
+}
+inline ::CRYSTAL_NET::service::SimpleUserInfo* GetLibraryMemberSimpleInfoRes::mutable_simpleuserinfolist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes.SimpleUserInfoList)
+  return _impl_.simpleuserinfolist_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SimpleUserInfo >*
+GetLibraryMemberSimpleInfoRes::mutable_simpleuserinfolist() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes.SimpleUserInfoList)
+  return &_impl_.simpleuserinfolist_;
+}
+inline const ::CRYSTAL_NET::service::SimpleUserInfo& GetLibraryMemberSimpleInfoRes::_internal_simpleuserinfolist(int index) const {
+  return _impl_.simpleuserinfolist_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::SimpleUserInfo& GetLibraryMemberSimpleInfoRes::simpleuserinfolist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes.SimpleUserInfoList)
+  return _internal_simpleuserinfolist(index);
+}
+inline ::CRYSTAL_NET::service::SimpleUserInfo* GetLibraryMemberSimpleInfoRes::_internal_add_simpleuserinfolist() {
+  return _impl_.simpleuserinfolist_.Add();
+}
+inline ::CRYSTAL_NET::service::SimpleUserInfo* GetLibraryMemberSimpleInfoRes::add_simpleuserinfolist() {
+  ::CRYSTAL_NET::service::SimpleUserInfo* _add = _internal_add_simpleuserinfolist();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes.SimpleUserInfoList)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SimpleUserInfo >&
+GetLibraryMemberSimpleInfoRes::simpleuserinfolist() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes.SimpleUserInfoList)
+  return _impl_.simpleuserinfolist_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -6029,6 +6671,52 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::UserLibraryInfoNty(*dynamic_cast<const ::CRYSTAL_NET::service::UserLibraryInfoNty *>(coder));
+    }
+
+};
+
+
+class GetLibraryMemberSimpleInfoReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, GetLibraryMemberSimpleInfoReqFactory);
+public:
+
+    virtual void Release() override {
+        GetLibraryMemberSimpleInfoReqFactory::Delete_GetLibraryMemberSimpleInfoReqFactory(this);
+    }
+
+    static GetLibraryMemberSimpleInfoReqFactory *CreateFactory() {
+        return GetLibraryMemberSimpleInfoReqFactory::New_GetLibraryMemberSimpleInfoReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq(*dynamic_cast<const ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq *>(coder));
+    }
+
+};
+
+
+class GetLibraryMemberSimpleInfoResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, GetLibraryMemberSimpleInfoResFactory);
+public:
+
+    virtual void Release() override {
+        GetLibraryMemberSimpleInfoResFactory::Delete_GetLibraryMemberSimpleInfoResFactory(this);
+    }
+
+    static GetLibraryMemberSimpleInfoResFactory *CreateFactory() {
+        return GetLibraryMemberSimpleInfoResFactory::New_GetLibraryMemberSimpleInfoResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes(*dynamic_cast<const ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes *>(coder));
     }
 
 };

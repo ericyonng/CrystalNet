@@ -35,20 +35,20 @@ using ProtoPackage.Attributes;
             "bWUYBSABKAQSGAoQUmVhbEdpdmVCYWNrVGltZRgGIAEoBCJ4Cg9Cb3Jyb3dP",
             "cmRlckluZm8SDwoHT3JkZXJJZBgBIAEoBBI7Cg5Cb3Jyb3dCb29rTGlzdBgC",
             "IAMoCzIjLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9ycm93Qm9va0luZm8SFwoP",
-            "Q3JlYXRlT3JkZXJUaW1lGAMgASgEIo8BCgpNZW1iZXJJbmZvEg4KBlVzZXJJ",
+            "Q3JlYXRlT3JkZXJUaW1lGAMgASgEIrcBCgpNZW1iZXJJbmZvEg4KBlVzZXJJ",
             "ZBgBIAEoBBIMCgRSb2xlGAIgASgREhAKCE5pY2tuYW1lGAMgASgJEjgKCkJv",
             "cnJvd0xpc3QYBCADKAsyJC5DUllTVEFMX05FVC5zZXJ2aWNlLkJvcnJvd09y",
-            "ZGVySW5mbxIXCg9Mb2NrVGltZXN0YW1wTXMYBSABKBIikgIKC0xpYnJhcnlJ",
-            "bmZvEgoKAklkGAEgASgEEgwKBE5hbWUYAiABKAkSDwoHQWRkcmVzcxgDIAEo",
-            "CRIQCghPcGVuVGltZRgEIAEoCRIWCg5UZWxwaG9uZU51bWJlchgFIAEoCRIX",
-            "Cg9MaWJyYXJpYW5Vc2VySWQYBiABKAQSHQoVTGlicmFyaWFuVXNlck5pY2tu",
-            "YW1lGAcgASgJEkEKD01hbmFnZXJJbmZvTGlzdBgIIAMoCzIoLkNSWVNUQUxf",
-            "TkVULnNlcnZpY2UuTGliYXJhcnlNYW5hZ2VySW5mbxIzCgpNZW1iZXJMaXN0",
-            "GAkgAygLMh8uQ1JZU1RBTF9ORVQuc2VydmljZS5NZW1iZXJJbmZvIiQKD1Vz",
-            "ZXJMaWJyYXJ5SW5mbxIRCglMaWJyYXJ5SWQYASABKAQiYgoSTGlicmFyeVBy",
-            "ZXZpZXdJbmZvEgoKAklkGAEgASgEEgwKBE5hbWUYAiABKAkSFwoPTGlicmFy",
-            "aWFuVXNlcklkGAMgASgEEhkKEUxpYnJhcmlhbk5pY2tuYW1lGAQgASgJYgZw",
-            "cm90bzM="));
+            "ZGVySW5mbxIXCg9Mb2NrVGltZXN0YW1wTXMYBSABKBISEwoJQmluZFBob25l",
+            "GAYgASgESABCEQoPTWVtYmVyQmluZFBob25lIpICCgtMaWJyYXJ5SW5mbxIK",
+            "CgJJZBgBIAEoBBIMCgROYW1lGAIgASgJEg8KB0FkZHJlc3MYAyABKAkSEAoI",
+            "T3BlblRpbWUYBCABKAkSFgoOVGVscGhvbmVOdW1iZXIYBSABKAkSFwoPTGli",
+            "cmFyaWFuVXNlcklkGAYgASgEEh0KFUxpYnJhcmlhblVzZXJOaWNrbmFtZRgH",
+            "IAEoCRJBCg9NYW5hZ2VySW5mb0xpc3QYCCADKAsyKC5DUllTVEFMX05FVC5z",
+            "ZXJ2aWNlLkxpYmFyYXJ5TWFuYWdlckluZm8SMwoKTWVtYmVyTGlzdBgJIAMo",
+            "CzIfLkNSWVNUQUxfTkVULnNlcnZpY2UuTWVtYmVySW5mbyIkCg9Vc2VyTGli",
+            "cmFyeUluZm8SEQoJTGlicmFyeUlkGAEgASgEImIKEkxpYnJhcnlQcmV2aWV3",
+            "SW5mbxIKCgJJZBgBIAEoBBIMCgROYW1lGAIgASgJEhcKD0xpYnJhcmlhblVz",
+            "ZXJJZBgDIAEoBBIZChFMaWJyYXJpYW5OaWNrbmFtZRgEIAEoCWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -56,7 +56,7 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibararyManagerInfo), global::CRYSTALNET.Service.LibararyManagerInfo.Parser, new[]{ "UserId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookInfo), global::CRYSTALNET.Service.BorrowBookInfo.Parser, new[]{ "BookId", "IsbnCode", "BorrowCount", "BorrowTime", "PlanGiveBackTime", "RealGiveBackTime" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.MemberInfo), global::CRYSTALNET.Service.MemberInfo.Parser, new[]{ "UserId", "Role", "Nickname", "BorrowList", "LockTimestampMs" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.MemberInfo), global::CRYSTALNET.Service.MemberInfo.Parser, new[]{ "UserId", "Role", "Nickname", "BorrowList", "LockTimestampMs", "BindPhone" }, new[]{ "MemberBindPhone" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryInfo), global::CRYSTALNET.Service.LibraryInfo.Parser, new[]{ "Id", "Name", "Address", "OpenTime", "TelphoneNumber", "LibrarianUserId", "LibrarianUserNickname", "ManagerInfoList", "MemberList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserLibraryInfo), global::CRYSTALNET.Service.UserLibraryInfo.Parser, new[]{ "LibraryId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryPreviewInfo), global::CRYSTALNET.Service.LibraryPreviewInfo.Parser, new[]{ "Id", "Name", "LibrarianUserId", "LibrarianNickname" }, null, null, null, null)
@@ -1141,6 +1141,12 @@ using ProtoPackage.Attributes;
       nickname_ = other.nickname_;
       borrowList_ = other.borrowList_.Clone();
       lockTimestampMs_ = other.lockTimestampMs_;
+      switch (other.MemberBindPhoneCase) {
+        case MemberBindPhoneOneofCase.BindPhone:
+          BindPhone = other.BindPhone;
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1224,6 +1230,38 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "BindPhone" field.</summary>
+    public const int BindPhoneFieldNumber = 6;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong BindPhone {
+      get { return memberBindPhoneCase_ == MemberBindPhoneOneofCase.BindPhone ? (ulong) memberBindPhone_ : 0UL; }
+      set {
+        memberBindPhone_ = value;
+        memberBindPhoneCase_ = MemberBindPhoneOneofCase.BindPhone;
+      }
+    }
+
+    private object memberBindPhone_;
+    /// <summary>Enum of possible cases for the "MemberBindPhone" oneof.</summary>
+    public enum MemberBindPhoneOneofCase {
+      None = 0,
+      BindPhone = 6,
+    }
+    private MemberBindPhoneOneofCase memberBindPhoneCase_ = MemberBindPhoneOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public MemberBindPhoneOneofCase MemberBindPhoneCase {
+      get { return memberBindPhoneCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearMemberBindPhone() {
+      memberBindPhoneCase_ = MemberBindPhoneOneofCase.None;
+      memberBindPhone_ = null;
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1244,6 +1282,8 @@ using ProtoPackage.Attributes;
       if (Nickname != other.Nickname) return false;
       if(!borrowList_.Equals(other.borrowList_)) return false;
       if (LockTimestampMs != other.LockTimestampMs) return false;
+      if (BindPhone != other.BindPhone) return false;
+      if (MemberBindPhoneCase != other.MemberBindPhoneCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1256,6 +1296,8 @@ using ProtoPackage.Attributes;
       if (Nickname.Length != 0) hash ^= Nickname.GetHashCode();
       hash ^= borrowList_.GetHashCode();
       if (LockTimestampMs != 0L) hash ^= LockTimestampMs.GetHashCode();
+      if (memberBindPhoneCase_ == MemberBindPhoneOneofCase.BindPhone) hash ^= BindPhone.GetHashCode();
+      hash ^= (int) memberBindPhoneCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1291,6 +1333,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(40);
         output.WriteSInt64(LockTimestampMs);
       }
+      if (memberBindPhoneCase_ == MemberBindPhoneOneofCase.BindPhone) {
+        output.WriteRawTag(48);
+        output.WriteUInt64(BindPhone);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1318,6 +1364,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(40);
         output.WriteSInt64(LockTimestampMs);
       }
+      if (memberBindPhoneCase_ == MemberBindPhoneOneofCase.BindPhone) {
+        output.WriteRawTag(48);
+        output.WriteUInt64(BindPhone);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1340,6 +1390,9 @@ using ProtoPackage.Attributes;
       size += borrowList_.CalculateSize(_repeated_borrowList_codec);
       if (LockTimestampMs != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(LockTimestampMs);
+      }
+      if (memberBindPhoneCase_ == MemberBindPhoneOneofCase.BindPhone) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BindPhone);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1366,6 +1419,12 @@ using ProtoPackage.Attributes;
       if (other.LockTimestampMs != 0L) {
         LockTimestampMs = other.LockTimestampMs;
       }
+      switch (other.MemberBindPhoneCase) {
+        case MemberBindPhoneOneofCase.BindPhone:
+          BindPhone = other.BindPhone;
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1401,6 +1460,10 @@ using ProtoPackage.Attributes;
             LockTimestampMs = input.ReadSInt64();
             break;
           }
+          case 48: {
+            BindPhone = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -1434,6 +1497,10 @@ using ProtoPackage.Attributes;
           }
           case 40: {
             LockTimestampMs = input.ReadSInt64();
+            break;
+          }
+          case 48: {
+            BindPhone = input.ReadUInt64();
             break;
           }
         }

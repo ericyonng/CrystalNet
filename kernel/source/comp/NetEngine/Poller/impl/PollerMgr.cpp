@@ -223,10 +223,13 @@ void PollerMgr::OnMonitor(LibString &info)
         {
             // TODO:loaded
             auto tcpPoller = iter.second;
-            auto poller = tcpPoller->GetComp<Poller>();
-            pollerInfo.AppendFormat("pollerId:%llu, sessions:%llu, %s\n"
-                    , tcpPoller->GetPollerId(), tcpPoller->GetSessionAmount()
-                    , poller->IsEnable() ? poller->OnMonitor().c_str() : "poller disable");
+            if(tcpPoller->IsStarted())
+            {
+                auto poller = tcpPoller->GetComp<Poller>();
+                pollerInfo.AppendFormat("pollerId:%llu, sessions:%llu, %s\n"
+                        , tcpPoller->GetPollerId(), tcpPoller->GetSessionAmount()
+                        , poller ?(poller->IsEnable() ? poller->OnMonitor().c_str() : "poller disable") : "poller disable");
+            }
         }
     }
 

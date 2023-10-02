@@ -64,6 +64,11 @@ message MemberInfo
     repeated BorrowOrderInfo BorrowList = 4;
     // 锁定操作超时时间
     sint64 LockTimestampMs = 5;
+
+    oneof MemberBindPhone
+    {
+        uint64 BindPhone = 6;
+    }
 }
 
 message LibraryInfo 

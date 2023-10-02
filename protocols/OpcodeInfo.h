@@ -479,3 +479,23 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, LoginFinishResFactory::CreateFactory()));
     }
+
+    {// GetLibraryMemberSimpleInfoReq
+        auto info = OpcodeInfo();
+        info._opcode = 62;
+        info._noLog = false;
+        info._opcodeName = "GetLibraryMemberSimpleInfoReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetLibraryMemberSimpleInfoReqFactory::CreateFactory()));
+    }
+
+    {// GetLibraryMemberSimpleInfoRes
+        auto info = OpcodeInfo();
+        info._opcode = 63;
+        info._noLog = false;
+        info._opcodeName = "GetLibraryMemberSimpleInfoRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetLibraryMemberSimpleInfoResFactory::CreateFactory()));
+    }

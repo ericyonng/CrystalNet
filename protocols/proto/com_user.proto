@@ -117,3 +117,13 @@ message LogoutReason
     }
 }
 
+// 简要用户信息
+message SimpleUserInfo
+{
+    // uid
+    uint64 UserId = 1;
+    // 昵称
+    string Nickname = 2;
+    // 绑定手机
+    uint64 BindPhone = 3;
+}

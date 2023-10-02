@@ -340,6 +340,22 @@ export namespace crystal_net_service
 
 
     }
+    // 获取用户信息
+    /// Opcode:
+    // library.proto
+    export class GetLibraryMemberSimpleInfoReq {
+
+    }
+    // 获取用户信息
+    /// Opcode:
+    // library.proto
+    export class GetLibraryMemberSimpleInfoRes {
+        ErrCode:number = 0;
+
+        SimpleUserInfoList:SimpleUserInfo[] = [];
+
+
+    }
     /// Opcode:
     // heartbeat.proto
     export class GetNodeListReq {
@@ -564,6 +580,8 @@ export namespace crystal_net_service
         // 锁定操作超时时间
         LockTimestampMs:number = 0;
 
+        BindPhone?:number;
+
 
     }
     // 修改权限 馆长不可修改自己的权限, 只能转让, 管理员不可以将自己升级, 只能管理员修改权限 TODO:
@@ -777,6 +795,20 @@ export namespace crystal_net_service
 
         // 用于清档, 版本号和当前配置版本号不同则清档
         VersionNo:number = 0;
+
+
+    }
+    // 简要用户信息
+    // com_user.proto
+    export class SimpleUserInfo {
+        // uid
+        UserId:number = 0;
+
+        // 昵称
+        Nickname:string = "";
+
+        // 绑定手机
+        BindPhone:number = 0;
 
 
     }

@@ -75,5 +75,7 @@ public:
     static constexpr Int32 OPCODE_ModifyUserInfoRes = 59;    // user.proto
     static constexpr Int32 OPCODE_LoginFinishReq = 60;    // login.proto
     static constexpr Int32 OPCODE_LoginFinishRes = 61;    // login.proto
-    static constexpr Int32 OPCODE_MAX = 61;
+    static constexpr Int32 OPCODE_GetLibraryMemberSimpleInfoReq = 62;    // library.proto
+    static constexpr Int32 OPCODE_GetLibraryMemberSimpleInfoRes = 63;    // library.proto
+    static constexpr Int32 OPCODE_MAX = 63;
 };

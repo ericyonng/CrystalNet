@@ -364,17 +364,19 @@ bool ExporterMgr::_GenCplusplus()
 
         // 2.0的proto需要绝对路径的proto
         #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            cmd.AppendFormat("cd %s && %s --cpp_out=%s --proto_path=%s %s"
+            cmd.AppendFormat("cd %s && %s --cpp_out=%s --proto_path=%s --proto_path=%s %s"
             , (appPath + protocPath).c_str()
             , (protocName).c_str()
             , (appPath + _cppOutPath + relationPath).c_str()
+            , fullProtoPath.c_str()
             , (appPath + protoInfo->_protoInfo._rootPath).c_str()
             // , (appPath + protoInfo->_fullPathName).c_str());
             , protoInfo->_protoInfo._fileName.c_str());
         #else
-            cmd.AppendFormat("%s --cpp_out=%s --proto_path=%s %s"
+            cmd.AppendFormat("%s --cpp_out=%s --proto_path=%s --proto_path=%s %s"
             , (appPath + protocPath + protocName).c_str()
             , (appPath + _cppOutPath + relationPath).c_str()
+            , fullProtoPath.c_str()
             , (appPath + protoInfo->_protoInfo._rootPath).c_str()
             // , (appPath + protoInfo->_fullPathName).c_str());
             , protoInfo->_protoInfo._fileName.c_str());
@@ -1351,17 +1353,19 @@ bool ExporterMgr::_GenCSharp()
 
         // 2.0的proto需要绝对路径的proto
         #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            cmd.AppendFormat("cd %s && %s --csharp_out=%s --proto_path=%s %s"
+            cmd.AppendFormat("cd %s && %s --csharp_out=%s --proto_path=%s --proto_path=%s %s"
             , (appPath + protocPath).c_str()
             , (protocName).c_str()
             , (appPath + _csharpOutPath + relationPath).c_str()
+            , fullProtoPath.c_str()
             , (appPath + protoInfo->_protoInfo._rootPath).c_str()
             // , (appPath + protoInfo->_fullPathName).c_str());
             , protoInfo->_protoInfo._fileName.c_str());
         #else
-            cmd.AppendFormat("%s --csharp_out=%s --proto_path=%s %s"
+            cmd.AppendFormat("%s --csharp_out=%s --proto_path=%s --proto_path=%s %s"
             , (appPath + protocPath + protocName).c_str()
             , (appPath + _csharpOutPath + relationPath).c_str()
+            , fullProtoPath.c_str()
             , (appPath + protoInfo->_protoInfo._rootPath).c_str()
             // , (appPath + protoInfo->_fullPathName).c_str());
             , protoInfo->_protoInfo._fileName.c_str());

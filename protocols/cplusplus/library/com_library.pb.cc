@@ -95,7 +95,9 @@ PROTOBUF_CONSTEXPR MemberInfo::MemberInfo(
   , /*decltype(_impl_.userid_)*/uint64_t{0u}
   , /*decltype(_impl_.locktimestampms_)*/int64_t{0}
   , /*decltype(_impl_.role_)*/0
-  , /*decltype(_impl_._cached_size_)*/{}} {}
+  , /*decltype(_impl_.MemberBindPhone_)*/{}
+  , /*decltype(_impl_._cached_size_)*/{}
+  , /*decltype(_impl_._oneof_case_)*/{}} {}
 struct MemberInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR MemberInfoDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -199,7 +201,7 @@ const uint32_t TableStruct_com_5flibrary_2eproto::offsets[] PROTOBUF_SECTION_VAR
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::MemberInfo, _internal_metadata_),
   ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::MemberInfo, _impl_._oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::MemberInfo, _impl_.userid_),
@@ -207,6 +209,8 @@ const uint32_t TableStruct_com_5flibrary_2eproto::offsets[] PROTOBUF_SECTION_VAR
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::MemberInfo, _impl_.nickname_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::MemberInfo, _impl_.borrowlist_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::MemberInfo, _impl_.locktimestampms_),
+  ::_pbi::kInvalidFieldOffsetTag,
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::MemberInfo, _impl_.MemberBindPhone_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LibraryInfo, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -246,9 +250,9 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 13, -1, -1, sizeof(::CRYSTAL_NET::service::BorrowBookInfo)},
   { 25, -1, -1, sizeof(::CRYSTAL_NET::service::BorrowOrderInfo)},
   { 34, -1, -1, sizeof(::CRYSTAL_NET::service::MemberInfo)},
-  { 45, -1, -1, sizeof(::CRYSTAL_NET::service::LibraryInfo)},
-  { 60, -1, -1, sizeof(::CRYSTAL_NET::service::UserLibraryInfo)},
-  { 67, -1, -1, sizeof(::CRYSTAL_NET::service::LibraryPreviewInfo)},
+  { 47, -1, -1, sizeof(::CRYSTAL_NET::service::LibraryInfo)},
+  { 62, -1, -1, sizeof(::CRYSTAL_NET::service::UserLibraryInfo)},
+  { 69, -1, -1, sizeof(::CRYSTAL_NET::service::LibraryPreviewInfo)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -273,11 +277,12 @@ const char descriptor_table_protodef_com_5flibrary_2eproto[] PROTOBUF_SECTION_VA
   "\n\020RealGiveBackTime\030\006 \001(\004\"x\n\017BorrowOrderI"
   "nfo\022\017\n\007OrderId\030\001 \001(\004\022;\n\016BorrowBookList\030\002"
   " \003(\0132#.CRYSTAL_NET.service.BorrowBookInf"
-  "o\022\027\n\017CreateOrderTime\030\003 \001(\004\"\217\001\n\nMemberInf"
+  "o\022\027\n\017CreateOrderTime\030\003 \001(\004\"\267\001\n\nMemberInf"
   "o\022\016\n\006UserId\030\001 \001(\004\022\014\n\004Role\030\002 \001(\021\022\020\n\010Nickn"
   "ame\030\003 \001(\t\0228\n\nBorrowList\030\004 \003(\0132$.CRYSTAL_"
   "NET.service.BorrowOrderInfo\022\027\n\017LockTimes"
-  "tampMs\030\005 \001(\022\"\222\002\n\013LibraryInfo\022\n\n\002Id\030\001 \001(\004"
+  "tampMs\030\005 \001(\022\022\023\n\tBindPhone\030\006 \001(\004H\000B\021\n\017Mem"
+  "berBindPhone\"\222\002\n\013LibraryInfo\022\n\n\002Id\030\001 \001(\004"
   "\022\014\n\004Name\030\002 \001(\t\022\017\n\007Address\030\003 \001(\t\022\020\n\010OpenT"
   "ime\030\004 \001(\t\022\026\n\016TelphoneNumber\030\005 \001(\t\022\027\n\017Lib"
   "rarianUserId\030\006 \001(\004\022\035\n\025LibrarianUserNickn"
@@ -291,7 +296,7 @@ const char descriptor_table_protodef_com_5flibrary_2eproto[] PROTOBUF_SECTION_VA
   ;
 static ::_pbi::once_flag descriptor_table_com_5flibrary_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5flibrary_2eproto = {
-    false, false, 995, descriptor_table_protodef_com_5flibrary_2eproto,
+    false, false, 1035, descriptor_table_protodef_com_5flibrary_2eproto,
     "com_library.proto",
     &descriptor_table_com_5flibrary_2eproto_once, nullptr, 0, 8,
     schemas, file_default_instances, TableStruct_com_5flibrary_2eproto::offsets,
@@ -1151,7 +1156,9 @@ MemberInfo::MemberInfo(const MemberInfo& from)
     , decltype(_impl_.userid_){}
     , decltype(_impl_.locktimestampms_){}
     , decltype(_impl_.role_){}
-    , /*decltype(_impl_._cached_size_)*/{}};
+    , decltype(_impl_.MemberBindPhone_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+    , /*decltype(_impl_._oneof_case_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _impl_.nickname_.InitDefault();
@@ -1165,6 +1172,16 @@ MemberInfo::MemberInfo(const MemberInfo& from)
   ::memcpy(&_impl_.userid_, &from._impl_.userid_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.role_) -
     reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.role_));
+  clear_has_MemberBindPhone();
+  switch (from.MemberBindPhone_case()) {
+    case kBindPhone: {
+      _this->_internal_set_bindphone(from._internal_bindphone());
+      break;
+    }
+    case MEMBERBINDPHONE_NOT_SET: {
+      break;
+    }
+  }
   // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.MemberInfo)
 }
 
@@ -1178,12 +1195,15 @@ inline void MemberInfo::SharedCtor(
     , decltype(_impl_.userid_){uint64_t{0u}}
     , decltype(_impl_.locktimestampms_){int64_t{0}}
     , decltype(_impl_.role_){0}
+    , decltype(_impl_.MemberBindPhone_){}
     , /*decltype(_impl_._cached_size_)*/{}
+    , /*decltype(_impl_._oneof_case_)*/{}
   };
   _impl_.nickname_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.nickname_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  clear_has_MemberBindPhone();
 }
 
 MemberInfo::~MemberInfo() {
@@ -1199,11 +1219,29 @@ inline void MemberInfo::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   _impl_.borrowlist_.~RepeatedPtrField();
   _impl_.nickname_.Destroy();
+  if (has_MemberBindPhone()) {
+    clear_MemberBindPhone();
+  }
 }
 
 void MemberInfo::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
+
+void MemberInfo::clear_MemberBindPhone() {
+// @@protoc_insertion_point(one_of_clear_start:CRYSTAL_NET.service.MemberInfo)
+  switch (MemberBindPhone_case()) {
+    case kBindPhone: {
+      // No need to clear
+      break;
+    }
+    case MEMBERBINDPHONE_NOT_SET: {
+      break;
+    }
+  }
+  _impl_._oneof_case_[0] = MEMBERBINDPHONE_NOT_SET;
+}
+
 
 void MemberInfo::Clear() {
 // @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.MemberInfo)
@@ -1216,6 +1254,7 @@ void MemberInfo::Clear() {
   ::memset(&_impl_.userid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&_impl_.role_) -
       reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.role_));
+  clear_MemberBindPhone();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1268,6 +1307,14 @@ const char* MemberInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ct
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
           _impl_.locktimestampms_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // uint64 BindPhone = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+          _internal_set_bindphone(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1337,6 +1384,12 @@ uint8_t* MemberInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteSInt64ToArray(5, this->_internal_locktimestampms(), target);
   }
 
+  // uint64 BindPhone = 6;
+  if (_internal_has_bindphone()) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(6, this->_internal_bindphone(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1382,6 +1435,16 @@ size_t MemberInfo::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_role());
   }
 
+  switch (MemberBindPhone_case()) {
+    // uint64 BindPhone = 6;
+    case kBindPhone: {
+      total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_bindphone());
+      break;
+    }
+    case MEMBERBINDPHONE_NOT_SET: {
+      break;
+    }
+  }
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -1413,6 +1476,15 @@ void MemberInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PRO
   if (from._internal_role() != 0) {
     _this->_internal_set_role(from._internal_role());
   }
+  switch (from.MemberBindPhone_case()) {
+    case kBindPhone: {
+      _this->_internal_set_bindphone(from._internal_bindphone());
+      break;
+    }
+    case MEMBERBINDPHONE_NOT_SET: {
+      break;
+    }
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1443,6 +1515,8 @@ void MemberInfo::InternalSwap(MemberInfo* other) {
       - PROTOBUF_FIELD_OFFSET(MemberInfo, _impl_.userid_)>(
           reinterpret_cast<char*>(&_impl_.userid_),
           reinterpret_cast<char*>(&other->_impl_.userid_));
+  swap(_impl_.MemberBindPhone_, other->_impl_.MemberBindPhone_);
+  swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MemberInfo::GetMetadata() const {

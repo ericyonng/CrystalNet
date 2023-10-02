@@ -1552,6 +1552,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   static const MemberInfo& default_instance() {
     return *internal_default_instance();
   }
+  enum MemberBindPhoneCase {
+    kBindPhone = 6,
+    MEMBERBINDPHONE_NOT_SET = 0,
+  };
+
   static inline const MemberInfo* internal_default_instance() {
     return reinterpret_cast<const MemberInfo*>(
                &_MemberInfo_default_instance_);
@@ -1635,6 +1640,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kUserIdFieldNumber = 1,
     kLockTimestampMsFieldNumber = 5,
     kRoleFieldNumber = 2,
+    kBindPhoneFieldNumber = 6,
   };
   // repeated .CRYSTAL_NET.service.BorrowOrderInfo BorrowList = 4;
   int borrowlist_size() const;
@@ -1695,9 +1701,28 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_role(int32_t value);
   public:
 
+  // uint64 BindPhone = 6;
+  bool has_bindphone() const;
+  private:
+  bool _internal_has_bindphone() const;
+  public:
+  void clear_bindphone();
+  uint64_t bindphone() const;
+  void set_bindphone(uint64_t value);
+  private:
+  uint64_t _internal_bindphone() const;
+  void _internal_set_bindphone(uint64_t value);
+  public:
+
+  void clear_MemberBindPhone();
+  MemberBindPhoneCase MemberBindPhone_case() const;
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.MemberInfo)
  private:
   class _Internal;
+  void set_has_bindphone();
+
+  inline bool has_MemberBindPhone() const;
+  inline void clear_has_MemberBindPhone();
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
@@ -1708,7 +1733,14 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     uint64_t userid_;
     int64_t locktimestampms_;
     int32_t role_;
+    union MemberBindPhoneUnion {
+      constexpr MemberBindPhoneUnion() : _constinit_{} {}
+        ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+      uint64_t bindphone_;
+    } MemberBindPhone_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+    uint32_t _oneof_case_[1];
+
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_com_5flibrary_2eproto;
@@ -3175,6 +3207,53 @@ inline void MemberInfo::set_locktimestampms(int64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.MemberInfo.LockTimestampMs)
 }
 
+// uint64 BindPhone = 6;
+inline bool MemberInfo::_internal_has_bindphone() const {
+  return MemberBindPhone_case() == kBindPhone;
+}
+inline bool MemberInfo::has_bindphone() const {
+  return _internal_has_bindphone();
+}
+inline void MemberInfo::set_has_bindphone() {
+  _impl_._oneof_case_[0] = kBindPhone;
+}
+inline void MemberInfo::clear_bindphone() {
+  if (_internal_has_bindphone()) {
+    _impl_.MemberBindPhone_.bindphone_ = uint64_t{0u};
+    clear_has_MemberBindPhone();
+  }
+}
+inline uint64_t MemberInfo::_internal_bindphone() const {
+  if (_internal_has_bindphone()) {
+    return _impl_.MemberBindPhone_.bindphone_;
+  }
+  return uint64_t{0u};
+}
+inline void MemberInfo::_internal_set_bindphone(uint64_t value) {
+  if (!_internal_has_bindphone()) {
+    clear_MemberBindPhone();
+    set_has_bindphone();
+  }
+  _impl_.MemberBindPhone_.bindphone_ = value;
+}
+inline uint64_t MemberInfo::bindphone() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.MemberInfo.BindPhone)
+  return _internal_bindphone();
+}
+inline void MemberInfo::set_bindphone(uint64_t value) {
+  _internal_set_bindphone(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.MemberInfo.BindPhone)
+}
+
+inline bool MemberInfo::has_MemberBindPhone() const {
+  return MemberBindPhone_case() != MEMBERBINDPHONE_NOT_SET;
+}
+inline void MemberInfo::clear_has_MemberBindPhone() {
+  _impl_._oneof_case_[0] = MEMBERBINDPHONE_NOT_SET;
+}
+inline MemberInfo::MemberBindPhoneCase MemberInfo::MemberBindPhone_case() const {
+  return MemberInfo::MemberBindPhoneCase(_impl_._oneof_case_[0]);
+}
 // -------------------------------------------------------------------
 
 // LibraryInfo

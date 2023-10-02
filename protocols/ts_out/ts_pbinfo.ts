@@ -613,6 +613,32 @@ export namespace ts_pbinfo{
     }
 
 
+    // library.proto 
+    export class GetLibraryMemberSimpleInfoReq {
+      getOpcode():number {return GetLibraryMemberSimpleInfoReq.OPCODE; }
+      getIsXorEncrypt():boolean {return GetLibraryMemberSimpleInfoReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetLibraryMemberSimpleInfoReq.KeyBase64; }
+      getOpcodeName():string {return GetLibraryMemberSimpleInfoReq.OPCODE_NAME; }
+      static OPCODE:number = 62;
+      static OPCODE_NAME:string = "GetLibraryMemberSimpleInfoReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetLibraryMemberSimpleInfoRes {
+      getOpcode():number {return GetLibraryMemberSimpleInfoRes.OPCODE; }
+      getIsXorEncrypt():boolean {return GetLibraryMemberSimpleInfoRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetLibraryMemberSimpleInfoRes.KeyBase64; }
+      getOpcodeName():string {return GetLibraryMemberSimpleInfoRes.OPCODE_NAME; }
+      static OPCODE:number = 63;
+      static OPCODE_NAME:string = "GetLibraryMemberSimpleInfoRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -703,7 +729,11 @@ export namespace ts_pbinfo{
 
           [LoginFinishReq.OPCODE]: new LoginFinishReq(),
 
-          [LoginFinishRes.OPCODE]: new LoginFinishRes()
+          [LoginFinishRes.OPCODE]: new LoginFinishRes(),
+
+          [GetLibraryMemberSimpleInfoReq.OPCODE]: new GetLibraryMemberSimpleInfoReq(),
+
+          [GetLibraryMemberSimpleInfoRes.OPCODE]: new GetLibraryMemberSimpleInfoRes()
 
 
       }

@@ -438,7 +438,7 @@ Int32 UserMgr::LoadUser(UInt64 userId
     .Where(KERNEL_NS::LibString().AppendFormat("`%s` = ?", userIdName.c_str()));
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(1);
-    KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), userIdName, MYSQL_TYPE_STRING, 0);
+    KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), userIdName, MYSQL_TYPE_LONGLONG, 0);
     v->Write(&userId, static_cast<Int64>(sizeof(userId)));
     fields[0] = v;
 
@@ -1118,13 +1118,12 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
         }
     }
 
-    auto loginInfo = pendingUser->_loginInfo;
-    auto &registerInfo = pendingUser->_loginInfo->userregisterinfo();
     auto baseInfo = user->GetUserBaseInfo();
 
     // 最后登录信息
     if(pendingUser->_sessionId)
     {
+        auto loginInfo = pendingUser->_loginInfo;
         auto addr = user->GetUserAddr();
         baseInfo->set_lastlogintime(curTime.GetMilliTimestamp());
         baseInfo->set_lastloginphoneimei(loginInfo->loginphoneimei());
@@ -1153,7 +1152,7 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
         // 处理回调
         if(LIKELY(pendingUser->_cb))
         {
-            if(isAlreadyExists && pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER)
+            if(isAlreadyExists && pendingUser->_loginInfo && (pendingUser->_loginInfo->loginmode() == LoginMode::REGISTER))
             {
                 pendingUser->_cb->Invoke(Status::UserAllReadyExistsCantRegisterAgain, pendingUser, user, pendingUser->_var);
             }

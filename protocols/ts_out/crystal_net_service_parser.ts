@@ -113,6 +113,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("GetLibraryMemberSimpleInfoReq", (jsonData:any):any =>{
+                return this.GetLibraryMemberSimpleInfoReqParser(jsonData);
+            })
+
+
+            this.add("GetLibraryMemberSimpleInfoRes", (jsonData:any):any =>{
+                return this.GetLibraryMemberSimpleInfoResParser(jsonData);
+            })
+
+
             this.add("GetNodeListReq", (jsonData:any):any =>{
                 return this.GetNodeListReqParser(jsonData);
             })
@@ -320,6 +330,11 @@ export namespace crystal_net_service_parser
 
             this.add("SimpleInfo", (jsonData:any):any =>{
                 return this.SimpleInfoParser(jsonData);
+            })
+
+
+            this.add("SimpleUserInfo", (jsonData:any):any =>{
+                return this.SimpleUserInfoParser(jsonData);
             })
 
 
@@ -748,6 +763,38 @@ export namespace crystal_net_service_parser
                     });
 
                     newInfo.LibraryPreviewInfoList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private GetLibraryMemberSimpleInfoReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetLibraryMemberSimpleInfoReq()
+                 return newInfo;
+            }
+
+
+            private GetLibraryMemberSimpleInfoResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetLibraryMemberSimpleInfoRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+
+                if(jsonData.SimpleUserInfoList != undefined)
+                {
+                    var jsonArray = jsonData.SimpleUserInfoList.map((value, idx, arr)=>{
+                    var parser = this.getParser("SimpleUserInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.SimpleUserInfoList = jsonArray;
                 }
 
                  return newInfo;
@@ -1203,6 +1250,12 @@ export namespace crystal_net_service_parser
                     newInfo.LockTimestampMs = parseFloat(jsonData.LockTimestampMs);
                 }
 
+
+                if(jsonData.BindPhone != undefined)
+                {
+                    newInfo.BindPhone = parseFloat(jsonData.BindPhone);
+                }
+
                  return newInfo;
             }
 
@@ -1617,6 +1670,30 @@ export namespace crystal_net_service_parser
                 if(jsonData.VersionNo != undefined)
                 {
                     newInfo.VersionNo = parseFloat(jsonData.VersionNo);
+                }
+
+                 return newInfo;
+            }
+
+
+            private SimpleUserInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SimpleUserInfo()
+
+                if(jsonData.UserId != undefined)
+                {
+                    newInfo.UserId = parseFloat(jsonData.UserId);
+                }
+
+
+                if(jsonData.Nickname != undefined)
+                {
+                    newInfo.Nickname = jsonData.Nickname;
+                }
+
+
+                if(jsonData.BindPhone != undefined)
+                {
+                    newInfo.BindPhone = parseFloat(jsonData.BindPhone);
                 }
 
                  return newInfo;

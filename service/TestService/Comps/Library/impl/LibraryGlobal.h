@@ -70,6 +70,7 @@ protected:
     void _OnQuitLibraryReq(KERNEL_NS::LibPacket *&packet);
     void _OnTransferLibraianReq(KERNEL_NS::LibPacket *&packet);
     void _OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet);
+    void _OnGetLibraryMemberSimpleInfoReq(KERNEL_NS::LibPacket *&packet);
 
     Int32 _ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req);
 

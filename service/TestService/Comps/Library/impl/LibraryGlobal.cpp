@@ -180,7 +180,7 @@ Int32 LibraryGlobal::_OnGlobalSysInit()
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_QuitLibraryReq, this, &LibraryGlobal::_OnQuitLibraryReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_TransferLibraianReq, this, &LibraryGlobal::_OnTransferLibraianReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_ModifyMemberInfoReq, this, &LibraryGlobal::_OnModifyMemberInfoReq);
-
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetLibraryMemberSimpleInfoReq, this, &LibraryGlobal::_OnGetLibraryMemberSimpleInfoReq);
     return Status::Success;
 }
 
@@ -676,6 +676,16 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
             break;
         }
 
+        if(memberInfo->userid() == targetMember->userid())
+        {
+            if(req->has_newrole())
+            {
+                errCode = Status::AuthNotEnough;
+                g_Log->Warn(LOGFMT_OBJ_TAG("cant modify self role target user id:%llu user:%s"), req->memberuserid(), user->ToString().c_str());
+                break;
+            }
+        }
+
         if(!_CanHandle(libraryInfo->id(), memberInfo->userid()))
         {
             errCode = Status::MemberIsLocked;
@@ -692,7 +702,8 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
             break;
         }
 
-        if(targetMember->role() == RoleType_ENUMS_Librarian)
+        if((targetMember->role() == RoleType_ENUMS_Librarian) &&
+         (memberInfo->role() != RoleType_ENUMS_Librarian))
         {
             errCode = Status::AuthNotEnough;
             g_Log->Warn(LOGFMT_OBJ_TAG("target not member target user id:%llu user:%s"), req->memberuserid(), user->ToString().c_str());
@@ -704,6 +715,26 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
             errCode = Status::NotManager;
             g_Log->Warn(LOGFMT_OBJ_TAG("user not manager library:%s, user:%s"), LibraryToString(libraryInfo).c_str(), user->ToString().c_str());
             break;
+        }
+
+        if(req->has_newrole())
+        {
+            if(!RoleType_ENUMS_IsValid(req->newrole()))
+            {
+                errCode = Status::ParamError;
+                g_Log->Warn(LOGFMT_OBJ_TAG("invalid role:%d, user:%s"), req->newrole(), user->ToString().c_str());
+                break;
+            }
+        }
+
+        if(req->has_newmemberphone())
+        {
+            if(!_IsValidPhone(req->newmemberphone()))
+            {
+                errCode = Status::InvalidPhoneNubmer;
+                g_Log->Warn(LOGFMT_OBJ_TAG("invalid phone:%llu, user:%s"), req->newmemberphone(), user->ToString().c_str());
+                break;
+            }
         }
 
         _LockMember(libraryInfo->id(), user->GetUserId());
@@ -782,6 +813,130 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
     user->Send(Opcodes::OpcodeConst::OPCODE_ModifyMemberInfoRes, res, packetId);
 }
 
+void LibraryGlobal::_OnGetLibraryMemberSimpleInfoReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto req = packet->GetCoder<GetLibraryMemberSimpleInfoReq>();  
+    Int32 errCode = Status::Success;
+    const auto packetId = packet->GetPacketId();
+
+    KERNEL_NS::SmartPtr<std::set<UInt64>> memberUserIdsCopy = new std::set<UInt64>();
+    KERNEL_NS::SmartPtr<::google::protobuf::RepeatedPtrField<SimpleUserInfo>> userInfos = new ::google::protobuf::RepeatedPtrField<SimpleUserInfo>();
+
+    do
+    {
+        auto libraryMgr = user->GetSys<ILibraryMgr>();
+        if(libraryMgr->GetMyLibraryId() == 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("have no library user:%s"), user->ToString().c_str());
+            errCode = Status::NotJoinAnyLibrary;
+            break;
+        }
+
+        auto libraryInfo = GetLibraryInfo(libraryMgr->GetMyLibraryId());
+        if(!libraryInfo)
+        {
+            errCode = Status::LibraryNotFound;
+            g_Log->Warn(LOGFMT_OBJ_TAG("library not found, library id:%llu, param user:%s, packet:%s")
+            , libraryMgr->GetMyLibraryId(), user->ToString().c_str(), packet->ToString().c_str());
+            break;
+        }
+
+        auto myMemberInfo = GetMemberInfo(libraryInfo->id(), user->GetUserId());
+        if(!myMemberInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not library member user:%s, library id:%llu")
+            , user->ToString().c_str(), libraryInfo->id());
+            errCode = Status::NotJoinAnyLibrary;
+            break;
+        }
+
+        const Int32 myRole = myMemberInfo->role();
+
+        auto &memberList = libraryInfo->memberlist();
+        std::set<UInt64> memberUserIds;
+        for(auto &member : memberList)
+        {
+            memberUserIds.insert(member.userid());
+            memberUserIdsCopy->insert(member.userid());
+        }
+
+        auto userMgr = GetGlobalSys<IUserMgr>();
+        const auto reqUserId = user->GetUserId();
+        for(auto userId : memberUserIds)
+        {
+            auto memberUser = userMgr->GetUser(userId);
+            if(!memberUser)
+            {
+                userMgr->LoadUserBy(userId, [userMgr, packetId, memberUserIdsCopy, userInfos, myRole, reqUserId, userId, this](Int32 errCode, PendingUser *pending, IUser *targetUser, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &param) mutable
+                {
+                    memberUserIdsCopy->erase(userId);
+                    do
+                    {
+                        if(!targetUser)
+                        {
+                            g_Log->Warn(LOGFMT_OBJ_TAG("load user fail user id:%llu"), userId);
+                            break;
+                        }
+
+                        auto userInfo = userInfos->Add();
+                        userInfo->set_userid(userId);
+                        userInfo->set_nickname(targetUser->GetNickname());
+
+                        if(_IsManager(myRole) || (reqUserId == userId))
+                            userInfo->set_bindphone(targetUser->GetUserBaseInfo()->bindphone());
+                        
+                    } while (false);
+
+                    if(memberUserIdsCopy->empty())
+                    {
+                        auto user = userMgr->GetUser(reqUserId);
+                        if(user)
+                        {
+                            GetLibraryMemberSimpleInfoRes res;
+                            res.set_errcode(Status::Success);
+                            *res.mutable_simpleuserinfolist() = *userInfos.AsSelf();
+                            user->Send(Opcodes::OpcodeConst::OPCODE_GetLibraryMemberSimpleInfoRes, res, packetId);
+                        }
+                    }
+                });
+                continue;
+            }
+
+            auto userInfo = userInfos->Add();
+            userInfo->set_userid(userId);
+            userInfo->set_nickname(memberUser->GetNickname());
+
+            if(_IsManager(myMemberInfo->role()) || (reqUserId == memberUser->GetUserId()))
+                userInfo->set_bindphone(memberUser->GetUserBaseInfo()->bindphone());
+            memberUserIdsCopy->erase(userId);
+        }
+
+    }while(false);
+
+
+    GetLibraryMemberSimpleInfoRes res;
+    res.set_errcode(errCode);
+    if(errCode != Status::Success)
+    {
+        user->Send(Opcodes::OpcodeConst::OPCODE_GetLibraryMemberSimpleInfoRes, res, packetId);
+        return;
+    }
+
+    if(memberUserIdsCopy->empty())
+    {
+        *res.mutable_simpleuserinfolist() = *userInfos.AsSelf();
+        user->Send(Opcodes::OpcodeConst::OPCODE_GetLibraryMemberSimpleInfoRes, res, packetId);
+    }
+}
+
 Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req)
 {
     auto memberInfo = GetMemberInfo(libraryInfo->id(), reqUserId);
@@ -810,6 +965,14 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
 
         if(targetMember->role() == RoleType_ENUMS_NoAuth)
         {// 必须检查手机
+            if(!req.has_newmemberphone())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("need bind phone from no auth to new role:%d, phone number:%llu library:%s, member role:%d,%s, target member role:%d,%s req user id:%llu")
+                ,req.newrole(), req.newmemberphone(), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
+                , targetMember->role(), RoleType::ENUMS_Name(targetMember->role()).c_str(), reqUserId);
+                return Status::InvalidPhoneNubmer;
+            }
+
             if(!_IsValidPhone(req.newmemberphone()))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("user bind a invalid phone from no auth to new role:%d, phone number:%llu library:%s, member role:%d,%s, target member role:%d,%s req user id:%llu")
@@ -1155,11 +1318,39 @@ void LibraryGlobal::_SendLibraryInfoNty(const IUser *user, const LibraryInfo *li
             }break;
             case RoleType::ENUMS::RoleType_ENUMS_NormalMember:
             {
-                *newLibraryInfo->mutable_memberlist()->Add() = *memberInfo;
+                for(auto &item : libraryInfo->memberlist())
+                {
+                    auto copyMemberInfo = item;
+                    if(copyMemberInfo.userid() == memberInfo->userid())
+                    {
+                        *newLibraryInfo->mutable_memberlist()->Add() = copyMemberInfo;
+                    }
+                    else
+                    {
+                        copyMemberInfo.clear_borrowlist();
+                        copyMemberInfo.set_locktimestampms(0);
+                        copyMemberInfo.set_bindphone(0);
+                        *newLibraryInfo->mutable_memberlist()->Add() = copyMemberInfo;
+                    }
+                }
             }break;
             default:
             {
-                *newLibraryInfo->mutable_memberlist()->Add() = *memberInfo;
+                for(auto &item : libraryInfo->memberlist())
+                {
+                    auto copyMemberInfo = item;
+                    if(copyMemberInfo.userid() == memberInfo->userid())
+                    {
+                        *newLibraryInfo->mutable_memberlist()->Add() = copyMemberInfo;
+                    }
+                    else
+                    {
+                        copyMemberInfo.clear_borrowlist();
+                        copyMemberInfo.set_locktimestampms(0);
+                        copyMemberInfo.set_bindphone(0);
+                        *newLibraryInfo->mutable_memberlist()->Add() = copyMemberInfo;
+                    }
+                }
             }break;
         }
     }

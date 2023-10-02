@@ -232,17 +232,17 @@ void Application::_OnHostWillClose()
 
 void Application::_OnHostClose()
 {
+    if(LIKELY(_monitor))
+    {
+        if(LIKELY(_monitor->HalfClose()))
+            _monitor->FinishClose();
+    }
+
     CompObject *notDownComp = NULL;
     for(;!IsAllCompsDown(notDownComp);)
     {
         g_Log->Info(LOGFMT_OBJ_TAG("app monitor wait for all comps down current not down comp:%s."), notDownComp->GetObjName().c_str());
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
-    }
-
-    if(LIKELY(_monitor))
-    {
-        if(LIKELY(_monitor->HalfClose()))
-            _monitor->FinishClose();
     }
 
     MaskReady(false);
@@ -1004,12 +1004,16 @@ void Application::_OnMonitorThreadFrame()
     // 2.获取poller信息
     auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
     KERNEL_NS::LibString info;
-    pollerMgr->OnMonitor(info);
+    if(pollerMgr && pollerMgr->IsStarted())
+    {
+        pollerMgr->OnMonitor(info);
+    }
 
     // 3.获取service信息
     info.AppendFormat("\n");
     auto serviceProxy = GetComp<ServiceProxy>();
-    serviceProxy->OnMonitor(info);
+    if(serviceProxy && serviceProxy->IsStarted())
+        serviceProxy->OnMonitor(info);
     
     Double average = 0;
     if(_statisticsInfoCache->_resCount > 0)

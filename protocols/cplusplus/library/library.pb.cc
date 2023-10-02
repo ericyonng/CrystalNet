@@ -19,6 +19,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TransferLibraianResFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ModifyMemberInfoReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ModifyMemberInfoResFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(UserLibraryInfoNtyFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(GetLibraryMemberSimpleInfoReqFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(GetLibraryMemberSimpleInfoResFactory);
 
 #include <algorithm>
 
@@ -249,9 +251,34 @@ struct UserLibraryInfoNtyDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UserLibraryInfoNtyDefaultTypeInternal _UserLibraryInfoNty_default_instance_;
+PROTOBUF_CONSTEXPR GetLibraryMemberSimpleInfoReq::GetLibraryMemberSimpleInfoReq(
+    ::_pbi::ConstantInitialized) {}
+struct GetLibraryMemberSimpleInfoReqDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR GetLibraryMemberSimpleInfoReqDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~GetLibraryMemberSimpleInfoReqDefaultTypeInternal() {}
+  union {
+    GetLibraryMemberSimpleInfoReq _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetLibraryMemberSimpleInfoReqDefaultTypeInternal _GetLibraryMemberSimpleInfoReq_default_instance_;
+PROTOBUF_CONSTEXPR GetLibraryMemberSimpleInfoRes::GetLibraryMemberSimpleInfoRes(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.simpleuserinfolist_)*/{}
+  , /*decltype(_impl_.errcode_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct GetLibraryMemberSimpleInfoResDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR GetLibraryMemberSimpleInfoResDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~GetLibraryMemberSimpleInfoResDefaultTypeInternal() {}
+  union {
+    GetLibraryMemberSimpleInfoRes _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetLibraryMemberSimpleInfoResDefaultTypeInternal _GetLibraryMemberSimpleInfoRes_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
-static ::_pb::Metadata file_level_metadata_library_2eproto[16];
+static ::_pb::Metadata file_level_metadata_library_2eproto[18];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_library_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_library_2eproto = nullptr;
 
@@ -374,6 +401,20 @@ const uint32_t TableStruct_library_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserLibraryInfoNty, _impl_.userlibraryinfo_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes, _impl_.errcode_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes, _impl_.simpleuserinfolist_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::GetLibraryInfoReq)},
@@ -392,6 +433,8 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 93, -1, -1, sizeof(::CRYSTAL_NET::service::ModifyMemberInfoReq)},
   { 104, -1, -1, sizeof(::CRYSTAL_NET::service::ModifyMemberInfoRes)},
   { 111, -1, -1, sizeof(::CRYSTAL_NET::service::UserLibraryInfoNty)},
+  { 118, -1, -1, sizeof(::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq)},
+  { 124, -1, -1, sizeof(::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -411,42 +454,49 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::CRYSTAL_NET::service::_ModifyMemberInfoReq_default_instance_._instance,
   &::CRYSTAL_NET::service::_ModifyMemberInfoRes_default_instance_._instance,
   &::CRYSTAL_NET::service::_UserLibraryInfoNty_default_instance_._instance,
+  &::CRYSTAL_NET::service::_GetLibraryMemberSimpleInfoReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_GetLibraryMemberSimpleInfoRes_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_library_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\rlibrary.proto\022\023CRYSTAL_NET.service\032\021co"
-  "m_library.proto\"\023\n\021GetLibraryInfoReq\"G\n\016"
-  "LibraryInfoNty\0225\n\013LibraryInfo\030\001 \001(\0132 .CR"
-  "YSTAL_NET.service.LibraryInfo\"$\n\021GetLibr"
-  "aryInfoRes\022\017\n\007ErrCode\030\001 \001(\021\"\202\001\n\020CreateLi"
-  "braryReq\022\022\n\nInviteCode\030\001 \001(\t\022\014\n\004Name\030\002 \001"
-  "(\t\022\017\n\007Address\030\003 \001(\t\022\020\n\010OpenTime\030\004 \001(\t\022\026\n"
-  "\016TelphoneNumber\030\005 \001(\t\022\021\n\tBindPhone\030\006 \001(\004"
-  "\"#\n\020CreateLibraryRes\022\017\n\007ErrCode\030\001 \001(\021\"#\n"
-  "\016JoinLibraryReq\022\021\n\tLibraryId\030\001 \001(\004\"!\n\016Jo"
-  "inLibraryRes\022\017\n\007ErrCode\030\001 \001(\021\"\020\n\016QuitLib"
-  "raryReq\"!\n\016QuitLibraryRes\022\017\n\007ErrCode\030\001 \001"
-  "(\021\"\023\n\021GetLibraryListReq\"\\\n\021GetLibraryLis"
-  "tRes\022G\n\026LibraryPreviewInfoList\030\001 \003(\0132\'.C"
-  "RYSTAL_NET.service.LibraryPreviewInfo\"+\n"
-  "\023TransferLibraianReq\022\024\n\014TargetUserId\030\001 \001"
-  "(\004\"&\n\023TransferLibraianRes\022\017\n\007ErrCode\030\001 \001"
-  "(\021\"{\n\023ModifyMemberInfoReq\022\024\n\014memberUserI"
-  "d\030\001 \001(\004\022\021\n\007newRole\030\002 \001(\021H\000\022\030\n\016newMemberP"
-  "hone\030\003 \001(\004H\001B\014\n\nModifyRoleB\023\n\021ModifyPhon"
-  "eNumber\"&\n\023ModifyMemberInfoRes\022\017\n\007ErrCod"
-  "e\030\001 \001(\021\"S\n\022UserLibraryInfoNty\022=\n\017UserLib"
-  "raryInfo\030\001 \001(\0132$.CRYSTAL_NET.service.Use"
-  "rLibraryInfob\006proto3"
+  "m_library.proto\032\016com_user.proto\"\023\n\021GetLi"
+  "braryInfoReq\"G\n\016LibraryInfoNty\0225\n\013Librar"
+  "yInfo\030\001 \001(\0132 .CRYSTAL_NET.service.Librar"
+  "yInfo\"$\n\021GetLibraryInfoRes\022\017\n\007ErrCode\030\001 "
+  "\001(\021\"\202\001\n\020CreateLibraryReq\022\022\n\nInviteCode\030\001"
+  " \001(\t\022\014\n\004Name\030\002 \001(\t\022\017\n\007Address\030\003 \001(\t\022\020\n\010O"
+  "penTime\030\004 \001(\t\022\026\n\016TelphoneNumber\030\005 \001(\t\022\021\n"
+  "\tBindPhone\030\006 \001(\004\"#\n\020CreateLibraryRes\022\017\n\007"
+  "ErrCode\030\001 \001(\021\"#\n\016JoinLibraryReq\022\021\n\tLibra"
+  "ryId\030\001 \001(\004\"!\n\016JoinLibraryRes\022\017\n\007ErrCode\030"
+  "\001 \001(\021\"\020\n\016QuitLibraryReq\"!\n\016QuitLibraryRe"
+  "s\022\017\n\007ErrCode\030\001 \001(\021\"\023\n\021GetLibraryListReq\""
+  "\\\n\021GetLibraryListRes\022G\n\026LibraryPreviewIn"
+  "foList\030\001 \003(\0132\'.CRYSTAL_NET.service.Libra"
+  "ryPreviewInfo\"+\n\023TransferLibraianReq\022\024\n\014"
+  "TargetUserId\030\001 \001(\004\"&\n\023TransferLibraianRe"
+  "s\022\017\n\007ErrCode\030\001 \001(\021\"{\n\023ModifyMemberInfoRe"
+  "q\022\024\n\014memberUserId\030\001 \001(\004\022\021\n\007newRole\030\002 \001(\021"
+  "H\000\022\030\n\016newMemberPhone\030\003 \001(\004H\001B\014\n\nModifyRo"
+  "leB\023\n\021ModifyPhoneNumber\"&\n\023ModifyMemberI"
+  "nfoRes\022\017\n\007ErrCode\030\001 \001(\021\"S\n\022UserLibraryIn"
+  "foNty\022=\n\017UserLibraryInfo\030\001 \001(\0132$.CRYSTAL"
+  "_NET.service.UserLibraryInfo\"\037\n\035GetLibra"
+  "ryMemberSimpleInfoReq\"q\n\035GetLibraryMembe"
+  "rSimpleInfoRes\022\017\n\007ErrCode\030\001 \001(\021\022\?\n\022Simpl"
+  "eUserInfoList\030\002 \003(\0132#.CRYSTAL_NET.servic"
+  "e.SimpleUserInfob\006proto3"
   ;
-static const ::_pbi::DescriptorTable* const descriptor_table_library_2eproto_deps[1] = {
+static const ::_pbi::DescriptorTable* const descriptor_table_library_2eproto_deps[2] = {
   &::descriptor_table_com_5flibrary_2eproto,
+  &::descriptor_table_com_5fuser_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_library_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_library_2eproto = {
-    false, false, 940, descriptor_table_protodef_library_2eproto,
+    false, false, 1104, descriptor_table_protodef_library_2eproto,
     "library.proto",
-    &descriptor_table_library_2eproto_once, descriptor_table_library_2eproto_deps, 1, 16,
+    &descriptor_table_library_2eproto_once, descriptor_table_library_2eproto_deps, 2, 18,
     schemas, file_default_instances, TableStruct_library_2eproto::offsets,
     file_level_metadata_library_2eproto, file_level_enum_descriptors_library_2eproto,
     file_level_service_descriptors_library_2eproto,
@@ -3333,6 +3383,261 @@ void UserLibraryInfoNty::InternalSwap(UserLibraryInfoNty* other) {
       file_level_metadata_library_2eproto[15]);
 }
 
+// ===================================================================
+
+class GetLibraryMemberSimpleInfoReq::_Internal {
+ public:
+};
+
+GetLibraryMemberSimpleInfoReq::GetLibraryMemberSimpleInfoReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoReq)
+}
+GetLibraryMemberSimpleInfoReq::GetLibraryMemberSimpleInfoReq(const GetLibraryMemberSimpleInfoReq& from)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
+  GetLibraryMemberSimpleInfoReq* const _this = this; (void)_this;
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoReq)
+}
+
+
+
+
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData GetLibraryMemberSimpleInfoReq::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl,
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl,
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetLibraryMemberSimpleInfoReq::GetClassData() const { return &_class_data_; }
+
+
+
+
+
+
+
+::PROTOBUF_NAMESPACE_ID::Metadata GetLibraryMemberSimpleInfoReq::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[16]);
+}
+
+// ===================================================================
+
+class GetLibraryMemberSimpleInfoRes::_Internal {
+ public:
+};
+
+void GetLibraryMemberSimpleInfoRes::clear_simpleuserinfolist() {
+  _impl_.simpleuserinfolist_.Clear();
+}
+GetLibraryMemberSimpleInfoRes::GetLibraryMemberSimpleInfoRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+}
+GetLibraryMemberSimpleInfoRes::GetLibraryMemberSimpleInfoRes(const GetLibraryMemberSimpleInfoRes& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  GetLibraryMemberSimpleInfoRes* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.simpleuserinfolist_){from._impl_.simpleuserinfolist_}
+    , decltype(_impl_.errcode_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.errcode_ = from._impl_.errcode_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+}
+
+inline void GetLibraryMemberSimpleInfoRes::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.simpleuserinfolist_){arena}
+    , decltype(_impl_.errcode_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+GetLibraryMemberSimpleInfoRes::~GetLibraryMemberSimpleInfoRes() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void GetLibraryMemberSimpleInfoRes::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.simpleuserinfolist_.~RepeatedPtrField();
+}
+
+void GetLibraryMemberSimpleInfoRes::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void GetLibraryMemberSimpleInfoRes::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.simpleuserinfolist_.Clear();
+  _impl_.errcode_ = 0;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* GetLibraryMemberSimpleInfoRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // sint32 ErrCode = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.errcode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated .CRYSTAL_NET.service.SimpleUserInfo SimpleUserInfoList = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_simpleuserinfolist(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* GetLibraryMemberSimpleInfoRes::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_errcode(), target);
+  }
+
+  // repeated .CRYSTAL_NET.service.SimpleUserInfo SimpleUserInfoList = 2;
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_simpleuserinfolist_size()); i < n; i++) {
+    const auto& repfield = this->_internal_simpleuserinfolist(i);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+        InternalWriteMessage(2, repfield, repfield.GetCachedSize(), target, stream);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+  return target;
+}
+
+size_t GetLibraryMemberSimpleInfoRes::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated .CRYSTAL_NET.service.SimpleUserInfo SimpleUserInfoList = 2;
+  total_size += 1UL * this->_internal_simpleuserinfolist_size();
+  for (const auto& msg : this->_impl_.simpleuserinfolist_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_errcode());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData GetLibraryMemberSimpleInfoRes::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    GetLibraryMemberSimpleInfoRes::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetLibraryMemberSimpleInfoRes::GetClassData() const { return &_class_data_; }
+
+
+void GetLibraryMemberSimpleInfoRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<GetLibraryMemberSimpleInfoRes*>(&to_msg);
+  auto& from = static_cast<const GetLibraryMemberSimpleInfoRes&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.simpleuserinfolist_.MergeFrom(from._impl_.simpleuserinfolist_);
+  if (from._internal_errcode() != 0) {
+    _this->_internal_set_errcode(from._internal_errcode());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void GetLibraryMemberSimpleInfoRes::CopyFrom(const GetLibraryMemberSimpleInfoRes& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool GetLibraryMemberSimpleInfoRes::IsInitialized() const {
+  return true;
+}
+
+void GetLibraryMemberSimpleInfoRes::InternalSwap(GetLibraryMemberSimpleInfoRes* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.simpleuserinfolist_.InternalSwap(&other->_impl_.simpleuserinfolist_);
+  swap(_impl_.errcode_, other->_impl_.errcode_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata GetLibraryMemberSimpleInfoRes::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[17]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace service
 }  // namespace CRYSTAL_NET
@@ -3400,6 +3705,14 @@ Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ModifyMemberInfoRes >(Arena* 
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::UserLibraryInfoNty*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::UserLibraryInfoNty >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::UserLibraryInfoNty >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 
