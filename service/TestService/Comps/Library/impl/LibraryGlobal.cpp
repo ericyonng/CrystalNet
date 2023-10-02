@@ -443,6 +443,7 @@ void LibraryGlobal::_OnJoinLibraryReq(KERNEL_NS::LibPacket *&packet)
         _SendLibraryInfoNty(user, library);
 
     JoinLibraryRes res;
+    res.set_errcode(errCode);
     user->Send(Opcodes::OpcodeConst::OPCODE_JoinLibraryRes, res, packet->GetPacketId());
 }
 
@@ -598,6 +599,15 @@ void LibraryGlobal::_OnTransferLibraianReq(KERNEL_NS::LibPacket *&packet)
             break;
         }
 
+        // 不能是自己
+        if(targetmember->userid() == user->GetUserId())
+        {
+            errCode = Status::ParamError;
+            g_Log->Warn(LOGFMT_OBJ_TAG("target user cant be self, library id:%llu, user:%s, target user id:%llu packet:%s")
+                , libraryMgr->GetMyLibraryId(), user->ToString().c_str(), targetmember->userid(), packet->ToString().c_str());
+            break;
+        }
+
         if(!_IsManager(targetmember->role()))
         {
             errCode = Status::NotManager;
@@ -701,10 +711,13 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
 
         if(memberInfo->role() < targetMember->role())
         {
-            errCode = Status::NotManager;
+            errCode = Status::AuthNotEnough;
             g_Log->Warn(LOGFMT_OBJ_TAG("user auth not enough library:%s, member role:%d,%s, target member role:%d,%s user:%s")
             , LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
             , targetMember->role(), RoleType::ENUMS_Name(targetMember->role()).c_str(), user->ToString().c_str());
+            
+            _UnlockMember(libraryInfo->id(), user->GetUserId());
+            _UnlockMember(libraryInfo->id(), req->memberuserid());
             break;
         }
 
@@ -902,7 +915,7 @@ void LibraryGlobal::_JoinMember(LibraryInfo *libraryInfo, IUser *user, Int32 rol
 {
     // 成员
     auto newMember = libraryInfo->add_memberlist();
-    newMember->set_userid(user->GetId());
+    newMember->set_userid(user->GetUserId());
     newMember->set_role(roleType);
     newMember->set_nickname(user->GetNickname());
     auto iter = _libraryIdRefUserRefMember.find(libraryInfo->id());

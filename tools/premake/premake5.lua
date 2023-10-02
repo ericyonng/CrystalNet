@@ -783,12 +783,6 @@ project "filetool"
 
     -- files
     files {
-        "../../service/common/**.h",
-        "../../service/common/**.cpp",
-        "../../service/ProtoGenService/**.h",
-        "../../service/ProtoGenService/**.cpp",
-        "../../service_common/**.h",
-        "../../service_common/**.cpp",
         "../../file_tool/**.h",
         "../../file_tool/**.cpp",
     }
