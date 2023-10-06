@@ -38,13 +38,58 @@ export namespace crystal_net_service_parser
         constructor()
         {
 
+            this.add("AddLibraryBookCountReq", (jsonData:any):any =>{
+                return this.AddLibraryBookCountReqParser(jsonData);
+            })
+
+
+            this.add("AddLibraryBookCountRes", (jsonData:any):any =>{
+                return this.AddLibraryBookCountResParser(jsonData);
+            })
+
+
+            this.add("AddLibraryBookReq", (jsonData:any):any =>{
+                return this.AddLibraryBookReqParser(jsonData);
+            })
+
+
+            this.add("AddLibraryBookRes", (jsonData:any):any =>{
+                return this.AddLibraryBookResParser(jsonData);
+            })
+
+
             this.add("BookInfo", (jsonData:any):any =>{
                 return this.BookInfoParser(jsonData);
             })
 
 
+            this.add("BookListNty", (jsonData:any):any =>{
+                return this.BookListNtyParser(jsonData);
+            })
+
+
             this.add("BookType", (jsonData:any):any =>{
                 return this.BookTypeParser(jsonData);
+            })
+
+
+            this.add("BookVariantInfo", (jsonData:any):any =>{
+                return this.BookVariantInfoParser(jsonData);
+            })
+
+
+            this.add("BookVariantInfoItem", (jsonData:any):any =>{
+                return this.BookVariantInfoItemParser(jsonData);
+            })
+
+
+            this.add("BookVariantInfoItemsNty", (jsonData:any):any =>{
+                return this.BookVariantInfoItemsNtyParser(jsonData);
+            })
+
+
+            this.add("BooksChangeNty", (jsonData:any):any =>{
+                return this.BooksChangeNtyParser(jsonData);
             })
 
 
@@ -90,6 +135,16 @@ export namespace crystal_net_service_parser
 
             this.add("CreatureAttrKey", (jsonData:any):any =>{
                 return this.CreatureAttrKeyParser(jsonData);
+            })
+
+
+            this.add("GetBookListReq", (jsonData:any):any =>{
+                return this.GetBookListReqParser(jsonData);
+            })
+
+
+            this.add("GetBookListRes", (jsonData:any):any =>{
+                return this.GetBookListResParser(jsonData);
             })
 
 
@@ -273,6 +328,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("OperationLogInfo", (jsonData:any):any =>{
+                return this.OperationLogInfoParser(jsonData);
+            })
+
+
+            this.add("OperationType", (jsonData:any):any =>{
+                return this.OperationTypeParser(jsonData);
+            })
+
+
             this.add("PassTimeData", (jsonData:any):any =>{
                 return this.PassTimeDataParser(jsonData);
             })
@@ -417,6 +482,16 @@ export namespace crystal_net_service_parser
                 return this.UserLoginInfoParser(jsonData);
             })
 
+
+            this.add("VariantParam", (jsonData:any):any =>{
+                return this.VariantParamParser(jsonData);
+            })
+
+
+            this.add("VariantParamType", (jsonData:any):any =>{
+                return this.VariantParamTypeParser(jsonData);
+            })
+
         }
 
         public add(pbType:string, cb:(jsonData:any)=>any)
@@ -433,6 +508,82 @@ export namespace crystal_net_service_parser
             }
             return cb;
         }
+
+
+            private AddLibraryBookCountReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.AddLibraryBookCountReq()
+
+                if(jsonData.BookId != undefined)
+                {
+                    newInfo.BookId = parseFloat(jsonData.BookId);
+                }
+
+
+                if(jsonData.ModifyCount != undefined)
+                {
+                    newInfo.ModifyCount = parseFloat(jsonData.ModifyCount);
+                }
+
+                 return newInfo;
+            }
+
+
+            private AddLibraryBookCountResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.AddLibraryBookCountRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private AddLibraryBookReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.AddLibraryBookReq()
+
+                if(jsonData.BookName != undefined)
+                {
+                    newInfo.BookName = jsonData.BookName;
+                }
+
+
+                if(jsonData.IsbnCode != undefined)
+                {
+                    newInfo.IsbnCode = jsonData.IsbnCode;
+                }
+
+
+                if(jsonData.BookCoverImage != undefined)
+                {
+                    var jsonArray = jsonData.BookCoverImage.map((value, idx, arr)=>{
+                    return value;
+                    });
+
+                    newInfo.BookCoverImage = jsonArray;
+                }
+
+
+                if(jsonData.Price != undefined)
+                {
+                    newInfo.Price = parseFloat(jsonData.Price);
+                }
+
+                 return newInfo;
+            }
+
+
+            private AddLibraryBookResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.AddLibraryBookRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
 
 
             private BookInfoParser(jsonData:any):any{
@@ -468,27 +619,24 @@ export namespace crystal_net_service_parser
                 }
 
 
-                if(jsonData.BookCoverImageType != undefined)
-                {
-                    newInfo.BookCoverImageType = jsonData.BookCoverImageType;
-                }
-
-
-                if(jsonData.Price != undefined)
-                {
-                    newInfo.Price = parseFloat(jsonData.Price);
-                }
-
-
                 if(jsonData.IsOnShelves != undefined)
                 {
                     newInfo.IsOnShelves = parseFloat(jsonData.IsOnShelves);
                 }
 
 
-                if(jsonData.Count != undefined)
+                if(jsonData.VariantInfo != undefined)
                 {
-                    newInfo.Count = parseFloat(jsonData.Count);
+                    var jsonFieldInfo = jsonData.VariantInfo;
+                    var cb = this.getParser("BookVariantInfo");
+                    if(cb != undefined)
+                    {
+                        newInfo.VariantInfo = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field VariantInfo have no BookVariantInfo parser");
+                    }
                 }
 
 
@@ -501,8 +649,113 @@ export namespace crystal_net_service_parser
             }
 
 
+            private BookListNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookListNty()
+
+                if(jsonData.BookInfoList != undefined)
+                {
+                    var jsonArray = jsonData.BookInfoList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BookInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BookInfoList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
             private BookTypeParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.BookType()
+                 return newInfo;
+            }
+
+
+            private BookVariantInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookVariantInfo()
+
+                if(jsonData.Count != undefined)
+                {
+                    newInfo.Count = parseFloat(jsonData.Count);
+                }
+
+
+                if(jsonData.Price != undefined)
+                {
+                    newInfo.Price = parseFloat(jsonData.Price);
+                }
+
+                 return newInfo;
+            }
+
+
+            private BookVariantInfoItemParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookVariantInfoItem()
+
+                if(jsonData.Id != undefined)
+                {
+                    newInfo.Id = parseFloat(jsonData.Id);
+                }
+
+
+                if(jsonData.BookVariantInfo != undefined)
+                {
+                    var jsonFieldInfo = jsonData.BookVariantInfo;
+                    var cb = this.getParser("BookVariantInfo");
+                    if(cb != undefined)
+                    {
+                        newInfo.BookVariantInfo = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field BookVariantInfo have no BookVariantInfo parser");
+                    }
+                }
+
+                 return newInfo;
+            }
+
+
+            private BookVariantInfoItemsNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookVariantInfoItemsNty()
+
+                if(jsonData.BookVariantInfoItemList != undefined)
+                {
+                    var jsonArray = jsonData.BookVariantInfoItemList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BookVariantInfoItem");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BookVariantInfoItemList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private BooksChangeNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BooksChangeNty()
+
+                if(jsonData.BookInfoList != undefined)
+                {
+                    var jsonArray = jsonData.BookInfoList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BookInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BookInfoList = jsonArray;
+                }
+
                  return newInfo;
             }
 
@@ -543,6 +796,18 @@ export namespace crystal_net_service_parser
                 if(jsonData.RealGiveBackTime != undefined)
                 {
                     newInfo.RealGiveBackTime = parseFloat(jsonData.RealGiveBackTime);
+                }
+
+
+                if(jsonData.ReturnBackCount != undefined)
+                {
+                    newInfo.ReturnBackCount = parseFloat(jsonData.ReturnBackCount);
+                }
+
+
+                if(jsonData.SubOrderId != undefined)
+                {
+                    newInfo.SubOrderId = parseFloat(jsonData.SubOrderId);
                 }
 
                  return newInfo;
@@ -721,6 +986,24 @@ export namespace crystal_net_service_parser
 
             private CreatureAttrKeyParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.CreatureAttrKey()
+                 return newInfo;
+            }
+
+
+            private GetBookListReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookListReq()
+                 return newInfo;
+            }
+
+
+            private GetBookListResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookListRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
                  return newInfo;
             }
 
@@ -949,6 +1232,34 @@ export namespace crystal_net_service_parser
                     });
 
                     newInfo.MemberList = jsonArray;
+                }
+
+
+                if(jsonData.BookList != undefined)
+                {
+                    var jsonArray = jsonData.BookList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BookInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BookList = jsonArray;
+                }
+
+
+                if(jsonData.LogInfoList != undefined)
+                {
+                    var jsonArray = jsonData.LogInfoList.map((value, idx, arr)=>{
+                    var parser = this.getParser("OperationLogInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.LogInfoList = jsonArray;
                 }
 
                  return newInfo;
@@ -1447,6 +1758,62 @@ export namespace crystal_net_service_parser
                     newInfo.NowTimeNanoseconds = parseFloat(jsonData.NowTimeNanoseconds);
                 }
 
+                 return newInfo;
+            }
+
+
+            private OperationLogInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.OperationLogInfo()
+
+                if(jsonData.OpType != undefined)
+                {
+                    newInfo.OpType = parseFloat(jsonData.OpType);
+                }
+
+
+                if(jsonData.OpUserId != undefined)
+                {
+                    newInfo.OpUserId = parseFloat(jsonData.OpUserId);
+                }
+
+
+                if(jsonData.OpNickname != undefined)
+                {
+                    newInfo.OpNickname = jsonData.OpNickname;
+                }
+
+
+                if(jsonData.Role != undefined)
+                {
+                    newInfo.Role = parseFloat(jsonData.Role);
+                }
+
+
+                if(jsonData.OpTimeMs != undefined)
+                {
+                    newInfo.OpTimeMs = parseFloat(jsonData.OpTimeMs);
+                }
+
+
+                if(jsonData.Params != undefined)
+                {
+                    var jsonArray = jsonData.Params.map((value, idx, arr)=>{
+                    var parser = this.getParser("VariantParam");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.Params = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private OperationTypeParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.OperationType()
                  return newInfo;
             }
 
@@ -2061,6 +2428,36 @@ export namespace crystal_net_service_parser
                     newInfo.KeyExpireTime = parseFloat(jsonData.KeyExpireTime);
                 }
 
+                 return newInfo;
+            }
+
+
+            private VariantParamParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.VariantParam()
+
+                if(jsonData.ParamType != undefined)
+                {
+                    newInfo.ParamType = parseFloat(jsonData.ParamType);
+                }
+
+
+                if(jsonData.Number != undefined)
+                {
+                    newInfo.Number = parseFloat(jsonData.Number);
+                }
+
+
+                if(jsonData.Str != undefined)
+                {
+                    newInfo.Str = jsonData.Str;
+                }
+
+                 return newInfo;
+            }
+
+
+            private VariantParamTypeParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.VariantParamType()
                  return newInfo;
             }
 

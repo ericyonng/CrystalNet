@@ -46,6 +46,8 @@ public:
 
         CREATE_LIBRARY_NEED_INVITE_CODE,    // id
 
+        MAX_IMAGE_SIZE,    // id
+
         __ENUM_MAX,
 
     };

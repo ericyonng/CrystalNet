@@ -86,5 +86,7 @@ namespace Status
         AuthNotEnough,                                      // 权限不足
         LoadUserFail,                                       // 加载玩家失败
         LoginStatusError,                                   // 登录状态失败
+        ImageTooLarge,                                      // 图片过大
+        RepeateBook,                                        // 图书已存在
     };
 }

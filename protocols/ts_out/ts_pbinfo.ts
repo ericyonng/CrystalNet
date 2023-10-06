@@ -639,6 +639,123 @@ export namespace ts_pbinfo{
     }
 
 
+    // library.proto 
+    export class AddLibraryBookReq {
+      getOpcode():number {return AddLibraryBookReq.OPCODE; }
+      getIsXorEncrypt():boolean {return AddLibraryBookReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return AddLibraryBookReq.KeyBase64; }
+      getOpcodeName():string {return AddLibraryBookReq.OPCODE_NAME; }
+      static OPCODE:number = 64;
+      static OPCODE_NAME:string = "AddLibraryBookReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class AddLibraryBookRes {
+      getOpcode():number {return AddLibraryBookRes.OPCODE; }
+      getIsXorEncrypt():boolean {return AddLibraryBookRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return AddLibraryBookRes.KeyBase64; }
+      getOpcodeName():string {return AddLibraryBookRes.OPCODE_NAME; }
+      static OPCODE:number = 65;
+      static OPCODE_NAME:string = "AddLibraryBookRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class AddLibraryBookCountReq {
+      getOpcode():number {return AddLibraryBookCountReq.OPCODE; }
+      getIsXorEncrypt():boolean {return AddLibraryBookCountReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return AddLibraryBookCountReq.KeyBase64; }
+      getOpcodeName():string {return AddLibraryBookCountReq.OPCODE_NAME; }
+      static OPCODE:number = 66;
+      static OPCODE_NAME:string = "AddLibraryBookCountReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class AddLibraryBookCountRes {
+      getOpcode():number {return AddLibraryBookCountRes.OPCODE; }
+      getIsXorEncrypt():boolean {return AddLibraryBookCountRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return AddLibraryBookCountRes.KeyBase64; }
+      getOpcodeName():string {return AddLibraryBookCountRes.OPCODE_NAME; }
+      static OPCODE:number = 67;
+      static OPCODE_NAME:string = "AddLibraryBookCountRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetBookListReq {
+      getOpcode():number {return GetBookListReq.OPCODE; }
+      getIsXorEncrypt():boolean {return GetBookListReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetBookListReq.KeyBase64; }
+      getOpcodeName():string {return GetBookListReq.OPCODE_NAME; }
+      static OPCODE:number = 68;
+      static OPCODE_NAME:string = "GetBookListReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class BookListNty {
+      getOpcode():number {return BookListNty.OPCODE; }
+      getIsXorEncrypt():boolean {return BookListNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return BookListNty.KeyBase64; }
+      getOpcodeName():string {return BookListNty.OPCODE_NAME; }
+      static OPCODE:number = 69;
+      static OPCODE_NAME:string = "BookListNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class BooksChangeNty {
+      getOpcode():number {return BooksChangeNty.OPCODE; }
+      getIsXorEncrypt():boolean {return BooksChangeNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return BooksChangeNty.KeyBase64; }
+      getOpcodeName():string {return BooksChangeNty.OPCODE_NAME; }
+      static OPCODE:number = 70;
+      static OPCODE_NAME:string = "BooksChangeNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetBookListRes {
+      getOpcode():number {return GetBookListRes.OPCODE; }
+      getIsXorEncrypt():boolean {return GetBookListRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetBookListRes.KeyBase64; }
+      getOpcodeName():string {return GetBookListRes.OPCODE_NAME; }
+      static OPCODE:number = 72;
+      static OPCODE_NAME:string = "GetBookListRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class BookVariantInfoItemsNty {
+      getOpcode():number {return BookVariantInfoItemsNty.OPCODE; }
+      getIsXorEncrypt():boolean {return BookVariantInfoItemsNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return BookVariantInfoItemsNty.KeyBase64; }
+      getOpcodeName():string {return BookVariantInfoItemsNty.OPCODE_NAME; }
+      static OPCODE:number = 73;
+      static OPCODE_NAME:string = "BookVariantInfoItemsNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -733,7 +850,25 @@ export namespace ts_pbinfo{
 
           [GetLibraryMemberSimpleInfoReq.OPCODE]: new GetLibraryMemberSimpleInfoReq(),
 
-          [GetLibraryMemberSimpleInfoRes.OPCODE]: new GetLibraryMemberSimpleInfoRes()
+          [GetLibraryMemberSimpleInfoRes.OPCODE]: new GetLibraryMemberSimpleInfoRes(),
+
+          [AddLibraryBookReq.OPCODE]: new AddLibraryBookReq(),
+
+          [AddLibraryBookRes.OPCODE]: new AddLibraryBookRes(),
+
+          [AddLibraryBookCountReq.OPCODE]: new AddLibraryBookCountReq(),
+
+          [AddLibraryBookCountRes.OPCODE]: new AddLibraryBookCountRes(),
+
+          [GetBookListReq.OPCODE]: new GetBookListReq(),
+
+          [BookListNty.OPCODE]: new BookListNty(),
+
+          [BooksChangeNty.OPCODE]: new BooksChangeNty(),
+
+          [GetBookListRes.OPCODE]: new GetBookListRes(),
+
+          [BookVariantInfoItemsNty.OPCODE]: new BookVariantInfoItemsNty()
 
 
       }

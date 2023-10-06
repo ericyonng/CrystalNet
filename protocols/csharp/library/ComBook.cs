@@ -27,17 +27,22 @@ using ProtoPackage.Attributes;
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Cg5jb21fYm9vay5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSIgCghCb29r",
-            "VHlwZSIUCgVFTlVNUxILCgdVTktOT1dOEAAiygEKCEJvb2tJbmZvEgoKAklk",
+            "VHlwZSIUCgVFTlVNUxILCgdVTktOT1dOEAAiywEKCEJvb2tJbmZvEgoKAklk",
             "GAEgASgEEhAKCEJvb2tUeXBlGAIgASgREhAKCEJvb2tOYW1lGAMgASgJEhAK",
-            "CElzYm5Db2RlGAQgASgJEhYKDkJvb2tDb3ZlckltYWdlGAUgASgMEhoKEkJv",
-            "b2tDb3ZlckltYWdlVHlwZRgGIAEoCRINCgVQcmljZRgHIAEoBBITCgtJc09u",
-            "U2hlbHZlcxgIIAEoERINCgVDb3VudBgJIAEoBBIVCg1Cb3Jyb3dlZENvdW50",
-            "GAogASgEYgZwcm90bzM="));
+            "CElzYm5Db2RlGAQgASgJEhYKDkJvb2tDb3ZlckltYWdlGAUgASgJEhMKC0lz",
+            "T25TaGVsdmVzGAYgASgREjkKC1ZhcmlhbnRJbmZvGAcgASgLMiQuQ1JZU1RB",
+            "TF9ORVQuc2VydmljZS5Cb29rVmFyaWFudEluZm8SFQoNQm9ycm93ZWRDb3Vu",
+            "dBgIIAEoBCIvCg9Cb29rVmFyaWFudEluZm8SDQoFQ291bnQYASABKBISDQoF",
+            "UHJpY2UYAiABKBIiYAoTQm9va1ZhcmlhbnRJbmZvSXRlbRIKCgJJZBgBIAEo",
+            "BBI9Cg9Cb29rVmFyaWFudEluZm8YAiABKAsyJC5DUllTVEFMX05FVC5zZXJ2",
+            "aWNlLkJvb2tWYXJpYW50SW5mb2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookType), global::CRYSTALNET.Service.BookType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.BookType.Types.ENUMS) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookInfo), global::CRYSTALNET.Service.BookInfo.Parser, new[]{ "Id", "BookType", "BookName", "IsbnCode", "BookCoverImage", "BookCoverImageType", "Price", "IsOnShelves", "Count", "BorrowedCount" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookInfo), global::CRYSTALNET.Service.BookInfo.Parser, new[]{ "Id", "BookType", "BookName", "IsbnCode", "BookCoverImage", "IsOnShelves", "VariantInfo", "BorrowedCount" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookVariantInfo), global::CRYSTALNET.Service.BookVariantInfo.Parser, new[]{ "Count", "Price" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookVariantInfoItem), global::CRYSTALNET.Service.BookVariantInfoItem.Parser, new[]{ "Id", "BookVariantInfo" }, null, null, null, null)
           }));
     }
     #endregion
@@ -253,10 +258,8 @@ using ProtoPackage.Attributes;
       bookName_ = other.bookName_;
       isbnCode_ = other.isbnCode_;
       bookCoverImage_ = other.bookCoverImage_;
-      bookCoverImageType_ = other.bookCoverImageType_;
-      price_ = other.price_;
       isOnShelves_ = other.isOnShelves_;
-      count_ = other.count_;
+      variantInfo_ = other.variantInfo_ != null ? other.variantInfo_.Clone() : null;
       borrowedCount_ = other.borrowedCount_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -329,51 +332,21 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "BookCoverImage" field.</summary>
     public const int BookCoverImageFieldNumber = 5;
-    private pb::ByteString bookCoverImage_ = pb::ByteString.Empty;
+    private string bookCoverImage_ = "";
     /// <summary>
     /// 封面
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pb::ByteString BookCoverImage {
+    public string BookCoverImage {
       get { return bookCoverImage_; }
       set {
         bookCoverImage_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
-    /// <summary>Field number for the "BookCoverImageType" field.</summary>
-    public const int BookCoverImageTypeFieldNumber = 6;
-    private string bookCoverImageType_ = "";
-    /// <summary>
-    /// 封面图片类型
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string BookCoverImageType {
-      get { return bookCoverImageType_; }
-      set {
-        bookCoverImageType_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "Price" field.</summary>
-    public const int PriceFieldNumber = 7;
-    private ulong price_;
-    /// <summary>
-    /// 价格(单位分)
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong Price {
-      get { return price_; }
-      set {
-        price_ = value;
-      }
-    }
-
     /// <summary>Field number for the "IsOnShelves" field.</summary>
-    public const int IsOnShelvesFieldNumber = 8;
+    public const int IsOnShelvesFieldNumber = 6;
     private int isOnShelves_;
     /// <summary>
     /// 是否上架
@@ -387,23 +360,23 @@ using ProtoPackage.Attributes;
       }
     }
 
-    /// <summary>Field number for the "Count" field.</summary>
-    public const int CountFieldNumber = 9;
-    private ulong count_;
+    /// <summary>Field number for the "VariantInfo" field.</summary>
+    public const int VariantInfoFieldNumber = 7;
+    private global::CRYSTALNET.Service.BookVariantInfo variantInfo_;
     /// <summary>
-    /// 库存
+    /// 可变数据
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong Count {
-      get { return count_; }
+    public global::CRYSTALNET.Service.BookVariantInfo VariantInfo {
+      get { return variantInfo_; }
       set {
-        count_ = value;
+        variantInfo_ = value;
       }
     }
 
     /// <summary>Field number for the "BorrowedCount" field.</summary>
-    public const int BorrowedCountFieldNumber = 10;
+    public const int BorrowedCountFieldNumber = 8;
     private ulong borrowedCount_;
     /// <summary>
     /// 被借数量
@@ -437,10 +410,8 @@ using ProtoPackage.Attributes;
       if (BookName != other.BookName) return false;
       if (IsbnCode != other.IsbnCode) return false;
       if (BookCoverImage != other.BookCoverImage) return false;
-      if (BookCoverImageType != other.BookCoverImageType) return false;
-      if (Price != other.Price) return false;
       if (IsOnShelves != other.IsOnShelves) return false;
-      if (Count != other.Count) return false;
+      if (!object.Equals(VariantInfo, other.VariantInfo)) return false;
       if (BorrowedCount != other.BorrowedCount) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -454,10 +425,8 @@ using ProtoPackage.Attributes;
       if (BookName.Length != 0) hash ^= BookName.GetHashCode();
       if (IsbnCode.Length != 0) hash ^= IsbnCode.GetHashCode();
       if (BookCoverImage.Length != 0) hash ^= BookCoverImage.GetHashCode();
-      if (BookCoverImageType.Length != 0) hash ^= BookCoverImageType.GetHashCode();
-      if (Price != 0UL) hash ^= Price.GetHashCode();
       if (IsOnShelves != 0) hash ^= IsOnShelves.GetHashCode();
-      if (Count != 0UL) hash ^= Count.GetHashCode();
+      if (variantInfo_ != null) hash ^= VariantInfo.GetHashCode();
       if (BorrowedCount != 0UL) hash ^= BorrowedCount.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -495,26 +464,18 @@ using ProtoPackage.Attributes;
       }
       if (BookCoverImage.Length != 0) {
         output.WriteRawTag(42);
-        output.WriteBytes(BookCoverImage);
-      }
-      if (BookCoverImageType.Length != 0) {
-        output.WriteRawTag(50);
-        output.WriteString(BookCoverImageType);
-      }
-      if (Price != 0UL) {
-        output.WriteRawTag(56);
-        output.WriteUInt64(Price);
+        output.WriteString(BookCoverImage);
       }
       if (IsOnShelves != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(48);
         output.WriteSInt32(IsOnShelves);
       }
-      if (Count != 0UL) {
-        output.WriteRawTag(72);
-        output.WriteUInt64(Count);
+      if (variantInfo_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(VariantInfo);
       }
       if (BorrowedCount != 0UL) {
-        output.WriteRawTag(80);
+        output.WriteRawTag(64);
         output.WriteUInt64(BorrowedCount);
       }
       if (_unknownFields != null) {
@@ -545,26 +506,18 @@ using ProtoPackage.Attributes;
       }
       if (BookCoverImage.Length != 0) {
         output.WriteRawTag(42);
-        output.WriteBytes(BookCoverImage);
-      }
-      if (BookCoverImageType.Length != 0) {
-        output.WriteRawTag(50);
-        output.WriteString(BookCoverImageType);
-      }
-      if (Price != 0UL) {
-        output.WriteRawTag(56);
-        output.WriteUInt64(Price);
+        output.WriteString(BookCoverImage);
       }
       if (IsOnShelves != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(48);
         output.WriteSInt32(IsOnShelves);
       }
-      if (Count != 0UL) {
-        output.WriteRawTag(72);
-        output.WriteUInt64(Count);
+      if (variantInfo_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(VariantInfo);
       }
       if (BorrowedCount != 0UL) {
-        output.WriteRawTag(80);
+        output.WriteRawTag(64);
         output.WriteUInt64(BorrowedCount);
       }
       if (_unknownFields != null) {
@@ -590,19 +543,13 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeStringSize(IsbnCode);
       }
       if (BookCoverImage.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeBytesSize(BookCoverImage);
-      }
-      if (BookCoverImageType.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(BookCoverImageType);
-      }
-      if (Price != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Price);
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(BookCoverImage);
       }
       if (IsOnShelves != 0) {
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(IsOnShelves);
       }
-      if (Count != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Count);
+      if (variantInfo_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(VariantInfo);
       }
       if (BorrowedCount != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BorrowedCount);
@@ -634,17 +581,14 @@ using ProtoPackage.Attributes;
       if (other.BookCoverImage.Length != 0) {
         BookCoverImage = other.BookCoverImage;
       }
-      if (other.BookCoverImageType.Length != 0) {
-        BookCoverImageType = other.BookCoverImageType;
-      }
-      if (other.Price != 0UL) {
-        Price = other.Price;
-      }
       if (other.IsOnShelves != 0) {
         IsOnShelves = other.IsOnShelves;
       }
-      if (other.Count != 0UL) {
-        Count = other.Count;
+      if (other.variantInfo_ != null) {
+        if (variantInfo_ == null) {
+          VariantInfo = new global::CRYSTALNET.Service.BookVariantInfo();
+        }
+        VariantInfo.MergeFrom(other.VariantInfo);
       }
       if (other.BorrowedCount != 0UL) {
         BorrowedCount = other.BorrowedCount;
@@ -681,26 +625,21 @@ using ProtoPackage.Attributes;
             break;
           }
           case 42: {
-            BookCoverImage = input.ReadBytes();
+            BookCoverImage = input.ReadString();
             break;
           }
-          case 50: {
-            BookCoverImageType = input.ReadString();
-            break;
-          }
-          case 56: {
-            Price = input.ReadUInt64();
-            break;
-          }
-          case 64: {
+          case 48: {
             IsOnShelves = input.ReadSInt32();
             break;
           }
-          case 72: {
-            Count = input.ReadUInt64();
+          case 58: {
+            if (variantInfo_ == null) {
+              VariantInfo = new global::CRYSTALNET.Service.BookVariantInfo();
+            }
+            input.ReadMessage(VariantInfo);
             break;
           }
-          case 80: {
+          case 64: {
             BorrowedCount = input.ReadUInt64();
             break;
           }
@@ -736,27 +675,498 @@ using ProtoPackage.Attributes;
             break;
           }
           case 42: {
-            BookCoverImage = input.ReadBytes();
+            BookCoverImage = input.ReadString();
             break;
           }
-          case 50: {
-            BookCoverImageType = input.ReadString();
-            break;
-          }
-          case 56: {
-            Price = input.ReadUInt64();
-            break;
-          }
-          case 64: {
+          case 48: {
             IsOnShelves = input.ReadSInt32();
             break;
           }
-          case 72: {
-            Count = input.ReadUInt64();
+          case 58: {
+            if (variantInfo_ == null) {
+              VariantInfo = new global::CRYSTALNET.Service.BookVariantInfo();
+            }
+            input.ReadMessage(VariantInfo);
             break;
           }
-          case 80: {
+          case 64: {
             BorrowedCount = input.ReadUInt64();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 图书可变数据
+  /// </summary>
+  public sealed partial class BookVariantInfo : pb::IMessage<BookVariantInfo>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BookVariantInfo> _parser = new pb::MessageParser<BookVariantInfo>(() => new BookVariantInfo());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BookVariantInfo> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComBookReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BookVariantInfo() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BookVariantInfo(BookVariantInfo other) : this() {
+      count_ = other.count_;
+      price_ = other.price_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BookVariantInfo Clone() {
+      return new BookVariantInfo(this);
+    }
+
+    /// <summary>Field number for the "Count" field.</summary>
+    public const int CountFieldNumber = 1;
+    private long count_;
+    /// <summary>
+    /// 库存数量
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Count {
+      get { return count_; }
+      set {
+        count_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "Price" field.</summary>
+    public const int PriceFieldNumber = 2;
+    private long price_;
+    /// <summary>
+    /// 价格(单位分)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Price {
+      get { return price_; }
+      set {
+        price_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BookVariantInfo);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BookVariantInfo other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Count != other.Count) return false;
+      if (Price != other.Price) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Count != 0L) hash ^= Count.GetHashCode();
+      if (Price != 0L) hash ^= Price.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Count != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(Count);
+      }
+      if (Price != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(Price);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Count != 0L) {
+        output.WriteRawTag(8);
+        output.WriteSInt64(Count);
+      }
+      if (Price != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(Price);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Count != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Count);
+      }
+      if (Price != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Price);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BookVariantInfo other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Count != 0L) {
+        Count = other.Count;
+      }
+      if (other.Price != 0L) {
+        Price = other.Price;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Count = input.ReadSInt64();
+            break;
+          }
+          case 16: {
+            Price = input.ReadSInt64();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Count = input.ReadSInt64();
+            break;
+          }
+          case 16: {
+            Price = input.ReadSInt64();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 图书可变数据
+  /// </summary>
+  public sealed partial class BookVariantInfoItem : pb::IMessage<BookVariantInfoItem>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BookVariantInfoItem> _parser = new pb::MessageParser<BookVariantInfoItem>(() => new BookVariantInfoItem());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BookVariantInfoItem> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComBookReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BookVariantInfoItem() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BookVariantInfoItem(BookVariantInfoItem other) : this() {
+      id_ = other.id_;
+      bookVariantInfo_ = other.bookVariantInfo_ != null ? other.bookVariantInfo_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BookVariantInfoItem Clone() {
+      return new BookVariantInfoItem(this);
+    }
+
+    /// <summary>Field number for the "Id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private ulong id_;
+    /// <summary>
+    /// 图书id
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong Id {
+      get { return id_; }
+      set {
+        id_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "BookVariantInfo" field.</summary>
+    public const int BookVariantInfoFieldNumber = 2;
+    private global::CRYSTALNET.Service.BookVariantInfo bookVariantInfo_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::CRYSTALNET.Service.BookVariantInfo BookVariantInfo {
+      get { return bookVariantInfo_; }
+      set {
+        bookVariantInfo_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BookVariantInfoItem);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BookVariantInfoItem other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Id != other.Id) return false;
+      if (!object.Equals(BookVariantInfo, other.BookVariantInfo)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Id != 0UL) hash ^= Id.GetHashCode();
+      if (bookVariantInfo_ != null) hash ^= BookVariantInfo.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Id != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(Id);
+      }
+      if (bookVariantInfo_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(BookVariantInfo);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Id != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(Id);
+      }
+      if (bookVariantInfo_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(BookVariantInfo);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Id != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Id);
+      }
+      if (bookVariantInfo_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(BookVariantInfo);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BookVariantInfoItem other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Id != 0UL) {
+        Id = other.Id;
+      }
+      if (other.bookVariantInfo_ != null) {
+        if (bookVariantInfo_ == null) {
+          BookVariantInfo = new global::CRYSTALNET.Service.BookVariantInfo();
+        }
+        BookVariantInfo.MergeFrom(other.BookVariantInfo);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Id = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            if (bookVariantInfo_ == null) {
+              BookVariantInfo = new global::CRYSTALNET.Service.BookVariantInfo();
+            }
+            input.ReadMessage(BookVariantInfo);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Id = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            if (bookVariantInfo_ == null) {
+              BookVariantInfo = new global::CRYSTALNET.Service.BookVariantInfo();
+            }
+            input.ReadMessage(BookVariantInfo);
             break;
           }
         }

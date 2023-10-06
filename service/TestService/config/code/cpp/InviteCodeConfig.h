@@ -1,4 +1,4 @@
-// Generate by ConfigExporter_debug, Dont modify it!!!
+// Generate by ConfigExporter, Dont modify it!!!
 // file path:../../service/TestService/config/xlsx/������.xlsx
 // sheet name:邀请码|InviteCode
 
@@ -27,7 +27,8 @@ public:
 public:
     Int32 _id;    // id
 
-    KERNEL_NS::LibString _inviteCode;    // 邀请码(不超�?4个英文字�?,且邀请码不重�?
+    KERNEL_NS::LibString _inviteCode;    // 邀请码(不超过64个英文字符),且邀请码不重复
+
 
 };
 

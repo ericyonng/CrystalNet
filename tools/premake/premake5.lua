@@ -586,6 +586,7 @@ project "client"
 		"../../client/",
 		"../../client/client_pch/",
 		"../../service/Client/",
+		"../../protocols/cplusplus/",
     }
 	
 	-- 设置通用选项
@@ -864,6 +865,7 @@ project "ConfigExporter"
 		"../../kernel/include/",
 		"../../ConfigExporter/",
 		"../../ConfigExporter/ConfigExporter_pch/",
+		"../../protocols/cplusplus/",
     }
 	
 	-- 设置通用选项
@@ -946,7 +948,7 @@ project "md5tool"
     }
 
     -- 导入内核接口
-    defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+    defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "DISABLE_OPCODES" }
 
     enable_precompileheader("pch.h", ROOT_DIR .. "md5tool/md5tool_pch/pch.cpp")
 
@@ -962,11 +964,6 @@ project "md5tool"
 
     -- files
     files {
-        "../../protocols/**.h",
-        "../../protocols/**.cc",
-        "../../protocols/**.cpp",
-        "../../service/common/**.h",
-        "../../service/common/**.cpp",
         "../../service_common/**.h",
         "../../service_common/**.cpp",
         "../../md5tool/**.h",
@@ -1137,6 +1134,7 @@ project "Gateway"
 		"../../Gateway/Gateway_pch/",
         "../../service/GateService/config/code/",
 		"../../service/GateService/",
+		"../../protocols/cplusplus/",
     }
 
 	-- 设置通用选项
@@ -1234,6 +1232,7 @@ project "CenterServer"
 		"../../CenterServer/CenterServer_pch/",
         "../../service/CenterService/config/code/",
 		"../../service/CenterService/",
+		"../../protocols/cplusplus/",
     }
 
 	-- 设置通用选项

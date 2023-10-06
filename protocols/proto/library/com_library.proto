@@ -1,6 +1,9 @@
 syntax = "proto3";
 package CRYSTAL_NET.service;
 
+import "com_book.proto";
+
+
 // 按照权限大小排
 message RoleType
 {
@@ -24,6 +27,7 @@ message LibararyManagerInfo
     uint64 UserId = 1;
 }
 
+// 当 ReturnBackCount == BorrowCount时表示还完
 message BorrowBookInfo 
 {
     // book id
@@ -38,6 +42,10 @@ message BorrowBookInfo
     uint64 PlanGiveBackTime = 5;
     // 实际归还时间
     uint64 RealGiveBackTime = 6;
+    // 已还数量
+    uint64 ReturnBackCount = 7;
+    // 子单号(当前借的书的单号)
+    uint64 SubOrderId = 8;
 }
 
 // 借还订单信息
@@ -71,6 +79,53 @@ message MemberInfo
     }
 }
 
+message VariantParamType
+{
+    enum ENUMS
+    {
+        // 未知
+        UNKNOWN = 0;
+        // 数值
+        NUM = 1;
+        // 字符串
+        STRING = 2;
+    }
+}
+
+// 可变参数
+message VariantParam
+{
+    // 参数类型 VariantParamType
+    sint32 ParamType = 1;
+    // 参数值
+    oneof ParamValue
+    {
+        sint64 Number = 2;
+        string Str = 3;
+    }
+}
+
+message OperationType
+{
+    enum ENUMS
+    {
+        // 未知
+        UNKNOWN = 0;
+        
+    }
+}
+
+// 操作日志
+message OperationLogInfo
+{
+    sint32 OpType = 1;
+    uint64 OpUserId = 2;
+    string OpNickname = 3;
+    sint32 Role = 4;
+    sint64 OpTimeMs = 5;
+    repeated VariantParam Params = 6;
+}
+
 message LibraryInfo 
 {
     // 唯一id
@@ -91,6 +146,10 @@ message LibraryInfo
     repeated LibararyManagerInfo ManagerInfoList = 8;
     // 会员列表
     repeated MemberInfo MemberList = 9;
+    // 书不直接推送详情下去 TODO:
+    repeated BookInfo BookList = 10;
+    // 只保留一年的操作日志
+    repeated OperationLogInfo LogInfoList = 11;
 }
 
 // 玩家的图书馆数据

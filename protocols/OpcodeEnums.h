@@ -77,5 +77,14 @@ public:
     static constexpr Int32 OPCODE_LoginFinishRes = 61;    // login.proto
     static constexpr Int32 OPCODE_GetLibraryMemberSimpleInfoReq = 62;    // library.proto
     static constexpr Int32 OPCODE_GetLibraryMemberSimpleInfoRes = 63;    // library.proto
-    static constexpr Int32 OPCODE_MAX = 63;
+    static constexpr Int32 OPCODE_AddLibraryBookReq = 64;    // library.proto
+    static constexpr Int32 OPCODE_AddLibraryBookRes = 65;    // library.proto
+    static constexpr Int32 OPCODE_AddLibraryBookCountReq = 66;    // library.proto
+    static constexpr Int32 OPCODE_AddLibraryBookCountRes = 67;    // library.proto
+    static constexpr Int32 OPCODE_GetBookListReq = 68;    // library.proto
+    static constexpr Int32 OPCODE_BookListNty = 69;    // library.proto
+    static constexpr Int32 OPCODE_BooksChangeNty = 70;    // library.proto
+    static constexpr Int32 OPCODE_GetBookListRes = 72;    // library.proto
+    static constexpr Int32 OPCODE_BookVariantInfoItemsNty = 73;    // library.proto
+    static constexpr Int32 OPCODE_MAX = 73;
 };

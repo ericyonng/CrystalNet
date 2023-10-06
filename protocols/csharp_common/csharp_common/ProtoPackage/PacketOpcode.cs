@@ -52,6 +52,15 @@ public static class PacketOpcode
         LoginFinishRes = 61,    // login.proto
         GetLibraryMemberSimpleInfoReq = 62,    // library.proto
         GetLibraryMemberSimpleInfoRes = 63,    // library.proto
-        OpcodeMax = 63,
+        AddLibraryBookReq = 64,    // library.proto
+        AddLibraryBookRes = 65,    // library.proto
+        AddLibraryBookCountReq = 66,    // library.proto
+        AddLibraryBookCountRes = 67,    // library.proto
+        GetBookListReq = 68,    // library.proto
+        BookListNty = 69,    // library.proto
+        BooksChangeNty = 70,    // library.proto
+        GetBookListRes = 72,    // library.proto
+        BookVariantInfoItemsNty = 73,    // library.proto
+        OpcodeMax = 73,
     }
 }

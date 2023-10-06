@@ -2,6 +2,7 @@ syntax = "proto3";
 package CRYSTAL_NET.service;
 
 import "com_library.proto";
+import "com_book.proto";
 import "com_user.proto";
 
 /// Opcode:
@@ -149,6 +150,81 @@ message GetLibraryMemberSimpleInfoRes
     sint32 ErrCode = 1;
     repeated SimpleUserInfo SimpleUserInfoList = 2;
 }
+
+// 录书
+/// Opcode:
+message AddLibraryBookReq
+{
+    // 书名
+    string BookName = 1;
+    // isbn
+    string IsbnCode = 2;
+    // 封面: 阶段(13140)一个
+    repeated string BookCoverImage = 3;
+    // 价格(单位分)
+    sint64 Price = 4;
+}
+
+// 录书结果
+/// Opcode:
+message AddLibraryBookRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 书籍数量
+/// Opcode:
+message AddLibraryBookCountReq
+{
+    // 图书的id
+    uint64 BookId = 1;
+    // 修改数量
+    sint64 ModifyCount = 2;
+}
+
+// 书籍数量
+/// Opcode:
+message AddLibraryBookCountRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 获取图书列表
+/// Opcode:
+message GetBookListReq
+{
+    
+}
+
+// 图书列表数据
+/// Opcode:
+message BookListNty
+{
+    repeated BookInfo BookInfoList = 1;
+}
+
+// 图书数据变更
+/// Opcode:
+message BooksChangeNty
+{
+    repeated BookInfo BookInfoList = 1;
+}
+
+// 图书数量变更
+/// Opcode:
+message BookVariantInfoItemsNty
+{
+    repeated BookVariantInfoItem BookVariantInfoItemList = 1;
+}
+
+// 图书数据请求
+/// Opcode:
+message GetBookListRes
+{
+    sint32 ErrCode = 1;
+}
+
+
 
 // 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管
 

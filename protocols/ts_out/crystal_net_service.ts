@@ -143,6 +143,12 @@ export namespace crystal_net_service
 
     }
     // com_library.proto
+    export enum OperationType_ENUMS {
+        // 未知
+        UNKNOWN = 0,
+
+    }
+    // com_library.proto
     export enum RoleType_ENUMS {
         // 无权限
         NoAuth = 0,
@@ -152,6 +158,62 @@ export namespace crystal_net_service
         Manager = 2,
         // 馆长
         Librarian = 3,
+
+    }
+    // com_library.proto
+    export enum VariantParamType_ENUMS {
+        // 未知
+        UNKNOWN = 0,
+        // 数值
+        NUM = 1,
+        // 字符串
+        STRING = 2,
+
+    }
+    // 书籍数量
+    /// Opcode:
+    // library.proto
+    export class AddLibraryBookCountReq {
+        // 图书的id
+        BookId:number = 0;
+
+        // 修改数量
+        ModifyCount:number = 0;
+
+
+    }
+    // 书籍数量
+    /// Opcode:
+    // library.proto
+    export class AddLibraryBookCountRes {
+        ErrCode:number = 0;
+
+
+    }
+    // 录书
+    /// Opcode:
+    // library.proto
+    export class AddLibraryBookReq {
+        // 书名
+        BookName:string = "";
+
+        // isbn
+        IsbnCode:string = "";
+
+        // 封面: 阶段(13140)一个
+        BookCoverImage:string[] = [];
+
+        // 价格(单位分)
+        Price:number = 0;
+
+
+    }
+    // 录书结果
+    /// Opcode:
+    // library.proto
+    export class AddLibraryBookRes {
+        ErrCode:number = 0;
+
 
     }
     // 书籍信息, 数据存储:id, isbn(unique), bookInfo json
@@ -172,20 +234,22 @@ export namespace crystal_net_service
         // 封面
         BookCoverImage:string = "";
 
-        // 封面图片类型
-        BookCoverImageType:string = "";
-
-        // 价格(单位分)
-        Price:number = 0;
-
         // 是否上架
         IsOnShelves:number = 0;
 
-        // 库存
-        Count:number = 0;
+        // 可变数据
+        VariantInfo:BookVariantInfo = new BookVariantInfo();
 
         // 被借数量
         BorrowedCount:number = 0;
+
+
+    }
+    // 图书列表数据
+    /// Opcode:
+    // library.proto
+    export class BookListNty {
+        BookInfoList:BookInfo[] = [];
 
 
     }
@@ -194,6 +258,44 @@ export namespace crystal_net_service
     export class BookType {
 
     }
+    // 图书可变数据
+    // com_book.proto
+    export class BookVariantInfo {
+        // 库存数量
+        Count:number = 0;
+
+        // 价格(单位分)
+        Price:number = 0;
+
+
+    }
+    // 图书可变数据
+    // com_book.proto
+    export class BookVariantInfoItem {
+        // 图书id
+        Id:number = 0;
+
+        BookVariantInfo:BookVariantInfo = new BookVariantInfo();
+
+
+    }
+    // 图书数量变更
+    /// Opcode:
+    // library.proto
+    export class BookVariantInfoItemsNty {
+        BookVariantInfoItemList:BookVariantInfoItem[] = [];
+
+
+    }
+    // 图书数据变更
+    /// Opcode:
+    // library.proto
+    export class BooksChangeNty {
+        BookInfoList:BookInfo[] = [];
+
+
+    }
+    // 当 ReturnBackCount == BorrowCount时表示还完
     // com_library.proto
     export class BorrowBookInfo {
         // book id
@@ -213,6 +315,12 @@ export namespace crystal_net_service
 
         // 实际归还时间
         RealGiveBackTime:number = 0;
+
+        // 已还数量
+        ReturnBackCount:number = 0;
+
+        // 子单号(当前借的书的单号)
+        SubOrderId:number = 0;
 
 
     }
@@ -312,6 +420,20 @@ export namespace crystal_net_service
     // 属性类型枚举
     // com.proto
     export class CreatureAttrKey {
+
+    }
+    // 获取图书列表
+    /// Opcode:
+    // library.proto
+    export class GetBookListReq {
+
+    }
+    // 图书数据请求
+    /// Opcode:
+    // library.proto
+    export class GetBookListRes {
+        ErrCode:number = 0;
+
 
     }
     /// Opcode:
@@ -426,6 +548,12 @@ export namespace crystal_net_service
 
         // 会员列表
         MemberList:MemberInfo[] = [];
+
+        // 书不直接推送详情下去 TODO:
+        BookList:BookInfo[] = [];
+
+        // 只保留一年的操作日志
+        LogInfoList:OperationLogInfo[] = [];
 
 
     }
@@ -684,6 +812,27 @@ export namespace crystal_net_service
         // 当前服务器对时
         NowTimeNanoseconds:number = 0;
 
+
+    }
+    // 操作日志
+    // com_library.proto
+    export class OperationLogInfo {
+        OpType:number = 0;
+
+        OpUserId:number = 0;
+
+        OpNickname:string = "";
+
+        Role:number = 0;
+
+        OpTimeMs:number = 0;
+
+        Params:VariantParam[] = [];
+
+
+    }
+    // com_library.proto
+    export class OperationType {
 
     }
     // com_passtime.proto
@@ -986,6 +1135,22 @@ export namespace crystal_net_service
         // 密钥过期时间 精确到秒
         KeyExpireTime:number = 0;
 
+
+    }
+    // 可变参数
+    // com_library.proto
+    export class VariantParam {
+        // 参数类型 VariantParamType
+        ParamType:number = 0;
+
+        Number?:number;
+
+        Str?:string;
+
+
+    }
+    // com_library.proto
+    export class VariantParamType {
 
     }
 

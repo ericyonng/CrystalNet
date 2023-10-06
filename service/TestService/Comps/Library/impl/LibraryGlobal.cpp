@@ -181,6 +181,7 @@ Int32 LibraryGlobal::_OnGlobalSysInit()
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_TransferLibraianReq, this, &LibraryGlobal::_OnTransferLibraianReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_ModifyMemberInfoReq, this, &LibraryGlobal::_OnModifyMemberInfoReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetLibraryMemberSimpleInfoReq, this, &LibraryGlobal::_OnGetLibraryMemberSimpleInfoReq);
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_AddLibraryBookReq, this, &LibraryGlobal::_OnAddLibraryBookReq);
     return Status::Success;
 }
 
@@ -935,6 +936,110 @@ void LibraryGlobal::_OnGetLibraryMemberSimpleInfoReq(KERNEL_NS::LibPacket *&pack
         *res.mutable_simpleuserinfolist() = *userInfos.AsSelf();
         user->Send(Opcodes::OpcodeConst::OPCODE_GetLibraryMemberSimpleInfoRes, res, packetId);
     }
+}
+
+void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto contentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
+    auto imageSizeLimitConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_IMAGE_SIZE);
+    const size_t contentMaxLen = static_cast<size_t>(contentConfig->_int64Value);
+    const size_t imageMaxSize = static_cast<size_t>(imageSizeLimitConfig->_int64Value);
+    Int32 err = Status::Success;
+
+
+    do
+    {
+        auto req = packet->GetCoder<AddLibraryBookReq>();
+        KERNEL_NS::LibString bookcoverimage;
+        for(auto &piece : req->bookcoverimage())
+            bookcoverimage.AppendData(piece);    
+
+        if(!KERNEL_NS::StringUtil::IsUtf8String(req->bookname()))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not utf8 user:%s"), user->ToString().c_str());
+            err = Status::ParamError;
+            break;
+        }
+
+        if(req->bookname().size() >= contentMaxLen)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("book name too long:%llu user:%s"), req->bookname().size(), user->ToString().c_str());
+            err = Status::ParamError;
+            break;
+        }
+
+        if(req->isbncode().size() >= contentMaxLen)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("isbn too long:%llu user:%s"), req->isbncode().size(), user->ToString().c_str());
+            err = Status::ParamError;
+            break;
+        }
+
+        if(bookcoverimage.size() >= imageMaxSize)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), req->bookcoverimage().size(), user->ToString().c_str());
+            err = Status::ImageTooLarge;
+            break;
+        }
+
+        if(req->price() <= 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("price error :%lld user:%s"), req->price(), user->ToString().c_str());
+            err = Status::ParamError;
+            break;
+        }
+
+        auto myLibraryMgr = user->GetSys<ILibraryMgr>();
+
+        // 用户有没权限
+        auto memberInfo = GetMemberInfo(myLibraryMgr->GetMyLibraryId(), user->GetUserId());
+        if(!memberInfo || !_IsManager(memberInfo->role()))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("auth not enough role:%d, user:%s"), memberInfo ? memberInfo->role() : -1, user->ToString().c_str());
+            err = Status::AuthNotEnough;
+            break;
+        }
+
+        auto libarayInfo = GetLibraryInfo(myLibraryMgr->GetMyLibraryId());
+        // 是不是已经存在了
+        for(auto &bookInfo : libarayInfo->booklist())
+        {
+            if(bookInfo.isbncode() == req->isbncode())
+            {
+                err = Status::RepeateBook;
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeate book isbn:%s, name:%s, orignal book name:%s, user:%s"), req->isbncode().c_str(), req->bookname().c_str(), bookInfo.bookname().c_str(), user->ToString().c_str());
+                break;
+            }
+        }
+        if(err != Status::Success)
+        {
+            break;
+        }
+        
+        auto newBook = libarayInfo->add_booklist();
+        auto guidMgr = GetGlobalSys<IGlobalUidMgr>();
+        newBook->set_id(guidMgr->NewGuid());
+        newBook->set_bookname(req->bookname());
+        newBook->set_isbncode(req->isbncode());
+        newBook->set_bookcoverimage(bookcoverimage.GetRaw());
+        newBook->mutable_variantinfo()->set_price(req->price());
+
+        MaskNumberKeyModifyDirty(libarayInfo->id());
+        
+    }while(false);
+
+        
+    AddLibraryBookRes res;
+    res.set_errcode(err);
+    user->Send(Opcodes::OpcodeConst::OPCODE_AddLibraryBookRes, res, packet->GetPacketId());
 }
 
 Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req)
