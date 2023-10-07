@@ -163,6 +163,8 @@ message AddLibraryBookReq
     string BookCoverImage = 3;
     // 价格(单位分)
     sint64 Price = 4;
+    // 数量 增量
+    sint64 ModifyCount = 5;
 }
 
 // 录书结果
@@ -224,6 +226,21 @@ message GetBookListRes
     sint32 ErrCode = 1;
 }
 
+// 查图书信息
+/// Opcode:
+message GetBookInfoReq 
+{
+    string IsbnCode = 1;
+}
+
+// 查图书信息
+/// Opcode:
+message GetBookInfoRes
+{
+    sint32 ErrCode = 1;
+    // 图书
+    BookInfo BookInfo = 2;
+}
 
 
 // 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管

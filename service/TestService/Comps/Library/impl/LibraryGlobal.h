@@ -105,9 +105,18 @@ protected:
 
     void _Clear();
 
+    // 图书字典
+    void _MakeBookDict(BookInfo *bookInfo);
+    BookInfo *_GetBookInfo(const KERNEL_NS::LibString &isbnCode);
+    const BookInfo *_GetBookInfo(const KERNEL_NS::LibString &isbnCode) const;
+
     std::map<UInt64, LibraryInfo *> _idRefLibraryInfo;
 
     std::map<UInt64, std::map<UInt64, MemberInfo *>> _libraryIdRefUserRefMember;
+
+    // 图书
+    std::map<KERNEL_NS::LibString, BookInfo *> _isbnRefBookInfo;
+    std::map<UInt64, BookInfo *> _idRefBookInfo;
 };
 
 SERVICE_END

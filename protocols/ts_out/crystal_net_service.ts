@@ -206,6 +206,9 @@ export namespace crystal_net_service
         // 价格(单位分)
         Price:number = 0;
 
+        // 数量 增量
+        ModifyCount:number = 0;
+
 
     }
     // 录书结果
@@ -420,6 +423,25 @@ export namespace crystal_net_service
     // 属性类型枚举
     // com.proto
     export class CreatureAttrKey {
+
+    }
+    // 查图书信息
+    /// Opcode:
+    // library.proto
+    export class GetBookInfoReq {
+        IsbnCode:string = "";
+
+
+    }
+    // 查图书信息
+    /// Opcode:
+    // library.proto
+    export class GetBookInfoRes {
+        ErrCode:number = 0;
+
+        // 图书
+        BookInfo:BookInfo = new BookInfo();
+
 
     }
     // 获取图书列表

@@ -1403,6 +1403,9 @@ void LibraryGlobal::_SendLibraryInfoNty(const IUser *user, const LibraryInfo *li
     *newLibraryInfo = *libraryInfo;
     newLibraryInfo->clear_memberlist();
 
+    // 图书列表单独请求
+    newLibraryInfo->clear_booklist();
+
     // 获取角色
     auto memberInfo = GetMemberInfo(libraryInfo->id(), user->GetUserId());
     if(memberInfo)
@@ -1472,6 +1475,24 @@ void LibraryGlobal::_Clear()
 {
     KERNEL_NS::ContainerUtil::DelContainer2(_idRefLibraryInfo);
     _libraryIdRefUserRefMember.clear();
+}
+
+void LibraryGlobal::_MakeBookDict(BookInfo *bookInfo)
+{
+    _isbnRefBookInfo.insert(std::make_pair(bookInfo->isbncode(), bookInfo));
+    _idRefBookInfo.insert(std::make_pair(bookInfo->id(), bookInfo));
+}
+
+BookInfo *LibraryGlobal::_GetBookInfo(const KERNEL_NS::LibString &isbnCode)
+{
+    auto iter = _isbnRefBookInfo.find(isbnCode);
+    return iter == _isbnRefBookInfo.end() ? NULL : iter->second;
+}
+
+const BookInfo *LibraryGlobal::_GetBookInfo(const KERNEL_NS::LibString &isbnCode) const
+{
+    auto iter = _isbnRefBookInfo.find(isbnCode);
+    return iter == _isbnRefBookInfo.end() ? NULL : iter->second;
 }
 
 SERVICE_END

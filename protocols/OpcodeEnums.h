@@ -86,5 +86,7 @@ public:
     static constexpr Int32 OPCODE_BooksChangeNty = 70;    // library.proto
     static constexpr Int32 OPCODE_GetBookListRes = 72;    // library.proto
     static constexpr Int32 OPCODE_BookVariantInfoItemsNty = 73;    // library.proto
-    static constexpr Int32 OPCODE_MAX = 73;
+    static constexpr Int32 OPCODE_GetBookInfoReq = 74;    // library.proto
+    static constexpr Int32 OPCODE_GetBookInfoRes = 75;    // library.proto
+    static constexpr Int32 OPCODE_MAX = 75;
 };

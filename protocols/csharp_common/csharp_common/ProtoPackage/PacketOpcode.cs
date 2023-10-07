@@ -61,6 +61,8 @@ public static class PacketOpcode
         BooksChangeNty = 70,    // library.proto
         GetBookListRes = 72,    // library.proto
         BookVariantInfoItemsNty = 73,    // library.proto
-        OpcodeMax = 73,
+        GetBookInfoReq = 74,    // library.proto
+        GetBookInfoRes = 75,    // library.proto
+        OpcodeMax = 75,
     }
 }

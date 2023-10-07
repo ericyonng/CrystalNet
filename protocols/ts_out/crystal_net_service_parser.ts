@@ -138,6 +138,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("GetBookInfoReq", (jsonData:any):any =>{
+                return this.GetBookInfoReqParser(jsonData);
+            })
+
+
+            this.add("GetBookInfoRes", (jsonData:any):any =>{
+                return this.GetBookInfoResParser(jsonData);
+            })
+
+
             this.add("GetBookListReq", (jsonData:any):any =>{
                 return this.GetBookListReqParser(jsonData);
             })
@@ -566,6 +576,12 @@ export namespace crystal_net_service_parser
                     newInfo.Price = parseFloat(jsonData.Price);
                 }
 
+
+                if(jsonData.ModifyCount != undefined)
+                {
+                    newInfo.ModifyCount = parseFloat(jsonData.ModifyCount);
+                }
+
                  return newInfo;
             }
 
@@ -982,6 +998,45 @@ export namespace crystal_net_service_parser
 
             private CreatureAttrKeyParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.CreatureAttrKey()
+                 return newInfo;
+            }
+
+
+            private GetBookInfoReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookInfoReq()
+
+                if(jsonData.IsbnCode != undefined)
+                {
+                    newInfo.IsbnCode = jsonData.IsbnCode;
+                }
+
+                 return newInfo;
+            }
+
+
+            private GetBookInfoResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookInfoRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+
+                if(jsonData.BookInfo != undefined)
+                {
+                    var jsonFieldInfo = jsonData.BookInfo;
+                    var cb = this.getParser("BookInfo");
+                    if(cb != undefined)
+                    {
+                        newInfo.BookInfo = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field BookInfo have no BookInfo parser");
+                    }
+                }
+
                  return newInfo;
             }
 

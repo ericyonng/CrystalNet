@@ -589,3 +589,23 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BookVariantInfoItemsNtyFactory::CreateFactory()));
     }
+
+    {// GetBookInfoReq
+        auto info = OpcodeInfo();
+        info._opcode = 74;
+        info._noLog = false;
+        info._opcodeName = "GetBookInfoReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookInfoReqFactory::CreateFactory()));
+    }
+
+    {// GetBookInfoRes
+        auto info = OpcodeInfo();
+        info._opcode = 75;
+        info._noLog = false;
+        info._opcodeName = "GetBookInfoRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookInfoResFactory::CreateFactory()));
+    }
