@@ -557,11 +557,7 @@ export namespace crystal_net_service_parser
 
                 if(jsonData.BookCoverImage != undefined)
                 {
-                    var jsonArray = jsonData.BookCoverImage.map((value, idx, arr)=>{
-                    return value;
-                    });
-
-                    newInfo.BookCoverImage = jsonArray;
+                    newInfo.BookCoverImage = jsonData.BookCoverImage;
                 }
 
 

@@ -505,7 +505,7 @@ inline const IDelegate<void, LogData *> *ILog::InstallBeforeLogHookFunc(Int32 le
 
 ALWAYS_INLINE bool ILog::IsEnable(Int32 level) const
 {
-    if(UNLIKELY(!IsLogOpen()))
+    if(UNLIKELY(!IsLogOpen() || !IsStart()))
         return false;
 
     auto levelCfg = _GetLevelCfg(level);

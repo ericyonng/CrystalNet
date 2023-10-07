@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/GateService/config/xlsx/������.xlsx
+// file path:../../service/GateService/config/xlsx/邀请码.xlsx
 // sheet name:邀请码|InviteCode
 
 #ifndef __CONFIG_INVITECODE_CONFIG_H__
@@ -27,7 +27,8 @@ public:
 public:
     Int32 _id;    // id
 
-    KERNEL_NS::LibString _inviteCode;    // 邀请码(不超�?4个英文字�?,且邀请码不重�?
+    KERNEL_NS::LibString _inviteCode;    // 邀请码(不超过64个英文字符),且邀请码不重复
+
 
 };
 

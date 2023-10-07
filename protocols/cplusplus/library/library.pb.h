@@ -5673,35 +5673,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBookCoverImageFieldNumber = 3,
     kBookNameFieldNumber = 1,
     kIsbnCodeFieldNumber = 2,
+    kBookCoverImageFieldNumber = 3,
     kPriceFieldNumber = 4,
   };
-  // repeated string BookCoverImage = 3;
-  int bookcoverimage_size() const;
-  private:
-  int _internal_bookcoverimage_size() const;
-  public:
-  void clear_bookcoverimage();
-  const std::string& bookcoverimage(int index) const;
-  std::string* mutable_bookcoverimage(int index);
-  void set_bookcoverimage(int index, const std::string& value);
-  void set_bookcoverimage(int index, std::string&& value);
-  void set_bookcoverimage(int index, const char* value);
-  void set_bookcoverimage(int index, const char* value, size_t size);
-  std::string* add_bookcoverimage();
-  void add_bookcoverimage(const std::string& value);
-  void add_bookcoverimage(std::string&& value);
-  void add_bookcoverimage(const char* value);
-  void add_bookcoverimage(const char* value, size_t size);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& bookcoverimage() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_bookcoverimage();
-  private:
-  const std::string& _internal_bookcoverimage(int index) const;
-  std::string* _internal_add_bookcoverimage();
-  public:
-
   // string BookName = 1;
   void clear_bookname();
   const std::string& bookname() const;
@@ -5730,6 +5706,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_isbncode();
   public:
 
+  // string BookCoverImage = 3;
+  void clear_bookcoverimage();
+  const std::string& bookcoverimage() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_bookcoverimage(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_bookcoverimage();
+  PROTOBUF_NODISCARD std::string* release_bookcoverimage();
+  void set_allocated_bookcoverimage(std::string* bookcoverimage);
+  private:
+  const std::string& _internal_bookcoverimage() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_bookcoverimage(const std::string& value);
+  std::string* _internal_mutable_bookcoverimage();
+  public:
+
   // sint64 Price = 4;
   void clear_price();
   int64_t price() const;
@@ -5747,9 +5737,9 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> bookcoverimage_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookname_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr isbncode_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookcoverimage_;
     int64_t price_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -9051,79 +9041,54 @@ inline void AddLibraryBookReq::set_allocated_isbncode(std::string* isbncode) {
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.AddLibraryBookReq.IsbnCode)
 }
 
-// repeated string BookCoverImage = 3;
-inline int AddLibraryBookReq::_internal_bookcoverimage_size() const {
-  return _impl_.bookcoverimage_.size();
-}
-inline int AddLibraryBookReq::bookcoverimage_size() const {
-  return _internal_bookcoverimage_size();
-}
+// string BookCoverImage = 3;
 inline void AddLibraryBookReq::clear_bookcoverimage() {
-  _impl_.bookcoverimage_.Clear();
+  _impl_.bookcoverimage_.ClearToEmpty();
 }
-inline std::string* AddLibraryBookReq::add_bookcoverimage() {
-  std::string* _s = _internal_add_bookcoverimage();
-  // @@protoc_insertion_point(field_add_mutable:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
+inline const std::string& AddLibraryBookReq::bookcoverimage() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
+  return _internal_bookcoverimage();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void AddLibraryBookReq::set_bookcoverimage(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.bookcoverimage_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
+}
+inline std::string* AddLibraryBookReq::mutable_bookcoverimage() {
+  std::string* _s = _internal_mutable_bookcoverimage();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
   return _s;
 }
-inline const std::string& AddLibraryBookReq::_internal_bookcoverimage(int index) const {
-  return _impl_.bookcoverimage_.Get(index);
+inline const std::string& AddLibraryBookReq::_internal_bookcoverimage() const {
+  return _impl_.bookcoverimage_.Get();
 }
-inline const std::string& AddLibraryBookReq::bookcoverimage(int index) const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-  return _internal_bookcoverimage(index);
+inline void AddLibraryBookReq::_internal_set_bookcoverimage(const std::string& value) {
+  
+  _impl_.bookcoverimage_.Set(value, GetArenaForAllocation());
 }
-inline std::string* AddLibraryBookReq::mutable_bookcoverimage(int index) {
-  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-  return _impl_.bookcoverimage_.Mutable(index);
+inline std::string* AddLibraryBookReq::_internal_mutable_bookcoverimage() {
+  
+  return _impl_.bookcoverimage_.Mutable(GetArenaForAllocation());
 }
-inline void AddLibraryBookReq::set_bookcoverimage(int index, const std::string& value) {
-  _impl_.bookcoverimage_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
+inline std::string* AddLibraryBookReq::release_bookcoverimage() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
+  return _impl_.bookcoverimage_.Release();
 }
-inline void AddLibraryBookReq::set_bookcoverimage(int index, std::string&& value) {
-  _impl_.bookcoverimage_.Mutable(index)->assign(std::move(value));
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-}
-inline void AddLibraryBookReq::set_bookcoverimage(int index, const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  _impl_.bookcoverimage_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-}
-inline void AddLibraryBookReq::set_bookcoverimage(int index, const char* value, size_t size) {
-  _impl_.bookcoverimage_.Mutable(index)->assign(
-    reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-}
-inline std::string* AddLibraryBookReq::_internal_add_bookcoverimage() {
-  return _impl_.bookcoverimage_.Add();
-}
-inline void AddLibraryBookReq::add_bookcoverimage(const std::string& value) {
-  _impl_.bookcoverimage_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-}
-inline void AddLibraryBookReq::add_bookcoverimage(std::string&& value) {
-  _impl_.bookcoverimage_.Add(std::move(value));
-  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-}
-inline void AddLibraryBookReq::add_bookcoverimage(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  _impl_.bookcoverimage_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-}
-inline void AddLibraryBookReq::add_bookcoverimage(const char* value, size_t size) {
-  _impl_.bookcoverimage_.Add()->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
-AddLibraryBookReq::bookcoverimage() const {
-  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-  return _impl_.bookcoverimage_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-AddLibraryBookReq::mutable_bookcoverimage() {
-  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-  return &_impl_.bookcoverimage_;
+inline void AddLibraryBookReq::set_allocated_bookcoverimage(std::string* bookcoverimage) {
+  if (bookcoverimage != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.bookcoverimage_.SetAllocated(bookcoverimage, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.bookcoverimage_.IsDefault()) {
+    _impl_.bookcoverimage_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
 }
 
 // sint64 Price = 4;

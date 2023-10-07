@@ -119,6 +119,11 @@ void MemoryAlloctor::Free(MemoryBlock *block)
         return;
     }
 
+    // #if _DEBUG
+    // if(g_Log->IsEnable(LogLevel::Debug))
+    //     g_Log->Debug(LOGFMT_OBJ_TAG("block free:%p, block size:%llu, buffer info:%s alloctor info:%s"), block, _blockSizeAfterAlign, block->_buffer ? block->_buffer->ToString().c_str() : "no buffer", ToString().c_str());
+    // #endif
+
     _DoFreeBlock(block);
 }
 

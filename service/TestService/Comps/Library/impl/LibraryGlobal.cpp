@@ -958,10 +958,6 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
     do
     {
         auto req = packet->GetCoder<AddLibraryBookReq>();
-        KERNEL_NS::LibString bookcoverimage;
-        for(auto &piece : req->bookcoverimage())
-            bookcoverimage.AppendData(piece);    
-
         if(!KERNEL_NS::StringUtil::IsUtf8String(req->bookname()))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("not utf8 user:%s"), user->ToString().c_str());
@@ -983,7 +979,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
             break;
         }
 
-        if(bookcoverimage.size() >= imageMaxSize)
+        if((req->bookcoverimage().size() * 3 / 4) >= imageMaxSize)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), req->bookcoverimage().size(), user->ToString().c_str());
             err = Status::ImageTooLarge;
@@ -1029,7 +1025,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
         newBook->set_id(guidMgr->NewGuid());
         newBook->set_bookname(req->bookname());
         newBook->set_isbncode(req->isbncode());
-        newBook->set_bookcoverimage(bookcoverimage.GetRaw());
+        newBook->set_bookcoverimage(req->bookcoverimage());
         newBook->mutable_variantinfo()->set_price(req->price());
 
         MaskNumberKeyModifyDirty(libarayInfo->id());

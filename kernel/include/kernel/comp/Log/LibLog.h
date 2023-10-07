@@ -52,7 +52,7 @@ public:
     virtual void Close();
     virtual void FlushAll();
     virtual const LibString &GetLogRootPath() const;
-    virtual bool IsStart() const;
+    virtual bool IsStart() const override;
     virtual bool IsLogOpen() const;
     virtual void ForceLogToDiskAll() override;
 

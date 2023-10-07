@@ -287,9 +287,9 @@ struct GetLibraryMemberSimpleInfoResDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetLibraryMemberSimpleInfoResDefaultTypeInternal _GetLibraryMemberSimpleInfoRes_default_instance_;
 PROTOBUF_CONSTEXPR AddLibraryBookReq::AddLibraryBookReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.bookcoverimage_)*/{}
-  , /*decltype(_impl_.bookname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+    /*decltype(_impl_.bookname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.isbncode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.bookcoverimage_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.price_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct AddLibraryBookReqDefaultTypeInternal {
@@ -700,7 +700,7 @@ const char descriptor_table_protodef_library_2eproto[] PROTOBUF_SECTION_VARIABLE
   "e\030\001 \001(\021\022\?\n\022SimpleUserInfoList\030\002 \003(\0132#.CR"
   "YSTAL_NET.service.SimpleUserInfo\"^\n\021AddL"
   "ibraryBookReq\022\020\n\010BookName\030\001 \001(\t\022\020\n\010IsbnC"
-  "ode\030\002 \001(\t\022\026\n\016BookCoverImage\030\003 \003(\t\022\r\n\005Pri"
+  "ode\030\002 \001(\t\022\026\n\016BookCoverImage\030\003 \001(\t\022\r\n\005Pri"
   "ce\030\004 \001(\022\"$\n\021AddLibraryBookRes\022\017\n\007ErrCode"
   "\030\001 \001(\021\"=\n\026AddLibraryBookCountReq\022\016\n\006Book"
   "Id\030\001 \001(\004\022\023\n\013ModifyCount\030\002 \001(\022\")\n\026AddLibr"
@@ -3881,9 +3881,9 @@ AddLibraryBookReq::AddLibraryBookReq(const AddLibraryBookReq& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   AddLibraryBookReq* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.bookcoverimage_){from._impl_.bookcoverimage_}
-    , decltype(_impl_.bookname_){}
+      decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
+    , decltype(_impl_.bookcoverimage_){}
     , decltype(_impl_.price_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
@@ -3904,6 +3904,14 @@ AddLibraryBookReq::AddLibraryBookReq(const AddLibraryBookReq& from)
     _this->_impl_.isbncode_.Set(from._internal_isbncode(), 
       _this->GetArenaForAllocation());
   }
+  _impl_.bookcoverimage_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.bookcoverimage_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_bookcoverimage().empty()) {
+    _this->_impl_.bookcoverimage_.Set(from._internal_bookcoverimage(), 
+      _this->GetArenaForAllocation());
+  }
   _this->_impl_.price_ = from._impl_.price_;
   // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.AddLibraryBookReq)
 }
@@ -3913,9 +3921,9 @@ inline void AddLibraryBookReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.bookcoverimage_){arena}
-    , decltype(_impl_.bookname_){}
+      decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
+    , decltype(_impl_.bookcoverimage_){}
     , decltype(_impl_.price_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -3926,6 +3934,10 @@ inline void AddLibraryBookReq::SharedCtor(
   _impl_.isbncode_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.isbncode_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.bookcoverimage_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.bookcoverimage_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
@@ -3940,9 +3952,9 @@ AddLibraryBookReq::~AddLibraryBookReq() {
 
 inline void AddLibraryBookReq::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.bookcoverimage_.~RepeatedPtrField();
   _impl_.bookname_.Destroy();
   _impl_.isbncode_.Destroy();
+  _impl_.bookcoverimage_.Destroy();
 }
 
 void AddLibraryBookReq::SetCachedSize(int size) const {
@@ -3955,9 +3967,9 @@ void AddLibraryBookReq::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.bookcoverimage_.Clear();
   _impl_.bookname_.ClearToEmpty();
   _impl_.isbncode_.ClearToEmpty();
+  _impl_.bookcoverimage_.ClearToEmpty();
   _impl_.price_ = int64_t{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -3988,18 +4000,13 @@ const char* AddLibraryBookReq::_InternalParse(const char* ptr, ::_pbi::ParseCont
         } else
           goto handle_unusual;
         continue;
-      // repeated string BookCoverImage = 3;
+      // string BookCoverImage = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            auto str = _internal_add_bookcoverimage();
-            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
-            CHK_(ptr);
-            CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage"));
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+          auto str = _internal_mutable_bookcoverimage();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage"));
         } else
           goto handle_unusual;
         continue;
@@ -4060,14 +4067,14 @@ uint8_t* AddLibraryBookReq::_InternalSerialize(
         2, this->_internal_isbncode(), target);
   }
 
-  // repeated string BookCoverImage = 3;
-  for (int i = 0, n = this->_internal_bookcoverimage_size(); i < n; i++) {
-    const auto& s = this->_internal_bookcoverimage(i);
+  // string BookCoverImage = 3;
+  if (!this->_internal_bookcoverimage().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      s.data(), static_cast<int>(s.length()),
+      this->_internal_bookcoverimage().data(), static_cast<int>(this->_internal_bookcoverimage().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage");
-    target = stream->WriteString(3, s, target);
+    target = stream->WriteStringMaybeAliased(
+        3, this->_internal_bookcoverimage(), target);
   }
 
   // sint64 Price = 4;
@@ -4092,14 +4099,6 @@ size_t AddLibraryBookReq::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated string BookCoverImage = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.bookcoverimage_.size());
-  for (int i = 0, n = _impl_.bookcoverimage_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      _impl_.bookcoverimage_.Get(i));
-  }
-
   // string BookName = 1;
   if (!this->_internal_bookname().empty()) {
     total_size += 1 +
@@ -4112,6 +4111,13 @@ size_t AddLibraryBookReq::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_isbncode());
+  }
+
+  // string BookCoverImage = 3;
+  if (!this->_internal_bookcoverimage().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_bookcoverimage());
   }
 
   // sint64 Price = 4;
@@ -4137,12 +4143,14 @@ void AddLibraryBookReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, cons
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  _this->_impl_.bookcoverimage_.MergeFrom(from._impl_.bookcoverimage_);
   if (!from._internal_bookname().empty()) {
     _this->_internal_set_bookname(from._internal_bookname());
   }
   if (!from._internal_isbncode().empty()) {
     _this->_internal_set_isbncode(from._internal_isbncode());
+  }
+  if (!from._internal_bookcoverimage().empty()) {
+    _this->_internal_set_bookcoverimage(from._internal_bookcoverimage());
   }
   if (from._internal_price() != 0) {
     _this->_internal_set_price(from._internal_price());
@@ -4166,7 +4174,6 @@ void AddLibraryBookReq::InternalSwap(AddLibraryBookReq* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  _impl_.bookcoverimage_.InternalSwap(&other->_impl_.bookcoverimage_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.bookname_, lhs_arena,
       &other->_impl_.bookname_, rhs_arena
@@ -4174,6 +4181,10 @@ void AddLibraryBookReq::InternalSwap(AddLibraryBookReq* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.isbncode_, lhs_arena,
       &other->_impl_.isbncode_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.bookcoverimage_, lhs_arena,
+      &other->_impl_.bookcoverimage_, rhs_arena
   );
   swap(_impl_.price_, other->_impl_.price_);
 }

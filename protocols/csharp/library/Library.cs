@@ -52,7 +52,7 @@ using ProtoPackage.Attributes;
             "cnJDb2RlGAEgASgREj8KElNpbXBsZVVzZXJJbmZvTGlzdBgCIAMoCzIjLkNS",
             "WVNUQUxfTkVULnNlcnZpY2UuU2ltcGxlVXNlckluZm8iXgoRQWRkTGlicmFy",
             "eUJvb2tSZXESEAoIQm9va05hbWUYASABKAkSEAoISXNibkNvZGUYAiABKAkS",
-            "FgoOQm9va0NvdmVySW1hZ2UYAyADKAkSDQoFUHJpY2UYBCABKBIiJAoRQWRk",
+            "FgoOQm9va0NvdmVySW1hZ2UYAyABKAkSDQoFUHJpY2UYBCABKBIiJAoRQWRk",
             "TGlicmFyeUJvb2tSZXMSDwoHRXJyQ29kZRgBIAEoESI9ChZBZGRMaWJyYXJ5",
             "Qm9va0NvdW50UmVxEg4KBkJvb2tJZBgBIAEoBBITCgtNb2RpZnlDb3VudBgC",
             "IAEoEiIpChZBZGRMaWJyYXJ5Qm9va0NvdW50UmVzEg8KB0VyckNvZGUYASAB",
@@ -3852,7 +3852,7 @@ using ProtoPackage.Attributes;
     public AddLibraryBookReq(AddLibraryBookReq other) : this() {
       bookName_ = other.bookName_;
       isbnCode_ = other.isbnCode_;
-      bookCoverImage_ = other.bookCoverImage_.Clone();
+      bookCoverImage_ = other.bookCoverImage_;
       price_ = other.price_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -3895,16 +3895,17 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "BookCoverImage" field.</summary>
     public const int BookCoverImageFieldNumber = 3;
-    private static readonly pb::FieldCodec<string> _repeated_bookCoverImage_codec
-        = pb::FieldCodec.ForString(26);
-    private readonly pbc::RepeatedField<string> bookCoverImage_ = new pbc::RepeatedField<string>();
+    private string bookCoverImage_ = "";
     /// <summary>
-    /// 封面: 阶段(13140)一个
+    /// 封面
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<string> BookCoverImage {
+    public string BookCoverImage {
       get { return bookCoverImage_; }
+      set {
+        bookCoverImage_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
     }
 
     /// <summary>Field number for the "Price" field.</summary>
@@ -3939,7 +3940,7 @@ using ProtoPackage.Attributes;
       }
       if (BookName != other.BookName) return false;
       if (IsbnCode != other.IsbnCode) return false;
-      if(!bookCoverImage_.Equals(other.bookCoverImage_)) return false;
+      if (BookCoverImage != other.BookCoverImage) return false;
       if (Price != other.Price) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -3950,7 +3951,7 @@ using ProtoPackage.Attributes;
       int hash = 1;
       if (BookName.Length != 0) hash ^= BookName.GetHashCode();
       if (IsbnCode.Length != 0) hash ^= IsbnCode.GetHashCode();
-      hash ^= bookCoverImage_.GetHashCode();
+      if (BookCoverImage.Length != 0) hash ^= BookCoverImage.GetHashCode();
       if (Price != 0L) hash ^= Price.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -3978,7 +3979,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(18);
         output.WriteString(IsbnCode);
       }
-      bookCoverImage_.WriteTo(output, _repeated_bookCoverImage_codec);
+      if (BookCoverImage.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(BookCoverImage);
+      }
       if (Price != 0L) {
         output.WriteRawTag(32);
         output.WriteSInt64(Price);
@@ -4001,7 +4005,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(18);
         output.WriteString(IsbnCode);
       }
-      bookCoverImage_.WriteTo(ref output, _repeated_bookCoverImage_codec);
+      if (BookCoverImage.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(BookCoverImage);
+      }
       if (Price != 0L) {
         output.WriteRawTag(32);
         output.WriteSInt64(Price);
@@ -4022,7 +4029,9 @@ using ProtoPackage.Attributes;
       if (IsbnCode.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(IsbnCode);
       }
-      size += bookCoverImage_.CalculateSize(_repeated_bookCoverImage_codec);
+      if (BookCoverImage.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(BookCoverImage);
+      }
       if (Price != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Price);
       }
@@ -4044,7 +4053,9 @@ using ProtoPackage.Attributes;
       if (other.IsbnCode.Length != 0) {
         IsbnCode = other.IsbnCode;
       }
-      bookCoverImage_.Add(other.bookCoverImage_);
+      if (other.BookCoverImage.Length != 0) {
+        BookCoverImage = other.BookCoverImage;
+      }
       if (other.Price != 0L) {
         Price = other.Price;
       }
@@ -4072,7 +4083,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            bookCoverImage_.AddEntriesFrom(input, _repeated_bookCoverImage_codec);
+            BookCoverImage = input.ReadString();
             break;
           }
           case 32: {
@@ -4103,7 +4114,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            bookCoverImage_.AddEntriesFrom(ref input, _repeated_bookCoverImage_codec);
+            BookCoverImage = input.ReadString();
             break;
           }
           case 32: {

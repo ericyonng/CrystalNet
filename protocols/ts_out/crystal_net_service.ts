@@ -200,8 +200,8 @@ export namespace crystal_net_service
         // isbn
         IsbnCode:string = "";
 
-        // 封面: 阶段(13140)一个
-        BookCoverImage:string[] = [];
+        // 封面
+        BookCoverImage:string = "";
 
         // 价格(单位分)
         Price:number = 0;

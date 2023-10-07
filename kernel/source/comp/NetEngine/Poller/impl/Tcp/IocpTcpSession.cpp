@@ -470,6 +470,7 @@ void IocpTcpSession::_OnRecved()
                 ForbidRecv();
                 _MaskClose(CloseSessionInfo::PACKET_PARSING_ERROR);
                 hasBadPackets = true;
+                node = _recvBuffers->Erase(node);
                 break;
             }
 

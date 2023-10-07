@@ -449,6 +449,8 @@ void EpollTcpSession::_OnRecved()
                 auto param = _dirtyHelper->MaskDirty(this, PollerDirty::CLOSE, true);
                 param->BecomeDict()[1] = CloseSessionInfo::PACKET_PARSING_ERROR;
                 MaskClose(CloseSessionInfo::PACKET_PARSING_ERROR);
+                node = _recvBuffers->Erase(node);
+
                 break;
             }
 

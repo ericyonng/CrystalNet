@@ -159,8 +159,8 @@ message AddLibraryBookReq
     string BookName = 1;
     // isbn
     string IsbnCode = 2;
-    // 封面: 阶段(13140)一个
-    repeated string BookCoverImage = 3;
+    // 封面
+    string BookCoverImage = 3;
     // 价格(单位分)
     sint64 Price = 4;
 }
