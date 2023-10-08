@@ -656,6 +656,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kBookNameFieldNumber = 3,
     kIsbnCodeFieldNumber = 4,
     kBookCoverImageFieldNumber = 5,
+    kCoverImagePathFieldNumber = 9,
     kVariantInfoFieldNumber = 7,
     kIdFieldNumber = 1,
     kBookTypeFieldNumber = 2,
@@ -702,6 +703,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const std::string& _internal_bookcoverimage() const;
   inline PROTOBUF_ALWAYS_INLINE void _internal_set_bookcoverimage(const std::string& value);
   std::string* _internal_mutable_bookcoverimage();
+  public:
+
+  // string CoverImagePath = 9;
+  void clear_coverimagepath();
+  const std::string& coverimagepath() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_coverimagepath(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_coverimagepath();
+  PROTOBUF_NODISCARD std::string* release_coverimagepath();
+  void set_allocated_coverimagepath(std::string* coverimagepath);
+  private:
+  const std::string& _internal_coverimagepath() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_coverimagepath(const std::string& value);
+  std::string* _internal_mutable_coverimagepath();
   public:
 
   // .CRYSTAL_NET.service.BookVariantInfo VariantInfo = 7;
@@ -769,6 +784,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookname_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr isbncode_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookcoverimage_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr coverimagepath_;
     ::CRYSTAL_NET::service::BookVariantInfo* variantinfo_;
     uint64_t id_;
     int32_t booktype_;
@@ -1717,6 +1733,56 @@ inline void BookInfo::_internal_set_borrowedcount(uint64_t value) {
 inline void BookInfo::set_borrowedcount(uint64_t value) {
   _internal_set_borrowedcount(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.BorrowedCount)
+}
+
+// string CoverImagePath = 9;
+inline void BookInfo::clear_coverimagepath() {
+  _impl_.coverimagepath_.ClearToEmpty();
+}
+inline const std::string& BookInfo::coverimagepath() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookInfo.CoverImagePath)
+  return _internal_coverimagepath();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BookInfo::set_coverimagepath(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.coverimagepath_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.CoverImagePath)
+}
+inline std::string* BookInfo::mutable_coverimagepath() {
+  std::string* _s = _internal_mutable_coverimagepath();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BookInfo.CoverImagePath)
+  return _s;
+}
+inline const std::string& BookInfo::_internal_coverimagepath() const {
+  return _impl_.coverimagepath_.Get();
+}
+inline void BookInfo::_internal_set_coverimagepath(const std::string& value) {
+  
+  _impl_.coverimagepath_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BookInfo::_internal_mutable_coverimagepath() {
+  
+  return _impl_.coverimagepath_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BookInfo::release_coverimagepath() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BookInfo.CoverImagePath)
+  return _impl_.coverimagepath_.Release();
+}
+inline void BookInfo::set_allocated_coverimagepath(std::string* coverimagepath) {
+  if (coverimagepath != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.coverimagepath_.SetAllocated(coverimagepath, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.coverimagepath_.IsDefault()) {
+    _impl_.coverimagepath_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BookInfo.CoverImagePath)
 }
 
 // -------------------------------------------------------------------

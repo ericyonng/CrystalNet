@@ -29,6 +29,9 @@ message BookInfo
     BookVariantInfo VariantInfo = 7;
     // 被借数量
     uint64 BorrowedCount = 8;
+
+    // 客户端使用
+    string CoverImagePath = 9;
 }
 
 // 图书可变数据

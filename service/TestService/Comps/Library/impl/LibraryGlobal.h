@@ -73,6 +73,7 @@ protected:
     void _OnGetLibraryMemberSimpleInfoReq(KERNEL_NS::LibPacket *&packet);
     void _OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet);
     void _OnGetBookInfoReq(KERNEL_NS::LibPacket *&packet);
+    void _OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet);
 
     Int32 _ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req);
 
@@ -107,17 +108,17 @@ protected:
     void _Clear();
 
     // 图书字典
-    void _MakeBookDict(BookInfo *bookInfo);
-    BookInfo *_GetBookInfo(const KERNEL_NS::LibString &isbnCode);
-    const BookInfo *_GetBookInfo(const KERNEL_NS::LibString &isbnCode) const;
+    void _MakeBookDict(UInt64 libraryId, BookInfo *bookInfo);
+    BookInfo *_GetBookInfo(UInt64 libraryId, const KERNEL_NS::LibString &isbnCode);
+    const BookInfo *_GetBookInfo(UInt64 libraryId, const KERNEL_NS::LibString &isbnCode) const;
 
     std::map<UInt64, LibraryInfo *> _idRefLibraryInfo;
 
     std::map<UInt64, std::map<UInt64, MemberInfo *>> _libraryIdRefUserRefMember;
 
     // 图书
-    std::map<KERNEL_NS::LibString, BookInfo *> _isbnRefBookInfo;
-    std::map<UInt64, BookInfo *> _idRefBookInfo;
+    std::map<UInt64, std::map<KERNEL_NS::LibString, BookInfo *>> _libraryIdRefIsbnRefBookInfo;
+    std::map<UInt64, std::map<UInt64, BookInfo *>> _libraryIdRefIdRefBookInfo;
 };
 
 SERVICE_END

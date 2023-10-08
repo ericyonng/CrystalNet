@@ -96,7 +96,7 @@ Int32 LibraryGlobal::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::
     for(Int32 idx = 0; idx < bookCount; ++idx)
     {
         auto bookInfo = libraryInfo->mutable_booklist(idx);
-        _MakeBookDict(bookInfo);
+        _MakeBookDict(libraryInfo->id(), bookInfo);
     }
 
     return Status::Success;
@@ -191,6 +191,7 @@ Int32 LibraryGlobal::_OnGlobalSysInit()
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetLibraryMemberSimpleInfoReq, this, &LibraryGlobal::_OnGetLibraryMemberSimpleInfoReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_AddLibraryBookReq, this, &LibraryGlobal::_OnAddLibraryBookReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookInfoReq, this, &LibraryGlobal::_OnGetBookInfoReq);
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookByBookNameReq, this, &LibraryGlobal::_OnGetBookByBookNameReq);
     
     return Status::Success;
 }
@@ -996,7 +997,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
         auto libarayInfo = GetLibraryInfo(myLibraryMgr->GetMyLibraryId());
 
         // 是不是已经存在了
-        auto bookInfo = _GetBookInfo(req->isbncode());
+        auto bookInfo = _GetBookInfo(libarayInfo->id(), req->isbncode());
         if(bookInfo)
         {
             if(!req->bookname().empty())
@@ -1073,7 +1074,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
             newBook->set_bookcoverimage(req->bookcoverimage());
             newBook->mutable_variantinfo()->set_price(req->price());
 
-            _MakeBookDict(newBook);
+            _MakeBookDict(libarayInfo->id(), newBook);
             bookInfo = newBook;
         }
 
@@ -1112,7 +1113,16 @@ void LibraryGlobal::_OnGetBookInfoReq(KERNEL_NS::LibPacket *&packet)
             break;
         }
 
-        auto bookInfo = _GetBookInfo(req->isbncode());
+        auto libraryMgr = user->GetSys<ILibraryMgr>();
+        auto libraryInfo = GetLibraryInfo(libraryMgr->GetMyLibraryId());
+        if(!libraryInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not join libarary packet:%s"), packet->ToString().c_str());
+            err = Status::NotJoinAnyLibrary;
+            break;
+        }
+
+        auto bookInfo = _GetBookInfo(libraryInfo->id(), req->isbncode());
         if(!bookInfo)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("book not found isbn code:%s, packet:%s"), req->isbncode().c_str(), packet->ToString().c_str());
@@ -1126,6 +1136,39 @@ void LibraryGlobal::_OnGetBookInfoReq(KERNEL_NS::LibPacket *&packet)
     
     res.set_errcode(err);
     user->Send(Opcodes::OpcodeConst::OPCODE_GetBookInfoRes, res, packet->GetPacketId());
+}
+
+void LibraryGlobal::_OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto libraryMgr = user->GetSys<ILibraryMgr>();
+    auto libraryInfo = GetLibraryInfo(libraryMgr->GetMyLibraryId());
+
+    auto req = packet->GetCoder<GetBookByBookNameReq>();
+    GetBookByBookNameRes res;
+    if(libraryInfo)
+    {
+        if(!req->bookname().empty())
+        {
+            const KERNEL_NS::LibString &reqName = KERNEL_NS::LibBase64::Decode(req->bookname());
+
+            for(auto &bookInfo : libraryInfo->booklist())
+            {
+                const KERNEL_NS::LibString &bookName = KERNEL_NS::LibBase64::Decode(bookInfo.bookname());
+                if(bookName.GetRaw().find(reqName.GetRaw()) != std::string::npos)
+                    *res.add_bookinfolist() = bookInfo;
+            }
+        }
+    }
+    
+    user->Send(Opcodes::OpcodeConst::OPCODE_GetBookByBookNameRes, res, packet->GetPacketId());
 }
 
 Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req)
@@ -1565,26 +1608,43 @@ void LibraryGlobal::_Clear()
 {
     KERNEL_NS::ContainerUtil::DelContainer2(_idRefLibraryInfo);
     _libraryIdRefUserRefMember.clear();
-    _isbnRefBookInfo.clear();
-    _idRefBookInfo.clear();
+    _libraryIdRefIsbnRefBookInfo.clear();
+    _libraryIdRefIdRefBookInfo.clear();
 }
 
-void LibraryGlobal::_MakeBookDict(BookInfo *bookInfo)
+void LibraryGlobal::_MakeBookDict(UInt64 libraryId, BookInfo *bookInfo)
 {
-    _isbnRefBookInfo.insert(std::make_pair(bookInfo->isbncode(), bookInfo));
-    _idRefBookInfo.insert(std::make_pair(bookInfo->id(), bookInfo));
+    {
+        auto iter = _libraryIdRefIsbnRefBookInfo.find(libraryId);
+        if(iter == _libraryIdRefIsbnRefBookInfo.end())
+            iter = _libraryIdRefIsbnRefBookInfo.insert(std::make_pair(libraryId, std::map<KERNEL_NS::LibString, BookInfo *>())).first;
+        iter->second.insert(std::make_pair(bookInfo->isbncode(), bookInfo));
+    }
+
+    {
+        auto iter = _libraryIdRefIdRefBookInfo.find(libraryId);
+        if(iter == _libraryIdRefIdRefBookInfo.end())
+            iter = _libraryIdRefIdRefBookInfo.insert(std::make_pair(libraryId, std::map<UInt64, BookInfo *>())).first;
+        iter->second.insert(std::make_pair(bookInfo->id(), bookInfo));
+    }
 }
 
-BookInfo *LibraryGlobal::_GetBookInfo(const KERNEL_NS::LibString &isbnCode)
+BookInfo *LibraryGlobal::_GetBookInfo(UInt64 libraryId, const KERNEL_NS::LibString &isbnCode)
 {
-    auto iter = _isbnRefBookInfo.find(isbnCode);
-    return iter == _isbnRefBookInfo.end() ? NULL : iter->second;
+    auto iter = _libraryIdRefIsbnRefBookInfo.find(libraryId);
+    if(iter == _libraryIdRefIsbnRefBookInfo.end())
+        return NULL;
+    auto iterBook = iter->second.find(isbnCode);
+    return iterBook == iter->second.end() ? NULL : iterBook->second;
 }
 
-const BookInfo *LibraryGlobal::_GetBookInfo(const KERNEL_NS::LibString &isbnCode) const
+const BookInfo *LibraryGlobal::_GetBookInfo(UInt64 libraryId, const KERNEL_NS::LibString &isbnCode) const
 {
-    auto iter = _isbnRefBookInfo.find(isbnCode);
-    return iter == _isbnRefBookInfo.end() ? NULL : iter->second;
+    auto iter = _libraryIdRefIsbnRefBookInfo.find(libraryId);
+    if(iter == _libraryIdRefIsbnRefBookInfo.end())
+        return NULL;
+    auto iterBook = iter->second.find(isbnCode);
+    return iterBook == iter->second.end() ? NULL : iterBook->second;
 }
 
 SERVICE_END

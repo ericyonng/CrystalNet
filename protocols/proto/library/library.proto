@@ -242,6 +242,20 @@ message GetBookInfoRes
     BookInfo BookInfo = 2;
 }
 
+// 按照书名查询
+/// Opcode:
+message GetBookByBookNameReq
+{
+    string BookName = 1;
+}
+
+// 按照书名查询
+/// Opcode:
+message GetBookByBookNameRes
+{
+    repeated BookInfo BookInfoList = 1;
+}
+
 
 // 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管
 

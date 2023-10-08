@@ -609,3 +609,23 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookInfoResFactory::CreateFactory()));
     }
+
+    {// GetBookByBookNameReq
+        auto info = OpcodeInfo();
+        info._opcode = 76;
+        info._noLog = false;
+        info._opcodeName = "GetBookByBookNameReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookByBookNameReqFactory::CreateFactory()));
+    }
+
+    {// GetBookByBookNameRes
+        auto info = OpcodeInfo();
+        info._opcode = 77;
+        info._noLog = false;
+        info._opcodeName = "GetBookByBookNameRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookByBookNameResFactory::CreateFactory()));
+    }

@@ -138,6 +138,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("GetBookByBookNameReq", (jsonData:any):any =>{
+                return this.GetBookByBookNameReqParser(jsonData);
+            })
+
+
+            this.add("GetBookByBookNameRes", (jsonData:any):any =>{
+                return this.GetBookByBookNameResParser(jsonData);
+            })
+
+
             this.add("GetBookInfoReq", (jsonData:any):any =>{
                 return this.GetBookInfoReqParser(jsonData);
             })
@@ -657,6 +667,12 @@ export namespace crystal_net_service_parser
                     newInfo.BorrowedCount = parseFloat(jsonData.BorrowedCount);
                 }
 
+
+                if(jsonData.CoverImagePath != undefined)
+                {
+                    newInfo.CoverImagePath = jsonData.CoverImagePath;
+                }
+
                  return newInfo;
             }
 
@@ -998,6 +1014,38 @@ export namespace crystal_net_service_parser
 
             private CreatureAttrKeyParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.CreatureAttrKey()
+                 return newInfo;
+            }
+
+
+            private GetBookByBookNameReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookByBookNameReq()
+
+                if(jsonData.BookName != undefined)
+                {
+                    newInfo.BookName = jsonData.BookName;
+                }
+
+                 return newInfo;
+            }
+
+
+            private GetBookByBookNameResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookByBookNameRes()
+
+                if(jsonData.BookInfoList != undefined)
+                {
+                    var jsonArray = jsonData.BookInfoList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BookInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BookInfoList = jsonArray;
+                }
+
                  return newInfo;
             }
 

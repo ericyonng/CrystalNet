@@ -782,6 +782,32 @@ export namespace ts_pbinfo{
     }
 
 
+    // library.proto 
+    export class GetBookByBookNameReq {
+      getOpcode():number {return GetBookByBookNameReq.OPCODE; }
+      getIsXorEncrypt():boolean {return GetBookByBookNameReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetBookByBookNameReq.KeyBase64; }
+      getOpcodeName():string {return GetBookByBookNameReq.OPCODE_NAME; }
+      static OPCODE:number = 76;
+      static OPCODE_NAME:string = "GetBookByBookNameReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetBookByBookNameRes {
+      getOpcode():number {return GetBookByBookNameRes.OPCODE; }
+      getIsXorEncrypt():boolean {return GetBookByBookNameRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetBookByBookNameRes.KeyBase64; }
+      getOpcodeName():string {return GetBookByBookNameRes.OPCODE_NAME; }
+      static OPCODE:number = 77;
+      static OPCODE_NAME:string = "GetBookByBookNameRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -898,7 +924,11 @@ export namespace ts_pbinfo{
 
           [GetBookInfoReq.OPCODE]: new GetBookInfoReq(),
 
-          [GetBookInfoRes.OPCODE]: new GetBookInfoRes()
+          [GetBookInfoRes.OPCODE]: new GetBookInfoRes(),
+
+          [GetBookByBookNameReq.OPCODE]: new GetBookByBookNameReq(),
+
+          [GetBookByBookNameRes.OPCODE]: new GetBookByBookNameRes()
 
 
       }

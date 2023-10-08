@@ -246,6 +246,9 @@ export namespace crystal_net_service
         // 被借数量
         BorrowedCount:number = 0;
 
+        // 客户端使用
+        CoverImagePath:string = "";
+
 
     }
     // 图书列表数据
@@ -423,6 +426,22 @@ export namespace crystal_net_service
     // 属性类型枚举
     // com.proto
     export class CreatureAttrKey {
+
+    }
+    // 按照书名查询
+    /// Opcode:
+    // library.proto
+    export class GetBookByBookNameReq {
+        BookName:string = "";
+
+
+    }
+    // 按照书名查询
+    /// Opcode:
+    // library.proto
+    export class GetBookByBookNameRes {
+        BookInfoList:BookInfo[] = [];
+
 
     }
     // 查图书信息

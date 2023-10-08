@@ -43,6 +43,7 @@ PROTOBUF_CONSTEXPR BookInfo::BookInfo(
     /*decltype(_impl_.bookname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.isbncode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.bookcoverimage_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.coverimagepath_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.variantinfo_)*/nullptr
   , /*decltype(_impl_.id_)*/uint64_t{0u}
   , /*decltype(_impl_.booktype_)*/0
@@ -113,6 +114,7 @@ const uint32_t TableStruct_com_5fbook_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.isonshelves_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.variantinfo_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.borrowedcount_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.coverimagepath_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookVariantInfo, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -133,8 +135,8 @@ const uint32_t TableStruct_com_5fbook_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::BookType)},
   { 6, -1, -1, sizeof(::CRYSTAL_NET::service::BookInfo)},
-  { 20, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfo)},
-  { 28, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfoItem)},
+  { 21, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfo)},
+  { 29, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfoItem)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -146,20 +148,21 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_com_5fbook_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\016com_book.proto\022\023CRYSTAL_NET.service\" \n"
-  "\010BookType\"\024\n\005ENUMS\022\013\n\007UNKNOWN\020\000\"\313\001\n\010Book"
+  "\010BookType\"\024\n\005ENUMS\022\013\n\007UNKNOWN\020\000\"\343\001\n\010Book"
   "Info\022\n\n\002Id\030\001 \001(\004\022\020\n\010BookType\030\002 \001(\021\022\020\n\010Bo"
   "okName\030\003 \001(\t\022\020\n\010IsbnCode\030\004 \001(\t\022\026\n\016BookCo"
   "verImage\030\005 \001(\t\022\023\n\013IsOnShelves\030\006 \001(\021\0229\n\013V"
   "ariantInfo\030\007 \001(\0132$.CRYSTAL_NET.service.B"
-  "ookVariantInfo\022\025\n\rBorrowedCount\030\010 \001(\004\"/\n"
-  "\017BookVariantInfo\022\r\n\005Count\030\001 \001(\022\022\r\n\005Price"
-  "\030\002 \001(\022\"`\n\023BookVariantInfoItem\022\n\n\002Id\030\001 \001("
-  "\004\022=\n\017BookVariantInfo\030\002 \001(\0132$.CRYSTAL_NET"
-  ".service.BookVariantInfob\006proto3"
+  "ookVariantInfo\022\025\n\rBorrowedCount\030\010 \001(\004\022\026\n"
+  "\016CoverImagePath\030\t \001(\t\"/\n\017BookVariantInfo"
+  "\022\r\n\005Count\030\001 \001(\022\022\r\n\005Price\030\002 \001(\022\"`\n\023BookVa"
+  "riantInfoItem\022\n\n\002Id\030\001 \001(\004\022=\n\017BookVariant"
+  "Info\030\002 \001(\0132$.CRYSTAL_NET.service.BookVar"
+  "iantInfob\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fbook_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fbook_2eproto = {
-    false, false, 432, descriptor_table_protodef_com_5fbook_2eproto,
+    false, false, 456, descriptor_table_protodef_com_5fbook_2eproto,
     "com_book.proto",
     &descriptor_table_com_5fbook_2eproto_once, nullptr, 0, 4,
     schemas, file_default_instances, TableStruct_com_5fbook_2eproto::offsets,
@@ -258,6 +261,7 @@ BookInfo::BookInfo(const BookInfo& from)
       decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
     , decltype(_impl_.bookcoverimage_){}
+    , decltype(_impl_.coverimagepath_){}
     , decltype(_impl_.variantinfo_){nullptr}
     , decltype(_impl_.id_){}
     , decltype(_impl_.booktype_){}
@@ -290,6 +294,14 @@ BookInfo::BookInfo(const BookInfo& from)
     _this->_impl_.bookcoverimage_.Set(from._internal_bookcoverimage(), 
       _this->GetArenaForAllocation());
   }
+  _impl_.coverimagepath_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.coverimagepath_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_coverimagepath().empty()) {
+    _this->_impl_.coverimagepath_.Set(from._internal_coverimagepath(), 
+      _this->GetArenaForAllocation());
+  }
   if (from._internal_has_variantinfo()) {
     _this->_impl_.variantinfo_ = new ::CRYSTAL_NET::service::BookVariantInfo(*from._impl_.variantinfo_);
   }
@@ -307,6 +319,7 @@ inline void BookInfo::SharedCtor(
       decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
     , decltype(_impl_.bookcoverimage_){}
+    , decltype(_impl_.coverimagepath_){}
     , decltype(_impl_.variantinfo_){nullptr}
     , decltype(_impl_.id_){uint64_t{0u}}
     , decltype(_impl_.booktype_){0}
@@ -326,6 +339,10 @@ inline void BookInfo::SharedCtor(
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.bookcoverimage_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.coverimagepath_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.coverimagepath_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 BookInfo::~BookInfo() {
@@ -342,6 +359,7 @@ inline void BookInfo::SharedDtor() {
   _impl_.bookname_.Destroy();
   _impl_.isbncode_.Destroy();
   _impl_.bookcoverimage_.Destroy();
+  _impl_.coverimagepath_.Destroy();
   if (this != internal_default_instance()) delete _impl_.variantinfo_;
 }
 
@@ -358,6 +376,7 @@ void BookInfo::Clear() {
   _impl_.bookname_.ClearToEmpty();
   _impl_.isbncode_.ClearToEmpty();
   _impl_.bookcoverimage_.ClearToEmpty();
+  _impl_.coverimagepath_.ClearToEmpty();
   if (GetArenaForAllocation() == nullptr && _impl_.variantinfo_ != nullptr) {
     delete _impl_.variantinfo_;
   }
@@ -441,6 +460,16 @@ const char* BookInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 64)) {
           _impl_.borrowedcount_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string CoverImagePath = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+          auto str = _internal_mutable_coverimagepath();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.BookInfo.CoverImagePath"));
         } else
           goto handle_unusual;
         continue;
@@ -534,6 +563,16 @@ uint8_t* BookInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt64ToArray(8, this->_internal_borrowedcount(), target);
   }
 
+  // string CoverImagePath = 9;
+  if (!this->_internal_coverimagepath().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_coverimagepath().data(), static_cast<int>(this->_internal_coverimagepath().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.BookInfo.CoverImagePath");
+    target = stream->WriteStringMaybeAliased(
+        9, this->_internal_coverimagepath(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -569,6 +608,13 @@ size_t BookInfo::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_bookcoverimage());
+  }
+
+  // string CoverImagePath = 9;
+  if (!this->_internal_coverimagepath().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_coverimagepath());
   }
 
   // .CRYSTAL_NET.service.BookVariantInfo VariantInfo = 7;
@@ -625,6 +671,9 @@ void BookInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
   if (!from._internal_bookcoverimage().empty()) {
     _this->_internal_set_bookcoverimage(from._internal_bookcoverimage());
   }
+  if (!from._internal_coverimagepath().empty()) {
+    _this->_internal_set_coverimagepath(from._internal_coverimagepath());
+  }
   if (from._internal_has_variantinfo()) {
     _this->_internal_mutable_variantinfo()->::CRYSTAL_NET::service::BookVariantInfo::MergeFrom(
         from._internal_variantinfo());
@@ -671,6 +720,10 @@ void BookInfo::InternalSwap(BookInfo* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.bookcoverimage_, lhs_arena,
       &other->_impl_.bookcoverimage_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.coverimagepath_, lhs_arena,
+      &other->_impl_.coverimagepath_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(BookInfo, _impl_.borrowedcount_)

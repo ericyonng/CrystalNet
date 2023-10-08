@@ -27,20 +27,21 @@ using ProtoPackage.Attributes;
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Cg5jb21fYm9vay5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSIgCghCb29r",
-            "VHlwZSIUCgVFTlVNUxILCgdVTktOT1dOEAAiywEKCEJvb2tJbmZvEgoKAklk",
+            "VHlwZSIUCgVFTlVNUxILCgdVTktOT1dOEAAi4wEKCEJvb2tJbmZvEgoKAklk",
             "GAEgASgEEhAKCEJvb2tUeXBlGAIgASgREhAKCEJvb2tOYW1lGAMgASgJEhAK",
             "CElzYm5Db2RlGAQgASgJEhYKDkJvb2tDb3ZlckltYWdlGAUgASgJEhMKC0lz",
             "T25TaGVsdmVzGAYgASgREjkKC1ZhcmlhbnRJbmZvGAcgASgLMiQuQ1JZU1RB",
             "TF9ORVQuc2VydmljZS5Cb29rVmFyaWFudEluZm8SFQoNQm9ycm93ZWRDb3Vu",
-            "dBgIIAEoBCIvCg9Cb29rVmFyaWFudEluZm8SDQoFQ291bnQYASABKBISDQoF",
-            "UHJpY2UYAiABKBIiYAoTQm9va1ZhcmlhbnRJbmZvSXRlbRIKCgJJZBgBIAEo",
-            "BBI9Cg9Cb29rVmFyaWFudEluZm8YAiABKAsyJC5DUllTVEFMX05FVC5zZXJ2",
-            "aWNlLkJvb2tWYXJpYW50SW5mb2IGcHJvdG8z"));
+            "dBgIIAEoBBIWCg5Db3ZlckltYWdlUGF0aBgJIAEoCSIvCg9Cb29rVmFyaWFu",
+            "dEluZm8SDQoFQ291bnQYASABKBISDQoFUHJpY2UYAiABKBIiYAoTQm9va1Zh",
+            "cmlhbnRJbmZvSXRlbRIKCgJJZBgBIAEoBBI9Cg9Cb29rVmFyaWFudEluZm8Y",
+            "AiABKAsyJC5DUllTVEFMX05FVC5zZXJ2aWNlLkJvb2tWYXJpYW50SW5mb2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookType), global::CRYSTALNET.Service.BookType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.BookType.Types.ENUMS) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookInfo), global::CRYSTALNET.Service.BookInfo.Parser, new[]{ "Id", "BookType", "BookName", "IsbnCode", "BookCoverImage", "IsOnShelves", "VariantInfo", "BorrowedCount" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookInfo), global::CRYSTALNET.Service.BookInfo.Parser, new[]{ "Id", "BookType", "BookName", "IsbnCode", "BookCoverImage", "IsOnShelves", "VariantInfo", "BorrowedCount", "CoverImagePath" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookVariantInfo), global::CRYSTALNET.Service.BookVariantInfo.Parser, new[]{ "Count", "Price" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookVariantInfoItem), global::CRYSTALNET.Service.BookVariantInfoItem.Parser, new[]{ "Id", "BookVariantInfo" }, null, null, null, null)
           }));
@@ -261,6 +262,7 @@ using ProtoPackage.Attributes;
       isOnShelves_ = other.isOnShelves_;
       variantInfo_ = other.variantInfo_ != null ? other.variantInfo_.Clone() : null;
       borrowedCount_ = other.borrowedCount_;
+      coverImagePath_ = other.coverImagePath_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -390,6 +392,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "CoverImagePath" field.</summary>
+    public const int CoverImagePathFieldNumber = 9;
+    private string coverImagePath_ = "";
+    /// <summary>
+    /// 客户端使用
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string CoverImagePath {
+      get { return coverImagePath_; }
+      set {
+        coverImagePath_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -413,6 +430,7 @@ using ProtoPackage.Attributes;
       if (IsOnShelves != other.IsOnShelves) return false;
       if (!object.Equals(VariantInfo, other.VariantInfo)) return false;
       if (BorrowedCount != other.BorrowedCount) return false;
+      if (CoverImagePath != other.CoverImagePath) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -428,6 +446,7 @@ using ProtoPackage.Attributes;
       if (IsOnShelves != 0) hash ^= IsOnShelves.GetHashCode();
       if (variantInfo_ != null) hash ^= VariantInfo.GetHashCode();
       if (BorrowedCount != 0UL) hash ^= BorrowedCount.GetHashCode();
+      if (CoverImagePath.Length != 0) hash ^= CoverImagePath.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -478,6 +497,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(64);
         output.WriteUInt64(BorrowedCount);
       }
+      if (CoverImagePath.Length != 0) {
+        output.WriteRawTag(74);
+        output.WriteString(CoverImagePath);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -520,6 +543,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(64);
         output.WriteUInt64(BorrowedCount);
       }
+      if (CoverImagePath.Length != 0) {
+        output.WriteRawTag(74);
+        output.WriteString(CoverImagePath);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -553,6 +580,9 @@ using ProtoPackage.Attributes;
       }
       if (BorrowedCount != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BorrowedCount);
+      }
+      if (CoverImagePath.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(CoverImagePath);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -592,6 +622,9 @@ using ProtoPackage.Attributes;
       }
       if (other.BorrowedCount != 0UL) {
         BorrowedCount = other.BorrowedCount;
+      }
+      if (other.CoverImagePath.Length != 0) {
+        CoverImagePath = other.CoverImagePath;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -643,6 +676,10 @@ using ProtoPackage.Attributes;
             BorrowedCount = input.ReadUInt64();
             break;
           }
+          case 74: {
+            CoverImagePath = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -691,6 +728,10 @@ using ProtoPackage.Attributes;
           }
           case 64: {
             BorrowedCount = input.ReadUInt64();
+            break;
+          }
+          case 74: {
+            CoverImagePath = input.ReadString();
             break;
           }
         }
