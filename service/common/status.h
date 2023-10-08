@@ -88,5 +88,6 @@ namespace Status
         LoginStatusError,                                   // 登录状态失败
         ImageTooLarge,                                      // 图片过大
         RepeateBook,                                        // 图书已存在
+        BookNotFound,                                       // 图书不存在
     };
 }
