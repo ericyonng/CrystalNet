@@ -84,7 +84,7 @@ Int32 NicknameGlobal::OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build:
 bool NicknameGlobal::CheckNickname(const KERNEL_NS::LibString &nickname) const
 {
     // 名字长度限制
-    auto maxlenConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::NAME_MAX_LEN);
+    auto maxlenConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
     if(static_cast<Int32>(nickname.length_with_utf8()) > maxlenConfig->_value)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("nickname too long:%s, utf8 len:%d"), nickname.c_str(),  static_cast<Int32>(nickname.length_with_utf8()));

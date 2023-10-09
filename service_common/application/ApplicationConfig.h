@@ -48,6 +48,8 @@ struct ApplicationConfig
     KERNEL_NS::LibString _registerPath;         // 注册成功的机器注册时的进程路径
     UInt64 _registerProcessId = 0;              // 注册成功的机器注册时的进程id
     KERNEL_NS::LibString _machineApplyId;       // 程序创建生成的唯一标识符:base64(sha256(进程路径 + 项目类型名 + 时间 + 进程id)) 记录申请machineId时的唯一标识符
+
+    bool _disableConsoleMonitorInfo = false;    // 禁用控制台输出监控信息
 };
 
 SERVICE_COMMON_END

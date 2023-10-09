@@ -270,6 +270,12 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
     }
 
     auto req = packet->GetCoder<CreateLibraryReq>();
+    auto copyReq = *req;
+    req->set_name(KERNEL_NS::LibBase64::Decode(req->name()).GetRaw());
+    req->set_address(KERNEL_NS::LibBase64::Decode(req->address()).GetRaw());
+    req->set_opentime(KERNEL_NS::LibBase64::Decode(req->opentime()).GetRaw());
+    req->set_telphonenumber(KERNEL_NS::LibBase64::Decode(req->telphonenumber()).GetRaw());
+
     auto inviteCodeGlobal = GetGlobalSys<IInviteCodeGlobal>();
     const CommonConfig *isNeedInviteCodeConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CREATE_LIBRARY_NEED_INVITE_CODE);
     auto isNeedInviteCode = (!isNeedInviteCodeConfig || (isNeedInviteCodeConfig->_value > 0));
@@ -736,6 +742,17 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
                 errCode = Status::ParamError;
                 g_Log->Warn(LOGFMT_OBJ_TAG("invalid role:%d, user:%s"), req->newrole(), user->ToString().c_str());
                 break;
+            }
+
+            // 书还了么?
+            if(req->newrole() == RoleType_ENUMS_NoAuth)
+            {
+                if(!_IsReturnBackAllBook(targetMember))
+                {
+                    errCode = Status::HaveBookBorrowedNotReturnBack;
+                    g_Log->Warn(LOGFMT_OBJ_TAG("have book not return back user:%s, library info:%s"), LibraryToString(libraryInfo).c_str());
+                    break;
+                }
             }
         }
 
@@ -1277,18 +1294,18 @@ LibraryInfo *LibraryGlobal::_CreateLibrary(IUser *user, const KERNEL_NS::LibStri
     {
         KERNEL_NS::LibString name;
         nicknameGlobal->GenRandNickname(name);
-        newLibrary->set_name(name.GetRaw());
+        newLibrary->set_name(KERNEL_NS::LibBase64::Encode(name.GetRaw()).GetRaw());
     }
     else
     {
         nicknameGlobal->AddUsedNickname(libraryName);
-        newLibrary->set_name(libraryName.GetRaw());
+        newLibrary->set_name(KERNEL_NS::LibBase64::Encode(libraryName.GetRaw()).GetRaw());
     }
 
     // 基本信息
-    newLibrary->set_address(address.GetRaw());
-    newLibrary->set_opentime(openTime.GetRaw());
-    newLibrary->set_telphonenumber(telphoneNumber.GetRaw());
+    newLibrary->set_address(KERNEL_NS::LibBase64::Encode(address.GetRaw()).GetRaw());
+    newLibrary->set_opentime(KERNEL_NS::LibBase64::Encode(openTime.GetRaw()).GetRaw());
+    newLibrary->set_telphonenumber(KERNEL_NS::LibBase64::Encode(telphoneNumber.GetRaw()).GetRaw());
     newLibrary->set_librarianuserid(user->GetUserId());
     newLibrary->set_librarianusernickname(user->GetUserBaseInfo()->nickname());
     _idRefLibraryInfo.insert(std::make_pair(newLibrary->id(), newLibrary));

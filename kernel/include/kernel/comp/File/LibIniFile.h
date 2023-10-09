@@ -78,6 +78,8 @@ public:
     bool WriteNumber(const Byte8 *segmentName, const Byte8 *keyName, UInt64 number);
     bool WriteNumber(const Byte8 *segmentName, const Byte8 *keyName, Int64 number);
     bool WriteNumber(const Byte8 *segmentName, const Byte8 *keyName, Double number);
+    bool WriteNumber(const Byte8 *segmentName, const Byte8 *keyName, Int32 number);
+    bool WriteNumber(const Byte8 *segmentName, const Byte8 *keyName, UInt32 number);
 
     bool HasCfgs(const Byte8 *segmentName) const;
     bool HasCfgs() const;

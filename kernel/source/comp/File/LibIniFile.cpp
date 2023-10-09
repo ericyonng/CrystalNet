@@ -251,6 +251,18 @@ bool LibIniFile::WriteNumber(const Byte8 *segmentName, const Byte8 *keyName, Dou
     return _WriteStr(segmentName, keyName, value.c_str());
 }
 
+bool LibIniFile::WriteNumber(const Byte8 *segmentName, const Byte8 *keyName, Int32 number)
+{
+    const auto &value = StringUtil::Num2Str(number);
+    return _WriteStr(segmentName, keyName, value.c_str());
+}
+
+bool LibIniFile::WriteNumber(const Byte8 *segmentName, const Byte8 *keyName, UInt32 number)
+{
+    const auto &value = StringUtil::Num2Str(number);
+    return _WriteStr(segmentName, keyName, value.c_str());
+}
+
 bool LibIniFile::HasCfgs(const Byte8 *segmentName) const
 {
     return  _segmentRefKeyValues.find(segmentName) != _segmentRefKeyValues.end();

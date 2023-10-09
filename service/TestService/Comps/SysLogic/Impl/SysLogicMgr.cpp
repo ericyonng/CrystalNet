@@ -403,7 +403,7 @@ void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::V
     }
 
     auto addrInfo = iter->second;
-    g_Log->Info(LOGFMT_OBJ_TAG("add listen suc:%s"), addrInfo->ToString().c_str());
+    g_Log->Warn(LOGFMT_OBJ_TAG("[ADD LISTEN SUCCESS]:%s"), addrInfo->ToString().c_str());
 
     _unhandledListenAddr.erase(iter);
 }

@@ -962,6 +962,21 @@ Int32 Application::_ReadBaseConfigs()
             }
             _appConfig._machineApplyId = cache;
         }
+
+        {// DisableConsoleMonitorInfo
+            Int32 cache;
+            if(!_configIni->CheckReadNumber(APPLICATION_CONFIG_SEG, "DisableConsoleMonitorInfo", cache))
+            {
+                cache = 0;
+                if(UNLIKELY(!_configIni->WriteNumber(APPLICATION_CONFIG_SEG, "DisableConsoleMonitorInfo", cache)))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%d")
+                                , APPLICATION_CONFIG_SEG, "DisableConsoleMonitorInfo", cache);
+                    return Status::ConfigError;
+                }
+            }
+            _appConfig._disableConsoleMonitorInfo = cache != 0;
+        }
     }
 
     return Status::Success;
@@ -1021,8 +1036,11 @@ void Application::_OnMonitorThreadFrame()
         average = static_cast<Double>(_statisticsInfoCache->_resTotalNs) / _statisticsInfoCache->_resCount / 1000000;
     }
 
-    g_Log->Monitor("%s[- RESPONSE INFO BEGIN -]\nSampleNumber:%llu. Min:%lf(ms). Average:%lf(ms). Max:%lf(ms).\n[- RESPONSE INFO END -]\n"
-                , info.c_str(), _statisticsInfoCache->_resCount, static_cast<Double>(_statisticsInfoCache->_minResNs) / 1000000, average, static_cast<Double>(_statisticsInfoCache->_maxResNs) / 1000000);
+    if(!_appConfig._disableConsoleMonitorInfo)
+    {
+        g_Log->Monitor("%s[- RESPONSE INFO BEGIN -]\nSampleNumber:%llu. Min:%lf(ms). Average:%lf(ms). Max:%lf(ms).\n[- RESPONSE INFO END -]\n"
+                    , info.c_str(), _statisticsInfoCache->_resCount, static_cast<Double>(_statisticsInfoCache->_minResNs) / 1000000, average, static_cast<Double>(_statisticsInfoCache->_maxResNs) / 1000000);
+    }
 
     _statisticsInfoCache->_minResNs = 0;
     _statisticsInfoCache->_maxResNs = 0;
