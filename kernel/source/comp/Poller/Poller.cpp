@@ -105,6 +105,7 @@ Poller::Poller()
 ,_eventAmountLeft{0}
 ,_genEventAmount{0}
 ,_consumEventCount{0}
+,_onTick(NULL)
 ,_isDummyRelease{false}
 {
     // auto defObj = TlsUtil::GetDefTls();
@@ -274,6 +275,7 @@ void Poller::EventLoop()
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
     UInt64 mergeNumber = 0;
+    auto onTikc = _onTick;
     for(;;)
     {
         // 没有事件且没有脏处理则等待
@@ -348,6 +350,9 @@ void Poller::EventLoop()
 
         // 处理定时器
         _timerMgr->Drive();
+
+        if(onTikc)
+            onTikc->Invoke();
 
         // 当前帧性能信息记录
         const auto &elapseTime = nowCounter.Update() - performaceStart;
@@ -457,6 +462,8 @@ void Poller::_Clear()
     }
 
     ContainerUtil::DelContainer2(_pollerEventHandler);
+
+    CRYSTAL_RELEASE_SAFE(_onTick);
     g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
 }
 

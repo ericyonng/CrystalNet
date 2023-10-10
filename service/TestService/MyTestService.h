@@ -122,6 +122,8 @@ private:
     void _GetOpcodeInfo(Int32 opcode, KERNEL_NS::LibString &opcodeInfo);
     bool _CheckOpcodeEnable(Int32 opcode);
 
+    void _OnFrameTick();
+
 private:
     KERNEL_NS::TimerMgr *_timerMgr;
     KERNEL_NS::LibTimer *_updateTimer;

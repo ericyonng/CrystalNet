@@ -82,6 +82,12 @@ extern BookVariantInfoItemsNtyDefaultTypeInternal _BookVariantInfoItemsNty_defau
 class BooksChangeNty;
 struct BooksChangeNtyDefaultTypeInternal;
 extern BooksChangeNtyDefaultTypeInternal _BooksChangeNty_default_instance_;
+class BorrowBookReq;
+struct BorrowBookReqDefaultTypeInternal;
+extern BorrowBookReqDefaultTypeInternal _BorrowBookReq_default_instance_;
+class BorrowBookRes;
+struct BorrowBookResDefaultTypeInternal;
+extern BorrowBookResDefaultTypeInternal _BorrowBookRes_default_instance_;
 class CreateLibraryReq;
 struct CreateLibraryReqDefaultTypeInternal;
 extern CreateLibraryReqDefaultTypeInternal _CreateLibraryReq_default_instance_;
@@ -164,6 +170,8 @@ template<> ::CRYSTAL_NET::service::AddLibraryBookRes* Arena::CreateMaybeMessage<
 template<> ::CRYSTAL_NET::service::BookListNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BookListNty>(Arena*);
 template<> ::CRYSTAL_NET::service::BookVariantInfoItemsNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BookVariantInfoItemsNty>(Arena*);
 template<> ::CRYSTAL_NET::service::BooksChangeNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BooksChangeNty>(Arena*);
+template<> ::CRYSTAL_NET::service::BorrowBookReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookReq>(Arena*);
+template<> ::CRYSTAL_NET::service::BorrowBookRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookRes>(Arena*);
 template<> ::CRYSTAL_NET::service::CreateLibraryReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CreateLibraryReq>(Arena*);
 template<> ::CRYSTAL_NET::service::CreateLibraryRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CreateLibraryRes>(Arena*);
 template<> ::CRYSTAL_NET::service::GetBookByBookNameReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetBookByBookNameReq>(Arena*);
@@ -9264,6 +9272,589 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   union { Impl_ _impl_; };
   friend struct ::TableStruct_library_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(78), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class BorrowBookReq final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BorrowBookReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline BorrowBookReq() : BorrowBookReq(nullptr) {}
+  ~BorrowBookReq() override;
+  explicit PROTOBUF_CONSTEXPR BorrowBookReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BorrowBookReq(const BorrowBookReq& from);
+  BorrowBookReq(BorrowBookReq&& from) noexcept
+    : BorrowBookReq() {
+    *this = ::std::move(from);
+  }
+
+  inline BorrowBookReq& operator=(const BorrowBookReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BorrowBookReq& operator=(BorrowBookReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BorrowBookReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BorrowBookReq* internal_default_instance() {
+    return reinterpret_cast<const BorrowBookReq*>(
+               &_BorrowBookReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    31;
+
+  friend void swap(BorrowBookReq& a, BorrowBookReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BorrowBookReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BorrowBookReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  BorrowBookReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<BorrowBookReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BorrowBookReq& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const BorrowBookReq& from) {
+    BorrowBookReq::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BorrowBookReq* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.BorrowBookReq";
+  }
+  protected:
+  explicit BorrowBookReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBorrowBookListFieldNumber = 1,
+  };
+  // repeated .CRYSTAL_NET.service.BorrowBookItem BorrowBookList = 1;
+  int borrowbooklist_size() const;
+  private:
+  int _internal_borrowbooklist_size() const;
+  public:
+  void clear_borrowbooklist();
+  ::CRYSTAL_NET::service::BorrowBookItem* mutable_borrowbooklist(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >*
+      mutable_borrowbooklist();
+  private:
+  const ::CRYSTAL_NET::service::BorrowBookItem& _internal_borrowbooklist(int index) const;
+  ::CRYSTAL_NET::service::BorrowBookItem* _internal_add_borrowbooklist();
+  public:
+  const ::CRYSTAL_NET::service::BorrowBookItem& borrowbooklist(int index) const;
+  ::CRYSTAL_NET::service::BorrowBookItem* add_borrowbooklist();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&
+      borrowbooklist() const;
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BorrowBookReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem > borrowbooklist_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(79), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class BorrowBookRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BorrowBookRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline BorrowBookRes() : BorrowBookRes(nullptr) {}
+  ~BorrowBookRes() override;
+  explicit PROTOBUF_CONSTEXPR BorrowBookRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BorrowBookRes(const BorrowBookRes& from);
+  BorrowBookRes(BorrowBookRes&& from) noexcept
+    : BorrowBookRes() {
+    *this = ::std::move(from);
+  }
+
+  inline BorrowBookRes& operator=(const BorrowBookRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BorrowBookRes& operator=(BorrowBookRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BorrowBookRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BorrowBookRes* internal_default_instance() {
+    return reinterpret_cast<const BorrowBookRes*>(
+               &_BorrowBookRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    32;
+
+  friend void swap(BorrowBookRes& a, BorrowBookRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BorrowBookRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BorrowBookRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  BorrowBookRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<BorrowBookRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BorrowBookRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const BorrowBookRes& from) {
+    BorrowBookRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BorrowBookRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.BorrowBookRes";
+  }
+  protected:
+  explicit BorrowBookRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrCodeFieldNumber = 1,
+  };
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BorrowBookRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
 // ===================================================================
 
 
@@ -10846,9 +11437,78 @@ GetBookByBookNameRes::bookinfolist() const {
   return _impl_.bookinfolist_;
 }
 
+// -------------------------------------------------------------------
+
+// BorrowBookReq
+
+// repeated .CRYSTAL_NET.service.BorrowBookItem BorrowBookList = 1;
+inline int BorrowBookReq::_internal_borrowbooklist_size() const {
+  return _impl_.borrowbooklist_.size();
+}
+inline int BorrowBookReq::borrowbooklist_size() const {
+  return _internal_borrowbooklist_size();
+}
+inline ::CRYSTAL_NET::service::BorrowBookItem* BorrowBookReq::mutable_borrowbooklist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+  return _impl_.borrowbooklist_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >*
+BorrowBookReq::mutable_borrowbooklist() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+  return &_impl_.borrowbooklist_;
+}
+inline const ::CRYSTAL_NET::service::BorrowBookItem& BorrowBookReq::_internal_borrowbooklist(int index) const {
+  return _impl_.borrowbooklist_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::BorrowBookItem& BorrowBookReq::borrowbooklist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+  return _internal_borrowbooklist(index);
+}
+inline ::CRYSTAL_NET::service::BorrowBookItem* BorrowBookReq::_internal_add_borrowbooklist() {
+  return _impl_.borrowbooklist_.Add();
+}
+inline ::CRYSTAL_NET::service::BorrowBookItem* BorrowBookReq::add_borrowbooklist() {
+  ::CRYSTAL_NET::service::BorrowBookItem* _add = _internal_add_borrowbooklist();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&
+BorrowBookReq::borrowbooklist() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+  return _impl_.borrowbooklist_;
+}
+
+// -------------------------------------------------------------------
+
+// BorrowBookRes
+
+// sint32 ErrCode = 1;
+inline void BorrowBookRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t BorrowBookRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t BorrowBookRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookRes.ErrCode)
+  return _internal_errcode();
+}
+inline void BorrowBookRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void BorrowBookRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookRes.ErrCode)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -11627,6 +12287,52 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::GetBookByBookNameRes(*dynamic_cast<const ::CRYSTAL_NET::service::GetBookByBookNameRes *>(coder));
+    }
+
+};
+
+
+class BorrowBookReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BorrowBookReqFactory);
+public:
+
+    virtual void Release() override {
+        BorrowBookReqFactory::Delete_BorrowBookReqFactory(this);
+    }
+
+    static BorrowBookReqFactory *CreateFactory() {
+        return BorrowBookReqFactory::New_BorrowBookReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::BorrowBookReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::BorrowBookReq(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowBookReq *>(coder));
+    }
+
+};
+
+
+class BorrowBookResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BorrowBookResFactory);
+public:
+
+    virtual void Release() override {
+        BorrowBookResFactory::Delete_BorrowBookResFactory(this);
+    }
+
+    static BorrowBookResFactory *CreateFactory() {
+        return BorrowBookResFactory::New_BorrowBookResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::BorrowBookRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::BorrowBookRes(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowBookRes *>(coder));
     }
 
 };

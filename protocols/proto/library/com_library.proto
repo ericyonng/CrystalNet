@@ -171,3 +171,16 @@ message LibraryPreviewInfo
     // 馆长昵称
     string LibrarianNickname = 4;
 }
+
+// 借阅图书数据
+message BorrowBookItem
+{
+    // 图书id
+    uint64 BookId = 1;
+
+    // 借阅数量
+    uint32 BorrowNum = 2;
+
+    // 借阅天数
+    uint32 BorrowDays = 3;
+}

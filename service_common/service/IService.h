@@ -253,6 +253,7 @@ protected:
     std::set<const KERNEL_NS::CompObject *> _quitEndComps;
     std::set<const KERNEL_NS::CompObject *> _forcusComps;
     Int32 _serviceStatus;
+
 };
 
 ALWAYS_INLINE void IService::SetServiceId(UInt64 serviceId)

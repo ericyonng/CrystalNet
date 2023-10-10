@@ -1050,10 +1050,21 @@ void Application::_OnMonitorThreadFrame()
 
 void Application::_OnQuitApplicationEvent(KERNEL_NS::PollerEvent *ev)
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("application will quit app:\n%s"), IntroduceStr().c_str());
+    _DoCloseApp();
+}
 
+void Application::_DoCloseApp()
+{
+    g_Log->Info(LOGFMT_OBJ_TAG("application will quit app:\n%s"), IntroduceStr().c_str());
     _poller->Disable();
     _poller->QuitLoop();
+
+    // 先关闭监控
+    if(LIKELY(_monitor))
+    {
+        if(LIKELY(_monitor->HalfClose()))
+            _monitor->FinishClose();
+    }
 }
 
 void Application::_OnMonitor(KERNEL_NS::LibThread *t)
@@ -1134,8 +1145,8 @@ void Application::_OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer)
     if(killMonitor->IsReadyToDie())
     {
         _killMonitorTimer->Cancel();
-        _poller->Disable();
-        _poller->QuitLoop();
+
+        _DoCloseApp();
     }
 }
 

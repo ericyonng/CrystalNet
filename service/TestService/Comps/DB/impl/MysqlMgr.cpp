@@ -41,6 +41,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlMgr);
 
 MysqlMgr::MysqlMgr()
 :_closeServiceStub(INVALID_LISTENER_STUB)
+,_onServiceFrameTickStub(INVALID_LISTENER_STUB)
 ,_purgeTimer(NULL)
 ,_poller(NULL)
 ,_defaultBlobOriginSize(64)
@@ -605,8 +606,12 @@ void MysqlMgr::PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler)
     if(UNLIKELY(*counter == 0))
     {
         // TODO:落地失败的正常来说应该踢掉内存中的User，重新登陆，以便剔除脏数据
-        handler->Invoke(Status::PurgeFail);
-        handler->Release();
+        if(LIKELY(handler))
+        {
+            handler->Invoke(Status::PurgeFail);
+            handler->Release();
+        }
+
         KERNEL_FREE_MEMORY_TL(counter);
         errList->Release();
         g_Log->Error(LOGFMT_OBJ_TAG("dirty but have no request to mysql thread"));
@@ -832,6 +837,7 @@ Int32 MysqlMgr::_OnGlobalSysInit()
     _disableAutoDrop = 1;
     _poller = GetService()->GetComp<KERNEL_NS::Poller>();
     _closeServiceStub = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &MysqlMgr::_CloseServiceEvent);
+    _onServiceFrameTickStub = GetEventMgr()->AddListener(EventEnums::SERVICE_FRAME_TICK, this, &MysqlMgr::_OnServiceFrameTick);
 
     auto ini = GetApp()->GetIni();
     if(!ini->CheckReadNumber("MysqlCommon", "DefaultBlobOriginSize", _defaultBlobOriginSize))
@@ -1035,6 +1041,8 @@ void MysqlMgr::_OnGlobalSysClose()
     _Clear();
     if (_closeServiceStub != INVALID_LISTENER_STUB)
         GetEventMgr()->RemoveListenerX(_closeServiceStub);
+    if (_onServiceFrameTickStub != INVALID_LISTENER_STUB)
+        GetEventMgr()->RemoveListenerX(_onServiceFrameTickStub);
 }
 
 void MysqlMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
@@ -1106,6 +1114,11 @@ void MysqlMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
 
     timer->Schedule(3000);
     g_Log->Info(LOGFMT_OBJ_TAG("start waiting for mysql db mgr quit..."));
+}
+
+void MysqlMgr::_OnServiceFrameTick(KERNEL_NS::LibEvent *ev)
+{
+    _PurgeAll();
 }
 
 bool MysqlMgr::_LoadSystemTable()
@@ -4315,8 +4328,11 @@ void MysqlMgr::_OnDurtyPurgeFinishHandler(KERNEL_NS::MysqlResponse *res)
         if(UNLIKELY(!errList->IsEmpty()))
             g_Log->Warn(LOGFMT_OBJ_TAG("[WAIT PURGE COMPLETE WITH FAIL]:%s"), errList->ToString().c_str());
 
-        handler->Invoke(errList->IsEmpty() ? Status::Success : Status::DBError);
-        handler->Release();
+        if(LIKELY(handler))
+        {
+            handler->Invoke(errList->IsEmpty() ? Status::Success : Status::DBError);
+            handler->Release();
+        }
         errList->Release();
         KERNEL_FREE_MEMORY_TL(counter);
     }
@@ -4388,7 +4404,14 @@ void MysqlMgr::_InitStringDirtyHelper(const IStorageInfo *storageInfo, KERNEL_NS
 
 void MysqlMgr::_OnPurge(KERNEL_NS::LibTimer *t)
 {
+    _PurgeAll();   
+}
+
+void MysqlMgr::_PurgeAll()
+{
     const Int64 dirtyCount = static_cast<Int64>(_dirtyLogics.size());
+    if(LIKELY(dirtyCount == 0))
+        return;
 
     auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
     const auto &startCounter = KERNEL_NS::LibCpuCounter::Current();

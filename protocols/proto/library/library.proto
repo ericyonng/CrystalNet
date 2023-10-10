@@ -256,6 +256,20 @@ message GetBookByBookNameRes
     repeated BookInfo BookInfoList = 1;
 }
 
+// 借书
+/// Opcode:
+message BorrowBookReq
+{
+    repeated BorrowBookItem BorrowBookList = 1;
+}
+
+// 借书
+/// Opcode:
+message BorrowBookRes
+{
+    sint32 ErrCode = 1;
+}
+
 
 // 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管
 

@@ -309,6 +309,9 @@ Int32 MyTestService::_OnServiceCompsCreated()
     auto globalUidMgr = GetComp<IGlobalUidMgr>();
     globalUidMgr->SetUpdateLastIdCallback(mysqlMgr, &IMysqlMgr::PurgeAndWaitComplete);
 
+    // 设置帧尾回调
+    GetPoller()->SetFrameTick(this, &MyTestService::_OnFrameTick);
+
     return Status::Success;
 }
 
@@ -655,6 +658,12 @@ void MyTestService::_GetOpcodeInfo(Int32 opcode, KERNEL_NS::LibString &opcodeInf
 bool MyTestService::_CheckOpcodeEnable(Int32 opcode)
 {
     return Opcodes::CheckOpcode(opcode);
+}
+
+void MyTestService::_OnFrameTick()
+{
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_FRAME_TICK);
+    GetEventMgr()->FireEvent(ev);
 }
 
 SERVICE_END

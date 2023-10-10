@@ -65,6 +65,8 @@ public static class PacketOpcode
         GetBookInfoRes = 75,    // library.proto
         GetBookByBookNameReq = 76,    // library.proto
         GetBookByBookNameRes = 77,    // library.proto
-        OpcodeMax = 77,
+        BorrowBookReq = 78,    // library.proto
+        BorrowBookRes = 79,    // library.proto
+        OpcodeMax = 79,
     }
 }

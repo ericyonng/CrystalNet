@@ -51,3 +51,4 @@ message BookVariantInfoItem
     BookVariantInfo BookVariantInfo = 2;
 }
 
+

@@ -330,6 +330,36 @@ export namespace crystal_net_service
 
 
     }
+    // 借阅图书数据
+    // com_library.proto
+    export class BorrowBookItem {
+        // 图书id
+        BookId:number = 0;
+
+        // 借阅数量
+        BorrowNum:number = 0;
+
+        // 借阅天数
+        BorrowDays:number = 0;
+
+
+    }
+    // 借书
+    /// Opcode:
+    // library.proto
+    export class BorrowBookReq {
+        BorrowBookList:BorrowBookItem[] = [];
+
+
+    }
+    // 借书
+    /// Opcode:
+    // library.proto
+    export class BorrowBookRes {
+        ErrCode:number = 0;
+
+
+    }
     // 借还订单信息
     // com_library.proto
     export class BorrowOrderInfo {

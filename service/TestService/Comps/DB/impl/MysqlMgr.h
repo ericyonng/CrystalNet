@@ -87,6 +87,7 @@ protected:
    void _OnGlobalSysClose() override;
 
     void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
+    void _OnServiceFrameTick(KERNEL_NS::LibEvent *ev);
 
     // 数据加载
     bool _LoadSystemTable();
@@ -131,6 +132,8 @@ protected:
 
     const ILogicSys *_GetDependenceLogic(const KERNEL_NS::LibString &tableName) const;
     ILogicSys *_GetDependenceLogic(const KERNEL_NS::LibString &tableName);
+
+    void _PurgeAll();
 
 private:
     void _Clear();
@@ -180,6 +183,7 @@ private:
 
 private:
     KERNEL_NS::ListenerStub _closeServiceStub;
+    KERNEL_NS::ListenerStub _onServiceFrameTickStub;
 
 
     // 所有表建立的标脏回调, 系统退出时移除

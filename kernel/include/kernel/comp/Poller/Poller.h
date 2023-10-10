@@ -99,6 +99,11 @@ public:
    template<typename ObjType>
    void SetPepareEventWorkerHandler(ObjType *obj, bool (ObjType::*handler)(Poller *));
 
+   // 设置帧末执行
+   template<typename ObjType>
+   void SetFrameTick(ObjType *obj, void(ObjType::*handler)());
+   void SetFrameTick(IDelegate<void> *handler);
+
    // poller线程退出前销毁
    void SetEventWorkerCloseHandler(IDelegate<void, Poller *> *handler);
    template<typename ObjType>
@@ -178,6 +183,7 @@ private:
   std::atomic<Int64> _eventAmountLeft;
   std::atomic<Int64> _genEventAmount;
   std::atomic<Int64> _consumEventCount;
+  IDelegate<void> *_onTick;                                 // 帧末执行
 
   // poller event handler
   std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *> *> _pollerEventHandler;
@@ -245,6 +251,19 @@ ALWAYS_INLINE void Poller::SetPepareEventWorkerHandler(ObjType *obj, bool (ObjTy
 {
     auto delg = DelegateFactory::Create(obj, handler);
     SetPepareEventWorkerHandler(delg);
+}
+
+template<typename ObjType>
+ALWAYS_INLINE void Poller::SetFrameTick(ObjType *obj, void(ObjType::*handler)())
+{
+    auto delg = DelegateFactory::Create(obj, handler);
+    SetFrameTick(delg);
+}
+
+ALWAYS_INLINE void Poller::SetFrameTick(IDelegate<void> *handler)
+{
+    CRYSTAL_RELEASE_SAFE(_onTick);
+    _onTick = handler;
 }
 
 ALWAYS_INLINE void Poller::SetEventWorkerCloseHandler(IDelegate<void, Poller *> *handler)

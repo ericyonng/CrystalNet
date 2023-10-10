@@ -95,6 +95,8 @@ protected:
     
     void _OnQuitApplicationEvent(KERNEL_NS::PollerEvent *ev);
 
+    void _DoCloseApp();
+
     // 每帧打印
 private:
     void _Clear();

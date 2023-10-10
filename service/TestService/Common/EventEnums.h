@@ -92,5 +92,7 @@ namespace EventEnums
                                         * Attention: 
                                         * @param(USER_OBJ): 用户对象
                                         */
+
+        SERVICE_FRAME_TICK,             // 服务帧结束事件
     };
 }

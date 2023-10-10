@@ -90,5 +90,7 @@ public:
     static constexpr Int32 OPCODE_GetBookInfoRes = 75;    // library.proto
     static constexpr Int32 OPCODE_GetBookByBookNameReq = 76;    // library.proto
     static constexpr Int32 OPCODE_GetBookByBookNameRes = 77;    // library.proto
-    static constexpr Int32 OPCODE_MAX = 77;
+    static constexpr Int32 OPCODE_BorrowBookReq = 78;    // library.proto
+    static constexpr Int32 OPCODE_BorrowBookRes = 79;    // library.proto
+    static constexpr Int32 OPCODE_MAX = 79;
 };

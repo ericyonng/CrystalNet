@@ -54,7 +54,7 @@ IService::IService()
 
 IService::~IService()
 {
-
+    _Clear();
 }
 
 void IService::Clear()
