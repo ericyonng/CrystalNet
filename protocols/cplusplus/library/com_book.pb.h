@@ -653,16 +653,67 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // accessors -------------------------------------------------------
 
   enum : int {
+    kKeyWordsFieldNumber = 9,
+    kSnapshotFieldNumber = 11,
     kBookNameFieldNumber = 3,
     kIsbnCodeFieldNumber = 4,
     kBookCoverImageFieldNumber = 5,
-    kCoverImagePathFieldNumber = 9,
+    kContentFieldNumber = 10,
+    kCoverImagePathFieldNumber = 12,
     kVariantInfoFieldNumber = 7,
     kIdFieldNumber = 1,
     kBookTypeFieldNumber = 2,
     kIsOnShelvesFieldNumber = 6,
     kBorrowedCountFieldNumber = 8,
   };
+  // repeated string KeyWords = 9;
+  int keywords_size() const;
+  private:
+  int _internal_keywords_size() const;
+  public:
+  void clear_keywords();
+  const std::string& keywords(int index) const;
+  std::string* mutable_keywords(int index);
+  void set_keywords(int index, const std::string& value);
+  void set_keywords(int index, std::string&& value);
+  void set_keywords(int index, const char* value);
+  void set_keywords(int index, const char* value, size_t size);
+  std::string* add_keywords();
+  void add_keywords(const std::string& value);
+  void add_keywords(std::string&& value);
+  void add_keywords(const char* value);
+  void add_keywords(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& keywords() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_keywords();
+  private:
+  const std::string& _internal_keywords(int index) const;
+  std::string* _internal_add_keywords();
+  public:
+
+  // repeated string Snapshot = 11;
+  int snapshot_size() const;
+  private:
+  int _internal_snapshot_size() const;
+  public:
+  void clear_snapshot();
+  const std::string& snapshot(int index) const;
+  std::string* mutable_snapshot(int index);
+  void set_snapshot(int index, const std::string& value);
+  void set_snapshot(int index, std::string&& value);
+  void set_snapshot(int index, const char* value);
+  void set_snapshot(int index, const char* value, size_t size);
+  std::string* add_snapshot();
+  void add_snapshot(const std::string& value);
+  void add_snapshot(std::string&& value);
+  void add_snapshot(const char* value);
+  void add_snapshot(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& snapshot() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_snapshot();
+  private:
+  const std::string& _internal_snapshot(int index) const;
+  std::string* _internal_add_snapshot();
+  public:
+
   // string BookName = 3;
   void clear_bookname();
   const std::string& bookname() const;
@@ -705,7 +756,21 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_bookcoverimage();
   public:
 
-  // string CoverImagePath = 9;
+  // string Content = 10;
+  void clear_content();
+  const std::string& content() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_content(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_content();
+  PROTOBUF_NODISCARD std::string* release_content();
+  void set_allocated_content(std::string* content);
+  private:
+  const std::string& _internal_content() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_content(const std::string& value);
+  std::string* _internal_mutable_content();
+  public:
+
+  // string CoverImagePath = 12;
   void clear_coverimagepath();
   const std::string& coverimagepath() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -781,9 +846,12 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> keywords_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> snapshot_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookname_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr isbncode_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookcoverimage_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr coverimagepath_;
     ::CRYSTAL_NET::service::BookVariantInfo* variantinfo_;
     uint64_t id_;
@@ -1735,7 +1803,207 @@ inline void BookInfo::set_borrowedcount(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.BorrowedCount)
 }
 
-// string CoverImagePath = 9;
+// repeated string KeyWords = 9;
+inline int BookInfo::_internal_keywords_size() const {
+  return _impl_.keywords_.size();
+}
+inline int BookInfo::keywords_size() const {
+  return _internal_keywords_size();
+}
+inline void BookInfo::clear_keywords() {
+  _impl_.keywords_.Clear();
+}
+inline std::string* BookInfo::add_keywords() {
+  std::string* _s = _internal_add_keywords();
+  // @@protoc_insertion_point(field_add_mutable:CRYSTAL_NET.service.BookInfo.KeyWords)
+  return _s;
+}
+inline const std::string& BookInfo::_internal_keywords(int index) const {
+  return _impl_.keywords_.Get(index);
+}
+inline const std::string& BookInfo::keywords(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookInfo.KeyWords)
+  return _internal_keywords(index);
+}
+inline std::string* BookInfo::mutable_keywords(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BookInfo.KeyWords)
+  return _impl_.keywords_.Mutable(index);
+}
+inline void BookInfo::set_keywords(int index, const std::string& value) {
+  _impl_.keywords_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.KeyWords)
+}
+inline void BookInfo::set_keywords(int index, std::string&& value) {
+  _impl_.keywords_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.KeyWords)
+}
+inline void BookInfo::set_keywords(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.keywords_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.BookInfo.KeyWords)
+}
+inline void BookInfo::set_keywords(int index, const char* value, size_t size) {
+  _impl_.keywords_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.BookInfo.KeyWords)
+}
+inline std::string* BookInfo::_internal_add_keywords() {
+  return _impl_.keywords_.Add();
+}
+inline void BookInfo::add_keywords(const std::string& value) {
+  _impl_.keywords_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BookInfo.KeyWords)
+}
+inline void BookInfo::add_keywords(std::string&& value) {
+  _impl_.keywords_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BookInfo.KeyWords)
+}
+inline void BookInfo::add_keywords(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.keywords_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.BookInfo.KeyWords)
+}
+inline void BookInfo::add_keywords(const char* value, size_t size) {
+  _impl_.keywords_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.BookInfo.KeyWords)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+BookInfo::keywords() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BookInfo.KeyWords)
+  return _impl_.keywords_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+BookInfo::mutable_keywords() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BookInfo.KeyWords)
+  return &_impl_.keywords_;
+}
+
+// string Content = 10;
+inline void BookInfo::clear_content() {
+  _impl_.content_.ClearToEmpty();
+}
+inline const std::string& BookInfo::content() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookInfo.Content)
+  return _internal_content();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BookInfo::set_content(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.content_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.Content)
+}
+inline std::string* BookInfo::mutable_content() {
+  std::string* _s = _internal_mutable_content();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BookInfo.Content)
+  return _s;
+}
+inline const std::string& BookInfo::_internal_content() const {
+  return _impl_.content_.Get();
+}
+inline void BookInfo::_internal_set_content(const std::string& value) {
+  
+  _impl_.content_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BookInfo::_internal_mutable_content() {
+  
+  return _impl_.content_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BookInfo::release_content() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BookInfo.Content)
+  return _impl_.content_.Release();
+}
+inline void BookInfo::set_allocated_content(std::string* content) {
+  if (content != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.content_.SetAllocated(content, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.content_.IsDefault()) {
+    _impl_.content_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BookInfo.Content)
+}
+
+// repeated string Snapshot = 11;
+inline int BookInfo::_internal_snapshot_size() const {
+  return _impl_.snapshot_.size();
+}
+inline int BookInfo::snapshot_size() const {
+  return _internal_snapshot_size();
+}
+inline void BookInfo::clear_snapshot() {
+  _impl_.snapshot_.Clear();
+}
+inline std::string* BookInfo::add_snapshot() {
+  std::string* _s = _internal_add_snapshot();
+  // @@protoc_insertion_point(field_add_mutable:CRYSTAL_NET.service.BookInfo.Snapshot)
+  return _s;
+}
+inline const std::string& BookInfo::_internal_snapshot(int index) const {
+  return _impl_.snapshot_.Get(index);
+}
+inline const std::string& BookInfo::snapshot(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookInfo.Snapshot)
+  return _internal_snapshot(index);
+}
+inline std::string* BookInfo::mutable_snapshot(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BookInfo.Snapshot)
+  return _impl_.snapshot_.Mutable(index);
+}
+inline void BookInfo::set_snapshot(int index, const std::string& value) {
+  _impl_.snapshot_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.Snapshot)
+}
+inline void BookInfo::set_snapshot(int index, std::string&& value) {
+  _impl_.snapshot_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.Snapshot)
+}
+inline void BookInfo::set_snapshot(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.snapshot_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.BookInfo.Snapshot)
+}
+inline void BookInfo::set_snapshot(int index, const char* value, size_t size) {
+  _impl_.snapshot_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.BookInfo.Snapshot)
+}
+inline std::string* BookInfo::_internal_add_snapshot() {
+  return _impl_.snapshot_.Add();
+}
+inline void BookInfo::add_snapshot(const std::string& value) {
+  _impl_.snapshot_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BookInfo.Snapshot)
+}
+inline void BookInfo::add_snapshot(std::string&& value) {
+  _impl_.snapshot_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BookInfo.Snapshot)
+}
+inline void BookInfo::add_snapshot(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.snapshot_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.BookInfo.Snapshot)
+}
+inline void BookInfo::add_snapshot(const char* value, size_t size) {
+  _impl_.snapshot_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.BookInfo.Snapshot)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+BookInfo::snapshot() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BookInfo.Snapshot)
+  return _impl_.snapshot_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+BookInfo::mutable_snapshot() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BookInfo.Snapshot)
+  return &_impl_.snapshot_;
+}
+
+// string CoverImagePath = 12;
 inline void BookInfo::clear_coverimagepath() {
   _impl_.coverimagepath_.ClearToEmpty();
 }

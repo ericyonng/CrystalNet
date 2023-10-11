@@ -219,7 +219,7 @@ export namespace crystal_net_service
 
 
     }
-    // 书籍信息, 数据存储:id, isbn(unique), bookInfo json
+    // 书籍信息, 数据存储:id, isbn(unique), bookInfo json 查书通过上拉显示下一页
     // com_book.proto
     export class BookInfo {
         // 唯一id, 同一个isbn, 同一个id
@@ -245,6 +245,15 @@ export namespace crystal_net_service
 
         // 被借数量
         BorrowedCount:number = 0;
+
+        // 关键词
+        KeyWords:string[] = [];
+
+        // 内容简介 最多10KB左右
+        Content:string = "";
+
+        // 截图最多9张
+        Snapshot:string[] = [];
 
         // 客户端使用
         CoverImagePath:string = "";

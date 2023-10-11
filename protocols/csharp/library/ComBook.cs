@@ -27,21 +27,22 @@ using ProtoPackage.Attributes;
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Cg5jb21fYm9vay5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSIgCghCb29r",
-            "VHlwZSIUCgVFTlVNUxILCgdVTktOT1dOEAAi4wEKCEJvb2tJbmZvEgoKAklk",
+            "VHlwZSIUCgVFTlVNUxILCgdVTktOT1dOEAAimAIKCEJvb2tJbmZvEgoKAklk",
             "GAEgASgEEhAKCEJvb2tUeXBlGAIgASgREhAKCEJvb2tOYW1lGAMgASgJEhAK",
             "CElzYm5Db2RlGAQgASgJEhYKDkJvb2tDb3ZlckltYWdlGAUgASgJEhMKC0lz",
             "T25TaGVsdmVzGAYgASgREjkKC1ZhcmlhbnRJbmZvGAcgASgLMiQuQ1JZU1RB",
             "TF9ORVQuc2VydmljZS5Cb29rVmFyaWFudEluZm8SFQoNQm9ycm93ZWRDb3Vu",
-            "dBgIIAEoBBIWCg5Db3ZlckltYWdlUGF0aBgJIAEoCSIvCg9Cb29rVmFyaWFu",
-            "dEluZm8SDQoFQ291bnQYASABKBISDQoFUHJpY2UYAiABKBIiYAoTQm9va1Zh",
-            "cmlhbnRJbmZvSXRlbRIKCgJJZBgBIAEoBBI9Cg9Cb29rVmFyaWFudEluZm8Y",
-            "AiABKAsyJC5DUllTVEFMX05FVC5zZXJ2aWNlLkJvb2tWYXJpYW50SW5mb2IG",
-            "cHJvdG8z"));
+            "dBgIIAEoBBIQCghLZXlXb3JkcxgJIAMoCRIPCgdDb250ZW50GAogASgJEhAK",
+            "CFNuYXBzaG90GAsgAygJEhYKDkNvdmVySW1hZ2VQYXRoGAwgASgJIi8KD0Jv",
+            "b2tWYXJpYW50SW5mbxINCgVDb3VudBgBIAEoEhINCgVQcmljZRgCIAEoEiJg",
+            "ChNCb29rVmFyaWFudEluZm9JdGVtEgoKAklkGAEgASgEEj0KD0Jvb2tWYXJp",
+            "YW50SW5mbxgCIAEoCzIkLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9va1Zhcmlh",
+            "bnRJbmZvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookType), global::CRYSTALNET.Service.BookType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.BookType.Types.ENUMS) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookInfo), global::CRYSTALNET.Service.BookInfo.Parser, new[]{ "Id", "BookType", "BookName", "IsbnCode", "BookCoverImage", "IsOnShelves", "VariantInfo", "BorrowedCount", "CoverImagePath" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookInfo), global::CRYSTALNET.Service.BookInfo.Parser, new[]{ "Id", "BookType", "BookName", "IsbnCode", "BookCoverImage", "IsOnShelves", "VariantInfo", "BorrowedCount", "KeyWords", "Content", "Snapshot", "CoverImagePath" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookVariantInfo), global::CRYSTALNET.Service.BookVariantInfo.Parser, new[]{ "Count", "Price" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookVariantInfoItem), global::CRYSTALNET.Service.BookVariantInfoItem.Parser, new[]{ "Id", "BookVariantInfo" }, null, null, null, null)
           }));
@@ -218,7 +219,7 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  /// 书籍信息, 数据存储:id, isbn(unique), bookInfo json
+  /// 书籍信息, 数据存储:id, isbn(unique), bookInfo json 查书通过上拉显示下一页
   /// </summary>
   public sealed partial class BookInfo : pb::IMessage<BookInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -262,6 +263,9 @@ using ProtoPackage.Attributes;
       isOnShelves_ = other.isOnShelves_;
       variantInfo_ = other.variantInfo_ != null ? other.variantInfo_.Clone() : null;
       borrowedCount_ = other.borrowedCount_;
+      keyWords_ = other.keyWords_.Clone();
+      content_ = other.content_;
+      snapshot_ = other.snapshot_.Clone();
       coverImagePath_ = other.coverImagePath_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -392,8 +396,51 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "KeyWords" field.</summary>
+    public const int KeyWordsFieldNumber = 9;
+    private static readonly pb::FieldCodec<string> _repeated_keyWords_codec
+        = pb::FieldCodec.ForString(74);
+    private readonly pbc::RepeatedField<string> keyWords_ = new pbc::RepeatedField<string>();
+    /// <summary>
+    /// 关键词
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> KeyWords {
+      get { return keyWords_; }
+    }
+
+    /// <summary>Field number for the "Content" field.</summary>
+    public const int ContentFieldNumber = 10;
+    private string content_ = "";
+    /// <summary>
+    /// 内容简介 最多10KB左右
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Content {
+      get { return content_; }
+      set {
+        content_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "Snapshot" field.</summary>
+    public const int SnapshotFieldNumber = 11;
+    private static readonly pb::FieldCodec<string> _repeated_snapshot_codec
+        = pb::FieldCodec.ForString(90);
+    private readonly pbc::RepeatedField<string> snapshot_ = new pbc::RepeatedField<string>();
+    /// <summary>
+    /// 截图最多9张
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> Snapshot {
+      get { return snapshot_; }
+    }
+
     /// <summary>Field number for the "CoverImagePath" field.</summary>
-    public const int CoverImagePathFieldNumber = 9;
+    public const int CoverImagePathFieldNumber = 12;
     private string coverImagePath_ = "";
     /// <summary>
     /// 客户端使用
@@ -430,6 +477,9 @@ using ProtoPackage.Attributes;
       if (IsOnShelves != other.IsOnShelves) return false;
       if (!object.Equals(VariantInfo, other.VariantInfo)) return false;
       if (BorrowedCount != other.BorrowedCount) return false;
+      if(!keyWords_.Equals(other.keyWords_)) return false;
+      if (Content != other.Content) return false;
+      if(!snapshot_.Equals(other.snapshot_)) return false;
       if (CoverImagePath != other.CoverImagePath) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -446,6 +496,9 @@ using ProtoPackage.Attributes;
       if (IsOnShelves != 0) hash ^= IsOnShelves.GetHashCode();
       if (variantInfo_ != null) hash ^= VariantInfo.GetHashCode();
       if (BorrowedCount != 0UL) hash ^= BorrowedCount.GetHashCode();
+      hash ^= keyWords_.GetHashCode();
+      if (Content.Length != 0) hash ^= Content.GetHashCode();
+      hash ^= snapshot_.GetHashCode();
       if (CoverImagePath.Length != 0) hash ^= CoverImagePath.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -497,8 +550,14 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(64);
         output.WriteUInt64(BorrowedCount);
       }
+      keyWords_.WriteTo(output, _repeated_keyWords_codec);
+      if (Content.Length != 0) {
+        output.WriteRawTag(82);
+        output.WriteString(Content);
+      }
+      snapshot_.WriteTo(output, _repeated_snapshot_codec);
       if (CoverImagePath.Length != 0) {
-        output.WriteRawTag(74);
+        output.WriteRawTag(98);
         output.WriteString(CoverImagePath);
       }
       if (_unknownFields != null) {
@@ -543,8 +602,14 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(64);
         output.WriteUInt64(BorrowedCount);
       }
+      keyWords_.WriteTo(ref output, _repeated_keyWords_codec);
+      if (Content.Length != 0) {
+        output.WriteRawTag(82);
+        output.WriteString(Content);
+      }
+      snapshot_.WriteTo(ref output, _repeated_snapshot_codec);
       if (CoverImagePath.Length != 0) {
-        output.WriteRawTag(74);
+        output.WriteRawTag(98);
         output.WriteString(CoverImagePath);
       }
       if (_unknownFields != null) {
@@ -581,6 +646,11 @@ using ProtoPackage.Attributes;
       if (BorrowedCount != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BorrowedCount);
       }
+      size += keyWords_.CalculateSize(_repeated_keyWords_codec);
+      if (Content.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Content);
+      }
+      size += snapshot_.CalculateSize(_repeated_snapshot_codec);
       if (CoverImagePath.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CoverImagePath);
       }
@@ -623,6 +693,11 @@ using ProtoPackage.Attributes;
       if (other.BorrowedCount != 0UL) {
         BorrowedCount = other.BorrowedCount;
       }
+      keyWords_.Add(other.keyWords_);
+      if (other.Content.Length != 0) {
+        Content = other.Content;
+      }
+      snapshot_.Add(other.snapshot_);
       if (other.CoverImagePath.Length != 0) {
         CoverImagePath = other.CoverImagePath;
       }
@@ -677,6 +752,18 @@ using ProtoPackage.Attributes;
             break;
           }
           case 74: {
+            keyWords_.AddEntriesFrom(input, _repeated_keyWords_codec);
+            break;
+          }
+          case 82: {
+            Content = input.ReadString();
+            break;
+          }
+          case 90: {
+            snapshot_.AddEntriesFrom(input, _repeated_snapshot_codec);
+            break;
+          }
+          case 98: {
             CoverImagePath = input.ReadString();
             break;
           }
@@ -731,6 +818,18 @@ using ProtoPackage.Attributes;
             break;
           }
           case 74: {
+            keyWords_.AddEntriesFrom(ref input, _repeated_keyWords_codec);
+            break;
+          }
+          case 82: {
+            Content = input.ReadString();
+            break;
+          }
+          case 90: {
+            snapshot_.AddEntriesFrom(ref input, _repeated_snapshot_codec);
+            break;
+          }
+          case 98: {
             CoverImagePath = input.ReadString();
             break;
           }

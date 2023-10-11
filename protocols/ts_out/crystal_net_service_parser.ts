@@ -683,6 +683,32 @@ export namespace crystal_net_service_parser
                 }
 
 
+                if(jsonData.KeyWords != undefined)
+                {
+                    var jsonArray = jsonData.KeyWords.map((value, idx, arr)=>{
+                    return value;
+                    });
+
+                    newInfo.KeyWords = jsonArray;
+                }
+
+
+                if(jsonData.Content != undefined)
+                {
+                    newInfo.Content = jsonData.Content;
+                }
+
+
+                if(jsonData.Snapshot != undefined)
+                {
+                    var jsonArray = jsonData.Snapshot.map((value, idx, arr)=>{
+                    return value;
+                    });
+
+                    newInfo.Snapshot = jsonArray;
+                }
+
+
                 if(jsonData.CoverImagePath != undefined)
                 {
                     newInfo.CoverImagePath = jsonData.CoverImagePath;

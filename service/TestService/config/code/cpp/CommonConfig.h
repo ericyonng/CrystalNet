@@ -48,6 +48,12 @@ public:
 
         MAX_IMAGE_SIZE,    // id
 
+        BOOK_CONTENT_LIMIT,    // id
+
+        BOOK_SNAP_SHOT_MAX_LIMIT,    // id
+
+        KEYWORDS_LIMIT,    // id
+
         __ENUM_MAX,
 
     };

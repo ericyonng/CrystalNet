@@ -10,7 +10,7 @@ message BookType
     }
 }
 
-// 书籍信息, 数据存储:id, isbn(unique), bookInfo json
+// 书籍信息, 数据存储:id, isbn(unique), bookInfo json 查书通过上拉显示下一页
 message BookInfo 
 {
     // 唯一id, 同一个isbn, 同一个id
@@ -29,9 +29,15 @@ message BookInfo
     BookVariantInfo VariantInfo = 7;
     // 被借数量
     uint64 BorrowedCount = 8;
+    // 关键词
+    repeated string KeyWords = 9;
+    // 内容简介 最多10KB左右
+    string Content = 10;
+    // 截图最多9张
+    repeated string Snapshot = 11;
 
     // 客户端使用
-    string CoverImagePath = 9;
+    string CoverImagePath = 12;
 }
 
 // 图书可变数据

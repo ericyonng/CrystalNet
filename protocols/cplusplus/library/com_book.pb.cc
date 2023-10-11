@@ -40,9 +40,12 @@ struct BookTypeDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BookTypeDefaultTypeInternal _BookType_default_instance_;
 PROTOBUF_CONSTEXPR BookInfo::BookInfo(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.bookname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+    /*decltype(_impl_.keywords_)*/{}
+  , /*decltype(_impl_.snapshot_)*/{}
+  , /*decltype(_impl_.bookname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.isbncode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.bookcoverimage_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.content_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.coverimagepath_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.variantinfo_)*/nullptr
   , /*decltype(_impl_.id_)*/uint64_t{0u}
@@ -114,6 +117,9 @@ const uint32_t TableStruct_com_5fbook_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.isonshelves_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.variantinfo_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.borrowedcount_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.keywords_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.content_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.snapshot_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.coverimagepath_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookVariantInfo, _internal_metadata_),
@@ -135,8 +141,8 @@ const uint32_t TableStruct_com_5fbook_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::BookType)},
   { 6, -1, -1, sizeof(::CRYSTAL_NET::service::BookInfo)},
-  { 21, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfo)},
-  { 29, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfoItem)},
+  { 24, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfo)},
+  { 32, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfoItem)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -148,21 +154,22 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_com_5fbook_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\016com_book.proto\022\023CRYSTAL_NET.service\" \n"
-  "\010BookType\"\024\n\005ENUMS\022\013\n\007UNKNOWN\020\000\"\343\001\n\010Book"
+  "\010BookType\"\024\n\005ENUMS\022\013\n\007UNKNOWN\020\000\"\230\002\n\010Book"
   "Info\022\n\n\002Id\030\001 \001(\004\022\020\n\010BookType\030\002 \001(\021\022\020\n\010Bo"
   "okName\030\003 \001(\t\022\020\n\010IsbnCode\030\004 \001(\t\022\026\n\016BookCo"
   "verImage\030\005 \001(\t\022\023\n\013IsOnShelves\030\006 \001(\021\0229\n\013V"
   "ariantInfo\030\007 \001(\0132$.CRYSTAL_NET.service.B"
-  "ookVariantInfo\022\025\n\rBorrowedCount\030\010 \001(\004\022\026\n"
-  "\016CoverImagePath\030\t \001(\t\"/\n\017BookVariantInfo"
-  "\022\r\n\005Count\030\001 \001(\022\022\r\n\005Price\030\002 \001(\022\"`\n\023BookVa"
-  "riantInfoItem\022\n\n\002Id\030\001 \001(\004\022=\n\017BookVariant"
-  "Info\030\002 \001(\0132$.CRYSTAL_NET.service.BookVar"
-  "iantInfob\006proto3"
+  "ookVariantInfo\022\025\n\rBorrowedCount\030\010 \001(\004\022\020\n"
+  "\010KeyWords\030\t \003(\t\022\017\n\007Content\030\n \001(\t\022\020\n\010Snap"
+  "shot\030\013 \003(\t\022\026\n\016CoverImagePath\030\014 \001(\t\"/\n\017Bo"
+  "okVariantInfo\022\r\n\005Count\030\001 \001(\022\022\r\n\005Price\030\002 "
+  "\001(\022\"`\n\023BookVariantInfoItem\022\n\n\002Id\030\001 \001(\004\022="
+  "\n\017BookVariantInfo\030\002 \001(\0132$.CRYSTAL_NET.se"
+  "rvice.BookVariantInfob\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fbook_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fbook_2eproto = {
-    false, false, 456, descriptor_table_protodef_com_5fbook_2eproto,
+    false, false, 509, descriptor_table_protodef_com_5fbook_2eproto,
     "com_book.proto",
     &descriptor_table_com_5fbook_2eproto_once, nullptr, 0, 4,
     schemas, file_default_instances, TableStruct_com_5fbook_2eproto::offsets,
@@ -258,9 +265,12 @@ BookInfo::BookInfo(const BookInfo& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   BookInfo* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.bookname_){}
+      decltype(_impl_.keywords_){from._impl_.keywords_}
+    , decltype(_impl_.snapshot_){from._impl_.snapshot_}
+    , decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
     , decltype(_impl_.bookcoverimage_){}
+    , decltype(_impl_.content_){}
     , decltype(_impl_.coverimagepath_){}
     , decltype(_impl_.variantinfo_){nullptr}
     , decltype(_impl_.id_){}
@@ -294,6 +304,14 @@ BookInfo::BookInfo(const BookInfo& from)
     _this->_impl_.bookcoverimage_.Set(from._internal_bookcoverimage(), 
       _this->GetArenaForAllocation());
   }
+  _impl_.content_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.content_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_content().empty()) {
+    _this->_impl_.content_.Set(from._internal_content(), 
+      _this->GetArenaForAllocation());
+  }
   _impl_.coverimagepath_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.coverimagepath_.Set("", GetArenaForAllocation());
@@ -316,9 +334,12 @@ inline void BookInfo::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.bookname_){}
+      decltype(_impl_.keywords_){arena}
+    , decltype(_impl_.snapshot_){arena}
+    , decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
     , decltype(_impl_.bookcoverimage_){}
+    , decltype(_impl_.content_){}
     , decltype(_impl_.coverimagepath_){}
     , decltype(_impl_.variantinfo_){nullptr}
     , decltype(_impl_.id_){uint64_t{0u}}
@@ -339,6 +360,10 @@ inline void BookInfo::SharedCtor(
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.bookcoverimage_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.content_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.content_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   _impl_.coverimagepath_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.coverimagepath_.Set("", GetArenaForAllocation());
@@ -356,9 +381,12 @@ BookInfo::~BookInfo() {
 
 inline void BookInfo::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.keywords_.~RepeatedPtrField();
+  _impl_.snapshot_.~RepeatedPtrField();
   _impl_.bookname_.Destroy();
   _impl_.isbncode_.Destroy();
   _impl_.bookcoverimage_.Destroy();
+  _impl_.content_.Destroy();
   _impl_.coverimagepath_.Destroy();
   if (this != internal_default_instance()) delete _impl_.variantinfo_;
 }
@@ -373,9 +401,12 @@ void BookInfo::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  _impl_.keywords_.Clear();
+  _impl_.snapshot_.Clear();
   _impl_.bookname_.ClearToEmpty();
   _impl_.isbncode_.ClearToEmpty();
   _impl_.bookcoverimage_.ClearToEmpty();
+  _impl_.content_.ClearToEmpty();
   _impl_.coverimagepath_.ClearToEmpty();
   if (GetArenaForAllocation() == nullptr && _impl_.variantinfo_ != nullptr) {
     delete _impl_.variantinfo_;
@@ -463,9 +494,49 @@ const char* BookInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
         } else
           goto handle_unusual;
         continue;
-      // string CoverImagePath = 9;
+      // repeated string KeyWords = 9;
       case 9:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_keywords();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.BookInfo.KeyWords"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<74>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // string Content = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
+          auto str = _internal_mutable_content();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.BookInfo.Content"));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated string Snapshot = 11;
+      case 11:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_snapshot();
+            ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(ptr);
+            CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.BookInfo.Snapshot"));
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<90>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // string CoverImagePath = 12;
+      case 12:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 98)) {
           auto str = _internal_mutable_coverimagepath();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -563,14 +634,44 @@ uint8_t* BookInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt64ToArray(8, this->_internal_borrowedcount(), target);
   }
 
-  // string CoverImagePath = 9;
+  // repeated string KeyWords = 9;
+  for (int i = 0, n = this->_internal_keywords_size(); i < n; i++) {
+    const auto& s = this->_internal_keywords(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.BookInfo.KeyWords");
+    target = stream->WriteString(9, s, target);
+  }
+
+  // string Content = 10;
+  if (!this->_internal_content().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_content().data(), static_cast<int>(this->_internal_content().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.BookInfo.Content");
+    target = stream->WriteStringMaybeAliased(
+        10, this->_internal_content(), target);
+  }
+
+  // repeated string Snapshot = 11;
+  for (int i = 0, n = this->_internal_snapshot_size(); i < n; i++) {
+    const auto& s = this->_internal_snapshot(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.BookInfo.Snapshot");
+    target = stream->WriteString(11, s, target);
+  }
+
+  // string CoverImagePath = 12;
   if (!this->_internal_coverimagepath().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_coverimagepath().data(), static_cast<int>(this->_internal_coverimagepath().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "CRYSTAL_NET.service.BookInfo.CoverImagePath");
     target = stream->WriteStringMaybeAliased(
-        9, this->_internal_coverimagepath(), target);
+        12, this->_internal_coverimagepath(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -588,6 +689,22 @@ size_t BookInfo::ByteSizeLong() const {
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // repeated string KeyWords = 9;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.keywords_.size());
+  for (int i = 0, n = _impl_.keywords_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.keywords_.Get(i));
+  }
+
+  // repeated string Snapshot = 11;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.snapshot_.size());
+  for (int i = 0, n = _impl_.snapshot_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      _impl_.snapshot_.Get(i));
+  }
 
   // string BookName = 3;
   if (!this->_internal_bookname().empty()) {
@@ -610,7 +727,14 @@ size_t BookInfo::ByteSizeLong() const {
         this->_internal_bookcoverimage());
   }
 
-  // string CoverImagePath = 9;
+  // string Content = 10;
+  if (!this->_internal_content().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_content());
+  }
+
+  // string CoverImagePath = 12;
   if (!this->_internal_coverimagepath().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
@@ -662,6 +786,8 @@ void BookInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  _this->_impl_.keywords_.MergeFrom(from._impl_.keywords_);
+  _this->_impl_.snapshot_.MergeFrom(from._impl_.snapshot_);
   if (!from._internal_bookname().empty()) {
     _this->_internal_set_bookname(from._internal_bookname());
   }
@@ -670,6 +796,9 @@ void BookInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
   }
   if (!from._internal_bookcoverimage().empty()) {
     _this->_internal_set_bookcoverimage(from._internal_bookcoverimage());
+  }
+  if (!from._internal_content().empty()) {
+    _this->_internal_set_content(from._internal_content());
   }
   if (!from._internal_coverimagepath().empty()) {
     _this->_internal_set_coverimagepath(from._internal_coverimagepath());
@@ -709,6 +838,8 @@ void BookInfo::InternalSwap(BookInfo* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.keywords_.InternalSwap(&other->_impl_.keywords_);
+  _impl_.snapshot_.InternalSwap(&other->_impl_.snapshot_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.bookname_, lhs_arena,
       &other->_impl_.bookname_, rhs_arena
@@ -720,6 +851,10 @@ void BookInfo::InternalSwap(BookInfo* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.bookcoverimage_, lhs_arena,
       &other->_impl_.bookcoverimage_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.content_, lhs_arena,
+      &other->_impl_.content_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.coverimagepath_, lhs_arena,
