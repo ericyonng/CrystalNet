@@ -228,14 +228,7 @@ Int32 ExporterMgr::_OnHostStart()
                 break;
             }
 
-            // 4.生成ts信息
-            if(!_GenTs())
-            {
-                g_Log->Warn(LOGFMT_OBJ_TAG("gen ts fail."));
-                break;
-            }
-
-            // 5.更新pb cache
+            // 4.更新pb cache
             if(!_UpdateProtoCache())
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("update proto cache fail."));
@@ -248,6 +241,13 @@ Int32 ExporterMgr::_OnHostStart()
 
             // 语法分析
             _GrammarAnalyze();
+            
+            // 5.生成ts信息
+            if(!_GenTs())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("gen ts fail."));
+                break;
+            }
 
             // 生成ts
             _GenTsExtends();

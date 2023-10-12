@@ -73,7 +73,7 @@
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:CreateLibraryRes,Opcode:45,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryInfoReq,Opcode:42,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetLibraryInfoRes,Opcode:43,NoLog:false,XorEncrypt:false,KeyBase64:false,]
-/// ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,Md5:msb9SqdOONjQjIiuKwrTUQ==,ModifyTime:1696989641,
+/// ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,Md5:msb9SqdOONjQjIiuKwrTUQ==,ModifyTime:1697082406,
 
 /// ProtoName:com_book.proto,ProtoPath:../../protocols/proto/library/com_book.proto,Md5:atJ9t+VuqTRMlnT3oLgzoQ==,ModifyTime:1697005340,
 
