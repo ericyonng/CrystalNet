@@ -54,7 +54,7 @@ public:
 public:
     // 在线程中启动
     void Launch(IDelegate<void> *wakeupThreadCb);
-    void Drive();
+    Int64 Drive();
     void SafetyDrive();
     void Close();
 

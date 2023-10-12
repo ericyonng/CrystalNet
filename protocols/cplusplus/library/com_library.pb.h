@@ -69,6 +69,9 @@ extern BorrowBookItemDefaultTypeInternal _BorrowBookItem_default_instance_;
 class BorrowOrderInfo;
 struct BorrowOrderInfoDefaultTypeInternal;
 extern BorrowOrderInfoDefaultTypeInternal _BorrowOrderInfo_default_instance_;
+class KeyWordsField;
+struct KeyWordsFieldDefaultTypeInternal;
+extern KeyWordsFieldDefaultTypeInternal _KeyWordsField_default_instance_;
 class LibararyManagerInfo;
 struct LibararyManagerInfoDefaultTypeInternal;
 extern LibararyManagerInfoDefaultTypeInternal _LibararyManagerInfo_default_instance_;
@@ -90,6 +93,9 @@ extern OperationTypeDefaultTypeInternal _OperationType_default_instance_;
 class RoleType;
 struct RoleTypeDefaultTypeInternal;
 extern RoleTypeDefaultTypeInternal _RoleType_default_instance_;
+class SnapshotField;
+struct SnapshotFieldDefaultTypeInternal;
+extern SnapshotFieldDefaultTypeInternal _SnapshotField_default_instance_;
 class UserLibraryInfo;
 struct UserLibraryInfoDefaultTypeInternal;
 extern UserLibraryInfoDefaultTypeInternal _UserLibraryInfo_default_instance_;
@@ -105,6 +111,7 @@ PROTOBUF_NAMESPACE_OPEN
 template<> ::CRYSTAL_NET::service::BorrowBookInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::BorrowBookItem* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookItem>(Arena*);
 template<> ::CRYSTAL_NET::service::BorrowOrderInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowOrderInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::KeyWordsField* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::KeyWordsField>(Arena*);
 template<> ::CRYSTAL_NET::service::LibararyManagerInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibararyManagerInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::LibraryInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibraryInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::LibraryPreviewInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibraryPreviewInfo>(Arena*);
@@ -112,6 +119,7 @@ template<> ::CRYSTAL_NET::service::MemberInfo* Arena::CreateMaybeMessage<::CRYST
 template<> ::CRYSTAL_NET::service::OperationLogInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OperationLogInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::OperationType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OperationType>(Arena*);
 template<> ::CRYSTAL_NET::service::RoleType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::RoleType>(Arena*);
+template<> ::CRYSTAL_NET::service::SnapshotField* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SnapshotField>(Arena*);
 template<> ::CRYSTAL_NET::service::UserLibraryInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserLibraryInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::VariantParam* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::VariantParam>(Arena*);
 template<> ::CRYSTAL_NET::service::VariantParamType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::VariantParamType>(Arena*);
@@ -4493,6 +4501,610 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   union { Impl_ _impl_; };
   friend struct ::TableStruct_com_5flibrary_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class KeyWordsField final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.KeyWordsField) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message KeyWordsField failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message KeyWordsField failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message KeyWordsField failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message KeyWordsField failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message KeyWordsField failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message KeyWordsField failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline KeyWordsField() : KeyWordsField(nullptr) {}
+  ~KeyWordsField() override;
+  explicit PROTOBUF_CONSTEXPR KeyWordsField(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  KeyWordsField(const KeyWordsField& from);
+  KeyWordsField(KeyWordsField&& from) noexcept
+    : KeyWordsField() {
+    *this = ::std::move(from);
+  }
+
+  inline KeyWordsField& operator=(const KeyWordsField& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline KeyWordsField& operator=(KeyWordsField&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const KeyWordsField& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const KeyWordsField* internal_default_instance() {
+    return reinterpret_cast<const KeyWordsField*>(
+               &_KeyWordsField_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    13;
+
+  friend void swap(KeyWordsField& a, KeyWordsField& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(KeyWordsField* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(KeyWordsField* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  KeyWordsField* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<KeyWordsField>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const KeyWordsField& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const KeyWordsField& from) {
+    KeyWordsField::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(KeyWordsField* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.KeyWordsField";
+  }
+  protected:
+  explicit KeyWordsField(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kKeyWordsFieldNumber = 1,
+  };
+  // repeated string KeyWords = 1;
+  int keywords_size() const;
+  private:
+  int _internal_keywords_size() const;
+  public:
+  void clear_keywords();
+  const std::string& keywords(int index) const;
+  std::string* mutable_keywords(int index);
+  void set_keywords(int index, const std::string& value);
+  void set_keywords(int index, std::string&& value);
+  void set_keywords(int index, const char* value);
+  void set_keywords(int index, const char* value, size_t size);
+  std::string* add_keywords();
+  void add_keywords(const std::string& value);
+  void add_keywords(std::string&& value);
+  void add_keywords(const char* value);
+  void add_keywords(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& keywords() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_keywords();
+  private:
+  const std::string& _internal_keywords(int index) const;
+  std::string* _internal_add_keywords();
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.KeyWordsField)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> keywords_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5flibrary_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class SnapshotField final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SnapshotField) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotField failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotField failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotField failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotField failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SnapshotField failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SnapshotField failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline SnapshotField() : SnapshotField(nullptr) {}
+  ~SnapshotField() override;
+  explicit PROTOBUF_CONSTEXPR SnapshotField(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  SnapshotField(const SnapshotField& from);
+  SnapshotField(SnapshotField&& from) noexcept
+    : SnapshotField() {
+    *this = ::std::move(from);
+  }
+
+  inline SnapshotField& operator=(const SnapshotField& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline SnapshotField& operator=(SnapshotField&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const SnapshotField& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const SnapshotField* internal_default_instance() {
+    return reinterpret_cast<const SnapshotField*>(
+               &_SnapshotField_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    14;
+
+  friend void swap(SnapshotField& a, SnapshotField& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(SnapshotField* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(SnapshotField* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  SnapshotField* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<SnapshotField>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const SnapshotField& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const SnapshotField& from) {
+    SnapshotField::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(SnapshotField* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.SnapshotField";
+  }
+  protected:
+  explicit SnapshotField(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kSnapshotsFieldNumber = 1,
+  };
+  // repeated string Snapshots = 1;
+  int snapshots_size() const;
+  private:
+  int _internal_snapshots_size() const;
+  public:
+  void clear_snapshots();
+  const std::string& snapshots(int index) const;
+  std::string* mutable_snapshots(int index);
+  void set_snapshots(int index, const std::string& value);
+  void set_snapshots(int index, std::string&& value);
+  void set_snapshots(int index, const char* value);
+  void set_snapshots(int index, const char* value, size_t size);
+  std::string* add_snapshots();
+  void add_snapshots(const std::string& value);
+  void add_snapshots(std::string&& value);
+  void add_snapshots(const char* value);
+  void add_snapshots(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& snapshots() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_snapshots();
+  private:
+  const std::string& _internal_snapshots(int index) const;
+  std::string* _internal_add_snapshots();
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SnapshotField)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> snapshots_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5flibrary_2eproto;
+};
 // ===================================================================
 
 
@@ -6020,9 +6632,171 @@ inline void BorrowBookItem::set_borrowdays(uint32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookItem.BorrowDays)
 }
 
+// -------------------------------------------------------------------
+
+// KeyWordsField
+
+// repeated string KeyWords = 1;
+inline int KeyWordsField::_internal_keywords_size() const {
+  return _impl_.keywords_.size();
+}
+inline int KeyWordsField::keywords_size() const {
+  return _internal_keywords_size();
+}
+inline void KeyWordsField::clear_keywords() {
+  _impl_.keywords_.Clear();
+}
+inline std::string* KeyWordsField::add_keywords() {
+  std::string* _s = _internal_add_keywords();
+  // @@protoc_insertion_point(field_add_mutable:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+  return _s;
+}
+inline const std::string& KeyWordsField::_internal_keywords(int index) const {
+  return _impl_.keywords_.Get(index);
+}
+inline const std::string& KeyWordsField::keywords(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+  return _internal_keywords(index);
+}
+inline std::string* KeyWordsField::mutable_keywords(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+  return _impl_.keywords_.Mutable(index);
+}
+inline void KeyWordsField::set_keywords(int index, const std::string& value) {
+  _impl_.keywords_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+}
+inline void KeyWordsField::set_keywords(int index, std::string&& value) {
+  _impl_.keywords_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+}
+inline void KeyWordsField::set_keywords(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.keywords_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+}
+inline void KeyWordsField::set_keywords(int index, const char* value, size_t size) {
+  _impl_.keywords_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+}
+inline std::string* KeyWordsField::_internal_add_keywords() {
+  return _impl_.keywords_.Add();
+}
+inline void KeyWordsField::add_keywords(const std::string& value) {
+  _impl_.keywords_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+}
+inline void KeyWordsField::add_keywords(std::string&& value) {
+  _impl_.keywords_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+}
+inline void KeyWordsField::add_keywords(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.keywords_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+}
+inline void KeyWordsField::add_keywords(const char* value, size_t size) {
+  _impl_.keywords_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+KeyWordsField::keywords() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+  return _impl_.keywords_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+KeyWordsField::mutable_keywords() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.KeyWordsField.KeyWords)
+  return &_impl_.keywords_;
+}
+
+// -------------------------------------------------------------------
+
+// SnapshotField
+
+// repeated string Snapshots = 1;
+inline int SnapshotField::_internal_snapshots_size() const {
+  return _impl_.snapshots_.size();
+}
+inline int SnapshotField::snapshots_size() const {
+  return _internal_snapshots_size();
+}
+inline void SnapshotField::clear_snapshots() {
+  _impl_.snapshots_.Clear();
+}
+inline std::string* SnapshotField::add_snapshots() {
+  std::string* _s = _internal_add_snapshots();
+  // @@protoc_insertion_point(field_add_mutable:CRYSTAL_NET.service.SnapshotField.Snapshots)
+  return _s;
+}
+inline const std::string& SnapshotField::_internal_snapshots(int index) const {
+  return _impl_.snapshots_.Get(index);
+}
+inline const std::string& SnapshotField::snapshots(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SnapshotField.Snapshots)
+  return _internal_snapshots(index);
+}
+inline std::string* SnapshotField::mutable_snapshots(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.SnapshotField.Snapshots)
+  return _impl_.snapshots_.Mutable(index);
+}
+inline void SnapshotField::set_snapshots(int index, const std::string& value) {
+  _impl_.snapshots_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SnapshotField.Snapshots)
+}
+inline void SnapshotField::set_snapshots(int index, std::string&& value) {
+  _impl_.snapshots_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SnapshotField.Snapshots)
+}
+inline void SnapshotField::set_snapshots(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.snapshots_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.SnapshotField.Snapshots)
+}
+inline void SnapshotField::set_snapshots(int index, const char* value, size_t size) {
+  _impl_.snapshots_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.SnapshotField.Snapshots)
+}
+inline std::string* SnapshotField::_internal_add_snapshots() {
+  return _impl_.snapshots_.Add();
+}
+inline void SnapshotField::add_snapshots(const std::string& value) {
+  _impl_.snapshots_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.SnapshotField.Snapshots)
+}
+inline void SnapshotField::add_snapshots(std::string&& value) {
+  _impl_.snapshots_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.SnapshotField.Snapshots)
+}
+inline void SnapshotField::add_snapshots(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.snapshots_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.SnapshotField.Snapshots)
+}
+inline void SnapshotField::add_snapshots(const char* value, size_t size) {
+  _impl_.snapshots_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.SnapshotField.Snapshots)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+SnapshotField::snapshots() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.SnapshotField.Snapshots)
+  return _impl_.snapshots_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+SnapshotField::mutable_snapshots() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.SnapshotField.Snapshots)
+  return &_impl_.snapshots_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -6371,6 +7145,52 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::BorrowBookItem(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowBookItem *>(coder));
+    }
+
+};
+
+
+class KeyWordsFieldFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, KeyWordsFieldFactory);
+public:
+
+    virtual void Release() override {
+        KeyWordsFieldFactory::Delete_KeyWordsFieldFactory(this);
+    }
+
+    static KeyWordsFieldFactory *CreateFactory() {
+        return KeyWordsFieldFactory::New_KeyWordsFieldFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::KeyWordsField();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::KeyWordsField(*dynamic_cast<const ::CRYSTAL_NET::service::KeyWordsField *>(coder));
+    }
+
+};
+
+
+class SnapshotFieldFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, SnapshotFieldFactory);
+public:
+
+    virtual void Release() override {
+        SnapshotFieldFactory::Delete_SnapshotFieldFactory(this);
+    }
+
+    static SnapshotFieldFactory *CreateFactory() {
+        return SnapshotFieldFactory::New_SnapshotFieldFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::SnapshotField();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::SnapshotField(*dynamic_cast<const ::CRYSTAL_NET::service::SnapshotField *>(coder));
     }
 
 };

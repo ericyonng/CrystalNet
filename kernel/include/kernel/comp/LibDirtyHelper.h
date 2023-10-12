@@ -215,7 +215,7 @@ public:
     bool IsInPurge() const;
     UInt64 GetLoaded() const;
     // 脏标记需要在回调中移除,否则一直在
-    void Purge(LibString *errorLog = NULL);
+    Int64 Purge(LibString *errorLog = NULL);
 
 private:
     void _AfterPurge();
@@ -445,8 +445,9 @@ ALWAYS_INLINE bool LibDirtyHelper<KeyType, MaskValue>::HasDirty(const KeyType &k
 }
 
 template<typename KeyType, typename MaskValue>
-ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Purge(LibString *errorLog)
+ALWAYS_INLINE Int64 LibDirtyHelper<KeyType, MaskValue>::Purge(LibString *errorLog)
 {
+    Int64 handled = 0;
     ++_inPurge;
     for(auto iter = _keyRefMask.begin(); iter != _keyRefMask.end();)
     {
@@ -470,6 +471,7 @@ ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Purge(LibString *errorLog
                 auto &variantDict = mask->_dirtyTypeRefVariant;
                 auto &k = (KeyType &)(iter->first);
                 handler->Invoke(this, k, variantDict[i]);
+                ++handled;
             }
             else
             {
@@ -490,6 +492,8 @@ ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Purge(LibString *errorLog
     }
 
     _AfterPurge();
+
+    return handled;
 }
 
 template<typename KeyType, typename MaskValue>

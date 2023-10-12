@@ -200,14 +200,19 @@ export namespace crystal_net_service
         // isbn
         IsbnCode:string = "";
 
-        // 封面
-        BookCoverImage:string = "";
+        BookCoverImage?:string;
 
         // 价格(单位分)
         Price:number = 0;
 
         // 数量 增量
         ModifyCount:number = 0;
+
+        KeyWords?:KeyWordsField;
+
+        Content?:string;
+
+        Snapshot?:SnapshotField;
 
 
     }
@@ -589,6 +594,13 @@ export namespace crystal_net_service
     // library.proto
     export class JoinLibraryRes {
         ErrCode:number = 0;
+
+
+    }
+    // 关键词
+    // com_library.proto
+    export class KeyWordsField {
+        KeyWords:string[] = [];
 
 
     }
@@ -1038,6 +1050,13 @@ export namespace crystal_net_service
 
         // 绑定手机
         BindPhone:number = 0;
+
+
+    }
+    // 截图
+    // com_library.proto
+    export class SnapshotField {
+        Snapshots:string[] = [];
 
 
     }

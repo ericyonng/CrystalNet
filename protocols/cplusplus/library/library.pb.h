@@ -5619,6 +5619,26 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   static const AddLibraryBookReq& default_instance() {
     return *internal_default_instance();
   }
+  enum BookCoverImageOptionCase {
+    kBookCoverImage = 3,
+    BOOKCOVERIMAGEOPTION_NOT_SET = 0,
+  };
+
+  enum KeyWordsOptionCase {
+    kKeyWords = 6,
+    KEYWORDSOPTION_NOT_SET = 0,
+  };
+
+  enum ContentOptionCase {
+    kContent = 7,
+    CONTENTOPTION_NOT_SET = 0,
+  };
+
+  enum SnapshotOptionCase {
+    kSnapshot = 8,
+    SNAPSHOTOPTION_NOT_SET = 0,
+  };
+
   static inline const AddLibraryBookReq* internal_default_instance() {
     return reinterpret_cast<const AddLibraryBookReq*>(
                &_AddLibraryBookReq_default_instance_);
@@ -5699,9 +5719,12 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   enum : int {
     kBookNameFieldNumber = 1,
     kIsbnCodeFieldNumber = 2,
-    kBookCoverImageFieldNumber = 3,
     kPriceFieldNumber = 4,
     kModifyCountFieldNumber = 5,
+    kBookCoverImageFieldNumber = 3,
+    kKeyWordsFieldNumber = 6,
+    kContentFieldNumber = 7,
+    kSnapshotFieldNumber = 8,
   };
   // string BookName = 1;
   void clear_bookname();
@@ -5731,20 +5754,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_isbncode();
   public:
 
-  // string BookCoverImage = 3;
-  void clear_bookcoverimage();
-  const std::string& bookcoverimage() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_bookcoverimage(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_bookcoverimage();
-  PROTOBUF_NODISCARD std::string* release_bookcoverimage();
-  void set_allocated_bookcoverimage(std::string* bookcoverimage);
-  private:
-  const std::string& _internal_bookcoverimage() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_bookcoverimage(const std::string& value);
-  std::string* _internal_mutable_bookcoverimage();
-  public:
-
   // sint64 Price = 4;
   void clear_price();
   int64_t price() const;
@@ -5763,9 +5772,105 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_modifycount(int64_t value);
   public:
 
+  // string BookCoverImage = 3;
+  bool has_bookcoverimage() const;
+  private:
+  bool _internal_has_bookcoverimage() const;
+  public:
+  void clear_bookcoverimage();
+  const std::string& bookcoverimage() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_bookcoverimage(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_bookcoverimage();
+  PROTOBUF_NODISCARD std::string* release_bookcoverimage();
+  void set_allocated_bookcoverimage(std::string* bookcoverimage);
+  private:
+  const std::string& _internal_bookcoverimage() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_bookcoverimage(const std::string& value);
+  std::string* _internal_mutable_bookcoverimage();
+  public:
+
+  // .CRYSTAL_NET.service.KeyWordsField KeyWords = 6;
+  bool has_keywords() const;
+  private:
+  bool _internal_has_keywords() const;
+  public:
+  void clear_keywords();
+  const ::CRYSTAL_NET::service::KeyWordsField& keywords() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::KeyWordsField* release_keywords();
+  ::CRYSTAL_NET::service::KeyWordsField* mutable_keywords();
+  void set_allocated_keywords(::CRYSTAL_NET::service::KeyWordsField* keywords);
+  private:
+  const ::CRYSTAL_NET::service::KeyWordsField& _internal_keywords() const;
+  ::CRYSTAL_NET::service::KeyWordsField* _internal_mutable_keywords();
+  public:
+  void unsafe_arena_set_allocated_keywords(
+      ::CRYSTAL_NET::service::KeyWordsField* keywords);
+  ::CRYSTAL_NET::service::KeyWordsField* unsafe_arena_release_keywords();
+
+  // string Content = 7;
+  bool has_content() const;
+  private:
+  bool _internal_has_content() const;
+  public:
+  void clear_content();
+  const std::string& content() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_content(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_content();
+  PROTOBUF_NODISCARD std::string* release_content();
+  void set_allocated_content(std::string* content);
+  private:
+  const std::string& _internal_content() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_content(const std::string& value);
+  std::string* _internal_mutable_content();
+  public:
+
+  // .CRYSTAL_NET.service.SnapshotField Snapshot = 8;
+  bool has_snapshot() const;
+  private:
+  bool _internal_has_snapshot() const;
+  public:
+  void clear_snapshot();
+  const ::CRYSTAL_NET::service::SnapshotField& snapshot() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::SnapshotField* release_snapshot();
+  ::CRYSTAL_NET::service::SnapshotField* mutable_snapshot();
+  void set_allocated_snapshot(::CRYSTAL_NET::service::SnapshotField* snapshot);
+  private:
+  const ::CRYSTAL_NET::service::SnapshotField& _internal_snapshot() const;
+  ::CRYSTAL_NET::service::SnapshotField* _internal_mutable_snapshot();
+  public:
+  void unsafe_arena_set_allocated_snapshot(
+      ::CRYSTAL_NET::service::SnapshotField* snapshot);
+  ::CRYSTAL_NET::service::SnapshotField* unsafe_arena_release_snapshot();
+
+  void clear_BookCoverImageOption();
+  BookCoverImageOptionCase BookCoverImageOption_case() const;
+  void clear_KeyWordsOption();
+  KeyWordsOptionCase KeyWordsOption_case() const;
+  void clear_ContentOption();
+  ContentOptionCase ContentOption_case() const;
+  void clear_SnapshotOption();
+  SnapshotOptionCase SnapshotOption_case() const;
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.AddLibraryBookReq)
  private:
   class _Internal;
+  void set_has_bookcoverimage();
+  void set_has_keywords();
+  void set_has_content();
+  void set_has_snapshot();
+
+  inline bool has_BookCoverImageOption() const;
+  inline void clear_has_BookCoverImageOption();
+
+  inline bool has_KeyWordsOption() const;
+  inline void clear_has_KeyWordsOption();
+
+  inline bool has_ContentOption() const;
+  inline void clear_has_ContentOption();
+
+  inline bool has_SnapshotOption() const;
+  inline void clear_has_SnapshotOption();
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
@@ -5773,10 +5878,31 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookname_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr isbncode_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookcoverimage_;
     int64_t price_;
     int64_t modifycount_;
+    union BookCoverImageOptionUnion {
+      constexpr BookCoverImageOptionUnion() : _constinit_{} {}
+        ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookcoverimage_;
+    } BookCoverImageOption_;
+    union KeyWordsOptionUnion {
+      constexpr KeyWordsOptionUnion() : _constinit_{} {}
+        ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+      ::CRYSTAL_NET::service::KeyWordsField* keywords_;
+    } KeyWordsOption_;
+    union ContentOptionUnion {
+      constexpr ContentOptionUnion() : _constinit_{} {}
+        ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
+    } ContentOption_;
+    union SnapshotOptionUnion {
+      constexpr SnapshotOptionUnion() : _constinit_{} {}
+        ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+      ::CRYSTAL_NET::service::SnapshotField* snapshot_;
+    } SnapshotOption_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+    uint32_t _oneof_case_[4];
+
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_library_2eproto;
@@ -10847,18 +10973,33 @@ inline void AddLibraryBookReq::set_allocated_isbncode(std::string* isbncode) {
 }
 
 // string BookCoverImage = 3;
+inline bool AddLibraryBookReq::_internal_has_bookcoverimage() const {
+  return BookCoverImageOption_case() == kBookCoverImage;
+}
+inline bool AddLibraryBookReq::has_bookcoverimage() const {
+  return _internal_has_bookcoverimage();
+}
+inline void AddLibraryBookReq::set_has_bookcoverimage() {
+  _impl_._oneof_case_[0] = kBookCoverImage;
+}
 inline void AddLibraryBookReq::clear_bookcoverimage() {
-  _impl_.bookcoverimage_.ClearToEmpty();
+  if (_internal_has_bookcoverimage()) {
+    _impl_.BookCoverImageOption_.bookcoverimage_.Destroy();
+    clear_has_BookCoverImageOption();
+  }
 }
 inline const std::string& AddLibraryBookReq::bookcoverimage() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
   return _internal_bookcoverimage();
 }
 template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void AddLibraryBookReq::set_bookcoverimage(ArgT0&& arg0, ArgT... args) {
- 
- _impl_.bookcoverimage_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+inline void AddLibraryBookReq::set_bookcoverimage(ArgT0&& arg0, ArgT... args) {
+  if (!_internal_has_bookcoverimage()) {
+    clear_BookCoverImageOption();
+    set_has_bookcoverimage();
+    _impl_.BookCoverImageOption_.bookcoverimage_.InitDefault();
+  }
+  _impl_.BookCoverImageOption_.bookcoverimage_.Set( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
 }
 inline std::string* AddLibraryBookReq::mutable_bookcoverimage() {
@@ -10867,32 +11008,44 @@ inline std::string* AddLibraryBookReq::mutable_bookcoverimage() {
   return _s;
 }
 inline const std::string& AddLibraryBookReq::_internal_bookcoverimage() const {
-  return _impl_.bookcoverimage_.Get();
+  if (_internal_has_bookcoverimage()) {
+    return _impl_.BookCoverImageOption_.bookcoverimage_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
 inline void AddLibraryBookReq::_internal_set_bookcoverimage(const std::string& value) {
-  
-  _impl_.bookcoverimage_.Set(value, GetArenaForAllocation());
+  if (!_internal_has_bookcoverimage()) {
+    clear_BookCoverImageOption();
+    set_has_bookcoverimage();
+    _impl_.BookCoverImageOption_.bookcoverimage_.InitDefault();
+  }
+  _impl_.BookCoverImageOption_.bookcoverimage_.Set(value, GetArenaForAllocation());
 }
 inline std::string* AddLibraryBookReq::_internal_mutable_bookcoverimage() {
-  
-  return _impl_.bookcoverimage_.Mutable(GetArenaForAllocation());
+  if (!_internal_has_bookcoverimage()) {
+    clear_BookCoverImageOption();
+    set_has_bookcoverimage();
+    _impl_.BookCoverImageOption_.bookcoverimage_.InitDefault();
+  }
+  return _impl_.BookCoverImageOption_.bookcoverimage_.Mutable(      GetArenaForAllocation());
 }
 inline std::string* AddLibraryBookReq::release_bookcoverimage() {
   // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
-  return _impl_.bookcoverimage_.Release();
+  if (_internal_has_bookcoverimage()) {
+    clear_has_BookCoverImageOption();
+    return _impl_.BookCoverImageOption_.bookcoverimage_.Release();
+  } else {
+    return nullptr;
+  }
 }
 inline void AddLibraryBookReq::set_allocated_bookcoverimage(std::string* bookcoverimage) {
+  if (has_BookCoverImageOption()) {
+    clear_BookCoverImageOption();
+  }
   if (bookcoverimage != nullptr) {
-    
-  } else {
-    
+    set_has_bookcoverimage();
+    _impl_.BookCoverImageOption_.bookcoverimage_.InitAllocated(bookcoverimage, GetArenaForAllocation());
   }
-  _impl_.bookcoverimage_.SetAllocated(bookcoverimage, GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.bookcoverimage_.IsDefault()) {
-    _impl_.bookcoverimage_.Set("", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.AddLibraryBookReq.BookCoverImage)
 }
 
@@ -10936,6 +11089,251 @@ inline void AddLibraryBookReq::set_modifycount(int64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.ModifyCount)
 }
 
+// .CRYSTAL_NET.service.KeyWordsField KeyWords = 6;
+inline bool AddLibraryBookReq::_internal_has_keywords() const {
+  return KeyWordsOption_case() == kKeyWords;
+}
+inline bool AddLibraryBookReq::has_keywords() const {
+  return _internal_has_keywords();
+}
+inline void AddLibraryBookReq::set_has_keywords() {
+  _impl_._oneof_case_[1] = kKeyWords;
+}
+inline ::CRYSTAL_NET::service::KeyWordsField* AddLibraryBookReq::release_keywords() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.AddLibraryBookReq.KeyWords)
+  if (_internal_has_keywords()) {
+    clear_has_KeyWordsOption();
+    ::CRYSTAL_NET::service::KeyWordsField* temp = _impl_.KeyWordsOption_.keywords_;
+    if (GetArenaForAllocation() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.KeyWordsOption_.keywords_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::CRYSTAL_NET::service::KeyWordsField& AddLibraryBookReq::_internal_keywords() const {
+  return _internal_has_keywords()
+      ? *_impl_.KeyWordsOption_.keywords_
+      : reinterpret_cast< ::CRYSTAL_NET::service::KeyWordsField&>(::CRYSTAL_NET::service::_KeyWordsField_default_instance_);
+}
+inline const ::CRYSTAL_NET::service::KeyWordsField& AddLibraryBookReq::keywords() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookReq.KeyWords)
+  return _internal_keywords();
+}
+inline ::CRYSTAL_NET::service::KeyWordsField* AddLibraryBookReq::unsafe_arena_release_keywords() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:CRYSTAL_NET.service.AddLibraryBookReq.KeyWords)
+  if (_internal_has_keywords()) {
+    clear_has_KeyWordsOption();
+    ::CRYSTAL_NET::service::KeyWordsField* temp = _impl_.KeyWordsOption_.keywords_;
+    _impl_.KeyWordsOption_.keywords_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void AddLibraryBookReq::unsafe_arena_set_allocated_keywords(::CRYSTAL_NET::service::KeyWordsField* keywords) {
+  clear_KeyWordsOption();
+  if (keywords) {
+    set_has_keywords();
+    _impl_.KeyWordsOption_.keywords_ = keywords;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.AddLibraryBookReq.KeyWords)
+}
+inline ::CRYSTAL_NET::service::KeyWordsField* AddLibraryBookReq::_internal_mutable_keywords() {
+  if (!_internal_has_keywords()) {
+    clear_KeyWordsOption();
+    set_has_keywords();
+    _impl_.KeyWordsOption_.keywords_ = CreateMaybeMessage< ::CRYSTAL_NET::service::KeyWordsField >(GetArenaForAllocation());
+  }
+  return _impl_.KeyWordsOption_.keywords_;
+}
+inline ::CRYSTAL_NET::service::KeyWordsField* AddLibraryBookReq::mutable_keywords() {
+  ::CRYSTAL_NET::service::KeyWordsField* _msg = _internal_mutable_keywords();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.AddLibraryBookReq.KeyWords)
+  return _msg;
+}
+
+// string Content = 7;
+inline bool AddLibraryBookReq::_internal_has_content() const {
+  return ContentOption_case() == kContent;
+}
+inline bool AddLibraryBookReq::has_content() const {
+  return _internal_has_content();
+}
+inline void AddLibraryBookReq::set_has_content() {
+  _impl_._oneof_case_[2] = kContent;
+}
+inline void AddLibraryBookReq::clear_content() {
+  if (_internal_has_content()) {
+    _impl_.ContentOption_.content_.Destroy();
+    clear_has_ContentOption();
+  }
+}
+inline const std::string& AddLibraryBookReq::content() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookReq.Content)
+  return _internal_content();
+}
+template <typename ArgT0, typename... ArgT>
+inline void AddLibraryBookReq::set_content(ArgT0&& arg0, ArgT... args) {
+  if (!_internal_has_content()) {
+    clear_ContentOption();
+    set_has_content();
+    _impl_.ContentOption_.content_.InitDefault();
+  }
+  _impl_.ContentOption_.content_.Set( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.Content)
+}
+inline std::string* AddLibraryBookReq::mutable_content() {
+  std::string* _s = _internal_mutable_content();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.AddLibraryBookReq.Content)
+  return _s;
+}
+inline const std::string& AddLibraryBookReq::_internal_content() const {
+  if (_internal_has_content()) {
+    return _impl_.ContentOption_.content_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void AddLibraryBookReq::_internal_set_content(const std::string& value) {
+  if (!_internal_has_content()) {
+    clear_ContentOption();
+    set_has_content();
+    _impl_.ContentOption_.content_.InitDefault();
+  }
+  _impl_.ContentOption_.content_.Set(value, GetArenaForAllocation());
+}
+inline std::string* AddLibraryBookReq::_internal_mutable_content() {
+  if (!_internal_has_content()) {
+    clear_ContentOption();
+    set_has_content();
+    _impl_.ContentOption_.content_.InitDefault();
+  }
+  return _impl_.ContentOption_.content_.Mutable(      GetArenaForAllocation());
+}
+inline std::string* AddLibraryBookReq::release_content() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.AddLibraryBookReq.Content)
+  if (_internal_has_content()) {
+    clear_has_ContentOption();
+    return _impl_.ContentOption_.content_.Release();
+  } else {
+    return nullptr;
+  }
+}
+inline void AddLibraryBookReq::set_allocated_content(std::string* content) {
+  if (has_ContentOption()) {
+    clear_ContentOption();
+  }
+  if (content != nullptr) {
+    set_has_content();
+    _impl_.ContentOption_.content_.InitAllocated(content, GetArenaForAllocation());
+  }
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.AddLibraryBookReq.Content)
+}
+
+// .CRYSTAL_NET.service.SnapshotField Snapshot = 8;
+inline bool AddLibraryBookReq::_internal_has_snapshot() const {
+  return SnapshotOption_case() == kSnapshot;
+}
+inline bool AddLibraryBookReq::has_snapshot() const {
+  return _internal_has_snapshot();
+}
+inline void AddLibraryBookReq::set_has_snapshot() {
+  _impl_._oneof_case_[3] = kSnapshot;
+}
+inline ::CRYSTAL_NET::service::SnapshotField* AddLibraryBookReq::release_snapshot() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.AddLibraryBookReq.Snapshot)
+  if (_internal_has_snapshot()) {
+    clear_has_SnapshotOption();
+    ::CRYSTAL_NET::service::SnapshotField* temp = _impl_.SnapshotOption_.snapshot_;
+    if (GetArenaForAllocation() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.SnapshotOption_.snapshot_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::CRYSTAL_NET::service::SnapshotField& AddLibraryBookReq::_internal_snapshot() const {
+  return _internal_has_snapshot()
+      ? *_impl_.SnapshotOption_.snapshot_
+      : reinterpret_cast< ::CRYSTAL_NET::service::SnapshotField&>(::CRYSTAL_NET::service::_SnapshotField_default_instance_);
+}
+inline const ::CRYSTAL_NET::service::SnapshotField& AddLibraryBookReq::snapshot() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookReq.Snapshot)
+  return _internal_snapshot();
+}
+inline ::CRYSTAL_NET::service::SnapshotField* AddLibraryBookReq::unsafe_arena_release_snapshot() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:CRYSTAL_NET.service.AddLibraryBookReq.Snapshot)
+  if (_internal_has_snapshot()) {
+    clear_has_SnapshotOption();
+    ::CRYSTAL_NET::service::SnapshotField* temp = _impl_.SnapshotOption_.snapshot_;
+    _impl_.SnapshotOption_.snapshot_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void AddLibraryBookReq::unsafe_arena_set_allocated_snapshot(::CRYSTAL_NET::service::SnapshotField* snapshot) {
+  clear_SnapshotOption();
+  if (snapshot) {
+    set_has_snapshot();
+    _impl_.SnapshotOption_.snapshot_ = snapshot;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.AddLibraryBookReq.Snapshot)
+}
+inline ::CRYSTAL_NET::service::SnapshotField* AddLibraryBookReq::_internal_mutable_snapshot() {
+  if (!_internal_has_snapshot()) {
+    clear_SnapshotOption();
+    set_has_snapshot();
+    _impl_.SnapshotOption_.snapshot_ = CreateMaybeMessage< ::CRYSTAL_NET::service::SnapshotField >(GetArenaForAllocation());
+  }
+  return _impl_.SnapshotOption_.snapshot_;
+}
+inline ::CRYSTAL_NET::service::SnapshotField* AddLibraryBookReq::mutable_snapshot() {
+  ::CRYSTAL_NET::service::SnapshotField* _msg = _internal_mutable_snapshot();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.AddLibraryBookReq.Snapshot)
+  return _msg;
+}
+
+inline bool AddLibraryBookReq::has_BookCoverImageOption() const {
+  return BookCoverImageOption_case() != BOOKCOVERIMAGEOPTION_NOT_SET;
+}
+inline void AddLibraryBookReq::clear_has_BookCoverImageOption() {
+  _impl_._oneof_case_[0] = BOOKCOVERIMAGEOPTION_NOT_SET;
+}
+inline bool AddLibraryBookReq::has_KeyWordsOption() const {
+  return KeyWordsOption_case() != KEYWORDSOPTION_NOT_SET;
+}
+inline void AddLibraryBookReq::clear_has_KeyWordsOption() {
+  _impl_._oneof_case_[1] = KEYWORDSOPTION_NOT_SET;
+}
+inline bool AddLibraryBookReq::has_ContentOption() const {
+  return ContentOption_case() != CONTENTOPTION_NOT_SET;
+}
+inline void AddLibraryBookReq::clear_has_ContentOption() {
+  _impl_._oneof_case_[2] = CONTENTOPTION_NOT_SET;
+}
+inline bool AddLibraryBookReq::has_SnapshotOption() const {
+  return SnapshotOption_case() != SNAPSHOTOPTION_NOT_SET;
+}
+inline void AddLibraryBookReq::clear_has_SnapshotOption() {
+  _impl_._oneof_case_[3] = SNAPSHOTOPTION_NOT_SET;
+}
+inline AddLibraryBookReq::BookCoverImageOptionCase AddLibraryBookReq::BookCoverImageOption_case() const {
+  return AddLibraryBookReq::BookCoverImageOptionCase(_impl_._oneof_case_[0]);
+}
+inline AddLibraryBookReq::KeyWordsOptionCase AddLibraryBookReq::KeyWordsOption_case() const {
+  return AddLibraryBookReq::KeyWordsOptionCase(_impl_._oneof_case_[1]);
+}
+inline AddLibraryBookReq::ContentOptionCase AddLibraryBookReq::ContentOption_case() const {
+  return AddLibraryBookReq::ContentOptionCase(_impl_._oneof_case_[2]);
+}
+inline AddLibraryBookReq::SnapshotOptionCase AddLibraryBookReq::SnapshotOption_case() const {
+  return AddLibraryBookReq::SnapshotOptionCase(_impl_._oneof_case_[3]);
+}
 // -------------------------------------------------------------------
 
 // AddLibraryBookRes

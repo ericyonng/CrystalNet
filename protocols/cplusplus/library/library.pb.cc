@@ -295,10 +295,14 @@ PROTOBUF_CONSTEXPR AddLibraryBookReq::AddLibraryBookReq(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.bookname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.isbncode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.bookcoverimage_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.price_)*/int64_t{0}
   , /*decltype(_impl_.modifycount_)*/int64_t{0}
-  , /*decltype(_impl_._cached_size_)*/{}} {}
+  , /*decltype(_impl_.BookCoverImageOption_)*/{}
+  , /*decltype(_impl_.KeyWordsOption_)*/{}
+  , /*decltype(_impl_.ContentOption_)*/{}
+  , /*decltype(_impl_.SnapshotOption_)*/{}
+  , /*decltype(_impl_._cached_size_)*/{}
+  , /*decltype(_impl_._oneof_case_)*/{}} {}
 struct AddLibraryBookReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR AddLibraryBookReqDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -632,14 +636,21 @@ const uint32_t TableStruct_library_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _internal_metadata_),
   ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_._oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_.bookname_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_.isbncode_),
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_.bookcoverimage_),
+  ::_pbi::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_.price_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_.modifycount_),
+  ::_pbi::kInvalidFieldOffsetTag,
+  ::_pbi::kInvalidFieldOffsetTag,
+  ::_pbi::kInvalidFieldOffsetTag,
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_.BookCoverImageOption_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_.KeyWordsOption_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_.ContentOption_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookReq, _impl_.SnapshotOption_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::AddLibraryBookRes, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -760,20 +771,20 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 118, -1, -1, sizeof(::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoReq)},
   { 124, -1, -1, sizeof(::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes)},
   { 132, -1, -1, sizeof(::CRYSTAL_NET::service::AddLibraryBookReq)},
-  { 143, -1, -1, sizeof(::CRYSTAL_NET::service::AddLibraryBookRes)},
-  { 150, -1, -1, sizeof(::CRYSTAL_NET::service::AddLibraryBookCountReq)},
-  { 158, -1, -1, sizeof(::CRYSTAL_NET::service::AddLibraryBookCountRes)},
-  { 165, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookListReq)},
-  { 171, -1, -1, sizeof(::CRYSTAL_NET::service::BookListNty)},
-  { 178, -1, -1, sizeof(::CRYSTAL_NET::service::BooksChangeNty)},
-  { 185, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfoItemsNty)},
-  { 192, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookListRes)},
-  { 199, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookInfoReq)},
-  { 206, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookInfoRes)},
-  { 214, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookByBookNameReq)},
-  { 221, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookByBookNameRes)},
-  { 228, -1, -1, sizeof(::CRYSTAL_NET::service::BorrowBookReq)},
-  { 235, -1, -1, sizeof(::CRYSTAL_NET::service::BorrowBookRes)},
+  { 150, -1, -1, sizeof(::CRYSTAL_NET::service::AddLibraryBookRes)},
+  { 157, -1, -1, sizeof(::CRYSTAL_NET::service::AddLibraryBookCountReq)},
+  { 165, -1, -1, sizeof(::CRYSTAL_NET::service::AddLibraryBookCountRes)},
+  { 172, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookListReq)},
+  { 178, -1, -1, sizeof(::CRYSTAL_NET::service::BookListNty)},
+  { 185, -1, -1, sizeof(::CRYSTAL_NET::service::BooksChangeNty)},
+  { 192, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfoItemsNty)},
+  { 199, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookListRes)},
+  { 206, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookInfoReq)},
+  { 213, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookInfoRes)},
+  { 221, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookByBookNameReq)},
+  { 228, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookByBookNameRes)},
+  { 235, -1, -1, sizeof(::CRYSTAL_NET::service::BorrowBookReq)},
+  { 242, -1, -1, sizeof(::CRYSTAL_NET::service::BorrowBookRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -840,30 +851,35 @@ const char descriptor_table_protodef_library_2eproto[] PROTOBUF_SECTION_VARIABLE
   "Info\"\037\n\035GetLibraryMemberSimpleInfoReq\"q\n"
   "\035GetLibraryMemberSimpleInfoRes\022\017\n\007ErrCod"
   "e\030\001 \001(\021\022\?\n\022SimpleUserInfoList\030\002 \003(\0132#.CR"
-  "YSTAL_NET.service.SimpleUserInfo\"s\n\021AddL"
-  "ibraryBookReq\022\020\n\010BookName\030\001 \001(\t\022\020\n\010IsbnC"
-  "ode\030\002 \001(\t\022\026\n\016BookCoverImage\030\003 \001(\t\022\r\n\005Pri"
-  "ce\030\004 \001(\022\022\023\n\013ModifyCount\030\005 \001(\022\"$\n\021AddLibr"
-  "aryBookRes\022\017\n\007ErrCode\030\001 \001(\021\"=\n\026AddLibrar"
-  "yBookCountReq\022\016\n\006BookId\030\001 \001(\004\022\023\n\013ModifyC"
-  "ount\030\002 \001(\022\")\n\026AddLibraryBookCountRes\022\017\n\007"
-  "ErrCode\030\001 \001(\021\"\020\n\016GetBookListReq\"B\n\013BookL"
-  "istNty\0223\n\014BookInfoList\030\001 \003(\0132\035.CRYSTAL_N"
-  "ET.service.BookInfo\"E\n\016BooksChangeNty\0223\n"
-  "\014BookInfoList\030\001 \003(\0132\035.CRYSTAL_NET.servic"
-  "e.BookInfo\"d\n\027BookVariantInfoItemsNty\022I\n"
-  "\027BookVariantInfoItemList\030\001 \003(\0132(.CRYSTAL"
-  "_NET.service.BookVariantInfoItem\"!\n\016GetB"
-  "ookListRes\022\017\n\007ErrCode\030\001 \001(\021\"\"\n\016GetBookIn"
-  "foReq\022\020\n\010IsbnCode\030\001 \001(\t\"R\n\016GetBookInfoRe"
-  "s\022\017\n\007ErrCode\030\001 \001(\021\022/\n\010BookInfo\030\002 \001(\0132\035.C"
-  "RYSTAL_NET.service.BookInfo\"(\n\024GetBookBy"
-  "BookNameReq\022\020\n\010BookName\030\001 \001(\t\"K\n\024GetBook"
-  "ByBookNameRes\0223\n\014BookInfoList\030\001 \003(\0132\035.CR"
-  "YSTAL_NET.service.BookInfo\"L\n\rBorrowBook"
-  "Req\022;\n\016BorrowBookList\030\001 \003(\0132#.CRYSTAL_NE"
-  "T.service.BorrowBookItem\" \n\rBorrowBookRe"
-  "s\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
+  "YSTAL_NET.service.SimpleUserInfo\"\305\002\n\021Add"
+  "LibraryBookReq\022\020\n\010BookName\030\001 \001(\t\022\020\n\010Isbn"
+  "Code\030\002 \001(\t\022\030\n\016BookCoverImage\030\003 \001(\tH\000\022\r\n\005"
+  "Price\030\004 \001(\022\022\023\n\013ModifyCount\030\005 \001(\022\0226\n\010KeyW"
+  "ords\030\006 \001(\0132\".CRYSTAL_NET.service.KeyWord"
+  "sFieldH\001\022\021\n\007Content\030\007 \001(\tH\002\0226\n\010Snapshot\030"
+  "\010 \001(\0132\".CRYSTAL_NET.service.SnapshotFiel"
+  "dH\003B\026\n\024BookCoverImageOptionB\020\n\016KeyWordsO"
+  "ptionB\017\n\rContentOptionB\020\n\016SnapshotOption"
+  "\"$\n\021AddLibraryBookRes\022\017\n\007ErrCode\030\001 \001(\021\"="
+  "\n\026AddLibraryBookCountReq\022\016\n\006BookId\030\001 \001(\004"
+  "\022\023\n\013ModifyCount\030\002 \001(\022\")\n\026AddLibraryBookC"
+  "ountRes\022\017\n\007ErrCode\030\001 \001(\021\"\020\n\016GetBookListR"
+  "eq\"B\n\013BookListNty\0223\n\014BookInfoList\030\001 \003(\0132"
+  "\035.CRYSTAL_NET.service.BookInfo\"E\n\016BooksC"
+  "hangeNty\0223\n\014BookInfoList\030\001 \003(\0132\035.CRYSTAL"
+  "_NET.service.BookInfo\"d\n\027BookVariantInfo"
+  "ItemsNty\022I\n\027BookVariantInfoItemList\030\001 \003("
+  "\0132(.CRYSTAL_NET.service.BookVariantInfoI"
+  "tem\"!\n\016GetBookListRes\022\017\n\007ErrCode\030\001 \001(\021\"\""
+  "\n\016GetBookInfoReq\022\020\n\010IsbnCode\030\001 \001(\t\"R\n\016Ge"
+  "tBookInfoRes\022\017\n\007ErrCode\030\001 \001(\021\022/\n\010BookInf"
+  "o\030\002 \001(\0132\035.CRYSTAL_NET.service.BookInfo\"("
+  "\n\024GetBookByBookNameReq\022\020\n\010BookName\030\001 \001(\t"
+  "\"K\n\024GetBookByBookNameRes\0223\n\014BookInfoList"
+  "\030\001 \003(\0132\035.CRYSTAL_NET.service.BookInfo\"L\n"
+  "\rBorrowBookReq\022;\n\016BorrowBookList\030\001 \003(\0132#"
+  ".CRYSTAL_NET.service.BorrowBookItem\" \n\rB"
+  "orrowBookRes\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_library_2eproto_deps[3] = {
   &::descriptor_table_com_5fbook_2eproto,
@@ -872,7 +888,7 @@ static const ::_pbi::DescriptorTable* const descriptor_table_library_2eproto_dep
 };
 static ::_pbi::once_flag descriptor_table_library_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_library_2eproto = {
-    false, false, 2026, descriptor_table_protodef_library_2eproto,
+    false, false, 2237, descriptor_table_protodef_library_2eproto,
     "library.proto",
     &descriptor_table_library_2eproto_once, descriptor_table_library_2eproto_deps, 3, 33,
     schemas, file_default_instances, TableStruct_library_2eproto::offsets,
@@ -4020,8 +4036,66 @@ void GetLibraryMemberSimpleInfoRes::InternalSwap(GetLibraryMemberSimpleInfoRes* 
 
 class AddLibraryBookReq::_Internal {
  public:
+  static const ::CRYSTAL_NET::service::KeyWordsField& keywords(const AddLibraryBookReq* msg);
+  static const ::CRYSTAL_NET::service::SnapshotField& snapshot(const AddLibraryBookReq* msg);
 };
 
+const ::CRYSTAL_NET::service::KeyWordsField&
+AddLibraryBookReq::_Internal::keywords(const AddLibraryBookReq* msg) {
+  return *msg->_impl_.KeyWordsOption_.keywords_;
+}
+const ::CRYSTAL_NET::service::SnapshotField&
+AddLibraryBookReq::_Internal::snapshot(const AddLibraryBookReq* msg) {
+  return *msg->_impl_.SnapshotOption_.snapshot_;
+}
+void AddLibraryBookReq::set_allocated_keywords(::CRYSTAL_NET::service::KeyWordsField* keywords) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  clear_KeyWordsOption();
+  if (keywords) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(keywords));
+    if (message_arena != submessage_arena) {
+      keywords = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, keywords, submessage_arena);
+    }
+    set_has_keywords();
+    _impl_.KeyWordsOption_.keywords_ = keywords;
+  }
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.AddLibraryBookReq.KeyWords)
+}
+void AddLibraryBookReq::clear_keywords() {
+  if (_internal_has_keywords()) {
+    if (GetArenaForAllocation() == nullptr) {
+      delete _impl_.KeyWordsOption_.keywords_;
+    }
+    clear_has_KeyWordsOption();
+  }
+}
+void AddLibraryBookReq::set_allocated_snapshot(::CRYSTAL_NET::service::SnapshotField* snapshot) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  clear_SnapshotOption();
+  if (snapshot) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
+                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(snapshot));
+    if (message_arena != submessage_arena) {
+      snapshot = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, snapshot, submessage_arena);
+    }
+    set_has_snapshot();
+    _impl_.SnapshotOption_.snapshot_ = snapshot;
+  }
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.AddLibraryBookReq.Snapshot)
+}
+void AddLibraryBookReq::clear_snapshot() {
+  if (_internal_has_snapshot()) {
+    if (GetArenaForAllocation() == nullptr) {
+      delete _impl_.SnapshotOption_.snapshot_;
+    }
+    clear_has_SnapshotOption();
+  }
+}
 AddLibraryBookReq::AddLibraryBookReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -4034,10 +4108,14 @@ AddLibraryBookReq::AddLibraryBookReq(const AddLibraryBookReq& from)
   new (&_impl_) Impl_{
       decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
-    , decltype(_impl_.bookcoverimage_){}
     , decltype(_impl_.price_){}
     , decltype(_impl_.modifycount_){}
-    , /*decltype(_impl_._cached_size_)*/{}};
+    , decltype(_impl_.BookCoverImageOption_){}
+    , decltype(_impl_.KeyWordsOption_){}
+    , decltype(_impl_.ContentOption_){}
+    , decltype(_impl_.SnapshotOption_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+    , /*decltype(_impl_._oneof_case_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _impl_.bookname_.InitDefault();
@@ -4056,17 +4134,51 @@ AddLibraryBookReq::AddLibraryBookReq(const AddLibraryBookReq& from)
     _this->_impl_.isbncode_.Set(from._internal_isbncode(), 
       _this->GetArenaForAllocation());
   }
-  _impl_.bookcoverimage_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.bookcoverimage_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (!from._internal_bookcoverimage().empty()) {
-    _this->_impl_.bookcoverimage_.Set(from._internal_bookcoverimage(), 
-      _this->GetArenaForAllocation());
-  }
   ::memcpy(&_impl_.price_, &from._impl_.price_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.modifycount_) -
     reinterpret_cast<char*>(&_impl_.price_)) + sizeof(_impl_.modifycount_));
+  clear_has_BookCoverImageOption();
+  switch (from.BookCoverImageOption_case()) {
+    case kBookCoverImage: {
+      _this->_internal_set_bookcoverimage(from._internal_bookcoverimage());
+      break;
+    }
+    case BOOKCOVERIMAGEOPTION_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_KeyWordsOption();
+  switch (from.KeyWordsOption_case()) {
+    case kKeyWords: {
+      _this->_internal_mutable_keywords()->::CRYSTAL_NET::service::KeyWordsField::MergeFrom(
+          from._internal_keywords());
+      break;
+    }
+    case KEYWORDSOPTION_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_ContentOption();
+  switch (from.ContentOption_case()) {
+    case kContent: {
+      _this->_internal_set_content(from._internal_content());
+      break;
+    }
+    case CONTENTOPTION_NOT_SET: {
+      break;
+    }
+  }
+  clear_has_SnapshotOption();
+  switch (from.SnapshotOption_case()) {
+    case kSnapshot: {
+      _this->_internal_mutable_snapshot()->::CRYSTAL_NET::service::SnapshotField::MergeFrom(
+          from._internal_snapshot());
+      break;
+    }
+    case SNAPSHOTOPTION_NOT_SET: {
+      break;
+    }
+  }
   // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.AddLibraryBookReq)
 }
 
@@ -4077,10 +4189,14 @@ inline void AddLibraryBookReq::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
-    , decltype(_impl_.bookcoverimage_){}
     , decltype(_impl_.price_){int64_t{0}}
     , decltype(_impl_.modifycount_){int64_t{0}}
+    , decltype(_impl_.BookCoverImageOption_){}
+    , decltype(_impl_.KeyWordsOption_){}
+    , decltype(_impl_.ContentOption_){}
+    , decltype(_impl_.SnapshotOption_){}
     , /*decltype(_impl_._cached_size_)*/{}
+    , /*decltype(_impl_._oneof_case_)*/{}
   };
   _impl_.bookname_.InitDefault();
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -4090,10 +4206,10 @@ inline void AddLibraryBookReq::SharedCtor(
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.isbncode_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  _impl_.bookcoverimage_.InitDefault();
-  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-    _impl_.bookcoverimage_.Set("", GetArenaForAllocation());
-  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  clear_has_BookCoverImageOption();
+  clear_has_KeyWordsOption();
+  clear_has_ContentOption();
+  clear_has_SnapshotOption();
 }
 
 AddLibraryBookReq::~AddLibraryBookReq() {
@@ -4109,12 +4225,84 @@ inline void AddLibraryBookReq::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   _impl_.bookname_.Destroy();
   _impl_.isbncode_.Destroy();
-  _impl_.bookcoverimage_.Destroy();
+  if (has_BookCoverImageOption()) {
+    clear_BookCoverImageOption();
+  }
+  if (has_KeyWordsOption()) {
+    clear_KeyWordsOption();
+  }
+  if (has_ContentOption()) {
+    clear_ContentOption();
+  }
+  if (has_SnapshotOption()) {
+    clear_SnapshotOption();
+  }
 }
 
 void AddLibraryBookReq::SetCachedSize(int size) const {
   _impl_._cached_size_.Set(size);
 }
+
+void AddLibraryBookReq::clear_BookCoverImageOption() {
+// @@protoc_insertion_point(one_of_clear_start:CRYSTAL_NET.service.AddLibraryBookReq)
+  switch (BookCoverImageOption_case()) {
+    case kBookCoverImage: {
+      _impl_.BookCoverImageOption_.bookcoverimage_.Destroy();
+      break;
+    }
+    case BOOKCOVERIMAGEOPTION_NOT_SET: {
+      break;
+    }
+  }
+  _impl_._oneof_case_[0] = BOOKCOVERIMAGEOPTION_NOT_SET;
+}
+
+void AddLibraryBookReq::clear_KeyWordsOption() {
+// @@protoc_insertion_point(one_of_clear_start:CRYSTAL_NET.service.AddLibraryBookReq)
+  switch (KeyWordsOption_case()) {
+    case kKeyWords: {
+      if (GetArenaForAllocation() == nullptr) {
+        delete _impl_.KeyWordsOption_.keywords_;
+      }
+      break;
+    }
+    case KEYWORDSOPTION_NOT_SET: {
+      break;
+    }
+  }
+  _impl_._oneof_case_[1] = KEYWORDSOPTION_NOT_SET;
+}
+
+void AddLibraryBookReq::clear_ContentOption() {
+// @@protoc_insertion_point(one_of_clear_start:CRYSTAL_NET.service.AddLibraryBookReq)
+  switch (ContentOption_case()) {
+    case kContent: {
+      _impl_.ContentOption_.content_.Destroy();
+      break;
+    }
+    case CONTENTOPTION_NOT_SET: {
+      break;
+    }
+  }
+  _impl_._oneof_case_[2] = CONTENTOPTION_NOT_SET;
+}
+
+void AddLibraryBookReq::clear_SnapshotOption() {
+// @@protoc_insertion_point(one_of_clear_start:CRYSTAL_NET.service.AddLibraryBookReq)
+  switch (SnapshotOption_case()) {
+    case kSnapshot: {
+      if (GetArenaForAllocation() == nullptr) {
+        delete _impl_.SnapshotOption_.snapshot_;
+      }
+      break;
+    }
+    case SNAPSHOTOPTION_NOT_SET: {
+      break;
+    }
+  }
+  _impl_._oneof_case_[3] = SNAPSHOTOPTION_NOT_SET;
+}
+
 
 void AddLibraryBookReq::Clear() {
 // @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.AddLibraryBookReq)
@@ -4124,10 +4312,13 @@ void AddLibraryBookReq::Clear() {
 
   _impl_.bookname_.ClearToEmpty();
   _impl_.isbncode_.ClearToEmpty();
-  _impl_.bookcoverimage_.ClearToEmpty();
   ::memset(&_impl_.price_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&_impl_.modifycount_) -
       reinterpret_cast<char*>(&_impl_.price_)) + sizeof(_impl_.modifycount_));
+  clear_BookCoverImageOption();
+  clear_KeyWordsOption();
+  clear_ContentOption();
+  clear_SnapshotOption();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -4183,6 +4374,32 @@ const char* AddLibraryBookReq::_InternalParse(const char* ptr, ::_pbi::ParseCont
         } else
           goto handle_unusual;
         continue;
+      // .CRYSTAL_NET.service.KeyWordsField KeyWords = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
+          ptr = ctx->ParseMessage(_internal_mutable_keywords(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string Content = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
+          auto str = _internal_mutable_content();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.AddLibraryBookReq.Content"));
+        } else
+          goto handle_unusual;
+        continue;
+      // .CRYSTAL_NET.service.SnapshotField Snapshot = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
+          ptr = ctx->ParseMessage(_internal_mutable_snapshot(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
       default:
         goto handle_unusual;
     }  // switch
@@ -4233,7 +4450,7 @@ uint8_t* AddLibraryBookReq::_InternalSerialize(
   }
 
   // string BookCoverImage = 3;
-  if (!this->_internal_bookcoverimage().empty()) {
+  if (_internal_has_bookcoverimage()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_bookcoverimage().data(), static_cast<int>(this->_internal_bookcoverimage().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -4252,6 +4469,30 @@ uint8_t* AddLibraryBookReq::_InternalSerialize(
   if (this->_internal_modifycount() != 0) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteSInt64ToArray(5, this->_internal_modifycount(), target);
+  }
+
+  // .CRYSTAL_NET.service.KeyWordsField KeyWords = 6;
+  if (_internal_has_keywords()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(6, _Internal::keywords(this),
+        _Internal::keywords(this).GetCachedSize(), target, stream);
+  }
+
+  // string Content = 7;
+  if (_internal_has_content()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_content().data(), static_cast<int>(this->_internal_content().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.AddLibraryBookReq.Content");
+    target = stream->WriteStringMaybeAliased(
+        7, this->_internal_content(), target);
+  }
+
+  // .CRYSTAL_NET.service.SnapshotField Snapshot = 8;
+  if (_internal_has_snapshot()) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(8, _Internal::snapshot(this),
+        _Internal::snapshot(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4284,13 +4525,6 @@ size_t AddLibraryBookReq::ByteSizeLong() const {
         this->_internal_isbncode());
   }
 
-  // string BookCoverImage = 3;
-  if (!this->_internal_bookcoverimage().empty()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_bookcoverimage());
-  }
-
   // sint64 Price = 4;
   if (this->_internal_price() != 0) {
     total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_price());
@@ -4301,6 +4535,54 @@ size_t AddLibraryBookReq::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_modifycount());
   }
 
+  switch (BookCoverImageOption_case()) {
+    // string BookCoverImage = 3;
+    case kBookCoverImage: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_bookcoverimage());
+      break;
+    }
+    case BOOKCOVERIMAGEOPTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (KeyWordsOption_case()) {
+    // .CRYSTAL_NET.service.KeyWordsField KeyWords = 6;
+    case kKeyWords: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+          *_impl_.KeyWordsOption_.keywords_);
+      break;
+    }
+    case KEYWORDSOPTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (ContentOption_case()) {
+    // string Content = 7;
+    case kContent: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_content());
+      break;
+    }
+    case CONTENTOPTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (SnapshotOption_case()) {
+    // .CRYSTAL_NET.service.SnapshotField Snapshot = 8;
+    case kSnapshot: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+          *_impl_.SnapshotOption_.snapshot_);
+      break;
+    }
+    case SNAPSHOTOPTION_NOT_SET: {
+      break;
+    }
+  }
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -4325,14 +4607,49 @@ void AddLibraryBookReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, cons
   if (!from._internal_isbncode().empty()) {
     _this->_internal_set_isbncode(from._internal_isbncode());
   }
-  if (!from._internal_bookcoverimage().empty()) {
-    _this->_internal_set_bookcoverimage(from._internal_bookcoverimage());
-  }
   if (from._internal_price() != 0) {
     _this->_internal_set_price(from._internal_price());
   }
   if (from._internal_modifycount() != 0) {
     _this->_internal_set_modifycount(from._internal_modifycount());
+  }
+  switch (from.BookCoverImageOption_case()) {
+    case kBookCoverImage: {
+      _this->_internal_set_bookcoverimage(from._internal_bookcoverimage());
+      break;
+    }
+    case BOOKCOVERIMAGEOPTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.KeyWordsOption_case()) {
+    case kKeyWords: {
+      _this->_internal_mutable_keywords()->::CRYSTAL_NET::service::KeyWordsField::MergeFrom(
+          from._internal_keywords());
+      break;
+    }
+    case KEYWORDSOPTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.ContentOption_case()) {
+    case kContent: {
+      _this->_internal_set_content(from._internal_content());
+      break;
+    }
+    case CONTENTOPTION_NOT_SET: {
+      break;
+    }
+  }
+  switch (from.SnapshotOption_case()) {
+    case kSnapshot: {
+      _this->_internal_mutable_snapshot()->::CRYSTAL_NET::service::SnapshotField::MergeFrom(
+          from._internal_snapshot());
+      break;
+    }
+    case SNAPSHOTOPTION_NOT_SET: {
+      break;
+    }
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -4361,16 +4678,20 @@ void AddLibraryBookReq::InternalSwap(AddLibraryBookReq* other) {
       &_impl_.isbncode_, lhs_arena,
       &other->_impl_.isbncode_, rhs_arena
   );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &_impl_.bookcoverimage_, lhs_arena,
-      &other->_impl_.bookcoverimage_, rhs_arena
-  );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(AddLibraryBookReq, _impl_.modifycount_)
       + sizeof(AddLibraryBookReq::_impl_.modifycount_)
       - PROTOBUF_FIELD_OFFSET(AddLibraryBookReq, _impl_.price_)>(
           reinterpret_cast<char*>(&_impl_.price_),
           reinterpret_cast<char*>(&other->_impl_.price_));
+  swap(_impl_.BookCoverImageOption_, other->_impl_.BookCoverImageOption_);
+  swap(_impl_.KeyWordsOption_, other->_impl_.KeyWordsOption_);
+  swap(_impl_.ContentOption_, other->_impl_.ContentOption_);
+  swap(_impl_.SnapshotOption_, other->_impl_.SnapshotOption_);
+  swap(_impl_._oneof_case_[0], other->_impl_._oneof_case_[0]);
+  swap(_impl_._oneof_case_[1], other->_impl_._oneof_case_[1]);
+  swap(_impl_._oneof_case_[2], other->_impl_._oneof_case_[2]);
+  swap(_impl_._oneof_case_[3], other->_impl_._oneof_case_[3]);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata AddLibraryBookReq::GetMetadata() const {

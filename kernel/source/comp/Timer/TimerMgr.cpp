@@ -79,8 +79,9 @@ void TimerMgr::Launch(IDelegate<void> *wakeupThreadCb)
     _wakeupCb = wakeupThreadCb;
 }
 
-void TimerMgr::Drive()
+Int64 TimerMgr::Drive()
 {
+    Int64 handled = 0;
     _BeforeDrive();
 
     if(LIKELY(!_expireQueue.empty()))
@@ -98,10 +99,10 @@ void TimerMgr::Drive()
 
             // 必须先移除
             iter = _expireQueue.erase(iter);
-
             if(timeData->_isScheduing)
             {
                 timeData->_owner->OnTimeOut();
+                ++handled;
 
                 if(LIKELY(timeData->_owner))
                 {
@@ -125,6 +126,8 @@ void TimerMgr::Drive()
     {
         _hasExpired = false;
     }
+
+    return handled;
 }
 
 void TimerMgr::SafetyDrive()

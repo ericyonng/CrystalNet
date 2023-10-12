@@ -233,6 +233,11 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("KeyWordsField", (jsonData:any):any =>{
+                return this.KeyWordsFieldParser(jsonData);
+            })
+
+
             this.add("LibararyManagerInfo", (jsonData:any):any =>{
                 return this.LibararyManagerInfoParser(jsonData);
             })
@@ -438,6 +443,11 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("SnapshotField", (jsonData:any):any =>{
+                return this.SnapshotFieldParser(jsonData);
+            })
+
+
             this.add("TestMgrData", (jsonData:any):any =>{
                 return this.TestMgrDataParser(jsonData);
             })
@@ -605,6 +615,42 @@ export namespace crystal_net_service_parser
                 if(jsonData.ModifyCount != undefined)
                 {
                     newInfo.ModifyCount = parseFloat(jsonData.ModifyCount);
+                }
+
+
+                if(jsonData.KeyWords != undefined)
+                {
+                    var jsonFieldInfo = jsonData.KeyWords;
+                    var cb = this.getParser("KeyWordsField");
+                    if(cb != undefined)
+                    {
+                        newInfo.KeyWords = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field KeyWords have no KeyWordsField parser");
+                    }
+                }
+
+
+                if(jsonData.Content != undefined)
+                {
+                    newInfo.Content = jsonData.Content;
+                }
+
+
+                if(jsonData.Snapshot != undefined)
+                {
+                    var jsonFieldInfo = jsonData.Snapshot;
+                    var cb = this.getParser("SnapshotField");
+                    if(cb != undefined)
+                    {
+                        newInfo.Snapshot = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field Snapshot have no SnapshotField parser");
+                    }
                 }
 
                  return newInfo;
@@ -1340,6 +1386,22 @@ export namespace crystal_net_service_parser
                 if(jsonData.ErrCode != undefined)
                 {
                     newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private KeyWordsFieldParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.KeyWordsField()
+
+                if(jsonData.KeyWords != undefined)
+                {
+                    var jsonArray = jsonData.KeyWords.map((value, idx, arr)=>{
+                    return value;
+                    });
+
+                    newInfo.KeyWords = jsonArray;
                 }
 
                  return newInfo;
@@ -2257,6 +2319,22 @@ export namespace crystal_net_service_parser
                 if(jsonData.BindPhone != undefined)
                 {
                     newInfo.BindPhone = parseFloat(jsonData.BindPhone);
+                }
+
+                 return newInfo;
+            }
+
+
+            private SnapshotFieldParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SnapshotField()
+
+                if(jsonData.Snapshots != undefined)
+                {
+                    var jsonArray = jsonData.Snapshots.map((value, idx, arr)=>{
+                    return value;
+                    });
+
+                    newInfo.Snapshots = jsonArray;
                 }
 
                  return newInfo;

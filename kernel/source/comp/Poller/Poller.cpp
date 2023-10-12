@@ -293,6 +293,9 @@ void Poller::EventLoop()
             }
         }
 
+        performaceStart = deadline.Update();
+        deadline += _maxPieceTime;
+
         // 队列有消息就合并
         if(LIKELY(_eventAmountLeft != 0))
             mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
@@ -300,9 +303,6 @@ void Poller::EventLoop()
         // 处理事件
         UInt64 curConsumeEventsCount = 0;
         Int32 detectTimeoutLoopCount = _loopDetectTimeout;
-
-         performaceStart = deadline.Update();
-        deadline += _maxPieceTime;
 
         for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber != 0);)
         {
@@ -338,9 +338,10 @@ void Poller::EventLoop()
         }
 
         // 脏处理
+        Int64 dirtyHandled = 0;
         if(UNLIKELY(_dirtyHelper->HasDirty()))
         {
-            _dirtyHelper->Purge(&errLog);
+            dirtyHandled = _dirtyHelper->Purge(&errLog);
             if(UNLIKELY(!errLog.empty()))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
@@ -349,7 +350,7 @@ void Poller::EventLoop()
         }
 
         // 处理定时器
-        _timerMgr->Drive();
+        auto handled = _timerMgr->Drive();
 
         if(onTikc)
             onTikc->Invoke();
@@ -358,8 +359,8 @@ void Poller::EventLoop()
         const auto &elapseTime = nowCounter.Update() - performaceStart;
         if(UNLIKELY(elapseTime >= _maxPieceTime))
         {
-            g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu")
-            , pollerId, curThreadId, elapseTime.GetTotalMilliseconds(), _maxPieceTime.GetTotalMilliseconds(), curConsumeEventsCount);
+            g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu, time out handled count:%lld, dirty handled count:%lld")
+            , pollerId, curThreadId, elapseTime.GetTotalMilliseconds(), _maxPieceTime.GetTotalMilliseconds(), curConsumeEventsCount, handled, dirtyHandled);
         }
     }
 

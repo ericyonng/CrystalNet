@@ -980,6 +980,10 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
     auto imageSizeLimitConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_IMAGE_SIZE);
     const size_t contentMaxLen = static_cast<size_t>(contentConfig->_int64Value);
     const size_t imageMaxSize = static_cast<size_t>(imageSizeLimitConfig->_int64Value);
+    auto bookContentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::BOOK_CONTENT_LIMIT);
+    const size_t maxBookContentLen = static_cast<size_t>(bookContentConfig->_int64Value);
+    auto keyWordsConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::KEYWORDS_LIMIT);
+    auto snapshotConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::BOOK_SNAP_SHOT_MAX_LIMIT);
     Int32 err = Status::Success;
 
     do
@@ -1034,12 +1038,80 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                 }
             }
 
-            if(!req->bookcoverimage().empty())
+            if(req->has_bookcoverimage())
             {
-                if((req->bookcoverimage().size() * 3 / 4) >= imageMaxSize)
                 {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), req->bookcoverimage().size(), user->ToString().c_str());
-                    err = Status::ImageTooLarge;
+                    if((req->bookcoverimage().size() * 3 / 4) >= imageMaxSize)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), req->bookcoverimage().size(), user->ToString().c_str());
+                        err = Status::ImageTooLarge;
+                        break;
+                    }
+                }
+            }
+
+            if(req->has_content())
+            {
+                const KERNEL_NS::LibString &copyContent = req->content();
+                const auto currentLen = copyContent.length_with_utf8();
+                if((currentLen * 3 / 4) > maxBookContentLen)
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("content too long :%llu limit:%llu user:%s")
+                    , currentLen, maxBookContentLen, user->ToString().c_str());
+                    err = Status::ContentTooLong;
+                    break;
+                }
+            }
+
+            if(req->has_keywords())
+            {
+                if(req->keywords().keywords_size() > keyWordsConfig->_value)
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("keywords too much :%d limit:%d user:%s")
+                    , req->keywords().keywords_size(), keyWordsConfig->_value, user->ToString().c_str());
+                    err = Status::KeyWordsTooMuch;
+                    break;
+                }
+
+                for(auto &keyword : req->keywords().keywords())
+                {
+                    if(keyword.size() > contentMaxLen)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("keyword too long :%llu limit:%llu user:%s")
+                        , keyword.size(), contentMaxLen, user->ToString().c_str());
+                        err = Status::ContentTooLong;
+                        break;
+                    }
+                }
+                
+                if(err != Status::Success)
+                {
+                    break;
+                }
+            }
+
+            if(req->has_snapshot())
+            {
+                if(req->snapshot().snapshots_size() > snapshotConfig->_value)
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("snapshot too much :%d limit:%d user:%s")
+                    , req->snapshot().snapshots_size(), snapshotConfig->_value, user->ToString().c_str());
+                    err = Status::KeyWordsTooMuch;
+                    break;
+                }
+
+                for(auto &snapshot : req->snapshot().snapshots())
+                {
+                    if((snapshot.size() * 3 / 4) >= imageMaxSize)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("snapshot image too large :%llu user:%s"), snapshot.size(), user->ToString().c_str());
+                        err = Status::ImageTooLarge;
+                        break;
+                    }
+                }
+
+                if(err != Status::Success)
+                {
                     break;
                 }
             }
@@ -1047,11 +1119,21 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
             if(!req->bookname().empty())
                 bookInfo->set_bookname(req->bookname());
 
-            if(!req->bookcoverimage().empty())
+            if(!req->has_bookcoverimage())
                 bookInfo->set_bookcoverimage(req->bookcoverimage());
 
             if(req->price() > 0)
                 bookInfo->mutable_variantinfo()->set_price(req->price());
+
+            if(req->has_keywords())
+                *bookInfo->mutable_keywords() = req->keywords().keywords();
+
+            if(req->has_content())
+                bookInfo->set_content(req->content());
+
+            if(req->has_snapshot())
+                *bookInfo->mutable_snapshot() = req->snapshot().snapshots();
+
         }
         else
         {
@@ -1069,11 +1151,14 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                 break;
             }
 
-            if((req->bookcoverimage().size() * 3 / 4) >= imageMaxSize)
+            if(req->has_bookcoverimage())
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), req->bookcoverimage().size(), user->ToString().c_str());
-                err = Status::ImageTooLarge;
-                break;
+                if((req->bookcoverimage().size() * 3 / 4) >= imageMaxSize)
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), req->bookcoverimage().size(), user->ToString().c_str());
+                    err = Status::ImageTooLarge;
+                    break;
+                }
             }
 
             if(req->price() <= 0)
@@ -1083,13 +1168,89 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                 break;
             }
             
+            if(req->has_content())
+            {
+                const KERNEL_NS::LibString &copyContent = req->content();
+                const auto currentLen = copyContent.length_with_utf8();
+                if((currentLen * 3 / 4) > maxBookContentLen)
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("content too long :%llu limit:%llu user:%s")
+                    , currentLen, maxBookContentLen, user->ToString().c_str());
+                    err = Status::ContentTooLong;
+                    break;
+                }
+            }
+
+            if(req->has_keywords())
+            {
+                if(req->keywords().keywords_size() > keyWordsConfig->_value)
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("keywords too much :%d limit:%d user:%s")
+                    , req->keywords().keywords_size(), keyWordsConfig->_value, user->ToString().c_str());
+                    err = Status::KeyWordsTooMuch;
+                    break;
+                }
+
+                for(auto &keyword : req->keywords().keywords())
+                {
+                    if(keyword.size() > contentMaxLen)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("keyword too long :%llu limit:%llu user:%s")
+                        , keyword.size(), contentMaxLen, user->ToString().c_str());
+                        err = Status::ContentTooLong;
+                        break;
+                    }
+                }
+                if(err != Status::Success)
+                {
+                    break;
+                }
+            }
+
+            if(req->has_snapshot())
+            {
+                if(req->snapshot().snapshots_size() > snapshotConfig->_value)
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("snapshot too much :%d limit:%d user:%s")
+                    , req->snapshot().snapshots_size(), snapshotConfig->_value, user->ToString().c_str());
+                    err = Status::KeyWordsTooMuch;
+                    break;
+                }
+
+                for(auto &snapshot : req->snapshot().snapshots())
+                {
+                    if((snapshot.size() * 3 / 4) >= imageMaxSize)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("snapshot image too large :%llu user:%s"), snapshot.size(), user->ToString().c_str());
+                        err = Status::ImageTooLarge;
+                        break;
+                    }
+                }
+
+                if(err != Status::Success)
+                {
+                    break;
+                }
+            }
+
             auto newBook = libarayInfo->add_booklist();
             auto guidMgr = GetGlobalSys<IGlobalUidMgr>();
             newBook->set_id(guidMgr->NewGuid());
             newBook->set_bookname(req->bookname());
             newBook->set_isbncode(req->isbncode());
-            newBook->set_bookcoverimage(req->bookcoverimage());
+
+            if(req->has_bookcoverimage())
+                newBook->set_bookcoverimage(req->bookcoverimage());
             newBook->mutable_variantinfo()->set_price(req->price());
+
+            if(req->has_keywords())
+                *newBook->mutable_keywords() = req->keywords().keywords();
+
+            if(req->has_content())
+                newBook->set_content(req->content());
+
+            if(req->has_snapshot())
+                *newBook->mutable_snapshot() = req->snapshot().snapshots();
 
             _MakeBookDict(libarayInfo->id(), newBook);
             bookInfo = newBook;

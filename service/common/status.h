@@ -89,5 +89,7 @@ namespace Status
         ImageTooLarge,                                      // 图片过大
         RepeateBook,                                        // 图书已存在
         BookNotFound,                                       // 图书不存在
+        ContentTooLong,                                     // 内容过长
+        KeyWordsTooMuch,                                    // 关键词太多
     };
 }

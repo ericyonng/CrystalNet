@@ -160,11 +160,31 @@ message AddLibraryBookReq
     // isbn
     string IsbnCode = 2;
     // 封面
-    string BookCoverImage = 3;
+    oneof BookCoverImageOption
+    {
+        string BookCoverImage = 3;
+    }
     // 价格(单位分)
     sint64 Price = 4;
     // 数量 增量
     sint64 ModifyCount = 5;
+    // 关键词最多5个
+    oneof KeyWordsOption
+    {
+        KeyWordsField KeyWords = 6;
+    }
+
+    // 内容简介 最多10KB左右
+    oneof ContentOption
+    {
+        string Content = 7;
+    }
+    
+    // 截图最多9张
+    oneof SnapshotOption
+    {
+        SnapshotField Snapshot = 8;
+    }
 }
 
 // 录书结果

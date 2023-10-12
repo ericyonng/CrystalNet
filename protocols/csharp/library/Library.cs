@@ -50,28 +50,32 @@ using ProtoPackage.Attributes;
             "aWNlLlVzZXJMaWJyYXJ5SW5mbyIfCh1HZXRMaWJyYXJ5TWVtYmVyU2ltcGxl",
             "SW5mb1JlcSJxCh1HZXRMaWJyYXJ5TWVtYmVyU2ltcGxlSW5mb1JlcxIPCgdF",
             "cnJDb2RlGAEgASgREj8KElNpbXBsZVVzZXJJbmZvTGlzdBgCIAMoCzIjLkNS",
-            "WVNUQUxfTkVULnNlcnZpY2UuU2ltcGxlVXNlckluZm8icwoRQWRkTGlicmFy",
-            "eUJvb2tSZXESEAoIQm9va05hbWUYASABKAkSEAoISXNibkNvZGUYAiABKAkS",
-            "FgoOQm9va0NvdmVySW1hZ2UYAyABKAkSDQoFUHJpY2UYBCABKBISEwoLTW9k",
-            "aWZ5Q291bnQYBSABKBIiJAoRQWRkTGlicmFyeUJvb2tSZXMSDwoHRXJyQ29k",
-            "ZRgBIAEoESI9ChZBZGRMaWJyYXJ5Qm9va0NvdW50UmVxEg4KBkJvb2tJZBgB",
-            "IAEoBBITCgtNb2RpZnlDb3VudBgCIAEoEiIpChZBZGRMaWJyYXJ5Qm9va0Nv",
-            "dW50UmVzEg8KB0VyckNvZGUYASABKBEiEAoOR2V0Qm9va0xpc3RSZXEiQgoL",
-            "Qm9va0xpc3ROdHkSMwoMQm9va0luZm9MaXN0GAEgAygLMh0uQ1JZU1RBTF9O",
-            "RVQuc2VydmljZS5Cb29rSW5mbyJFCg5Cb29rc0NoYW5nZU50eRIzCgxCb29r",
-            "SW5mb0xpc3QYASADKAsyHS5DUllTVEFMX05FVC5zZXJ2aWNlLkJvb2tJbmZv",
-            "ImQKF0Jvb2tWYXJpYW50SW5mb0l0ZW1zTnR5EkkKF0Jvb2tWYXJpYW50SW5m",
-            "b0l0ZW1MaXN0GAEgAygLMiguQ1JZU1RBTF9ORVQuc2VydmljZS5Cb29rVmFy",
-            "aWFudEluZm9JdGVtIiEKDkdldEJvb2tMaXN0UmVzEg8KB0VyckNvZGUYASAB",
-            "KBEiIgoOR2V0Qm9va0luZm9SZXESEAoISXNibkNvZGUYASABKAkiUgoOR2V0",
-            "Qm9va0luZm9SZXMSDwoHRXJyQ29kZRgBIAEoERIvCghCb29rSW5mbxgCIAEo",
-            "CzIdLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9va0luZm8iKAoUR2V0Qm9va0J5",
-            "Qm9va05hbWVSZXESEAoIQm9va05hbWUYASABKAkiSwoUR2V0Qm9va0J5Qm9v",
-            "a05hbWVSZXMSMwoMQm9va0luZm9MaXN0GAEgAygLMh0uQ1JZU1RBTF9ORVQu",
-            "c2VydmljZS5Cb29rSW5mbyJMCg1Cb3Jyb3dCb29rUmVxEjsKDkJvcnJvd0Jv",
-            "b2tMaXN0GAEgAygLMiMuQ1JZU1RBTF9ORVQuc2VydmljZS5Cb3Jyb3dCb29r",
-            "SXRlbSIgCg1Cb3Jyb3dCb29rUmVzEg8KB0VyckNvZGUYASABKBFiBnByb3Rv",
-            "Mw=="));
+            "WVNUQUxfTkVULnNlcnZpY2UuU2ltcGxlVXNlckluZm8ixQIKEUFkZExpYnJh",
+            "cnlCb29rUmVxEhAKCEJvb2tOYW1lGAEgASgJEhAKCElzYm5Db2RlGAIgASgJ",
+            "EhgKDkJvb2tDb3ZlckltYWdlGAMgASgJSAASDQoFUHJpY2UYBCABKBISEwoL",
+            "TW9kaWZ5Q291bnQYBSABKBISNgoIS2V5V29yZHMYBiABKAsyIi5DUllTVEFM",
+            "X05FVC5zZXJ2aWNlLktleVdvcmRzRmllbGRIARIRCgdDb250ZW50GAcgASgJ",
+            "SAISNgoIU25hcHNob3QYCCABKAsyIi5DUllTVEFMX05FVC5zZXJ2aWNlLlNu",
+            "YXBzaG90RmllbGRIA0IWChRCb29rQ292ZXJJbWFnZU9wdGlvbkIQCg5LZXlX",
+            "b3Jkc09wdGlvbkIPCg1Db250ZW50T3B0aW9uQhAKDlNuYXBzaG90T3B0aW9u",
+            "IiQKEUFkZExpYnJhcnlCb29rUmVzEg8KB0VyckNvZGUYASABKBEiPQoWQWRk",
+            "TGlicmFyeUJvb2tDb3VudFJlcRIOCgZCb29rSWQYASABKAQSEwoLTW9kaWZ5",
+            "Q291bnQYAiABKBIiKQoWQWRkTGlicmFyeUJvb2tDb3VudFJlcxIPCgdFcnJD",
+            "b2RlGAEgASgRIhAKDkdldEJvb2tMaXN0UmVxIkIKC0Jvb2tMaXN0TnR5EjMK",
+            "DEJvb2tJbmZvTGlzdBgBIAMoCzIdLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9v",
+            "a0luZm8iRQoOQm9va3NDaGFuZ2VOdHkSMwoMQm9va0luZm9MaXN0GAEgAygL",
+            "Mh0uQ1JZU1RBTF9ORVQuc2VydmljZS5Cb29rSW5mbyJkChdCb29rVmFyaWFu",
+            "dEluZm9JdGVtc050eRJJChdCb29rVmFyaWFudEluZm9JdGVtTGlzdBgBIAMo",
+            "CzIoLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9va1ZhcmlhbnRJbmZvSXRlbSIh",
+            "Cg5HZXRCb29rTGlzdFJlcxIPCgdFcnJDb2RlGAEgASgRIiIKDkdldEJvb2tJ",
+            "bmZvUmVxEhAKCElzYm5Db2RlGAEgASgJIlIKDkdldEJvb2tJbmZvUmVzEg8K",
+            "B0VyckNvZGUYASABKBESLwoIQm9va0luZm8YAiABKAsyHS5DUllTVEFMX05F",
+            "VC5zZXJ2aWNlLkJvb2tJbmZvIigKFEdldEJvb2tCeUJvb2tOYW1lUmVxEhAK",
+            "CEJvb2tOYW1lGAEgASgJIksKFEdldEJvb2tCeUJvb2tOYW1lUmVzEjMKDEJv",
+            "b2tJbmZvTGlzdBgBIAMoCzIdLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9va0lu",
+            "Zm8iTAoNQm9ycm93Qm9va1JlcRI7Cg5Cb3Jyb3dCb29rTGlzdBgBIAMoCzIj",
+            "LkNSWVNUQUxfTkVULnNlcnZpY2UuQm9ycm93Qm9va0l0ZW0iIAoNQm9ycm93",
+            "Qm9va1JlcxIPCgdFcnJDb2RlGAEgASgRYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComLibraryReflection.Descriptor, global::CRYSTALNET.Service.ComBookReflection.Descriptor, global::CRYSTALNET.Service.ComUserReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -93,7 +97,7 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserLibraryInfoNty), global::CRYSTALNET.Service.UserLibraryInfoNty.Parser, new[]{ "UserLibraryInfo" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.GetLibraryMemberSimpleInfoReq), global::CRYSTALNET.Service.GetLibraryMemberSimpleInfoReq.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.GetLibraryMemberSimpleInfoRes), global::CRYSTALNET.Service.GetLibraryMemberSimpleInfoRes.Parser, new[]{ "ErrCode", "SimpleUserInfoList" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.AddLibraryBookReq), global::CRYSTALNET.Service.AddLibraryBookReq.Parser, new[]{ "BookName", "IsbnCode", "BookCoverImage", "Price", "ModifyCount" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.AddLibraryBookReq), global::CRYSTALNET.Service.AddLibraryBookReq.Parser, new[]{ "BookName", "IsbnCode", "BookCoverImage", "Price", "ModifyCount", "KeyWords", "Content", "Snapshot" }, new[]{ "BookCoverImageOption", "KeyWordsOption", "ContentOption", "SnapshotOption" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.AddLibraryBookRes), global::CRYSTALNET.Service.AddLibraryBookRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.AddLibraryBookCountReq), global::CRYSTALNET.Service.AddLibraryBookCountReq.Parser, new[]{ "BookId", "ModifyCount" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.AddLibraryBookCountRes), global::CRYSTALNET.Service.AddLibraryBookCountRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
@@ -3867,9 +3871,32 @@ using ProtoPackage.Attributes;
     public AddLibraryBookReq(AddLibraryBookReq other) : this() {
       bookName_ = other.bookName_;
       isbnCode_ = other.isbnCode_;
-      bookCoverImage_ = other.bookCoverImage_;
       price_ = other.price_;
       modifyCount_ = other.modifyCount_;
+      switch (other.BookCoverImageOptionCase) {
+        case BookCoverImageOptionOneofCase.BookCoverImage:
+          BookCoverImage = other.BookCoverImage;
+          break;
+      }
+
+      switch (other.KeyWordsOptionCase) {
+        case KeyWordsOptionOneofCase.KeyWords:
+          KeyWords = other.KeyWords.Clone();
+          break;
+      }
+
+      switch (other.ContentOptionCase) {
+        case ContentOptionOneofCase.Content:
+          Content = other.Content;
+          break;
+      }
+
+      switch (other.SnapshotOptionCase) {
+        case SnapshotOptionOneofCase.Snapshot:
+          Snapshot = other.Snapshot.Clone();
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3911,16 +3938,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "BookCoverImage" field.</summary>
     public const int BookCoverImageFieldNumber = 3;
-    private string bookCoverImage_ = "";
-    /// <summary>
-    /// 封面
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public string BookCoverImage {
-      get { return bookCoverImage_; }
+      get { return bookCoverImageOptionCase_ == BookCoverImageOptionOneofCase.BookCoverImage ? (string) bookCoverImageOption_ : ""; }
       set {
-        bookCoverImage_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        bookCoverImageOption_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        bookCoverImageOptionCase_ = BookCoverImageOptionOneofCase.BookCoverImage;
       }
     }
 
@@ -3954,6 +3978,122 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "KeyWords" field.</summary>
+    public const int KeyWordsFieldNumber = 6;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::CRYSTALNET.Service.KeyWordsField KeyWords {
+      get { return keyWordsOptionCase_ == KeyWordsOptionOneofCase.KeyWords ? (global::CRYSTALNET.Service.KeyWordsField) keyWordsOption_ : null; }
+      set {
+        keyWordsOption_ = value;
+        keyWordsOptionCase_ = value == null ? KeyWordsOptionOneofCase.None : KeyWordsOptionOneofCase.KeyWords;
+      }
+    }
+
+    /// <summary>Field number for the "Content" field.</summary>
+    public const int ContentFieldNumber = 7;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Content {
+      get { return contentOptionCase_ == ContentOptionOneofCase.Content ? (string) contentOption_ : ""; }
+      set {
+        contentOption_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        contentOptionCase_ = ContentOptionOneofCase.Content;
+      }
+    }
+
+    /// <summary>Field number for the "Snapshot" field.</summary>
+    public const int SnapshotFieldNumber = 8;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::CRYSTALNET.Service.SnapshotField Snapshot {
+      get { return snapshotOptionCase_ == SnapshotOptionOneofCase.Snapshot ? (global::CRYSTALNET.Service.SnapshotField) snapshotOption_ : null; }
+      set {
+        snapshotOption_ = value;
+        snapshotOptionCase_ = value == null ? SnapshotOptionOneofCase.None : SnapshotOptionOneofCase.Snapshot;
+      }
+    }
+
+    private object bookCoverImageOption_;
+    /// <summary>Enum of possible cases for the "BookCoverImageOption" oneof.</summary>
+    public enum BookCoverImageOptionOneofCase {
+      None = 0,
+      BookCoverImage = 3,
+    }
+    private BookCoverImageOptionOneofCase bookCoverImageOptionCase_ = BookCoverImageOptionOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BookCoverImageOptionOneofCase BookCoverImageOptionCase {
+      get { return bookCoverImageOptionCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearBookCoverImageOption() {
+      bookCoverImageOptionCase_ = BookCoverImageOptionOneofCase.None;
+      bookCoverImageOption_ = null;
+    }
+
+    private object keyWordsOption_;
+    /// <summary>Enum of possible cases for the "KeyWordsOption" oneof.</summary>
+    public enum KeyWordsOptionOneofCase {
+      None = 0,
+      KeyWords = 6,
+    }
+    private KeyWordsOptionOneofCase keyWordsOptionCase_ = KeyWordsOptionOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public KeyWordsOptionOneofCase KeyWordsOptionCase {
+      get { return keyWordsOptionCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearKeyWordsOption() {
+      keyWordsOptionCase_ = KeyWordsOptionOneofCase.None;
+      keyWordsOption_ = null;
+    }
+
+    private object contentOption_;
+    /// <summary>Enum of possible cases for the "ContentOption" oneof.</summary>
+    public enum ContentOptionOneofCase {
+      None = 0,
+      Content = 7,
+    }
+    private ContentOptionOneofCase contentOptionCase_ = ContentOptionOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ContentOptionOneofCase ContentOptionCase {
+      get { return contentOptionCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearContentOption() {
+      contentOptionCase_ = ContentOptionOneofCase.None;
+      contentOption_ = null;
+    }
+
+    private object snapshotOption_;
+    /// <summary>Enum of possible cases for the "SnapshotOption" oneof.</summary>
+    public enum SnapshotOptionOneofCase {
+      None = 0,
+      Snapshot = 8,
+    }
+    private SnapshotOptionOneofCase snapshotOptionCase_ = SnapshotOptionOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SnapshotOptionOneofCase SnapshotOptionCase {
+      get { return snapshotOptionCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearSnapshotOption() {
+      snapshotOptionCase_ = SnapshotOptionOneofCase.None;
+      snapshotOption_ = null;
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -3974,6 +4114,13 @@ using ProtoPackage.Attributes;
       if (BookCoverImage != other.BookCoverImage) return false;
       if (Price != other.Price) return false;
       if (ModifyCount != other.ModifyCount) return false;
+      if (!object.Equals(KeyWords, other.KeyWords)) return false;
+      if (Content != other.Content) return false;
+      if (!object.Equals(Snapshot, other.Snapshot)) return false;
+      if (BookCoverImageOptionCase != other.BookCoverImageOptionCase) return false;
+      if (KeyWordsOptionCase != other.KeyWordsOptionCase) return false;
+      if (ContentOptionCase != other.ContentOptionCase) return false;
+      if (SnapshotOptionCase != other.SnapshotOptionCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3983,9 +4130,16 @@ using ProtoPackage.Attributes;
       int hash = 1;
       if (BookName.Length != 0) hash ^= BookName.GetHashCode();
       if (IsbnCode.Length != 0) hash ^= IsbnCode.GetHashCode();
-      if (BookCoverImage.Length != 0) hash ^= BookCoverImage.GetHashCode();
+      if (bookCoverImageOptionCase_ == BookCoverImageOptionOneofCase.BookCoverImage) hash ^= BookCoverImage.GetHashCode();
       if (Price != 0L) hash ^= Price.GetHashCode();
       if (ModifyCount != 0L) hash ^= ModifyCount.GetHashCode();
+      if (keyWordsOptionCase_ == KeyWordsOptionOneofCase.KeyWords) hash ^= KeyWords.GetHashCode();
+      if (contentOptionCase_ == ContentOptionOneofCase.Content) hash ^= Content.GetHashCode();
+      if (snapshotOptionCase_ == SnapshotOptionOneofCase.Snapshot) hash ^= Snapshot.GetHashCode();
+      hash ^= (int) bookCoverImageOptionCase_;
+      hash ^= (int) keyWordsOptionCase_;
+      hash ^= (int) contentOptionCase_;
+      hash ^= (int) snapshotOptionCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4012,7 +4166,7 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(18);
         output.WriteString(IsbnCode);
       }
-      if (BookCoverImage.Length != 0) {
+      if (bookCoverImageOptionCase_ == BookCoverImageOptionOneofCase.BookCoverImage) {
         output.WriteRawTag(26);
         output.WriteString(BookCoverImage);
       }
@@ -4023,6 +4177,18 @@ using ProtoPackage.Attributes;
       if (ModifyCount != 0L) {
         output.WriteRawTag(40);
         output.WriteSInt64(ModifyCount);
+      }
+      if (keyWordsOptionCase_ == KeyWordsOptionOneofCase.KeyWords) {
+        output.WriteRawTag(50);
+        output.WriteMessage(KeyWords);
+      }
+      if (contentOptionCase_ == ContentOptionOneofCase.Content) {
+        output.WriteRawTag(58);
+        output.WriteString(Content);
+      }
+      if (snapshotOptionCase_ == SnapshotOptionOneofCase.Snapshot) {
+        output.WriteRawTag(66);
+        output.WriteMessage(Snapshot);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -4042,7 +4208,7 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(18);
         output.WriteString(IsbnCode);
       }
-      if (BookCoverImage.Length != 0) {
+      if (bookCoverImageOptionCase_ == BookCoverImageOptionOneofCase.BookCoverImage) {
         output.WriteRawTag(26);
         output.WriteString(BookCoverImage);
       }
@@ -4053,6 +4219,18 @@ using ProtoPackage.Attributes;
       if (ModifyCount != 0L) {
         output.WriteRawTag(40);
         output.WriteSInt64(ModifyCount);
+      }
+      if (keyWordsOptionCase_ == KeyWordsOptionOneofCase.KeyWords) {
+        output.WriteRawTag(50);
+        output.WriteMessage(KeyWords);
+      }
+      if (contentOptionCase_ == ContentOptionOneofCase.Content) {
+        output.WriteRawTag(58);
+        output.WriteString(Content);
+      }
+      if (snapshotOptionCase_ == SnapshotOptionOneofCase.Snapshot) {
+        output.WriteRawTag(66);
+        output.WriteMessage(Snapshot);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -4070,7 +4248,7 @@ using ProtoPackage.Attributes;
       if (IsbnCode.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(IsbnCode);
       }
-      if (BookCoverImage.Length != 0) {
+      if (bookCoverImageOptionCase_ == BookCoverImageOptionOneofCase.BookCoverImage) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(BookCoverImage);
       }
       if (Price != 0L) {
@@ -4078,6 +4256,15 @@ using ProtoPackage.Attributes;
       }
       if (ModifyCount != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(ModifyCount);
+      }
+      if (keyWordsOptionCase_ == KeyWordsOptionOneofCase.KeyWords) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(KeyWords);
+      }
+      if (contentOptionCase_ == ContentOptionOneofCase.Content) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Content);
+      }
+      if (snapshotOptionCase_ == SnapshotOptionOneofCase.Snapshot) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Snapshot);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -4097,15 +4284,42 @@ using ProtoPackage.Attributes;
       if (other.IsbnCode.Length != 0) {
         IsbnCode = other.IsbnCode;
       }
-      if (other.BookCoverImage.Length != 0) {
-        BookCoverImage = other.BookCoverImage;
-      }
       if (other.Price != 0L) {
         Price = other.Price;
       }
       if (other.ModifyCount != 0L) {
         ModifyCount = other.ModifyCount;
       }
+      switch (other.BookCoverImageOptionCase) {
+        case BookCoverImageOptionOneofCase.BookCoverImage:
+          BookCoverImage = other.BookCoverImage;
+          break;
+      }
+
+      switch (other.KeyWordsOptionCase) {
+        case KeyWordsOptionOneofCase.KeyWords:
+          if (KeyWords == null) {
+            KeyWords = new global::CRYSTALNET.Service.KeyWordsField();
+          }
+          KeyWords.MergeFrom(other.KeyWords);
+          break;
+      }
+
+      switch (other.ContentOptionCase) {
+        case ContentOptionOneofCase.Content:
+          Content = other.Content;
+          break;
+      }
+
+      switch (other.SnapshotOptionCase) {
+        case SnapshotOptionOneofCase.Snapshot:
+          if (Snapshot == null) {
+            Snapshot = new global::CRYSTALNET.Service.SnapshotField();
+          }
+          Snapshot.MergeFrom(other.Snapshot);
+          break;
+      }
+
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4141,6 +4355,28 @@ using ProtoPackage.Attributes;
             ModifyCount = input.ReadSInt64();
             break;
           }
+          case 50: {
+            global::CRYSTALNET.Service.KeyWordsField subBuilder = new global::CRYSTALNET.Service.KeyWordsField();
+            if (keyWordsOptionCase_ == KeyWordsOptionOneofCase.KeyWords) {
+              subBuilder.MergeFrom(KeyWords);
+            }
+            input.ReadMessage(subBuilder);
+            KeyWords = subBuilder;
+            break;
+          }
+          case 58: {
+            Content = input.ReadString();
+            break;
+          }
+          case 66: {
+            global::CRYSTALNET.Service.SnapshotField subBuilder = new global::CRYSTALNET.Service.SnapshotField();
+            if (snapshotOptionCase_ == SnapshotOptionOneofCase.Snapshot) {
+              subBuilder.MergeFrom(Snapshot);
+            }
+            input.ReadMessage(subBuilder);
+            Snapshot = subBuilder;
+            break;
+          }
         }
       }
     #endif
@@ -4174,6 +4410,28 @@ using ProtoPackage.Attributes;
           }
           case 40: {
             ModifyCount = input.ReadSInt64();
+            break;
+          }
+          case 50: {
+            global::CRYSTALNET.Service.KeyWordsField subBuilder = new global::CRYSTALNET.Service.KeyWordsField();
+            if (keyWordsOptionCase_ == KeyWordsOptionOneofCase.KeyWords) {
+              subBuilder.MergeFrom(KeyWords);
+            }
+            input.ReadMessage(subBuilder);
+            KeyWords = subBuilder;
+            break;
+          }
+          case 58: {
+            Content = input.ReadString();
+            break;
+          }
+          case 66: {
+            global::CRYSTALNET.Service.SnapshotField subBuilder = new global::CRYSTALNET.Service.SnapshotField();
+            if (snapshotOptionCase_ == SnapshotOptionOneofCase.Snapshot) {
+              subBuilder.MergeFrom(Snapshot);
+            }
+            input.ReadMessage(subBuilder);
+            Snapshot = subBuilder;
             break;
           }
         }

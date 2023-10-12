@@ -184,3 +184,15 @@ message BorrowBookItem
     // 借阅天数
     uint32 BorrowDays = 3;
 }
+
+// 关键词
+message KeyWordsField
+{
+ repeated string KeyWords = 1;
+}
+
+// 截图
+message SnapshotField
+{
+ repeated string Snapshots = 1;
+}
