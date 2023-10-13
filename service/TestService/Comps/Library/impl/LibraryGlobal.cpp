@@ -1083,7 +1083,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                         break;
                     }
                 }
-                
+
                 if(err != Status::Success)
                 {
                     break;
@@ -1119,7 +1119,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
             if(!req->bookname().empty())
                 bookInfo->set_bookname(req->bookname());
 
-            if(!req->has_bookcoverimage())
+            if(req->has_bookcoverimage())
                 bookInfo->set_bookcoverimage(req->bookcoverimage());
 
             if(req->price() > 0)
