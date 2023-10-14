@@ -21,13 +21,48 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-08-06 14:28:00
+ * Date: 2023-10-14 21:09:00
  * Author: Eric Yonng
  * Description: 
 */
+#include <pch.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgrStorage.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgrStorageFactory.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgr.h>
 
-#pragma once
+SERVICE_BEGIN
 
-#include <Comps/UserSys/Login/login.h>
-#include <Comps/UserSys/Library/Library.h>
-#include <Comps/UserSys/BookBag/BookBag.h>
+POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagMgrStorage);
+
+BookBagMgrStorage::BookBagMgrStorage()
+:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<BookBagMgr>())
+{
+
+}
+
+BookBagMgrStorage::~BookBagMgrStorage()
+{
+
+}
+
+
+void BookBagMgrStorage::Release()
+{
+    BookBagMgrStorage::DeleteByAdapter_BookBagMgrStorage(BookBagMgrStorageFactory::_buildType.V, this);
+}
+
+bool BookBagMgrStorage::RegisterStorages()
+{
+    // 当前系统属性设置(kv 系统, mysql存储, 某个系统的数据)
+    AddFlags(StorageFlagType::NORMAL_TEXT_STRING_FIELD_FLAG | 
+    StorageFlagType::MYSQL_FLAG | 
+    StorageFlagType::SYSTEM_DATA_STORAGE_FLAG
+    );
+
+    SetComment("BookBagMgr");
+
+    return true;
+}
+
+
+SERVICE_END

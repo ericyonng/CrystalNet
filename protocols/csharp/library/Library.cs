@@ -6404,7 +6404,7 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  /// 按照书名查询
+  /// 按照书名或者关键字查询
   //// Opcode:
   /// </summary>
 [ProtoMessage(76)]

@@ -224,6 +224,35 @@ export namespace crystal_net_service
 
 
     }
+    // 背包数据
+    // com_bookbag.proto
+    export class BookBagInfo {
+        BookInfoItemList:BookInfoItem[] = [];
+
+
+    }
+    // 书包数据
+    /// Opcode:
+    // bookbag.proto
+    export class BookBagInfoNty {
+        BookBagInfo:BookBagInfo = new BookBagInfo();
+
+
+    }
+    // 书包数据请求
+    /// Opcode:
+    // bookbag.proto
+    export class BookBagInfoReq {
+
+    }
+    // 书包数据请求
+    /// Opcode:
+    // bookbag.proto
+    export class BookBagInfoRes {
+        ErrCode:number = 0;
+
+
+    }
     // 书籍信息, 数据存储:id, isbn(unique), bookInfo json 查书通过上拉显示下一页
     // com_book.proto
     export class BookInfo {
@@ -262,6 +291,29 @@ export namespace crystal_net_service
 
         // 客户端使用
         CoverImagePath:string = "";
+
+        KeywordsString:string = "";
+
+        SnapshotPreivewInfoList:SnapshotClientInfo[] = [];
+
+
+    }
+    // 背包中的图书信息
+    // com_bookbag.proto
+    export class BookInfoItem {
+        // 图书id
+        BookId:number = 0;
+
+        // 图书数量
+        BookCount:number = 0;
+
+
+    }
+    // 书包中的数据变化
+    /// Opcode:
+    // bookbag.proto
+    export class BookInfoItemChangeNty {
+        BookInfoItem:BookInfoItem = new BookInfoItem();
 
 
     }
@@ -472,7 +524,7 @@ export namespace crystal_net_service
     export class CreatureAttrKey {
 
     }
-    // 按照书名查询
+    // 按照书名或者关键字查询
     /// Opcode:
     // library.proto
     export class GetBookByBookNameReq {
@@ -1025,6 +1077,22 @@ export namespace crystal_net_service
     export class RoleType {
 
     }
+    // 改变书包数据
+    /// Opcode:
+    // bookbag.proto
+    export class SetBookBagInfoReq {
+        BookInfoItem:BookInfoItem = new BookInfoItem();
+
+
+    }
+    // 改变书包数据
+    /// Opcode:
+    // bookbag.proto
+    export class SetBookBagInfoRes {
+        ErrCode:number = 0;
+
+
+    }
     // 表结构信息
     // com_system_table.proto
     export class SimpleInfo {
@@ -1050,6 +1118,15 @@ export namespace crystal_net_service
 
         // 绑定手机
         BindPhone:number = 0;
+
+
+    }
+    // 客户端显示用信息
+    // com_book.proto
+    export class SnapshotClientInfo {
+        Id:number = 0;
+
+        FilePath:string = "";
 
 
     }

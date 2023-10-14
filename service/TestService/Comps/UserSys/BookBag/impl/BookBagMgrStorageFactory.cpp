@@ -21,13 +21,28 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-08-06 14:28:00
+ * Date: 2023-09-16 20:55:00
  * Author: Eric Yonng
  * Description: 
 */
+#include <pch.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgrStorageFactory.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgrStorage.h>
 
-#pragma once
+SERVICE_BEGIN
 
-#include <Comps/UserSys/Login/login.h>
-#include <Comps/UserSys/Library/Library.h>
-#include <Comps/UserSys/BookBag/BookBag.h>
+KERNEL_NS::CompFactory *BookBagMgrStorageFactory::FactoryCreate()
+{
+    return KERNEL_NS::ObjPoolWrap<BookBagMgrStorageFactory>::NewByAdapter(_buildType.V);
+}
+
+void BookBagMgrStorageFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<BookBagMgrStorageFactory>::DeleteByAdapter(_buildType.V, this);
+}
+    
+KERNEL_NS::CompObject *BookBagMgrStorageFactory::Create() const
+{
+    return BookBagMgrStorage::NewByAdapter_BookBagMgrStorage(_buildType.V);
+}
+SERVICE_END

@@ -21,13 +21,15 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-08-06 14:28:00
+ * Date: 2023-10-14 20:48:00
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/UserSys/Login/login.h>
-#include <Comps/UserSys/Library/Library.h>
-#include <Comps/UserSys/BookBag/BookBag.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgrFactory.h>
+#include <Comps/UserSys/BookBag/interface/IBookBagMgr.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgrStorageFactory.h>
+
+

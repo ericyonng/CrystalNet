@@ -1341,7 +1341,20 @@ void LibraryGlobal::_OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet)
             {
                 const KERNEL_NS::LibString &bookName = KERNEL_NS::LibBase64::Decode(bookInfo.bookname());
                 if(bookName.GetRaw().find(reqName.GetRaw()) != std::string::npos)
+                {
                     *res.add_bookinfolist() = bookInfo;
+                    continue;
+                }
+
+                for(auto &keywordItem : bookInfo.keywords())
+                {
+                    const KERNEL_NS::LibString &keyword = KERNEL_NS::LibBase64::Decode(keywordItem);
+                    if(keyword.GetRaw().find(reqName.GetRaw()) != std::string::npos)
+                    {
+                        *res.add_bookinfolist() = bookInfo;
+                        break;
+                    }
+                }
             }
         }
     }

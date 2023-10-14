@@ -649,3 +649,63 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BorrowBookResFactory::CreateFactory()));
     }
+
+    {// BookBagInfoReq
+        auto info = OpcodeInfo();
+        info._opcode = 80;
+        info._noLog = false;
+        info._opcodeName = "BookBagInfoReq";
+        info._protoFile = "bookbag.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BookBagInfoReqFactory::CreateFactory()));
+    }
+
+    {// BookBagInfoNty
+        auto info = OpcodeInfo();
+        info._opcode = 81;
+        info._noLog = false;
+        info._opcodeName = "BookBagInfoNty";
+        info._protoFile = "bookbag.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BookBagInfoNtyFactory::CreateFactory()));
+    }
+
+    {// BookBagInfoRes
+        auto info = OpcodeInfo();
+        info._opcode = 82;
+        info._noLog = false;
+        info._opcodeName = "BookBagInfoRes";
+        info._protoFile = "bookbag.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BookBagInfoResFactory::CreateFactory()));
+    }
+
+    {// SetBookBagInfoReq
+        auto info = OpcodeInfo();
+        info._opcode = 83;
+        info._noLog = false;
+        info._opcodeName = "SetBookBagInfoReq";
+        info._protoFile = "bookbag.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SetBookBagInfoReqFactory::CreateFactory()));
+    }
+
+    {// SetBookBagInfoRes
+        auto info = OpcodeInfo();
+        info._opcode = 84;
+        info._noLog = false;
+        info._opcodeName = "SetBookBagInfoRes";
+        info._protoFile = "bookbag.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SetBookBagInfoResFactory::CreateFactory()));
+    }
+
+    {// BookInfoItemChangeNty
+        auto info = OpcodeInfo();
+        info._opcode = 85;
+        info._noLog = false;
+        info._opcodeName = "BookInfoItemChangeNty";
+        info._protoFile = "bookbag.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BookInfoItemChangeNtyFactory::CreateFactory()));
+    }

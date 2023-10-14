@@ -4,6 +4,7 @@
 
 #include <protocols/cplusplus/library/com_book.pb.h>
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookTypeFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(SnapshotClientInfoFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookInfoFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookVariantInfoFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookVariantInfoItemFactory);
@@ -38,15 +39,31 @@ struct BookTypeDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BookTypeDefaultTypeInternal _BookType_default_instance_;
+PROTOBUF_CONSTEXPR SnapshotClientInfo::SnapshotClientInfo(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.filepath_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.id_)*/int64_t{0}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct SnapshotClientInfoDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR SnapshotClientInfoDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~SnapshotClientInfoDefaultTypeInternal() {}
+  union {
+    SnapshotClientInfo _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SnapshotClientInfoDefaultTypeInternal _SnapshotClientInfo_default_instance_;
 PROTOBUF_CONSTEXPR BookInfo::BookInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.keywords_)*/{}
   , /*decltype(_impl_.snapshot_)*/{}
+  , /*decltype(_impl_.snapshotpreivewinfolist_)*/{}
   , /*decltype(_impl_.bookname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.isbncode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.bookcoverimage_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.content_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.coverimagepath_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.keywordsstring_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.variantinfo_)*/nullptr
   , /*decltype(_impl_.id_)*/uint64_t{0u}
   , /*decltype(_impl_.booktype_)*/0
@@ -92,7 +109,7 @@ struct BookVariantInfoItemDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BookVariantInfoItemDefaultTypeInternal _BookVariantInfoItem_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
-static ::_pb::Metadata file_level_metadata_com_5fbook_2eproto[4];
+static ::_pb::Metadata file_level_metadata_com_5fbook_2eproto[5];
 static const ::_pb::EnumDescriptor* file_level_enum_descriptors_com_5fbook_2eproto[1];
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_5fbook_2eproto = nullptr;
 
@@ -103,6 +120,14 @@ const uint32_t TableStruct_com_5fbook_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SnapshotClientInfo, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SnapshotClientInfo, _impl_.id_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SnapshotClientInfo, _impl_.filepath_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -121,6 +146,8 @@ const uint32_t TableStruct_com_5fbook_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.content_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.snapshot_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.coverimagepath_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.keywordsstring_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfo, _impl_.snapshotpreivewinfolist_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookVariantInfo, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -140,13 +167,15 @@ const uint32_t TableStruct_com_5fbook_2eproto::offsets[] PROTOBUF_SECTION_VARIAB
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::BookType)},
-  { 6, -1, -1, sizeof(::CRYSTAL_NET::service::BookInfo)},
-  { 24, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfo)},
-  { 32, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfoItem)},
+  { 6, -1, -1, sizeof(::CRYSTAL_NET::service::SnapshotClientInfo)},
+  { 14, -1, -1, sizeof(::CRYSTAL_NET::service::BookInfo)},
+  { 34, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfo)},
+  { 42, -1, -1, sizeof(::CRYSTAL_NET::service::BookVariantInfoItem)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
   &::CRYSTAL_NET::service::_BookType_default_instance_._instance,
+  &::CRYSTAL_NET::service::_SnapshotClientInfo_default_instance_._instance,
   &::CRYSTAL_NET::service::_BookInfo_default_instance_._instance,
   &::CRYSTAL_NET::service::_BookVariantInfo_default_instance_._instance,
   &::CRYSTAL_NET::service::_BookVariantInfoItem_default_instance_._instance,
@@ -154,24 +183,28 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_com_5fbook_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\016com_book.proto\022\023CRYSTAL_NET.service\" \n"
-  "\010BookType\"\024\n\005ENUMS\022\013\n\007UNKNOWN\020\000\"\230\002\n\010Book"
-  "Info\022\n\n\002Id\030\001 \001(\004\022\020\n\010BookType\030\002 \001(\021\022\020\n\010Bo"
-  "okName\030\003 \001(\t\022\020\n\010IsbnCode\030\004 \001(\t\022\026\n\016BookCo"
-  "verImage\030\005 \001(\t\022\023\n\013IsOnShelves\030\006 \001(\021\0229\n\013V"
-  "ariantInfo\030\007 \001(\0132$.CRYSTAL_NET.service.B"
-  "ookVariantInfo\022\025\n\rBorrowedCount\030\010 \001(\004\022\020\n"
-  "\010KeyWords\030\t \003(\t\022\017\n\007Content\030\n \001(\t\022\020\n\010Snap"
-  "shot\030\013 \003(\t\022\026\n\016CoverImagePath\030\014 \001(\t\"/\n\017Bo"
-  "okVariantInfo\022\r\n\005Count\030\001 \001(\022\022\r\n\005Price\030\002 "
-  "\001(\022\"`\n\023BookVariantInfoItem\022\n\n\002Id\030\001 \001(\004\022="
-  "\n\017BookVariantInfo\030\002 \001(\0132$.CRYSTAL_NET.se"
-  "rvice.BookVariantInfob\006proto3"
+  "\010BookType\"\024\n\005ENUMS\022\013\n\007UNKNOWN\020\000\"2\n\022Snaps"
+  "hotClientInfo\022\n\n\002Id\030\001 \001(\022\022\020\n\010FilePath\030\002 "
+  "\001(\t\"\372\002\n\010BookInfo\022\n\n\002Id\030\001 \001(\004\022\020\n\010BookType"
+  "\030\002 \001(\021\022\020\n\010BookName\030\003 \001(\t\022\020\n\010IsbnCode\030\004 \001"
+  "(\t\022\026\n\016BookCoverImage\030\005 \001(\t\022\023\n\013IsOnShelve"
+  "s\030\006 \001(\021\0229\n\013VariantInfo\030\007 \001(\0132$.CRYSTAL_N"
+  "ET.service.BookVariantInfo\022\025\n\rBorrowedCo"
+  "unt\030\010 \001(\004\022\020\n\010KeyWords\030\t \003(\t\022\017\n\007Content\030\n"
+  " \001(\t\022\020\n\010Snapshot\030\013 \003(\t\022\026\n\016CoverImagePath"
+  "\030\014 \001(\t\022\026\n\016KeywordsString\030\r \001(\t\022H\n\027Snapsh"
+  "otPreivewInfoList\030\016 \003(\0132\'.CRYSTAL_NET.se"
+  "rvice.SnapshotClientInfo\"/\n\017BookVariantI"
+  "nfo\022\r\n\005Count\030\001 \001(\022\022\r\n\005Price\030\002 \001(\022\"`\n\023Boo"
+  "kVariantInfoItem\022\n\n\002Id\030\001 \001(\004\022=\n\017BookVari"
+  "antInfo\030\002 \001(\0132$.CRYSTAL_NET.service.Book"
+  "VariantInfob\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fbook_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fbook_2eproto = {
-    false, false, 509, descriptor_table_protodef_com_5fbook_2eproto,
+    false, false, 659, descriptor_table_protodef_com_5fbook_2eproto,
     "com_book.proto",
-    &descriptor_table_com_5fbook_2eproto_once, nullptr, 0, 4,
+    &descriptor_table_com_5fbook_2eproto_once, nullptr, 0, 5,
     schemas, file_default_instances, TableStruct_com_5fbook_2eproto::offsets,
     file_level_metadata_com_5fbook_2eproto, file_level_enum_descriptors_com_5fbook_2eproto,
     file_level_service_descriptors_com_5fbook_2eproto,
@@ -246,6 +279,236 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BookType::GetClassData() const
 
 // ===================================================================
 
+class SnapshotClientInfo::_Internal {
+ public:
+};
+
+SnapshotClientInfo::SnapshotClientInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.SnapshotClientInfo)
+}
+SnapshotClientInfo::SnapshotClientInfo(const SnapshotClientInfo& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  SnapshotClientInfo* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.filepath_){}
+    , decltype(_impl_.id_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.filepath_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.filepath_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_filepath().empty()) {
+    _this->_impl_.filepath_.Set(from._internal_filepath(), 
+      _this->GetArenaForAllocation());
+  }
+  _this->_impl_.id_ = from._impl_.id_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.SnapshotClientInfo)
+}
+
+inline void SnapshotClientInfo::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.filepath_){}
+    , decltype(_impl_.id_){int64_t{0}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.filepath_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.filepath_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+SnapshotClientInfo::~SnapshotClientInfo() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.SnapshotClientInfo)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void SnapshotClientInfo::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.filepath_.Destroy();
+}
+
+void SnapshotClientInfo::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void SnapshotClientInfo::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.SnapshotClientInfo)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.filepath_.ClearToEmpty();
+  _impl_.id_ = int64_t{0};
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* SnapshotClientInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // sint64 Id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string FilePath = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          auto str = _internal_mutable_filepath();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.SnapshotClientInfo.FilePath"));
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* SnapshotClientInfo::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.SnapshotClientInfo)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // sint64 Id = 1;
+  if (this->_internal_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(1, this->_internal_id(), target);
+  }
+
+  // string FilePath = 2;
+  if (!this->_internal_filepath().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_filepath().data(), static_cast<int>(this->_internal_filepath().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.SnapshotClientInfo.FilePath");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_filepath(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.SnapshotClientInfo)
+  return target;
+}
+
+size_t SnapshotClientInfo::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.SnapshotClientInfo)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string FilePath = 2;
+  if (!this->_internal_filepath().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_filepath());
+  }
+
+  // sint64 Id = 1;
+  if (this->_internal_id() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_id());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData SnapshotClientInfo::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    SnapshotClientInfo::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*SnapshotClientInfo::GetClassData() const { return &_class_data_; }
+
+
+void SnapshotClientInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<SnapshotClientInfo*>(&to_msg);
+  auto& from = static_cast<const SnapshotClientInfo&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.SnapshotClientInfo)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_filepath().empty()) {
+    _this->_internal_set_filepath(from._internal_filepath());
+  }
+  if (from._internal_id() != 0) {
+    _this->_internal_set_id(from._internal_id());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void SnapshotClientInfo::CopyFrom(const SnapshotClientInfo& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.SnapshotClientInfo)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SnapshotClientInfo::IsInitialized() const {
+  return true;
+}
+
+void SnapshotClientInfo::InternalSwap(SnapshotClientInfo* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.filepath_, lhs_arena,
+      &other->_impl_.filepath_, rhs_arena
+  );
+  swap(_impl_.id_, other->_impl_.id_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata SnapshotClientInfo::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_com_5fbook_2eproto_getter, &descriptor_table_com_5fbook_2eproto_once,
+      file_level_metadata_com_5fbook_2eproto[1]);
+}
+
+// ===================================================================
+
 class BookInfo::_Internal {
  public:
   static const ::CRYSTAL_NET::service::BookVariantInfo& variantinfo(const BookInfo* msg);
@@ -267,11 +530,13 @@ BookInfo::BookInfo(const BookInfo& from)
   new (&_impl_) Impl_{
       decltype(_impl_.keywords_){from._impl_.keywords_}
     , decltype(_impl_.snapshot_){from._impl_.snapshot_}
+    , decltype(_impl_.snapshotpreivewinfolist_){from._impl_.snapshotpreivewinfolist_}
     , decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
     , decltype(_impl_.bookcoverimage_){}
     , decltype(_impl_.content_){}
     , decltype(_impl_.coverimagepath_){}
+    , decltype(_impl_.keywordsstring_){}
     , decltype(_impl_.variantinfo_){nullptr}
     , decltype(_impl_.id_){}
     , decltype(_impl_.booktype_){}
@@ -320,6 +585,14 @@ BookInfo::BookInfo(const BookInfo& from)
     _this->_impl_.coverimagepath_.Set(from._internal_coverimagepath(), 
       _this->GetArenaForAllocation());
   }
+  _impl_.keywordsstring_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.keywordsstring_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_keywordsstring().empty()) {
+    _this->_impl_.keywordsstring_.Set(from._internal_keywordsstring(), 
+      _this->GetArenaForAllocation());
+  }
   if (from._internal_has_variantinfo()) {
     _this->_impl_.variantinfo_ = new ::CRYSTAL_NET::service::BookVariantInfo(*from._impl_.variantinfo_);
   }
@@ -336,11 +609,13 @@ inline void BookInfo::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.keywords_){arena}
     , decltype(_impl_.snapshot_){arena}
+    , decltype(_impl_.snapshotpreivewinfolist_){arena}
     , decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
     , decltype(_impl_.bookcoverimage_){}
     , decltype(_impl_.content_){}
     , decltype(_impl_.coverimagepath_){}
+    , decltype(_impl_.keywordsstring_){}
     , decltype(_impl_.variantinfo_){nullptr}
     , decltype(_impl_.id_){uint64_t{0u}}
     , decltype(_impl_.booktype_){0}
@@ -368,6 +643,10 @@ inline void BookInfo::SharedCtor(
   #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
     _impl_.coverimagepath_.Set("", GetArenaForAllocation());
   #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.keywordsstring_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.keywordsstring_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 BookInfo::~BookInfo() {
@@ -383,11 +662,13 @@ inline void BookInfo::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   _impl_.keywords_.~RepeatedPtrField();
   _impl_.snapshot_.~RepeatedPtrField();
+  _impl_.snapshotpreivewinfolist_.~RepeatedPtrField();
   _impl_.bookname_.Destroy();
   _impl_.isbncode_.Destroy();
   _impl_.bookcoverimage_.Destroy();
   _impl_.content_.Destroy();
   _impl_.coverimagepath_.Destroy();
+  _impl_.keywordsstring_.Destroy();
   if (this != internal_default_instance()) delete _impl_.variantinfo_;
 }
 
@@ -403,11 +684,13 @@ void BookInfo::Clear() {
 
   _impl_.keywords_.Clear();
   _impl_.snapshot_.Clear();
+  _impl_.snapshotpreivewinfolist_.Clear();
   _impl_.bookname_.ClearToEmpty();
   _impl_.isbncode_.ClearToEmpty();
   _impl_.bookcoverimage_.ClearToEmpty();
   _impl_.content_.ClearToEmpty();
   _impl_.coverimagepath_.ClearToEmpty();
+  _impl_.keywordsstring_.ClearToEmpty();
   if (GetArenaForAllocation() == nullptr && _impl_.variantinfo_ != nullptr) {
     delete _impl_.variantinfo_;
   }
@@ -544,6 +827,29 @@ const char* BookInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
         } else
           goto handle_unusual;
         continue;
+      // string KeywordsString = 13;
+      case 13:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 106)) {
+          auto str = _internal_mutable_keywordsstring();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.BookInfo.KeywordsString"));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated .CRYSTAL_NET.service.SnapshotClientInfo SnapshotPreivewInfoList = 14;
+      case 14:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 114)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_snapshotpreivewinfolist(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<114>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
       default:
         goto handle_unusual;
     }  // switch
@@ -674,6 +980,24 @@ uint8_t* BookInfo::_InternalSerialize(
         12, this->_internal_coverimagepath(), target);
   }
 
+  // string KeywordsString = 13;
+  if (!this->_internal_keywordsstring().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_keywordsstring().data(), static_cast<int>(this->_internal_keywordsstring().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.BookInfo.KeywordsString");
+    target = stream->WriteStringMaybeAliased(
+        13, this->_internal_keywordsstring(), target);
+  }
+
+  // repeated .CRYSTAL_NET.service.SnapshotClientInfo SnapshotPreivewInfoList = 14;
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_snapshotpreivewinfolist_size()); i < n; i++) {
+    const auto& repfield = this->_internal_snapshotpreivewinfolist(i);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+        InternalWriteMessage(14, repfield, repfield.GetCachedSize(), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -704,6 +1028,13 @@ size_t BookInfo::ByteSizeLong() const {
   for (int i = 0, n = _impl_.snapshot_.size(); i < n; i++) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
       _impl_.snapshot_.Get(i));
+  }
+
+  // repeated .CRYSTAL_NET.service.SnapshotClientInfo SnapshotPreivewInfoList = 14;
+  total_size += 1UL * this->_internal_snapshotpreivewinfolist_size();
+  for (const auto& msg : this->_impl_.snapshotpreivewinfolist_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // string BookName = 3;
@@ -739,6 +1070,13 @@ size_t BookInfo::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_coverimagepath());
+  }
+
+  // string KeywordsString = 13;
+  if (!this->_internal_keywordsstring().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_keywordsstring());
   }
 
   // .CRYSTAL_NET.service.BookVariantInfo VariantInfo = 7;
@@ -788,6 +1126,7 @@ void BookInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
 
   _this->_impl_.keywords_.MergeFrom(from._impl_.keywords_);
   _this->_impl_.snapshot_.MergeFrom(from._impl_.snapshot_);
+  _this->_impl_.snapshotpreivewinfolist_.MergeFrom(from._impl_.snapshotpreivewinfolist_);
   if (!from._internal_bookname().empty()) {
     _this->_internal_set_bookname(from._internal_bookname());
   }
@@ -802,6 +1141,9 @@ void BookInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTO
   }
   if (!from._internal_coverimagepath().empty()) {
     _this->_internal_set_coverimagepath(from._internal_coverimagepath());
+  }
+  if (!from._internal_keywordsstring().empty()) {
+    _this->_internal_set_keywordsstring(from._internal_keywordsstring());
   }
   if (from._internal_has_variantinfo()) {
     _this->_internal_mutable_variantinfo()->::CRYSTAL_NET::service::BookVariantInfo::MergeFrom(
@@ -840,6 +1182,7 @@ void BookInfo::InternalSwap(BookInfo* other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   _impl_.keywords_.InternalSwap(&other->_impl_.keywords_);
   _impl_.snapshot_.InternalSwap(&other->_impl_.snapshot_);
+  _impl_.snapshotpreivewinfolist_.InternalSwap(&other->_impl_.snapshotpreivewinfolist_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.bookname_, lhs_arena,
       &other->_impl_.bookname_, rhs_arena
@@ -860,6 +1203,10 @@ void BookInfo::InternalSwap(BookInfo* other) {
       &_impl_.coverimagepath_, lhs_arena,
       &other->_impl_.coverimagepath_, rhs_arena
   );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.keywordsstring_, lhs_arena,
+      &other->_impl_.keywordsstring_, rhs_arena
+  );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(BookInfo, _impl_.borrowedcount_)
       + sizeof(BookInfo::_impl_.borrowedcount_)
@@ -871,7 +1218,7 @@ void BookInfo::InternalSwap(BookInfo* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata BookInfo::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_com_5fbook_2eproto_getter, &descriptor_table_com_5fbook_2eproto_once,
-      file_level_metadata_com_5fbook_2eproto[1]);
+      file_level_metadata_com_5fbook_2eproto[2]);
 }
 
 // ===================================================================
@@ -1082,7 +1429,7 @@ void BookVariantInfo::InternalSwap(BookVariantInfo* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata BookVariantInfo::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_com_5fbook_2eproto_getter, &descriptor_table_com_5fbook_2eproto_once,
-      file_level_metadata_com_5fbook_2eproto[2]);
+      file_level_metadata_com_5fbook_2eproto[3]);
 }
 
 // ===================================================================
@@ -1306,7 +1653,7 @@ void BookVariantInfoItem::InternalSwap(BookVariantInfoItem* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata BookVariantInfoItem::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_com_5fbook_2eproto_getter, &descriptor_table_com_5fbook_2eproto_once,
-      file_level_metadata_com_5fbook_2eproto[3]);
+      file_level_metadata_com_5fbook_2eproto[4]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
@@ -1316,6 +1663,10 @@ PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BookType*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BookType >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::BookType >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::SnapshotClientInfo*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::SnapshotClientInfo >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::SnapshotClientInfo >(arena);
 }
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BookInfo*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BookInfo >(Arena* arena) {

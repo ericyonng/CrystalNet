@@ -73,6 +73,7 @@ protected:
     void _OnGetLibraryMemberSimpleInfoReq(KERNEL_NS::LibPacket *&packet);
     void _OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet);
     void _OnGetBookInfoReq(KERNEL_NS::LibPacket *&packet);
+    // 书名或者关键字
     void _OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet);
 
     Int32 _ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req);

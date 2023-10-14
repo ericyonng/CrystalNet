@@ -92,6 +92,13 @@ bool UserMgrStorage::RegisterStorages()
         return false;
     }
 
+    // 书包
+    if(!RegisterStorage<BookBagMgrStorageFactory>())
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("register BookBagMgrStorageFactory fail"));
+        return false;
+    }
+
     return true;
 }
 SERVICE_END

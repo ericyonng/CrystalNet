@@ -71,6 +71,9 @@ extern BookVariantInfoDefaultTypeInternal _BookVariantInfo_default_instance_;
 class BookVariantInfoItem;
 struct BookVariantInfoItemDefaultTypeInternal;
 extern BookVariantInfoItemDefaultTypeInternal _BookVariantInfoItem_default_instance_;
+class SnapshotClientInfo;
+struct SnapshotClientInfoDefaultTypeInternal;
+extern SnapshotClientInfoDefaultTypeInternal _SnapshotClientInfo_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
@@ -78,6 +81,7 @@ template<> ::CRYSTAL_NET::service::BookInfo* Arena::CreateMaybeMessage<::CRYSTAL
 template<> ::CRYSTAL_NET::service::BookType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BookType>(Arena*);
 template<> ::CRYSTAL_NET::service::BookVariantInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BookVariantInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::BookVariantInfoItem* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BookVariantInfoItem>(Arena*);
+template<> ::CRYSTAL_NET::service::SnapshotClientInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SnapshotClientInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace CRYSTAL_NET {
 namespace service {
@@ -394,6 +398,309 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 // -------------------------------------------------------------------
 
 // AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class SnapshotClientInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SnapshotClientInfo) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotClientInfo failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotClientInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotClientInfo failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotClientInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SnapshotClientInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SnapshotClientInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline SnapshotClientInfo() : SnapshotClientInfo(nullptr) {}
+  ~SnapshotClientInfo() override;
+  explicit PROTOBUF_CONSTEXPR SnapshotClientInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  SnapshotClientInfo(const SnapshotClientInfo& from);
+  SnapshotClientInfo(SnapshotClientInfo&& from) noexcept
+    : SnapshotClientInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline SnapshotClientInfo& operator=(const SnapshotClientInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline SnapshotClientInfo& operator=(SnapshotClientInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const SnapshotClientInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const SnapshotClientInfo* internal_default_instance() {
+    return reinterpret_cast<const SnapshotClientInfo*>(
+               &_SnapshotClientInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(SnapshotClientInfo& a, SnapshotClientInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(SnapshotClientInfo* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(SnapshotClientInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  SnapshotClientInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<SnapshotClientInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const SnapshotClientInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const SnapshotClientInfo& from) {
+    SnapshotClientInfo::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(SnapshotClientInfo* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.SnapshotClientInfo";
+  }
+  protected:
+  explicit SnapshotClientInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kFilePathFieldNumber = 2,
+    kIdFieldNumber = 1,
+  };
+  // string FilePath = 2;
+  void clear_filepath();
+  const std::string& filepath() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_filepath(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_filepath();
+  PROTOBUF_NODISCARD std::string* release_filepath();
+  void set_allocated_filepath(std::string* filepath);
+  private:
+  const std::string& _internal_filepath() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_filepath(const std::string& value);
+  std::string* _internal_mutable_filepath();
+  public:
+
+  // sint64 Id = 1;
+  void clear_id();
+  int64_t id() const;
+  void set_id(int64_t value);
+  private:
+  int64_t _internal_id() const;
+  void _internal_set_id(int64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SnapshotClientInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr filepath_;
+    int64_t id_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5fbook_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class BookInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -580,7 +887,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_BookInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    2;
 
   friend void swap(BookInfo& a, BookInfo& b) {
     a.Swap(&b);
@@ -655,11 +962,13 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   enum : int {
     kKeyWordsFieldNumber = 9,
     kSnapshotFieldNumber = 11,
+    kSnapshotPreivewInfoListFieldNumber = 14,
     kBookNameFieldNumber = 3,
     kIsbnCodeFieldNumber = 4,
     kBookCoverImageFieldNumber = 5,
     kContentFieldNumber = 10,
     kCoverImagePathFieldNumber = 12,
+    kKeywordsStringFieldNumber = 13,
     kVariantInfoFieldNumber = 7,
     kIdFieldNumber = 1,
     kBookTypeFieldNumber = 2,
@@ -713,6 +1022,24 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const std::string& _internal_snapshot(int index) const;
   std::string* _internal_add_snapshot();
   public:
+
+  // repeated .CRYSTAL_NET.service.SnapshotClientInfo SnapshotPreivewInfoList = 14;
+  int snapshotpreivewinfolist_size() const;
+  private:
+  int _internal_snapshotpreivewinfolist_size() const;
+  public:
+  void clear_snapshotpreivewinfolist();
+  ::CRYSTAL_NET::service::SnapshotClientInfo* mutable_snapshotpreivewinfolist(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SnapshotClientInfo >*
+      mutable_snapshotpreivewinfolist();
+  private:
+  const ::CRYSTAL_NET::service::SnapshotClientInfo& _internal_snapshotpreivewinfolist(int index) const;
+  ::CRYSTAL_NET::service::SnapshotClientInfo* _internal_add_snapshotpreivewinfolist();
+  public:
+  const ::CRYSTAL_NET::service::SnapshotClientInfo& snapshotpreivewinfolist(int index) const;
+  ::CRYSTAL_NET::service::SnapshotClientInfo* add_snapshotpreivewinfolist();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SnapshotClientInfo >&
+      snapshotpreivewinfolist() const;
 
   // string BookName = 3;
   void clear_bookname();
@@ -784,6 +1111,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_coverimagepath();
   public:
 
+  // string KeywordsString = 13;
+  void clear_keywordsstring();
+  const std::string& keywordsstring() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_keywordsstring(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_keywordsstring();
+  PROTOBUF_NODISCARD std::string* release_keywordsstring();
+  void set_allocated_keywordsstring(std::string* keywordsstring);
+  private:
+  const std::string& _internal_keywordsstring() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_keywordsstring(const std::string& value);
+  std::string* _internal_mutable_keywordsstring();
+  public:
+
   // .CRYSTAL_NET.service.BookVariantInfo VariantInfo = 7;
   bool has_variantinfo() const;
   private:
@@ -848,11 +1189,13 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> keywords_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> snapshot_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SnapshotClientInfo > snapshotpreivewinfolist_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookname_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr isbncode_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookcoverimage_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr coverimagepath_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr keywordsstring_;
     ::CRYSTAL_NET::service::BookVariantInfo* variantinfo_;
     uint64_t id_;
     int32_t booktype_;
@@ -1052,7 +1395,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_BookVariantInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    3;
 
   friend void swap(BookVariantInfo& a, BookVariantInfo& b) {
     a.Swap(&b);
@@ -1350,7 +1693,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_BookVariantInfoItem_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(BookVariantInfoItem& a, BookVariantInfoItem& b) {
     a.Swap(&b);
@@ -1478,6 +1821,80 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
 // BookType
+
+// -------------------------------------------------------------------
+
+// SnapshotClientInfo
+
+// sint64 Id = 1;
+inline void SnapshotClientInfo::clear_id() {
+  _impl_.id_ = int64_t{0};
+}
+inline int64_t SnapshotClientInfo::_internal_id() const {
+  return _impl_.id_;
+}
+inline int64_t SnapshotClientInfo::id() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SnapshotClientInfo.Id)
+  return _internal_id();
+}
+inline void SnapshotClientInfo::_internal_set_id(int64_t value) {
+  
+  _impl_.id_ = value;
+}
+inline void SnapshotClientInfo::set_id(int64_t value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SnapshotClientInfo.Id)
+}
+
+// string FilePath = 2;
+inline void SnapshotClientInfo::clear_filepath() {
+  _impl_.filepath_.ClearToEmpty();
+}
+inline const std::string& SnapshotClientInfo::filepath() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SnapshotClientInfo.FilePath)
+  return _internal_filepath();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void SnapshotClientInfo::set_filepath(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.filepath_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SnapshotClientInfo.FilePath)
+}
+inline std::string* SnapshotClientInfo::mutable_filepath() {
+  std::string* _s = _internal_mutable_filepath();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.SnapshotClientInfo.FilePath)
+  return _s;
+}
+inline const std::string& SnapshotClientInfo::_internal_filepath() const {
+  return _impl_.filepath_.Get();
+}
+inline void SnapshotClientInfo::_internal_set_filepath(const std::string& value) {
+  
+  _impl_.filepath_.Set(value, GetArenaForAllocation());
+}
+inline std::string* SnapshotClientInfo::_internal_mutable_filepath() {
+  
+  return _impl_.filepath_.Mutable(GetArenaForAllocation());
+}
+inline std::string* SnapshotClientInfo::release_filepath() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.SnapshotClientInfo.FilePath)
+  return _impl_.filepath_.Release();
+}
+inline void SnapshotClientInfo::set_allocated_filepath(std::string* filepath) {
+  if (filepath != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.filepath_.SetAllocated(filepath, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.filepath_.IsDefault()) {
+    _impl_.filepath_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.SnapshotClientInfo.FilePath)
+}
 
 // -------------------------------------------------------------------
 
@@ -2053,6 +2470,96 @@ inline void BookInfo::set_allocated_coverimagepath(std::string* coverimagepath) 
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BookInfo.CoverImagePath)
 }
 
+// string KeywordsString = 13;
+inline void BookInfo::clear_keywordsstring() {
+  _impl_.keywordsstring_.ClearToEmpty();
+}
+inline const std::string& BookInfo::keywordsstring() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookInfo.KeywordsString)
+  return _internal_keywordsstring();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BookInfo::set_keywordsstring(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.keywordsstring_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.KeywordsString)
+}
+inline std::string* BookInfo::mutable_keywordsstring() {
+  std::string* _s = _internal_mutable_keywordsstring();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BookInfo.KeywordsString)
+  return _s;
+}
+inline const std::string& BookInfo::_internal_keywordsstring() const {
+  return _impl_.keywordsstring_.Get();
+}
+inline void BookInfo::_internal_set_keywordsstring(const std::string& value) {
+  
+  _impl_.keywordsstring_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BookInfo::_internal_mutable_keywordsstring() {
+  
+  return _impl_.keywordsstring_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BookInfo::release_keywordsstring() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BookInfo.KeywordsString)
+  return _impl_.keywordsstring_.Release();
+}
+inline void BookInfo::set_allocated_keywordsstring(std::string* keywordsstring) {
+  if (keywordsstring != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.keywordsstring_.SetAllocated(keywordsstring, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.keywordsstring_.IsDefault()) {
+    _impl_.keywordsstring_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BookInfo.KeywordsString)
+}
+
+// repeated .CRYSTAL_NET.service.SnapshotClientInfo SnapshotPreivewInfoList = 14;
+inline int BookInfo::_internal_snapshotpreivewinfolist_size() const {
+  return _impl_.snapshotpreivewinfolist_.size();
+}
+inline int BookInfo::snapshotpreivewinfolist_size() const {
+  return _internal_snapshotpreivewinfolist_size();
+}
+inline void BookInfo::clear_snapshotpreivewinfolist() {
+  _impl_.snapshotpreivewinfolist_.Clear();
+}
+inline ::CRYSTAL_NET::service::SnapshotClientInfo* BookInfo::mutable_snapshotpreivewinfolist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BookInfo.SnapshotPreivewInfoList)
+  return _impl_.snapshotpreivewinfolist_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SnapshotClientInfo >*
+BookInfo::mutable_snapshotpreivewinfolist() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BookInfo.SnapshotPreivewInfoList)
+  return &_impl_.snapshotpreivewinfolist_;
+}
+inline const ::CRYSTAL_NET::service::SnapshotClientInfo& BookInfo::_internal_snapshotpreivewinfolist(int index) const {
+  return _impl_.snapshotpreivewinfolist_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::SnapshotClientInfo& BookInfo::snapshotpreivewinfolist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookInfo.SnapshotPreivewInfoList)
+  return _internal_snapshotpreivewinfolist(index);
+}
+inline ::CRYSTAL_NET::service::SnapshotClientInfo* BookInfo::_internal_add_snapshotpreivewinfolist() {
+  return _impl_.snapshotpreivewinfolist_.Add();
+}
+inline ::CRYSTAL_NET::service::SnapshotClientInfo* BookInfo::add_snapshotpreivewinfolist() {
+  ::CRYSTAL_NET::service::SnapshotClientInfo* _add = _internal_add_snapshotpreivewinfolist();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BookInfo.SnapshotPreivewInfoList)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SnapshotClientInfo >&
+BookInfo::snapshotpreivewinfolist() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BookInfo.SnapshotPreivewInfoList)
+  return _impl_.snapshotpreivewinfolist_;
+}
+
 // -------------------------------------------------------------------
 
 // BookVariantInfo
@@ -2220,6 +2727,8 @@ inline void BookVariantInfoItem::set_allocated_bookvariantinfo(::CRYSTAL_NET::se
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -2258,6 +2767,29 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::BookType(*dynamic_cast<const ::CRYSTAL_NET::service::BookType *>(coder));
+    }
+
+};
+
+
+class SnapshotClientInfoFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, SnapshotClientInfoFactory);
+public:
+
+    virtual void Release() override {
+        SnapshotClientInfoFactory::Delete_SnapshotClientInfoFactory(this);
+    }
+
+    static SnapshotClientInfoFactory *CreateFactory() {
+        return SnapshotClientInfoFactory::New_SnapshotClientInfoFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::SnapshotClientInfo();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::SnapshotClientInfo(*dynamic_cast<const ::CRYSTAL_NET::service::SnapshotClientInfo *>(coder));
     }
 
 };

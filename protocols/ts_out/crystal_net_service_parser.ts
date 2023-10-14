@@ -58,8 +58,38 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("BookBagInfo", (jsonData:any):any =>{
+                return this.BookBagInfoParser(jsonData);
+            })
+
+
+            this.add("BookBagInfoNty", (jsonData:any):any =>{
+                return this.BookBagInfoNtyParser(jsonData);
+            })
+
+
+            this.add("BookBagInfoReq", (jsonData:any):any =>{
+                return this.BookBagInfoReqParser(jsonData);
+            })
+
+
+            this.add("BookBagInfoRes", (jsonData:any):any =>{
+                return this.BookBagInfoResParser(jsonData);
+            })
+
+
             this.add("BookInfo", (jsonData:any):any =>{
                 return this.BookInfoParser(jsonData);
+            })
+
+
+            this.add("BookInfoItem", (jsonData:any):any =>{
+                return this.BookInfoItemParser(jsonData);
+            })
+
+
+            this.add("BookInfoItemChangeNty", (jsonData:any):any =>{
+                return this.BookInfoItemChangeNtyParser(jsonData);
             })
 
 
@@ -433,6 +463,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("SetBookBagInfoReq", (jsonData:any):any =>{
+                return this.SetBookBagInfoReqParser(jsonData);
+            })
+
+
+            this.add("SetBookBagInfoRes", (jsonData:any):any =>{
+                return this.SetBookBagInfoResParser(jsonData);
+            })
+
+
             this.add("SimpleInfo", (jsonData:any):any =>{
                 return this.SimpleInfoParser(jsonData);
             })
@@ -440,6 +480,11 @@ export namespace crystal_net_service_parser
 
             this.add("SimpleUserInfo", (jsonData:any):any =>{
                 return this.SimpleUserInfoParser(jsonData);
+            })
+
+
+            this.add("SnapshotClientInfo", (jsonData:any):any =>{
+                return this.SnapshotClientInfoParser(jsonData);
             })
 
 
@@ -669,6 +714,65 @@ export namespace crystal_net_service_parser
             }
 
 
+            private BookBagInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookBagInfo()
+
+                if(jsonData.BookInfoItemList != undefined)
+                {
+                    var jsonArray = jsonData.BookInfoItemList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BookInfoItem");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BookInfoItemList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private BookBagInfoNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookBagInfoNty()
+
+                if(jsonData.BookBagInfo != undefined)
+                {
+                    var jsonFieldInfo = jsonData.BookBagInfo;
+                    var cb = this.getParser("BookBagInfo");
+                    if(cb != undefined)
+                    {
+                        newInfo.BookBagInfo = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field BookBagInfo have no BookBagInfo parser");
+                    }
+                }
+
+                 return newInfo;
+            }
+
+
+            private BookBagInfoReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookBagInfoReq()
+                 return newInfo;
+            }
+
+
+            private BookBagInfoResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookBagInfoRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
             private BookInfoParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.BookInfo()
 
@@ -758,6 +862,65 @@ export namespace crystal_net_service_parser
                 if(jsonData.CoverImagePath != undefined)
                 {
                     newInfo.CoverImagePath = jsonData.CoverImagePath;
+                }
+
+
+                if(jsonData.KeywordsString != undefined)
+                {
+                    newInfo.KeywordsString = jsonData.KeywordsString;
+                }
+
+
+                if(jsonData.SnapshotPreivewInfoList != undefined)
+                {
+                    var jsonArray = jsonData.SnapshotPreivewInfoList.map((value, idx, arr)=>{
+                    var parser = this.getParser("SnapshotClientInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.SnapshotPreivewInfoList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private BookInfoItemParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookInfoItem()
+
+                if(jsonData.BookId != undefined)
+                {
+                    newInfo.BookId = parseFloat(jsonData.BookId);
+                }
+
+
+                if(jsonData.BookCount != undefined)
+                {
+                    newInfo.BookCount = parseFloat(jsonData.BookCount);
+                }
+
+                 return newInfo;
+            }
+
+
+            private BookInfoItemChangeNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BookInfoItemChangeNty()
+
+                if(jsonData.BookInfoItem != undefined)
+                {
+                    var jsonFieldInfo = jsonData.BookInfoItem;
+                    var cb = this.getParser("BookInfoItem");
+                    if(cb != undefined)
+                    {
+                        newInfo.BookInfoItem = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field BookInfoItem have no BookInfoItem parser");
+                    }
                 }
 
                  return newInfo;
@@ -2277,6 +2440,39 @@ export namespace crystal_net_service_parser
             }
 
 
+            private SetBookBagInfoReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SetBookBagInfoReq()
+
+                if(jsonData.BookInfoItem != undefined)
+                {
+                    var jsonFieldInfo = jsonData.BookInfoItem;
+                    var cb = this.getParser("BookInfoItem");
+                    if(cb != undefined)
+                    {
+                        newInfo.BookInfoItem = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field BookInfoItem have no BookInfoItem parser");
+                    }
+                }
+
+                 return newInfo;
+            }
+
+
+            private SetBookBagInfoResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SetBookBagInfoRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
             private SimpleInfoParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.SimpleInfo()
 
@@ -2319,6 +2515,24 @@ export namespace crystal_net_service_parser
                 if(jsonData.BindPhone != undefined)
                 {
                     newInfo.BindPhone = parseFloat(jsonData.BindPhone);
+                }
+
+                 return newInfo;
+            }
+
+
+            private SnapshotClientInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SnapshotClientInfo()
+
+                if(jsonData.Id != undefined)
+                {
+                    newInfo.Id = parseFloat(jsonData.Id);
+                }
+
+
+                if(jsonData.FilePath != undefined)
+                {
+                    newInfo.FilePath = jsonData.FilePath;
                 }
 
                  return newInfo;

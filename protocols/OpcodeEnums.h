@@ -92,5 +92,11 @@ public:
     static constexpr Int32 OPCODE_GetBookByBookNameRes = 77;    // library.proto
     static constexpr Int32 OPCODE_BorrowBookReq = 78;    // library.proto
     static constexpr Int32 OPCODE_BorrowBookRes = 79;    // library.proto
-    static constexpr Int32 OPCODE_MAX = 79;
+    static constexpr Int32 OPCODE_BookBagInfoReq = 80;    // bookbag.proto
+    static constexpr Int32 OPCODE_BookBagInfoNty = 81;    // bookbag.proto
+    static constexpr Int32 OPCODE_BookBagInfoRes = 82;    // bookbag.proto
+    static constexpr Int32 OPCODE_SetBookBagInfoReq = 83;    // bookbag.proto
+    static constexpr Int32 OPCODE_SetBookBagInfoRes = 84;    // bookbag.proto
+    static constexpr Int32 OPCODE_BookInfoItemChangeNty = 85;    // bookbag.proto
+    static constexpr Int32 OPCODE_MAX = 85;
 };

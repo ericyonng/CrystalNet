@@ -106,6 +106,7 @@ public:
 
     virtual void OnLogin();
     virtual void OnLoginFinish();
+    virtual void OnClientLoginFinish();
     // 经登录之后状态都会是登录状态,除非玩家点击登出或者登录令牌过期,或者ip变更了
     virtual void OnLogout();
     virtual void OnUserCreated();

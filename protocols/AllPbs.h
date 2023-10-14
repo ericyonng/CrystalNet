@@ -31,8 +31,10 @@
 
 #pragma once
 
+#include <protocols/cplusplus/library/bookbag.pb.h>
 #include <protocols/cplusplus/com.pb.h>
 #include <protocols/cplusplus/library/com_book.pb.h>
+#include <protocols/cplusplus/library/com_bookbag.pb.h>
 #include <protocols/cplusplus/com_client_user.pb.h>
 #include <protocols/cplusplus/com_heartbeat.pb.h>
 #include <protocols/cplusplus/library/com_library.pb.h>

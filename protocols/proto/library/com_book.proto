@@ -10,6 +10,13 @@ message BookType
     }
 }
 
+// 客户端显示用信息
+message SnapshotClientInfo 
+{
+    sint64 Id = 1;
+    string FilePath = 2;
+}
+
 // 书籍信息, 数据存储:id, isbn(unique), bookInfo json 查书通过上拉显示下一页
 message BookInfo 
 {
@@ -38,6 +45,8 @@ message BookInfo
 
     // 客户端使用
     string CoverImagePath = 12;
+    string KeywordsString = 13;
+    repeated SnapshotClientInfo SnapshotPreivewInfoList = 14;
 }
 
 // 图书可变数据

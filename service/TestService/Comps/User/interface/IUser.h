@@ -138,6 +138,7 @@ public:
     virtual void OnUserObjCreated() = 0;
     virtual void OnLogin() = 0;
     virtual void OnLoginFinish() = 0;
+    virtual void OnClientLoginFinish() = 0;
     virtual void OnLogout() = 0;
     virtual void OnUserCreated() = 0;
 

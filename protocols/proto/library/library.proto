@@ -262,7 +262,7 @@ message GetBookInfoRes
     BookInfo BookInfo = 2;
 }
 
-// 按照书名查询
+// 按照书名或者关键字查询
 /// Opcode:
 message GetBookByBookNameReq
 {

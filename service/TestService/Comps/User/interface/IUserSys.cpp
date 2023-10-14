@@ -78,6 +78,11 @@ void IUserSys::OnLoginFinish()
 
 }
 
+void IUserSys::OnClientLoginFinish()
+{
+
+}
+
 void IUserSys::OnLogout()
 {
 

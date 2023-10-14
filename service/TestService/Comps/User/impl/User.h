@@ -69,6 +69,7 @@ public:
     virtual void OnUserObjCreated() override;
     virtual void OnLogin() override;
     virtual void OnLoginFinish() override;
+    virtual void OnClientLoginFinish() override;
     virtual void OnLogout() override;
     virtual void OnUserCreated() override;
 

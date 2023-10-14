@@ -21,13 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-08-06 14:28:00
+ * Date: 2023-10-14 21:05:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgrFactory.h>
+#include <Comps/UserSys/BookBag/impl/BookBagMgr.h>
 
-#include <Comps/UserSys/Login/login.h>
-#include <Comps/UserSys/Library/Library.h>
-#include <Comps/UserSys/BookBag/BookBag.h>
+SERVICE_BEGIN
+KERNEL_NS::CompFactory *BookBagMgrFactory::FactoryCreate()
+{
+    return KERNEL_NS::ObjPoolWrap<BookBagMgrFactory>::NewByAdapter(_buildType.V);
+}
+
+void BookBagMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<BookBagMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
+
+KERNEL_NS::CompObject *BookBagMgrFactory::Create() const
+{
+    CREATE_CRYSTAL_COMP(comp, BookBagMgr);
+    return comp;
+}
+
+SERVICE_END

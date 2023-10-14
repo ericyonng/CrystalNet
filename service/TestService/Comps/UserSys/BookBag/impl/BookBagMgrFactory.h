@@ -21,13 +21,28 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-08-06 14:28:00
+ * Date: 2023-10-14 21:05:00
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <Comps/UserSys/Login/login.h>
-#include <Comps/UserSys/Library/Library.h>
-#include <Comps/UserSys/BookBag/BookBag.h>
+#include <ServiceCompFactoryHeader.h>
+
+SERVICE_BEGIN
+
+class BookBagMgrFactory : public KERNEL_NS::CompFactory
+{
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+    static KERNEL_NS::CompFactory *FactoryCreate();
+
+    virtual void Release() override;
+    
+public:
+    virtual KERNEL_NS::CompObject *Create() const;
+};
+
+SERVICE_END

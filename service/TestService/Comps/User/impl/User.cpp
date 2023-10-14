@@ -99,6 +99,7 @@ void User::OnRegisterComps()
 {
     RegisterComp<LoginMgrFactory>();
     RegisterComp<LibraryMgrFactory>();
+    RegisterComp<BookBagMgrFactory>();
 }
 
 Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
@@ -323,12 +324,16 @@ Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS:
         }
 
         auto data = iterData->second;
-        auto err = userSys->OnLoaded(*data);
-        if(err != Status::Success)
+        if(data->GetReadableSize() != 0)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("user sys load fail err:%d, key:%llu, field name:%s, system name:%s"), err, key, fieldName.c_str(), userSys->GetObjName().c_str());
-            return err;
+            auto err = userSys->OnLoaded(*data);
+            if(err != Status::Success)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("user sys load fail err:%d, key:%llu, field name:%s, system name:%s"), err, key, fieldName.c_str(), userSys->GetObjName().c_str());
+                return err;
+            }
         }
+
         g_Log->Info(LOGFMT_OBJ_TAG("[User Sys Loaded]user id:%llu, field name:%s, system name:%s, data loaded."), key, fieldName.c_str(), userSys->GetObjName().c_str());
     }
 
@@ -685,6 +690,13 @@ void User::OnLoginFinish()
 
 
     g_Log->Info(LOGFMT_OBJ_TAG("OnLoginFinish user:%s"), ToString().c_str());
+}
+
+void User::OnClientLoginFinish()
+{
+    auto &userSyss = GetCompsByType(ServiceCompType::USER_SYS_COMP);
+    for(auto userSys : userSyss)
+        userSys->CastTo<IUserSys>()->OnClientLoginFinish();
 }
 
 void User::OnLogout()

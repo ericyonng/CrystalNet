@@ -1587,15 +1587,21 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                 auto keyField = record->GetField(keyName);
                 auto valueField = record->GetField(valueFieldName);
                 auto k = keyField->GetUInt64();
-                auto err = logic->OnLoaded(k, *valueField->GetData());
-                if(err != Status::Success)
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("OnLoaded fail db name:%s res seqId:%llu, logic:%s, err:%d,k:%llu")
-                            , res->_dbName.c_str(), res->_seqId, logic->GetObjName().c_str(), err, k);
 
-                    GetService()->GetApp()->SinalFinish(Status::DBLoadDataFail);
-                    return;
+                if(valueField->GetData()->GetReadableSize() != 0)
+                {
+                    auto err = logic->OnLoaded(k, *valueField->GetData());
+                    if(err != Status::Success)
+                    {
+                        g_Log->Error(LOGFMT_OBJ_TAG("OnLoaded fail db name:%s res seqId:%llu, logic:%s, err:%d,k:%llu")
+                                , res->_dbName.c_str(), res->_seqId, logic->GetObjName().c_str(), err, k);
+
+                        GetService()->GetApp()->SinalFinish(Status::DBLoadDataFail);
+                        return;
+                    }
                 }
+
+                g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
             }
         }
         else
@@ -1606,15 +1612,21 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                 auto valueField = record->GetField(valueFieldName);
                 KERNEL_NS::LibString k;
                 keyField->GetString(k);
-                auto err = logic->OnLoaded(k, *valueField->GetData());
-                if(err != Status::Success)
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("OnLoaded fail db name:%s res seqId:%llu, logic:%s, err:%d, k:%s")
-                            , res->_dbName.c_str(), res->_seqId, logic->GetObjName().c_str(), err, k.c_str());
 
-                    GetService()->GetApp()->SinalFinish(Status::DBLoadDataFail);
-                    return;
+                if(valueField->GetData()->GetReadableSize() != 0)
+                {
+                    auto err = logic->OnLoaded(k, *valueField->GetData());
+                    if(err != Status::Success)
+                    {
+                        g_Log->Error(LOGFMT_OBJ_TAG("OnLoaded fail db name:%s res seqId:%llu, logic:%s, err:%d, k:%s")
+                                , res->_dbName.c_str(), res->_seqId, logic->GetObjName().c_str(), err, k.c_str());
+
+                        GetService()->GetApp()->SinalFinish(Status::DBLoadDataFail);
+                        return;
+                    }
                 }
+
+                g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
             }
         }
     }
@@ -1623,15 +1635,21 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
         for(auto &record : res->_datas)
         {
             auto v = record->GetField(0);
-            auto err = logic->OnLoaded(*v->GetData());
-            if(err != Status::Success)
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("OnLoaded fail db name:%s res seqId:%llu, logic:%s, err:%d")
-                        , res->_dbName.c_str(), res->_seqId, logic->GetObjName().c_str(), err);
 
-                GetService()->GetApp()->SinalFinish(Status::DBLoadDataFail);
-                return;
+            if(v->GetData()->GetReadableSize() != 0)
+            {
+                auto err = logic->OnLoaded(*v->GetData());
+                if(err != Status::Success)
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("OnLoaded fail db name:%s res seqId:%llu, logic:%s, err:%d")
+                            , res->_dbName.c_str(), res->_seqId, logic->GetObjName().c_str(), err);
+
+                    GetService()->GetApp()->SinalFinish(Status::DBLoadDataFail);
+                    return;
+                }
             }
+            
+            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
         }
     }
     else
@@ -1654,6 +1672,8 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                     return;
                 }
             }
+
+            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
         }
         else
         {
@@ -1673,6 +1693,8 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                     return;
                 }
             }
+
+            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
         }
     }
 

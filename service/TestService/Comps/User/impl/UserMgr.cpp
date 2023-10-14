@@ -1394,6 +1394,8 @@ void UserMgr::_OnLoginFinishReq(KERNEL_NS::LibPacket *&packet)
         }
 
         user->SetUserStatus(UserStatus::CLIENT_LOGIN_ENDING);
+        user->OnClientLoginFinish();
+        
         auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::CLIENT_USER_LOGIN_FINISH);
         ev->SetParam(Params::USER_OBJ, user);
         user->FireEvent(ev);

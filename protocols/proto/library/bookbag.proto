@@ -1,0 +1,47 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_bookbag.proto";
+
+// 书包数据请求
+/// Opcode:
+message BookBagInfoReq
+{
+
+}
+
+
+// 书包数据
+/// Opcode:
+message BookBagInfoNty
+{
+    BookBagInfo BookBagInfo = 1;
+}
+
+// 书包数据请求
+/// Opcode:
+message BookBagInfoRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 改变书包数据
+/// Opcode:
+message SetBookBagInfoReq
+{
+    BookInfoItem BookInfoItem = 1;
+}
+
+// 改变书包数据
+/// Opcode:
+message SetBookBagInfoRes 
+{
+    sint32 ErrCode = 1;
+}
+
+// 书包中的数据变化
+/// Opcode:
+message BookInfoItemChangeNty
+{
+    BookInfoItem BookInfoItem = 1;
+}
