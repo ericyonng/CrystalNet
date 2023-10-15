@@ -29,6 +29,8 @@
 #include <Comps/UserSys/BookBag/impl/BookBagMgr.h>
 #include <Comps/UserSys/BookBag/impl/BookBagMgrFactory.h>
 #include <protocols/protocols.h>
+#include <Comps/Library/library.h>
+#include <Comps/UserSys/Library/Library.h>
 
 SERVICE_BEGIN
 
@@ -37,6 +39,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagMgr);
 
 BookBagMgr::BookBagMgr()
 :_bookBagInfo(new BookBagInfo)
+,_quitLibraryStub(INVALID_LISTENER_STUB)
+,_joinLibraryStub(INVALID_LISTENER_STUB)
 {
 
 }
@@ -102,6 +106,86 @@ void BookBagMgr::SendBookBagInfoNty() const
     Send(Opcodes::OpcodeConst::OPCODE_BookBagInfoNty, nty);
 }
 
+Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
+{
+    Int32 err = Status::Success;
+    auto libraryMgr = GetUser()->GetSys<ILibraryMgr>();
+    do
+    {
+        if(libraryMgr->GetMyLibraryId() == 0)
+        {
+            err = Status::NotJoinAnyLibrary;
+            g_Log->Warn(LOGFMT_OBJ_TAG("not join any library user:%s"), GetUser()->ToString().c_str());
+            break;
+        }
+
+        // 图书是否存在
+        auto libraryGlobal = GetUserMgr()->GetGlobalSys<ILibraryGlobal>();
+        auto bookInfo = libraryGlobal->GetBookInfo(libraryMgr->GetMyLibraryId(), item.bookid());
+        if(!bookInfo)
+        {
+            err = Status::BookNotFound;
+            g_Log->Warn(LOGFMT_OBJ_TAG("book not exists book id:%llu, library id:%llu user:%s")
+            , item.bookid(), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
+            break;
+        }
+
+        if(item.bookcount() < 0)
+        {
+            err = Status::ParamError;
+            g_Log->Warn(LOGFMT_OBJ_TAG("book count error book id:%llu, library id:%llu user:%s")
+            , item.bookid(), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
+            break;
+        }
+
+        // 是否超过库存
+        if(bookInfo->variantinfo().count() < item.bookcount())
+        {
+            err = Status::BookCountOverCapacity;
+            g_Log->Warn(LOGFMT_OBJ_TAG("book over count%lld, item bookcount:%lld book id:%llu, library id:%llu user:%s")
+            ,bookInfo->variantinfo().count(), item.bookcount(), item.bookid(), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
+            break;
+        }
+
+        
+        bool isExists = false;
+        const Int32 count = _bookBagInfo->bookinfoitemlist_size();
+        for(Int32 idx = 0; idx < count; ++idx)
+        {
+            auto bookInfoItem = _bookBagInfo->mutable_bookinfoitemlist(idx);
+            if(bookInfoItem->bookid() == item.bookid())
+            {
+                if(item.bookcount() == 0)
+                {
+                    _bookBagInfo->mutable_bookinfoitemlist()->DeleteSubrange(idx, 1);
+                }
+                else
+                {
+                    bookInfoItem->set_bookcount(item.bookcount());
+                }
+
+                MaskDirty();
+                isExists = true;
+                break;
+            }
+        }
+
+        if(!isExists)
+        {
+            if(item.bookcount() != 0)
+            {
+                auto newItem = _bookBagInfo->add_bookinfoitemlist();
+                *newItem = item;
+                MaskDirty();
+            }
+        }
+
+        SendBookBagInfoNty();
+    } while (false);
+
+    return err;
+}
+
 Int32 BookBagMgr::_OnUserSysInit()
 {
     _RegisterEvents();
@@ -125,12 +209,44 @@ void BookBagMgr::_Clear()
 
 void BookBagMgr::_RegisterEvents()
 {
+    if(_quitLibraryStub == INVALID_LISTENER_STUB)
+    {
+        _quitLibraryStub = AddListener(EventEnums::REMOVE_LIBRARY_MEMBER, this, &BookBagMgr::_OnQuitLibrary);
+    }
 
+    if(_joinLibraryStub == INVALID_LISTENER_STUB)
+    {
+        _joinLibraryStub = AddListener(EventEnums::JOIN_LIBRARY_MEMBER, this, &BookBagMgr::_OnJoinLibrary);
+    }
 }
 
 void BookBagMgr::_UnRegisterEvents()
 {
+    if(_quitLibraryStub != INVALID_LISTENER_STUB)
+    {
+        RemoveListenerX(_quitLibraryStub);
+    }
 
+    if(_joinLibraryStub != INVALID_LISTENER_STUB)
+    {
+        RemoveListenerX(_joinLibraryStub);
+    }
+}
+
+void BookBagMgr::_OnQuitLibrary(KERNEL_NS::LibEvent *ev)
+{
+    _bookBagInfo->Clear();
+    MaskDirty();
+
+    SendBookBagInfoNty();
+}
+
+void BookBagMgr::_OnJoinLibrary(KERNEL_NS::LibEvent *ev)
+{
+    _bookBagInfo->Clear();
+    MaskDirty();
+
+    SendBookBagInfoNty();
 }
 
 SERVICE_END

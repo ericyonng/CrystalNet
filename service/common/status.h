@@ -91,5 +91,6 @@ namespace Status
         BookNotFound,                                       // 图书不存在
         ContentTooLong,                                     // 内容过长
         KeyWordsTooMuch,                                    // 关键词太多
+        BookCountOverCapacity,                              // 超过库存
     };
 }

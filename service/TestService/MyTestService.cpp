@@ -179,6 +179,9 @@ void MyTestService::_OnServiceRegisterComps()
 
     // 邀请码
     RegisterComp<InviteCodeGlobalFactory>();
+
+    // 书袋
+    RegisterComp<BookBagGlobalFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()

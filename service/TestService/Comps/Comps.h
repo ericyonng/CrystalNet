@@ -42,4 +42,5 @@
 #include <Comps/Library/library.h>
 #include <Comps/InviteCode/InviteCode.h>
 #include <Comps/PassTime/PassTime.h>
+#include <Comps/BookBag/BookBag.h>
 

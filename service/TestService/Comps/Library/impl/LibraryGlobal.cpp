@@ -179,6 +179,16 @@ KERNEL_NS::LibString LibraryGlobal::LibraryToString(UInt64 libraryId) const
     return LibraryToString(libraryInfo);
 }
 
+const BookInfo *LibraryGlobal::GetBookInfo(UInt64 libraryId, UInt64 bookId) const
+{
+    auto iterLibrary = _libraryIdRefIdRefBookInfo.find(libraryId);
+    if(iterLibrary == _libraryIdRefIdRefBookInfo.end())
+        return NULL;
+
+    auto iterBook = iterLibrary->second.find(bookId);
+    return iterBook == iterLibrary->second.end() ? NULL : iterBook->second;
+}
+
 Int32 LibraryGlobal::_OnGlobalSysInit()
 {
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetLibraryInfoReq, this, &LibraryGlobal::_OnGetLibraryInfoReq);
@@ -192,6 +202,7 @@ Int32 LibraryGlobal::_OnGlobalSysInit()
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_AddLibraryBookReq, this, &LibraryGlobal::_OnAddLibraryBookReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookInfoReq, this, &LibraryGlobal::_OnGetBookInfoReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookByBookNameReq, this, &LibraryGlobal::_OnGetBookByBookNameReq);
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookInfoListReq, this, &LibraryGlobal::_OnGetBookInfoListReq);
     
     return Status::Success;
 }
@@ -1362,6 +1373,58 @@ void LibraryGlobal::_OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet)
     user->Send(Opcodes::OpcodeConst::OPCODE_GetBookByBookNameRes, res, packet->GetPacketId());
 }
 
+void LibraryGlobal::_OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto libraryMgr = user->GetSys<ILibraryMgr>();
+
+    auto req = packet->GetCoder<GetBookInfoListReq>();
+    GetBookInfoListRes res;
+    std::map<UInt64, const BookInfo *> bookInfoList;
+    const UInt32 bookCount = static_cast<UInt32>(std::abs(req->bookcount()));
+
+    do
+    {
+        if(libraryMgr->GetMyLibraryId() == 0)
+            break;
+
+        auto &bookInfos = _GetBookInfos(libraryMgr->GetMyLibraryId());
+        if(bookInfos.empty())
+            break;
+
+        if(req->basebookid() == 0)
+        {
+            // 前n个
+            if(req->bookcount() > 0)
+                _GetBooksAfter(bookInfos, 0, bookCount, bookInfoList);
+
+            break;
+        }
+
+        if(req->bookcount() > 0)
+        {
+            _GetBooksAfter(bookInfos, req->basebookid(), bookCount, bookInfoList);
+        }
+        else
+        {
+            _GetBooksBefore(bookInfos, req->basebookid(), bookCount, bookInfoList);
+        }
+
+    }while(false);
+
+    _BuildBookInfos(bookInfoList, res.mutable_bookinfolist());
+
+    user->Send(Opcodes::OpcodeConst::OPCODE_GetBookInfoListRes, res, packet->GetPacketId());
+}
+
+
 Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req)
 {
     auto memberInfo = GetMemberInfo(libraryInfo->id(), reqUserId);
@@ -1837,6 +1900,79 @@ const BookInfo *LibraryGlobal::_GetBookInfo(UInt64 libraryId, const KERNEL_NS::L
     auto iterBook = iter->second.find(isbnCode);
     return iterBook == iter->second.end() ? NULL : iterBook->second;
 }
+
+const std::map<UInt64, BookInfo *> &LibraryGlobal::_GetBookInfos(UInt64 libraryId) const
+{
+    static std::map<UInt64, BookInfo *> s_empty;
+    auto iter = _libraryIdRefIdRefBookInfo.find(libraryId);
+    return iter == _libraryIdRefIdRefBookInfo.end() ? s_empty : iter->second;
+}
+
+void LibraryGlobal::_GetBooksAfter(const std::map<UInt64, BookInfo *> &totalBooks, UInt64 bookId, UInt32 bookCount, std::map<UInt64, const BookInfo *> &bookIdRefBook) const
+{
+    if(bookCount == 0)
+        return;
+
+    if(totalBooks.empty())
+        return;
+
+    auto iterBegin = totalBooks.begin();
+    if(bookId > 0)
+    {
+        iterBegin = totalBooks.find(bookId);
+        if(iterBegin != totalBooks.end())
+            ++iterBegin;
+    }
+
+    if(iterBegin == totalBooks.end())
+        return;
+
+    UInt32 loopCount = 0;
+    for(auto iter = iterBegin; iter != totalBooks.end(); ++iter)
+    {
+        ++loopCount;
+        bookIdRefBook.insert(std::make_pair(iter->first, iter->second));
+
+        if(loopCount >= bookCount)
+            break;
+    }
+}
+
+void LibraryGlobal::_GetBooksBefore(const std::map<UInt64, BookInfo *> &totalBooks, UInt64 bookId, UInt32 bookCount, std::map<UInt64, const BookInfo *> &bookIdRefBook) const
+{
+    if(bookCount == 0)
+        return;
+
+    if(totalBooks.empty())
+        return;
+
+    auto iterBase = totalBooks.find(bookId);
+    if(iterBase == totalBooks.end())
+        return;
+
+    if(iterBase != totalBooks.begin())
+    {
+        UInt32 loopCount = 0;
+        for(auto iter = --iterBase;; --iter)
+        {
+            ++loopCount;
+            bookIdRefBook.insert(std::make_pair(iter->first, iter->second));
+
+            if(loopCount >= bookCount)
+                break;
+
+            if(iter == totalBooks.begin())
+                break;
+        }
+    }
+}
+
+void LibraryGlobal::_BuildBookInfos(const std::map<UInt64, const BookInfo *> &dict,  ::google::protobuf::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo > *bookInfoList) const
+{
+    for(auto iter : dict)
+        *bookInfoList->Add() = *iter.second;
+}
+
 
 SERVICE_END
 

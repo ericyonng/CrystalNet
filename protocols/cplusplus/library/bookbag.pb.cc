@@ -8,7 +8,6 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagInfoNtyFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagInfoResFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(SetBookBagInfoReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(SetBookBagInfoResFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BookInfoItemChangeNtyFactory);
 
 #include <algorithm>
 
@@ -92,22 +91,9 @@ struct SetBookBagInfoResDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SetBookBagInfoResDefaultTypeInternal _SetBookBagInfoRes_default_instance_;
-PROTOBUF_CONSTEXPR BookInfoItemChangeNty::BookInfoItemChangeNty(
-    ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.bookinfoitem_)*/nullptr
-  , /*decltype(_impl_._cached_size_)*/{}} {}
-struct BookInfoItemChangeNtyDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR BookInfoItemChangeNtyDefaultTypeInternal()
-      : _instance(::_pbi::ConstantInitialized{}) {}
-  ~BookInfoItemChangeNtyDefaultTypeInternal() {}
-  union {
-    BookInfoItemChangeNty _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BookInfoItemChangeNtyDefaultTypeInternal _BookInfoItemChangeNty_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
-static ::_pb::Metadata file_level_metadata_bookbag_2eproto[6];
+static ::_pb::Metadata file_level_metadata_bookbag_2eproto[5];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_bookbag_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_bookbag_2eproto = nullptr;
 
@@ -146,13 +132,6 @@ const uint32_t TableStruct_bookbag_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SetBookBagInfoRes, _impl_.errcode_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfoItemChangeNty, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookInfoItemChangeNty, _impl_.bookinfoitem_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::BookBagInfoReq)},
@@ -160,7 +139,6 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 13, -1, -1, sizeof(::CRYSTAL_NET::service::BookBagInfoRes)},
   { 20, -1, -1, sizeof(::CRYSTAL_NET::service::SetBookBagInfoReq)},
   { 27, -1, -1, sizeof(::CRYSTAL_NET::service::SetBookBagInfoRes)},
-  { 34, -1, -1, sizeof(::CRYSTAL_NET::service::BookInfoItemChangeNty)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -169,7 +147,6 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::CRYSTAL_NET::service::_BookBagInfoRes_default_instance_._instance,
   &::CRYSTAL_NET::service::_SetBookBagInfoReq_default_instance_._instance,
   &::CRYSTAL_NET::service::_SetBookBagInfoRes_default_instance_._instance,
-  &::CRYSTAL_NET::service::_BookInfoItemChangeNty_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_bookbag_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -180,18 +157,16 @@ const char descriptor_table_protodef_bookbag_2eproto[] PROTOBUF_SECTION_VARIABLE
   "oRes\022\017\n\007ErrCode\030\001 \001(\021\"L\n\021SetBookBagInfoR"
   "eq\0227\n\014BookInfoItem\030\001 \001(\0132!.CRYSTAL_NET.s"
   "ervice.BookInfoItem\"$\n\021SetBookBagInfoRes"
-  "\022\017\n\007ErrCode\030\001 \001(\021\"P\n\025BookInfoItemChangeN"
-  "ty\0227\n\014BookInfoItem\030\001 \001(\0132!.CRYSTAL_NET.s"
-  "ervice.BookInfoItemb\006proto3"
+  "\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_bookbag_2eproto_deps[1] = {
   &::descriptor_table_com_5fbookbag_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_bookbag_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_bookbag_2eproto = {
-    false, false, 387, descriptor_table_protodef_bookbag_2eproto,
+    false, false, 305, descriptor_table_protodef_bookbag_2eproto,
     "bookbag.proto",
-    &descriptor_table_bookbag_2eproto_once, descriptor_table_bookbag_2eproto_deps, 1, 6,
+    &descriptor_table_bookbag_2eproto_once, descriptor_table_bookbag_2eproto_deps, 1, 5,
     schemas, file_default_instances, TableStruct_bookbag_2eproto::offsets,
     file_level_metadata_bookbag_2eproto, file_level_enum_descriptors_bookbag_2eproto,
     file_level_service_descriptors_bookbag_2eproto,
@@ -999,205 +974,6 @@ void SetBookBagInfoRes::InternalSwap(SetBookBagInfoRes* other) {
       file_level_metadata_bookbag_2eproto[4]);
 }
 
-// ===================================================================
-
-class BookInfoItemChangeNty::_Internal {
- public:
-  static const ::CRYSTAL_NET::service::BookInfoItem& bookinfoitem(const BookInfoItemChangeNty* msg);
-};
-
-const ::CRYSTAL_NET::service::BookInfoItem&
-BookInfoItemChangeNty::_Internal::bookinfoitem(const BookInfoItemChangeNty* msg) {
-  return *msg->_impl_.bookinfoitem_;
-}
-void BookInfoItemChangeNty::clear_bookinfoitem() {
-  if (GetArenaForAllocation() == nullptr && _impl_.bookinfoitem_ != nullptr) {
-    delete _impl_.bookinfoitem_;
-  }
-  _impl_.bookinfoitem_ = nullptr;
-}
-BookInfoItemChangeNty::BookInfoItemChangeNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.BookInfoItemChangeNty)
-}
-BookInfoItemChangeNty::BookInfoItemChangeNty(const BookInfoItemChangeNty& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  BookInfoItemChangeNty* const _this = this; (void)_this;
-  new (&_impl_) Impl_{
-      decltype(_impl_.bookinfoitem_){nullptr}
-    , /*decltype(_impl_._cached_size_)*/{}};
-
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_bookinfoitem()) {
-    _this->_impl_.bookinfoitem_ = new ::CRYSTAL_NET::service::BookInfoItem(*from._impl_.bookinfoitem_);
-  }
-  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.BookInfoItemChangeNty)
-}
-
-inline void BookInfoItemChangeNty::SharedCtor(
-    ::_pb::Arena* arena, bool is_message_owned) {
-  (void)arena;
-  (void)is_message_owned;
-  new (&_impl_) Impl_{
-      decltype(_impl_.bookinfoitem_){nullptr}
-    , /*decltype(_impl_._cached_size_)*/{}
-  };
-}
-
-BookInfoItemChangeNty::~BookInfoItemChangeNty() {
-  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.BookInfoItemChangeNty)
-  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
-  (void)arena;
-    return;
-  }
-  SharedDtor();
-}
-
-inline void BookInfoItemChangeNty::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete _impl_.bookinfoitem_;
-}
-
-void BookInfoItemChangeNty::SetCachedSize(int size) const {
-  _impl_._cached_size_.Set(size);
-}
-
-void BookInfoItemChangeNty::Clear() {
-// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.BookInfoItemChangeNty)
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  if (GetArenaForAllocation() == nullptr && _impl_.bookinfoitem_ != nullptr) {
-    delete _impl_.bookinfoitem_;
-  }
-  _impl_.bookinfoitem_ = nullptr;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* BookInfoItemChangeNty::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    uint32_t tag;
-    ptr = ::_pbi::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
-      // .CRYSTAL_NET.service.BookInfoItem BookInfoItem = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
-          ptr = ctx->ParseMessage(_internal_mutable_bookinfoitem(), ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      default:
-        goto handle_unusual;
-    }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
-  }  // while
-message_done:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto message_done;
-#undef CHK_
-}
-
-uint8_t* BookInfoItemChangeNty::_InternalSerialize(
-    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.BookInfoItemChangeNty)
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .CRYSTAL_NET.service.BookInfoItem BookInfoItem = 1;
-  if (this->_internal_has_bookinfoitem()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, _Internal::bookinfoitem(this),
-        _Internal::bookinfoitem(this).GetCachedSize(), target, stream);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.BookInfoItemChangeNty)
-  return target;
-}
-
-size_t BookInfoItemChangeNty::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.BookInfoItemChangeNty)
-  size_t total_size = 0;
-
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // .CRYSTAL_NET.service.BookInfoItem BookInfoItem = 1;
-  if (this->_internal_has_bookinfoitem()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *_impl_.bookinfoitem_);
-  }
-
-  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BookInfoItemChangeNty::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
-    BookInfoItemChangeNty::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BookInfoItemChangeNty::GetClassData() const { return &_class_data_; }
-
-
-void BookInfoItemChangeNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
-  auto* const _this = static_cast<BookInfoItemChangeNty*>(&to_msg);
-  auto& from = static_cast<const BookInfoItemChangeNty&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.BookInfoItemChangeNty)
-  GOOGLE_DCHECK_NE(&from, _this);
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from._internal_has_bookinfoitem()) {
-    _this->_internal_mutable_bookinfoitem()->::CRYSTAL_NET::service::BookInfoItem::MergeFrom(
-        from._internal_bookinfoitem());
-  }
-  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void BookInfoItemChangeNty::CopyFrom(const BookInfoItemChangeNty& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.BookInfoItemChangeNty)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BookInfoItemChangeNty::IsInitialized() const {
-  return true;
-}
-
-void BookInfoItemChangeNty::InternalSwap(BookInfoItemChangeNty* other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(_impl_.bookinfoitem_, other->_impl_.bookinfoitem_);
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata BookInfoItemChangeNty::GetMetadata() const {
-  return ::_pbi::AssignDescriptors(
-      &descriptor_table_bookbag_2eproto_getter, &descriptor_table_bookbag_2eproto_once,
-      file_level_metadata_bookbag_2eproto[5]);
-}
-
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace service
 }  // namespace CRYSTAL_NET
@@ -1221,10 +997,6 @@ Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::SetBookBagInfoReq >(Arena* ar
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::SetBookBagInfoRes*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::SetBookBagInfoRes >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::SetBookBagInfoRes >(arena);
-}
-template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BookInfoItemChangeNty*
-Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BookInfoItemChangeNty >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::BookInfoItemChangeNty >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

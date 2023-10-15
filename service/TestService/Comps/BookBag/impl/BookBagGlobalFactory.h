@@ -21,31 +21,31 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-14 16:07:11
+ * Date: 2023-10-15 16:37:11
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <ServiceCompHeader.h>
+
+#include <kernel/kernel.h>
+#include <service/common/macro.h>
 
 SERVICE_BEGIN
 
-class LibraryInfo;
-
-class ILibraryGlobal : public IGlobalSys
+class BookBagGlobalFactory : public KERNEL_NS::CompFactory
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ILibraryGlobal);
+    // 创建factory对象时候使用创建的方法类型
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+    static KERNEL_NS::CompFactory *FactoryCreate();
+
+    virtual void Release() override;
 
 public:
-    virtual const LibraryInfo *GetLibraryInfo(UInt64 libraryId) const = 0;
-    virtual const MemberInfo *GetMemberInfo(UInt64 libraryId, UInt64 userId) const = 0;
-
-    virtual KERNEL_NS::LibString LibraryToString(const LibraryInfo *libraryInfo) const = 0;
-    virtual KERNEL_NS::LibString LibraryToString(UInt64 libraryId) const = 0;
-
-    virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const = 0;
+    virtual KERNEL_NS::CompObject *Create() const;
 };
 
 SERVICE_END

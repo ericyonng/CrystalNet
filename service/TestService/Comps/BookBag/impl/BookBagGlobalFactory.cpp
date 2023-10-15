@@ -21,31 +21,32 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-14 16:07:11
+ * Date: 2023-10-15 16:37:11
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/BookBag/impl/BookBagGlobalFactory.h>
+#include <Comps/BookBag/impl/BookBagGlobal.h>
 
-#include <ServiceCompHeader.h>
 
 SERVICE_BEGIN
 
-class LibraryInfo;
-
-class ILibraryGlobal : public IGlobalSys
+KERNEL_NS::CompFactory *BookBagGlobalFactory::FactoryCreate()
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ILibraryGlobal);
+    return KERNEL_NS::ObjPoolWrap<BookBagGlobalFactory>::NewByAdapter(_buildType.V);
+}
 
-public:
-    virtual const LibraryInfo *GetLibraryInfo(UInt64 libraryId) const = 0;
-    virtual const MemberInfo *GetMemberInfo(UInt64 libraryId, UInt64 userId) const = 0;
+void BookBagGlobalFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<BookBagGlobalFactory>::DeleteByAdapter(_buildType.V, this);
+}
 
-    virtual KERNEL_NS::LibString LibraryToString(const LibraryInfo *libraryInfo) const = 0;
-    virtual KERNEL_NS::LibString LibraryToString(UInt64 libraryId) const = 0;
-
-    virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const = 0;
-};
+KERNEL_NS::CompObject *BookBagGlobalFactory::Create() const
+{
+    CREATE_CRYSTAL_COMP(comp, BookBagGlobal);
+    return comp;
+}
 
 SERVICE_END

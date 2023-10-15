@@ -53,6 +53,8 @@ public:
 
     virtual void SendBookBagInfoNty() const override;
 
+    virtual Int32 SetBookBagInfo(const BookInfoItem &item) override;
+
 protected:
     virtual Int32 _OnUserSysInit() override;
     virtual Int32 _OnHostStart() override;
@@ -62,8 +64,13 @@ protected:
     void _RegisterEvents();
     void _UnRegisterEvents();
 
+    void _OnQuitLibrary(KERNEL_NS::LibEvent *ev);
+    void _OnJoinLibrary(KERNEL_NS::LibEvent *ev);
+
 private:
     BookBagInfo *_bookBagInfo;
+    KERNEL_NS::ListenerStub _quitLibraryStub;
+    KERNEL_NS::ListenerStub _joinLibraryStub;
 };
 
 SERVICE_END

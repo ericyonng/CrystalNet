@@ -21,31 +21,50 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-14 16:07:11
+ * Date: 2023-10-15 16:43:02
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/BookBag/impl/BookBagGlobalStorage.h>
+#include <Comps/BookBag/impl/BookBagGlobalStorageFactory.h>
+#include <Comps/BookBag/impl/BookBagGlobal.h>
 
-#include <ServiceCompHeader.h>
 
 SERVICE_BEGIN
 
-class LibraryInfo;
+POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagGlobalStorage);
 
-class ILibraryGlobal : public IGlobalSys
+BookBagGlobalStorage::BookBagGlobalStorage()
+:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<BookBagGlobal>())
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ILibraryGlobal);
 
-public:
-    virtual const LibraryInfo *GetLibraryInfo(UInt64 libraryId) const = 0;
-    virtual const MemberInfo *GetMemberInfo(UInt64 libraryId, UInt64 userId) const = 0;
+}
 
-    virtual KERNEL_NS::LibString LibraryToString(const LibraryInfo *libraryInfo) const = 0;
-    virtual KERNEL_NS::LibString LibraryToString(UInt64 libraryId) const = 0;
+BookBagGlobalStorage::~BookBagGlobalStorage()
+{
 
-    virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const = 0;
-};
+}
+
+void BookBagGlobalStorage::Release()
+{
+    BookBagGlobalStorage::DeleteByAdapter_BookBagGlobalStorage(BookBagGlobalStorageFactory::_buildType.V, this);
+}
+
+bool BookBagGlobalStorage::RegisterStorages()
+{
+    AddFlags(StorageFlagType::KEY_VALUE_SYSTEM_FLAG | 
+    StorageFlagType::MYSQL_FLAG | 
+    StorageFlagType::SYSTEM_DATA_STORAGE_FLAG |
+    StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG |
+    StorageFlagType::NEED_NUMBER_KEY_FLAG
+    );
+
+
+    SetComment("bookbag");
+
+    return true;
+}
 
 SERVICE_END

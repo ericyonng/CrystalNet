@@ -700,12 +700,22 @@
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SetBookBagInfoResFactory::CreateFactory()));
     }
 
-    {// BookInfoItemChangeNty
+    {// GetBookInfoListReq
         auto info = OpcodeInfo();
         info._opcode = 85;
         info._noLog = false;
-        info._opcodeName = "BookInfoItemChangeNty";
-        info._protoFile = "bookbag.proto";
+        info._opcodeName = "GetBookInfoListReq";
+        info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
-        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BookInfoItemChangeNtyFactory::CreateFactory()));
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookInfoListReqFactory::CreateFactory()));
+    }
+
+    {// GetBookInfoListRes
+        auto info = OpcodeInfo();
+        info._opcode = 86;
+        info._noLog = false;
+        info._opcodeName = "GetBookInfoListRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookInfoListResFactory::CreateFactory()));
     }

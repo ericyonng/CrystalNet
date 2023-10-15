@@ -55,6 +55,8 @@ public:
     virtual KERNEL_NS::LibString LibraryToString(const LibraryInfo *libraryInfo) const override;
     virtual KERNEL_NS::LibString LibraryToString(UInt64 libraryId) const override;
 
+    virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const override;
+
 protected:
     virtual Int32 _OnGlobalSysInit() override;
 
@@ -75,6 +77,7 @@ protected:
     void _OnGetBookInfoReq(KERNEL_NS::LibPacket *&packet);
     // 书名或者关键字
     void _OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet);
+    void _OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet);
 
     Int32 _ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req);
 
@@ -112,7 +115,14 @@ protected:
     void _MakeBookDict(UInt64 libraryId, BookInfo *bookInfo);
     BookInfo *_GetBookInfo(UInt64 libraryId, const KERNEL_NS::LibString &isbnCode);
     const BookInfo *_GetBookInfo(UInt64 libraryId, const KERNEL_NS::LibString &isbnCode) const;
-
+    const std::map<UInt64, BookInfo *> &_GetBookInfos(UInt64 libraryId) const;
+    // 后n本图书
+    void _GetBooksAfter(const std::map<UInt64, BookInfo *> &totalBooks, UInt64 bookId, UInt32 bookCount, std::map<UInt64, const BookInfo *> &bookIdRefBook) const;
+    // 前n本图书
+    void _GetBooksBefore(const std::map<UInt64, BookInfo *> &totalBooks, UInt64 bookId, UInt32 bookCount, std::map<UInt64, const BookInfo *> &bookIdRefBook) const;
+    void _BuildBookInfos(const std::map<UInt64, const BookInfo *> &dict,  ::google::protobuf::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo > *bookInfoList) const;
+    
+private:
     std::map<UInt64, LibraryInfo *> _idRefLibraryInfo;
 
     std::map<UInt64, std::map<UInt64, MemberInfo *>> _libraryIdRefUserRefMember;

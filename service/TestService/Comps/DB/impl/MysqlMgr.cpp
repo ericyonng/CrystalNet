@@ -1600,9 +1600,9 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                         return;
                     }
                 }
-
-                g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
             }
+
+            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
         }
         else
         {
@@ -1625,9 +1625,9 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                         return;
                     }
                 }
-
-                g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
             }
+
+            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
         }
     }
     else if(storageInfo->IsAsField())
@@ -1647,10 +1647,10 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                     GetService()->GetApp()->SinalFinish(Status::DBLoadDataFail);
                     return;
                 }
-            }
-            
-            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
+            }            
         }
+
+        g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
     }
     else
     {

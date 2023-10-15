@@ -290,6 +290,24 @@ message BorrowBookRes
     sint32 ErrCode = 1;
 }
 
+// 图书
+/// Opcode:
+message GetBookInfoListReq 
+{
+    // 基准图书id
+    uint64 BaseBookId = 1;
+
+    // 数量 负数表示 BaseBookId 之前的前n个图书信息, 整数表示 BaseBookId 之后n个图书信息
+    sint32 BookCount = 2;
+}
+
+// 图书
+/// Opcode:
+message GetBookInfoListRes
+{
+    repeated BookInfo BookInfoList = 1;
+}
+
 
 // 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管
 

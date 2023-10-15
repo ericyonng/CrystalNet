@@ -72,7 +72,8 @@ public static class PacketOpcode
         BookBagInfoRes = 82,    // bookbag.proto
         SetBookBagInfoReq = 83,    // bookbag.proto
         SetBookBagInfoRes = 84,    // bookbag.proto
-        BookInfoItemChangeNty = 85,    // bookbag.proto
-        OpcodeMax = 85,
+        GetBookInfoListReq = 85,    // library.proto
+        GetBookInfoListRes = 86,    // library.proto
+        OpcodeMax = 86,
     }
 }

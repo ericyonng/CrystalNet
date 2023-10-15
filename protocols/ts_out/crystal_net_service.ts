@@ -309,14 +309,6 @@ export namespace crystal_net_service
 
 
     }
-    // 书包中的数据变化
-    /// Opcode:
-    // bookbag.proto
-    export class BookInfoItemChangeNty {
-        BookInfoItem:BookInfoItem = new BookInfoItem();
-
-
-    }
     // 图书列表数据
     /// Opcode:
     // library.proto
@@ -536,6 +528,26 @@ export namespace crystal_net_service
     /// Opcode:
     // library.proto
     export class GetBookByBookNameRes {
+        BookInfoList:BookInfo[] = [];
+
+
+    }
+    // 图书
+    /// Opcode:
+    // library.proto
+    export class GetBookInfoListReq {
+        // 基准图书id
+        BaseBookId:number = 0;
+
+        // 数量 负数表示 BaseBookId 之前的前n个图书信息, 整数表示 BaseBookId 之后n个图书信息
+        BookCount:number = 0;
+
+
+    }
+    // 图书
+    /// Opcode:
+    // library.proto
+    export class GetBookInfoListRes {
         BookInfoList:BookInfo[] = [];
 
 

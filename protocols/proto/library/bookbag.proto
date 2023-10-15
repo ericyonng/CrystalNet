@@ -38,10 +38,3 @@ message SetBookBagInfoRes
 {
     sint32 ErrCode = 1;
 }
-
-// 书包中的数据变化
-/// Opcode:
-message BookInfoItemChangeNty
-{
-    BookInfoItem BookInfoItem = 1;
-}

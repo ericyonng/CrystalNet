@@ -21,31 +21,44 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-14 16:07:11
+ * Date: 2023-10-15 16:30:11
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <ServiceCompHeader.h>
+#include <Comps/BookBag/interface/IBookBagGlobal.h>
 
 SERVICE_BEGIN
 
-class LibraryInfo;
+class IUser;
 
-class ILibraryGlobal : public IGlobalSys
+class BookBagGlobal : public IBookBagGlobal
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ILibraryGlobal);
+    POOL_CREATE_OBJ_DEFAULT_P1(IBookBagGlobal, BookBagGlobal);
 
 public:
-    virtual const LibraryInfo *GetLibraryInfo(UInt64 libraryId) const = 0;
-    virtual const MemberInfo *GetMemberInfo(UInt64 libraryId, UInt64 userId) const = 0;
+    BookBagGlobal();
+    ~BookBagGlobal();
+    void Release() override;
+    void OnRegisterComps() override;
 
-    virtual KERNEL_NS::LibString LibraryToString(const LibraryInfo *libraryInfo) const = 0;
-    virtual KERNEL_NS::LibString LibraryToString(UInt64 libraryId) const = 0;
+    Int32 OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
+    Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const override;
+    
+protected:
+    virtual Int32 _OnGlobalSysInit() override;
 
-    virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const = 0;
+    virtual Int32 _OnGlobalSysCompsCreated() override;
+
+    virtual void _OnGlobalSysClose() override;
+
+    void _Clear();
+
+    // 协议
+    void _OnBookBagInfoReq(KERNEL_NS::LibPacket *&packet);
+    void _OnSetBookBagInfoReq(KERNEL_NS::LibPacket *&packet);
 };
 
 SERVICE_END

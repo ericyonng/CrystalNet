@@ -899,14 +899,27 @@ export namespace ts_pbinfo{
     }
 
 
-    // bookbag.proto 
-    export class BookInfoItemChangeNty {
-      getOpcode():number {return BookInfoItemChangeNty.OPCODE; }
-      getIsXorEncrypt():boolean {return BookInfoItemChangeNty.XorEncrypt; }
-      getIsKeyBase64():boolean {return BookInfoItemChangeNty.KeyBase64; }
-      getOpcodeName():string {return BookInfoItemChangeNty.OPCODE_NAME; }
+    // library.proto 
+    export class GetBookInfoListReq {
+      getOpcode():number {return GetBookInfoListReq.OPCODE; }
+      getIsXorEncrypt():boolean {return GetBookInfoListReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetBookInfoListReq.KeyBase64; }
+      getOpcodeName():string {return GetBookInfoListReq.OPCODE_NAME; }
       static OPCODE:number = 85;
-      static OPCODE_NAME:string = "BookInfoItemChangeNty";
+      static OPCODE_NAME:string = "GetBookInfoListReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetBookInfoListRes {
+      getOpcode():number {return GetBookInfoListRes.OPCODE; }
+      getIsXorEncrypt():boolean {return GetBookInfoListRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetBookInfoListRes.KeyBase64; }
+      getOpcodeName():string {return GetBookInfoListRes.OPCODE_NAME; }
+      static OPCODE:number = 86;
+      static OPCODE_NAME:string = "GetBookInfoListRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -1048,7 +1061,9 @@ export namespace ts_pbinfo{
 
           [SetBookBagInfoRes.OPCODE]: new SetBookBagInfoRes(),
 
-          [BookInfoItemChangeNty.OPCODE]: new BookInfoItemChangeNty()
+          [GetBookInfoListReq.OPCODE]: new GetBookInfoListReq(),
+
+          [GetBookInfoListRes.OPCODE]: new GetBookInfoListRes()
 
 
       }

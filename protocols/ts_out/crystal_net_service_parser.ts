@@ -88,11 +88,6 @@ export namespace crystal_net_service_parser
             })
 
 
-            this.add("BookInfoItemChangeNty", (jsonData:any):any =>{
-                return this.BookInfoItemChangeNtyParser(jsonData);
-            })
-
-
             this.add("BookListNty", (jsonData:any):any =>{
                 return this.BookListNtyParser(jsonData);
             })
@@ -190,6 +185,16 @@ export namespace crystal_net_service_parser
 
             this.add("GetBookByBookNameRes", (jsonData:any):any =>{
                 return this.GetBookByBookNameResParser(jsonData);
+            })
+
+
+            this.add("GetBookInfoListReq", (jsonData:any):any =>{
+                return this.GetBookInfoListReqParser(jsonData);
+            })
+
+
+            this.add("GetBookInfoListRes", (jsonData:any):any =>{
+                return this.GetBookInfoListResParser(jsonData);
             })
 
 
@@ -906,27 +911,6 @@ export namespace crystal_net_service_parser
             }
 
 
-            private BookInfoItemChangeNtyParser(jsonData:any):any{
-                var newInfo = new crystal_net_service.BookInfoItemChangeNty()
-
-                if(jsonData.BookInfoItem != undefined)
-                {
-                    var jsonFieldInfo = jsonData.BookInfoItem;
-                    var cb = this.getParser("BookInfoItem");
-                    if(cb != undefined)
-                    {
-                        newInfo.BookInfoItem = cb(jsonFieldInfo);
-                    }
-                    else
-                    {
-                        console.log("field BookInfoItem have no BookInfoItem parser");
-                    }
-                }
-
-                 return newInfo;
-            }
-
-
             private BookListNtyParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.BookListNty()
 
@@ -1338,6 +1322,44 @@ export namespace crystal_net_service_parser
 
             private GetBookByBookNameResParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.GetBookByBookNameRes()
+
+                if(jsonData.BookInfoList != undefined)
+                {
+                    var jsonArray = jsonData.BookInfoList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BookInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BookInfoList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private GetBookInfoListReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookInfoListReq()
+
+                if(jsonData.BaseBookId != undefined)
+                {
+                    newInfo.BaseBookId = parseFloat(jsonData.BaseBookId);
+                }
+
+
+                if(jsonData.BookCount != undefined)
+                {
+                    newInfo.BookCount = parseFloat(jsonData.BookCount);
+                }
+
+                 return newInfo;
+            }
+
+
+            private GetBookInfoListResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookInfoListRes()
 
                 if(jsonData.BookInfoList != undefined)
                 {

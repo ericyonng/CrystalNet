@@ -33,12 +33,15 @@
 
 SERVICE_BEGIN
 
+class BookInfoItem;
+
 class IBookBagMgr : public IUserSys
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IUserSys, IBookBagMgr);
 
 public:
     virtual void SendBookBagInfoNty() const = 0;
+    virtual Int32 SetBookBagInfo(const BookInfoItem &item) = 0;
 };
 
 SERVICE_END

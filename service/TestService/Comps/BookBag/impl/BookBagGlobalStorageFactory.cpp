@@ -21,31 +21,28 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-09-14 16:07:11
+ * Date: 2023-10-15 16:43:02
  * Author: Eric Yonng
  * Description: 
 */
-
-#pragma once
-
-#include <ServiceCompHeader.h>
+#include <pch.h>
+#include <Comps/BookBag/impl/BookBagGlobalStorageFactory.h>
+#include <Comps/BookBag/impl/BookBagGlobalStorage.h>
 
 SERVICE_BEGIN
 
-class LibraryInfo;
-
-class ILibraryGlobal : public IGlobalSys
+KERNEL_NS::CompFactory *BookBagGlobalStorageFactory::FactoryCreate()
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ILibraryGlobal);
+    return KERNEL_NS::ObjPoolWrap<BookBagGlobalStorageFactory>::NewByAdapter(_buildType.V);
+}
 
-public:
-    virtual const LibraryInfo *GetLibraryInfo(UInt64 libraryId) const = 0;
-    virtual const MemberInfo *GetMemberInfo(UInt64 libraryId, UInt64 userId) const = 0;
-
-    virtual KERNEL_NS::LibString LibraryToString(const LibraryInfo *libraryInfo) const = 0;
-    virtual KERNEL_NS::LibString LibraryToString(UInt64 libraryId) const = 0;
-
-    virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const = 0;
-};
-
+void BookBagGlobalStorageFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<BookBagGlobalStorageFactory>::DeleteByAdapter(_buildType.V, this);
+}
+    
+KERNEL_NS::CompObject *BookBagGlobalStorageFactory::Create() const
+{
+    return BookBagGlobalStorage::NewByAdapter_BookBagGlobalStorage(_buildType.V);
+}
 SERVICE_END
