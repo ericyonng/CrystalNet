@@ -27,17 +27,19 @@ using ProtoPackage.Attributes;
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "Cg1ib29rYmFnLnByb3RvEhNDUllTVEFMX05FVC5zZXJ2aWNlGhFjb21fYm9v",
-            "a2JhZy5wcm90byIQCg5Cb29rQmFnSW5mb1JlcSJHCg5Cb29rQmFnSW5mb050",
-            "eRI1CgtCb29rQmFnSW5mbxgBIAEoCzIgLkNSWVNUQUxfTkVULnNlcnZpY2Uu",
-            "Qm9va0JhZ0luZm8iIQoOQm9va0JhZ0luZm9SZXMSDwoHRXJyQ29kZRgBIAEo",
-            "ESJMChFTZXRCb29rQmFnSW5mb1JlcRI3CgxCb29rSW5mb0l0ZW0YASABKAsy",
-            "IS5DUllTVEFMX05FVC5zZXJ2aWNlLkJvb2tJbmZvSXRlbSIkChFTZXRCb29r",
-            "QmFnSW5mb1JlcxIPCgdFcnJDb2RlGAEgASgRYgZwcm90bzM="));
+            "a2JhZy5wcm90bxoOY29tX2Jvb2sucHJvdG8iEAoOQm9va0JhZ0luZm9SZXEi",
+            "fAoOQm9va0JhZ0luZm9OdHkSNQoLQm9va0JhZ0luZm8YASABKAsyIC5DUllT",
+            "VEFMX05FVC5zZXJ2aWNlLkJvb2tCYWdJbmZvEjMKDEJvb2tJbmZvTGlzdBgC",
+            "IAMoCzIdLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9va0luZm8iIQoOQm9va0Jh",
+            "Z0luZm9SZXMSDwoHRXJyQ29kZRgBIAEoESJMChFTZXRCb29rQmFnSW5mb1Jl",
+            "cRI3CgxCb29rSW5mb0l0ZW0YASABKAsyIS5DUllTVEFMX05FVC5zZXJ2aWNl",
+            "LkJvb2tJbmZvSXRlbSIkChFTZXRCb29rQmFnSW5mb1JlcxIPCgdFcnJDb2Rl",
+            "GAEgASgRYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookbagReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookbagReflection.Descriptor, global::CRYSTALNET.Service.ComBookReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookBagInfoReq), global::CRYSTALNET.Service.BookBagInfoReq.Parser, null, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookBagInfoNty), global::CRYSTALNET.Service.BookBagInfoNty.Parser, new[]{ "BookBagInfo" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookBagInfoNty), global::CRYSTALNET.Service.BookBagInfoNty.Parser, new[]{ "BookBagInfo", "BookInfoList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookBagInfoRes), global::CRYSTALNET.Service.BookBagInfoRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SetBookBagInfoReq), global::CRYSTALNET.Service.SetBookBagInfoReq.Parser, new[]{ "BookInfoItem" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SetBookBagInfoRes), global::CRYSTALNET.Service.SetBookBagInfoRes.Parser, new[]{ "ErrCode" }, null, null, null, null)
@@ -244,6 +246,7 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public BookBagInfoNty(BookBagInfoNty other) : this() {
       bookBagInfo_ = other.bookBagInfo_ != null ? other.bookBagInfo_.Clone() : null;
+      bookInfoList_ = other.bookInfoList_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -265,6 +268,20 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "BookInfoList" field.</summary>
+    public const int BookInfoListFieldNumber = 2;
+    private static readonly pb::FieldCodec<global::CRYSTALNET.Service.BookInfo> _repeated_bookInfoList_codec
+        = pb::FieldCodec.ForMessage(18, global::CRYSTALNET.Service.BookInfo.Parser);
+    private readonly pbc::RepeatedField<global::CRYSTALNET.Service.BookInfo> bookInfoList_ = new pbc::RepeatedField<global::CRYSTALNET.Service.BookInfo>();
+    /// <summary>
+    /// 图书列表
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::CRYSTALNET.Service.BookInfo> BookInfoList {
+      get { return bookInfoList_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -281,6 +298,7 @@ using ProtoPackage.Attributes;
         return true;
       }
       if (!object.Equals(BookBagInfo, other.BookBagInfo)) return false;
+      if(!bookInfoList_.Equals(other.bookInfoList_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -289,6 +307,7 @@ using ProtoPackage.Attributes;
     public override int GetHashCode() {
       int hash = 1;
       if (bookBagInfo_ != null) hash ^= BookBagInfo.GetHashCode();
+      hash ^= bookInfoList_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -311,6 +330,7 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(10);
         output.WriteMessage(BookBagInfo);
       }
+      bookInfoList_.WriteTo(output, _repeated_bookInfoList_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -325,6 +345,7 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(10);
         output.WriteMessage(BookBagInfo);
       }
+      bookInfoList_.WriteTo(ref output, _repeated_bookInfoList_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -338,6 +359,7 @@ using ProtoPackage.Attributes;
       if (bookBagInfo_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(BookBagInfo);
       }
+      size += bookInfoList_.CalculateSize(_repeated_bookInfoList_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -356,6 +378,7 @@ using ProtoPackage.Attributes;
         }
         BookBagInfo.MergeFrom(other.BookBagInfo);
       }
+      bookInfoList_.Add(other.bookInfoList_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -378,6 +401,10 @@ using ProtoPackage.Attributes;
             input.ReadMessage(BookBagInfo);
             break;
           }
+          case 18: {
+            bookInfoList_.AddEntriesFrom(input, _repeated_bookInfoList_codec);
+            break;
+          }
         }
       }
     #endif
@@ -398,6 +425,10 @@ using ProtoPackage.Attributes;
               BookBagInfo = new global::CRYSTALNET.Service.BookBagInfo();
             }
             input.ReadMessage(BookBagInfo);
+            break;
+          }
+          case 18: {
+            bookInfoList_.AddEntriesFrom(ref input, _repeated_bookInfoList_codec);
             break;
           }
         }

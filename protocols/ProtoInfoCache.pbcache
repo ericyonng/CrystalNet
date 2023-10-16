@@ -117,7 +117,7 @@
 [ProtoName:bookbag.proto,ProtoPath:../../protocols/proto/library/bookbag.proto,MessageName:BookBagInfoRes,Opcode:82,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:bookbag.proto,ProtoPath:../../protocols/proto/library/bookbag.proto,MessageName:SetBookBagInfoReq,Opcode:83,NoLog:false,XorEncrypt:false,KeyBase64:false,]
 [ProtoName:bookbag.proto,ProtoPath:../../protocols/proto/library/bookbag.proto,MessageName:SetBookBagInfoRes,Opcode:84,NoLog:false,XorEncrypt:false,KeyBase64:false,]
-/// ProtoName:bookbag.proto,ProtoPath:../../protocols/proto/library/bookbag.proto,Md5:r/XTeQ4b4oKFSkHESEro8Q==,ModifyTime:1697363005,
+/// ProtoName:bookbag.proto,ProtoPath:../../protocols/proto/library/bookbag.proto,Md5:fbI9Ho9b+3fxIi52TYkqxg==,ModifyTime:1697459831,
 
 /// ProtoName:com_bookbag.proto,ProtoPath:../../protocols/proto/library/com_bookbag.proto,Md5:RZ6ytaoBNvMM/O9hJBGXyA==,ModifyTime:1697287174,
 

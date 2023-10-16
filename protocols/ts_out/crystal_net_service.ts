@@ -237,6 +237,9 @@ export namespace crystal_net_service
     export class BookBagInfoNty {
         BookBagInfo:BookBagInfo = new BookBagInfo();
 
+        // 图书列表
+        BookInfoList:BookInfo[] = [];
+
 
     }
     // 书包数据请求

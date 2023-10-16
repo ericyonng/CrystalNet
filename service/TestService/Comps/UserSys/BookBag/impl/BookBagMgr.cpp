@@ -103,6 +103,23 @@ void BookBagMgr::SendBookBagInfoNty() const
 {
     BookBagInfoNty nty;
     *nty.mutable_bookbaginfo() = *_bookBagInfo;
+    auto libraryGlobal = GetUserMgr()->GetGlobalSys<ILibraryGlobal>();
+
+    auto libraryMgr = GetUser()->GetSys<ILibraryMgr>();
+    if(libraryMgr->GetMyLibraryId())
+    {
+        auto bookInfoList = nty.mutable_bookinfolist();
+        for(auto &item : _bookBagInfo->bookinfoitemlist())
+        {
+            auto bookInfo = libraryGlobal->GetBookInfo(libraryMgr->GetMyLibraryId(), item.bookid());
+            if(!bookInfo)
+                continue;
+
+            auto newInfo = bookInfoList->Add();
+            *newInfo = *bookInfo;
+        }
+    }
+
     Send(Opcodes::OpcodeConst::OPCODE_BookBagInfoNty, nty);
 }
 

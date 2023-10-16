@@ -43,6 +43,7 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
 #include "com_bookbag.pb.h"
+#include "com_book.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_bookbag_2eproto
@@ -605,8 +606,27 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // accessors -------------------------------------------------------
 
   enum : int {
+    kBookInfoListFieldNumber = 2,
     kBookBagInfoFieldNumber = 1,
   };
+  // repeated .CRYSTAL_NET.service.BookInfo BookInfoList = 2;
+  int bookinfolist_size() const;
+  private:
+  int _internal_bookinfolist_size() const;
+  public:
+  void clear_bookinfolist();
+  ::CRYSTAL_NET::service::BookInfo* mutable_bookinfolist(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo >*
+      mutable_bookinfolist();
+  private:
+  const ::CRYSTAL_NET::service::BookInfo& _internal_bookinfolist(int index) const;
+  ::CRYSTAL_NET::service::BookInfo* _internal_add_bookinfolist();
+  public:
+  const ::CRYSTAL_NET::service::BookInfo& bookinfolist(int index) const;
+  ::CRYSTAL_NET::service::BookInfo* add_bookinfolist();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo >&
+      bookinfolist() const;
+
   // .CRYSTAL_NET.service.BookBagInfo BookBagInfo = 1;
   bool has_bookbaginfo() const;
   private:
@@ -633,6 +653,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo > bookinfolist_;
     ::CRYSTAL_NET::service::BookBagInfo* bookbaginfo_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -1607,6 +1628,43 @@ inline void BookBagInfoNty::set_allocated_bookbaginfo(::CRYSTAL_NET::service::Bo
   }
   _impl_.bookbaginfo_ = bookbaginfo;
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BookBagInfoNty.BookBagInfo)
+}
+
+// repeated .CRYSTAL_NET.service.BookInfo BookInfoList = 2;
+inline int BookBagInfoNty::_internal_bookinfolist_size() const {
+  return _impl_.bookinfolist_.size();
+}
+inline int BookBagInfoNty::bookinfolist_size() const {
+  return _internal_bookinfolist_size();
+}
+inline ::CRYSTAL_NET::service::BookInfo* BookBagInfoNty::mutable_bookinfolist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BookBagInfoNty.BookInfoList)
+  return _impl_.bookinfolist_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo >*
+BookBagInfoNty::mutable_bookinfolist() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BookBagInfoNty.BookInfoList)
+  return &_impl_.bookinfolist_;
+}
+inline const ::CRYSTAL_NET::service::BookInfo& BookBagInfoNty::_internal_bookinfolist(int index) const {
+  return _impl_.bookinfolist_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::BookInfo& BookBagInfoNty::bookinfolist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookBagInfoNty.BookInfoList)
+  return _internal_bookinfolist(index);
+}
+inline ::CRYSTAL_NET::service::BookInfo* BookBagInfoNty::_internal_add_bookinfolist() {
+  return _impl_.bookinfolist_.Add();
+}
+inline ::CRYSTAL_NET::service::BookInfo* BookBagInfoNty::add_bookinfolist() {
+  ::CRYSTAL_NET::service::BookInfo* _add = _internal_add_bookinfolist();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BookBagInfoNty.BookInfoList)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo >&
+BookBagInfoNty::bookinfolist() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BookBagInfoNty.BookInfoList)
+  return _impl_.bookinfolist_;
 }
 
 // -------------------------------------------------------------------

@@ -2,6 +2,7 @@ syntax = "proto3";
 package CRYSTAL_NET.service;
 
 import "com_bookbag.proto";
+import "com_book.proto";
 
 // 书包数据请求
 /// Opcode:
@@ -16,6 +17,9 @@ message BookBagInfoReq
 message BookBagInfoNty
 {
     BookBagInfo BookBagInfo = 1;
+
+    // 图书列表
+    repeated BookInfo BookInfoList = 2;
 }
 
 // 书包数据请求

@@ -41,7 +41,8 @@ struct BookBagInfoReqDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BookBagInfoReqDefaultTypeInternal _BookBagInfoReq_default_instance_;
 PROTOBUF_CONSTEXPR BookBagInfoNty::BookBagInfoNty(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.bookbaginfo_)*/nullptr
+    /*decltype(_impl_.bookinfolist_)*/{}
+  , /*decltype(_impl_.bookbaginfo_)*/nullptr
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct BookBagInfoNtyDefaultTypeInternal {
   PROTOBUF_CONSTEXPR BookBagInfoNtyDefaultTypeInternal()
@@ -111,6 +112,7 @@ const uint32_t TableStruct_bookbag_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookBagInfoNty, _impl_.bookbaginfo_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookBagInfoNty, _impl_.bookinfolist_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookBagInfoRes, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -136,9 +138,9 @@ const uint32_t TableStruct_bookbag_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::BookBagInfoReq)},
   { 6, -1, -1, sizeof(::CRYSTAL_NET::service::BookBagInfoNty)},
-  { 13, -1, -1, sizeof(::CRYSTAL_NET::service::BookBagInfoRes)},
-  { 20, -1, -1, sizeof(::CRYSTAL_NET::service::SetBookBagInfoReq)},
-  { 27, -1, -1, sizeof(::CRYSTAL_NET::service::SetBookBagInfoRes)},
+  { 14, -1, -1, sizeof(::CRYSTAL_NET::service::BookBagInfoRes)},
+  { 21, -1, -1, sizeof(::CRYSTAL_NET::service::SetBookBagInfoReq)},
+  { 28, -1, -1, sizeof(::CRYSTAL_NET::service::SetBookBagInfoRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -151,22 +153,25 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_bookbag_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\rbookbag.proto\022\023CRYSTAL_NET.service\032\021co"
-  "m_bookbag.proto\"\020\n\016BookBagInfoReq\"G\n\016Boo"
-  "kBagInfoNty\0225\n\013BookBagInfo\030\001 \001(\0132 .CRYST"
-  "AL_NET.service.BookBagInfo\"!\n\016BookBagInf"
-  "oRes\022\017\n\007ErrCode\030\001 \001(\021\"L\n\021SetBookBagInfoR"
-  "eq\0227\n\014BookInfoItem\030\001 \001(\0132!.CRYSTAL_NET.s"
-  "ervice.BookInfoItem\"$\n\021SetBookBagInfoRes"
-  "\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
+  "m_bookbag.proto\032\016com_book.proto\"\020\n\016BookB"
+  "agInfoReq\"|\n\016BookBagInfoNty\0225\n\013BookBagIn"
+  "fo\030\001 \001(\0132 .CRYSTAL_NET.service.BookBagIn"
+  "fo\0223\n\014BookInfoList\030\002 \003(\0132\035.CRYSTAL_NET.s"
+  "ervice.BookInfo\"!\n\016BookBagInfoRes\022\017\n\007Err"
+  "Code\030\001 \001(\021\"L\n\021SetBookBagInfoReq\0227\n\014BookI"
+  "nfoItem\030\001 \001(\0132!.CRYSTAL_NET.service.Book"
+  "InfoItem\"$\n\021SetBookBagInfoRes\022\017\n\007ErrCode"
+  "\030\001 \001(\021b\006proto3"
   ;
-static const ::_pbi::DescriptorTable* const descriptor_table_bookbag_2eproto_deps[1] = {
+static const ::_pbi::DescriptorTable* const descriptor_table_bookbag_2eproto_deps[2] = {
+  &::descriptor_table_com_5fbook_2eproto,
   &::descriptor_table_com_5fbookbag_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_bookbag_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_bookbag_2eproto = {
-    false, false, 305, descriptor_table_protodef_bookbag_2eproto,
+    false, false, 374, descriptor_table_protodef_bookbag_2eproto,
     "bookbag.proto",
-    &descriptor_table_bookbag_2eproto_once, descriptor_table_bookbag_2eproto_deps, 1, 5,
+    &descriptor_table_bookbag_2eproto_once, descriptor_table_bookbag_2eproto_deps, 2, 5,
     schemas, file_default_instances, TableStruct_bookbag_2eproto::offsets,
     file_level_metadata_bookbag_2eproto, file_level_enum_descriptors_bookbag_2eproto,
     file_level_service_descriptors_bookbag_2eproto,
@@ -237,6 +242,9 @@ void BookBagInfoNty::clear_bookbaginfo() {
   }
   _impl_.bookbaginfo_ = nullptr;
 }
+void BookBagInfoNty::clear_bookinfolist() {
+  _impl_.bookinfolist_.Clear();
+}
 BookBagInfoNty::BookBagInfoNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -247,7 +255,8 @@ BookBagInfoNty::BookBagInfoNty(const BookBagInfoNty& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   BookBagInfoNty* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.bookbaginfo_){nullptr}
+      decltype(_impl_.bookinfolist_){from._impl_.bookinfolist_}
+    , decltype(_impl_.bookbaginfo_){nullptr}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -262,7 +271,8 @@ inline void BookBagInfoNty::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.bookbaginfo_){nullptr}
+      decltype(_impl_.bookinfolist_){arena}
+    , decltype(_impl_.bookbaginfo_){nullptr}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -278,6 +288,7 @@ BookBagInfoNty::~BookBagInfoNty() {
 
 inline void BookBagInfoNty::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.bookinfolist_.~RepeatedPtrField();
   if (this != internal_default_instance()) delete _impl_.bookbaginfo_;
 }
 
@@ -291,6 +302,7 @@ void BookBagInfoNty::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  _impl_.bookinfolist_.Clear();
   if (GetArenaForAllocation() == nullptr && _impl_.bookbaginfo_ != nullptr) {
     delete _impl_.bookbaginfo_;
   }
@@ -309,6 +321,19 @@ const char* BookBagInfoNty::_InternalParse(const char* ptr, ::_pbi::ParseContext
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_bookbaginfo(), ptr);
           CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated .CRYSTAL_NET.service.BookInfo BookInfoList = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_bookinfolist(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -348,6 +373,14 @@ uint8_t* BookBagInfoNty::_InternalSerialize(
         _Internal::bookbaginfo(this).GetCachedSize(), target, stream);
   }
 
+  // repeated .CRYSTAL_NET.service.BookInfo BookInfoList = 2;
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_bookinfolist_size()); i < n; i++) {
+    const auto& repfield = this->_internal_bookinfolist(i);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+        InternalWriteMessage(2, repfield, repfield.GetCachedSize(), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -363,6 +396,13 @@ size_t BookBagInfoNty::ByteSizeLong() const {
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // repeated .CRYSTAL_NET.service.BookInfo BookInfoList = 2;
+  total_size += 1UL * this->_internal_bookinfolist_size();
+  for (const auto& msg : this->_impl_.bookinfolist_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
 
   // .CRYSTAL_NET.service.BookBagInfo BookBagInfo = 1;
   if (this->_internal_has_bookbaginfo()) {
@@ -389,6 +429,7 @@ void BookBagInfoNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const :
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  _this->_impl_.bookinfolist_.MergeFrom(from._impl_.bookinfolist_);
   if (from._internal_has_bookbaginfo()) {
     _this->_internal_mutable_bookbaginfo()->::CRYSTAL_NET::service::BookBagInfo::MergeFrom(
         from._internal_bookbaginfo());
@@ -410,6 +451,7 @@ bool BookBagInfoNty::IsInitialized() const {
 void BookBagInfoNty::InternalSwap(BookBagInfoNty* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.bookinfolist_.InternalSwap(&other->_impl_.bookinfolist_);
   swap(_impl_.bookbaginfo_, other->_impl_.bookbaginfo_);
 }
 
