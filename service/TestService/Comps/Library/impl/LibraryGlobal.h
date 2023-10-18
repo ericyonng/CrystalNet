@@ -78,7 +78,7 @@ protected:
     // 书名或者关键字
     void _OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet);
     void _OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet);
-
+    
     Int32 _ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req);
 
     void _BuildPreviewInfo(LibraryPreviewInfo *previewInfo, const LibraryInfo *libraryInfo) const;
@@ -122,6 +122,7 @@ protected:
     void _GetBooksBefore(const std::map<UInt64, BookInfo *> &totalBooks, UInt64 bookId, UInt32 bookCount, std::map<UInt64, const BookInfo *> &bookIdRefBook) const;
     void _BuildBookInfos(const std::map<UInt64, const BookInfo *> &dict,  ::google::protobuf::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo > *bookInfoList) const;
     
+    // 订单
 private:
     std::map<UInt64, LibraryInfo *> _idRefLibraryInfo;
 

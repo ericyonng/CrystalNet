@@ -1424,7 +1424,6 @@ void LibraryGlobal::_OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet)
     user->Send(Opcodes::OpcodeConst::OPCODE_GetBookInfoListRes, res, packet->GetPacketId());
 }
 
-
 Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req)
 {
     auto memberInfo = GetMemberInfo(libraryInfo->id(), reqUserId);

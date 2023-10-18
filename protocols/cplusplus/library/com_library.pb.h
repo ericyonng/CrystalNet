@@ -69,6 +69,9 @@ extern BorrowBookItemDefaultTypeInternal _BorrowBookItem_default_instance_;
 class BorrowOrderInfo;
 struct BorrowOrderInfoDefaultTypeInternal;
 extern BorrowOrderInfoDefaultTypeInternal _BorrowOrderInfo_default_instance_;
+class BorrowOrderState;
+struct BorrowOrderStateDefaultTypeInternal;
+extern BorrowOrderStateDefaultTypeInternal _BorrowOrderState_default_instance_;
 class KeyWordsField;
 struct KeyWordsFieldDefaultTypeInternal;
 extern KeyWordsFieldDefaultTypeInternal _KeyWordsField_default_instance_;
@@ -111,6 +114,7 @@ PROTOBUF_NAMESPACE_OPEN
 template<> ::CRYSTAL_NET::service::BorrowBookInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::BorrowBookItem* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookItem>(Arena*);
 template<> ::CRYSTAL_NET::service::BorrowOrderInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowOrderInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::BorrowOrderState* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowOrderState>(Arena*);
 template<> ::CRYSTAL_NET::service::KeyWordsField* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::KeyWordsField>(Arena*);
 template<> ::CRYSTAL_NET::service::LibararyManagerInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibararyManagerInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::LibraryInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibraryInfo>(Arena*);
@@ -153,6 +157,33 @@ inline bool RoleType_ENUMS_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, RoleType_ENUMS* value) {
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<RoleType_ENUMS>(
     RoleType_ENUMS_descriptor(), name, value);
+}
+enum BorrowOrderState_ENUMS : int {
+  BorrowOrderState_ENUMS_ORDER_CONFIRM = 0,
+  BorrowOrderState_ENUMS_WAIT_USER_RECEIVE = 1,
+  BorrowOrderState_ENUMS_WAIT_USER_RETURN_BACK = 2,
+  BorrowOrderState_ENUMS_USER_RETURN_BACK_ALL_BOOKS = 3,
+  BorrowOrderState_ENUMS_BorrowOrderState_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
+  BorrowOrderState_ENUMS_BorrowOrderState_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
+};
+bool BorrowOrderState_ENUMS_IsValid(int value);
+constexpr BorrowOrderState_ENUMS BorrowOrderState_ENUMS_ENUMS_MIN = BorrowOrderState_ENUMS_ORDER_CONFIRM;
+constexpr BorrowOrderState_ENUMS BorrowOrderState_ENUMS_ENUMS_MAX = BorrowOrderState_ENUMS_USER_RETURN_BACK_ALL_BOOKS;
+constexpr int BorrowOrderState_ENUMS_ENUMS_ARRAYSIZE = BorrowOrderState_ENUMS_ENUMS_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* BorrowOrderState_ENUMS_descriptor();
+template<typename T>
+inline const std::string& BorrowOrderState_ENUMS_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, BorrowOrderState_ENUMS>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function BorrowOrderState_ENUMS_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    BorrowOrderState_ENUMS_descriptor(), enum_t_value);
+}
+inline bool BorrowOrderState_ENUMS_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, BorrowOrderState_ENUMS* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BorrowOrderState_ENUMS>(
+    BorrowOrderState_ENUMS_descriptor(), name, value);
 }
 enum VariantParamType_ENUMS : int {
   VariantParamType_ENUMS_UNKNOWN = 0,
@@ -1154,6 +1185,297 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 // -------------------------------------------------------------------
 
 // AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class BorrowOrderState final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BorrowOrderState) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderState failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderState failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderState failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderState failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowOrderState failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowOrderState failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline BorrowOrderState() : BorrowOrderState(nullptr) {}
+  explicit PROTOBUF_CONSTEXPR BorrowOrderState(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BorrowOrderState(const BorrowOrderState& from);
+  BorrowOrderState(BorrowOrderState&& from) noexcept
+    : BorrowOrderState() {
+    *this = ::std::move(from);
+  }
+
+  inline BorrowOrderState& operator=(const BorrowOrderState& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BorrowOrderState& operator=(BorrowOrderState&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BorrowOrderState& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BorrowOrderState* internal_default_instance() {
+    return reinterpret_cast<const BorrowOrderState*>(
+               &_BorrowOrderState_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(BorrowOrderState& a, BorrowOrderState& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BorrowOrderState* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BorrowOrderState* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  BorrowOrderState* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<BorrowOrderState>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const BorrowOrderState& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const BorrowOrderState& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.BorrowOrderState";
+  }
+  protected:
+  explicit BorrowOrderState(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  typedef BorrowOrderState_ENUMS ENUMS;
+  static constexpr ENUMS ORDER_CONFIRM =
+    BorrowOrderState_ENUMS_ORDER_CONFIRM;
+  static constexpr ENUMS WAIT_USER_RECEIVE =
+    BorrowOrderState_ENUMS_WAIT_USER_RECEIVE;
+  static constexpr ENUMS WAIT_USER_RETURN_BACK =
+    BorrowOrderState_ENUMS_WAIT_USER_RETURN_BACK;
+  static constexpr ENUMS USER_RETURN_BACK_ALL_BOOKS =
+    BorrowOrderState_ENUMS_USER_RETURN_BACK_ALL_BOOKS;
+  static inline bool ENUMS_IsValid(int value) {
+    return BorrowOrderState_ENUMS_IsValid(value);
+  }
+  static constexpr ENUMS ENUMS_MIN =
+    BorrowOrderState_ENUMS_ENUMS_MIN;
+  static constexpr ENUMS ENUMS_MAX =
+    BorrowOrderState_ENUMS_ENUMS_MAX;
+  static constexpr int ENUMS_ARRAYSIZE =
+    BorrowOrderState_ENUMS_ENUMS_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
+  ENUMS_descriptor() {
+    return BorrowOrderState_ENUMS_descriptor();
+  }
+  template<typename T>
+  static inline const std::string& ENUMS_Name(T enum_t_value) {
+    static_assert(::std::is_same<T, ENUMS>::value ||
+      ::std::is_integral<T>::value,
+      "Incorrect type passed to function ENUMS_Name.");
+    return BorrowOrderState_ENUMS_Name(enum_t_value);
+  }
+  static inline bool ENUMS_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
+      ENUMS* value) {
+    return BorrowOrderState_ENUMS_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BorrowOrderState)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+  };
+  friend struct ::TableStruct_com_5flibrary_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class BorrowOrderInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BorrowOrderInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -1340,7 +1662,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_BorrowOrderInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(BorrowOrderInfo& a, BorrowOrderInfo& b) {
     a.Swap(&b);
@@ -1416,6 +1738,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kBorrowBookListFieldNumber = 2,
     kOrderIdFieldNumber = 1,
     kCreateOrderTimeFieldNumber = 3,
+    kOrderStateFieldNumber = 4,
   };
   // repeated .CRYSTAL_NET.service.BorrowBookInfo BorrowBookList = 2;
   int borrowbooklist_size() const;
@@ -1453,6 +1776,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_createordertime(uint64_t value);
   public:
 
+  // sint32 OrderState = 4;
+  void clear_orderstate();
+  int32_t orderstate() const;
+  void set_orderstate(int32_t value);
+  private:
+  int32_t _internal_orderstate() const;
+  void _internal_set_orderstate(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BorrowOrderInfo)
  private:
   class _Internal;
@@ -1464,6 +1796,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookInfo > borrowbooklist_;
     uint64_t orderid_;
     uint64_t createordertime_;
+    int32_t orderstate_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1663,7 +1996,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_MemberInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    5;
 
   friend void swap(MemberInfo& a, MemberInfo& b) {
     a.Swap(&b);
@@ -2034,7 +2367,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_VariantParamType_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    6;
 
   friend void swap(VariantParamType& a, VariantParamType& b) {
     a.Swap(&b);
@@ -2330,7 +2663,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_VariantParam_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    7;
 
   friend void swap(VariantParam& a, VariantParam& b) {
     a.Swap(&b);
@@ -2664,7 +2997,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_OperationType_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    8;
 
   friend void swap(OperationType& a, OperationType& b) {
     a.Swap(&b);
@@ -2950,7 +3283,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_OperationLogInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    9;
 
   friend void swap(OperationLogInfo& a, OperationLogInfo& b) {
     a.Swap(&b);
@@ -3306,7 +3639,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LibraryInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    10;
 
   friend void swap(LibraryInfo& a, LibraryInfo& b) {
     a.Swap(&b);
@@ -3764,7 +4097,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_UserLibraryInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    11;
 
   friend void swap(UserLibraryInfo& a, UserLibraryInfo& b) {
     a.Swap(&b);
@@ -4051,7 +4384,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LibraryPreviewInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    12;
 
   friend void swap(LibraryPreviewInfo& a, LibraryPreviewInfo& b) {
     a.Swap(&b);
@@ -4381,7 +4714,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_BorrowBookItem_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    13;
 
   friend void swap(BorrowBookItem& a, BorrowBookItem& b) {
     a.Swap(&b);
@@ -4455,8 +4788,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   enum : int {
     kBookIdFieldNumber = 1,
-    kBorrowNumFieldNumber = 2,
-    kBorrowDaysFieldNumber = 3,
+    kBorrowDaysFieldNumber = 2,
   };
   // uint64 BookId = 1;
   void clear_bookid();
@@ -4467,16 +4799,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_bookid(uint64_t value);
   public:
 
-  // uint32 BorrowNum = 2;
-  void clear_borrownum();
-  uint32_t borrownum() const;
-  void set_borrownum(uint32_t value);
-  private:
-  uint32_t _internal_borrownum() const;
-  void _internal_set_borrownum(uint32_t value);
-  public:
-
-  // uint32 BorrowDays = 3;
+  // uint32 BorrowDays = 2;
   void clear_borrowdays();
   uint32_t borrowdays() const;
   void set_borrowdays(uint32_t value);
@@ -4494,7 +4817,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     uint64_t bookid_;
-    uint32_t borrownum_;
     uint32_t borrowdays_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -4690,7 +5012,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_KeyWordsField_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    14;
 
   friend void swap(KeyWordsField& a, KeyWordsField& b) {
     a.Swap(&b);
@@ -4992,7 +5314,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_SnapshotField_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    15;
 
   friend void swap(SnapshotField& a, SnapshotField& b) {
     a.Swap(&b);
@@ -5336,6 +5658,10 @@ inline void BorrowBookInfo::set_suborderid(uint64_t value) {
 
 // -------------------------------------------------------------------
 
+// BorrowOrderState
+
+// -------------------------------------------------------------------
+
 // BorrowOrderInfo
 
 // uint64 OrderId = 1;
@@ -5416,6 +5742,26 @@ inline void BorrowOrderInfo::_internal_set_createordertime(uint64_t value) {
 inline void BorrowOrderInfo::set_createordertime(uint64_t value) {
   _internal_set_createordertime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderInfo.CreateOrderTime)
+}
+
+// sint32 OrderState = 4;
+inline void BorrowOrderInfo::clear_orderstate() {
+  _impl_.orderstate_ = 0;
+}
+inline int32_t BorrowOrderInfo::_internal_orderstate() const {
+  return _impl_.orderstate_;
+}
+inline int32_t BorrowOrderInfo::orderstate() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderInfo.OrderState)
+  return _internal_orderstate();
+}
+inline void BorrowOrderInfo::_internal_set_orderstate(int32_t value) {
+  
+  _impl_.orderstate_ = value;
+}
+inline void BorrowOrderInfo::set_orderstate(int32_t value) {
+  _internal_set_orderstate(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderInfo.OrderState)
 }
 
 // -------------------------------------------------------------------
@@ -6592,27 +6938,7 @@ inline void BorrowBookItem::set_bookid(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookItem.BookId)
 }
 
-// uint32 BorrowNum = 2;
-inline void BorrowBookItem::clear_borrownum() {
-  _impl_.borrownum_ = 0u;
-}
-inline uint32_t BorrowBookItem::_internal_borrownum() const {
-  return _impl_.borrownum_;
-}
-inline uint32_t BorrowBookItem::borrownum() const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookItem.BorrowNum)
-  return _internal_borrownum();
-}
-inline void BorrowBookItem::_internal_set_borrownum(uint32_t value) {
-  
-  _impl_.borrownum_ = value;
-}
-inline void BorrowBookItem::set_borrownum(uint32_t value) {
-  _internal_set_borrownum(value);
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookItem.BorrowNum)
-}
-
-// uint32 BorrowDays = 3;
+// uint32 BorrowDays = 2;
 inline void BorrowBookItem::clear_borrowdays() {
   _impl_.borrowdays_ = 0u;
 }
@@ -6821,6 +7147,8 @@ SnapshotField::mutable_snapshots() {
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -6833,6 +7161,11 @@ template <> struct is_proto_enum< ::CRYSTAL_NET::service::RoleType_ENUMS> : ::st
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::RoleType_ENUMS>() {
   return ::CRYSTAL_NET::service::RoleType_ENUMS_descriptor();
+}
+template <> struct is_proto_enum< ::CRYSTAL_NET::service::BorrowOrderState_ENUMS> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::BorrowOrderState_ENUMS>() {
+  return ::CRYSTAL_NET::service::BorrowOrderState_ENUMS_descriptor();
 }
 template <> struct is_proto_enum< ::CRYSTAL_NET::service::VariantParamType_ENUMS> : ::std::true_type {};
 template <>
@@ -6915,6 +7248,29 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::BorrowBookInfo(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowBookInfo *>(coder));
+    }
+
+};
+
+
+class BorrowOrderStateFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BorrowOrderStateFactory);
+public:
+
+    virtual void Release() override {
+        BorrowOrderStateFactory::Delete_BorrowOrderStateFactory(this);
+    }
+
+    static BorrowOrderStateFactory *CreateFactory() {
+        return BorrowOrderStateFactory::New_BorrowOrderStateFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::BorrowOrderState();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::BorrowOrderState(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowOrderState *>(coder));
     }
 
 };

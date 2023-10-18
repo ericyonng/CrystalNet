@@ -82,12 +82,6 @@ extern BookVariantInfoItemsNtyDefaultTypeInternal _BookVariantInfoItemsNty_defau
 class BooksChangeNty;
 struct BooksChangeNtyDefaultTypeInternal;
 extern BooksChangeNtyDefaultTypeInternal _BooksChangeNty_default_instance_;
-class BorrowBookReq;
-struct BorrowBookReqDefaultTypeInternal;
-extern BorrowBookReqDefaultTypeInternal _BorrowBookReq_default_instance_;
-class BorrowBookRes;
-struct BorrowBookResDefaultTypeInternal;
-extern BorrowBookResDefaultTypeInternal _BorrowBookRes_default_instance_;
 class CreateLibraryReq;
 struct CreateLibraryReqDefaultTypeInternal;
 extern CreateLibraryReqDefaultTypeInternal _CreateLibraryReq_default_instance_;
@@ -157,6 +151,12 @@ extern QuitLibraryReqDefaultTypeInternal _QuitLibraryReq_default_instance_;
 class QuitLibraryRes;
 struct QuitLibraryResDefaultTypeInternal;
 extern QuitLibraryResDefaultTypeInternal _QuitLibraryRes_default_instance_;
+class SubmitBookBagBorrowInfoReq;
+struct SubmitBookBagBorrowInfoReqDefaultTypeInternal;
+extern SubmitBookBagBorrowInfoReqDefaultTypeInternal _SubmitBookBagBorrowInfoReq_default_instance_;
+class SubmitBookBagBorrowInfoRes;
+struct SubmitBookBagBorrowInfoResDefaultTypeInternal;
+extern SubmitBookBagBorrowInfoResDefaultTypeInternal _SubmitBookBagBorrowInfoRes_default_instance_;
 class TransferLibraianReq;
 struct TransferLibraianReqDefaultTypeInternal;
 extern TransferLibraianReqDefaultTypeInternal _TransferLibraianReq_default_instance_;
@@ -176,8 +176,6 @@ template<> ::CRYSTAL_NET::service::AddLibraryBookRes* Arena::CreateMaybeMessage<
 template<> ::CRYSTAL_NET::service::BookListNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BookListNty>(Arena*);
 template<> ::CRYSTAL_NET::service::BookVariantInfoItemsNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BookVariantInfoItemsNty>(Arena*);
 template<> ::CRYSTAL_NET::service::BooksChangeNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BooksChangeNty>(Arena*);
-template<> ::CRYSTAL_NET::service::BorrowBookReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookReq>(Arena*);
-template<> ::CRYSTAL_NET::service::BorrowBookRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookRes>(Arena*);
 template<> ::CRYSTAL_NET::service::CreateLibraryReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CreateLibraryReq>(Arena*);
 template<> ::CRYSTAL_NET::service::CreateLibraryRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CreateLibraryRes>(Arena*);
 template<> ::CRYSTAL_NET::service::GetBookByBookNameReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetBookByBookNameReq>(Arena*);
@@ -201,6 +199,8 @@ template<> ::CRYSTAL_NET::service::ModifyMemberInfoReq* Arena::CreateMaybeMessag
 template<> ::CRYSTAL_NET::service::ModifyMemberInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ModifyMemberInfoRes>(Arena*);
 template<> ::CRYSTAL_NET::service::QuitLibraryReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::QuitLibraryReq>(Arena*);
 template<> ::CRYSTAL_NET::service::QuitLibraryRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::QuitLibraryRes>(Arena*);
+template<> ::CRYSTAL_NET::service::SubmitBookBagBorrowInfoReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SubmitBookBagBorrowInfoReq>(Arena*);
+template<> ::CRYSTAL_NET::service::SubmitBookBagBorrowInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SubmitBookBagBorrowInfoRes>(Arena*);
 template<> ::CRYSTAL_NET::service::TransferLibraianReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TransferLibraianReq>(Arena*);
 template<> ::CRYSTAL_NET::service::TransferLibraianRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TransferLibraianRes>(Arena*);
 template<> ::CRYSTAL_NET::service::UserLibraryInfoNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserLibraryInfoNty>(Arena*);
@@ -9408,9 +9408,9 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(78), nolog(false), XorEncrypt(false), KeyBase64(false)]
-class BorrowBookReq final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BorrowBookReq) */ , public KERNEL_NS::ICoder {
+// AnnotaionInfo[opcode(87), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class SubmitBookBagBorrowInfoReq final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -9419,7 +9419,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SubmitBookBagBorrowInfoReq failed, error: %s"), InitializationErrorString().c_str());
       return false;
     }
 
@@ -9442,7 +9442,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SubmitBookBagBorrowInfoReq failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -9453,7 +9453,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SubmitBookBagBorrowInfoReq failed, error: %s"), InitializationErrorString().c_str());
       return false;
     }
 
@@ -9476,7 +9476,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SubmitBookBagBorrowInfoReq failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -9493,7 +9493,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) o
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SubmitBookBagBorrowInfoReq failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -9509,7 +9509,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookReq failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SubmitBookBagBorrowInfoReq failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -9550,21 +9550,21 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 
  public:
-  inline BorrowBookReq() : BorrowBookReq(nullptr) {}
-  ~BorrowBookReq() override;
-  explicit PROTOBUF_CONSTEXPR BorrowBookReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline SubmitBookBagBorrowInfoReq() : SubmitBookBagBorrowInfoReq(nullptr) {}
+  ~SubmitBookBagBorrowInfoReq() override;
+  explicit PROTOBUF_CONSTEXPR SubmitBookBagBorrowInfoReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  BorrowBookReq(const BorrowBookReq& from);
-  BorrowBookReq(BorrowBookReq&& from) noexcept
-    : BorrowBookReq() {
+  SubmitBookBagBorrowInfoReq(const SubmitBookBagBorrowInfoReq& from);
+  SubmitBookBagBorrowInfoReq(SubmitBookBagBorrowInfoReq&& from) noexcept
+    : SubmitBookBagBorrowInfoReq() {
     *this = ::std::move(from);
   }
 
-  inline BorrowBookReq& operator=(const BorrowBookReq& from) {
+  inline SubmitBookBagBorrowInfoReq& operator=(const SubmitBookBagBorrowInfoReq& from) {
     CopyFrom(from);
     return *this;
   }
-  inline BorrowBookReq& operator=(BorrowBookReq&& from) noexcept {
+  inline SubmitBookBagBorrowInfoReq& operator=(SubmitBookBagBorrowInfoReq&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -9587,20 +9587,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const BorrowBookReq& default_instance() {
+  static const SubmitBookBagBorrowInfoReq& default_instance() {
     return *internal_default_instance();
   }
-  static inline const BorrowBookReq* internal_default_instance() {
-    return reinterpret_cast<const BorrowBookReq*>(
-               &_BorrowBookReq_default_instance_);
+  static inline const SubmitBookBagBorrowInfoReq* internal_default_instance() {
+    return reinterpret_cast<const SubmitBookBagBorrowInfoReq*>(
+               &_SubmitBookBagBorrowInfoReq_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     31;
 
-  friend void swap(BorrowBookReq& a, BorrowBookReq& b) {
+  friend void swap(SubmitBookBagBorrowInfoReq& a, SubmitBookBagBorrowInfoReq& b) {
     a.Swap(&b);
   }
-  inline void Swap(BorrowBookReq* other) {
+  inline void Swap(SubmitBookBagBorrowInfoReq* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() != nullptr &&
@@ -9613,7 +9613,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(BorrowBookReq* other) {
+  void UnsafeArenaSwap(SubmitBookBagBorrowInfoReq* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -9621,14 +9621,14 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // implements Message ----------------------------------------------
 
-  BorrowBookReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<BorrowBookReq>(arena);
+  SubmitBookBagBorrowInfoReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<SubmitBookBagBorrowInfoReq>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const BorrowBookReq& from);
+  void CopyFrom(const SubmitBookBagBorrowInfoReq& from);
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const BorrowBookReq& from) {
-    BorrowBookReq::MergeImpl(*this, from);
+  void MergeFrom( const SubmitBookBagBorrowInfoReq& from) {
+    SubmitBookBagBorrowInfoReq::MergeImpl(*this, from);
   }
   private:
   static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
@@ -9646,15 +9646,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(BorrowBookReq* other);
+  void InternalSwap(SubmitBookBagBorrowInfoReq* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "CRYSTAL_NET.service.BorrowBookReq";
+    return "CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq";
   }
   protected:
-  explicit BorrowBookReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit SubmitBookBagBorrowInfoReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   public:
 
@@ -9688,7 +9688,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&
       borrowbooklist() const;
 
-  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BorrowBookReq)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
  private:
   class _Internal;
 
@@ -9704,9 +9704,9 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(79), nolog(false), XorEncrypt(false), KeyBase64(false)]
-class BorrowBookRes final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BorrowBookRes) */ , public KERNEL_NS::ICoder {
+// AnnotaionInfo[opcode(88), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class SubmitBookBagBorrowInfoRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SubmitBookBagBorrowInfoRes) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -9715,7 +9715,7 @@ virtual void Release() override {
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SubmitBookBagBorrowInfoRes failed, error: %s"), InitializationErrorString().c_str());
       return false;
     }
 
@@ -9738,7 +9738,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SubmitBookBagBorrowInfoRes failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -9749,7 +9749,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
 virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
     if (UNLIKELY(!IsInitialized()))
     {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message SubmitBookBagBorrowInfoRes failed, error: %s"), InitializationErrorString().c_str());
       return false;
     }
 
@@ -9772,7 +9772,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) overrid
 
     if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message SubmitBookBagBorrowInfoRes failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -9789,7 +9789,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) o
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SubmitBookBagBorrowInfoRes failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -9805,7 +9805,7 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
 
     if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookRes failed, error: %s"), InitializationErrorString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message SubmitBookBagBorrowInfoRes failed, error: %s"), InitializationErrorString().c_str());
         return false;
     }
 
@@ -9846,21 +9846,21 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 
  public:
-  inline BorrowBookRes() : BorrowBookRes(nullptr) {}
-  ~BorrowBookRes() override;
-  explicit PROTOBUF_CONSTEXPR BorrowBookRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline SubmitBookBagBorrowInfoRes() : SubmitBookBagBorrowInfoRes(nullptr) {}
+  ~SubmitBookBagBorrowInfoRes() override;
+  explicit PROTOBUF_CONSTEXPR SubmitBookBagBorrowInfoRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  BorrowBookRes(const BorrowBookRes& from);
-  BorrowBookRes(BorrowBookRes&& from) noexcept
-    : BorrowBookRes() {
+  SubmitBookBagBorrowInfoRes(const SubmitBookBagBorrowInfoRes& from);
+  SubmitBookBagBorrowInfoRes(SubmitBookBagBorrowInfoRes&& from) noexcept
+    : SubmitBookBagBorrowInfoRes() {
     *this = ::std::move(from);
   }
 
-  inline BorrowBookRes& operator=(const BorrowBookRes& from) {
+  inline SubmitBookBagBorrowInfoRes& operator=(const SubmitBookBagBorrowInfoRes& from) {
     CopyFrom(from);
     return *this;
   }
-  inline BorrowBookRes& operator=(BorrowBookRes&& from) noexcept {
+  inline SubmitBookBagBorrowInfoRes& operator=(SubmitBookBagBorrowInfoRes&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -9883,20 +9883,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const BorrowBookRes& default_instance() {
+  static const SubmitBookBagBorrowInfoRes& default_instance() {
     return *internal_default_instance();
   }
-  static inline const BorrowBookRes* internal_default_instance() {
-    return reinterpret_cast<const BorrowBookRes*>(
-               &_BorrowBookRes_default_instance_);
+  static inline const SubmitBookBagBorrowInfoRes* internal_default_instance() {
+    return reinterpret_cast<const SubmitBookBagBorrowInfoRes*>(
+               &_SubmitBookBagBorrowInfoRes_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     32;
 
-  friend void swap(BorrowBookRes& a, BorrowBookRes& b) {
+  friend void swap(SubmitBookBagBorrowInfoRes& a, SubmitBookBagBorrowInfoRes& b) {
     a.Swap(&b);
   }
-  inline void Swap(BorrowBookRes* other) {
+  inline void Swap(SubmitBookBagBorrowInfoRes* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() != nullptr &&
@@ -9909,7 +9909,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(BorrowBookRes* other) {
+  void UnsafeArenaSwap(SubmitBookBagBorrowInfoRes* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -9917,14 +9917,14 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // implements Message ----------------------------------------------
 
-  BorrowBookRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<BorrowBookRes>(arena);
+  SubmitBookBagBorrowInfoRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<SubmitBookBagBorrowInfoRes>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const BorrowBookRes& from);
+  void CopyFrom(const SubmitBookBagBorrowInfoRes& from);
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const BorrowBookRes& from) {
-    BorrowBookRes::MergeImpl(*this, from);
+  void MergeFrom( const SubmitBookBagBorrowInfoRes& from) {
+    SubmitBookBagBorrowInfoRes::MergeImpl(*this, from);
   }
   private:
   static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
@@ -9942,15 +9942,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(BorrowBookRes* other);
+  void InternalSwap(SubmitBookBagBorrowInfoRes* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "CRYSTAL_NET.service.BorrowBookRes";
+    return "CRYSTAL_NET.service.SubmitBookBagBorrowInfoRes";
   }
   protected:
-  explicit BorrowBookRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit SubmitBookBagBorrowInfoRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   public:
 
@@ -9975,7 +9975,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_errcode(int32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BorrowBookRes)
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SubmitBookBagBorrowInfoRes)
  private:
   class _Internal;
 
@@ -12439,67 +12439,67 @@ GetBookByBookNameRes::bookinfolist() const {
 
 // -------------------------------------------------------------------
 
-// BorrowBookReq
+// SubmitBookBagBorrowInfoReq
 
 // repeated .CRYSTAL_NET.service.BorrowBookItem BorrowBookList = 1;
-inline int BorrowBookReq::_internal_borrowbooklist_size() const {
+inline int SubmitBookBagBorrowInfoReq::_internal_borrowbooklist_size() const {
   return _impl_.borrowbooklist_.size();
 }
-inline int BorrowBookReq::borrowbooklist_size() const {
+inline int SubmitBookBagBorrowInfoReq::borrowbooklist_size() const {
   return _internal_borrowbooklist_size();
 }
-inline ::CRYSTAL_NET::service::BorrowBookItem* BorrowBookReq::mutable_borrowbooklist(int index) {
-  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+inline ::CRYSTAL_NET::service::BorrowBookItem* SubmitBookBagBorrowInfoReq::mutable_borrowbooklist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
   return _impl_.borrowbooklist_.Mutable(index);
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >*
-BorrowBookReq::mutable_borrowbooklist() {
-  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+SubmitBookBagBorrowInfoReq::mutable_borrowbooklist() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
   return &_impl_.borrowbooklist_;
 }
-inline const ::CRYSTAL_NET::service::BorrowBookItem& BorrowBookReq::_internal_borrowbooklist(int index) const {
+inline const ::CRYSTAL_NET::service::BorrowBookItem& SubmitBookBagBorrowInfoReq::_internal_borrowbooklist(int index) const {
   return _impl_.borrowbooklist_.Get(index);
 }
-inline const ::CRYSTAL_NET::service::BorrowBookItem& BorrowBookReq::borrowbooklist(int index) const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+inline const ::CRYSTAL_NET::service::BorrowBookItem& SubmitBookBagBorrowInfoReq::borrowbooklist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
   return _internal_borrowbooklist(index);
 }
-inline ::CRYSTAL_NET::service::BorrowBookItem* BorrowBookReq::_internal_add_borrowbooklist() {
+inline ::CRYSTAL_NET::service::BorrowBookItem* SubmitBookBagBorrowInfoReq::_internal_add_borrowbooklist() {
   return _impl_.borrowbooklist_.Add();
 }
-inline ::CRYSTAL_NET::service::BorrowBookItem* BorrowBookReq::add_borrowbooklist() {
+inline ::CRYSTAL_NET::service::BorrowBookItem* SubmitBookBagBorrowInfoReq::add_borrowbooklist() {
   ::CRYSTAL_NET::service::BorrowBookItem* _add = _internal_add_borrowbooklist();
-  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
   return _add;
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&
-BorrowBookReq::borrowbooklist() const {
-  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BorrowBookReq.BorrowBookList)
+SubmitBookBagBorrowInfoReq::borrowbooklist() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
   return _impl_.borrowbooklist_;
 }
 
 // -------------------------------------------------------------------
 
-// BorrowBookRes
+// SubmitBookBagBorrowInfoRes
 
 // sint32 ErrCode = 1;
-inline void BorrowBookRes::clear_errcode() {
+inline void SubmitBookBagBorrowInfoRes::clear_errcode() {
   _impl_.errcode_ = 0;
 }
-inline int32_t BorrowBookRes::_internal_errcode() const {
+inline int32_t SubmitBookBagBorrowInfoRes::_internal_errcode() const {
   return _impl_.errcode_;
 }
-inline int32_t BorrowBookRes::errcode() const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookRes.ErrCode)
+inline int32_t SubmitBookBagBorrowInfoRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SubmitBookBagBorrowInfoRes.ErrCode)
   return _internal_errcode();
 }
-inline void BorrowBookRes::_internal_set_errcode(int32_t value) {
+inline void SubmitBookBagBorrowInfoRes::_internal_set_errcode(int32_t value) {
   
   _impl_.errcode_ = value;
 }
-inline void BorrowBookRes::set_errcode(int32_t value) {
+inline void SubmitBookBagBorrowInfoRes::set_errcode(int32_t value) {
   _internal_set_errcode(value);
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookRes.ErrCode)
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SubmitBookBagBorrowInfoRes.ErrCode)
 }
 
 // -------------------------------------------------------------------
@@ -13381,47 +13381,47 @@ public:
 };
 
 
-class BorrowBookReqFactory : public KERNEL_NS::ICoderFactory {
-    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BorrowBookReqFactory);
+class SubmitBookBagBorrowInfoReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, SubmitBookBagBorrowInfoReqFactory);
 public:
 
     virtual void Release() override {
-        BorrowBookReqFactory::Delete_BorrowBookReqFactory(this);
+        SubmitBookBagBorrowInfoReqFactory::Delete_SubmitBookBagBorrowInfoReqFactory(this);
     }
 
-    static BorrowBookReqFactory *CreateFactory() {
-        return BorrowBookReqFactory::New_BorrowBookReqFactory();
+    static SubmitBookBagBorrowInfoReqFactory *CreateFactory() {
+        return SubmitBookBagBorrowInfoReqFactory::New_SubmitBookBagBorrowInfoReqFactory();
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new ::CRYSTAL_NET::service::BorrowBookReq();
+        return new ::CRYSTAL_NET::service::SubmitBookBagBorrowInfoReq();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ::CRYSTAL_NET::service::BorrowBookReq(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowBookReq *>(coder));
+        return new ::CRYSTAL_NET::service::SubmitBookBagBorrowInfoReq(*dynamic_cast<const ::CRYSTAL_NET::service::SubmitBookBagBorrowInfoReq *>(coder));
     }
 
 };
 
 
-class BorrowBookResFactory : public KERNEL_NS::ICoderFactory {
-    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BorrowBookResFactory);
+class SubmitBookBagBorrowInfoResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, SubmitBookBagBorrowInfoResFactory);
 public:
 
     virtual void Release() override {
-        BorrowBookResFactory::Delete_BorrowBookResFactory(this);
+        SubmitBookBagBorrowInfoResFactory::Delete_SubmitBookBagBorrowInfoResFactory(this);
     }
 
-    static BorrowBookResFactory *CreateFactory() {
-        return BorrowBookResFactory::New_BorrowBookResFactory();
+    static SubmitBookBagBorrowInfoResFactory *CreateFactory() {
+        return SubmitBookBagBorrowInfoResFactory::New_SubmitBookBagBorrowInfoResFactory();
     }
 
     virtual KERNEL_NS::ICoder *Create() const override {
-        return new ::CRYSTAL_NET::service::BorrowBookRes();
+        return new ::CRYSTAL_NET::service::SubmitBookBagBorrowInfoRes();
     }
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ::CRYSTAL_NET::service::BorrowBookRes(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowBookRes *>(coder));
+        return new ::CRYSTAL_NET::service::SubmitBookBagBorrowInfoRes(*dynamic_cast<const ::CRYSTAL_NET::service::SubmitBookBagBorrowInfoRes *>(coder));
     }
 
 };

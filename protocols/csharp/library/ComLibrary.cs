@@ -34,43 +34,47 @@ using ProtoPackage.Attributes;
             "KAkSEwoLQm9ycm93Q291bnQYAyABKAQSEgoKQm9ycm93VGltZRgEIAEoBBIY",
             "ChBQbGFuR2l2ZUJhY2tUaW1lGAUgASgEEhgKEFJlYWxHaXZlQmFja1RpbWUY",
             "BiABKAQSFwoPUmV0dXJuQmFja0NvdW50GAcgASgEEhIKClN1Yk9yZGVySWQY",
-            "CCABKAQieAoPQm9ycm93T3JkZXJJbmZvEg8KB09yZGVySWQYASABKAQSOwoO",
-            "Qm9ycm93Qm9va0xpc3QYAiADKAsyIy5DUllTVEFMX05FVC5zZXJ2aWNlLkJv",
-            "cnJvd0Jvb2tJbmZvEhcKD0NyZWF0ZU9yZGVyVGltZRgDIAEoBCK3AQoKTWVt",
-            "YmVySW5mbxIOCgZVc2VySWQYASABKAQSDAoEUm9sZRgCIAEoERIQCghOaWNr",
-            "bmFtZRgDIAEoCRI4CgpCb3Jyb3dMaXN0GAQgAygLMiQuQ1JZU1RBTF9ORVQu",
-            "c2VydmljZS5Cb3Jyb3dPcmRlckluZm8SFwoPTG9ja1RpbWVzdGFtcE1zGAUg",
-            "ASgSEhMKCUJpbmRQaG9uZRgGIAEoBEgAQhEKD01lbWJlckJpbmRQaG9uZSI9",
-            "ChBWYXJpYW50UGFyYW1UeXBlIikKBUVOVU1TEgsKB1VOS05PV04QABIHCgNO",
-            "VU0QARIKCgZTVFJJTkcQAiJQCgxWYXJpYW50UGFyYW0SEQoJUGFyYW1UeXBl",
-            "GAEgASgREhAKBk51bWJlchgCIAEoEkgAEg0KA1N0chgDIAEoCUgAQgwKClBh",
-            "cmFtVmFsdWUiJQoNT3BlcmF0aW9uVHlwZSIUCgVFTlVNUxILCgdVTktOT1dO",
-            "EAAimwEKEE9wZXJhdGlvbkxvZ0luZm8SDgoGT3BUeXBlGAEgASgREhAKCE9w",
-            "VXNlcklkGAIgASgEEhIKCk9wTmlja25hbWUYAyABKAkSDAoEUm9sZRgEIAEo",
-            "ERIQCghPcFRpbWVNcxgFIAEoEhIxCgZQYXJhbXMYBiADKAsyIS5DUllTVEFM",
-            "X05FVC5zZXJ2aWNlLlZhcmlhbnRQYXJhbSL/AgoLTGlicmFyeUluZm8SCgoC",
-            "SWQYASABKAQSDAoETmFtZRgCIAEoCRIPCgdBZGRyZXNzGAMgASgJEhAKCE9w",
-            "ZW5UaW1lGAQgASgJEhYKDlRlbHBob25lTnVtYmVyGAUgASgJEhcKD0xpYnJh",
-            "cmlhblVzZXJJZBgGIAEoBBIdChVMaWJyYXJpYW5Vc2VyTmlja25hbWUYByAB",
-            "KAkSQQoPTWFuYWdlckluZm9MaXN0GAggAygLMiguQ1JZU1RBTF9ORVQuc2Vy",
-            "dmljZS5MaWJhcmFyeU1hbmFnZXJJbmZvEjMKCk1lbWJlckxpc3QYCSADKAsy",
-            "Hy5DUllTVEFMX05FVC5zZXJ2aWNlLk1lbWJlckluZm8SLwoIQm9va0xpc3QY",
-            "CiADKAsyHS5DUllTVEFMX05FVC5zZXJ2aWNlLkJvb2tJbmZvEjoKC0xvZ0lu",
-            "Zm9MaXN0GAsgAygLMiUuQ1JZU1RBTF9ORVQuc2VydmljZS5PcGVyYXRpb25M",
-            "b2dJbmZvIiQKD1VzZXJMaWJyYXJ5SW5mbxIRCglMaWJyYXJ5SWQYASABKAQi",
-            "YgoSTGlicmFyeVByZXZpZXdJbmZvEgoKAklkGAEgASgEEgwKBE5hbWUYAiAB",
-            "KAkSFwoPTGlicmFyaWFuVXNlcklkGAMgASgEEhkKEUxpYnJhcmlhbk5pY2tu",
-            "YW1lGAQgASgJIkcKDkJvcnJvd0Jvb2tJdGVtEg4KBkJvb2tJZBgBIAEoBBIR",
-            "CglCb3Jyb3dOdW0YAiABKA0SEgoKQm9ycm93RGF5cxgDIAEoDSIhCg1LZXlX",
-            "b3Jkc0ZpZWxkEhAKCEtleVdvcmRzGAEgAygJIiIKDVNuYXBzaG90RmllbGQS",
-            "EQoJU25hcHNob3RzGAEgAygJYgZwcm90bzM="));
+            "CCABKAQigAEKEEJvcnJvd09yZGVyU3RhdGUibAoFRU5VTVMSEQoNT1JERVJf",
+            "Q09ORklSTRAAEhUKEVdBSVRfVVNFUl9SRUNFSVZFEAESGQoVV0FJVF9VU0VS",
+            "X1JFVFVSTl9CQUNLEAISHgoaVVNFUl9SRVRVUk5fQkFDS19BTExfQk9PS1MQ",
+            "AyKMAQoPQm9ycm93T3JkZXJJbmZvEg8KB09yZGVySWQYASABKAQSOwoOQm9y",
+            "cm93Qm9va0xpc3QYAiADKAsyIy5DUllTVEFMX05FVC5zZXJ2aWNlLkJvcnJv",
+            "d0Jvb2tJbmZvEhcKD0NyZWF0ZU9yZGVyVGltZRgDIAEoBBISCgpPcmRlclN0",
+            "YXRlGAQgASgRIrcBCgpNZW1iZXJJbmZvEg4KBlVzZXJJZBgBIAEoBBIMCgRS",
+            "b2xlGAIgASgREhAKCE5pY2tuYW1lGAMgASgJEjgKCkJvcnJvd0xpc3QYBCAD",
+            "KAsyJC5DUllTVEFMX05FVC5zZXJ2aWNlLkJvcnJvd09yZGVySW5mbxIXCg9M",
+            "b2NrVGltZXN0YW1wTXMYBSABKBISEwoJQmluZFBob25lGAYgASgESABCEQoP",
+            "TWVtYmVyQmluZFBob25lIj0KEFZhcmlhbnRQYXJhbVR5cGUiKQoFRU5VTVMS",
+            "CwoHVU5LTk9XThAAEgcKA05VTRABEgoKBlNUUklORxACIlAKDFZhcmlhbnRQ",
+            "YXJhbRIRCglQYXJhbVR5cGUYASABKBESEAoGTnVtYmVyGAIgASgSSAASDQoD",
+            "U3RyGAMgASgJSABCDAoKUGFyYW1WYWx1ZSIlCg1PcGVyYXRpb25UeXBlIhQK",
+            "BUVOVU1TEgsKB1VOS05PV04QACKbAQoQT3BlcmF0aW9uTG9nSW5mbxIOCgZP",
+            "cFR5cGUYASABKBESEAoIT3BVc2VySWQYAiABKAQSEgoKT3BOaWNrbmFtZRgD",
+            "IAEoCRIMCgRSb2xlGAQgASgREhAKCE9wVGltZU1zGAUgASgSEjEKBlBhcmFt",
+            "cxgGIAMoCzIhLkNSWVNUQUxfTkVULnNlcnZpY2UuVmFyaWFudFBhcmFtIv8C",
+            "CgtMaWJyYXJ5SW5mbxIKCgJJZBgBIAEoBBIMCgROYW1lGAIgASgJEg8KB0Fk",
+            "ZHJlc3MYAyABKAkSEAoIT3BlblRpbWUYBCABKAkSFgoOVGVscGhvbmVOdW1i",
+            "ZXIYBSABKAkSFwoPTGlicmFyaWFuVXNlcklkGAYgASgEEh0KFUxpYnJhcmlh",
+            "blVzZXJOaWNrbmFtZRgHIAEoCRJBCg9NYW5hZ2VySW5mb0xpc3QYCCADKAsy",
+            "KC5DUllTVEFMX05FVC5zZXJ2aWNlLkxpYmFyYXJ5TWFuYWdlckluZm8SMwoK",
+            "TWVtYmVyTGlzdBgJIAMoCzIfLkNSWVNUQUxfTkVULnNlcnZpY2UuTWVtYmVy",
+            "SW5mbxIvCghCb29rTGlzdBgKIAMoCzIdLkNSWVNUQUxfTkVULnNlcnZpY2Uu",
+            "Qm9va0luZm8SOgoLTG9nSW5mb0xpc3QYCyADKAsyJS5DUllTVEFMX05FVC5z",
+            "ZXJ2aWNlLk9wZXJhdGlvbkxvZ0luZm8iJAoPVXNlckxpYnJhcnlJbmZvEhEK",
+            "CUxpYnJhcnlJZBgBIAEoBCJiChJMaWJyYXJ5UHJldmlld0luZm8SCgoCSWQY",
+            "ASABKAQSDAoETmFtZRgCIAEoCRIXCg9MaWJyYXJpYW5Vc2VySWQYAyABKAQS",
+            "GQoRTGlicmFyaWFuTmlja25hbWUYBCABKAkiNAoOQm9ycm93Qm9va0l0ZW0S",
+            "DgoGQm9va0lkGAEgASgEEhIKCkJvcnJvd0RheXMYAiABKA0iIQoNS2V5V29y",
+            "ZHNGaWVsZBIQCghLZXlXb3JkcxgBIAMoCSIiCg1TbmFwc2hvdEZpZWxkEhEK",
+            "CVNuYXBzaG90cxgBIAMoCWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.RoleType), global::CRYSTALNET.Service.RoleType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.RoleType.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibararyManagerInfo), global::CRYSTALNET.Service.LibararyManagerInfo.Parser, new[]{ "UserId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookInfo), global::CRYSTALNET.Service.BorrowBookInfo.Parser, new[]{ "BookId", "IsbnCode", "BorrowCount", "BorrowTime", "PlanGiveBackTime", "RealGiveBackTime", "ReturnBackCount", "SubOrderId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderState), global::CRYSTALNET.Service.BorrowOrderState.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.BorrowOrderState.Types.ENUMS) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.MemberInfo), global::CRYSTALNET.Service.MemberInfo.Parser, new[]{ "UserId", "Role", "Nickname", "BorrowList", "LockTimestampMs", "BindPhone" }, new[]{ "MemberBindPhone" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.VariantParamType), global::CRYSTALNET.Service.VariantParamType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.VariantParamType.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.VariantParam), global::CRYSTALNET.Service.VariantParam.Parser, new[]{ "ParamType", "Number", "Str" }, new[]{ "ParamValue" }, null, null, null),
@@ -79,7 +83,7 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryInfo), global::CRYSTALNET.Service.LibraryInfo.Parser, new[]{ "Id", "Name", "Address", "OpenTime", "TelphoneNumber", "LibrarianUserId", "LibrarianUserNickname", "ManagerInfoList", "MemberList", "BookList", "LogInfoList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserLibraryInfo), global::CRYSTALNET.Service.UserLibraryInfo.Parser, new[]{ "LibraryId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryPreviewInfo), global::CRYSTALNET.Service.LibraryPreviewInfo.Parser, new[]{ "Id", "Name", "LibrarianUserId", "LibrarianNickname" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookItem), global::CRYSTALNET.Service.BorrowBookItem.Parser, new[]{ "BookId", "BorrowNum", "BorrowDays" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookItem), global::CRYSTALNET.Service.BorrowBookItem.Parser, new[]{ "BookId", "BorrowDays" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.KeyWordsField), global::CRYSTALNET.Service.KeyWordsField.Parser, new[]{ "KeyWords" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SnapshotField), global::CRYSTALNET.Service.SnapshotField.Parser, new[]{ "Snapshots" }, null, null, null, null)
           }));
@@ -941,6 +945,188 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
+  /// 订单状态
+  /// </summary>
+  public sealed partial class BorrowOrderState : pb::IMessage<BorrowOrderState>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BorrowOrderState> _parser = new pb::MessageParser<BorrowOrderState>(() => new BorrowOrderState());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BorrowOrderState> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowOrderState() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowOrderState(BorrowOrderState other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowOrderState Clone() {
+      return new BorrowOrderState(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BorrowOrderState);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BorrowOrderState other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BorrowOrderState other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+        }
+      }
+    }
+    #endif
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the BorrowOrderState message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static partial class Types {
+      public enum ENUMS {
+        /// <summary>
+        /// 订单管理员确认并出库图书
+        /// </summary>
+        [pbr::OriginalName("ORDER_CONFIRM")] OrderConfirm = 0,
+        /// <summary>
+        /// 订单已出库等待领取
+        /// </summary>
+        [pbr::OriginalName("WAIT_USER_RECEIVE")] WaitUserReceive = 1,
+        /// <summary>
+        /// 用户已领取等待归还
+        /// </summary>
+        [pbr::OriginalName("WAIT_USER_RETURN_BACK")] WaitUserReturnBack = 2,
+        /// <summary>
+        /// 用户已归还所有图书
+        /// </summary>
+        [pbr::OriginalName("USER_RETURN_BACK_ALL_BOOKS")] UserReturnBackAllBooks = 3,
+      }
+
+    }
+    #endregion
+
+  }
+
+  /// <summary>
   /// 借还订单信息
   /// </summary>
   public sealed partial class BorrowOrderInfo : pb::IMessage<BorrowOrderInfo>
@@ -957,7 +1143,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[3]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -980,6 +1166,7 @@ using ProtoPackage.Attributes;
       orderId_ = other.orderId_;
       borrowBookList_ = other.borrowBookList_.Clone();
       createOrderTime_ = other.createOrderTime_;
+      orderState_ = other.orderState_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1033,6 +1220,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "OrderState" field.</summary>
+    public const int OrderStateFieldNumber = 4;
+    private int orderState_;
+    /// <summary>
+    /// 订单状态 BorrowOrderState
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int OrderState {
+      get { return orderState_; }
+      set {
+        orderState_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1051,6 +1253,7 @@ using ProtoPackage.Attributes;
       if (OrderId != other.OrderId) return false;
       if(!borrowBookList_.Equals(other.borrowBookList_)) return false;
       if (CreateOrderTime != other.CreateOrderTime) return false;
+      if (OrderState != other.OrderState) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1061,6 +1264,7 @@ using ProtoPackage.Attributes;
       if (OrderId != 0UL) hash ^= OrderId.GetHashCode();
       hash ^= borrowBookList_.GetHashCode();
       if (CreateOrderTime != 0UL) hash ^= CreateOrderTime.GetHashCode();
+      if (OrderState != 0) hash ^= OrderState.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1088,6 +1292,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(24);
         output.WriteUInt64(CreateOrderTime);
       }
+      if (OrderState != 0) {
+        output.WriteRawTag(32);
+        output.WriteSInt32(OrderState);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1107,6 +1315,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(24);
         output.WriteUInt64(CreateOrderTime);
       }
+      if (OrderState != 0) {
+        output.WriteRawTag(32);
+        output.WriteSInt32(OrderState);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1123,6 +1335,9 @@ using ProtoPackage.Attributes;
       size += borrowBookList_.CalculateSize(_repeated_borrowBookList_codec);
       if (CreateOrderTime != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(CreateOrderTime);
+      }
+      if (OrderState != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(OrderState);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1142,6 +1357,9 @@ using ProtoPackage.Attributes;
       borrowBookList_.Add(other.borrowBookList_);
       if (other.CreateOrderTime != 0UL) {
         CreateOrderTime = other.CreateOrderTime;
+      }
+      if (other.OrderState != 0) {
+        OrderState = other.OrderState;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1168,6 +1386,10 @@ using ProtoPackage.Attributes;
           }
           case 24: {
             CreateOrderTime = input.ReadUInt64();
+            break;
+          }
+          case 32: {
+            OrderState = input.ReadSInt32();
             break;
           }
         }
@@ -1197,6 +1419,10 @@ using ProtoPackage.Attributes;
             CreateOrderTime = input.ReadUInt64();
             break;
           }
+          case 32: {
+            OrderState = input.ReadSInt32();
+            break;
+          }
         }
       }
     }
@@ -1221,7 +1447,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[4]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1629,7 +1855,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[5]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1807,7 +2033,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[6]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2106,7 +2332,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[7]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2276,7 +2502,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[8]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2639,7 +2865,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[9]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3190,7 +3416,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[10]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3385,7 +3611,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[11]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3700,7 +3926,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[12]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3721,7 +3947,6 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public BorrowBookItem(BorrowBookItem other) : this() {
       bookId_ = other.bookId_;
-      borrowNum_ = other.borrowNum_;
       borrowDays_ = other.borrowDays_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -3747,23 +3972,8 @@ using ProtoPackage.Attributes;
       }
     }
 
-    /// <summary>Field number for the "BorrowNum" field.</summary>
-    public const int BorrowNumFieldNumber = 2;
-    private uint borrowNum_;
-    /// <summary>
-    /// 借阅数量
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint BorrowNum {
-      get { return borrowNum_; }
-      set {
-        borrowNum_ = value;
-      }
-    }
-
     /// <summary>Field number for the "BorrowDays" field.</summary>
-    public const int BorrowDaysFieldNumber = 3;
+    public const int BorrowDaysFieldNumber = 2;
     private uint borrowDays_;
     /// <summary>
     /// 借阅天数
@@ -3793,7 +4003,6 @@ using ProtoPackage.Attributes;
         return true;
       }
       if (BookId != other.BookId) return false;
-      if (BorrowNum != other.BorrowNum) return false;
       if (BorrowDays != other.BorrowDays) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -3803,7 +4012,6 @@ using ProtoPackage.Attributes;
     public override int GetHashCode() {
       int hash = 1;
       if (BookId != 0UL) hash ^= BookId.GetHashCode();
-      if (BorrowNum != 0) hash ^= BorrowNum.GetHashCode();
       if (BorrowDays != 0) hash ^= BorrowDays.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -3827,12 +4035,8 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(8);
         output.WriteUInt64(BookId);
       }
-      if (BorrowNum != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(BorrowNum);
-      }
       if (BorrowDays != 0) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(16);
         output.WriteUInt32(BorrowDays);
       }
       if (_unknownFields != null) {
@@ -3849,12 +4053,8 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(8);
         output.WriteUInt64(BookId);
       }
-      if (BorrowNum != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(BorrowNum);
-      }
       if (BorrowDays != 0) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(16);
         output.WriteUInt32(BorrowDays);
       }
       if (_unknownFields != null) {
@@ -3869,9 +4069,6 @@ using ProtoPackage.Attributes;
       int size = 0;
       if (BookId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BookId);
-      }
-      if (BorrowNum != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(BorrowNum);
       }
       if (BorrowDays != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(BorrowDays);
@@ -3890,9 +4087,6 @@ using ProtoPackage.Attributes;
       }
       if (other.BookId != 0UL) {
         BookId = other.BookId;
-      }
-      if (other.BorrowNum != 0) {
-        BorrowNum = other.BorrowNum;
       }
       if (other.BorrowDays != 0) {
         BorrowDays = other.BorrowDays;
@@ -3917,10 +4111,6 @@ using ProtoPackage.Attributes;
             break;
           }
           case 16: {
-            BorrowNum = input.ReadUInt32();
-            break;
-          }
-          case 24: {
             BorrowDays = input.ReadUInt32();
             break;
           }
@@ -3944,10 +4134,6 @@ using ProtoPackage.Attributes;
             break;
           }
           case 16: {
-            BorrowNum = input.ReadUInt32();
-            break;
-          }
-          case 24: {
             BorrowDays = input.ReadUInt32();
             break;
           }
@@ -3975,7 +4161,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[13]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4156,7 +4342,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[14]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

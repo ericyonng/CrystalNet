@@ -73,12 +73,13 @@ using ProtoPackage.Attributes;
             "VC5zZXJ2aWNlLkJvb2tJbmZvIigKFEdldEJvb2tCeUJvb2tOYW1lUmVxEhAK",
             "CEJvb2tOYW1lGAEgASgJIksKFEdldEJvb2tCeUJvb2tOYW1lUmVzEjMKDEJv",
             "b2tJbmZvTGlzdBgBIAMoCzIdLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9va0lu",
-            "Zm8iTAoNQm9ycm93Qm9va1JlcRI7Cg5Cb3Jyb3dCb29rTGlzdBgBIAMoCzIj",
-            "LkNSWVNUQUxfTkVULnNlcnZpY2UuQm9ycm93Qm9va0l0ZW0iIAoNQm9ycm93",
-            "Qm9va1JlcxIPCgdFcnJDb2RlGAEgASgRIjsKEkdldEJvb2tJbmZvTGlzdFJl",
-            "cRISCgpCYXNlQm9va0lkGAEgASgEEhEKCUJvb2tDb3VudBgCIAEoESJJChJH",
-            "ZXRCb29rSW5mb0xpc3RSZXMSMwoMQm9va0luZm9MaXN0GAEgAygLMh0uQ1JZ",
-            "U1RBTF9ORVQuc2VydmljZS5Cb29rSW5mb2IGcHJvdG8z"));
+            "Zm8iWQoaU3VibWl0Qm9va0JhZ0JvcnJvd0luZm9SZXESOwoOQm9ycm93Qm9v",
+            "a0xpc3QYASADKAsyIy5DUllTVEFMX05FVC5zZXJ2aWNlLkJvcnJvd0Jvb2tJ",
+            "dGVtIi0KGlN1Ym1pdEJvb2tCYWdCb3Jyb3dJbmZvUmVzEg8KB0VyckNvZGUY",
+            "ASABKBEiOwoSR2V0Qm9va0luZm9MaXN0UmVxEhIKCkJhc2VCb29rSWQYASAB",
+            "KAQSEQoJQm9va0NvdW50GAIgASgRIkkKEkdldEJvb2tJbmZvTGlzdFJlcxIz",
+            "CgxCb29rSW5mb0xpc3QYASADKAsyHS5DUllTVEFMX05FVC5zZXJ2aWNlLkJv",
+            "b2tJbmZvYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComLibraryReflection.Descriptor, global::CRYSTALNET.Service.ComBookReflection.Descriptor, global::CRYSTALNET.Service.ComUserReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -113,8 +114,8 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.GetBookInfoRes), global::CRYSTALNET.Service.GetBookInfoRes.Parser, new[]{ "ErrCode", "BookInfo" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.GetBookByBookNameReq), global::CRYSTALNET.Service.GetBookByBookNameReq.Parser, new[]{ "BookName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.GetBookByBookNameRes), global::CRYSTALNET.Service.GetBookByBookNameRes.Parser, new[]{ "BookInfoList" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookReq), global::CRYSTALNET.Service.BorrowBookReq.Parser, new[]{ "BorrowBookList" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookRes), global::CRYSTALNET.Service.BorrowBookRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq), global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq.Parser, new[]{ "BorrowBookList" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SubmitBookBagBorrowInfoRes), global::CRYSTALNET.Service.SubmitBookBagBorrowInfoRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.GetBookInfoListReq), global::CRYSTALNET.Service.GetBookInfoListReq.Parser, new[]{ "BaseBookId", "BookCount" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.GetBookInfoListRes), global::CRYSTALNET.Service.GetBookInfoListRes.Parser, new[]{ "BookInfoList" }, null, null, null, null)
           }));
@@ -6789,17 +6790,17 @@ using ProtoPackage.Attributes;
   /// 借书
   //// Opcode:
   /// </summary>
-[ProtoMessage(78)]
-  public sealed partial class BorrowBookReq : pb::IMessage<BorrowBookReq>
+[ProtoMessage(87)]
+  public sealed partial class SubmitBookBagBorrowInfoReq : pb::IMessage<SubmitBookBagBorrowInfoReq>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<BorrowBookReq> _parser = new pb::MessageParser<BorrowBookReq>(() => new BorrowBookReq());
+    private static readonly pb::MessageParser<SubmitBookBagBorrowInfoReq> _parser = new pb::MessageParser<SubmitBookBagBorrowInfoReq>(() => new SubmitBookBagBorrowInfoReq());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<BorrowBookReq> Parser { get { return _parser; } }
+    public static pb::MessageParser<SubmitBookBagBorrowInfoReq> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -6815,7 +6816,7 @@ using ProtoPackage.Attributes;
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public BorrowBookReq() {
+    public SubmitBookBagBorrowInfoReq() {
       OnConstruction();
     }
 
@@ -6823,15 +6824,15 @@ using ProtoPackage.Attributes;
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public BorrowBookReq(BorrowBookReq other) : this() {
+    public SubmitBookBagBorrowInfoReq(SubmitBookBagBorrowInfoReq other) : this() {
       borrowBookList_ = other.borrowBookList_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public BorrowBookReq Clone() {
-      return new BorrowBookReq(this);
+    public SubmitBookBagBorrowInfoReq Clone() {
+      return new SubmitBookBagBorrowInfoReq(this);
     }
 
     /// <summary>Field number for the "BorrowBookList" field.</summary>
@@ -6848,12 +6849,12 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as BorrowBookReq);
+      return Equals(other as SubmitBookBagBorrowInfoReq);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(BorrowBookReq other) {
+    public bool Equals(SubmitBookBagBorrowInfoReq other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -6918,7 +6919,7 @@ using ProtoPackage.Attributes;
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(BorrowBookReq other) {
+    public void MergeFrom(SubmitBookBagBorrowInfoReq other) {
       if (other == null) {
         return;
       }
@@ -6972,17 +6973,17 @@ using ProtoPackage.Attributes;
   /// 借书
   //// Opcode:
   /// </summary>
-[ProtoMessage(79)]
-  public sealed partial class BorrowBookRes : pb::IMessage<BorrowBookRes>
+[ProtoMessage(88)]
+  public sealed partial class SubmitBookBagBorrowInfoRes : pb::IMessage<SubmitBookBagBorrowInfoRes>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<BorrowBookRes> _parser = new pb::MessageParser<BorrowBookRes>(() => new BorrowBookRes());
+    private static readonly pb::MessageParser<SubmitBookBagBorrowInfoRes> _parser = new pb::MessageParser<SubmitBookBagBorrowInfoRes>(() => new SubmitBookBagBorrowInfoRes());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<BorrowBookRes> Parser { get { return _parser; } }
+    public static pb::MessageParser<SubmitBookBagBorrowInfoRes> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -6998,7 +6999,7 @@ using ProtoPackage.Attributes;
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public BorrowBookRes() {
+    public SubmitBookBagBorrowInfoRes() {
       OnConstruction();
     }
 
@@ -7006,15 +7007,15 @@ using ProtoPackage.Attributes;
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public BorrowBookRes(BorrowBookRes other) : this() {
+    public SubmitBookBagBorrowInfoRes(SubmitBookBagBorrowInfoRes other) : this() {
       errCode_ = other.errCode_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public BorrowBookRes Clone() {
-      return new BorrowBookRes(this);
+    public SubmitBookBagBorrowInfoRes Clone() {
+      return new SubmitBookBagBorrowInfoRes(this);
     }
 
     /// <summary>Field number for the "ErrCode" field.</summary>
@@ -7032,12 +7033,12 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as BorrowBookRes);
+      return Equals(other as SubmitBookBagBorrowInfoRes);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(BorrowBookRes other) {
+    public bool Equals(SubmitBookBagBorrowInfoRes other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -7110,7 +7111,7 @@ using ProtoPackage.Attributes;
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(BorrowBookRes other) {
+    public void MergeFrom(SubmitBookBagBorrowInfoRes other) {
       if (other == null) {
         return;
       }

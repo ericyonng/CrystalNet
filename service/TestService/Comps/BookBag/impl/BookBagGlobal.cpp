@@ -33,6 +33,7 @@
 #include <protocols/protocols.h>
 #include <Comps/User/User.h>
 #include <Comps/UserSys/UserSys.h>
+#include <Comps/Library/library.h>
 
 SERVICE_BEGIN
 
@@ -74,6 +75,7 @@ Int32 BookBagGlobal::_OnGlobalSysInit()
     auto service = GetService();
     service->Subscribe(Opcodes::OpcodeConst::OPCODE_BookBagInfoReq, this, &BookBagGlobal::_OnBookBagInfoReq);
     service->Subscribe(Opcodes::OpcodeConst::OPCODE_SetBookBagInfoReq, this, &BookBagGlobal::_OnSetBookBagInfoReq);
+    service->Subscribe(Opcodes::OpcodeConst::OPCODE_SubmitBookBagBorrowInfoReq, this, &BookBagGlobal::_OnSubmitBookBagBorrowInfoReq);
 
     return Status::Success;
 }
@@ -127,6 +129,26 @@ void BookBagGlobal::_OnSetBookBagInfoReq(KERNEL_NS::LibPacket *&packet)
     SetBookBagInfoRes res;
     res.set_errcode(err);
     user->Send(Opcodes::OpcodeConst::OPCODE_SetBookBagInfoRes, res, packet->GetPacketId());
+}
+
+void BookBagGlobal::_OnSubmitBookBagBorrowInfoReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto bookBagMgr = user->GetSys<IBookBagMgr>();
+    auto req = packet->GetCoder<SubmitBookBagBorrowInfoReq>();
+    auto err = bookBagMgr->Submit(req->borrowbooklist());
+
+    SubmitBookBagBorrowInfoRes res;
+    res.set_errcode(err);
+    user->Send(Opcodes::OpcodeConst::OPCODE_SubmitBookBagBorrowInfoRes, res, packet->GetPacketId());
+
 }
 
 SERVICE_END

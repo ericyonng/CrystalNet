@@ -56,6 +56,8 @@ message BookVariantInfo
     sint64 Count = 1;
     // 价格(单位分)
     sint64 Price = 2;
+    // 冻结数量(正在出库的数量)
+    sint64 CoolCount = 3;
 }
 
 // 图书可变数据

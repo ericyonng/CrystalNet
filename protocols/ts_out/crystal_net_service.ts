@@ -34,6 +34,18 @@ export namespace crystal_net_service
         UNKNOWN = 0,
 
     }
+    // com_library.proto
+    export enum BorrowOrderState_ENUMS {
+        // 订单管理员确认并出库图书
+        ORDER_CONFIRM = 0,
+        // 订单已出库等待领取
+        WAIT_USER_RECEIVE = 1,
+        // 用户已领取等待归还
+        WAIT_USER_RETURN_BACK = 2,
+        // 用户已归还所有图书
+        USER_RETURN_BACK_ALL_BOOKS = 3,
+
+    }
     // com_client_user.proto
     export enum ClientUserStatus_ENUMS {
         // 未登录
@@ -397,27 +409,8 @@ export namespace crystal_net_service
         // 图书id
         BookId:number = 0;
 
-        // 借阅数量
-        BorrowNum:number = 0;
-
         // 借阅天数
         BorrowDays:number = 0;
-
-
-    }
-    // 借书
-    /// Opcode:
-    // library.proto
-    export class BorrowBookReq {
-        BorrowBookList:BorrowBookItem[] = [];
-
-
-    }
-    // 借书
-    /// Opcode:
-    // library.proto
-    export class BorrowBookRes {
-        ErrCode:number = 0;
 
 
     }
@@ -433,6 +426,14 @@ export namespace crystal_net_service
         // 订单创建时间
         CreateOrderTime:number = 0;
 
+        // 订单状态 BorrowOrderState
+        OrderState:number = 0;
+
+
+    }
+    // 订单状态
+    // com_library.proto
+    export class BorrowOrderState {
 
     }
     // 客户端的心跳
@@ -1149,6 +1150,22 @@ export namespace crystal_net_service
     // com_library.proto
     export class SnapshotField {
         Snapshots:string[] = [];
+
+
+    }
+    // 借书
+    /// Opcode:
+    // library.proto
+    export class SubmitBookBagBorrowInfoReq {
+        BorrowBookList:BorrowBookItem[] = [];
+
+
+    }
+    // 借书
+    /// Opcode:
+    // library.proto
+    export class SubmitBookBagBorrowInfoRes {
+        ErrCode:number = 0;
 
 
     }

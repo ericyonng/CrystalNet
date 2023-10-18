@@ -48,6 +48,25 @@ message BorrowBookInfo
     uint64 SubOrderId = 8;
 }
 
+// 订单状态
+message BorrowOrderState
+{
+    enum ENUMS 
+    {
+        // 订单管理员确认并出库图书
+        ORDER_CONFIRM = 0;
+
+        // 订单已出库等待领取
+        WAIT_USER_RECEIVE = 1;
+
+        // 用户已领取等待归还
+        WAIT_USER_RETURN_BACK = 2;
+
+        // 用户已归还所有图书
+        USER_RETURN_BACK_ALL_BOOKS = 3;
+    }
+}
+
 // 借还订单信息
 message BorrowOrderInfo
 {
@@ -57,6 +76,8 @@ message BorrowOrderInfo
     repeated BorrowBookInfo BorrowBookList = 2;
     // 订单创建时间
     uint64 CreateOrderTime = 3;
+    // 订单状态 BorrowOrderState
+    sint32 OrderState = 4;
 }
 
 // 会员信息(包括管理员等)
@@ -170,19 +191,6 @@ message LibraryPreviewInfo
     uint64 LibrarianUserId = 3;
     // 馆长昵称
     string LibrarianNickname = 4;
-}
-
-// 借阅图书数据
-message BorrowBookItem
-{
-    // 图书id
-    uint64 BookId = 1;
-
-    // 借阅数量
-    uint32 BorrowNum = 2;
-
-    // 借阅天数
-    uint32 BorrowDays = 3;
 }
 
 // 关键词

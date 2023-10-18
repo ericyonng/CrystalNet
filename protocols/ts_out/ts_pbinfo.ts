@@ -808,32 +808,6 @@ export namespace ts_pbinfo{
     }
 
 
-    // library.proto 
-    export class BorrowBookReq {
-      getOpcode():number {return BorrowBookReq.OPCODE; }
-      getIsXorEncrypt():boolean {return BorrowBookReq.XorEncrypt; }
-      getIsKeyBase64():boolean {return BorrowBookReq.KeyBase64; }
-      getOpcodeName():string {return BorrowBookReq.OPCODE_NAME; }
-      static OPCODE:number = 78;
-      static OPCODE_NAME:string = "BorrowBookReq";
-      static XorEncrypt:boolean = false;
-      static KeyBase64:boolean = false;
-    }
-
-
-    // library.proto 
-    export class BorrowBookRes {
-      getOpcode():number {return BorrowBookRes.OPCODE; }
-      getIsXorEncrypt():boolean {return BorrowBookRes.XorEncrypt; }
-      getIsKeyBase64():boolean {return BorrowBookRes.KeyBase64; }
-      getOpcodeName():string {return BorrowBookRes.OPCODE_NAME; }
-      static OPCODE:number = 79;
-      static OPCODE_NAME:string = "BorrowBookRes";
-      static XorEncrypt:boolean = false;
-      static KeyBase64:boolean = false;
-    }
-
-
     // bookbag.proto 
     export class BookBagInfoReq {
       getOpcode():number {return BookBagInfoReq.OPCODE; }
@@ -920,6 +894,32 @@ export namespace ts_pbinfo{
       getOpcodeName():string {return GetBookInfoListRes.OPCODE_NAME; }
       static OPCODE:number = 86;
       static OPCODE_NAME:string = "GetBookInfoListRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class SubmitBookBagBorrowInfoReq {
+      getOpcode():number {return SubmitBookBagBorrowInfoReq.OPCODE; }
+      getIsXorEncrypt():boolean {return SubmitBookBagBorrowInfoReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return SubmitBookBagBorrowInfoReq.KeyBase64; }
+      getOpcodeName():string {return SubmitBookBagBorrowInfoReq.OPCODE_NAME; }
+      static OPCODE:number = 87;
+      static OPCODE_NAME:string = "SubmitBookBagBorrowInfoReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class SubmitBookBagBorrowInfoRes {
+      getOpcode():number {return SubmitBookBagBorrowInfoRes.OPCODE; }
+      getIsXorEncrypt():boolean {return SubmitBookBagBorrowInfoRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return SubmitBookBagBorrowInfoRes.KeyBase64; }
+      getOpcodeName():string {return SubmitBookBagBorrowInfoRes.OPCODE_NAME; }
+      static OPCODE:number = 88;
+      static OPCODE_NAME:string = "SubmitBookBagBorrowInfoRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
@@ -1047,10 +1047,6 @@ export namespace ts_pbinfo{
 
           [GetBookByBookNameRes.OPCODE]: new GetBookByBookNameRes(),
 
-          [BorrowBookReq.OPCODE]: new BorrowBookReq(),
-
-          [BorrowBookRes.OPCODE]: new BorrowBookRes(),
-
           [BookBagInfoReq.OPCODE]: new BookBagInfoReq(),
 
           [BookBagInfoNty.OPCODE]: new BookBagInfoNty(),
@@ -1063,7 +1059,11 @@ export namespace ts_pbinfo{
 
           [GetBookInfoListReq.OPCODE]: new GetBookInfoListReq(),
 
-          [GetBookInfoListRes.OPCODE]: new GetBookInfoListRes()
+          [GetBookInfoListRes.OPCODE]: new GetBookInfoListRes(),
+
+          [SubmitBookBagBorrowInfoReq.OPCODE]: new SubmitBookBagBorrowInfoReq(),
+
+          [SubmitBookBagBorrowInfoRes.OPCODE]: new SubmitBookBagBorrowInfoRes()
 
 
       }

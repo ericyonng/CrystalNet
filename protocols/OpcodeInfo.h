@@ -630,26 +630,6 @@
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookByBookNameResFactory::CreateFactory()));
     }
 
-    {// BorrowBookReq
-        auto info = OpcodeInfo();
-        info._opcode = 78;
-        info._noLog = false;
-        info._opcodeName = "BorrowBookReq";
-        info._protoFile = "library.proto";
-        _allOpcodeInfo.push_back(info);
-        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BorrowBookReqFactory::CreateFactory()));
-    }
-
-    {// BorrowBookRes
-        auto info = OpcodeInfo();
-        info._opcode = 79;
-        info._noLog = false;
-        info._opcodeName = "BorrowBookRes";
-        info._protoFile = "library.proto";
-        _allOpcodeInfo.push_back(info);
-        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, BorrowBookResFactory::CreateFactory()));
-    }
-
     {// BookBagInfoReq
         auto info = OpcodeInfo();
         info._opcode = 80;
@@ -718,4 +698,24 @@
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookInfoListResFactory::CreateFactory()));
+    }
+
+    {// SubmitBookBagBorrowInfoReq
+        auto info = OpcodeInfo();
+        info._opcode = 87;
+        info._noLog = false;
+        info._opcodeName = "SubmitBookBagBorrowInfoReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SubmitBookBagBorrowInfoReqFactory::CreateFactory()));
+    }
+
+    {// SubmitBookBagBorrowInfoRes
+        auto info = OpcodeInfo();
+        info._opcode = 88;
+        info._noLog = false;
+        info._opcodeName = "SubmitBookBagBorrowInfoRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SubmitBookBagBorrowInfoResFactory::CreateFactory()));
     }

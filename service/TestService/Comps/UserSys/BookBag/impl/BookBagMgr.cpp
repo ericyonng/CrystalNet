@@ -31,6 +31,7 @@
 #include <protocols/protocols.h>
 #include <Comps/Library/library.h>
 #include <Comps/UserSys/Library/Library.h>
+#include <Comps/config/config.h>
 
 SERVICE_BEGIN
 
@@ -201,6 +202,54 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
     } while (false);
 
     return err;
+}
+
+Int32 BookBagMgr::Submit(const ::google::protobuf::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&borrowBookItemList)
+{
+    // 1.书袋中有没有书
+    if(_bookBagInfo->bookinfoitemlist_size() == 0)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("have no books user:%s"), GetUser()->ToString().c_str());
+        return Status::HaveNoBook;
+    }
+
+    // 2.参数有没有与书袋中书匹配
+    if(_bookBagInfo->bookinfoitemlist_size() != borrowBookItemList.size())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("param not match, bag item size:%d, param size:%d user:%s"), _bookBagInfo->bookinfoitemlist_size(), borrowBookItemList.size(), GetUser()->ToString().c_str());
+        return Status::ParamError;
+    }
+
+    std::set<UInt64> bookIds;
+    for(auto &item : _bookBagInfo->bookinfoitemlist())
+    {
+        if(item.bookcount() == 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("bookcount is zero book id:%llu, user:%s"), item.bookid(), borrowBookItemList.size(), GetUser()->ToString().c_str());
+            return Status::ParamError;
+        }
+
+        bookIds.insert(item.bookid());
+    }
+
+    auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
+    std::set<UInt64> borrowParams;
+    for(auto &item : borrowBookItemList)
+    {
+        if(item.borrowdays() == 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays is zero book id:%llu, user:%s"), item.bookid(), borrowBookItemList.size(), GetUser()->ToString().c_str());
+            return Status::ParamError;
+        }
+
+        borrowParams.insert(item.bookid());
+    }
+
+    // 3.借阅天数是0的返回错误
+    // 4.借阅数量是0的报错误
+    // 5.借阅天数不可超过配置的天数(30天等)
+
+    return Status::Success;
 }
 
 Int32 BookBagMgr::_OnUserSysInit()

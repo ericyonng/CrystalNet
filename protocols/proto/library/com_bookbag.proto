@@ -16,3 +16,13 @@ message BookBagInfo
 {
     repeated BookInfoItem BookInfoItemList = 1;
 }
+
+// 借阅图书数据
+message BorrowBookItem
+{
+    // 图书id
+    uint64 BookId = 1;
+
+    // 借阅天数
+    uint32 BorrowDays = 2;
+}

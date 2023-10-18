@@ -128,18 +128,13 @@ export namespace crystal_net_service_parser
             })
 
 
-            this.add("BorrowBookReq", (jsonData:any):any =>{
-                return this.BorrowBookReqParser(jsonData);
-            })
-
-
-            this.add("BorrowBookRes", (jsonData:any):any =>{
-                return this.BorrowBookResParser(jsonData);
-            })
-
-
             this.add("BorrowOrderInfo", (jsonData:any):any =>{
                 return this.BorrowOrderInfoParser(jsonData);
+            })
+
+
+            this.add("BorrowOrderState", (jsonData:any):any =>{
+                return this.BorrowOrderStateParser(jsonData);
             })
 
 
@@ -495,6 +490,16 @@ export namespace crystal_net_service_parser
 
             this.add("SnapshotField", (jsonData:any):any =>{
                 return this.SnapshotFieldParser(jsonData);
+            })
+
+
+            this.add("SubmitBookBagBorrowInfoReq", (jsonData:any):any =>{
+                return this.SubmitBookBagBorrowInfoReqParser(jsonData);
+            })
+
+
+            this.add("SubmitBookBagBorrowInfoRes", (jsonData:any):any =>{
+                return this.SubmitBookBagBorrowInfoResParser(jsonData);
             })
 
 
@@ -1099,47 +1104,9 @@ export namespace crystal_net_service_parser
                 }
 
 
-                if(jsonData.BorrowNum != undefined)
-                {
-                    newInfo.BorrowNum = parseFloat(jsonData.BorrowNum);
-                }
-
-
                 if(jsonData.BorrowDays != undefined)
                 {
                     newInfo.BorrowDays = parseFloat(jsonData.BorrowDays);
-                }
-
-                 return newInfo;
-            }
-
-
-            private BorrowBookReqParser(jsonData:any):any{
-                var newInfo = new crystal_net_service.BorrowBookReq()
-
-                if(jsonData.BorrowBookList != undefined)
-                {
-                    var jsonArray = jsonData.BorrowBookList.map((value, idx, arr)=>{
-                    var parser = this.getParser("BorrowBookItem");
-                    if(parser == undefined)
-                        return {}
-
-                    return parser(value);
-                    });
-
-                    newInfo.BorrowBookList = jsonArray;
-                }
-
-                 return newInfo;
-            }
-
-
-            private BorrowBookResParser(jsonData:any):any{
-                var newInfo = new crystal_net_service.BorrowBookRes()
-
-                if(jsonData.ErrCode != undefined)
-                {
-                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
                 }
 
                  return newInfo;
@@ -1174,6 +1141,18 @@ export namespace crystal_net_service_parser
                     newInfo.CreateOrderTime = parseFloat(jsonData.CreateOrderTime);
                 }
 
+
+                if(jsonData.OrderState != undefined)
+                {
+                    newInfo.OrderState = parseFloat(jsonData.OrderState);
+                }
+
+                 return newInfo;
+            }
+
+
+            private BorrowOrderStateParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BorrowOrderState()
                  return newInfo;
             }
 
@@ -2585,6 +2564,38 @@ export namespace crystal_net_service_parser
                     });
 
                     newInfo.Snapshots = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private SubmitBookBagBorrowInfoReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SubmitBookBagBorrowInfoReq()
+
+                if(jsonData.BorrowBookList != undefined)
+                {
+                    var jsonArray = jsonData.BorrowBookList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BorrowBookItem");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BorrowBookList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private SubmitBookBagBorrowInfoResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SubmitBookBagBorrowInfoRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
                 }
 
                  return newInfo;

@@ -276,20 +276,6 @@ message GetBookByBookNameRes
     repeated BookInfo BookInfoList = 1;
 }
 
-// 借书
-/// Opcode:
-message BorrowBookReq
-{
-    repeated BorrowBookItem BorrowBookList = 1;
-}
-
-// 借书
-/// Opcode:
-message BorrowBookRes
-{
-    sint32 ErrCode = 1;
-}
-
 // 图书
 /// Opcode:
 message GetBookInfoListReq 

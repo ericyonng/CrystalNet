@@ -65,8 +65,6 @@ public static class PacketOpcode
         GetBookInfoRes = 75,    // library.proto
         GetBookByBookNameReq = 76,    // library.proto
         GetBookByBookNameRes = 77,    // library.proto
-        BorrowBookReq = 78,    // library.proto
-        BorrowBookRes = 79,    // library.proto
         BookBagInfoReq = 80,    // bookbag.proto
         BookBagInfoNty = 81,    // bookbag.proto
         BookBagInfoRes = 82,    // bookbag.proto
@@ -74,6 +72,8 @@ public static class PacketOpcode
         SetBookBagInfoRes = 84,    // bookbag.proto
         GetBookInfoListReq = 85,    // library.proto
         GetBookInfoListRes = 86,    // library.proto
-        OpcodeMax = 86,
+        SubmitBookBagBorrowInfoReq = 87,    // library.proto
+        SubmitBookBagBorrowInfoRes = 88,    // library.proto
+        OpcodeMax = 88,
     }
 }

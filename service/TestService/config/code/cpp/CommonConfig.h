@@ -38,7 +38,7 @@ public:
 
         ORDER_SAVE_DAYS,    // id
 
-        OVERDUE_DAYS,    // id
+        MAX_BORROW_DAYS,    // id
 
         CONTENT_LIMIT,    // id
 

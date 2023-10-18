@@ -59,6 +59,8 @@ protected:
     // 协议
     void _OnBookBagInfoReq(KERNEL_NS::LibPacket *&packet);
     void _OnSetBookBagInfoReq(KERNEL_NS::LibPacket *&packet);
+    void _OnSubmitBookBagBorrowInfoReq(KERNEL_NS::LibPacket *&packet);
+    
 };
 
 SERVICE_END

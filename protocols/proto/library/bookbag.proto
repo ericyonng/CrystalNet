@@ -42,3 +42,17 @@ message SetBookBagInfoRes
 {
     sint32 ErrCode = 1;
 }
+
+// 借书
+/// Opcode:
+message SubmitBookBagBorrowInfoReq
+{
+    repeated BorrowBookItem BorrowBookList = 1;
+}
+
+// 借书
+/// Opcode:
+message SubmitBookBagBorrowInfoRes
+{
+    sint32 ErrCode = 1;
+}
