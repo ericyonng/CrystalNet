@@ -148,7 +148,6 @@ void BookBagGlobal::_OnSubmitBookBagBorrowInfoReq(KERNEL_NS::LibPacket *&packet)
     SubmitBookBagBorrowInfoRes res;
     res.set_errcode(err);
     user->Send(Opcodes::OpcodeConst::OPCODE_SubmitBookBagBorrowInfoRes, res, packet->GetPacketId());
-
 }
 
 SERVICE_END
