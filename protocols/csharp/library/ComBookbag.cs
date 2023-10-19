@@ -26,15 +26,18 @@ using ProtoPackage.Attributes;
     static ComBookbagReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChFjb21fYm9va2JhZy5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSIxCgxC",
+            "ChFjb21fYm9va2JhZy5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSJFCgxC",
             "b29rSW5mb0l0ZW0SDgoGQm9va0lkGAEgASgEEhEKCUJvb2tDb3VudBgCIAEo",
-            "ESJKCgtCb29rQmFnSW5mbxI7ChBCb29rSW5mb0l0ZW1MaXN0GAEgAygLMiEu",
-            "Q1JZU1RBTF9ORVQuc2VydmljZS5Cb29rSW5mb0l0ZW1iBnByb3RvMw=="));
+            "ERISCgpCb3Jyb3dEYXlzGAMgASgRIkoKC0Jvb2tCYWdJbmZvEjsKEEJvb2tJ",
+            "bmZvSXRlbUxpc3QYASADKAsyIS5DUllTVEFMX05FVC5zZXJ2aWNlLkJvb2tJ",
+            "bmZvSXRlbSI0Cg5Cb3Jyb3dCb29rSXRlbRIOCgZCb29rSWQYASABKAQSEgoK",
+            "Qm9ycm93RGF5cxgCIAEoDWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookInfoItem), global::CRYSTALNET.Service.BookInfoItem.Parser, new[]{ "BookId", "BookCount" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookBagInfo), global::CRYSTALNET.Service.BookBagInfo.Parser, new[]{ "BookInfoItemList" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookInfoItem), global::CRYSTALNET.Service.BookInfoItem.Parser, new[]{ "BookId", "BookCount", "BorrowDays" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookBagInfo), global::CRYSTALNET.Service.BookBagInfo.Parser, new[]{ "BookInfoItemList" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookItem), global::CRYSTALNET.Service.BorrowBookItem.Parser, new[]{ "BookId", "BorrowDays" }, null, null, null, null)
           }));
     }
     #endregion
@@ -80,6 +83,7 @@ using ProtoPackage.Attributes;
     public BookInfoItem(BookInfoItem other) : this() {
       bookId_ = other.bookId_;
       bookCount_ = other.bookCount_;
+      borrowDays_ = other.borrowDays_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -119,6 +123,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "BorrowDays" field.</summary>
+    public const int BorrowDaysFieldNumber = 3;
+    private int borrowDays_;
+    /// <summary>
+    /// 借的天数
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int BorrowDays {
+      get { return borrowDays_; }
+      set {
+        borrowDays_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -136,6 +155,7 @@ using ProtoPackage.Attributes;
       }
       if (BookId != other.BookId) return false;
       if (BookCount != other.BookCount) return false;
+      if (BorrowDays != other.BorrowDays) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -145,6 +165,7 @@ using ProtoPackage.Attributes;
       int hash = 1;
       if (BookId != 0UL) hash ^= BookId.GetHashCode();
       if (BookCount != 0) hash ^= BookCount.GetHashCode();
+      if (BorrowDays != 0) hash ^= BorrowDays.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -171,6 +192,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(16);
         output.WriteSInt32(BookCount);
       }
+      if (BorrowDays != 0) {
+        output.WriteRawTag(24);
+        output.WriteSInt32(BorrowDays);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -189,6 +214,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(16);
         output.WriteSInt32(BookCount);
       }
+      if (BorrowDays != 0) {
+        output.WriteRawTag(24);
+        output.WriteSInt32(BorrowDays);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -204,6 +233,9 @@ using ProtoPackage.Attributes;
       }
       if (BookCount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(BookCount);
+      }
+      if (BorrowDays != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(BorrowDays);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -222,6 +254,9 @@ using ProtoPackage.Attributes;
       }
       if (other.BookCount != 0) {
         BookCount = other.BookCount;
+      }
+      if (other.BorrowDays != 0) {
+        BorrowDays = other.BorrowDays;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -246,6 +281,10 @@ using ProtoPackage.Attributes;
             BookCount = input.ReadSInt32();
             break;
           }
+          case 24: {
+            BorrowDays = input.ReadSInt32();
+            break;
+          }
         }
       }
     #endif
@@ -267,6 +306,10 @@ using ProtoPackage.Attributes;
           }
           case 16: {
             BookCount = input.ReadSInt32();
+            break;
+          }
+          case 24: {
+            BorrowDays = input.ReadSInt32();
             break;
           }
         }
@@ -448,6 +491,241 @@ using ProtoPackage.Attributes;
             break;
           case 10: {
             bookInfoItemList_.AddEntriesFrom(ref input, _repeated_bookInfoItemList_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 借阅图书数据
+  /// </summary>
+  public sealed partial class BorrowBookItem : pb::IMessage<BorrowBookItem>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BorrowBookItem> _parser = new pb::MessageParser<BorrowBookItem>(() => new BorrowBookItem());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BorrowBookItem> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComBookbagReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowBookItem() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowBookItem(BorrowBookItem other) : this() {
+      bookId_ = other.bookId_;
+      borrowDays_ = other.borrowDays_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowBookItem Clone() {
+      return new BorrowBookItem(this);
+    }
+
+    /// <summary>Field number for the "BookId" field.</summary>
+    public const int BookIdFieldNumber = 1;
+    private ulong bookId_;
+    /// <summary>
+    /// 图书id
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong BookId {
+      get { return bookId_; }
+      set {
+        bookId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "BorrowDays" field.</summary>
+    public const int BorrowDaysFieldNumber = 2;
+    private uint borrowDays_;
+    /// <summary>
+    /// 借阅天数
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint BorrowDays {
+      get { return borrowDays_; }
+      set {
+        borrowDays_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BorrowBookItem);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BorrowBookItem other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (BookId != other.BookId) return false;
+      if (BorrowDays != other.BorrowDays) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (BookId != 0UL) hash ^= BookId.GetHashCode();
+      if (BorrowDays != 0) hash ^= BorrowDays.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (BookId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(BookId);
+      }
+      if (BorrowDays != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(BorrowDays);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (BookId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(BookId);
+      }
+      if (BorrowDays != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(BorrowDays);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (BookId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BookId);
+      }
+      if (BorrowDays != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(BorrowDays);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BorrowBookItem other) {
+      if (other == null) {
+        return;
+      }
+      if (other.BookId != 0UL) {
+        BookId = other.BookId;
+      }
+      if (other.BorrowDays != 0) {
+        BorrowDays = other.BorrowDays;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            BookId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            BorrowDays = input.ReadUInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            BookId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            BorrowDays = input.ReadUInt32();
             break;
           }
         }

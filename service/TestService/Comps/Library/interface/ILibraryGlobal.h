@@ -33,19 +33,28 @@
 SERVICE_BEGIN
 
 class LibraryInfo;
+class BookBagInfo;
 
 class ILibraryGlobal : public IGlobalSys
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ILibraryGlobal);
 
 public:
+    // 获取图书馆信息
     virtual const LibraryInfo *GetLibraryInfo(UInt64 libraryId) const = 0;
+
+    // 获取成员信息
     virtual const MemberInfo *GetMemberInfo(UInt64 libraryId, UInt64 userId) const = 0;
 
+    // 图书馆信息
     virtual KERNEL_NS::LibString LibraryToString(const LibraryInfo *libraryInfo) const = 0;
     virtual KERNEL_NS::LibString LibraryToString(UInt64 libraryId) const = 0;
 
+    // 获取图书信息
     virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const = 0;
+
+    // 创建订单
+    virtual Int32 CreateBorrowOrder(UInt64 libraryId, UInt64 memberUserId, const BookBagInfo &bookBagInfo) = 0;
 };
 
 SERVICE_END

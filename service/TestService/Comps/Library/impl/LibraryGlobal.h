@@ -56,6 +56,9 @@ public:
     virtual KERNEL_NS::LibString LibraryToString(UInt64 libraryId) const override;
 
     virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const override;
+    BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId);
+
+    virtual Int32 CreateBorrowOrder(UInt64 libraryId, UInt64 memberUserId, const BookBagInfo &bookBagInfo) override;
 
 protected:
     virtual Int32 _OnGlobalSysInit() override;
@@ -78,7 +81,7 @@ protected:
     // 书名或者关键字
     void _OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet);
     void _OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet);
-    
+
     Int32 _ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req);
 
     void _BuildPreviewInfo(LibraryPreviewInfo *previewInfo, const LibraryInfo *libraryInfo) const;

@@ -35,7 +35,7 @@ message BorrowBookInfo
     // isbn码
     string IsbnCode = 2;
     // 借阅数量
-    uint64 BorrowCount = 3;
+    sint32 BorrowCount = 3;
     // 借阅时间
     uint64 BorrowTime = 4;
     // 预计归还时间
@@ -53,17 +53,26 @@ message BorrowOrderState
 {
     enum ENUMS 
     {
+        // 订单生成待管理员确认
+        WAITING_MANAGER_CONFIRM = 0;
+
         // 订单管理员确认并出库图书
-        ORDER_CONFIRM = 0;
+        ORDER_CONFIRM = 1;
 
         // 订单已出库等待领取
-        WAIT_USER_RECEIVE = 1;
+        WAIT_USER_RECEIVE = 2;
 
         // 用户已领取等待归还
-        WAIT_USER_RETURN_BACK = 2;
+        WAIT_USER_RETURN_BACK = 3;
 
         // 用户已归还所有图书
-        USER_RETURN_BACK_ALL_BOOKS = 3;
+        USER_RETURN_BACK_ALL_BOOKS = 4;
+
+        // 取消订单(需要填写原因, 当用户领取后不可取消订单只能归还, 还没领取的才可取消订单)
+        CANCEL_ORDER = 5;
+
+        // 已归还
+        RETURN_BAKCK = 6;
     }
 }
 
@@ -78,6 +87,8 @@ message BorrowOrderInfo
     uint64 CreateOrderTime = 3;
     // 订单状态 BorrowOrderState
     sint32 OrderState = 4;
+    // 取消原因
+    string CancelReason = 5;
 }
 
 // 会员信息(包括管理员等)

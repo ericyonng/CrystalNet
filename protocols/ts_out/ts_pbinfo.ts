@@ -899,26 +899,26 @@ export namespace ts_pbinfo{
     }
 
 
-    // library.proto 
+    // bookbag.proto 
     export class SubmitBookBagBorrowInfoReq {
       getOpcode():number {return SubmitBookBagBorrowInfoReq.OPCODE; }
       getIsXorEncrypt():boolean {return SubmitBookBagBorrowInfoReq.XorEncrypt; }
       getIsKeyBase64():boolean {return SubmitBookBagBorrowInfoReq.KeyBase64; }
       getOpcodeName():string {return SubmitBookBagBorrowInfoReq.OPCODE_NAME; }
-      static OPCODE:number = 87;
+      static OPCODE:number = 89;
       static OPCODE_NAME:string = "SubmitBookBagBorrowInfoReq";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;
     }
 
 
-    // library.proto 
+    // bookbag.proto 
     export class SubmitBookBagBorrowInfoRes {
       getOpcode():number {return SubmitBookBagBorrowInfoRes.OPCODE; }
       getIsXorEncrypt():boolean {return SubmitBookBagBorrowInfoRes.XorEncrypt; }
       getIsKeyBase64():boolean {return SubmitBookBagBorrowInfoRes.KeyBase64; }
       getOpcodeName():string {return SubmitBookBagBorrowInfoRes.OPCODE_NAME; }
-      static OPCODE:number = 88;
+      static OPCODE:number = 90;
       static OPCODE_NAME:string = "SubmitBookBagBorrowInfoRes";
       static XorEncrypt:boolean = false;
       static KeyBase64:boolean = false;

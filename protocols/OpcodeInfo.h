@@ -702,20 +702,20 @@
 
     {// SubmitBookBagBorrowInfoReq
         auto info = OpcodeInfo();
-        info._opcode = 87;
+        info._opcode = 89;
         info._noLog = false;
         info._opcodeName = "SubmitBookBagBorrowInfoReq";
-        info._protoFile = "library.proto";
+        info._protoFile = "bookbag.proto";
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SubmitBookBagBorrowInfoReqFactory::CreateFactory()));
     }
 
     {// SubmitBookBagBorrowInfoRes
         auto info = OpcodeInfo();
-        info._opcode = 88;
+        info._opcode = 90;
         info._noLog = false;
         info._opcodeName = "SubmitBookBagBorrowInfoRes";
-        info._protoFile = "library.proto";
+        info._protoFile = "bookbag.proto";
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SubmitBookBagBorrowInfoResFactory::CreateFactory()));
     }

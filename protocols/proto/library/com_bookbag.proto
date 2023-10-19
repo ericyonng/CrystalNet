@@ -9,6 +9,9 @@ message BookInfoItem
 
     // 图书数量
     sint32 BookCount = 2;
+
+    // 借的天数
+    sint32 BorrowDays = 3;
 }
 
 // 背包数据

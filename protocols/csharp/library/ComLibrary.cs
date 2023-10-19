@@ -31,42 +31,43 @@ using ProtoPackage.Attributes;
             "EAoMTm9ybWFsTWVtYmVyEAESCwoHTWFuYWdlchACEg0KCUxpYnJhcmlhbhAD",
             "IiUKE0xpYmFyYXJ5TWFuYWdlckluZm8SDgoGVXNlcklkGAEgASgEIrwBCg5C",
             "b3Jyb3dCb29rSW5mbxIOCgZCb29rSWQYASABKAQSEAoISXNibkNvZGUYAiAB",
-            "KAkSEwoLQm9ycm93Q291bnQYAyABKAQSEgoKQm9ycm93VGltZRgEIAEoBBIY",
+            "KAkSEwoLQm9ycm93Q291bnQYAyABKBESEgoKQm9ycm93VGltZRgEIAEoBBIY",
             "ChBQbGFuR2l2ZUJhY2tUaW1lGAUgASgEEhgKEFJlYWxHaXZlQmFja1RpbWUY",
             "BiABKAQSFwoPUmV0dXJuQmFja0NvdW50GAcgASgEEhIKClN1Yk9yZGVySWQY",
-            "CCABKAQigAEKEEJvcnJvd09yZGVyU3RhdGUibAoFRU5VTVMSEQoNT1JERVJf",
-            "Q09ORklSTRAAEhUKEVdBSVRfVVNFUl9SRUNFSVZFEAESGQoVV0FJVF9VU0VS",
-            "X1JFVFVSTl9CQUNLEAISHgoaVVNFUl9SRVRVUk5fQkFDS19BTExfQk9PS1MQ",
-            "AyKMAQoPQm9ycm93T3JkZXJJbmZvEg8KB09yZGVySWQYASABKAQSOwoOQm9y",
-            "cm93Qm9va0xpc3QYAiADKAsyIy5DUllTVEFMX05FVC5zZXJ2aWNlLkJvcnJv",
-            "d0Jvb2tJbmZvEhcKD0NyZWF0ZU9yZGVyVGltZRgDIAEoBBISCgpPcmRlclN0",
-            "YXRlGAQgASgRIrcBCgpNZW1iZXJJbmZvEg4KBlVzZXJJZBgBIAEoBBIMCgRS",
-            "b2xlGAIgASgREhAKCE5pY2tuYW1lGAMgASgJEjgKCkJvcnJvd0xpc3QYBCAD",
-            "KAsyJC5DUllTVEFMX05FVC5zZXJ2aWNlLkJvcnJvd09yZGVySW5mbxIXCg9M",
-            "b2NrVGltZXN0YW1wTXMYBSABKBISEwoJQmluZFBob25lGAYgASgESABCEQoP",
-            "TWVtYmVyQmluZFBob25lIj0KEFZhcmlhbnRQYXJhbVR5cGUiKQoFRU5VTVMS",
-            "CwoHVU5LTk9XThAAEgcKA05VTRABEgoKBlNUUklORxACIlAKDFZhcmlhbnRQ",
-            "YXJhbRIRCglQYXJhbVR5cGUYASABKBESEAoGTnVtYmVyGAIgASgSSAASDQoD",
-            "U3RyGAMgASgJSABCDAoKUGFyYW1WYWx1ZSIlCg1PcGVyYXRpb25UeXBlIhQK",
-            "BUVOVU1TEgsKB1VOS05PV04QACKbAQoQT3BlcmF0aW9uTG9nSW5mbxIOCgZP",
-            "cFR5cGUYASABKBESEAoIT3BVc2VySWQYAiABKAQSEgoKT3BOaWNrbmFtZRgD",
-            "IAEoCRIMCgRSb2xlGAQgASgREhAKCE9wVGltZU1zGAUgASgSEjEKBlBhcmFt",
-            "cxgGIAMoCzIhLkNSWVNUQUxfTkVULnNlcnZpY2UuVmFyaWFudFBhcmFtIv8C",
-            "CgtMaWJyYXJ5SW5mbxIKCgJJZBgBIAEoBBIMCgROYW1lGAIgASgJEg8KB0Fk",
-            "ZHJlc3MYAyABKAkSEAoIT3BlblRpbWUYBCABKAkSFgoOVGVscGhvbmVOdW1i",
-            "ZXIYBSABKAkSFwoPTGlicmFyaWFuVXNlcklkGAYgASgEEh0KFUxpYnJhcmlh",
-            "blVzZXJOaWNrbmFtZRgHIAEoCRJBCg9NYW5hZ2VySW5mb0xpc3QYCCADKAsy",
-            "KC5DUllTVEFMX05FVC5zZXJ2aWNlLkxpYmFyYXJ5TWFuYWdlckluZm8SMwoK",
-            "TWVtYmVyTGlzdBgJIAMoCzIfLkNSWVNUQUxfTkVULnNlcnZpY2UuTWVtYmVy",
-            "SW5mbxIvCghCb29rTGlzdBgKIAMoCzIdLkNSWVNUQUxfTkVULnNlcnZpY2Uu",
-            "Qm9va0luZm8SOgoLTG9nSW5mb0xpc3QYCyADKAsyJS5DUllTVEFMX05FVC5z",
-            "ZXJ2aWNlLk9wZXJhdGlvbkxvZ0luZm8iJAoPVXNlckxpYnJhcnlJbmZvEhEK",
-            "CUxpYnJhcnlJZBgBIAEoBCJiChJMaWJyYXJ5UHJldmlld0luZm8SCgoCSWQY",
-            "ASABKAQSDAoETmFtZRgCIAEoCRIXCg9MaWJyYXJpYW5Vc2VySWQYAyABKAQS",
-            "GQoRTGlicmFyaWFuTmlja25hbWUYBCABKAkiNAoOQm9ycm93Qm9va0l0ZW0S",
-            "DgoGQm9va0lkGAEgASgEEhIKCkJvcnJvd0RheXMYAiABKA0iIQoNS2V5V29y",
-            "ZHNGaWVsZBIQCghLZXlXb3JkcxgBIAMoCSIiCg1TbmFwc2hvdEZpZWxkEhEK",
-            "CVNuYXBzaG90cxgBIAMoCWIGcHJvdG8z"));
+            "CCABKAQiwgEKEEJvcnJvd09yZGVyU3RhdGUirQEKBUVOVU1TEhsKF1dBSVRJ",
+            "TkdfTUFOQUdFUl9DT05GSVJNEAASEQoNT1JERVJfQ09ORklSTRABEhUKEVdB",
+            "SVRfVVNFUl9SRUNFSVZFEAISGQoVV0FJVF9VU0VSX1JFVFVSTl9CQUNLEAMS",
+            "HgoaVVNFUl9SRVRVUk5fQkFDS19BTExfQk9PS1MQBBIQCgxDQU5DRUxfT1JE",
+            "RVIQBRIQCgxSRVRVUk5fQkFLQ0sQBiKiAQoPQm9ycm93T3JkZXJJbmZvEg8K",
+            "B09yZGVySWQYASABKAQSOwoOQm9ycm93Qm9va0xpc3QYAiADKAsyIy5DUllT",
+            "VEFMX05FVC5zZXJ2aWNlLkJvcnJvd0Jvb2tJbmZvEhcKD0NyZWF0ZU9yZGVy",
+            "VGltZRgDIAEoBBISCgpPcmRlclN0YXRlGAQgASgREhQKDENhbmNlbFJlYXNv",
+            "bhgFIAEoCSK3AQoKTWVtYmVySW5mbxIOCgZVc2VySWQYASABKAQSDAoEUm9s",
+            "ZRgCIAEoERIQCghOaWNrbmFtZRgDIAEoCRI4CgpCb3Jyb3dMaXN0GAQgAygL",
+            "MiQuQ1JZU1RBTF9ORVQuc2VydmljZS5Cb3Jyb3dPcmRlckluZm8SFwoPTG9j",
+            "a1RpbWVzdGFtcE1zGAUgASgSEhMKCUJpbmRQaG9uZRgGIAEoBEgAQhEKD01l",
+            "bWJlckJpbmRQaG9uZSI9ChBWYXJpYW50UGFyYW1UeXBlIikKBUVOVU1TEgsK",
+            "B1VOS05PV04QABIHCgNOVU0QARIKCgZTVFJJTkcQAiJQCgxWYXJpYW50UGFy",
+            "YW0SEQoJUGFyYW1UeXBlGAEgASgREhAKBk51bWJlchgCIAEoEkgAEg0KA1N0",
+            "chgDIAEoCUgAQgwKClBhcmFtVmFsdWUiJQoNT3BlcmF0aW9uVHlwZSIUCgVF",
+            "TlVNUxILCgdVTktOT1dOEAAimwEKEE9wZXJhdGlvbkxvZ0luZm8SDgoGT3BU",
+            "eXBlGAEgASgREhAKCE9wVXNlcklkGAIgASgEEhIKCk9wTmlja25hbWUYAyAB",
+            "KAkSDAoEUm9sZRgEIAEoERIQCghPcFRpbWVNcxgFIAEoEhIxCgZQYXJhbXMY",
+            "BiADKAsyIS5DUllTVEFMX05FVC5zZXJ2aWNlLlZhcmlhbnRQYXJhbSL/AgoL",
+            "TGlicmFyeUluZm8SCgoCSWQYASABKAQSDAoETmFtZRgCIAEoCRIPCgdBZGRy",
+            "ZXNzGAMgASgJEhAKCE9wZW5UaW1lGAQgASgJEhYKDlRlbHBob25lTnVtYmVy",
+            "GAUgASgJEhcKD0xpYnJhcmlhblVzZXJJZBgGIAEoBBIdChVMaWJyYXJpYW5V",
+            "c2VyTmlja25hbWUYByABKAkSQQoPTWFuYWdlckluZm9MaXN0GAggAygLMigu",
+            "Q1JZU1RBTF9ORVQuc2VydmljZS5MaWJhcmFyeU1hbmFnZXJJbmZvEjMKCk1l",
+            "bWJlckxpc3QYCSADKAsyHy5DUllTVEFMX05FVC5zZXJ2aWNlLk1lbWJlcklu",
+            "Zm8SLwoIQm9va0xpc3QYCiADKAsyHS5DUllTVEFMX05FVC5zZXJ2aWNlLkJv",
+            "b2tJbmZvEjoKC0xvZ0luZm9MaXN0GAsgAygLMiUuQ1JZU1RBTF9ORVQuc2Vy",
+            "dmljZS5PcGVyYXRpb25Mb2dJbmZvIiQKD1VzZXJMaWJyYXJ5SW5mbxIRCglM",
+            "aWJyYXJ5SWQYASABKAQiYgoSTGlicmFyeVByZXZpZXdJbmZvEgoKAklkGAEg",
+            "ASgEEgwKBE5hbWUYAiABKAkSFwoPTGlicmFyaWFuVXNlcklkGAMgASgEEhkK",
+            "EUxpYnJhcmlhbk5pY2tuYW1lGAQgASgJIiEKDUtleVdvcmRzRmllbGQSEAoI",
+            "S2V5V29yZHMYASADKAkiIgoNU25hcHNob3RGaWVsZBIRCglTbmFwc2hvdHMY",
+            "ASADKAliBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -74,7 +75,7 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibararyManagerInfo), global::CRYSTALNET.Service.LibararyManagerInfo.Parser, new[]{ "UserId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookInfo), global::CRYSTALNET.Service.BorrowBookInfo.Parser, new[]{ "BookId", "IsbnCode", "BorrowCount", "BorrowTime", "PlanGiveBackTime", "RealGiveBackTime", "ReturnBackCount", "SubOrderId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderState), global::CRYSTALNET.Service.BorrowOrderState.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.BorrowOrderState.Types.ENUMS) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.MemberInfo), global::CRYSTALNET.Service.MemberInfo.Parser, new[]{ "UserId", "Role", "Nickname", "BorrowList", "LockTimestampMs", "BindPhone" }, new[]{ "MemberBindPhone" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.VariantParamType), global::CRYSTALNET.Service.VariantParamType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.VariantParamType.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.VariantParam), global::CRYSTALNET.Service.VariantParam.Parser, new[]{ "ParamType", "Number", "Str" }, new[]{ "ParamValue" }, null, null, null),
@@ -83,7 +84,6 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryInfo), global::CRYSTALNET.Service.LibraryInfo.Parser, new[]{ "Id", "Name", "Address", "OpenTime", "TelphoneNumber", "LibrarianUserId", "LibrarianUserNickname", "ManagerInfoList", "MemberList", "BookList", "LogInfoList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserLibraryInfo), global::CRYSTALNET.Service.UserLibraryInfo.Parser, new[]{ "LibraryId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryPreviewInfo), global::CRYSTALNET.Service.LibraryPreviewInfo.Parser, new[]{ "Id", "Name", "LibrarianUserId", "LibrarianNickname" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookItem), global::CRYSTALNET.Service.BorrowBookItem.Parser, new[]{ "BookId", "BorrowDays" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.KeyWordsField), global::CRYSTALNET.Service.KeyWordsField.Parser, new[]{ "KeyWords" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SnapshotField), global::CRYSTALNET.Service.SnapshotField.Parser, new[]{ "Snapshots" }, null, null, null, null)
           }));
@@ -555,13 +555,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "BorrowCount" field.</summary>
     public const int BorrowCountFieldNumber = 3;
-    private ulong borrowCount_;
+    private int borrowCount_;
     /// <summary>
     /// 借阅数量
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong BorrowCount {
+    public int BorrowCount {
       get { return borrowCount_; }
       set {
         borrowCount_ = value;
@@ -675,7 +675,7 @@ using ProtoPackage.Attributes;
       int hash = 1;
       if (BookId != 0UL) hash ^= BookId.GetHashCode();
       if (IsbnCode.Length != 0) hash ^= IsbnCode.GetHashCode();
-      if (BorrowCount != 0UL) hash ^= BorrowCount.GetHashCode();
+      if (BorrowCount != 0) hash ^= BorrowCount.GetHashCode();
       if (BorrowTime != 0UL) hash ^= BorrowTime.GetHashCode();
       if (PlanGiveBackTime != 0UL) hash ^= PlanGiveBackTime.GetHashCode();
       if (RealGiveBackTime != 0UL) hash ^= RealGiveBackTime.GetHashCode();
@@ -707,9 +707,9 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(18);
         output.WriteString(IsbnCode);
       }
-      if (BorrowCount != 0UL) {
+      if (BorrowCount != 0) {
         output.WriteRawTag(24);
-        output.WriteUInt64(BorrowCount);
+        output.WriteSInt32(BorrowCount);
       }
       if (BorrowTime != 0UL) {
         output.WriteRawTag(32);
@@ -749,9 +749,9 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(18);
         output.WriteString(IsbnCode);
       }
-      if (BorrowCount != 0UL) {
+      if (BorrowCount != 0) {
         output.WriteRawTag(24);
-        output.WriteUInt64(BorrowCount);
+        output.WriteSInt32(BorrowCount);
       }
       if (BorrowTime != 0UL) {
         output.WriteRawTag(32);
@@ -789,8 +789,8 @@ using ProtoPackage.Attributes;
       if (IsbnCode.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(IsbnCode);
       }
-      if (BorrowCount != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BorrowCount);
+      if (BorrowCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(BorrowCount);
       }
       if (BorrowTime != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BorrowTime);
@@ -825,7 +825,7 @@ using ProtoPackage.Attributes;
       if (other.IsbnCode.Length != 0) {
         IsbnCode = other.IsbnCode;
       }
-      if (other.BorrowCount != 0UL) {
+      if (other.BorrowCount != 0) {
         BorrowCount = other.BorrowCount;
       }
       if (other.BorrowTime != 0UL) {
@@ -867,7 +867,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 24: {
-            BorrowCount = input.ReadUInt64();
+            BorrowCount = input.ReadSInt32();
             break;
           }
           case 32: {
@@ -914,7 +914,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 24: {
-            BorrowCount = input.ReadUInt64();
+            BorrowCount = input.ReadSInt32();
             break;
           }
           case 32: {
@@ -1104,21 +1104,33 @@ using ProtoPackage.Attributes;
     public static partial class Types {
       public enum ENUMS {
         /// <summary>
+        /// 订单生成待管理员确认
+        /// </summary>
+        [pbr::OriginalName("WAITING_MANAGER_CONFIRM")] WaitingManagerConfirm = 0,
+        /// <summary>
         /// 订单管理员确认并出库图书
         /// </summary>
-        [pbr::OriginalName("ORDER_CONFIRM")] OrderConfirm = 0,
+        [pbr::OriginalName("ORDER_CONFIRM")] OrderConfirm = 1,
         /// <summary>
         /// 订单已出库等待领取
         /// </summary>
-        [pbr::OriginalName("WAIT_USER_RECEIVE")] WaitUserReceive = 1,
+        [pbr::OriginalName("WAIT_USER_RECEIVE")] WaitUserReceive = 2,
         /// <summary>
         /// 用户已领取等待归还
         /// </summary>
-        [pbr::OriginalName("WAIT_USER_RETURN_BACK")] WaitUserReturnBack = 2,
+        [pbr::OriginalName("WAIT_USER_RETURN_BACK")] WaitUserReturnBack = 3,
         /// <summary>
         /// 用户已归还所有图书
         /// </summary>
-        [pbr::OriginalName("USER_RETURN_BACK_ALL_BOOKS")] UserReturnBackAllBooks = 3,
+        [pbr::OriginalName("USER_RETURN_BACK_ALL_BOOKS")] UserReturnBackAllBooks = 4,
+        /// <summary>
+        /// 取消订单(需要填写原因, 当用户领取后不可取消订单只能归还, 还没领取的才可取消订单)
+        /// </summary>
+        [pbr::OriginalName("CANCEL_ORDER")] CancelOrder = 5,
+        /// <summary>
+        /// 已归还
+        /// </summary>
+        [pbr::OriginalName("RETURN_BAKCK")] ReturnBakck = 6,
       }
 
     }
@@ -1167,6 +1179,7 @@ using ProtoPackage.Attributes;
       borrowBookList_ = other.borrowBookList_.Clone();
       createOrderTime_ = other.createOrderTime_;
       orderState_ = other.orderState_;
+      cancelReason_ = other.cancelReason_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1235,6 +1248,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "CancelReason" field.</summary>
+    public const int CancelReasonFieldNumber = 5;
+    private string cancelReason_ = "";
+    /// <summary>
+    /// 取消原因
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string CancelReason {
+      get { return cancelReason_; }
+      set {
+        cancelReason_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1254,6 +1282,7 @@ using ProtoPackage.Attributes;
       if(!borrowBookList_.Equals(other.borrowBookList_)) return false;
       if (CreateOrderTime != other.CreateOrderTime) return false;
       if (OrderState != other.OrderState) return false;
+      if (CancelReason != other.CancelReason) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1265,6 +1294,7 @@ using ProtoPackage.Attributes;
       hash ^= borrowBookList_.GetHashCode();
       if (CreateOrderTime != 0UL) hash ^= CreateOrderTime.GetHashCode();
       if (OrderState != 0) hash ^= OrderState.GetHashCode();
+      if (CancelReason.Length != 0) hash ^= CancelReason.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1296,6 +1326,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(32);
         output.WriteSInt32(OrderState);
       }
+      if (CancelReason.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(CancelReason);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1319,6 +1353,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(32);
         output.WriteSInt32(OrderState);
       }
+      if (CancelReason.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(CancelReason);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1338,6 +1376,9 @@ using ProtoPackage.Attributes;
       }
       if (OrderState != 0) {
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(OrderState);
+      }
+      if (CancelReason.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(CancelReason);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1360,6 +1401,9 @@ using ProtoPackage.Attributes;
       }
       if (other.OrderState != 0) {
         OrderState = other.OrderState;
+      }
+      if (other.CancelReason.Length != 0) {
+        CancelReason = other.CancelReason;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1392,6 +1436,10 @@ using ProtoPackage.Attributes;
             OrderState = input.ReadSInt32();
             break;
           }
+          case 42: {
+            CancelReason = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -1421,6 +1469,10 @@ using ProtoPackage.Attributes;
           }
           case 32: {
             OrderState = input.ReadSInt32();
+            break;
+          }
+          case 42: {
+            CancelReason = input.ReadString();
             break;
           }
         }
@@ -3910,241 +3962,6 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  /// 借阅图书数据
-  /// </summary>
-  public sealed partial class BorrowBookItem : pb::IMessage<BorrowBookItem>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<BorrowBookItem> _parser = new pb::MessageParser<BorrowBookItem>(() => new BorrowBookItem());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<BorrowBookItem> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[13]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public BorrowBookItem() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public BorrowBookItem(BorrowBookItem other) : this() {
-      bookId_ = other.bookId_;
-      borrowDays_ = other.borrowDays_;
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public BorrowBookItem Clone() {
-      return new BorrowBookItem(this);
-    }
-
-    /// <summary>Field number for the "BookId" field.</summary>
-    public const int BookIdFieldNumber = 1;
-    private ulong bookId_;
-    /// <summary>
-    /// 图书id
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong BookId {
-      get { return bookId_; }
-      set {
-        bookId_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "BorrowDays" field.</summary>
-    public const int BorrowDaysFieldNumber = 2;
-    private uint borrowDays_;
-    /// <summary>
-    /// 借阅天数
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint BorrowDays {
-      get { return borrowDays_; }
-      set {
-        borrowDays_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as BorrowBookItem);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(BorrowBookItem other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (BookId != other.BookId) return false;
-      if (BorrowDays != other.BorrowDays) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (BookId != 0UL) hash ^= BookId.GetHashCode();
-      if (BorrowDays != 0) hash ^= BorrowDays.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (BookId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(BookId);
-      }
-      if (BorrowDays != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(BorrowDays);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (BookId != 0UL) {
-        output.WriteRawTag(8);
-        output.WriteUInt64(BookId);
-      }
-      if (BorrowDays != 0) {
-        output.WriteRawTag(16);
-        output.WriteUInt32(BorrowDays);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (BookId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BookId);
-      }
-      if (BorrowDays != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(BorrowDays);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(BorrowBookItem other) {
-      if (other == null) {
-        return;
-      }
-      if (other.BookId != 0UL) {
-        BookId = other.BookId;
-      }
-      if (other.BorrowDays != 0) {
-        BorrowDays = other.BorrowDays;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            BookId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            BorrowDays = input.ReadUInt32();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            BookId = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            BorrowDays = input.ReadUInt32();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
-  /// <summary>
   /// 关键词
   /// </summary>
   public sealed partial class KeyWordsField : pb::IMessage<KeyWordsField>
@@ -4161,7 +3978,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[14]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4342,7 +4159,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[15]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

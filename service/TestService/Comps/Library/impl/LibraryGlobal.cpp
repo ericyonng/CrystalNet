@@ -189,6 +189,93 @@ const BookInfo *LibraryGlobal::GetBookInfo(UInt64 libraryId, UInt64 bookId) cons
     return iterBook == iterLibrary->second.end() ? NULL : iterBook->second;
 }
 
+BookInfo *LibraryGlobal::GetBookInfo(UInt64 libraryId, UInt64 bookId)
+{
+    auto iterLibrary = _libraryIdRefIdRefBookInfo.find(libraryId);
+    if(iterLibrary == _libraryIdRefIdRefBookInfo.end())
+        return NULL;
+
+    auto iterBook = iterLibrary->second.find(bookId);
+    return iterBook == iterLibrary->second.end() ? NULL : iterBook->second;
+}
+
+Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, UInt64 memberUserId, const BookBagInfo &bookBagInfo)
+{
+    auto memberInfo = GetMemberInfo(libraryId, memberUserId);
+    if(!memberInfo)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("member info not found libraryId:%llu, user id:%llu"), libraryId, memberUserId);
+        return Status::NotFound;
+    }
+
+    if(bookBagInfo.bookinfoitemlist_size() == 0)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("bookbag is empty libraryId:%llu, user id:%llu"), libraryId, memberUserId);
+        return Status::Failed;
+    }
+
+    // 图书校验
+    auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
+    for(auto &item : bookBagInfo.bookinfoitemlist())
+    {
+        // 是否存在
+        auto bookInfo = GetBookInfo(libraryId, item.bookid());
+        if(!bookInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("book is not found book id:%llu libraryId:%llu, user id:%llu"), item.bookid(), libraryId, memberUserId);
+            return Status::BookNotFound;
+        }
+
+        // 是否超库存
+        if((item.bookcount() == 0) || bookInfo->variantinfo().count() < static_cast<Int64>(item.bookcount()))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("book count is empty or over capacity,book id:%llu book count:%lld, will borrow count:%d libraryId:%llu, user id:%llu")
+            , item.bookid(), bookInfo->variantinfo().count(), item.bookcount(), libraryId, memberUserId);
+            return Status::BookCountOverCapacity;
+        }
+
+        // 时间校验(是否为0, 是否超过最大时间)
+        if(item.borrowdays() == 0 || item.borrowdays() > maxBorrowDaysConfig->_value)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays:[%d] over limit:[%d] book id:%llu, libraryId:%llu memberUserId:%llu")
+            , item.borrowdays(), maxBorrowDaysConfig->_value
+            ,  item.bookid()
+            , libraryId, memberUserId);
+            return Status::ParamError;
+        }
+    }
+    
+    auto newOrderInfo = memberInfo->add_borrowlist();
+
+    const auto &nowTime = KERNEL_NS::LibTime::Now();
+    auto guidMgr = GetGlobalSys<IGlobalUidMgr>();
+    auto orderId = guidMgr->NewGuid();
+    newOrderInfo->set_orderid(orderId);
+    newOrderInfo->set_createordertime(nowTime.GetMilliTimestamp());
+    newOrderInfo->set_orderstate(BorrowOrderState_ENUMS_WAITING_MANAGER_CONFIRM);
+
+    for(auto &item : bookBagInfo.bookinfoitemlist())
+    {
+        auto bookInfo = GetBookInfo(libraryId, item.bookid());
+        const auto bookCount = static_cast<Int64>(item.bookcount());
+        auto newSubOrder = newOrderInfo->add_borrowbooklist();
+        newSubOrder->set_bookid(item.bookid());
+        newSubOrder->set_isbncode(bookInfo->isbncode());
+        newSubOrder->set_borrowcount(item.bookcount());
+        newSubOrder->set_borrowtime(nowTime.GetMilliTimestamp());
+
+        const auto &planGiveBackTime = nowTime + KERNEL_NS::TimeSlice::FromSeconds(24 * 3600 * static_cast<Int64>(item.borrowdays()));
+        newSubOrder->set_plangivebacktime(planGiveBackTime.GetMilliTimestamp());
+
+        newSubOrder->set_suborderid(guidMgr->NewGuid());
+
+        const auto oldCount = bookInfo->mutable_variantinfo()->count();
+        bookInfo->mutable_variantinfo()->set_count(oldCount > bookCount ? (oldCount - bookCount) : (bookCount - oldCount));
+    }
+
+    return Status::Success;
+}
+
 Int32 LibraryGlobal::_OnGlobalSysInit()
 {
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetLibraryInfoReq, this, &LibraryGlobal::_OnGetLibraryInfoReq);

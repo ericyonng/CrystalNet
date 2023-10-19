@@ -36,14 +36,20 @@ export namespace crystal_net_service
     }
     // com_library.proto
     export enum BorrowOrderState_ENUMS {
+        // 订单生成待管理员确认
+        WAITING_MANAGER_CONFIRM = 0,
         // 订单管理员确认并出库图书
-        ORDER_CONFIRM = 0,
+        ORDER_CONFIRM = 1,
         // 订单已出库等待领取
-        WAIT_USER_RECEIVE = 1,
+        WAIT_USER_RECEIVE = 2,
         // 用户已领取等待归还
-        WAIT_USER_RETURN_BACK = 2,
+        WAIT_USER_RETURN_BACK = 3,
         // 用户已归还所有图书
-        USER_RETURN_BACK_ALL_BOOKS = 3,
+        USER_RETURN_BACK_ALL_BOOKS = 4,
+        // 取消订单(需要填写原因, 当用户领取后不可取消订单只能归还, 还没领取的才可取消订单)
+        CANCEL_ORDER = 5,
+        // 已归还
+        RETURN_BAKCK = 6,
 
     }
     // com_client_user.proto
@@ -322,6 +328,9 @@ export namespace crystal_net_service
         // 图书数量
         BookCount:number = 0;
 
+        // 借的天数
+        BorrowDays:number = 0;
+
 
     }
     // 图书列表数据
@@ -404,7 +413,7 @@ export namespace crystal_net_service
 
     }
     // 借阅图书数据
-    // com_library.proto
+    // com_bookbag.proto
     export class BorrowBookItem {
         // 图书id
         BookId:number = 0;
@@ -428,6 +437,9 @@ export namespace crystal_net_service
 
         // 订单状态 BorrowOrderState
         OrderState:number = 0;
+
+        // 取消原因
+        CancelReason:string = "";
 
 
     }
@@ -1155,7 +1167,7 @@ export namespace crystal_net_service
     }
     // 借书
     /// Opcode:
-    // library.proto
+    // bookbag.proto
     export class SubmitBookBagBorrowInfoReq {
         BorrowBookList:BorrowBookItem[] = [];
 
@@ -1163,7 +1175,7 @@ export namespace crystal_net_service
     }
     // 借书
     /// Opcode:
-    // library.proto
+    // bookbag.proto
     export class SubmitBookBagBorrowInfoRes {
         ErrCode:number = 0;
 

@@ -926,6 +926,12 @@ export namespace crystal_net_service_parser
                     newInfo.BookCount = parseFloat(jsonData.BookCount);
                 }
 
+
+                if(jsonData.BorrowDays != undefined)
+                {
+                    newInfo.BorrowDays = parseFloat(jsonData.BorrowDays);
+                }
+
                  return newInfo;
             }
 
@@ -1145,6 +1151,12 @@ export namespace crystal_net_service_parser
                 if(jsonData.OrderState != undefined)
                 {
                     newInfo.OrderState = parseFloat(jsonData.OrderState);
+                }
+
+
+                if(jsonData.CancelReason != undefined)
+                {
+                    newInfo.CancelReason = jsonData.CancelReason;
                 }
 
                  return newInfo;
