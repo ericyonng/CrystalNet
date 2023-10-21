@@ -21,27 +21,50 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2023-10-21 22:29:11
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/Offline/impl/OfflineGlobalStorage.h>
+#include <Comps/Offline/impl/OfflineGlobalStorageFactory.h>
+#include <Comps/Offline/impl/OfflineGlobal.h>
 
-#include <service/common/BaseComps/BaseComps.h>
-#include <Comps/EventRelay/EventRelay.h>
-#include <Comps/MyServiceComp/MyServiceComp.h>
-#include <Comps/PlayerSys/PlayerSys.h>
-#include <Comps/StubHandle/StubHandle.h>
-#include <Comps/SysLogic/SysLogic.h>
-#include <Comps/Test/Test.h>
-#include <Comps/DB/db.h>
-#include <Comps/User/User.h>
-#include <Comps/config/config.h>
-#include <Comps/NickName/nickname.h>
-#include <Comps/Library/library.h>
-#include <Comps/InviteCode/InviteCode.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/BookBag/BookBag.h>
-#include <Comps/Offline/Offline.h>
 
+SERVICE_BEGIN
+
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(OfflineGlobalStorage);
+
+OfflineGlobalStorage::OfflineGlobalStorage()
+:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<OfflineGlobal>())
+{
+
+}
+
+OfflineGlobalStorage::~OfflineGlobalStorage()
+{
+
+}
+
+void OfflineGlobalStorage::Release()
+{
+    OfflineGlobalStorage::DeleteByAdapter_OfflineGlobalStorage(OfflineGlobalStorageFactory::_buildType.V, this);
+}
+
+bool OfflineGlobalStorage::RegisterStorages()
+{
+    AddFlags(StorageFlagType::KEY_VALUE_SYSTEM_FLAG | 
+    StorageFlagType::MYSQL_FLAG | 
+    StorageFlagType::SYSTEM_DATA_STORAGE_FLAG |
+    StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG |
+    StorageFlagType::NEED_NUMBER_KEY_FLAG
+    );
+
+    SetComment("Offline");
+
+    return true;
+}
+
+SERVICE_END

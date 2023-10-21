@@ -21,27 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2023-10-21 22:43:11
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <Comps/Offline/impl/OfflineGlobalStorage.h>
+#include <Comps/Offline/impl/OfflineGlobalStorageFactory.h>
 
-#include <service/common/BaseComps/BaseComps.h>
-#include <Comps/EventRelay/EventRelay.h>
-#include <Comps/MyServiceComp/MyServiceComp.h>
-#include <Comps/PlayerSys/PlayerSys.h>
-#include <Comps/StubHandle/StubHandle.h>
-#include <Comps/SysLogic/SysLogic.h>
-#include <Comps/Test/Test.h>
-#include <Comps/DB/db.h>
-#include <Comps/User/User.h>
-#include <Comps/config/config.h>
-#include <Comps/NickName/nickname.h>
-#include <Comps/Library/library.h>
-#include <Comps/InviteCode/InviteCode.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/BookBag/BookBag.h>
-#include <Comps/Offline/Offline.h>
+SERVICE_BEGIN
+
+KERNEL_NS::CompFactory *OfflineGlobalStorageFactory::FactoryCreate()
+{
+    return KERNEL_NS::ObjPoolWrap<OfflineGlobalStorageFactory>::NewByAdapter(_buildType.V);
+}
+
+void OfflineGlobalStorageFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<OfflineGlobalStorageFactory>::DeleteByAdapter(_buildType.V, this);
+}
+    
+KERNEL_NS::CompObject *OfflineGlobalStorageFactory::Create() const
+{
+    return OfflineGlobalStorage::NewByAdapter_OfflineGlobalStorage(_buildType.V);
+}
+SERVICE_END
 

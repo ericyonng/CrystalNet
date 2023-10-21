@@ -160,6 +160,14 @@ export namespace crystal_net_service
         IPV6 = 1,
 
     }
+    // com_offline.proto
+    export enum OfflineType_ENUMS {
+        // 未知
+        UNKNOWN = 0,
+        // 通知
+        NOTIFY = 1,
+
+    }
     // com_library.proto
     export enum OperationType_ENUMS {
         // 未知
@@ -984,6 +992,28 @@ export namespace crystal_net_service
         // 当前服务器对时
         NowTimeNanoseconds:number = 0;
 
+
+    }
+    // 离线数据: id => OfflineData
+    // com_offline.proto
+    export class OfflineData {
+        // 离线类型
+        OfflineType:number = 0;
+
+        // 用户id
+        UserId:number = 0;
+
+        // 离线数据
+        OfflineData:string = "";
+
+        // 时间(毫秒)
+        CreateTime:number = 0;
+
+
+    }
+    // 离线类型
+    // com_offline.proto
+    export class OfflineType {
 
     }
     // 操作日志

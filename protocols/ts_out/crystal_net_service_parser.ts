@@ -398,6 +398,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("OfflineData", (jsonData:any):any =>{
+                return this.OfflineDataParser(jsonData);
+            })
+
+
+            this.add("OfflineType", (jsonData:any):any =>{
+                return this.OfflineTypeParser(jsonData);
+            })
+
+
             this.add("OperationLogInfo", (jsonData:any):any =>{
                 return this.OperationLogInfoParser(jsonData);
             })
@@ -2206,6 +2216,42 @@ export namespace crystal_net_service_parser
                     newInfo.NowTimeNanoseconds = parseFloat(jsonData.NowTimeNanoseconds);
                 }
 
+                 return newInfo;
+            }
+
+
+            private OfflineDataParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.OfflineData()
+
+                if(jsonData.OfflineType != undefined)
+                {
+                    newInfo.OfflineType = parseFloat(jsonData.OfflineType);
+                }
+
+
+                if(jsonData.UserId != undefined)
+                {
+                    newInfo.UserId = parseFloat(jsonData.UserId);
+                }
+
+
+                if(jsonData.OfflineData != undefined)
+                {
+                    newInfo.OfflineData = jsonData.OfflineData;
+                }
+
+
+                if(jsonData.CreateTime != undefined)
+                {
+                    newInfo.CreateTime = parseFloat(jsonData.CreateTime);
+                }
+
+                 return newInfo;
+            }
+
+
+            private OfflineTypeParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.OfflineType()
                  return newInfo;
             }
 

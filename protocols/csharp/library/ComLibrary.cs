@@ -31,9 +31,9 @@ using ProtoPackage.Attributes;
             "EAoMTm9ybWFsTWVtYmVyEAESCwoHTWFuYWdlchACEg0KCUxpYnJhcmlhbhAD",
             "IiUKE0xpYmFyYXJ5TWFuYWdlckluZm8SDgoGVXNlcklkGAEgASgEIrwBCg5C",
             "b3Jyb3dCb29rSW5mbxIOCgZCb29rSWQYASABKAQSEAoISXNibkNvZGUYAiAB",
-            "KAkSEwoLQm9ycm93Q291bnQYAyABKBESEgoKQm9ycm93VGltZRgEIAEoBBIY",
-            "ChBQbGFuR2l2ZUJhY2tUaW1lGAUgASgEEhgKEFJlYWxHaXZlQmFja1RpbWUY",
-            "BiABKAQSFwoPUmV0dXJuQmFja0NvdW50GAcgASgEEhIKClN1Yk9yZGVySWQY",
+            "KAkSEwoLQm9ycm93Q291bnQYAyABKBESEgoKQm9ycm93VGltZRgEIAEoEhIY",
+            "ChBQbGFuR2l2ZUJhY2tUaW1lGAUgASgSEhgKEFJlYWxHaXZlQmFja1RpbWUY",
+            "BiABKBISFwoPUmV0dXJuQmFja0NvdW50GAcgASgEEhIKClN1Yk9yZGVySWQY",
             "CCABKAQiwgEKEEJvcnJvd09yZGVyU3RhdGUirQEKBUVOVU1TEhsKF1dBSVRJ",
             "TkdfTUFOQUdFUl9DT05GSVJNEAASEQoNT1JERVJfQ09ORklSTRABEhUKEVdB",
             "SVRfVVNFUl9SRUNFSVZFEAISGQoVV0FJVF9VU0VSX1JFVFVSTl9CQUNLEAMS",
@@ -570,13 +570,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "BorrowTime" field.</summary>
     public const int BorrowTimeFieldNumber = 4;
-    private ulong borrowTime_;
+    private long borrowTime_;
     /// <summary>
     /// 借阅时间
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong BorrowTime {
+    public long BorrowTime {
       get { return borrowTime_; }
       set {
         borrowTime_ = value;
@@ -585,13 +585,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "PlanGiveBackTime" field.</summary>
     public const int PlanGiveBackTimeFieldNumber = 5;
-    private ulong planGiveBackTime_;
+    private long planGiveBackTime_;
     /// <summary>
     /// 预计归还时间
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong PlanGiveBackTime {
+    public long PlanGiveBackTime {
       get { return planGiveBackTime_; }
       set {
         planGiveBackTime_ = value;
@@ -600,13 +600,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "RealGiveBackTime" field.</summary>
     public const int RealGiveBackTimeFieldNumber = 6;
-    private ulong realGiveBackTime_;
+    private long realGiveBackTime_;
     /// <summary>
     /// 实际归还时间
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong RealGiveBackTime {
+    public long RealGiveBackTime {
       get { return realGiveBackTime_; }
       set {
         realGiveBackTime_ = value;
@@ -676,9 +676,9 @@ using ProtoPackage.Attributes;
       if (BookId != 0UL) hash ^= BookId.GetHashCode();
       if (IsbnCode.Length != 0) hash ^= IsbnCode.GetHashCode();
       if (BorrowCount != 0) hash ^= BorrowCount.GetHashCode();
-      if (BorrowTime != 0UL) hash ^= BorrowTime.GetHashCode();
-      if (PlanGiveBackTime != 0UL) hash ^= PlanGiveBackTime.GetHashCode();
-      if (RealGiveBackTime != 0UL) hash ^= RealGiveBackTime.GetHashCode();
+      if (BorrowTime != 0L) hash ^= BorrowTime.GetHashCode();
+      if (PlanGiveBackTime != 0L) hash ^= PlanGiveBackTime.GetHashCode();
+      if (RealGiveBackTime != 0L) hash ^= RealGiveBackTime.GetHashCode();
       if (ReturnBackCount != 0UL) hash ^= ReturnBackCount.GetHashCode();
       if (SubOrderId != 0UL) hash ^= SubOrderId.GetHashCode();
       if (_unknownFields != null) {
@@ -711,17 +711,17 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(24);
         output.WriteSInt32(BorrowCount);
       }
-      if (BorrowTime != 0UL) {
+      if (BorrowTime != 0L) {
         output.WriteRawTag(32);
-        output.WriteUInt64(BorrowTime);
+        output.WriteSInt64(BorrowTime);
       }
-      if (PlanGiveBackTime != 0UL) {
+      if (PlanGiveBackTime != 0L) {
         output.WriteRawTag(40);
-        output.WriteUInt64(PlanGiveBackTime);
+        output.WriteSInt64(PlanGiveBackTime);
       }
-      if (RealGiveBackTime != 0UL) {
+      if (RealGiveBackTime != 0L) {
         output.WriteRawTag(48);
-        output.WriteUInt64(RealGiveBackTime);
+        output.WriteSInt64(RealGiveBackTime);
       }
       if (ReturnBackCount != 0UL) {
         output.WriteRawTag(56);
@@ -753,17 +753,17 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(24);
         output.WriteSInt32(BorrowCount);
       }
-      if (BorrowTime != 0UL) {
+      if (BorrowTime != 0L) {
         output.WriteRawTag(32);
-        output.WriteUInt64(BorrowTime);
+        output.WriteSInt64(BorrowTime);
       }
-      if (PlanGiveBackTime != 0UL) {
+      if (PlanGiveBackTime != 0L) {
         output.WriteRawTag(40);
-        output.WriteUInt64(PlanGiveBackTime);
+        output.WriteSInt64(PlanGiveBackTime);
       }
-      if (RealGiveBackTime != 0UL) {
+      if (RealGiveBackTime != 0L) {
         output.WriteRawTag(48);
-        output.WriteUInt64(RealGiveBackTime);
+        output.WriteSInt64(RealGiveBackTime);
       }
       if (ReturnBackCount != 0UL) {
         output.WriteRawTag(56);
@@ -792,14 +792,14 @@ using ProtoPackage.Attributes;
       if (BorrowCount != 0) {
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(BorrowCount);
       }
-      if (BorrowTime != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BorrowTime);
+      if (BorrowTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(BorrowTime);
       }
-      if (PlanGiveBackTime != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(PlanGiveBackTime);
+      if (PlanGiveBackTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(PlanGiveBackTime);
       }
-      if (RealGiveBackTime != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(RealGiveBackTime);
+      if (RealGiveBackTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(RealGiveBackTime);
       }
       if (ReturnBackCount != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ReturnBackCount);
@@ -828,13 +828,13 @@ using ProtoPackage.Attributes;
       if (other.BorrowCount != 0) {
         BorrowCount = other.BorrowCount;
       }
-      if (other.BorrowTime != 0UL) {
+      if (other.BorrowTime != 0L) {
         BorrowTime = other.BorrowTime;
       }
-      if (other.PlanGiveBackTime != 0UL) {
+      if (other.PlanGiveBackTime != 0L) {
         PlanGiveBackTime = other.PlanGiveBackTime;
       }
-      if (other.RealGiveBackTime != 0UL) {
+      if (other.RealGiveBackTime != 0L) {
         RealGiveBackTime = other.RealGiveBackTime;
       }
       if (other.ReturnBackCount != 0UL) {
@@ -871,15 +871,15 @@ using ProtoPackage.Attributes;
             break;
           }
           case 32: {
-            BorrowTime = input.ReadUInt64();
+            BorrowTime = input.ReadSInt64();
             break;
           }
           case 40: {
-            PlanGiveBackTime = input.ReadUInt64();
+            PlanGiveBackTime = input.ReadSInt64();
             break;
           }
           case 48: {
-            RealGiveBackTime = input.ReadUInt64();
+            RealGiveBackTime = input.ReadSInt64();
             break;
           }
           case 56: {
@@ -918,15 +918,15 @@ using ProtoPackage.Attributes;
             break;
           }
           case 32: {
-            BorrowTime = input.ReadUInt64();
+            BorrowTime = input.ReadSInt64();
             break;
           }
           case 40: {
-            PlanGiveBackTime = input.ReadUInt64();
+            PlanGiveBackTime = input.ReadSInt64();
             break;
           }
           case 48: {
-            RealGiveBackTime = input.ReadUInt64();
+            RealGiveBackTime = input.ReadSInt64();
             break;
           }
           case 56: {

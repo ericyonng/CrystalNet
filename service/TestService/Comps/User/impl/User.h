@@ -72,7 +72,8 @@ public:
     virtual void OnClientLoginFinish() override;
     virtual void OnLogout() override;
     virtual void OnUserCreated() override;
-
+    virtual void OnOfflineHandle(const OfflineData &data) override;
+    virtual void RegisterOfflineHandler(Int32 offlineType, KERNEL_NS::IDelegate<void, const OfflineData &> *deleg) override;
 
     virtual Int32 GetUserStatus() const override;
     virtual void SetUserStatus(Int32 status)  override;
@@ -167,6 +168,8 @@ private:
     Int64 _lruTime;
     Int64 _heatbeatTime;
     mutable Int64 _curMaxPacketId;
+
+    std::unordered_map<Int32, KERNEL_NS::IDelegate<void, const OfflineData &> *> _offlineTypeRefHandler;
 };
 
 ALWAYS_INLINE IUserSys *User::_GetSysBy(const KERNEL_NS::LibString &fieldName)

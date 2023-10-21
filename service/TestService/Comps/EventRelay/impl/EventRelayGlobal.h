@@ -59,7 +59,7 @@ private:
     // 事件转发
     void _OnRemoveLibraryMember(KERNEL_NS::LibEvent *ev);
     void _OnJoinLibraryMember(KERNEL_NS::LibEvent *ev);
-    void _OnUserObjCreated(KERNEL_NS::LibEvent *ev);
+    void _OnUserObjLoaded(KERNEL_NS::LibEvent *ev);
     void _OnUserObjWillRemove(KERNEL_NS::LibEvent *ev);
 
     void _EventFromUserToGlobal(KERNEL_NS::LibEvent *ev);

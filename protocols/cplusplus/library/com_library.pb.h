@@ -1106,31 +1106,31 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_bookid(uint64_t value);
   public:
 
-  // uint64 BorrowTime = 4;
+  // sint64 BorrowTime = 4;
   void clear_borrowtime();
-  uint64_t borrowtime() const;
-  void set_borrowtime(uint64_t value);
+  int64_t borrowtime() const;
+  void set_borrowtime(int64_t value);
   private:
-  uint64_t _internal_borrowtime() const;
-  void _internal_set_borrowtime(uint64_t value);
+  int64_t _internal_borrowtime() const;
+  void _internal_set_borrowtime(int64_t value);
   public:
 
-  // uint64 PlanGiveBackTime = 5;
+  // sint64 PlanGiveBackTime = 5;
   void clear_plangivebacktime();
-  uint64_t plangivebacktime() const;
-  void set_plangivebacktime(uint64_t value);
+  int64_t plangivebacktime() const;
+  void set_plangivebacktime(int64_t value);
   private:
-  uint64_t _internal_plangivebacktime() const;
-  void _internal_set_plangivebacktime(uint64_t value);
+  int64_t _internal_plangivebacktime() const;
+  void _internal_set_plangivebacktime(int64_t value);
   public:
 
-  // uint64 RealGiveBackTime = 6;
+  // sint64 RealGiveBackTime = 6;
   void clear_realgivebacktime();
-  uint64_t realgivebacktime() const;
-  void set_realgivebacktime(uint64_t value);
+  int64_t realgivebacktime() const;
+  void set_realgivebacktime(int64_t value);
   private:
-  uint64_t _internal_realgivebacktime() const;
-  void _internal_set_realgivebacktime(uint64_t value);
+  int64_t _internal_realgivebacktime() const;
+  void _internal_set_realgivebacktime(int64_t value);
   public:
 
   // uint64 ReturnBackCount = 7;
@@ -1170,9 +1170,9 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr isbncode_;
     uint64_t bookid_;
-    uint64_t borrowtime_;
-    uint64_t plangivebacktime_;
-    uint64_t realgivebacktime_;
+    int64_t borrowtime_;
+    int64_t plangivebacktime_;
+    int64_t realgivebacktime_;
     uint64_t returnbackcount_;
     uint64_t suborderid_;
     int32_t borrowcount_;
@@ -5279,62 +5279,62 @@ inline void BorrowBookInfo::set_borrowcount(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookInfo.BorrowCount)
 }
 
-// uint64 BorrowTime = 4;
+// sint64 BorrowTime = 4;
 inline void BorrowBookInfo::clear_borrowtime() {
-  _impl_.borrowtime_ = uint64_t{0u};
+  _impl_.borrowtime_ = int64_t{0};
 }
-inline uint64_t BorrowBookInfo::_internal_borrowtime() const {
+inline int64_t BorrowBookInfo::_internal_borrowtime() const {
   return _impl_.borrowtime_;
 }
-inline uint64_t BorrowBookInfo::borrowtime() const {
+inline int64_t BorrowBookInfo::borrowtime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookInfo.BorrowTime)
   return _internal_borrowtime();
 }
-inline void BorrowBookInfo::_internal_set_borrowtime(uint64_t value) {
+inline void BorrowBookInfo::_internal_set_borrowtime(int64_t value) {
   
   _impl_.borrowtime_ = value;
 }
-inline void BorrowBookInfo::set_borrowtime(uint64_t value) {
+inline void BorrowBookInfo::set_borrowtime(int64_t value) {
   _internal_set_borrowtime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookInfo.BorrowTime)
 }
 
-// uint64 PlanGiveBackTime = 5;
+// sint64 PlanGiveBackTime = 5;
 inline void BorrowBookInfo::clear_plangivebacktime() {
-  _impl_.plangivebacktime_ = uint64_t{0u};
+  _impl_.plangivebacktime_ = int64_t{0};
 }
-inline uint64_t BorrowBookInfo::_internal_plangivebacktime() const {
+inline int64_t BorrowBookInfo::_internal_plangivebacktime() const {
   return _impl_.plangivebacktime_;
 }
-inline uint64_t BorrowBookInfo::plangivebacktime() const {
+inline int64_t BorrowBookInfo::plangivebacktime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookInfo.PlanGiveBackTime)
   return _internal_plangivebacktime();
 }
-inline void BorrowBookInfo::_internal_set_plangivebacktime(uint64_t value) {
+inline void BorrowBookInfo::_internal_set_plangivebacktime(int64_t value) {
   
   _impl_.plangivebacktime_ = value;
 }
-inline void BorrowBookInfo::set_plangivebacktime(uint64_t value) {
+inline void BorrowBookInfo::set_plangivebacktime(int64_t value) {
   _internal_set_plangivebacktime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookInfo.PlanGiveBackTime)
 }
 
-// uint64 RealGiveBackTime = 6;
+// sint64 RealGiveBackTime = 6;
 inline void BorrowBookInfo::clear_realgivebacktime() {
-  _impl_.realgivebacktime_ = uint64_t{0u};
+  _impl_.realgivebacktime_ = int64_t{0};
 }
-inline uint64_t BorrowBookInfo::_internal_realgivebacktime() const {
+inline int64_t BorrowBookInfo::_internal_realgivebacktime() const {
   return _impl_.realgivebacktime_;
 }
-inline uint64_t BorrowBookInfo::realgivebacktime() const {
+inline int64_t BorrowBookInfo::realgivebacktime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookInfo.RealGiveBackTime)
   return _internal_realgivebacktime();
 }
-inline void BorrowBookInfo::_internal_set_realgivebacktime(uint64_t value) {
+inline void BorrowBookInfo::_internal_set_realgivebacktime(int64_t value) {
   
   _impl_.realgivebacktime_ = value;
 }
-inline void BorrowBookInfo::set_realgivebacktime(uint64_t value) {
+inline void BorrowBookInfo::set_realgivebacktime(int64_t value) {
   _internal_set_realgivebacktime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookInfo.RealGiveBackTime)
 }

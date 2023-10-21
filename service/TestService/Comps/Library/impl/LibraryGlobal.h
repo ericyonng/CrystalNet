@@ -96,6 +96,9 @@ protected:
 
     bool _IsReturnBackAllBook(const MemberInfo *memberInfo) const;
 
+    // 是否有逾期
+    bool _HasOverDeadlineOrder(const MemberInfo *memberInfo, const KERNEL_NS::LibTime &nowTime) const;
+
     bool _RemoveMember(LibraryInfo *libraryInfo, UInt64 userId);
     bool _RemoveMember(LibraryInfo *libraryInfo, IUser *user);
 

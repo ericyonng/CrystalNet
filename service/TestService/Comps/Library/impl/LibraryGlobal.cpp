@@ -201,6 +201,7 @@ BookInfo *LibraryGlobal::GetBookInfo(UInt64 libraryId, UInt64 bookId)
 
 Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, UInt64 memberUserId, const BookBagInfo &bookBagInfo)
 {
+    // TODO
     auto memberInfo = GetMemberInfo(libraryId, memberUserId);
     if(!memberInfo)
     {
@@ -244,10 +245,18 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, UInt64 memberUserId, co
             return Status::ParamError;
         }
     }
+
+    // 有逾期不可继续借
+    const auto &nowTime = KERNEL_NS::LibTime::Now();
+    if(_HasOverDeadlineOrder(memberInfo, nowTime))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("hase over dead line order memver info:%s, now time:%s, library id:%llu, member user id:%llu")
+        , memberInfo->ToJsonString().c_str(), nowTime.ToStringOfMillSecondPrecision().c_str(), libraryId,  memberUserId);
+        return Status::HaveBookOverDeadline;
+    }
     
     auto newOrderInfo = memberInfo->add_borrowlist();
 
-    const auto &nowTime = KERNEL_NS::LibTime::Now();
     auto guidMgr = GetGlobalSys<IGlobalUidMgr>();
     auto orderId = guidMgr->NewGuid();
     newOrderInfo->set_orderid(orderId);
@@ -269,9 +278,18 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, UInt64 memberUserId, co
 
         newSubOrder->set_suborderid(guidMgr->NewGuid());
 
+        // 扣库存
         const auto oldCount = bookInfo->mutable_variantinfo()->count();
         bookInfo->mutable_variantinfo()->set_count(oldCount > bookCount ? (oldCount - bookCount) : (bookCount - oldCount));
     }
+
+    MaskNumberKeyModifyDirty(libraryId);
+
+    auto libarayrInfo = GetLibraryInfo(libraryId);
+    _SendLibraryInfoNty(memberUserId, libarayrInfo);
+
+    // 通知管理员有订单需要处理
+    
 
     return Status::Success;
 }
@@ -1694,12 +1712,33 @@ bool LibraryGlobal::_IsReturnBackAllBook(const MemberInfo *memberInfo) const
         for(Int32 bookIdx = 0; bookIdx < bookListSize; ++bookIdx)
         {
             auto &borrowBookInfo = orderInfo.borrowbooklist(bookIdx);
-            if(borrowBookInfo.realgivebacktime() < borrowBookInfo.borrowtime())
+            if(borrowBookInfo.returnbackcount() < borrowBookInfo.borrowcount())
                 return false;
         }
     }
 
     return true;
+}
+
+bool LibraryGlobal::_HasOverDeadlineOrder(const MemberInfo *memberInfo, const KERNEL_NS::LibTime &nowTime) const
+{
+    const Int32 len = memberInfo->borrowlist_size();
+    for(Int32 idx = 0; idx < len; ++idx)
+    {
+        auto &orderInfo = memberInfo->borrowlist(idx);
+        const Int32 bookListSize = orderInfo.borrowbooklist_size();
+        for(Int32 bookIdx = 0; bookIdx < bookListSize; ++bookIdx)
+        {
+            auto &borrowBookInfo = orderInfo.borrowbooklist(bookIdx);
+            if(borrowBookInfo.returnbackcount() < borrowBookInfo.borrowcount())
+            {
+                if(nowTime.GetMilliTimestamp() >= borrowBookInfo.plangivebacktime())
+                    return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool LibraryGlobal::_RemoveMember(LibraryInfo *libraryInfo, UInt64 userId)

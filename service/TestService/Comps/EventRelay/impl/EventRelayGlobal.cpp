@@ -90,7 +90,7 @@ void EventRelayGlobal::_RegisterEvents()
     auto eventMgr = GetEventMgr();
     _removeLibraryMemberStub = eventMgr->AddListener(EventEnums::REMOVE_LIBRARY_MEMBER, this, &EventRelayGlobal::_OnRemoveLibraryMember);
     _joinLibraryMemberStub = eventMgr->AddListener(EventEnums::JOIN_LIBRARY_MEMBER, this, &EventRelayGlobal::_OnJoinLibraryMember);
-    _userObjCreatedStub = eventMgr->AddListener(EventEnums::USER_OBJ_CREATED, this, &EventRelayGlobal::_OnUserObjCreated);
+    _userObjCreatedStub = eventMgr->AddListener(EventEnums::USER_LOADED, this, &EventRelayGlobal::_OnUserObjLoaded);
     _userObjWillRemoveStub = eventMgr->AddListener(EventEnums::USER_WILL_REMOVE, this, &EventRelayGlobal::_OnUserObjWillRemove);
 }
 
@@ -178,7 +178,7 @@ void EventRelayGlobal::_OnJoinLibraryMember(KERNEL_NS::LibEvent *ev)
     _OnEventFromUserHandled(userId, eventId);
 }
 
-void EventRelayGlobal::_OnUserObjCreated(KERNEL_NS::LibEvent *ev)
+void EventRelayGlobal::_OnUserObjLoaded(KERNEL_NS::LibEvent *ev)
 {
     auto user = ev->GetParam(Params::USER_OBJ).AsPtr<IUser>();
 

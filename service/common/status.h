@@ -93,5 +93,6 @@ namespace Status
         KeyWordsTooMuch,                                    // 关键词太多
         BookCountOverCapacity,                              // 超过库存
         HaveNoBook,                                         // 没有书
+        HaveBookOverDeadline,                               // 有图书逾期, 请归还后再借
     };
 }

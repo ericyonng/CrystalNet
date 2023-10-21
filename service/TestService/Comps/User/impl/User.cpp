@@ -337,6 +337,13 @@ Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS:
         g_Log->Info(LOGFMT_OBJ_TAG("[User Sys Loaded]user id:%llu, field name:%s, system name:%s, data loaded."), key, fieldName.c_str(), userSys->GetObjName().c_str());
     }
 
+    auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::USER_LOADED);
+    ev->SetParam(Params::USER_OBJ, this);
+    GetService()->GetEventMgr()->FireEvent(ev);
+
+    ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::AFTER_USER_LOADED);
+    ev->SetParam(Params::USER_OBJ, this);
+    GetService()->GetEventMgr()->FireEvent(ev);
     return Status::Success;
 }
 
@@ -674,6 +681,8 @@ void User::OnLogin()
     for(auto userSys : userSyss)
         userSys->CastTo<IUserSys>()->OnLogin();
 
+    SetUserStatus(UserStatus::USER_LOGINING);
+
     // TODO:
     g_Log->Info(LOGFMT_OBJ_TAG("login user:%s"), ToString().c_str());
 }
@@ -715,6 +724,31 @@ void User::OnUserCreated()
         userSys->CastTo<IUserSys>()->OnUserCreated();
 
     g_Log->Info(LOGFMT_OBJ_TAG("OnUserCreated user:%s"), ToString().c_str());
+}
+
+void User::OnOfflineHandle(const OfflineData &data)
+{
+    auto iter = _offlineTypeRefHandler.find(data.offlinetype());
+    if(iter == _offlineTypeRefHandler.end())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("offline type:%d, have no handler, user:%s, offline data:%s")
+        , data.offlinetype(), ToString().c_str(), data.ToJsonString().c_str());
+        return;
+    }
+
+    iter->second->Invoke(data);
+}
+
+void User::RegisterOfflineHandler(Int32 offlineType, KERNEL_NS::IDelegate<void, const OfflineData &> *deleg)
+{
+    auto iter = _offlineTypeRefHandler.find(offlineType);
+    if(iter != _offlineTypeRefHandler.end())
+    {
+        iter->second->Release();
+        _offlineTypeRefHandler.erase(iter);
+    }
+
+    _offlineTypeRefHandler.insert(std::make_pair(offlineType, deleg));
 }
 
 Int32 User::GetUserStatus() const
@@ -1042,10 +1076,13 @@ void User::_Clear()
    auto eventMgr = GetEventMgr();
    KERNEL_NS::EventManager::Delete_EventManager(eventMgr);
    SetEventMgr(NULL);
+
+   KERNEL_NS::ContainerUtil::DelContainer2(_offlineTypeRefHandler);
 }
 
 void User::_RegisterEvents()
 {
+
 }
 
 ClientUserInfo *User::_BuildUserClientInfo() const

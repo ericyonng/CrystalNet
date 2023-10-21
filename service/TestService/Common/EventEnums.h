@@ -76,6 +76,17 @@ namespace EventEnums
                                         * @param(USER_ID): userid
                                         * @param(LIBRARY_ID): 图书馆id
                                         */
+
+        USER_LOADED,                    // 用户加载完成
+                                        /* 用户加载完成
+                                        * Attention: 
+                                        * @param(USER_OBJ): 用户对象
+                                        */
+        AFTER_USER_LOADED,              // 用户加载完成之后
+                                        /* 用户加载完成
+                                        * Attention: 
+                                        * @param(USER_OBJ): 用户对象
+                                        */
         USER_OBJ_CREATED,               // 用户对象创建事件
                                         /* 用户对象创建事件
                                         * Attention: 

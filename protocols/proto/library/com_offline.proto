@@ -1,0 +1,31 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+// 离线数据: id => OfflineData
+message OfflineData
+{
+    // 离线类型
+    sint32 OfflineType = 1;
+
+    // 用户id
+    uint64 UserId = 2;
+
+    // 离线数据
+    bytes OfflineData = 3;
+
+    // 时间(毫秒)
+    sint64 CreateTime = 4;
+}
+
+// 离线类型
+message OfflineType
+{
+    enum ENUMS
+    {
+        // 未知
+        UNKNOWN = 0;
+
+        // 通知
+        NOTIFY = 1;
+    }
+}

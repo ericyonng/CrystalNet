@@ -66,9 +66,9 @@ PROTOBUF_CONSTEXPR BorrowBookInfo::BorrowBookInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.isbncode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.bookid_)*/uint64_t{0u}
-  , /*decltype(_impl_.borrowtime_)*/uint64_t{0u}
-  , /*decltype(_impl_.plangivebacktime_)*/uint64_t{0u}
-  , /*decltype(_impl_.realgivebacktime_)*/uint64_t{0u}
+  , /*decltype(_impl_.borrowtime_)*/int64_t{0}
+  , /*decltype(_impl_.plangivebacktime_)*/int64_t{0}
+  , /*decltype(_impl_.realgivebacktime_)*/int64_t{0}
   , /*decltype(_impl_.returnbackcount_)*/uint64_t{0u}
   , /*decltype(_impl_.suborderid_)*/uint64_t{0u}
   , /*decltype(_impl_.borrowcount_)*/0
@@ -452,8 +452,8 @@ const char descriptor_table_protodef_com_5flibrary_2eproto[] PROTOBUF_SECTION_VA
   "\022\r\n\tLibrarian\020\003\"%\n\023LibararyManagerInfo\022\016"
   "\n\006UserId\030\001 \001(\004\"\274\001\n\016BorrowBookInfo\022\016\n\006Boo"
   "kId\030\001 \001(\004\022\020\n\010IsbnCode\030\002 \001(\t\022\023\n\013BorrowCou"
-  "nt\030\003 \001(\021\022\022\n\nBorrowTime\030\004 \001(\004\022\030\n\020PlanGive"
-  "BackTime\030\005 \001(\004\022\030\n\020RealGiveBackTime\030\006 \001(\004"
+  "nt\030\003 \001(\021\022\022\n\nBorrowTime\030\004 \001(\022\022\030\n\020PlanGive"
+  "BackTime\030\005 \001(\022\022\030\n\020RealGiveBackTime\030\006 \001(\022"
   "\022\027\n\017ReturnBackCount\030\007 \001(\004\022\022\n\nSubOrderId\030"
   "\010 \001(\004\"\302\001\n\020BorrowOrderState\"\255\001\n\005ENUMS\022\033\n\027"
   "WAITING_MANAGER_CONFIRM\020\000\022\021\n\rORDER_CONFI"
@@ -879,9 +879,9 @@ inline void BorrowBookInfo::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.isbncode_){}
     , decltype(_impl_.bookid_){uint64_t{0u}}
-    , decltype(_impl_.borrowtime_){uint64_t{0u}}
-    , decltype(_impl_.plangivebacktime_){uint64_t{0u}}
-    , decltype(_impl_.realgivebacktime_){uint64_t{0u}}
+    , decltype(_impl_.borrowtime_){int64_t{0}}
+    , decltype(_impl_.plangivebacktime_){int64_t{0}}
+    , decltype(_impl_.realgivebacktime_){int64_t{0}}
     , decltype(_impl_.returnbackcount_){uint64_t{0u}}
     , decltype(_impl_.suborderid_){uint64_t{0u}}
     , decltype(_impl_.borrowcount_){0}
@@ -956,26 +956,26 @@ const char* BorrowBookInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
         } else
           goto handle_unusual;
         continue;
-      // uint64 BorrowTime = 4;
+      // sint64 BorrowTime = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
-          _impl_.borrowtime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          _impl_.borrowtime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // uint64 PlanGiveBackTime = 5;
+      // sint64 PlanGiveBackTime = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 40)) {
-          _impl_.plangivebacktime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          _impl_.plangivebacktime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // uint64 RealGiveBackTime = 6;
+      // sint64 RealGiveBackTime = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
-          _impl_.realgivebacktime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          _impl_.realgivebacktime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1047,22 +1047,22 @@ uint8_t* BorrowBookInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteSInt32ToArray(3, this->_internal_borrowcount(), target);
   }
 
-  // uint64 BorrowTime = 4;
+  // sint64 BorrowTime = 4;
   if (this->_internal_borrowtime() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(4, this->_internal_borrowtime(), target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(4, this->_internal_borrowtime(), target);
   }
 
-  // uint64 PlanGiveBackTime = 5;
+  // sint64 PlanGiveBackTime = 5;
   if (this->_internal_plangivebacktime() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(5, this->_internal_plangivebacktime(), target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(5, this->_internal_plangivebacktime(), target);
   }
 
-  // uint64 RealGiveBackTime = 6;
+  // sint64 RealGiveBackTime = 6;
   if (this->_internal_realgivebacktime() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(6, this->_internal_realgivebacktime(), target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(6, this->_internal_realgivebacktime(), target);
   }
 
   // uint64 ReturnBackCount = 7;
@@ -1105,19 +1105,19 @@ size_t BorrowBookInfo::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_bookid());
   }
 
-  // uint64 BorrowTime = 4;
+  // sint64 BorrowTime = 4;
   if (this->_internal_borrowtime() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_borrowtime());
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_borrowtime());
   }
 
-  // uint64 PlanGiveBackTime = 5;
+  // sint64 PlanGiveBackTime = 5;
   if (this->_internal_plangivebacktime() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_plangivebacktime());
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_plangivebacktime());
   }
 
-  // uint64 RealGiveBackTime = 6;
+  // sint64 RealGiveBackTime = 6;
   if (this->_internal_realgivebacktime() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_realgivebacktime());
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_realgivebacktime());
   }
 
   // uint64 ReturnBackCount = 7;

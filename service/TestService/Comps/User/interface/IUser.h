@@ -36,6 +36,8 @@ class IUserMgr;
 class IUserSys;
 class IUser;
 
+class OfflineData;
+
 class UserStatus
 {
 public:
@@ -51,6 +53,7 @@ public:
         USER_STARTING,
         USER_STARTED,
 
+        USER_LOGINING,
         USER_LOGINED,
         CLIENT_LOGIN_ENDING,
         USER_LOGOUTING,
@@ -141,6 +144,11 @@ public:
     virtual void OnClientLoginFinish() = 0;
     virtual void OnLogout() = 0;
     virtual void OnUserCreated() = 0;
+
+    virtual void OnOfflineHandle(const OfflineData &offlineData) = 0;
+    template<typename ObjType>
+    void RegisterOfflineHandler(Int32 offlineType, ObjType *obj, void (ObjType::*handler)(const OfflineData &data));
+    virtual void RegisterOfflineHandler(Int32 offlineType, KERNEL_NS::IDelegate<void, const OfflineData &> *deleg) = 0;
 
     // user状态 ClientUserStatus
     virtual Int32 GetUserStatus() const = 0;
@@ -256,6 +264,13 @@ ALWAYS_INLINE void IUser::PurgeEndWith(ObjType *obj, void (ObjType::*handler)(In
 {
     auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
     PurgeEndWith(delg);
+}
+
+template<typename ObjType>
+ALWAYS_INLINE void IUser::RegisterOfflineHandler(Int32 offlineType, ObjType *obj, void (ObjType::*handler)(const OfflineData &data))
+{
+    auto delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
+    RegisterOfflineHandler(offlineType, delg);
 }
 
 SERVICE_END

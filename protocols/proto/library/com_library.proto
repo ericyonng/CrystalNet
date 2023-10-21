@@ -37,11 +37,11 @@ message BorrowBookInfo
     // 借阅数量
     sint32 BorrowCount = 3;
     // 借阅时间
-    uint64 BorrowTime = 4;
+    sint64 BorrowTime = 4;
     // 预计归还时间
-    uint64 PlanGiveBackTime = 5;
+    sint64 PlanGiveBackTime = 5;
     // 实际归还时间
-    uint64 RealGiveBackTime = 6;
+    sint64 RealGiveBackTime = 6;
     // 已还数量
     uint64 ReturnBackCount = 7;
     // 子单号(当前借的书的单号)

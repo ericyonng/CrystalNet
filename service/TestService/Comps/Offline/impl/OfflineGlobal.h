@@ -21,27 +21,50 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-08-28 03:05:38
+ * Date: 2023-10-21 19:22:11
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/common/BaseComps/BaseComps.h>
-#include <Comps/EventRelay/EventRelay.h>
-#include <Comps/MyServiceComp/MyServiceComp.h>
-#include <Comps/PlayerSys/PlayerSys.h>
-#include <Comps/StubHandle/StubHandle.h>
-#include <Comps/SysLogic/SysLogic.h>
-#include <Comps/Test/Test.h>
-#include <Comps/DB/db.h>
-#include <Comps/User/User.h>
-#include <Comps/config/config.h>
-#include <Comps/NickName/nickname.h>
-#include <Comps/Library/library.h>
-#include <Comps/InviteCode/InviteCode.h>
-#include <Comps/PassTime/PassTime.h>
-#include <Comps/BookBag/BookBag.h>
-#include <Comps/Offline/Offline.h>
+#include <Comps/Offline/interface/IOfflineGlobal.h>
 
+SERVICE_BEGIN
+
+class OfflineGlobal : public IOfflineGlobal
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IOfflineGlobal, OfflineGlobal);
+
+public:
+    OfflineGlobal();
+    ~OfflineGlobal();
+    void Release() override;
+    void OnRegisterComps() override;
+
+    Int32 OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) override;
+    Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const override;
+    
+    virtual bool AddOfflineData(Int32 offlineType, UInt64 userId, const KERNEL_NS::LibString &offlineData) override;
+
+private:
+    virtual Int32 _OnGlobalSysInit() override;
+    virtual void _OnGlobalSysClose() override;
+
+    void _Clear();
+
+    void _RegisterEvents();
+    void _UnRegisterEvents();
+
+    void _OnAfterUserLoaded(KERNEL_NS::LibEvent *ev);
+
+    void _MakeDict(UInt64 id, OfflineData *offlineData);
+
+private:
+    KERNEL_NS::ListenerStub _afteUserLoadedStub;
+
+    std::map<UInt64, OfflineData *> _idRefOfflineData;
+    std::map<UInt64, std::map<UInt64, OfflineData *>> _userIdRefIdRefOfflineData;
+};
+
+SERVICE_END

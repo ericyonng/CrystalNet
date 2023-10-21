@@ -182,6 +182,9 @@ void MyTestService::_OnServiceRegisterComps()
 
     // 书袋
     RegisterComp<BookBagGlobalFactory>();
+
+    // 离线处理模块
+    RegisterComp<OfflineGlobalFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()
