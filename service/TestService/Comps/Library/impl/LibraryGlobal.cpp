@@ -36,6 +36,7 @@
 #include <Comps/UserSys/UserSys.h>
 #include <Comps/InviteCode/InviteCode.h>
 #include <Comps/NickName/nickname.h>
+#include <Comps/Notify/Notify.h>
 
 SERVICE_BEGIN
 
@@ -199,9 +200,10 @@ BookInfo *LibraryGlobal::GetBookInfo(UInt64 libraryId, UInt64 bookId)
     return iterBook == iterLibrary->second.end() ? NULL : iterBook->second;
 }
 
-Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, UInt64 memberUserId, const BookBagInfo &bookBagInfo)
+Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, const BookBagInfo &bookBagInfo)
 {
     // TODO
+    auto memberUserId = user->GetUserId();
     auto memberInfo = GetMemberInfo(libraryId, memberUserId);
     if(!memberInfo)
     {
@@ -289,7 +291,34 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, UInt64 memberUserId, co
     _SendLibraryInfoNty(memberUserId, libarayrInfo);
 
     // 通知管理员有订单需要处理
-    
+    auto notifyGlobal = GetGlobalSys<INotifyGlobal>();
+
+    for(auto &manager:libarayrInfo->managerinfolist())
+    {
+        // "{}申请借书, 用户id:{}, 订单号:{},请即时处理出库."
+        std::vector<VariantParam> params;
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(user->GetNickname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(user->GetUserId());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(newOrderInfo->orderid());
+            params.push_back(param);
+        }
+
+        notifyGlobal->SendNotify(manager.userid(), "HAVE_NEW_BORROW_APPLY_ORDER", {}, "BORROW_ORDER_CONTENT"
+        , params);
+    }
 
     return Status::Success;
 }

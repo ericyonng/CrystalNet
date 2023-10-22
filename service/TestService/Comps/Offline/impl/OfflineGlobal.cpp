@@ -140,6 +140,7 @@ Int32 OfflineGlobal::_OnGlobalSysInit()
 void OfflineGlobal::_OnGlobalSysClose()
 {
     _UnRegisterEvents();
+    _Clear();
 }
 
 void OfflineGlobal::_Clear()

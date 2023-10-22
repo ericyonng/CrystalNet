@@ -2,6 +2,7 @@ syntax = "proto3";
 package CRYSTAL_NET.service;
 
 import "com_book.proto";
+import "com_variant.proto";
 
 
 // 按照权限大小排
@@ -108,32 +109,6 @@ message MemberInfo
     oneof MemberBindPhone
     {
         uint64 BindPhone = 6;
-    }
-}
-
-message VariantParamType
-{
-    enum ENUMS
-    {
-        // 未知
-        UNKNOWN = 0;
-        // 数值
-        NUM = 1;
-        // 字符串
-        STRING = 2;
-    }
-}
-
-// 可变参数
-message VariantParam
-{
-    // 参数类型 VariantParamType
-    sint32 ParamType = 1;
-    // 参数值
-    oneof ParamValue
-    {
-        sint64 Number = 2;
-        string Str = 3;
     }
 }
 

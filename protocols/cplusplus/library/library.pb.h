@@ -210,7 +210,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -244,7 +244,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -467,7 +467,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
@@ -501,7 +501,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
@@ -763,7 +763,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoRes failed, error: %s"), InitializationErrorString().c_str());
@@ -797,7 +797,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryInfoRes failed, error: %s"), InitializationErrorString().c_str());
@@ -1050,7 +1050,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryReq failed, error: %s"), InitializationErrorString().c_str());
@@ -1084,7 +1084,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryReq failed, error: %s"), InitializationErrorString().c_str());
@@ -1417,7 +1417,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryRes failed, error: %s"), InitializationErrorString().c_str());
@@ -1451,7 +1451,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message CreateLibraryRes failed, error: %s"), InitializationErrorString().c_str());
@@ -1704,7 +1704,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryReq failed, error: %s"), InitializationErrorString().c_str());
@@ -1738,7 +1738,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryReq failed, error: %s"), InitializationErrorString().c_str());
@@ -1991,7 +1991,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryRes failed, error: %s"), InitializationErrorString().c_str());
@@ -2025,7 +2025,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message JoinLibraryRes failed, error: %s"), InitializationErrorString().c_str());
@@ -2278,7 +2278,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryReq failed, error: %s"), InitializationErrorString().c_str());
@@ -2312,7 +2312,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryReq failed, error: %s"), InitializationErrorString().c_str());
@@ -2535,7 +2535,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryRes failed, error: %s"), InitializationErrorString().c_str());
@@ -2569,7 +2569,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message QuitLibraryRes failed, error: %s"), InitializationErrorString().c_str());
@@ -2822,7 +2822,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListReq failed, error: %s"), InitializationErrorString().c_str());
@@ -2856,7 +2856,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListReq failed, error: %s"), InitializationErrorString().c_str());
@@ -3079,7 +3079,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListRes failed, error: %s"), InitializationErrorString().c_str());
@@ -3113,7 +3113,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryListRes failed, error: %s"), InitializationErrorString().c_str());
@@ -3375,7 +3375,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianReq failed, error: %s"), InitializationErrorString().c_str());
@@ -3409,7 +3409,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianReq failed, error: %s"), InitializationErrorString().c_str());
@@ -3662,7 +3662,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianRes failed, error: %s"), InitializationErrorString().c_str());
@@ -3696,7 +3696,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message TransferLibraianRes failed, error: %s"), InitializationErrorString().c_str());
@@ -3949,7 +3949,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -3983,7 +3983,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -4298,7 +4298,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoRes failed, error: %s"), InitializationErrorString().c_str());
@@ -4332,7 +4332,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyMemberInfoRes failed, error: %s"), InitializationErrorString().c_str());
@@ -4585,7 +4585,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserLibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
@@ -4619,7 +4619,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserLibraryInfoNty failed, error: %s"), InitializationErrorString().c_str());
@@ -4881,7 +4881,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -4915,7 +4915,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -5138,7 +5138,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
@@ -5172,7 +5172,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetLibraryMemberSimpleInfoRes failed, error: %s"), InitializationErrorString().c_str());
@@ -5445,7 +5445,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookReq failed, error: %s"), InitializationErrorString().c_str());
@@ -5479,7 +5479,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookReq failed, error: %s"), InitializationErrorString().c_str());
@@ -5917,7 +5917,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookRes failed, error: %s"), InitializationErrorString().c_str());
@@ -5951,7 +5951,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookRes failed, error: %s"), InitializationErrorString().c_str());
@@ -6204,7 +6204,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountReq failed, error: %s"), InitializationErrorString().c_str());
@@ -6238,7 +6238,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountReq failed, error: %s"), InitializationErrorString().c_str());
@@ -6502,7 +6502,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountRes failed, error: %s"), InitializationErrorString().c_str());
@@ -6536,7 +6536,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message AddLibraryBookCountRes failed, error: %s"), InitializationErrorString().c_str());
@@ -6789,7 +6789,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListReq failed, error: %s"), InitializationErrorString().c_str());
@@ -6823,7 +6823,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListReq failed, error: %s"), InitializationErrorString().c_str());
@@ -7046,7 +7046,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookListNty failed, error: %s"), InitializationErrorString().c_str());
@@ -7080,7 +7080,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookListNty failed, error: %s"), InitializationErrorString().c_str());
@@ -7342,7 +7342,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BooksChangeNty failed, error: %s"), InitializationErrorString().c_str());
@@ -7376,7 +7376,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BooksChangeNty failed, error: %s"), InitializationErrorString().c_str());
@@ -7638,7 +7638,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookVariantInfoItemsNty failed, error: %s"), InitializationErrorString().c_str());
@@ -7672,7 +7672,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BookVariantInfoItemsNty failed, error: %s"), InitializationErrorString().c_str());
@@ -7934,7 +7934,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListRes failed, error: %s"), InitializationErrorString().c_str());
@@ -7968,7 +7968,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookListRes failed, error: %s"), InitializationErrorString().c_str());
@@ -8221,7 +8221,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -8255,7 +8255,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -8513,7 +8513,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoRes failed, error: %s"), InitializationErrorString().c_str());
@@ -8547,7 +8547,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoRes failed, error: %s"), InitializationErrorString().c_str());
@@ -8820,7 +8820,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameReq failed, error: %s"), InitializationErrorString().c_str());
@@ -8854,7 +8854,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameReq failed, error: %s"), InitializationErrorString().c_str());
@@ -9112,7 +9112,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameRes failed, error: %s"), InitializationErrorString().c_str());
@@ -9146,7 +9146,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookByBookNameRes failed, error: %s"), InitializationErrorString().c_str());
@@ -9408,7 +9408,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListReq failed, error: %s"), InitializationErrorString().c_str());
@@ -9442,7 +9442,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListReq failed, error: %s"), InitializationErrorString().c_str());
@@ -9706,7 +9706,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListRes failed, error: %s"), InitializationErrorString().c_str());
@@ -9740,7 +9740,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookInfoListRes failed, error: %s"), InitializationErrorString().c_str());

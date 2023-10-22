@@ -186,14 +186,18 @@ export namespace crystal_net_service
         Librarian = 3,
 
     }
-    // com_library.proto
+    // com_variant.proto
     export enum VariantParamType_ENUMS {
         // 未知
         UNKNOWN = 0,
-        // 数值
-        NUM = 1,
         // 字符串
-        STRING = 2,
+        STRING = 1,
+        // 有符号整数
+        VALUE = 2,
+        // 无符号整数
+        UNSIGNED_VALUE = 3,
+        // 浮点数
+        DOUBLE_VALUE = 4,
 
     }
     // 书籍数量
@@ -247,6 +251,14 @@ export namespace crystal_net_service
     // library.proto
     export class AddLibraryBookRes {
         ErrCode:number = 0;
+
+
+    }
+    // 新增通知数据
+    /// Opcode:
+    // notify.proto
+    export class AddUserNotifyDataItemNty {
+        ItemList:UserNotifyDataItem[] = [];
 
 
     }
@@ -1130,6 +1142,15 @@ export namespace crystal_net_service
 
 
     }
+    // 移除通知数据
+    /// Opcode:
+    // notify.proto
+    export class RemoveUserNotifyDataItemNty {
+        // 要移除的通知id
+        NotifyIds:number[] = [];
+
+
+    }
     // 按照权限大小排
     // com_library.proto
     export class RoleType {
@@ -1387,19 +1408,63 @@ export namespace crystal_net_service
 
 
     }
-    // 可变参数
-    // com_library.proto
-    export class VariantParam {
-        // 参数类型 VariantParamType
-        ParamType:number = 0;
-
-        Number?:number;
-
-        Str?:string;
+    // com_notify.proto
+    export class UserNotifyData {
+        ItemList:UserNotifyDataItem[] = [];
 
 
     }
-    // com_library.proto
+    // 通知数据
+    // com_notify.proto
+    export class UserNotifyDataItem {
+        // 用于识别的唯一id
+        NotifyId:number = 0;
+
+        // 通知的title文字id
+        NotifyTitleWordId:string = "";
+
+        // title的参数
+        TitleParams:VariantParam[] = [];
+
+        // 通知的内容文字id
+        NotifyContentWordId:string = "";
+
+        // 内容的参数
+        ContentParams:VariantParam[] = [];
+
+        // 时间
+        CreateTime:number = 0;
+
+
+    }
+    // 通知数据
+    /// Opcode:
+    // notify.proto
+    export class UserNotifyDataNty {
+        UserNotifyData:UserNotifyData = new UserNotifyData();
+
+
+    }
+    // com_variant.proto
+    export class VariantParam {
+        // 参数类型
+        VariantType:number = 0;
+
+        // 字符串
+        StrValue?:string;
+
+        // 整数类型
+        IntValue?:number;
+
+        // 无符号整数类型
+        UnSignedValue?:number;
+
+        // 浮点数
+        DoubleValue?:number;
+
+
+    }
+    // com_variant.proto
     export class VariantParamType {
 
     }

@@ -669,7 +669,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
 
     // 4.添加MT Encode方法
     {
-        addLines.push_back("virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {");
+        addLines.push_back("virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {");
         addLines.push_back("    if (UNLIKELY(!IsInitialized()))");
         addLines.push_back("    {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat
@@ -736,7 +736,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
     addLines.push_back("");
 
     {// 5.添加TL Encode 方法
-        addLines.push_back("virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {");
+        addLines.push_back("virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {");
         addLines.push_back("    if (UNLIKELY(!IsInitialized()))");
         addLines.push_back("    {");
         addLines.push_back(KERNEL_NS::LibString().AppendFormat

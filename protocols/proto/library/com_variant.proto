@@ -1,0 +1,43 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+message VariantParamType
+{
+    enum ENUMS
+    {
+        // 未知
+        UNKNOWN = 0;
+
+        // 字符串
+        STRING = 1;
+
+        // 有符号整数
+        VALUE = 2;
+
+        // 无符号整数
+        UNSIGNED_VALUE = 3;
+
+        // 浮点数
+        DOUBLE_VALUE = 4;
+    }
+}
+
+message VariantParam
+{
+    // 参数类型
+    sint32 VariantType = 1;
+    oneof VariantValue
+    {
+        // 字符串
+        string StrValue = 2;
+
+        // 整数类型
+        sint64 IntValue = 3;
+
+        // 无符号整数类型
+        uint64 UnSignedValue = 4;
+
+        // 浮点数
+        double DoubleValue = 5;
+    }
+}

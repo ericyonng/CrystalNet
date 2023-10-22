@@ -46,6 +46,7 @@
 #include <protocols/cplusplus/com_system_table.pb.h>
 #include <protocols/cplusplus/com_title.pb.h>
 #include <protocols/cplusplus/com_user.pb.h>
+#include <protocols/cplusplus/library/com_variant.pb.h>
 #include <protocols/cplusplus/comp_test.pb.h>
 #include <protocols/cplusplus/heartbeat.pb.h>
 #include <protocols/cplusplus/library/library.pb.h>

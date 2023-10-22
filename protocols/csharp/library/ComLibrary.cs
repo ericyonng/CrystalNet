@@ -27,49 +27,46 @@ using ProtoPackage.Attributes;
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChFjb21fbGlicmFyeS5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZRoOY29t",
-            "X2Jvb2sucHJvdG8iTQoIUm9sZVR5cGUiQQoFRU5VTVMSCgoGTm9BdXRoEAAS",
-            "EAoMTm9ybWFsTWVtYmVyEAESCwoHTWFuYWdlchACEg0KCUxpYnJhcmlhbhAD",
-            "IiUKE0xpYmFyYXJ5TWFuYWdlckluZm8SDgoGVXNlcklkGAEgASgEIrwBCg5C",
-            "b3Jyb3dCb29rSW5mbxIOCgZCb29rSWQYASABKAQSEAoISXNibkNvZGUYAiAB",
-            "KAkSEwoLQm9ycm93Q291bnQYAyABKBESEgoKQm9ycm93VGltZRgEIAEoEhIY",
-            "ChBQbGFuR2l2ZUJhY2tUaW1lGAUgASgSEhgKEFJlYWxHaXZlQmFja1RpbWUY",
-            "BiABKBISFwoPUmV0dXJuQmFja0NvdW50GAcgASgEEhIKClN1Yk9yZGVySWQY",
-            "CCABKAQiwgEKEEJvcnJvd09yZGVyU3RhdGUirQEKBUVOVU1TEhsKF1dBSVRJ",
-            "TkdfTUFOQUdFUl9DT05GSVJNEAASEQoNT1JERVJfQ09ORklSTRABEhUKEVdB",
-            "SVRfVVNFUl9SRUNFSVZFEAISGQoVV0FJVF9VU0VSX1JFVFVSTl9CQUNLEAMS",
-            "HgoaVVNFUl9SRVRVUk5fQkFDS19BTExfQk9PS1MQBBIQCgxDQU5DRUxfT1JE",
-            "RVIQBRIQCgxSRVRVUk5fQkFLQ0sQBiKiAQoPQm9ycm93T3JkZXJJbmZvEg8K",
-            "B09yZGVySWQYASABKAQSOwoOQm9ycm93Qm9va0xpc3QYAiADKAsyIy5DUllT",
-            "VEFMX05FVC5zZXJ2aWNlLkJvcnJvd0Jvb2tJbmZvEhcKD0NyZWF0ZU9yZGVy",
-            "VGltZRgDIAEoBBISCgpPcmRlclN0YXRlGAQgASgREhQKDENhbmNlbFJlYXNv",
-            "bhgFIAEoCSK3AQoKTWVtYmVySW5mbxIOCgZVc2VySWQYASABKAQSDAoEUm9s",
-            "ZRgCIAEoERIQCghOaWNrbmFtZRgDIAEoCRI4CgpCb3Jyb3dMaXN0GAQgAygL",
-            "MiQuQ1JZU1RBTF9ORVQuc2VydmljZS5Cb3Jyb3dPcmRlckluZm8SFwoPTG9j",
-            "a1RpbWVzdGFtcE1zGAUgASgSEhMKCUJpbmRQaG9uZRgGIAEoBEgAQhEKD01l",
-            "bWJlckJpbmRQaG9uZSI9ChBWYXJpYW50UGFyYW1UeXBlIikKBUVOVU1TEgsK",
-            "B1VOS05PV04QABIHCgNOVU0QARIKCgZTVFJJTkcQAiJQCgxWYXJpYW50UGFy",
-            "YW0SEQoJUGFyYW1UeXBlGAEgASgREhAKBk51bWJlchgCIAEoEkgAEg0KA1N0",
-            "chgDIAEoCUgAQgwKClBhcmFtVmFsdWUiJQoNT3BlcmF0aW9uVHlwZSIUCgVF",
-            "TlVNUxILCgdVTktOT1dOEAAimwEKEE9wZXJhdGlvbkxvZ0luZm8SDgoGT3BU",
-            "eXBlGAEgASgREhAKCE9wVXNlcklkGAIgASgEEhIKCk9wTmlja25hbWUYAyAB",
-            "KAkSDAoEUm9sZRgEIAEoERIQCghPcFRpbWVNcxgFIAEoEhIxCgZQYXJhbXMY",
-            "BiADKAsyIS5DUllTVEFMX05FVC5zZXJ2aWNlLlZhcmlhbnRQYXJhbSL/AgoL",
-            "TGlicmFyeUluZm8SCgoCSWQYASABKAQSDAoETmFtZRgCIAEoCRIPCgdBZGRy",
-            "ZXNzGAMgASgJEhAKCE9wZW5UaW1lGAQgASgJEhYKDlRlbHBob25lTnVtYmVy",
-            "GAUgASgJEhcKD0xpYnJhcmlhblVzZXJJZBgGIAEoBBIdChVMaWJyYXJpYW5V",
-            "c2VyTmlja25hbWUYByABKAkSQQoPTWFuYWdlckluZm9MaXN0GAggAygLMigu",
-            "Q1JZU1RBTF9ORVQuc2VydmljZS5MaWJhcmFyeU1hbmFnZXJJbmZvEjMKCk1l",
-            "bWJlckxpc3QYCSADKAsyHy5DUllTVEFMX05FVC5zZXJ2aWNlLk1lbWJlcklu",
-            "Zm8SLwoIQm9va0xpc3QYCiADKAsyHS5DUllTVEFMX05FVC5zZXJ2aWNlLkJv",
-            "b2tJbmZvEjoKC0xvZ0luZm9MaXN0GAsgAygLMiUuQ1JZU1RBTF9ORVQuc2Vy",
-            "dmljZS5PcGVyYXRpb25Mb2dJbmZvIiQKD1VzZXJMaWJyYXJ5SW5mbxIRCglM",
-            "aWJyYXJ5SWQYASABKAQiYgoSTGlicmFyeVByZXZpZXdJbmZvEgoKAklkGAEg",
-            "ASgEEgwKBE5hbWUYAiABKAkSFwoPTGlicmFyaWFuVXNlcklkGAMgASgEEhkK",
-            "EUxpYnJhcmlhbk5pY2tuYW1lGAQgASgJIiEKDUtleVdvcmRzRmllbGQSEAoI",
-            "S2V5V29yZHMYASADKAkiIgoNU25hcHNob3RGaWVsZBIRCglTbmFwc2hvdHMY",
-            "ASADKAliBnByb3RvMw=="));
+            "X2Jvb2sucHJvdG8aEWNvbV92YXJpYW50LnByb3RvIk0KCFJvbGVUeXBlIkEK",
+            "BUVOVU1TEgoKBk5vQXV0aBAAEhAKDE5vcm1hbE1lbWJlchABEgsKB01hbmFn",
+            "ZXIQAhINCglMaWJyYXJpYW4QAyIlChNMaWJhcmFyeU1hbmFnZXJJbmZvEg4K",
+            "BlVzZXJJZBgBIAEoBCK8AQoOQm9ycm93Qm9va0luZm8SDgoGQm9va0lkGAEg",
+            "ASgEEhAKCElzYm5Db2RlGAIgASgJEhMKC0JvcnJvd0NvdW50GAMgASgREhIK",
+            "CkJvcnJvd1RpbWUYBCABKBISGAoQUGxhbkdpdmVCYWNrVGltZRgFIAEoEhIY",
+            "ChBSZWFsR2l2ZUJhY2tUaW1lGAYgASgSEhcKD1JldHVybkJhY2tDb3VudBgH",
+            "IAEoBBISCgpTdWJPcmRlcklkGAggASgEIsIBChBCb3Jyb3dPcmRlclN0YXRl",
+            "Iq0BCgVFTlVNUxIbChdXQUlUSU5HX01BTkFHRVJfQ09ORklSTRAAEhEKDU9S",
+            "REVSX0NPTkZJUk0QARIVChFXQUlUX1VTRVJfUkVDRUlWRRACEhkKFVdBSVRf",
+            "VVNFUl9SRVRVUk5fQkFDSxADEh4KGlVTRVJfUkVUVVJOX0JBQ0tfQUxMX0JP",
+            "T0tTEAQSEAoMQ0FOQ0VMX09SREVSEAUSEAoMUkVUVVJOX0JBS0NLEAYiogEK",
+            "D0JvcnJvd09yZGVySW5mbxIPCgdPcmRlcklkGAEgASgEEjsKDkJvcnJvd0Jv",
+            "b2tMaXN0GAIgAygLMiMuQ1JZU1RBTF9ORVQuc2VydmljZS5Cb3Jyb3dCb29r",
+            "SW5mbxIXCg9DcmVhdGVPcmRlclRpbWUYAyABKAQSEgoKT3JkZXJTdGF0ZRgE",
+            "IAEoERIUCgxDYW5jZWxSZWFzb24YBSABKAkitwEKCk1lbWJlckluZm8SDgoG",
+            "VXNlcklkGAEgASgEEgwKBFJvbGUYAiABKBESEAoITmlja25hbWUYAyABKAkS",
+            "OAoKQm9ycm93TGlzdBgEIAMoCzIkLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9y",
+            "cm93T3JkZXJJbmZvEhcKD0xvY2tUaW1lc3RhbXBNcxgFIAEoEhITCglCaW5k",
+            "UGhvbmUYBiABKARIAEIRCg9NZW1iZXJCaW5kUGhvbmUiJQoNT3BlcmF0aW9u",
+            "VHlwZSIUCgVFTlVNUxILCgdVTktOT1dOEAAimwEKEE9wZXJhdGlvbkxvZ0lu",
+            "Zm8SDgoGT3BUeXBlGAEgASgREhAKCE9wVXNlcklkGAIgASgEEhIKCk9wTmlj",
+            "a25hbWUYAyABKAkSDAoEUm9sZRgEIAEoERIQCghPcFRpbWVNcxgFIAEoEhIx",
+            "CgZQYXJhbXMYBiADKAsyIS5DUllTVEFMX05FVC5zZXJ2aWNlLlZhcmlhbnRQ",
+            "YXJhbSL/AgoLTGlicmFyeUluZm8SCgoCSWQYASABKAQSDAoETmFtZRgCIAEo",
+            "CRIPCgdBZGRyZXNzGAMgASgJEhAKCE9wZW5UaW1lGAQgASgJEhYKDlRlbHBo",
+            "b25lTnVtYmVyGAUgASgJEhcKD0xpYnJhcmlhblVzZXJJZBgGIAEoBBIdChVM",
+            "aWJyYXJpYW5Vc2VyTmlja25hbWUYByABKAkSQQoPTWFuYWdlckluZm9MaXN0",
+            "GAggAygLMiguQ1JZU1RBTF9ORVQuc2VydmljZS5MaWJhcmFyeU1hbmFnZXJJ",
+            "bmZvEjMKCk1lbWJlckxpc3QYCSADKAsyHy5DUllTVEFMX05FVC5zZXJ2aWNl",
+            "Lk1lbWJlckluZm8SLwoIQm9va0xpc3QYCiADKAsyHS5DUllTVEFMX05FVC5z",
+            "ZXJ2aWNlLkJvb2tJbmZvEjoKC0xvZ0luZm9MaXN0GAsgAygLMiUuQ1JZU1RB",
+            "TF9ORVQuc2VydmljZS5PcGVyYXRpb25Mb2dJbmZvIiQKD1VzZXJMaWJyYXJ5",
+            "SW5mbxIRCglMaWJyYXJ5SWQYASABKAQiYgoSTGlicmFyeVByZXZpZXdJbmZv",
+            "EgoKAklkGAEgASgEEgwKBE5hbWUYAiABKAkSFwoPTGlicmFyaWFuVXNlcklk",
+            "GAMgASgEEhkKEUxpYnJhcmlhbk5pY2tuYW1lGAQgASgJIiEKDUtleVdvcmRz",
+            "RmllbGQSEAoIS2V5V29yZHMYASADKAkiIgoNU25hcHNob3RGaWVsZBIRCglT",
+            "bmFwc2hvdHMYASADKAliBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookReflection.Descriptor, global::CRYSTALNET.Service.ComVariantReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.RoleType), global::CRYSTALNET.Service.RoleType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.RoleType.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibararyManagerInfo), global::CRYSTALNET.Service.LibararyManagerInfo.Parser, new[]{ "UserId" }, null, null, null, null),
@@ -77,8 +74,6 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderState), global::CRYSTALNET.Service.BorrowOrderState.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.BorrowOrderState.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.MemberInfo), global::CRYSTALNET.Service.MemberInfo.Parser, new[]{ "UserId", "Role", "Nickname", "BorrowList", "LockTimestampMs", "BindPhone" }, new[]{ "MemberBindPhone" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.VariantParamType), global::CRYSTALNET.Service.VariantParamType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.VariantParamType.Types.ENUMS) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.VariantParam), global::CRYSTALNET.Service.VariantParam.Parser, new[]{ "ParamType", "Number", "Str" }, new[]{ "ParamValue" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OperationType), global::CRYSTALNET.Service.OperationType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.OperationType.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OperationLogInfo), global::CRYSTALNET.Service.OperationLogInfo.Parser, new[]{ "OpType", "OpUserId", "OpNickname", "Role", "OpTimeMs", "Params" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryInfo), global::CRYSTALNET.Service.LibraryInfo.Parser, new[]{ "Id", "Name", "Address", "OpenTime", "TelphoneNumber", "LibrarianUserId", "LibrarianUserNickname", "ManagerInfoList", "MemberList", "BookList", "LogInfoList" }, null, null, null, null),
@@ -1893,483 +1888,6 @@ using ProtoPackage.Attributes;
 
   }
 
-  public sealed partial class VariantParamType : pb::IMessage<VariantParamType>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<VariantParamType> _parser = new pb::MessageParser<VariantParamType>(() => new VariantParamType());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<VariantParamType> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[6]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VariantParamType() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VariantParamType(VariantParamType other) : this() {
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VariantParamType Clone() {
-      return new VariantParamType(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as VariantParamType);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(VariantParamType other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(VariantParamType other) {
-      if (other == null) {
-        return;
-      }
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-        }
-      }
-    }
-    #endif
-
-    #region Nested types
-    /// <summary>Container for nested types declared in the VariantParamType message type.</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static partial class Types {
-      public enum ENUMS {
-        /// <summary>
-        /// 未知
-        /// </summary>
-        [pbr::OriginalName("UNKNOWN")] Unknown = 0,
-        /// <summary>
-        /// 数值
-        /// </summary>
-        [pbr::OriginalName("NUM")] Num = 1,
-        /// <summary>
-        /// 字符串
-        /// </summary>
-        [pbr::OriginalName("STRING")] String = 2,
-      }
-
-    }
-    #endregion
-
-  }
-
-  /// <summary>
-  /// 可变参数
-  /// </summary>
-  public sealed partial class VariantParam : pb::IMessage<VariantParam>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<VariantParam> _parser = new pb::MessageParser<VariantParam>(() => new VariantParam());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<VariantParam> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[7]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VariantParam() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VariantParam(VariantParam other) : this() {
-      paramType_ = other.paramType_;
-      switch (other.ParamValueCase) {
-        case ParamValueOneofCase.Number:
-          Number = other.Number;
-          break;
-        case ParamValueOneofCase.Str:
-          Str = other.Str;
-          break;
-      }
-
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public VariantParam Clone() {
-      return new VariantParam(this);
-    }
-
-    /// <summary>Field number for the "ParamType" field.</summary>
-    public const int ParamTypeFieldNumber = 1;
-    private int paramType_;
-    /// <summary>
-    /// 参数类型 VariantParamType
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int ParamType {
-      get { return paramType_; }
-      set {
-        paramType_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "Number" field.</summary>
-    public const int NumberFieldNumber = 2;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public long Number {
-      get { return paramValueCase_ == ParamValueOneofCase.Number ? (long) paramValue_ : 0L; }
-      set {
-        paramValue_ = value;
-        paramValueCase_ = ParamValueOneofCase.Number;
-      }
-    }
-
-    /// <summary>Field number for the "Str" field.</summary>
-    public const int StrFieldNumber = 3;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Str {
-      get { return paramValueCase_ == ParamValueOneofCase.Str ? (string) paramValue_ : ""; }
-      set {
-        paramValue_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-        paramValueCase_ = ParamValueOneofCase.Str;
-      }
-    }
-
-    private object paramValue_;
-    /// <summary>Enum of possible cases for the "ParamValue" oneof.</summary>
-    public enum ParamValueOneofCase {
-      None = 0,
-      Number = 2,
-      Str = 3,
-    }
-    private ParamValueOneofCase paramValueCase_ = ParamValueOneofCase.None;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ParamValueOneofCase ParamValueCase {
-      get { return paramValueCase_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearParamValue() {
-      paramValueCase_ = ParamValueOneofCase.None;
-      paramValue_ = null;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as VariantParam);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(VariantParam other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (ParamType != other.ParamType) return false;
-      if (Number != other.Number) return false;
-      if (Str != other.Str) return false;
-      if (ParamValueCase != other.ParamValueCase) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (ParamType != 0) hash ^= ParamType.GetHashCode();
-      if (paramValueCase_ == ParamValueOneofCase.Number) hash ^= Number.GetHashCode();
-      if (paramValueCase_ == ParamValueOneofCase.Str) hash ^= Str.GetHashCode();
-      hash ^= (int) paramValueCase_;
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      if (ParamType != 0) {
-        output.WriteRawTag(8);
-        output.WriteSInt32(ParamType);
-      }
-      if (paramValueCase_ == ParamValueOneofCase.Number) {
-        output.WriteRawTag(16);
-        output.WriteSInt64(Number);
-      }
-      if (paramValueCase_ == ParamValueOneofCase.Str) {
-        output.WriteRawTag(26);
-        output.WriteString(Str);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (ParamType != 0) {
-        output.WriteRawTag(8);
-        output.WriteSInt32(ParamType);
-      }
-      if (paramValueCase_ == ParamValueOneofCase.Number) {
-        output.WriteRawTag(16);
-        output.WriteSInt64(Number);
-      }
-      if (paramValueCase_ == ParamValueOneofCase.Str) {
-        output.WriteRawTag(26);
-        output.WriteString(Str);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      if (ParamType != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(ParamType);
-      }
-      if (paramValueCase_ == ParamValueOneofCase.Number) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Number);
-      }
-      if (paramValueCase_ == ParamValueOneofCase.Str) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Str);
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(VariantParam other) {
-      if (other == null) {
-        return;
-      }
-      if (other.ParamType != 0) {
-        ParamType = other.ParamType;
-      }
-      switch (other.ParamValueCase) {
-        case ParamValueOneofCase.Number:
-          Number = other.Number;
-          break;
-        case ParamValueOneofCase.Str:
-          Str = other.Str;
-          break;
-      }
-
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 8: {
-            ParamType = input.ReadSInt32();
-            break;
-          }
-          case 16: {
-            Number = input.ReadSInt64();
-            break;
-          }
-          case 26: {
-            Str = input.ReadString();
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 8: {
-            ParamType = input.ReadSInt32();
-            break;
-          }
-          case 16: {
-            Number = input.ReadSInt64();
-            break;
-          }
-          case 26: {
-            Str = input.ReadString();
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
   public sealed partial class OperationType : pb::IMessage<OperationType>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -2384,7 +1902,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[8]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2554,7 +2072,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[9]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2917,7 +2435,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[10]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3468,7 +2986,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[11]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3663,7 +3181,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[12]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3978,7 +3496,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[13]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4159,7 +3677,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[14]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

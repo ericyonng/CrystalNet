@@ -99,6 +99,13 @@ bool UserMgrStorage::RegisterStorages()
         return false;
     }
 
+    // 通知
+    if(!RegisterStorage<NotifyMgrStorageFactory>())
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("register NotifyMgrStorageFactory fail"));
+        return false;
+    }
+
     return true;
 }
 SERVICE_END

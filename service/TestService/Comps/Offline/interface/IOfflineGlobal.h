@@ -46,28 +46,28 @@ public:
 template<typename PbMsgType>
 ALWAYS_INLINE bool IOfflineGlobal::AddOfflineData(Int32 offlineType, UInt64 userId, const PbMsgType &offlineData)
 {
-    auto stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibStreamTL, KERNEL_NS::AutoDelMethods::CustomDelete> stream = KERNEL_NS::LibStreamTL::NewThreadLocal_LibStream();
+    stream.SetClosureDelegate([](void *p){
+        KERNEL_NS::LibStreamTL::DeleteThreadLocal_LibStream(KERNEL_NS::KernelCastTo<KERNEL_NS::LibStreamTL>(p));
+    });
 
-    if(!offlineData.Encode(*stream))
+    if(!offlineData.Encode(*stream.AsSelf()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("pb encode fail offlineType:%d, userId:%llu, pb:%s")
+        g_Log->Error(LOGFMT_OBJ_TAG("pb encode fail offlineType:%d, userId:%llu, pb:%s")
         , offlineType, userId, offlineData.ToJsonString().c_str());
 
-        KERNEL_NS::LibStreamTL::DeleteThreadLocal_LibStream(stream);
         return false;
     }
 
     KERNEL_NS::LibString data;
     if(!stream->SerializeTo(data))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("stream serialize to string fail offlineType:%d, userId:%llu, pb:%s")
+        g_Log->Error(LOGFMT_OBJ_TAG("stream serialize to string fail offlineType:%d, userId:%llu, pb:%s")
         , offlineType, userId, offlineData.ToJsonString().c_str());
 
-        KERNEL_NS::LibStreamTL::DeleteThreadLocal_LibStream(stream);
         return false;
     }
 
-    KERNEL_NS::LibStreamTL::DeleteThreadLocal_LibStream(stream);
     return AddOfflineData(offlineType, userId, data);
 }
 

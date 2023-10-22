@@ -1,2 +1,26 @@
 syntax = "proto3";
 package CRYSTAL_NET.service;
+
+import "com_notify.proto";
+
+// 通知数据
+/// Opcode:
+message UserNotifyDataNty
+{
+    UserNotifyData UserNotifyData = 1;
+}
+
+// 新增通知数据
+/// Opcode:
+message AddUserNotifyDataItemNty
+{
+    repeated UserNotifyDataItem ItemList = 1;
+}
+
+// 移除通知数据
+/// Opcode:
+message RemoveUserNotifyDataItemNty
+{
+    // 要移除的通知id
+    repeated uint64 NotifyIds = 1;
+}

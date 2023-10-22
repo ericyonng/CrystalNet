@@ -925,6 +925,45 @@ export namespace ts_pbinfo{
     }
 
 
+    // notify.proto 
+    export class UserNotifyDataNty {
+      getOpcode():number {return UserNotifyDataNty.OPCODE; }
+      getIsXorEncrypt():boolean {return UserNotifyDataNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return UserNotifyDataNty.KeyBase64; }
+      getOpcodeName():string {return UserNotifyDataNty.OPCODE_NAME; }
+      static OPCODE:number = 91;
+      static OPCODE_NAME:string = "UserNotifyDataNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // notify.proto 
+    export class AddUserNotifyDataItemNty {
+      getOpcode():number {return AddUserNotifyDataItemNty.OPCODE; }
+      getIsXorEncrypt():boolean {return AddUserNotifyDataItemNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return AddUserNotifyDataItemNty.KeyBase64; }
+      getOpcodeName():string {return AddUserNotifyDataItemNty.OPCODE_NAME; }
+      static OPCODE:number = 92;
+      static OPCODE_NAME:string = "AddUserNotifyDataItemNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // notify.proto 
+    export class RemoveUserNotifyDataItemNty {
+      getOpcode():number {return RemoveUserNotifyDataItemNty.OPCODE; }
+      getIsXorEncrypt():boolean {return RemoveUserNotifyDataItemNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return RemoveUserNotifyDataItemNty.KeyBase64; }
+      getOpcodeName():string {return RemoveUserNotifyDataItemNty.OPCODE_NAME; }
+      static OPCODE:number = 93;
+      static OPCODE_NAME:string = "RemoveUserNotifyDataItemNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -1063,7 +1102,13 @@ export namespace ts_pbinfo{
 
           [SubmitBookBagBorrowInfoReq.OPCODE]: new SubmitBookBagBorrowInfoReq(),
 
-          [SubmitBookBagBorrowInfoRes.OPCODE]: new SubmitBookBagBorrowInfoRes()
+          [SubmitBookBagBorrowInfoRes.OPCODE]: new SubmitBookBagBorrowInfoRes(),
+
+          [UserNotifyDataNty.OPCODE]: new UserNotifyDataNty(),
+
+          [AddUserNotifyDataItemNty.OPCODE]: new AddUserNotifyDataItemNty(),
+
+          [RemoveUserNotifyDataItemNty.OPCODE]: new RemoveUserNotifyDataItemNty()
 
 
       }

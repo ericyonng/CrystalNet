@@ -99,5 +99,8 @@ public:
     static constexpr Int32 OPCODE_GetBookInfoListRes = 86;    // library.proto
     static constexpr Int32 OPCODE_SubmitBookBagBorrowInfoReq = 89;    // bookbag.proto
     static constexpr Int32 OPCODE_SubmitBookBagBorrowInfoRes = 90;    // bookbag.proto
-    static constexpr Int32 OPCODE_MAX = 90;
+    static constexpr Int32 OPCODE_UserNotifyDataNty = 91;    // notify.proto
+    static constexpr Int32 OPCODE_AddUserNotifyDataItemNty = 92;    // notify.proto
+    static constexpr Int32 OPCODE_RemoveUserNotifyDataItemNty = 93;    // notify.proto
+    static constexpr Int32 OPCODE_MAX = 93;
 };

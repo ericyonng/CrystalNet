@@ -92,7 +92,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserClientInfoNty failed, error: %s"), InitializationErrorString().c_str());
@@ -126,7 +126,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserClientInfoNty failed, error: %s"), InitializationErrorString().c_str());
@@ -388,7 +388,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyPwdInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -422,7 +422,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyPwdInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -696,7 +696,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyUserInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -730,7 +730,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyUserInfoReq failed, error: %s"), InitializationErrorString().c_str());
@@ -1031,7 +1031,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyUserInfoRes failed, error: %s"), InitializationErrorString().c_str());
@@ -1065,7 +1065,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message ModifyUserInfoRes failed, error: %s"), InitializationErrorString().c_str());

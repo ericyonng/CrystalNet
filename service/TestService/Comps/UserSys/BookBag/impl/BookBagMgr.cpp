@@ -304,6 +304,14 @@ Int32 BookBagMgr::Submit(const ::google::protobuf::RepeatedPtrField< ::CRYSTAL_N
         return Status::ParamError;
     }
 
+    auto libararyGlobal = GetUserMgr()->GetGlobalSys<ILibraryGlobal>();
+    auto err = libararyGlobal->CreateBorrowOrder(myLibraryId, GetUser(), *_bookBagInfo);
+    if(err != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("CreateBorrowOrder fail err:%d, user:%s, book bag info:%s")
+        , err, GetUser()->ToString().c_str(), _bookBagInfo->ToJsonString().c_str());
+        return err;
+    }
 
 
     // 3.借阅天数是0的返回错误

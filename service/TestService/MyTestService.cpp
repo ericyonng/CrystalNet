@@ -185,6 +185,9 @@ void MyTestService::_OnServiceRegisterComps()
 
     // 离线处理模块
     RegisterComp<OfflineGlobalFactory>();
+
+    // 通知模块
+    RegisterComp<NotifyGlobalFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()

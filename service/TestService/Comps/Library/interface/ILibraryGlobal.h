@@ -34,6 +34,7 @@ SERVICE_BEGIN
 
 class LibraryInfo;
 class BookBagInfo;
+class IUser;
 
 class ILibraryGlobal : public IGlobalSys
 {
@@ -54,7 +55,7 @@ public:
     virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const = 0;
 
     // 创建订单
-    virtual Int32 CreateBorrowOrder(UInt64 libraryId, UInt64 memberUserId, const BookBagInfo &bookBagInfo) = 0;
+    virtual Int32 CreateBorrowOrder(UInt64 libraryId, const IUser *user, const BookBagInfo &bookBagInfo) = 0;
 };
 
 SERVICE_END

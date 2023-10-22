@@ -37,8 +37,11 @@
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/metadata_lite.h>
 #include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
+#include <google/protobuf/unknown_field_set.h>
+#include "com_variant.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_com_5fnotify_2eproto
@@ -53,14 +56,689 @@ struct TableStruct_com_5fnotify_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5fnotify_2eproto;
+namespace CRYSTAL_NET {
+namespace service {
+class UserNotifyData;
+struct UserNotifyDataDefaultTypeInternal;
+extern UserNotifyDataDefaultTypeInternal _UserNotifyData_default_instance_;
+class UserNotifyDataItem;
+struct UserNotifyDataItemDefaultTypeInternal;
+extern UserNotifyDataItemDefaultTypeInternal _UserNotifyDataItem_default_instance_;
+}  // namespace service
+}  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
+template<> ::CRYSTAL_NET::service::UserNotifyData* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserNotifyData>(Arena*);
+template<> ::CRYSTAL_NET::service::UserNotifyDataItem* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserNotifyDataItem>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace CRYSTAL_NET {
 namespace service {
 
 // ===================================================================
 
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class UserNotifyDataItem final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserNotifyDataItem) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
 
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserNotifyDataItem failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserNotifyDataItem failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserNotifyDataItem failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserNotifyDataItem failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserNotifyDataItem failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserNotifyDataItem failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline UserNotifyDataItem() : UserNotifyDataItem(nullptr) {}
+  ~UserNotifyDataItem() override;
+  explicit PROTOBUF_CONSTEXPR UserNotifyDataItem(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  UserNotifyDataItem(const UserNotifyDataItem& from);
+  UserNotifyDataItem(UserNotifyDataItem&& from) noexcept
+    : UserNotifyDataItem() {
+    *this = ::std::move(from);
+  }
+
+  inline UserNotifyDataItem& operator=(const UserNotifyDataItem& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline UserNotifyDataItem& operator=(UserNotifyDataItem&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const UserNotifyDataItem& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const UserNotifyDataItem* internal_default_instance() {
+    return reinterpret_cast<const UserNotifyDataItem*>(
+               &_UserNotifyDataItem_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(UserNotifyDataItem& a, UserNotifyDataItem& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(UserNotifyDataItem* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(UserNotifyDataItem* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  UserNotifyDataItem* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<UserNotifyDataItem>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const UserNotifyDataItem& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const UserNotifyDataItem& from) {
+    UserNotifyDataItem::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(UserNotifyDataItem* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.UserNotifyDataItem";
+  }
+  protected:
+  explicit UserNotifyDataItem(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTitleParamsFieldNumber = 3,
+    kContentParamsFieldNumber = 5,
+    kNotifyTitleWordIdFieldNumber = 2,
+    kNotifyContentWordIdFieldNumber = 4,
+    kNotifyIdFieldNumber = 1,
+    kCreateTimeFieldNumber = 6,
+  };
+  // repeated .CRYSTAL_NET.service.VariantParam TitleParams = 3;
+  int titleparams_size() const;
+  private:
+  int _internal_titleparams_size() const;
+  public:
+  void clear_titleparams();
+  ::CRYSTAL_NET::service::VariantParam* mutable_titleparams(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam >*
+      mutable_titleparams();
+  private:
+  const ::CRYSTAL_NET::service::VariantParam& _internal_titleparams(int index) const;
+  ::CRYSTAL_NET::service::VariantParam* _internal_add_titleparams();
+  public:
+  const ::CRYSTAL_NET::service::VariantParam& titleparams(int index) const;
+  ::CRYSTAL_NET::service::VariantParam* add_titleparams();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam >&
+      titleparams() const;
+
+  // repeated .CRYSTAL_NET.service.VariantParam ContentParams = 5;
+  int contentparams_size() const;
+  private:
+  int _internal_contentparams_size() const;
+  public:
+  void clear_contentparams();
+  ::CRYSTAL_NET::service::VariantParam* mutable_contentparams(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam >*
+      mutable_contentparams();
+  private:
+  const ::CRYSTAL_NET::service::VariantParam& _internal_contentparams(int index) const;
+  ::CRYSTAL_NET::service::VariantParam* _internal_add_contentparams();
+  public:
+  const ::CRYSTAL_NET::service::VariantParam& contentparams(int index) const;
+  ::CRYSTAL_NET::service::VariantParam* add_contentparams();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam >&
+      contentparams() const;
+
+  // string NotifyTitleWordId = 2;
+  void clear_notifytitlewordid();
+  const std::string& notifytitlewordid() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_notifytitlewordid(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_notifytitlewordid();
+  PROTOBUF_NODISCARD std::string* release_notifytitlewordid();
+  void set_allocated_notifytitlewordid(std::string* notifytitlewordid);
+  private:
+  const std::string& _internal_notifytitlewordid() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_notifytitlewordid(const std::string& value);
+  std::string* _internal_mutable_notifytitlewordid();
+  public:
+
+  // string NotifyContentWordId = 4;
+  void clear_notifycontentwordid();
+  const std::string& notifycontentwordid() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_notifycontentwordid(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_notifycontentwordid();
+  PROTOBUF_NODISCARD std::string* release_notifycontentwordid();
+  void set_allocated_notifycontentwordid(std::string* notifycontentwordid);
+  private:
+  const std::string& _internal_notifycontentwordid() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_notifycontentwordid(const std::string& value);
+  std::string* _internal_mutable_notifycontentwordid();
+  public:
+
+  // uint64 NotifyId = 1;
+  void clear_notifyid();
+  uint64_t notifyid() const;
+  void set_notifyid(uint64_t value);
+  private:
+  uint64_t _internal_notifyid() const;
+  void _internal_set_notifyid(uint64_t value);
+  public:
+
+  // sint64 CreateTime = 6;
+  void clear_createtime();
+  int64_t createtime() const;
+  void set_createtime(int64_t value);
+  private:
+  int64_t _internal_createtime() const;
+  void _internal_set_createtime(int64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserNotifyDataItem)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam > titleparams_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam > contentparams_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr notifytitlewordid_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr notifycontentwordid_;
+    uint64_t notifyid_;
+    int64_t createtime_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5fnotify_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class UserNotifyData final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserNotifyData) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserNotifyData failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserNotifyData failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserNotifyData failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserNotifyData failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserNotifyData failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserNotifyData failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline UserNotifyData() : UserNotifyData(nullptr) {}
+  ~UserNotifyData() override;
+  explicit PROTOBUF_CONSTEXPR UserNotifyData(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  UserNotifyData(const UserNotifyData& from);
+  UserNotifyData(UserNotifyData&& from) noexcept
+    : UserNotifyData() {
+    *this = ::std::move(from);
+  }
+
+  inline UserNotifyData& operator=(const UserNotifyData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline UserNotifyData& operator=(UserNotifyData&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const UserNotifyData& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const UserNotifyData* internal_default_instance() {
+    return reinterpret_cast<const UserNotifyData*>(
+               &_UserNotifyData_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(UserNotifyData& a, UserNotifyData& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(UserNotifyData* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(UserNotifyData* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  UserNotifyData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<UserNotifyData>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const UserNotifyData& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const UserNotifyData& from) {
+    UserNotifyData::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(UserNotifyData* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.UserNotifyData";
+  }
+  protected:
+  explicit UserNotifyData(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kItemListFieldNumber = 1,
+  };
+  // repeated .CRYSTAL_NET.service.UserNotifyDataItem ItemList = 1;
+  int itemlist_size() const;
+  private:
+  int _internal_itemlist_size() const;
+  public:
+  void clear_itemlist();
+  ::CRYSTAL_NET::service::UserNotifyDataItem* mutable_itemlist(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::UserNotifyDataItem >*
+      mutable_itemlist();
+  private:
+  const ::CRYSTAL_NET::service::UserNotifyDataItem& _internal_itemlist(int index) const;
+  ::CRYSTAL_NET::service::UserNotifyDataItem* _internal_add_itemlist();
+  public:
+  const ::CRYSTAL_NET::service::UserNotifyDataItem& itemlist(int index) const;
+  ::CRYSTAL_NET::service::UserNotifyDataItem* add_itemlist();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::UserNotifyDataItem >&
+      itemlist() const;
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserNotifyData)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::UserNotifyDataItem > itemlist_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5fnotify_2eproto;
+};
 // ===================================================================
 
 
@@ -70,9 +748,271 @@ namespace service {
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// UserNotifyDataItem
+
+// uint64 NotifyId = 1;
+inline void UserNotifyDataItem::clear_notifyid() {
+  _impl_.notifyid_ = uint64_t{0u};
+}
+inline uint64_t UserNotifyDataItem::_internal_notifyid() const {
+  return _impl_.notifyid_;
+}
+inline uint64_t UserNotifyDataItem::notifyid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyDataItem.NotifyId)
+  return _internal_notifyid();
+}
+inline void UserNotifyDataItem::_internal_set_notifyid(uint64_t value) {
+  
+  _impl_.notifyid_ = value;
+}
+inline void UserNotifyDataItem::set_notifyid(uint64_t value) {
+  _internal_set_notifyid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserNotifyDataItem.NotifyId)
+}
+
+// string NotifyTitleWordId = 2;
+inline void UserNotifyDataItem::clear_notifytitlewordid() {
+  _impl_.notifytitlewordid_.ClearToEmpty();
+}
+inline const std::string& UserNotifyDataItem::notifytitlewordid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyDataItem.NotifyTitleWordId)
+  return _internal_notifytitlewordid();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void UserNotifyDataItem::set_notifytitlewordid(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.notifytitlewordid_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserNotifyDataItem.NotifyTitleWordId)
+}
+inline std::string* UserNotifyDataItem::mutable_notifytitlewordid() {
+  std::string* _s = _internal_mutable_notifytitlewordid();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserNotifyDataItem.NotifyTitleWordId)
+  return _s;
+}
+inline const std::string& UserNotifyDataItem::_internal_notifytitlewordid() const {
+  return _impl_.notifytitlewordid_.Get();
+}
+inline void UserNotifyDataItem::_internal_set_notifytitlewordid(const std::string& value) {
+  
+  _impl_.notifytitlewordid_.Set(value, GetArenaForAllocation());
+}
+inline std::string* UserNotifyDataItem::_internal_mutable_notifytitlewordid() {
+  
+  return _impl_.notifytitlewordid_.Mutable(GetArenaForAllocation());
+}
+inline std::string* UserNotifyDataItem::release_notifytitlewordid() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserNotifyDataItem.NotifyTitleWordId)
+  return _impl_.notifytitlewordid_.Release();
+}
+inline void UserNotifyDataItem::set_allocated_notifytitlewordid(std::string* notifytitlewordid) {
+  if (notifytitlewordid != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.notifytitlewordid_.SetAllocated(notifytitlewordid, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.notifytitlewordid_.IsDefault()) {
+    _impl_.notifytitlewordid_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserNotifyDataItem.NotifyTitleWordId)
+}
+
+// repeated .CRYSTAL_NET.service.VariantParam TitleParams = 3;
+inline int UserNotifyDataItem::_internal_titleparams_size() const {
+  return _impl_.titleparams_.size();
+}
+inline int UserNotifyDataItem::titleparams_size() const {
+  return _internal_titleparams_size();
+}
+inline ::CRYSTAL_NET::service::VariantParam* UserNotifyDataItem::mutable_titleparams(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserNotifyDataItem.TitleParams)
+  return _impl_.titleparams_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam >*
+UserNotifyDataItem::mutable_titleparams() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.UserNotifyDataItem.TitleParams)
+  return &_impl_.titleparams_;
+}
+inline const ::CRYSTAL_NET::service::VariantParam& UserNotifyDataItem::_internal_titleparams(int index) const {
+  return _impl_.titleparams_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::VariantParam& UserNotifyDataItem::titleparams(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyDataItem.TitleParams)
+  return _internal_titleparams(index);
+}
+inline ::CRYSTAL_NET::service::VariantParam* UserNotifyDataItem::_internal_add_titleparams() {
+  return _impl_.titleparams_.Add();
+}
+inline ::CRYSTAL_NET::service::VariantParam* UserNotifyDataItem::add_titleparams() {
+  ::CRYSTAL_NET::service::VariantParam* _add = _internal_add_titleparams();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.UserNotifyDataItem.TitleParams)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam >&
+UserNotifyDataItem::titleparams() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.UserNotifyDataItem.TitleParams)
+  return _impl_.titleparams_;
+}
+
+// string NotifyContentWordId = 4;
+inline void UserNotifyDataItem::clear_notifycontentwordid() {
+  _impl_.notifycontentwordid_.ClearToEmpty();
+}
+inline const std::string& UserNotifyDataItem::notifycontentwordid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyDataItem.NotifyContentWordId)
+  return _internal_notifycontentwordid();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void UserNotifyDataItem::set_notifycontentwordid(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.notifycontentwordid_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserNotifyDataItem.NotifyContentWordId)
+}
+inline std::string* UserNotifyDataItem::mutable_notifycontentwordid() {
+  std::string* _s = _internal_mutable_notifycontentwordid();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserNotifyDataItem.NotifyContentWordId)
+  return _s;
+}
+inline const std::string& UserNotifyDataItem::_internal_notifycontentwordid() const {
+  return _impl_.notifycontentwordid_.Get();
+}
+inline void UserNotifyDataItem::_internal_set_notifycontentwordid(const std::string& value) {
+  
+  _impl_.notifycontentwordid_.Set(value, GetArenaForAllocation());
+}
+inline std::string* UserNotifyDataItem::_internal_mutable_notifycontentwordid() {
+  
+  return _impl_.notifycontentwordid_.Mutable(GetArenaForAllocation());
+}
+inline std::string* UserNotifyDataItem::release_notifycontentwordid() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.UserNotifyDataItem.NotifyContentWordId)
+  return _impl_.notifycontentwordid_.Release();
+}
+inline void UserNotifyDataItem::set_allocated_notifycontentwordid(std::string* notifycontentwordid) {
+  if (notifycontentwordid != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.notifycontentwordid_.SetAllocated(notifycontentwordid, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.notifycontentwordid_.IsDefault()) {
+    _impl_.notifycontentwordid_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.UserNotifyDataItem.NotifyContentWordId)
+}
+
+// repeated .CRYSTAL_NET.service.VariantParam ContentParams = 5;
+inline int UserNotifyDataItem::_internal_contentparams_size() const {
+  return _impl_.contentparams_.size();
+}
+inline int UserNotifyDataItem::contentparams_size() const {
+  return _internal_contentparams_size();
+}
+inline ::CRYSTAL_NET::service::VariantParam* UserNotifyDataItem::mutable_contentparams(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserNotifyDataItem.ContentParams)
+  return _impl_.contentparams_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam >*
+UserNotifyDataItem::mutable_contentparams() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.UserNotifyDataItem.ContentParams)
+  return &_impl_.contentparams_;
+}
+inline const ::CRYSTAL_NET::service::VariantParam& UserNotifyDataItem::_internal_contentparams(int index) const {
+  return _impl_.contentparams_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::VariantParam& UserNotifyDataItem::contentparams(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyDataItem.ContentParams)
+  return _internal_contentparams(index);
+}
+inline ::CRYSTAL_NET::service::VariantParam* UserNotifyDataItem::_internal_add_contentparams() {
+  return _impl_.contentparams_.Add();
+}
+inline ::CRYSTAL_NET::service::VariantParam* UserNotifyDataItem::add_contentparams() {
+  ::CRYSTAL_NET::service::VariantParam* _add = _internal_add_contentparams();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.UserNotifyDataItem.ContentParams)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam >&
+UserNotifyDataItem::contentparams() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.UserNotifyDataItem.ContentParams)
+  return _impl_.contentparams_;
+}
+
+// sint64 CreateTime = 6;
+inline void UserNotifyDataItem::clear_createtime() {
+  _impl_.createtime_ = int64_t{0};
+}
+inline int64_t UserNotifyDataItem::_internal_createtime() const {
+  return _impl_.createtime_;
+}
+inline int64_t UserNotifyDataItem::createtime() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyDataItem.CreateTime)
+  return _internal_createtime();
+}
+inline void UserNotifyDataItem::_internal_set_createtime(int64_t value) {
+  
+  _impl_.createtime_ = value;
+}
+inline void UserNotifyDataItem::set_createtime(int64_t value) {
+  _internal_set_createtime(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserNotifyDataItem.CreateTime)
+}
+
+// -------------------------------------------------------------------
+
+// UserNotifyData
+
+// repeated .CRYSTAL_NET.service.UserNotifyDataItem ItemList = 1;
+inline int UserNotifyData::_internal_itemlist_size() const {
+  return _impl_.itemlist_.size();
+}
+inline int UserNotifyData::itemlist_size() const {
+  return _internal_itemlist_size();
+}
+inline void UserNotifyData::clear_itemlist() {
+  _impl_.itemlist_.Clear();
+}
+inline ::CRYSTAL_NET::service::UserNotifyDataItem* UserNotifyData::mutable_itemlist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.UserNotifyData.ItemList)
+  return _impl_.itemlist_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::UserNotifyDataItem >*
+UserNotifyData::mutable_itemlist() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.UserNotifyData.ItemList)
+  return &_impl_.itemlist_;
+}
+inline const ::CRYSTAL_NET::service::UserNotifyDataItem& UserNotifyData::_internal_itemlist(int index) const {
+  return _impl_.itemlist_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::UserNotifyDataItem& UserNotifyData::itemlist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyData.ItemList)
+  return _internal_itemlist(index);
+}
+inline ::CRYSTAL_NET::service::UserNotifyDataItem* UserNotifyData::_internal_add_itemlist() {
+  return _impl_.itemlist_.Add();
+}
+inline ::CRYSTAL_NET::service::UserNotifyDataItem* UserNotifyData::add_itemlist() {
+  ::CRYSTAL_NET::service::UserNotifyDataItem* _add = _internal_add_itemlist();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.UserNotifyData.ItemList)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::UserNotifyDataItem >&
+UserNotifyData::itemlist() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.UserNotifyData.ItemList)
+  return _impl_.itemlist_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -82,4 +1022,50 @@ namespace service {
 // @@protoc_insertion_point(global_scope)
 
 #include <google/protobuf/port_undef.inc>
+
+class UserNotifyDataItemFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, UserNotifyDataItemFactory);
+public:
+
+    virtual void Release() override {
+        UserNotifyDataItemFactory::Delete_UserNotifyDataItemFactory(this);
+    }
+
+    static UserNotifyDataItemFactory *CreateFactory() {
+        return UserNotifyDataItemFactory::New_UserNotifyDataItemFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::UserNotifyDataItem();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::UserNotifyDataItem(*dynamic_cast<const ::CRYSTAL_NET::service::UserNotifyDataItem *>(coder));
+    }
+
+};
+
+
+class UserNotifyDataFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, UserNotifyDataFactory);
+public:
+
+    virtual void Release() override {
+        UserNotifyDataFactory::Delete_UserNotifyDataFactory(this);
+    }
+
+    static UserNotifyDataFactory *CreateFactory() {
+        return UserNotifyDataFactory::New_UserNotifyDataFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::UserNotifyData();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::UserNotifyData(*dynamic_cast<const ::CRYSTAL_NET::service::UserNotifyData *>(coder));
+    }
+
+};
+
 #endif  // GOOGLE_PROTOBUF_INCLUDED_GOOGLE_PROTOBUF_INCLUDED_com_5fnotify_2eproto

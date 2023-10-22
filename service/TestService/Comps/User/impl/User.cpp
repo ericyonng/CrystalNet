@@ -100,6 +100,7 @@ void User::OnRegisterComps()
     RegisterComp<LoginMgrFactory>();
     RegisterComp<LibraryMgrFactory>();
     RegisterComp<BookBagMgrFactory>();
+    RegisterComp<NotifyMgrFactory>();
 }
 
 Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb)
@@ -517,6 +518,13 @@ Int64 User::Send(KERNEL_NS::LibPacket *packet) const
         return -1;
     }
 
+    if(UNLIKELY(!CanSend()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("cant send message packet:%s, user:%s"), packet->ToString().c_str(), ToString().c_str());
+        packet->ReleaseUsingPool();
+        return -1;
+    }
+
     return _userMgr->Send(_activedSessionId, packet);
 }
 
@@ -526,6 +534,15 @@ void User::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
     if(UNLIKELY(_activedSessionId == 0))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("no session cant send"));
+        for(auto iter : packets)
+            iter->ReleaseUsingPool();
+        return;
+    }
+
+    if(UNLIKELY(!CanSend()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("cant send message user:%s, packet count:%llu")
+        , ToString().c_str(), static_cast<UInt64>(packets.size()));
         for(auto iter : packets)
             iter->ReleaseUsingPool();
         return;
@@ -543,6 +560,13 @@ Int64 User::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) c
         return -1;
     }
 
+    if(UNLIKELY(!CanSend()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("cant send message user:%s, message:%s, packetId:%lld")
+        , ToString().c_str(), coder.ToJsonString().c_str(), packetId);
+        return -1;
+    }
+
     return _userMgr->Send(_activedSessionId, opcode, coder, packetId > 0 ? packetId : NewPacketId());
 }
 
@@ -552,6 +576,15 @@ Int64 User::Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId) const
     if(UNLIKELY(_activedSessionId == 0))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("no session cant send"));
+        coder->Release();
+        return -1;
+    }
+
+    if(UNLIKELY(!CanSend()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("cant send message user:%s, message:%s, packetId:%lld")
+        , ToString().c_str(), coder->ToJsonString().c_str(), packetId);
+        coder->Release();
         return -1;
     }
 
@@ -559,6 +592,11 @@ Int64 User::Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId) const
     coder->Release();
 
     return ret;
+}
+
+bool User::CanSend() const
+{
+    return GetUserStatus() >= UserStatus::USER_LOGINING;
 }
 
 void User::OnUserObjCreated()

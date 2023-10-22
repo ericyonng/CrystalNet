@@ -719,3 +719,33 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SubmitBookBagBorrowInfoResFactory::CreateFactory()));
     }
+
+    {// UserNotifyDataNty
+        auto info = OpcodeInfo();
+        info._opcode = 91;
+        info._noLog = false;
+        info._opcodeName = "UserNotifyDataNty";
+        info._protoFile = "notify.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, UserNotifyDataNtyFactory::CreateFactory()));
+    }
+
+    {// AddUserNotifyDataItemNty
+        auto info = OpcodeInfo();
+        info._opcode = 92;
+        info._noLog = false;
+        info._opcodeName = "AddUserNotifyDataItemNty";
+        info._protoFile = "notify.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, AddUserNotifyDataItemNtyFactory::CreateFactory()));
+    }
+
+    {// RemoveUserNotifyDataItemNty
+        auto info = OpcodeInfo();
+        info._opcode = 93;
+        info._noLog = false;
+        info._opcodeName = "RemoveUserNotifyDataItemNty";
+        info._protoFile = "notify.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, RemoveUserNotifyDataItemNtyFactory::CreateFactory()));
+    }

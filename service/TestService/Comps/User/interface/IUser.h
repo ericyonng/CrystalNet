@@ -53,6 +53,7 @@ public:
         USER_STARTING,
         USER_STARTED,
 
+        // 当用户状态切换到 USER_LOGINING 之后的状态才可以发送消息
         USER_LOGINING,
         USER_LOGINED,
         CLIENT_LOGIN_ENDING,
@@ -136,6 +137,8 @@ public:
     virtual void Send(const std::list<KERNEL_NS::LibPacket *> &packets) const = 0;
     virtual Int64 Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const = 0;
     virtual Int64 Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId = -1) const = 0;
+
+    virtual bool CanSend() const = 0;
 
     // user对象创建
     virtual void OnUserObjCreated() = 0;

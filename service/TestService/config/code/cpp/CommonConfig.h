@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/TestService/config/xlsx/鍏叡鍙傛暟.xlsx
+// file path:../../service/TestService/config/xlsx/公共参数.xlsx
 // sheet name:鍏叡鍙傛暟|Common
 
 #ifndef __CONFIG_COMMON_CONFIG_H__
@@ -53,6 +53,8 @@ public:
         BOOK_SNAP_SHOT_MAX_LIMIT,    // id
 
         KEYWORDS_LIMIT,    // id
+
+        NOTIFY_MAX_LIMIT,    // id
 
         __ENUM_MAX,
 

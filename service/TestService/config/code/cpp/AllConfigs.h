@@ -7,4 +7,5 @@
 #include <cpp/GoalConfig.h>
 #include <cpp/InviteCodeConfig.h>
 #include <cpp/ItemConfig.h>
+#include <cpp/WordIdConfig.h>
 #endif

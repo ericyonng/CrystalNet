@@ -1,2 +1,31 @@
 syntax = "proto3";
 package CRYSTAL_NET.service;
+
+import "com_variant.proto";
+
+// 通知数据
+message UserNotifyDataItem
+{
+    // 用于识别的唯一id
+    uint64 NotifyId = 1;
+
+    // 通知的title文字id
+    string NotifyTitleWordId = 2;
+
+    // title的参数
+    repeated VariantParam TitleParams = 3;
+
+    // 通知的内容文字id
+    string NotifyContentWordId = 4;
+
+    // 内容的参数
+    repeated VariantParam ContentParams = 5;
+
+    // 时间
+    sint64 CreateTime = 6;
+}
+
+message UserNotifyData
+{
+    repeated UserNotifyDataItem ItemList = 1;
+}

@@ -58,6 +58,11 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("AddUserNotifyDataItemNty", (jsonData:any):any =>{
+                return this.AddUserNotifyDataItemNtyParser(jsonData);
+            })
+
+
             this.add("BookBagInfo", (jsonData:any):any =>{
                 return this.BookBagInfoParser(jsonData);
             })
@@ -468,6 +473,11 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("RemoveUserNotifyDataItemNty", (jsonData:any):any =>{
+                return this.RemoveUserNotifyDataItemNtyParser(jsonData);
+            })
+
+
             this.add("RoleType", (jsonData:any):any =>{
                 return this.RoleTypeParser(jsonData);
             })
@@ -590,6 +600,21 @@ export namespace crystal_net_service_parser
 
             this.add("UserLoginInfo", (jsonData:any):any =>{
                 return this.UserLoginInfoParser(jsonData);
+            })
+
+
+            this.add("UserNotifyData", (jsonData:any):any =>{
+                return this.UserNotifyDataParser(jsonData);
+            })
+
+
+            this.add("UserNotifyDataItem", (jsonData:any):any =>{
+                return this.UserNotifyDataItemParser(jsonData);
+            })
+
+
+            this.add("UserNotifyDataNty", (jsonData:any):any =>{
+                return this.UserNotifyDataNtyParser(jsonData);
             })
 
 
@@ -728,6 +753,26 @@ export namespace crystal_net_service_parser
                 if(jsonData.ErrCode != undefined)
                 {
                     newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private AddUserNotifyDataItemNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.AddUserNotifyDataItemNty()
+
+                if(jsonData.ItemList != undefined)
+                {
+                    var jsonArray = jsonData.ItemList.map((value, idx, arr)=>{
+                    var parser = this.getParser("UserNotifyDataItem");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.ItemList = jsonArray;
                 }
 
                  return newInfo;
@@ -2507,6 +2552,22 @@ export namespace crystal_net_service_parser
             }
 
 
+            private RemoveUserNotifyDataItemNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.RemoveUserNotifyDataItemNty()
+
+                if(jsonData.NotifyIds != undefined)
+                {
+                    var jsonArray = jsonData.NotifyIds.map((value, idx, arr)=>{
+                    return parseFloat(value);
+                    });
+
+                    newInfo.NotifyIds = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
             private RoleTypeParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.RoleType()
                  return newInfo;
@@ -3025,24 +3086,135 @@ export namespace crystal_net_service_parser
             }
 
 
+            private UserNotifyDataParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.UserNotifyData()
+
+                if(jsonData.ItemList != undefined)
+                {
+                    var jsonArray = jsonData.ItemList.map((value, idx, arr)=>{
+                    var parser = this.getParser("UserNotifyDataItem");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.ItemList = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private UserNotifyDataItemParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.UserNotifyDataItem()
+
+                if(jsonData.NotifyId != undefined)
+                {
+                    newInfo.NotifyId = parseFloat(jsonData.NotifyId);
+                }
+
+
+                if(jsonData.NotifyTitleWordId != undefined)
+                {
+                    newInfo.NotifyTitleWordId = jsonData.NotifyTitleWordId;
+                }
+
+
+                if(jsonData.TitleParams != undefined)
+                {
+                    var jsonArray = jsonData.TitleParams.map((value, idx, arr)=>{
+                    var parser = this.getParser("VariantParam");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.TitleParams = jsonArray;
+                }
+
+
+                if(jsonData.NotifyContentWordId != undefined)
+                {
+                    newInfo.NotifyContentWordId = jsonData.NotifyContentWordId;
+                }
+
+
+                if(jsonData.ContentParams != undefined)
+                {
+                    var jsonArray = jsonData.ContentParams.map((value, idx, arr)=>{
+                    var parser = this.getParser("VariantParam");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.ContentParams = jsonArray;
+                }
+
+
+                if(jsonData.CreateTime != undefined)
+                {
+                    newInfo.CreateTime = parseFloat(jsonData.CreateTime);
+                }
+
+                 return newInfo;
+            }
+
+
+            private UserNotifyDataNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.UserNotifyDataNty()
+
+                if(jsonData.UserNotifyData != undefined)
+                {
+                    var jsonFieldInfo = jsonData.UserNotifyData;
+                    var cb = this.getParser("UserNotifyData");
+                    if(cb != undefined)
+                    {
+                        newInfo.UserNotifyData = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field UserNotifyData have no UserNotifyData parser");
+                    }
+                }
+
+                 return newInfo;
+            }
+
+
             private VariantParamParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.VariantParam()
 
-                if(jsonData.ParamType != undefined)
+                if(jsonData.VariantType != undefined)
                 {
-                    newInfo.ParamType = parseFloat(jsonData.ParamType);
+                    newInfo.VariantType = parseFloat(jsonData.VariantType);
                 }
 
 
-                if(jsonData.Number != undefined)
+                if(jsonData.StrValue != undefined)
                 {
-                    newInfo.Number = parseFloat(jsonData.Number);
+                    newInfo.StrValue = jsonData.StrValue;
                 }
 
 
-                if(jsonData.Str != undefined)
+                if(jsonData.IntValue != undefined)
                 {
-                    newInfo.Str = jsonData.Str;
+                    newInfo.IntValue = parseFloat(jsonData.IntValue);
+                }
+
+
+                if(jsonData.UnSignedValue != undefined)
+                {
+                    newInfo.UnSignedValue = parseFloat(jsonData.UnSignedValue);
+                }
+
+
+                if(jsonData.DoubleValue != undefined)
+                {
+                    newInfo.DoubleValue = parseFloat(jsonData.DoubleValue);
                 }
 
                  return newInfo;

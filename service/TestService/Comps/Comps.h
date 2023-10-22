@@ -44,4 +44,5 @@
 #include <Comps/PassTime/PassTime.h>
 #include <Comps/BookBag/BookBag.h>
 #include <Comps/Offline/Offline.h>
+#include <Comps/Notify/Notify.h>
 

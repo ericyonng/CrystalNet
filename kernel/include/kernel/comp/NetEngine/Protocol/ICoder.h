@@ -61,8 +61,8 @@ public:
     virtual ~ICoder(){}
     virtual void Release() = 0;
 
-    virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) = 0;
-    virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) = 0;
+    virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const = 0;
+    virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const = 0;
 
     virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) = 0;
     virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) = 0;

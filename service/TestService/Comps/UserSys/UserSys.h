@@ -31,3 +31,4 @@
 #include <Comps/UserSys/Login/login.h>
 #include <Comps/UserSys/Library/Library.h>
 #include <Comps/UserSys/BookBag/BookBag.h>
+#include <Comps/UserSys/Notify/Notify.h>

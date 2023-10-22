@@ -44,6 +44,7 @@
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "com_book.pb.h"
+#include "com_variant.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_com_5flibrary_2eproto
@@ -99,12 +100,6 @@ extern SnapshotFieldDefaultTypeInternal _SnapshotField_default_instance_;
 class UserLibraryInfo;
 struct UserLibraryInfoDefaultTypeInternal;
 extern UserLibraryInfoDefaultTypeInternal _UserLibraryInfo_default_instance_;
-class VariantParam;
-struct VariantParamDefaultTypeInternal;
-extern VariantParamDefaultTypeInternal _VariantParam_default_instance_;
-class VariantParamType;
-struct VariantParamTypeDefaultTypeInternal;
-extern VariantParamTypeDefaultTypeInternal _VariantParamType_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
@@ -121,8 +116,6 @@ template<> ::CRYSTAL_NET::service::OperationType* Arena::CreateMaybeMessage<::CR
 template<> ::CRYSTAL_NET::service::RoleType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::RoleType>(Arena*);
 template<> ::CRYSTAL_NET::service::SnapshotField* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SnapshotField>(Arena*);
 template<> ::CRYSTAL_NET::service::UserLibraryInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserLibraryInfo>(Arena*);
-template<> ::CRYSTAL_NET::service::VariantParam* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::VariantParam>(Arena*);
-template<> ::CRYSTAL_NET::service::VariantParamType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::VariantParamType>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace CRYSTAL_NET {
 namespace service {
@@ -184,32 +177,6 @@ inline bool BorrowOrderState_ENUMS_Parse(
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BorrowOrderState_ENUMS>(
     BorrowOrderState_ENUMS_descriptor(), name, value);
 }
-enum VariantParamType_ENUMS : int {
-  VariantParamType_ENUMS_UNKNOWN = 0,
-  VariantParamType_ENUMS_NUM = 1,
-  VariantParamType_ENUMS_STRING = 2,
-  VariantParamType_ENUMS_VariantParamType_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
-  VariantParamType_ENUMS_VariantParamType_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
-};
-bool VariantParamType_ENUMS_IsValid(int value);
-constexpr VariantParamType_ENUMS VariantParamType_ENUMS_ENUMS_MIN = VariantParamType_ENUMS_UNKNOWN;
-constexpr VariantParamType_ENUMS VariantParamType_ENUMS_ENUMS_MAX = VariantParamType_ENUMS_STRING;
-constexpr int VariantParamType_ENUMS_ENUMS_ARRAYSIZE = VariantParamType_ENUMS_ENUMS_MAX + 1;
-
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* VariantParamType_ENUMS_descriptor();
-template<typename T>
-inline const std::string& VariantParamType_ENUMS_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, VariantParamType_ENUMS>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function VariantParamType_ENUMS_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    VariantParamType_ENUMS_descriptor(), enum_t_value);
-}
-inline bool VariantParamType_ENUMS_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, VariantParamType_ENUMS* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<VariantParamType_ENUMS>(
-    VariantParamType_ENUMS_descriptor(), name, value);
-}
 enum OperationType_ENUMS : int {
   OperationType_ENUMS_UNKNOWN = 0,
   OperationType_ENUMS_OperationType_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
@@ -244,7 +211,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message RoleType failed, error: %s"), InitializationErrorString().c_str());
@@ -278,7 +245,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message RoleType failed, error: %s"), InitializationErrorString().c_str());
@@ -535,7 +502,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibararyManagerInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -569,7 +536,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibararyManagerInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -822,7 +789,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -856,7 +823,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -1191,7 +1158,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderState failed, error: %s"), InitializationErrorString().c_str());
@@ -1225,7 +1192,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderState failed, error: %s"), InitializationErrorString().c_str());
@@ -1488,7 +1455,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -1522,7 +1489,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -1833,7 +1800,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message MemberInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -1867,7 +1834,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message MemberInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -2203,636 +2170,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 // -------------------------------------------------------------------
 
 // AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
-class VariantParamType final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.VariantParamType) */ , public KERNEL_NS::ICoder {
-public:
-virtual void Release() override {
-    delete this;
-}
-
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
-    if (UNLIKELY(!IsInitialized()))
-    {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message VariantParamType failed, error: %s"), InitializationErrorString().c_str());
-      return false;
-    }
-
-    size_t payloadSize = ByteSizeLong();
-    if (payloadSize == 0)
-      return true;
-
-    if(UNLIKELY(stream.GetBuffer() == NULL))
-        stream.Init(payloadSize);
-
-    auto writableSize = stream.GetWritableSize();
-    if (writableSize < static_cast<Int64>(payloadSize))
-    {
-        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
-            return false;
-        }
-    }
-
-    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message VariantParamType failed, error: %s"), InitializationErrorString().c_str());
-        return false;
-    }
-
-    stream.ShiftWritePos(payloadSize);
-    return true;
-}
-
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
-    if (UNLIKELY(!IsInitialized()))
-    {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message VariantParamType failed, error: %s"), InitializationErrorString().c_str());
-      return false;
-    }
-
-    size_t payloadSize = ByteSizeLong();
-    if (payloadSize == 0)
-      return true;
-
-    if(UNLIKELY(stream.GetBuffer() == NULL))
-        stream.Init(payloadSize);
-
-    auto writableSize = stream.GetWritableSize();
-    if (writableSize < static_cast<Int64>(payloadSize))
-    {
-        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
-            return false;
-        }
-    }
-
-    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message VariantParamType failed, error: %s"), InitializationErrorString().c_str());
-        return false;
-    }
-
-    stream.ShiftWritePos(payloadSize);
-    return true;
-}
-
-virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
-    if (stream.GetReadableSize() == 0)
-    {
-        Clear();
-        return true;
-    }
-
-    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message VariantParamType failed, error: %s"), InitializationErrorString().c_str());
-        return false;
-    }
-
-    return true;
-}
-
-virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
-    if (stream.GetReadableSize() == 0)
-    {
-        Clear();
-        return true;
-    }
-
-    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message VariantParamType failed, error: %s"), InitializationErrorString().c_str());
-        return false;
-    }
-
-    return true;
-}
-
-virtual KERNEL_NS::LibString ToJsonString() const override {
-    KERNEL_NS::LibString data;
-    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
-        return "";
-    }
-
-    return data;
-}
-
-virtual bool ToJsonString(std::string *data) const override {
-    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
-        return false;
-    }
-
-    return true;
-}
-
-virtual bool FromJsonString(const Byte8 *data, size_t len) override {
-    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
-    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
-        return false;
-    }
-
-    return true;
-}
-
-
- public:
-  inline VariantParamType() : VariantParamType(nullptr) {}
-  explicit PROTOBUF_CONSTEXPR VariantParamType(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  VariantParamType(const VariantParamType& from);
-  VariantParamType(VariantParamType&& from) noexcept
-    : VariantParamType() {
-    *this = ::std::move(from);
-  }
-
-  inline VariantParamType& operator=(const VariantParamType& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline VariantParamType& operator=(VariantParamType&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const VariantParamType& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const VariantParamType* internal_default_instance() {
-    return reinterpret_cast<const VariantParamType*>(
-               &_VariantParamType_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    6;
-
-  friend void swap(VariantParamType& a, VariantParamType& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(VariantParamType* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(VariantParamType* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  VariantParamType* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<VariantParamType>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const VariantParamType& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const VariantParamType& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
-  }
-  public:
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "CRYSTAL_NET.service.VariantParamType";
-  }
-  protected:
-  explicit VariantParamType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  typedef VariantParamType_ENUMS ENUMS;
-  static constexpr ENUMS UNKNOWN =
-    VariantParamType_ENUMS_UNKNOWN;
-  static constexpr ENUMS NUM =
-    VariantParamType_ENUMS_NUM;
-  static constexpr ENUMS STRING =
-    VariantParamType_ENUMS_STRING;
-  static inline bool ENUMS_IsValid(int value) {
-    return VariantParamType_ENUMS_IsValid(value);
-  }
-  static constexpr ENUMS ENUMS_MIN =
-    VariantParamType_ENUMS_ENUMS_MIN;
-  static constexpr ENUMS ENUMS_MAX =
-    VariantParamType_ENUMS_ENUMS_MAX;
-  static constexpr int ENUMS_ARRAYSIZE =
-    VariantParamType_ENUMS_ENUMS_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  ENUMS_descriptor() {
-    return VariantParamType_ENUMS_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& ENUMS_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, ENUMS>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function ENUMS_Name.");
-    return VariantParamType_ENUMS_Name(enum_t_value);
-  }
-  static inline bool ENUMS_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      ENUMS* value) {
-    return VariantParamType_ENUMS_Parse(name, value);
-  }
-
-  // accessors -------------------------------------------------------
-
-  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.VariantParamType)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  struct Impl_ {
-  };
-  friend struct ::TableStruct_com_5flibrary_2eproto;
-};
-// -------------------------------------------------------------------
-
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
-class VariantParam final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.VariantParam) */ , public KERNEL_NS::ICoder {
-public:
-virtual void Release() override {
-    delete this;
-}
-
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
-    if (UNLIKELY(!IsInitialized()))
-    {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message VariantParam failed, error: %s"), InitializationErrorString().c_str());
-      return false;
-    }
-
-    size_t payloadSize = ByteSizeLong();
-    if (payloadSize == 0)
-      return true;
-
-    if(UNLIKELY(stream.GetBuffer() == NULL))
-        stream.Init(payloadSize);
-
-    auto writableSize = stream.GetWritableSize();
-    if (writableSize < static_cast<Int64>(payloadSize))
-    {
-        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
-            return false;
-        }
-    }
-
-    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message VariantParam failed, error: %s"), InitializationErrorString().c_str());
-        return false;
-    }
-
-    stream.ShiftWritePos(payloadSize);
-    return true;
-}
-
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
-    if (UNLIKELY(!IsInitialized()))
-    {
-      g_Log->Error(LOGFMT_OBJ_TAG("Encode message VariantParam failed, error: %s"), InitializationErrorString().c_str());
-      return false;
-    }
-
-    size_t payloadSize = ByteSizeLong();
-    if (payloadSize == 0)
-      return true;
-
-    if(UNLIKELY(stream.GetBuffer() == NULL))
-        stream.Init(payloadSize);
-
-    auto writableSize = stream.GetWritableSize();
-    if (writableSize < static_cast<Int64>(payloadSize))
-    {
-        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
-        {
-            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
-            return false;
-        }
-    }
-
-    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("Encode message VariantParam failed, error: %s"), InitializationErrorString().c_str());
-        return false;
-    }
-
-    stream.ShiftWritePos(payloadSize);
-    return true;
-}
-
-virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
-    if (stream.GetReadableSize() == 0)
-    {
-        Clear();
-        return true;
-    }
-
-    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message VariantParam failed, error: %s"), InitializationErrorString().c_str());
-        return false;
-    }
-
-    return true;
-}
-
-virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
-    if (stream.GetReadableSize() == 0)
-    {
-        Clear();
-        return true;
-    }
-
-    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("Decode message VariantParam failed, error: %s"), InitializationErrorString().c_str());
-        return false;
-    }
-
-    return true;
-}
-
-virtual KERNEL_NS::LibString ToJsonString() const override {
-    KERNEL_NS::LibString data;
-    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
-        return "";
-    }
-
-    return data;
-}
-
-virtual bool ToJsonString(std::string *data) const override {
-    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
-        return false;
-    }
-
-    return true;
-}
-
-virtual bool FromJsonString(const Byte8 *data, size_t len) override {
-    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
-    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
-        return false;
-    }
-
-    return true;
-}
-
-
- public:
-  inline VariantParam() : VariantParam(nullptr) {}
-  ~VariantParam() override;
-  explicit PROTOBUF_CONSTEXPR VariantParam(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  VariantParam(const VariantParam& from);
-  VariantParam(VariantParam&& from) noexcept
-    : VariantParam() {
-    *this = ::std::move(from);
-  }
-
-  inline VariantParam& operator=(const VariantParam& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline VariantParam& operator=(VariantParam&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const VariantParam& default_instance() {
-    return *internal_default_instance();
-  }
-  enum ParamValueCase {
-    kNumber = 2,
-    kStr = 3,
-    PARAMVALUE_NOT_SET = 0,
-  };
-
-  static inline const VariantParam* internal_default_instance() {
-    return reinterpret_cast<const VariantParam*>(
-               &_VariantParam_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    7;
-
-  friend void swap(VariantParam& a, VariantParam& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(VariantParam* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(VariantParam* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  VariantParam* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<VariantParam>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const VariantParam& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const VariantParam& from) {
-    VariantParam::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(VariantParam* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "CRYSTAL_NET.service.VariantParam";
-  }
-  protected:
-  explicit VariantParam(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kParamTypeFieldNumber = 1,
-    kNumberFieldNumber = 2,
-    kStrFieldNumber = 3,
-  };
-  // sint32 ParamType = 1;
-  void clear_paramtype();
-  int32_t paramtype() const;
-  void set_paramtype(int32_t value);
-  private:
-  int32_t _internal_paramtype() const;
-  void _internal_set_paramtype(int32_t value);
-  public:
-
-  // sint64 Number = 2;
-  bool has_number() const;
-  private:
-  bool _internal_has_number() const;
-  public:
-  void clear_number();
-  int64_t number() const;
-  void set_number(int64_t value);
-  private:
-  int64_t _internal_number() const;
-  void _internal_set_number(int64_t value);
-  public:
-
-  // string Str = 3;
-  bool has_str() const;
-  private:
-  bool _internal_has_str() const;
-  public:
-  void clear_str();
-  const std::string& str() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_str(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_str();
-  PROTOBUF_NODISCARD std::string* release_str();
-  void set_allocated_str(std::string* str);
-  private:
-  const std::string& _internal_str() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_str(const std::string& value);
-  std::string* _internal_mutable_str();
-  public:
-
-  void clear_ParamValue();
-  ParamValueCase ParamValue_case() const;
-  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.VariantParam)
- private:
-  class _Internal;
-  void set_has_number();
-  void set_has_str();
-
-  inline bool has_ParamValue() const;
-  inline void clear_has_ParamValue();
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  struct Impl_ {
-    int32_t paramtype_;
-    union ParamValueUnion {
-      constexpr ParamValueUnion() : _constinit_{} {}
-        ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
-      int64_t number_;
-      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr str_;
-    } ParamValue_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-    uint32_t _oneof_case_[1];
-
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_com_5flibrary_2eproto;
-};
-// -------------------------------------------------------------------
-
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class OperationType final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OperationType) */ , public KERNEL_NS::ICoder {
 public:
@@ -2840,7 +2177,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message OperationType failed, error: %s"), InitializationErrorString().c_str());
@@ -2874,7 +2211,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message OperationType failed, error: %s"), InitializationErrorString().c_str());
@@ -3018,7 +2355,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_OperationType_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    6;
 
   friend void swap(OperationType& a, OperationType& b) {
     a.Swap(&b);
@@ -3125,7 +2462,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message OperationLogInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -3159,7 +2496,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message OperationLogInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -3304,7 +2641,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_OperationLogInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    7;
 
   friend void swap(OperationLogInfo& a, OperationLogInfo& b) {
     a.Swap(&b);
@@ -3481,7 +2818,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -3515,7 +2852,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -3660,7 +2997,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LibraryInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    8;
 
   friend void swap(LibraryInfo& a, LibraryInfo& b) {
     a.Swap(&b);
@@ -3939,7 +3276,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserLibraryInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -3973,7 +3310,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserLibraryInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -4118,7 +3455,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_UserLibraryInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    9;
 
   friend void swap(UserLibraryInfo& a, UserLibraryInfo& b) {
     a.Swap(&b);
@@ -4226,7 +3563,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryPreviewInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -4260,7 +3597,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message LibraryPreviewInfo failed, error: %s"), InitializationErrorString().c_str());
@@ -4405,7 +3742,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LibraryPreviewInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    10;
 
   friend void swap(LibraryPreviewInfo& a, LibraryPreviewInfo& b) {
     a.Swap(&b);
@@ -4556,7 +3893,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message KeyWordsField failed, error: %s"), InitializationErrorString().c_str());
@@ -4590,7 +3927,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message KeyWordsField failed, error: %s"), InitializationErrorString().c_str());
@@ -4735,7 +4072,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_KeyWordsField_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    11;
 
   friend void swap(KeyWordsField& a, KeyWordsField& b) {
     a.Swap(&b);
@@ -4858,7 +4195,7 @@ virtual void Release() override {
     delete this;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotField failed, error: %s"), InitializationErrorString().c_str());
@@ -4892,7 +4229,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) overrid
     return true;
 }
 
-virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
     if (UNLIKELY(!IsInitialized()))
     {
       g_Log->Error(LOGFMT_OBJ_TAG("Encode message SnapshotField failed, error: %s"), InitializationErrorString().c_str());
@@ -5037,7 +4374,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_SnapshotField_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    12;
 
   friend void swap(SnapshotField& a, SnapshotField& b) {
     a.Swap(&b);
@@ -5740,158 +5077,6 @@ inline MemberInfo::MemberBindPhoneCase MemberInfo::MemberBindPhone_case() const 
 }
 // -------------------------------------------------------------------
 
-// VariantParamType
-
-// -------------------------------------------------------------------
-
-// VariantParam
-
-// sint32 ParamType = 1;
-inline void VariantParam::clear_paramtype() {
-  _impl_.paramtype_ = 0;
-}
-inline int32_t VariantParam::_internal_paramtype() const {
-  return _impl_.paramtype_;
-}
-inline int32_t VariantParam::paramtype() const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.VariantParam.ParamType)
-  return _internal_paramtype();
-}
-inline void VariantParam::_internal_set_paramtype(int32_t value) {
-  
-  _impl_.paramtype_ = value;
-}
-inline void VariantParam::set_paramtype(int32_t value) {
-  _internal_set_paramtype(value);
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.VariantParam.ParamType)
-}
-
-// sint64 Number = 2;
-inline bool VariantParam::_internal_has_number() const {
-  return ParamValue_case() == kNumber;
-}
-inline bool VariantParam::has_number() const {
-  return _internal_has_number();
-}
-inline void VariantParam::set_has_number() {
-  _impl_._oneof_case_[0] = kNumber;
-}
-inline void VariantParam::clear_number() {
-  if (_internal_has_number()) {
-    _impl_.ParamValue_.number_ = int64_t{0};
-    clear_has_ParamValue();
-  }
-}
-inline int64_t VariantParam::_internal_number() const {
-  if (_internal_has_number()) {
-    return _impl_.ParamValue_.number_;
-  }
-  return int64_t{0};
-}
-inline void VariantParam::_internal_set_number(int64_t value) {
-  if (!_internal_has_number()) {
-    clear_ParamValue();
-    set_has_number();
-  }
-  _impl_.ParamValue_.number_ = value;
-}
-inline int64_t VariantParam::number() const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.VariantParam.Number)
-  return _internal_number();
-}
-inline void VariantParam::set_number(int64_t value) {
-  _internal_set_number(value);
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.VariantParam.Number)
-}
-
-// string Str = 3;
-inline bool VariantParam::_internal_has_str() const {
-  return ParamValue_case() == kStr;
-}
-inline bool VariantParam::has_str() const {
-  return _internal_has_str();
-}
-inline void VariantParam::set_has_str() {
-  _impl_._oneof_case_[0] = kStr;
-}
-inline void VariantParam::clear_str() {
-  if (_internal_has_str()) {
-    _impl_.ParamValue_.str_.Destroy();
-    clear_has_ParamValue();
-  }
-}
-inline const std::string& VariantParam::str() const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.VariantParam.Str)
-  return _internal_str();
-}
-template <typename ArgT0, typename... ArgT>
-inline void VariantParam::set_str(ArgT0&& arg0, ArgT... args) {
-  if (!_internal_has_str()) {
-    clear_ParamValue();
-    set_has_str();
-    _impl_.ParamValue_.str_.InitDefault();
-  }
-  _impl_.ParamValue_.str_.Set( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.VariantParam.Str)
-}
-inline std::string* VariantParam::mutable_str() {
-  std::string* _s = _internal_mutable_str();
-  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.VariantParam.Str)
-  return _s;
-}
-inline const std::string& VariantParam::_internal_str() const {
-  if (_internal_has_str()) {
-    return _impl_.ParamValue_.str_.Get();
-  }
-  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
-}
-inline void VariantParam::_internal_set_str(const std::string& value) {
-  if (!_internal_has_str()) {
-    clear_ParamValue();
-    set_has_str();
-    _impl_.ParamValue_.str_.InitDefault();
-  }
-  _impl_.ParamValue_.str_.Set(value, GetArenaForAllocation());
-}
-inline std::string* VariantParam::_internal_mutable_str() {
-  if (!_internal_has_str()) {
-    clear_ParamValue();
-    set_has_str();
-    _impl_.ParamValue_.str_.InitDefault();
-  }
-  return _impl_.ParamValue_.str_.Mutable(      GetArenaForAllocation());
-}
-inline std::string* VariantParam::release_str() {
-  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.VariantParam.Str)
-  if (_internal_has_str()) {
-    clear_has_ParamValue();
-    return _impl_.ParamValue_.str_.Release();
-  } else {
-    return nullptr;
-  }
-}
-inline void VariantParam::set_allocated_str(std::string* str) {
-  if (has_ParamValue()) {
-    clear_ParamValue();
-  }
-  if (str != nullptr) {
-    set_has_str();
-    _impl_.ParamValue_.str_.InitAllocated(str, GetArenaForAllocation());
-  }
-  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.VariantParam.Str)
-}
-
-inline bool VariantParam::has_ParamValue() const {
-  return ParamValue_case() != PARAMVALUE_NOT_SET;
-}
-inline void VariantParam::clear_has_ParamValue() {
-  _impl_._oneof_case_[0] = PARAMVALUE_NOT_SET;
-}
-inline VariantParam::ParamValueCase VariantParam::ParamValue_case() const {
-  return VariantParam::ParamValueCase(_impl_._oneof_case_[0]);
-}
-// -------------------------------------------------------------------
-
 // OperationType
 
 // -------------------------------------------------------------------
@@ -6034,9 +5219,6 @@ inline int OperationLogInfo::_internal_params_size() const {
 }
 inline int OperationLogInfo::params_size() const {
   return _internal_params_size();
-}
-inline void OperationLogInfo::clear_params() {
-  _impl_.params_.Clear();
 }
 inline ::CRYSTAL_NET::service::VariantParam* OperationLogInfo::mutable_params(int index) {
   // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.OperationLogInfo.Params)
@@ -6872,10 +6054,6 @@ SnapshotField::mutable_snapshots() {
 
 // -------------------------------------------------------------------
 
-// -------------------------------------------------------------------
-
-// -------------------------------------------------------------------
-
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -6893,11 +6071,6 @@ template <> struct is_proto_enum< ::CRYSTAL_NET::service::BorrowOrderState_ENUMS
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::BorrowOrderState_ENUMS>() {
   return ::CRYSTAL_NET::service::BorrowOrderState_ENUMS_descriptor();
-}
-template <> struct is_proto_enum< ::CRYSTAL_NET::service::VariantParamType_ENUMS> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::VariantParamType_ENUMS>() {
-  return ::CRYSTAL_NET::service::VariantParamType_ENUMS_descriptor();
 }
 template <> struct is_proto_enum< ::CRYSTAL_NET::service::OperationType_ENUMS> : ::std::true_type {};
 template <>
@@ -7044,52 +6217,6 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::MemberInfo(*dynamic_cast<const ::CRYSTAL_NET::service::MemberInfo *>(coder));
-    }
-
-};
-
-
-class VariantParamTypeFactory : public KERNEL_NS::ICoderFactory {
-    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, VariantParamTypeFactory);
-public:
-
-    virtual void Release() override {
-        VariantParamTypeFactory::Delete_VariantParamTypeFactory(this);
-    }
-
-    static VariantParamTypeFactory *CreateFactory() {
-        return VariantParamTypeFactory::New_VariantParamTypeFactory();
-    }
-
-    virtual KERNEL_NS::ICoder *Create() const override {
-        return new ::CRYSTAL_NET::service::VariantParamType();
-    }
-
-    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ::CRYSTAL_NET::service::VariantParamType(*dynamic_cast<const ::CRYSTAL_NET::service::VariantParamType *>(coder));
-    }
-
-};
-
-
-class VariantParamFactory : public KERNEL_NS::ICoderFactory {
-    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, VariantParamFactory);
-public:
-
-    virtual void Release() override {
-        VariantParamFactory::Delete_VariantParamFactory(this);
-    }
-
-    static VariantParamFactory *CreateFactory() {
-        return VariantParamFactory::New_VariantParamFactory();
-    }
-
-    virtual KERNEL_NS::ICoder *Create() const override {
-        return new ::CRYSTAL_NET::service::VariantParam();
-    }
-
-    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
-        return new ::CRYSTAL_NET::service::VariantParam(*dynamic_cast<const ::CRYSTAL_NET::service::VariantParam *>(coder));
     }
 
 };

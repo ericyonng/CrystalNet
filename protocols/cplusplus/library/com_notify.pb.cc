@@ -3,6 +3,8 @@
 // source: com_notify.proto
 
 #include <protocols/cplusplus/library/com_notify.pb.h>
+POOL_CREATE_OBJ_DEFAULT_IMPL(UserNotifyDataItemFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(UserNotifyDataFactory);
 
 #include <algorithm>
 
@@ -23,25 +25,96 @@ namespace _pbi = _pb::internal;
 
 namespace CRYSTAL_NET {
 namespace service {
+PROTOBUF_CONSTEXPR UserNotifyDataItem::UserNotifyDataItem(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.titleparams_)*/{}
+  , /*decltype(_impl_.contentparams_)*/{}
+  , /*decltype(_impl_.notifytitlewordid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.notifycontentwordid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.notifyid_)*/uint64_t{0u}
+  , /*decltype(_impl_.createtime_)*/int64_t{0}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct UserNotifyDataItemDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UserNotifyDataItemDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UserNotifyDataItemDefaultTypeInternal() {}
+  union {
+    UserNotifyDataItem _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UserNotifyDataItemDefaultTypeInternal _UserNotifyDataItem_default_instance_;
+PROTOBUF_CONSTEXPR UserNotifyData::UserNotifyData(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.itemlist_)*/{}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct UserNotifyDataDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UserNotifyDataDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UserNotifyDataDefaultTypeInternal() {}
+  union {
+    UserNotifyData _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UserNotifyDataDefaultTypeInternal _UserNotifyData_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
+static ::_pb::Metadata file_level_metadata_com_5fnotify_2eproto[2];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_com_5fnotify_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_5fnotify_2eproto = nullptr;
-const uint32_t TableStruct_com_5fnotify_2eproto::offsets[1] = {};
-static constexpr ::_pbi::MigrationSchema* schemas = nullptr;
-static constexpr ::_pb::Message* const* file_default_instances = nullptr;
+
+const uint32_t TableStruct_com_5fnotify_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.notifyid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.notifytitlewordid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.titleparams_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.notifycontentwordid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.contentparams_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.createtime_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyData, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyData, _impl_.itemlist_),
+};
+static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  { 0, -1, -1, sizeof(::CRYSTAL_NET::service::UserNotifyDataItem)},
+  { 12, -1, -1, sizeof(::CRYSTAL_NET::service::UserNotifyData)},
+};
+
+static const ::_pb::Message* const file_default_instances[] = {
+  &::CRYSTAL_NET::service::_UserNotifyDataItem_default_instance_._instance,
+  &::CRYSTAL_NET::service::_UserNotifyData_default_instance_._instance,
+};
 
 const char descriptor_table_protodef_com_5fnotify_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\020com_notify.proto\022\023CRYSTAL_NET.serviceb"
-  "\006proto3"
+  "\n\020com_notify.proto\022\023CRYSTAL_NET.service\032"
+  "\021com_variant.proto\"\344\001\n\022UserNotifyDataIte"
+  "m\022\020\n\010NotifyId\030\001 \001(\004\022\031\n\021NotifyTitleWordId"
+  "\030\002 \001(\t\0226\n\013TitleParams\030\003 \003(\0132!.CRYSTAL_NE"
+  "T.service.VariantParam\022\033\n\023NotifyContentW"
+  "ordId\030\004 \001(\t\0228\n\rContentParams\030\005 \003(\0132!.CRY"
+  "STAL_NET.service.VariantParam\022\022\n\nCreateT"
+  "ime\030\006 \001(\022\"K\n\016UserNotifyData\0229\n\010ItemList\030"
+  "\001 \003(\0132\'.CRYSTAL_NET.service.UserNotifyDa"
+  "taItemb\006proto3"
   ;
+static const ::_pbi::DescriptorTable* const descriptor_table_com_5fnotify_2eproto_deps[1] = {
+  &::descriptor_table_com_5fvariant_2eproto,
+};
 static ::_pbi::once_flag descriptor_table_com_5fnotify_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fnotify_2eproto = {
-    false, false, 47, descriptor_table_protodef_com_5fnotify_2eproto,
+    false, false, 374, descriptor_table_protodef_com_5fnotify_2eproto,
     "com_notify.proto",
-    &descriptor_table_com_5fnotify_2eproto_once, nullptr, 0, 0,
+    &descriptor_table_com_5fnotify_2eproto_once, descriptor_table_com_5fnotify_2eproto_deps, 1, 2,
     schemas, file_default_instances, TableStruct_com_5fnotify_2eproto::offsets,
-    nullptr, file_level_enum_descriptors_com_5fnotify_2eproto,
+    file_level_metadata_com_5fnotify_2eproto, file_level_enum_descriptors_com_5fnotify_2eproto,
     file_level_service_descriptors_com_5fnotify_2eproto,
 };
 PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_com_5fnotify_2eproto_getter() {
@@ -53,10 +126,590 @@ PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_in
 namespace CRYSTAL_NET {
 namespace service {
 
+// ===================================================================
+
+class UserNotifyDataItem::_Internal {
+ public:
+};
+
+void UserNotifyDataItem::clear_titleparams() {
+  _impl_.titleparams_.Clear();
+}
+void UserNotifyDataItem::clear_contentparams() {
+  _impl_.contentparams_.Clear();
+}
+UserNotifyDataItem::UserNotifyDataItem(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.UserNotifyDataItem)
+}
+UserNotifyDataItem::UserNotifyDataItem(const UserNotifyDataItem& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  UserNotifyDataItem* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.titleparams_){from._impl_.titleparams_}
+    , decltype(_impl_.contentparams_){from._impl_.contentparams_}
+    , decltype(_impl_.notifytitlewordid_){}
+    , decltype(_impl_.notifycontentwordid_){}
+    , decltype(_impl_.notifyid_){}
+    , decltype(_impl_.createtime_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.notifytitlewordid_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.notifytitlewordid_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_notifytitlewordid().empty()) {
+    _this->_impl_.notifytitlewordid_.Set(from._internal_notifytitlewordid(), 
+      _this->GetArenaForAllocation());
+  }
+  _impl_.notifycontentwordid_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.notifycontentwordid_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_notifycontentwordid().empty()) {
+    _this->_impl_.notifycontentwordid_.Set(from._internal_notifycontentwordid(), 
+      _this->GetArenaForAllocation());
+  }
+  ::memcpy(&_impl_.notifyid_, &from._impl_.notifyid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.createtime_) -
+    reinterpret_cast<char*>(&_impl_.notifyid_)) + sizeof(_impl_.createtime_));
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.UserNotifyDataItem)
+}
+
+inline void UserNotifyDataItem::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.titleparams_){arena}
+    , decltype(_impl_.contentparams_){arena}
+    , decltype(_impl_.notifytitlewordid_){}
+    , decltype(_impl_.notifycontentwordid_){}
+    , decltype(_impl_.notifyid_){uint64_t{0u}}
+    , decltype(_impl_.createtime_){int64_t{0}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.notifytitlewordid_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.notifytitlewordid_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.notifycontentwordid_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.notifycontentwordid_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+UserNotifyDataItem::~UserNotifyDataItem() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.UserNotifyDataItem)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void UserNotifyDataItem::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.titleparams_.~RepeatedPtrField();
+  _impl_.contentparams_.~RepeatedPtrField();
+  _impl_.notifytitlewordid_.Destroy();
+  _impl_.notifycontentwordid_.Destroy();
+}
+
+void UserNotifyDataItem::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void UserNotifyDataItem::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.UserNotifyDataItem)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.titleparams_.Clear();
+  _impl_.contentparams_.Clear();
+  _impl_.notifytitlewordid_.ClearToEmpty();
+  _impl_.notifycontentwordid_.ClearToEmpty();
+  ::memset(&_impl_.notifyid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.createtime_) -
+      reinterpret_cast<char*>(&_impl_.notifyid_)) + sizeof(_impl_.createtime_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* UserNotifyDataItem::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint64 NotifyId = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.notifyid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // string NotifyTitleWordId = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          auto str = _internal_mutable_notifytitlewordid();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.UserNotifyDataItem.NotifyTitleWordId"));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated .CRYSTAL_NET.service.VariantParam TitleParams = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_titleparams(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // string NotifyContentWordId = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+          auto str = _internal_mutable_notifycontentwordid();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.UserNotifyDataItem.NotifyContentWordId"));
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated .CRYSTAL_NET.service.VariantParam ContentParams = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_contentparams(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // sint64 CreateTime = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
+          _impl_.createtime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* UserNotifyDataItem::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.UserNotifyDataItem)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint64 NotifyId = 1;
+  if (this->_internal_notifyid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_notifyid(), target);
+  }
+
+  // string NotifyTitleWordId = 2;
+  if (!this->_internal_notifytitlewordid().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_notifytitlewordid().data(), static_cast<int>(this->_internal_notifytitlewordid().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.UserNotifyDataItem.NotifyTitleWordId");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_notifytitlewordid(), target);
+  }
+
+  // repeated .CRYSTAL_NET.service.VariantParam TitleParams = 3;
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_titleparams_size()); i < n; i++) {
+    const auto& repfield = this->_internal_titleparams(i);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+        InternalWriteMessage(3, repfield, repfield.GetCachedSize(), target, stream);
+  }
+
+  // string NotifyContentWordId = 4;
+  if (!this->_internal_notifycontentwordid().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_notifycontentwordid().data(), static_cast<int>(this->_internal_notifycontentwordid().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.UserNotifyDataItem.NotifyContentWordId");
+    target = stream->WriteStringMaybeAliased(
+        4, this->_internal_notifycontentwordid(), target);
+  }
+
+  // repeated .CRYSTAL_NET.service.VariantParam ContentParams = 5;
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_contentparams_size()); i < n; i++) {
+    const auto& repfield = this->_internal_contentparams(i);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+        InternalWriteMessage(5, repfield, repfield.GetCachedSize(), target, stream);
+  }
+
+  // sint64 CreateTime = 6;
+  if (this->_internal_createtime() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt64ToArray(6, this->_internal_createtime(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.UserNotifyDataItem)
+  return target;
+}
+
+size_t UserNotifyDataItem::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.UserNotifyDataItem)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated .CRYSTAL_NET.service.VariantParam TitleParams = 3;
+  total_size += 1UL * this->_internal_titleparams_size();
+  for (const auto& msg : this->_impl_.titleparams_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // repeated .CRYSTAL_NET.service.VariantParam ContentParams = 5;
+  total_size += 1UL * this->_internal_contentparams_size();
+  for (const auto& msg : this->_impl_.contentparams_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // string NotifyTitleWordId = 2;
+  if (!this->_internal_notifytitlewordid().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_notifytitlewordid());
+  }
+
+  // string NotifyContentWordId = 4;
+  if (!this->_internal_notifycontentwordid().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_notifycontentwordid());
+  }
+
+  // uint64 NotifyId = 1;
+  if (this->_internal_notifyid() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_notifyid());
+  }
+
+  // sint64 CreateTime = 6;
+  if (this->_internal_createtime() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_createtime());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData UserNotifyDataItem::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    UserNotifyDataItem::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*UserNotifyDataItem::GetClassData() const { return &_class_data_; }
+
+
+void UserNotifyDataItem::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<UserNotifyDataItem*>(&to_msg);
+  auto& from = static_cast<const UserNotifyDataItem&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.UserNotifyDataItem)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.titleparams_.MergeFrom(from._impl_.titleparams_);
+  _this->_impl_.contentparams_.MergeFrom(from._impl_.contentparams_);
+  if (!from._internal_notifytitlewordid().empty()) {
+    _this->_internal_set_notifytitlewordid(from._internal_notifytitlewordid());
+  }
+  if (!from._internal_notifycontentwordid().empty()) {
+    _this->_internal_set_notifycontentwordid(from._internal_notifycontentwordid());
+  }
+  if (from._internal_notifyid() != 0) {
+    _this->_internal_set_notifyid(from._internal_notifyid());
+  }
+  if (from._internal_createtime() != 0) {
+    _this->_internal_set_createtime(from._internal_createtime());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UserNotifyDataItem::CopyFrom(const UserNotifyDataItem& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.UserNotifyDataItem)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UserNotifyDataItem::IsInitialized() const {
+  return true;
+}
+
+void UserNotifyDataItem::InternalSwap(UserNotifyDataItem* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.titleparams_.InternalSwap(&other->_impl_.titleparams_);
+  _impl_.contentparams_.InternalSwap(&other->_impl_.contentparams_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.notifytitlewordid_, lhs_arena,
+      &other->_impl_.notifytitlewordid_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.notifycontentwordid_, lhs_arena,
+      &other->_impl_.notifycontentwordid_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(UserNotifyDataItem, _impl_.createtime_)
+      + sizeof(UserNotifyDataItem::_impl_.createtime_)
+      - PROTOBUF_FIELD_OFFSET(UserNotifyDataItem, _impl_.notifyid_)>(
+          reinterpret_cast<char*>(&_impl_.notifyid_),
+          reinterpret_cast<char*>(&other->_impl_.notifyid_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata UserNotifyDataItem::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_com_5fnotify_2eproto_getter, &descriptor_table_com_5fnotify_2eproto_once,
+      file_level_metadata_com_5fnotify_2eproto[0]);
+}
+
+// ===================================================================
+
+class UserNotifyData::_Internal {
+ public:
+};
+
+UserNotifyData::UserNotifyData(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.UserNotifyData)
+}
+UserNotifyData::UserNotifyData(const UserNotifyData& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  UserNotifyData* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.itemlist_){from._impl_.itemlist_}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.UserNotifyData)
+}
+
+inline void UserNotifyData::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.itemlist_){arena}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+UserNotifyData::~UserNotifyData() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.UserNotifyData)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void UserNotifyData::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.itemlist_.~RepeatedPtrField();
+}
+
+void UserNotifyData::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void UserNotifyData::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.UserNotifyData)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.itemlist_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* UserNotifyData::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // repeated .CRYSTAL_NET.service.UserNotifyDataItem ItemList = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_itemlist(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* UserNotifyData::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.UserNotifyData)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // repeated .CRYSTAL_NET.service.UserNotifyDataItem ItemList = 1;
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_itemlist_size()); i < n; i++) {
+    const auto& repfield = this->_internal_itemlist(i);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+        InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.UserNotifyData)
+  return target;
+}
+
+size_t UserNotifyData::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.UserNotifyData)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated .CRYSTAL_NET.service.UserNotifyDataItem ItemList = 1;
+  total_size += 1UL * this->_internal_itemlist_size();
+  for (const auto& msg : this->_impl_.itemlist_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData UserNotifyData::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    UserNotifyData::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*UserNotifyData::GetClassData() const { return &_class_data_; }
+
+
+void UserNotifyData::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<UserNotifyData*>(&to_msg);
+  auto& from = static_cast<const UserNotifyData&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.UserNotifyData)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.itemlist_.MergeFrom(from._impl_.itemlist_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UserNotifyData::CopyFrom(const UserNotifyData& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.UserNotifyData)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UserNotifyData::IsInitialized() const {
+  return true;
+}
+
+void UserNotifyData::InternalSwap(UserNotifyData* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.itemlist_.InternalSwap(&other->_impl_.itemlist_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata UserNotifyData::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_com_5fnotify_2eproto_getter, &descriptor_table_com_5fnotify_2eproto_once,
+      file_level_metadata_com_5fnotify_2eproto[1]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace service
 }  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::UserNotifyDataItem*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::UserNotifyDataItem >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::UserNotifyDataItem >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::UserNotifyData*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::UserNotifyData >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::UserNotifyData >(arena);
+}
 PROTOBUF_NAMESPACE_CLOSE
 
 // @@protoc_insertion_point(global_scope)
