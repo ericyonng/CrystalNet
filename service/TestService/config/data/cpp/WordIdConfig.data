@@ -1,3 +1,4 @@
 Id|StringValue|
-3
-column_2_27:"\"HAVE_NEW_BORROW_ORDER\""|column_3_27:"\"有新的借书订单\""|
+4
+column_2_33:"\"HAVE_NEW_BORROW_APPLY_ORDER\""|column_3_27:"\"有新的借书申请\""|
+column_2_26:"\"BORROW_ORDER_CONTENT\""|column_3_70:"\"{}申请借书, 用户id:{}, 订单号:{},请即时处理出库.\""|
