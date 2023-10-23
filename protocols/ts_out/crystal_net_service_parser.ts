@@ -128,11 +128,6 @@ export namespace crystal_net_service_parser
             })
 
 
-            this.add("BorrowBookItem", (jsonData:any):any =>{
-                return this.BorrowBookItemParser(jsonData);
-            })
-
-
             this.add("BorrowOrderInfo", (jsonData:any):any =>{
                 return this.BorrowOrderInfoParser(jsonData);
             })
@@ -1150,24 +1145,6 @@ export namespace crystal_net_service_parser
                 if(jsonData.SubOrderId != undefined)
                 {
                     newInfo.SubOrderId = parseFloat(jsonData.SubOrderId);
-                }
-
-                 return newInfo;
-            }
-
-
-            private BorrowBookItemParser(jsonData:any):any{
-                var newInfo = new crystal_net_service.BorrowBookItem()
-
-                if(jsonData.BookId != undefined)
-                {
-                    newInfo.BookId = parseFloat(jsonData.BookId);
-                }
-
-
-                if(jsonData.BorrowDays != undefined)
-                {
-                    newInfo.BorrowDays = parseFloat(jsonData.BorrowDays);
                 }
 
                  return newInfo;
@@ -2691,20 +2668,6 @@ export namespace crystal_net_service_parser
 
             private SubmitBookBagBorrowInfoReqParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.SubmitBookBagBorrowInfoReq()
-
-                if(jsonData.BorrowBookList != undefined)
-                {
-                    var jsonArray = jsonData.BorrowBookList.map((value, idx, arr)=>{
-                    var parser = this.getParser("BorrowBookItem");
-                    if(parser == undefined)
-                        return {}
-
-                    return parser(value);
-                    });
-
-                    newInfo.BorrowBookList = jsonArray;
-                }
-
                  return newInfo;
             }
 

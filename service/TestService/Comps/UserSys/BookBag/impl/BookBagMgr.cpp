@@ -156,6 +156,23 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
             break;
         }
 
+        // 借阅天数
+        if(item.borrowdays() <= 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays is zero book id:%llu, user:%s"), item.bookid(), GetUser()->ToString().c_str());
+            return Status::ParamError;
+        }
+
+        auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
+        if(item.borrowdays() > maxBorrowDaysConfig->_value)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays:[%d] over limit:[%d] book id:%llu, user:%s")
+            , item.borrowdays(), maxBorrowDaysConfig->_value
+            ,  item.bookid()
+            , GetUser()->ToString().c_str());
+            return Status::ParamError;
+        }
+
         // 是否超过库存
         if(bookInfo->variantinfo().count() < item.bookcount())
         {
@@ -181,6 +198,7 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
                 else
                 {
                     bookInfoItem->set_bookcount(item.bookcount());
+                    bookInfoItem->set_borrowdays(item.borrowdays());
                 }
 
                 MaskDirty();
@@ -205,7 +223,7 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
     return err;
 }
 
-Int32 BookBagMgr::Submit(const ::google::protobuf::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&borrowBookItemList)
+Int32 BookBagMgr::Submit()
 {
     const auto myLibraryId = GetUser()->GetSys<ILibraryMgr>()->GetMyLibraryId();
     
@@ -216,27 +234,37 @@ Int32 BookBagMgr::Submit(const ::google::protobuf::RepeatedPtrField< ::CRYSTAL_N
         return Status::HaveNoBook;
     }
 
-    // 2.参数有没有与书袋中书匹配
-    if(_bookBagInfo->bookinfoitemlist_size() != borrowBookItemList.size())
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("param not match, bag item size:%d, param size:%d user:%s"), _bookBagInfo->bookinfoitemlist_size(), borrowBookItemList.size(), GetUser()->ToString().c_str());
-        return Status::ParamError;
-    }
-
     auto libraryGlobal = GetUserMgr()->GetGlobalSys<ILibraryGlobal>();
     std::set<UInt64> bookIds;
+    auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
     for(auto &item : _bookBagInfo->bookinfoitemlist())
     {
         if(item.bookcount() == 0)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("bookcount is zero book id:%llu, user:%s"), item.bookid(), borrowBookItemList.size(), GetUser()->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("bookcount is zero book id:%llu, user:%s"), item.bookid(), GetUser()->ToString().c_str());
+            return Status::ParamError;
+        }
+
+        // 借阅天数
+        if(item.borrowdays() <= 0)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays is zero book id:%llu, user:%s"), item.bookid(), GetUser()->ToString().c_str());
+            return Status::ParamError;
+        }
+
+        if(item.borrowdays() > maxBorrowDaysConfig->_value)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays:[%d] over limit:[%d] book id:%llu, user:%s")
+            , item.borrowdays(), maxBorrowDaysConfig->_value
+            ,  item.bookid()
+            , GetUser()->ToString().c_str());
             return Status::ParamError;
         }
 
         auto bookInfo = libraryGlobal->GetBookInfo(myLibraryId, item.bookid());
         if(!bookInfo)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("book not found book id:%llu, user:%s"), item.bookid(), borrowBookItemList.size(), GetUser()->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("book not found book id:%llu, user:%s"), item.bookid(), GetUser()->ToString().c_str());
             return Status::BookNotFound;
         }
 
@@ -244,64 +272,11 @@ Int32 BookBagMgr::Submit(const ::google::protobuf::RepeatedPtrField< ::CRYSTAL_N
         if(static_cast<Int64>(item.bookcount()) > bookInfo->variantinfo().count())
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("bookcount:[%d] over capacity:[%lld] book id:%llu, user:%s"), item.bookcount(), bookInfo->variantinfo().count()
-            , item.bookid(), borrowBookItemList.size(), GetUser()->ToString().c_str());
+            , item.bookid(), GetUser()->ToString().c_str());
             return Status::BookCountOverCapacity;
         }
 
         bookIds.insert(item.bookid());
-    }
-
-    auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
-    std::set<UInt64> borrowParams;
-    for(auto &item : borrowBookItemList)
-    {
-        if(item.borrowdays() == 0)
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays is zero book id:%llu, user:%s"), item.bookid(), borrowBookItemList.size(), GetUser()->ToString().c_str());
-            return Status::ParamError;
-        }
-
-        if(item.borrowdays() > static_cast<UInt32>(maxBorrowDaysConfig->_value))
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays:[%d] over limit:[%d] book id:%llu, user:%s")
-            , item.borrowdays(), maxBorrowDaysConfig->_value
-            ,  item.bookid(), borrowBookItemList.size()
-            , GetUser()->ToString().c_str());
-            return Status::ParamError;
-        }
-
-        borrowParams.insert(item.bookid());
-    }
-
-    // 匹配
-    for(auto iter = borrowParams.begin(); iter != borrowParams.end();)
-    {
-        if(bookIds.find(*iter) != bookIds.end())
-        {
-            bookIds.erase(*iter);
-            iter = borrowParams.erase(iter);
-        }
-        else
-        {
-            ++iter;
-        }
-    }
-
-    if(!bookIds.empty() || !borrowParams.empty())
-    {
-        KERNEL_NS::LibString param;
-        param.AppendFormat("[");
-        for(auto &item : borrowBookItemList)
-        {
-            param.AppendData(item.ToJsonString());
-            param.AppendFormat(",");
-        }
-        param.AppendFormat("]");
-        g_Log->Warn(LOGFMT_OBJ_TAG("param:[%s] not match book bag books:%s, user:%s")
-        , param.c_str()
-        , _bookBagInfo->ToJsonString().c_str()
-        , GetUser()->ToString().c_str());
-        return Status::ParamError;
     }
 
     auto libararyGlobal = GetUserMgr()->GetGlobalSys<ILibraryGlobal>();
@@ -313,14 +288,10 @@ Int32 BookBagMgr::Submit(const ::google::protobuf::RepeatedPtrField< ::CRYSTAL_N
         return err;
     }
 
+    _bookBagInfo->Clear();
+    MaskDirty();
 
-    // 3.借阅天数是0的返回错误
-    // 4.借阅数量是0的报错误
-    // 5.借阅天数不可超过配置的天数(30天等)
-    // 6.数量与库存
-
-    // todo
-
+    SendBookBagInfoNty();
     return Status::Success;
 }
 

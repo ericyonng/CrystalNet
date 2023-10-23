@@ -238,7 +238,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         }
 
         // 时间校验(是否为0, 是否超过最大时间)
-        if(item.borrowdays() == 0 || item.borrowdays() > maxBorrowDaysConfig->_value)
+        if(item.borrowdays() <= 0 || item.borrowdays() > maxBorrowDaysConfig->_value)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays:[%d] over limit:[%d] book id:%llu, libraryId:%llu memberUserId:%llu")
             , item.borrowdays(), maxBorrowDaysConfig->_value
@@ -283,6 +283,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         // 扣库存
         const auto oldCount = bookInfo->mutable_variantinfo()->count();
         bookInfo->mutable_variantinfo()->set_count(oldCount > bookCount ? (oldCount - bookCount) : (bookCount - oldCount));
+        bookInfo->set_borrowedcount(bookInfo->borrowedcount() + bookCount);
     }
 
     MaskNumberKeyModifyDirty(libraryId);
@@ -319,6 +320,8 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         notifyGlobal->SendNotify(manager.userid(), "HAVE_NEW_BORROW_APPLY_ORDER", {}, "BORROW_ORDER_CONTENT"
         , params);
     }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("create order success, library id:%llu, borrow user:%llu, order info:%s"), libraryId, user->GetUserId(), newOrderInfo->ToJsonString().c_str());
 
     return Status::Success;
 }

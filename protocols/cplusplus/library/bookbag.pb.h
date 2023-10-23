@@ -1542,7 +1542,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // AnnotaionInfo[opcode(89), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class SubmitBookBagBorrowInfoReq final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1683,7 +1683,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
  public:
   inline SubmitBookBagBorrowInfoReq() : SubmitBookBagBorrowInfoReq(nullptr) {}
-  ~SubmitBookBagBorrowInfoReq() override;
   explicit PROTOBUF_CONSTEXPR SubmitBookBagBorrowInfoReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   SubmitBookBagBorrowInfoReq(const SubmitBookBagBorrowInfoReq& from);
@@ -1756,29 +1755,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   SubmitBookBagBorrowInfoReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<SubmitBookBagBorrowInfoReq>(arena);
   }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const SubmitBookBagBorrowInfoReq& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const SubmitBookBagBorrowInfoReq& from) {
-    SubmitBookBagBorrowInfoReq::MergeImpl(*this, from);
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const SubmitBookBagBorrowInfoReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
   }
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const SubmitBookBagBorrowInfoReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
   public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(SubmitBookBagBorrowInfoReq* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
@@ -1799,27 +1784,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // accessors -------------------------------------------------------
 
-  enum : int {
-    kBorrowBookListFieldNumber = 1,
-  };
-  // repeated .CRYSTAL_NET.service.BorrowBookItem BorrowBookList = 1;
-  int borrowbooklist_size() const;
-  private:
-  int _internal_borrowbooklist_size() const;
-  public:
-  void clear_borrowbooklist();
-  ::CRYSTAL_NET::service::BorrowBookItem* mutable_borrowbooklist(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >*
-      mutable_borrowbooklist();
-  private:
-  const ::CRYSTAL_NET::service::BorrowBookItem& _internal_borrowbooklist(int index) const;
-  ::CRYSTAL_NET::service::BorrowBookItem* _internal_add_borrowbooklist();
-  public:
-  const ::CRYSTAL_NET::service::BorrowBookItem& borrowbooklist(int index) const;
-  ::CRYSTAL_NET::service::BorrowBookItem* add_borrowbooklist();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&
-      borrowbooklist() const;
-
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
  private:
   class _Internal;
@@ -1828,10 +1792,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem > borrowbooklist_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
-  union { Impl_ _impl_; };
   friend struct ::TableStruct_bookbag_2eproto;
 };
 // -------------------------------------------------------------------
@@ -2398,43 +2359,6 @@ inline void SetBookBagInfoRes::set_errcode(int32_t value) {
 // -------------------------------------------------------------------
 
 // SubmitBookBagBorrowInfoReq
-
-// repeated .CRYSTAL_NET.service.BorrowBookItem BorrowBookList = 1;
-inline int SubmitBookBagBorrowInfoReq::_internal_borrowbooklist_size() const {
-  return _impl_.borrowbooklist_.size();
-}
-inline int SubmitBookBagBorrowInfoReq::borrowbooklist_size() const {
-  return _internal_borrowbooklist_size();
-}
-inline ::CRYSTAL_NET::service::BorrowBookItem* SubmitBookBagBorrowInfoReq::mutable_borrowbooklist(int index) {
-  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
-  return _impl_.borrowbooklist_.Mutable(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >*
-SubmitBookBagBorrowInfoReq::mutable_borrowbooklist() {
-  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
-  return &_impl_.borrowbooklist_;
-}
-inline const ::CRYSTAL_NET::service::BorrowBookItem& SubmitBookBagBorrowInfoReq::_internal_borrowbooklist(int index) const {
-  return _impl_.borrowbooklist_.Get(index);
-}
-inline const ::CRYSTAL_NET::service::BorrowBookItem& SubmitBookBagBorrowInfoReq::borrowbooklist(int index) const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
-  return _internal_borrowbooklist(index);
-}
-inline ::CRYSTAL_NET::service::BorrowBookItem* SubmitBookBagBorrowInfoReq::_internal_add_borrowbooklist() {
-  return _impl_.borrowbooklist_.Add();
-}
-inline ::CRYSTAL_NET::service::BorrowBookItem* SubmitBookBagBorrowInfoReq::add_borrowbooklist() {
-  ::CRYSTAL_NET::service::BorrowBookItem* _add = _internal_add_borrowbooklist();
-  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
-  return _add;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&
-SubmitBookBagBorrowInfoReq::borrowbooklist() const {
-  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.BorrowBookList)
-  return _impl_.borrowbooklist_;
-}
 
 // -------------------------------------------------------------------
 

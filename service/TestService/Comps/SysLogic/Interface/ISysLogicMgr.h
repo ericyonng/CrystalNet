@@ -78,6 +78,9 @@ public:
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const;
+
+    // 模块准备就绪
+  virtual bool IsAllTaskFinish() const = 0;
 };
 
  template<typename ObjType>

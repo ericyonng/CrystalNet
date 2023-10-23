@@ -5,7 +5,7 @@ Rem Generate visual studio project files
 SET CUR_PATH=%~dp0
 
 :: 需要手动设置msbuild.exe路径 TODO:
-SET MSBUILD_PATH=C:\\Program Files\ (x86)\\Microsoft\ Visual\ Studio\\2019\\Enterprise\\MSBuild\\Current\\Bin\\
+SET MSBUILD_PATH=C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\
 
 :: 选择vs版本
 echo Visual Studio solution and project files generate tool.

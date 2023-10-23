@@ -562,15 +562,39 @@ void MyTestService::_OnPollerWillDestroy(KERNEL_NS::Poller *poller)
 
 void MyTestService::_OnDbLoaded(KERNEL_NS::LibEvent *ev)
 {
-    // 先执行跨天
-    auto passTimeGlobal = GetComp<IPassTimeGlobal>();
-    passTimeGlobal->CheckPassTime();
-    
-    ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_WILL_STARTUP);
-    GetEventMgr()->FireEvent(ev);
+    // 等待SysLogicMgr完成
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t) mutable{
+        auto service = reinterpret_cast<IService *>(this);
+        auto sysLogicMgr = service->GetComp<ISysLogicMgr>();
+        if(!sysLogicMgr->IsAllTaskFinish())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("%s not finish task."), sysLogicMgr->GetObjName().c_str());
+            return;
+        }
 
-    ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
-    GetEventMgr()->FireEvent(ev);
+        // 先执行跨天
+        auto passTimeGlobal = service->GetComp<IPassTimeGlobal>();
+        passTimeGlobal->CheckPassTime();
+
+        auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_WILL_STARTUP);
+        GetEventMgr()->FireEvent(ev);
+
+        ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
+        GetEventMgr()->FireEvent(ev);
+
+        KERNEL_NS::LibString listenAddrs;
+        for(auto &addr : _serviceConfig->_listenAddrs)
+        {
+            listenAddrs.AppendData(addr->ToString());
+            listenAddrs.AppendFormat(";");
+        }
+
+        g_Log->Info(LOGFMT_OBJ_TAG("service start up finish:%s, listen at:%s"), ToString().c_str(), listenAddrs.c_str());
+
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+    timer->Schedule(1000);
 }
 
 void MyTestService::_Clear()

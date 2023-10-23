@@ -55,7 +55,7 @@ public:
 
     virtual Int32 SetBookBagInfo(const BookInfoItem &item) override;
 
-    virtual Int32 Submit(const ::google::protobuf::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&borrowBookItemList) override;
+    virtual Int32 Submit() override;
 
 protected:
     virtual Int32 _OnUserSysInit() override;

@@ -90,6 +90,8 @@ public:
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const;
 
+  virtual bool IsAllTaskFinish() const override;
+
 protected:
    Int32 _OnGlobalSysInit() override;
    Int32 _OnHostStart() override;

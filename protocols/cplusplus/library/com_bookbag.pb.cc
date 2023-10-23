@@ -5,7 +5,6 @@
 #include <protocols/cplusplus/library/com_bookbag.pb.h>
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookInfoItemFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagInfoFactory);
-POOL_CREATE_OBJ_DEFAULT_IMPL(BorrowBookItemFactory);
 
 #include <algorithm>
 
@@ -54,23 +53,9 @@ struct BookBagInfoDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BookBagInfoDefaultTypeInternal _BookBagInfo_default_instance_;
-PROTOBUF_CONSTEXPR BorrowBookItem::BorrowBookItem(
-    ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.bookid_)*/uint64_t{0u}
-  , /*decltype(_impl_.borrowdays_)*/0u
-  , /*decltype(_impl_._cached_size_)*/{}} {}
-struct BorrowBookItemDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR BorrowBookItemDefaultTypeInternal()
-      : _instance(::_pbi::ConstantInitialized{}) {}
-  ~BorrowBookItemDefaultTypeInternal() {}
-  union {
-    BorrowBookItem _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BorrowBookItemDefaultTypeInternal _BorrowBookItem_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
-static ::_pb::Metadata file_level_metadata_com_5fbookbag_2eproto[3];
+static ::_pb::Metadata file_level_metadata_com_5fbookbag_2eproto[2];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_com_5fbookbag_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_5fbookbag_2eproto = nullptr;
 
@@ -91,25 +76,15 @@ const uint32_t TableStruct_com_5fbookbag_2eproto::offsets[] PROTOBUF_SECTION_VAR
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BookBagInfo, _impl_.bookinfoitemlist_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BorrowBookItem, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BorrowBookItem, _impl_.bookid_),
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::BorrowBookItem, _impl_.borrowdays_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::BookInfoItem)},
   { 9, -1, -1, sizeof(::CRYSTAL_NET::service::BookBagInfo)},
-  { 16, -1, -1, sizeof(::CRYSTAL_NET::service::BorrowBookItem)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
   &::CRYSTAL_NET::service::_BookInfoItem_default_instance_._instance,
   &::CRYSTAL_NET::service::_BookBagInfo_default_instance_._instance,
-  &::CRYSTAL_NET::service::_BorrowBookItem_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_com_5fbookbag_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -117,15 +92,13 @@ const char descriptor_table_protodef_com_5fbookbag_2eproto[] PROTOBUF_SECTION_VA
   "\"E\n\014BookInfoItem\022\016\n\006BookId\030\001 \001(\004\022\021\n\tBook"
   "Count\030\002 \001(\021\022\022\n\nBorrowDays\030\003 \001(\021\"J\n\013BookB"
   "agInfo\022;\n\020BookInfoItemList\030\001 \003(\0132!.CRYST"
-  "AL_NET.service.BookInfoItem\"4\n\016BorrowBoo"
-  "kItem\022\016\n\006BookId\030\001 \001(\004\022\022\n\nBorrowDays\030\002 \001("
-  "\rb\006proto3"
+  "AL_NET.service.BookInfoItemb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fbookbag_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fbookbag_2eproto = {
-    false, false, 249, descriptor_table_protodef_com_5fbookbag_2eproto,
+    false, false, 195, descriptor_table_protodef_com_5fbookbag_2eproto,
     "com_bookbag.proto",
-    &descriptor_table_com_5fbookbag_2eproto_once, nullptr, 0, 3,
+    &descriptor_table_com_5fbookbag_2eproto_once, nullptr, 0, 2,
     schemas, file_default_instances, TableStruct_com_5fbookbag_2eproto::offsets,
     file_level_metadata_com_5fbookbag_2eproto, file_level_enum_descriptors_com_5fbookbag_2eproto,
     file_level_service_descriptors_com_5fbookbag_2eproto,
@@ -559,217 +532,6 @@ void BookBagInfo::InternalSwap(BookBagInfo* other) {
       file_level_metadata_com_5fbookbag_2eproto[1]);
 }
 
-// ===================================================================
-
-class BorrowBookItem::_Internal {
- public:
-};
-
-BorrowBookItem::BorrowBookItem(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                         bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.BorrowBookItem)
-}
-BorrowBookItem::BorrowBookItem(const BorrowBookItem& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  BorrowBookItem* const _this = this; (void)_this;
-  new (&_impl_) Impl_{
-      decltype(_impl_.bookid_){}
-    , decltype(_impl_.borrowdays_){}
-    , /*decltype(_impl_._cached_size_)*/{}};
-
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&_impl_.bookid_, &from._impl_.bookid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.borrowdays_) -
-    reinterpret_cast<char*>(&_impl_.bookid_)) + sizeof(_impl_.borrowdays_));
-  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.BorrowBookItem)
-}
-
-inline void BorrowBookItem::SharedCtor(
-    ::_pb::Arena* arena, bool is_message_owned) {
-  (void)arena;
-  (void)is_message_owned;
-  new (&_impl_) Impl_{
-      decltype(_impl_.bookid_){uint64_t{0u}}
-    , decltype(_impl_.borrowdays_){0u}
-    , /*decltype(_impl_._cached_size_)*/{}
-  };
-}
-
-BorrowBookItem::~BorrowBookItem() {
-  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.BorrowBookItem)
-  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
-  (void)arena;
-    return;
-  }
-  SharedDtor();
-}
-
-inline void BorrowBookItem::SharedDtor() {
-  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-}
-
-void BorrowBookItem::SetCachedSize(int size) const {
-  _impl_._cached_size_.Set(size);
-}
-
-void BorrowBookItem::Clear() {
-// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.BorrowBookItem)
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  ::memset(&_impl_.bookid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.borrowdays_) -
-      reinterpret_cast<char*>(&_impl_.bookid_)) + sizeof(_impl_.borrowdays_));
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* BorrowBookItem::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    uint32_t tag;
-    ptr = ::_pbi::ReadTag(ptr, &tag);
-    switch (tag >> 3) {
-      // uint64 BookId = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _impl_.bookid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // uint32 BorrowDays = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
-          _impl_.borrowdays_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      default:
-        goto handle_unusual;
-    }  // switch
-  handle_unusual:
-    if ((tag == 0) || ((tag & 7) == 4)) {
-      CHK_(ptr);
-      ctx->SetLastTag(tag);
-      goto message_done;
-    }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
-    CHK_(ptr != nullptr);
-  }  // while
-message_done:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto message_done;
-#undef CHK_
-}
-
-uint8_t* BorrowBookItem::_InternalSerialize(
-    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.BorrowBookItem)
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // uint64 BookId = 1;
-  if (this->_internal_bookid() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_bookid(), target);
-  }
-
-  // uint32 BorrowDays = 2;
-  if (this->_internal_borrowdays() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(2, this->_internal_borrowdays(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.BorrowBookItem)
-  return target;
-}
-
-size_t BorrowBookItem::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.BorrowBookItem)
-  size_t total_size = 0;
-
-  uint32_t cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // uint64 BookId = 1;
-  if (this->_internal_bookid() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_bookid());
-  }
-
-  // uint32 BorrowDays = 2;
-  if (this->_internal_borrowdays() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_borrowdays());
-  }
-
-  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BorrowBookItem::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
-    BorrowBookItem::MergeImpl
-};
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BorrowBookItem::GetClassData() const { return &_class_data_; }
-
-
-void BorrowBookItem::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
-  auto* const _this = static_cast<BorrowBookItem*>(&to_msg);
-  auto& from = static_cast<const BorrowBookItem&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.BorrowBookItem)
-  GOOGLE_DCHECK_NE(&from, _this);
-  uint32_t cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from._internal_bookid() != 0) {
-    _this->_internal_set_bookid(from._internal_bookid());
-  }
-  if (from._internal_borrowdays() != 0) {
-    _this->_internal_set_borrowdays(from._internal_borrowdays());
-  }
-  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-}
-
-void BorrowBookItem::CopyFrom(const BorrowBookItem& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.BorrowBookItem)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BorrowBookItem::IsInitialized() const {
-  return true;
-}
-
-void BorrowBookItem::InternalSwap(BorrowBookItem* other) {
-  using std::swap;
-  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(BorrowBookItem, _impl_.borrowdays_)
-      + sizeof(BorrowBookItem::_impl_.borrowdays_)
-      - PROTOBUF_FIELD_OFFSET(BorrowBookItem, _impl_.bookid_)>(
-          reinterpret_cast<char*>(&_impl_.bookid_),
-          reinterpret_cast<char*>(&other->_impl_.bookid_));
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata BorrowBookItem::GetMetadata() const {
-  return ::_pbi::AssignDescriptors(
-      &descriptor_table_com_5fbookbag_2eproto_getter, &descriptor_table_com_5fbookbag_2eproto_once,
-      file_level_metadata_com_5fbookbag_2eproto[2]);
-}
-
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace service
 }  // namespace CRYSTAL_NET
@@ -781,10 +543,6 @@ Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BookInfoItem >(Arena* arena) 
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BookBagInfo*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BookBagInfo >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::BookBagInfo >(arena);
-}
-template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::BorrowBookItem*
-Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::BorrowBookItem >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::BorrowBookItem >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

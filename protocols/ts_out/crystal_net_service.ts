@@ -432,17 +432,6 @@ export namespace crystal_net_service
 
 
     }
-    // 借阅图书数据
-    // com_bookbag.proto
-    export class BorrowBookItem {
-        // 图书id
-        BookId:number = 0;
-
-        // 借阅天数
-        BorrowDays:number = 0;
-
-
-    }
     // 借还订单信息
     // com_library.proto
     export class BorrowOrderInfo {
@@ -1220,8 +1209,6 @@ export namespace crystal_net_service
     /// Opcode:
     // bookbag.proto
     export class SubmitBookBagBorrowInfoReq {
-        BorrowBookList:BorrowBookItem[] = [];
-
 
     }
     // 借书

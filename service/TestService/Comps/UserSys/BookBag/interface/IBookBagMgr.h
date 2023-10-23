@@ -42,7 +42,7 @@ class IBookBagMgr : public IUserSys
 public:
     virtual void SendBookBagInfoNty() const = 0;
     virtual Int32 SetBookBagInfo(const BookInfoItem &item) = 0;
-    virtual Int32 Submit(const ::google::protobuf::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookItem >&borrowBookItemList) = 0;
+    virtual Int32 Submit() = 0;
 };
 
 SERVICE_END

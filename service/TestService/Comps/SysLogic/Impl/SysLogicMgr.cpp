@@ -242,6 +242,11 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 r
     return Status::Success;
 }
 
+bool SysLogicMgr::IsAllTaskFinish() const
+{
+    return _unhandledListenAddr.empty() && _unhandledContectAddr.empty();
+}
+
 Int32 SysLogicMgr::_OnGlobalSysInit()
 {
     _detectLink = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();

@@ -34,10 +34,9 @@ using ProtoPackage.Attributes;
             "Z0luZm9SZXMSDwoHRXJyQ29kZRgBIAEoESJMChFTZXRCb29rQmFnSW5mb1Jl",
             "cRI3CgxCb29rSW5mb0l0ZW0YASABKAsyIS5DUllTVEFMX05FVC5zZXJ2aWNl",
             "LkJvb2tJbmZvSXRlbSIkChFTZXRCb29rQmFnSW5mb1JlcxIPCgdFcnJDb2Rl",
-            "GAEgASgRIlkKGlN1Ym1pdEJvb2tCYWdCb3Jyb3dJbmZvUmVxEjsKDkJvcnJv",
-            "d0Jvb2tMaXN0GAEgAygLMiMuQ1JZU1RBTF9ORVQuc2VydmljZS5Cb3Jyb3dC",
-            "b29rSXRlbSItChpTdWJtaXRCb29rQmFnQm9ycm93SW5mb1JlcxIPCgdFcnJD",
-            "b2RlGAEgASgRYgZwcm90bzM="));
+            "GAEgASgRIhwKGlN1Ym1pdEJvb2tCYWdCb3Jyb3dJbmZvUmVxIi0KGlN1Ym1p",
+            "dEJvb2tCYWdCb3Jyb3dJbmZvUmVzEg8KB0VyckNvZGUYASABKBFiBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookbagReflection.Descriptor, global::CRYSTALNET.Service.ComBookReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -46,7 +45,7 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookBagInfoRes), global::CRYSTALNET.Service.BookBagInfoRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SetBookBagInfoReq), global::CRYSTALNET.Service.SetBookBagInfoReq.Parser, new[]{ "BookInfoItem" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SetBookBagInfoRes), global::CRYSTALNET.Service.SetBookBagInfoRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq), global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq.Parser, new[]{ "BorrowBookList" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq), global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SubmitBookBagBorrowInfoRes), global::CRYSTALNET.Service.SubmitBookBagBorrowInfoRes.Parser, new[]{ "ErrCode" }, null, null, null, null)
           }));
     }
@@ -1073,7 +1072,6 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SubmitBookBagBorrowInfoReq(SubmitBookBagBorrowInfoReq other) : this() {
-      borrowBookList_ = other.borrowBookList_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1081,17 +1079,6 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SubmitBookBagBorrowInfoReq Clone() {
       return new SubmitBookBagBorrowInfoReq(this);
-    }
-
-    /// <summary>Field number for the "BorrowBookList" field.</summary>
-    public const int BorrowBookListFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::CRYSTALNET.Service.BorrowBookItem> _repeated_borrowBookList_codec
-        = pb::FieldCodec.ForMessage(10, global::CRYSTALNET.Service.BorrowBookItem.Parser);
-    private readonly pbc::RepeatedField<global::CRYSTALNET.Service.BorrowBookItem> borrowBookList_ = new pbc::RepeatedField<global::CRYSTALNET.Service.BorrowBookItem>();
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::CRYSTALNET.Service.BorrowBookItem> BorrowBookList {
-      get { return borrowBookList_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1109,7 +1096,6 @@ using ProtoPackage.Attributes;
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if(!borrowBookList_.Equals(other.borrowBookList_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1117,7 +1103,6 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      hash ^= borrowBookList_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1136,7 +1121,6 @@ using ProtoPackage.Attributes;
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      borrowBookList_.WriteTo(output, _repeated_borrowBookList_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1147,7 +1131,6 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      borrowBookList_.WriteTo(ref output, _repeated_borrowBookList_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1158,7 +1141,6 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      size += borrowBookList_.CalculateSize(_repeated_borrowBookList_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1171,7 +1153,6 @@ using ProtoPackage.Attributes;
       if (other == null) {
         return;
       }
-      borrowBookList_.Add(other.borrowBookList_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1187,10 +1168,6 @@ using ProtoPackage.Attributes;
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
-            borrowBookList_.AddEntriesFrom(input, _repeated_borrowBookList_codec);
-            break;
-          }
         }
       }
     #endif
@@ -1206,10 +1183,6 @@ using ProtoPackage.Attributes;
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
-            borrowBookList_.AddEntriesFrom(ref input, _repeated_borrowBookList_codec);
-            break;
-          }
         }
       }
     }

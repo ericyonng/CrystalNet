@@ -47,7 +47,7 @@ message SetBookBagInfoRes
 /// Opcode:
 message SubmitBookBagBorrowInfoReq
 {
-    repeated BorrowBookItem BorrowBookList = 1;
+
 }
 
 // 借书

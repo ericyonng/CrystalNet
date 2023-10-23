@@ -142,8 +142,7 @@ void BookBagGlobal::_OnSubmitBookBagBorrowInfoReq(KERNEL_NS::LibPacket *&packet)
     }
 
     auto bookBagMgr = user->GetSys<IBookBagMgr>();
-    auto req = packet->GetCoder<SubmitBookBagBorrowInfoReq>();
-    auto err = bookBagMgr->Submit(req->borrowbooklist());
+    auto err = bookBagMgr->Submit();
 
     SubmitBookBagBorrowInfoRes res;
     res.set_errcode(err);
