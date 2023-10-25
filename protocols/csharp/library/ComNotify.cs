@@ -27,18 +27,18 @@ using ProtoPackage.Attributes;
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChBjb21fbm90aWZ5LnByb3RvEhNDUllTVEFMX05FVC5zZXJ2aWNlGhFjb21f",
-            "dmFyaWFudC5wcm90byLkAQoSVXNlck5vdGlmeURhdGFJdGVtEhAKCE5vdGlm",
+            "dmFyaWFudC5wcm90byL0AQoSVXNlck5vdGlmeURhdGFJdGVtEhAKCE5vdGlm",
             "eUlkGAEgASgEEhkKEU5vdGlmeVRpdGxlV29yZElkGAIgASgJEjYKC1RpdGxl",
             "UGFyYW1zGAMgAygLMiEuQ1JZU1RBTF9ORVQuc2VydmljZS5WYXJpYW50UGFy",
             "YW0SGwoTTm90aWZ5Q29udGVudFdvcmRJZBgEIAEoCRI4Cg1Db250ZW50UGFy",
             "YW1zGAUgAygLMiEuQ1JZU1RBTF9ORVQuc2VydmljZS5WYXJpYW50UGFyYW0S",
-            "EgoKQ3JlYXRlVGltZRgGIAEoEiJLCg5Vc2VyTm90aWZ5RGF0YRI5CghJdGVt",
-            "TGlzdBgBIAMoCzInLkNSWVNUQUxfTkVULnNlcnZpY2UuVXNlck5vdGlmeURh",
-            "dGFJdGVtYgZwcm90bzM="));
+            "EgoKQ3JlYXRlVGltZRgGIAEoEhIOCgZJc1JlYWQYByABKBEiSwoOVXNlck5v",
+            "dGlmeURhdGESOQoISXRlbUxpc3QYASADKAsyJy5DUllTVEFMX05FVC5zZXJ2",
+            "aWNlLlVzZXJOb3RpZnlEYXRhSXRlbWIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComVariantReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserNotifyDataItem), global::CRYSTALNET.Service.UserNotifyDataItem.Parser, new[]{ "NotifyId", "NotifyTitleWordId", "TitleParams", "NotifyContentWordId", "ContentParams", "CreateTime" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserNotifyDataItem), global::CRYSTALNET.Service.UserNotifyDataItem.Parser, new[]{ "NotifyId", "NotifyTitleWordId", "TitleParams", "NotifyContentWordId", "ContentParams", "CreateTime", "IsRead" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserNotifyData), global::CRYSTALNET.Service.UserNotifyData.Parser, new[]{ "ItemList" }, null, null, null, null)
           }));
     }
@@ -89,6 +89,7 @@ using ProtoPackage.Attributes;
       notifyContentWordId_ = other.notifyContentWordId_;
       contentParams_ = other.contentParams_.Clone();
       createTime_ = other.createTime_;
+      isRead_ = other.isRead_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -186,6 +187,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "IsRead" field.</summary>
+    public const int IsReadFieldNumber = 7;
+    private int isRead_;
+    /// <summary>
+    /// 是否已读
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int IsRead {
+      get { return isRead_; }
+      set {
+        isRead_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -207,6 +223,7 @@ using ProtoPackage.Attributes;
       if (NotifyContentWordId != other.NotifyContentWordId) return false;
       if(!contentParams_.Equals(other.contentParams_)) return false;
       if (CreateTime != other.CreateTime) return false;
+      if (IsRead != other.IsRead) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -220,6 +237,7 @@ using ProtoPackage.Attributes;
       if (NotifyContentWordId.Length != 0) hash ^= NotifyContentWordId.GetHashCode();
       hash ^= contentParams_.GetHashCode();
       if (CreateTime != 0L) hash ^= CreateTime.GetHashCode();
+      if (IsRead != 0) hash ^= IsRead.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -256,6 +274,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(48);
         output.WriteSInt64(CreateTime);
       }
+      if (IsRead != 0) {
+        output.WriteRawTag(56);
+        output.WriteSInt32(IsRead);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -284,6 +306,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(48);
         output.WriteSInt64(CreateTime);
       }
+      if (IsRead != 0) {
+        output.WriteRawTag(56);
+        output.WriteSInt32(IsRead);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -307,6 +333,9 @@ using ProtoPackage.Attributes;
       size += contentParams_.CalculateSize(_repeated_contentParams_codec);
       if (CreateTime != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(CreateTime);
+      }
+      if (IsRead != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(IsRead);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -333,6 +362,9 @@ using ProtoPackage.Attributes;
       contentParams_.Add(other.contentParams_);
       if (other.CreateTime != 0L) {
         CreateTime = other.CreateTime;
+      }
+      if (other.IsRead != 0) {
+        IsRead = other.IsRead;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -373,6 +405,10 @@ using ProtoPackage.Attributes;
             CreateTime = input.ReadSInt64();
             break;
           }
+          case 56: {
+            IsRead = input.ReadSInt32();
+            break;
+          }
         }
       }
     #endif
@@ -410,6 +446,10 @@ using ProtoPackage.Attributes;
           }
           case 48: {
             CreateTime = input.ReadSInt64();
+            break;
+          }
+          case 56: {
+            IsRead = input.ReadSInt32();
             break;
           }
         }

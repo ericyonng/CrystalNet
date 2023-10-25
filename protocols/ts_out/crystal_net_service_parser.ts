@@ -3123,6 +3123,12 @@ export namespace crystal_net_service_parser
                     newInfo.CreateTime = parseFloat(jsonData.CreateTime);
                 }
 
+
+                if(jsonData.IsRead != undefined)
+                {
+                    newInfo.IsRead = parseFloat(jsonData.IsRead);
+                }
+
                  return newInfo;
             }
 

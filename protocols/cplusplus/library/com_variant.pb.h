@@ -680,7 +680,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_varianttype(int32_t value);
   public:
 
-  // string StrValue = 2;
+  // bytes StrValue = 2;
   bool has_strvalue() const;
   private:
   bool _internal_has_strvalue() const;
@@ -805,7 +805,7 @@ inline void VariantParam::set_varianttype(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.VariantParam.VariantType)
 }
 
-// string StrValue = 2;
+// bytes StrValue = 2;
 inline bool VariantParam::_internal_has_strvalue() const {
   return VariantValue_case() == kStrValue;
 }
@@ -832,7 +832,7 @@ inline void VariantParam::set_strvalue(ArgT0&& arg0, ArgT... args) {
     set_has_strvalue();
     _impl_.VariantValue_.strvalue_.InitDefault();
   }
-  _impl_.VariantValue_.strvalue_.Set( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  _impl_.VariantValue_.strvalue_.SetBytes( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.VariantParam.StrValue)
 }
 inline std::string* VariantParam::mutable_strvalue() {

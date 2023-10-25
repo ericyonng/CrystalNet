@@ -92,7 +92,7 @@ const char descriptor_table_protodef_com_5fvariant_2eproto[] PROTOBUF_SECTION_VA
   "\"e\n\020VariantParamType\"Q\n\005ENUMS\022\013\n\007UNKNOWN"
   "\020\000\022\n\n\006STRING\020\001\022\t\n\005VALUE\020\002\022\022\n\016UNSIGNED_VA"
   "LUE\020\003\022\020\n\014DOUBLE_VALUE\020\004\"\213\001\n\014VariantParam"
-  "\022\023\n\013VariantType\030\001 \001(\021\022\022\n\010StrValue\030\002 \001(\tH"
+  "\022\023\n\013VariantType\030\001 \001(\021\022\022\n\010StrValue\030\002 \001(\014H"
   "\000\022\022\n\010IntValue\030\003 \001(\022H\000\022\027\n\rUnSignedValue\030\004"
   " \001(\004H\000\022\025\n\013DoubleValue\030\005 \001(\001H\000B\016\n\014Variant"
   "Valueb\006proto3"
@@ -315,13 +315,12 @@ const char* VariantParam::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // string StrValue = 2;
+      // bytes StrValue = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_strvalue();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.VariantParam.StrValue"));
         } else
           goto handle_unusual;
         continue;
@@ -384,13 +383,9 @@ uint8_t* VariantParam::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_varianttype(), target);
   }
 
-  // string StrValue = 2;
+  // bytes StrValue = 2;
   if (_internal_has_strvalue()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_strvalue().data(), static_cast<int>(this->_internal_strvalue().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.VariantParam.StrValue");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_strvalue(), target);
   }
 
@@ -434,10 +429,10 @@ size_t VariantParam::ByteSizeLong() const {
   }
 
   switch (VariantValue_case()) {
-    // string StrValue = 2;
+    // bytes StrValue = 2;
     case kStrValue: {
       total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
           this->_internal_strvalue());
       break;
     }

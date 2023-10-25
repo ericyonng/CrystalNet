@@ -23,6 +23,9 @@ message UserNotifyDataItem
 
     // 时间
     sint64 CreateTime = 6;
+
+    // 是否已读
+    sint32 IsRead = 7;
 }
 
 message UserNotifyData

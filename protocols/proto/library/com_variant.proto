@@ -29,7 +29,7 @@ message VariantParam
     oneof VariantValue
     {
         // 字符串
-        string StrValue = 2;
+        bytes StrValue = 2;
 
         // 整数类型
         sint64 IntValue = 3;

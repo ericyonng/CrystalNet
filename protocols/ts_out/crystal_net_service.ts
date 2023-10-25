@@ -1422,6 +1422,9 @@ export namespace crystal_net_service
         // 时间
         CreateTime:number = 0;
 
+        // 是否已读
+        IsRead:number = 0;
+
 
     }
     // 通知数据

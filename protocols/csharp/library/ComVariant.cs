@@ -30,7 +30,7 @@ using ProtoPackage.Attributes;
             "YXJpYW50UGFyYW1UeXBlIlEKBUVOVU1TEgsKB1VOS05PV04QABIKCgZTVFJJ",
             "TkcQARIJCgVWQUxVRRACEhIKDlVOU0lHTkVEX1ZBTFVFEAMSEAoMRE9VQkxF",
             "X1ZBTFVFEAQiiwEKDFZhcmlhbnRQYXJhbRITCgtWYXJpYW50VHlwZRgBIAEo",
-            "ERISCghTdHJWYWx1ZRgCIAEoCUgAEhIKCEludFZhbHVlGAMgASgSSAASFwoN",
+            "ERISCghTdHJWYWx1ZRgCIAEoDEgAEhIKCEludFZhbHVlGAMgASgSSAASFwoN",
             "VW5TaWduZWRWYWx1ZRgEIAEoBEgAEhUKC0RvdWJsZVZhbHVlGAUgASgBSABC",
             "DgoMVmFyaWFudFZhbHVlYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
@@ -308,8 +308,8 @@ using ProtoPackage.Attributes;
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string StrValue {
-      get { return variantValueCase_ == VariantValueOneofCase.StrValue ? (string) variantValue_ : ""; }
+    public pb::ByteString StrValue {
+      get { return variantValueCase_ == VariantValueOneofCase.StrValue ? (pb::ByteString) variantValue_ : pb::ByteString.Empty; }
       set {
         variantValue_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
         variantValueCase_ = VariantValueOneofCase.StrValue;
@@ -442,7 +442,7 @@ using ProtoPackage.Attributes;
       }
       if (variantValueCase_ == VariantValueOneofCase.StrValue) {
         output.WriteRawTag(18);
-        output.WriteString(StrValue);
+        output.WriteBytes(StrValue);
       }
       if (variantValueCase_ == VariantValueOneofCase.IntValue) {
         output.WriteRawTag(24);
@@ -472,7 +472,7 @@ using ProtoPackage.Attributes;
       }
       if (variantValueCase_ == VariantValueOneofCase.StrValue) {
         output.WriteRawTag(18);
-        output.WriteString(StrValue);
+        output.WriteBytes(StrValue);
       }
       if (variantValueCase_ == VariantValueOneofCase.IntValue) {
         output.WriteRawTag(24);
@@ -500,7 +500,7 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(VariantType);
       }
       if (variantValueCase_ == VariantValueOneofCase.StrValue) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(StrValue);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(StrValue);
       }
       if (variantValueCase_ == VariantValueOneofCase.IntValue) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(IntValue);
@@ -561,7 +561,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            StrValue = input.ReadString();
+            StrValue = input.ReadBytes();
             break;
           }
           case 24: {
@@ -596,7 +596,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            StrValue = input.ReadString();
+            StrValue = input.ReadBytes();
             break;
           }
           case 24: {

@@ -33,6 +33,7 @@ PROTOBUF_CONSTEXPR UserNotifyDataItem::UserNotifyDataItem(
   , /*decltype(_impl_.notifycontentwordid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.notifyid_)*/uint64_t{0u}
   , /*decltype(_impl_.createtime_)*/int64_t{0}
+  , /*decltype(_impl_.isread_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct UserNotifyDataItemDefaultTypeInternal {
   PROTOBUF_CONSTEXPR UserNotifyDataItemDefaultTypeInternal()
@@ -75,6 +76,7 @@ const uint32_t TableStruct_com_5fnotify_2eproto::offsets[] PROTOBUF_SECTION_VARI
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.notifycontentwordid_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.contentparams_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.createtime_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyDataItem, _impl_.isread_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyData, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -85,7 +87,7 @@ const uint32_t TableStruct_com_5fnotify_2eproto::offsets[] PROTOBUF_SECTION_VARI
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::UserNotifyDataItem)},
-  { 12, -1, -1, sizeof(::CRYSTAL_NET::service::UserNotifyData)},
+  { 13, -1, -1, sizeof(::CRYSTAL_NET::service::UserNotifyData)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -95,22 +97,22 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_com_5fnotify_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\020com_notify.proto\022\023CRYSTAL_NET.service\032"
-  "\021com_variant.proto\"\344\001\n\022UserNotifyDataIte"
+  "\021com_variant.proto\"\364\001\n\022UserNotifyDataIte"
   "m\022\020\n\010NotifyId\030\001 \001(\004\022\031\n\021NotifyTitleWordId"
   "\030\002 \001(\t\0226\n\013TitleParams\030\003 \003(\0132!.CRYSTAL_NE"
   "T.service.VariantParam\022\033\n\023NotifyContentW"
   "ordId\030\004 \001(\t\0228\n\rContentParams\030\005 \003(\0132!.CRY"
   "STAL_NET.service.VariantParam\022\022\n\nCreateT"
-  "ime\030\006 \001(\022\"K\n\016UserNotifyData\0229\n\010ItemList\030"
-  "\001 \003(\0132\'.CRYSTAL_NET.service.UserNotifyDa"
-  "taItemb\006proto3"
+  "ime\030\006 \001(\022\022\016\n\006IsRead\030\007 \001(\021\"K\n\016UserNotifyD"
+  "ata\0229\n\010ItemList\030\001 \003(\0132\'.CRYSTAL_NET.serv"
+  "ice.UserNotifyDataItemb\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_com_5fnotify_2eproto_deps[1] = {
   &::descriptor_table_com_5fvariant_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_com_5fnotify_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fnotify_2eproto = {
-    false, false, 374, descriptor_table_protodef_com_5fnotify_2eproto,
+    false, false, 390, descriptor_table_protodef_com_5fnotify_2eproto,
     "com_notify.proto",
     &descriptor_table_com_5fnotify_2eproto_once, descriptor_table_com_5fnotify_2eproto_deps, 1, 2,
     schemas, file_default_instances, TableStruct_com_5fnotify_2eproto::offsets,
@@ -154,6 +156,7 @@ UserNotifyDataItem::UserNotifyDataItem(const UserNotifyDataItem& from)
     , decltype(_impl_.notifycontentwordid_){}
     , decltype(_impl_.notifyid_){}
     , decltype(_impl_.createtime_){}
+    , decltype(_impl_.isread_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
@@ -174,8 +177,8 @@ UserNotifyDataItem::UserNotifyDataItem(const UserNotifyDataItem& from)
       _this->GetArenaForAllocation());
   }
   ::memcpy(&_impl_.notifyid_, &from._impl_.notifyid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.createtime_) -
-    reinterpret_cast<char*>(&_impl_.notifyid_)) + sizeof(_impl_.createtime_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.isread_) -
+    reinterpret_cast<char*>(&_impl_.notifyid_)) + sizeof(_impl_.isread_));
   // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.UserNotifyDataItem)
 }
 
@@ -190,6 +193,7 @@ inline void UserNotifyDataItem::SharedCtor(
     , decltype(_impl_.notifycontentwordid_){}
     , decltype(_impl_.notifyid_){uint64_t{0u}}
     , decltype(_impl_.createtime_){int64_t{0}}
+    , decltype(_impl_.isread_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.notifytitlewordid_.InitDefault();
@@ -234,8 +238,8 @@ void UserNotifyDataItem::Clear() {
   _impl_.notifytitlewordid_.ClearToEmpty();
   _impl_.notifycontentwordid_.ClearToEmpty();
   ::memset(&_impl_.notifyid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.createtime_) -
-      reinterpret_cast<char*>(&_impl_.notifyid_)) + sizeof(_impl_.createtime_));
+      reinterpret_cast<char*>(&_impl_.isread_) -
+      reinterpret_cast<char*>(&_impl_.notifyid_)) + sizeof(_impl_.isread_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -303,6 +307,14 @@ const char* UserNotifyDataItem::_InternalParse(const char* ptr, ::_pbi::ParseCon
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 48)) {
           _impl_.createtime_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // sint32 IsRead = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 56)) {
+          _impl_.isread_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -384,6 +396,12 @@ uint8_t* UserNotifyDataItem::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteSInt64ToArray(6, this->_internal_createtime(), target);
   }
 
+  // sint32 IsRead = 7;
+  if (this->_internal_isread() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(7, this->_internal_isread(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -438,6 +456,11 @@ size_t UserNotifyDataItem::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::SInt64SizePlusOne(this->_internal_createtime());
   }
 
+  // sint32 IsRead = 7;
+  if (this->_internal_isread() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_isread());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -470,6 +493,9 @@ void UserNotifyDataItem::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, con
   if (from._internal_createtime() != 0) {
     _this->_internal_set_createtime(from._internal_createtime());
   }
+  if (from._internal_isread() != 0) {
+    _this->_internal_set_isread(from._internal_isread());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -500,8 +526,8 @@ void UserNotifyDataItem::InternalSwap(UserNotifyDataItem* other) {
       &other->_impl_.notifycontentwordid_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(UserNotifyDataItem, _impl_.createtime_)
-      + sizeof(UserNotifyDataItem::_impl_.createtime_)
+      PROTOBUF_FIELD_OFFSET(UserNotifyDataItem, _impl_.isread_)
+      + sizeof(UserNotifyDataItem::_impl_.isread_)
       - PROTOBUF_FIELD_OFFSET(UserNotifyDataItem, _impl_.notifyid_)>(
           reinterpret_cast<char*>(&_impl_.notifyid_),
           reinterpret_cast<char*>(&other->_impl_.notifyid_));

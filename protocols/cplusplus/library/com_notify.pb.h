@@ -341,6 +341,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kNotifyContentWordIdFieldNumber = 4,
     kNotifyIdFieldNumber = 1,
     kCreateTimeFieldNumber = 6,
+    kIsReadFieldNumber = 7,
   };
   // repeated .CRYSTAL_NET.service.VariantParam TitleParams = 3;
   int titleparams_size() const;
@@ -424,6 +425,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_createtime(int64_t value);
   public:
 
+  // sint32 IsRead = 7;
+  void clear_isread();
+  int32_t isread() const;
+  void set_isread(int32_t value);
+  private:
+  int32_t _internal_isread() const;
+  void _internal_set_isread(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserNotifyDataItem)
  private:
   class _Internal;
@@ -438,6 +448,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr notifycontentwordid_;
     uint64_t notifyid_;
     int64_t createtime_;
+    int32_t isread_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -962,6 +973,26 @@ inline void UserNotifyDataItem::_internal_set_createtime(int64_t value) {
 inline void UserNotifyDataItem::set_createtime(int64_t value) {
   _internal_set_createtime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserNotifyDataItem.CreateTime)
+}
+
+// sint32 IsRead = 7;
+inline void UserNotifyDataItem::clear_isread() {
+  _impl_.isread_ = 0;
+}
+inline int32_t UserNotifyDataItem::_internal_isread() const {
+  return _impl_.isread_;
+}
+inline int32_t UserNotifyDataItem::isread() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyDataItem.IsRead)
+  return _internal_isread();
+}
+inline void UserNotifyDataItem::_internal_set_isread(int32_t value) {
+  
+  _impl_.isread_ = value;
+}
+inline void UserNotifyDataItem::set_isread(int32_t value) {
+  _internal_set_isread(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserNotifyDataItem.IsRead)
 }
 
 // -------------------------------------------------------------------
