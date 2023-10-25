@@ -211,6 +211,20 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         return Status::NotFound;
     }
 
+    // 必须绑定手机
+    if(!user->HasBindPhone())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("member not bind phone libraryId:%llu, user id:%llu"), libraryId, memberUserId);
+        return Status::AuthNotEnough;
+    }
+
+    // 有借书权限
+    if(!_DoesRoleHaveAuthToBorrow(memberInfo->role()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("member have no auto phone libraryId:%llu, user id:%llu, member role:%d, %s"), libraryId, memberUserId, memberInfo->role(), RoleType_ENUMS_Name(memberInfo->role()).c_str());
+        return Status::AuthNotEnough;
+    }
+
     if(bookBagInfo.bookinfoitemlist_size() == 0)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("bookbag is empty libraryId:%llu, user id:%llu"), libraryId, memberUserId);
@@ -1750,6 +1764,11 @@ bool LibraryGlobal::_IsReturnBackAllBook(const MemberInfo *memberInfo) const
     }
 
     return true;
+}
+
+bool LibraryGlobal::_DoesRoleHaveAuthToBorrow(Int32 role) const
+{
+    return role != RoleType_ENUMS_NoAuth;
 }
 
 bool LibraryGlobal::_HasOverDeadlineOrder(const MemberInfo *memberInfo, const KERNEL_NS::LibTime &nowTime) const

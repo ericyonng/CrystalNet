@@ -1015,6 +1015,11 @@ void User::BindPhone(UInt64 phoneNumber)
     _SendClientUserInfo();
 }
 
+bool User::HasBindPhone() const
+{
+    return _userBaseInfo->bindphone() != 0;
+}
+
 Int32 User::_OnSysInit()
 {   
     // 创建事件管理器

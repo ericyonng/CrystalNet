@@ -96,6 +96,8 @@ protected:
 
     bool _IsReturnBackAllBook(const MemberInfo *memberInfo) const;
 
+    bool _DoesRoleHaveAuthToBorrow(Int32 role) const;
+
     // 是否有逾期
     bool _HasOverDeadlineOrder(const MemberInfo *memberInfo, const KERNEL_NS::LibTime &nowTime) const;
 

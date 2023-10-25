@@ -139,11 +139,7 @@ LibSession &LibSession::CommitTransaction()
 void LibSession::_Destroy()
 {
     if(!_inited.exchange(false))
-    {
-        g_Log->NetWarn(LOGFMT_OBJ_TAG("repeat destroy session session id:%llu, service id:%llu!")
-                        , _id, _serviceId);
         return;
-    }
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("session destroy:%s"), ToString().c_str());
 

@@ -216,6 +216,8 @@ public:
     virtual const std::string &GetNickname() const = 0;
 
     virtual void BindPhone(UInt64 phoneNumber) = 0;
+
+    virtual bool HasBindPhone() const = 0;
 };
 
 ALWAYS_INLINE KERNEL_NS::ListenerStub IUser::AddListener(int id,

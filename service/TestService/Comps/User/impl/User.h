@@ -126,6 +126,8 @@ public:
     // 绑定手机
     virtual void BindPhone(UInt64 phoneNumber);
 
+    virtual bool HasBindPhone() const override;
+
 private:
     virtual Int32 _OnSysInit() final;
     virtual Int32 _OnSysCompsCreated() override;

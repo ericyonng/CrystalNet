@@ -945,7 +945,7 @@ void IocpTcpPoller::_OnWrite(PollerEvent *ev)
     auto session = _GetSession(sendEv->_sessionId);
     if(!session)
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("session not exists event:%s"), sendEv->ToString().c_str());
+        g_Log->NetWarn(LOGFMT_OBJ_TAG("session not exists event:%s"), sendEv->ToString().c_str());
         return;
     }
 
