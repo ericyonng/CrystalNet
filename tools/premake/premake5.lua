@@ -19,6 +19,8 @@ DEBUG_DIR = OUTPUT_DIR
 
 ENABLE_PERFORMANCE_RECORD = 1
 
+ENABLE_POLLER_PERFORMANCE = 0
+
 -----------------------------------------------------------------------------------------------------------
 
 -- Common functional functions define
@@ -81,6 +83,10 @@ function set_common_options()
     if ENABLE_PERFORMANCE_RECORD ~= 0 then
         defines("CRYSTAL_NET_PORFORMANCE_RECORD")
     end
+    if ENABLE_POLLER_PERFORMANCE ~= 0 then
+        defines("ENABLE_POLLER_PERFORMANCE")
+    end
+
 	filter {"language:c++", "system:windows" }
         defines("_WINSOCK_DEPRECATED_NO_WARNINGS")
     filter {}

@@ -89,6 +89,10 @@ public:
     // 设置是否添加任务
     void SetEnableTask(bool enable);
 
+    // 设置线程名
+    void SetThreadName(const KERNEL_NS::LibString &name);
+    const LibString &GetThreadName() const;
+
     LibString ToString();
 
 private:
@@ -123,6 +127,8 @@ private:
 
     ConditionLocker _condLck;           // 线程控制
     ConditionLocker _quitLck;           // 等待退出线程
+
+    LibString _threadName;
 };
 
 
@@ -350,12 +356,22 @@ inline void LibThread::SetEnableTask(bool enable)
     _enableAddTask = enable;
 }
 
+ALWAYS_INLINE void LibThread::SetThreadName(const KERNEL_NS::LibString &name)
+{
+    _threadName = name;
+}
+
+ALWAYS_INLINE const LibString &LibThread::GetThreadName() const
+{
+    return _threadName;
+}
+
 inline LibString LibThread::ToString()
 {
     LibString info;
-    info.AppendFormat("id = %llu, threadId = %llu, isStart = %d, isWorking = %d, \n"
+    info.AppendFormat("id = %llu, thread name:%s, threadId = %llu, isStart = %d, isWorking = %d, \n"
                     "isBusy = %d, enableAddTask = %d"
-                    , _id, _threadId.load(), _isStart.load(), _isWorking.load()
+                    , _id, _threadName.c_str(), _threadId.load(), _isStart.load(), _isWorking.load()
                     , _isBusy.load(), _enableAddTask.load());
 
     return info;

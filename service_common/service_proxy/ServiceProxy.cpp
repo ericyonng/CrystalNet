@@ -301,6 +301,8 @@ Int32 ServiceProxy::_OnInit()
         (*newVar)["ServiceName"] = serviceName;
         (*newVar)["ServiceId"] = serviceId;
 
+        newThread->SetThreadName(KERNEL_NS::LibString().AppendFormat("service-%llu-%s", serviceId, serviceName.c_str()));
+
         // 初始化服务的设施
         _OnPrepareServiceThread(serviceId, serviceName);
 

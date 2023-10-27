@@ -81,6 +81,10 @@ public:
     LibString ToString();
     bool IsDestroy() const;
 
+    // 设置线程池名
+    void SetPoolName(const LibString &name);
+    const LibString &GetPoolName() const;
+
     /*
     * 添加任务
     * @param(task):任务 无需关系释放问题,但失败不会释放task或者callback
@@ -132,6 +136,7 @@ private:
     ConditionLocker _wakeupAndWait;    // 用于闲时挂起线程,与唤醒线程
     ConditionLocker _quitLck;          // 等待退出线程
     
+    LibString _poolName;                // 池名
 };
 
 // 初始化
@@ -284,9 +289,9 @@ inline LibString LibThreadPool::ToString()
     const bool isWorking = _isWorking.load();
     const bool isEnableTask = _isEnableTask.load();
 
-    info.AppendFormat("thread pool status:minNum[%d], maxNum[%d], curTotalNum[%d], waitNum[%d]"
+    info.AppendFormat("thread pool:%s status:minNum[%d], maxNum[%d], curTotalNum[%d], waitNum[%d]"
     ", unixStackSize[%llu], isInit[%d], isWorking[%d], isEnableTask[%d]"
-    , minNum, maxNum, curTotalNum, waitNum, unixStackSize, isInit, isWorking, isEnableTask);
+    , _poolName.c_str(), minNum, maxNum, curTotalNum, waitNum, unixStackSize, isInit, isWorking, isEnableTask);
 
     return info;
 }
@@ -294,6 +299,16 @@ inline LibString LibThreadPool::ToString()
 inline bool LibThreadPool::IsDestroy() const
 {
     return _isDestroy.load();
+}
+
+ALWAYS_INLINE void LibThreadPool::SetPoolName(const LibString &name)
+{
+    _poolName = "POOL_" + name;
+}
+
+ALWAYS_INLINE const LibString &LibThreadPool::GetPoolName() const
+{
+    return _poolName;
 }
 
 inline bool LibThreadPool::AddTask(ITask *task, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)

@@ -719,8 +719,11 @@ Int32 IocpTcpPoller::_OnHostInit()
 
     _monitor = CRYSTAL_NEW(LibThread);
     _monitor->AddTask(this, &IocpTcpPoller::_OnMonitorThread);
+    _monitor->SetThreadName(LibString().AppendFormat("Poller%llumonitor", _pollerId));
+
     _eventLoopThread = CRYSTAL_NEW(LibThread);
     _eventLoopThread->AddTask(this, &IocpTcpPoller::_OnPollEventLoop);
+    _eventLoopThread->SetThreadName(LibString().AppendFormat("Poller%lluLoop", _pollerId));
 
     _pollerInstMonitorPriorityLevel = _cfg->_pollerInstMonitorPriorityLevel < 0 ? _cfg->_maxPriorityLevel : _cfg->_pollerInstMonitorPriorityLevel;
 

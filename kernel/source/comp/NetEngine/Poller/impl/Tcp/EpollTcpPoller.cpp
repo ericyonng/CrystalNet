@@ -354,8 +354,11 @@ Int32 EpollTcpPoller::_OnHostInit()
 
     _monitor = CRYSTAL_NEW(LibThread);
     _monitor->AddTask(this, &EpollTcpPoller::_OnMonitorThread);
+    _monitor->SetThreadName(LibString().AppendFormat("Poller%llumonitor", _pollerId));
+
     _eventLoopThread = CRYSTAL_NEW(LibThread);
     _eventLoopThread->AddTask(this, &EpollTcpPoller::_OnPollEventLoop);
+    _eventLoopThread->SetThreadName(LibString().AppendFormat("Poller%lluLoop", _pollerId));
 
     _pollerInstMonitorPriorityLevel = _cfg->_pollerInstMonitorPriorityLevel < 0 ? _cfg->_maxPriorityLevel : _cfg->_pollerInstMonitorPriorityLevel;
 

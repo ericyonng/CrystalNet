@@ -53,6 +53,16 @@ void LibThread::LibThreadHandlerLogic(void *param)
     std::list<ITask *> &taskList = libThread->_tasks;
     libThread->_threadId = SystemUtil::GetCurrentThreadId();
 
+    if(!libThread->GetThreadName().empty())
+    {
+        LibString err;
+        if(!SystemUtil::SetCurrentThreadName(libThread->GetThreadName(), err))
+        {
+            CRYSTAL_TRACE("set current thread name fail thread id:%llu, name:%s, err:%s"
+            , libThread->_threadId.load(), libThread->GetThreadName().c_str(), err.c_str());
+        }
+    }
+
     // 初始化
     ThreadTool::OnInit(libThread, NULL, libThread->_threadId, libThread->GetId(), "lib thread local tls memorypool");
 

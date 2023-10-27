@@ -33,6 +33,7 @@
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/Utils/TranscoderUtil.h>
 
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -603,6 +604,90 @@ bool SystemUtil::IsProcessExist(UInt64 processId)
     }, 1);
 
     return isFound;
+#endif
+}
+
+bool SystemUtil::SetCurrentThreadName(const LibString &threadName, LibString &err)
+{
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+   auto threadId = SystemUtil::GetCurrentThreadId();
+   auto ret = ::pthread_setname_np(threadId, threadName.c_str());
+   if(ret != 0)
+   {
+      err = GetErrString(ret);
+      return false;
+   }
+
+   return true;
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    auto handle = ::GetCurrentThread();
+    KERNEL_NS::LibString wideStr;
+    auto st = TranscoderUtil::MultiByteToWideChar("UTF8", threadName, wideStr);
+    if(st != Status::Success)
+    {
+        err = GetErrString(GetErrNo());
+        return false;
+    }
+
+    auto ret = SetThreadDescription(handle, reinterpret_cast<const wchar *>(wideStr.data()));
+    if(FAILED(ret))
+    {
+        err = GetErrString(GetErrNo());
+        return false;
+    }
+
+    return true;
+#endif
+}
+
+bool SystemUtil::GetCurrentThreadName(LibString &threadName, LibString &err)
+{
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+    threadName.resize(256);
+   auto threadId = SystemUtil::GetCurrentThreadId();
+   auto ret = ::pthread_getname_np(threadId, const_cast<Byte8 *>(threadName.data()), 256);
+   if(ret != 0)
+   {
+      err = GetErrString(ret);
+      return false;
+   }
+
+    threadName.RemoveZeroTail();
+   return true;
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    auto handle = ::GetCurrentThread();
+    wchar *p = NULL;
+    auto ret = GetThreadDescription(handle, &p);
+    if(FAILED(ret))
+    {
+        err = GetErrString(GetErrNo());
+        return false;
+    }
+
+    if(!p)
+    {
+        err = GetErrString(GetErrNo());
+        return false;
+    }
+
+    KERNEL_NS::LibString wideStr;
+    wideStr.AppendData(reinterpret_cast<Byte8 *>(p), ::lstrlenW(p) * sizeof(wchar));
+    LocalFree(p);
+    
+    auto st = TranscoderUtil::WideCharToMultiByte("UTF8", wideStr, threadName);
+    if(st != Status::Success)
+    {
+        err = GetErrString(GetErrNo());
+        return false;
+    }
+
+    threadName.RemoveZeroTail();
+
+    return true;
 #endif
 }
 

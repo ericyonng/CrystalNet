@@ -71,6 +71,11 @@ public:
     static bool IsProcessExist(const LibString &processName);
     static bool IsProcessExist(UInt64 processId);
     
+    // 设置线程名
+    static bool SetCurrentThreadName(const LibString &threadName, LibString &err);
+    static bool GetCurrentThreadName(LibString &threadName, LibString &err);
+
+
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     // 获取可用的内存大小
     static UInt64 GetAvailPhysMemSize();
@@ -97,7 +102,6 @@ public:
     static void MessageBoxPopup(const LibString &title, const LibString &content);
     // 获取当前调用线程所在的cpu编号信息
     static void GetCallingThreadCpuInfo(UInt16 &cpuGroup, Byte8 &cpuNumber);
-
 
     #else
     // 可用内存

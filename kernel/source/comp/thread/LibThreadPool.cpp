@@ -75,6 +75,16 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
     // 当前线程id
     const auto threadId = SystemUtil::GetCurrentThreadId();
 
+    if(!pool->GetPoolName().empty())
+    {
+        LibString err;
+        if(!SystemUtil::SetCurrentThreadName(pool->GetPoolName(), err))
+        {
+            CRYSTAL_TRACE("thread pool set current thread name fail thread id:%llu, name:%s, err:%s"
+            , threadId, pool->GetPoolName().c_str(), err.c_str());
+        }
+    }
+
     const auto threadGlobalId = LibThreadGlobalId::GenId();
     ThreadTool::OnInit(NULL, pool, threadId, threadGlobalId,  "thread pool tls memory pool");
 

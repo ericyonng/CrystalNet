@@ -237,6 +237,7 @@ void LibLog::Start()
             auto params = Variant::New_Variant();
             params->BecomeDict();
             (*params)[1] = idx;
+            t->SetThreadName(LibString().AppendFormat("Log-%d", idx));
             t->AddTask2(this, &LibLog::_OnLogThreadFlush, params);
             t->Start();
         }

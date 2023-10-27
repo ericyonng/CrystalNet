@@ -25,6 +25,7 @@
  * Author: Eric Yonng
  * Description: 
  * linux下 生产者 4, 消费者1情况下测得poller qps:380w/s
+ * windows下 生产者1, 消费者1情况下测得poller qps:500w/s
 */
 #include <pch.h>
 #include <testsuit/testinst/TestPoller.h>
@@ -363,7 +364,9 @@ struct AcEvent : public KERNEL_NS::PollerEvent
 
     virtual void Release()
     {
-        AcEvent::Delete_AcEvent(this);
+        // delete this;
+        AcEvent::DeleteThreadLocal_AcEvent(this);
+        // AcEvent::Delete_AcEvent(this);
     }
 
 };
@@ -415,21 +418,73 @@ static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
 {
     Int32 idx = param->AsInt32();
     KERNEL_NS::Poller *poller = s_Poller.AsSelf();
+
+
+    // 定时管理
+    KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
+    timerMgr.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<KERNEL_NS::TimerMgr *>(p);
+        KERNEL_NS::TimerMgr::Delete_TimerMgr(ptr);
+    });
+    timerMgr->Launch(NULL);
+
+    // 内存定时清理
+    KERNEL_NS::SmartPtr<KERNEL_NS::TlsMemoryCleanerComp, KERNEL_NS::AutoDelMethods::CustomDelete> memoryCleaner = KERNEL_NS::TlsMemoryCleanerCompFactory::StaticCreate()->CastTo<KERNEL_NS::TlsMemoryCleanerComp>();
+    memoryCleaner.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<KERNEL_NS::TlsMemoryCleanerComp *>(p);
+        ptr->Release();
+    });
+
+    // 设置
+    memoryCleaner->SetTimerMgr(timerMgr.AsSelf());
+
+    // 10秒清理一次
+    memoryCleaner->SetIntervalMs(10 * 1000);
+
+    // 启动内存清理
+    do
+    {
+        auto err = memoryCleaner->Init();
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("memory cleaner init fail err:%d", err);
+            break;
+        }
+
+        err = memoryCleaner->Start();
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("memory cleaner start fail err:%d", err);
+            break;
+        }
+    } while (false);
+
+
     while (!t->IsDestroy())
     {
-        auto ev = AcEvent::New_AcEvent();
+        auto ev = AcEvent::NewThreadLocal_AcEvent();
         ++g_genNum;
         poller->Push(idx, ev);
+
+        timerMgr->Drive();
+
         // g_concurrentQueue->PushQueue(idx, &((new KERNEL_NS::LibString())->AppendFormat("hello idx:%d", idx)));
         // g_concurrentQueue->PushQueue(idx, new AcEvent());
         // ++g_genNum;
         // KERNEL_NS::SystemUtil::ThreadSleep(5000);
     }
+
+    memoryCleaner->WillClose();
+    memoryCleaner->Close();
 } 
 
 static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
 {
     KERNEL_NS::Poller *poller = s_Poller.AsSelf();
+
+    KERNEL_NS::LibString err, threadName;
+    KERNEL_NS::SystemUtil::GetCurrentThreadName(threadName, err);
+
     while (!t->IsDestroy())
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
@@ -439,7 +494,7 @@ static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
         g_genNum -= genNum;
         g_consumNum -= comsumNum;
 
-        g_Log->Monitor("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
+        g_Log->Monitor("thread name:%s,Monitor:[gen:%lld, consum:%lld, backlog:%lld]", threadName.c_str(), genNum, comsumNum, backlogNum);
     }
 }
 
@@ -472,6 +527,8 @@ void TestPoller::Run()
 
     KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool, KERNEL_NS::AutoDelMethods::Release> pool = new KERNEL_NS::LibThreadPool;
     pool->Init(0, g_maxConcurrentLevel + 2);
+
+    pool->SetPoolName(KERNEL_NS::LibString().AppendFormat("TestPoller"));
 
     for(Int32 idx=1; idx <=g_maxConcurrentLevel; ++idx)
     {

@@ -81,6 +81,7 @@ void CenterMemoryCollector::Start()
 {
     _isWorking = true;
     _worker = new LibThread();
+    _worker->SetThreadName(KERNEL_NS::LibString().AppendFormat("CenterCollector"));
     _worker->AddTask(this, &CenterMemoryCollector::_OnWorker);
     _worker->Start();
 }

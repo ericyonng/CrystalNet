@@ -60,6 +60,7 @@ void GarbageThread::Start()
     auto deleg = DelegateFactory::Create(this, &GarbageThread::_Work);
     auto newTask = GarbageThreadTask::New_GarbageThreadTask(_thread, deleg, _gcIntervalMs, _gcTaskLck);
     _thread->AddTask(newTask);
+    _thread->SetThreadName("GarbageThread");
 
     _thread->Start();
 }
