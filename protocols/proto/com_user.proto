@@ -8,9 +8,9 @@ message UserBaseInfo
     // 账号
     string AccountName = 2;
     // 姓名
-    string Name = 3;
+    bytes Name = 3;
     // 昵称
-    string Nickname = 4;
+    bytes Nickname = 4;
     // 密码
     string Pwd = 5;
     // 盐

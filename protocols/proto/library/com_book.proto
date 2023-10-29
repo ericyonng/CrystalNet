@@ -25,7 +25,7 @@ message BookInfo
     // 图书类型 BookType
     sint32 BookType = 2;
     // 书名
-    string BookName = 3;
+    bytes BookName = 3;
     // 书isbn码
     string IsbnCode = 4;
     // 封面
@@ -37,9 +37,9 @@ message BookInfo
     // 被借数量
     uint64 BorrowedCount = 8;
     // 关键词
-    repeated string KeyWords = 9;
+    repeated bytes KeyWords = 9;
     // 内容简介 最多10KB左右
-    string Content = 10;
+    bytes Content = 10;
     // 截图最多9张
     repeated string Snapshot = 11;
 

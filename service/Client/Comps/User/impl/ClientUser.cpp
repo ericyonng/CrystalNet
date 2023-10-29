@@ -104,7 +104,12 @@ Int64 ClientUser::Send(KERNEL_NS::LibPacket *packet) const
         return -1;
     }
 
-    return _userMgr->Send(_activedSessionId, packet);
+    if(packet->GetPacketId() < 0)
+        packet->SetPacketId(NewPacketId());
+
+    _userMgr->Send(_activedSessionId, packet);
+
+    return packet->GetPacketId();
 }
 
 void ClientUser::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
@@ -130,7 +135,10 @@ Int64 ClientUser::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packe
         return -1;
     }
 
-    return _userMgr->Send(_activedSessionId, opcode, coder, packetId > 0 ? packetId : NewPacketId());
+    packetId = packetId > 0 ? packetId : NewPacketId();
+    _userMgr->Send(_activedSessionId, opcode, coder, packetId);
+
+    return packetId;
 }
 
 void ClientUser::OnLogin()

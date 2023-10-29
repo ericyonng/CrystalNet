@@ -148,7 +148,7 @@ Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS:
 
         auto data = iter->second;
         if(data->GetReadableSize())
-            _userBaseInfo->set_nickname(std::string(data->GetReadBegin(), data->GetReadableSize()));
+            _userBaseInfo->set_nickname(data->GetReadBegin(), static_cast<size_t>(data->GetReadableSize()));
     }
 
     {
@@ -508,24 +508,24 @@ const IUserMgr *User::GetUserMgr() const
     return _userMgr;
 }
 
-Int64 User::Send(KERNEL_NS::LibPacket *packet) const
+void User::Send(KERNEL_NS::LibPacket *packet) const
 {
     // TODO:需要rpc
     if(UNLIKELY(_activedSessionId == 0))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("no session cant send"));
         packet->ReleaseUsingPool();
-        return -1;
+        return;
     }
 
     if(UNLIKELY(!CanSend()))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("cant send message packet:%s, user:%s"), packet->ToString().c_str(), ToString().c_str());
         packet->ReleaseUsingPool();
-        return -1;
+        return;
     }
 
-    return _userMgr->Send(_activedSessionId, packet);
+    _userMgr->Send(_activedSessionId, packet);
 }
 
 void User::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
@@ -551,33 +551,33 @@ void User::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
     _userMgr->Send(_activedSessionId, packets);
 }
 
-Int64 User::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const 
+void User::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const 
 {
     // TODO:需要rpc
     if(UNLIKELY(_activedSessionId == 0))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("no session cant send"));
-        return -1;
+        return;
     }
 
     if(UNLIKELY(!CanSend()))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("cant send message user:%s, message:%s, packetId:%lld")
         , ToString().c_str(), coder.ToJsonString().c_str(), packetId);
-        return -1;
+        return;
     }
 
-    return _userMgr->Send(_activedSessionId, opcode, coder, packetId > 0 ? packetId : NewPacketId());
+    _userMgr->Send(_activedSessionId, opcode, coder, packetId);
 }
 
-Int64 User::Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId) const
+void User::Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId) const
 {
     // TODO:需要rpc
     if(UNLIKELY(_activedSessionId == 0))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("no session cant send"));
         coder->Release();
-        return -1;
+        return;
     }
 
     if(UNLIKELY(!CanSend()))
@@ -585,13 +585,11 @@ Int64 User::Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId) const
         g_Log->Warn(LOGFMT_OBJ_TAG("cant send message user:%s, message:%s, packetId:%lld")
         , ToString().c_str(), coder->ToJsonString().c_str(), packetId);
         coder->Release();
-        return -1;
+        return;
     }
 
-    auto ret = _userMgr->Send(_activedSessionId, opcode, *coder, packetId > 0 ? packetId : NewPacketId());
+    _userMgr->Send(_activedSessionId, opcode, *coder, packetId);
     coder->Release();
-
-    return ret;
 }
 
 bool User::CanSend() const
@@ -957,8 +955,9 @@ const KERNEL_NS::BriefSockAddr *User::GetUserAddr() const
 KERNEL_NS::LibString User::ToString() const
 {
     KERNEL_NS::LibString info;
-    info.AppendFormat("user id:%llu, account name:%s, status:%d, max packet id:%lld"
-    , _userBaseInfo->userid(), _userBaseInfo->accountname().c_str(), _status, _curMaxPacketId);
+    info.AppendFormat("user id:%llu, account name:%s, nickname:%s, status:%d, max packet id:%lld"
+    , _userBaseInfo->userid(), _userBaseInfo->accountname().c_str(), 
+    _userBaseInfo->nickname().c_str(), _status, _curMaxPacketId);
 
     info.AppendFormat(", session infos:");
     auto sessionMgr = _userMgr->GetService()->GetComp<ISessionMgr>();

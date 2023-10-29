@@ -61,9 +61,15 @@ struct TableStruct_com_5flibrary_2eproto {
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5flibrary_2eproto;
 namespace CRYSTAL_NET {
 namespace service {
+class BorrowBookDetailInfo;
+struct BorrowBookDetailInfoDefaultTypeInternal;
+extern BorrowBookDetailInfoDefaultTypeInternal _BorrowBookDetailInfo_default_instance_;
 class BorrowBookInfo;
 struct BorrowBookInfoDefaultTypeInternal;
 extern BorrowBookInfoDefaultTypeInternal _BorrowBookInfo_default_instance_;
+class BorrowOrderDetailInfo;
+struct BorrowOrderDetailInfoDefaultTypeInternal;
+extern BorrowOrderDetailInfoDefaultTypeInternal _BorrowOrderDetailInfo_default_instance_;
 class BorrowOrderInfo;
 struct BorrowOrderInfoDefaultTypeInternal;
 extern BorrowOrderInfoDefaultTypeInternal _BorrowOrderInfo_default_instance_;
@@ -91,6 +97,9 @@ extern OperationLogInfoDefaultTypeInternal _OperationLogInfo_default_instance_;
 class OperationType;
 struct OperationTypeDefaultTypeInternal;
 extern OperationTypeDefaultTypeInternal _OperationType_default_instance_;
+class OutStoreParam;
+struct OutStoreParamDefaultTypeInternal;
+extern OutStoreParamDefaultTypeInternal _OutStoreParam_default_instance_;
 class RoleType;
 struct RoleTypeDefaultTypeInternal;
 extern RoleTypeDefaultTypeInternal _RoleType_default_instance_;
@@ -103,7 +112,9 @@ extern UserLibraryInfoDefaultTypeInternal _UserLibraryInfo_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
+template<> ::CRYSTAL_NET::service::BorrowBookDetailInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookDetailInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::BorrowBookInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::BorrowOrderDetailInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowOrderDetailInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::BorrowOrderInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowOrderInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::BorrowOrderState* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowOrderState>(Arena*);
 template<> ::CRYSTAL_NET::service::KeyWordsField* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::KeyWordsField>(Arena*);
@@ -113,6 +124,7 @@ template<> ::CRYSTAL_NET::service::LibraryPreviewInfo* Arena::CreateMaybeMessage
 template<> ::CRYSTAL_NET::service::MemberInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::MemberInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::OperationLogInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OperationLogInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::OperationType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OperationType>(Arena*);
+template<> ::CRYSTAL_NET::service::OutStoreParam* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OutStoreParam>(Arena*);
 template<> ::CRYSTAL_NET::service::RoleType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::RoleType>(Arena*);
 template<> ::CRYSTAL_NET::service::SnapshotField* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SnapshotField>(Arena*);
 template<> ::CRYSTAL_NET::service::UserLibraryInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserLibraryInfo>(Arena*);
@@ -148,18 +160,16 @@ inline bool RoleType_ENUMS_Parse(
     RoleType_ENUMS_descriptor(), name, value);
 }
 enum BorrowOrderState_ENUMS : int {
-  BorrowOrderState_ENUMS_WAITING_MANAGER_CONFIRM = 0,
-  BorrowOrderState_ENUMS_ORDER_CONFIRM = 1,
-  BorrowOrderState_ENUMS_WAIT_USER_RECEIVE = 2,
-  BorrowOrderState_ENUMS_WAIT_USER_RETURN_BACK = 3,
-  BorrowOrderState_ENUMS_USER_RETURN_BACK_ALL_BOOKS = 4,
-  BorrowOrderState_ENUMS_CANCEL_ORDER = 5,
-  BorrowOrderState_ENUMS_RETURN_BAKCK = 6,
+  BorrowOrderState_ENUMS_WAITING_OUT_OF_WAREHOUSE = 0,
+  BorrowOrderState_ENUMS_WAIT_USER_RECEIVE = 1,
+  BorrowOrderState_ENUMS_WAIT_USER_RETURN_BACK = 2,
+  BorrowOrderState_ENUMS_CANCEL_ORDER = 3,
+  BorrowOrderState_ENUMS_RETURN_BAKCK = 4,
   BorrowOrderState_ENUMS_BorrowOrderState_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   BorrowOrderState_ENUMS_BorrowOrderState_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool BorrowOrderState_ENUMS_IsValid(int value);
-constexpr BorrowOrderState_ENUMS BorrowOrderState_ENUMS_ENUMS_MIN = BorrowOrderState_ENUMS_WAITING_MANAGER_CONFIRM;
+constexpr BorrowOrderState_ENUMS BorrowOrderState_ENUMS_ENUMS_MIN = BorrowOrderState_ENUMS_WAITING_OUT_OF_WAREHOUSE;
 constexpr BorrowOrderState_ENUMS BorrowOrderState_ENUMS_ENUMS_MAX = BorrowOrderState_ENUMS_RETURN_BAKCK;
 constexpr int BorrowOrderState_ENUMS_ENUMS_ARRAYSIZE = BorrowOrderState_ENUMS_ENUMS_MAX + 1;
 
@@ -1046,9 +1056,10 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kBorrowTimeFieldNumber = 4,
     kPlanGiveBackTimeFieldNumber = 5,
     kRealGiveBackTimeFieldNumber = 6,
+    kBorrowCountFieldNumber = 3,
+    kBorrowDaysFieldNumber = 9,
     kReturnBackCountFieldNumber = 7,
     kSubOrderIdFieldNumber = 8,
-    kBorrowCountFieldNumber = 3,
   };
   // string IsbnCode = 2;
   void clear_isbncode();
@@ -1100,6 +1111,24 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_realgivebacktime(int64_t value);
   public:
 
+  // sint32 BorrowCount = 3;
+  void clear_borrowcount();
+  int32_t borrowcount() const;
+  void set_borrowcount(int32_t value);
+  private:
+  int32_t _internal_borrowcount() const;
+  void _internal_set_borrowcount(int32_t value);
+  public:
+
+  // sint32 BorrowDays = 9;
+  void clear_borrowdays();
+  int32_t borrowdays() const;
+  void set_borrowdays(int32_t value);
+  private:
+  int32_t _internal_borrowdays() const;
+  void _internal_set_borrowdays(int32_t value);
+  public:
+
   // uint64 ReturnBackCount = 7;
   void clear_returnbackcount();
   uint64_t returnbackcount() const;
@@ -1118,15 +1147,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_suborderid(uint64_t value);
   public:
 
-  // sint32 BorrowCount = 3;
-  void clear_borrowcount();
-  int32_t borrowcount() const;
-  void set_borrowcount(int32_t value);
-  private:
-  int32_t _internal_borrowcount() const;
-  void _internal_set_borrowcount(int32_t value);
-  public:
-
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BorrowBookInfo)
  private:
   class _Internal;
@@ -1140,9 +1160,322 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     int64_t borrowtime_;
     int64_t plangivebacktime_;
     int64_t realgivebacktime_;
+    int32_t borrowcount_;
+    int32_t borrowdays_;
     uint64_t returnbackcount_;
     uint64_t suborderid_;
-    int32_t borrowcount_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5flibrary_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class BorrowBookDetailInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BorrowBookDetailInfo) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowBookDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowBookDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline BorrowBookDetailInfo() : BorrowBookDetailInfo(nullptr) {}
+  ~BorrowBookDetailInfo() override;
+  explicit PROTOBUF_CONSTEXPR BorrowBookDetailInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BorrowBookDetailInfo(const BorrowBookDetailInfo& from);
+  BorrowBookDetailInfo(BorrowBookDetailInfo&& from) noexcept
+    : BorrowBookDetailInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline BorrowBookDetailInfo& operator=(const BorrowBookDetailInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BorrowBookDetailInfo& operator=(BorrowBookDetailInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BorrowBookDetailInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BorrowBookDetailInfo* internal_default_instance() {
+    return reinterpret_cast<const BorrowBookDetailInfo*>(
+               &_BorrowBookDetailInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(BorrowBookDetailInfo& a, BorrowBookDetailInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BorrowBookDetailInfo* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BorrowBookDetailInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  BorrowBookDetailInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<BorrowBookDetailInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BorrowBookDetailInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const BorrowBookDetailInfo& from) {
+    BorrowBookDetailInfo::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BorrowBookDetailInfo* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.BorrowBookDetailInfo";
+  }
+  protected:
+  explicit BorrowBookDetailInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBookNameFieldNumber = 2,
+    kBookInfoFieldNumber = 1,
+  };
+  // bytes BookName = 2;
+  void clear_bookname();
+  const std::string& bookname() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_bookname(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_bookname();
+  PROTOBUF_NODISCARD std::string* release_bookname();
+  void set_allocated_bookname(std::string* bookname);
+  private:
+  const std::string& _internal_bookname() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_bookname(const std::string& value);
+  std::string* _internal_mutable_bookname();
+  public:
+
+  // .CRYSTAL_NET.service.BorrowBookInfo BookInfo = 1;
+  bool has_bookinfo() const;
+  private:
+  bool _internal_has_bookinfo() const;
+  public:
+  void clear_bookinfo();
+  const ::CRYSTAL_NET::service::BorrowBookInfo& bookinfo() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::BorrowBookInfo* release_bookinfo();
+  ::CRYSTAL_NET::service::BorrowBookInfo* mutable_bookinfo();
+  void set_allocated_bookinfo(::CRYSTAL_NET::service::BorrowBookInfo* bookinfo);
+  private:
+  const ::CRYSTAL_NET::service::BorrowBookInfo& _internal_bookinfo() const;
+  ::CRYSTAL_NET::service::BorrowBookInfo* _internal_mutable_bookinfo();
+  public:
+  void unsafe_arena_set_allocated_bookinfo(
+      ::CRYSTAL_NET::service::BorrowBookInfo* bookinfo);
+  ::CRYSTAL_NET::service::BorrowBookInfo* unsafe_arena_release_bookinfo();
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BorrowBookDetailInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookname_;
+    ::CRYSTAL_NET::service::BorrowBookInfo* bookinfo_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1336,7 +1669,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_BorrowOrderState_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(BorrowOrderState& a, BorrowOrderState& b) {
     a.Swap(&b);
@@ -1393,16 +1726,12 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // nested types ----------------------------------------------------
 
   typedef BorrowOrderState_ENUMS ENUMS;
-  static constexpr ENUMS WAITING_MANAGER_CONFIRM =
-    BorrowOrderState_ENUMS_WAITING_MANAGER_CONFIRM;
-  static constexpr ENUMS ORDER_CONFIRM =
-    BorrowOrderState_ENUMS_ORDER_CONFIRM;
+  static constexpr ENUMS WAITING_OUT_OF_WAREHOUSE =
+    BorrowOrderState_ENUMS_WAITING_OUT_OF_WAREHOUSE;
   static constexpr ENUMS WAIT_USER_RECEIVE =
     BorrowOrderState_ENUMS_WAIT_USER_RECEIVE;
   static constexpr ENUMS WAIT_USER_RETURN_BACK =
     BorrowOrderState_ENUMS_WAIT_USER_RETURN_BACK;
-  static constexpr ENUMS USER_RETURN_BACK_ALL_BOOKS =
-    BorrowOrderState_ENUMS_USER_RETURN_BACK_ALL_BOOKS;
   static constexpr ENUMS CANCEL_ORDER =
     BorrowOrderState_ENUMS_CANCEL_ORDER;
   static constexpr ENUMS RETURN_BAKCK =
@@ -1634,7 +1963,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_BorrowOrderInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    5;
 
   friend void swap(BorrowOrderInfo& a, BorrowOrderInfo& b) {
     a.Swap(&b);
@@ -1709,8 +2038,10 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   enum : int {
     kBorrowBookListFieldNumber = 2,
     kCancelReasonFieldNumber = 5,
+    kRemarkFieldNumber = 7,
     kOrderIdFieldNumber = 1,
     kCreateOrderTimeFieldNumber = 3,
+    kGetOverTimeFieldNumber = 6,
     kOrderStateFieldNumber = 4,
   };
   // repeated .CRYSTAL_NET.service.BorrowBookInfo BorrowBookList = 2;
@@ -1745,6 +2076,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_cancelreason();
   public:
 
+  // bytes Remark = 7;
+  void clear_remark();
+  const std::string& remark() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_remark(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_remark();
+  PROTOBUF_NODISCARD std::string* release_remark();
+  void set_allocated_remark(std::string* remark);
+  private:
+  const std::string& _internal_remark() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_remark(const std::string& value);
+  std::string* _internal_mutable_remark();
+  public:
+
   // uint64 OrderId = 1;
   void clear_orderid();
   uint64_t orderid() const;
@@ -1761,6 +2106,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   private:
   uint64_t _internal_createordertime() const;
   void _internal_set_createordertime(uint64_t value);
+  public:
+
+  // sint64 GetOverTime = 6;
+  void clear_getovertime();
+  int64_t getovertime() const;
+  void set_getovertime(int64_t value);
+  private:
+  int64_t _internal_getovertime() const;
+  void _internal_set_getovertime(int64_t value);
   public:
 
   // sint32 OrderState = 4;
@@ -1782,8 +2136,382 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookInfo > borrowbooklist_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr cancelreason_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr remark_;
     uint64_t orderid_;
     uint64_t createordertime_;
+    int64_t getovertime_;
+    int32_t orderstate_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5flibrary_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class BorrowOrderDetailInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BorrowOrderDetailInfo) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message BorrowOrderDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowOrderDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message BorrowOrderDetailInfo failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline BorrowOrderDetailInfo() : BorrowOrderDetailInfo(nullptr) {}
+  ~BorrowOrderDetailInfo() override;
+  explicit PROTOBUF_CONSTEXPR BorrowOrderDetailInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BorrowOrderDetailInfo(const BorrowOrderDetailInfo& from);
+  BorrowOrderDetailInfo(BorrowOrderDetailInfo&& from) noexcept
+    : BorrowOrderDetailInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline BorrowOrderDetailInfo& operator=(const BorrowOrderDetailInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BorrowOrderDetailInfo& operator=(BorrowOrderDetailInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BorrowOrderDetailInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BorrowOrderDetailInfo* internal_default_instance() {
+    return reinterpret_cast<const BorrowOrderDetailInfo*>(
+               &_BorrowOrderDetailInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(BorrowOrderDetailInfo& a, BorrowOrderDetailInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BorrowOrderDetailInfo* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BorrowOrderDetailInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  BorrowOrderDetailInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<BorrowOrderDetailInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BorrowOrderDetailInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const BorrowOrderDetailInfo& from) {
+    BorrowOrderDetailInfo::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BorrowOrderDetailInfo* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.BorrowOrderDetailInfo";
+  }
+  protected:
+  explicit BorrowOrderDetailInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBorrowBookListFieldNumber = 2,
+    kCancelReasonFieldNumber = 5,
+    kRemarkFieldNumber = 7,
+    kOrderIdFieldNumber = 1,
+    kCreateOrderTimeFieldNumber = 3,
+    kGetOverTimeFieldNumber = 6,
+    kOrderStateFieldNumber = 4,
+  };
+  // repeated .CRYSTAL_NET.service.BorrowBookDetailInfo BorrowBookList = 2;
+  int borrowbooklist_size() const;
+  private:
+  int _internal_borrowbooklist_size() const;
+  public:
+  void clear_borrowbooklist();
+  ::CRYSTAL_NET::service::BorrowBookDetailInfo* mutable_borrowbooklist(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookDetailInfo >*
+      mutable_borrowbooklist();
+  private:
+  const ::CRYSTAL_NET::service::BorrowBookDetailInfo& _internal_borrowbooklist(int index) const;
+  ::CRYSTAL_NET::service::BorrowBookDetailInfo* _internal_add_borrowbooklist();
+  public:
+  const ::CRYSTAL_NET::service::BorrowBookDetailInfo& borrowbooklist(int index) const;
+  ::CRYSTAL_NET::service::BorrowBookDetailInfo* add_borrowbooklist();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookDetailInfo >&
+      borrowbooklist() const;
+
+  // string CancelReason = 5;
+  void clear_cancelreason();
+  const std::string& cancelreason() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_cancelreason(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_cancelreason();
+  PROTOBUF_NODISCARD std::string* release_cancelreason();
+  void set_allocated_cancelreason(std::string* cancelreason);
+  private:
+  const std::string& _internal_cancelreason() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_cancelreason(const std::string& value);
+  std::string* _internal_mutable_cancelreason();
+  public:
+
+  // bytes Remark = 7;
+  void clear_remark();
+  const std::string& remark() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_remark(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_remark();
+  PROTOBUF_NODISCARD std::string* release_remark();
+  void set_allocated_remark(std::string* remark);
+  private:
+  const std::string& _internal_remark() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_remark(const std::string& value);
+  std::string* _internal_mutable_remark();
+  public:
+
+  // uint64 OrderId = 1;
+  void clear_orderid();
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
+  private:
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
+  public:
+
+  // uint64 CreateOrderTime = 3;
+  void clear_createordertime();
+  uint64_t createordertime() const;
+  void set_createordertime(uint64_t value);
+  private:
+  uint64_t _internal_createordertime() const;
+  void _internal_set_createordertime(uint64_t value);
+  public:
+
+  // sint64 GetOverTime = 6;
+  void clear_getovertime();
+  int64_t getovertime() const;
+  void set_getovertime(int64_t value);
+  private:
+  int64_t _internal_getovertime() const;
+  void _internal_set_getovertime(int64_t value);
+  public:
+
+  // sint32 OrderState = 4;
+  void clear_orderstate();
+  int32_t orderstate() const;
+  void set_orderstate(int32_t value);
+  private:
+  int32_t _internal_orderstate() const;
+  void _internal_set_orderstate(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BorrowOrderDetailInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookDetailInfo > borrowbooklist_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr cancelreason_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr remark_;
+    uint64_t orderid_;
+    uint64_t createordertime_;
+    int64_t getovertime_;
     int32_t orderstate_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -1984,7 +2712,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_MemberInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    7;
 
   friend void swap(MemberInfo& a, MemberInfo& b) {
     a.Swap(&b);
@@ -2082,7 +2810,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowOrderInfo >&
       borrowlist() const;
 
-  // string Nickname = 3;
+  // bytes Nickname = 3;
   void clear_nickname();
   const std::string& nickname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -2355,7 +3083,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_OperationType_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    8;
 
   friend void swap(OperationType& a, OperationType& b) {
     a.Swap(&b);
@@ -2641,7 +3369,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_OperationLogInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    9;
 
   friend void swap(OperationLogInfo& a, OperationLogInfo& b) {
     a.Swap(&b);
@@ -2997,7 +3725,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LibraryInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    10;
 
   friend void swap(LibraryInfo& a, LibraryInfo& b) {
     a.Swap(&b);
@@ -3154,7 +3882,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OperationLogInfo >&
       loginfolist() const;
 
-  // string Name = 2;
+  // bytes Name = 2;
   void clear_name();
   const std::string& name() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -3168,7 +3896,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_name();
   public:
 
-  // string Address = 3;
+  // bytes Address = 3;
   void clear_address();
   const std::string& address() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -3182,7 +3910,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_address();
   public:
 
-  // string OpenTime = 4;
+  // bytes OpenTime = 4;
   void clear_opentime();
   const std::string& opentime() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -3210,7 +3938,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_telphonenumber();
   public:
 
-  // string LibrarianUserNickname = 7;
+  // bytes LibrarianUserNickname = 7;
   void clear_librarianusernickname();
   const std::string& librarianusernickname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -3455,7 +4183,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_UserLibraryInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    11;
 
   friend void swap(UserLibraryInfo& a, UserLibraryInfo& b) {
     a.Swap(&b);
@@ -3742,7 +4470,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LibraryPreviewInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    12;
 
   friend void swap(LibraryPreviewInfo& a, LibraryPreviewInfo& b) {
     a.Swap(&b);
@@ -3820,7 +4548,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kIdFieldNumber = 1,
     kLibrarianUserIdFieldNumber = 3,
   };
-  // string Name = 2;
+  // bytes Name = 2;
   void clear_name();
   const std::string& name() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -3834,7 +4562,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_name();
   public:
 
-  // string LibrarianNickname = 4;
+  // bytes LibrarianNickname = 4;
   void clear_librariannickname();
   const std::string& librariannickname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -4072,7 +4800,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_KeyWordsField_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    13;
 
   friend void swap(KeyWordsField& a, KeyWordsField& b) {
     a.Swap(&b);
@@ -4147,7 +4875,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   enum : int {
     kKeyWordsFieldNumber = 1,
   };
-  // repeated string KeyWords = 1;
+  // repeated bytes KeyWords = 1;
   int keywords_size() const;
   private:
   int _internal_keywords_size() const;
@@ -4158,12 +4886,12 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void set_keywords(int index, const std::string& value);
   void set_keywords(int index, std::string&& value);
   void set_keywords(int index, const char* value);
-  void set_keywords(int index, const char* value, size_t size);
+  void set_keywords(int index, const void* value, size_t size);
   std::string* add_keywords();
   void add_keywords(const std::string& value);
   void add_keywords(std::string&& value);
   void add_keywords(const char* value);
-  void add_keywords(const char* value, size_t size);
+  void add_keywords(const void* value, size_t size);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& keywords() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_keywords();
   private:
@@ -4374,7 +5102,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_SnapshotField_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    14;
 
   friend void swap(SnapshotField& a, SnapshotField& b) {
     a.Swap(&b);
@@ -4482,6 +5210,304 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> snapshots_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5flibrary_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class OutStoreParam final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OutStoreParam) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreParam failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreParam failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreParam failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreParam failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreParam failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreParam failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline OutStoreParam() : OutStoreParam(nullptr) {}
+  ~OutStoreParam() override;
+  explicit PROTOBUF_CONSTEXPR OutStoreParam(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  OutStoreParam(const OutStoreParam& from);
+  OutStoreParam(OutStoreParam&& from) noexcept
+    : OutStoreParam() {
+    *this = ::std::move(from);
+  }
+
+  inline OutStoreParam& operator=(const OutStoreParam& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline OutStoreParam& operator=(OutStoreParam&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const OutStoreParam& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const OutStoreParam* internal_default_instance() {
+    return reinterpret_cast<const OutStoreParam*>(
+               &_OutStoreParam_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    15;
+
+  friend void swap(OutStoreParam& a, OutStoreParam& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(OutStoreParam* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(OutStoreParam* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  OutStoreParam* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<OutStoreParam>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const OutStoreParam& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const OutStoreParam& from) {
+    OutStoreParam::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(OutStoreParam* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.OutStoreParam";
+  }
+  protected:
+  explicit OutStoreParam(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBookIdFieldNumber = 1,
+    kCountFieldNumber = 2,
+  };
+  // uint64 BookId = 1;
+  void clear_bookid();
+  uint64_t bookid() const;
+  void set_bookid(uint64_t value);
+  private:
+  uint64_t _internal_bookid() const;
+  void _internal_set_bookid(uint64_t value);
+  public:
+
+  // sint64 Count = 2;
+  void clear_count();
+  int64_t count() const;
+  void set_count(int64_t value);
+  private:
+  int64_t _internal_count() const;
+  void _internal_set_count(int64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.OutStoreParam)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    uint64_t bookid_;
+    int64_t count_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -4716,6 +5742,170 @@ inline void BorrowBookInfo::set_suborderid(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookInfo.SubOrderId)
 }
 
+// sint32 BorrowDays = 9;
+inline void BorrowBookInfo::clear_borrowdays() {
+  _impl_.borrowdays_ = 0;
+}
+inline int32_t BorrowBookInfo::_internal_borrowdays() const {
+  return _impl_.borrowdays_;
+}
+inline int32_t BorrowBookInfo::borrowdays() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookInfo.BorrowDays)
+  return _internal_borrowdays();
+}
+inline void BorrowBookInfo::_internal_set_borrowdays(int32_t value) {
+  
+  _impl_.borrowdays_ = value;
+}
+inline void BorrowBookInfo::set_borrowdays(int32_t value) {
+  _internal_set_borrowdays(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookInfo.BorrowDays)
+}
+
+// -------------------------------------------------------------------
+
+// BorrowBookDetailInfo
+
+// .CRYSTAL_NET.service.BorrowBookInfo BookInfo = 1;
+inline bool BorrowBookDetailInfo::_internal_has_bookinfo() const {
+  return this != internal_default_instance() && _impl_.bookinfo_ != nullptr;
+}
+inline bool BorrowBookDetailInfo::has_bookinfo() const {
+  return _internal_has_bookinfo();
+}
+inline void BorrowBookDetailInfo::clear_bookinfo() {
+  if (GetArenaForAllocation() == nullptr && _impl_.bookinfo_ != nullptr) {
+    delete _impl_.bookinfo_;
+  }
+  _impl_.bookinfo_ = nullptr;
+}
+inline const ::CRYSTAL_NET::service::BorrowBookInfo& BorrowBookDetailInfo::_internal_bookinfo() const {
+  const ::CRYSTAL_NET::service::BorrowBookInfo* p = _impl_.bookinfo_;
+  return p != nullptr ? *p : reinterpret_cast<const ::CRYSTAL_NET::service::BorrowBookInfo&>(
+      ::CRYSTAL_NET::service::_BorrowBookInfo_default_instance_);
+}
+inline const ::CRYSTAL_NET::service::BorrowBookInfo& BorrowBookDetailInfo::bookinfo() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookDetailInfo.BookInfo)
+  return _internal_bookinfo();
+}
+inline void BorrowBookDetailInfo::unsafe_arena_set_allocated_bookinfo(
+    ::CRYSTAL_NET::service::BorrowBookInfo* bookinfo) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.bookinfo_);
+  }
+  _impl_.bookinfo_ = bookinfo;
+  if (bookinfo) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.BorrowBookDetailInfo.BookInfo)
+}
+inline ::CRYSTAL_NET::service::BorrowBookInfo* BorrowBookDetailInfo::release_bookinfo() {
+  
+  ::CRYSTAL_NET::service::BorrowBookInfo* temp = _impl_.bookinfo_;
+  _impl_.bookinfo_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::CRYSTAL_NET::service::BorrowBookInfo* BorrowBookDetailInfo::unsafe_arena_release_bookinfo() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowBookDetailInfo.BookInfo)
+  
+  ::CRYSTAL_NET::service::BorrowBookInfo* temp = _impl_.bookinfo_;
+  _impl_.bookinfo_ = nullptr;
+  return temp;
+}
+inline ::CRYSTAL_NET::service::BorrowBookInfo* BorrowBookDetailInfo::_internal_mutable_bookinfo() {
+  
+  if (_impl_.bookinfo_ == nullptr) {
+    auto* p = CreateMaybeMessage<::CRYSTAL_NET::service::BorrowBookInfo>(GetArenaForAllocation());
+    _impl_.bookinfo_ = p;
+  }
+  return _impl_.bookinfo_;
+}
+inline ::CRYSTAL_NET::service::BorrowBookInfo* BorrowBookDetailInfo::mutable_bookinfo() {
+  ::CRYSTAL_NET::service::BorrowBookInfo* _msg = _internal_mutable_bookinfo();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowBookDetailInfo.BookInfo)
+  return _msg;
+}
+inline void BorrowBookDetailInfo::set_allocated_bookinfo(::CRYSTAL_NET::service::BorrowBookInfo* bookinfo) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.bookinfo_;
+  }
+  if (bookinfo) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(bookinfo);
+    if (message_arena != submessage_arena) {
+      bookinfo = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, bookinfo, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.bookinfo_ = bookinfo;
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowBookDetailInfo.BookInfo)
+}
+
+// bytes BookName = 2;
+inline void BorrowBookDetailInfo::clear_bookname() {
+  _impl_.bookname_.ClearToEmpty();
+}
+inline const std::string& BorrowBookDetailInfo::bookname() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowBookDetailInfo.BookName)
+  return _internal_bookname();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BorrowBookDetailInfo::set_bookname(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.bookname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowBookDetailInfo.BookName)
+}
+inline std::string* BorrowBookDetailInfo::mutable_bookname() {
+  std::string* _s = _internal_mutable_bookname();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowBookDetailInfo.BookName)
+  return _s;
+}
+inline const std::string& BorrowBookDetailInfo::_internal_bookname() const {
+  return _impl_.bookname_.Get();
+}
+inline void BorrowBookDetailInfo::_internal_set_bookname(const std::string& value) {
+  
+  _impl_.bookname_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BorrowBookDetailInfo::_internal_mutable_bookname() {
+  
+  return _impl_.bookname_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BorrowBookDetailInfo::release_bookname() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowBookDetailInfo.BookName)
+  return _impl_.bookname_.Release();
+}
+inline void BorrowBookDetailInfo::set_allocated_bookname(std::string* bookname) {
+  if (bookname != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.bookname_.SetAllocated(bookname, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.bookname_.IsDefault()) {
+    _impl_.bookname_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowBookDetailInfo.BookName)
+}
+
 // -------------------------------------------------------------------
 
 // BorrowOrderState
@@ -4874,6 +6064,300 @@ inline void BorrowOrderInfo::set_allocated_cancelreason(std::string* cancelreaso
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowOrderInfo.CancelReason)
 }
 
+// sint64 GetOverTime = 6;
+inline void BorrowOrderInfo::clear_getovertime() {
+  _impl_.getovertime_ = int64_t{0};
+}
+inline int64_t BorrowOrderInfo::_internal_getovertime() const {
+  return _impl_.getovertime_;
+}
+inline int64_t BorrowOrderInfo::getovertime() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderInfo.GetOverTime)
+  return _internal_getovertime();
+}
+inline void BorrowOrderInfo::_internal_set_getovertime(int64_t value) {
+  
+  _impl_.getovertime_ = value;
+}
+inline void BorrowOrderInfo::set_getovertime(int64_t value) {
+  _internal_set_getovertime(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderInfo.GetOverTime)
+}
+
+// bytes Remark = 7;
+inline void BorrowOrderInfo::clear_remark() {
+  _impl_.remark_.ClearToEmpty();
+}
+inline const std::string& BorrowOrderInfo::remark() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderInfo.Remark)
+  return _internal_remark();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BorrowOrderInfo::set_remark(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.remark_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderInfo.Remark)
+}
+inline std::string* BorrowOrderInfo::mutable_remark() {
+  std::string* _s = _internal_mutable_remark();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowOrderInfo.Remark)
+  return _s;
+}
+inline const std::string& BorrowOrderInfo::_internal_remark() const {
+  return _impl_.remark_.Get();
+}
+inline void BorrowOrderInfo::_internal_set_remark(const std::string& value) {
+  
+  _impl_.remark_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BorrowOrderInfo::_internal_mutable_remark() {
+  
+  return _impl_.remark_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BorrowOrderInfo::release_remark() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowOrderInfo.Remark)
+  return _impl_.remark_.Release();
+}
+inline void BorrowOrderInfo::set_allocated_remark(std::string* remark) {
+  if (remark != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.remark_.SetAllocated(remark, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.remark_.IsDefault()) {
+    _impl_.remark_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowOrderInfo.Remark)
+}
+
+// -------------------------------------------------------------------
+
+// BorrowOrderDetailInfo
+
+// uint64 OrderId = 1;
+inline void BorrowOrderDetailInfo::clear_orderid() {
+  _impl_.orderid_ = uint64_t{0u};
+}
+inline uint64_t BorrowOrderDetailInfo::_internal_orderid() const {
+  return _impl_.orderid_;
+}
+inline uint64_t BorrowOrderDetailInfo::orderid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.OrderId)
+  return _internal_orderid();
+}
+inline void BorrowOrderDetailInfo::_internal_set_orderid(uint64_t value) {
+  
+  _impl_.orderid_ = value;
+}
+inline void BorrowOrderDetailInfo::set_orderid(uint64_t value) {
+  _internal_set_orderid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.OrderId)
+}
+
+// repeated .CRYSTAL_NET.service.BorrowBookDetailInfo BorrowBookList = 2;
+inline int BorrowOrderDetailInfo::_internal_borrowbooklist_size() const {
+  return _impl_.borrowbooklist_.size();
+}
+inline int BorrowOrderDetailInfo::borrowbooklist_size() const {
+  return _internal_borrowbooklist_size();
+}
+inline void BorrowOrderDetailInfo::clear_borrowbooklist() {
+  _impl_.borrowbooklist_.Clear();
+}
+inline ::CRYSTAL_NET::service::BorrowBookDetailInfo* BorrowOrderDetailInfo::mutable_borrowbooklist(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowOrderDetailInfo.BorrowBookList)
+  return _impl_.borrowbooklist_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookDetailInfo >*
+BorrowOrderDetailInfo::mutable_borrowbooklist() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.BorrowOrderDetailInfo.BorrowBookList)
+  return &_impl_.borrowbooklist_;
+}
+inline const ::CRYSTAL_NET::service::BorrowBookDetailInfo& BorrowOrderDetailInfo::_internal_borrowbooklist(int index) const {
+  return _impl_.borrowbooklist_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::BorrowBookDetailInfo& BorrowOrderDetailInfo::borrowbooklist(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.BorrowBookList)
+  return _internal_borrowbooklist(index);
+}
+inline ::CRYSTAL_NET::service::BorrowBookDetailInfo* BorrowOrderDetailInfo::_internal_add_borrowbooklist() {
+  return _impl_.borrowbooklist_.Add();
+}
+inline ::CRYSTAL_NET::service::BorrowBookDetailInfo* BorrowOrderDetailInfo::add_borrowbooklist() {
+  ::CRYSTAL_NET::service::BorrowBookDetailInfo* _add = _internal_add_borrowbooklist();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.BorrowOrderDetailInfo.BorrowBookList)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookDetailInfo >&
+BorrowOrderDetailInfo::borrowbooklist() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.BorrowOrderDetailInfo.BorrowBookList)
+  return _impl_.borrowbooklist_;
+}
+
+// uint64 CreateOrderTime = 3;
+inline void BorrowOrderDetailInfo::clear_createordertime() {
+  _impl_.createordertime_ = uint64_t{0u};
+}
+inline uint64_t BorrowOrderDetailInfo::_internal_createordertime() const {
+  return _impl_.createordertime_;
+}
+inline uint64_t BorrowOrderDetailInfo::createordertime() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.CreateOrderTime)
+  return _internal_createordertime();
+}
+inline void BorrowOrderDetailInfo::_internal_set_createordertime(uint64_t value) {
+  
+  _impl_.createordertime_ = value;
+}
+inline void BorrowOrderDetailInfo::set_createordertime(uint64_t value) {
+  _internal_set_createordertime(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.CreateOrderTime)
+}
+
+// sint32 OrderState = 4;
+inline void BorrowOrderDetailInfo::clear_orderstate() {
+  _impl_.orderstate_ = 0;
+}
+inline int32_t BorrowOrderDetailInfo::_internal_orderstate() const {
+  return _impl_.orderstate_;
+}
+inline int32_t BorrowOrderDetailInfo::orderstate() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.OrderState)
+  return _internal_orderstate();
+}
+inline void BorrowOrderDetailInfo::_internal_set_orderstate(int32_t value) {
+  
+  _impl_.orderstate_ = value;
+}
+inline void BorrowOrderDetailInfo::set_orderstate(int32_t value) {
+  _internal_set_orderstate(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.OrderState)
+}
+
+// string CancelReason = 5;
+inline void BorrowOrderDetailInfo::clear_cancelreason() {
+  _impl_.cancelreason_.ClearToEmpty();
+}
+inline const std::string& BorrowOrderDetailInfo::cancelreason() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
+  return _internal_cancelreason();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BorrowOrderDetailInfo::set_cancelreason(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.cancelreason_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
+}
+inline std::string* BorrowOrderDetailInfo::mutable_cancelreason() {
+  std::string* _s = _internal_mutable_cancelreason();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
+  return _s;
+}
+inline const std::string& BorrowOrderDetailInfo::_internal_cancelreason() const {
+  return _impl_.cancelreason_.Get();
+}
+inline void BorrowOrderDetailInfo::_internal_set_cancelreason(const std::string& value) {
+  
+  _impl_.cancelreason_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BorrowOrderDetailInfo::_internal_mutable_cancelreason() {
+  
+  return _impl_.cancelreason_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BorrowOrderDetailInfo::release_cancelreason() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
+  return _impl_.cancelreason_.Release();
+}
+inline void BorrowOrderDetailInfo::set_allocated_cancelreason(std::string* cancelreason) {
+  if (cancelreason != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.cancelreason_.SetAllocated(cancelreason, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.cancelreason_.IsDefault()) {
+    _impl_.cancelreason_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
+}
+
+// sint64 GetOverTime = 6;
+inline void BorrowOrderDetailInfo::clear_getovertime() {
+  _impl_.getovertime_ = int64_t{0};
+}
+inline int64_t BorrowOrderDetailInfo::_internal_getovertime() const {
+  return _impl_.getovertime_;
+}
+inline int64_t BorrowOrderDetailInfo::getovertime() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.GetOverTime)
+  return _internal_getovertime();
+}
+inline void BorrowOrderDetailInfo::_internal_set_getovertime(int64_t value) {
+  
+  _impl_.getovertime_ = value;
+}
+inline void BorrowOrderDetailInfo::set_getovertime(int64_t value) {
+  _internal_set_getovertime(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.GetOverTime)
+}
+
+// bytes Remark = 7;
+inline void BorrowOrderDetailInfo::clear_remark() {
+  _impl_.remark_.ClearToEmpty();
+}
+inline const std::string& BorrowOrderDetailInfo::remark() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.Remark)
+  return _internal_remark();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BorrowOrderDetailInfo::set_remark(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.remark_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.Remark)
+}
+inline std::string* BorrowOrderDetailInfo::mutable_remark() {
+  std::string* _s = _internal_mutable_remark();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowOrderDetailInfo.Remark)
+  return _s;
+}
+inline const std::string& BorrowOrderDetailInfo::_internal_remark() const {
+  return _impl_.remark_.Get();
+}
+inline void BorrowOrderDetailInfo::_internal_set_remark(const std::string& value) {
+  
+  _impl_.remark_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BorrowOrderDetailInfo::_internal_mutable_remark() {
+  
+  return _impl_.remark_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BorrowOrderDetailInfo::release_remark() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowOrderDetailInfo.Remark)
+  return _impl_.remark_.Release();
+}
+inline void BorrowOrderDetailInfo::set_allocated_remark(std::string* remark) {
+  if (remark != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.remark_.SetAllocated(remark, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.remark_.IsDefault()) {
+    _impl_.remark_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowOrderDetailInfo.Remark)
+}
+
 // -------------------------------------------------------------------
 
 // MemberInfo
@@ -4918,7 +6402,7 @@ inline void MemberInfo::set_role(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.MemberInfo.Role)
 }
 
-// string Nickname = 3;
+// bytes Nickname = 3;
 inline void MemberInfo::clear_nickname() {
   _impl_.nickname_.ClearToEmpty();
 }
@@ -4930,7 +6414,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void MemberInfo::set_nickname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.nickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.nickname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.MemberInfo.Nickname)
 }
 inline std::string* MemberInfo::mutable_nickname() {
@@ -5274,7 +6758,7 @@ inline void LibraryInfo::set_id(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryInfo.Id)
 }
 
-// string Name = 2;
+// bytes Name = 2;
 inline void LibraryInfo::clear_name() {
   _impl_.name_.ClearToEmpty();
 }
@@ -5286,7 +6770,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void LibraryInfo::set_name(ArgT0&& arg0, ArgT... args) {
  
- _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.name_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryInfo.Name)
 }
 inline std::string* LibraryInfo::mutable_name() {
@@ -5324,7 +6808,7 @@ inline void LibraryInfo::set_allocated_name(std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LibraryInfo.Name)
 }
 
-// string Address = 3;
+// bytes Address = 3;
 inline void LibraryInfo::clear_address() {
   _impl_.address_.ClearToEmpty();
 }
@@ -5336,7 +6820,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void LibraryInfo::set_address(ArgT0&& arg0, ArgT... args) {
  
- _impl_.address_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.address_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryInfo.Address)
 }
 inline std::string* LibraryInfo::mutable_address() {
@@ -5374,7 +6858,7 @@ inline void LibraryInfo::set_allocated_address(std::string* address) {
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LibraryInfo.Address)
 }
 
-// string OpenTime = 4;
+// bytes OpenTime = 4;
 inline void LibraryInfo::clear_opentime() {
   _impl_.opentime_.ClearToEmpty();
 }
@@ -5386,7 +6870,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void LibraryInfo::set_opentime(ArgT0&& arg0, ArgT... args) {
  
- _impl_.opentime_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.opentime_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryInfo.OpenTime)
 }
 inline std::string* LibraryInfo::mutable_opentime() {
@@ -5494,7 +6978,7 @@ inline void LibraryInfo::set_librarianuserid(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryInfo.LibrarianUserId)
 }
 
-// string LibrarianUserNickname = 7;
+// bytes LibrarianUserNickname = 7;
 inline void LibraryInfo::clear_librarianusernickname() {
   _impl_.librarianusernickname_.ClearToEmpty();
 }
@@ -5506,7 +6990,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void LibraryInfo::set_librarianusernickname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.librarianusernickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.librarianusernickname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryInfo.LibrarianUserNickname)
 }
 inline std::string* LibraryInfo::mutable_librarianusernickname() {
@@ -5749,7 +7233,7 @@ inline void LibraryPreviewInfo::set_id(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryPreviewInfo.Id)
 }
 
-// string Name = 2;
+// bytes Name = 2;
 inline void LibraryPreviewInfo::clear_name() {
   _impl_.name_.ClearToEmpty();
 }
@@ -5761,7 +7245,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void LibraryPreviewInfo::set_name(ArgT0&& arg0, ArgT... args) {
  
- _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.name_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryPreviewInfo.Name)
 }
 inline std::string* LibraryPreviewInfo::mutable_name() {
@@ -5819,7 +7303,7 @@ inline void LibraryPreviewInfo::set_librarianuserid(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryPreviewInfo.LibrarianUserId)
 }
 
-// string LibrarianNickname = 4;
+// bytes LibrarianNickname = 4;
 inline void LibraryPreviewInfo::clear_librariannickname() {
   _impl_.librariannickname_.ClearToEmpty();
 }
@@ -5831,7 +7315,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void LibraryPreviewInfo::set_librariannickname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.librariannickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.librariannickname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LibraryPreviewInfo.LibrarianNickname)
 }
 inline std::string* LibraryPreviewInfo::mutable_librariannickname() {
@@ -5873,7 +7357,7 @@ inline void LibraryPreviewInfo::set_allocated_librariannickname(std::string* lib
 
 // KeyWordsField
 
-// repeated string KeyWords = 1;
+// repeated bytes KeyWords = 1;
 inline int KeyWordsField::_internal_keywords_size() const {
   return _impl_.keywords_.size();
 }
@@ -5912,7 +7396,7 @@ inline void KeyWordsField::set_keywords(int index, const char* value) {
   _impl_.keywords_.Mutable(index)->assign(value);
   // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.KeyWordsField.KeyWords)
 }
-inline void KeyWordsField::set_keywords(int index, const char* value, size_t size) {
+inline void KeyWordsField::set_keywords(int index, const void* value, size_t size) {
   _impl_.keywords_.Mutable(index)->assign(
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.KeyWordsField.KeyWords)
@@ -5933,7 +7417,7 @@ inline void KeyWordsField::add_keywords(const char* value) {
   _impl_.keywords_.Add()->assign(value);
   // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.KeyWordsField.KeyWords)
 }
-inline void KeyWordsField::add_keywords(const char* value, size_t size) {
+inline void KeyWordsField::add_keywords(const void* value, size_t size) {
   _impl_.keywords_.Add()->assign(reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.KeyWordsField.KeyWords)
 }
@@ -6027,9 +7511,59 @@ SnapshotField::mutable_snapshots() {
   return &_impl_.snapshots_;
 }
 
+// -------------------------------------------------------------------
+
+// OutStoreParam
+
+// uint64 BookId = 1;
+inline void OutStoreParam::clear_bookid() {
+  _impl_.bookid_ = uint64_t{0u};
+}
+inline uint64_t OutStoreParam::_internal_bookid() const {
+  return _impl_.bookid_;
+}
+inline uint64_t OutStoreParam::bookid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OutStoreParam.BookId)
+  return _internal_bookid();
+}
+inline void OutStoreParam::_internal_set_bookid(uint64_t value) {
+  
+  _impl_.bookid_ = value;
+}
+inline void OutStoreParam::set_bookid(uint64_t value) {
+  _internal_set_bookid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OutStoreParam.BookId)
+}
+
+// sint64 Count = 2;
+inline void OutStoreParam::clear_count() {
+  _impl_.count_ = int64_t{0};
+}
+inline int64_t OutStoreParam::_internal_count() const {
+  return _impl_.count_;
+}
+inline int64_t OutStoreParam::count() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OutStoreParam.Count)
+  return _internal_count();
+}
+inline void OutStoreParam::_internal_set_count(int64_t value) {
+  
+  _impl_.count_ = value;
+}
+inline void OutStoreParam::set_count(int64_t value) {
+  _internal_set_count(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OutStoreParam.Count)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -6153,6 +7687,29 @@ public:
 };
 
 
+class BorrowBookDetailInfoFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BorrowBookDetailInfoFactory);
+public:
+
+    virtual void Release() override {
+        BorrowBookDetailInfoFactory::Delete_BorrowBookDetailInfoFactory(this);
+    }
+
+    static BorrowBookDetailInfoFactory *CreateFactory() {
+        return BorrowBookDetailInfoFactory::New_BorrowBookDetailInfoFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::BorrowBookDetailInfo();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::BorrowBookDetailInfo(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowBookDetailInfo *>(coder));
+    }
+
+};
+
+
 class BorrowOrderStateFactory : public KERNEL_NS::ICoderFactory {
     POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BorrowOrderStateFactory);
 public:
@@ -6194,6 +7751,29 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::BorrowOrderInfo(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowOrderInfo *>(coder));
+    }
+
+};
+
+
+class BorrowOrderDetailInfoFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, BorrowOrderDetailInfoFactory);
+public:
+
+    virtual void Release() override {
+        BorrowOrderDetailInfoFactory::Delete_BorrowOrderDetailInfoFactory(this);
+    }
+
+    static BorrowOrderDetailInfoFactory *CreateFactory() {
+        return BorrowOrderDetailInfoFactory::New_BorrowOrderDetailInfoFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::BorrowOrderDetailInfo();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::BorrowOrderDetailInfo(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowOrderDetailInfo *>(coder));
     }
 
 };
@@ -6378,6 +7958,29 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::SnapshotField(*dynamic_cast<const ::CRYSTAL_NET::service::SnapshotField *>(coder));
+    }
+
+};
+
+
+class OutStoreParamFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, OutStoreParamFactory);
+public:
+
+    virtual void Release() override {
+        OutStoreParamFactory::Delete_OutStoreParamFactory(this);
+    }
+
+    static OutStoreParamFactory *CreateFactory() {
+        return OutStoreParamFactory::New_OutStoreParamFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::OutStoreParam();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::OutStoreParam(*dynamic_cast<const ::CRYSTAL_NET::service::OutStoreParam *>(coder));
     }
 
 };

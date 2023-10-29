@@ -964,6 +964,110 @@ export namespace ts_pbinfo{
     }
 
 
+    // notify.proto 
+    export class UserNotifyChangeNty {
+      getOpcode():number {return UserNotifyChangeNty.OPCODE; }
+      getIsXorEncrypt():boolean {return UserNotifyChangeNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return UserNotifyChangeNty.KeyBase64; }
+      getOpcodeName():string {return UserNotifyChangeNty.OPCODE_NAME; }
+      static OPCODE:number = 94;
+      static OPCODE_NAME:string = "UserNotifyChangeNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // notify.proto 
+    export class ReadNotifyReq {
+      getOpcode():number {return ReadNotifyReq.OPCODE; }
+      getIsXorEncrypt():boolean {return ReadNotifyReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return ReadNotifyReq.KeyBase64; }
+      getOpcodeName():string {return ReadNotifyReq.OPCODE_NAME; }
+      static OPCODE:number = 95;
+      static OPCODE_NAME:string = "ReadNotifyReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // notify.proto 
+    export class ReadNotifyRes {
+      getOpcode():number {return ReadNotifyRes.OPCODE; }
+      getIsXorEncrypt():boolean {return ReadNotifyRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return ReadNotifyRes.KeyBase64; }
+      getOpcodeName():string {return ReadNotifyRes.OPCODE_NAME; }
+      static OPCODE:number = 96;
+      static OPCODE_NAME:string = "ReadNotifyRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetBookOrderDetailInfoReq {
+      getOpcode():number {return GetBookOrderDetailInfoReq.OPCODE; }
+      getIsXorEncrypt():boolean {return GetBookOrderDetailInfoReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetBookOrderDetailInfoReq.KeyBase64; }
+      getOpcodeName():string {return GetBookOrderDetailInfoReq.OPCODE_NAME; }
+      static OPCODE:number = 97;
+      static OPCODE_NAME:string = "GetBookOrderDetailInfoReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetBookOrderDetailInfoNty {
+      getOpcode():number {return GetBookOrderDetailInfoNty.OPCODE; }
+      getIsXorEncrypt():boolean {return GetBookOrderDetailInfoNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetBookOrderDetailInfoNty.KeyBase64; }
+      getOpcodeName():string {return GetBookOrderDetailInfoNty.OPCODE_NAME; }
+      static OPCODE:number = 98;
+      static OPCODE_NAME:string = "GetBookOrderDetailInfoNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class GetBookOrderDetailInfoRes {
+      getOpcode():number {return GetBookOrderDetailInfoRes.OPCODE; }
+      getIsXorEncrypt():boolean {return GetBookOrderDetailInfoRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return GetBookOrderDetailInfoRes.KeyBase64; }
+      getOpcodeName():string {return GetBookOrderDetailInfoRes.OPCODE_NAME; }
+      static OPCODE:number = 100;
+      static OPCODE_NAME:string = "GetBookOrderDetailInfoRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class OutStoreOrderReq {
+      getOpcode():number {return OutStoreOrderReq.OPCODE; }
+      getIsXorEncrypt():boolean {return OutStoreOrderReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return OutStoreOrderReq.KeyBase64; }
+      getOpcodeName():string {return OutStoreOrderReq.OPCODE_NAME; }
+      static OPCODE:number = 101;
+      static OPCODE_NAME:string = "OutStoreOrderReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class OutStoreOrderRes {
+      getOpcode():number {return OutStoreOrderRes.OPCODE; }
+      getIsXorEncrypt():boolean {return OutStoreOrderRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return OutStoreOrderRes.KeyBase64; }
+      getOpcodeName():string {return OutStoreOrderRes.OPCODE_NAME; }
+      static OPCODE:number = 102;
+      static OPCODE_NAME:string = "OutStoreOrderRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -1108,7 +1212,23 @@ export namespace ts_pbinfo{
 
           [AddUserNotifyDataItemNty.OPCODE]: new AddUserNotifyDataItemNty(),
 
-          [RemoveUserNotifyDataItemNty.OPCODE]: new RemoveUserNotifyDataItemNty()
+          [RemoveUserNotifyDataItemNty.OPCODE]: new RemoveUserNotifyDataItemNty(),
+
+          [UserNotifyChangeNty.OPCODE]: new UserNotifyChangeNty(),
+
+          [ReadNotifyReq.OPCODE]: new ReadNotifyReq(),
+
+          [ReadNotifyRes.OPCODE]: new ReadNotifyRes(),
+
+          [GetBookOrderDetailInfoReq.OPCODE]: new GetBookOrderDetailInfoReq(),
+
+          [GetBookOrderDetailInfoNty.OPCODE]: new GetBookOrderDetailInfoNty(),
+
+          [GetBookOrderDetailInfoRes.OPCODE]: new GetBookOrderDetailInfoRes(),
+
+          [OutStoreOrderReq.OPCODE]: new OutStoreOrderReq(),
+
+          [OutStoreOrderRes.OPCODE]: new OutStoreOrderRes()
 
 
       }

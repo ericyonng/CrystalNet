@@ -48,6 +48,11 @@ public:
     , const std::vector<VariantParam> &contentParams) override;
     
 private:
+    virtual Int32 _OnGlobalSysInit() override;
+
+    void _OnReadNotifyReq(KERNEL_NS::LibPacket *&packet);
+
+private:
 };
 
 SERVICE_END

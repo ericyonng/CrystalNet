@@ -91,10 +91,10 @@ public:
     Int32 FireEvent(KERNEL_NS::LibEvent *event);
 
     // @return(Int64):返回packetId
-    Int64 Send(KERNEL_NS::LibPacket *packet) const;
+    void Send(KERNEL_NS::LibPacket *packet) const;
     void Send(const std::list<KERNEL_NS::LibPacket *> &packets) const;
     // @return(Int64):返回packetId
-    Int64 Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const;
+    void Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const;
   
    virtual void MaskDirty() override;
    virtual void MaskNumberKeyAddDirty(UInt64 key) final {}

@@ -86,4 +86,29 @@ void NotifyGlobal::SendNotify(UInt64 userId, const KERNEL_NS::LibString &titleId
     notifyMgr->AddNotify(item);
 }
 
+Int32 NotifyGlobal::_OnGlobalSysInit()
+{
+    Subscribe(Opcodes::OpcodeConst::OPCODE_ReadNotifyReq, this, &NotifyGlobal::_OnReadNotifyReq);
+    return Status::Success;
+}
+
+void NotifyGlobal::_OnReadNotifyReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto req = packet->GetCoder<ReadNotifyReq>();
+    auto notifyMgr = user->GetSys<INotifyMgr>();
+    auto err = notifyMgr->ReadNotify(req->notifyid());
+
+    ReadNotifyRes res;
+    res.set_errcode(err);
+    user->Send(Opcodes::OpcodeConst::OPCODE_ReadNotifyRes, res, packet->GetPacketId());
+}
+
 SERVICE_END

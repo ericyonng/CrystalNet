@@ -749,3 +749,83 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, RemoveUserNotifyDataItemNtyFactory::CreateFactory()));
     }
+
+    {// UserNotifyChangeNty
+        auto info = OpcodeInfo();
+        info._opcode = 94;
+        info._noLog = false;
+        info._opcodeName = "UserNotifyChangeNty";
+        info._protoFile = "notify.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, UserNotifyChangeNtyFactory::CreateFactory()));
+    }
+
+    {// ReadNotifyReq
+        auto info = OpcodeInfo();
+        info._opcode = 95;
+        info._noLog = false;
+        info._opcodeName = "ReadNotifyReq";
+        info._protoFile = "notify.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ReadNotifyReqFactory::CreateFactory()));
+    }
+
+    {// ReadNotifyRes
+        auto info = OpcodeInfo();
+        info._opcode = 96;
+        info._noLog = false;
+        info._opcodeName = "ReadNotifyRes";
+        info._protoFile = "notify.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ReadNotifyResFactory::CreateFactory()));
+    }
+
+    {// GetBookOrderDetailInfoReq
+        auto info = OpcodeInfo();
+        info._opcode = 97;
+        info._noLog = false;
+        info._opcodeName = "GetBookOrderDetailInfoReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookOrderDetailInfoReqFactory::CreateFactory()));
+    }
+
+    {// GetBookOrderDetailInfoNty
+        auto info = OpcodeInfo();
+        info._opcode = 98;
+        info._noLog = false;
+        info._opcodeName = "GetBookOrderDetailInfoNty";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookOrderDetailInfoNtyFactory::CreateFactory()));
+    }
+
+    {// GetBookOrderDetailInfoRes
+        auto info = OpcodeInfo();
+        info._opcode = 100;
+        info._noLog = false;
+        info._opcodeName = "GetBookOrderDetailInfoRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, GetBookOrderDetailInfoResFactory::CreateFactory()));
+    }
+
+    {// OutStoreOrderReq
+        auto info = OpcodeInfo();
+        info._opcode = 101;
+        info._noLog = false;
+        info._opcodeName = "OutStoreOrderReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, OutStoreOrderReqFactory::CreateFactory()));
+    }
+
+    {// OutStoreOrderRes
+        auto info = OpcodeInfo();
+        info._opcode = 102;
+        info._noLog = false;
+        info._opcodeName = "OutStoreOrderRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, OutStoreOrderResFactory::CreateFactory()));
+    }

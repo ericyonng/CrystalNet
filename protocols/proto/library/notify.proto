@@ -10,6 +10,13 @@ message UserNotifyDataNty
     UserNotifyData UserNotifyData = 1;
 }
 
+// 数据变更通知
+/// Opcode:
+message UserNotifyChangeNty
+{
+    repeated UserNotifyDataItem ItemList = 1;
+}
+
 // 新增通知数据
 /// Opcode:
 message AddUserNotifyDataItemNty
@@ -23,4 +30,18 @@ message RemoveUserNotifyDataItemNty
 {
     // 要移除的通知id
     repeated uint64 NotifyIds = 1;
+}
+
+// 阅读
+/// Opcode:
+message ReadNotifyReq
+{
+    uint64 NotifyId = 1;
+}
+
+// 阅读
+/// Opcode:
+message ReadNotifyRes
+{
+    sint32 ErrCode = 1;
 }

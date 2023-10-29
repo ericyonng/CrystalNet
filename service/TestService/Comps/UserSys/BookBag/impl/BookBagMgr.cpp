@@ -223,10 +223,10 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
     return err;
 }
 
-Int32 BookBagMgr::Submit()
+Int32 BookBagMgr::Submit(const KERNEL_NS::LibString &remark)
 {
     const auto myLibraryId = GetUser()->GetSys<ILibraryMgr>()->GetMyLibraryId();
-    
+
     // 1.书袋中有没有书
     if(_bookBagInfo->bookinfoitemlist_size() == 0)
     {
@@ -280,7 +280,7 @@ Int32 BookBagMgr::Submit()
     }
 
     auto libararyGlobal = GetUserMgr()->GetGlobalSys<ILibraryGlobal>();
-    auto err = libararyGlobal->CreateBorrowOrder(myLibraryId, GetUser(), *_bookBagInfo);
+    auto err = libararyGlobal->CreateBorrowOrder(myLibraryId, GetUser(), *_bookBagInfo, remark);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("CreateBorrowOrder fail err:%d, user:%s, book bag info:%s")

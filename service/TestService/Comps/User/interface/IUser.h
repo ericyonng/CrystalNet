@@ -133,10 +133,10 @@ public:
      */
     virtual Int32 FireEvent(KERNEL_NS::LibEvent *event);
 
-    virtual Int64 Send(KERNEL_NS::LibPacket *packet) const = 0;
+    virtual void Send(KERNEL_NS::LibPacket *packet) const = 0;
     virtual void Send(const std::list<KERNEL_NS::LibPacket *> &packets) const = 0;
-    virtual Int64 Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const = 0;
-    virtual Int64 Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId = -1) const = 0;
+    virtual void Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const = 0;
+    virtual void Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId = -1) const = 0;
 
     virtual bool CanSend() const = 0;
 

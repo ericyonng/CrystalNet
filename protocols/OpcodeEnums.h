@@ -102,5 +102,13 @@ public:
     static constexpr Int32 OPCODE_UserNotifyDataNty = 91;    // notify.proto
     static constexpr Int32 OPCODE_AddUserNotifyDataItemNty = 92;    // notify.proto
     static constexpr Int32 OPCODE_RemoveUserNotifyDataItemNty = 93;    // notify.proto
-    static constexpr Int32 OPCODE_MAX = 93;
+    static constexpr Int32 OPCODE_UserNotifyChangeNty = 94;    // notify.proto
+    static constexpr Int32 OPCODE_ReadNotifyReq = 95;    // notify.proto
+    static constexpr Int32 OPCODE_ReadNotifyRes = 96;    // notify.proto
+    static constexpr Int32 OPCODE_GetBookOrderDetailInfoReq = 97;    // library.proto
+    static constexpr Int32 OPCODE_GetBookOrderDetailInfoNty = 98;    // library.proto
+    static constexpr Int32 OPCODE_GetBookOrderDetailInfoRes = 100;    // library.proto
+    static constexpr Int32 OPCODE_OutStoreOrderReq = 101;    // library.proto
+    static constexpr Int32 OPCODE_OutStoreOrderRes = 102;    // library.proto
+    static constexpr Int32 OPCODE_MAX = 102;
 };

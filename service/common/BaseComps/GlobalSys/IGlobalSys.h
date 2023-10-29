@@ -68,31 +68,36 @@ public:
    * 网络相关
    */
 public:
-  /*
-  * 发送消息
-  * @return(Int64):返回packetId
-  */
-  Int64 Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const;
-  void Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) const;
-  Int64 Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const;
-  
-  /*
-  * 关闭会话
-  */
-  void CloseSession(UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite) const;
+    /*
+    * 发送消息
+    * @return(Int64):返回packetId
+    */
+    void Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const;
+    void Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) const;
+    void Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const;
+    Int64 NewPacketId(UInt64 sessionId) const;
+    
+    /*
+    * 关闭会话
+    */
+    void CloseSession(UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite) const;
 
-  /*
-  * ip 黑白名单控制
-  */
-void AddWhite(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
-void AddBlack(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
-void EraseWhite(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
-void EraseBlack(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
-void AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
-void AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
-void EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
-void EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
-void ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level = PriorityLevelDefine::INNER);
+    /*
+    * ip 黑白名单控制
+    */
+    void AddWhite(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
+    void AddBlack(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
+    void EraseWhite(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
+    void EraseBlack(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
+    void AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
+    void AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
+    void EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
+    void EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
+    void ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level = PriorityLevelDefine::INNER);
+
+    template<typename ObjType>
+    void Subscribe(Int32 opcodeId, ObjType *obj, void (ObjType::*Handler)(KERNEL_NS::LibPacket *&));
+    void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg);
 
 
     // 组件接口资源
@@ -137,5 +142,16 @@ ALWAYS_INLINE const SysType *IGlobalSys::GetGlobalSys() const
     return GetService()->GetComp<SysType>();
 }
 
+template<typename ObjType>
+ALWAYS_INLINE void IGlobalSys::Subscribe(Int32 opcodeId, ObjType *obj, void (ObjType::*Handler)(KERNEL_NS::LibPacket *&))
+{
+    auto delg = KERNEL_NS::DelegateFactory::Create(obj, Handler);
+    Subscribe(opcodeId, delg);
+}
+
+ALWAYS_INLINE void IGlobalSys::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg)
+{
+    GetService()->Subscribe(opcodeId, deleg);
+}
 
 SERVICE_END

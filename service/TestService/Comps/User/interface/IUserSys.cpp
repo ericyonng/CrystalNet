@@ -48,9 +48,9 @@ IUserSys::~IUserSys()
 
 }
 
-Int64 IUserSys::Send(KERNEL_NS::LibPacket *packet) const
+void IUserSys::Send(KERNEL_NS::LibPacket *packet) const
 {
-    return _userOwner->Send(packet);
+    _userOwner->Send(packet);
 }
 
 void IUserSys::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
@@ -58,9 +58,9 @@ void IUserSys::Send(const std::list<KERNEL_NS::LibPacket *> &packets) const
     _userOwner->Send(packets);
 }
 
-Int64 IUserSys::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
+void IUserSys::Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
 {
-    return _userOwner->Send(opcode, coder, packetId);
+    _userOwner->Send(opcode, coder, packetId);
 }
 
 void IUserSys::MaskDirty()

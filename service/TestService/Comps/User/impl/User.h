@@ -55,10 +55,10 @@ public:
     virtual IUserMgr *GetUserMgr() override;
     virtual const IUserMgr *GetUserMgr() const override;
 
-    virtual Int64 Send(KERNEL_NS::LibPacket *packet) const override;
+    virtual void Send(KERNEL_NS::LibPacket *packet) const override;
     virtual void Send(const std::list<KERNEL_NS::LibPacket *> &packets) const override;
-    virtual Int64 Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const override;
-    virtual Int64 Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId = -1) const override;
+    virtual void Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const override;
+    virtual void Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId = -1) const override;
     virtual bool User::CanSend() const override;
 
     virtual void OnPassDay(const KERNEL_NS::LibTime &nowTime) override;

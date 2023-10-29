@@ -55,7 +55,7 @@ public:
 
     virtual Int32 SetBookBagInfo(const BookInfoItem &item) override;
 
-    virtual Int32 Submit() override;
+    virtual Int32 Submit(const KERNEL_NS::LibString &remark) override;
 
 protected:
     virtual Int32 _OnUserSysInit() override;

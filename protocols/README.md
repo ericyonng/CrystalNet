@@ -383,7 +383,7 @@ inline void protobuf_move_message(::google::protobuf::RepeatedPtrField<TField> &
 
 # 其他
 
-若需要支持pb与json互转:
+* 若需要支持pb与json互转:
 
 ```
 #include <google/protobuf/message.h>
@@ -393,7 +393,7 @@ inline void protobuf_move_message(::google::protobuf::RepeatedPtrField<TField> &
 ::google::protobuf::util::MessageToJsonString(_data, &jsonStr)
 ```
 
-
+* pb中bytes可以推荐在互联网应用中字符串使用，因为当pb转成json时会自动给bytes的字符串base64以便于传输, 反序列化的时候会自动的Base64Decode
 
 ## TODO ：
 

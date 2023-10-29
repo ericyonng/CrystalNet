@@ -32,7 +32,7 @@ using ProtoPackage.Attributes;
             "SU5HEAMSHgoaQ0xJRU5UX0xPR0lOX0VORElOR19GSU5JU0gQBBINCglMT0dP",
             "VVRJTkcQBRIMCghMT0dPVVRFRBAGIr0BCg5DbGllbnRVc2VySW5mbxIOCgZV",
             "c2VySWQYASABKAQSEwoLQWNjb3VudE5hbWUYAiABKAkSDAoETmFtZRgDIAEo",
-            "CRIQCghOaWNrbmFtZRgEIAEoCRIRCglQaG9uZUltZWkYBSABKAkSFAoMQ2xp",
+            "DBIQCghOaWNrbmFtZRgEIAEoDBIRCglQaG9uZUltZWkYBSABKAkSFAoMQ2xp",
             "ZW50U3RhdHVzGAYgASgREhEKCUxhc3RUb2tlbhgHIAEoCRIXCg9Ub2tlbkV4",
             "cGlyZVRpbWUYCCABKBISEQoJQmluZFBob25lGAkgASgEYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
@@ -321,13 +321,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "Name" field.</summary>
     public const int NameFieldNumber = 3;
-    private string name_ = "";
+    private pb::ByteString name_ = pb::ByteString.Empty;
     /// <summary>
     /// 姓名
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
+    public pb::ByteString Name {
       get { return name_; }
       set {
         name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -336,13 +336,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "Nickname" field.</summary>
     public const int NicknameFieldNumber = 4;
-    private string nickname_ = "";
+    private pb::ByteString nickname_ = pb::ByteString.Empty;
     /// <summary>
     /// 昵称
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Nickname {
+    public pb::ByteString Nickname {
       get { return nickname_; }
       set {
         nickname_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -492,11 +492,11 @@ using ProtoPackage.Attributes;
       }
       if (Name.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(Name);
+        output.WriteBytes(Name);
       }
       if (Nickname.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteString(Nickname);
+        output.WriteBytes(Nickname);
       }
       if (PhoneImei.Length != 0) {
         output.WriteRawTag(42);
@@ -538,11 +538,11 @@ using ProtoPackage.Attributes;
       }
       if (Name.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(Name);
+        output.WriteBytes(Name);
       }
       if (Nickname.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteString(Nickname);
+        output.WriteBytes(Nickname);
       }
       if (PhoneImei.Length != 0) {
         output.WriteRawTag(42);
@@ -581,10 +581,10 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeStringSize(AccountName);
       }
       if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Name);
       }
       if (Nickname.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Nickname);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Nickname);
       }
       if (PhoneImei.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(PhoneImei);
@@ -664,11 +664,11 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            Name = input.ReadString();
+            Name = input.ReadBytes();
             break;
           }
           case 34: {
-            Nickname = input.ReadString();
+            Nickname = input.ReadBytes();
             break;
           }
           case 42: {
@@ -715,11 +715,11 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            Name = input.ReadString();
+            Name = input.ReadBytes();
             break;
           }
           case 34: {
-            Nickname = input.ReadString();
+            Nickname = input.ReadBytes();
             break;
           }
           case 42: {

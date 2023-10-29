@@ -36,20 +36,16 @@ export namespace crystal_net_service
     }
     // com_library.proto
     export enum BorrowOrderState_ENUMS {
-        // 订单生成待管理员确认
-        WAITING_MANAGER_CONFIRM = 0,
-        // 订单管理员确认并出库图书
-        ORDER_CONFIRM = 1,
+        // 待出库
+        WAITING_OUT_OF_WAREHOUSE = 0,
         // 订单已出库等待领取
-        WAIT_USER_RECEIVE = 2,
+        WAIT_USER_RECEIVE = 1,
         // 用户已领取等待归还
-        WAIT_USER_RETURN_BACK = 3,
-        // 用户已归还所有图书
-        USER_RETURN_BACK_ALL_BOOKS = 4,
+        WAIT_USER_RETURN_BACK = 2,
         // 取消订单(需要填写原因, 当用户领取后不可取消订单只能归还, 还没领取的才可取消订单)
-        CANCEL_ORDER = 5,
+        CANCEL_ORDER = 3,
         // 已归还
-        RETURN_BAKCK = 6,
+        RETURN_BAKCK = 4,
 
     }
     // com_client_user.proto
@@ -403,6 +399,15 @@ export namespace crystal_net_service
 
 
     }
+    // 图书详情信息
+    // com_library.proto
+    export class BorrowBookDetailInfo {
+        BookInfo:BorrowBookInfo = new BorrowBookInfo();
+
+        BookName:string = "";
+
+
+    }
     // 当 ReturnBackCount == BorrowCount时表示还完
     // com_library.proto
     export class BorrowBookInfo {
@@ -418,7 +423,7 @@ export namespace crystal_net_service
         // 借阅时间
         BorrowTime:number = 0;
 
-        // 预计归还时间
+        // 预计归还时间(领取后算起) TODO:
         PlanGiveBackTime:number = 0;
 
         // 实际归还时间
@@ -429,6 +434,35 @@ export namespace crystal_net_service
 
         // 子单号(当前借的书的单号)
         SubOrderId:number = 0;
+
+        // 要借的天数
+        BorrowDays:number = 0;
+
+
+    }
+    // 订单详情
+    // com_library.proto
+    export class BorrowOrderDetailInfo {
+        // 订单号
+        OrderId:number = 0;
+
+        // 借的书
+        BorrowBookList:BorrowBookDetailInfo[] = [];
+
+        // 订单创建时间
+        CreateOrderTime:number = 0;
+
+        // 订单状态 BorrowOrderState
+        OrderState:number = 0;
+
+        // 取消原因
+        CancelReason:string = "";
+
+        // 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
+        GetOverTime:number = 0;
+
+        // 备注
+        Remark:string = "";
 
 
     }
@@ -449,6 +483,12 @@ export namespace crystal_net_service
 
         // 取消原因
         CancelReason:string = "";
+
+        // 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
+        GetOverTime:number = 0;
+
+        // 备注
+        Remark:string = "";
 
 
     }
@@ -557,7 +597,7 @@ export namespace crystal_net_service
 
 
     }
-    // 图书
+    // 分页查询图书
     /// Opcode:
     // library.proto
     export class GetBookInfoListReq {
@@ -569,7 +609,7 @@ export namespace crystal_net_service
 
 
     }
-    // 图书
+    // 分页查询图书
     /// Opcode:
     // library.proto
     export class GetBookInfoListRes {
@@ -606,6 +646,28 @@ export namespace crystal_net_service
     /// Opcode:
     // library.proto
     export class GetBookListRes {
+        ErrCode:number = 0;
+
+
+    }
+    // 查询图书订单信息
+    /// Opcode:
+    // library.proto
+    export class GetBookOrderDetailInfoNty {
+        DetailInfo:BorrowOrderDetailInfo[] = [];
+
+
+    }
+    // 查询图书订单信息
+    /// Opcode:
+    // library.proto
+    export class GetBookOrderDetailInfoReq {
+
+    }
+    // 查询图书订单信息
+    /// Opcode:
+    // library.proto
+    export class GetBookOrderDetailInfoRes {
         ErrCode:number = 0;
 
 
@@ -883,7 +945,7 @@ export namespace crystal_net_service
         // 会员昵称
         Nickname:string = "";
 
-        // 当前借阅图书列表 只有有权限的人才会看到订单详情, 其他人只能看自己的
+        // 当前借阅图书列表 只有有权限的人才会看到订单详情, 其他人只能看自己的, 避免被恶意下单, 最多一天借100本书 TODO:
         BorrowList:BorrowOrderInfo[] = [];
 
         // 锁定操作超时时间
@@ -1038,6 +1100,37 @@ export namespace crystal_net_service
     export class OperationType {
 
     }
+    // 出库
+    /// Opcode:
+    // library.proto
+    export class OutStoreOrderReq {
+        // 出库订单号
+        OrderId:number = 0;
+
+        // 出库图书参数
+        BookParams:OutStoreParam[] = [];
+
+
+    }
+    // 出库
+    /// Opcode:
+    // library.proto
+    export class OutStoreOrderRes {
+        ErrCode:number = 0;
+
+
+    }
+    // 出库参数
+    // com_library.proto
+    export class OutStoreParam {
+        // 图书id
+        BookId:number = 0;
+
+        // 图书数量
+        Count:number = 0;
+
+
+    }
     // com_passtime.proto
     export class PassTimeData {
         // 上次跨天时间
@@ -1095,6 +1188,22 @@ export namespace crystal_net_service
     // library.proto
     export class QuitLibraryRes {
         // 错误码
+        ErrCode:number = 0;
+
+
+    }
+    // 阅读
+    /// Opcode:
+    // notify.proto
+    export class ReadNotifyReq {
+        NotifyId:number = 0;
+
+
+    }
+    // 阅读
+    /// Opcode:
+    // notify.proto
+    export class ReadNotifyRes {
         ErrCode:number = 0;
 
 
@@ -1209,6 +1318,9 @@ export namespace crystal_net_service
     /// Opcode:
     // bookbag.proto
     export class SubmitBookBagBorrowInfoReq {
+        // 备注
+        Remark:string = "";
+
 
     }
     // 借书
@@ -1392,6 +1504,14 @@ export namespace crystal_net_service
 
         // 密钥过期时间 精确到秒
         KeyExpireTime:number = 0;
+
+
+    }
+    // 数据变更通知
+    /// Opcode:
+    // notify.proto
+    export class UserNotifyChangeNty {
+        ItemList:UserNotifyDataItem[] = [];
 
 
     }

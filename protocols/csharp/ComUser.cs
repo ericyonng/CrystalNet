@@ -28,7 +28,7 @@ using ProtoPackage.Attributes;
           string.Concat(
             "Cg5jb21fdXNlci5wcm90bxITQ1JZU1RBTF9ORVQuc2VydmljZSK6AgoMVXNl",
             "ckJhc2VJbmZvEg4KBlVzZXJJZBgBIAEoBBITCgtBY2NvdW50TmFtZRgCIAEo",
-            "CRIMCgROYW1lGAMgASgJEhAKCE5pY2tuYW1lGAQgASgJEgsKA1B3ZBgFIAEo",
+            "CRIMCgROYW1lGAMgASgMEhAKCE5pY2tuYW1lGAQgASgMEgsKA1B3ZBgFIAEo",
             "CRIPCgdQd2RTYWx0GAYgASgJEhEKCUJpbmRQaG9uZRgHIAEoBBIVCg1MYXN0",
             "TG9naW5UaW1lGAggASgSEhMKC0xhc3RMb2dpbklwGAkgASgJEhoKEkxhc3RM",
             "b2dpblBob25lSW1laRgKIAEoCRIQCghDcmVhdGVJcBgLIAEoCRISCgpDcmVh",
@@ -155,13 +155,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "Name" field.</summary>
     public const int NameFieldNumber = 3;
-    private string name_ = "";
+    private pb::ByteString name_ = pb::ByteString.Empty;
     /// <summary>
     /// 姓名
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
+    public pb::ByteString Name {
       get { return name_; }
       set {
         name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -170,13 +170,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "Nickname" field.</summary>
     public const int NicknameFieldNumber = 4;
-    private string nickname_ = "";
+    private pb::ByteString nickname_ = pb::ByteString.Empty;
     /// <summary>
     /// 昵称
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Nickname {
+    public pb::ByteString Nickname {
       get { return nickname_; }
       set {
         nickname_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -428,11 +428,11 @@ using ProtoPackage.Attributes;
       }
       if (Name.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(Name);
+        output.WriteBytes(Name);
       }
       if (Nickname.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteString(Nickname);
+        output.WriteBytes(Nickname);
       }
       if (Pwd.Length != 0) {
         output.WriteRawTag(42);
@@ -498,11 +498,11 @@ using ProtoPackage.Attributes;
       }
       if (Name.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(Name);
+        output.WriteBytes(Name);
       }
       if (Nickname.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteString(Nickname);
+        output.WriteBytes(Nickname);
       }
       if (Pwd.Length != 0) {
         output.WriteRawTag(42);
@@ -565,10 +565,10 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeStringSize(AccountName);
       }
       if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Name);
       }
       if (Nickname.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Nickname);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Nickname);
       }
       if (Pwd.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Pwd);
@@ -684,11 +684,11 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            Name = input.ReadString();
+            Name = input.ReadBytes();
             break;
           }
           case 34: {
-            Nickname = input.ReadString();
+            Nickname = input.ReadBytes();
             break;
           }
           case 42: {
@@ -759,11 +759,11 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            Name = input.ReadString();
+            Name = input.ReadBytes();
             break;
           }
           case 34: {
-            Nickname = input.ReadString();
+            Nickname = input.ReadBytes();
             break;
           }
           case 42: {

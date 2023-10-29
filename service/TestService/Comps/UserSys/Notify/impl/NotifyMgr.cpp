@@ -61,6 +61,13 @@ Int32 NotifyMgr::OnLoaded(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
         return Status::ParseFail;
     }
 
+    const Int32 sz = _notifyData->itemlist_size();
+    for(Int32 idx = 0; idx < sz; ++idx)
+    {
+        auto notify = _notifyData->mutable_itemlist(idx);
+        _notifyIdRefNotify.insert(std::make_pair(notify->notifyid(), notify));
+    }
+
     return Status::Success;
 }
 
@@ -103,6 +110,8 @@ void NotifyMgr::AddNotify(const UserNotifyDataItem &item)
         auto &firstItem = _notifyData->itemlist(0);
         removeNty.add_notifyids(firstItem.notifyid());
 
+        _notifyIdRefNotify.erase(firstItem.notifyid());
+
         _notifyData->mutable_itemlist()->DeleteSubrange(0, 1);
     }
 
@@ -114,8 +123,34 @@ void NotifyMgr::AddNotify(const UserNotifyDataItem &item)
 
     AddUserNotifyDataItemNty nty;
     *nty.add_itemlist() = item;
+    _notifyIdRefNotify.insert(std::make_pair(item.notifyid(), _notifyData->mutable_itemlist(_notifyData->itemlist_size() - 1)));
 
     Send(Opcodes::OpcodeConst::OPCODE_AddUserNotifyDataItemNty, nty);
+}
+
+Int32 NotifyMgr::ReadNotify(UInt64 notifyId)
+{
+    auto iter = _notifyIdRefNotify.find(notifyId);
+    if(iter == _notifyIdRefNotify.end())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("notify is not found notify id:%llu user:%s"), notifyId, GetUser()->ToString().c_str());
+        return Status::NotFound;
+    }
+
+    if(iter->second->isread() > 0)
+    {
+        return Status::Success;
+    }
+
+    iter->second->set_isread(1);
+    MaskDirty();
+
+    // 更新
+    UserNotifyChangeNty nty;
+    *nty.add_itemlist() = *iter->second;
+    Send(Opcodes::OpcodeConst::OPCODE_UserNotifyChangeNty, nty);
+    
+    return Status::Success;
 }
 
 Int32 NotifyMgr::_OnUserSysInit()

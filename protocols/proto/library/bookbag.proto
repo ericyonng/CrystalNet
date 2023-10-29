@@ -47,7 +47,8 @@ message SetBookBagInfoRes
 /// Opcode:
 message SubmitBookBagBorrowInfoReq
 {
-
+    // 备注
+    bytes Remark = 1;
 }
 
 // 借书

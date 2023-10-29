@@ -30,11 +30,11 @@ using ProtoPackage.Attributes;
             "VHlwZSIUCgVFTlVNUxILCgdVTktOT1dOEAAiMgoSU25hcHNob3RDbGllbnRJ",
             "bmZvEgoKAklkGAEgASgSEhAKCEZpbGVQYXRoGAIgASgJIvoCCghCb29rSW5m",
             "bxIKCgJJZBgBIAEoBBIQCghCb29rVHlwZRgCIAEoERIQCghCb29rTmFtZRgD",
-            "IAEoCRIQCghJc2JuQ29kZRgEIAEoCRIWCg5Cb29rQ292ZXJJbWFnZRgFIAEo",
+            "IAEoDBIQCghJc2JuQ29kZRgEIAEoCRIWCg5Cb29rQ292ZXJJbWFnZRgFIAEo",
             "CRITCgtJc09uU2hlbHZlcxgGIAEoERI5CgtWYXJpYW50SW5mbxgHIAEoCzIk",
             "LkNSWVNUQUxfTkVULnNlcnZpY2UuQm9va1ZhcmlhbnRJbmZvEhUKDUJvcnJv",
-            "d2VkQ291bnQYCCABKAQSEAoIS2V5V29yZHMYCSADKAkSDwoHQ29udGVudBgK",
-            "IAEoCRIQCghTbmFwc2hvdBgLIAMoCRIWCg5Db3ZlckltYWdlUGF0aBgMIAEo",
+            "d2VkQ291bnQYCCABKAQSEAoIS2V5V29yZHMYCSADKAwSDwoHQ29udGVudBgK",
+            "IAEoDBIQCghTbmFwc2hvdBgLIAMoCRIWCg5Db3ZlckltYWdlUGF0aBgMIAEo",
             "CRIWCg5LZXl3b3Jkc1N0cmluZxgNIAEoCRJIChdTbmFwc2hvdFByZWl2ZXdJ",
             "bmZvTGlzdBgOIAMoCzInLkNSWVNUQUxfTkVULnNlcnZpY2UuU25hcHNob3RD",
             "bGllbnRJbmZvIi8KD0Jvb2tWYXJpYW50SW5mbxINCgVDb3VudBgBIAEoEhIN",
@@ -543,13 +543,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "BookName" field.</summary>
     public const int BookNameFieldNumber = 3;
-    private string bookName_ = "";
+    private pb::ByteString bookName_ = pb::ByteString.Empty;
     /// <summary>
     /// 书名
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string BookName {
+    public pb::ByteString BookName {
       get { return bookName_; }
       set {
         bookName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -633,27 +633,27 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "KeyWords" field.</summary>
     public const int KeyWordsFieldNumber = 9;
-    private static readonly pb::FieldCodec<string> _repeated_keyWords_codec
-        = pb::FieldCodec.ForString(74);
-    private readonly pbc::RepeatedField<string> keyWords_ = new pbc::RepeatedField<string>();
+    private static readonly pb::FieldCodec<pb::ByteString> _repeated_keyWords_codec
+        = pb::FieldCodec.ForBytes(74);
+    private readonly pbc::RepeatedField<pb::ByteString> keyWords_ = new pbc::RepeatedField<pb::ByteString>();
     /// <summary>
     /// 关键词
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<string> KeyWords {
+    public pbc::RepeatedField<pb::ByteString> KeyWords {
       get { return keyWords_; }
     }
 
     /// <summary>Field number for the "Content" field.</summary>
     public const int ContentFieldNumber = 10;
-    private string content_ = "";
+    private pb::ByteString content_ = pb::ByteString.Empty;
     /// <summary>
     /// 内容简介 最多10KB左右
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Content {
+    public pb::ByteString Content {
       get { return content_; }
       set {
         content_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -790,7 +790,7 @@ using ProtoPackage.Attributes;
       }
       if (BookName.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(BookName);
+        output.WriteBytes(BookName);
       }
       if (IsbnCode.Length != 0) {
         output.WriteRawTag(34);
@@ -815,7 +815,7 @@ using ProtoPackage.Attributes;
       keyWords_.WriteTo(output, _repeated_keyWords_codec);
       if (Content.Length != 0) {
         output.WriteRawTag(82);
-        output.WriteString(Content);
+        output.WriteBytes(Content);
       }
       snapshot_.WriteTo(output, _repeated_snapshot_codec);
       if (CoverImagePath.Length != 0) {
@@ -847,7 +847,7 @@ using ProtoPackage.Attributes;
       }
       if (BookName.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(BookName);
+        output.WriteBytes(BookName);
       }
       if (IsbnCode.Length != 0) {
         output.WriteRawTag(34);
@@ -872,7 +872,7 @@ using ProtoPackage.Attributes;
       keyWords_.WriteTo(ref output, _repeated_keyWords_codec);
       if (Content.Length != 0) {
         output.WriteRawTag(82);
-        output.WriteString(Content);
+        output.WriteBytes(Content);
       }
       snapshot_.WriteTo(ref output, _repeated_snapshot_codec);
       if (CoverImagePath.Length != 0) {
@@ -901,7 +901,7 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(BookType);
       }
       if (BookName.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(BookName);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(BookName);
       }
       if (IsbnCode.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(IsbnCode);
@@ -920,7 +920,7 @@ using ProtoPackage.Attributes;
       }
       size += keyWords_.CalculateSize(_repeated_keyWords_codec);
       if (Content.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Content);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Content);
       }
       size += snapshot_.CalculateSize(_repeated_snapshot_codec);
       if (CoverImagePath.Length != 0) {
@@ -1005,7 +1005,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            BookName = input.ReadString();
+            BookName = input.ReadBytes();
             break;
           }
           case 34: {
@@ -1036,7 +1036,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 82: {
-            Content = input.ReadString();
+            Content = input.ReadBytes();
             break;
           }
           case 90: {
@@ -1079,7 +1079,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            BookName = input.ReadString();
+            BookName = input.ReadBytes();
             break;
           }
           case 34: {
@@ -1110,7 +1110,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 82: {
-            Content = input.ReadString();
+            Content = input.ReadBytes();
             break;
           }
           case 90: {

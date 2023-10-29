@@ -77,6 +77,14 @@ public static class PacketOpcode
         UserNotifyDataNty = 91,    // notify.proto
         AddUserNotifyDataItemNty = 92,    // notify.proto
         RemoveUserNotifyDataItemNty = 93,    // notify.proto
-        OpcodeMax = 93,
+        UserNotifyChangeNty = 94,    // notify.proto
+        ReadNotifyReq = 95,    // notify.proto
+        ReadNotifyRes = 96,    // notify.proto
+        GetBookOrderDetailInfoReq = 97,    // library.proto
+        GetBookOrderDetailInfoNty = 98,    // library.proto
+        GetBookOrderDetailInfoRes = 100,    // library.proto
+        OutStoreOrderReq = 101,    // library.proto
+        OutStoreOrderRes = 102,    // library.proto
+        OpcodeMax = 102,
     }
 }

@@ -421,7 +421,8 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
         }
 
         ClientHeartbeatReq req;
-        auto packetId = Send(sessionId, Opcodes::OpcodeConst::OPCODE_ClientHeartbeatReq, req);
+        auto packetId = NewPacketId(sessionId);
+        Send(sessionId, Opcodes::OpcodeConst::OPCODE_ClientHeartbeatReq, req, packetId);
         if(UNLIKELY(packetId < 0))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("send heartbeat req fail sessionId:%llu"), sessionId);

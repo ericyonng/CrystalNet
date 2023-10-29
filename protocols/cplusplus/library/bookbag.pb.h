@@ -1542,7 +1542,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // AnnotaionInfo[opcode(89), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class SubmitBookBagBorrowInfoReq final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq) */ , public KERNEL_NS::ICoder {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq) */ , public KERNEL_NS::ICoder {
 public:
 virtual void Release() override {
     delete this;
@@ -1683,6 +1683,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
  public:
   inline SubmitBookBagBorrowInfoReq() : SubmitBookBagBorrowInfoReq(nullptr) {}
+  ~SubmitBookBagBorrowInfoReq() override;
   explicit PROTOBUF_CONSTEXPR SubmitBookBagBorrowInfoReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
   SubmitBookBagBorrowInfoReq(const SubmitBookBagBorrowInfoReq& from);
@@ -1755,15 +1756,29 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   SubmitBookBagBorrowInfoReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
     return CreateMaybeMessage<SubmitBookBagBorrowInfoReq>(arena);
   }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const SubmitBookBagBorrowInfoReq& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const SubmitBookBagBorrowInfoReq& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const SubmitBookBagBorrowInfoReq& from) {
+    SubmitBookBagBorrowInfoReq::MergeImpl(*this, from);
   }
-  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const SubmitBookBagBorrowInfoReq& from) {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
-  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
   public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(SubmitBookBagBorrowInfoReq* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
@@ -1784,6 +1799,23 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // accessors -------------------------------------------------------
 
+  enum : int {
+    kRemarkFieldNumber = 1,
+  };
+  // bytes Remark = 1;
+  void clear_remark();
+  const std::string& remark() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_remark(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_remark();
+  PROTOBUF_NODISCARD std::string* release_remark();
+  void set_allocated_remark(std::string* remark);
+  private:
+  const std::string& _internal_remark() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_remark(const std::string& value);
+  std::string* _internal_mutable_remark();
+  public:
+
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
  private:
   class _Internal;
@@ -1792,7 +1824,10 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr remark_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
+  union { Impl_ _impl_; };
   friend struct ::TableStruct_bookbag_2eproto;
 };
 // -------------------------------------------------------------------
@@ -2359,6 +2394,56 @@ inline void SetBookBagInfoRes::set_errcode(int32_t value) {
 // -------------------------------------------------------------------
 
 // SubmitBookBagBorrowInfoReq
+
+// bytes Remark = 1;
+inline void SubmitBookBagBorrowInfoReq::clear_remark() {
+  _impl_.remark_.ClearToEmpty();
+}
+inline const std::string& SubmitBookBagBorrowInfoReq::remark() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.Remark)
+  return _internal_remark();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void SubmitBookBagBorrowInfoReq::set_remark(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.remark_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.Remark)
+}
+inline std::string* SubmitBookBagBorrowInfoReq::mutable_remark() {
+  std::string* _s = _internal_mutable_remark();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.Remark)
+  return _s;
+}
+inline const std::string& SubmitBookBagBorrowInfoReq::_internal_remark() const {
+  return _impl_.remark_.Get();
+}
+inline void SubmitBookBagBorrowInfoReq::_internal_set_remark(const std::string& value) {
+  
+  _impl_.remark_.Set(value, GetArenaForAllocation());
+}
+inline std::string* SubmitBookBagBorrowInfoReq::_internal_mutable_remark() {
+  
+  return _impl_.remark_.Mutable(GetArenaForAllocation());
+}
+inline std::string* SubmitBookBagBorrowInfoReq::release_remark() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.Remark)
+  return _impl_.remark_.Release();
+}
+inline void SubmitBookBagBorrowInfoReq::set_allocated_remark(std::string* remark) {
+  if (remark != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.remark_.SetAllocated(remark, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.remark_.IsDefault()) {
+    _impl_.remark_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq.Remark)
+}
 
 // -------------------------------------------------------------------
 

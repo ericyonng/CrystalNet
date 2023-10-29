@@ -95,7 +95,9 @@ struct SetBookBagInfoResDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SetBookBagInfoResDefaultTypeInternal _SetBookBagInfoRes_default_instance_;
 PROTOBUF_CONSTEXPR SubmitBookBagBorrowInfoReq::SubmitBookBagBorrowInfoReq(
-    ::_pbi::ConstantInitialized) {}
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.remark_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SubmitBookBagBorrowInfoReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR SubmitBookBagBorrowInfoReqDefaultTypeInternal()
       : _instance(::_pbi::ConstantInitialized{}) {}
@@ -166,6 +168,7 @@ const uint32_t TableStruct_bookbag_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SubmitBookBagBorrowInfoReq, _impl_.remark_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SubmitBookBagBorrowInfoRes, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -181,7 +184,7 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 21, -1, -1, sizeof(::CRYSTAL_NET::service::SetBookBagInfoReq)},
   { 28, -1, -1, sizeof(::CRYSTAL_NET::service::SetBookBagInfoRes)},
   { 35, -1, -1, sizeof(::CRYSTAL_NET::service::SubmitBookBagBorrowInfoReq)},
-  { 41, -1, -1, sizeof(::CRYSTAL_NET::service::SubmitBookBagBorrowInfoRes)},
+  { 42, -1, -1, sizeof(::CRYSTAL_NET::service::SubmitBookBagBorrowInfoRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -204,9 +207,9 @@ const char descriptor_table_protodef_bookbag_2eproto[] PROTOBUF_SECTION_VARIABLE
   "Code\030\001 \001(\021\"L\n\021SetBookBagInfoReq\0227\n\014BookI"
   "nfoItem\030\001 \001(\0132!.CRYSTAL_NET.service.Book"
   "InfoItem\"$\n\021SetBookBagInfoRes\022\017\n\007ErrCode"
-  "\030\001 \001(\021\"\034\n\032SubmitBookBagBorrowInfoReq\"-\n\032"
-  "SubmitBookBagBorrowInfoRes\022\017\n\007ErrCode\030\001 "
-  "\001(\021b\006proto3"
+  "\030\001 \001(\021\",\n\032SubmitBookBagBorrowInfoReq\022\016\n\006"
+  "Remark\030\001 \001(\014\"-\n\032SubmitBookBagBorrowInfoR"
+  "es\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_bookbag_2eproto_deps[2] = {
   &::descriptor_table_com_5fbook_2eproto,
@@ -214,7 +217,7 @@ static const ::_pbi::DescriptorTable* const descriptor_table_bookbag_2eproto_dep
 };
 static ::_pbi::once_flag descriptor_table_bookbag_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_bookbag_2eproto = {
-    false, false, 451, descriptor_table_protodef_bookbag_2eproto,
+    false, false, 467, descriptor_table_protodef_bookbag_2eproto,
     "bookbag.proto",
     &descriptor_table_bookbag_2eproto_once, descriptor_table_bookbag_2eproto_deps, 2, 7,
     schemas, file_default_instances, TableStruct_bookbag_2eproto::offsets,
@@ -1069,31 +1072,189 @@ class SubmitBookBagBorrowInfoReq::_Internal {
 
 SubmitBookBagBorrowInfoReq::SubmitBookBagBorrowInfoReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
 }
 SubmitBookBagBorrowInfoReq::SubmitBookBagBorrowInfoReq(const SubmitBookBagBorrowInfoReq& from)
-  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
   SubmitBookBagBorrowInfoReq* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.remark_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.remark_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.remark_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_remark().empty()) {
+    _this->_impl_.remark_.Set(from._internal_remark(), 
+      _this->GetArenaForAllocation());
+  }
   // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
 }
 
+inline void SubmitBookBagBorrowInfoReq::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.remark_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.remark_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.remark_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
 
+SubmitBookBagBorrowInfoReq::~SubmitBookBagBorrowInfoReq() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
 
+inline void SubmitBookBagBorrowInfoReq::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.remark_.Destroy();
+}
 
+void SubmitBookBagBorrowInfoReq::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void SubmitBookBagBorrowInfoReq::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.remark_.ClearToEmpty();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* SubmitBookBagBorrowInfoReq::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // bytes Remark = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_remark();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* SubmitBookBagBorrowInfoReq::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // bytes Remark = 1;
+  if (!this->_internal_remark().empty()) {
+    target = stream->WriteBytesMaybeAliased(
+        1, this->_internal_remark(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
+  return target;
+}
+
+size_t SubmitBookBagBorrowInfoReq::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // bytes Remark = 1;
+  if (!this->_internal_remark().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_remark());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
 
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData SubmitBookBagBorrowInfoReq::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl,
-    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl,
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    SubmitBookBagBorrowInfoReq::MergeImpl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*SubmitBookBagBorrowInfoReq::GetClassData() const { return &_class_data_; }
 
 
+void SubmitBookBagBorrowInfoReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<SubmitBookBagBorrowInfoReq*>(&to_msg);
+  auto& from = static_cast<const SubmitBookBagBorrowInfoReq&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
 
+  if (!from._internal_remark().empty()) {
+    _this->_internal_set_remark(from._internal_remark());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
 
+void SubmitBookBagBorrowInfoReq::CopyFrom(const SubmitBookBagBorrowInfoReq& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
 
+bool SubmitBookBagBorrowInfoReq::IsInitialized() const {
+  return true;
+}
 
+void SubmitBookBagBorrowInfoReq::InternalSwap(SubmitBookBagBorrowInfoReq* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.remark_, lhs_arena,
+      &other->_impl_.remark_, rhs_arena
+  );
+}
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SubmitBookBagBorrowInfoReq::GetMetadata() const {
   return ::_pbi::AssignDescriptors(

@@ -186,12 +186,12 @@ const char descriptor_table_protodef_com_5fbook_2eproto[] PROTOBUF_SECTION_VARIA
   "\010BookType\"\024\n\005ENUMS\022\013\n\007UNKNOWN\020\000\"2\n\022Snaps"
   "hotClientInfo\022\n\n\002Id\030\001 \001(\022\022\020\n\010FilePath\030\002 "
   "\001(\t\"\372\002\n\010BookInfo\022\n\n\002Id\030\001 \001(\004\022\020\n\010BookType"
-  "\030\002 \001(\021\022\020\n\010BookName\030\003 \001(\t\022\020\n\010IsbnCode\030\004 \001"
+  "\030\002 \001(\021\022\020\n\010BookName\030\003 \001(\014\022\020\n\010IsbnCode\030\004 \001"
   "(\t\022\026\n\016BookCoverImage\030\005 \001(\t\022\023\n\013IsOnShelve"
   "s\030\006 \001(\021\0229\n\013VariantInfo\030\007 \001(\0132$.CRYSTAL_N"
   "ET.service.BookVariantInfo\022\025\n\rBorrowedCo"
-  "unt\030\010 \001(\004\022\020\n\010KeyWords\030\t \003(\t\022\017\n\007Content\030\n"
-  " \001(\t\022\020\n\010Snapshot\030\013 \003(\t\022\026\n\016CoverImagePath"
+  "unt\030\010 \001(\004\022\020\n\010KeyWords\030\t \003(\014\022\017\n\007Content\030\n"
+  " \001(\014\022\020\n\010Snapshot\030\013 \003(\t\022\026\n\016CoverImagePath"
   "\030\014 \001(\t\022\026\n\016KeywordsString\030\r \001(\t\022H\n\027Snapsh"
   "otPreivewInfoList\030\016 \003(\0132\'.CRYSTAL_NET.se"
   "rvice.SnapshotClientInfo\"/\n\017BookVariantI"
@@ -723,13 +723,12 @@ const char* BookInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
         } else
           goto handle_unusual;
         continue;
-      // string BookName = 3;
+      // bytes BookName = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_bookname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.BookInfo.BookName"));
         } else
           goto handle_unusual;
         continue;
@@ -777,7 +776,7 @@ const char* BookInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
         } else
           goto handle_unusual;
         continue;
-      // repeated string KeyWords = 9;
+      // repeated bytes KeyWords = 9;
       case 9:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr -= 1;
@@ -786,19 +785,17 @@ const char* BookInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx)
             auto str = _internal_add_keywords();
             ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
-            CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.BookInfo.KeyWords"));
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<74>(ptr));
         } else
           goto handle_unusual;
         continue;
-      // string Content = 10;
+      // bytes Content = 10;
       case 10:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           auto str = _internal_mutable_content();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.BookInfo.Content"));
         } else
           goto handle_unusual;
         continue;
@@ -891,13 +888,9 @@ uint8_t* BookInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteSInt32ToArray(2, this->_internal_booktype(), target);
   }
 
-  // string BookName = 3;
+  // bytes BookName = 3;
   if (!this->_internal_bookname().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_bookname().data(), static_cast<int>(this->_internal_bookname().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.BookInfo.BookName");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_bookname(), target);
   }
 
@@ -940,23 +933,15 @@ uint8_t* BookInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt64ToArray(8, this->_internal_borrowedcount(), target);
   }
 
-  // repeated string KeyWords = 9;
+  // repeated bytes KeyWords = 9;
   for (int i = 0, n = this->_internal_keywords_size(); i < n; i++) {
     const auto& s = this->_internal_keywords(i);
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      s.data(), static_cast<int>(s.length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.BookInfo.KeyWords");
-    target = stream->WriteString(9, s, target);
+    target = stream->WriteBytes(9, s, target);
   }
 
-  // string Content = 10;
+  // bytes Content = 10;
   if (!this->_internal_content().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_content().data(), static_cast<int>(this->_internal_content().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.BookInfo.Content");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         10, this->_internal_content(), target);
   }
 
@@ -1014,11 +999,11 @@ size_t BookInfo::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated string KeyWords = 9;
+  // repeated bytes KeyWords = 9;
   total_size += 1 *
       ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(_impl_.keywords_.size());
   for (int i = 0, n = _impl_.keywords_.size(); i < n; i++) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
       _impl_.keywords_.Get(i));
   }
 
@@ -1037,10 +1022,10 @@ size_t BookInfo::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // string BookName = 3;
+  // bytes BookName = 3;
   if (!this->_internal_bookname().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_bookname());
   }
 
@@ -1058,10 +1043,10 @@ size_t BookInfo::ByteSizeLong() const {
         this->_internal_bookcoverimage());
   }
 
-  // string Content = 10;
+  // bytes Content = 10;
   if (!this->_internal_content().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_content());
   }
 

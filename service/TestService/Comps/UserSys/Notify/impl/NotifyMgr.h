@@ -51,6 +51,8 @@ public:
 
     virtual void AddNotify(const UserNotifyDataItem &item) override;
 
+    virtual Int32 ReadNotify(UInt64 notifyId) override;
+
 protected:
     virtual Int32 _OnUserSysInit() override;
     virtual Int32 _OnHostStart() override;
@@ -64,6 +66,8 @@ protected:
 
 private:
     UserNotifyData *_notifyData;
+
+    std::map<UInt64, UserNotifyDataItem *> _notifyIdRefNotify;
 };
 
 SERVICE_END

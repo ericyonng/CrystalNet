@@ -228,15 +228,10 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
             {
                 auto packetAnalyzeInfo = TestAnalyzeInfo::NewThreadLocal_TestAnalyzeInfo(0);
                 packetAnalyzeInfo->_counter.Update();
-                auto packetId = Send(analyzeInfo->_sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req);
-                if(UNLIKELY(packetId < 0))
-                {
-                    packetAnalyzeInfo->Release();
-                    g_Log->Warn(LOGFMT_OBJ_TAG("send fail sessionId:%llu"), analyzeInfo->_sessionId);
-                    continue;
-                }
+                auto packetId = NewPacketId(analyzeInfo->_sessionId);
+                Send(analyzeInfo->_sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req, packetId);
 
-                auto packetExpire = [this, sessionId, packetId](KERNEL_NS::LibTimer *t)
+                auto packetExpire = [this, sessionId, packetId](KERNEL_NS::LibTimer *t) mutable
                 {
                     do
                     {
@@ -257,12 +252,8 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
                         {
                             auto packetAnalyzeInfo = iterInfo->second;
                             packetAnalyzeInfo->_counter.Update();
-                            auto packetId = Send(sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req);
-                            if(UNLIKELY(packetId < 0))
-                            {
-                                packetAnalyzeInfo->Release();
-                                g_Log->Warn(LOGFMT_OBJ_TAG("send fail sessionId:%llu"), sessionId);
-                            }
+                            packetId = NewPacketId(sessionId);
+                            Send(sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req, packetId);
                         }
                         else
                         {

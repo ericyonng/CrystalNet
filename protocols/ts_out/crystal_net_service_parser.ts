@@ -123,8 +123,18 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("BorrowBookDetailInfo", (jsonData:any):any =>{
+                return this.BorrowBookDetailInfoParser(jsonData);
+            })
+
+
             this.add("BorrowBookInfo", (jsonData:any):any =>{
                 return this.BorrowBookInfoParser(jsonData);
+            })
+
+
+            this.add("BorrowOrderDetailInfo", (jsonData:any):any =>{
+                return this.BorrowOrderDetailInfoParser(jsonData);
             })
 
 
@@ -210,6 +220,21 @@ export namespace crystal_net_service_parser
 
             this.add("GetBookListRes", (jsonData:any):any =>{
                 return this.GetBookListResParser(jsonData);
+            })
+
+
+            this.add("GetBookOrderDetailInfoNty", (jsonData:any):any =>{
+                return this.GetBookOrderDetailInfoNtyParser(jsonData);
+            })
+
+
+            this.add("GetBookOrderDetailInfoReq", (jsonData:any):any =>{
+                return this.GetBookOrderDetailInfoReqParser(jsonData);
+            })
+
+
+            this.add("GetBookOrderDetailInfoRes", (jsonData:any):any =>{
+                return this.GetBookOrderDetailInfoResParser(jsonData);
             })
 
 
@@ -418,6 +443,21 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("OutStoreOrderReq", (jsonData:any):any =>{
+                return this.OutStoreOrderReqParser(jsonData);
+            })
+
+
+            this.add("OutStoreOrderRes", (jsonData:any):any =>{
+                return this.OutStoreOrderResParser(jsonData);
+            })
+
+
+            this.add("OutStoreParam", (jsonData:any):any =>{
+                return this.OutStoreParamParser(jsonData);
+            })
+
+
             this.add("PassTimeData", (jsonData:any):any =>{
                 return this.PassTimeDataParser(jsonData);
             })
@@ -450,6 +490,16 @@ export namespace crystal_net_service_parser
 
             this.add("QuitLibraryRes", (jsonData:any):any =>{
                 return this.QuitLibraryResParser(jsonData);
+            })
+
+
+            this.add("ReadNotifyReq", (jsonData:any):any =>{
+                return this.ReadNotifyReqParser(jsonData);
+            })
+
+
+            this.add("ReadNotifyRes", (jsonData:any):any =>{
+                return this.ReadNotifyResParser(jsonData);
             })
 
 
@@ -595,6 +645,11 @@ export namespace crystal_net_service_parser
 
             this.add("UserLoginInfo", (jsonData:any):any =>{
                 return this.UserLoginInfoParser(jsonData);
+            })
+
+
+            this.add("UserNotifyChangeNty", (jsonData:any):any =>{
+                return this.UserNotifyChangeNtyParser(jsonData);
             })
 
 
@@ -1097,6 +1152,33 @@ export namespace crystal_net_service_parser
             }
 
 
+            private BorrowBookDetailInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BorrowBookDetailInfo()
+
+                if(jsonData.BookInfo != undefined)
+                {
+                    var jsonFieldInfo = jsonData.BookInfo;
+                    var cb = this.getParser("BorrowBookInfo");
+                    if(cb != undefined)
+                    {
+                        newInfo.BookInfo = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field BookInfo have no BorrowBookInfo parser");
+                    }
+                }
+
+
+                if(jsonData.BookName != undefined)
+                {
+                    newInfo.BookName = jsonData.BookName;
+                }
+
+                 return newInfo;
+            }
+
+
             private BorrowBookInfoParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.BorrowBookInfo()
 
@@ -1147,6 +1229,68 @@ export namespace crystal_net_service_parser
                     newInfo.SubOrderId = parseFloat(jsonData.SubOrderId);
                 }
 
+
+                if(jsonData.BorrowDays != undefined)
+                {
+                    newInfo.BorrowDays = parseFloat(jsonData.BorrowDays);
+                }
+
+                 return newInfo;
+            }
+
+
+            private BorrowOrderDetailInfoParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.BorrowOrderDetailInfo()
+
+                if(jsonData.OrderId != undefined)
+                {
+                    newInfo.OrderId = parseFloat(jsonData.OrderId);
+                }
+
+
+                if(jsonData.BorrowBookList != undefined)
+                {
+                    var jsonArray = jsonData.BorrowBookList.map((value, idx, arr)=>{
+                    var parser = this.getParser("BorrowBookDetailInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BorrowBookList = jsonArray;
+                }
+
+
+                if(jsonData.CreateOrderTime != undefined)
+                {
+                    newInfo.CreateOrderTime = parseFloat(jsonData.CreateOrderTime);
+                }
+
+
+                if(jsonData.OrderState != undefined)
+                {
+                    newInfo.OrderState = parseFloat(jsonData.OrderState);
+                }
+
+
+                if(jsonData.CancelReason != undefined)
+                {
+                    newInfo.CancelReason = jsonData.CancelReason;
+                }
+
+
+                if(jsonData.GetOverTime != undefined)
+                {
+                    newInfo.GetOverTime = parseFloat(jsonData.GetOverTime);
+                }
+
+
+                if(jsonData.Remark != undefined)
+                {
+                    newInfo.Remark = jsonData.Remark;
+                }
+
                  return newInfo;
             }
 
@@ -1189,6 +1333,18 @@ export namespace crystal_net_service_parser
                 if(jsonData.CancelReason != undefined)
                 {
                     newInfo.CancelReason = jsonData.CancelReason;
+                }
+
+
+                if(jsonData.GetOverTime != undefined)
+                {
+                    newInfo.GetOverTime = parseFloat(jsonData.GetOverTime);
+                }
+
+
+                if(jsonData.Remark != undefined)
+                {
+                    newInfo.Remark = jsonData.Remark;
                 }
 
                  return newInfo;
@@ -1462,6 +1618,44 @@ export namespace crystal_net_service_parser
 
             private GetBookListResParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.GetBookListRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private GetBookOrderDetailInfoNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookOrderDetailInfoNty()
+
+                if(jsonData.DetailInfo != undefined)
+                {
+                    var jsonArray = jsonData.DetailInfo.map((value, idx, arr)=>{
+                    var parser = this.getParser("BorrowOrderDetailInfo");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.DetailInfo = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private GetBookOrderDetailInfoReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookOrderDetailInfoReq()
+                 return newInfo;
+            }
+
+
+            private GetBookOrderDetailInfoResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.GetBookOrderDetailInfoRes()
 
                 if(jsonData.ErrCode != undefined)
                 {
@@ -2334,6 +2528,62 @@ export namespace crystal_net_service_parser
             }
 
 
+            private OutStoreOrderReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.OutStoreOrderReq()
+
+                if(jsonData.OrderId != undefined)
+                {
+                    newInfo.OrderId = parseFloat(jsonData.OrderId);
+                }
+
+
+                if(jsonData.BookParams != undefined)
+                {
+                    var jsonArray = jsonData.BookParams.map((value, idx, arr)=>{
+                    var parser = this.getParser("OutStoreParam");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.BookParams = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private OutStoreOrderResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.OutStoreOrderRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private OutStoreParamParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.OutStoreParam()
+
+                if(jsonData.BookId != undefined)
+                {
+                    newInfo.BookId = parseFloat(jsonData.BookId);
+                }
+
+
+                if(jsonData.Count != undefined)
+                {
+                    newInfo.Count = parseFloat(jsonData.Count);
+                }
+
+                 return newInfo;
+            }
+
+
             private PassTimeDataParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.PassTimeData()
 
@@ -2456,6 +2706,30 @@ export namespace crystal_net_service_parser
 
             private QuitLibraryResParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.QuitLibraryRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private ReadNotifyReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.ReadNotifyReq()
+
+                if(jsonData.NotifyId != undefined)
+                {
+                    newInfo.NotifyId = parseFloat(jsonData.NotifyId);
+                }
+
+                 return newInfo;
+            }
+
+
+            private ReadNotifyResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.ReadNotifyRes()
 
                 if(jsonData.ErrCode != undefined)
                 {
@@ -2668,6 +2942,12 @@ export namespace crystal_net_service_parser
 
             private SubmitBookBagBorrowInfoReqParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.SubmitBookBagBorrowInfoReq()
+
+                if(jsonData.Remark != undefined)
+                {
+                    newInfo.Remark = jsonData.Remark;
+                }
+
                  return newInfo;
             }
 
@@ -3043,6 +3323,26 @@ export namespace crystal_net_service_parser
                 if(jsonData.KeyExpireTime != undefined)
                 {
                     newInfo.KeyExpireTime = parseFloat(jsonData.KeyExpireTime);
+                }
+
+                 return newInfo;
+            }
+
+
+            private UserNotifyChangeNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.UserNotifyChangeNty()
+
+                if(jsonData.ItemList != undefined)
+                {
+                    var jsonArray = jsonData.ItemList.map((value, idx, arr)=>{
+                    var parser = this.getParser("UserNotifyDataItem");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.ItemList = jsonArray;
                 }
 
                  return newInfo;

@@ -30,11 +30,11 @@ message CreateLibraryReq
     // 邀请码
     string InviteCode = 1;
     // 管名
-    string Name = 2;
+    bytes Name = 2;
     // 书馆地址
-    string Address = 3;
+    bytes Address = 3;
     // 书馆经营时间
-    string OpenTime = 4;
+    bytes OpenTime = 4;
     // 书馆联系电话
     string TelphoneNumber = 5;
     // 必须绑定手机号
@@ -156,7 +156,7 @@ message GetLibraryMemberSimpleInfoRes
 message AddLibraryBookReq
 {
     // 书名
-    string BookName = 1;
+    bytes BookName = 1;
     // isbn
     string IsbnCode = 2;
     // 封面
@@ -177,7 +177,7 @@ message AddLibraryBookReq
     // 内容简介 最多10KB左右
     oneof ContentOption
     {
-        string Content = 7;
+        bytes Content = 7;
     }
     
     // 截图最多9张
@@ -266,7 +266,7 @@ message GetBookInfoRes
 /// Opcode:
 message GetBookByBookNameReq
 {
-    string BookName = 1;
+    bytes BookName = 1;
 }
 
 // 按照书名查询
@@ -276,7 +276,7 @@ message GetBookByBookNameRes
     repeated BookInfo BookInfoList = 1;
 }
 
-// 图书
+// 分页查询图书
 /// Opcode:
 message GetBookInfoListReq 
 {
@@ -287,13 +287,50 @@ message GetBookInfoListReq
     sint32 BookCount = 2;
 }
 
-// 图书
+// 分页查询图书
 /// Opcode:
 message GetBookInfoListRes
 {
     repeated BookInfo BookInfoList = 1;
 }
 
+// 查询图书订单信息
+/// Opcode:
+message GetBookOrderDetailInfoReq
+{
+}
+
+// 查询图书订单信息
+/// Opcode:
+message GetBookOrderDetailInfoNty
+{
+    repeated BorrowOrderDetailInfo DetailInfo = 1;
+}
+
+// 查询图书订单信息
+/// Opcode:
+message GetBookOrderDetailInfoRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 出库
+/// Opcode:
+message OutStoreOrderReq
+{
+    // 出库订单号
+    uint64 OrderId = 1;
+
+    // 出库图书参数
+    repeated OutStoreParam BookParams = 2;
+}
+
+// 出库
+/// Opcode:
+message OutStoreOrderRes
+{
+    sint32 ErrCode = 1;
+}
 
 // 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管
 

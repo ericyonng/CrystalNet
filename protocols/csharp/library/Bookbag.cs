@@ -34,9 +34,9 @@ using ProtoPackage.Attributes;
             "Z0luZm9SZXMSDwoHRXJyQ29kZRgBIAEoESJMChFTZXRCb29rQmFnSW5mb1Jl",
             "cRI3CgxCb29rSW5mb0l0ZW0YASABKAsyIS5DUllTVEFMX05FVC5zZXJ2aWNl",
             "LkJvb2tJbmZvSXRlbSIkChFTZXRCb29rQmFnSW5mb1JlcxIPCgdFcnJDb2Rl",
-            "GAEgASgRIhwKGlN1Ym1pdEJvb2tCYWdCb3Jyb3dJbmZvUmVxIi0KGlN1Ym1p",
-            "dEJvb2tCYWdCb3Jyb3dJbmZvUmVzEg8KB0VyckNvZGUYASABKBFiBnByb3Rv",
-            "Mw=="));
+            "GAEgASgRIiwKGlN1Ym1pdEJvb2tCYWdCb3Jyb3dJbmZvUmVxEg4KBlJlbWFy",
+            "axgBIAEoDCItChpTdWJtaXRCb29rQmFnQm9ycm93SW5mb1JlcxIPCgdFcnJD",
+            "b2RlGAEgASgRYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookbagReflection.Descriptor, global::CRYSTALNET.Service.ComBookReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -45,7 +45,7 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BookBagInfoRes), global::CRYSTALNET.Service.BookBagInfoRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SetBookBagInfoReq), global::CRYSTALNET.Service.SetBookBagInfoReq.Parser, new[]{ "BookInfoItem" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SetBookBagInfoRes), global::CRYSTALNET.Service.SetBookBagInfoRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq), global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq.Parser, null, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq), global::CRYSTALNET.Service.SubmitBookBagBorrowInfoReq.Parser, new[]{ "Remark" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SubmitBookBagBorrowInfoRes), global::CRYSTALNET.Service.SubmitBookBagBorrowInfoRes.Parser, new[]{ "ErrCode" }, null, null, null, null)
           }));
     }
@@ -1072,6 +1072,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SubmitBookBagBorrowInfoReq(SubmitBookBagBorrowInfoReq other) : this() {
+      remark_ = other.remark_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1079,6 +1080,21 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SubmitBookBagBorrowInfoReq Clone() {
       return new SubmitBookBagBorrowInfoReq(this);
+    }
+
+    /// <summary>Field number for the "Remark" field.</summary>
+    public const int RemarkFieldNumber = 1;
+    private pb::ByteString remark_ = pb::ByteString.Empty;
+    /// <summary>
+    /// 备注
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pb::ByteString Remark {
+      get { return remark_; }
+      set {
+        remark_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1096,6 +1112,7 @@ using ProtoPackage.Attributes;
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (Remark != other.Remark) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1103,6 +1120,7 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
+      if (Remark.Length != 0) hash ^= Remark.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1121,6 +1139,10 @@ using ProtoPackage.Attributes;
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
+      if (Remark.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteBytes(Remark);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1131,6 +1153,10 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Remark.Length != 0) {
+        output.WriteRawTag(10);
+        output.WriteBytes(Remark);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1141,6 +1167,9 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
+      if (Remark.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Remark);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1152,6 +1181,9 @@ using ProtoPackage.Attributes;
     public void MergeFrom(SubmitBookBagBorrowInfoReq other) {
       if (other == null) {
         return;
+      }
+      if (other.Remark.Length != 0) {
+        Remark = other.Remark;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1168,6 +1200,10 @@ using ProtoPackage.Attributes;
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
+          case 10: {
+            Remark = input.ReadBytes();
+            break;
+          }
         }
       }
     #endif
@@ -1183,6 +1219,10 @@ using ProtoPackage.Attributes;
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
+          case 10: {
+            Remark = input.ReadBytes();
+            break;
+          }
         }
       }
     }

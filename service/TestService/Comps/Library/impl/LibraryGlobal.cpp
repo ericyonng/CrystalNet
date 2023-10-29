@@ -200,8 +200,26 @@ BookInfo *LibraryGlobal::GetBookInfo(UInt64 libraryId, UInt64 bookId)
     return iterBook == iterLibrary->second.end() ? NULL : iterBook->second;
 }
 
-Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, const BookBagInfo &bookBagInfo)
+Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, const BookBagInfo &bookBagInfo, const KERNEL_NS::LibString &remark)
 {
+    if(!remark.empty())
+    {
+        auto contentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
+        if(!remark.IsUtf8())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("bad remark content user:%s"), user->ToString().c_str());
+            return Status::InvalidContent;
+        }
+
+        const Int32 remarkCount = static_cast<Int32>(remark.length_with_utf8());
+        if((remarkCount < 0) || (remarkCount > contentConfig->_value))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("remark count too long, remarkCount:%d limit:%d, user:%s")
+            , remarkCount, contentConfig->_value, user->ToString().c_str());
+            return Status::ContentTooLong;
+        }
+    }
+
     // TODO
     auto memberUserId = user->GetUserId();
     auto memberInfo = GetMemberInfo(libraryId, memberUserId);
@@ -277,7 +295,10 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
     auto orderId = guidMgr->NewGuid();
     newOrderInfo->set_orderid(orderId);
     newOrderInfo->set_createordertime(nowTime.GetMilliTimestamp());
-    newOrderInfo->set_orderstate(BorrowOrderState_ENUMS_WAITING_MANAGER_CONFIRM);
+    newOrderInfo->set_orderstate(BorrowOrderState_ENUMS_WAITING_OUT_OF_WAREHOUSE);
+
+    if(!remark.empty())
+        newOrderInfo->set_remark(remark.data(), remark.size());
 
     for(auto &item : bookBagInfo.bookinfoitemlist())
     {
@@ -288,9 +309,10 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         newSubOrder->set_isbncode(bookInfo->isbncode());
         newSubOrder->set_borrowcount(item.bookcount());
         newSubOrder->set_borrowtime(nowTime.GetMilliTimestamp());
+        newSubOrder->set_borrowdays(item.borrowdays());
 
-        const auto &planGiveBackTime = nowTime + KERNEL_NS::TimeSlice::FromSeconds(24 * 3600 * static_cast<Int64>(item.borrowdays()));
-        newSubOrder->set_plangivebacktime(planGiveBackTime.GetMilliTimestamp());
+        // const auto &planGiveBackTime = nowTime + KERNEL_NS::TimeSlice::FromSeconds(24 * 3600 * static_cast<Int64>(item.borrowdays()));
+        // newSubOrder->set_plangivebacktime(planGiveBackTime.GetMilliTimestamp());
 
         newSubOrder->set_suborderid(guidMgr->NewGuid());
 
@@ -355,6 +377,7 @@ Int32 LibraryGlobal::_OnGlobalSysInit()
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookByBookNameReq, this, &LibraryGlobal::_OnGetBookByBookNameReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookInfoListReq, this, &LibraryGlobal::_OnGetBookInfoListReq);
     
+    Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookOrderDetailInfoReq, this, &LibraryGlobal::_OnGetBookOrderDetailInfoReq);
     return Status::Success;
 }
 
@@ -432,11 +455,10 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
     }
 
     auto req = packet->GetCoder<CreateLibraryReq>();
-    auto copyReq = *req;
-    req->set_name(KERNEL_NS::LibBase64::Decode(req->name()).GetRaw());
-    req->set_address(KERNEL_NS::LibBase64::Decode(req->address()).GetRaw());
-    req->set_opentime(KERNEL_NS::LibBase64::Decode(req->opentime()).GetRaw());
-    req->set_telphonenumber(KERNEL_NS::LibBase64::Decode(req->telphonenumber()).GetRaw());
+    req->set_name(req->name());
+    req->set_address(req->address());
+    req->set_opentime(req->opentime());
+    req->set_telphonenumber(req->telphonenumber());
 
     auto inviteCodeGlobal = GetGlobalSys<IInviteCodeGlobal>();
     const CommonConfig *isNeedInviteCodeConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CREATE_LIBRARY_NEED_INVITE_CODE);
@@ -498,6 +520,14 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
 
         // 其他内容长度限制
         auto contentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
+        if((!req->address().empty()) && (!KERNEL_NS::StringUtil::IsUtf8String(req->address())))
+        {
+            errCode = Status::InvalidContent;
+            g_Log->Warn(LOGFMT_OBJ_TAG("invalid library addr not utf8 user:%s, packet:%s, address:%s")
+                , user->ToString().c_str(), packet->ToString().c_str(), req->address().c_str());
+            break;
+        }
+
         if(static_cast<Int32>(req->address().size()) > contentConfig->_value)
         {
                 errCode = Status::InvalidContent;
@@ -506,11 +536,27 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
             break;
         }
 
+        if((!req->opentime().empty()) && (!KERNEL_NS::StringUtil::IsUtf8String(req->opentime())))
+        {
+            errCode = Status::InvalidContent;
+            g_Log->Warn(LOGFMT_OBJ_TAG("invalid library opentime not utf8 user:%s, packet:%s")
+                , user->ToString().c_str(), packet->ToString().c_str());
+            break;
+        }
+
         if(static_cast<Int32>(req->opentime().size()) > contentConfig->_value)
         {
                 errCode = Status::InvalidContent;
                 g_Log->Warn(LOGFMT_OBJ_TAG("invalid library addr user:%s, packet:%s, opentime:%s")
                     , user->ToString().c_str(), packet->ToString().c_str(), req->address().c_str());
+            break;
+        }
+
+        if((!req->telphonenumber().empty()) && (!KERNEL_NS::StringUtil::IsUtf8String(req->telphonenumber())))
+        {
+            errCode = Status::InvalidContent;
+            g_Log->Warn(LOGFMT_OBJ_TAG("invalid library telphonenumber not utf8 user:%s, packet:%s")
+                , user->ToString().c_str(), packet->ToString().c_str());
             break;
         }
 
@@ -1497,11 +1543,11 @@ void LibraryGlobal::_OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet)
     {
         if(!req->bookname().empty())
         {
-            const KERNEL_NS::LibString &reqName = KERNEL_NS::LibBase64::Decode(req->bookname());
+            const KERNEL_NS::LibString &reqName = req->bookname();
 
             for(auto &bookInfo : libraryInfo->booklist())
             {
-                const KERNEL_NS::LibString &bookName = KERNEL_NS::LibBase64::Decode(bookInfo.bookname());
+                const KERNEL_NS::LibString &bookName = bookInfo.bookname();
                 if(bookName.GetRaw().find(reqName.GetRaw()) != std::string::npos)
                 {
                     *res.add_bookinfolist() = bookInfo;
@@ -1510,7 +1556,7 @@ void LibraryGlobal::_OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet)
 
                 for(auto &keywordItem : bookInfo.keywords())
                 {
-                    const KERNEL_NS::LibString &keyword = KERNEL_NS::LibBase64::Decode(keywordItem);
+                    const KERNEL_NS::LibString &keyword = keywordItem;
                     if(keyword.GetRaw().find(reqName.GetRaw()) != std::string::npos)
                     {
                         *res.add_bookinfolist() = bookInfo;
@@ -1573,6 +1619,103 @@ void LibraryGlobal::_OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet)
     _BuildBookInfos(bookInfoList, res.mutable_bookinfolist());
 
     user->Send(Opcodes::OpcodeConst::OPCODE_GetBookInfoListRes, res, packet->GetPacketId());
+}
+
+void LibraryGlobal::_OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    bool isGetSelf = false;
+
+    auto libraryMgr = user->GetSys<ILibraryMgr>();
+    Int32 err = Status::Success;
+    do
+    {
+        const auto libraryId = libraryMgr->GetMyLibraryId();
+        if(libraryId == 0)
+        {
+            err = Status::NotJoinAnyLibrary;
+            g_Log->Warn(LOGFMT_OBJ_TAG("not in any library user:%s"), user->ToString().c_str());
+            break;
+        }
+
+        auto libraryInfo = GetLibraryInfo(libraryId);
+        if(!libraryInfo)
+        {
+            err = Status::NotJoinAnyLibrary;
+            g_Log->Warn(LOGFMT_OBJ_TAG("not in any library user:%s"), user->ToString().c_str());
+            break;
+        }
+
+        // 管理员全部都拿, 非管理员只能拿自己
+        if(!_IsManager(libraryId, user->GetUserId()))
+        {
+            isGetSelf = true;
+        }
+
+        GetBookOrderDetailInfoNty nty;
+        auto detailInfo = nty.mutable_detailinfo();
+        auto memberUserId = isGetSelf ? user->GetUserId() : 0;
+        _BuildOrderDetailInfo(libraryInfo, memberUserId, detailInfo);
+        user->Send(Opcodes::OpcodeConst::OPCODE_GetBookOrderDetailInfoNty, nty);
+        
+    } while (false);
+
+    GetBookOrderDetailInfoRes res;
+    res.set_errcode(err);
+    user->Send(Opcodes::OpcodeConst::OPCODE_GetBookOrderDetailInfoRes, res, packet->GetPacketId());
+}
+
+void LibraryGlobal::_BuildOrderDetailInfo(const LibraryInfo *libraryInfo, UInt64 memberUserId, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const
+{
+    if(memberUserId)
+    {
+        auto memberInfo = GetMemberInfo(libraryInfo->id(), memberUserId);
+        if(!memberInfo)
+            return;
+
+        _BuildOrderDetailInfo(libraryInfo->id(), memberInfo, detailInfoList);
+
+        return;
+    }
+
+    for(auto &memberInfo : libraryInfo->memberlist())
+        _BuildOrderDetailInfo(libraryInfo->id(), &memberInfo, detailInfoList);
+}
+
+void LibraryGlobal::_BuildOrderDetailInfo(UInt64 libraryId, const MemberInfo *memberInfo, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const
+{
+    for(auto &orderInfo : memberInfo->borrowlist())
+    {
+        auto newDetailInfo = detailInfoList->Add();
+        newDetailInfo->set_orderid(orderInfo.orderid());
+        newDetailInfo->set_createordertime(orderInfo.createordertime());
+        newDetailInfo->set_orderstate(orderInfo.orderstate());
+        newDetailInfo->set_cancelreason(orderInfo.cancelreason());
+        newDetailInfo->set_getovertime(orderInfo.getovertime());
+        newDetailInfo->set_remark(orderInfo.remark());
+
+        for(auto &borrowBook : orderInfo.borrowbooklist())
+        {
+            auto bookInfo = GetBookInfo(libraryId, borrowBook.bookid());
+            if(!bookInfo)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("book info not found library id:%llu, book id:%llu"), libraryId, borrowBook.bookid());
+                continue;
+            }
+
+            auto newBorrowBook = newDetailInfo->add_borrowbooklist();
+            *newBorrowBook->mutable_bookinfo() = borrowBook;
+            newBorrowBook->set_bookname(bookInfo->bookname());
+        }
+    }
+
 }
 
 Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req)
@@ -1681,18 +1824,18 @@ LibraryInfo *LibraryGlobal::_CreateLibrary(IUser *user, const KERNEL_NS::LibStri
     {
         KERNEL_NS::LibString name;
         nicknameGlobal->GenRandNickname(name);
-        newLibrary->set_name(KERNEL_NS::LibBase64::Encode(name.GetRaw()).GetRaw());
+        newLibrary->set_name(name.GetRaw());
     }
     else
     {
         nicknameGlobal->AddUsedNickname(libraryName);
-        newLibrary->set_name(KERNEL_NS::LibBase64::Encode(libraryName.GetRaw()).GetRaw());
+        newLibrary->set_name(libraryName.GetRaw());
     }
 
     // 基本信息
-    newLibrary->set_address(KERNEL_NS::LibBase64::Encode(address.GetRaw()).GetRaw());
-    newLibrary->set_opentime(KERNEL_NS::LibBase64::Encode(openTime.GetRaw()).GetRaw());
-    newLibrary->set_telphonenumber(KERNEL_NS::LibBase64::Encode(telphoneNumber.GetRaw()).GetRaw());
+    newLibrary->set_address(address.GetRaw());
+    newLibrary->set_opentime(openTime.GetRaw());
+    newLibrary->set_telphonenumber(telphoneNumber.GetRaw());
     newLibrary->set_librarianuserid(user->GetUserId());
     newLibrary->set_librarianusernickname(user->GetUserBaseInfo()->nickname());
     _idRefLibraryInfo.insert(std::make_pair(newLibrary->id(), newLibrary));
@@ -1778,6 +1921,16 @@ bool LibraryGlobal::_HasOverDeadlineOrder(const MemberInfo *memberInfo, const KE
     {
         auto &orderInfo = memberInfo->borrowlist(idx);
         const Int32 bookListSize = orderInfo.borrowbooklist_size();
+
+        // 已领取之前
+        if(orderInfo.orderstate() < BorrowOrderState_ENUMS_WAIT_USER_RETURN_BACK)
+            continue;
+
+        // 取消和已归还
+        if((orderInfo.orderstate() == BorrowOrderState_ENUMS_CANCEL_ORDER) || 
+           (orderInfo.orderstate() == BorrowOrderState_ENUMS_RETURN_BAKCK))
+            continue;
+
         for(Int32 bookIdx = 0; bookIdx < bookListSize; ++bookIdx)
         {
             auto &borrowBookInfo = orderInfo.borrowbooklist(bookIdx);
@@ -1860,6 +2013,16 @@ bool LibraryGlobal::_IsManager(Int32 roleType) const
 
     return false;
 }
+
+bool LibraryGlobal::_IsManager(UInt64 libraryId, UInt64 userId) const
+{
+    auto memberInfo = GetMemberInfo(libraryId, userId);
+    if(!memberInfo)
+        return false;
+
+    return _IsManager(memberInfo->role());
+}
+
 
 bool LibraryGlobal::_CanHandle(UInt64 libraryId, UInt64 userId) const
 {

@@ -313,7 +313,8 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
             {
                 auto packetAnalyzeInfo = TestAnalyzeInfo::NewThreadLocal_TestAnalyzeInfo(0);
                 packetAnalyzeInfo->_counter.Update();
-                auto packetId = Send(analyzeInfo->_sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req);
+                auto packetId = NewPacketId(analyzeInfo->_sessionId);
+                Send(analyzeInfo->_sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req, packetId);
                 if(UNLIKELY(packetId < 0))
                 {
                     packetAnalyzeInfo->Release();
@@ -321,7 +322,7 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
                     continue;
                 }
 
-                auto packetExpire = [this, sessionId, packetId](KERNEL_NS::LibTimer *t)
+                auto packetExpire = [this, sessionId, packetId](KERNEL_NS::LibTimer *t) mutable
                 {
                     do
                     {
@@ -342,7 +343,8 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
                         {
                             auto packetAnalyzeInfo = iterInfo->second;
                             packetAnalyzeInfo->_counter.Update();
-                            auto packetId = Send(sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req);
+                            packetId = NewPacketId(sessionId);
+                            Send(sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req, packetId);
                             if(UNLIKELY(packetId < 0))
                             {
                                 packetAnalyzeInfo->Release();

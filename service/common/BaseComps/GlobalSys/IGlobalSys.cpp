@@ -67,7 +67,7 @@ IGlobalSys::~IGlobalSys()
     _Clear();
 }
 
-Int64 IGlobalSys::Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const
+void IGlobalSys::Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const
 {
     const ISessionMgr *sessionMgr = GetGlobalSys<ISessionMgr>();
     auto session = sessionMgr->GetSession(sessionId);
@@ -75,16 +75,13 @@ Int64 IGlobalSys::Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu, opcode:%d,%s"), sessionId, packet->GetOpcode(), OpcodeToString(packet->GetOpcode()));
         packet->ReleaseUsingPool();
-        return -1;
+        return;
     }
 
     auto sessionInfo = session->GetSessionInfo();
     auto service = IGlobalSys::GetCurrentService();
     auto serviceProxy = service->GetServiceProxy();
-    const auto packetId = packet->GetPacketId();
     serviceProxy->TcpSendMsg(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId, packet);
-
-    return packetId;
 }
 
 void IGlobalSys::Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) const
@@ -106,7 +103,7 @@ void IGlobalSys::Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> 
     serviceProxy->TcpSendMsg(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId, packets);
 }
 
-Int64 IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
+void IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
 {
     auto service = IGlobalSys::GetCurrentService();
 
@@ -115,7 +112,7 @@ Int64 IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &
     if(UNLIKELY(!session))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu, opcode:%d, %s"), sessionId, opcode, OpcodeToString(opcode).c_str());
-        return -1;
+        return;
     }
 
     auto sessionInfo = session->GetSessionInfo();
@@ -123,7 +120,7 @@ Int64 IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &
     if(UNLIKELY(!newCoderFactory))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("bad opcode:%d,%s, sessionInfo:%s"), opcode, OpcodeToString(opcode).c_str(), sessionInfo->ToString().c_str());
-        return -1;
+        return;
     }
 
     auto newCoder = newCoderFactory->Create(&coder);
@@ -131,15 +128,18 @@ Int64 IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &
     newPacket->SetSessionId(sessionId);
     newPacket->SetLocalAddr(sessionInfo->_localAddr);
     newPacket->SetRemoteAddr(sessionInfo->_remoteAddr);
-    newPacket->SetPacketId((packetId > 0) ? packetId : sessionMgr->NewPacketId(sessionId));
+    newPacket->SetPacketId(packetId);
     newPacket->SetOpcode(opcode);
     newPacket->SetCoder(newCoder);
-    const auto newPacketId = newPacket->GetPacketId();
     Send(sessionId, newPacket);
-
-    return newPacketId;
 }
 
+Int64 IGlobalSys::NewPacketId(UInt64 sessionId) const
+{
+    auto service = IGlobalSys::GetCurrentService();
+    auto sessionMgr = service->GetComp<ISessionMgr>();
+    return sessionMgr->NewPacketId(sessionId);
+}
 
 void IGlobalSys::CloseSession(UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite) const
 {

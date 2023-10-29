@@ -29,9 +29,9 @@ message ClientUserInfo
     // 账号
     string AccountName = 2;
     // 姓名
-    string Name = 3;
+    bytes Name = 3;
     // 昵称
-    string Nickname = 4;
+    bytes Nickname = 4;
     // 手机设备imei
     string PhoneImei = 5;
     // 登录状态 ClientUserStatus

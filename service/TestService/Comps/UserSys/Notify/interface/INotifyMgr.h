@@ -42,6 +42,8 @@ class INotifyMgr : public IUserSys
 
 public:
     virtual void AddNotify(const UserNotifyDataItem &item) = 0;
+    
+    virtual Int32 ReadNotify(UInt64 notifyId) = 0;
 };
 
 SERVICE_END

@@ -234,8 +234,8 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\016com_user.proto\022\023CRYSTAL_NET.service\"\272\002"
   "\n\014UserBaseInfo\022\016\n\006UserId\030\001 \001(\004\022\023\n\013Accoun"
-  "tName\030\002 \001(\t\022\014\n\004Name\030\003 \001(\t\022\020\n\010Nickname\030\004 "
-  "\001(\t\022\013\n\003Pwd\030\005 \001(\t\022\017\n\007PwdSalt\030\006 \001(\t\022\021\n\tBin"
+  "tName\030\002 \001(\t\022\014\n\004Name\030\003 \001(\014\022\020\n\010Nickname\030\004 "
+  "\001(\014\022\013\n\003Pwd\030\005 \001(\t\022\017\n\007PwdSalt\030\006 \001(\t\022\021\n\tBin"
   "dPhone\030\007 \001(\004\022\025\n\rLastLoginTime\030\010 \001(\022\022\023\n\013L"
   "astLoginIp\030\t \001(\t\022\032\n\022LastLoginPhoneImei\030\n"
   " \001(\t\022\020\n\010CreateIp\030\013 \001(\t\022\022\n\nCreateTime\030\014 \001"
@@ -589,23 +589,21 @@ const char* UserBaseInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // string Name = 3;
+      // bytes Name = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_name();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.UserBaseInfo.Name"));
         } else
           goto handle_unusual;
         continue;
-      // string Nickname = 4;
+      // bytes Nickname = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           auto str = _internal_mutable_nickname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.UserBaseInfo.Nickname"));
         } else
           goto handle_unusual;
         continue;
@@ -756,23 +754,15 @@ uint8_t* UserBaseInfo::_InternalSerialize(
         2, this->_internal_accountname(), target);
   }
 
-  // string Name = 3;
+  // bytes Name = 3;
   if (!this->_internal_name().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.UserBaseInfo.Name");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_name(), target);
   }
 
-  // string Nickname = 4;
+  // bytes Nickname = 4;
   if (!this->_internal_nickname().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_nickname().data(), static_cast<int>(this->_internal_nickname().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.UserBaseInfo.Nickname");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         4, this->_internal_nickname(), target);
   }
 
@@ -893,17 +883,17 @@ size_t UserBaseInfo::ByteSizeLong() const {
         this->_internal_accountname());
   }
 
-  // string Name = 3;
+  // bytes Name = 3;
   if (!this->_internal_name().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_name());
   }
 
-  // string Nickname = 4;
+  // bytes Nickname = 4;
   if (!this->_internal_nickname().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_nickname());
   }
 

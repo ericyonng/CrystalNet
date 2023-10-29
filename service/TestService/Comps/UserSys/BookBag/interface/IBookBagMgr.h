@@ -42,7 +42,7 @@ class IBookBagMgr : public IUserSys
 public:
     virtual void SendBookBagInfoNty() const = 0;
     virtual Int32 SetBookBagInfo(const BookInfoItem &item) = 0;
-    virtual Int32 Submit() = 0;
+    virtual Int32 Submit(const KERNEL_NS::LibString &remark) = 0;
 };
 
 SERVICE_END

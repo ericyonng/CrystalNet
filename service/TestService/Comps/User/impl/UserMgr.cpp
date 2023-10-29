@@ -1345,13 +1345,14 @@ void UserMgr::_OnClientLoginReq(KERNEL_NS::LibPacket *&packet)
 {
     auto req = packet->GetCoder<LoginReq>();
     auto sessionId = packet->GetSessionId();
+    const auto packetId = packet->GetPacketId();
 
     KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS::AutoDelMethods::Release> loginInfo = req->mutable_loginuserinfo();
     req->unsafe_arena_release_loginuserinfo();
 
     g_Log->Info(LOGFMT_OBJ_TAG("user will login account name:%s, sessionId:%llu"), loginInfo->accountname().c_str(), sessionId);
 
-    auto err = LoginBy(sessionId, loginInfo, [this, sessionId](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
+    auto err = LoginBy(sessionId, loginInfo, [this, sessionId, packetId](Int32 errCode, PendingUser *pending, IUser *user, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &var){
 
         LoginRes res;
         res.set_errcode(errCode);
@@ -1362,7 +1363,7 @@ void UserMgr::_OnClientLoginReq(KERNEL_NS::LibPacket *&packet)
             res.set_servertime(KERNEL_NS::LibTime::NowMilliTimestamp());
         }
 
-        Send(sessionId, Opcodes::OpcodeConst::OPCODE_LoginRes, res);
+        Send(sessionId, Opcodes::OpcodeConst::OPCODE_LoginRes, res, packetId);
     });
 
     if(err != Status::Success)

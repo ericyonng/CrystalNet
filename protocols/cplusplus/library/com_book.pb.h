@@ -975,7 +975,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kIsOnShelvesFieldNumber = 6,
     kBorrowedCountFieldNumber = 8,
   };
-  // repeated string KeyWords = 9;
+  // repeated bytes KeyWords = 9;
   int keywords_size() const;
   private:
   int _internal_keywords_size() const;
@@ -986,12 +986,12 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void set_keywords(int index, const std::string& value);
   void set_keywords(int index, std::string&& value);
   void set_keywords(int index, const char* value);
-  void set_keywords(int index, const char* value, size_t size);
+  void set_keywords(int index, const void* value, size_t size);
   std::string* add_keywords();
   void add_keywords(const std::string& value);
   void add_keywords(std::string&& value);
   void add_keywords(const char* value);
-  void add_keywords(const char* value, size_t size);
+  void add_keywords(const void* value, size_t size);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& keywords() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_keywords();
   private:
@@ -1041,7 +1041,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SnapshotClientInfo >&
       snapshotpreivewinfolist() const;
 
-  // string BookName = 3;
+  // bytes BookName = 3;
   void clear_bookname();
   const std::string& bookname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1083,7 +1083,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_bookcoverimage();
   public:
 
-  // string Content = 10;
+  // bytes Content = 10;
   void clear_content();
   const std::string& content() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1940,7 +1940,7 @@ inline void BookInfo::set_booktype(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.BookType)
 }
 
-// string BookName = 3;
+// bytes BookName = 3;
 inline void BookInfo::clear_bookname() {
   _impl_.bookname_.ClearToEmpty();
 }
@@ -1952,7 +1952,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void BookInfo::set_bookname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.bookname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.bookname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.BookName)
 }
 inline std::string* BookInfo::mutable_bookname() {
@@ -2220,7 +2220,7 @@ inline void BookInfo::set_borrowedcount(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.BorrowedCount)
 }
 
-// repeated string KeyWords = 9;
+// repeated bytes KeyWords = 9;
 inline int BookInfo::_internal_keywords_size() const {
   return _impl_.keywords_.size();
 }
@@ -2259,7 +2259,7 @@ inline void BookInfo::set_keywords(int index, const char* value) {
   _impl_.keywords_.Mutable(index)->assign(value);
   // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.BookInfo.KeyWords)
 }
-inline void BookInfo::set_keywords(int index, const char* value, size_t size) {
+inline void BookInfo::set_keywords(int index, const void* value, size_t size) {
   _impl_.keywords_.Mutable(index)->assign(
     reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.BookInfo.KeyWords)
@@ -2280,7 +2280,7 @@ inline void BookInfo::add_keywords(const char* value) {
   _impl_.keywords_.Add()->assign(value);
   // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.BookInfo.KeyWords)
 }
-inline void BookInfo::add_keywords(const char* value, size_t size) {
+inline void BookInfo::add_keywords(const void* value, size_t size) {
   _impl_.keywords_.Add()->assign(reinterpret_cast<const char*>(value), size);
   // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.BookInfo.KeyWords)
 }
@@ -2295,7 +2295,7 @@ BookInfo::mutable_keywords() {
   return &_impl_.keywords_;
 }
 
-// string Content = 10;
+// bytes Content = 10;
 inline void BookInfo::clear_content() {
   _impl_.content_.ClearToEmpty();
 }
@@ -2307,7 +2307,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void BookInfo::set_content(ArgT0&& arg0, ArgT... args) {
  
- _impl_.content_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.content_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.Content)
 }
 inline std::string* BookInfo::mutable_content() {

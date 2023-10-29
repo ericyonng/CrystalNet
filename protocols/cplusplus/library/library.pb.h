@@ -112,6 +112,15 @@ extern GetBookListReqDefaultTypeInternal _GetBookListReq_default_instance_;
 class GetBookListRes;
 struct GetBookListResDefaultTypeInternal;
 extern GetBookListResDefaultTypeInternal _GetBookListRes_default_instance_;
+class GetBookOrderDetailInfoNty;
+struct GetBookOrderDetailInfoNtyDefaultTypeInternal;
+extern GetBookOrderDetailInfoNtyDefaultTypeInternal _GetBookOrderDetailInfoNty_default_instance_;
+class GetBookOrderDetailInfoReq;
+struct GetBookOrderDetailInfoReqDefaultTypeInternal;
+extern GetBookOrderDetailInfoReqDefaultTypeInternal _GetBookOrderDetailInfoReq_default_instance_;
+class GetBookOrderDetailInfoRes;
+struct GetBookOrderDetailInfoResDefaultTypeInternal;
+extern GetBookOrderDetailInfoResDefaultTypeInternal _GetBookOrderDetailInfoRes_default_instance_;
 class GetLibraryInfoReq;
 struct GetLibraryInfoReqDefaultTypeInternal;
 extern GetLibraryInfoReqDefaultTypeInternal _GetLibraryInfoReq_default_instance_;
@@ -145,6 +154,12 @@ extern ModifyMemberInfoReqDefaultTypeInternal _ModifyMemberInfoReq_default_insta
 class ModifyMemberInfoRes;
 struct ModifyMemberInfoResDefaultTypeInternal;
 extern ModifyMemberInfoResDefaultTypeInternal _ModifyMemberInfoRes_default_instance_;
+class OutStoreOrderReq;
+struct OutStoreOrderReqDefaultTypeInternal;
+extern OutStoreOrderReqDefaultTypeInternal _OutStoreOrderReq_default_instance_;
+class OutStoreOrderRes;
+struct OutStoreOrderResDefaultTypeInternal;
+extern OutStoreOrderResDefaultTypeInternal _OutStoreOrderRes_default_instance_;
 class QuitLibraryReq;
 struct QuitLibraryReqDefaultTypeInternal;
 extern QuitLibraryReqDefaultTypeInternal _QuitLibraryReq_default_instance_;
@@ -180,6 +195,9 @@ template<> ::CRYSTAL_NET::service::GetBookInfoReq* Arena::CreateMaybeMessage<::C
 template<> ::CRYSTAL_NET::service::GetBookInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetBookInfoRes>(Arena*);
 template<> ::CRYSTAL_NET::service::GetBookListReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetBookListReq>(Arena*);
 template<> ::CRYSTAL_NET::service::GetBookListRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetBookListRes>(Arena*);
+template<> ::CRYSTAL_NET::service::GetBookOrderDetailInfoNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetBookOrderDetailInfoNty>(Arena*);
+template<> ::CRYSTAL_NET::service::GetBookOrderDetailInfoReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetBookOrderDetailInfoReq>(Arena*);
+template<> ::CRYSTAL_NET::service::GetBookOrderDetailInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetBookOrderDetailInfoRes>(Arena*);
 template<> ::CRYSTAL_NET::service::GetLibraryInfoReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetLibraryInfoReq>(Arena*);
 template<> ::CRYSTAL_NET::service::GetLibraryInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetLibraryInfoRes>(Arena*);
 template<> ::CRYSTAL_NET::service::GetLibraryListReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetLibraryListReq>(Arena*);
@@ -191,6 +209,8 @@ template<> ::CRYSTAL_NET::service::JoinLibraryRes* Arena::CreateMaybeMessage<::C
 template<> ::CRYSTAL_NET::service::LibraryInfoNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibraryInfoNty>(Arena*);
 template<> ::CRYSTAL_NET::service::ModifyMemberInfoReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ModifyMemberInfoReq>(Arena*);
 template<> ::CRYSTAL_NET::service::ModifyMemberInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ModifyMemberInfoRes>(Arena*);
+template<> ::CRYSTAL_NET::service::OutStoreOrderReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OutStoreOrderReq>(Arena*);
+template<> ::CRYSTAL_NET::service::OutStoreOrderRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OutStoreOrderRes>(Arena*);
 template<> ::CRYSTAL_NET::service::QuitLibraryReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::QuitLibraryReq>(Arena*);
 template<> ::CRYSTAL_NET::service::QuitLibraryRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::QuitLibraryRes>(Arena*);
 template<> ::CRYSTAL_NET::service::TransferLibraianReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TransferLibraianReq>(Arena*);
@@ -1323,7 +1343,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_invitecode();
   public:
 
-  // string Name = 2;
+  // bytes Name = 2;
   void clear_name();
   const std::string& name() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1337,7 +1357,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_name();
   public:
 
-  // string Address = 3;
+  // bytes Address = 3;
   void clear_address();
   const std::string& address() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1351,7 +1371,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_address();
   public:
 
-  // string OpenTime = 4;
+  // bytes OpenTime = 4;
   void clear_opentime();
   const std::string& opentime() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -5726,7 +5746,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kContentFieldNumber = 7,
     kSnapshotFieldNumber = 8,
   };
-  // string BookName = 1;
+  // bytes BookName = 1;
   void clear_bookname();
   const std::string& bookname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -5808,7 +5828,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
       ::CRYSTAL_NET::service::KeyWordsField* keywords);
   ::CRYSTAL_NET::service::KeyWordsField* unsafe_arena_release_keywords();
 
-  // string Content = 7;
+  // bytes Content = 7;
   bool has_content() const;
   private:
   bool _internal_has_content() const;
@@ -9074,7 +9094,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   enum : int {
     kBookNameFieldNumber = 1,
   };
-  // string BookName = 1;
+  // bytes BookName = 1;
   void clear_bookname();
   const std::string& bookname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -9992,6 +10012,1440 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   union { Impl_ _impl_; };
   friend struct ::TableStruct_library_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(97), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class GetBookOrderDetailInfoReq final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookOrderDetailInfoReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline GetBookOrderDetailInfoReq() : GetBookOrderDetailInfoReq(nullptr) {}
+  explicit PROTOBUF_CONSTEXPR GetBookOrderDetailInfoReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GetBookOrderDetailInfoReq(const GetBookOrderDetailInfoReq& from);
+  GetBookOrderDetailInfoReq(GetBookOrderDetailInfoReq&& from) noexcept
+    : GetBookOrderDetailInfoReq() {
+    *this = ::std::move(from);
+  }
+
+  inline GetBookOrderDetailInfoReq& operator=(const GetBookOrderDetailInfoReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetBookOrderDetailInfoReq& operator=(GetBookOrderDetailInfoReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GetBookOrderDetailInfoReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GetBookOrderDetailInfoReq* internal_default_instance() {
+    return reinterpret_cast<const GetBookOrderDetailInfoReq*>(
+               &_GetBookOrderDetailInfoReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    33;
+
+  friend void swap(GetBookOrderDetailInfoReq& a, GetBookOrderDetailInfoReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GetBookOrderDetailInfoReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetBookOrderDetailInfoReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GetBookOrderDetailInfoReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<GetBookOrderDetailInfoReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const GetBookOrderDetailInfoReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const GetBookOrderDetailInfoReq& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.GetBookOrderDetailInfoReq";
+  }
+  protected:
+  explicit GetBookOrderDetailInfoReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.GetBookOrderDetailInfoReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+  };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(98), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class GetBookOrderDetailInfoNty final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookOrderDetailInfoNty) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline GetBookOrderDetailInfoNty() : GetBookOrderDetailInfoNty(nullptr) {}
+  ~GetBookOrderDetailInfoNty() override;
+  explicit PROTOBUF_CONSTEXPR GetBookOrderDetailInfoNty(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GetBookOrderDetailInfoNty(const GetBookOrderDetailInfoNty& from);
+  GetBookOrderDetailInfoNty(GetBookOrderDetailInfoNty&& from) noexcept
+    : GetBookOrderDetailInfoNty() {
+    *this = ::std::move(from);
+  }
+
+  inline GetBookOrderDetailInfoNty& operator=(const GetBookOrderDetailInfoNty& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetBookOrderDetailInfoNty& operator=(GetBookOrderDetailInfoNty&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GetBookOrderDetailInfoNty& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GetBookOrderDetailInfoNty* internal_default_instance() {
+    return reinterpret_cast<const GetBookOrderDetailInfoNty*>(
+               &_GetBookOrderDetailInfoNty_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    34;
+
+  friend void swap(GetBookOrderDetailInfoNty& a, GetBookOrderDetailInfoNty& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GetBookOrderDetailInfoNty* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetBookOrderDetailInfoNty* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GetBookOrderDetailInfoNty* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<GetBookOrderDetailInfoNty>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const GetBookOrderDetailInfoNty& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const GetBookOrderDetailInfoNty& from) {
+    GetBookOrderDetailInfoNty::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GetBookOrderDetailInfoNty* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.GetBookOrderDetailInfoNty";
+  }
+  protected:
+  explicit GetBookOrderDetailInfoNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDetailInfoFieldNumber = 1,
+  };
+  // repeated .CRYSTAL_NET.service.BorrowOrderDetailInfo DetailInfo = 1;
+  int detailinfo_size() const;
+  private:
+  int _internal_detailinfo_size() const;
+  public:
+  void clear_detailinfo();
+  ::CRYSTAL_NET::service::BorrowOrderDetailInfo* mutable_detailinfo(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowOrderDetailInfo >*
+      mutable_detailinfo();
+  private:
+  const ::CRYSTAL_NET::service::BorrowOrderDetailInfo& _internal_detailinfo(int index) const;
+  ::CRYSTAL_NET::service::BorrowOrderDetailInfo* _internal_add_detailinfo();
+  public:
+  const ::CRYSTAL_NET::service::BorrowOrderDetailInfo& detailinfo(int index) const;
+  ::CRYSTAL_NET::service::BorrowOrderDetailInfo* add_detailinfo();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowOrderDetailInfo >&
+      detailinfo() const;
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.GetBookOrderDetailInfoNty)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowOrderDetailInfo > detailinfo_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(100), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class GetBookOrderDetailInfoRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookOrderDetailInfoRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message GetBookOrderDetailInfoRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline GetBookOrderDetailInfoRes() : GetBookOrderDetailInfoRes(nullptr) {}
+  ~GetBookOrderDetailInfoRes() override;
+  explicit PROTOBUF_CONSTEXPR GetBookOrderDetailInfoRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GetBookOrderDetailInfoRes(const GetBookOrderDetailInfoRes& from);
+  GetBookOrderDetailInfoRes(GetBookOrderDetailInfoRes&& from) noexcept
+    : GetBookOrderDetailInfoRes() {
+    *this = ::std::move(from);
+  }
+
+  inline GetBookOrderDetailInfoRes& operator=(const GetBookOrderDetailInfoRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetBookOrderDetailInfoRes& operator=(GetBookOrderDetailInfoRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GetBookOrderDetailInfoRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GetBookOrderDetailInfoRes* internal_default_instance() {
+    return reinterpret_cast<const GetBookOrderDetailInfoRes*>(
+               &_GetBookOrderDetailInfoRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    35;
+
+  friend void swap(GetBookOrderDetailInfoRes& a, GetBookOrderDetailInfoRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GetBookOrderDetailInfoRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetBookOrderDetailInfoRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GetBookOrderDetailInfoRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<GetBookOrderDetailInfoRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const GetBookOrderDetailInfoRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const GetBookOrderDetailInfoRes& from) {
+    GetBookOrderDetailInfoRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GetBookOrderDetailInfoRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.GetBookOrderDetailInfoRes";
+  }
+  protected:
+  explicit GetBookOrderDetailInfoRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrCodeFieldNumber = 1,
+  };
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.GetBookOrderDetailInfoRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(101), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class OutStoreOrderReq final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OutStoreOrderReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline OutStoreOrderReq() : OutStoreOrderReq(nullptr) {}
+  ~OutStoreOrderReq() override;
+  explicit PROTOBUF_CONSTEXPR OutStoreOrderReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  OutStoreOrderReq(const OutStoreOrderReq& from);
+  OutStoreOrderReq(OutStoreOrderReq&& from) noexcept
+    : OutStoreOrderReq() {
+    *this = ::std::move(from);
+  }
+
+  inline OutStoreOrderReq& operator=(const OutStoreOrderReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline OutStoreOrderReq& operator=(OutStoreOrderReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const OutStoreOrderReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const OutStoreOrderReq* internal_default_instance() {
+    return reinterpret_cast<const OutStoreOrderReq*>(
+               &_OutStoreOrderReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    36;
+
+  friend void swap(OutStoreOrderReq& a, OutStoreOrderReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(OutStoreOrderReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(OutStoreOrderReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  OutStoreOrderReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<OutStoreOrderReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const OutStoreOrderReq& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const OutStoreOrderReq& from) {
+    OutStoreOrderReq::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(OutStoreOrderReq* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.OutStoreOrderReq";
+  }
+  protected:
+  explicit OutStoreOrderReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBookParamsFieldNumber = 2,
+    kOrderIdFieldNumber = 1,
+  };
+  // repeated .CRYSTAL_NET.service.OutStoreParam BookParams = 2;
+  int bookparams_size() const;
+  private:
+  int _internal_bookparams_size() const;
+  public:
+  void clear_bookparams();
+  ::CRYSTAL_NET::service::OutStoreParam* mutable_bookparams(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OutStoreParam >*
+      mutable_bookparams();
+  private:
+  const ::CRYSTAL_NET::service::OutStoreParam& _internal_bookparams(int index) const;
+  ::CRYSTAL_NET::service::OutStoreParam* _internal_add_bookparams();
+  public:
+  const ::CRYSTAL_NET::service::OutStoreParam& bookparams(int index) const;
+  ::CRYSTAL_NET::service::OutStoreParam* add_bookparams();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OutStoreParam >&
+      bookparams() const;
+
+  // uint64 OrderId = 1;
+  void clear_orderid();
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
+  private:
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.OutStoreOrderReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OutStoreParam > bookparams_;
+    uint64_t orderid_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(102), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class OutStoreOrderRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OutStoreOrderRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OutStoreOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline OutStoreOrderRes() : OutStoreOrderRes(nullptr) {}
+  ~OutStoreOrderRes() override;
+  explicit PROTOBUF_CONSTEXPR OutStoreOrderRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  OutStoreOrderRes(const OutStoreOrderRes& from);
+  OutStoreOrderRes(OutStoreOrderRes&& from) noexcept
+    : OutStoreOrderRes() {
+    *this = ::std::move(from);
+  }
+
+  inline OutStoreOrderRes& operator=(const OutStoreOrderRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline OutStoreOrderRes& operator=(OutStoreOrderRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const OutStoreOrderRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const OutStoreOrderRes* internal_default_instance() {
+    return reinterpret_cast<const OutStoreOrderRes*>(
+               &_OutStoreOrderRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    37;
+
+  friend void swap(OutStoreOrderRes& a, OutStoreOrderRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(OutStoreOrderRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(OutStoreOrderRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  OutStoreOrderRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<OutStoreOrderRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const OutStoreOrderRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const OutStoreOrderRes& from) {
+    OutStoreOrderRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(OutStoreOrderRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.OutStoreOrderRes";
+  }
+  protected:
+  explicit OutStoreOrderRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrCodeFieldNumber = 1,
+  };
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.OutStoreOrderRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
 // ===================================================================
 
 
@@ -10170,7 +11624,7 @@ inline void CreateLibraryReq::set_allocated_invitecode(std::string* invitecode) 
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.CreateLibraryReq.InviteCode)
 }
 
-// string Name = 2;
+// bytes Name = 2;
 inline void CreateLibraryReq::clear_name() {
   _impl_.name_.ClearToEmpty();
 }
@@ -10182,7 +11636,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void CreateLibraryReq::set_name(ArgT0&& arg0, ArgT... args) {
  
- _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.name_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CreateLibraryReq.Name)
 }
 inline std::string* CreateLibraryReq::mutable_name() {
@@ -10220,7 +11674,7 @@ inline void CreateLibraryReq::set_allocated_name(std::string* name) {
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.CreateLibraryReq.Name)
 }
 
-// string Address = 3;
+// bytes Address = 3;
 inline void CreateLibraryReq::clear_address() {
   _impl_.address_.ClearToEmpty();
 }
@@ -10232,7 +11686,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void CreateLibraryReq::set_address(ArgT0&& arg0, ArgT... args) {
  
- _impl_.address_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.address_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CreateLibraryReq.Address)
 }
 inline std::string* CreateLibraryReq::mutable_address() {
@@ -10270,7 +11724,7 @@ inline void CreateLibraryReq::set_allocated_address(std::string* address) {
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.CreateLibraryReq.Address)
 }
 
-// string OpenTime = 4;
+// bytes OpenTime = 4;
 inline void CreateLibraryReq::clear_opentime() {
   _impl_.opentime_.ClearToEmpty();
 }
@@ -10282,7 +11736,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void CreateLibraryReq::set_opentime(ArgT0&& arg0, ArgT... args) {
  
- _impl_.opentime_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.opentime_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CreateLibraryReq.OpenTime)
 }
 inline std::string* CreateLibraryReq::mutable_opentime() {
@@ -10883,7 +12337,7 @@ GetLibraryMemberSimpleInfoRes::simpleuserinfolist() const {
 
 // AddLibraryBookReq
 
-// string BookName = 1;
+// bytes BookName = 1;
 inline void AddLibraryBookReq::clear_bookname() {
   _impl_.bookname_.ClearToEmpty();
 }
@@ -10895,7 +12349,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void AddLibraryBookReq::set_bookname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.bookname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.bookname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.BookName)
 }
 inline std::string* AddLibraryBookReq::mutable_bookname() {
@@ -11166,7 +12620,7 @@ inline ::CRYSTAL_NET::service::KeyWordsField* AddLibraryBookReq::mutable_keyword
   return _msg;
 }
 
-// string Content = 7;
+// bytes Content = 7;
 inline bool AddLibraryBookReq::_internal_has_content() const {
   return ContentOption_case() == kContent;
 }
@@ -11193,7 +12647,7 @@ inline void AddLibraryBookReq::set_content(ArgT0&& arg0, ArgT... args) {
     set_has_content();
     _impl_.ContentOption_.content_.InitDefault();
   }
-  _impl_.ContentOption_.content_.Set( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  _impl_.ContentOption_.content_.SetBytes( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.Content)
 }
 inline std::string* AddLibraryBookReq::mutable_content() {
@@ -11755,7 +13209,7 @@ inline void GetBookInfoRes::set_allocated_bookinfo(::CRYSTAL_NET::service::BookI
 
 // GetBookByBookNameReq
 
-// string BookName = 1;
+// bytes BookName = 1;
 inline void GetBookByBookNameReq::clear_bookname() {
   _impl_.bookname_.ClearToEmpty();
 }
@@ -11767,7 +13221,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void GetBookByBookNameReq::set_bookname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.bookname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.bookname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.GetBookByBookNameReq.BookName)
 }
 inline std::string* GetBookByBookNameReq::mutable_bookname() {
@@ -11931,9 +13385,173 @@ GetBookInfoListRes::bookinfolist() const {
   return _impl_.bookinfolist_;
 }
 
+// -------------------------------------------------------------------
+
+// GetBookOrderDetailInfoReq
+
+// -------------------------------------------------------------------
+
+// GetBookOrderDetailInfoNty
+
+// repeated .CRYSTAL_NET.service.BorrowOrderDetailInfo DetailInfo = 1;
+inline int GetBookOrderDetailInfoNty::_internal_detailinfo_size() const {
+  return _impl_.detailinfo_.size();
+}
+inline int GetBookOrderDetailInfoNty::detailinfo_size() const {
+  return _internal_detailinfo_size();
+}
+inline ::CRYSTAL_NET::service::BorrowOrderDetailInfo* GetBookOrderDetailInfoNty::mutable_detailinfo(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.GetBookOrderDetailInfoNty.DetailInfo)
+  return _impl_.detailinfo_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowOrderDetailInfo >*
+GetBookOrderDetailInfoNty::mutable_detailinfo() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.GetBookOrderDetailInfoNty.DetailInfo)
+  return &_impl_.detailinfo_;
+}
+inline const ::CRYSTAL_NET::service::BorrowOrderDetailInfo& GetBookOrderDetailInfoNty::_internal_detailinfo(int index) const {
+  return _impl_.detailinfo_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::BorrowOrderDetailInfo& GetBookOrderDetailInfoNty::detailinfo(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.GetBookOrderDetailInfoNty.DetailInfo)
+  return _internal_detailinfo(index);
+}
+inline ::CRYSTAL_NET::service::BorrowOrderDetailInfo* GetBookOrderDetailInfoNty::_internal_add_detailinfo() {
+  return _impl_.detailinfo_.Add();
+}
+inline ::CRYSTAL_NET::service::BorrowOrderDetailInfo* GetBookOrderDetailInfoNty::add_detailinfo() {
+  ::CRYSTAL_NET::service::BorrowOrderDetailInfo* _add = _internal_add_detailinfo();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.GetBookOrderDetailInfoNty.DetailInfo)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowOrderDetailInfo >&
+GetBookOrderDetailInfoNty::detailinfo() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.GetBookOrderDetailInfoNty.DetailInfo)
+  return _impl_.detailinfo_;
+}
+
+// -------------------------------------------------------------------
+
+// GetBookOrderDetailInfoRes
+
+// sint32 ErrCode = 1;
+inline void GetBookOrderDetailInfoRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t GetBookOrderDetailInfoRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t GetBookOrderDetailInfoRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.GetBookOrderDetailInfoRes.ErrCode)
+  return _internal_errcode();
+}
+inline void GetBookOrderDetailInfoRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void GetBookOrderDetailInfoRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.GetBookOrderDetailInfoRes.ErrCode)
+}
+
+// -------------------------------------------------------------------
+
+// OutStoreOrderReq
+
+// uint64 OrderId = 1;
+inline void OutStoreOrderReq::clear_orderid() {
+  _impl_.orderid_ = uint64_t{0u};
+}
+inline uint64_t OutStoreOrderReq::_internal_orderid() const {
+  return _impl_.orderid_;
+}
+inline uint64_t OutStoreOrderReq::orderid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OutStoreOrderReq.OrderId)
+  return _internal_orderid();
+}
+inline void OutStoreOrderReq::_internal_set_orderid(uint64_t value) {
+  
+  _impl_.orderid_ = value;
+}
+inline void OutStoreOrderReq::set_orderid(uint64_t value) {
+  _internal_set_orderid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OutStoreOrderReq.OrderId)
+}
+
+// repeated .CRYSTAL_NET.service.OutStoreParam BookParams = 2;
+inline int OutStoreOrderReq::_internal_bookparams_size() const {
+  return _impl_.bookparams_.size();
+}
+inline int OutStoreOrderReq::bookparams_size() const {
+  return _internal_bookparams_size();
+}
+inline ::CRYSTAL_NET::service::OutStoreParam* OutStoreOrderReq::mutable_bookparams(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.OutStoreOrderReq.BookParams)
+  return _impl_.bookparams_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OutStoreParam >*
+OutStoreOrderReq::mutable_bookparams() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.OutStoreOrderReq.BookParams)
+  return &_impl_.bookparams_;
+}
+inline const ::CRYSTAL_NET::service::OutStoreParam& OutStoreOrderReq::_internal_bookparams(int index) const {
+  return _impl_.bookparams_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::OutStoreParam& OutStoreOrderReq::bookparams(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OutStoreOrderReq.BookParams)
+  return _internal_bookparams(index);
+}
+inline ::CRYSTAL_NET::service::OutStoreParam* OutStoreOrderReq::_internal_add_bookparams() {
+  return _impl_.bookparams_.Add();
+}
+inline ::CRYSTAL_NET::service::OutStoreParam* OutStoreOrderReq::add_bookparams() {
+  ::CRYSTAL_NET::service::OutStoreParam* _add = _internal_add_bookparams();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.OutStoreOrderReq.BookParams)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OutStoreParam >&
+OutStoreOrderReq::bookparams() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.OutStoreOrderReq.BookParams)
+  return _impl_.bookparams_;
+}
+
+// -------------------------------------------------------------------
+
+// OutStoreOrderRes
+
+// sint32 ErrCode = 1;
+inline void OutStoreOrderRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t OutStoreOrderRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t OutStoreOrderRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OutStoreOrderRes.ErrCode)
+  return _internal_errcode();
+}
+inline void OutStoreOrderRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void OutStoreOrderRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OutStoreOrderRes.ErrCode)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -12762,6 +14380,121 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::GetBookInfoListRes(*dynamic_cast<const ::CRYSTAL_NET::service::GetBookInfoListRes *>(coder));
+    }
+
+};
+
+
+class GetBookOrderDetailInfoReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, GetBookOrderDetailInfoReqFactory);
+public:
+
+    virtual void Release() override {
+        GetBookOrderDetailInfoReqFactory::Delete_GetBookOrderDetailInfoReqFactory(this);
+    }
+
+    static GetBookOrderDetailInfoReqFactory *CreateFactory() {
+        return GetBookOrderDetailInfoReqFactory::New_GetBookOrderDetailInfoReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::GetBookOrderDetailInfoReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::GetBookOrderDetailInfoReq(*dynamic_cast<const ::CRYSTAL_NET::service::GetBookOrderDetailInfoReq *>(coder));
+    }
+
+};
+
+
+class GetBookOrderDetailInfoNtyFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, GetBookOrderDetailInfoNtyFactory);
+public:
+
+    virtual void Release() override {
+        GetBookOrderDetailInfoNtyFactory::Delete_GetBookOrderDetailInfoNtyFactory(this);
+    }
+
+    static GetBookOrderDetailInfoNtyFactory *CreateFactory() {
+        return GetBookOrderDetailInfoNtyFactory::New_GetBookOrderDetailInfoNtyFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::GetBookOrderDetailInfoNty();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::GetBookOrderDetailInfoNty(*dynamic_cast<const ::CRYSTAL_NET::service::GetBookOrderDetailInfoNty *>(coder));
+    }
+
+};
+
+
+class GetBookOrderDetailInfoResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, GetBookOrderDetailInfoResFactory);
+public:
+
+    virtual void Release() override {
+        GetBookOrderDetailInfoResFactory::Delete_GetBookOrderDetailInfoResFactory(this);
+    }
+
+    static GetBookOrderDetailInfoResFactory *CreateFactory() {
+        return GetBookOrderDetailInfoResFactory::New_GetBookOrderDetailInfoResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::GetBookOrderDetailInfoRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::GetBookOrderDetailInfoRes(*dynamic_cast<const ::CRYSTAL_NET::service::GetBookOrderDetailInfoRes *>(coder));
+    }
+
+};
+
+
+class OutStoreOrderReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, OutStoreOrderReqFactory);
+public:
+
+    virtual void Release() override {
+        OutStoreOrderReqFactory::Delete_OutStoreOrderReqFactory(this);
+    }
+
+    static OutStoreOrderReqFactory *CreateFactory() {
+        return OutStoreOrderReqFactory::New_OutStoreOrderReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::OutStoreOrderReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::OutStoreOrderReq(*dynamic_cast<const ::CRYSTAL_NET::service::OutStoreOrderReq *>(coder));
+    }
+
+};
+
+
+class OutStoreOrderResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, OutStoreOrderResFactory);
+public:
+
+    virtual void Release() override {
+        OutStoreOrderResFactory::Delete_OutStoreOrderResFactory(this);
+    }
+
+    static OutStoreOrderResFactory *CreateFactory() {
+        return OutStoreOrderResFactory::New_OutStoreOrderResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::OutStoreOrderRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::OutStoreOrderRes(*dynamic_cast<const ::CRYSTAL_NET::service::OutStoreOrderRes *>(coder));
     }
 
 };

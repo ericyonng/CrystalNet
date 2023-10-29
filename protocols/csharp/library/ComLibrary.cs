@@ -30,49 +30,59 @@ using ProtoPackage.Attributes;
             "X2Jvb2sucHJvdG8aEWNvbV92YXJpYW50LnByb3RvIk0KCFJvbGVUeXBlIkEK",
             "BUVOVU1TEgoKBk5vQXV0aBAAEhAKDE5vcm1hbE1lbWJlchABEgsKB01hbmFn",
             "ZXIQAhINCglMaWJyYXJpYW4QAyIlChNMaWJhcmFyeU1hbmFnZXJJbmZvEg4K",
-            "BlVzZXJJZBgBIAEoBCK8AQoOQm9ycm93Qm9va0luZm8SDgoGQm9va0lkGAEg",
+            "BlVzZXJJZBgBIAEoBCLQAQoOQm9ycm93Qm9va0luZm8SDgoGQm9va0lkGAEg",
             "ASgEEhAKCElzYm5Db2RlGAIgASgJEhMKC0JvcnJvd0NvdW50GAMgASgREhIK",
             "CkJvcnJvd1RpbWUYBCABKBISGAoQUGxhbkdpdmVCYWNrVGltZRgFIAEoEhIY",
             "ChBSZWFsR2l2ZUJhY2tUaW1lGAYgASgSEhcKD1JldHVybkJhY2tDb3VudBgH",
-            "IAEoBBISCgpTdWJPcmRlcklkGAggASgEIsIBChBCb3Jyb3dPcmRlclN0YXRl",
-            "Iq0BCgVFTlVNUxIbChdXQUlUSU5HX01BTkFHRVJfQ09ORklSTRAAEhEKDU9S",
-            "REVSX0NPTkZJUk0QARIVChFXQUlUX1VTRVJfUkVDRUlWRRACEhkKFVdBSVRf",
-            "VVNFUl9SRVRVUk5fQkFDSxADEh4KGlVTRVJfUkVUVVJOX0JBQ0tfQUxMX0JP",
-            "T0tTEAQSEAoMQ0FOQ0VMX09SREVSEAUSEAoMUkVUVVJOX0JBS0NLEAYiogEK",
-            "D0JvcnJvd09yZGVySW5mbxIPCgdPcmRlcklkGAEgASgEEjsKDkJvcnJvd0Jv",
-            "b2tMaXN0GAIgAygLMiMuQ1JZU1RBTF9ORVQuc2VydmljZS5Cb3Jyb3dCb29r",
-            "SW5mbxIXCg9DcmVhdGVPcmRlclRpbWUYAyABKAQSEgoKT3JkZXJTdGF0ZRgE",
-            "IAEoERIUCgxDYW5jZWxSZWFzb24YBSABKAkitwEKCk1lbWJlckluZm8SDgoG",
-            "VXNlcklkGAEgASgEEgwKBFJvbGUYAiABKBESEAoITmlja25hbWUYAyABKAkS",
-            "OAoKQm9ycm93TGlzdBgEIAMoCzIkLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9y",
-            "cm93T3JkZXJJbmZvEhcKD0xvY2tUaW1lc3RhbXBNcxgFIAEoEhITCglCaW5k",
-            "UGhvbmUYBiABKARIAEIRCg9NZW1iZXJCaW5kUGhvbmUiJQoNT3BlcmF0aW9u",
-            "VHlwZSIUCgVFTlVNUxILCgdVTktOT1dOEAAimwEKEE9wZXJhdGlvbkxvZ0lu",
-            "Zm8SDgoGT3BUeXBlGAEgASgREhAKCE9wVXNlcklkGAIgASgEEhIKCk9wTmlj",
-            "a25hbWUYAyABKAkSDAoEUm9sZRgEIAEoERIQCghPcFRpbWVNcxgFIAEoEhIx",
-            "CgZQYXJhbXMYBiADKAsyIS5DUllTVEFMX05FVC5zZXJ2aWNlLlZhcmlhbnRQ",
-            "YXJhbSL/AgoLTGlicmFyeUluZm8SCgoCSWQYASABKAQSDAoETmFtZRgCIAEo",
-            "CRIPCgdBZGRyZXNzGAMgASgJEhAKCE9wZW5UaW1lGAQgASgJEhYKDlRlbHBo",
-            "b25lTnVtYmVyGAUgASgJEhcKD0xpYnJhcmlhblVzZXJJZBgGIAEoBBIdChVM",
-            "aWJyYXJpYW5Vc2VyTmlja25hbWUYByABKAkSQQoPTWFuYWdlckluZm9MaXN0",
-            "GAggAygLMiguQ1JZU1RBTF9ORVQuc2VydmljZS5MaWJhcmFyeU1hbmFnZXJJ",
-            "bmZvEjMKCk1lbWJlckxpc3QYCSADKAsyHy5DUllTVEFMX05FVC5zZXJ2aWNl",
-            "Lk1lbWJlckluZm8SLwoIQm9va0xpc3QYCiADKAsyHS5DUllTVEFMX05FVC5z",
-            "ZXJ2aWNlLkJvb2tJbmZvEjoKC0xvZ0luZm9MaXN0GAsgAygLMiUuQ1JZU1RB",
-            "TF9ORVQuc2VydmljZS5PcGVyYXRpb25Mb2dJbmZvIiQKD1VzZXJMaWJyYXJ5",
-            "SW5mbxIRCglMaWJyYXJ5SWQYASABKAQiYgoSTGlicmFyeVByZXZpZXdJbmZv",
-            "EgoKAklkGAEgASgEEgwKBE5hbWUYAiABKAkSFwoPTGlicmFyaWFuVXNlcklk",
-            "GAMgASgEEhkKEUxpYnJhcmlhbk5pY2tuYW1lGAQgASgJIiEKDUtleVdvcmRz",
-            "RmllbGQSEAoIS2V5V29yZHMYASADKAkiIgoNU25hcHNob3RGaWVsZBIRCglT",
-            "bmFwc2hvdHMYASADKAliBnByb3RvMw=="));
+            "IAEoBBISCgpTdWJPcmRlcklkGAggASgEEhIKCkJvcnJvd0RheXMYCSABKBEi",
+            "XwoUQm9ycm93Qm9va0RldGFpbEluZm8SNQoIQm9va0luZm8YASABKAsyIy5D",
+            "UllTVEFMX05FVC5zZXJ2aWNlLkJvcnJvd0Jvb2tJbmZvEhAKCEJvb2tOYW1l",
+            "GAIgASgMIo8BChBCb3Jyb3dPcmRlclN0YXRlInsKBUVOVU1TEhwKGFdBSVRJ",
+            "TkdfT1VUX09GX1dBUkVIT1VTRRAAEhUKEVdBSVRfVVNFUl9SRUNFSVZFEAES",
+            "GQoVV0FJVF9VU0VSX1JFVFVSTl9CQUNLEAISEAoMQ0FOQ0VMX09SREVSEAMS",
+            "EAoMUkVUVVJOX0JBS0NLEAQixwEKD0JvcnJvd09yZGVySW5mbxIPCgdPcmRl",
+            "cklkGAEgASgEEjsKDkJvcnJvd0Jvb2tMaXN0GAIgAygLMiMuQ1JZU1RBTF9O",
+            "RVQuc2VydmljZS5Cb3Jyb3dCb29rSW5mbxIXCg9DcmVhdGVPcmRlclRpbWUY",
+            "AyABKAQSEgoKT3JkZXJTdGF0ZRgEIAEoERIUCgxDYW5jZWxSZWFzb24YBSAB",
+            "KAkSEwoLR2V0T3ZlclRpbWUYBiABKBISDgoGUmVtYXJrGAcgASgMItMBChVC",
+            "b3Jyb3dPcmRlckRldGFpbEluZm8SDwoHT3JkZXJJZBgBIAEoBBJBCg5Cb3Jy",
+            "b3dCb29rTGlzdBgCIAMoCzIpLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9ycm93",
+            "Qm9va0RldGFpbEluZm8SFwoPQ3JlYXRlT3JkZXJUaW1lGAMgASgEEhIKCk9y",
+            "ZGVyU3RhdGUYBCABKBESFAoMQ2FuY2VsUmVhc29uGAUgASgJEhMKC0dldE92",
+            "ZXJUaW1lGAYgASgSEg4KBlJlbWFyaxgHIAEoDCK3AQoKTWVtYmVySW5mbxIO",
+            "CgZVc2VySWQYASABKAQSDAoEUm9sZRgCIAEoERIQCghOaWNrbmFtZRgDIAEo",
+            "DBI4CgpCb3Jyb3dMaXN0GAQgAygLMiQuQ1JZU1RBTF9ORVQuc2VydmljZS5C",
+            "b3Jyb3dPcmRlckluZm8SFwoPTG9ja1RpbWVzdGFtcE1zGAUgASgSEhMKCUJp",
+            "bmRQaG9uZRgGIAEoBEgAQhEKD01lbWJlckJpbmRQaG9uZSIlCg1PcGVyYXRp",
+            "b25UeXBlIhQKBUVOVU1TEgsKB1VOS05PV04QACKbAQoQT3BlcmF0aW9uTG9n",
+            "SW5mbxIOCgZPcFR5cGUYASABKBESEAoIT3BVc2VySWQYAiABKAQSEgoKT3BO",
+            "aWNrbmFtZRgDIAEoCRIMCgRSb2xlGAQgASgREhAKCE9wVGltZU1zGAUgASgS",
+            "EjEKBlBhcmFtcxgGIAMoCzIhLkNSWVNUQUxfTkVULnNlcnZpY2UuVmFyaWFu",
+            "dFBhcmFtIv8CCgtMaWJyYXJ5SW5mbxIKCgJJZBgBIAEoBBIMCgROYW1lGAIg",
+            "ASgMEg8KB0FkZHJlc3MYAyABKAwSEAoIT3BlblRpbWUYBCABKAwSFgoOVGVs",
+            "cGhvbmVOdW1iZXIYBSABKAkSFwoPTGlicmFyaWFuVXNlcklkGAYgASgEEh0K",
+            "FUxpYnJhcmlhblVzZXJOaWNrbmFtZRgHIAEoDBJBCg9NYW5hZ2VySW5mb0xp",
+            "c3QYCCADKAsyKC5DUllTVEFMX05FVC5zZXJ2aWNlLkxpYmFyYXJ5TWFuYWdl",
+            "ckluZm8SMwoKTWVtYmVyTGlzdBgJIAMoCzIfLkNSWVNUQUxfTkVULnNlcnZp",
+            "Y2UuTWVtYmVySW5mbxIvCghCb29rTGlzdBgKIAMoCzIdLkNSWVNUQUxfTkVU",
+            "LnNlcnZpY2UuQm9va0luZm8SOgoLTG9nSW5mb0xpc3QYCyADKAsyJS5DUllT",
+            "VEFMX05FVC5zZXJ2aWNlLk9wZXJhdGlvbkxvZ0luZm8iJAoPVXNlckxpYnJh",
+            "cnlJbmZvEhEKCUxpYnJhcnlJZBgBIAEoBCJiChJMaWJyYXJ5UHJldmlld0lu",
+            "Zm8SCgoCSWQYASABKAQSDAoETmFtZRgCIAEoDBIXCg9MaWJyYXJpYW5Vc2Vy",
+            "SWQYAyABKAQSGQoRTGlicmFyaWFuTmlja25hbWUYBCABKAwiIQoNS2V5V29y",
+            "ZHNGaWVsZBIQCghLZXlXb3JkcxgBIAMoDCIiCg1TbmFwc2hvdEZpZWxkEhEK",
+            "CVNuYXBzaG90cxgBIAMoCSIuCg1PdXRTdG9yZVBhcmFtEg4KBkJvb2tJZBgB",
+            "IAEoBBINCgVDb3VudBgCIAEoEmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookReflection.Descriptor, global::CRYSTALNET.Service.ComVariantReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.RoleType), global::CRYSTALNET.Service.RoleType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.RoleType.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibararyManagerInfo), global::CRYSTALNET.Service.LibararyManagerInfo.Parser, new[]{ "UserId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookInfo), global::CRYSTALNET.Service.BorrowBookInfo.Parser, new[]{ "BookId", "IsbnCode", "BorrowCount", "BorrowTime", "PlanGiveBackTime", "RealGiveBackTime", "ReturnBackCount", "SubOrderId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookInfo), global::CRYSTALNET.Service.BorrowBookInfo.Parser, new[]{ "BookId", "IsbnCode", "BorrowCount", "BorrowTime", "PlanGiveBackTime", "RealGiveBackTime", "ReturnBackCount", "SubOrderId", "BorrowDays" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookDetailInfo), global::CRYSTALNET.Service.BorrowBookDetailInfo.Parser, new[]{ "BookInfo", "BookName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderState), global::CRYSTALNET.Service.BorrowOrderState.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.BorrowOrderState.Types.ENUMS) }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason", "GetOverTime", "Remark" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderDetailInfo), global::CRYSTALNET.Service.BorrowOrderDetailInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason", "GetOverTime", "Remark" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.MemberInfo), global::CRYSTALNET.Service.MemberInfo.Parser, new[]{ "UserId", "Role", "Nickname", "BorrowList", "LockTimestampMs", "BindPhone" }, new[]{ "MemberBindPhone" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OperationType), global::CRYSTALNET.Service.OperationType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.OperationType.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OperationLogInfo), global::CRYSTALNET.Service.OperationLogInfo.Parser, new[]{ "OpType", "OpUserId", "OpNickname", "Role", "OpTimeMs", "Params" }, null, null, null, null),
@@ -80,7 +90,8 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserLibraryInfo), global::CRYSTALNET.Service.UserLibraryInfo.Parser, new[]{ "LibraryId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryPreviewInfo), global::CRYSTALNET.Service.LibraryPreviewInfo.Parser, new[]{ "Id", "Name", "LibrarianUserId", "LibrarianNickname" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.KeyWordsField), global::CRYSTALNET.Service.KeyWordsField.Parser, new[]{ "KeyWords" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SnapshotField), global::CRYSTALNET.Service.SnapshotField.Parser, new[]{ "Snapshots" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SnapshotField), global::CRYSTALNET.Service.SnapshotField.Parser, new[]{ "Snapshots" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OutStoreParam), global::CRYSTALNET.Service.OutStoreParam.Parser, new[]{ "BookId", "Count" }, null, null, null, null)
           }));
     }
     #endregion
@@ -509,6 +520,7 @@ using ProtoPackage.Attributes;
       realGiveBackTime_ = other.realGiveBackTime_;
       returnBackCount_ = other.returnBackCount_;
       subOrderId_ = other.subOrderId_;
+      borrowDays_ = other.borrowDays_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -582,7 +594,7 @@ using ProtoPackage.Attributes;
     public const int PlanGiveBackTimeFieldNumber = 5;
     private long planGiveBackTime_;
     /// <summary>
-    /// 预计归还时间
+    /// 预计归还时间(领取后算起) TODO:
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -638,6 +650,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "BorrowDays" field.</summary>
+    public const int BorrowDaysFieldNumber = 9;
+    private int borrowDays_;
+    /// <summary>
+    /// 要借的天数
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int BorrowDays {
+      get { return borrowDays_; }
+      set {
+        borrowDays_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -661,6 +688,7 @@ using ProtoPackage.Attributes;
       if (RealGiveBackTime != other.RealGiveBackTime) return false;
       if (ReturnBackCount != other.ReturnBackCount) return false;
       if (SubOrderId != other.SubOrderId) return false;
+      if (BorrowDays != other.BorrowDays) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -676,6 +704,7 @@ using ProtoPackage.Attributes;
       if (RealGiveBackTime != 0L) hash ^= RealGiveBackTime.GetHashCode();
       if (ReturnBackCount != 0UL) hash ^= ReturnBackCount.GetHashCode();
       if (SubOrderId != 0UL) hash ^= SubOrderId.GetHashCode();
+      if (BorrowDays != 0) hash ^= BorrowDays.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -726,6 +755,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(64);
         output.WriteUInt64(SubOrderId);
       }
+      if (BorrowDays != 0) {
+        output.WriteRawTag(72);
+        output.WriteSInt32(BorrowDays);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -768,6 +801,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(64);
         output.WriteUInt64(SubOrderId);
       }
+      if (BorrowDays != 0) {
+        output.WriteRawTag(72);
+        output.WriteSInt32(BorrowDays);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -801,6 +838,9 @@ using ProtoPackage.Attributes;
       }
       if (SubOrderId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(SubOrderId);
+      }
+      if (BorrowDays != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(BorrowDays);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -837,6 +877,9 @@ using ProtoPackage.Attributes;
       }
       if (other.SubOrderId != 0UL) {
         SubOrderId = other.SubOrderId;
+      }
+      if (other.BorrowDays != 0) {
+        BorrowDays = other.BorrowDays;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -883,6 +926,10 @@ using ProtoPackage.Attributes;
           }
           case 64: {
             SubOrderId = input.ReadUInt64();
+            break;
+          }
+          case 72: {
+            BorrowDays = input.ReadSInt32();
             break;
           }
         }
@@ -932,6 +979,248 @@ using ProtoPackage.Attributes;
             SubOrderId = input.ReadUInt64();
             break;
           }
+          case 72: {
+            BorrowDays = input.ReadSInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 图书详情信息
+  /// </summary>
+  public sealed partial class BorrowBookDetailInfo : pb::IMessage<BorrowBookDetailInfo>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BorrowBookDetailInfo> _parser = new pb::MessageParser<BorrowBookDetailInfo>(() => new BorrowBookDetailInfo());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BorrowBookDetailInfo> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowBookDetailInfo() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowBookDetailInfo(BorrowBookDetailInfo other) : this() {
+      bookInfo_ = other.bookInfo_ != null ? other.bookInfo_.Clone() : null;
+      bookName_ = other.bookName_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowBookDetailInfo Clone() {
+      return new BorrowBookDetailInfo(this);
+    }
+
+    /// <summary>Field number for the "BookInfo" field.</summary>
+    public const int BookInfoFieldNumber = 1;
+    private global::CRYSTALNET.Service.BorrowBookInfo bookInfo_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::CRYSTALNET.Service.BorrowBookInfo BookInfo {
+      get { return bookInfo_; }
+      set {
+        bookInfo_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "BookName" field.</summary>
+    public const int BookNameFieldNumber = 2;
+    private pb::ByteString bookName_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pb::ByteString BookName {
+      get { return bookName_; }
+      set {
+        bookName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BorrowBookDetailInfo);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BorrowBookDetailInfo other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(BookInfo, other.BookInfo)) return false;
+      if (BookName != other.BookName) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (bookInfo_ != null) hash ^= BookInfo.GetHashCode();
+      if (BookName.Length != 0) hash ^= BookName.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (bookInfo_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(BookInfo);
+      }
+      if (BookName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteBytes(BookName);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (bookInfo_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(BookInfo);
+      }
+      if (BookName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteBytes(BookName);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (bookInfo_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(BookInfo);
+      }
+      if (BookName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(BookName);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BorrowBookDetailInfo other) {
+      if (other == null) {
+        return;
+      }
+      if (other.bookInfo_ != null) {
+        if (bookInfo_ == null) {
+          BookInfo = new global::CRYSTALNET.Service.BorrowBookInfo();
+        }
+        BookInfo.MergeFrom(other.BookInfo);
+      }
+      if (other.BookName.Length != 0) {
+        BookName = other.BookName;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (bookInfo_ == null) {
+              BookInfo = new global::CRYSTALNET.Service.BorrowBookInfo();
+            }
+            input.ReadMessage(BookInfo);
+            break;
+          }
+          case 18: {
+            BookName = input.ReadBytes();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            if (bookInfo_ == null) {
+              BookInfo = new global::CRYSTALNET.Service.BorrowBookInfo();
+            }
+            input.ReadMessage(BookInfo);
+            break;
+          }
+          case 18: {
+            BookName = input.ReadBytes();
+            break;
+          }
         }
       }
     }
@@ -956,7 +1245,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[3]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1099,33 +1388,25 @@ using ProtoPackage.Attributes;
     public static partial class Types {
       public enum ENUMS {
         /// <summary>
-        /// 订单生成待管理员确认
+        /// 待出库
         /// </summary>
-        [pbr::OriginalName("WAITING_MANAGER_CONFIRM")] WaitingManagerConfirm = 0,
-        /// <summary>
-        /// 订单管理员确认并出库图书
-        /// </summary>
-        [pbr::OriginalName("ORDER_CONFIRM")] OrderConfirm = 1,
+        [pbr::OriginalName("WAITING_OUT_OF_WAREHOUSE")] WaitingOutOfWarehouse = 0,
         /// <summary>
         /// 订单已出库等待领取
         /// </summary>
-        [pbr::OriginalName("WAIT_USER_RECEIVE")] WaitUserReceive = 2,
+        [pbr::OriginalName("WAIT_USER_RECEIVE")] WaitUserReceive = 1,
         /// <summary>
         /// 用户已领取等待归还
         /// </summary>
-        [pbr::OriginalName("WAIT_USER_RETURN_BACK")] WaitUserReturnBack = 3,
-        /// <summary>
-        /// 用户已归还所有图书
-        /// </summary>
-        [pbr::OriginalName("USER_RETURN_BACK_ALL_BOOKS")] UserReturnBackAllBooks = 4,
+        [pbr::OriginalName("WAIT_USER_RETURN_BACK")] WaitUserReturnBack = 2,
         /// <summary>
         /// 取消订单(需要填写原因, 当用户领取后不可取消订单只能归还, 还没领取的才可取消订单)
         /// </summary>
-        [pbr::OriginalName("CANCEL_ORDER")] CancelOrder = 5,
+        [pbr::OriginalName("CANCEL_ORDER")] CancelOrder = 3,
         /// <summary>
         /// 已归还
         /// </summary>
-        [pbr::OriginalName("RETURN_BAKCK")] ReturnBakck = 6,
+        [pbr::OriginalName("RETURN_BAKCK")] ReturnBakck = 4,
       }
 
     }
@@ -1150,7 +1431,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[4]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1175,6 +1456,8 @@ using ProtoPackage.Attributes;
       createOrderTime_ = other.createOrderTime_;
       orderState_ = other.orderState_;
       cancelReason_ = other.cancelReason_;
+      getOverTime_ = other.getOverTime_;
+      remark_ = other.remark_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1258,6 +1541,36 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "GetOverTime" field.</summary>
+    public const int GetOverTimeFieldNumber = 6;
+    private long getOverTime_;
+    /// <summary>
+    /// 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long GetOverTime {
+      get { return getOverTime_; }
+      set {
+        getOverTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "Remark" field.</summary>
+    public const int RemarkFieldNumber = 7;
+    private pb::ByteString remark_ = pb::ByteString.Empty;
+    /// <summary>
+    /// 备注
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pb::ByteString Remark {
+      get { return remark_; }
+      set {
+        remark_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1278,6 +1591,8 @@ using ProtoPackage.Attributes;
       if (CreateOrderTime != other.CreateOrderTime) return false;
       if (OrderState != other.OrderState) return false;
       if (CancelReason != other.CancelReason) return false;
+      if (GetOverTime != other.GetOverTime) return false;
+      if (Remark != other.Remark) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1290,6 +1605,8 @@ using ProtoPackage.Attributes;
       if (CreateOrderTime != 0UL) hash ^= CreateOrderTime.GetHashCode();
       if (OrderState != 0) hash ^= OrderState.GetHashCode();
       if (CancelReason.Length != 0) hash ^= CancelReason.GetHashCode();
+      if (GetOverTime != 0L) hash ^= GetOverTime.GetHashCode();
+      if (Remark.Length != 0) hash ^= Remark.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1325,6 +1642,14 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(42);
         output.WriteString(CancelReason);
       }
+      if (GetOverTime != 0L) {
+        output.WriteRawTag(48);
+        output.WriteSInt64(GetOverTime);
+      }
+      if (Remark.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteBytes(Remark);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1352,6 +1677,14 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(42);
         output.WriteString(CancelReason);
       }
+      if (GetOverTime != 0L) {
+        output.WriteRawTag(48);
+        output.WriteSInt64(GetOverTime);
+      }
+      if (Remark.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteBytes(Remark);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1374,6 +1707,12 @@ using ProtoPackage.Attributes;
       }
       if (CancelReason.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CancelReason);
+      }
+      if (GetOverTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(GetOverTime);
+      }
+      if (Remark.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Remark);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1399,6 +1738,12 @@ using ProtoPackage.Attributes;
       }
       if (other.CancelReason.Length != 0) {
         CancelReason = other.CancelReason;
+      }
+      if (other.GetOverTime != 0L) {
+        GetOverTime = other.GetOverTime;
+      }
+      if (other.Remark.Length != 0) {
+        Remark = other.Remark;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1433,6 +1778,14 @@ using ProtoPackage.Attributes;
           }
           case 42: {
             CancelReason = input.ReadString();
+            break;
+          }
+          case 48: {
+            GetOverTime = input.ReadSInt64();
+            break;
+          }
+          case 58: {
+            Remark = input.ReadBytes();
             break;
           }
         }
@@ -1470,6 +1823,438 @@ using ProtoPackage.Attributes;
             CancelReason = input.ReadString();
             break;
           }
+          case 48: {
+            GetOverTime = input.ReadSInt64();
+            break;
+          }
+          case 58: {
+            Remark = input.ReadBytes();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 订单详情
+  /// </summary>
+  public sealed partial class BorrowOrderDetailInfo : pb::IMessage<BorrowOrderDetailInfo>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BorrowOrderDetailInfo> _parser = new pb::MessageParser<BorrowOrderDetailInfo>(() => new BorrowOrderDetailInfo());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BorrowOrderDetailInfo> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[6]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowOrderDetailInfo() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowOrderDetailInfo(BorrowOrderDetailInfo other) : this() {
+      orderId_ = other.orderId_;
+      borrowBookList_ = other.borrowBookList_.Clone();
+      createOrderTime_ = other.createOrderTime_;
+      orderState_ = other.orderState_;
+      cancelReason_ = other.cancelReason_;
+      getOverTime_ = other.getOverTime_;
+      remark_ = other.remark_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BorrowOrderDetailInfo Clone() {
+      return new BorrowOrderDetailInfo(this);
+    }
+
+    /// <summary>Field number for the "OrderId" field.</summary>
+    public const int OrderIdFieldNumber = 1;
+    private ulong orderId_;
+    /// <summary>
+    /// 订单号
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong OrderId {
+      get { return orderId_; }
+      set {
+        orderId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "BorrowBookList" field.</summary>
+    public const int BorrowBookListFieldNumber = 2;
+    private static readonly pb::FieldCodec<global::CRYSTALNET.Service.BorrowBookDetailInfo> _repeated_borrowBookList_codec
+        = pb::FieldCodec.ForMessage(18, global::CRYSTALNET.Service.BorrowBookDetailInfo.Parser);
+    private readonly pbc::RepeatedField<global::CRYSTALNET.Service.BorrowBookDetailInfo> borrowBookList_ = new pbc::RepeatedField<global::CRYSTALNET.Service.BorrowBookDetailInfo>();
+    /// <summary>
+    /// 借的书
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::CRYSTALNET.Service.BorrowBookDetailInfo> BorrowBookList {
+      get { return borrowBookList_; }
+    }
+
+    /// <summary>Field number for the "CreateOrderTime" field.</summary>
+    public const int CreateOrderTimeFieldNumber = 3;
+    private ulong createOrderTime_;
+    /// <summary>
+    /// 订单创建时间
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong CreateOrderTime {
+      get { return createOrderTime_; }
+      set {
+        createOrderTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "OrderState" field.</summary>
+    public const int OrderStateFieldNumber = 4;
+    private int orderState_;
+    /// <summary>
+    /// 订单状态 BorrowOrderState
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int OrderState {
+      get { return orderState_; }
+      set {
+        orderState_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "CancelReason" field.</summary>
+    public const int CancelReasonFieldNumber = 5;
+    private string cancelReason_ = "";
+    /// <summary>
+    /// 取消原因
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string CancelReason {
+      get { return cancelReason_; }
+      set {
+        cancelReason_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "GetOverTime" field.</summary>
+    public const int GetOverTimeFieldNumber = 6;
+    private long getOverTime_;
+    /// <summary>
+    /// 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long GetOverTime {
+      get { return getOverTime_; }
+      set {
+        getOverTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "Remark" field.</summary>
+    public const int RemarkFieldNumber = 7;
+    private pb::ByteString remark_ = pb::ByteString.Empty;
+    /// <summary>
+    /// 备注
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pb::ByteString Remark {
+      get { return remark_; }
+      set {
+        remark_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BorrowOrderDetailInfo);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BorrowOrderDetailInfo other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (OrderId != other.OrderId) return false;
+      if(!borrowBookList_.Equals(other.borrowBookList_)) return false;
+      if (CreateOrderTime != other.CreateOrderTime) return false;
+      if (OrderState != other.OrderState) return false;
+      if (CancelReason != other.CancelReason) return false;
+      if (GetOverTime != other.GetOverTime) return false;
+      if (Remark != other.Remark) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (OrderId != 0UL) hash ^= OrderId.GetHashCode();
+      hash ^= borrowBookList_.GetHashCode();
+      if (CreateOrderTime != 0UL) hash ^= CreateOrderTime.GetHashCode();
+      if (OrderState != 0) hash ^= OrderState.GetHashCode();
+      if (CancelReason.Length != 0) hash ^= CancelReason.GetHashCode();
+      if (GetOverTime != 0L) hash ^= GetOverTime.GetHashCode();
+      if (Remark.Length != 0) hash ^= Remark.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (OrderId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(OrderId);
+      }
+      borrowBookList_.WriteTo(output, _repeated_borrowBookList_codec);
+      if (CreateOrderTime != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(CreateOrderTime);
+      }
+      if (OrderState != 0) {
+        output.WriteRawTag(32);
+        output.WriteSInt32(OrderState);
+      }
+      if (CancelReason.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(CancelReason);
+      }
+      if (GetOverTime != 0L) {
+        output.WriteRawTag(48);
+        output.WriteSInt64(GetOverTime);
+      }
+      if (Remark.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteBytes(Remark);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (OrderId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(OrderId);
+      }
+      borrowBookList_.WriteTo(ref output, _repeated_borrowBookList_codec);
+      if (CreateOrderTime != 0UL) {
+        output.WriteRawTag(24);
+        output.WriteUInt64(CreateOrderTime);
+      }
+      if (OrderState != 0) {
+        output.WriteRawTag(32);
+        output.WriteSInt32(OrderState);
+      }
+      if (CancelReason.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(CancelReason);
+      }
+      if (GetOverTime != 0L) {
+        output.WriteRawTag(48);
+        output.WriteSInt64(GetOverTime);
+      }
+      if (Remark.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteBytes(Remark);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (OrderId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(OrderId);
+      }
+      size += borrowBookList_.CalculateSize(_repeated_borrowBookList_codec);
+      if (CreateOrderTime != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(CreateOrderTime);
+      }
+      if (OrderState != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(OrderState);
+      }
+      if (CancelReason.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(CancelReason);
+      }
+      if (GetOverTime != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(GetOverTime);
+      }
+      if (Remark.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Remark);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BorrowOrderDetailInfo other) {
+      if (other == null) {
+        return;
+      }
+      if (other.OrderId != 0UL) {
+        OrderId = other.OrderId;
+      }
+      borrowBookList_.Add(other.borrowBookList_);
+      if (other.CreateOrderTime != 0UL) {
+        CreateOrderTime = other.CreateOrderTime;
+      }
+      if (other.OrderState != 0) {
+        OrderState = other.OrderState;
+      }
+      if (other.CancelReason.Length != 0) {
+        CancelReason = other.CancelReason;
+      }
+      if (other.GetOverTime != 0L) {
+        GetOverTime = other.GetOverTime;
+      }
+      if (other.Remark.Length != 0) {
+        Remark = other.Remark;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            OrderId = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            borrowBookList_.AddEntriesFrom(input, _repeated_borrowBookList_codec);
+            break;
+          }
+          case 24: {
+            CreateOrderTime = input.ReadUInt64();
+            break;
+          }
+          case 32: {
+            OrderState = input.ReadSInt32();
+            break;
+          }
+          case 42: {
+            CancelReason = input.ReadString();
+            break;
+          }
+          case 48: {
+            GetOverTime = input.ReadSInt64();
+            break;
+          }
+          case 58: {
+            Remark = input.ReadBytes();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            OrderId = input.ReadUInt64();
+            break;
+          }
+          case 18: {
+            borrowBookList_.AddEntriesFrom(ref input, _repeated_borrowBookList_codec);
+            break;
+          }
+          case 24: {
+            CreateOrderTime = input.ReadUInt64();
+            break;
+          }
+          case 32: {
+            OrderState = input.ReadSInt32();
+            break;
+          }
+          case 42: {
+            CancelReason = input.ReadString();
+            break;
+          }
+          case 48: {
+            GetOverTime = input.ReadSInt64();
+            break;
+          }
+          case 58: {
+            Remark = input.ReadBytes();
+            break;
+          }
         }
       }
     }
@@ -1494,7 +2279,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[5]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1566,13 +2351,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "Nickname" field.</summary>
     public const int NicknameFieldNumber = 3;
-    private string nickname_ = "";
+    private pb::ByteString nickname_ = pb::ByteString.Empty;
     /// <summary>
     /// 会员昵称
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Nickname {
+    public pb::ByteString Nickname {
       get { return nickname_; }
       set {
         nickname_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -1585,7 +2370,7 @@ using ProtoPackage.Attributes;
         = pb::FieldCodec.ForMessage(34, global::CRYSTALNET.Service.BorrowOrderInfo.Parser);
     private readonly pbc::RepeatedField<global::CRYSTALNET.Service.BorrowOrderInfo> borrowList_ = new pbc::RepeatedField<global::CRYSTALNET.Service.BorrowOrderInfo>();
     /// <summary>
-    /// 当前借阅图书列表 只有有权限的人才会看到订单详情, 其他人只能看自己的
+    /// 当前借阅图书列表 只有有权限的人才会看到订单详情, 其他人只能看自己的, 避免被恶意下单, 最多一天借100本书 TODO:
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1704,7 +2489,7 @@ using ProtoPackage.Attributes;
       }
       if (Nickname.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(Nickname);
+        output.WriteBytes(Nickname);
       }
       borrowList_.WriteTo(output, _repeated_borrowList_codec);
       if (LockTimestampMs != 0L) {
@@ -1735,7 +2520,7 @@ using ProtoPackage.Attributes;
       }
       if (Nickname.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(Nickname);
+        output.WriteBytes(Nickname);
       }
       borrowList_.WriteTo(ref output, _repeated_borrowList_codec);
       if (LockTimestampMs != 0L) {
@@ -1763,7 +2548,7 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(Role);
       }
       if (Nickname.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Nickname);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Nickname);
       }
       size += borrowList_.CalculateSize(_repeated_borrowList_codec);
       if (LockTimestampMs != 0L) {
@@ -1827,7 +2612,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            Nickname = input.ReadString();
+            Nickname = input.ReadBytes();
             break;
           }
           case 34: {
@@ -1866,7 +2651,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            Nickname = input.ReadString();
+            Nickname = input.ReadBytes();
             break;
           }
           case 34: {
@@ -1902,7 +2687,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[6]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2072,7 +2857,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[7]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2435,7 +3220,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[8]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2492,13 +3277,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "Name" field.</summary>
     public const int NameFieldNumber = 2;
-    private string name_ = "";
+    private pb::ByteString name_ = pb::ByteString.Empty;
     /// <summary>
     /// 图书馆名
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
+    public pb::ByteString Name {
       get { return name_; }
       set {
         name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -2507,13 +3292,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "Address" field.</summary>
     public const int AddressFieldNumber = 3;
-    private string address_ = "";
+    private pb::ByteString address_ = pb::ByteString.Empty;
     /// <summary>
     /// 图书馆地址
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Address {
+    public pb::ByteString Address {
       get { return address_; }
       set {
         address_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -2522,13 +3307,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "OpenTime" field.</summary>
     public const int OpenTimeFieldNumber = 4;
-    private string openTime_ = "";
+    private pb::ByteString openTime_ = pb::ByteString.Empty;
     /// <summary>
     /// 图书馆经营时间
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string OpenTime {
+    public pb::ByteString OpenTime {
       get { return openTime_; }
       set {
         openTime_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -2567,13 +3352,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "LibrarianUserNickname" field.</summary>
     public const int LibrarianUserNicknameFieldNumber = 7;
-    private string librarianUserNickname_ = "";
+    private pb::ByteString librarianUserNickname_ = pb::ByteString.Empty;
     /// <summary>
     /// 馆长名
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string LibrarianUserNickname {
+    public pb::ByteString LibrarianUserNickname {
       get { return librarianUserNickname_; }
       set {
         librarianUserNickname_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -2704,15 +3489,15 @@ using ProtoPackage.Attributes;
       }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
-        output.WriteString(Name);
+        output.WriteBytes(Name);
       }
       if (Address.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(Address);
+        output.WriteBytes(Address);
       }
       if (OpenTime.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteString(OpenTime);
+        output.WriteBytes(OpenTime);
       }
       if (TelphoneNumber.Length != 0) {
         output.WriteRawTag(42);
@@ -2724,7 +3509,7 @@ using ProtoPackage.Attributes;
       }
       if (LibrarianUserNickname.Length != 0) {
         output.WriteRawTag(58);
-        output.WriteString(LibrarianUserNickname);
+        output.WriteBytes(LibrarianUserNickname);
       }
       managerInfoList_.WriteTo(output, _repeated_managerInfoList_codec);
       memberList_.WriteTo(output, _repeated_memberList_codec);
@@ -2746,15 +3531,15 @@ using ProtoPackage.Attributes;
       }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
-        output.WriteString(Name);
+        output.WriteBytes(Name);
       }
       if (Address.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(Address);
+        output.WriteBytes(Address);
       }
       if (OpenTime.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteString(OpenTime);
+        output.WriteBytes(OpenTime);
       }
       if (TelphoneNumber.Length != 0) {
         output.WriteRawTag(42);
@@ -2766,7 +3551,7 @@ using ProtoPackage.Attributes;
       }
       if (LibrarianUserNickname.Length != 0) {
         output.WriteRawTag(58);
-        output.WriteString(LibrarianUserNickname);
+        output.WriteBytes(LibrarianUserNickname);
       }
       managerInfoList_.WriteTo(ref output, _repeated_managerInfoList_codec);
       memberList_.WriteTo(ref output, _repeated_memberList_codec);
@@ -2786,13 +3571,13 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Id);
       }
       if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Name);
       }
       if (Address.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Address);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Address);
       }
       if (OpenTime.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(OpenTime);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(OpenTime);
       }
       if (TelphoneNumber.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(TelphoneNumber);
@@ -2801,7 +3586,7 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(LibrarianUserId);
       }
       if (LibrarianUserNickname.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(LibrarianUserNickname);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(LibrarianUserNickname);
       }
       size += managerInfoList_.CalculateSize(_repeated_managerInfoList_codec);
       size += memberList_.CalculateSize(_repeated_memberList_codec);
@@ -2864,15 +3649,15 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            Name = input.ReadString();
+            Name = input.ReadBytes();
             break;
           }
           case 26: {
-            Address = input.ReadString();
+            Address = input.ReadBytes();
             break;
           }
           case 34: {
-            OpenTime = input.ReadString();
+            OpenTime = input.ReadBytes();
             break;
           }
           case 42: {
@@ -2884,7 +3669,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 58: {
-            LibrarianUserNickname = input.ReadString();
+            LibrarianUserNickname = input.ReadBytes();
             break;
           }
           case 66: {
@@ -2923,15 +3708,15 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            Name = input.ReadString();
+            Name = input.ReadBytes();
             break;
           }
           case 26: {
-            Address = input.ReadString();
+            Address = input.ReadBytes();
             break;
           }
           case 34: {
-            OpenTime = input.ReadString();
+            OpenTime = input.ReadBytes();
             break;
           }
           case 42: {
@@ -2943,7 +3728,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 58: {
-            LibrarianUserNickname = input.ReadString();
+            LibrarianUserNickname = input.ReadBytes();
             break;
           }
           case 66: {
@@ -2986,7 +3771,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[9]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3181,7 +3966,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[10]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3231,13 +4016,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "Name" field.</summary>
     public const int NameFieldNumber = 2;
-    private string name_ = "";
+    private pb::ByteString name_ = pb::ByteString.Empty;
     /// <summary>
     /// 图书馆名
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
+    public pb::ByteString Name {
       get { return name_; }
       set {
         name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -3261,13 +4046,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "LibrarianNickname" field.</summary>
     public const int LibrarianNicknameFieldNumber = 4;
-    private string librarianNickname_ = "";
+    private pb::ByteString librarianNickname_ = pb::ByteString.Empty;
     /// <summary>
     /// 馆长昵称
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string LibrarianNickname {
+    public pb::ByteString LibrarianNickname {
       get { return librarianNickname_; }
       set {
         librarianNickname_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -3328,7 +4113,7 @@ using ProtoPackage.Attributes;
       }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
-        output.WriteString(Name);
+        output.WriteBytes(Name);
       }
       if (LibrarianUserId != 0UL) {
         output.WriteRawTag(24);
@@ -3336,7 +4121,7 @@ using ProtoPackage.Attributes;
       }
       if (LibrarianNickname.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteString(LibrarianNickname);
+        output.WriteBytes(LibrarianNickname);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -3354,7 +4139,7 @@ using ProtoPackage.Attributes;
       }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
-        output.WriteString(Name);
+        output.WriteBytes(Name);
       }
       if (LibrarianUserId != 0UL) {
         output.WriteRawTag(24);
@@ -3362,7 +4147,7 @@ using ProtoPackage.Attributes;
       }
       if (LibrarianNickname.Length != 0) {
         output.WriteRawTag(34);
-        output.WriteString(LibrarianNickname);
+        output.WriteBytes(LibrarianNickname);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -3378,13 +4163,13 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Id);
       }
       if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Name);
       }
       if (LibrarianUserId != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(LibrarianUserId);
       }
       if (LibrarianNickname.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(LibrarianNickname);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(LibrarianNickname);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -3430,7 +4215,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            Name = input.ReadString();
+            Name = input.ReadBytes();
             break;
           }
           case 24: {
@@ -3438,7 +4223,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 34: {
-            LibrarianNickname = input.ReadString();
+            LibrarianNickname = input.ReadBytes();
             break;
           }
         }
@@ -3461,7 +4246,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            Name = input.ReadString();
+            Name = input.ReadBytes();
             break;
           }
           case 24: {
@@ -3469,7 +4254,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 34: {
-            LibrarianNickname = input.ReadString();
+            LibrarianNickname = input.ReadBytes();
             break;
           }
         }
@@ -3496,7 +4281,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[11]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3528,12 +4313,12 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "KeyWords" field.</summary>
     public const int KeyWordsFieldNumber = 1;
-    private static readonly pb::FieldCodec<string> _repeated_keyWords_codec
-        = pb::FieldCodec.ForString(10);
-    private readonly pbc::RepeatedField<string> keyWords_ = new pbc::RepeatedField<string>();
+    private static readonly pb::FieldCodec<pb::ByteString> _repeated_keyWords_codec
+        = pb::FieldCodec.ForBytes(10);
+    private readonly pbc::RepeatedField<pb::ByteString> keyWords_ = new pbc::RepeatedField<pb::ByteString>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<string> KeyWords {
+    public pbc::RepeatedField<pb::ByteString> KeyWords {
       get { return keyWords_; }
     }
 
@@ -3677,7 +4462,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[12]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3832,6 +4617,241 @@ using ProtoPackage.Attributes;
             break;
           case 10: {
             snapshots_.AddEntriesFrom(ref input, _repeated_snapshots_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 出库参数
+  /// </summary>
+  public sealed partial class OutStoreParam : pb::IMessage<OutStoreParam>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<OutStoreParam> _parser = new pb::MessageParser<OutStoreParam>(() => new OutStoreParam());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<OutStoreParam> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[15]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OutStoreParam() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OutStoreParam(OutStoreParam other) : this() {
+      bookId_ = other.bookId_;
+      count_ = other.count_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OutStoreParam Clone() {
+      return new OutStoreParam(this);
+    }
+
+    /// <summary>Field number for the "BookId" field.</summary>
+    public const int BookIdFieldNumber = 1;
+    private ulong bookId_;
+    /// <summary>
+    /// 图书id
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong BookId {
+      get { return bookId_; }
+      set {
+        bookId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "Count" field.</summary>
+    public const int CountFieldNumber = 2;
+    private long count_;
+    /// <summary>
+    /// 图书数量
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Count {
+      get { return count_; }
+      set {
+        count_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as OutStoreParam);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(OutStoreParam other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (BookId != other.BookId) return false;
+      if (Count != other.Count) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (BookId != 0UL) hash ^= BookId.GetHashCode();
+      if (Count != 0L) hash ^= Count.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (BookId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(BookId);
+      }
+      if (Count != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(Count);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (BookId != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(BookId);
+      }
+      if (Count != 0L) {
+        output.WriteRawTag(16);
+        output.WriteSInt64(Count);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (BookId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BookId);
+      }
+      if (Count != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt64Size(Count);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(OutStoreParam other) {
+      if (other == null) {
+        return;
+      }
+      if (other.BookId != 0UL) {
+        BookId = other.BookId;
+      }
+      if (other.Count != 0L) {
+        Count = other.Count;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            BookId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            Count = input.ReadSInt64();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            BookId = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            Count = input.ReadSInt64();
             break;
           }
         }

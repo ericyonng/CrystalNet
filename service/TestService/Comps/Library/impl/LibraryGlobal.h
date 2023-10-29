@@ -58,7 +58,7 @@ public:
     virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const override;
     BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId);
 
-    virtual Int32 CreateBorrowOrder(UInt64 libraryId, const IUser *user, const BookBagInfo &bookBagInfo) override;
+    virtual Int32 CreateBorrowOrder(UInt64 libraryId, const IUser *user, const BookBagInfo &bookBagInfo, const KERNEL_NS::LibString &remark) override;
 
 protected:
     virtual Int32 _OnGlobalSysInit() override;
@@ -81,7 +81,10 @@ protected:
     // 书名或者关键字
     void _OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet);
     void _OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet);
+    void _OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet);
 
+    void _BuildOrderDetailInfo(const LibraryInfo *libraryInfo, UInt64 memberUserId, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const;
+    void _BuildOrderDetailInfo(UInt64 libraryId, const MemberInfo *memberInfo, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const;
     Int32 _ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqUserId, IUser *targetUser, const ModifyMemberInfoReq &req);
 
     void _BuildPreviewInfo(LibraryPreviewInfo *previewInfo, const LibraryInfo *libraryInfo) const;
@@ -105,6 +108,7 @@ protected:
     bool _RemoveMember(LibraryInfo *libraryInfo, IUser *user);
 
     bool _IsManager(Int32 roleType) const;
+    bool _IsManager(UInt64 libraryId, UInt64 userId) const;
 
     bool _CanHandle(UInt64 libraryId, UInt64 userId) const;
     void _LockMember(UInt64 libraryId, UInt64 userId, Int64 timeoutMs = 5000);
