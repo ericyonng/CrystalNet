@@ -244,7 +244,7 @@ const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIA
   "ginMode\"8\n\005ENUMS\022\014\n\010PASSWORD\020\000\022\023\n\017USE_LO"
   "GIN_TOKEN\020\001\022\014\n\010REGISTER\020\002\"_\n\020RegisterUse"
   "rInfo\022\023\n\013AccountName\030\001 \001(\t\022\020\n\010Nickname\030\002"
-  " \001(\t\022\013\n\003Pwd\030\003 \001(\t\022\027\n\017CreatePhoneImei\030\004 \001"
+  " \001(\014\022\013\n\003Pwd\030\003 \001(\t\022\027\n\017CreatePhoneImei\030\004 \001"
   "(\t\"\251\002\n\tLoginInfo\022\021\n\tLoginMode\030\001 \001(\021\022\023\n\013A"
   "ccountName\030\002 \001(\t\022\013\n\003Pwd\030\003 \001(\t\022\022\n\nLoginTo"
   "ken\030\004 \001(\t\022\026\n\016LoginPhoneImei\030\005 \001(\t\022\020\n\010Tar"
@@ -257,7 +257,7 @@ const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIA
   "R_REASON\020\001\022\017\n\013USER_LOGOUT\020\002\022\r\n\tUSER_IDLE"
   "\020\003\022\013\n\007TIMEOUT\020\004\022\020\n\014CLOSE_SERVER\020\005\022\030\n\024LOG"
   "_IN_OTHER_ACCOUNT\020\006\"E\n\016SimpleUserInfo\022\016\n"
-  "\006UserId\030\001 \001(\004\022\020\n\010Nickname\030\002 \001(\t\022\021\n\tBindP"
+  "\006UserId\030\001 \001(\004\022\020\n\010Nickname\030\002 \001(\014\022\021\n\tBindP"
   "hone\030\003 \001(\004b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_com_5fuser_2eproto_once;
@@ -1284,13 +1284,12 @@ const char* RegisterUserInfo::_InternalParse(const char* ptr, ::_pbi::ParseConte
         } else
           goto handle_unusual;
         continue;
-      // string Nickname = 2;
+      // bytes Nickname = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_nickname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.RegisterUserInfo.Nickname"));
         } else
           goto handle_unusual;
         continue;
@@ -1353,13 +1352,9 @@ uint8_t* RegisterUserInfo::_InternalSerialize(
         1, this->_internal_accountname(), target);
   }
 
-  // string Nickname = 2;
+  // bytes Nickname = 2;
   if (!this->_internal_nickname().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_nickname().data(), static_cast<int>(this->_internal_nickname().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.RegisterUserInfo.Nickname");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_nickname(), target);
   }
 
@@ -1406,10 +1401,10 @@ size_t RegisterUserInfo::ByteSizeLong() const {
         this->_internal_accountname());
   }
 
-  // string Nickname = 2;
+  // bytes Nickname = 2;
   if (!this->_internal_nickname().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_nickname());
   }
 
@@ -2370,13 +2365,12 @@ const char* SimpleUserInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext
         } else
           goto handle_unusual;
         continue;
-      // string Nickname = 2;
+      // bytes Nickname = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_nickname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.SimpleUserInfo.Nickname"));
         } else
           goto handle_unusual;
         continue;
@@ -2423,13 +2417,9 @@ uint8_t* SimpleUserInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_userid(), target);
   }
 
-  // string Nickname = 2;
+  // bytes Nickname = 2;
   if (!this->_internal_nickname().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_nickname().data(), static_cast<int>(this->_internal_nickname().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.SimpleUserInfo.Nickname");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_nickname(), target);
   }
 
@@ -2455,10 +2445,10 @@ size_t SimpleUserInfo::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string Nickname = 2;
+  // bytes Nickname = 2;
   if (!this->_internal_nickname().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_nickname());
   }
 

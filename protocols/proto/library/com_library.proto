@@ -155,7 +155,7 @@ message OperationLogInfo
 {
     sint32 OpType = 1;
     uint64 OpUserId = 2;
-    string OpNickname = 3;
+    bytes OpNickname = 3;
     sint32 Role = 4;
     sint64 OpTimeMs = 5;
     repeated VariantParam Params = 6;

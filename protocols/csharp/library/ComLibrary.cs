@@ -56,7 +56,7 @@ using ProtoPackage.Attributes;
             "bmRQaG9uZRgGIAEoBEgAQhEKD01lbWJlckJpbmRQaG9uZSIlCg1PcGVyYXRp",
             "b25UeXBlIhQKBUVOVU1TEgsKB1VOS05PV04QACKbAQoQT3BlcmF0aW9uTG9n",
             "SW5mbxIOCgZPcFR5cGUYASABKBESEAoIT3BVc2VySWQYAiABKAQSEgoKT3BO",
-            "aWNrbmFtZRgDIAEoCRIMCgRSb2xlGAQgASgREhAKCE9wVGltZU1zGAUgASgS",
+            "aWNrbmFtZRgDIAEoDBIMCgRSb2xlGAQgASgREhAKCE9wVGltZU1zGAUgASgS",
             "EjEKBlBhcmFtcxgGIAMoCzIhLkNSWVNUQUxfTkVULnNlcnZpY2UuVmFyaWFu",
             "dFBhcmFtIv8CCgtMaWJyYXJ5SW5mbxIKCgJJZBgBIAEoBBIMCgROYW1lGAIg",
             "ASgMEg8KB0FkZHJlc3MYAyABKAwSEAoIT3BlblRpbWUYBCABKAwSFgoOVGVs",
@@ -2918,10 +2918,10 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "OpNickname" field.</summary>
     public const int OpNicknameFieldNumber = 3;
-    private string opNickname_ = "";
+    private pb::ByteString opNickname_ = pb::ByteString.Empty;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string OpNickname {
+    public pb::ByteString OpNickname {
       get { return opNickname_; }
       set {
         opNickname_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -3025,7 +3025,7 @@ using ProtoPackage.Attributes;
       }
       if (OpNickname.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(OpNickname);
+        output.WriteBytes(OpNickname);
       }
       if (Role != 0) {
         output.WriteRawTag(32);
@@ -3056,7 +3056,7 @@ using ProtoPackage.Attributes;
       }
       if (OpNickname.Length != 0) {
         output.WriteRawTag(26);
-        output.WriteString(OpNickname);
+        output.WriteBytes(OpNickname);
       }
       if (Role != 0) {
         output.WriteRawTag(32);
@@ -3084,7 +3084,7 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(OpUserId);
       }
       if (OpNickname.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(OpNickname);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(OpNickname);
       }
       if (Role != 0) {
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(Role);
@@ -3145,7 +3145,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            OpNickname = input.ReadString();
+            OpNickname = input.ReadBytes();
             break;
           }
           case 32: {
@@ -3184,7 +3184,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 26: {
-            OpNickname = input.ReadString();
+            OpNickname = input.ReadBytes();
             break;
           }
           case 32: {

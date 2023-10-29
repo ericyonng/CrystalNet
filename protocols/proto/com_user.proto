@@ -54,7 +54,7 @@ message RegisterUserInfo
     // 账号
     string AccountName = 1;
     // 昵称
-    string Nickname = 2;
+    bytes Nickname = 2;
     // 密码
     string Pwd = 3;
     // 创建的收集imei
@@ -123,7 +123,7 @@ message SimpleUserInfo
     // uid
     uint64 UserId = 1;
     // 昵称
-    string Nickname = 2;
+    bytes Nickname = 2;
     // 绑定手机
     uint64 BindPhone = 3;
 }

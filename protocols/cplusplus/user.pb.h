@@ -975,7 +975,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
       ::CRYSTAL_NET::service::ModifyPwdInfo* pwdinfo);
   ::CRYSTAL_NET::service::ModifyPwdInfo* unsafe_arena_release_pwdinfo();
 
-  // string Nickname = 2;
+  // bytes Nickname = 2;
   bool has_nickname() const;
   private:
   bool _internal_has_nickname() const;
@@ -1586,7 +1586,7 @@ inline ::CRYSTAL_NET::service::ModifyPwdInfo* ModifyUserInfoReq::mutable_pwdinfo
   return _msg;
 }
 
-// string Nickname = 2;
+// bytes Nickname = 2;
 inline bool ModifyUserInfoReq::_internal_has_nickname() const {
   return ModifyInfo_case() == kNickname;
 }
@@ -1613,7 +1613,7 @@ inline void ModifyUserInfoReq::set_nickname(ArgT0&& arg0, ArgT... args) {
     set_has_nickname();
     _impl_.ModifyInfo_.nickname_.InitDefault();
   }
-  _impl_.ModifyInfo_.nickname_.Set( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  _impl_.ModifyInfo_.nickname_.SetBytes( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ModifyUserInfoReq.Nickname)
 }
 inline std::string* ModifyUserInfoReq::mutable_nickname() {

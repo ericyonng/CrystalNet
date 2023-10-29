@@ -523,7 +523,7 @@ const char descriptor_table_protodef_com_5flibrary_2eproto[] PROTOBUF_SECTION_VA
   "BindPhone\"%\n\rOperationType\"\024\n\005ENUMS\022\013\n\007U"
   "NKNOWN\020\000\"\233\001\n\020OperationLogInfo\022\016\n\006OpType\030"
   "\001 \001(\021\022\020\n\010OpUserId\030\002 \001(\004\022\022\n\nOpNickname\030\003 "
-  "\001(\t\022\014\n\004Role\030\004 \001(\021\022\020\n\010OpTimeMs\030\005 \001(\022\0221\n\006P"
+  "\001(\014\022\014\n\004Role\030\004 \001(\021\022\020\n\010OpTimeMs\030\005 \001(\022\0221\n\006P"
   "arams\030\006 \003(\0132!.CRYSTAL_NET.service.Varian"
   "tParam\"\377\002\n\013LibraryInfo\022\n\n\002Id\030\001 \001(\004\022\014\n\004Na"
   "me\030\002 \001(\014\022\017\n\007Address\030\003 \001(\014\022\020\n\010OpenTime\030\004 "
@@ -2862,13 +2862,12 @@ const char* OperationLogInfo::_InternalParse(const char* ptr, ::_pbi::ParseConte
         } else
           goto handle_unusual;
         continue;
-      // string OpNickname = 3;
+      // bytes OpNickname = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_opnickname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.OperationLogInfo.OpNickname"));
         } else
           goto handle_unusual;
         continue;
@@ -2942,13 +2941,9 @@ uint8_t* OperationLogInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_opuserid(), target);
   }
 
-  // string OpNickname = 3;
+  // bytes OpNickname = 3;
   if (!this->_internal_opnickname().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_opnickname().data(), static_cast<int>(this->_internal_opnickname().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.OperationLogInfo.OpNickname");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         3, this->_internal_opnickname(), target);
   }
 
@@ -2995,10 +2990,10 @@ size_t OperationLogInfo::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // string OpNickname = 3;
+  // bytes OpNickname = 3;
   if (!this->_internal_opnickname().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_opnickname());
   }
 

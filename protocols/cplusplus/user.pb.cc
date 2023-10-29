@@ -142,7 +142,7 @@ const char descriptor_table_protodef_user_2eproto[] PROTOBUF_SECTION_VARIABLE(pr
   "PwdInfo\022\016\n\006OldPwd\030\001 \001(\t\022\016\n\006NewPwd\030\002 \001(\t\""
   "l\n\021ModifyUserInfoReq\0225\n\007PwdInfo\030\001 \001(\0132\"."
   "CRYSTAL_NET.service.ModifyPwdInfoH\000\022\022\n\010N"
-  "ickname\030\002 \001(\tH\000B\014\n\nModifyInfo\"$\n\021ModifyU"
+  "ickname\030\002 \001(\014H\000B\014\n\nModifyInfo\"$\n\021ModifyU"
   "serInfoRes\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_user_2eproto_deps[2] = {
@@ -755,13 +755,12 @@ const char* ModifyUserInfoReq::_InternalParse(const char* ptr, ::_pbi::ParseCont
         } else
           goto handle_unusual;
         continue;
-      // string Nickname = 2;
+      // bytes Nickname = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_nickname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.ModifyUserInfoReq.Nickname"));
         } else
           goto handle_unusual;
         continue;
@@ -801,13 +800,9 @@ uint8_t* ModifyUserInfoReq::_InternalSerialize(
         _Internal::pwdinfo(this).GetCachedSize(), target, stream);
   }
 
-  // string Nickname = 2;
+  // bytes Nickname = 2;
   if (_internal_has_nickname()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_nickname().data(), static_cast<int>(this->_internal_nickname().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.ModifyUserInfoReq.Nickname");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_nickname(), target);
   }
 
@@ -835,10 +830,10 @@ size_t ModifyUserInfoReq::ByteSizeLong() const {
           *_impl_.ModifyInfo_.pwdinfo_);
       break;
     }
-    // string Nickname = 2;
+    // bytes Nickname = 2;
     case kNickname: {
       total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
           this->_internal_nickname());
       break;
     }

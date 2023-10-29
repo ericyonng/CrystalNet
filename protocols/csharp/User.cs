@@ -32,7 +32,7 @@ using ProtoPackage.Attributes;
             "LkNsaWVudFVzZXJJbmZvIi8KDU1vZGlmeVB3ZEluZm8SDgoGT2xkUHdkGAEg",
             "ASgJEg4KBk5ld1B3ZBgCIAEoCSJsChFNb2RpZnlVc2VySW5mb1JlcRI1CgdQ",
             "d2RJbmZvGAEgASgLMiIuQ1JZU1RBTF9ORVQuc2VydmljZS5Nb2RpZnlQd2RJ",
-            "bmZvSAASEgoITmlja25hbWUYAiABKAlIAEIMCgpNb2RpZnlJbmZvIiQKEU1v",
+            "bmZvSAASEgoITmlja25hbWUYAiABKAxIAEIMCgpNb2RpZnlJbmZvIiQKEU1v",
             "ZGlmeVVzZXJJbmZvUmVzEg8KB0VyckNvZGUYASABKBFiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComUserReflection.Descriptor, global::CRYSTALNET.Service.ComClientUserReflection.Descriptor, },
@@ -557,8 +557,8 @@ using ProtoPackage.Attributes;
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Nickname {
-      get { return modifyInfoCase_ == ModifyInfoOneofCase.Nickname ? (string) modifyInfo_ : ""; }
+    public pb::ByteString Nickname {
+      get { return modifyInfoCase_ == ModifyInfoOneofCase.Nickname ? (pb::ByteString) modifyInfo_ : pb::ByteString.Empty; }
       set {
         modifyInfo_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
         modifyInfoCase_ = ModifyInfoOneofCase.Nickname;
@@ -638,7 +638,7 @@ using ProtoPackage.Attributes;
       }
       if (modifyInfoCase_ == ModifyInfoOneofCase.Nickname) {
         output.WriteRawTag(18);
-        output.WriteString(Nickname);
+        output.WriteBytes(Nickname);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -656,7 +656,7 @@ using ProtoPackage.Attributes;
       }
       if (modifyInfoCase_ == ModifyInfoOneofCase.Nickname) {
         output.WriteRawTag(18);
-        output.WriteString(Nickname);
+        output.WriteBytes(Nickname);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -672,7 +672,7 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(PwdInfo);
       }
       if (modifyInfoCase_ == ModifyInfoOneofCase.Nickname) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Nickname);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Nickname);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -723,7 +723,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            Nickname = input.ReadString();
+            Nickname = input.ReadBytes();
             break;
           }
         }
@@ -751,7 +751,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            Nickname = input.ReadString();
+            Nickname = input.ReadBytes();
             break;
           }
         }

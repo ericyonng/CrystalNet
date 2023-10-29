@@ -1207,7 +1207,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_accountname();
   public:
 
-  // string Nickname = 2;
+  // bytes Nickname = 2;
   void clear_nickname();
   const std::string& nickname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -2303,7 +2303,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kUserIdFieldNumber = 1,
     kBindPhoneFieldNumber = 3,
   };
-  // string Nickname = 2;
+  // bytes Nickname = 2;
   void clear_nickname();
   const std::string& nickname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -3020,7 +3020,7 @@ inline void RegisterUserInfo::set_allocated_accountname(std::string* accountname
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.RegisterUserInfo.AccountName)
 }
 
-// string Nickname = 2;
+// bytes Nickname = 2;
 inline void RegisterUserInfo::clear_nickname() {
   _impl_.nickname_.ClearToEmpty();
 }
@@ -3032,7 +3032,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void RegisterUserInfo::set_nickname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.nickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.nickname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.RegisterUserInfo.Nickname)
 }
 inline std::string* RegisterUserInfo::mutable_nickname() {
@@ -3745,7 +3745,7 @@ inline void SimpleUserInfo::set_userid(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleUserInfo.UserId)
 }
 
-// string Nickname = 2;
+// bytes Nickname = 2;
 inline void SimpleUserInfo::clear_nickname() {
   _impl_.nickname_.ClearToEmpty();
 }
@@ -3757,7 +3757,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void SimpleUserInfo::set_nickname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.nickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.nickname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleUserInfo.Nickname)
 }
 inline std::string* SimpleUserInfo::mutable_nickname() {

@@ -3467,7 +3467,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam >&
       params() const;
 
-  // string OpNickname = 3;
+  // bytes OpNickname = 3;
   void clear_opnickname();
   const std::string& opnickname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -6607,7 +6607,7 @@ inline void OperationLogInfo::set_opuserid(uint64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OperationLogInfo.OpUserId)
 }
 
-// string OpNickname = 3;
+// bytes OpNickname = 3;
 inline void OperationLogInfo::clear_opnickname() {
   _impl_.opnickname_.ClearToEmpty();
 }
@@ -6619,7 +6619,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void OperationLogInfo::set_opnickname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.opnickname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.opnickname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OperationLogInfo.OpNickname)
 }
 inline std::string* OperationLogInfo::mutable_opnickname() {

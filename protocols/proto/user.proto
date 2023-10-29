@@ -27,7 +27,7 @@ message ModifyUserInfoReq
         // 修改密码
         ModifyPwdInfo PwdInfo = 1;
         // 修改昵称
-        string Nickname = 2;
+        bytes Nickname = 2;
     }
 }
 
