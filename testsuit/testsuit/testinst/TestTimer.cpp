@@ -102,9 +102,21 @@ void TestTimer::Run()
     timer2.GetParams()[TEST_TIMER_TIMER3_DESC] = timer3;
     timer3->GetParams()[TEST_TIMER_TIMER2_DESC] = &timer2;
 
+    auto timer4 = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(&timerMgr);
+    timer4->SetTimeOutHandler([](KERNEL_NS::LibTimer *t){
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestTimer, "timer4 timeout"));
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+    timer4->Schedule(10);
+    timerMgr.TakeOverLifeTime(timer4, [](KERNEL_NS::LibTimer *t){
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestTimer, "timer4 delete"));
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+    
     // 扫描精度
     // const auto milliSec = resolutionMicroSec / KERNEL_NS::TimeDefs::MICRO_SECOND_PER_MILLI_SECOND;
-    while (true)
+    Int32 loop = 100;
+    while (--loop >= 0)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1);
         timerMgr.Drive();

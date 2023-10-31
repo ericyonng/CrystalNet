@@ -149,6 +149,17 @@ ALWAYS_INLINE TimeData *TimerMgr::NewTimeData(LibTimer *timer)
 
 ALWAYS_INLINE void TimerMgr::OnTimerDestroy(TimeData *timeData)
 {
+    // 先移除
+    if(timeData->_owner)
+    {
+        auto iter = _timerRefDeleteMethod.find(timeData->_owner);
+        if(iter != _timerRefDeleteMethod.end())
+        {
+            iter->second->Release();
+            _timerRefDeleteMethod.erase(iter);
+        }
+    }
+
     // 在Drive中的时候由Drive函数释放
     if(_driving <= 0)
     {
