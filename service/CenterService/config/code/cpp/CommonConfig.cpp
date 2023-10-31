@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/CenterService/config/xlsx/公共参数.xlsx
+// file path:../../service/CenterService/config/xlsx/鍏叡鍙傛暟.xlsx
 // sheet name:鍏叡鍙傛暟|Common
 
 #include <pch.h>

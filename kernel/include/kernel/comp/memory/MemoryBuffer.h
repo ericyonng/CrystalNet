@@ -170,7 +170,7 @@ ALWAYS_INLINE void MemoryBuffer::Init()
 // 分配新block节点
 ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
 {
-    // 用光一次，向左移位一位
+    // // 用光一次，向左移位一位
     if(UNLIKELY(++_usedBlockCnt == _blockCnt))
         _notEnableGcFlag <<= _shiftBitNum;
 
@@ -208,6 +208,8 @@ ALWAYS_INLINE void MemoryBuffer::FreeBlock(MemoryBlock *block)
 {
     ASSERT(block->_ref == 0);
 
+    // _notEnableGcFlag 一方面是为了内存不会那么快被释放, 另一方面也会考虑内存占用问题, 需要做平衡
+    // 不适合在Free的时候通过判0来改变_notEnableGcFlag, 因为如果有个bug, 导致某个block长时间不free就会导致MemoryBuffer长时间不会被GC掉,导致内存资源占用过大
     --_usedBlockCnt;
     block->_next = _freeHead;
     _freeHead = block;

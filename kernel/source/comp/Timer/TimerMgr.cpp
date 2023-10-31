@@ -192,6 +192,20 @@ void TimerMgr::SafetyDrive()
 
 void TimerMgr::Close()
 {
+    for(auto iter = _timerRefDeleteMethod.begin(); iter != _timerRefDeleteMethod.end();)
+    {
+        auto timer = iter->first;
+        auto delg = iter->second;
+        iter->second = NULL;
+        iter = _timerRefDeleteMethod.erase(iter);
+
+        if(LIKELY(delg))
+        {
+            delg->Invoke(timer);
+            delg->Release();
+        }
+    }
+    
     _expireQueue.clear();
     _asynDirty.clear();
 }

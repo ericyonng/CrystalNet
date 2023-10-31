@@ -40,39 +40,44 @@ using ProtoPackage.Attributes;
             "GAIgASgMIo8BChBCb3Jyb3dPcmRlclN0YXRlInsKBUVOVU1TEhwKGFdBSVRJ",
             "TkdfT1VUX09GX1dBUkVIT1VTRRAAEhUKEVdBSVRfVVNFUl9SRUNFSVZFEAES",
             "GQoVV0FJVF9VU0VSX1JFVFVSTl9CQUNLEAISEAoMQ0FOQ0VMX09SREVSEAMS",
-            "EAoMUkVUVVJOX0JBS0NLEAQixwEKD0JvcnJvd09yZGVySW5mbxIPCgdPcmRl",
-            "cklkGAEgASgEEjsKDkJvcnJvd0Jvb2tMaXN0GAIgAygLMiMuQ1JZU1RBTF9O",
-            "RVQuc2VydmljZS5Cb3Jyb3dCb29rSW5mbxIXCg9DcmVhdGVPcmRlclRpbWUY",
-            "AyABKAQSEgoKT3JkZXJTdGF0ZRgEIAEoERIUCgxDYW5jZWxSZWFzb24YBSAB",
-            "KAkSEwoLR2V0T3ZlclRpbWUYBiABKBISDgoGUmVtYXJrGAcgASgMItMBChVC",
-            "b3Jyb3dPcmRlckRldGFpbEluZm8SDwoHT3JkZXJJZBgBIAEoBBJBCg5Cb3Jy",
-            "b3dCb29rTGlzdBgCIAMoCzIpLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9ycm93",
-            "Qm9va0RldGFpbEluZm8SFwoPQ3JlYXRlT3JkZXJUaW1lGAMgASgEEhIKCk9y",
-            "ZGVyU3RhdGUYBCABKBESFAoMQ2FuY2VsUmVhc29uGAUgASgJEhMKC0dldE92",
-            "ZXJUaW1lGAYgASgSEg4KBlJlbWFyaxgHIAEoDCK3AQoKTWVtYmVySW5mbxIO",
-            "CgZVc2VySWQYASABKAQSDAoEUm9sZRgCIAEoERIQCghOaWNrbmFtZRgDIAEo",
-            "DBI4CgpCb3Jyb3dMaXN0GAQgAygLMiQuQ1JZU1RBTF9ORVQuc2VydmljZS5C",
-            "b3Jyb3dPcmRlckluZm8SFwoPTG9ja1RpbWVzdGFtcE1zGAUgASgSEhMKCUJp",
-            "bmRQaG9uZRgGIAEoBEgAQhEKD01lbWJlckJpbmRQaG9uZSIlCg1PcGVyYXRp",
-            "b25UeXBlIhQKBUVOVU1TEgsKB1VOS05PV04QACKbAQoQT3BlcmF0aW9uTG9n",
-            "SW5mbxIOCgZPcFR5cGUYASABKBESEAoIT3BVc2VySWQYAiABKAQSEgoKT3BO",
-            "aWNrbmFtZRgDIAEoDBIMCgRSb2xlGAQgASgREhAKCE9wVGltZU1zGAUgASgS",
-            "EjEKBlBhcmFtcxgGIAMoCzIhLkNSWVNUQUxfTkVULnNlcnZpY2UuVmFyaWFu",
-            "dFBhcmFtIv8CCgtMaWJyYXJ5SW5mbxIKCgJJZBgBIAEoBBIMCgROYW1lGAIg",
-            "ASgMEg8KB0FkZHJlc3MYAyABKAwSEAoIT3BlblRpbWUYBCABKAwSFgoOVGVs",
-            "cGhvbmVOdW1iZXIYBSABKAkSFwoPTGlicmFyaWFuVXNlcklkGAYgASgEEh0K",
-            "FUxpYnJhcmlhblVzZXJOaWNrbmFtZRgHIAEoDBJBCg9NYW5hZ2VySW5mb0xp",
-            "c3QYCCADKAsyKC5DUllTVEFMX05FVC5zZXJ2aWNlLkxpYmFyYXJ5TWFuYWdl",
-            "ckluZm8SMwoKTWVtYmVyTGlzdBgJIAMoCzIfLkNSWVNUQUxfTkVULnNlcnZp",
-            "Y2UuTWVtYmVySW5mbxIvCghCb29rTGlzdBgKIAMoCzIdLkNSWVNUQUxfTkVU",
-            "LnNlcnZpY2UuQm9va0luZm8SOgoLTG9nSW5mb0xpc3QYCyADKAsyJS5DUllT",
-            "VEFMX05FVC5zZXJ2aWNlLk9wZXJhdGlvbkxvZ0luZm8iJAoPVXNlckxpYnJh",
-            "cnlJbmZvEhEKCUxpYnJhcnlJZBgBIAEoBCJiChJMaWJyYXJ5UHJldmlld0lu",
-            "Zm8SCgoCSWQYASABKAQSDAoETmFtZRgCIAEoDBIXCg9MaWJyYXJpYW5Vc2Vy",
-            "SWQYAyABKAQSGQoRTGlicmFyaWFuTmlja25hbWUYBCABKAwiIQoNS2V5V29y",
-            "ZHNGaWVsZBIQCghLZXlXb3JkcxgBIAMoDCIiCg1TbmFwc2hvdEZpZWxkEhEK",
-            "CVNuYXBzaG90cxgBIAMoCSIuCg1PdXRTdG9yZVBhcmFtEg4KBkJvb2tJZBgB",
-            "IAEoBBINCgVDb3VudBgCIAEoEmIGcHJvdG8z"));
+            "EAoMUkVUVVJOX0JBS0NLEAQiPAoVQ2FuY2VsT3JkZXJSZWFzb25UeXBlIiMK",
+            "BUVOVU1TEhoKFldBSVRfVVNFUl9HRVRfVElNRV9PVVQQACI9ChFDYW5jZWxP",
+            "cmRlclJlYXNvbhIUCgxDYW5jZWxSZWFzb24YASABKBESEgoKQ2FuY2VsSW5m",
+            "bxgCIAEoDCLvAQoPQm9ycm93T3JkZXJJbmZvEg8KB09yZGVySWQYASABKAQS",
+            "OwoOQm9ycm93Qm9va0xpc3QYAiADKAsyIy5DUllTVEFMX05FVC5zZXJ2aWNl",
+            "LkJvcnJvd0Jvb2tJbmZvEhcKD0NyZWF0ZU9yZGVyVGltZRgDIAEoBBISCgpP",
+            "cmRlclN0YXRlGAQgASgREjwKDENhbmNlbFJlYXNvbhgFIAEoCzImLkNSWVNU",
+            "QUxfTkVULnNlcnZpY2UuQ2FuY2VsT3JkZXJSZWFzb24SEwoLR2V0T3ZlclRp",
+            "bWUYBiABKBISDgoGUmVtYXJrGAcgASgMIvsBChVCb3Jyb3dPcmRlckRldGFp",
+            "bEluZm8SDwoHT3JkZXJJZBgBIAEoBBJBCg5Cb3Jyb3dCb29rTGlzdBgCIAMo",
+            "CzIpLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9ycm93Qm9va0RldGFpbEluZm8S",
+            "FwoPQ3JlYXRlT3JkZXJUaW1lGAMgASgEEhIKCk9yZGVyU3RhdGUYBCABKBES",
+            "PAoMQ2FuY2VsUmVhc29uGAUgASgLMiYuQ1JZU1RBTF9ORVQuc2VydmljZS5D",
+            "YW5jZWxPcmRlclJlYXNvbhITCgtHZXRPdmVyVGltZRgGIAEoEhIOCgZSZW1h",
+            "cmsYByABKAwitwEKCk1lbWJlckluZm8SDgoGVXNlcklkGAEgASgEEgwKBFJv",
+            "bGUYAiABKBESEAoITmlja25hbWUYAyABKAwSOAoKQm9ycm93TGlzdBgEIAMo",
+            "CzIkLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9ycm93T3JkZXJJbmZvEhcKD0xv",
+            "Y2tUaW1lc3RhbXBNcxgFIAEoEhITCglCaW5kUGhvbmUYBiABKARIAEIRCg9N",
+            "ZW1iZXJCaW5kUGhvbmUiJQoNT3BlcmF0aW9uVHlwZSIUCgVFTlVNUxILCgdV",
+            "TktOT1dOEAAimwEKEE9wZXJhdGlvbkxvZ0luZm8SDgoGT3BUeXBlGAEgASgR",
+            "EhAKCE9wVXNlcklkGAIgASgEEhIKCk9wTmlja25hbWUYAyABKAwSDAoEUm9s",
+            "ZRgEIAEoERIQCghPcFRpbWVNcxgFIAEoEhIxCgZQYXJhbXMYBiADKAsyIS5D",
+            "UllTVEFMX05FVC5zZXJ2aWNlLlZhcmlhbnRQYXJhbSL/AgoLTGlicmFyeUlu",
+            "Zm8SCgoCSWQYASABKAQSDAoETmFtZRgCIAEoDBIPCgdBZGRyZXNzGAMgASgM",
+            "EhAKCE9wZW5UaW1lGAQgASgMEhYKDlRlbHBob25lTnVtYmVyGAUgASgJEhcK",
+            "D0xpYnJhcmlhblVzZXJJZBgGIAEoBBIdChVMaWJyYXJpYW5Vc2VyTmlja25h",
+            "bWUYByABKAwSQQoPTWFuYWdlckluZm9MaXN0GAggAygLMiguQ1JZU1RBTF9O",
+            "RVQuc2VydmljZS5MaWJhcmFyeU1hbmFnZXJJbmZvEjMKCk1lbWJlckxpc3QY",
+            "CSADKAsyHy5DUllTVEFMX05FVC5zZXJ2aWNlLk1lbWJlckluZm8SLwoIQm9v",
+            "a0xpc3QYCiADKAsyHS5DUllTVEFMX05FVC5zZXJ2aWNlLkJvb2tJbmZvEjoK",
+            "C0xvZ0luZm9MaXN0GAsgAygLMiUuQ1JZU1RBTF9ORVQuc2VydmljZS5PcGVy",
+            "YXRpb25Mb2dJbmZvIiQKD1VzZXJMaWJyYXJ5SW5mbxIRCglMaWJyYXJ5SWQY",
+            "ASABKAQiYgoSTGlicmFyeVByZXZpZXdJbmZvEgoKAklkGAEgASgEEgwKBE5h",
+            "bWUYAiABKAwSFwoPTGlicmFyaWFuVXNlcklkGAMgASgEEhkKEUxpYnJhcmlh",
+            "bk5pY2tuYW1lGAQgASgMIiEKDUtleVdvcmRzRmllbGQSEAoIS2V5V29yZHMY",
+            "ASADKAwiIgoNU25hcHNob3RGaWVsZBIRCglTbmFwc2hvdHMYASADKAkiLgoN",
+            "T3V0U3RvcmVQYXJhbRIOCgZCb29rSWQYASABKAQSDQoFQ291bnQYAiABKBJi",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookReflection.Descriptor, global::CRYSTALNET.Service.ComVariantReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -81,6 +86,8 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookInfo), global::CRYSTALNET.Service.BorrowBookInfo.Parser, new[]{ "BookId", "IsbnCode", "BorrowCount", "BorrowTime", "PlanGiveBackTime", "RealGiveBackTime", "ReturnBackCount", "SubOrderId", "BorrowDays" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowBookDetailInfo), global::CRYSTALNET.Service.BorrowBookDetailInfo.Parser, new[]{ "BookInfo", "BookName" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderState), global::CRYSTALNET.Service.BorrowOrderState.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.BorrowOrderState.Types.ENUMS) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.CancelOrderReasonType), global::CRYSTALNET.Service.CancelOrderReasonType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.CancelOrderReasonType.Types.ENUMS) }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.CancelOrderReason), global::CRYSTALNET.Service.CancelOrderReason.Parser, new[]{ "CancelReason", "CancelInfo" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason", "GetOverTime", "Remark" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderDetailInfo), global::CRYSTALNET.Service.BorrowOrderDetailInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason", "GetOverTime", "Remark" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.MemberInfo), global::CRYSTALNET.Service.MemberInfo.Parser, new[]{ "UserId", "Role", "Nickname", "BorrowList", "LockTimestampMs", "BindPhone" }, new[]{ "MemberBindPhone" }, null, null, null),
@@ -1414,6 +1421,405 @@ using ProtoPackage.Attributes;
 
   }
 
+  public sealed partial class CancelOrderReasonType : pb::IMessage<CancelOrderReasonType>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<CancelOrderReasonType> _parser = new pb::MessageParser<CancelOrderReasonType>(() => new CancelOrderReasonType());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<CancelOrderReasonType> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CancelOrderReasonType() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CancelOrderReasonType(CancelOrderReasonType other) : this() {
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CancelOrderReasonType Clone() {
+      return new CancelOrderReasonType(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as CancelOrderReasonType);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(CancelOrderReasonType other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(CancelOrderReasonType other) {
+      if (other == null) {
+        return;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+        }
+      }
+    }
+    #endif
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the CancelOrderReasonType message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static partial class Types {
+      public enum ENUMS {
+        /// <summary>
+        /// 等用户领取超时
+        /// </summary>
+        [pbr::OriginalName("WAIT_USER_GET_TIME_OUT")] WaitUserGetTimeOut = 0,
+      }
+
+    }
+    #endregion
+
+  }
+
+  public sealed partial class CancelOrderReason : pb::IMessage<CancelOrderReason>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<CancelOrderReason> _parser = new pb::MessageParser<CancelOrderReason>(() => new CancelOrderReason());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<CancelOrderReason> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[6]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CancelOrderReason() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CancelOrderReason(CancelOrderReason other) : this() {
+      cancelReason_ = other.cancelReason_;
+      cancelInfo_ = other.cancelInfo_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public CancelOrderReason Clone() {
+      return new CancelOrderReason(this);
+    }
+
+    /// <summary>Field number for the "CancelReason" field.</summary>
+    public const int CancelReasonFieldNumber = 1;
+    private int cancelReason_;
+    /// <summary>
+    /// 原因code
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CancelReason {
+      get { return cancelReason_; }
+      set {
+        cancelReason_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "CancelInfo" field.</summary>
+    public const int CancelInfoFieldNumber = 2;
+    private pb::ByteString cancelInfo_ = pb::ByteString.Empty;
+    /// <summary>
+    /// 具体原因内容
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pb::ByteString CancelInfo {
+      get { return cancelInfo_; }
+      set {
+        cancelInfo_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as CancelOrderReason);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(CancelOrderReason other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (CancelReason != other.CancelReason) return false;
+      if (CancelInfo != other.CancelInfo) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (CancelReason != 0) hash ^= CancelReason.GetHashCode();
+      if (CancelInfo.Length != 0) hash ^= CancelInfo.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (CancelReason != 0) {
+        output.WriteRawTag(8);
+        output.WriteSInt32(CancelReason);
+      }
+      if (CancelInfo.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteBytes(CancelInfo);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (CancelReason != 0) {
+        output.WriteRawTag(8);
+        output.WriteSInt32(CancelReason);
+      }
+      if (CancelInfo.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteBytes(CancelInfo);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (CancelReason != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(CancelReason);
+      }
+      if (CancelInfo.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(CancelInfo);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(CancelOrderReason other) {
+      if (other == null) {
+        return;
+      }
+      if (other.CancelReason != 0) {
+        CancelReason = other.CancelReason;
+      }
+      if (other.CancelInfo.Length != 0) {
+        CancelInfo = other.CancelInfo;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            CancelReason = input.ReadSInt32();
+            break;
+          }
+          case 18: {
+            CancelInfo = input.ReadBytes();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            CancelReason = input.ReadSInt32();
+            break;
+          }
+          case 18: {
+            CancelInfo = input.ReadBytes();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   /// <summary>
   /// 借还订单信息
   /// </summary>
@@ -1431,7 +1837,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[5]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1455,7 +1861,7 @@ using ProtoPackage.Attributes;
       borrowBookList_ = other.borrowBookList_.Clone();
       createOrderTime_ = other.createOrderTime_;
       orderState_ = other.orderState_;
-      cancelReason_ = other.cancelReason_;
+      cancelReason_ = other.cancelReason_ != null ? other.cancelReason_.Clone() : null;
       getOverTime_ = other.getOverTime_;
       remark_ = other.remark_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -1528,16 +1934,16 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "CancelReason" field.</summary>
     public const int CancelReasonFieldNumber = 5;
-    private string cancelReason_ = "";
+    private global::CRYSTALNET.Service.CancelOrderReason cancelReason_;
     /// <summary>
     /// 取消原因
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string CancelReason {
+    public global::CRYSTALNET.Service.CancelOrderReason CancelReason {
       get { return cancelReason_; }
       set {
-        cancelReason_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        cancelReason_ = value;
       }
     }
 
@@ -1590,7 +1996,7 @@ using ProtoPackage.Attributes;
       if(!borrowBookList_.Equals(other.borrowBookList_)) return false;
       if (CreateOrderTime != other.CreateOrderTime) return false;
       if (OrderState != other.OrderState) return false;
-      if (CancelReason != other.CancelReason) return false;
+      if (!object.Equals(CancelReason, other.CancelReason)) return false;
       if (GetOverTime != other.GetOverTime) return false;
       if (Remark != other.Remark) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -1604,7 +2010,7 @@ using ProtoPackage.Attributes;
       hash ^= borrowBookList_.GetHashCode();
       if (CreateOrderTime != 0UL) hash ^= CreateOrderTime.GetHashCode();
       if (OrderState != 0) hash ^= OrderState.GetHashCode();
-      if (CancelReason.Length != 0) hash ^= CancelReason.GetHashCode();
+      if (cancelReason_ != null) hash ^= CancelReason.GetHashCode();
       if (GetOverTime != 0L) hash ^= GetOverTime.GetHashCode();
       if (Remark.Length != 0) hash ^= Remark.GetHashCode();
       if (_unknownFields != null) {
@@ -1638,9 +2044,9 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(32);
         output.WriteSInt32(OrderState);
       }
-      if (CancelReason.Length != 0) {
+      if (cancelReason_ != null) {
         output.WriteRawTag(42);
-        output.WriteString(CancelReason);
+        output.WriteMessage(CancelReason);
       }
       if (GetOverTime != 0L) {
         output.WriteRawTag(48);
@@ -1673,9 +2079,9 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(32);
         output.WriteSInt32(OrderState);
       }
-      if (CancelReason.Length != 0) {
+      if (cancelReason_ != null) {
         output.WriteRawTag(42);
-        output.WriteString(CancelReason);
+        output.WriteMessage(CancelReason);
       }
       if (GetOverTime != 0L) {
         output.WriteRawTag(48);
@@ -1705,8 +2111,8 @@ using ProtoPackage.Attributes;
       if (OrderState != 0) {
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(OrderState);
       }
-      if (CancelReason.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(CancelReason);
+      if (cancelReason_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CancelReason);
       }
       if (GetOverTime != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(GetOverTime);
@@ -1736,8 +2142,11 @@ using ProtoPackage.Attributes;
       if (other.OrderState != 0) {
         OrderState = other.OrderState;
       }
-      if (other.CancelReason.Length != 0) {
-        CancelReason = other.CancelReason;
+      if (other.cancelReason_ != null) {
+        if (cancelReason_ == null) {
+          CancelReason = new global::CRYSTALNET.Service.CancelOrderReason();
+        }
+        CancelReason.MergeFrom(other.CancelReason);
       }
       if (other.GetOverTime != 0L) {
         GetOverTime = other.GetOverTime;
@@ -1777,7 +2186,10 @@ using ProtoPackage.Attributes;
             break;
           }
           case 42: {
-            CancelReason = input.ReadString();
+            if (cancelReason_ == null) {
+              CancelReason = new global::CRYSTALNET.Service.CancelOrderReason();
+            }
+            input.ReadMessage(CancelReason);
             break;
           }
           case 48: {
@@ -1820,7 +2232,10 @@ using ProtoPackage.Attributes;
             break;
           }
           case 42: {
-            CancelReason = input.ReadString();
+            if (cancelReason_ == null) {
+              CancelReason = new global::CRYSTALNET.Service.CancelOrderReason();
+            }
+            input.ReadMessage(CancelReason);
             break;
           }
           case 48: {
@@ -1855,7 +2270,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[6]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1879,7 +2294,7 @@ using ProtoPackage.Attributes;
       borrowBookList_ = other.borrowBookList_.Clone();
       createOrderTime_ = other.createOrderTime_;
       orderState_ = other.orderState_;
-      cancelReason_ = other.cancelReason_;
+      cancelReason_ = other.cancelReason_ != null ? other.cancelReason_.Clone() : null;
       getOverTime_ = other.getOverTime_;
       remark_ = other.remark_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -1952,16 +2367,16 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "CancelReason" field.</summary>
     public const int CancelReasonFieldNumber = 5;
-    private string cancelReason_ = "";
+    private global::CRYSTALNET.Service.CancelOrderReason cancelReason_;
     /// <summary>
     /// 取消原因
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string CancelReason {
+    public global::CRYSTALNET.Service.CancelOrderReason CancelReason {
       get { return cancelReason_; }
       set {
-        cancelReason_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        cancelReason_ = value;
       }
     }
 
@@ -2014,7 +2429,7 @@ using ProtoPackage.Attributes;
       if(!borrowBookList_.Equals(other.borrowBookList_)) return false;
       if (CreateOrderTime != other.CreateOrderTime) return false;
       if (OrderState != other.OrderState) return false;
-      if (CancelReason != other.CancelReason) return false;
+      if (!object.Equals(CancelReason, other.CancelReason)) return false;
       if (GetOverTime != other.GetOverTime) return false;
       if (Remark != other.Remark) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -2028,7 +2443,7 @@ using ProtoPackage.Attributes;
       hash ^= borrowBookList_.GetHashCode();
       if (CreateOrderTime != 0UL) hash ^= CreateOrderTime.GetHashCode();
       if (OrderState != 0) hash ^= OrderState.GetHashCode();
-      if (CancelReason.Length != 0) hash ^= CancelReason.GetHashCode();
+      if (cancelReason_ != null) hash ^= CancelReason.GetHashCode();
       if (GetOverTime != 0L) hash ^= GetOverTime.GetHashCode();
       if (Remark.Length != 0) hash ^= Remark.GetHashCode();
       if (_unknownFields != null) {
@@ -2062,9 +2477,9 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(32);
         output.WriteSInt32(OrderState);
       }
-      if (CancelReason.Length != 0) {
+      if (cancelReason_ != null) {
         output.WriteRawTag(42);
-        output.WriteString(CancelReason);
+        output.WriteMessage(CancelReason);
       }
       if (GetOverTime != 0L) {
         output.WriteRawTag(48);
@@ -2097,9 +2512,9 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(32);
         output.WriteSInt32(OrderState);
       }
-      if (CancelReason.Length != 0) {
+      if (cancelReason_ != null) {
         output.WriteRawTag(42);
-        output.WriteString(CancelReason);
+        output.WriteMessage(CancelReason);
       }
       if (GetOverTime != 0L) {
         output.WriteRawTag(48);
@@ -2129,8 +2544,8 @@ using ProtoPackage.Attributes;
       if (OrderState != 0) {
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(OrderState);
       }
-      if (CancelReason.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(CancelReason);
+      if (cancelReason_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CancelReason);
       }
       if (GetOverTime != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeSInt64Size(GetOverTime);
@@ -2160,8 +2575,11 @@ using ProtoPackage.Attributes;
       if (other.OrderState != 0) {
         OrderState = other.OrderState;
       }
-      if (other.CancelReason.Length != 0) {
-        CancelReason = other.CancelReason;
+      if (other.cancelReason_ != null) {
+        if (cancelReason_ == null) {
+          CancelReason = new global::CRYSTALNET.Service.CancelOrderReason();
+        }
+        CancelReason.MergeFrom(other.CancelReason);
       }
       if (other.GetOverTime != 0L) {
         GetOverTime = other.GetOverTime;
@@ -2201,7 +2619,10 @@ using ProtoPackage.Attributes;
             break;
           }
           case 42: {
-            CancelReason = input.ReadString();
+            if (cancelReason_ == null) {
+              CancelReason = new global::CRYSTALNET.Service.CancelOrderReason();
+            }
+            input.ReadMessage(CancelReason);
             break;
           }
           case 48: {
@@ -2244,7 +2665,10 @@ using ProtoPackage.Attributes;
             break;
           }
           case 42: {
-            CancelReason = input.ReadString();
+            if (cancelReason_ == null) {
+              CancelReason = new global::CRYSTALNET.Service.CancelOrderReason();
+            }
+            input.ReadMessage(CancelReason);
             break;
           }
           case 48: {
@@ -2279,7 +2703,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[7]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2687,7 +3111,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[8]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2857,7 +3281,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[9]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3220,7 +3644,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[10]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3771,7 +4195,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[11]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3966,7 +4390,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[12]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4281,7 +4705,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[13]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4462,7 +4886,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[14]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4643,7 +5067,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[15]; }
+      get { return global::CRYSTALNET.Service.ComLibraryReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

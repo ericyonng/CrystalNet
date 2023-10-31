@@ -37,10 +37,12 @@
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Utils/TimeUtil.h>
 #include <kernel/comp/memory/memory.h>
+#include <kernel/comp/Delegate/Delegate.h>
 
 KERNEL_BEGIN
 
 class LibCpuCounter;
+class LibTimer;
 
 // 不支持多线程,请在单线程使用定时器
 class KERNEL_EXPORT TimerMgr
@@ -78,6 +80,10 @@ public:
     // 是否在处理定时器帧
     bool IsDriving() const;
 
+    // 接管Timer生命周期
+    template<typename LambdaType>
+    void TakeOverLifeTime(KERNEL_NS::LibTimer *timer, LambdaType &&cb);
+
 private:
     void _BeforeDrive();
     void _AfterDrive();
@@ -107,6 +113,9 @@ private:
 
     // 唤醒线程回调
     IDelegate<void> *_wakeupCb;
+
+    // timer托管生命周期
+    std::map<LibTimer *, IDelegate<void, LibTimer *> *> _timerRefDeleteMethod;
 };
 
 ALWAYS_INLINE void TimerMgr::Register(TimeData *timeData, Int64 newExpireTime, Int64 newPeriod)
@@ -177,6 +186,21 @@ ALWAYS_INLINE bool TimerMgr::IsDriving() const
     return _driving > 0;
 }
 
+template<typename LambdaType>
+ALWAYS_INLINE void TimerMgr::TakeOverLifeTime(LibTimer *timer, LambdaType &&cb)
+{
+    auto newDelg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, LibTimer *);
+    auto iter = _timerRefDeleteMethod.find(timer);
+    if(iter != _timerRefDeleteMethod.end())
+    {
+        iter->second->Release();
+        iter->second = newDelg;
+        return;
+    }
+
+    _timerRefDeleteMethod.insert(std::make_pair(timer, newDelg));
+}
+
 ALWAYS_INLINE void TimerMgr::_BeforeDrive()
 {
     ++_driving;
@@ -206,7 +230,7 @@ ALWAYS_INLINE void TimerMgr::_AfterDrive()
                 _UnRegister(asynData->_data);
 
             // 最后添加
-            if(BitUtil::IsSet(flag, AsynOpType::OP_REGISTER))
+            if(BitUtil::IsSet(flag, AsynOpType::OP_REGISTER) && asynData->_data->_owner)
                 _Register(asynData->_data, asynData->_newPeriod, asynData->_newExpiredTime);
 
             // 重置数据

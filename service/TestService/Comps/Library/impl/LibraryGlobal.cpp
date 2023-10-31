@@ -79,6 +79,7 @@ Int32 LibraryGlobal::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::
         return Status::ParseFail;
     }
 
+    const auto &nowTime = KERNEL_NS::LibTime::Now();
     _idRefLibraryInfo.insert(std::make_pair(key, libraryInfo));
 
     // 成员信息字典
@@ -89,6 +90,20 @@ Int32 LibraryGlobal::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::
         {
             auto memberInfo = libraryInfo->mutable_memberlist(idx);
             iterMemberDict->second.insert(std::make_pair(memberInfo->userid(), memberInfo));
+
+            // 订单
+            const Int32 orderCount = memberInfo->borrowlist_size();
+            for(Int32 orderIdx = 0; orderIdx < orderCount; ++orderIdx)
+            {
+                auto orderInfo = memberInfo->mutable_borrowlist(orderIdx);
+                _MakeOrderDict(libraryInfo->id(), orderInfo);
+
+                if(orderInfo->orderstate() == BorrowOrderState_ENUMS_WAIT_USER_RECEIVE)
+                {
+                    const auto &getOverTime = KERNEL_NS::LibTime::FromMilliSeconds(orderInfo->getovertime());
+                    _StartCacelOrderTimer(libraryInfo->id(), orderInfo->orderid(), (getOverTime - nowTime).GetTotalMilliSeconds());
+                }
+            }
         }
     }
 
@@ -251,6 +266,8 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
 
     // 图书校验
     auto maxBorrowDaysConfig = GetService()->GetComp<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::MAX_BORROW_DAYS);
+    
+    std::map<UInt64, Int64> bookIdRefCount;
     for(auto &item : bookBagInfo.bookinfoitemlist())
     {
         // 是否存在
@@ -278,6 +295,31 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
             , libraryId, memberUserId);
             return Status::ParamError;
         }
+
+        auto iter = bookIdRefCount.find(bookInfo->id());
+        if(iter == bookIdRefCount.end())
+            iter = bookIdRefCount.insert(std::make_pair(bookInfo->id(), 0)).first;
+        iter->second += static_cast<Int64>(item.bookcount());
+    }
+
+    for(auto iter : bookIdRefCount)
+    {
+        // 是否存在
+        auto bookInfo = GetBookInfo(libraryId, iter.first);
+        if(!bookInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("book is not found book id:%llu libraryId:%llu, user id:%llu")
+            , iter.first, libraryId, memberUserId);
+            return Status::BookNotFound;
+        }
+
+        // 是否超库存
+        if((iter.second == 0) || bookInfo->variantinfo().count() < static_cast<Int64>(iter.second))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("book count is empty or over capacity,book id:%llu book count:%lld, will borrow count:%d libraryId:%llu, user id:%llu")
+            , iter.first, bookInfo->variantinfo().count(), iter.second, libraryId, memberUserId);
+            return Status::BookCountOverCapacity;
+        }
     }
 
     // 有逾期不可继续借
@@ -300,9 +342,12 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
     if(!remark.empty())
         newOrderInfo->set_remark(remark.data(), remark.size());
 
+    std::map<UInt64, BorrowBookInfo *> bookIdRefBorrowInfo;
     for(auto &item : bookBagInfo.bookinfoitemlist())
     {
         auto bookInfo = GetBookInfo(libraryId, item.bookid());
+
+        auto iter = bookIdRefBorrowInfo.find(bookInfo->id());
         const auto bookCount = static_cast<Int64>(item.bookcount());
         auto newSubOrder = newOrderInfo->add_borrowbooklist();
         newSubOrder->set_bookid(item.bookid());
@@ -321,6 +366,8 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         bookInfo->mutable_variantinfo()->set_count(oldCount > bookCount ? (oldCount - bookCount) : (bookCount - oldCount));
         bookInfo->set_borrowedcount(bookInfo->borrowedcount() + bookCount);
     }
+
+    _MakeOrderDict(libraryId, newOrderInfo);
 
     MaskNumberKeyModifyDirty(libraryId);
 
@@ -378,6 +425,7 @@ Int32 LibraryGlobal::_OnGlobalSysInit()
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookInfoListReq, this, &LibraryGlobal::_OnGetBookInfoListReq);
     
     Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookOrderDetailInfoReq, this, &LibraryGlobal::_OnGetBookOrderDetailInfoReq);
+    Subscribe(Opcodes::OpcodeConst::OPCODE_OutStoreOrderReq, this, &LibraryGlobal::_OnOutStoreOrderReq);
     return Status::Success;
 }
 
@@ -1672,6 +1720,123 @@ void LibraryGlobal::_OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet)
     user->Send(Opcodes::OpcodeConst::OPCODE_GetBookOrderDetailInfoRes, res, packet->GetPacketId());
 }
 
+void LibraryGlobal::_OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto req = packet->GetCoder<OutStoreOrderReq>();
+    Int32 err = Status::Success;
+    do
+    {
+        auto libraryId = user->GetSys<ILibraryMgr>()->GetMyLibraryId();
+        if(libraryId == 0)
+        {
+            err = Status::NotJoinAnyLibrary;
+            g_Log->Warn(LOGFMT_OBJ_TAG("not in any library user:%s"), user->ToString().c_str());
+            break;
+        }
+
+        // 必须要有管理员权限
+        if(!_IsManager(libraryId, user->GetUserId()))
+        {
+            err = Status::NotManager;
+            g_Log->Warn(LOGFMT_OBJ_TAG("not library manager libraryId:%llu, user:%s"), libraryId, user->ToString().c_str());
+            break;
+        }
+
+        auto orderInfo = GetOrderInfo(libraryId, req->orderid());
+        if(!orderInfo)
+        {
+            err = Status::InvalidOrder;
+            g_Log->Warn(LOGFMT_OBJ_TAG("not library manager libraryId:%llu, user:%s"), libraryId, user->ToString().c_str());
+            break;
+        }
+
+        // 必须是待出库状态
+        if(orderInfo->orderstate() != BorrowOrderState_ENUMS_WAITING_OUT_OF_WAREHOUSE)
+        {
+            err = Status::InvalidOrderState;
+            g_Log->Warn(LOGFMT_OBJ_TAG("order not at waiting out of warehouse state:%d,%s order id:%llu manager libraryId:%llu, user:%s")
+            ,orderInfo->orderstate(), BorrowOrderState_ENUMS_Name(orderInfo->orderstate()).c_str(), orderInfo->orderid(), libraryId, user->ToString().c_str());
+            break;
+        }
+
+        std::map<UInt64, Int64> bookIdRefCount;
+        for(auto &outStoreParam : req->bookparams())
+        {
+            auto iter = bookIdRefCount.find(outStoreParam.bookid());
+            if(iter == bookIdRefCount.end())
+                iter = bookIdRefCount.insert(std::make_pair(outStoreParam.bookid(), 0)).first;
+            iter->second += outStoreParam.count();
+        }
+
+        // 订单书的数量统计
+        std::map<UInt64, Int64> bookOfOrder;
+        for(auto &subOrder : orderInfo->borrowbooklist())
+        {
+            auto iter = bookOfOrder.find(subOrder.bookid());
+            if(iter == bookOfOrder.end())
+                iter = bookOfOrder.insert(std::make_pair(subOrder.bookid(), 0)).first;
+            iter->second += static_cast<Int64>(subOrder.borrowcount());
+        }
+
+        for(auto iter = bookIdRefCount.begin(); iter != bookIdRefCount.end();)
+        {
+            auto iterOrder = bookOfOrder.find(iter->first);
+            if(iterOrder == bookOfOrder.end())
+            {
+                err = Status::OutStoreNotMatchOrder;
+                g_Log->Warn(LOGFMT_OBJ_TAG("not match order libraryId:%llu, user:%s"), libraryId, user->ToString().c_str());
+                break;
+            }
+
+            if(iterOrder->second != iter->second)
+            {
+                err = Status::OutStoreNotMatchOrder;
+                g_Log->Warn(LOGFMT_OBJ_TAG("not match order libraryId:%llu, user:%s"), libraryId, user->ToString().c_str());
+                break;
+            }
+
+            bookOfOrder.erase(iterOrder);
+            iter = bookIdRefCount.erase(iter);
+        }
+
+        if(err != Status::Success)
+            break;
+
+        if(!bookOfOrder.empty())
+        {
+            err = Status::OutStoreNotMatchOrder;
+            g_Log->Warn(LOGFMT_OBJ_TAG("not match order libraryId:%llu, user:%s"), libraryId, user->ToString().c_str());
+            break;
+        }
+
+        // 切换状态出库成功
+        orderInfo->set_orderstate(BorrowOrderState_ENUMS_WAIT_USER_RECEIVE);
+
+        auto outstoreWaitGotDaysConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::OUTSTORE_WAIT_GOT_DAYS);
+        const auto &nowTime = KERNEL_NS::LibTime::Now();
+        const auto &getOverTime = nowTime.AddDays(outstoreWaitGotDaysConfig->_value);
+        orderInfo->set_getovertime(getOverTime.GetMilliTimestamp());
+
+        // 开启定时器
+        _StartCacelOrderTimer(libraryId, orderInfo->orderid(), (getOverTime - nowTime).GetTotalMilliSeconds());
+
+        MaskNumberKeyModifyDirty(libraryId);
+
+    } while (false);
+    
+    OutStoreOrderRes res;
+    res.set_errcode(err);
+    user->Send(Opcodes::OpcodeConst::OPCODE_OutStoreOrderRes, res, packet->GetPacketId());
+}
+
 void LibraryGlobal::_BuildOrderDetailInfo(const LibraryInfo *libraryInfo, UInt64 memberUserId, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const
 {
     if(memberUserId)
@@ -1697,7 +1862,7 @@ void LibraryGlobal::_BuildOrderDetailInfo(UInt64 libraryId, const MemberInfo *me
         newDetailInfo->set_orderid(orderInfo.orderid());
         newDetailInfo->set_createordertime(orderInfo.createordertime());
         newDetailInfo->set_orderstate(orderInfo.orderstate());
-        newDetailInfo->set_cancelreason(orderInfo.cancelreason());
+        *newDetailInfo->mutable_cancelreason() = orderInfo.cancelreason();
         newDetailInfo->set_getovertime(orderInfo.getovertime());
         newDetailInfo->set_remark(orderInfo.remark());
 
@@ -2312,6 +2477,52 @@ void LibraryGlobal::_BuildBookInfos(const std::map<UInt64, const BookInfo *> &di
         *bookInfoList->Add() = *iter.second;
 }
 
+void LibraryGlobal::_MakeOrderDict(UInt64 libraryId, BorrowOrderInfo *orderInfo)
+{
+    auto iter = _libraryIdRefBorrowOrder.find(libraryId);
+    if(iter == _libraryIdRefBorrowOrder.end())
+        iter = _libraryIdRefBorrowOrder.insert(std::make_pair(libraryId, std::map<UInt64, BorrowOrderInfo *>())).first;
+
+    iter->second.insert(std::make_pair(orderInfo->orderid(), orderInfo));
+}
+
+void LibraryGlobal::_CancelOrder(UInt64 libraryId, UInt64 orderId, Int32 cancelReason, const KERNEL_NS::LibString &detailReason)
+{
+    auto orderInfo = GetOrderInfo(libraryId, orderId);
+    if(!orderInfo)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("order not found libraryId:%llu, orderId:%llu, cancel reason:%d, detail reason:%s")
+        , libraryId, orderId, cancelReason, detailReason.c_str());
+        return;
+    }
+
+    if(orderInfo->orderstate() > BorrowOrderState_ENUMS_WAIT_USER_RECEIVE)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("order state change before timeout, orderInfo:%s, libraryId:%llu, cancelReason:%d,%s")
+        , orderInfo->ToJsonString().c_str(), libraryId, cancelReason, BorrowOrderState_ENUMS_Name(cancelReason).c_str());
+        return;
+    }
+
+    orderInfo->set_orderstate(BorrowOrderState_ENUMS_CANCEL_ORDER);
+    orderInfo->mutable_cancelreason()->set_cancelreason(cancelReason);
+    orderInfo->mutable_cancelreason()->set_cancelinfo(detailReason.GetRaw());
+    MaskNumberKeyModifyDirty(libraryId);
+}
+
+void LibraryGlobal::_StartCacelOrderTimer(UInt64 libraryId, UInt64 orderId, Int64 delayMilliseconds)
+{
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(KERNEL_NS::KernelCastTo<KERNEL_NS::LibTimer>(t));
+    });
+
+    timer->SetTimeOutHandler([this, libraryId, orderId](KERNEL_NS::LibTimer *t) mutable
+    {
+        _CancelOrder(libraryId, orderId, CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT, "Waiting for user gotting time out." );
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
+    timer->Schedule(delayMilliseconds);
+}
 
 SERVICE_END
 

@@ -58,6 +58,9 @@ public:
     virtual const BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId) const override;
     BookInfo *GetBookInfo(UInt64 libraryId, UInt64 bookId);
 
+    BorrowOrderInfo *GetOrderInfo(UInt64 libraryId, UInt64 orderId);
+    const BorrowOrderInfo *GetOrderInfo(UInt64 libraryId, UInt64 orderId) const;
+
     virtual Int32 CreateBorrowOrder(UInt64 libraryId, const IUser *user, const BookBagInfo &bookBagInfo, const KERNEL_NS::LibString &remark) override;
 
 protected:
@@ -82,6 +85,7 @@ protected:
     void _OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet);
     void _OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet);
     void _OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet);
+    void _OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet);
 
     void _BuildOrderDetailInfo(const LibraryInfo *libraryInfo, UInt64 memberUserId, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const;
     void _BuildOrderDetailInfo(UInt64 libraryId, const MemberInfo *memberInfo, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const;
@@ -135,6 +139,12 @@ protected:
     void _BuildBookInfos(const std::map<UInt64, const BookInfo *> &dict,  ::google::protobuf::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo > *bookInfoList) const;
     
     // 订单
+    void _MakeOrderDict(UInt64 libraryId, BorrowOrderInfo *orderInfo);
+
+    // 取消订单
+    void _CancelOrder(UInt64 libraryId, UInt64 orderId, Int32 cancelReason, const KERNEL_NS::LibString &detailReason);
+    void _StartCacelOrderTimer(UInt64 libraryId, UInt64 orderId, Int64 delayMilliseconds);
+
 private:
     std::map<UInt64, LibraryInfo *> _idRefLibraryInfo;
 
@@ -143,6 +153,29 @@ private:
     // 图书
     std::map<UInt64, std::map<KERNEL_NS::LibString, BookInfo *>> _libraryIdRefIsbnRefBookInfo;
     std::map<UInt64, std::map<UInt64, BookInfo *>> _libraryIdRefIdRefBookInfo;
+
+    // 订单
+    std::map<UInt64, std::map<UInt64, BorrowOrderInfo *>> _libraryIdRefBorrowOrder;
 };
+
+ALWAYS_INLINE BorrowOrderInfo *LibraryGlobal::GetOrderInfo(UInt64 libraryId, UInt64 orderId)
+{
+    auto iter = _libraryIdRefBorrowOrder.find(libraryId);
+    if(iter == _libraryIdRefBorrowOrder.end())
+        return NULL;
+
+    auto iterOrder = iter->second.find(orderId);
+    return iterOrder == iter->second.end() ? NULL : iterOrder->second;
+}
+
+ALWAYS_INLINE const BorrowOrderInfo *LibraryGlobal::GetOrderInfo(UInt64 libraryId, UInt64 orderId) const
+{
+    auto iter = _libraryIdRefBorrowOrder.find(libraryId);
+    if(iter == _libraryIdRefBorrowOrder.end())
+        return NULL;
+
+    auto iterOrder = iter->second.find(orderId);
+    return iterOrder == iter->second.end() ? NULL : iterOrder->second;
+}
 
 SERVICE_END

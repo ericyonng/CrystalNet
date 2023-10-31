@@ -76,6 +76,12 @@ extern BorrowOrderInfoDefaultTypeInternal _BorrowOrderInfo_default_instance_;
 class BorrowOrderState;
 struct BorrowOrderStateDefaultTypeInternal;
 extern BorrowOrderStateDefaultTypeInternal _BorrowOrderState_default_instance_;
+class CancelOrderReason;
+struct CancelOrderReasonDefaultTypeInternal;
+extern CancelOrderReasonDefaultTypeInternal _CancelOrderReason_default_instance_;
+class CancelOrderReasonType;
+struct CancelOrderReasonTypeDefaultTypeInternal;
+extern CancelOrderReasonTypeDefaultTypeInternal _CancelOrderReasonType_default_instance_;
 class KeyWordsField;
 struct KeyWordsFieldDefaultTypeInternal;
 extern KeyWordsFieldDefaultTypeInternal _KeyWordsField_default_instance_;
@@ -117,6 +123,8 @@ template<> ::CRYSTAL_NET::service::BorrowBookInfo* Arena::CreateMaybeMessage<::C
 template<> ::CRYSTAL_NET::service::BorrowOrderDetailInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowOrderDetailInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::BorrowOrderInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowOrderInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::BorrowOrderState* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BorrowOrderState>(Arena*);
+template<> ::CRYSTAL_NET::service::CancelOrderReason* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CancelOrderReason>(Arena*);
+template<> ::CRYSTAL_NET::service::CancelOrderReasonType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CancelOrderReasonType>(Arena*);
 template<> ::CRYSTAL_NET::service::KeyWordsField* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::KeyWordsField>(Arena*);
 template<> ::CRYSTAL_NET::service::LibararyManagerInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibararyManagerInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::LibraryInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibraryInfo>(Arena*);
@@ -186,6 +194,30 @@ inline bool BorrowOrderState_ENUMS_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, BorrowOrderState_ENUMS* value) {
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BorrowOrderState_ENUMS>(
     BorrowOrderState_ENUMS_descriptor(), name, value);
+}
+enum CancelOrderReasonType_ENUMS : int {
+  CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT = 0,
+  CancelOrderReasonType_ENUMS_CancelOrderReasonType_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
+  CancelOrderReasonType_ENUMS_CancelOrderReasonType_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
+};
+bool CancelOrderReasonType_ENUMS_IsValid(int value);
+constexpr CancelOrderReasonType_ENUMS CancelOrderReasonType_ENUMS_ENUMS_MIN = CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT;
+constexpr CancelOrderReasonType_ENUMS CancelOrderReasonType_ENUMS_ENUMS_MAX = CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT;
+constexpr int CancelOrderReasonType_ENUMS_ENUMS_ARRAYSIZE = CancelOrderReasonType_ENUMS_ENUMS_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CancelOrderReasonType_ENUMS_descriptor();
+template<typename T>
+inline const std::string& CancelOrderReasonType_ENUMS_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, CancelOrderReasonType_ENUMS>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function CancelOrderReasonType_ENUMS_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    CancelOrderReasonType_ENUMS_descriptor(), enum_t_value);
+}
+inline bool CancelOrderReasonType_ENUMS_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, CancelOrderReasonType_ENUMS* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<CancelOrderReasonType_ENUMS>(
+    CancelOrderReasonType_ENUMS_descriptor(), name, value);
 }
 enum OperationType_ENUMS : int {
   OperationType_ENUMS_UNKNOWN = 0,
@@ -1777,6 +1809,594 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 // -------------------------------------------------------------------
 
 // AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class CancelOrderReasonType final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.CancelOrderReasonType) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReasonType failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReasonType failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReasonType failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReasonType failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderReasonType failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderReasonType failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline CancelOrderReasonType() : CancelOrderReasonType(nullptr) {}
+  explicit PROTOBUF_CONSTEXPR CancelOrderReasonType(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  CancelOrderReasonType(const CancelOrderReasonType& from);
+  CancelOrderReasonType(CancelOrderReasonType&& from) noexcept
+    : CancelOrderReasonType() {
+    *this = ::std::move(from);
+  }
+
+  inline CancelOrderReasonType& operator=(const CancelOrderReasonType& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CancelOrderReasonType& operator=(CancelOrderReasonType&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const CancelOrderReasonType& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const CancelOrderReasonType* internal_default_instance() {
+    return reinterpret_cast<const CancelOrderReasonType*>(
+               &_CancelOrderReasonType_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(CancelOrderReasonType& a, CancelOrderReasonType& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CancelOrderReasonType* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(CancelOrderReasonType* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  CancelOrderReasonType* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<CancelOrderReasonType>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const CancelOrderReasonType& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const CancelOrderReasonType& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.CancelOrderReasonType";
+  }
+  protected:
+  explicit CancelOrderReasonType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  typedef CancelOrderReasonType_ENUMS ENUMS;
+  static constexpr ENUMS WAIT_USER_GET_TIME_OUT =
+    CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT;
+  static inline bool ENUMS_IsValid(int value) {
+    return CancelOrderReasonType_ENUMS_IsValid(value);
+  }
+  static constexpr ENUMS ENUMS_MIN =
+    CancelOrderReasonType_ENUMS_ENUMS_MIN;
+  static constexpr ENUMS ENUMS_MAX =
+    CancelOrderReasonType_ENUMS_ENUMS_MAX;
+  static constexpr int ENUMS_ARRAYSIZE =
+    CancelOrderReasonType_ENUMS_ENUMS_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
+  ENUMS_descriptor() {
+    return CancelOrderReasonType_ENUMS_descriptor();
+  }
+  template<typename T>
+  static inline const std::string& ENUMS_Name(T enum_t_value) {
+    static_assert(::std::is_same<T, ENUMS>::value ||
+      ::std::is_integral<T>::value,
+      "Incorrect type passed to function ENUMS_Name.");
+    return CancelOrderReasonType_ENUMS_Name(enum_t_value);
+  }
+  static inline bool ENUMS_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
+      ENUMS* value) {
+    return CancelOrderReasonType_ENUMS_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.CancelOrderReasonType)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+  };
+  friend struct ::TableStruct_com_5flibrary_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class CancelOrderReason final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.CancelOrderReason) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReason failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReason failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReason failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReason failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderReason failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderReason failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline CancelOrderReason() : CancelOrderReason(nullptr) {}
+  ~CancelOrderReason() override;
+  explicit PROTOBUF_CONSTEXPR CancelOrderReason(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  CancelOrderReason(const CancelOrderReason& from);
+  CancelOrderReason(CancelOrderReason&& from) noexcept
+    : CancelOrderReason() {
+    *this = ::std::move(from);
+  }
+
+  inline CancelOrderReason& operator=(const CancelOrderReason& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CancelOrderReason& operator=(CancelOrderReason&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const CancelOrderReason& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const CancelOrderReason* internal_default_instance() {
+    return reinterpret_cast<const CancelOrderReason*>(
+               &_CancelOrderReason_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(CancelOrderReason& a, CancelOrderReason& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CancelOrderReason* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(CancelOrderReason* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  CancelOrderReason* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<CancelOrderReason>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const CancelOrderReason& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const CancelOrderReason& from) {
+    CancelOrderReason::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(CancelOrderReason* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.CancelOrderReason";
+  }
+  protected:
+  explicit CancelOrderReason(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kCancelInfoFieldNumber = 2,
+    kCancelReasonFieldNumber = 1,
+  };
+  // bytes CancelInfo = 2;
+  void clear_cancelinfo();
+  const std::string& cancelinfo() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_cancelinfo(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_cancelinfo();
+  PROTOBUF_NODISCARD std::string* release_cancelinfo();
+  void set_allocated_cancelinfo(std::string* cancelinfo);
+  private:
+  const std::string& _internal_cancelinfo() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_cancelinfo(const std::string& value);
+  std::string* _internal_mutable_cancelinfo();
+  public:
+
+  // sint32 CancelReason = 1;
+  void clear_cancelreason();
+  int32_t cancelreason() const;
+  void set_cancelreason(int32_t value);
+  private:
+  int32_t _internal_cancelreason() const;
+  void _internal_set_cancelreason(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.CancelOrderReason)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr cancelinfo_;
+    int32_t cancelreason_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5flibrary_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
 class BorrowOrderInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BorrowOrderInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -1963,7 +2583,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_BorrowOrderInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    7;
 
   friend void swap(BorrowOrderInfo& a, BorrowOrderInfo& b) {
     a.Swap(&b);
@@ -2037,8 +2657,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   enum : int {
     kBorrowBookListFieldNumber = 2,
-    kCancelReasonFieldNumber = 5,
     kRemarkFieldNumber = 7,
+    kCancelReasonFieldNumber = 5,
     kOrderIdFieldNumber = 1,
     kCreateOrderTimeFieldNumber = 3,
     kGetOverTimeFieldNumber = 6,
@@ -2062,20 +2682,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookInfo >&
       borrowbooklist() const;
 
-  // string CancelReason = 5;
-  void clear_cancelreason();
-  const std::string& cancelreason() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_cancelreason(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_cancelreason();
-  PROTOBUF_NODISCARD std::string* release_cancelreason();
-  void set_allocated_cancelreason(std::string* cancelreason);
-  private:
-  const std::string& _internal_cancelreason() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_cancelreason(const std::string& value);
-  std::string* _internal_mutable_cancelreason();
-  public:
-
   // bytes Remark = 7;
   void clear_remark();
   const std::string& remark() const;
@@ -2089,6 +2695,24 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   inline PROTOBUF_ALWAYS_INLINE void _internal_set_remark(const std::string& value);
   std::string* _internal_mutable_remark();
   public:
+
+  // .CRYSTAL_NET.service.CancelOrderReason CancelReason = 5;
+  bool has_cancelreason() const;
+  private:
+  bool _internal_has_cancelreason() const;
+  public:
+  void clear_cancelreason();
+  const ::CRYSTAL_NET::service::CancelOrderReason& cancelreason() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::CancelOrderReason* release_cancelreason();
+  ::CRYSTAL_NET::service::CancelOrderReason* mutable_cancelreason();
+  void set_allocated_cancelreason(::CRYSTAL_NET::service::CancelOrderReason* cancelreason);
+  private:
+  const ::CRYSTAL_NET::service::CancelOrderReason& _internal_cancelreason() const;
+  ::CRYSTAL_NET::service::CancelOrderReason* _internal_mutable_cancelreason();
+  public:
+  void unsafe_arena_set_allocated_cancelreason(
+      ::CRYSTAL_NET::service::CancelOrderReason* cancelreason);
+  ::CRYSTAL_NET::service::CancelOrderReason* unsafe_arena_release_cancelreason();
 
   // uint64 OrderId = 1;
   void clear_orderid();
@@ -2135,8 +2759,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookInfo > borrowbooklist_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr cancelreason_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr remark_;
+    ::CRYSTAL_NET::service::CancelOrderReason* cancelreason_;
     uint64_t orderid_;
     uint64_t createordertime_;
     int64_t getovertime_;
@@ -2335,7 +2959,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_BorrowOrderDetailInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    8;
 
   friend void swap(BorrowOrderDetailInfo& a, BorrowOrderDetailInfo& b) {
     a.Swap(&b);
@@ -2409,8 +3033,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   enum : int {
     kBorrowBookListFieldNumber = 2,
-    kCancelReasonFieldNumber = 5,
     kRemarkFieldNumber = 7,
+    kCancelReasonFieldNumber = 5,
     kOrderIdFieldNumber = 1,
     kCreateOrderTimeFieldNumber = 3,
     kGetOverTimeFieldNumber = 6,
@@ -2434,20 +3058,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookDetailInfo >&
       borrowbooklist() const;
 
-  // string CancelReason = 5;
-  void clear_cancelreason();
-  const std::string& cancelreason() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_cancelreason(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_cancelreason();
-  PROTOBUF_NODISCARD std::string* release_cancelreason();
-  void set_allocated_cancelreason(std::string* cancelreason);
-  private:
-  const std::string& _internal_cancelreason() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_cancelreason(const std::string& value);
-  std::string* _internal_mutable_cancelreason();
-  public:
-
   // bytes Remark = 7;
   void clear_remark();
   const std::string& remark() const;
@@ -2461,6 +3071,24 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   inline PROTOBUF_ALWAYS_INLINE void _internal_set_remark(const std::string& value);
   std::string* _internal_mutable_remark();
   public:
+
+  // .CRYSTAL_NET.service.CancelOrderReason CancelReason = 5;
+  bool has_cancelreason() const;
+  private:
+  bool _internal_has_cancelreason() const;
+  public:
+  void clear_cancelreason();
+  const ::CRYSTAL_NET::service::CancelOrderReason& cancelreason() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::CancelOrderReason* release_cancelreason();
+  ::CRYSTAL_NET::service::CancelOrderReason* mutable_cancelreason();
+  void set_allocated_cancelreason(::CRYSTAL_NET::service::CancelOrderReason* cancelreason);
+  private:
+  const ::CRYSTAL_NET::service::CancelOrderReason& _internal_cancelreason() const;
+  ::CRYSTAL_NET::service::CancelOrderReason* _internal_mutable_cancelreason();
+  public:
+  void unsafe_arena_set_allocated_cancelreason(
+      ::CRYSTAL_NET::service::CancelOrderReason* cancelreason);
+  ::CRYSTAL_NET::service::CancelOrderReason* unsafe_arena_release_cancelreason();
 
   // uint64 OrderId = 1;
   void clear_orderid();
@@ -2507,8 +3135,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookDetailInfo > borrowbooklist_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr cancelreason_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr remark_;
+    ::CRYSTAL_NET::service::CancelOrderReason* cancelreason_;
     uint64_t orderid_;
     uint64_t createordertime_;
     int64_t getovertime_;
@@ -2712,7 +3340,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_MemberInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    9;
 
   friend void swap(MemberInfo& a, MemberInfo& b) {
     a.Swap(&b);
@@ -3083,7 +3711,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_OperationType_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    10;
 
   friend void swap(OperationType& a, OperationType& b) {
     a.Swap(&b);
@@ -3369,7 +3997,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_OperationLogInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    11;
 
   friend void swap(OperationLogInfo& a, OperationLogInfo& b) {
     a.Swap(&b);
@@ -3725,7 +4353,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LibraryInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    12;
 
   friend void swap(LibraryInfo& a, LibraryInfo& b) {
     a.Swap(&b);
@@ -4183,7 +4811,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_UserLibraryInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    13;
 
   friend void swap(UserLibraryInfo& a, UserLibraryInfo& b) {
     a.Swap(&b);
@@ -4470,7 +5098,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LibraryPreviewInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    14;
 
   friend void swap(LibraryPreviewInfo& a, LibraryPreviewInfo& b) {
     a.Swap(&b);
@@ -4800,7 +5428,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_KeyWordsField_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    15;
 
   friend void swap(KeyWordsField& a, KeyWordsField& b) {
     a.Swap(&b);
@@ -5102,7 +5730,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_SnapshotField_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    16;
 
   friend void swap(SnapshotField& a, SnapshotField& b) {
     a.Swap(&b);
@@ -5404,7 +6032,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_OutStoreParam_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    17;
 
   friend void swap(OutStoreParam& a, OutStoreParam& b) {
     a.Swap(&b);
@@ -5912,6 +6540,84 @@ inline void BorrowBookDetailInfo::set_allocated_bookname(std::string* bookname) 
 
 // -------------------------------------------------------------------
 
+// CancelOrderReasonType
+
+// -------------------------------------------------------------------
+
+// CancelOrderReason
+
+// sint32 CancelReason = 1;
+inline void CancelOrderReason::clear_cancelreason() {
+  _impl_.cancelreason_ = 0;
+}
+inline int32_t CancelOrderReason::_internal_cancelreason() const {
+  return _impl_.cancelreason_;
+}
+inline int32_t CancelOrderReason::cancelreason() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.CancelOrderReason.CancelReason)
+  return _internal_cancelreason();
+}
+inline void CancelOrderReason::_internal_set_cancelreason(int32_t value) {
+  
+  _impl_.cancelreason_ = value;
+}
+inline void CancelOrderReason::set_cancelreason(int32_t value) {
+  _internal_set_cancelreason(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CancelOrderReason.CancelReason)
+}
+
+// bytes CancelInfo = 2;
+inline void CancelOrderReason::clear_cancelinfo() {
+  _impl_.cancelinfo_.ClearToEmpty();
+}
+inline const std::string& CancelOrderReason::cancelinfo() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.CancelOrderReason.CancelInfo)
+  return _internal_cancelinfo();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void CancelOrderReason::set_cancelinfo(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.cancelinfo_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CancelOrderReason.CancelInfo)
+}
+inline std::string* CancelOrderReason::mutable_cancelinfo() {
+  std::string* _s = _internal_mutable_cancelinfo();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.CancelOrderReason.CancelInfo)
+  return _s;
+}
+inline const std::string& CancelOrderReason::_internal_cancelinfo() const {
+  return _impl_.cancelinfo_.Get();
+}
+inline void CancelOrderReason::_internal_set_cancelinfo(const std::string& value) {
+  
+  _impl_.cancelinfo_.Set(value, GetArenaForAllocation());
+}
+inline std::string* CancelOrderReason::_internal_mutable_cancelinfo() {
+  
+  return _impl_.cancelinfo_.Mutable(GetArenaForAllocation());
+}
+inline std::string* CancelOrderReason::release_cancelinfo() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.CancelOrderReason.CancelInfo)
+  return _impl_.cancelinfo_.Release();
+}
+inline void CancelOrderReason::set_allocated_cancelinfo(std::string* cancelinfo) {
+  if (cancelinfo != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.cancelinfo_.SetAllocated(cancelinfo, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.cancelinfo_.IsDefault()) {
+    _impl_.cancelinfo_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.CancelOrderReason.CancelInfo)
+}
+
+// -------------------------------------------------------------------
+
 // BorrowOrderInfo
 
 // uint64 OrderId = 1;
@@ -6014,53 +6720,93 @@ inline void BorrowOrderInfo::set_orderstate(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderInfo.OrderState)
 }
 
-// string CancelReason = 5;
-inline void BorrowOrderInfo::clear_cancelreason() {
-  _impl_.cancelreason_.ClearToEmpty();
+// .CRYSTAL_NET.service.CancelOrderReason CancelReason = 5;
+inline bool BorrowOrderInfo::_internal_has_cancelreason() const {
+  return this != internal_default_instance() && _impl_.cancelreason_ != nullptr;
 }
-inline const std::string& BorrowOrderInfo::cancelreason() const {
+inline bool BorrowOrderInfo::has_cancelreason() const {
+  return _internal_has_cancelreason();
+}
+inline void BorrowOrderInfo::clear_cancelreason() {
+  if (GetArenaForAllocation() == nullptr && _impl_.cancelreason_ != nullptr) {
+    delete _impl_.cancelreason_;
+  }
+  _impl_.cancelreason_ = nullptr;
+}
+inline const ::CRYSTAL_NET::service::CancelOrderReason& BorrowOrderInfo::_internal_cancelreason() const {
+  const ::CRYSTAL_NET::service::CancelOrderReason* p = _impl_.cancelreason_;
+  return p != nullptr ? *p : reinterpret_cast<const ::CRYSTAL_NET::service::CancelOrderReason&>(
+      ::CRYSTAL_NET::service::_CancelOrderReason_default_instance_);
+}
+inline const ::CRYSTAL_NET::service::CancelOrderReason& BorrowOrderInfo::cancelreason() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderInfo.CancelReason)
   return _internal_cancelreason();
 }
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void BorrowOrderInfo::set_cancelreason(ArgT0&& arg0, ArgT... args) {
- 
- _impl_.cancelreason_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderInfo.CancelReason)
-}
-inline std::string* BorrowOrderInfo::mutable_cancelreason() {
-  std::string* _s = _internal_mutable_cancelreason();
-  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowOrderInfo.CancelReason)
-  return _s;
-}
-inline const std::string& BorrowOrderInfo::_internal_cancelreason() const {
-  return _impl_.cancelreason_.Get();
-}
-inline void BorrowOrderInfo::_internal_set_cancelreason(const std::string& value) {
-  
-  _impl_.cancelreason_.Set(value, GetArenaForAllocation());
-}
-inline std::string* BorrowOrderInfo::_internal_mutable_cancelreason() {
-  
-  return _impl_.cancelreason_.Mutable(GetArenaForAllocation());
-}
-inline std::string* BorrowOrderInfo::release_cancelreason() {
-  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowOrderInfo.CancelReason)
-  return _impl_.cancelreason_.Release();
-}
-inline void BorrowOrderInfo::set_allocated_cancelreason(std::string* cancelreason) {
-  if (cancelreason != nullptr) {
+inline void BorrowOrderInfo::unsafe_arena_set_allocated_cancelreason(
+    ::CRYSTAL_NET::service::CancelOrderReason* cancelreason) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.cancelreason_);
+  }
+  _impl_.cancelreason_ = cancelreason;
+  if (cancelreason) {
     
   } else {
     
   }
-  _impl_.cancelreason_.SetAllocated(cancelreason, GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.cancelreason_.IsDefault()) {
-    _impl_.cancelreason_.Set("", GetArenaForAllocation());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.BorrowOrderInfo.CancelReason)
+}
+inline ::CRYSTAL_NET::service::CancelOrderReason* BorrowOrderInfo::release_cancelreason() {
+  
+  ::CRYSTAL_NET::service::CancelOrderReason* temp = _impl_.cancelreason_;
+  _impl_.cancelreason_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::CRYSTAL_NET::service::CancelOrderReason* BorrowOrderInfo::unsafe_arena_release_cancelreason() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowOrderInfo.CancelReason)
+  
+  ::CRYSTAL_NET::service::CancelOrderReason* temp = _impl_.cancelreason_;
+  _impl_.cancelreason_ = nullptr;
+  return temp;
+}
+inline ::CRYSTAL_NET::service::CancelOrderReason* BorrowOrderInfo::_internal_mutable_cancelreason() {
+  
+  if (_impl_.cancelreason_ == nullptr) {
+    auto* p = CreateMaybeMessage<::CRYSTAL_NET::service::CancelOrderReason>(GetArenaForAllocation());
+    _impl_.cancelreason_ = p;
+  }
+  return _impl_.cancelreason_;
+}
+inline ::CRYSTAL_NET::service::CancelOrderReason* BorrowOrderInfo::mutable_cancelreason() {
+  ::CRYSTAL_NET::service::CancelOrderReason* _msg = _internal_mutable_cancelreason();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowOrderInfo.CancelReason)
+  return _msg;
+}
+inline void BorrowOrderInfo::set_allocated_cancelreason(::CRYSTAL_NET::service::CancelOrderReason* cancelreason) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.cancelreason_;
+  }
+  if (cancelreason) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(cancelreason);
+    if (message_arena != submessage_arena) {
+      cancelreason = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, cancelreason, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.cancelreason_ = cancelreason;
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowOrderInfo.CancelReason)
 }
 
@@ -6238,53 +6984,93 @@ inline void BorrowOrderDetailInfo::set_orderstate(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.OrderState)
 }
 
-// string CancelReason = 5;
-inline void BorrowOrderDetailInfo::clear_cancelreason() {
-  _impl_.cancelreason_.ClearToEmpty();
+// .CRYSTAL_NET.service.CancelOrderReason CancelReason = 5;
+inline bool BorrowOrderDetailInfo::_internal_has_cancelreason() const {
+  return this != internal_default_instance() && _impl_.cancelreason_ != nullptr;
 }
-inline const std::string& BorrowOrderDetailInfo::cancelreason() const {
+inline bool BorrowOrderDetailInfo::has_cancelreason() const {
+  return _internal_has_cancelreason();
+}
+inline void BorrowOrderDetailInfo::clear_cancelreason() {
+  if (GetArenaForAllocation() == nullptr && _impl_.cancelreason_ != nullptr) {
+    delete _impl_.cancelreason_;
+  }
+  _impl_.cancelreason_ = nullptr;
+}
+inline const ::CRYSTAL_NET::service::CancelOrderReason& BorrowOrderDetailInfo::_internal_cancelreason() const {
+  const ::CRYSTAL_NET::service::CancelOrderReason* p = _impl_.cancelreason_;
+  return p != nullptr ? *p : reinterpret_cast<const ::CRYSTAL_NET::service::CancelOrderReason&>(
+      ::CRYSTAL_NET::service::_CancelOrderReason_default_instance_);
+}
+inline const ::CRYSTAL_NET::service::CancelOrderReason& BorrowOrderDetailInfo::cancelreason() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
   return _internal_cancelreason();
 }
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void BorrowOrderDetailInfo::set_cancelreason(ArgT0&& arg0, ArgT... args) {
- 
- _impl_.cancelreason_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
-}
-inline std::string* BorrowOrderDetailInfo::mutable_cancelreason() {
-  std::string* _s = _internal_mutable_cancelreason();
-  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
-  return _s;
-}
-inline const std::string& BorrowOrderDetailInfo::_internal_cancelreason() const {
-  return _impl_.cancelreason_.Get();
-}
-inline void BorrowOrderDetailInfo::_internal_set_cancelreason(const std::string& value) {
-  
-  _impl_.cancelreason_.Set(value, GetArenaForAllocation());
-}
-inline std::string* BorrowOrderDetailInfo::_internal_mutable_cancelreason() {
-  
-  return _impl_.cancelreason_.Mutable(GetArenaForAllocation());
-}
-inline std::string* BorrowOrderDetailInfo::release_cancelreason() {
-  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
-  return _impl_.cancelreason_.Release();
-}
-inline void BorrowOrderDetailInfo::set_allocated_cancelreason(std::string* cancelreason) {
-  if (cancelreason != nullptr) {
+inline void BorrowOrderDetailInfo::unsafe_arena_set_allocated_cancelreason(
+    ::CRYSTAL_NET::service::CancelOrderReason* cancelreason) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.cancelreason_);
+  }
+  _impl_.cancelreason_ = cancelreason;
+  if (cancelreason) {
     
   } else {
     
   }
-  _impl_.cancelreason_.SetAllocated(cancelreason, GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (_impl_.cancelreason_.IsDefault()) {
-    _impl_.cancelreason_.Set("", GetArenaForAllocation());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
+}
+inline ::CRYSTAL_NET::service::CancelOrderReason* BorrowOrderDetailInfo::release_cancelreason() {
+  
+  ::CRYSTAL_NET::service::CancelOrderReason* temp = _impl_.cancelreason_;
+  _impl_.cancelreason_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::CRYSTAL_NET::service::CancelOrderReason* BorrowOrderDetailInfo::unsafe_arena_release_cancelreason() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
+  
+  ::CRYSTAL_NET::service::CancelOrderReason* temp = _impl_.cancelreason_;
+  _impl_.cancelreason_ = nullptr;
+  return temp;
+}
+inline ::CRYSTAL_NET::service::CancelOrderReason* BorrowOrderDetailInfo::_internal_mutable_cancelreason() {
+  
+  if (_impl_.cancelreason_ == nullptr) {
+    auto* p = CreateMaybeMessage<::CRYSTAL_NET::service::CancelOrderReason>(GetArenaForAllocation());
+    _impl_.cancelreason_ = p;
+  }
+  return _impl_.cancelreason_;
+}
+inline ::CRYSTAL_NET::service::CancelOrderReason* BorrowOrderDetailInfo::mutable_cancelreason() {
+  ::CRYSTAL_NET::service::CancelOrderReason* _msg = _internal_mutable_cancelreason();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
+  return _msg;
+}
+inline void BorrowOrderDetailInfo::set_allocated_cancelreason(::CRYSTAL_NET::service::CancelOrderReason* cancelreason) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.cancelreason_;
+  }
+  if (cancelreason) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(cancelreason);
+    if (message_arena != submessage_arena) {
+      cancelreason = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, cancelreason, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.cancelreason_ = cancelreason;
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowOrderDetailInfo.CancelReason)
 }
 
@@ -7588,6 +8374,10 @@ inline void OutStoreParam::set_count(int64_t value) {
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -7605,6 +8395,11 @@ template <> struct is_proto_enum< ::CRYSTAL_NET::service::BorrowOrderState_ENUMS
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::BorrowOrderState_ENUMS>() {
   return ::CRYSTAL_NET::service::BorrowOrderState_ENUMS_descriptor();
+}
+template <> struct is_proto_enum< ::CRYSTAL_NET::service::CancelOrderReasonType_ENUMS> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::CancelOrderReasonType_ENUMS>() {
+  return ::CRYSTAL_NET::service::CancelOrderReasonType_ENUMS_descriptor();
 }
 template <> struct is_proto_enum< ::CRYSTAL_NET::service::OperationType_ENUMS> : ::std::true_type {};
 template <>
@@ -7728,6 +8523,52 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::BorrowOrderState(*dynamic_cast<const ::CRYSTAL_NET::service::BorrowOrderState *>(coder));
+    }
+
+};
+
+
+class CancelOrderReasonTypeFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, CancelOrderReasonTypeFactory);
+public:
+
+    virtual void Release() override {
+        CancelOrderReasonTypeFactory::Delete_CancelOrderReasonTypeFactory(this);
+    }
+
+    static CancelOrderReasonTypeFactory *CreateFactory() {
+        return CancelOrderReasonTypeFactory::New_CancelOrderReasonTypeFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::CancelOrderReasonType();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::CancelOrderReasonType(*dynamic_cast<const ::CRYSTAL_NET::service::CancelOrderReasonType *>(coder));
+    }
+
+};
+
+
+class CancelOrderReasonFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, CancelOrderReasonFactory);
+public:
+
+    virtual void Release() override {
+        CancelOrderReasonFactory::Delete_CancelOrderReasonFactory(this);
+    }
+
+    static CancelOrderReasonFactory *CreateFactory() {
+        return CancelOrderReasonFactory::New_CancelOrderReasonFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::CancelOrderReason();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::CancelOrderReason(*dynamic_cast<const ::CRYSTAL_NET::service::CancelOrderReason *>(coder));
     }
 
 };

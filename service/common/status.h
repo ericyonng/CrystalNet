@@ -94,5 +94,8 @@ namespace Status
         BookCountOverCapacity,                              // 超过库存
         HaveNoBook,                                         // 没有书
         HaveBookOverDeadline,                               // 有图书逾期, 请归还后再借
+        InvalidOrder,                                       // 无效订单
+        OutStoreNotMatchOrder,                              // 出库图书与订单对不上
+        InvalidOrderState,                                  // 无效订单状态
     };
 }

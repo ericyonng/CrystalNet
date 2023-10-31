@@ -356,6 +356,10 @@ ALWAYS_INLINE MemoryBuffer *MemoryAlloctor::_NewBuffer()
 
 ALWAYS_INLINE void MemoryAlloctor::_GcBuffer(MemoryBuffer *buffer)
 {
+    // 降低内存分配占用, 这个时候说明内存不那么紧张了 TODO:测试
+    _curBlockCntPerBuffer >>= 1;
+    _curBlockCntPerBuffer = _curBlockCntPerBuffer >= _initMinBlockCntPerBuffer ? _curBlockCntPerBuffer : _initMinBlockCntPerBuffer;
+
     // 数据更新
     _totalBytes -= buffer->_bufferSize;
     _totalBlockAmount -= buffer->_blockCnt;

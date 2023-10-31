@@ -148,6 +148,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("CancelOrderReason", (jsonData:any):any =>{
+                return this.CancelOrderReasonParser(jsonData);
+            })
+
+
+            this.add("CancelOrderReasonType", (jsonData:any):any =>{
+                return this.CancelOrderReasonTypeParser(jsonData);
+            })
+
+
             this.add("ClientHeartbeatReq", (jsonData:any):any =>{
                 return this.ClientHeartbeatReqParser(jsonData);
             })
@@ -1276,7 +1286,16 @@ export namespace crystal_net_service_parser
 
                 if(jsonData.CancelReason != undefined)
                 {
-                    newInfo.CancelReason = jsonData.CancelReason;
+                    var jsonFieldInfo = jsonData.CancelReason;
+                    var cb = this.getParser("CancelOrderReason");
+                    if(cb != undefined)
+                    {
+                        newInfo.CancelReason = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field CancelReason have no CancelOrderReason parser");
+                    }
                 }
 
 
@@ -1332,7 +1351,16 @@ export namespace crystal_net_service_parser
 
                 if(jsonData.CancelReason != undefined)
                 {
-                    newInfo.CancelReason = jsonData.CancelReason;
+                    var jsonFieldInfo = jsonData.CancelReason;
+                    var cb = this.getParser("CancelOrderReason");
+                    if(cb != undefined)
+                    {
+                        newInfo.CancelReason = cb(jsonFieldInfo);
+                    }
+                    else
+                    {
+                        console.log("field CancelReason have no CancelOrderReason parser");
+                    }
                 }
 
 
@@ -1353,6 +1381,30 @@ export namespace crystal_net_service_parser
 
             private BorrowOrderStateParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.BorrowOrderState()
+                 return newInfo;
+            }
+
+
+            private CancelOrderReasonParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.CancelOrderReason()
+
+                if(jsonData.CancelReason != undefined)
+                {
+                    newInfo.CancelReason = parseFloat(jsonData.CancelReason);
+                }
+
+
+                if(jsonData.CancelInfo != undefined)
+                {
+                    newInfo.CancelInfo = jsonData.CancelInfo;
+                }
+
+                 return newInfo;
+            }
+
+
+            private CancelOrderReasonTypeParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.CancelOrderReasonType()
                  return newInfo;
             }
 

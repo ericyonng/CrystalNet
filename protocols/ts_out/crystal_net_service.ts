@@ -48,6 +48,12 @@ export namespace crystal_net_service
         RETURN_BAKCK = 4,
 
     }
+    // com_library.proto
+    export enum CancelOrderReasonType_ENUMS {
+        // 等用户领取超时
+        WAIT_USER_GET_TIME_OUT= = 0,
+
+    }
     // com_client_user.proto
     export enum ClientUserStatus_ENUMS {
         // 未登录
@@ -456,7 +462,7 @@ export namespace crystal_net_service
         OrderState:number = 0;
 
         // 取消原因
-        CancelReason:string = "";
+        CancelReason:CancelOrderReason = new CancelOrderReason();
 
         // 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
         GetOverTime:number = 0;
@@ -482,7 +488,7 @@ export namespace crystal_net_service
         OrderState:number = 0;
 
         // 取消原因
-        CancelReason:string = "";
+        CancelReason:CancelOrderReason = new CancelOrderReason();
 
         // 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
         GetOverTime:number = 0;
@@ -495,6 +501,20 @@ export namespace crystal_net_service
     // 订单状态
     // com_library.proto
     export class BorrowOrderState {
+
+    }
+    // com_library.proto
+    export class CancelOrderReason {
+        // 原因code
+        CancelReason:number = 0;
+
+        // 具体原因内容
+        CancelInfo:string = "";
+
+
+    }
+    // com_library.proto
+    export class CancelOrderReasonType {
 
     }
     // 客户端的心跳

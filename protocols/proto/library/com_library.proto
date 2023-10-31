@@ -82,6 +82,23 @@ message BorrowOrderState
     }
 }
 
+message CancelOrderReasonType
+{
+    enum ENUMS
+    {
+        // 等用户领取超时
+        WAIT_USER_GET_TIME_OUT= 0;
+    }
+}
+
+message CancelOrderReason
+{
+    // 原因code
+    sint32 CancelReason = 1;
+    // 具体原因内容
+    bytes CancelInfo = 2;
+}
+
 // 借还订单信息
 message BorrowOrderInfo
 {
@@ -94,7 +111,7 @@ message BorrowOrderInfo
     // 订单状态 BorrowOrderState
     sint32 OrderState = 4;
     // 取消原因
-    string CancelReason = 5;
+    CancelOrderReason CancelReason = 5;
     // 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
     sint64 GetOverTime = 6;
     // 备注
@@ -113,7 +130,7 @@ message BorrowOrderDetailInfo
     // 订单状态 BorrowOrderState
     sint32 OrderState = 4;
     // 取消原因
-    string CancelReason = 5;
+    CancelOrderReason CancelReason = 5;
     // 领取超时时间(出库后一到两天内领取),超过后自动取消订单 TODO:
     sint64 GetOverTime = 6;
     // 备注

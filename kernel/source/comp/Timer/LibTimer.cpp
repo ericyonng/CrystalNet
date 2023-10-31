@@ -76,6 +76,7 @@ void LibTimer::Cancel()
         _mgr->UnRegister(_data);
 
         _data->_isScheduing = false;
+
         if(_cancelHandler)
             _cancelHandler->Invoke(this);
     }
