@@ -564,6 +564,9 @@ void MyTestService::_OnDbLoaded(KERNEL_NS::LibEvent *ev)
 {
     // 等待SysLogicMgr完成
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t) mutable{
         auto service = reinterpret_cast<IService *>(this);
         auto sysLogicMgr = service->GetComp<ISysLogicMgr>();

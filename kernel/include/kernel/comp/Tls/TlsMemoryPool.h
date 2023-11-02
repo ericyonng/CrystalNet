@@ -34,6 +34,7 @@
 #include <kernel/comp/Tls/ITlsObj.h>
 #include <kernel/comp/Tls/Defs.h>
 #include <kernel/comp/Lock/Lock.h>
+#include <kernel/comp/Utils/BackTraceUtil.h>
 
 KERNEL_BEGIN
 
@@ -61,7 +62,7 @@ public:
     {
         if(UNLIKELY(_pool))
         {
-            CRYSTAL_TRACE("repeat create tls pool cur pool = %p", _pool);
+            CRYSTAL_TRACE("repeat create tls pool cur pool = %p, source:%s,\n backtrace:%s", _pool, source.c_str(), BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
 			return KernelCastTo<MemoryPoolType>(_pool);
         }
 

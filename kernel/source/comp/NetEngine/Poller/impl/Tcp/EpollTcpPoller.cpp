@@ -1985,6 +1985,10 @@ void EpollTcpPoller::_ControlCloseSession(EpollTcpSession *session, Int32 closeR
     if(closeMillisecondTime)
     {
         auto newTimer = LibTimer::NewThreadLocal_LibTimer(_poller->GetTimerMgr());
+        _poller->GetTimerMgr()->TakeOverLifeTime(newTimer, [](LibTimer *t){
+            LibTimer::DeleteThreadLocal_LibTimer(t);
+        });
+        
         auto __delayCloseSession = [this, sessionId, stub, opCloseTime, closeReason](LibTimer *delayCloseTimer)->void 
         {
             do

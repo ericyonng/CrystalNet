@@ -1057,6 +1057,9 @@ void MysqlMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
 
     // 定时器等待db mgr 退出
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler([this, dbMgr](KERNEL_NS::LibTimer *t) mutable 
     {
         auto service = GetService();
@@ -1531,6 +1534,9 @@ void MysqlMgr::_LoadAllPublicData()
 
     // 启动定时器监测
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler([this, logics](KERNEL_NS::LibTimer *t){
         if(_loadPublicDataPending.empty())
         {

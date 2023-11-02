@@ -448,6 +448,9 @@ template<typename CallbackType>
 ALWAYS_INLINE void ILogicSys::Post(CallbackType &&cb, Int64 ms)
 {
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler([cb](KERNEL_NS::LibTimer *t)
     {
         t->Cancel();

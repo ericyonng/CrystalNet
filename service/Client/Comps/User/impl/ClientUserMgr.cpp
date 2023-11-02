@@ -185,6 +185,9 @@ Int32 ClientUserMgr::Login(const LoginInfo &loginInfo, Int32 stackType)
     
     // 30秒内没登录成功则移除
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler([loginInfo, this](KERNEL_NS::LibTimer *t)
     {
         auto user = GetUser(loginInfo.accountname());
@@ -405,6 +408,9 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
 
     // 保持心跳
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler([sessionId, this](KERNEL_NS::LibTimer *t)
     {
         auto user = GetUserBySessinId(sessionId);
@@ -545,6 +551,9 @@ void ClientUserMgr::_OnHeartbeatTimeOut(KERNEL_NS::LibTimer *t)
 
         const auto accountName = user->GetClientInfo()->accountname();
         auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+        timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+        });
         timer->SetTimeOutHandler([accountName, this](KERNEL_NS::LibTimer *t)
         {
             auto user = GetUser(accountName);

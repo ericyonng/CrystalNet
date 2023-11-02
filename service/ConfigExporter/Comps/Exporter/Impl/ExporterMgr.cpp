@@ -62,6 +62,9 @@ Int32 ExporterMgr::_OnGlobalSysInit()
     _RegisterEvents();
 
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler(this, &ExporterMgr::_OnExporter);
     timer->Schedule(0);
 

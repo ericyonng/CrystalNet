@@ -1830,6 +1830,8 @@ void LibraryGlobal::_OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet)
 
         MaskNumberKeyModifyDirty(libraryId);
 
+        _SendLibraryInfoNty(user->GetUserId(), libraryId);
+
     } while (false);
     
     OutStoreOrderRes res;
@@ -2357,6 +2359,19 @@ void LibraryGlobal::_SendLibraryInfoNty(UInt64 userId, const LibraryInfo *librar
 {
     auto user = GetGlobalSys<IUserMgr>()->GetUser(userId);
     if(!user)
+        return;
+
+    _SendLibraryInfoNty(user, libraryInfo);
+}
+
+void LibraryGlobal::_SendLibraryInfoNty(UInt64 userId, UInt64 libraryId) const
+{
+    auto user = GetGlobalSys<IUserMgr>()->GetUser(userId);
+    if(!user)
+        return;
+
+    auto libraryInfo = GetLibraryInfo(libraryId);
+    if(!libraryInfo)
         return;
 
     _SendLibraryInfoNty(user, libraryInfo);

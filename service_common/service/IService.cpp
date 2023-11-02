@@ -358,6 +358,9 @@ void IService::_OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg)
 
     // 每秒检测一次模块是否退出
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler([this](KERNEL_NS::LibTimer *t){
         
         KERNEL_NS::LibString notEndInfo;

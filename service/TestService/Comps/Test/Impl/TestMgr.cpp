@@ -381,6 +381,9 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
     };
 
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler(KERNEL_CREATE_CLOSURE_DELEGATE(nextFrame, void, KERNEL_NS::LibTimer *));
     
     if(_testSendMode == 1)
@@ -448,6 +451,9 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
     };
 
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer->SetTimeOutHandler(KERNEL_CREATE_CLOSURE_DELEGATE(linkTimerOut, void, KERNEL_NS::LibTimer *));
     timer->Schedule(std::max<Int32>(_testConnectIntervalMs, 0));
 }

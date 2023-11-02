@@ -103,6 +103,9 @@ void TestTimer::Run()
     timer3->GetParams()[TEST_TIMER_TIMER2_DESC] = &timer2;
 
     auto timer4 = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(&timerMgr);
+    timer4->GetMgr()->TakeOverLifeTime(timer4, [](KERNEL_NS::LibTimer *t){
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+    });
     timer4->SetTimeOutHandler([](KERNEL_NS::LibTimer *t){
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestTimer, "timer4 timeout"));
         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
