@@ -65,6 +65,37 @@ KERNEL_BEGIN
 #undef CRYSTAL_INTEGER_FRMLEN
 #define CRYSTAL_INTEGER_FRMLEN	"ll"
 
+static ALWAYS_INLINE Byte8 *InitHexToDecimalValues()
+{
+    auto arr = new Byte8[128];
+    ::memset(arr, -1, 128);
+
+    // 16进制转码
+    arr['0'] = 0;
+    arr['1'] = 1;
+    arr['2'] = 2;
+    arr['3'] = 3;
+    arr['4'] = 4;
+    arr['5'] = 5;
+    arr['6'] = 6;
+    arr['7'] = 7;
+    arr['8'] = 8;
+    arr['9'] = 9;
+    arr['A'] = 10;
+    arr['B'] = 11;
+    arr['C'] = 12;
+    arr['D'] = 13;
+    arr['E'] = 14;
+    arr['F'] = 15;
+    arr['a'] = 10;
+    arr['b'] = 11;
+    arr['c'] = 12;
+    arr['d'] = 13;
+    arr['e'] = 14;
+    arr['f'] = 15;
+    return arr;
+}
+
 class KERNEL_EXPORT LibString
 {
 public:
@@ -160,6 +191,7 @@ public:
     const Byte8 *c_str() const;
     // 没有'\0'结尾
     const Byte8 *data() const;
+    Byte8 *data();
     bool empty() const;
     size_t size() const;
     size_t length() const;
@@ -803,6 +835,11 @@ ALWAYS_INLINE const Byte8 *LibString::data() const
     return _raw.data();
 }
 
+ALWAYS_INLINE Byte8 *LibString::data()
+{
+    return const_cast<Byte8 *>(_raw.data());
+}
+
 ALWAYS_INLINE bool LibString::empty() const
 {
     return _raw.empty();
@@ -856,19 +893,19 @@ ALWAYS_INLINE void LibString::ToHexString(LibString &target) const
     if(bufferSize == 0)
         return;
 
+    static const Byte8 ChToHexChars[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
     std::string info;
     char cache[4] = {0};
     info.reserve(bufferSize * 2);
     for(Int64 i = 0; i < bufferSize; ++i)
     {
-        cache[0] = 0;
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-        const Int32 len = ::sprintf_s(cache, sizeof(cache), "%02x", static_cast<U8>(_raw[i]));
-#else
-        const Int32 len = ::sprintf(cache, "%02x", static_cast<U8>(_raw[i]));
-#endif
-        cache[len] = 0;
-        info.append(cache, len);
+        auto &ch = _raw[i];
+        cache[0] = ChToHexChars[U8(ch) >> 4];
+        cache[1] = ChToHexChars[ch & 0X0F];
+        cache[2] = 0;
+
+        info.append(cache, 2);
     }
 
     target += info;
@@ -937,13 +974,14 @@ ALWAYS_INLINE bool LibString::FromHexString(const LibString &hexString)
     if(UNLIKELY(hexLen == 0 || ((hexLen % 2) != 0) ))
         return false;
 
+    static const Byte8 *ChHexToDecimalValues = InitHexToDecimalValues();
+
     _raw.reserve(_raw.size() + hexLen / 2);
     for(UInt64 idx = 0; idx < hexLen; idx += 2)
     {
-        U8 decimalNumber = 0;
-        decimalNumber = _TurnDecimal(hexString[idx]);
-        decimalNumber <<= 4;
-        decimalNumber |= _TurnDecimal(hexString[idx + 1]);
+        auto &hi = ChHexToDecimalValues[hexString[idx]];
+        auto &lo = ChHexToDecimalValues[hexString[idx + 1]];
+        U8 decimalNumber = (hi << 4) | lo;
         _raw.append(reinterpret_cast<Byte8 *>(&decimalNumber), 1);
     }
 

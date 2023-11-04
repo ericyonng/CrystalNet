@@ -60,6 +60,7 @@ public:
 
     // 类型识别缓冲
     char rtti[TlsDefs::LIB_RTTI_BUF_SIZE];
+    void *stackArray[SYMBOL_MAX_CAPTURE_FRAMES];
     // 线程id
     UInt64 _threadId;
     // 线程全局id（LibThreadGlobalId生成的自增id）

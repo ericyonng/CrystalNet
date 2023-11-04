@@ -263,8 +263,9 @@ LibString BackTraceUtil::CrystalCaptureStackBackTrace(size_t skipFrames, size_t 
         captureFrames = std::min<size_t>(captureFrames, SYMBOL_MAX_CAPTURE_FRAMES);
 
     // 初始化堆栈结构
-    std::shared_ptr<Byte8> stackArray(new Byte8[SYMBOL_MAX_CAPTURE_FRAMES]{0});
-    void **stack = reinterpret_cast<void **>(stackArray.get());
+    static thread_local void *stackArray[SYMBOL_MAX_CAPTURE_FRAMES] = {NULL};
+    ::memset(stackArray, 0, SYMBOL_MAX_CAPTURE_FRAMES * sizeof(void *));
+    void **stack = stackArray;    
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     // name是个变长数组
@@ -310,8 +311,9 @@ LibString BackTraceUtil::CrystalCaptureStackBackTrace(size_t skipFrames, size_t 
         delete[]win32Symboal;
 #else // Non-Win32
     LibString backTrace;
-    std::shared_ptr<char> rtti(new char[TlsDefs::LIB_RTTI_BUF_SIZE]{0});
-    Byte8 *rttiPtr = rtti.get();
+    static thread_local char rtti[TlsDefs::LIB_RTTI_BUF_SIZE] = {};
+    ::memset(rtti, 0, TlsDefs::LIB_RTTI_BUF_SIZE);
+
     const int frames = ::backtrace(stack, captureFrames + skipFrames);
     char **strs = ::backtrace_symbols(stack, frames);
     if(LIKELY(strs))
@@ -339,13 +341,13 @@ LibString BackTraceUtil::CrystalCaptureStackBackTrace(size_t skipFrames, size_t 
                 *addrOffsetBeg = '\0';
 
                 int status = 0;
-                size_t length = static_cast<size_t>(TlsDefs::LIB_RTTI_BUF_SIZE);
-                abi::__cxa_demangle(parenthesisBeg, rttiPtr, &length, &status);
+                size_t length = sizeof(rtti);
+                abi::__cxa_demangle(parenthesisBeg, rtti, &length, &status);
                 *addrOffsetBeg = oldAddrOffsetBegCh;
                 if(status == 0)
                 {
                     backTrace.AppendData(strs[i], parenthesisBeg - strs[i]);
-                    backTrace << rttiPtr;
+                    backTrace << rtti;
                     backTrace << addrOffsetBeg;
                 }
                 else

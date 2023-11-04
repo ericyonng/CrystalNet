@@ -21,39 +21,20 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-01-17 22:12:49
+ * Date: 2023-11-05 00:31:15
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Tls/TlsDefaultObj.h>
-#include <kernel/comp/Utils/RttiUtil.h>
+#ifndef __CRYSTAL_NET_TEST_SUIT_TEST_SUIT_TEST_INST_TEST_URL_CODER_H__
+#define __CRYSTAL_NET_TEST_SUIT_TEST_SUIT_TEST_INST_TEST_URL_CODER_H__
 
-KERNEL_BEGIN
+#pragma once
 
-TlsDefaultObj::TlsDefaultObj()
-    :_objTypeName("TlsDefaultObj")
-    ,rtti{0}
-    ,stackArray{NULL}
-    ,_threadId(0)
-    ,_threadGlobalId(0)
-    ,_thread(NULL)
-    ,_threadPool(NULL)
-    ,_pollerTimerMgr(NULL)
-    ,_poller(NULL)
-    ,_durtyList(new std::set<MemoryAlloctor *>)
-    ,_durtyListSwap(new std::set<MemoryAlloctor *>)
-    ,_isForceFreeIdleBuffer(false)
-    ,_alloctorTotalBytes(0)
+class TestUrlCoder
 {
+public:
+    static void Run();
+};
 
-}
-
-TlsDefaultObj::~TlsDefaultObj()
-{
-    CRYSTAL_DELETE_SAFE(_durtyList);
-    CRYSTAL_DELETE_SAFE(_durtyListSwap);
-}
-
-KERNEL_END
+#endif

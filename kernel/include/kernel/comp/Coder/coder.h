@@ -32,5 +32,6 @@
 #pragma once
 
 #include <kernel/comp/Coder/base64.h>
+#include <kernel/comp/Coder/UrlCoder.h>
 
 #endif

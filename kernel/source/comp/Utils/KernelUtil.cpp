@@ -41,6 +41,7 @@
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpPoller.h>
 #include <kernel/comp/Utils/SignalHandleUtil.h>
 #include <kernel/comp/memory/CenterMemoryCollector.h>
+#include <kernel/comp/Coder/UrlCoder.h>
 
 KERNEL_NS::LibCpuInfo *g_cpu = NULL;
 // KERNEL_NS::CpuFeature *g_cpuFeature = NULL;
@@ -92,6 +93,9 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     // 系统大小端识别
     LibEndian::Init();
+
+    // urlcoder
+    KERNEL_NS::UrlCoder::Init();
 
     // 只支持小端系统
     if(!LibEndian::GetLocalMachineEndianType() != LibEndianType::LittleEndian)
