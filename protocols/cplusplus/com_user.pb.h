@@ -1193,7 +1193,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kPwdFieldNumber = 3,
     kCreatePhoneImeiFieldNumber = 4,
   };
-  // string AccountName = 1;
+  // bytes AccountName = 1;
   void clear_accountname();
   const std::string& accountname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1546,7 +1546,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kVersionIdFieldNumber = 12,
     kUserRegisterInfoFieldNumber = 8,
   };
-  // string AccountName = 2;
+  // bytes AccountName = 2;
   void clear_accountname();
   const std::string& accountname() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -1602,7 +1602,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   std::string* _internal_mutable_loginphoneimei();
   public:
 
-  // string TargetIp = 6;
+  // bytes TargetIp = 6;
   void clear_targetip();
   const std::string& targetip() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -2970,7 +2970,7 @@ inline void UserBaseInfo::set_lastpassdaytime(int64_t value) {
 
 // RegisterUserInfo
 
-// string AccountName = 1;
+// bytes AccountName = 1;
 inline void RegisterUserInfo::clear_accountname() {
   _impl_.accountname_.ClearToEmpty();
 }
@@ -2982,7 +2982,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void RegisterUserInfo::set_accountname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.accountname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.accountname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.RegisterUserInfo.AccountName)
 }
 inline std::string* RegisterUserInfo::mutable_accountname() {
@@ -3194,7 +3194,7 @@ inline void LoginInfo::set_loginmode(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.LoginMode)
 }
 
-// string AccountName = 2;
+// bytes AccountName = 2;
 inline void LoginInfo::clear_accountname() {
   _impl_.accountname_.ClearToEmpty();
 }
@@ -3206,7 +3206,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_accountname(ArgT0&& arg0, ArgT... args) {
  
- _impl_.accountname_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.accountname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.AccountName)
 }
 inline std::string* LoginInfo::mutable_accountname() {
@@ -3394,7 +3394,7 @@ inline void LoginInfo::set_allocated_loginphoneimei(std::string* loginphoneimei)
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.LoginInfo.LoginPhoneImei)
 }
 
-// string TargetIp = 6;
+// bytes TargetIp = 6;
 inline void LoginInfo::clear_targetip() {
   _impl_.targetip_.ClearToEmpty();
 }
@@ -3406,7 +3406,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void LoginInfo::set_targetip(ArgT0&& arg0, ArgT... args) {
  
- _impl_.targetip_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.targetip_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.TargetIp)
 }
 inline std::string* LoginInfo::mutable_targetip() {

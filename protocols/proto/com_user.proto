@@ -52,7 +52,7 @@ message LoginMode
 message RegisterUserInfo
 {
     // 账号
-    string AccountName = 1;
+    bytes AccountName = 1;
     // 昵称
     bytes Nickname = 2;
     // 密码
@@ -67,7 +67,7 @@ message LoginInfo
     // 登录模式
     sint32 LoginMode = 1;
     // 账号
-    string AccountName = 2;
+    bytes AccountName = 2;
     // 密码
     string Pwd = 3;
     // 登录令牌
@@ -75,7 +75,7 @@ message LoginInfo
     // 登录设备
     string LoginPhoneImei = 5;
     // 登录目标ip
-    string TargetIp = 6;
+    bytes TargetIp = 6;
     // 登录目标端口
     uint32 Port = 7;
 

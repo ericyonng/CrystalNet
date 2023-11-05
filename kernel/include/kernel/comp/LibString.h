@@ -1151,10 +1151,17 @@ ALWAYS_INLINE LibString::_ThisType &LibString::findreplace(const _Elem &dest, co
     if (dest == with)
         return *this;
 
+    Int32 founded = 0;
     for (size_type i = 0; i < this->size(); ++i)
     {
         if (_raw[i] == dest)
+        {
+            ++founded;
             _raw.replace(i, 1, 1, with);
+
+            if((count > 0) && (founded >= count))
+                break;
+        }
     }
 
     return *this;
@@ -1168,10 +1175,14 @@ ALWAYS_INLINE LibString::_ThisType &LibString::findreplace(const _ThisType &dest
     size_type found = 0;
     const std::string &destRaw = dest._raw;
     const std::string &withRaw = with._raw;
+    Int32 foundCount = 0;
     while ((found = _raw.find(destRaw, found)) != std::string::npos)
     {
         _raw.replace(found, destRaw.size(), withRaw);
         found += withRaw.size();
+        ++foundCount;
+        if((count > 0) && (foundCount >= count))
+            break; 
     }
 
     return *this;

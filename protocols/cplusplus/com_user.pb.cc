@@ -243,12 +243,12 @@ const char descriptor_table_protodef_com_5fuser_2eproto[] PROTOBUF_SECTION_VARIA
   "ddr\030\016 \001(\t\022\027\n\017LastPassDayTime\030\017 \001(\022\"E\n\tLo"
   "ginMode\"8\n\005ENUMS\022\014\n\010PASSWORD\020\000\022\023\n\017USE_LO"
   "GIN_TOKEN\020\001\022\014\n\010REGISTER\020\002\"_\n\020RegisterUse"
-  "rInfo\022\023\n\013AccountName\030\001 \001(\t\022\020\n\010Nickname\030\002"
+  "rInfo\022\023\n\013AccountName\030\001 \001(\014\022\020\n\010Nickname\030\002"
   " \001(\014\022\013\n\003Pwd\030\003 \001(\t\022\027\n\017CreatePhoneImei\030\004 \001"
   "(\t\"\251\002\n\tLoginInfo\022\021\n\tLoginMode\030\001 \001(\021\022\023\n\013A"
-  "ccountName\030\002 \001(\t\022\013\n\003Pwd\030\003 \001(\t\022\022\n\nLoginTo"
+  "ccountName\030\002 \001(\014\022\013\n\003Pwd\030\003 \001(\t\022\022\n\nLoginTo"
   "ken\030\004 \001(\t\022\026\n\016LoginPhoneImei\030\005 \001(\t\022\020\n\010Tar"
-  "getIp\030\006 \001(\t\022\014\n\004Port\030\007 \001(\r\022A\n\020UserRegiste"
+  "getIp\030\006 \001(\014\022\014\n\004Port\030\007 \001(\r\022A\n\020UserRegiste"
   "rInfo\030\010 \001(\0132%.CRYSTAL_NET.service.Regist"
   "erUserInfoH\000\022\r\n\005AppId\030\t \001(\t\022\022\n\ncypherTex"
   "t\030\n \001(\t\022\022\n\noriginText\030\013 \001(\t\022\021\n\tversionId"
@@ -1274,13 +1274,12 @@ const char* RegisterUserInfo::_InternalParse(const char* ptr, ::_pbi::ParseConte
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // string AccountName = 1;
+      // bytes AccountName = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_accountname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.RegisterUserInfo.AccountName"));
         } else
           goto handle_unusual;
         continue;
@@ -1342,13 +1341,9 @@ uint8_t* RegisterUserInfo::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string AccountName = 1;
+  // bytes AccountName = 1;
   if (!this->_internal_accountname().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_accountname().data(), static_cast<int>(this->_internal_accountname().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.RegisterUserInfo.AccountName");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_accountname(), target);
   }
 
@@ -1394,10 +1389,10 @@ size_t RegisterUserInfo::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string AccountName = 1;
+  // bytes AccountName = 1;
   if (!this->_internal_accountname().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_accountname());
   }
 
@@ -1763,13 +1758,12 @@ const char* LoginInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx
         } else
           goto handle_unusual;
         continue;
-      // string AccountName = 2;
+      // bytes AccountName = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_accountname();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.LoginInfo.AccountName"));
         } else
           goto handle_unusual;
         continue;
@@ -1803,13 +1797,12 @@ const char* LoginInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx
         } else
           goto handle_unusual;
         continue;
-      // string TargetIp = 6;
+      // bytes TargetIp = 6;
       case 6:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           auto str = _internal_mutable_targetip();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.LoginInfo.TargetIp"));
         } else
           goto handle_unusual;
         continue;
@@ -1902,13 +1895,9 @@ uint8_t* LoginInfo::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_loginmode(), target);
   }
 
-  // string AccountName = 2;
+  // bytes AccountName = 2;
   if (!this->_internal_accountname().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_accountname().data(), static_cast<int>(this->_internal_accountname().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.LoginInfo.AccountName");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         2, this->_internal_accountname(), target);
   }
 
@@ -1942,13 +1931,9 @@ uint8_t* LoginInfo::_InternalSerialize(
         5, this->_internal_loginphoneimei(), target);
   }
 
-  // string TargetIp = 6;
+  // bytes TargetIp = 6;
   if (!this->_internal_targetip().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_targetip().data(), static_cast<int>(this->_internal_targetip().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.LoginInfo.TargetIp");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         6, this->_internal_targetip(), target);
   }
 
@@ -2017,10 +2002,10 @@ size_t LoginInfo::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string AccountName = 2;
+  // bytes AccountName = 2;
   if (!this->_internal_accountname().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_accountname());
   }
 
@@ -2045,10 +2030,10 @@ size_t LoginInfo::ByteSizeLong() const {
         this->_internal_loginphoneimei());
   }
 
-  // string TargetIp = 6;
+  // bytes TargetIp = 6;
   if (!this->_internal_targetip().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_targetip());
   }
 

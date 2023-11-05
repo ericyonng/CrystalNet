@@ -2322,6 +2322,7 @@ bool ExporterMgr::_GrammarAnalyze()
                 }
 
                 validData.strip();
+                validData.findreplace("=", " =", 1);
                 if(ProtobuffHelper::IsEnumField(validData))
                 {
                     auto &&parts = validData.Split(" ");

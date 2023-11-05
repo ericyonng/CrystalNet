@@ -148,7 +148,10 @@ Int32 User::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS:
 
         auto data = iter->second;
         if(data->GetReadableSize())
+        {
             _userBaseInfo->set_nickname(data->GetReadBegin(), static_cast<size_t>(data->GetReadableSize()));
+            _userBaseInfo->set_nickname(KERNEL_NS::UrlCoder::Encode(_userBaseInfo->nickname()).GetRaw());
+        }
     }
 
     {
@@ -378,8 +381,9 @@ Int32 User::OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStre
     }
     {
         auto data = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
-        data->Init(static_cast<Int64>(_userBaseInfo->nickname().size()));
-        data->Write(_userBaseInfo->nickname().data(), static_cast<Int64>(_userBaseInfo->nickname().size()));
+        const auto &nickname = KERNEL_NS::UrlCoder::Decode(_userBaseInfo->nickname());
+        data->Init(static_cast<Int64>(nickname.size()));
+        data->Write(nickname.data(), static_cast<Int64>(nickname.size()));
 
         const auto &fieldName = descriptor->FindFieldByNumber(UserBaseInfo::kNicknameFieldNumber)->name();
         fieldRefdb.insert(std::make_pair(fieldName, data));
@@ -955,9 +959,10 @@ const KERNEL_NS::BriefSockAddr *User::GetUserAddr() const
 KERNEL_NS::LibString User::ToString() const
 {
     KERNEL_NS::LibString info;
+    const auto &nickname = KERNEL_NS::UrlCoder::Decode(_userBaseInfo->nickname());
     info.AppendFormat("user id:%llu, account name:%s, nickname:%s, status:%d, max packet id:%lld"
     , _userBaseInfo->userid(), _userBaseInfo->accountname().c_str(), 
-    _userBaseInfo->nickname().c_str(), _status, _curMaxPacketId);
+    nickname.c_str(), _status, _curMaxPacketId);
 
     info.AppendFormat(", session infos:");
     auto sessionMgr = _userMgr->GetService()->GetComp<ISessionMgr>();

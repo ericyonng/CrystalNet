@@ -36,11 +36,11 @@ using ProtoPackage.Attributes;
             "TWFpbEFkZHIYDiABKAkSFwoPTGFzdFBhc3NEYXlUaW1lGA8gASgSIkUKCUxv",
             "Z2luTW9kZSI4CgVFTlVNUxIMCghQQVNTV09SRBAAEhMKD1VTRV9MT0dJTl9U",
             "T0tFThABEgwKCFJFR0lTVEVSEAIiXwoQUmVnaXN0ZXJVc2VySW5mbxITCgtB",
-            "Y2NvdW50TmFtZRgBIAEoCRIQCghOaWNrbmFtZRgCIAEoDBILCgNQd2QYAyAB",
+            "Y2NvdW50TmFtZRgBIAEoDBIQCghOaWNrbmFtZRgCIAEoDBILCgNQd2QYAyAB",
             "KAkSFwoPQ3JlYXRlUGhvbmVJbWVpGAQgASgJIqkCCglMb2dpbkluZm8SEQoJ",
-            "TG9naW5Nb2RlGAEgASgREhMKC0FjY291bnROYW1lGAIgASgJEgsKA1B3ZBgD",
+            "TG9naW5Nb2RlGAEgASgREhMKC0FjY291bnROYW1lGAIgASgMEgsKA1B3ZBgD",
             "IAEoCRISCgpMb2dpblRva2VuGAQgASgJEhYKDkxvZ2luUGhvbmVJbWVpGAUg",
-            "ASgJEhAKCFRhcmdldElwGAYgASgJEgwKBFBvcnQYByABKA0SQQoQVXNlclJl",
+            "ASgJEhAKCFRhcmdldElwGAYgASgMEgwKBFBvcnQYByABKA0SQQoQVXNlclJl",
             "Z2lzdGVySW5mbxgIIAEoCzIlLkNSWVNUQUxfTkVULnNlcnZpY2UuUmVnaXN0",
             "ZXJVc2VySW5mb0gAEg0KBUFwcElkGAkgASgJEhIKCmN5cGhlclRleHQYCiAB",
             "KAkSEgoKb3JpZ2luVGV4dBgLIAEoCRIRCgl2ZXJzaW9uSWQYDCABKARCDgoM",
@@ -1044,13 +1044,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "AccountName" field.</summary>
     public const int AccountNameFieldNumber = 1;
-    private string accountName_ = "";
+    private pb::ByteString accountName_ = pb::ByteString.Empty;
     /// <summary>
     /// 账号
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string AccountName {
+    public pb::ByteString AccountName {
       get { return accountName_; }
       set {
         accountName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -1152,7 +1152,7 @@ using ProtoPackage.Attributes;
     #else
       if (AccountName.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(AccountName);
+        output.WriteBytes(AccountName);
       }
       if (Nickname.Length != 0) {
         output.WriteRawTag(18);
@@ -1178,7 +1178,7 @@ using ProtoPackage.Attributes;
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
       if (AccountName.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(AccountName);
+        output.WriteBytes(AccountName);
       }
       if (Nickname.Length != 0) {
         output.WriteRawTag(18);
@@ -1203,7 +1203,7 @@ using ProtoPackage.Attributes;
     public int CalculateSize() {
       int size = 0;
       if (AccountName.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(AccountName);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(AccountName);
       }
       if (Nickname.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeBytesSize(Nickname);
@@ -1254,7 +1254,7 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            AccountName = input.ReadString();
+            AccountName = input.ReadBytes();
             break;
           }
           case 18: {
@@ -1285,7 +1285,7 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            AccountName = input.ReadString();
+            AccountName = input.ReadBytes();
             break;
           }
           case 18: {
@@ -1387,13 +1387,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "AccountName" field.</summary>
     public const int AccountNameFieldNumber = 2;
-    private string accountName_ = "";
+    private pb::ByteString accountName_ = pb::ByteString.Empty;
     /// <summary>
     /// 账号
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string AccountName {
+    public pb::ByteString AccountName {
       get { return accountName_; }
       set {
         accountName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -1447,13 +1447,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "TargetIp" field.</summary>
     public const int TargetIpFieldNumber = 6;
-    private string targetIp_ = "";
+    private pb::ByteString targetIp_ = pb::ByteString.Empty;
     /// <summary>
     /// 登录目标ip
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string TargetIp {
+    public pb::ByteString TargetIp {
       get { return targetIp_; }
       set {
         targetIp_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -1640,7 +1640,7 @@ using ProtoPackage.Attributes;
       }
       if (AccountName.Length != 0) {
         output.WriteRawTag(18);
-        output.WriteString(AccountName);
+        output.WriteBytes(AccountName);
       }
       if (Pwd.Length != 0) {
         output.WriteRawTag(26);
@@ -1656,7 +1656,7 @@ using ProtoPackage.Attributes;
       }
       if (TargetIp.Length != 0) {
         output.WriteRawTag(50);
-        output.WriteString(TargetIp);
+        output.WriteBytes(TargetIp);
       }
       if (Port != 0) {
         output.WriteRawTag(56);
@@ -1698,7 +1698,7 @@ using ProtoPackage.Attributes;
       }
       if (AccountName.Length != 0) {
         output.WriteRawTag(18);
-        output.WriteString(AccountName);
+        output.WriteBytes(AccountName);
       }
       if (Pwd.Length != 0) {
         output.WriteRawTag(26);
@@ -1714,7 +1714,7 @@ using ProtoPackage.Attributes;
       }
       if (TargetIp.Length != 0) {
         output.WriteRawTag(50);
-        output.WriteString(TargetIp);
+        output.WriteBytes(TargetIp);
       }
       if (Port != 0) {
         output.WriteRawTag(56);
@@ -1754,7 +1754,7 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeSInt32Size(LoginMode);
       }
       if (AccountName.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(AccountName);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(AccountName);
       }
       if (Pwd.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Pwd);
@@ -1766,7 +1766,7 @@ using ProtoPackage.Attributes;
         size += 1 + pb::CodedOutputStream.ComputeStringSize(LoginPhoneImei);
       }
       if (TargetIp.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(TargetIp);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(TargetIp);
       }
       if (Port != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Port);
@@ -1860,7 +1860,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            AccountName = input.ReadString();
+            AccountName = input.ReadBytes();
             break;
           }
           case 26: {
@@ -1876,7 +1876,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 50: {
-            TargetIp = input.ReadString();
+            TargetIp = input.ReadBytes();
             break;
           }
           case 56: {
@@ -1928,7 +1928,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 18: {
-            AccountName = input.ReadString();
+            AccountName = input.ReadBytes();
             break;
           }
           case 26: {
@@ -1944,7 +1944,7 @@ using ProtoPackage.Attributes;
             break;
           }
           case 50: {
-            TargetIp = input.ReadString();
+            TargetIp = input.ReadBytes();
             break;
           }
           case 56: {

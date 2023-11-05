@@ -914,6 +914,19 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
                 break;
             }
 
+            // 有昵称就urldecode
+            // if(!pendingUser->_loginInfo->userregisterinfo().nickname().empty())
+            // {
+            //     KERNEL_NS::LibString decodedName;
+            //     if(!KERNEL_NS::UrlCoder::Decode(pendingUser->_loginInfo->userregisterinfo().nickname(), decodedName))
+            //     {
+            //         g_Log->Warn(LOGFMT_OBJ_TAG("urldecoded fail login info:%s, pending user:%s"), pendingUser->_loginInfo->ToJsonString().c_str(), pendingUser->ToString().c_str());
+            //         err = Status::InvalidNickname;
+            //         break;
+            //     }
+            //     pendingUser->_loginInfo->mutable_userregisterinfo()->set_nickname(decodedName.GetRaw());
+            // }
+
             // 校验注册信息
             err = _CheckRegisterInfo(*(pendingUser->_loginInfo));
             if(err != Status::Success)
