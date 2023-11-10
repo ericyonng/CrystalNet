@@ -124,6 +124,9 @@ private:
 
         // 作为unique key
         AS_UNIQUE_KEY_FIELD_POS,
+
+        // 作为index key
+        AS_INDEX_KEY_FIELD_POS,
     };
 
 public:
@@ -237,6 +240,9 @@ public:
 
         // 作为unique key
         AS_UNIQUE_KEY_FIELD_FLAG = AS_FIELD_FLAG | (1LLU << AS_UNIQUE_KEY_FIELD_POS),
+
+        // 索引
+        AS_INDEX_KEY_FIELD_FLAG = AS_FIELD_FLAG | (1LLU << AS_INDEX_KEY_FIELD_POS),
     };
 
     // 获取字符串类型的flags
@@ -248,6 +254,7 @@ public:
     // 添加flag
     static UInt64 AddFlags(UInt64 origin, UInt64 addFlags);
     static UInt64 ClearFlags(UInt64 origin, UInt64 addFlags);
+    static bool HasFlags(UInt64 origin, UInt64 flags);
 
     // 是否是number
     static bool IsNumber(UInt64 flags);
@@ -288,6 +295,11 @@ ALWAYS_INLINE UInt64 StorageFlagType::AddFlags(UInt64 origin, UInt64 addFlags)
 ALWAYS_INLINE UInt64 StorageFlagType::ClearFlags(UInt64 origin, UInt64 addFlags)
 {
     return origin &= (~addFlags);
+}
+
+ALWAYS_INLINE bool StorageFlagType::HasFlags(UInt64 origin, UInt64 flags)
+{
+    return (origin & flags) == flags;
 }
 
 ALWAYS_INLINE bool StorageFlagType::IsNumber(UInt64 flags)
@@ -423,6 +435,10 @@ public:
     IStorageInfo *GetPrimaryKeyStorage();
     const std::vector<IStorageInfo *> &GetUniqueKeyStorage() const;
     std::vector<IStorageInfo *> &GetUniqueKeyStorage();
+    
+    const std::vector<IStorageInfo *> &GetIndexKeyStorage() const;
+    std::vector<IStorageInfo *> &GetIndexKeyStorage();
+
     IStorageInfo *GetKvModeValueStorageInfo();
     const IStorageInfo *GetKvModeValueStorageInfo() const;
 
@@ -488,6 +504,9 @@ public:
     // 是否唯一key
     bool IsUniqueKeyField() const;
 
+    // 是否index
+    bool IsIndexField() const;
+
     // 是否是某个系统的存储数据(如果是,则可以使用SystemName去索引到该系统)
     bool IsSystemDataStorage() const;
 
@@ -544,6 +563,7 @@ protected:
     std::unordered_map<KERNEL_NS::LibString, IStorageInfo *> _fieldNameRefStorageInfo;
     IStorageInfo *_primaryKeyStorage;
     std::vector<IStorageInfo *> _uniqueKeyStorages;
+    std::vector<IStorageInfo *> _indexKeyStorages;
     IStorageInfo *_kvModeValueStorage;
 
     // 作为字段时的名字
@@ -655,6 +675,16 @@ ALWAYS_INLINE const std::vector<IStorageInfo *> &IStorageInfo::GetUniqueKeyStora
 ALWAYS_INLINE std::vector<IStorageInfo *> &IStorageInfo::GetUniqueKeyStorage()
 {
     return _uniqueKeyStorages;
+}
+
+ALWAYS_INLINE const std::vector<IStorageInfo *> &IStorageInfo::GetIndexKeyStorage() const
+{
+    return _indexKeyStorages;
+}
+
+ALWAYS_INLINE std::vector<IStorageInfo *> &IStorageInfo::GetIndexKeyStorage()
+{
+    return _indexKeyStorages;
 }
 
 ALWAYS_INLINE IStorageInfo *IStorageInfo::GetKvModeValueStorageInfo()
@@ -877,6 +907,11 @@ ALWAYS_INLINE bool IStorageInfo::IsUniqueKeyField() const
     return HasFlags(StorageFlagType::AS_UNIQUE_KEY_FIELD_FLAG);
 }
 
+ALWAYS_INLINE bool IStorageInfo::IsIndexField() const
+{
+    return HasFlags(StorageFlagType::AS_INDEX_KEY_FIELD_FLAG);
+}
+
 ALWAYS_INLINE bool IStorageInfo::IsSystemDataStorage() const
 {
     return HasFlags(StorageFlagType::SYSTEM_DATA_STORAGE_FLAG);
@@ -970,8 +1005,11 @@ ALWAYS_INLINE bool IStorageInfo::AddStorageInfo(IStorageInfo *storageInfo)
 
     if(storageInfo->IsPrimaryField())
         _primaryKeyStorage = storageInfo;
-    else if(storageInfo->IsUniqueKeyField())
+    if(storageInfo->IsUniqueKeyField())
         _uniqueKeyStorages.push_back(storageInfo);
+
+    if(storageInfo->IsIndexField())
+        _indexKeyStorages.push_back(storageInfo);
 
     // kv系统, 既不是主键, 也不是uniquekey, 那就是value
     // if(IsKvSystem() && 

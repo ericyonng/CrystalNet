@@ -71,8 +71,11 @@ bool UserMgrStorage::RegisterStorages()
     auto userIdfield = descriptor->FindFieldByNumber(UserBaseInfo::kUserIdFieldNumber);
     const KERNEL_NS::LibString userIdName = userIdfield->name();
     auto accountNamefield = descriptor->FindFieldByNumber(UserBaseInfo::kAccountNameFieldNumber);
+    auto bindPhoneField = descriptor->FindFieldByNumber(UserBaseInfo::kBindPhoneFieldNumber);
     const KERNEL_NS::LibString accountNameName = accountNamefield->name();
-    if(!StorageHelper::AddMysqlStorageInfoWithPb(this, descriptor, &userIdName, {accountNameName}))
+    const KERNEL_NS::LibString bindPhoneName = bindPhoneField->name();
+    
+    if(!StorageHelper::AddMysqlStorageInfoWithPb(this, descriptor, &userIdName, {accountNameName}, {bindPhoneName}))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("AddMysqlStorageInfoWithPb fail"));
         return false;

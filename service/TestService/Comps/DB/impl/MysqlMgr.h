@@ -36,6 +36,13 @@ SERVICE_BEGIN
 class TableInfo;
 class IStorageInfo;
 
+struct MysqlColumnInfo
+{
+    KERNEL_NS::LibString _columnDataType;
+    Int64 _fieldLen = 0;
+    UInt64 _flags;
+};
+
 class MysqlMgr : public IMysqlMgr
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IMysqlMgr, MysqlMgr);
@@ -153,7 +160,7 @@ private:
     bool _FillMultiFieldStorageInfo(IStorageInfo *storageInfo);
     bool _FillKvSystemStorageInfo(IStorageInfo *storageInfo);
 
-    bool _GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS::LibString, std::pair<KERNEL_NS::LibString, Int64>> &originDbTableInfo, std::vector<KERNEL_NS::SqlBuilder *> &builders);
+    bool _GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS::LibString, MysqlColumnInfo> &originDbTableInfo, std::vector<KERNEL_NS::SqlBuilder *> &builders);
     bool _ModifyDbNumberDataType(IStorageInfo *storageInfo, IStorageInfo *subStorageInfo, const KERNEL_NS::LibString &dataType
                                 , const KERNEL_NS::LibString &oldFieldType,  const KERNEL_NS::LibString &fieldName
                                 , KERNEL_NS::SmartPtr<KERNEL_NS::AlterTableSqlBuilder, KERNEL_NS::AutoDelMethods::CustomDelete> &alterDropColumn 

@@ -1213,7 +1213,7 @@ void MysqlMgr::_OnSystemTableBack(KERNEL_NS::MysqlResponse *res)
     KERNEL_NS::SelectSqlBuilder *selectBuilder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
     const KERNEL_NS::LibString &specifyDb = "information_schema";
     selectBuilder->DB(specifyDb).From(KERNEL_NS::LibString().AppendFormat("`COLUMNS`"));
-    selectBuilder->WithFields({"TABLE_NAME", "COLUMN_NAME", "DATA_TYPE", "CHARACTER_MAXIMUM_LENGTH"})
+    selectBuilder->WithFields({"TABLE_NAME", "COLUMN_NAME", "DATA_TYPE", "CHARACTER_MAXIMUM_LENGTH", "COLUMN_KEY"})
                 .Where(KERNEL_NS::LibString().AppendFormat("TABLE_SCHEMA='%s'", _currentServiceDBName.c_str()));
     builders.push_back(selectBuilder);
     UInt64 stub = 0;
@@ -1244,13 +1244,15 @@ void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
     }
 
     // 1.key:tablename, value:map<fieldName, pair:fieldType, fieldLen>
-    std::map<KERNEL_NS::LibString, std::map<KERNEL_NS::LibString, std::pair<KERNEL_NS::LibString, Int64>>> currentTotalTableInfo;
+    std::map<KERNEL_NS::LibString, std::map<KERNEL_NS::LibString, MysqlColumnInfo>> currentTotalTableInfo;
     for(auto &record : res->_datas)
     {
         KERNEL_NS::LibString tblName;
         KERNEL_NS::LibString columnName;
         KERNEL_NS::LibString dataType;
+        KERNEL_NS::LibString columnKey;
         Int64 fieldLen = 0;
+        UInt64 flags = 0;
         for(auto field : *record)
         {
             if(field->GetName() == "TABLE_NAME")
@@ -1270,6 +1272,23 @@ void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
             {
                 fieldLen = field->GetInt64();
             }
+            else if(field->GetName() == "COLUMN_KEY")
+            {
+                // PRI:主键, UNI:唯一索引, MUL:索引,三者互斥, 优先级:Primary > Unique > index
+                field->GetString(columnKey);
+                if(columnKey == "PRI")
+                {
+                    flags = StorageFlagType::AddFlags(flags, StorageFlagType::PRIMARY_FIELD_FLAG);
+                }
+                else if(columnKey == "UNI")
+                {
+                    flags = StorageFlagType::AddFlags(flags, StorageFlagType::AS_UNIQUE_KEY_FIELD_FLAG);
+                }
+                else if(columnKey == "MUL")
+                {
+                    flags = StorageFlagType::AddFlags(flags, StorageFlagType::AS_INDEX_KEY_FIELD_FLAG);
+                }
+            }
         }
 
         if(UNLIKELY(tblName.empty() || columnName.empty() || dataType.empty()))
@@ -1280,9 +1299,12 @@ void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
 
         auto iter = currentTotalTableInfo.find(tblName);
         if(iter == currentTotalTableInfo.end())
-            iter = currentTotalTableInfo.insert(std::make_pair(tblName, std::map<KERNEL_NS::LibString, std::pair<KERNEL_NS::LibString, Int64>>())).first;
-
-        iter->second.insert(std::make_pair(columnName, std::make_pair(dataType, fieldLen)));
+            iter = currentTotalTableInfo.insert(std::make_pair(tblName, std::map<KERNEL_NS::LibString, MysqlColumnInfo>())).first;
+        MysqlColumnInfo columnInfo;
+        columnInfo._columnDataType = dataType;
+        columnInfo._fieldLen = fieldLen;
+        columnInfo._flags = flags;
+        iter->second.insert(std::make_pair(columnName, columnInfo));
     }
 
     // 2.使用数据库原生表校准旧表
@@ -4765,7 +4787,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
     return true;
 }
 
-bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS::LibString, std::pair<KERNEL_NS::LibString, Int64>> &originDbTableInfo, std::vector<KERNEL_NS::SqlBuilder *> &builders)
+bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS::LibString, MysqlColumnInfo> &originDbTableInfo, std::vector<KERNEL_NS::SqlBuilder *> &builders)
 {
     // 代码没有,但是数据库还残留需要drop,drop和其他互斥所以不需要担心先后, 当然需要先drop字段再做其他的
     KERNEL_NS::SmartPtr<KERNEL_NS::AlterTableSqlBuilder, KERNEL_NS::AutoDelMethods::CustomDelete> alterDropColumn = KERNEL_NS::AlterTableSqlBuilder::NewThreadLocal_AlterTableSqlBuilder();
@@ -4793,13 +4815,14 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
     bool hasDrop = false;
     bool hasModify = false;
     bool hasAdd = false;
+    std::set<KERNEL_NS::LibString> dropFields;
     for(auto iter : originDbTableInfo)
     {
         // 旧字段信息
         auto &fieldName = iter.first;
         auto &fieldInfo = iter.second;
-        const auto &oldFieldType = fieldInfo.first.toupper();
-        const auto oldFieldLen = fieldInfo.second;
+        const auto &oldFieldType = fieldInfo._columnDataType.toupper();
+        const auto oldFieldLen = fieldInfo._fieldLen;
 
         // 暂不支持的数据类型, 需要管理员手动修改做出决策, 避免误删
         if(!MysqlFieldTypeHelper::CheckCanSupportMysqlDataType(oldFieldType))
@@ -4821,6 +4844,8 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
         if(!subStorageInfo)
         {// 旧表有但是新系统没有, 需要删除字段
             alterDropColumn->Drop(fieldName);
+            dropFields.insert(fieldName);
+
             hasDrop = true;
 
             g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: db has field to drop when system have no this field:%s, table name:%s, storage system name:%s")
@@ -4880,6 +4905,7 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
         }
     }   
 
+
     // 拿新系统对照,有新增的添加新增
     auto &subStorages = storageInfo->GetSubStorageInfos();
     for(auto &subStorage : subStorages)
@@ -4909,6 +4935,72 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
 
     if(hasModify)
         builders.push_back(alterModifyColumn.pop());
+
+    // 索引
+    for(auto &subStorage : subStorages)
+    {
+        auto &fieldName = subStorage->GetFieldName();
+        auto iter = originDbTableInfo.find(fieldName);
+        if(iter == originDbTableInfo.end())
+            continue;
+        
+        // 过滤被删的字段
+        if(dropFields.find(fieldName) != dropFields.end())
+            continue;
+
+        auto &oldTableFieldInfo = iter->second;
+
+        // 原来的没有unique key 但是新的有则添加索引
+        if(subStorage->IsUniqueKeyField() && !StorageFlagType::HasFlags(oldTableFieldInfo._flags, StorageFlagType::AS_UNIQUE_KEY_FIELD_FLAG))
+        {// 新系统有unique key 但是旧系统没有需要新增
+            KERNEL_NS::SmartPtr<KERNEL_NS::AlterTableSqlBuilder, KERNEL_NS::AutoDelMethods::CustomDelete> alterAddUniqueKey = KERNEL_NS::AlterTableSqlBuilder::NewThreadLocal_AlterTableSqlBuilder();
+            alterAddUniqueKey.SetClosureDelegate([](void *p){
+                    auto ptr = reinterpret_cast<KERNEL_NS::AlterTableSqlBuilder *>(p);
+                    KERNEL_NS::AlterTableSqlBuilder::DeleteThreadLocal_AlterTableSqlBuilder(ptr);
+            });
+            alterAddUniqueKey->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
+
+            alterAddUniqueKey->AddUniqueIndex("unique_" + fieldName, {fieldName}, "using btree", "");
+            builders.push_back(alterAddUniqueKey.pop());
+        }
+        else if(!subStorage->IsUniqueKeyField() && StorageFlagType::HasFlags(oldTableFieldInfo._flags, StorageFlagType::AS_UNIQUE_KEY_FIELD_FLAG))
+        {// 新系统没有unique key 但是旧系统有需要删除
+            KERNEL_NS::SmartPtr<KERNEL_NS::AlterTableSqlBuilder, KERNEL_NS::AutoDelMethods::CustomDelete> alterRemoveUniqueKey = KERNEL_NS::AlterTableSqlBuilder::NewThreadLocal_AlterTableSqlBuilder();
+            alterRemoveUniqueKey.SetClosureDelegate([](void *p){
+                    auto ptr = reinterpret_cast<KERNEL_NS::AlterTableSqlBuilder *>(p);
+                    KERNEL_NS::AlterTableSqlBuilder::DeleteThreadLocal_AlterTableSqlBuilder(ptr);
+            });
+            alterRemoveUniqueKey->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
+
+            alterRemoveUniqueKey->DropIndex("unique_" + fieldName);
+            builders.push_back(alterRemoveUniqueKey.pop());
+        }
+
+        if(subStorage->IsIndexField() && !StorageFlagType::HasFlags(oldTableFieldInfo._flags, StorageFlagType::AS_INDEX_KEY_FIELD_FLAG))
+        {
+            KERNEL_NS::SmartPtr<KERNEL_NS::AlterTableSqlBuilder, KERNEL_NS::AutoDelMethods::CustomDelete> alterAddIndex = KERNEL_NS::AlterTableSqlBuilder::NewThreadLocal_AlterTableSqlBuilder();
+            alterAddIndex.SetClosureDelegate([](void *p){
+                    auto ptr = reinterpret_cast<KERNEL_NS::AlterTableSqlBuilder *>(p);
+                    KERNEL_NS::AlterTableSqlBuilder::DeleteThreadLocal_AlterTableSqlBuilder(ptr);
+            });
+            alterAddIndex->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
+
+            alterAddIndex->AddIndex("index_" + fieldName, {fieldName}, "using btree", "");
+            builders.push_back(alterAddIndex.pop());
+        }
+        else if(!subStorage->IsIndexField() && StorageFlagType::HasFlags(oldTableFieldInfo._flags, StorageFlagType::AS_INDEX_KEY_FIELD_FLAG))
+        {
+            KERNEL_NS::SmartPtr<KERNEL_NS::AlterTableSqlBuilder, KERNEL_NS::AutoDelMethods::CustomDelete> alterRemoveIndex = KERNEL_NS::AlterTableSqlBuilder::NewThreadLocal_AlterTableSqlBuilder();
+            alterRemoveIndex.SetClosureDelegate([](void *p){
+                    auto ptr = reinterpret_cast<KERNEL_NS::AlterTableSqlBuilder *>(p);
+                    KERNEL_NS::AlterTableSqlBuilder::DeleteThreadLocal_AlterTableSqlBuilder(ptr);
+            });
+            alterRemoveIndex->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
+
+            alterRemoveIndex->DropIndex("index_" + fieldName);
+            builders.push_back(alterRemoveIndex.pop());
+        }
+    }
 
     return true;
 }

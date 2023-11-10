@@ -31,7 +31,7 @@
 
 SERVICE_BEGIN
 
-bool StorageHelper::AddMysqlStorageInfoWithPb(IStorageInfo *ownerStorageInfo, const ::google::protobuf::Descriptor *descriptor, const KERNEL_NS::LibString *primaryKey, const std::set<KERNEL_NS::LibString> &uniqueKeys)
+bool StorageHelper::AddMysqlStorageInfoWithPb(IStorageInfo *ownerStorageInfo, const ::google::protobuf::Descriptor *descriptor, const KERNEL_NS::LibString *primaryKey, const std::set<KERNEL_NS::LibString> &uniqueKeys, const std::set<KERNEL_NS::LibString> &indexs)
 {
     for(Int32 idx = 0; idx < descriptor->field_count(); ++idx)
     {
@@ -53,6 +53,11 @@ bool StorageHelper::AddMysqlStorageInfoWithPb(IStorageInfo *ownerStorageInfo, co
         else if(uniqueKeys.find(newStorageInfo->GetFieldName()) != uniqueKeys.end())
         {
             newStorageInfo->AddFlags(StorageFlagType::AS_UNIQUE_KEY_FIELD_FLAG);
+        }
+
+        if(indexs.find(newStorageInfo->GetFieldName()) != indexs.end())
+        {
+            newStorageInfo->AddFlags(StorageFlagType::AS_INDEX_KEY_FIELD_FLAG);
         }
 
         // map/repeated使用text

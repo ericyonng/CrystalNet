@@ -42,7 +42,7 @@ class StorageHelper
 {
 public:
     // field是map/repeated/Message的会使用text 请序列化的时候序列化成json
-    static bool AddMysqlStorageInfoWithPb(IStorageInfo *ownerStorageInfo, const ::google::protobuf::Descriptor *descriptor, const KERNEL_NS::LibString *primaryKey, const std::set<KERNEL_NS::LibString> &uniqueKeys);
+    static bool AddMysqlStorageInfoWithPb(IStorageInfo *ownerStorageInfo, const ::google::protobuf::Descriptor *descriptor, const KERNEL_NS::LibString *primaryKey, const std::set<KERNEL_NS::LibString> &uniqueKeys, const std::set<KERNEL_NS::LibString> &indexs);
 };
 
 SERVICE_END
