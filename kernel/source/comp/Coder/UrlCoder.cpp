@@ -70,11 +70,6 @@ static ALWAYS_INLINE bool IsUnReservedChars(Byte8 c)
     return false;
 }
 
-static ALWAYS_INLINE Byte8 TurnFromHex(Byte8 ch)
-{
-
-}
-
 void UrlCoder::Init()
 {
     // 16进制转码
