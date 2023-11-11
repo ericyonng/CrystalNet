@@ -50,8 +50,9 @@ export namespace crystal_net_service
     }
     // com_library.proto
     export enum CancelOrderReasonType_ENUMS {
+        UNKNOWN = 0,
         // 等用户领取超时
-        WAIT_USER_GET_TIME_OUT = 0,
+        WAIT_USER_GET_TIME_OUT = 1,
 
     }
     // com_client_user.proto
@@ -469,6 +470,12 @@ export namespace crystal_net_service
 
         // 备注
         Remark:string = "";
+
+        // 用户id
+        UserId:number = 0;
+
+        // 用户昵称
+        Nickname:string = "";
 
 
     }

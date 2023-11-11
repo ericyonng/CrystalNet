@@ -1310,6 +1310,18 @@ export namespace crystal_net_service_parser
                     newInfo.Remark = jsonData.Remark;
                 }
 
+
+                if(jsonData.UserId != undefined)
+                {
+                    newInfo.UserId = parseFloat(jsonData.UserId);
+                }
+
+
+                if(jsonData.Nickname != undefined)
+                {
+                    newInfo.Nickname = jsonData.Nickname;
+                }
+
                  return newInfo;
             }
 

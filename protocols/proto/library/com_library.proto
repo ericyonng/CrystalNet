@@ -86,8 +86,10 @@ message CancelOrderReasonType
 {
     enum ENUMS
     {
+        UNKNOWN = 0;
+
         // 等用户领取超时
-        WAIT_USER_GET_TIME_OUT = 0;
+        WAIT_USER_GET_TIME_OUT = 1;
     }
 }
 
@@ -135,6 +137,10 @@ message BorrowOrderDetailInfo
     sint64 GetOverTime = 6;
     // 备注
     bytes Remark = 7;
+    // 用户id
+    uint64 UserId = 8;
+    // 用户昵称
+    bytes Nickname = 9;
 }
 
 // 会员信息(包括管理员等)

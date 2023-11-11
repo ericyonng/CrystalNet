@@ -779,7 +779,8 @@ void LibraryGlobal::_OnQuitLibraryReq(KERNEL_NS::LibPacket *&packet)
             if(!_IsReturnBackAllBook(memberInfo))
             {
                 errCode = Status::HaveBookBorrowedNotReturnBack;
-                g_Log->Warn(LOGFMT_OBJ_TAG("have book not return back user:%s, library info:%s"), LibraryToString(libraryInfo).c_str());
+                g_Log->Warn(LOGFMT_OBJ_TAG("have book not return back user:%s, library info:%s")
+                , user->ToString().c_str(), LibraryToString(libraryInfo).c_str());
                 break;
             }
         }
@@ -1697,38 +1698,11 @@ void LibraryGlobal::_OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet)
     bool isGetSelf = false;
 
     auto libraryMgr = user->GetSys<ILibraryMgr>();
-    Int32 err = Status::Success;
-    do
+    Int32 err = _SendOrderDetailInfoNty(user);
+    if(err != Status::Success)
     {
-        const auto libraryId = libraryMgr->GetMyLibraryId();
-        if(libraryId == 0)
-        {
-            err = Status::NotJoinAnyLibrary;
-            g_Log->Warn(LOGFMT_OBJ_TAG("not in any library user:%s"), user->ToString().c_str());
-            break;
-        }
-
-        auto libraryInfo = GetLibraryInfo(libraryId);
-        if(!libraryInfo)
-        {
-            err = Status::NotJoinAnyLibrary;
-            g_Log->Warn(LOGFMT_OBJ_TAG("not in any library user:%s"), user->ToString().c_str());
-            break;
-        }
-
-        // 管理员全部都拿, 非管理员只能拿自己
-        if(!_IsManager(libraryId, user->GetUserId()))
-        {
-            isGetSelf = true;
-        }
-
-        GetBookOrderDetailInfoNty nty;
-        auto detailInfo = nty.mutable_detailinfo();
-        auto memberUserId = isGetSelf ? user->GetUserId() : 0;
-        _BuildOrderDetailInfo(libraryInfo, memberUserId, detailInfo);
-        user->Send(Opcodes::OpcodeConst::OPCODE_GetBookOrderDetailInfoNty, nty);
-        
-    } while (false);
+        g_Log->Warn(LOGFMT_OBJ_TAG("send order detail info fail err:%d, in any library user:%s"), err, user->ToString().c_str());
+    }
 
     GetBookOrderDetailInfoRes res;
     res.set_errcode(err);
@@ -1847,6 +1821,8 @@ void LibraryGlobal::_OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet)
 
         _SendLibraryInfoNty(user->GetUserId(), libraryId);
 
+        _SendOrderDetailInfoNty(user);
+
     } while (false);
     
     OutStoreOrderRes res;
@@ -1882,6 +1858,8 @@ void LibraryGlobal::_BuildOrderDetailInfo(UInt64 libraryId, const MemberInfo *me
         *newDetailInfo->mutable_cancelreason() = orderInfo.cancelreason();
         newDetailInfo->set_getovertime(orderInfo.getovertime());
         newDetailInfo->set_remark(orderInfo.remark());
+        newDetailInfo->set_userid(memberInfo->userid());
+        newDetailInfo->set_nickname(memberInfo->nickname());
 
         for(auto &borrowBook : orderInfo.borrowbooklist())
         {
@@ -2079,6 +2057,12 @@ bool LibraryGlobal::_IsReturnBackAllBook(const MemberInfo *memberInfo) const
     for(Int32 idx = 0; idx < len; ++idx)
     {
         auto &orderInfo = memberInfo->borrowlist(idx);
+
+        // 订单取消, 和还完
+        if((orderInfo.orderstate() == BorrowOrderState_ENUMS_CANCEL_ORDER) || 
+            (orderInfo.orderstate() == BorrowOrderState_ENUMS_RETURN_BAKCK))
+            continue;
+
         const Int32 bookListSize = orderInfo.borrowbooklist_size();
         for(Int32 bookIdx = 0; bookIdx < bookListSize; ++bookIdx)
         {
@@ -2390,6 +2374,33 @@ void LibraryGlobal::_SendLibraryInfoNty(UInt64 userId, UInt64 libraryId) const
         return;
 
     _SendLibraryInfoNty(user, libraryInfo);
+}
+
+Int32 LibraryGlobal::_SendOrderDetailInfoNty(const IUser *user) const
+{
+    auto libraryMgr = user->GetSys<ILibraryMgr>();
+    const auto libraryId = libraryMgr->GetMyLibraryId();
+    auto libraryInfo = GetLibraryInfo(libraryId);
+    if(!libraryInfo)
+    {
+        return Status::NotJoinAnyLibrary;
+    }
+
+    // 管理员全部都拿, 非管理员只能拿自己
+    bool isGetSelf = false;
+    const auto userId = user->GetUserId();
+    if(!_IsManager(libraryId, userId))
+    {
+        isGetSelf = true;
+    }
+
+    GetBookOrderDetailInfoNty nty;
+    auto detailInfo = nty.mutable_detailinfo();
+    auto memberUserId = isGetSelf ? userId : 0;
+    _BuildOrderDetailInfo(libraryInfo, memberUserId, detailInfo);
+    user->Send(Opcodes::OpcodeConst::OPCODE_GetBookOrderDetailInfoNty, nty);
+
+    return Status::Success;
 }
 
 void LibraryGlobal::_Clear()

@@ -196,12 +196,13 @@ inline bool BorrowOrderState_ENUMS_Parse(
     BorrowOrderState_ENUMS_descriptor(), name, value);
 }
 enum CancelOrderReasonType_ENUMS : int {
-  CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT = 0,
+  CancelOrderReasonType_ENUMS_UNKNOWN = 0,
+  CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT = 1,
   CancelOrderReasonType_ENUMS_CancelOrderReasonType_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   CancelOrderReasonType_ENUMS_CancelOrderReasonType_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool CancelOrderReasonType_ENUMS_IsValid(int value);
-constexpr CancelOrderReasonType_ENUMS CancelOrderReasonType_ENUMS_ENUMS_MIN = CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT;
+constexpr CancelOrderReasonType_ENUMS CancelOrderReasonType_ENUMS_ENUMS_MIN = CancelOrderReasonType_ENUMS_UNKNOWN;
 constexpr CancelOrderReasonType_ENUMS CancelOrderReasonType_ENUMS_ENUMS_MAX = CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT;
 constexpr int CancelOrderReasonType_ENUMS_ENUMS_ARRAYSIZE = CancelOrderReasonType_ENUMS_ENUMS_MAX + 1;
 
@@ -2051,6 +2052,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // nested types ----------------------------------------------------
 
   typedef CancelOrderReasonType_ENUMS ENUMS;
+  static constexpr ENUMS UNKNOWN =
+    CancelOrderReasonType_ENUMS_UNKNOWN;
   static constexpr ENUMS WAIT_USER_GET_TIME_OUT =
     CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT;
   static inline bool ENUMS_IsValid(int value) {
@@ -3034,10 +3037,12 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   enum : int {
     kBorrowBookListFieldNumber = 2,
     kRemarkFieldNumber = 7,
+    kNicknameFieldNumber = 9,
     kCancelReasonFieldNumber = 5,
     kOrderIdFieldNumber = 1,
     kCreateOrderTimeFieldNumber = 3,
     kGetOverTimeFieldNumber = 6,
+    kUserIdFieldNumber = 8,
     kOrderStateFieldNumber = 4,
   };
   // repeated .CRYSTAL_NET.service.BorrowBookDetailInfo BorrowBookList = 2;
@@ -3070,6 +3075,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const std::string& _internal_remark() const;
   inline PROTOBUF_ALWAYS_INLINE void _internal_set_remark(const std::string& value);
   std::string* _internal_mutable_remark();
+  public:
+
+  // bytes Nickname = 9;
+  void clear_nickname();
+  const std::string& nickname() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_nickname(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_nickname();
+  PROTOBUF_NODISCARD std::string* release_nickname();
+  void set_allocated_nickname(std::string* nickname);
+  private:
+  const std::string& _internal_nickname() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_nickname(const std::string& value);
+  std::string* _internal_mutable_nickname();
   public:
 
   // .CRYSTAL_NET.service.CancelOrderReason CancelReason = 5;
@@ -3117,6 +3136,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_getovertime(int64_t value);
   public:
 
+  // uint64 UserId = 8;
+  void clear_userid();
+  uint64_t userid() const;
+  void set_userid(uint64_t value);
+  private:
+  uint64_t _internal_userid() const;
+  void _internal_set_userid(uint64_t value);
+  public:
+
   // sint32 OrderState = 4;
   void clear_orderstate();
   int32_t orderstate() const;
@@ -3136,10 +3164,12 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BorrowBookDetailInfo > borrowbooklist_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr remark_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr nickname_;
     ::CRYSTAL_NET::service::CancelOrderReason* cancelreason_;
     uint64_t orderid_;
     uint64_t createordertime_;
     int64_t getovertime_;
+    uint64_t userid_;
     int32_t orderstate_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -7142,6 +7172,76 @@ inline void BorrowOrderDetailInfo::set_allocated_remark(std::string* remark) {
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowOrderDetailInfo.Remark)
+}
+
+// uint64 UserId = 8;
+inline void BorrowOrderDetailInfo::clear_userid() {
+  _impl_.userid_ = uint64_t{0u};
+}
+inline uint64_t BorrowOrderDetailInfo::_internal_userid() const {
+  return _impl_.userid_;
+}
+inline uint64_t BorrowOrderDetailInfo::userid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.UserId)
+  return _internal_userid();
+}
+inline void BorrowOrderDetailInfo::_internal_set_userid(uint64_t value) {
+  
+  _impl_.userid_ = value;
+}
+inline void BorrowOrderDetailInfo::set_userid(uint64_t value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.UserId)
+}
+
+// bytes Nickname = 9;
+inline void BorrowOrderDetailInfo::clear_nickname() {
+  _impl_.nickname_.ClearToEmpty();
+}
+inline const std::string& BorrowOrderDetailInfo::nickname() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderDetailInfo.Nickname)
+  return _internal_nickname();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BorrowOrderDetailInfo::set_nickname(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.nickname_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderDetailInfo.Nickname)
+}
+inline std::string* BorrowOrderDetailInfo::mutable_nickname() {
+  std::string* _s = _internal_mutable_nickname();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.BorrowOrderDetailInfo.Nickname)
+  return _s;
+}
+inline const std::string& BorrowOrderDetailInfo::_internal_nickname() const {
+  return _impl_.nickname_.Get();
+}
+inline void BorrowOrderDetailInfo::_internal_set_nickname(const std::string& value) {
+  
+  _impl_.nickname_.Set(value, GetArenaForAllocation());
+}
+inline std::string* BorrowOrderDetailInfo::_internal_mutable_nickname() {
+  
+  return _impl_.nickname_.Mutable(GetArenaForAllocation());
+}
+inline std::string* BorrowOrderDetailInfo::release_nickname() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.BorrowOrderDetailInfo.Nickname)
+  return _impl_.nickname_.Release();
+}
+inline void BorrowOrderDetailInfo::set_allocated_nickname(std::string* nickname) {
+  if (nickname != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.nickname_.SetAllocated(nickname, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.nickname_.IsDefault()) {
+    _impl_.nickname_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowOrderDetailInfo.Nickname)
 }
 
 // -------------------------------------------------------------------

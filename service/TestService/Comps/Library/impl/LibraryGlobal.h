@@ -96,6 +96,7 @@ protected:
     void _SendLibraryInfoNty(const IUser *user, const LibraryInfo *libraryInfo) const;
     void _SendLibraryInfoNty(UInt64 userId, const LibraryInfo *libraryInfo) const;
     void _SendLibraryInfoNty(UInt64 userId, UInt64 libraryId) const;
+    Int32 _SendOrderDetailInfoNty(const IUser *user) const;
 
     KERNEL_NS::LibString _MemberToString(const MemberInfo *memberInfo) const;
 
