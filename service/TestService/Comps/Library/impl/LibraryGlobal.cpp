@@ -1020,6 +1020,21 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
                 g_Log->Warn(LOGFMT_OBJ_TAG("invalid phone:%llu, user:%s"), req->newmemberphone(), user->ToString().c_str());
                 break;
             }
+
+            bool newPhoneIsBinded = false;
+            if(!userMgr->IsPhoneNumberBinded(user, req->newmemberphone(), {user->GetUserId()}, newPhoneIsBinded))
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("db error phone:%llu, user:%s"), req->newmemberphone(), user->ToString().c_str());
+                errCode = Status::DBError;
+                break;
+            }
+
+            if(newPhoneIsBinded)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("new phone:%llu is binded by other user, user:%s"), req->newmemberphone(), user->ToString().c_str());
+                errCode = Status::NewPhoneIsBindedByOtherUser;
+                break;
+            }
         }
 
         _LockMember(libraryInfo->id(), user->GetUserId());

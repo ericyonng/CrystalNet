@@ -449,13 +449,13 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
     }
 
     Int32 idx = 0;
-    const Int32 count = static_cast<Int32>(req->_builders.size());
+    const Int32 count = static_cast<Int32>(req->_builderInfos.size());
     if(LIKELY(isReconnected))
     {
         for(; idx < count; ++idx)
         {
-            auto builder = req->_builders[idx];
-            if(!curConn->ExecuteSqlUsingStmt(*builder, req->_seqId, req->_fields, cb))
+            auto builderInfo = req->_builderInfos[idx];
+            if(!curConn->ExecuteSqlUsingStmt(*builderInfo->_builder, req->_seqId, builderInfo->_fields, cb))
             {
                 // 因为网络断开需要重试
                 if(IS_MYSQL_NETWORK_ERROR(res->_mysqlErrno))
@@ -494,7 +494,7 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
 
                         for(Int32 idx = 0; idx < leftRetryTimes; ++idx)
                         {
-                            if(curConn->ExecuteSqlUsingStmt(*builder, req->_seqId, req->_fields, cb))
+                            if(curConn->ExecuteSqlUsingStmt(*builderInfo->_builder, req->_seqId, builderInfo->_fields, cb))
                             {
                                 isSuccess = true;
                                 break;
@@ -507,7 +507,7 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
                         
                         for(;;)
                         {
-                            if(curConn->ExecuteSqlUsingStmt(*builder, req->_seqId, req->_fields, cb))
+                            if(curConn->ExecuteSqlUsingStmt(*builderInfo->_builder, req->_seqId, builderInfo->_fields, cb))
                             {
                                 isSuccess = true;
                                 break;
@@ -539,8 +539,8 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
         LibString failBuilder;
         for(;idx < count; ++idx)
         {
-            auto builder = req->_builders[idx];
-            failBuilder.AppendData(builder->Dump()).AppendFormat("\n");
+            auto builderInfo = req->_builderInfos[idx];
+            failBuilder.AppendData(builderInfo->Dump()).AppendFormat("\n");
         }
 
         if((mysqlDbErr != 0) && (res->_mysqlErrno == 0))
@@ -657,14 +657,14 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
     }
 
     Int32 idx = 0;
-    const Int32 count = static_cast<Int32>(req->_builders.size());
+    const Int32 count = static_cast<Int32>(req->_builderInfos.size());
 
     if(LIKELY(isReconnected))
     {
         for(; idx < count; ++idx)
         {
-            auto builder = req->_builders[idx];
-            if(!curConn->ExecuteSql(*builder, req->_seqId, cb))
+            auto builderInfo = req->_builderInfos[idx];
+            if(!curConn->ExecuteSql(*builderInfo->_builder, req->_seqId, cb))
             {
                 // 因为网络断开需要重试
                 if(IS_MYSQL_NETWORK_ERROR(res->_mysqlErrno))
@@ -703,7 +703,7 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
 
                         for(Int32 idx = 0; idx < leftRetryTimes; ++idx)
                         {
-                            if(curConn->ExecuteSql(*builder, req->_seqId, cb))
+                            if(curConn->ExecuteSql(*builderInfo->_builder, req->_seqId, cb))
                             {
                                 isSuccess = true;
                                 break;
@@ -716,7 +716,7 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
                         
                         for(;;)
                         {
-                            if(curConn->ExecuteSql(*builder, req->_seqId, cb))
+                            if(curConn->ExecuteSql(*builderInfo->_builder, req->_seqId, cb))
                             {
                                 isSuccess = true;
                                 break;
@@ -748,8 +748,8 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
         LibString failBuilder;
         for(;idx < count; ++idx)
         {
-            auto builder = req->_builders[idx];
-            failBuilder.AppendData(builder->Dump()).AppendFormat("\n");
+            auto builderInfo = req->_builderInfos[idx];
+            failBuilder.AppendData(builderInfo->Dump()).AppendFormat("\n");
         }
 
         if((mysqlDbErr != 0) && (res->_mysqlErrno == 0))
@@ -868,9 +868,13 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
             break;
         }
 
-        if(!curConn->ExecuteSqlUsingTransAction(req->_builders, req->_seqId, cb))
+        std::vector<KERNEL_NS::SqlBuilder *> builders;
+        for(auto &builder : req->_builderInfos)
+            builders.push_back(builder->_builder);
+
+        if(!curConn->ExecuteSqlUsingTransAction(builders, req->_seqId, cb))
         {
-            const Int32 count = static_cast<Int32>(req->_builders.size());
+            const Int32 count = static_cast<Int32>(req->_builderInfos.size());
             g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error  mysql:%s, connection:%s request dump:\n", ToString().c_str(), curConn->ToString().c_str())
                         , req->Dump());
 
@@ -887,11 +891,11 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
     if(res->_errCode != Status::Success)
     {
         LibString failBuilder;
-        const Int32 count = static_cast<Int32>(req->_builders.size());
+        const Int32 count = static_cast<Int32>(req->_builderInfos.size());
         for(Int32 idx = 0; idx < count; ++idx)
         {
-            auto builder = req->_builders[idx];
-            failBuilder.AppendData(builder->Dump()).AppendFormat("\n");
+            auto builderInfo = req->_builderInfos[idx];
+            failBuilder.AppendData(builderInfo->Dump()).AppendFormat("\n");
         }
 
         g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql db:%s connection:%s errCode:%d, mysqlerrno:%u, request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno)
@@ -914,7 +918,6 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
 
         res.pop();
     }
-
 }
 
 void MysqlDB::_Clear()

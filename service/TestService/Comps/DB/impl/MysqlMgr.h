@@ -59,7 +59,8 @@ public:
     virtual void UnRegisterDependence(const ILogicSys *obj) override;
 
     // msqQueue:使用指定的消息队列, 用于做同步使用
-    virtual Int32 NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL) override;
+    virtual Int32 NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL) override;
+    virtual Int32 NewRequestAndWaitResponseBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL) override;
 
    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key, bool isRightRow = false) override;
    virtual void MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key, bool isRightRow = false) override;
@@ -78,6 +79,8 @@ public:
    
    // 同步接口, 持久化且等完成后回调
    virtual Int32 PurgeAndWaitComplete(ILogicSys *logic) override;
+
+   virtual void OnResponse(KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *> &resList, Int32 &errCode) override;
 
     // 清洗数据
    virtual void Purge(ILogicSys *logic) override;
@@ -160,7 +163,7 @@ private:
     bool _FillMultiFieldStorageInfo(IStorageInfo *storageInfo);
     bool _FillKvSystemStorageInfo(IStorageInfo *storageInfo);
 
-    bool _GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS::LibString, MysqlColumnInfo> &originDbTableInfo, std::vector<KERNEL_NS::SqlBuilder *> &builders);
+    bool _GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS::LibString, MysqlColumnInfo> &originDbTableInfo, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders);
     bool _ModifyDbNumberDataType(IStorageInfo *storageInfo, IStorageInfo *subStorageInfo, const KERNEL_NS::LibString &dataType
                                 , const KERNEL_NS::LibString &oldFieldType,  const KERNEL_NS::LibString &fieldName
                                 , KERNEL_NS::SmartPtr<KERNEL_NS::AlterTableSqlBuilder, KERNEL_NS::AutoDelMethods::CustomDelete> &alterDropColumn 

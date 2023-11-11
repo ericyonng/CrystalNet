@@ -44,19 +44,22 @@ public:
     virtual void UnRegisterDependence(const ILogicSys *obj) = 0;
 
     // 数据库请求 builders, fields, var无论失败成功都在方法内部帮忙释放, msqQueue:用于做同步使用
-    virtual Int32 NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL) = 0;
+    virtual Int32 NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL) = 0;
     template<typename ObjType>
-    Int32 NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, ObjType *obj, void(ObjType::*handler)(KERNEL_NS::MysqlResponse *), KERNEL_NS::Variant **var = NULL , KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
-    template<typename ObjType>
-    Int32 NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &&fields, ObjType *obj, void(ObjType::*handler)(KERNEL_NS::MysqlResponse *), KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
-   
-    template<typename CallbackType>
-    Int32 NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, CallbackType &&cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
-    template<typename CallbackType>
-    Int32 NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &&fields, CallbackType &&cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
+    Int32 NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, ObjType *obj, void(ObjType::*handler)(KERNEL_NS::MysqlResponse *), KERNEL_NS::Variant **var = NULL , KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
 
-    Int32 NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
-    Int32 NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &&fields, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
+    template<typename CallbackType>
+    Int32 NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, CallbackType &&cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
+
+    Int32 NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
+
+    // 同步处理
+    template<typename CallbackType>
+    Int32 NewRequestAndWaitResponseBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, CallbackType &&cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL);
+    template<typename CallbackType>
+    Int32 NewRequestAndWaitResponseBy2(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, CallbackType &&cb);
+
+    virtual Int32 NewRequestAndWaitResponseBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var = NULL, KERNEL_NS::MysqlMsgQueue *msqQueue = NULL) = 0;
 
     // isRightRow:立即持久化
    virtual void MaskLogicNumberKeyAddDirty(const ILogicSys *logic, UInt64 key, bool isRightRow = false) = 0;
@@ -85,35 +88,20 @@ public:
 
    // 同步接口
    virtual Int32 PurgeAndWaitComplete(ILogicSys *logic) = 0;
+
+protected:
+    virtual void OnResponse(KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *> &resList, Int32 &errCode) = 0;
 };
 
 template<typename ObjType>
-ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, ObjType *obj, void(ObjType::*handler)(KERNEL_NS::MysqlResponse *), KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
+ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, ObjType *obj, void(ObjType::*handler)(KERNEL_NS::MysqlResponse *), KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
 {
     KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *delg = NULL;
     if(LIKELY(obj && handler))
         delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
-    auto err = NewRequest(stub, dbName, dbOperatorId, builders, fields, true, delg, var, msqQueue);
+    auto err = NewRequest(stub, dbName, dbOperatorId, builders, true, delg, var, msqQueue);
     if(err != Status::Success)
     {
-        delg->Release();
-        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequest fail err:%d"), err);
-        return err;
-    }
-
-    return Status::Success;
-}
-
-template<typename ObjType>
-ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &&fields, ObjType *obj, void(ObjType::*handler)(KERNEL_NS::MysqlResponse *), KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
-{
-    KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *delg = NULL;
-    if(LIKELY(obj && handler))
-        delg = KERNEL_NS::DelegateFactory::Create(obj, handler);
-    auto err = NewRequest(stub, dbName, dbOperatorId, builders, fields, true, delg, var, msqQueue);
-    if(err != Status::Success)
-    {
-        delg->Release();
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequest fail err:%d"), err);
         return err;
     }
@@ -122,13 +110,24 @@ ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibSt
 }
 
 template<typename CallbackType>
-ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, CallbackType &&cb, KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
+ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, CallbackType &&cb, KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
 {
     auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void , KERNEL_NS::MysqlResponse *);
-    auto err = NewRequest(stub, dbName, dbOperatorId, builders, fields, true, delg, var, msqQueue);
+    auto err = NewRequest(stub, dbName, dbOperatorId, builders, true, delg, var, msqQueue);
     if(err != Status::Success)
     {
-        delg->Release();
+        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequest fail err:%d"), err);
+        return err;
+    }
+
+    return Status::Success;
+}
+
+ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, KERNEL_NS::MysqlMsgQueue *msqQueue)
+{
+    auto err = NewRequest(stub, dbName, dbOperatorId, builders, true, NULL, NULL, msqQueue);
+    if(err != Status::Success)
+    {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequest fail err:%d"), err);
         return err;
     }
@@ -137,42 +136,70 @@ ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibSt
 }
 
 template<typename CallbackType>
-ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &&fields, CallbackType &&cb, KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
+ALWAYS_INLINE Int32 IMysqlMgr::NewRequestAndWaitResponseBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, CallbackType &&cb, KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
 {
     auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void , KERNEL_NS::MysqlResponse *);
-    auto err = NewRequest(stub, dbName, dbOperatorId, builders, fields, true, delg, var, msqQueue);
+    auto err = NewRequestAndWaitResponseBy(stub, dbName, dbOperatorId, builders, true, delg, var, msqQueue);
     if(err != Status::Success)
     {
-        delg->Release();
-        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequest fail err:%d"), err);
+        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy fail err:%d"), err);
         return err;
     }
 
     return Status::Success;
 }
 
-ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, KERNEL_NS::MysqlMsgQueue *msqQueue)
+template<typename CallbackType>
+ALWAYS_INLINE Int32 IMysqlMgr::NewRequestAndWaitResponseBy2(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, CallbackType &&cb)
 {
-    auto err = NewRequest(stub, dbName, dbOperatorId, builders, fields, true, NULL, NULL, msqQueue);
+    KERNEL_NS::SmartPtr<KERNEL_NS::MysqlMsgQueue, KERNEL_NS::AutoDelMethods::Release> msgQueue = KERNEL_NS::MysqlMsgQueue::Cerate();
+
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void , KERNEL_NS::MysqlResponse *);
+    auto err = NewRequestAndWaitResponseBy(stub, dbName, dbOperatorId, builders, true, delg, NULL, msgQueue.AsSelf());
     if(err != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequest fail err:%d"), err);
+        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy fail err:%d"), err);
         return err;
     }
 
-    return Status::Success;
-}
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *>, KERNEL_NS::AutoDelMethods::CustomDelete> resList = KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *>::New_LibList();
+    resList.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *> *>(p);
 
-ALWAYS_INLINE Int32 IMysqlMgr::NewRequestBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &&fields, KERNEL_NS::MysqlMsgQueue *msqQueue)
-{
-    auto err = NewRequest(stub, dbName, dbOperatorId, builders, fields, true, NULL, NULL, msqQueue);
-    if(err != Status::Success)
+        KERNEL_NS::ContainerUtil::DelContainer(*ptr, [](KERNEL_NS::MysqlResponse *res){
+            KERNEL_NS::MysqlResponse::Delete_MysqlResponse(res);
+        });
+        KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *>::Delete_LibList(ptr);
+    });
+
+    const auto &start = KERNEL_NS::LibCpuCounter::Current();
+    const UInt64 count = static_cast<UInt64>(builders.size());
+    for(;;)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequest fail err:%d"), err);
-        return err;
+        msgQueue->Wait(resList.AsSelf());
+
+        const auto elapseMilliSeconds = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(start);
+
+        if(resList->IsEmpty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("still have no mysql response please check, logic:%s"), this->GetObjName().c_str());
+        }
+        else if(resList->GetAmount() >= count)
+        {
+            break;
+        }
+        
+        if(elapseMilliSeconds >= 3000)
+        {// 3 秒后打印警告
+            g_Log->Warn(LOGFMT_OBJ_TAG("wait time out over 3 seconds please check resList count :%llu logic:%s."), resList->GetAmount(), GetObjName().c_str());
+        }
     }
 
-    return Status::Success;
+    // 收到所有的包
+    Int32 errCode = Status::Success;
+    OnResponse(*resList, errCode);
+
+    return errCode;
 }
 
 template<typename CallbackType>

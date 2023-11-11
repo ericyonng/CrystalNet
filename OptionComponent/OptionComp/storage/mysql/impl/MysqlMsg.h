@@ -127,6 +127,22 @@ ALWAYS_INLINE UInt64 MysqlMsgQueue::_MergeTailAllTo(LibList<MysqlResponse *> *qu
     return _msgQueue->MergeTailAllTo(resQueue);
 }
 
+// 一个builder对应一组参数
+class MysqlSqlBuilderInfo
+{
+    POOL_CREATE_OBJ_DEFAULT(MysqlSqlBuilderInfo);
+public:
+    MysqlSqlBuilderInfo();
+    ~MysqlSqlBuilderInfo();
+    void Release();
+    static MysqlSqlBuilderInfo *Create();
+    
+    LibString Dump() const;
+
+    SqlBuilder *_builder;
+    std::vector<Field *> _fields;
+};
+
 class MysqlRequest
 {
     POOL_CREATE_OBJ_DEFAULT(MysqlRequest);
@@ -148,9 +164,7 @@ public:
     // 请求类型 MysqlMsgType
     Int32 _msgType;
     // sql
-    std::vector<SqlBuilder *> _builders;
-    // 参数
-    std::vector<Field *> _fields;
+    std::vector<MysqlSqlBuilderInfo *> _builderInfos;
     // 回调
     IDelegate<void, MysqlResponse *> *_handler;
     // 是否释放handler

@@ -442,9 +442,12 @@ Int32 UserMgr::LoadUser(UInt64 userId
     v->Write(&userId, static_cast<Int64>(sizeof(userId)));
     fields[0] = v;
 
-    std::vector<KERNEL_NS::SqlBuilder *> builders;
-    builders.push_back(selectBuilder);
-    auto err = mysqlMgr->NewRequestBy(newPendingInfo->_stub, mysqlMgr->GetCurrentServiceDbName(), dbOid, builders, fields, this, &UserMgr::_OnDbUserLoaded);
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = selectBuilder;
+    newMysqlBuilder->_fields = fields;
+    builders.push_back(newMysqlBuilder);
+    auto err = mysqlMgr->NewRequestBy(newPendingInfo->_stub, mysqlMgr->GetCurrentServiceDbName(), dbOid, builders, this, &UserMgr::_OnDbUserLoaded);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, userId:%llu"), err, userId);
@@ -491,9 +494,12 @@ Int32 UserMgr::LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::Smar
     v->Write(accountName.data(), static_cast<Int64>(accountName.size()));
     fields[0] = v;
 
-    std::vector<KERNEL_NS::SqlBuilder *> builders;
-    builders.push_back(selectBuilder);
-    auto err = mysqlMgr->NewRequestBy(pendingUser->_stub, mysqlMgr->GetCurrentServiceDbName(), dbOid, builders, fields, this, &UserMgr::_OnDbUserLoaded);
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = selectBuilder;
+    newMysqlBuilder->_fields = fields;
+    builders.push_back(newMysqlBuilder);
+    auto err = mysqlMgr->NewRequestBy(pendingUser->_stub, mysqlMgr->GetCurrentServiceDbName(), dbOid, builders, this, &UserMgr::_OnDbUserLoaded);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, accountName:%s"), err, accountName.c_str());
@@ -502,6 +508,65 @@ Int32 UserMgr::LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::Smar
     }
 
     return Status::Success;
+}
+
+bool UserMgr::IsPhoneNumberBinded(const IUser *operateUser, UInt64 phoneNubmer, const std::set<UInt64> &excludeUserIds, bool &hasBindPhone) const
+{
+    hasBindPhone = false;
+    for(auto &iter : _userIdRefUser)
+    {
+        auto user = iter.second;
+        if(excludeUserIds.find(user->GetUserId()) != excludeUserIds.end())
+            continue;
+
+        if(iter.second->GetUserBaseInfo()->bindphone() == phoneNubmer)
+        {
+            hasBindPhone = true;
+            return true;
+        }
+    }
+
+    // 查询用户
+    auto userStorage = GetComp<UserMgrStorage>();
+    auto service = ILogicSys::GetCurrentService();
+    auto mysqlMgr = service->GetComp<IMysqlMgr>();
+    auto descriptor = UserBaseInfo::descriptor();
+    const auto &bindPhnoneName = descriptor->FindFieldByNumber(UserBaseInfo::kBindPhoneFieldNumber)->name();
+    const auto &userIdName = descriptor->FindFieldByNumber(UserBaseInfo::kUserIdFieldNumber)->name();
+    const auto &excludeUserIdsStr = KERNEL_NS::StringUtil::ToString(excludeUserIds, ",");
+
+    KERNEL_NS::SelectSqlBuilder *builder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
+    builder->DB(mysqlMgr->GetCurrentServiceDbName()).From(userStorage->GetTableName())
+    .Where(KERNEL_NS::LibString().AppendFormat("`%s` = %llu and `%s` NOT IN (%s)"
+    , bindPhnoneName.c_str(), phoneNubmer, userIdName.c_str(), excludeUserIdsStr.c_str()));
+
+    UInt64 stub = 0;
+    Int32 err = Status::Success;
+    Int32 opId = operateUser ? operateUser->GetStorageOperatorId() : mysqlMgr->GetStorageOperatorId();
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = builder;
+    builders.push_back(newMysqlBuilder);
+    err = mysqlMgr->NewRequestAndWaitResponseBy2(stub, mysqlMgr->GetCurrentServiceDbName(), opId, builders,
+    [this, phoneNubmer, &err, &hasBindPhone](KERNEL_NS::MysqlResponse *res){
+        if(res->_errCode != Status::Success)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy2 fail db name:%s res seqId:%llu, mysqlError:%u, bind phone:%llu")
+                    , res->_dbName.c_str(), res->_seqId, res->_mysqlErrno, phoneNubmer);
+            err = res->_errCode;
+            return;
+        }
+
+        hasBindPhone = !res->_datas.empty();
+    });
+
+    if(err != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
+        return false;
+    }
+
+    return true;
 }
 
 void UserMgr::Purge()

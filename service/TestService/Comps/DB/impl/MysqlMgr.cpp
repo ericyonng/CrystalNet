@@ -87,7 +87,7 @@ void MysqlMgr::UnRegisterDependence(const ILogicSys *obj)
     _tableNameRefLogic.erase(obj->GetStorageInfo()->GetTableName());
 }
 
-Int32 MysqlMgr::NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::SqlBuilder *> &builders, std::vector<KERNEL_NS::Field *> &fields, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
+Int32 MysqlMgr::NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
 {
     auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
     auto db = dbMgr->GetDB(_currentServiceDBName);
@@ -97,21 +97,19 @@ Int32 MysqlMgr::NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int
         for(auto builder : builders)
             sqls.push_back(builder->Dump());
 
-        std::vector<KERNEL_NS::LibString> fieldsDump;
-        for(auto field : fields)
-            fieldsDump.push_back(field->Dump());
-
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("db not found db name:%s, sqls:\n", dbName.c_str())
-                    , KERNEL_NS::StringUtil::ToString(sqls, ";"), KERNEL_NS::LibString().AppendFormat("\nfields:\n"), KERNEL_NS::StringUtil::ToString(fieldsDump, ","));
+                    , KERNEL_NS::StringUtil::ToString(sqls, ";"));
 
         KERNEL_NS::ContainerUtil::DelContainer2(builders);
-        KERNEL_NS::ContainerUtil::DelContainer2(fields);
 
         if(var)
         {
             KERNEL_NS::Variant::DeleteThreadLocal_Variant(*var);
             *var = NULL;
         }
+
+        if(cb && isDestroyHandler)
+            cb->Release();
 
         return Status::NotFound;
     }
@@ -128,11 +126,71 @@ Int32 MysqlMgr::NewRequest(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int
     req->_stub = stub;
     req->_msgType = KERNEL_NS::MysqlMsgType::Stmt;
 
-    req->_builders = builders;
+    req->_builderInfos = builders;
     builders.clear();
 
-    req->_fields = fields;
-    fields.clear();
+    req->_handler = cb;
+    req->_isDestroyHandler = isDestroyHandler;
+    req->_dbName = dbName;
+    req->_msgQueue = msqQueue;
+
+    if(var)
+    {
+        req->_var = *var;
+        *var = NULL;
+    }
+
+    if(!dbMgr->PushRequest(db, req))
+    {
+        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("push request fail req:\n"), req->Dump());
+        KERNEL_NS::MysqlRequest::Delete_MysqlRequest(req);
+        return Status::Failed;
+    }
+
+    return Status::Success;
+}
+
+Int32 MysqlMgr::NewRequestAndWaitResponseBy(UInt64 &stub, const KERNEL_NS::LibString &dbName, Int32 dbOperatorId, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders, bool isDestroyHandler, KERNEL_NS::IDelegate<void, KERNEL_NS::MysqlResponse *> *cb, KERNEL_NS::Variant **var, KERNEL_NS::MysqlMsgQueue *msqQueue)
+{
+    auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
+    auto db = dbMgr->GetDB(_currentServiceDBName);
+    if(UNLIKELY(!db))
+    {
+        std::vector<KERNEL_NS::LibString> sqls;
+        for(auto b : builders)
+            sqls.push_back(b->Dump());
+
+        g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("db not found db name:%s, sqls:\n", dbName.c_str())
+                    , KERNEL_NS::StringUtil::ToString(sqls, ";"));
+
+        KERNEL_NS::ContainerUtil::DelContainer2(builders);
+
+        if(var)
+        {
+            KERNEL_NS::Variant::DeleteThreadLocal_Variant(*var);
+            *var = NULL;
+        }
+
+        if(cb && isDestroyHandler)
+            cb->Release();
+
+        return Status::NotFound;
+    }
+
+    if(stub == 0)
+    {
+        auto stubMgr = GetGlobalSys<IStubHandleMgr>();
+        stub = stubMgr->NewStub();
+    }
+
+    auto req = KERNEL_NS::MysqlRequest::New_MysqlRequest();
+    req->_dbOperatorId = dbOperatorId;
+    req->_seqId = dbMgr->NewSeqId();
+    req->_stub = stub;
+    req->_msgType = KERNEL_NS::MysqlMsgType::Stmt;
+
+    req->_builderInfos = builders;
+    builders.clear();
 
     req->_handler = cb;
     req->_isDestroyHandler = isDestroyHandler;
@@ -766,6 +824,31 @@ Int32 MysqlMgr::PurgeAndWaitComplete(ILogicSys *logic)
     return errCode;
 }
 
+void MysqlMgr::OnResponse(KERNEL_NS::LibList<KERNEL_NS::MysqlResponse *> &resList, Int32 &errCode)
+{
+    // 收到所有的包
+    errCode = Status::Success;
+    auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
+    for(auto node = resList.Begin(); node;)
+    {
+        auto res = node->_data;
+        if(LIKELY(res->_handler))
+            res->_handler->Invoke(res);
+
+        if(UNLIKELY(res->_errCode != Status::Success))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("purge fail seqId:%llu, errCode:%d, res:%s")
+                    , res->_seqId, res->_errCode, res->ToString().c_str());
+
+            errCode = res->_errCode;
+        }
+
+        dbMgr->RemovePendingSeqId(res->_seqId);
+        KERNEL_NS::MysqlResponse::Delete_MysqlResponse(res);
+        node = resList.Erase(node);
+    }
+}
+
 void MysqlMgr::Purge(ILogicSys *logic)
 {
     _PurgeDirty(logic);
@@ -983,6 +1066,9 @@ Int32 MysqlMgr::_OnHostStart()
     for(auto &comp : comps)
     {
         auto logicSys = comp->CastTo<ILogicSys>();
+        if(logicSys != this)
+            logicSys->SetStorageOperatorId(_systemOperatorUid);
+
         auto comp = logicSys->GetCompByType(ServiceCompType::STORAGE_COMP);
         if(!comp)
             continue;
@@ -1137,22 +1223,26 @@ bool MysqlMgr::_LoadSystemTable()
     const auto &systemTableName = storageInfo->GetTableName();
     UInt64 stub = 0;
 
-    std::vector<KERNEL_NS::SqlBuilder *> builders;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
 
     // 1.不存在则建立表
-    auto createBuilder = MysqlFieldTypeHelper::NewCreateTableSqlBuilder(_currentServiceDBName, storageInfo);
-    if(!createBuilder)
+    auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newBuilder->_builder = MysqlFieldTypeHelper::NewCreateTableSqlBuilder(_currentServiceDBName, storageInfo);
+    if(!newBuilder->_builder)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("NewCreateTableSqlBuilder fail logic:%s"), GetObjName().c_str());
+        newBuilder->Release();
         return false;
     }
-    builders.push_back(createBuilder);
+    builders.push_back(newBuilder);
 
     // 2.查询数据
-    KERNEL_NS::SelectSqlBuilder *selectBuilder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
+    newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    auto selectBuilder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
     selectBuilder->DB(_currentServiceDBName).From(systemTableName);
-    builders.push_back(selectBuilder);
-    auto err = NewRequestBy(stub, _currentServiceDBName, GetStorageOperatorId(), builders, {}, this, &MysqlMgr::_OnSystemTableBack);
+    newBuilder->_builder = selectBuilder;
+    builders.push_back(newBuilder);
+    auto err = NewRequestBy(stub, _currentServiceDBName, GetStorageOperatorId(), builders, this, &MysqlMgr::_OnSystemTableBack);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -1209,15 +1299,19 @@ void MysqlMgr::_OnSystemTableBack(KERNEL_NS::MysqlResponse *res)
                 , res->_dbName.c_str(), static_cast<UInt64>(moduleNames.size()), KERNEL_NS::StringUtil::ToString(moduleNames, ",").c_str());
 
     // 查询库中所有表和字段: 需要校准:tbl_system_data, 1.表校准, 2.表字段校准
-    std::vector<KERNEL_NS::SqlBuilder *> builders;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
+
+    auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
     KERNEL_NS::SelectSqlBuilder *selectBuilder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
     const KERNEL_NS::LibString &specifyDb = "information_schema";
     selectBuilder->DB(specifyDb).From(KERNEL_NS::LibString().AppendFormat("`COLUMNS`"));
     selectBuilder->WithFields({"TABLE_NAME", "COLUMN_NAME", "DATA_TYPE", "CHARACTER_MAXIMUM_LENGTH", "COLUMN_KEY"})
                 .Where(KERNEL_NS::LibString().AppendFormat("TABLE_SCHEMA='%s'", _currentServiceDBName.c_str()));
-    builders.push_back(selectBuilder);
+    newBuilder->_builder = selectBuilder;
+    
+    builders.push_back(newBuilder);
     UInt64 stub = 0;
-    auto err = NewRequestBy(stub, specifyDb, GetStorageOperatorId(), builders, {}, this, &MysqlMgr::_OnLoadDbTableColumns);
+    auto err = NewRequestBy(stub, specifyDb, GetStorageOperatorId(), builders, this, &MysqlMgr::_OnLoadDbTableColumns);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -1308,7 +1402,8 @@ void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
     }
 
     // 2.使用数据库原生表校准旧表
-    std::vector<KERNEL_NS::SqlBuilder *> builders;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
+
     for(auto iter : currentTotalTableInfo)
     {
         auto tableInfo = _GetTableInfo(iter.first);
@@ -1384,7 +1479,9 @@ void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
             return;
         }
 
-        builders.push_back(createBuilder);
+        auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newBuilder->_builder = createBuilder;
+        builders.push_back(newBuilder);
         logics.push_back(logic);
         g_Log->Info(LOGFMT_OBJ_TAG("will add new table info storage info:%s"), storageInfo->ToString().c_str());
     }
@@ -1401,7 +1498,7 @@ void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
     UInt64 stub = 0;
     auto var = KERNEL_NS::Variant::NewThreadLocal_Variant();
     *var = logics;
-    auto err = NewRequestBy(stub, _currentServiceDBName, GetStorageOperatorId(), builders, {}, this, &MysqlMgr::_OnAddNewTableBack, &var);
+    auto err = NewRequestBy(stub, _currentServiceDBName, GetStorageOperatorId(), builders, this, &MysqlMgr::_OnAddNewTableBack, &var);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -1447,7 +1544,7 @@ bool MysqlMgr::_CheckDropTables()
 
     // 比对表version, 进行清库操作
     bool hasMe = false;
-    std::vector<KERNEL_NS::SqlBuilder *> builders;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
     for(auto iter : _tableNameRefTableInfo)
     {
         auto tableInfo = iter.second;
@@ -1468,7 +1565,10 @@ bool MysqlMgr::_CheckDropTables()
             // sql
             auto newBuilder = KERNEL_NS::DropTableSqlBuilder::NewThreadLocal_DropTableSqlBuilder();
             newBuilder->DB(_currentServiceDBName).Table(tableInfo->_tableName);
-            builders.push_back(newBuilder);
+            
+            auto mysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+            mysqlBuilder->_builder = newBuilder;
+            builders.push_back(mysqlBuilder);
 
             // 创建表
             auto createBuilder = MysqlFieldTypeHelper::NewCreateTableSqlBuilder(_currentServiceDBName, logic->GetStorageInfo());
@@ -1478,7 +1578,10 @@ bool MysqlMgr::_CheckDropTables()
                 KERNEL_NS::ContainerUtil::DelContainer2(builders);
                 return false;
             }
-            builders.push_back(createBuilder);
+            
+            mysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+            mysqlBuilder->_builder = createBuilder;
+            builders.push_back(mysqlBuilder);
         }
     }
 
@@ -1486,7 +1589,7 @@ bool MysqlMgr::_CheckDropTables()
         return true;
 
     UInt64 stub = 0;
-    auto err = NewRequestBy(stub, _currentServiceDBName, GetStorageOperatorId(), builders, {});
+    auto err = NewRequestBy(stub, _currentServiceDBName, GetStorageOperatorId(), builders);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -1537,12 +1640,14 @@ void MysqlMgr::_LoadAllPublicData()
         if(storageInfo->GetDataCountLimit() > 0)
             selectBuilder->Limit(storageInfo->GetDataCountLimit());
 
-        std::vector<KERNEL_NS::SqlBuilder *> builders;
-        builders.push_back(selectBuilder);
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = selectBuilder;
+        builders.push_back(newMysqlBuilder);
         UInt64 stub = 0;
         auto var = KERNEL_NS::Variant::NewThreadLocal_Variant();
         *var = logic;
-        auto err = NewRequestBy(stub, _currentServiceDBName, GetStorageOperatorId(), builders, {}, this, &MysqlMgr::_OnLoadPublicData, &var);
+        auto err = NewRequestBy(stub, _currentServiceDBName, GetStorageOperatorId(), builders, this, &MysqlMgr::_OnLoadPublicData, &var);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -1822,7 +1927,9 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
         alterModifyColumn->Modify(valueStorageInfo->GetFieldName(), newDescribe);
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
 
         // 传入参数
         KERNEL_NS::Variant *var = NULL;
@@ -1835,7 +1942,7 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
         if(errList)
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -1879,8 +1986,11 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
     if(errList)
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newAddSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newAddSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key);
@@ -1993,8 +2103,10 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -2039,8 +2151,11 @@ void MysqlMgr::_OnKvSystemNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
     if(errList)
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newUpdateSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newUpdateSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -2137,8 +2252,11 @@ void MysqlMgr::_OnKvSystemNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UIn
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newDeleteSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -2248,8 +2366,10 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
         if(errList)
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -2295,8 +2415,11 @@ void MysqlMgr::_OnKvSystemNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UI
     if(errList)
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newReplaceSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newReplaceSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -2407,8 +2530,10 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -2454,8 +2579,11 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
     if(errList)
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newAddSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newAddSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -2564,8 +2692,10 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
@@ -2612,8 +2742,11 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newUpdateSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newUpdateSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -2710,8 +2843,11 @@ void MysqlMgr::_OnKvSystemStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newDeleteSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -2820,8 +2956,10 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, key:%s"), err, key.c_str());
@@ -2868,8 +3006,11 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newReplaceSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newReplaceSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s,  key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3044,8 +3185,10 @@ void MysqlMgr::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn.pop();
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -3073,8 +3216,11 @@ void MysqlMgr::_OnNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UInt64
         insertBuilder->Fields(fields);
         insertBuilder->Values(values);
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {insertBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = insertBuilder.pop();
+        newMysqlBuilder->_fields = fieldDatas;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -3257,10 +3403,12 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
             var->BecomeDict()[Params::VAR_COUNTER] = counter;
         if(errList)
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
-\
+
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn.pop();
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -3301,8 +3449,11 @@ void MysqlMgr::_OnNumberModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {updateBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = updateBuilder.pop();
+        newMysqlBuilder->_fields = fieldDatas;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -3399,8 +3550,11 @@ void MysqlMgr::_OnNumberDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UIn
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields,  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newDeleteSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders,  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -3575,8 +3729,10 @@ void MysqlMgr::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UI
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn.pop();
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -3604,8 +3760,11 @@ void MysqlMgr::_OnNumberReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64, UI
         replaceBuilder->Fields(fields);
         replaceBuilder->Values(values);
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {replaceBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas,  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = replaceBuilder.pop();
+        newMysqlBuilder->_fields = fieldDatas;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders,  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%llu"), err, logic->GetObjName().c_str(), key);
@@ -3778,8 +3937,10 @@ void MysqlMgr::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::Lib
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn.pop();
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3807,8 +3968,11 @@ void MysqlMgr::_OnStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::Lib
         insertBuilder->Fields(fields);
         insertBuilder->Values(values);
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {insertBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = insertBuilder.pop();
+        newMysqlBuilder->_fields = fieldDatas;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -3992,8 +4156,10 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {}, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn.pop();
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -4032,8 +4198,11 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {updateBuilder.pop()};
-        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = updateBuilder.pop();
+        newMysqlBuilder->_fields = fieldDatas;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err = NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -4130,8 +4299,11 @@ void MysqlMgr::_OnStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
         var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
     UInt64 stub = 0;
-    std::vector<KERNEL_NS::SqlBuilder *> builders = {newDeleteSqlBuilder};
-    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fields, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = newDeleteSqlBuilder;
+    newMysqlBuilder->_fields = fields;
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+    err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -4306,8 +4478,10 @@ void MysqlMgr::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS:
             var->BecomeDict()[Params::VAR_ERROR_INFO] = errList;
 
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {alterModifyColumn.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, {},  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = alterModifyColumn.pop();
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -4335,8 +4509,11 @@ void MysqlMgr::_OnStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS:
         replaceBuilder->Fields(fields);
         replaceBuilder->Values(values);
         UInt64 stub = 0;
-        std::vector<KERNEL_NS::SqlBuilder *> builders = {replaceBuilder.pop()};
-        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, fieldDatas,  handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
+        auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newMysqlBuilder->_builder = replaceBuilder.pop();
+        newMysqlBuilder->_fields = fieldDatas;
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders = {newMysqlBuilder};
+        err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s, key:%s"), err, logic->GetObjName().c_str(), key.c_str());
@@ -4787,7 +4964,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
     return true;
 }
 
-bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS::LibString, MysqlColumnInfo> &originDbTableInfo, std::vector<KERNEL_NS::SqlBuilder *> &builders)
+bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS::LibString, MysqlColumnInfo> &originDbTableInfo, std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> &builders)
 {
     // 代码没有,但是数据库还残留需要drop,drop和其他互斥所以不需要担心先后, 当然需要先drop字段再做其他的
     KERNEL_NS::SmartPtr<KERNEL_NS::AlterTableSqlBuilder, KERNEL_NS::AutoDelMethods::CustomDelete> alterDropColumn = KERNEL_NS::AlterTableSqlBuilder::NewThreadLocal_AlterTableSqlBuilder();
@@ -4928,13 +5105,25 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
     }
 
     if(hasDrop)
-        builders.push_back(alterDropColumn.pop());
+    {
+        auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newBuilder->_builder = alterDropColumn.pop();
+        builders.push_back(newBuilder);
+    }
 
     if(hasAdd)
-        builders.push_back(alterAddColumn.pop());
+    {
+        auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newBuilder->_builder = alterAddColumn.pop();
+        builders.push_back(newBuilder);
+    }
 
     if(hasModify)
-        builders.push_back(alterModifyColumn.pop());
+    {
+        auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        newBuilder->_builder = alterModifyColumn.pop();
+        builders.push_back(newBuilder);
+    }
 
     // 索引
     for(auto &subStorage : subStorages)
@@ -4961,7 +5150,10 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
             alterAddUniqueKey->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
 
             alterAddUniqueKey->AddUniqueIndex("unique_" + fieldName, {fieldName}, "using btree", "");
-            builders.push_back(alterAddUniqueKey.pop());
+
+            auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+            newBuilder->_builder = alterAddUniqueKey.pop();
+            builders.push_back(newBuilder);
         }
         else if(!subStorage->IsUniqueKeyField() && StorageFlagType::HasFlags(oldTableFieldInfo._flags, StorageFlagType::AS_UNIQUE_KEY_FIELD_FLAG))
         {// 新系统没有unique key 但是旧系统有需要删除
@@ -4973,7 +5165,9 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
             alterRemoveUniqueKey->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
 
             alterRemoveUniqueKey->DropIndex("unique_" + fieldName);
-            builders.push_back(alterRemoveUniqueKey.pop());
+            auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+            newBuilder->_builder = alterRemoveUniqueKey.pop();
+            builders.push_back(newBuilder);
         }
 
         if(subStorage->IsIndexField() && !StorageFlagType::HasFlags(oldTableFieldInfo._flags, StorageFlagType::AS_INDEX_KEY_FIELD_FLAG))
@@ -4986,7 +5180,10 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
             alterAddIndex->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
 
             alterAddIndex->AddIndex("index_" + fieldName, {fieldName}, "using btree", "");
-            builders.push_back(alterAddIndex.pop());
+
+            auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+            newBuilder->_builder = alterAddIndex.pop();
+            builders.push_back(newBuilder);
         }
         else if(!subStorage->IsIndexField() && StorageFlagType::HasFlags(oldTableFieldInfo._flags, StorageFlagType::AS_INDEX_KEY_FIELD_FLAG))
         {
@@ -4998,7 +5195,10 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
             alterRemoveIndex->DB(_currentServiceDBName).Table(storageInfo->GetTableName());
 
             alterRemoveIndex->DropIndex("index_" + fieldName);
-            builders.push_back(alterRemoveIndex.pop());
+
+            auto newBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+            newBuilder->_builder = alterRemoveIndex.pop();
+            builders.push_back(newBuilder);
         }
     }
 
