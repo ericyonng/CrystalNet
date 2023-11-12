@@ -61,6 +61,12 @@ namespace service {
 class AddUserNotifyDataItemNty;
 struct AddUserNotifyDataItemNtyDefaultTypeInternal;
 extern AddUserNotifyDataItemNtyDefaultTypeInternal _AddUserNotifyDataItemNty_default_instance_;
+class OnekeyClearNotifyReq;
+struct OnekeyClearNotifyReqDefaultTypeInternal;
+extern OnekeyClearNotifyReqDefaultTypeInternal _OnekeyClearNotifyReq_default_instance_;
+class OnekeyClearNotifyRes;
+struct OnekeyClearNotifyResDefaultTypeInternal;
+extern OnekeyClearNotifyResDefaultTypeInternal _OnekeyClearNotifyRes_default_instance_;
 class ReadNotifyReq;
 struct ReadNotifyReqDefaultTypeInternal;
 extern ReadNotifyReqDefaultTypeInternal _ReadNotifyReq_default_instance_;
@@ -80,6 +86,8 @@ extern UserNotifyDataNtyDefaultTypeInternal _UserNotifyDataNty_default_instance_
 }  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
 template<> ::CRYSTAL_NET::service::AddUserNotifyDataItemNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::AddUserNotifyDataItemNty>(Arena*);
+template<> ::CRYSTAL_NET::service::OnekeyClearNotifyReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OnekeyClearNotifyReq>(Arena*);
+template<> ::CRYSTAL_NET::service::OnekeyClearNotifyRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OnekeyClearNotifyRes>(Arena*);
 template<> ::CRYSTAL_NET::service::ReadNotifyReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ReadNotifyReq>(Arena*);
 template<> ::CRYSTAL_NET::service::ReadNotifyRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ReadNotifyRes>(Arena*);
 template<> ::CRYSTAL_NET::service::RemoveUserNotifyDataItemNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::RemoveUserNotifyDataItemNty>(Arena*);
@@ -1852,6 +1860,580 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   union { Impl_ _impl_; };
   friend struct ::TableStruct_notify_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(110), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class OnekeyClearNotifyReq final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OnekeyClearNotifyReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OnekeyClearNotifyReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OnekeyClearNotifyReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OnekeyClearNotifyReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OnekeyClearNotifyReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OnekeyClearNotifyReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OnekeyClearNotifyReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline OnekeyClearNotifyReq() : OnekeyClearNotifyReq(nullptr) {}
+  ~OnekeyClearNotifyReq() override;
+  explicit PROTOBUF_CONSTEXPR OnekeyClearNotifyReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  OnekeyClearNotifyReq(const OnekeyClearNotifyReq& from);
+  OnekeyClearNotifyReq(OnekeyClearNotifyReq&& from) noexcept
+    : OnekeyClearNotifyReq() {
+    *this = ::std::move(from);
+  }
+
+  inline OnekeyClearNotifyReq& operator=(const OnekeyClearNotifyReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline OnekeyClearNotifyReq& operator=(OnekeyClearNotifyReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const OnekeyClearNotifyReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const OnekeyClearNotifyReq* internal_default_instance() {
+    return reinterpret_cast<const OnekeyClearNotifyReq*>(
+               &_OnekeyClearNotifyReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(OnekeyClearNotifyReq& a, OnekeyClearNotifyReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(OnekeyClearNotifyReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(OnekeyClearNotifyReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  OnekeyClearNotifyReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<OnekeyClearNotifyReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const OnekeyClearNotifyReq& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const OnekeyClearNotifyReq& from) {
+    OnekeyClearNotifyReq::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(OnekeyClearNotifyReq* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.OnekeyClearNotifyReq";
+  }
+  protected:
+  explicit OnekeyClearNotifyReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kClearTypeFieldNumber = 1,
+  };
+  // sint32 ClearType = 1;
+  void clear_cleartype();
+  int32_t cleartype() const;
+  void set_cleartype(int32_t value);
+  private:
+  int32_t _internal_cleartype() const;
+  void _internal_set_cleartype(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.OnekeyClearNotifyReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t cleartype_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_notify_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(111), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class OnekeyClearNotifyRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OnekeyClearNotifyRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OnekeyClearNotifyRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OnekeyClearNotifyRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message OnekeyClearNotifyRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message OnekeyClearNotifyRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OnekeyClearNotifyRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message OnekeyClearNotifyRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline OnekeyClearNotifyRes() : OnekeyClearNotifyRes(nullptr) {}
+  ~OnekeyClearNotifyRes() override;
+  explicit PROTOBUF_CONSTEXPR OnekeyClearNotifyRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  OnekeyClearNotifyRes(const OnekeyClearNotifyRes& from);
+  OnekeyClearNotifyRes(OnekeyClearNotifyRes&& from) noexcept
+    : OnekeyClearNotifyRes() {
+    *this = ::std::move(from);
+  }
+
+  inline OnekeyClearNotifyRes& operator=(const OnekeyClearNotifyRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline OnekeyClearNotifyRes& operator=(OnekeyClearNotifyRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const OnekeyClearNotifyRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const OnekeyClearNotifyRes* internal_default_instance() {
+    return reinterpret_cast<const OnekeyClearNotifyRes*>(
+               &_OnekeyClearNotifyRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(OnekeyClearNotifyRes& a, OnekeyClearNotifyRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(OnekeyClearNotifyRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(OnekeyClearNotifyRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  OnekeyClearNotifyRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<OnekeyClearNotifyRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const OnekeyClearNotifyRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const OnekeyClearNotifyRes& from) {
+    OnekeyClearNotifyRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(OnekeyClearNotifyRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.OnekeyClearNotifyRes";
+  }
+  protected:
+  explicit OnekeyClearNotifyRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrCodeFieldNumber = 1,
+  };
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.OnekeyClearNotifyRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_notify_2eproto;
+};
 // ===================================================================
 
 
@@ -2129,9 +2711,61 @@ inline void ReadNotifyRes::set_errcode(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ReadNotifyRes.ErrCode)
 }
 
+// -------------------------------------------------------------------
+
+// OnekeyClearNotifyReq
+
+// sint32 ClearType = 1;
+inline void OnekeyClearNotifyReq::clear_cleartype() {
+  _impl_.cleartype_ = 0;
+}
+inline int32_t OnekeyClearNotifyReq::_internal_cleartype() const {
+  return _impl_.cleartype_;
+}
+inline int32_t OnekeyClearNotifyReq::cleartype() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OnekeyClearNotifyReq.ClearType)
+  return _internal_cleartype();
+}
+inline void OnekeyClearNotifyReq::_internal_set_cleartype(int32_t value) {
+  
+  _impl_.cleartype_ = value;
+}
+inline void OnekeyClearNotifyReq::set_cleartype(int32_t value) {
+  _internal_set_cleartype(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OnekeyClearNotifyReq.ClearType)
+}
+
+// -------------------------------------------------------------------
+
+// OnekeyClearNotifyRes
+
+// sint32 ErrCode = 1;
+inline void OnekeyClearNotifyRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t OnekeyClearNotifyRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t OnekeyClearNotifyRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OnekeyClearNotifyRes.ErrCode)
+  return _internal_errcode();
+}
+inline void OnekeyClearNotifyRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void OnekeyClearNotifyRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OnekeyClearNotifyRes.ErrCode)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -2285,6 +2919,52 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::ReadNotifyRes(*dynamic_cast<const ::CRYSTAL_NET::service::ReadNotifyRes *>(coder));
+    }
+
+};
+
+
+class OnekeyClearNotifyReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, OnekeyClearNotifyReqFactory);
+public:
+
+    virtual void Release() override {
+        OnekeyClearNotifyReqFactory::Delete_OnekeyClearNotifyReqFactory(this);
+    }
+
+    static OnekeyClearNotifyReqFactory *CreateFactory() {
+        return OnekeyClearNotifyReqFactory::New_OnekeyClearNotifyReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::OnekeyClearNotifyReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::OnekeyClearNotifyReq(*dynamic_cast<const ::CRYSTAL_NET::service::OnekeyClearNotifyReq *>(coder));
+    }
+
+};
+
+
+class OnekeyClearNotifyResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, OnekeyClearNotifyResFactory);
+public:
+
+    virtual void Release() override {
+        OnekeyClearNotifyResFactory::Delete_OnekeyClearNotifyResFactory(this);
+    }
+
+    static OnekeyClearNotifyResFactory *CreateFactory() {
+        return OnekeyClearNotifyResFactory::New_OnekeyClearNotifyResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::OnekeyClearNotifyRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::OnekeyClearNotifyRes(*dynamic_cast<const ::CRYSTAL_NET::service::OnekeyClearNotifyRes *>(coder));
     }
 
 };

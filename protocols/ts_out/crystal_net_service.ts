@@ -53,6 +53,18 @@ export namespace crystal_net_service
         UNKNOWN = 0,
         // 等用户领取超时
         WAIT_USER_GET_TIME_OUT = 1,
+        // 管理员取消订单(管理员需要填写理由)
+        MANAGTER_CANCEL = 2,
+        // 用户自己取消订单
+        USER_SELF_CANCEL = 3,
+
+    }
+    // com_notify.proto
+    export enum ClearNotifyType_ENUMS {
+        // 只清理已读
+        OnlyRead = 0,
+        // 清理全部
+        ClearAll = 1,
 
     }
     // com_client_user.proto
@@ -503,6 +515,9 @@ export namespace crystal_net_service
         // 备注
         Remark:string = "";
 
+        // 用户id
+        UserId:number = 0;
+
 
     }
     // 订单状态
@@ -522,6 +537,30 @@ export namespace crystal_net_service
     }
     // com_library.proto
     export class CancelOrderReasonType {
+
+    }
+    // 取消订单(管理员或者用户自己取消订单)
+    /// Opcode:
+    // library.proto
+    export class CancelOrderReq {
+        // 订单id
+        OrderId:number = 0;
+
+        // 原因(管理员必须填写)
+        Reason:string = "";
+
+
+    }
+    // 取消订单(管理员或者用户自己取消订单)
+    /// Opcode:
+    // library.proto
+    export class CancelOrderRes {
+        ErrCode:number = 0;
+
+
+    }
+    // com_notify.proto
+    export class ClearNotifyType {
 
     }
     // 客户端的心跳
@@ -960,6 +999,23 @@ export namespace crystal_net_service
     export class LogoutReq {
 
     }
+    // 用户领书管理员扫码
+    /// Opcode:
+    // library.proto
+    export class ManagerScanOrderForUserGettingBooksReq {
+        // 订单id
+        OrderId:number = 0;
+
+
+    }
+    // 用户领书管理员扫码
+    /// Opcode:
+    // library.proto
+    export class ManagerScanOrderForUserGettingBooksRes {
+        ErrCode:number = 0;
+
+
+    }
     // 会员信息(包括管理员等)
     // com_library.proto
     export class MemberInfo {
@@ -1104,6 +1160,23 @@ export namespace crystal_net_service
     // 离线类型
     // com_offline.proto
     export class OfflineType {
+
+    }
+    // 一键清理通知
+    /// Opcode:
+    // notify.proto
+    export class OnekeyClearNotifyReq {
+        // 清理类型 ClearNotifyType
+        ClearType:number = 0;
+
+
+    }
+    // 一键清理通知
+    /// Opcode:
+    // notify.proto
+    export class OnekeyClearNotifyRes {
+        ErrCode:number = 0;
+
 
     }
     // 操作日志
@@ -1502,6 +1575,34 @@ export namespace crystal_net_service
     // user.proto
     export class UserClientInfoNty {
         ClientInfo:ClientUserInfo = new ClientUserInfo();
+
+
+    }
+    // 确认领取推送确认码(确认码有效期2分钟)
+    /// Opcode:
+    // library.proto
+    export class UserGetBooksOrderConfirmNty {
+        OrderId:number = 0;
+
+        ConfirmCode:number = 0;
+
+
+    }
+    // 用户领书确认
+    /// Opcode:
+    // library.proto
+    export class UserGetBooksOrderConfirmReq {
+        OrderId:number = 0;
+
+        ConfirmCode:number = 0;
+
+
+    }
+    // 用户领书确认
+    /// Opcode:
+    // library.proto
+    export class UserGetBooksOrderConfirmRes {
+        ErrCode:number = 0;
 
 
     }

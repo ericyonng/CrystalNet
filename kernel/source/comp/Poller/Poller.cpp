@@ -275,7 +275,6 @@ void Poller::EventLoop()
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
     UInt64 mergeNumber = 0;
-    auto onTikc = _onTick;
     for(;;)
     {
         // 没有事件且没有脏处理则等待
@@ -352,8 +351,8 @@ void Poller::EventLoop()
         // 处理定时器
         auto handled = _timerMgr->Drive();
 
-        if(onTikc)
-            onTikc->Invoke();
+        if(_onTick)
+            _onTick->Invoke();
 
         // 当前帧性能信息记录
         #ifdef ENABLE_POLLER_PERFORMANCE

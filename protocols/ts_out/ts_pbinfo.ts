@@ -1068,6 +1068,123 @@ export namespace ts_pbinfo{
     }
 
 
+    // library.proto 
+    export class ManagerScanOrderForUserGettingBooksReq {
+      getOpcode():number {return ManagerScanOrderForUserGettingBooksReq.OPCODE; }
+      getIsXorEncrypt():boolean {return ManagerScanOrderForUserGettingBooksReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return ManagerScanOrderForUserGettingBooksReq.KeyBase64; }
+      getOpcodeName():string {return ManagerScanOrderForUserGettingBooksReq.OPCODE_NAME; }
+      static OPCODE:number = 103;
+      static OPCODE_NAME:string = "ManagerScanOrderForUserGettingBooksReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class UserGetBooksOrderConfirmNty {
+      getOpcode():number {return UserGetBooksOrderConfirmNty.OPCODE; }
+      getIsXorEncrypt():boolean {return UserGetBooksOrderConfirmNty.XorEncrypt; }
+      getIsKeyBase64():boolean {return UserGetBooksOrderConfirmNty.KeyBase64; }
+      getOpcodeName():string {return UserGetBooksOrderConfirmNty.OPCODE_NAME; }
+      static OPCODE:number = 104;
+      static OPCODE_NAME:string = "UserGetBooksOrderConfirmNty";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class ManagerScanOrderForUserGettingBooksRes {
+      getOpcode():number {return ManagerScanOrderForUserGettingBooksRes.OPCODE; }
+      getIsXorEncrypt():boolean {return ManagerScanOrderForUserGettingBooksRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return ManagerScanOrderForUserGettingBooksRes.KeyBase64; }
+      getOpcodeName():string {return ManagerScanOrderForUserGettingBooksRes.OPCODE_NAME; }
+      static OPCODE:number = 105;
+      static OPCODE_NAME:string = "ManagerScanOrderForUserGettingBooksRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class UserGetBooksOrderConfirmReq {
+      getOpcode():number {return UserGetBooksOrderConfirmReq.OPCODE; }
+      getIsXorEncrypt():boolean {return UserGetBooksOrderConfirmReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return UserGetBooksOrderConfirmReq.KeyBase64; }
+      getOpcodeName():string {return UserGetBooksOrderConfirmReq.OPCODE_NAME; }
+      static OPCODE:number = 106;
+      static OPCODE_NAME:string = "UserGetBooksOrderConfirmReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class UserGetBooksOrderConfirmRes {
+      getOpcode():number {return UserGetBooksOrderConfirmRes.OPCODE; }
+      getIsXorEncrypt():boolean {return UserGetBooksOrderConfirmRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return UserGetBooksOrderConfirmRes.KeyBase64; }
+      getOpcodeName():string {return UserGetBooksOrderConfirmRes.OPCODE_NAME; }
+      static OPCODE:number = 107;
+      static OPCODE_NAME:string = "UserGetBooksOrderConfirmRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class CancelOrderReq {
+      getOpcode():number {return CancelOrderReq.OPCODE; }
+      getIsXorEncrypt():boolean {return CancelOrderReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return CancelOrderReq.KeyBase64; }
+      getOpcodeName():string {return CancelOrderReq.OPCODE_NAME; }
+      static OPCODE:number = 108;
+      static OPCODE_NAME:string = "CancelOrderReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class CancelOrderRes {
+      getOpcode():number {return CancelOrderRes.OPCODE; }
+      getIsXorEncrypt():boolean {return CancelOrderRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return CancelOrderRes.KeyBase64; }
+      getOpcodeName():string {return CancelOrderRes.OPCODE_NAME; }
+      static OPCODE:number = 109;
+      static OPCODE_NAME:string = "CancelOrderRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // notify.proto 
+    export class OnekeyClearNotifyReq {
+      getOpcode():number {return OnekeyClearNotifyReq.OPCODE; }
+      getIsXorEncrypt():boolean {return OnekeyClearNotifyReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return OnekeyClearNotifyReq.KeyBase64; }
+      getOpcodeName():string {return OnekeyClearNotifyReq.OPCODE_NAME; }
+      static OPCODE:number = 110;
+      static OPCODE_NAME:string = "OnekeyClearNotifyReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // notify.proto 
+    export class OnekeyClearNotifyRes {
+      getOpcode():number {return OnekeyClearNotifyRes.OPCODE; }
+      getIsXorEncrypt():boolean {return OnekeyClearNotifyRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return OnekeyClearNotifyRes.KeyBase64; }
+      getOpcodeName():string {return OnekeyClearNotifyRes.OPCODE_NAME; }
+      static OPCODE:number = 111;
+      static OPCODE_NAME:string = "OnekeyClearNotifyRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -1228,7 +1345,25 @@ export namespace ts_pbinfo{
 
           [OutStoreOrderReq.OPCODE]: new OutStoreOrderReq(),
 
-          [OutStoreOrderRes.OPCODE]: new OutStoreOrderRes()
+          [OutStoreOrderRes.OPCODE]: new OutStoreOrderRes(),
+
+          [ManagerScanOrderForUserGettingBooksReq.OPCODE]: new ManagerScanOrderForUserGettingBooksReq(),
+
+          [UserGetBooksOrderConfirmNty.OPCODE]: new UserGetBooksOrderConfirmNty(),
+
+          [ManagerScanOrderForUserGettingBooksRes.OPCODE]: new ManagerScanOrderForUserGettingBooksRes(),
+
+          [UserGetBooksOrderConfirmReq.OPCODE]: new UserGetBooksOrderConfirmReq(),
+
+          [UserGetBooksOrderConfirmRes.OPCODE]: new UserGetBooksOrderConfirmRes(),
+
+          [CancelOrderReq.OPCODE]: new CancelOrderReq(),
+
+          [CancelOrderRes.OPCODE]: new CancelOrderRes(),
+
+          [OnekeyClearNotifyReq.OPCODE]: new OnekeyClearNotifyReq(),
+
+          [OnekeyClearNotifyRes.OPCODE]: new OnekeyClearNotifyRes()
 
 
       }

@@ -53,6 +53,8 @@ public:
 
     virtual Int32 ReadNotify(UInt64 notifyId) override;
 
+    virtual void OnekeyClearNotify(Int32 clearType) override;
+
 protected:
     virtual Int32 _OnUserSysInit() override;
     virtual Int32 _OnHostStart() override;

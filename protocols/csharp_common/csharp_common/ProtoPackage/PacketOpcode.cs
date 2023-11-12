@@ -85,6 +85,15 @@ public static class PacketOpcode
         GetBookOrderDetailInfoRes = 100,    // library.proto
         OutStoreOrderReq = 101,    // library.proto
         OutStoreOrderRes = 102,    // library.proto
-        OpcodeMax = 102,
+        ManagerScanOrderForUserGettingBooksReq = 103,    // library.proto
+        UserGetBooksOrderConfirmNty = 104,    // library.proto
+        ManagerScanOrderForUserGettingBooksRes = 105,    // library.proto
+        UserGetBooksOrderConfirmReq = 106,    // library.proto
+        UserGetBooksOrderConfirmRes = 107,    // library.proto
+        CancelOrderReq = 108,    // library.proto
+        CancelOrderRes = 109,    // library.proto
+        OnekeyClearNotifyReq = 110,    // notify.proto
+        OnekeyClearNotifyRes = 111,    // notify.proto
+        OpcodeMax = 111,
     }
 }

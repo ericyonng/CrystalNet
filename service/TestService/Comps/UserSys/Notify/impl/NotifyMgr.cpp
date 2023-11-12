@@ -153,6 +153,38 @@ Int32 NotifyMgr::ReadNotify(UInt64 notifyId)
     return Status::Success;
 }
 
+void NotifyMgr::OnekeyClearNotify(Int32 clearType)
+{
+    if(!ClearNotifyType_ENUMS_IsValid(clearType))
+        return;
+
+    if(clearType == ClearNotifyType_ENUMS_OnlyRead)
+    {
+        const Int32 count = _notifyData->itemlist_size();
+        for(Int32 idx = count - 1; idx >= 0; --idx)
+        {
+            auto &item = _notifyData->itemlist(idx);
+            if(item.isread() == 0)
+                continue;
+
+            _notifyIdRefNotify.erase(item.notifyid());
+            _notifyData->mutable_itemlist()->DeleteSubrange(idx, 1);
+        }
+
+        MaskDirty();
+    }
+    else if(clearType == ClearNotifyType_ENUMS_ClearAll)
+    {
+        _notifyIdRefNotify.clear();
+        _notifyData->clear_itemlist();
+        MaskDirty();
+    }
+
+    UserNotifyDataNty nty;
+    *nty.mutable_usernotifydata() = *_notifyData;
+    Send(Opcodes::OpcodeConst::OPCODE_UserNotifyDataNty, nty);
+}
+
 Int32 NotifyMgr::_OnUserSysInit()
 {
     _RegisterEvents();

@@ -41,6 +41,13 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(GetBookOrderDetailInfoNtyFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(GetBookOrderDetailInfoResFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(OutStoreOrderReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(OutStoreOrderResFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ManagerScanOrderForUserGettingBooksReqFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(UserGetBooksOrderConfirmNtyFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ManagerScanOrderForUserGettingBooksResFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(UserGetBooksOrderConfirmReqFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(UserGetBooksOrderConfirmResFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(CancelOrderReqFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(CancelOrderResFactory);
 
 #include <algorithm>
 
@@ -564,9 +571,103 @@ struct OutStoreOrderResDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 OutStoreOrderResDefaultTypeInternal _OutStoreOrderRes_default_instance_;
+PROTOBUF_CONSTEXPR ManagerScanOrderForUserGettingBooksReq::ManagerScanOrderForUserGettingBooksReq(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal() {}
+  union {
+    ManagerScanOrderForUserGettingBooksReq _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal _ManagerScanOrderForUserGettingBooksReq_default_instance_;
+PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmNty::UserGetBooksOrderConfirmNty(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_.confirmcode_)*/uint64_t{0u}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct UserGetBooksOrderConfirmNtyDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmNtyDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UserGetBooksOrderConfirmNtyDefaultTypeInternal() {}
+  union {
+    UserGetBooksOrderConfirmNty _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UserGetBooksOrderConfirmNtyDefaultTypeInternal _UserGetBooksOrderConfirmNty_default_instance_;
+PROTOBUF_CONSTEXPR ManagerScanOrderForUserGettingBooksRes::ManagerScanOrderForUserGettingBooksRes(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.errcode_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct ManagerScanOrderForUserGettingBooksResDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ManagerScanOrderForUserGettingBooksResDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ManagerScanOrderForUserGettingBooksResDefaultTypeInternal() {}
+  union {
+    ManagerScanOrderForUserGettingBooksRes _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ManagerScanOrderForUserGettingBooksResDefaultTypeInternal _ManagerScanOrderForUserGettingBooksRes_default_instance_;
+PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmReq::UserGetBooksOrderConfirmReq(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_.confirmcode_)*/uint64_t{0u}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct UserGetBooksOrderConfirmReqDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmReqDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UserGetBooksOrderConfirmReqDefaultTypeInternal() {}
+  union {
+    UserGetBooksOrderConfirmReq _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UserGetBooksOrderConfirmReqDefaultTypeInternal _UserGetBooksOrderConfirmReq_default_instance_;
+PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmRes::UserGetBooksOrderConfirmRes(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.errcode_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct UserGetBooksOrderConfirmResDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmResDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~UserGetBooksOrderConfirmResDefaultTypeInternal() {}
+  union {
+    UserGetBooksOrderConfirmRes _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UserGetBooksOrderConfirmResDefaultTypeInternal _UserGetBooksOrderConfirmRes_default_instance_;
+PROTOBUF_CONSTEXPR CancelOrderReq::CancelOrderReq(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.reason_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct CancelOrderReqDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR CancelOrderReqDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~CancelOrderReqDefaultTypeInternal() {}
+  union {
+    CancelOrderReq _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CancelOrderReqDefaultTypeInternal _CancelOrderReq_default_instance_;
+PROTOBUF_CONSTEXPR CancelOrderRes::CancelOrderRes(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.errcode_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct CancelOrderResDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR CancelOrderResDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~CancelOrderResDefaultTypeInternal() {}
+  union {
+    CancelOrderRes _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CancelOrderResDefaultTypeInternal _CancelOrderRes_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
-static ::_pb::Metadata file_level_metadata_library_2eproto[38];
+static ::_pb::Metadata file_level_metadata_library_2eproto[45];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_library_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_library_2eproto = nullptr;
 
@@ -856,6 +957,58 @@ const uint32_t TableStruct_library_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::OutStoreOrderRes, _impl_.errcode_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq, _impl_.orderid_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty, _impl_.orderid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty, _impl_.confirmcode_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes, _impl_.errcode_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq, _impl_.orderid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq, _impl_.confirmcode_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes, _impl_.errcode_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::CancelOrderReq, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::CancelOrderReq, _impl_.orderid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::CancelOrderReq, _impl_.reason_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::CancelOrderRes, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::CancelOrderRes, _impl_.errcode_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::GetLibraryInfoReq)},
@@ -896,6 +1049,13 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 263, -1, -1, sizeof(::CRYSTAL_NET::service::GetBookOrderDetailInfoRes)},
   { 270, -1, -1, sizeof(::CRYSTAL_NET::service::OutStoreOrderReq)},
   { 278, -1, -1, sizeof(::CRYSTAL_NET::service::OutStoreOrderRes)},
+  { 285, -1, -1, sizeof(::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq)},
+  { 292, -1, -1, sizeof(::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty)},
+  { 300, -1, -1, sizeof(::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes)},
+  { 307, -1, -1, sizeof(::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq)},
+  { 315, -1, -1, sizeof(::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes)},
+  { 322, -1, -1, sizeof(::CRYSTAL_NET::service::CancelOrderReq)},
+  { 330, -1, -1, sizeof(::CRYSTAL_NET::service::CancelOrderRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -937,6 +1097,13 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::CRYSTAL_NET::service::_GetBookOrderDetailInfoRes_default_instance_._instance,
   &::CRYSTAL_NET::service::_OutStoreOrderReq_default_instance_._instance,
   &::CRYSTAL_NET::service::_OutStoreOrderRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_ManagerScanOrderForUserGettingBooksReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_UserGetBooksOrderConfirmNty_default_instance_._instance,
+  &::CRYSTAL_NET::service::_ManagerScanOrderForUserGettingBooksRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_UserGetBooksOrderConfirmReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_UserGetBooksOrderConfirmRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_CancelOrderReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_CancelOrderRes_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_library_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -1003,7 +1170,17 @@ const char descriptor_table_protodef_library_2eproto[] PROTOBUF_SECTION_VARIABLE
   "oRes\022\017\n\007ErrCode\030\001 \001(\021\"[\n\020OutStoreOrderRe"
   "q\022\017\n\007OrderId\030\001 \001(\004\0226\n\nBookParams\030\002 \003(\0132\""
   ".CRYSTAL_NET.service.OutStoreParam\"#\n\020Ou"
-  "tStoreOrderRes\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
+  "tStoreOrderRes\022\017\n\007ErrCode\030\001 \001(\021\"9\n&Manag"
+  "erScanOrderForUserGettingBooksReq\022\017\n\007Ord"
+  "erId\030\001 \001(\004\"C\n\033UserGetBooksOrderConfirmNt"
+  "y\022\017\n\007OrderId\030\001 \001(\004\022\023\n\013ConfirmCode\030\002 \001(\004\""
+  "9\n&ManagerScanOrderForUserGettingBooksRe"
+  "s\022\017\n\007ErrCode\030\001 \001(\021\"C\n\033UserGetBooksOrderC"
+  "onfirmReq\022\017\n\007OrderId\030\001 \001(\004\022\023\n\013ConfirmCod"
+  "e\030\002 \001(\004\".\n\033UserGetBooksOrderConfirmRes\022\017"
+  "\n\007ErrCode\030\001 \001(\021\"1\n\016CancelOrderReq\022\017\n\007Ord"
+  "erId\030\001 \001(\004\022\016\n\006Reason\030\002 \001(\014\"!\n\016CancelOrde"
+  "rRes\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_library_2eproto_deps[3] = {
   &::descriptor_table_com_5fbook_2eproto,
@@ -1012,9 +1189,9 @@ static const ::_pbi::DescriptorTable* const descriptor_table_library_2eproto_dep
 };
 static ::_pbi::once_flag descriptor_table_library_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_library_2eproto = {
-    false, false, 2559, descriptor_table_protodef_library_2eproto,
+    false, false, 2949, descriptor_table_protodef_library_2eproto,
     "library.proto",
-    &descriptor_table_library_2eproto_once, descriptor_table_library_2eproto_deps, 3, 38,
+    &descriptor_table_library_2eproto_once, descriptor_table_library_2eproto_deps, 3, 45,
     schemas, file_default_instances, TableStruct_library_2eproto::offsets,
     file_level_metadata_library_2eproto, file_level_enum_descriptors_library_2eproto,
     file_level_service_descriptors_library_2eproto,
@@ -8165,6 +8342,1365 @@ void OutStoreOrderRes::InternalSwap(OutStoreOrderRes* other) {
       file_level_metadata_library_2eproto[37]);
 }
 
+// ===================================================================
+
+class ManagerScanOrderForUserGettingBooksReq::_Internal {
+ public:
+};
+
+ManagerScanOrderForUserGettingBooksReq::ManagerScanOrderForUserGettingBooksReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+}
+ManagerScanOrderForUserGettingBooksReq::ManagerScanOrderForUserGettingBooksReq(const ManagerScanOrderForUserGettingBooksReq& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  ManagerScanOrderForUserGettingBooksReq* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.orderid_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.orderid_ = from._impl_.orderid_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+}
+
+inline void ManagerScanOrderForUserGettingBooksReq::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.orderid_){uint64_t{0u}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+ManagerScanOrderForUserGettingBooksReq::~ManagerScanOrderForUserGettingBooksReq() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void ManagerScanOrderForUserGettingBooksReq::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void ManagerScanOrderForUserGettingBooksReq::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void ManagerScanOrderForUserGettingBooksReq::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.orderid_ = uint64_t{0u};
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* ManagerScanOrderForUserGettingBooksReq::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint64 OrderId = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.orderid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* ManagerScanOrderForUserGettingBooksReq::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_orderid(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+  return target;
+}
+
+size_t ManagerScanOrderForUserGettingBooksReq::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_orderid());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ManagerScanOrderForUserGettingBooksReq::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    ManagerScanOrderForUserGettingBooksReq::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ManagerScanOrderForUserGettingBooksReq::GetClassData() const { return &_class_data_; }
+
+
+void ManagerScanOrderForUserGettingBooksReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<ManagerScanOrderForUserGettingBooksReq*>(&to_msg);
+  auto& from = static_cast<const ManagerScanOrderForUserGettingBooksReq&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_orderid() != 0) {
+    _this->_internal_set_orderid(from._internal_orderid());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ManagerScanOrderForUserGettingBooksReq::CopyFrom(const ManagerScanOrderForUserGettingBooksReq& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ManagerScanOrderForUserGettingBooksReq::IsInitialized() const {
+  return true;
+}
+
+void ManagerScanOrderForUserGettingBooksReq::InternalSwap(ManagerScanOrderForUserGettingBooksReq* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.orderid_, other->_impl_.orderid_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata ManagerScanOrderForUserGettingBooksReq::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[38]);
+}
+
+// ===================================================================
+
+class UserGetBooksOrderConfirmNty::_Internal {
+ public:
+};
+
+UserGetBooksOrderConfirmNty::UserGetBooksOrderConfirmNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+}
+UserGetBooksOrderConfirmNty::UserGetBooksOrderConfirmNty(const UserGetBooksOrderConfirmNty& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  UserGetBooksOrderConfirmNty* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.orderid_){}
+    , decltype(_impl_.confirmcode_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::memcpy(&_impl_.orderid_, &from._impl_.orderid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.confirmcode_) -
+    reinterpret_cast<char*>(&_impl_.orderid_)) + sizeof(_impl_.confirmcode_));
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+}
+
+inline void UserGetBooksOrderConfirmNty::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.orderid_){uint64_t{0u}}
+    , decltype(_impl_.confirmcode_){uint64_t{0u}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+UserGetBooksOrderConfirmNty::~UserGetBooksOrderConfirmNty() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void UserGetBooksOrderConfirmNty::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void UserGetBooksOrderConfirmNty::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void UserGetBooksOrderConfirmNty::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&_impl_.orderid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.confirmcode_) -
+      reinterpret_cast<char*>(&_impl_.orderid_)) + sizeof(_impl_.confirmcode_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* UserGetBooksOrderConfirmNty::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint64 OrderId = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.orderid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // uint64 ConfirmCode = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.confirmcode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* UserGetBooksOrderConfirmNty::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_orderid(), target);
+  }
+
+  // uint64 ConfirmCode = 2;
+  if (this->_internal_confirmcode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_confirmcode(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+  return target;
+}
+
+size_t UserGetBooksOrderConfirmNty::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_orderid());
+  }
+
+  // uint64 ConfirmCode = 2;
+  if (this->_internal_confirmcode() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_confirmcode());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData UserGetBooksOrderConfirmNty::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    UserGetBooksOrderConfirmNty::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*UserGetBooksOrderConfirmNty::GetClassData() const { return &_class_data_; }
+
+
+void UserGetBooksOrderConfirmNty::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<UserGetBooksOrderConfirmNty*>(&to_msg);
+  auto& from = static_cast<const UserGetBooksOrderConfirmNty&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_orderid() != 0) {
+    _this->_internal_set_orderid(from._internal_orderid());
+  }
+  if (from._internal_confirmcode() != 0) {
+    _this->_internal_set_confirmcode(from._internal_confirmcode());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UserGetBooksOrderConfirmNty::CopyFrom(const UserGetBooksOrderConfirmNty& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UserGetBooksOrderConfirmNty::IsInitialized() const {
+  return true;
+}
+
+void UserGetBooksOrderConfirmNty::InternalSwap(UserGetBooksOrderConfirmNty* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(UserGetBooksOrderConfirmNty, _impl_.confirmcode_)
+      + sizeof(UserGetBooksOrderConfirmNty::_impl_.confirmcode_)
+      - PROTOBUF_FIELD_OFFSET(UserGetBooksOrderConfirmNty, _impl_.orderid_)>(
+          reinterpret_cast<char*>(&_impl_.orderid_),
+          reinterpret_cast<char*>(&other->_impl_.orderid_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata UserGetBooksOrderConfirmNty::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[39]);
+}
+
+// ===================================================================
+
+class ManagerScanOrderForUserGettingBooksRes::_Internal {
+ public:
+};
+
+ManagerScanOrderForUserGettingBooksRes::ManagerScanOrderForUserGettingBooksRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+}
+ManagerScanOrderForUserGettingBooksRes::ManagerScanOrderForUserGettingBooksRes(const ManagerScanOrderForUserGettingBooksRes& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  ManagerScanOrderForUserGettingBooksRes* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.errcode_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.errcode_ = from._impl_.errcode_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+}
+
+inline void ManagerScanOrderForUserGettingBooksRes::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.errcode_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+ManagerScanOrderForUserGettingBooksRes::~ManagerScanOrderForUserGettingBooksRes() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void ManagerScanOrderForUserGettingBooksRes::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void ManagerScanOrderForUserGettingBooksRes::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void ManagerScanOrderForUserGettingBooksRes::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.errcode_ = 0;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* ManagerScanOrderForUserGettingBooksRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // sint32 ErrCode = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.errcode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* ManagerScanOrderForUserGettingBooksRes::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_errcode(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+  return target;
+}
+
+size_t ManagerScanOrderForUserGettingBooksRes::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_errcode());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ManagerScanOrderForUserGettingBooksRes::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    ManagerScanOrderForUserGettingBooksRes::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ManagerScanOrderForUserGettingBooksRes::GetClassData() const { return &_class_data_; }
+
+
+void ManagerScanOrderForUserGettingBooksRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<ManagerScanOrderForUserGettingBooksRes*>(&to_msg);
+  auto& from = static_cast<const ManagerScanOrderForUserGettingBooksRes&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_errcode() != 0) {
+    _this->_internal_set_errcode(from._internal_errcode());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ManagerScanOrderForUserGettingBooksRes::CopyFrom(const ManagerScanOrderForUserGettingBooksRes& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ManagerScanOrderForUserGettingBooksRes::IsInitialized() const {
+  return true;
+}
+
+void ManagerScanOrderForUserGettingBooksRes::InternalSwap(ManagerScanOrderForUserGettingBooksRes* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.errcode_, other->_impl_.errcode_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata ManagerScanOrderForUserGettingBooksRes::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[40]);
+}
+
+// ===================================================================
+
+class UserGetBooksOrderConfirmReq::_Internal {
+ public:
+};
+
+UserGetBooksOrderConfirmReq::UserGetBooksOrderConfirmReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+}
+UserGetBooksOrderConfirmReq::UserGetBooksOrderConfirmReq(const UserGetBooksOrderConfirmReq& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  UserGetBooksOrderConfirmReq* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.orderid_){}
+    , decltype(_impl_.confirmcode_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::memcpy(&_impl_.orderid_, &from._impl_.orderid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.confirmcode_) -
+    reinterpret_cast<char*>(&_impl_.orderid_)) + sizeof(_impl_.confirmcode_));
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+}
+
+inline void UserGetBooksOrderConfirmReq::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.orderid_){uint64_t{0u}}
+    , decltype(_impl_.confirmcode_){uint64_t{0u}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+UserGetBooksOrderConfirmReq::~UserGetBooksOrderConfirmReq() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void UserGetBooksOrderConfirmReq::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void UserGetBooksOrderConfirmReq::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void UserGetBooksOrderConfirmReq::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&_impl_.orderid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.confirmcode_) -
+      reinterpret_cast<char*>(&_impl_.orderid_)) + sizeof(_impl_.confirmcode_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* UserGetBooksOrderConfirmReq::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint64 OrderId = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.orderid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // uint64 ConfirmCode = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.confirmcode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* UserGetBooksOrderConfirmReq::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_orderid(), target);
+  }
+
+  // uint64 ConfirmCode = 2;
+  if (this->_internal_confirmcode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_confirmcode(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+  return target;
+}
+
+size_t UserGetBooksOrderConfirmReq::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_orderid());
+  }
+
+  // uint64 ConfirmCode = 2;
+  if (this->_internal_confirmcode() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_confirmcode());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData UserGetBooksOrderConfirmReq::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    UserGetBooksOrderConfirmReq::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*UserGetBooksOrderConfirmReq::GetClassData() const { return &_class_data_; }
+
+
+void UserGetBooksOrderConfirmReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<UserGetBooksOrderConfirmReq*>(&to_msg);
+  auto& from = static_cast<const UserGetBooksOrderConfirmReq&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_orderid() != 0) {
+    _this->_internal_set_orderid(from._internal_orderid());
+  }
+  if (from._internal_confirmcode() != 0) {
+    _this->_internal_set_confirmcode(from._internal_confirmcode());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UserGetBooksOrderConfirmReq::CopyFrom(const UserGetBooksOrderConfirmReq& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UserGetBooksOrderConfirmReq::IsInitialized() const {
+  return true;
+}
+
+void UserGetBooksOrderConfirmReq::InternalSwap(UserGetBooksOrderConfirmReq* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(UserGetBooksOrderConfirmReq, _impl_.confirmcode_)
+      + sizeof(UserGetBooksOrderConfirmReq::_impl_.confirmcode_)
+      - PROTOBUF_FIELD_OFFSET(UserGetBooksOrderConfirmReq, _impl_.orderid_)>(
+          reinterpret_cast<char*>(&_impl_.orderid_),
+          reinterpret_cast<char*>(&other->_impl_.orderid_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata UserGetBooksOrderConfirmReq::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[41]);
+}
+
+// ===================================================================
+
+class UserGetBooksOrderConfirmRes::_Internal {
+ public:
+};
+
+UserGetBooksOrderConfirmRes::UserGetBooksOrderConfirmRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+}
+UserGetBooksOrderConfirmRes::UserGetBooksOrderConfirmRes(const UserGetBooksOrderConfirmRes& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  UserGetBooksOrderConfirmRes* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.errcode_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.errcode_ = from._impl_.errcode_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+}
+
+inline void UserGetBooksOrderConfirmRes::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.errcode_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+UserGetBooksOrderConfirmRes::~UserGetBooksOrderConfirmRes() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void UserGetBooksOrderConfirmRes::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void UserGetBooksOrderConfirmRes::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void UserGetBooksOrderConfirmRes::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.errcode_ = 0;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* UserGetBooksOrderConfirmRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // sint32 ErrCode = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.errcode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* UserGetBooksOrderConfirmRes::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_errcode(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+  return target;
+}
+
+size_t UserGetBooksOrderConfirmRes::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_errcode());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData UserGetBooksOrderConfirmRes::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    UserGetBooksOrderConfirmRes::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*UserGetBooksOrderConfirmRes::GetClassData() const { return &_class_data_; }
+
+
+void UserGetBooksOrderConfirmRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<UserGetBooksOrderConfirmRes*>(&to_msg);
+  auto& from = static_cast<const UserGetBooksOrderConfirmRes&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_errcode() != 0) {
+    _this->_internal_set_errcode(from._internal_errcode());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void UserGetBooksOrderConfirmRes::CopyFrom(const UserGetBooksOrderConfirmRes& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UserGetBooksOrderConfirmRes::IsInitialized() const {
+  return true;
+}
+
+void UserGetBooksOrderConfirmRes::InternalSwap(UserGetBooksOrderConfirmRes* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.errcode_, other->_impl_.errcode_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata UserGetBooksOrderConfirmRes::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[42]);
+}
+
+// ===================================================================
+
+class CancelOrderReq::_Internal {
+ public:
+};
+
+CancelOrderReq::CancelOrderReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.CancelOrderReq)
+}
+CancelOrderReq::CancelOrderReq(const CancelOrderReq& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  CancelOrderReq* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.reason_){}
+    , decltype(_impl_.orderid_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.reason_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.reason_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_reason().empty()) {
+    _this->_impl_.reason_.Set(from._internal_reason(), 
+      _this->GetArenaForAllocation());
+  }
+  _this->_impl_.orderid_ = from._impl_.orderid_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.CancelOrderReq)
+}
+
+inline void CancelOrderReq::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.reason_){}
+    , decltype(_impl_.orderid_){uint64_t{0u}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.reason_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.reason_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+CancelOrderReq::~CancelOrderReq() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.CancelOrderReq)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void CancelOrderReq::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.reason_.Destroy();
+}
+
+void CancelOrderReq::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void CancelOrderReq::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.CancelOrderReq)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.reason_.ClearToEmpty();
+  _impl_.orderid_ = uint64_t{0u};
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* CancelOrderReq::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint64 OrderId = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.orderid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // bytes Reason = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          auto str = _internal_mutable_reason();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* CancelOrderReq::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.CancelOrderReq)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_orderid(), target);
+  }
+
+  // bytes Reason = 2;
+  if (!this->_internal_reason().empty()) {
+    target = stream->WriteBytesMaybeAliased(
+        2, this->_internal_reason(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.CancelOrderReq)
+  return target;
+}
+
+size_t CancelOrderReq::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.CancelOrderReq)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // bytes Reason = 2;
+  if (!this->_internal_reason().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_reason());
+  }
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_orderid());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData CancelOrderReq::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    CancelOrderReq::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*CancelOrderReq::GetClassData() const { return &_class_data_; }
+
+
+void CancelOrderReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<CancelOrderReq*>(&to_msg);
+  auto& from = static_cast<const CancelOrderReq&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.CancelOrderReq)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_reason().empty()) {
+    _this->_internal_set_reason(from._internal_reason());
+  }
+  if (from._internal_orderid() != 0) {
+    _this->_internal_set_orderid(from._internal_orderid());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void CancelOrderReq::CopyFrom(const CancelOrderReq& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.CancelOrderReq)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CancelOrderReq::IsInitialized() const {
+  return true;
+}
+
+void CancelOrderReq::InternalSwap(CancelOrderReq* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.reason_, lhs_arena,
+      &other->_impl_.reason_, rhs_arena
+  );
+  swap(_impl_.orderid_, other->_impl_.orderid_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata CancelOrderReq::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[43]);
+}
+
+// ===================================================================
+
+class CancelOrderRes::_Internal {
+ public:
+};
+
+CancelOrderRes::CancelOrderRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.CancelOrderRes)
+}
+CancelOrderRes::CancelOrderRes(const CancelOrderRes& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  CancelOrderRes* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.errcode_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.errcode_ = from._impl_.errcode_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.CancelOrderRes)
+}
+
+inline void CancelOrderRes::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.errcode_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+CancelOrderRes::~CancelOrderRes() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.CancelOrderRes)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void CancelOrderRes::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void CancelOrderRes::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void CancelOrderRes::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.CancelOrderRes)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.errcode_ = 0;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* CancelOrderRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // sint32 ErrCode = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.errcode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* CancelOrderRes::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.CancelOrderRes)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_errcode(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.CancelOrderRes)
+  return target;
+}
+
+size_t CancelOrderRes::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.CancelOrderRes)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_errcode());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData CancelOrderRes::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    CancelOrderRes::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*CancelOrderRes::GetClassData() const { return &_class_data_; }
+
+
+void CancelOrderRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<CancelOrderRes*>(&to_msg);
+  auto& from = static_cast<const CancelOrderRes&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.CancelOrderRes)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_errcode() != 0) {
+    _this->_internal_set_errcode(from._internal_errcode());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void CancelOrderRes::CopyFrom(const CancelOrderRes& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.CancelOrderRes)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool CancelOrderRes::IsInitialized() const {
+  return true;
+}
+
+void CancelOrderRes::InternalSwap(CancelOrderRes* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.errcode_, other->_impl_.errcode_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata CancelOrderRes::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[44]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace service
 }  // namespace CRYSTAL_NET
@@ -8320,6 +9856,34 @@ Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::OutStoreOrderReq >(Arena* are
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::OutStoreOrderRes*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::OutStoreOrderRes >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::OutStoreOrderRes >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::CancelOrderReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::CancelOrderReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::CancelOrderReq >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::CancelOrderRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::CancelOrderRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::CancelOrderRes >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

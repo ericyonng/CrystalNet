@@ -5,6 +5,7 @@
 #include <protocols/cplusplus/library/com_notify.pb.h>
 POOL_CREATE_OBJ_DEFAULT_IMPL(UserNotifyDataItemFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(UserNotifyDataFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ClearNotifyTypeFactory);
 
 #include <algorithm>
 
@@ -57,10 +58,21 @@ struct UserNotifyDataDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 UserNotifyDataDefaultTypeInternal _UserNotifyData_default_instance_;
+PROTOBUF_CONSTEXPR ClearNotifyType::ClearNotifyType(
+    ::_pbi::ConstantInitialized) {}
+struct ClearNotifyTypeDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ClearNotifyTypeDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ClearNotifyTypeDefaultTypeInternal() {}
+  union {
+    ClearNotifyType _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ClearNotifyTypeDefaultTypeInternal _ClearNotifyType_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
-static ::_pb::Metadata file_level_metadata_com_5fnotify_2eproto[2];
-static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_com_5fnotify_2eproto = nullptr;
+static ::_pb::Metadata file_level_metadata_com_5fnotify_2eproto[3];
+static const ::_pb::EnumDescriptor* file_level_enum_descriptors_com_5fnotify_2eproto[1];
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_com_5fnotify_2eproto = nullptr;
 
 const uint32_t TableStruct_com_5fnotify_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -84,15 +96,23 @@ const uint32_t TableStruct_com_5fnotify_2eproto::offsets[] PROTOBUF_SECTION_VARI
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserNotifyData, _impl_.itemlist_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ClearNotifyType, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::UserNotifyDataItem)},
   { 13, -1, -1, sizeof(::CRYSTAL_NET::service::UserNotifyData)},
+  { 20, -1, -1, sizeof(::CRYSTAL_NET::service::ClearNotifyType)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
   &::CRYSTAL_NET::service::_UserNotifyDataItem_default_instance_._instance,
   &::CRYSTAL_NET::service::_UserNotifyData_default_instance_._instance,
+  &::CRYSTAL_NET::service::_ClearNotifyType_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_com_5fnotify_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -105,16 +125,18 @@ const char descriptor_table_protodef_com_5fnotify_2eproto[] PROTOBUF_SECTION_VAR
   "STAL_NET.service.VariantParam\022\022\n\nCreateT"
   "ime\030\006 \001(\022\022\016\n\006IsRead\030\007 \001(\021\"K\n\016UserNotifyD"
   "ata\0229\n\010ItemList\030\001 \003(\0132\'.CRYSTAL_NET.serv"
-  "ice.UserNotifyDataItemb\006proto3"
+  "ice.UserNotifyDataItem\"6\n\017ClearNotifyTyp"
+  "e\"#\n\005ENUMS\022\014\n\010OnlyRead\020\000\022\014\n\010ClearAll\020\001b\006"
+  "proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_com_5fnotify_2eproto_deps[1] = {
   &::descriptor_table_com_5fvariant_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_com_5fnotify_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5fnotify_2eproto = {
-    false, false, 390, descriptor_table_protodef_com_5fnotify_2eproto,
+    false, false, 446, descriptor_table_protodef_com_5fnotify_2eproto,
     "com_notify.proto",
-    &descriptor_table_com_5fnotify_2eproto_once, descriptor_table_com_5fnotify_2eproto_deps, 1, 2,
+    &descriptor_table_com_5fnotify_2eproto_once, descriptor_table_com_5fnotify_2eproto_deps, 1, 3,
     schemas, file_default_instances, TableStruct_com_5fnotify_2eproto::offsets,
     file_level_metadata_com_5fnotify_2eproto, file_level_enum_descriptors_com_5fnotify_2eproto,
     file_level_service_descriptors_com_5fnotify_2eproto,
@@ -127,6 +149,27 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_com_5fno
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_com_5fnotify_2eproto(&descriptor_table_com_5fnotify_2eproto);
 namespace CRYSTAL_NET {
 namespace service {
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ClearNotifyType_ENUMS_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_com_5fnotify_2eproto);
+  return file_level_enum_descriptors_com_5fnotify_2eproto[0];
+}
+bool ClearNotifyType_ENUMS_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
+constexpr ClearNotifyType_ENUMS ClearNotifyType::OnlyRead;
+constexpr ClearNotifyType_ENUMS ClearNotifyType::ClearAll;
+constexpr ClearNotifyType_ENUMS ClearNotifyType::ENUMS_MIN;
+constexpr ClearNotifyType_ENUMS ClearNotifyType::ENUMS_MAX;
+constexpr int ClearNotifyType::ENUMS_ARRAYSIZE;
+#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 
 // ===================================================================
 
@@ -724,6 +767,46 @@ void UserNotifyData::InternalSwap(UserNotifyData* other) {
       file_level_metadata_com_5fnotify_2eproto[1]);
 }
 
+// ===================================================================
+
+class ClearNotifyType::_Internal {
+ public:
+};
+
+ClearNotifyType::ClearNotifyType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.ClearNotifyType)
+}
+ClearNotifyType::ClearNotifyType(const ClearNotifyType& from)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
+  ClearNotifyType* const _this = this; (void)_this;
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.ClearNotifyType)
+}
+
+
+
+
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ClearNotifyType::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl,
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl,
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ClearNotifyType::GetClassData() const { return &_class_data_; }
+
+
+
+
+
+
+
+::PROTOBUF_NAMESPACE_ID::Metadata ClearNotifyType::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_com_5fnotify_2eproto_getter, &descriptor_table_com_5fnotify_2eproto_once,
+      file_level_metadata_com_5fnotify_2eproto[2]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace service
 }  // namespace CRYSTAL_NET
@@ -735,6 +818,10 @@ Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::UserNotifyDataItem >(Arena* a
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::UserNotifyData*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::UserNotifyData >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::UserNotifyData >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::ClearNotifyType*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ClearNotifyType >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::ClearNotifyType >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

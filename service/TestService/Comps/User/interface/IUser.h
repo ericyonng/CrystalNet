@@ -191,6 +191,8 @@ public:
     virtual bool IsLogined() const = 0;
     // 是否登出
     virtual bool IsLogout() const = 0;
+    // 是否在线
+    virtual bool IsOnLine() const = 0;
     // 获取用户登录的ip
     virtual const KERNEL_NS::BriefSockAddr *GetUserAddr() const = 0;
 

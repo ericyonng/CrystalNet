@@ -34,12 +34,14 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/arena.h>
 #include <google/protobuf/arenastring.h>
+#include <google/protobuf/generated_message_bases.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/metadata_lite.h>
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
+#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "com_variant.pb.h"
 // @@protoc_insertion_point(includes)
@@ -58,6 +60,9 @@ struct TableStruct_com_5fnotify_2eproto {
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_com_5fnotify_2eproto;
 namespace CRYSTAL_NET {
 namespace service {
+class ClearNotifyType;
+struct ClearNotifyTypeDefaultTypeInternal;
+extern ClearNotifyTypeDefaultTypeInternal _ClearNotifyType_default_instance_;
 class UserNotifyData;
 struct UserNotifyDataDefaultTypeInternal;
 extern UserNotifyDataDefaultTypeInternal _UserNotifyData_default_instance_;
@@ -67,12 +72,38 @@ extern UserNotifyDataItemDefaultTypeInternal _UserNotifyDataItem_default_instanc
 }  // namespace service
 }  // namespace CRYSTAL_NET
 PROTOBUF_NAMESPACE_OPEN
+template<> ::CRYSTAL_NET::service::ClearNotifyType* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ClearNotifyType>(Arena*);
 template<> ::CRYSTAL_NET::service::UserNotifyData* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserNotifyData>(Arena*);
 template<> ::CRYSTAL_NET::service::UserNotifyDataItem* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserNotifyDataItem>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace CRYSTAL_NET {
 namespace service {
 
+enum ClearNotifyType_ENUMS : int {
+  ClearNotifyType_ENUMS_OnlyRead = 0,
+  ClearNotifyType_ENUMS_ClearAll = 1,
+  ClearNotifyType_ENUMS_ClearNotifyType_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
+  ClearNotifyType_ENUMS_ClearNotifyType_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
+};
+bool ClearNotifyType_ENUMS_IsValid(int value);
+constexpr ClearNotifyType_ENUMS ClearNotifyType_ENUMS_ENUMS_MIN = ClearNotifyType_ENUMS_OnlyRead;
+constexpr ClearNotifyType_ENUMS ClearNotifyType_ENUMS_ENUMS_MAX = ClearNotifyType_ENUMS_ClearAll;
+constexpr int ClearNotifyType_ENUMS_ENUMS_ARRAYSIZE = ClearNotifyType_ENUMS_ENUMS_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ClearNotifyType_ENUMS_descriptor();
+template<typename T>
+inline const std::string& ClearNotifyType_ENUMS_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, ClearNotifyType_ENUMS>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function ClearNotifyType_ENUMS_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    ClearNotifyType_ENUMS_descriptor(), enum_t_value);
+}
+inline bool ClearNotifyType_ENUMS_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ClearNotifyType_ENUMS* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ClearNotifyType_ENUMS>(
+    ClearNotifyType_ENUMS_descriptor(), name, value);
+}
 // ===================================================================
 
 // AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
@@ -750,6 +781,293 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   union { Impl_ _impl_; };
   friend struct ::TableStruct_com_5fnotify_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class ClearNotifyType final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ClearNotifyType) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ClearNotifyType failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ClearNotifyType failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ClearNotifyType failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ClearNotifyType failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ClearNotifyType failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ClearNotifyType failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline ClearNotifyType() : ClearNotifyType(nullptr) {}
+  explicit PROTOBUF_CONSTEXPR ClearNotifyType(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ClearNotifyType(const ClearNotifyType& from);
+  ClearNotifyType(ClearNotifyType&& from) noexcept
+    : ClearNotifyType() {
+    *this = ::std::move(from);
+  }
+
+  inline ClearNotifyType& operator=(const ClearNotifyType& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ClearNotifyType& operator=(ClearNotifyType&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ClearNotifyType& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ClearNotifyType* internal_default_instance() {
+    return reinterpret_cast<const ClearNotifyType*>(
+               &_ClearNotifyType_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(ClearNotifyType& a, ClearNotifyType& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ClearNotifyType* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ClearNotifyType* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ClearNotifyType* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ClearNotifyType>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const ClearNotifyType& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const ClearNotifyType& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.ClearNotifyType";
+  }
+  protected:
+  explicit ClearNotifyType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  typedef ClearNotifyType_ENUMS ENUMS;
+  static constexpr ENUMS OnlyRead =
+    ClearNotifyType_ENUMS_OnlyRead;
+  static constexpr ENUMS ClearAll =
+    ClearNotifyType_ENUMS_ClearAll;
+  static inline bool ENUMS_IsValid(int value) {
+    return ClearNotifyType_ENUMS_IsValid(value);
+  }
+  static constexpr ENUMS ENUMS_MIN =
+    ClearNotifyType_ENUMS_ENUMS_MIN;
+  static constexpr ENUMS ENUMS_MAX =
+    ClearNotifyType_ENUMS_ENUMS_MAX;
+  static constexpr int ENUMS_ARRAYSIZE =
+    ClearNotifyType_ENUMS_ENUMS_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
+  ENUMS_descriptor() {
+    return ClearNotifyType_ENUMS_descriptor();
+  }
+  template<typename T>
+  static inline const std::string& ENUMS_Name(T enum_t_value) {
+    static_assert(::std::is_same<T, ENUMS>::value ||
+      ::std::is_integral<T>::value,
+      "Incorrect type passed to function ENUMS_Name.");
+    return ClearNotifyType_ENUMS_Name(enum_t_value);
+  }
+  static inline bool ENUMS_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
+      ENUMS* value) {
+    return ClearNotifyType_ENUMS_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ClearNotifyType)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+  };
+  friend struct ::TableStruct_com_5fnotify_2eproto;
+};
 // ===================================================================
 
 
@@ -1039,9 +1357,15 @@ UserNotifyData::itemlist() const {
   return _impl_.itemlist_;
 }
 
+// -------------------------------------------------------------------
+
+// ClearNotifyType
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 
@@ -1049,6 +1373,16 @@ UserNotifyData::itemlist() const {
 
 }  // namespace service
 }  // namespace CRYSTAL_NET
+
+PROTOBUF_NAMESPACE_OPEN
+
+template <> struct is_proto_enum< ::CRYSTAL_NET::service::ClearNotifyType_ENUMS> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::CRYSTAL_NET::service::ClearNotifyType_ENUMS>() {
+  return ::CRYSTAL_NET::service::ClearNotifyType_ENUMS_descriptor();
+}
+
+PROTOBUF_NAMESPACE_CLOSE
 
 // @@protoc_insertion_point(global_scope)
 
@@ -1095,6 +1429,29 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::UserNotifyData(*dynamic_cast<const ::CRYSTAL_NET::service::UserNotifyData *>(coder));
+    }
+
+};
+
+
+class ClearNotifyTypeFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, ClearNotifyTypeFactory);
+public:
+
+    virtual void Release() override {
+        ClearNotifyTypeFactory::Delete_ClearNotifyTypeFactory(this);
+    }
+
+    static ClearNotifyTypeFactory *CreateFactory() {
+        return ClearNotifyTypeFactory::New_ClearNotifyTypeFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::ClearNotifyType();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::ClearNotifyType(*dynamic_cast<const ::CRYSTAL_NET::service::ClearNotifyType *>(coder));
     }
 
 };

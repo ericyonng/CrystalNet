@@ -98,5 +98,9 @@ namespace Status
         OutStoreNotMatchOrder,                              // 出库图书与订单对不上
         InvalidOrderState,                                  // 无效订单状态
         NewPhoneIsBindedByOtherUser,                        // 手机已被其他人绑定
+        NotOnline,                                          // 不在线
+        InvalidConfirmCode,                                 // 无效确认码
+        NeedReason,                                         // 需要原因
+        NotOrderOwner,                                      // 非订单用户本人操作
     };
 }

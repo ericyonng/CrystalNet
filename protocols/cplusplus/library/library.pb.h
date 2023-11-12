@@ -82,6 +82,12 @@ extern BookVariantInfoItemsNtyDefaultTypeInternal _BookVariantInfoItemsNty_defau
 class BooksChangeNty;
 struct BooksChangeNtyDefaultTypeInternal;
 extern BooksChangeNtyDefaultTypeInternal _BooksChangeNty_default_instance_;
+class CancelOrderReq;
+struct CancelOrderReqDefaultTypeInternal;
+extern CancelOrderReqDefaultTypeInternal _CancelOrderReq_default_instance_;
+class CancelOrderRes;
+struct CancelOrderResDefaultTypeInternal;
+extern CancelOrderResDefaultTypeInternal _CancelOrderRes_default_instance_;
 class CreateLibraryReq;
 struct CreateLibraryReqDefaultTypeInternal;
 extern CreateLibraryReqDefaultTypeInternal _CreateLibraryReq_default_instance_;
@@ -148,6 +154,12 @@ extern JoinLibraryResDefaultTypeInternal _JoinLibraryRes_default_instance_;
 class LibraryInfoNty;
 struct LibraryInfoNtyDefaultTypeInternal;
 extern LibraryInfoNtyDefaultTypeInternal _LibraryInfoNty_default_instance_;
+class ManagerScanOrderForUserGettingBooksReq;
+struct ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal;
+extern ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal _ManagerScanOrderForUserGettingBooksReq_default_instance_;
+class ManagerScanOrderForUserGettingBooksRes;
+struct ManagerScanOrderForUserGettingBooksResDefaultTypeInternal;
+extern ManagerScanOrderForUserGettingBooksResDefaultTypeInternal _ManagerScanOrderForUserGettingBooksRes_default_instance_;
 class ModifyMemberInfoReq;
 struct ModifyMemberInfoReqDefaultTypeInternal;
 extern ModifyMemberInfoReqDefaultTypeInternal _ModifyMemberInfoReq_default_instance_;
@@ -172,6 +184,15 @@ extern TransferLibraianReqDefaultTypeInternal _TransferLibraianReq_default_insta
 class TransferLibraianRes;
 struct TransferLibraianResDefaultTypeInternal;
 extern TransferLibraianResDefaultTypeInternal _TransferLibraianRes_default_instance_;
+class UserGetBooksOrderConfirmNty;
+struct UserGetBooksOrderConfirmNtyDefaultTypeInternal;
+extern UserGetBooksOrderConfirmNtyDefaultTypeInternal _UserGetBooksOrderConfirmNty_default_instance_;
+class UserGetBooksOrderConfirmReq;
+struct UserGetBooksOrderConfirmReqDefaultTypeInternal;
+extern UserGetBooksOrderConfirmReqDefaultTypeInternal _UserGetBooksOrderConfirmReq_default_instance_;
+class UserGetBooksOrderConfirmRes;
+struct UserGetBooksOrderConfirmResDefaultTypeInternal;
+extern UserGetBooksOrderConfirmResDefaultTypeInternal _UserGetBooksOrderConfirmRes_default_instance_;
 class UserLibraryInfoNty;
 struct UserLibraryInfoNtyDefaultTypeInternal;
 extern UserLibraryInfoNtyDefaultTypeInternal _UserLibraryInfoNty_default_instance_;
@@ -185,6 +206,8 @@ template<> ::CRYSTAL_NET::service::AddLibraryBookRes* Arena::CreateMaybeMessage<
 template<> ::CRYSTAL_NET::service::BookListNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BookListNty>(Arena*);
 template<> ::CRYSTAL_NET::service::BookVariantInfoItemsNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BookVariantInfoItemsNty>(Arena*);
 template<> ::CRYSTAL_NET::service::BooksChangeNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::BooksChangeNty>(Arena*);
+template<> ::CRYSTAL_NET::service::CancelOrderReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CancelOrderReq>(Arena*);
+template<> ::CRYSTAL_NET::service::CancelOrderRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CancelOrderRes>(Arena*);
 template<> ::CRYSTAL_NET::service::CreateLibraryReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CreateLibraryReq>(Arena*);
 template<> ::CRYSTAL_NET::service::CreateLibraryRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::CreateLibraryRes>(Arena*);
 template<> ::CRYSTAL_NET::service::GetBookByBookNameReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::GetBookByBookNameReq>(Arena*);
@@ -207,6 +230,8 @@ template<> ::CRYSTAL_NET::service::GetLibraryMemberSimpleInfoRes* Arena::CreateM
 template<> ::CRYSTAL_NET::service::JoinLibraryReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::JoinLibraryReq>(Arena*);
 template<> ::CRYSTAL_NET::service::JoinLibraryRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::JoinLibraryRes>(Arena*);
 template<> ::CRYSTAL_NET::service::LibraryInfoNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LibraryInfoNty>(Arena*);
+template<> ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq>(Arena*);
+template<> ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes>(Arena*);
 template<> ::CRYSTAL_NET::service::ModifyMemberInfoReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ModifyMemberInfoReq>(Arena*);
 template<> ::CRYSTAL_NET::service::ModifyMemberInfoRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ModifyMemberInfoRes>(Arena*);
 template<> ::CRYSTAL_NET::service::OutStoreOrderReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OutStoreOrderReq>(Arena*);
@@ -215,6 +240,9 @@ template<> ::CRYSTAL_NET::service::QuitLibraryReq* Arena::CreateMaybeMessage<::C
 template<> ::CRYSTAL_NET::service::QuitLibraryRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::QuitLibraryRes>(Arena*);
 template<> ::CRYSTAL_NET::service::TransferLibraianReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TransferLibraianReq>(Arena*);
 template<> ::CRYSTAL_NET::service::TransferLibraianRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TransferLibraianRes>(Arena*);
+template<> ::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty>(Arena*);
+template<> ::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq>(Arena*);
+template<> ::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes>(Arena*);
 template<> ::CRYSTAL_NET::service::UserLibraryInfoNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserLibraryInfoNty>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace CRYSTAL_NET {
@@ -11446,6 +11474,2053 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   union { Impl_ _impl_; };
   friend struct ::TableStruct_library_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(103), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class ManagerScanOrderForUserGettingBooksReq final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ManagerScanOrderForUserGettingBooksReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline ManagerScanOrderForUserGettingBooksReq() : ManagerScanOrderForUserGettingBooksReq(nullptr) {}
+  ~ManagerScanOrderForUserGettingBooksReq() override;
+  explicit PROTOBUF_CONSTEXPR ManagerScanOrderForUserGettingBooksReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ManagerScanOrderForUserGettingBooksReq(const ManagerScanOrderForUserGettingBooksReq& from);
+  ManagerScanOrderForUserGettingBooksReq(ManagerScanOrderForUserGettingBooksReq&& from) noexcept
+    : ManagerScanOrderForUserGettingBooksReq() {
+    *this = ::std::move(from);
+  }
+
+  inline ManagerScanOrderForUserGettingBooksReq& operator=(const ManagerScanOrderForUserGettingBooksReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ManagerScanOrderForUserGettingBooksReq& operator=(ManagerScanOrderForUserGettingBooksReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ManagerScanOrderForUserGettingBooksReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ManagerScanOrderForUserGettingBooksReq* internal_default_instance() {
+    return reinterpret_cast<const ManagerScanOrderForUserGettingBooksReq*>(
+               &_ManagerScanOrderForUserGettingBooksReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    38;
+
+  friend void swap(ManagerScanOrderForUserGettingBooksReq& a, ManagerScanOrderForUserGettingBooksReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ManagerScanOrderForUserGettingBooksReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ManagerScanOrderForUserGettingBooksReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ManagerScanOrderForUserGettingBooksReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ManagerScanOrderForUserGettingBooksReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ManagerScanOrderForUserGettingBooksReq& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const ManagerScanOrderForUserGettingBooksReq& from) {
+    ManagerScanOrderForUserGettingBooksReq::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ManagerScanOrderForUserGettingBooksReq* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq";
+  }
+  protected:
+  explicit ManagerScanOrderForUserGettingBooksReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kOrderIdFieldNumber = 1,
+  };
+  // uint64 OrderId = 1;
+  void clear_orderid();
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
+  private:
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    uint64_t orderid_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(104), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class UserGetBooksOrderConfirmNty final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmNty failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline UserGetBooksOrderConfirmNty() : UserGetBooksOrderConfirmNty(nullptr) {}
+  ~UserGetBooksOrderConfirmNty() override;
+  explicit PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmNty(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  UserGetBooksOrderConfirmNty(const UserGetBooksOrderConfirmNty& from);
+  UserGetBooksOrderConfirmNty(UserGetBooksOrderConfirmNty&& from) noexcept
+    : UserGetBooksOrderConfirmNty() {
+    *this = ::std::move(from);
+  }
+
+  inline UserGetBooksOrderConfirmNty& operator=(const UserGetBooksOrderConfirmNty& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline UserGetBooksOrderConfirmNty& operator=(UserGetBooksOrderConfirmNty&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const UserGetBooksOrderConfirmNty& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const UserGetBooksOrderConfirmNty* internal_default_instance() {
+    return reinterpret_cast<const UserGetBooksOrderConfirmNty*>(
+               &_UserGetBooksOrderConfirmNty_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    39;
+
+  friend void swap(UserGetBooksOrderConfirmNty& a, UserGetBooksOrderConfirmNty& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(UserGetBooksOrderConfirmNty* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(UserGetBooksOrderConfirmNty* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  UserGetBooksOrderConfirmNty* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<UserGetBooksOrderConfirmNty>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const UserGetBooksOrderConfirmNty& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const UserGetBooksOrderConfirmNty& from) {
+    UserGetBooksOrderConfirmNty::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(UserGetBooksOrderConfirmNty* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.UserGetBooksOrderConfirmNty";
+  }
+  protected:
+  explicit UserGetBooksOrderConfirmNty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kOrderIdFieldNumber = 1,
+    kConfirmCodeFieldNumber = 2,
+  };
+  // uint64 OrderId = 1;
+  void clear_orderid();
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
+  private:
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
+  public:
+
+  // uint64 ConfirmCode = 2;
+  void clear_confirmcode();
+  uint64_t confirmcode() const;
+  void set_confirmcode(uint64_t value);
+  private:
+  uint64_t _internal_confirmcode() const;
+  void _internal_set_confirmcode(uint64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    uint64_t orderid_;
+    uint64_t confirmcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(105), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class ManagerScanOrderForUserGettingBooksRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ManagerScanOrderForUserGettingBooksRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline ManagerScanOrderForUserGettingBooksRes() : ManagerScanOrderForUserGettingBooksRes(nullptr) {}
+  ~ManagerScanOrderForUserGettingBooksRes() override;
+  explicit PROTOBUF_CONSTEXPR ManagerScanOrderForUserGettingBooksRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ManagerScanOrderForUserGettingBooksRes(const ManagerScanOrderForUserGettingBooksRes& from);
+  ManagerScanOrderForUserGettingBooksRes(ManagerScanOrderForUserGettingBooksRes&& from) noexcept
+    : ManagerScanOrderForUserGettingBooksRes() {
+    *this = ::std::move(from);
+  }
+
+  inline ManagerScanOrderForUserGettingBooksRes& operator=(const ManagerScanOrderForUserGettingBooksRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ManagerScanOrderForUserGettingBooksRes& operator=(ManagerScanOrderForUserGettingBooksRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ManagerScanOrderForUserGettingBooksRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ManagerScanOrderForUserGettingBooksRes* internal_default_instance() {
+    return reinterpret_cast<const ManagerScanOrderForUserGettingBooksRes*>(
+               &_ManagerScanOrderForUserGettingBooksRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    40;
+
+  friend void swap(ManagerScanOrderForUserGettingBooksRes& a, ManagerScanOrderForUserGettingBooksRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ManagerScanOrderForUserGettingBooksRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ManagerScanOrderForUserGettingBooksRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ManagerScanOrderForUserGettingBooksRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ManagerScanOrderForUserGettingBooksRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ManagerScanOrderForUserGettingBooksRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const ManagerScanOrderForUserGettingBooksRes& from) {
+    ManagerScanOrderForUserGettingBooksRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ManagerScanOrderForUserGettingBooksRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes";
+  }
+  protected:
+  explicit ManagerScanOrderForUserGettingBooksRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrCodeFieldNumber = 1,
+  };
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(106), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class UserGetBooksOrderConfirmReq final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline UserGetBooksOrderConfirmReq() : UserGetBooksOrderConfirmReq(nullptr) {}
+  ~UserGetBooksOrderConfirmReq() override;
+  explicit PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  UserGetBooksOrderConfirmReq(const UserGetBooksOrderConfirmReq& from);
+  UserGetBooksOrderConfirmReq(UserGetBooksOrderConfirmReq&& from) noexcept
+    : UserGetBooksOrderConfirmReq() {
+    *this = ::std::move(from);
+  }
+
+  inline UserGetBooksOrderConfirmReq& operator=(const UserGetBooksOrderConfirmReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline UserGetBooksOrderConfirmReq& operator=(UserGetBooksOrderConfirmReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const UserGetBooksOrderConfirmReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const UserGetBooksOrderConfirmReq* internal_default_instance() {
+    return reinterpret_cast<const UserGetBooksOrderConfirmReq*>(
+               &_UserGetBooksOrderConfirmReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    41;
+
+  friend void swap(UserGetBooksOrderConfirmReq& a, UserGetBooksOrderConfirmReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(UserGetBooksOrderConfirmReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(UserGetBooksOrderConfirmReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  UserGetBooksOrderConfirmReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<UserGetBooksOrderConfirmReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const UserGetBooksOrderConfirmReq& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const UserGetBooksOrderConfirmReq& from) {
+    UserGetBooksOrderConfirmReq::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(UserGetBooksOrderConfirmReq* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.UserGetBooksOrderConfirmReq";
+  }
+  protected:
+  explicit UserGetBooksOrderConfirmReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kOrderIdFieldNumber = 1,
+    kConfirmCodeFieldNumber = 2,
+  };
+  // uint64 OrderId = 1;
+  void clear_orderid();
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
+  private:
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
+  public:
+
+  // uint64 ConfirmCode = 2;
+  void clear_confirmcode();
+  uint64_t confirmcode() const;
+  void set_confirmcode(uint64_t value);
+  private:
+  uint64_t _internal_confirmcode() const;
+  void _internal_set_confirmcode(uint64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    uint64_t orderid_;
+    uint64_t confirmcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(107), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class UserGetBooksOrderConfirmRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message UserGetBooksOrderConfirmRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline UserGetBooksOrderConfirmRes() : UserGetBooksOrderConfirmRes(nullptr) {}
+  ~UserGetBooksOrderConfirmRes() override;
+  explicit PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  UserGetBooksOrderConfirmRes(const UserGetBooksOrderConfirmRes& from);
+  UserGetBooksOrderConfirmRes(UserGetBooksOrderConfirmRes&& from) noexcept
+    : UserGetBooksOrderConfirmRes() {
+    *this = ::std::move(from);
+  }
+
+  inline UserGetBooksOrderConfirmRes& operator=(const UserGetBooksOrderConfirmRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline UserGetBooksOrderConfirmRes& operator=(UserGetBooksOrderConfirmRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const UserGetBooksOrderConfirmRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const UserGetBooksOrderConfirmRes* internal_default_instance() {
+    return reinterpret_cast<const UserGetBooksOrderConfirmRes*>(
+               &_UserGetBooksOrderConfirmRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    42;
+
+  friend void swap(UserGetBooksOrderConfirmRes& a, UserGetBooksOrderConfirmRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(UserGetBooksOrderConfirmRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(UserGetBooksOrderConfirmRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  UserGetBooksOrderConfirmRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<UserGetBooksOrderConfirmRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const UserGetBooksOrderConfirmRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const UserGetBooksOrderConfirmRes& from) {
+    UserGetBooksOrderConfirmRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(UserGetBooksOrderConfirmRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.UserGetBooksOrderConfirmRes";
+  }
+  protected:
+  explicit UserGetBooksOrderConfirmRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrCodeFieldNumber = 1,
+  };
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(108), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class CancelOrderReq final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.CancelOrderReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline CancelOrderReq() : CancelOrderReq(nullptr) {}
+  ~CancelOrderReq() override;
+  explicit PROTOBUF_CONSTEXPR CancelOrderReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  CancelOrderReq(const CancelOrderReq& from);
+  CancelOrderReq(CancelOrderReq&& from) noexcept
+    : CancelOrderReq() {
+    *this = ::std::move(from);
+  }
+
+  inline CancelOrderReq& operator=(const CancelOrderReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CancelOrderReq& operator=(CancelOrderReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const CancelOrderReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const CancelOrderReq* internal_default_instance() {
+    return reinterpret_cast<const CancelOrderReq*>(
+               &_CancelOrderReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    43;
+
+  friend void swap(CancelOrderReq& a, CancelOrderReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CancelOrderReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(CancelOrderReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  CancelOrderReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<CancelOrderReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const CancelOrderReq& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const CancelOrderReq& from) {
+    CancelOrderReq::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(CancelOrderReq* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.CancelOrderReq";
+  }
+  protected:
+  explicit CancelOrderReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kReasonFieldNumber = 2,
+    kOrderIdFieldNumber = 1,
+  };
+  // bytes Reason = 2;
+  void clear_reason();
+  const std::string& reason() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_reason(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_reason();
+  PROTOBUF_NODISCARD std::string* release_reason();
+  void set_allocated_reason(std::string* reason);
+  private:
+  const std::string& _internal_reason() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_reason(const std::string& value);
+  std::string* _internal_mutable_reason();
+  public:
+
+  // uint64 OrderId = 1;
+  void clear_orderid();
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
+  private:
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.CancelOrderReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr reason_;
+    uint64_t orderid_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(109), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class CancelOrderRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.CancelOrderRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message CancelOrderRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline CancelOrderRes() : CancelOrderRes(nullptr) {}
+  ~CancelOrderRes() override;
+  explicit PROTOBUF_CONSTEXPR CancelOrderRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  CancelOrderRes(const CancelOrderRes& from);
+  CancelOrderRes(CancelOrderRes&& from) noexcept
+    : CancelOrderRes() {
+    *this = ::std::move(from);
+  }
+
+  inline CancelOrderRes& operator=(const CancelOrderRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CancelOrderRes& operator=(CancelOrderRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const CancelOrderRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const CancelOrderRes* internal_default_instance() {
+    return reinterpret_cast<const CancelOrderRes*>(
+               &_CancelOrderRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    44;
+
+  friend void swap(CancelOrderRes& a, CancelOrderRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CancelOrderRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(CancelOrderRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  CancelOrderRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<CancelOrderRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const CancelOrderRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const CancelOrderRes& from) {
+    CancelOrderRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(CancelOrderRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.CancelOrderRes";
+  }
+  protected:
+  explicit CancelOrderRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrCodeFieldNumber = 1,
+  };
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.CancelOrderRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
 // ===================================================================
 
 
@@ -13539,9 +15614,281 @@ inline void OutStoreOrderRes::set_errcode(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OutStoreOrderRes.ErrCode)
 }
 
+// -------------------------------------------------------------------
+
+// ManagerScanOrderForUserGettingBooksReq
+
+// uint64 OrderId = 1;
+inline void ManagerScanOrderForUserGettingBooksReq::clear_orderid() {
+  _impl_.orderid_ = uint64_t{0u};
+}
+inline uint64_t ManagerScanOrderForUserGettingBooksReq::_internal_orderid() const {
+  return _impl_.orderid_;
+}
+inline uint64_t ManagerScanOrderForUserGettingBooksReq::orderid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq.OrderId)
+  return _internal_orderid();
+}
+inline void ManagerScanOrderForUserGettingBooksReq::_internal_set_orderid(uint64_t value) {
+  
+  _impl_.orderid_ = value;
+}
+inline void ManagerScanOrderForUserGettingBooksReq::set_orderid(uint64_t value) {
+  _internal_set_orderid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq.OrderId)
+}
+
+// -------------------------------------------------------------------
+
+// UserGetBooksOrderConfirmNty
+
+// uint64 OrderId = 1;
+inline void UserGetBooksOrderConfirmNty::clear_orderid() {
+  _impl_.orderid_ = uint64_t{0u};
+}
+inline uint64_t UserGetBooksOrderConfirmNty::_internal_orderid() const {
+  return _impl_.orderid_;
+}
+inline uint64_t UserGetBooksOrderConfirmNty::orderid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty.OrderId)
+  return _internal_orderid();
+}
+inline void UserGetBooksOrderConfirmNty::_internal_set_orderid(uint64_t value) {
+  
+  _impl_.orderid_ = value;
+}
+inline void UserGetBooksOrderConfirmNty::set_orderid(uint64_t value) {
+  _internal_set_orderid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty.OrderId)
+}
+
+// uint64 ConfirmCode = 2;
+inline void UserGetBooksOrderConfirmNty::clear_confirmcode() {
+  _impl_.confirmcode_ = uint64_t{0u};
+}
+inline uint64_t UserGetBooksOrderConfirmNty::_internal_confirmcode() const {
+  return _impl_.confirmcode_;
+}
+inline uint64_t UserGetBooksOrderConfirmNty::confirmcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty.ConfirmCode)
+  return _internal_confirmcode();
+}
+inline void UserGetBooksOrderConfirmNty::_internal_set_confirmcode(uint64_t value) {
+  
+  _impl_.confirmcode_ = value;
+}
+inline void UserGetBooksOrderConfirmNty::set_confirmcode(uint64_t value) {
+  _internal_set_confirmcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty.ConfirmCode)
+}
+
+// -------------------------------------------------------------------
+
+// ManagerScanOrderForUserGettingBooksRes
+
+// sint32 ErrCode = 1;
+inline void ManagerScanOrderForUserGettingBooksRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t ManagerScanOrderForUserGettingBooksRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t ManagerScanOrderForUserGettingBooksRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes.ErrCode)
+  return _internal_errcode();
+}
+inline void ManagerScanOrderForUserGettingBooksRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void ManagerScanOrderForUserGettingBooksRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes.ErrCode)
+}
+
+// -------------------------------------------------------------------
+
+// UserGetBooksOrderConfirmReq
+
+// uint64 OrderId = 1;
+inline void UserGetBooksOrderConfirmReq::clear_orderid() {
+  _impl_.orderid_ = uint64_t{0u};
+}
+inline uint64_t UserGetBooksOrderConfirmReq::_internal_orderid() const {
+  return _impl_.orderid_;
+}
+inline uint64_t UserGetBooksOrderConfirmReq::orderid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq.OrderId)
+  return _internal_orderid();
+}
+inline void UserGetBooksOrderConfirmReq::_internal_set_orderid(uint64_t value) {
+  
+  _impl_.orderid_ = value;
+}
+inline void UserGetBooksOrderConfirmReq::set_orderid(uint64_t value) {
+  _internal_set_orderid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq.OrderId)
+}
+
+// uint64 ConfirmCode = 2;
+inline void UserGetBooksOrderConfirmReq::clear_confirmcode() {
+  _impl_.confirmcode_ = uint64_t{0u};
+}
+inline uint64_t UserGetBooksOrderConfirmReq::_internal_confirmcode() const {
+  return _impl_.confirmcode_;
+}
+inline uint64_t UserGetBooksOrderConfirmReq::confirmcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq.ConfirmCode)
+  return _internal_confirmcode();
+}
+inline void UserGetBooksOrderConfirmReq::_internal_set_confirmcode(uint64_t value) {
+  
+  _impl_.confirmcode_ = value;
+}
+inline void UserGetBooksOrderConfirmReq::set_confirmcode(uint64_t value) {
+  _internal_set_confirmcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq.ConfirmCode)
+}
+
+// -------------------------------------------------------------------
+
+// UserGetBooksOrderConfirmRes
+
+// sint32 ErrCode = 1;
+inline void UserGetBooksOrderConfirmRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t UserGetBooksOrderConfirmRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t UserGetBooksOrderConfirmRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes.ErrCode)
+  return _internal_errcode();
+}
+inline void UserGetBooksOrderConfirmRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void UserGetBooksOrderConfirmRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes.ErrCode)
+}
+
+// -------------------------------------------------------------------
+
+// CancelOrderReq
+
+// uint64 OrderId = 1;
+inline void CancelOrderReq::clear_orderid() {
+  _impl_.orderid_ = uint64_t{0u};
+}
+inline uint64_t CancelOrderReq::_internal_orderid() const {
+  return _impl_.orderid_;
+}
+inline uint64_t CancelOrderReq::orderid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.CancelOrderReq.OrderId)
+  return _internal_orderid();
+}
+inline void CancelOrderReq::_internal_set_orderid(uint64_t value) {
+  
+  _impl_.orderid_ = value;
+}
+inline void CancelOrderReq::set_orderid(uint64_t value) {
+  _internal_set_orderid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CancelOrderReq.OrderId)
+}
+
+// bytes Reason = 2;
+inline void CancelOrderReq::clear_reason() {
+  _impl_.reason_.ClearToEmpty();
+}
+inline const std::string& CancelOrderReq::reason() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.CancelOrderReq.Reason)
+  return _internal_reason();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void CancelOrderReq::set_reason(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.reason_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CancelOrderReq.Reason)
+}
+inline std::string* CancelOrderReq::mutable_reason() {
+  std::string* _s = _internal_mutable_reason();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.CancelOrderReq.Reason)
+  return _s;
+}
+inline const std::string& CancelOrderReq::_internal_reason() const {
+  return _impl_.reason_.Get();
+}
+inline void CancelOrderReq::_internal_set_reason(const std::string& value) {
+  
+  _impl_.reason_.Set(value, GetArenaForAllocation());
+}
+inline std::string* CancelOrderReq::_internal_mutable_reason() {
+  
+  return _impl_.reason_.Mutable(GetArenaForAllocation());
+}
+inline std::string* CancelOrderReq::release_reason() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.CancelOrderReq.Reason)
+  return _impl_.reason_.Release();
+}
+inline void CancelOrderReq::set_allocated_reason(std::string* reason) {
+  if (reason != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.reason_.SetAllocated(reason, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.reason_.IsDefault()) {
+    _impl_.reason_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.CancelOrderReq.Reason)
+}
+
+// -------------------------------------------------------------------
+
+// CancelOrderRes
+
+// sint32 ErrCode = 1;
+inline void CancelOrderRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t CancelOrderRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t CancelOrderRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.CancelOrderRes.ErrCode)
+  return _internal_errcode();
+}
+inline void CancelOrderRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void CancelOrderRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CancelOrderRes.ErrCode)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -14495,6 +16842,167 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::OutStoreOrderRes(*dynamic_cast<const ::CRYSTAL_NET::service::OutStoreOrderRes *>(coder));
+    }
+
+};
+
+
+class ManagerScanOrderForUserGettingBooksReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, ManagerScanOrderForUserGettingBooksReqFactory);
+public:
+
+    virtual void Release() override {
+        ManagerScanOrderForUserGettingBooksReqFactory::Delete_ManagerScanOrderForUserGettingBooksReqFactory(this);
+    }
+
+    static ManagerScanOrderForUserGettingBooksReqFactory *CreateFactory() {
+        return ManagerScanOrderForUserGettingBooksReqFactory::New_ManagerScanOrderForUserGettingBooksReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq(*dynamic_cast<const ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksReq *>(coder));
+    }
+
+};
+
+
+class UserGetBooksOrderConfirmNtyFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, UserGetBooksOrderConfirmNtyFactory);
+public:
+
+    virtual void Release() override {
+        UserGetBooksOrderConfirmNtyFactory::Delete_UserGetBooksOrderConfirmNtyFactory(this);
+    }
+
+    static UserGetBooksOrderConfirmNtyFactory *CreateFactory() {
+        return UserGetBooksOrderConfirmNtyFactory::New_UserGetBooksOrderConfirmNtyFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty(*dynamic_cast<const ::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty *>(coder));
+    }
+
+};
+
+
+class ManagerScanOrderForUserGettingBooksResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, ManagerScanOrderForUserGettingBooksResFactory);
+public:
+
+    virtual void Release() override {
+        ManagerScanOrderForUserGettingBooksResFactory::Delete_ManagerScanOrderForUserGettingBooksResFactory(this);
+    }
+
+    static ManagerScanOrderForUserGettingBooksResFactory *CreateFactory() {
+        return ManagerScanOrderForUserGettingBooksResFactory::New_ManagerScanOrderForUserGettingBooksResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes(*dynamic_cast<const ::CRYSTAL_NET::service::ManagerScanOrderForUserGettingBooksRes *>(coder));
+    }
+
+};
+
+
+class UserGetBooksOrderConfirmReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, UserGetBooksOrderConfirmReqFactory);
+public:
+
+    virtual void Release() override {
+        UserGetBooksOrderConfirmReqFactory::Delete_UserGetBooksOrderConfirmReqFactory(this);
+    }
+
+    static UserGetBooksOrderConfirmReqFactory *CreateFactory() {
+        return UserGetBooksOrderConfirmReqFactory::New_UserGetBooksOrderConfirmReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq(*dynamic_cast<const ::CRYSTAL_NET::service::UserGetBooksOrderConfirmReq *>(coder));
+    }
+
+};
+
+
+class UserGetBooksOrderConfirmResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, UserGetBooksOrderConfirmResFactory);
+public:
+
+    virtual void Release() override {
+        UserGetBooksOrderConfirmResFactory::Delete_UserGetBooksOrderConfirmResFactory(this);
+    }
+
+    static UserGetBooksOrderConfirmResFactory *CreateFactory() {
+        return UserGetBooksOrderConfirmResFactory::New_UserGetBooksOrderConfirmResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes(*dynamic_cast<const ::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes *>(coder));
+    }
+
+};
+
+
+class CancelOrderReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, CancelOrderReqFactory);
+public:
+
+    virtual void Release() override {
+        CancelOrderReqFactory::Delete_CancelOrderReqFactory(this);
+    }
+
+    static CancelOrderReqFactory *CreateFactory() {
+        return CancelOrderReqFactory::New_CancelOrderReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::CancelOrderReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::CancelOrderReq(*dynamic_cast<const ::CRYSTAL_NET::service::CancelOrderReq *>(coder));
+    }
+
+};
+
+
+class CancelOrderResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, CancelOrderResFactory);
+public:
+
+    virtual void Release() override {
+        CancelOrderResFactory::Delete_CancelOrderResFactory(this);
+    }
+
+    static CancelOrderResFactory *CreateFactory() {
+        return CancelOrderResFactory::New_CancelOrderResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::CancelOrderRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::CancelOrderRes(*dynamic_cast<const ::CRYSTAL_NET::service::CancelOrderRes *>(coder));
     }
 
 };

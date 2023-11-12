@@ -104,6 +104,9 @@ public:
     virtual bool IsLogined() const override;
     // 是否在线
     virtual bool IsLogout() const override;
+    // 是否在线
+    virtual bool IsOnLine() const override;
+
 
     virtual const KERNEL_NS::BriefSockAddr *GetUserAddr() const override;
 

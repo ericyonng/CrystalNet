@@ -945,6 +945,20 @@ bool User::IsLogout() const
     return (_status == UserStatus::USER_LOGOUTING) || (_status == UserStatus::USER_LOGOUTED);
 }
 
+bool User::IsOnLine() const 
+{
+    // 登出算不在线
+    if(IsLogout())
+        return false;
+    
+    // 没有连接不在线
+    if(!GetUserAddr())
+        return false;
+
+    // 需要登录完成才算在线
+    return IsLogined();
+}
+
 const KERNEL_NS::BriefSockAddr *User::GetUserAddr() const
 {
     auto session = _userMgr->GetGlobalSys<ISessionMgr>()->GetSession(_activedSessionId);

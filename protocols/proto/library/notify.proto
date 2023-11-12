@@ -45,3 +45,18 @@ message ReadNotifyRes
 {
     sint32 ErrCode = 1;
 }
+
+// 一键清理通知
+/// Opcode:
+message OnekeyClearNotifyReq
+{
+    // 清理类型 ClearNotifyType
+    sint32 ClearType = 1;
+}
+
+// 一键清理通知
+/// Opcode:
+message OnekeyClearNotifyRes
+{
+    sint32 ErrCode = 1;
+}

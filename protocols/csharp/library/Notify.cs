@@ -35,7 +35,9 @@ using ProtoPackage.Attributes;
             "VEFMX05FVC5zZXJ2aWNlLlVzZXJOb3RpZnlEYXRhSXRlbSIwChtSZW1vdmVV",
             "c2VyTm90aWZ5RGF0YUl0ZW1OdHkSEQoJTm90aWZ5SWRzGAEgAygEIiEKDVJl",
             "YWROb3RpZnlSZXESEAoITm90aWZ5SWQYASABKAQiIAoNUmVhZE5vdGlmeVJl",
-            "cxIPCgdFcnJDb2RlGAEgASgRYgZwcm90bzM="));
+            "cxIPCgdFcnJDb2RlGAEgASgRIikKFE9uZWtleUNsZWFyTm90aWZ5UmVxEhEK",
+            "CUNsZWFyVHlwZRgBIAEoESInChRPbmVrZXlDbGVhck5vdGlmeVJlcxIPCgdF",
+            "cnJDb2RlGAEgASgRYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComNotifyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -44,7 +46,9 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.AddUserNotifyDataItemNty), global::CRYSTALNET.Service.AddUserNotifyDataItemNty.Parser, new[]{ "ItemList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.RemoveUserNotifyDataItemNty), global::CRYSTALNET.Service.RemoveUserNotifyDataItemNty.Parser, new[]{ "NotifyIds" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.ReadNotifyReq), global::CRYSTALNET.Service.ReadNotifyReq.Parser, new[]{ "NotifyId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.ReadNotifyRes), global::CRYSTALNET.Service.ReadNotifyRes.Parser, new[]{ "ErrCode" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.ReadNotifyRes), global::CRYSTALNET.Service.ReadNotifyRes.Parser, new[]{ "ErrCode" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OnekeyClearNotifyReq), global::CRYSTALNET.Service.OnekeyClearNotifyReq.Parser, new[]{ "ClearType" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OnekeyClearNotifyRes), global::CRYSTALNET.Service.OnekeyClearNotifyRes.Parser, new[]{ "ErrCode" }, null, null, null, null)
           }));
     }
     #endregion
@@ -1145,6 +1149,397 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public void MergeFrom(ReadNotifyRes other) {
+      if (other == null) {
+        return;
+      }
+      if (other.ErrCode != 0) {
+        ErrCode = other.ErrCode;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            ErrCode = input.ReadSInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            ErrCode = input.ReadSInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 一键清理通知
+  //// Opcode:
+  /// </summary>
+[ProtoMessage(110)]
+  public sealed partial class OnekeyClearNotifyReq : pb::IMessage<OnekeyClearNotifyReq>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<OnekeyClearNotifyReq> _parser = new pb::MessageParser<OnekeyClearNotifyReq>(() => new OnekeyClearNotifyReq());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<OnekeyClearNotifyReq> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.NotifyReflection.Descriptor.MessageTypes[6]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OnekeyClearNotifyReq() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OnekeyClearNotifyReq(OnekeyClearNotifyReq other) : this() {
+      clearType_ = other.clearType_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OnekeyClearNotifyReq Clone() {
+      return new OnekeyClearNotifyReq(this);
+    }
+
+    /// <summary>Field number for the "ClearType" field.</summary>
+    public const int ClearTypeFieldNumber = 1;
+    private int clearType_;
+    /// <summary>
+    /// 清理类型 ClearNotifyType
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ClearType {
+      get { return clearType_; }
+      set {
+        clearType_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as OnekeyClearNotifyReq);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(OnekeyClearNotifyReq other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (ClearType != other.ClearType) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (ClearType != 0) hash ^= ClearType.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (ClearType != 0) {
+        output.WriteRawTag(8);
+        output.WriteSInt32(ClearType);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (ClearType != 0) {
+        output.WriteRawTag(8);
+        output.WriteSInt32(ClearType);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (ClearType != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(ClearType);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(OnekeyClearNotifyReq other) {
+      if (other == null) {
+        return;
+      }
+      if (other.ClearType != 0) {
+        ClearType = other.ClearType;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            ClearType = input.ReadSInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            ClearType = input.ReadSInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 一键清理通知
+  //// Opcode:
+  /// </summary>
+[ProtoMessage(111)]
+  public sealed partial class OnekeyClearNotifyRes : pb::IMessage<OnekeyClearNotifyRes>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<OnekeyClearNotifyRes> _parser = new pb::MessageParser<OnekeyClearNotifyRes>(() => new OnekeyClearNotifyRes());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<OnekeyClearNotifyRes> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.NotifyReflection.Descriptor.MessageTypes[7]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OnekeyClearNotifyRes() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OnekeyClearNotifyRes(OnekeyClearNotifyRes other) : this() {
+      errCode_ = other.errCode_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public OnekeyClearNotifyRes Clone() {
+      return new OnekeyClearNotifyRes(this);
+    }
+
+    /// <summary>Field number for the "ErrCode" field.</summary>
+    public const int ErrCodeFieldNumber = 1;
+    private int errCode_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ErrCode {
+      get { return errCode_; }
+      set {
+        errCode_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as OnekeyClearNotifyRes);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(OnekeyClearNotifyRes other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (ErrCode != other.ErrCode) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (ErrCode != 0) hash ^= ErrCode.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (ErrCode != 0) {
+        output.WriteRawTag(8);
+        output.WriteSInt32(ErrCode);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (ErrCode != 0) {
+        output.WriteRawTag(8);
+        output.WriteSInt32(ErrCode);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (ErrCode != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(ErrCode);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(OnekeyClearNotifyRes other) {
       if (other == null) {
         return;
       }

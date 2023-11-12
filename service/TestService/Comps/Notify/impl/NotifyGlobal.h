@@ -51,6 +51,7 @@ private:
     virtual Int32 _OnGlobalSysInit() override;
 
     void _OnReadNotifyReq(KERNEL_NS::LibPacket *&packet);
+    void _OnOnekeyClearNotifyReq(KERNEL_NS::LibPacket *&packet);
 
 private:
 };

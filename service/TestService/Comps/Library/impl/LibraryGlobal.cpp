@@ -342,6 +342,8 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
     if(!remark.empty())
         newOrderInfo->set_remark(remark.data(), remark.size());
 
+    newOrderInfo->set_userid(user->GetUserId());
+
     std::map<UInt64, BorrowBookInfo *> bookIdRefBorrowInfo;
     for(auto &item : bookBagInfo.bookinfoitemlist())
     {
@@ -426,6 +428,9 @@ Int32 LibraryGlobal::_OnGlobalSysInit()
     
     Subscribe(Opcodes::OpcodeConst::OPCODE_GetBookOrderDetailInfoReq, this, &LibraryGlobal::_OnGetBookOrderDetailInfoReq);
     Subscribe(Opcodes::OpcodeConst::OPCODE_OutStoreOrderReq, this, &LibraryGlobal::_OnOutStoreOrderReq);
+    Subscribe(Opcodes::OpcodeConst::OPCODE_ManagerScanOrderForUserGettingBooksReq, this, &LibraryGlobal::_OnManagerScanOrderForUserGettingBooksReq);
+    Subscribe(Opcodes::OpcodeConst::OPCODE_UserGetBooksOrderConfirmReq, this, &LibraryGlobal::_OnUserGetBooksOrderConfirmReq);
+    Subscribe(Opcodes::OpcodeConst::OPCODE_CancelOrderReq, this, &LibraryGlobal::_OnCancelOrderReq);
     return Status::Success;
 }
 
@@ -632,6 +637,25 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
         {
             errCode = Status::InvalidPhoneNubmer;
             g_Log->Warn(LOGFMT_OBJ_TAG("phone invalid:%llu, library user:%s, packet:%s, library id:%llu")
+                , req->bindphone(), user->ToString().c_str(), packet->ToString().c_str(), libraryMgr->GetMyLibraryId());
+            break;
+        }
+
+        // 手机号必须没绑定过的
+        auto userMgr = GetGlobalSys<IUserMgr>();
+        bool hasBinded = false;
+        if(!userMgr->IsPhoneNumberBinded(user, req->bindphone(), {user->GetUserId()}, hasBinded))
+        {
+            errCode = Status::DBError;
+            g_Log->Warn(LOGFMT_OBJ_TAG("invoke IsPhoneNumberBinded error library user:%s, packet:%s, library id:%llu")
+                , user->ToString().c_str(), packet->ToString().c_str(), libraryMgr->GetMyLibraryId());
+            break;
+        }
+
+        if(hasBinded)
+        {
+            errCode = Status::NewPhoneIsBindedByOtherUser;
+            g_Log->Warn(LOGFMT_OBJ_TAG("phone is binded by other user, phone:%llu, library user:%s, packet:%s, library id:%llu")
                 , req->bindphone(), user->ToString().c_str(), packet->ToString().c_str(), libraryMgr->GetMyLibraryId());
             break;
         }
@@ -1695,9 +1719,10 @@ void LibraryGlobal::_OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet)
         return;
     }
 
-    bool isGetSelf = false;
+    // 先推送图书馆信息
+    _SendLibraryInfoNty(user);
 
-    auto libraryMgr = user->GetSys<ILibraryMgr>();
+    bool isGetSelf = false;
     Int32 err = _SendOrderDetailInfoNty(user);
     if(err != Status::Success)
     {
@@ -1830,6 +1855,387 @@ void LibraryGlobal::_OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet)
     user->Send(Opcodes::OpcodeConst::OPCODE_OutStoreOrderRes, res, packet->GetPacketId());
 }
 
+void LibraryGlobal::_OnManagerScanOrderForUserGettingBooksReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto req = packet->GetCoder<ManagerScanOrderForUserGettingBooksReq>();
+    Int32 err = Status::Success;
+    do
+    {
+        // 图书馆信息
+        auto librarayMgr = user->GetSys<ILibraryMgr>();
+        const auto libararyId = librarayMgr->GetMyLibraryId();
+
+        // 1.必须是管理员
+        auto libraryInfo = GetLibraryInfo(libararyId);
+        if(!libraryInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not join any library user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::NotJoinAnyLibrary;
+            break;
+        }
+
+        auto memberInfo = GetMemberInfo(libararyId, user->GetUserId());
+        if(!memberInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not member libraryid:%llu, user:%s req:%s"), libararyId, user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::NotMember;
+            break;
+        }
+
+        // 2.查找订单是否存在
+        auto orderInfo = GetOrderInfo(libraryInfo->id(), req->orderid());
+        if(!orderInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("order not exists user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::InvalidOrder;
+            break;
+        }
+
+        // 必须是等待用户领取的
+        if(orderInfo->orderstate() != BorrowOrderState_ENUMS_WAIT_USER_RECEIVE)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("invalid order state user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::InvalidOrderState;
+            break;
+        }
+
+        // 3.订单的用户必须在线
+        auto orderUser = GetGlobalSys<IUserMgr>()->GetUser(orderInfo->userid());
+        if(!orderUser)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("order user:%llu not online, user:%s req:%s"), orderInfo->userid(), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::NotOnline;
+            break;
+        }
+
+        if(!orderUser->IsOnLine())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("order user not online, user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::NotOnline;
+            break;
+        }
+
+        // 4.向用户推送确认码(1分钟有效)
+        auto guidMgr = GetGlobalSys<IGlobalUidMgr>();
+        UserGetBooksOrderConfirmNty nty;
+        const auto confirmId = guidMgr->NewGuid();
+
+        auto iterConfirms = _orderIdRefConfirmCodes.find(orderInfo->orderid());
+        if(iterConfirms == _orderIdRefConfirmCodes.end())
+            iterConfirms = _orderIdRefConfirmCodes.insert(std::make_pair(orderInfo->orderid(), std::set<UInt64>())).first;
+        iterConfirms->second.insert(confirmId);
+        _confirmCodeRefOrderId.insert(std::make_pair(confirmId, orderInfo->orderid()));
+        
+        nty.set_confirmcode(confirmId);
+        nty.set_orderid(orderInfo->orderid());
+        orderUser->Send(Opcodes::OpcodeConst::OPCODE_UserGetBooksOrderConfirmNty, nty);
+
+        auto newTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+        newTimer->GetMgr()->TakeOverLifeTime(newTimer, [](KERNEL_NS::LibTimer *t){
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+        });
+        newTimer->SetTimeOutHandler([this, confirmId](KERNEL_NS::LibTimer *t) mutable -> void
+        {
+            _RemoveConfirm(confirmId);
+            KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+        });
+
+        auto confirmTimeConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONFIRM_CODE_TIME);
+        newTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(confirmTimeConfig->_int64Value * KERNEL_NS::TimeDefs::SECOND_PER_MINUTE));
+        
+        g_Log->Info(LOGFMT_OBJ_TAG("gen confirm code:%llu, order info:%s, library id:%llu, operate user:%s, order user:%s")
+        , confirmId, orderInfo->ToJsonString().c_str(), libraryInfo->id(), user->ToString().c_str(), orderUser->ToString().c_str());
+    } while (false);
+
+    ManagerScanOrderForUserGettingBooksRes res;
+    res.set_errcode(err);
+    user->Send(Opcodes::OpcodeConst::OPCODE_ManagerScanOrderForUserGettingBooksRes, res, packet->GetPacketId());
+}
+
+void LibraryGlobal::_OnUserGetBooksOrderConfirmReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto req = packet->GetCoder<UserGetBooksOrderConfirmReq>();
+    Int32 err = Status::Success;
+    do
+    {
+        // 必须是会员以上,有权限的
+        auto libraryMgr = user->GetSys<ILibraryMgr>();
+        const auto libraryId = libraryMgr->GetMyLibraryId();
+        const auto libraryInfo = GetLibraryInfo(libraryId);
+        if(!libraryInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not join any library user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::NotJoinAnyLibrary;
+            break;
+        }
+
+        auto memberInfo = GetMemberInfo(libraryId, user->GetUserId());
+        if(!memberInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not member libraryid:%llu, user:%s req:%s"), libraryId, user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::NotMember;
+            break;
+        }
+
+        // 确认码是否正确
+        auto iterOrderId = _confirmCodeRefOrderId.find(req->confirmcode());
+        if(iterOrderId == _confirmCodeRefOrderId.end())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("invalid confirm code user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::InvalidConfirmCode;
+            break;
+        }
+
+        // 订单号是否正确
+        auto orderInfo = GetOrderInfo(libraryInfo->id(), iterOrderId->second);
+        if(!orderInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("cant find order confirm code%llu, order id:%llu, user:%s req:%s"), req->confirmcode(), iterOrderId->second, user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::InvalidConfirmCode;
+            break;
+        }
+
+        // 订单是否出库待领取状态
+        if(orderInfo->orderstate() != BorrowOrderState_ENUMS_WAIT_USER_RECEIVE)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("order is not wait reciecve confirm code%llu, order id:%llu, order state:%d,%s user:%s req:%s")
+            , req->confirmcode(), iterOrderId->second, orderInfo->orderstate()
+            , BorrowOrderState_ENUMS_Name(orderInfo->orderstate()).c_str()
+            , user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::InvalidOrderState;
+            break;
+        }
+
+        _RemoveOrderConfirm(orderInfo->orderid());
+
+        orderInfo->set_orderstate(BorrowOrderState_ENUMS_WAIT_USER_RETURN_BACK);
+        const Int32 subOrderCount = orderInfo->borrowbooklist_size();
+        const auto &nowTime = KERNEL_NS::LibTime::Now();
+        for(Int32 idx = 0; idx < subOrderCount; ++idx)
+        {
+            auto subOrder = orderInfo->mutable_borrowbooklist(idx);
+            const auto &planBakcTime = nowTime.AddDays(subOrder->borrowdays());
+            subOrder->set_plangivebacktime(planBakcTime.GetMilliTimestamp());
+        }
+        MaskNumberKeyModifyDirty(libraryInfo->id());
+
+        g_Log->Info(LOGFMT_OBJ_TAG("get book confirm user:%s, order info:%s"), user->ToString().c_str(), orderInfo->ToJsonString().c_str());
+
+        _SendLibraryInfoNty(user);
+        _SendOrderDetailInfoNty(user);
+    } while (false);
+
+    UserGetBooksOrderConfirmRes res;
+    res.set_errcode(err);
+
+    user->Send(Opcodes::OpcodeConst::OPCODE_UserGetBooksOrderConfirmRes, res, packet->GetPacketId());
+}
+
+void LibraryGlobal::_OnCancelOrderReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto req = packet->GetCoder<CancelOrderReq>();
+    Int32 err = Status::Success;
+    do
+    {
+        auto libraryMgr = user->GetSys<ILibraryMgr>();
+        const auto libraryId = libraryMgr->GetMyLibraryId();
+
+        auto libraryInfo = GetLibraryInfo(libraryId);
+        if(!libraryInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not join any library user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::NotJoinAnyLibrary;
+            break;
+        }
+
+        auto memberInfo = GetMemberInfo(libraryId, user->GetUserId());
+        if(!memberInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not member libraryid:%llu, user:%s req:%s"), libraryId, user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::NotMember;
+            break;
+        }
+
+        // 订单是否存在
+        auto orderInfo = GetOrderInfo(libraryId, req->orderid());
+        if(!orderInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("order not exists user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::InvalidOrder;
+            break;
+        }
+
+        // 原因内容是否合法
+        auto contentConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONTENT_LIMIT);
+        KERNEL_NS::LibString decodedContent;
+        if(!req->reason().empty())
+        {
+            decodedContent = KERNEL_NS::UrlCoder::Decode(req->reason());
+            if(!decodedContent.IsUtf8())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("cancel reason not utf8, user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+                err = Status::InvalidContent;
+                break;
+            }
+
+            const Int32 len = static_cast<Int32>(decodedContent.length_with_utf8());
+            if(len > contentConfig->_value)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("content too long len:%d, limit:%d not exists user:%s req:%s")
+                ,len, contentConfig->_value,  user->ToString().c_str(), req->ToJsonString().c_str());
+                break;
+            }
+        }
+
+        // 订单必须是没被取消的
+        if(orderInfo->orderstate() == BorrowOrderState_ENUMS_CANCEL_ORDER)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("cancel repeat user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::Repeat;
+            break;
+        }
+
+        // 订单必须是还没领取的
+        if(orderInfo->orderstate() > BorrowOrderState_ENUMS_WAIT_USER_RECEIVE)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("invalid order state user:%s req:%s, orderInfo:%s")
+            , user->ToString().c_str(), req->ToJsonString().c_str(), orderInfo->ToJsonString().c_str());
+            err = Status::InvalidOrderState;
+            break;
+        }
+
+        // 若是管理员, 则必须有原因
+        Int32 reasonType = CancelOrderReasonType_ENUMS_UNKNOWN;
+        if(_IsManager(libraryId, user->GetUserId()))
+        {
+            if(req->reason().empty())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("manager must give reason when cancel order, user:%s req:%s, orderInfo:%s")
+                , user->ToString().c_str(), req->ToJsonString().c_str(), orderInfo->ToJsonString().c_str());
+                err = Status::NeedReason;
+                break;
+            }
+
+            reasonType = CancelOrderReasonType_ENUMS_MANAGTER_CANCEL;
+        }
+        else
+        {
+            // 是否订单用户本人取消
+            if(orderInfo->userid() != user->GetUserId())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("not order owner cancel order, user:%s req:%s, orderInfo:%s")
+                , user->ToString().c_str(), req->ToJsonString().c_str(), orderInfo->ToJsonString().c_str());
+                err = Status::NotOrderOwner;
+                break;
+            }
+
+            reasonType = CancelOrderReasonType_ENUMS_USER_SELF_CANCEL;
+        }
+
+        // 设置订单状态为取消
+        orderInfo->set_orderstate(BorrowOrderState_ENUMS_CANCEL_ORDER);
+        auto reasonInfo = orderInfo->mutable_cancelreason();
+        reasonInfo->set_cancelreason(reasonType);
+        reasonInfo->set_cancelinfo(req->reason());
+        MaskNumberKeyModifyDirty(libraryId);
+
+        _SendLibraryInfoNty(user);
+        _SendOrderDetailInfoNty(user);
+
+        g_Log->Info(LOGFMT_OBJ_TAG("cancel order library id:%llu, operate user:%s, memberInfo:%s, order info:%s, order reason:%s")
+        ,  libraryId, user->ToString().c_str(), memberInfo->ToJsonString().c_str(), orderInfo->ToJsonString().c_str(), decodedContent.c_str());
+
+        // 取消订单需要通知管理员(所有包括馆长)订单取消
+        auto notifyGlobal = GetGlobalSys<INotifyGlobal>();
+        // "订单号:{0}, 订单所属用户id:{1}, 昵称:{2}, 操作人id:{3}, 操作人昵称:{4}, 取消原因:{5}."
+        std::vector<VariantParam> params;
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(orderInfo->orderid());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(orderInfo->userid());
+            params.push_back(param);
+        }
+        {
+            auto orderOwnerMember = GetMemberInfo(libraryId, orderInfo->userid());
+
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(orderOwnerMember->nickname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(user->GetUserId());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(user->GetNickname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(req->reason());
+            params.push_back(param);
+        }
+
+        bool isNotified = false;
+        for(auto &manager:libraryInfo->managerinfolist())
+        {
+            if(manager.userid() == orderInfo->userid())
+                isNotified = true;
+
+            notifyGlobal->SendNotify(manager.userid(), "CANCEL_ORDER_TITLE", {}, "CANCEL_ORDER_CONTENT"
+            , params);
+        }
+
+        // 取消订单需要同时通知用户订单取消了
+        if(!isNotified)
+        {
+            notifyGlobal->SendNotify(orderInfo->userid(), "CANCEL_ORDER_TITLE", {}, "CANCEL_ORDER_CONTENT"
+                , params);
+        }
+
+    } while (false);
+    
+    CancelOrderRes res;
+    res.set_errcode(err);
+    user->Send(Opcodes::OpcodeConst::OPCODE_CancelOrderRes, res, packet->GetPacketId());
+}
+
 void LibraryGlobal::_BuildOrderDetailInfo(const LibraryInfo *libraryInfo, UInt64 memberUserId, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const
 {
     if(memberUserId)
@@ -1929,6 +2335,17 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
         if(oldRole == RoleType_ENUMS_NoAuth)
         {// TODO:绑定手机
             targetUser->BindPhone(req.newmemberphone());
+        }
+
+        // 管理员变更
+        if(_IsManager(oldRole))
+        {
+            _RemoveManager(libraryInfo, targetUser->GetUserId());
+        }
+
+        if(_IsManager(req.newrole()))
+        {
+            _AddManger(libraryInfo, targetUser->GetUserId());
         }
 
         MaskNumberKeyModifyDirty(libraryInfo->id());
@@ -2164,6 +2581,28 @@ bool LibraryGlobal::_RemoveMember(LibraryInfo *libraryInfo, IUser *user)
     return _RemoveMember(libraryInfo, user->GetUserId());
 }
 
+void LibraryGlobal::_RemoveManager(LibraryInfo *libraryInfo, UInt64 userId)
+{
+    // 管理员列表
+    const Int32 count = libraryInfo->managerinfolist_size();
+    for(Int32 idx = count - 1; idx >= 0; --idx)
+    {
+        if(libraryInfo->managerinfolist(idx).userid() == userId)
+        {
+            libraryInfo->mutable_managerinfolist()->DeleteSubrange(idx, 1);
+            MaskNumberKeyModifyDirty(libraryInfo->id());
+        }
+    }
+}
+
+void LibraryGlobal::_AddManger(LibraryInfo *libraryInfo, UInt64 userId)
+{
+    _RemoveManager(libraryInfo, userId);
+    
+    libraryInfo->add_managerinfolist()->set_userid(userId);
+    MaskNumberKeyModifyDirty(libraryInfo->id());
+}
+
 bool LibraryGlobal::_IsManager(Int32 roleType) const
 {
     switch (roleType)
@@ -2352,6 +2791,16 @@ void LibraryGlobal::_SendLibraryInfoNty(const IUser *user, const LibraryInfo *li
     }
 
     user->Send(Opcodes::OpcodeConst::OPCODE_LibraryInfoNty, nty);
+}
+
+void LibraryGlobal::_SendLibraryInfoNty(const IUser *user) const
+{
+    auto libraryMgr = user->GetSys<ILibraryMgr>();
+    auto libraryInfo = GetLibraryInfo(libraryMgr->GetMyLibraryId());
+    if(!libraryInfo)
+        return;
+
+    _SendLibraryInfoNty(user, libraryInfo);
 }
 
 void LibraryGlobal::_SendLibraryInfoNty(UInt64 userId, const LibraryInfo *libraryInfo) const
@@ -2563,6 +3012,36 @@ void LibraryGlobal::_StartCacelOrderTimer(UInt64 libraryId, UInt64 orderId, Int6
         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
     });
     timer->Schedule(delayMilliseconds);
+}
+
+void LibraryGlobal::_RemoveConfirm(UInt64 confirmId)
+{
+    auto iter = _confirmCodeRefOrderId.find(confirmId);
+    if(iter == _confirmCodeRefOrderId.end())
+        return;
+
+    const auto orderId = iter->second;
+    _confirmCodeRefOrderId.erase(iter);
+
+    auto iterConfirms = _orderIdRefConfirmCodes.find(orderId);
+    if(iterConfirms == _orderIdRefConfirmCodes.end())
+        return;
+
+    iterConfirms->second.erase(confirmId);
+    if(iterConfirms->second.empty())
+        _orderIdRefConfirmCodes.erase(iterConfirms);
+}
+
+void LibraryGlobal::_RemoveOrderConfirm(UInt64 orderId)
+{
+    auto iterConfirms = _orderIdRefConfirmCodes.find(orderId);
+    if(iterConfirms == _orderIdRefConfirmCodes.end())
+        return;
+
+    for(auto confirmId : iterConfirms->second)
+        _confirmCodeRefOrderId.erase(confirmId);
+
+    _orderIdRefConfirmCodes.erase(iterConfirms);
 }
 
 SERVICE_END

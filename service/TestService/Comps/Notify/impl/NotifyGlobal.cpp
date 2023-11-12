@@ -89,6 +89,7 @@ void NotifyGlobal::SendNotify(UInt64 userId, const KERNEL_NS::LibString &titleId
 Int32 NotifyGlobal::_OnGlobalSysInit()
 {
     Subscribe(Opcodes::OpcodeConst::OPCODE_ReadNotifyReq, this, &NotifyGlobal::_OnReadNotifyReq);
+    Subscribe(Opcodes::OpcodeConst::OPCODE_OnekeyClearNotifyReq, this, &NotifyGlobal::_OnOnekeyClearNotifyReq);
     return Status::Success;
 }
 
@@ -109,6 +110,25 @@ void NotifyGlobal::_OnReadNotifyReq(KERNEL_NS::LibPacket *&packet)
     ReadNotifyRes res;
     res.set_errcode(err);
     user->Send(Opcodes::OpcodeConst::OPCODE_ReadNotifyRes, res, packet->GetPacketId());
+}
+
+void NotifyGlobal::_OnOnekeyClearNotifyReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto req = packet->GetCoder<OnekeyClearNotifyReq>();
+    auto notifyMgr = user->GetSys<INotifyMgr>();
+    notifyMgr->OnekeyClearNotify(req->cleartype());
+
+    OnekeyClearNotifyRes res;
+    res.set_errcode(Status::Success);
+    user->Send(Opcodes::OpcodeConst::OPCODE_OnekeyClearNotifyRes, res, packet->GetPacketId());
 }
 
 SERVICE_END

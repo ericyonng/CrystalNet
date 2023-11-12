@@ -158,6 +158,21 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("CancelOrderReq", (jsonData:any):any =>{
+                return this.CancelOrderReqParser(jsonData);
+            })
+
+
+            this.add("CancelOrderRes", (jsonData:any):any =>{
+                return this.CancelOrderResParser(jsonData);
+            })
+
+
+            this.add("ClearNotifyType", (jsonData:any):any =>{
+                return this.ClearNotifyTypeParser(jsonData);
+            })
+
+
             this.add("ClientHeartbeatReq", (jsonData:any):any =>{
                 return this.ClientHeartbeatReqParser(jsonData);
             })
@@ -373,6 +388,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("ManagerScanOrderForUserGettingBooksReq", (jsonData:any):any =>{
+                return this.ManagerScanOrderForUserGettingBooksReqParser(jsonData);
+            })
+
+
+            this.add("ManagerScanOrderForUserGettingBooksRes", (jsonData:any):any =>{
+                return this.ManagerScanOrderForUserGettingBooksResParser(jsonData);
+            })
+
+
             this.add("MemberInfo", (jsonData:any):any =>{
                 return this.MemberInfoParser(jsonData);
             })
@@ -440,6 +465,16 @@ export namespace crystal_net_service_parser
 
             this.add("OfflineType", (jsonData:any):any =>{
                 return this.OfflineTypeParser(jsonData);
+            })
+
+
+            this.add("OnekeyClearNotifyReq", (jsonData:any):any =>{
+                return this.OnekeyClearNotifyReqParser(jsonData);
+            })
+
+
+            this.add("OnekeyClearNotifyRes", (jsonData:any):any =>{
+                return this.OnekeyClearNotifyResParser(jsonData);
             })
 
 
@@ -640,6 +675,21 @@ export namespace crystal_net_service_parser
 
             this.add("UserClientInfoNty", (jsonData:any):any =>{
                 return this.UserClientInfoNtyParser(jsonData);
+            })
+
+
+            this.add("UserGetBooksOrderConfirmNty", (jsonData:any):any =>{
+                return this.UserGetBooksOrderConfirmNtyParser(jsonData);
+            })
+
+
+            this.add("UserGetBooksOrderConfirmReq", (jsonData:any):any =>{
+                return this.UserGetBooksOrderConfirmReqParser(jsonData);
+            })
+
+
+            this.add("UserGetBooksOrderConfirmRes", (jsonData:any):any =>{
+                return this.UserGetBooksOrderConfirmResParser(jsonData);
             })
 
 
@@ -1387,6 +1437,12 @@ export namespace crystal_net_service_parser
                     newInfo.Remark = jsonData.Remark;
                 }
 
+
+                if(jsonData.UserId != undefined)
+                {
+                    newInfo.UserId = parseFloat(jsonData.UserId);
+                }
+
                  return newInfo;
             }
 
@@ -1417,6 +1473,42 @@ export namespace crystal_net_service_parser
 
             private CancelOrderReasonTypeParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.CancelOrderReasonType()
+                 return newInfo;
+            }
+
+
+            private CancelOrderReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.CancelOrderReq()
+
+                if(jsonData.OrderId != undefined)
+                {
+                    newInfo.OrderId = parseFloat(jsonData.OrderId);
+                }
+
+
+                if(jsonData.Reason != undefined)
+                {
+                    newInfo.Reason = jsonData.Reason;
+                }
+
+                 return newInfo;
+            }
+
+
+            private CancelOrderResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.CancelOrderRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private ClearNotifyTypeParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.ClearNotifyType()
                  return newInfo;
             }
 
@@ -2259,6 +2351,30 @@ export namespace crystal_net_service_parser
             }
 
 
+            private ManagerScanOrderForUserGettingBooksReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.ManagerScanOrderForUserGettingBooksReq()
+
+                if(jsonData.OrderId != undefined)
+                {
+                    newInfo.OrderId = parseFloat(jsonData.OrderId);
+                }
+
+                 return newInfo;
+            }
+
+
+            private ManagerScanOrderForUserGettingBooksResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.ManagerScanOrderForUserGettingBooksRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
             private MemberInfoParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.MemberInfo()
 
@@ -2532,6 +2648,30 @@ export namespace crystal_net_service_parser
 
             private OfflineTypeParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.OfflineType()
+                 return newInfo;
+            }
+
+
+            private OnekeyClearNotifyReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.OnekeyClearNotifyReq()
+
+                if(jsonData.ClearType != undefined)
+                {
+                    newInfo.ClearType = parseFloat(jsonData.ClearType);
+                }
+
+                 return newInfo;
+            }
+
+
+            private OnekeyClearNotifyResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.OnekeyClearNotifyRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
                  return newInfo;
             }
 
@@ -3330,6 +3470,54 @@ export namespace crystal_net_service_parser
                     {
                         console.log("field ClientInfo have no ClientUserInfo parser");
                     }
+                }
+
+                 return newInfo;
+            }
+
+
+            private UserGetBooksOrderConfirmNtyParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.UserGetBooksOrderConfirmNty()
+
+                if(jsonData.OrderId != undefined)
+                {
+                    newInfo.OrderId = parseFloat(jsonData.OrderId);
+                }
+
+
+                if(jsonData.ConfirmCode != undefined)
+                {
+                    newInfo.ConfirmCode = parseFloat(jsonData.ConfirmCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private UserGetBooksOrderConfirmReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.UserGetBooksOrderConfirmReq()
+
+                if(jsonData.OrderId != undefined)
+                {
+                    newInfo.OrderId = parseFloat(jsonData.OrderId);
+                }
+
+
+                if(jsonData.ConfirmCode != undefined)
+                {
+                    newInfo.ConfirmCode = parseFloat(jsonData.ConfirmCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private UserGetBooksOrderConfirmResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.UserGetBooksOrderConfirmRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
                 }
 
                  return newInfo;

@@ -110,5 +110,14 @@ public:
     static constexpr Int32 OPCODE_GetBookOrderDetailInfoRes = 100;    // library.proto
     static constexpr Int32 OPCODE_OutStoreOrderReq = 101;    // library.proto
     static constexpr Int32 OPCODE_OutStoreOrderRes = 102;    // library.proto
-    static constexpr Int32 OPCODE_MAX = 102;
+    static constexpr Int32 OPCODE_ManagerScanOrderForUserGettingBooksReq = 103;    // library.proto
+    static constexpr Int32 OPCODE_UserGetBooksOrderConfirmNty = 104;    // library.proto
+    static constexpr Int32 OPCODE_ManagerScanOrderForUserGettingBooksRes = 105;    // library.proto
+    static constexpr Int32 OPCODE_UserGetBooksOrderConfirmReq = 106;    // library.proto
+    static constexpr Int32 OPCODE_UserGetBooksOrderConfirmRes = 107;    // library.proto
+    static constexpr Int32 OPCODE_CancelOrderReq = 108;    // library.proto
+    static constexpr Int32 OPCODE_CancelOrderRes = 109;    // library.proto
+    static constexpr Int32 OPCODE_OnekeyClearNotifyReq = 110;    // notify.proto
+    static constexpr Int32 OPCODE_OnekeyClearNotifyRes = 111;    // notify.proto
+    static constexpr Int32 OPCODE_MAX = 111;
 };

@@ -332,6 +332,62 @@ message OutStoreOrderRes
     sint32 ErrCode = 1;
 }
 
+// 用户领书管理员扫码
+/// Opcode:
+message ManagerScanOrderForUserGettingBooksReq
+{
+    // 订单id
+    uint64 OrderId = 1;
+}
+
+// 确认领取推送确认码(确认码有效期2分钟)
+/// Opcode:
+message UserGetBooksOrderConfirmNty
+{
+    uint64 OrderId = 1;
+    uint64 ConfirmCode = 2;
+}
+
+// 用户领书管理员扫码
+/// Opcode:
+message ManagerScanOrderForUserGettingBooksRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 用户领书确认
+/// Opcode:
+message UserGetBooksOrderConfirmReq
+{
+    uint64 OrderId = 1;
+    uint64 ConfirmCode = 2;
+}
+
+// 用户领书确认
+/// Opcode:
+message UserGetBooksOrderConfirmRes
+{
+    sint32 ErrCode = 1;
+}
+
+// 取消订单(管理员或者用户自己取消订单)
+/// Opcode:
+message CancelOrderReq
+{
+    // 订单id
+    uint64 OrderId = 1;
+
+    // 原因(管理员必须填写)
+    bytes Reason = 2;   
+}
+
+// 取消订单(管理员或者用户自己取消订单)
+/// Opcode:
+message CancelOrderRes
+{
+    sint32 ErrCode = 1;
+}
+
 // 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管
 
 // 获取图书馆信息（图书馆地址,图书馆联系电话, 图书馆管理员姓名, 图书馆管理员联系方式, 图书馆管理员昵称）

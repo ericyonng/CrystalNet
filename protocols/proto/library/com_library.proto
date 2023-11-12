@@ -90,6 +90,12 @@ message CancelOrderReasonType
 
         // 等用户领取超时
         WAIT_USER_GET_TIME_OUT = 1;
+
+        // 管理员取消订单(管理员需要填写理由)
+        MANAGTER_CANCEL = 2;
+
+        // 用户自己取消订单
+        USER_SELF_CANCEL = 3;
     }
 }
 
@@ -118,6 +124,8 @@ message BorrowOrderInfo
     sint64 GetOverTime = 6;
     // 备注
     bytes Remark = 7;
+    // 用户id
+    uint64 UserId = 8;
 }
 
 // 订单详情

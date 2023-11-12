@@ -86,6 +86,9 @@ protected:
     void _OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet);
     void _OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet);
     void _OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet);
+    void _OnManagerScanOrderForUserGettingBooksReq(KERNEL_NS::LibPacket *&packet);
+    void _OnUserGetBooksOrderConfirmReq(KERNEL_NS::LibPacket *&packet);
+    void _OnCancelOrderReq(KERNEL_NS::LibPacket *&packet);
 
     void _BuildOrderDetailInfo(const LibraryInfo *libraryInfo, UInt64 memberUserId, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const;
     void _BuildOrderDetailInfo(UInt64 libraryId, const MemberInfo *memberInfo, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const;
@@ -94,6 +97,7 @@ protected:
     void _BuildPreviewInfo(LibraryPreviewInfo *previewInfo, const LibraryInfo *libraryInfo) const;
 
     void _SendLibraryInfoNty(const IUser *user, const LibraryInfo *libraryInfo) const;
+    void _SendLibraryInfoNty(const IUser *user) const;
     void _SendLibraryInfoNty(UInt64 userId, const LibraryInfo *libraryInfo) const;
     void _SendLibraryInfoNty(UInt64 userId, UInt64 libraryId) const;
     Int32 _SendOrderDetailInfoNty(const IUser *user) const;
@@ -112,6 +116,8 @@ protected:
 
     bool _RemoveMember(LibraryInfo *libraryInfo, UInt64 userId);
     bool _RemoveMember(LibraryInfo *libraryInfo, IUser *user);
+    void _RemoveManager(LibraryInfo *libraryInfo, UInt64 userId);
+    void _AddManger(LibraryInfo *libraryInfo, UInt64 userId);
 
     bool _IsManager(Int32 roleType) const;
     bool _IsManager(UInt64 libraryId, UInt64 userId) const;
@@ -147,6 +153,9 @@ protected:
     void _CancelOrder(UInt64 libraryId, UInt64 orderId, Int32 cancelReason, const KERNEL_NS::LibString &detailReason);
     void _StartCacelOrderTimer(UInt64 libraryId, UInt64 orderId, Int64 delayMilliseconds);
 
+    void _RemoveConfirm(UInt64 confirmId);
+    void _RemoveOrderConfirm(UInt64 orderId);
+
 private:
     std::map<UInt64, LibraryInfo *> _idRefLibraryInfo;
 
@@ -158,6 +167,10 @@ private:
 
     // 订单
     std::map<UInt64, std::map<UInt64, BorrowOrderInfo *>> _libraryIdRefBorrowOrder;
+
+    // 领取图书确认码 确认码 => 订单id
+    std::map<UInt64, UInt64> _confirmCodeRefOrderId;
+    std::map<UInt64, std::set<UInt64>> _orderIdRefConfirmCodes;
 };
 
 ALWAYS_INLINE BorrowOrderInfo *LibraryGlobal::GetOrderInfo(UInt64 libraryId, UInt64 orderId)

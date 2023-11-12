@@ -44,6 +44,8 @@ public:
     virtual void AddNotify(const UserNotifyDataItem &item) = 0;
     
     virtual Int32 ReadNotify(UInt64 notifyId) = 0;
+
+    virtual void OnekeyClearNotify(Int32 clearType) = 0;
 };
 
 SERVICE_END

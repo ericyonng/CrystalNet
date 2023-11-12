@@ -40,45 +40,46 @@ using ProtoPackage.Attributes;
             "GAIgASgMIo8BChBCb3Jyb3dPcmRlclN0YXRlInsKBUVOVU1TEhwKGFdBSVRJ",
             "TkdfT1VUX09GX1dBUkVIT1VTRRAAEhUKEVdBSVRfVVNFUl9SRUNFSVZFEAES",
             "GQoVV0FJVF9VU0VSX1JFVFVSTl9CQUNLEAISEAoMQ0FOQ0VMX09SREVSEAMS",
-            "EAoMUkVUVVJOX0JBS0NLEAQiSQoVQ2FuY2VsT3JkZXJSZWFzb25UeXBlIjAK",
+            "EAoMUkVUVVJOX0JBS0NLEAQidAoVQ2FuY2VsT3JkZXJSZWFzb25UeXBlIlsK",
             "BUVOVU1TEgsKB1VOS05PV04QABIaChZXQUlUX1VTRVJfR0VUX1RJTUVfT1VU",
-            "EAEiPQoRQ2FuY2VsT3JkZXJSZWFzb24SFAoMQ2FuY2VsUmVhc29uGAEgASgR",
-            "EhIKCkNhbmNlbEluZm8YAiABKAwi7wEKD0JvcnJvd09yZGVySW5mbxIPCgdP",
-            "cmRlcklkGAEgASgEEjsKDkJvcnJvd0Jvb2tMaXN0GAIgAygLMiMuQ1JZU1RB",
-            "TF9ORVQuc2VydmljZS5Cb3Jyb3dCb29rSW5mbxIXCg9DcmVhdGVPcmRlclRp",
-            "bWUYAyABKAQSEgoKT3JkZXJTdGF0ZRgEIAEoERI8CgxDYW5jZWxSZWFzb24Y",
-            "BSABKAsyJi5DUllTVEFMX05FVC5zZXJ2aWNlLkNhbmNlbE9yZGVyUmVhc29u",
-            "EhMKC0dldE92ZXJUaW1lGAYgASgSEg4KBlJlbWFyaxgHIAEoDCKdAgoVQm9y",
-            "cm93T3JkZXJEZXRhaWxJbmZvEg8KB09yZGVySWQYASABKAQSQQoOQm9ycm93",
-            "Qm9va0xpc3QYAiADKAsyKS5DUllTVEFMX05FVC5zZXJ2aWNlLkJvcnJvd0Jv",
-            "b2tEZXRhaWxJbmZvEhcKD0NyZWF0ZU9yZGVyVGltZRgDIAEoBBISCgpPcmRl",
-            "clN0YXRlGAQgASgREjwKDENhbmNlbFJlYXNvbhgFIAEoCzImLkNSWVNUQUxf",
-            "TkVULnNlcnZpY2UuQ2FuY2VsT3JkZXJSZWFzb24SEwoLR2V0T3ZlclRpbWUY",
-            "BiABKBISDgoGUmVtYXJrGAcgASgMEg4KBlVzZXJJZBgIIAEoBBIQCghOaWNr",
-            "bmFtZRgJIAEoDCK3AQoKTWVtYmVySW5mbxIOCgZVc2VySWQYASABKAQSDAoE",
-            "Um9sZRgCIAEoERIQCghOaWNrbmFtZRgDIAEoDBI4CgpCb3Jyb3dMaXN0GAQg",
-            "AygLMiQuQ1JZU1RBTF9ORVQuc2VydmljZS5Cb3Jyb3dPcmRlckluZm8SFwoP",
-            "TG9ja1RpbWVzdGFtcE1zGAUgASgSEhMKCUJpbmRQaG9uZRgGIAEoBEgAQhEK",
-            "D01lbWJlckJpbmRQaG9uZSIlCg1PcGVyYXRpb25UeXBlIhQKBUVOVU1TEgsK",
-            "B1VOS05PV04QACKbAQoQT3BlcmF0aW9uTG9nSW5mbxIOCgZPcFR5cGUYASAB",
-            "KBESEAoIT3BVc2VySWQYAiABKAQSEgoKT3BOaWNrbmFtZRgDIAEoDBIMCgRS",
-            "b2xlGAQgASgREhAKCE9wVGltZU1zGAUgASgSEjEKBlBhcmFtcxgGIAMoCzIh",
-            "LkNSWVNUQUxfTkVULnNlcnZpY2UuVmFyaWFudFBhcmFtIv8CCgtMaWJyYXJ5",
-            "SW5mbxIKCgJJZBgBIAEoBBIMCgROYW1lGAIgASgMEg8KB0FkZHJlc3MYAyAB",
-            "KAwSEAoIT3BlblRpbWUYBCABKAwSFgoOVGVscGhvbmVOdW1iZXIYBSABKAkS",
-            "FwoPTGlicmFyaWFuVXNlcklkGAYgASgEEh0KFUxpYnJhcmlhblVzZXJOaWNr",
-            "bmFtZRgHIAEoDBJBCg9NYW5hZ2VySW5mb0xpc3QYCCADKAsyKC5DUllTVEFM",
-            "X05FVC5zZXJ2aWNlLkxpYmFyYXJ5TWFuYWdlckluZm8SMwoKTWVtYmVyTGlz",
-            "dBgJIAMoCzIfLkNSWVNUQUxfTkVULnNlcnZpY2UuTWVtYmVySW5mbxIvCghC",
-            "b29rTGlzdBgKIAMoCzIdLkNSWVNUQUxfTkVULnNlcnZpY2UuQm9va0luZm8S",
-            "OgoLTG9nSW5mb0xpc3QYCyADKAsyJS5DUllTVEFMX05FVC5zZXJ2aWNlLk9w",
-            "ZXJhdGlvbkxvZ0luZm8iJAoPVXNlckxpYnJhcnlJbmZvEhEKCUxpYnJhcnlJ",
-            "ZBgBIAEoBCJiChJMaWJyYXJ5UHJldmlld0luZm8SCgoCSWQYASABKAQSDAoE",
-            "TmFtZRgCIAEoDBIXCg9MaWJyYXJpYW5Vc2VySWQYAyABKAQSGQoRTGlicmFy",
-            "aWFuTmlja25hbWUYBCABKAwiIQoNS2V5V29yZHNGaWVsZBIQCghLZXlXb3Jk",
-            "cxgBIAMoDCIiCg1TbmFwc2hvdEZpZWxkEhEKCVNuYXBzaG90cxgBIAMoCSIu",
-            "Cg1PdXRTdG9yZVBhcmFtEg4KBkJvb2tJZBgBIAEoBBINCgVDb3VudBgCIAEo",
-            "EmIGcHJvdG8z"));
+            "EAESEwoPTUFOQUdURVJfQ0FOQ0VMEAISFAoQVVNFUl9TRUxGX0NBTkNFTBAD",
+            "Ij0KEUNhbmNlbE9yZGVyUmVhc29uEhQKDENhbmNlbFJlYXNvbhgBIAEoERIS",
+            "CgpDYW5jZWxJbmZvGAIgASgMIv8BCg9Cb3Jyb3dPcmRlckluZm8SDwoHT3Jk",
+            "ZXJJZBgBIAEoBBI7Cg5Cb3Jyb3dCb29rTGlzdBgCIAMoCzIjLkNSWVNUQUxf",
+            "TkVULnNlcnZpY2UuQm9ycm93Qm9va0luZm8SFwoPQ3JlYXRlT3JkZXJUaW1l",
+            "GAMgASgEEhIKCk9yZGVyU3RhdGUYBCABKBESPAoMQ2FuY2VsUmVhc29uGAUg",
+            "ASgLMiYuQ1JZU1RBTF9ORVQuc2VydmljZS5DYW5jZWxPcmRlclJlYXNvbhIT",
+            "CgtHZXRPdmVyVGltZRgGIAEoEhIOCgZSZW1hcmsYByABKAwSDgoGVXNlcklk",
+            "GAggASgEIp0CChVCb3Jyb3dPcmRlckRldGFpbEluZm8SDwoHT3JkZXJJZBgB",
+            "IAEoBBJBCg5Cb3Jyb3dCb29rTGlzdBgCIAMoCzIpLkNSWVNUQUxfTkVULnNl",
+            "cnZpY2UuQm9ycm93Qm9va0RldGFpbEluZm8SFwoPQ3JlYXRlT3JkZXJUaW1l",
+            "GAMgASgEEhIKCk9yZGVyU3RhdGUYBCABKBESPAoMQ2FuY2VsUmVhc29uGAUg",
+            "ASgLMiYuQ1JZU1RBTF9ORVQuc2VydmljZS5DYW5jZWxPcmRlclJlYXNvbhIT",
+            "CgtHZXRPdmVyVGltZRgGIAEoEhIOCgZSZW1hcmsYByABKAwSDgoGVXNlcklk",
+            "GAggASgEEhAKCE5pY2tuYW1lGAkgASgMIrcBCgpNZW1iZXJJbmZvEg4KBlVz",
+            "ZXJJZBgBIAEoBBIMCgRSb2xlGAIgASgREhAKCE5pY2tuYW1lGAMgASgMEjgK",
+            "CkJvcnJvd0xpc3QYBCADKAsyJC5DUllTVEFMX05FVC5zZXJ2aWNlLkJvcnJv",
+            "d09yZGVySW5mbxIXCg9Mb2NrVGltZXN0YW1wTXMYBSABKBISEwoJQmluZFBo",
+            "b25lGAYgASgESABCEQoPTWVtYmVyQmluZFBob25lIiUKDU9wZXJhdGlvblR5",
+            "cGUiFAoFRU5VTVMSCwoHVU5LTk9XThAAIpsBChBPcGVyYXRpb25Mb2dJbmZv",
+            "Eg4KBk9wVHlwZRgBIAEoERIQCghPcFVzZXJJZBgCIAEoBBISCgpPcE5pY2tu",
+            "YW1lGAMgASgMEgwKBFJvbGUYBCABKBESEAoIT3BUaW1lTXMYBSABKBISMQoG",
+            "UGFyYW1zGAYgAygLMiEuQ1JZU1RBTF9ORVQuc2VydmljZS5WYXJpYW50UGFy",
+            "YW0i/wIKC0xpYnJhcnlJbmZvEgoKAklkGAEgASgEEgwKBE5hbWUYAiABKAwS",
+            "DwoHQWRkcmVzcxgDIAEoDBIQCghPcGVuVGltZRgEIAEoDBIWCg5UZWxwaG9u",
+            "ZU51bWJlchgFIAEoCRIXCg9MaWJyYXJpYW5Vc2VySWQYBiABKAQSHQoVTGli",
+            "cmFyaWFuVXNlck5pY2tuYW1lGAcgASgMEkEKD01hbmFnZXJJbmZvTGlzdBgI",
+            "IAMoCzIoLkNSWVNUQUxfTkVULnNlcnZpY2UuTGliYXJhcnlNYW5hZ2VySW5m",
+            "bxIzCgpNZW1iZXJMaXN0GAkgAygLMh8uQ1JZU1RBTF9ORVQuc2VydmljZS5N",
+            "ZW1iZXJJbmZvEi8KCEJvb2tMaXN0GAogAygLMh0uQ1JZU1RBTF9ORVQuc2Vy",
+            "dmljZS5Cb29rSW5mbxI6CgtMb2dJbmZvTGlzdBgLIAMoCzIlLkNSWVNUQUxf",
+            "TkVULnNlcnZpY2UuT3BlcmF0aW9uTG9nSW5mbyIkCg9Vc2VyTGlicmFyeUlu",
+            "Zm8SEQoJTGlicmFyeUlkGAEgASgEImIKEkxpYnJhcnlQcmV2aWV3SW5mbxIK",
+            "CgJJZBgBIAEoBBIMCgROYW1lGAIgASgMEhcKD0xpYnJhcmlhblVzZXJJZBgD",
+            "IAEoBBIZChFMaWJyYXJpYW5OaWNrbmFtZRgEIAEoDCIhCg1LZXlXb3Jkc0Zp",
+            "ZWxkEhAKCEtleVdvcmRzGAEgAygMIiIKDVNuYXBzaG90RmllbGQSEQoJU25h",
+            "cHNob3RzGAEgAygJIi4KDU91dFN0b3JlUGFyYW0SDgoGQm9va0lkGAEgASgE",
+            "Eg0KBUNvdW50GAIgASgSYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookReflection.Descriptor, global::CRYSTALNET.Service.ComVariantReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -89,7 +90,7 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderState), global::CRYSTALNET.Service.BorrowOrderState.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.BorrowOrderState.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.CancelOrderReasonType), global::CRYSTALNET.Service.CancelOrderReasonType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.CancelOrderReasonType.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.CancelOrderReason), global::CRYSTALNET.Service.CancelOrderReason.Parser, new[]{ "CancelReason", "CancelInfo" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason", "GetOverTime", "Remark" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderInfo), global::CRYSTALNET.Service.BorrowOrderInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason", "GetOverTime", "Remark", "UserId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.BorrowOrderDetailInfo), global::CRYSTALNET.Service.BorrowOrderDetailInfo.Parser, new[]{ "OrderId", "BorrowBookList", "CreateOrderTime", "OrderState", "CancelReason", "GetOverTime", "Remark", "UserId", "Nickname" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.MemberInfo), global::CRYSTALNET.Service.MemberInfo.Parser, new[]{ "UserId", "Role", "Nickname", "BorrowList", "LockTimestampMs", "BindPhone" }, new[]{ "MemberBindPhone" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OperationType), global::CRYSTALNET.Service.OperationType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.OperationType.Types.ENUMS) }, null, null),
@@ -1583,6 +1584,14 @@ using ProtoPackage.Attributes;
         /// 等用户领取超时
         /// </summary>
         [pbr::OriginalName("WAIT_USER_GET_TIME_OUT")] WaitUserGetTimeOut = 1,
+        /// <summary>
+        /// 管理员取消订单(管理员需要填写理由)
+        /// </summary>
+        [pbr::OriginalName("MANAGTER_CANCEL")] ManagterCancel = 2,
+        /// <summary>
+        /// 用户自己取消订单
+        /// </summary>
+        [pbr::OriginalName("USER_SELF_CANCEL")] UserSelfCancel = 3,
       }
 
     }
@@ -1866,6 +1875,7 @@ using ProtoPackage.Attributes;
       cancelReason_ = other.cancelReason_ != null ? other.cancelReason_.Clone() : null;
       getOverTime_ = other.getOverTime_;
       remark_ = other.remark_;
+      userId_ = other.userId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1979,6 +1989,21 @@ using ProtoPackage.Attributes;
       }
     }
 
+    /// <summary>Field number for the "UserId" field.</summary>
+    public const int UserIdFieldNumber = 8;
+    private ulong userId_;
+    /// <summary>
+    /// 用户id
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong UserId {
+      get { return userId_; }
+      set {
+        userId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -2001,6 +2026,7 @@ using ProtoPackage.Attributes;
       if (!object.Equals(CancelReason, other.CancelReason)) return false;
       if (GetOverTime != other.GetOverTime) return false;
       if (Remark != other.Remark) return false;
+      if (UserId != other.UserId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2015,6 +2041,7 @@ using ProtoPackage.Attributes;
       if (cancelReason_ != null) hash ^= CancelReason.GetHashCode();
       if (GetOverTime != 0L) hash ^= GetOverTime.GetHashCode();
       if (Remark.Length != 0) hash ^= Remark.GetHashCode();
+      if (UserId != 0UL) hash ^= UserId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2058,6 +2085,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(58);
         output.WriteBytes(Remark);
       }
+      if (UserId != 0UL) {
+        output.WriteRawTag(64);
+        output.WriteUInt64(UserId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -2093,6 +2124,10 @@ using ProtoPackage.Attributes;
         output.WriteRawTag(58);
         output.WriteBytes(Remark);
       }
+      if (UserId != 0UL) {
+        output.WriteRawTag(64);
+        output.WriteUInt64(UserId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -2121,6 +2156,9 @@ using ProtoPackage.Attributes;
       }
       if (Remark.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeBytesSize(Remark);
+      }
+      if (UserId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UserId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -2155,6 +2193,9 @@ using ProtoPackage.Attributes;
       }
       if (other.Remark.Length != 0) {
         Remark = other.Remark;
+      }
+      if (other.UserId != 0UL) {
+        UserId = other.UserId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -2202,6 +2243,10 @@ using ProtoPackage.Attributes;
             Remark = input.ReadBytes();
             break;
           }
+          case 64: {
+            UserId = input.ReadUInt64();
+            break;
+          }
         }
       }
     #endif
@@ -2246,6 +2291,10 @@ using ProtoPackage.Attributes;
           }
           case 58: {
             Remark = input.ReadBytes();
+            break;
+          }
+          case 64: {
+            UserId = input.ReadUInt64();
             break;
           }
         }

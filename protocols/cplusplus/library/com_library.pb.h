@@ -198,12 +198,14 @@ inline bool BorrowOrderState_ENUMS_Parse(
 enum CancelOrderReasonType_ENUMS : int {
   CancelOrderReasonType_ENUMS_UNKNOWN = 0,
   CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT = 1,
+  CancelOrderReasonType_ENUMS_MANAGTER_CANCEL = 2,
+  CancelOrderReasonType_ENUMS_USER_SELF_CANCEL = 3,
   CancelOrderReasonType_ENUMS_CancelOrderReasonType_ENUMS_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   CancelOrderReasonType_ENUMS_CancelOrderReasonType_ENUMS_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool CancelOrderReasonType_ENUMS_IsValid(int value);
 constexpr CancelOrderReasonType_ENUMS CancelOrderReasonType_ENUMS_ENUMS_MIN = CancelOrderReasonType_ENUMS_UNKNOWN;
-constexpr CancelOrderReasonType_ENUMS CancelOrderReasonType_ENUMS_ENUMS_MAX = CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT;
+constexpr CancelOrderReasonType_ENUMS CancelOrderReasonType_ENUMS_ENUMS_MAX = CancelOrderReasonType_ENUMS_USER_SELF_CANCEL;
 constexpr int CancelOrderReasonType_ENUMS_ENUMS_ARRAYSIZE = CancelOrderReasonType_ENUMS_ENUMS_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CancelOrderReasonType_ENUMS_descriptor();
@@ -2056,6 +2058,10 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     CancelOrderReasonType_ENUMS_UNKNOWN;
   static constexpr ENUMS WAIT_USER_GET_TIME_OUT =
     CancelOrderReasonType_ENUMS_WAIT_USER_GET_TIME_OUT;
+  static constexpr ENUMS MANAGTER_CANCEL =
+    CancelOrderReasonType_ENUMS_MANAGTER_CANCEL;
+  static constexpr ENUMS USER_SELF_CANCEL =
+    CancelOrderReasonType_ENUMS_USER_SELF_CANCEL;
   static inline bool ENUMS_IsValid(int value) {
     return CancelOrderReasonType_ENUMS_IsValid(value);
   }
@@ -2665,6 +2671,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kOrderIdFieldNumber = 1,
     kCreateOrderTimeFieldNumber = 3,
     kGetOverTimeFieldNumber = 6,
+    kUserIdFieldNumber = 8,
     kOrderStateFieldNumber = 4,
   };
   // repeated .CRYSTAL_NET.service.BorrowBookInfo BorrowBookList = 2;
@@ -2744,6 +2751,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void _internal_set_getovertime(int64_t value);
   public:
 
+  // uint64 UserId = 8;
+  void clear_userid();
+  uint64_t userid() const;
+  void set_userid(uint64_t value);
+  private:
+  uint64_t _internal_userid() const;
+  void _internal_set_userid(uint64_t value);
+  public:
+
   // sint32 OrderState = 4;
   void clear_orderstate();
   int32_t orderstate() const;
@@ -2767,6 +2783,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     uint64_t orderid_;
     uint64_t createordertime_;
     int64_t getovertime_;
+    uint64_t userid_;
     int32_t orderstate_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -6908,6 +6925,26 @@ inline void BorrowOrderInfo::set_allocated_remark(std::string* remark) {
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.BorrowOrderInfo.Remark)
+}
+
+// uint64 UserId = 8;
+inline void BorrowOrderInfo::clear_userid() {
+  _impl_.userid_ = uint64_t{0u};
+}
+inline uint64_t BorrowOrderInfo::_internal_userid() const {
+  return _impl_.userid_;
+}
+inline uint64_t BorrowOrderInfo::userid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BorrowOrderInfo.UserId)
+  return _internal_userid();
+}
+inline void BorrowOrderInfo::_internal_set_userid(uint64_t value) {
+  
+  _impl_.userid_ = value;
+}
+inline void BorrowOrderInfo::set_userid(uint64_t value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BorrowOrderInfo.UserId)
 }
 
 // -------------------------------------------------------------------

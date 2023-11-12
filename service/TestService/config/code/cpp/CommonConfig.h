@@ -58,6 +58,8 @@ public:
 
         OUTSTORE_WAIT_GOT_DAYS,    // id
 
+        CONFIRM_CODE_TIME,    // id
+
         __ENUM_MAX,
 
     };
