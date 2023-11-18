@@ -1185,6 +1185,58 @@ export namespace ts_pbinfo{
     }
 
 
+    // library.proto 
+    export class ReturnBackReq {
+      getOpcode():number {return ReturnBackReq.OPCODE; }
+      getIsXorEncrypt():boolean {return ReturnBackReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return ReturnBackReq.KeyBase64; }
+      getOpcodeName():string {return ReturnBackReq.OPCODE_NAME; }
+      static OPCODE:number = 112;
+      static OPCODE_NAME:string = "ReturnBackReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // library.proto 
+    export class ReturnBackRes {
+      getOpcode():number {return ReturnBackRes.OPCODE; }
+      getIsXorEncrypt():boolean {return ReturnBackRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return ReturnBackRes.KeyBase64; }
+      getOpcodeName():string {return ReturnBackRes.OPCODE_NAME; }
+      static OPCODE:number = 113;
+      static OPCODE_NAME:string = "ReturnBackRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // syslog.proto 
+    export class SystemLogDataListReq {
+      getOpcode():number {return SystemLogDataListReq.OPCODE; }
+      getIsXorEncrypt():boolean {return SystemLogDataListReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return SystemLogDataListReq.KeyBase64; }
+      getOpcodeName():string {return SystemLogDataListReq.OPCODE_NAME; }
+      static OPCODE:number = 114;
+      static OPCODE_NAME:string = "SystemLogDataListReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // syslog.proto 
+    export class SystemLogDataListRes {
+      getOpcode():number {return SystemLogDataListRes.OPCODE; }
+      getIsXorEncrypt():boolean {return SystemLogDataListRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return SystemLogDataListRes.KeyBase64; }
+      getOpcodeName():string {return SystemLogDataListRes.OPCODE_NAME; }
+      static OPCODE:number = 115;
+      static OPCODE_NAME:string = "SystemLogDataListRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -1363,7 +1415,15 @@ export namespace ts_pbinfo{
 
           [OnekeyClearNotifyReq.OPCODE]: new OnekeyClearNotifyReq(),
 
-          [OnekeyClearNotifyRes.OPCODE]: new OnekeyClearNotifyRes()
+          [OnekeyClearNotifyRes.OPCODE]: new OnekeyClearNotifyRes(),
+
+          [ReturnBackReq.OPCODE]: new ReturnBackReq(),
+
+          [ReturnBackRes.OPCODE]: new ReturnBackRes(),
+
+          [SystemLogDataListReq.OPCODE]: new SystemLogDataListReq(),
+
+          [SystemLogDataListRes.OPCODE]: new SystemLogDataListRes()
 
 
       }

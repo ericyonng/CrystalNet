@@ -88,7 +88,8 @@ public:
     Int32 LoadUser(const KERNEL_NS::LibString &accountName, KERNEL_NS::SmartPtr<PendingUser, KERNEL_NS::AutoDelMethods::CustomDelete> &pendingUser);
     
     virtual bool IsPhoneNumberBinded(const IUser *operateUser, UInt64 phoneNubmer, const std::set<UInt64> &excludeUserIds, bool &hasBindPhone) const override;
-    
+    virtual bool IsBindedPhone(UInt64 userId) const override;
+
     virtual void Purge() override;
     virtual void PurgeAndWait() override;
    virtual void PurgeEndWith(KERNEL_NS::IDelegate<void, Int32> *handler) override;

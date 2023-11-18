@@ -919,3 +919,43 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, OnekeyClearNotifyResFactory::CreateFactory()));
     }
+
+    {// ReturnBackReq
+        auto info = OpcodeInfo();
+        info._opcode = 112;
+        info._noLog = false;
+        info._opcodeName = "ReturnBackReq";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ReturnBackReqFactory::CreateFactory()));
+    }
+
+    {// ReturnBackRes
+        auto info = OpcodeInfo();
+        info._opcode = 113;
+        info._noLog = false;
+        info._opcodeName = "ReturnBackRes";
+        info._protoFile = "library.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, ReturnBackResFactory::CreateFactory()));
+    }
+
+    {// SystemLogDataListReq
+        auto info = OpcodeInfo();
+        info._opcode = 114;
+        info._noLog = false;
+        info._opcodeName = "SystemLogDataListReq";
+        info._protoFile = "syslog.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SystemLogDataListReqFactory::CreateFactory()));
+    }
+
+    {// SystemLogDataListRes
+        auto info = OpcodeInfo();
+        info._opcode = 115;
+        info._noLog = false;
+        info._opcodeName = "SystemLogDataListRes";
+        info._protoFile = "syslog.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SystemLogDataListResFactory::CreateFactory()));
+    }

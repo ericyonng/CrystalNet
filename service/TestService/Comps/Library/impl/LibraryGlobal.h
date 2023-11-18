@@ -89,6 +89,7 @@ protected:
     void _OnManagerScanOrderForUserGettingBooksReq(KERNEL_NS::LibPacket *&packet);
     void _OnUserGetBooksOrderConfirmReq(KERNEL_NS::LibPacket *&packet);
     void _OnCancelOrderReq(KERNEL_NS::LibPacket *&packet);
+    void _OnReturnBackReq(KERNEL_NS::LibPacket *&packet);
 
     void _BuildOrderDetailInfo(const LibraryInfo *libraryInfo, UInt64 memberUserId, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const;
     void _BuildOrderDetailInfo(UInt64 libraryId, const MemberInfo *memberInfo, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const;
@@ -113,6 +114,7 @@ protected:
 
     // 是否有逾期
     bool _HasOverDeadlineOrder(const MemberInfo *memberInfo, const KERNEL_NS::LibTime &nowTime) const;
+    bool _HasOberDeadlineBook(const BorrowOrderInfo *orderInfo, const KERNEL_NS::LibTime &nowTime) const;
 
     bool _RemoveMember(LibraryInfo *libraryInfo, UInt64 userId);
     bool _RemoveMember(LibraryInfo *libraryInfo, IUser *user);

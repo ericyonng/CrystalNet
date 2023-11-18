@@ -431,6 +431,7 @@ Int32 LibraryGlobal::_OnGlobalSysInit()
     Subscribe(Opcodes::OpcodeConst::OPCODE_ManagerScanOrderForUserGettingBooksReq, this, &LibraryGlobal::_OnManagerScanOrderForUserGettingBooksReq);
     Subscribe(Opcodes::OpcodeConst::OPCODE_UserGetBooksOrderConfirmReq, this, &LibraryGlobal::_OnUserGetBooksOrderConfirmReq);
     Subscribe(Opcodes::OpcodeConst::OPCODE_CancelOrderReq, this, &LibraryGlobal::_OnCancelOrderReq);
+    Subscribe(Opcodes::OpcodeConst::OPCODE_ReturnBackReq, this, &LibraryGlobal::_OnReturnBackReq);
     return Status::Success;
 }
 
@@ -1047,7 +1048,7 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
             }
 
             bool newPhoneIsBinded = false;
-            if(!userMgr->IsPhoneNumberBinded(user, req->newmemberphone(), {user->GetUserId()}, newPhoneIsBinded))
+            if(!userMgr->IsPhoneNumberBinded(user, req->newmemberphone(), {req->memberuserid()}, newPhoneIsBinded))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("db error phone:%llu, user:%s"), req->newmemberphone(), user->ToString().c_str());
                 errCode = Status::DBError;
@@ -2236,6 +2237,272 @@ void LibraryGlobal::_OnCancelOrderReq(KERNEL_NS::LibPacket *&packet)
     user->Send(Opcodes::OpcodeConst::OPCODE_CancelOrderRes, res, packet->GetPacketId());
 }
 
+void LibraryGlobal::_OnReturnBackReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto req = packet->GetCoder<ReturnBackReq>();
+    Int32 err = Status::Success;
+    do
+    {
+        auto libraryMgr = user->GetSys<ILibraryMgr>();
+        const auto libraryId = libraryMgr->GetMyLibraryId();
+        auto libarayInfo = GetLibraryInfo(libraryId);
+        if(!libarayInfo)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("not join any library user:%s req:%s"), user->ToString().c_str(), req->ToJsonString().c_str());
+            err = Status::NotJoinAnyLibrary;
+            break;
+        }
+
+        if(!_IsManager(libraryId, user->GetUserId()))
+        {
+            err = Status::NotManager;
+            g_Log->Warn(LOGFMT_OBJ_TAG("not library manager libraryId:%llu, user:%s"), libraryId, user->ToString().c_str());
+            break;
+        }
+
+        auto orderInfo = GetOrderInfo(libraryId, req->orderid());
+        if(!orderInfo)
+        {
+            err = Status::ParamError;
+            g_Log->Warn(LOGFMT_OBJ_TAG("order not exist libraryId:%llu, user:%s, req:%s")
+            , libraryId, user->ToString().c_str(), req->ToJsonString().c_str());
+            break;
+        }
+
+        // 必须是领书完待还
+        if(orderInfo->orderstate() != BorrowOrderState_ENUMS_WAIT_USER_RETURN_BACK)
+        {
+            err = Status::InvalidOrderState;
+            g_Log->Warn(LOGFMT_OBJ_TAG("order state invalid exist libraryId:%llu, user:%s, req:%s, orderInfo:%s")
+            , libraryId, user->ToString().c_str(), req->ToJsonString().c_str(), orderInfo->ToJsonString().c_str());
+            break;
+        }
+
+        // 如果还部分的订单
+        std::set<UInt64> suborders;
+        for(auto subOrderId : req->suborderids())
+        {
+            bool isExists = false;
+            for(auto &subOrder : orderInfo->borrowbooklist())
+            {
+                if(subOrder.suborderid() == subOrderId)
+                {
+                    isExists = true;
+                    suborders.insert(subOrderId);
+                    break;
+                }
+            }
+
+            if(!isExists)
+            {
+                err = Status::ParamError;
+                g_Log->Warn(LOGFMT_OBJ_TAG("sub order not exist sub order id:%llu libraryId:%llu, user:%s, req:%s, orderInfo:%s")
+                , subOrderId, libraryId, user->ToString().c_str(), req->ToJsonString().c_str(), orderInfo->ToJsonString().c_str());
+                break;
+            }
+        }
+
+        if(err != Status::Success)
+        {
+            break;
+        }
+
+        const auto &nowTime = KERNEL_NS::LibTime::Now();
+        // isbn, bookname, count,
+        std::map<UInt64, std::tuple<KERNEL_NS::LibString, KERNEL_NS::LibString, UInt64>> returnBackBookInfoList;
+        if(suborders.empty())
+        {
+            const Int32 count = orderInfo->borrowbooklist_size();
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                auto subOrderInfo = orderInfo->mutable_borrowbooklist(idx);
+                subOrderInfo->set_realgivebacktime(nowTime.GetMilliTimestamp());
+                subOrderInfo->set_returnbackcount(subOrderInfo->borrowcount());
+
+                auto bookInfo = GetBookInfo(libraryId, subOrderInfo->bookid());
+                // 库存数量增加
+                if(LIKELY(bookInfo))
+                {
+                    auto variantInfo = bookInfo->mutable_variantinfo();
+                    variantInfo->set_count(variantInfo->count() + subOrderInfo->borrowcount());
+                }
+                else
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("book not exists when return back book book id:%llu, isbn:%s, library id:%llu, order info:%s, user:%s")
+                    , subOrderInfo->bookid(), subOrderInfo->isbncode().c_str(), libraryId, orderInfo->ToJsonString().c_str(), user->ToString().c_str());
+                }
+
+                auto iter = returnBackBookInfoList.find(subOrderInfo->bookid());
+                if(iter == returnBackBookInfoList.end())
+                {
+                    auto tup = std::make_tuple(subOrderInfo->isbncode(), bookInfo?bookInfo->bookname() : "", 0);
+                    iter = returnBackBookInfoList.insert(std::make_pair(subOrderInfo->bookid(), tup)).first;
+                }
+
+                auto &bookCount = std::get<2>(iter->second);
+                bookCount += subOrderInfo->borrowcount();
+            }
+        }
+        else
+        {
+            const Int32 count = orderInfo->borrowbooklist_size();
+            for(Int32 idx = 0; idx < count; ++idx)
+            {
+                auto subOrderInfo = orderInfo->mutable_borrowbooklist(idx);
+                if(suborders.find(subOrderInfo->suborderid()) == suborders.end())
+                    continue;
+
+                subOrderInfo->set_realgivebacktime(nowTime.GetMilliTimestamp());
+                subOrderInfo->set_returnbackcount(subOrderInfo->borrowcount());
+                // 库存数量增加
+                auto bookInfo = GetBookInfo(libraryId, subOrderInfo->bookid());
+                if(LIKELY(bookInfo))
+                {
+                    auto variantInfo = bookInfo->mutable_variantinfo();
+                    variantInfo->set_count(variantInfo->count() + subOrderInfo->borrowcount());
+                }
+                else
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("book not exists when return back book book id:%llu, isbn:%s, library id:%llu, order info:%s, user:%s")
+                    , subOrderInfo->bookid(), subOrderInfo->isbncode().c_str(), libraryId, orderInfo->ToJsonString().c_str(), user->ToString().c_str());
+                }
+
+                auto iter = returnBackBookInfoList.find(subOrderInfo->bookid());
+                if(iter == returnBackBookInfoList.end())
+                {
+                    auto tup = std::make_tuple(subOrderInfo->isbncode(), bookInfo?bookInfo->bookname() : "", 0);
+                    iter = returnBackBookInfoList.insert(std::make_pair(subOrderInfo->bookid(), tup)).first;
+                }
+
+                auto &bookCount = std::get<2>(iter->second);
+                bookCount += subOrderInfo->borrowcount();
+            }
+        }
+
+        // 所有书是否全部还完
+        bool notReturnAll = false;
+        for(auto subOrderInfo : orderInfo->borrowbooklist())
+        {
+            if(subOrderInfo.borrowcount() != subOrderInfo.returnbackcount())
+            {
+                notReturnAll = true;
+                break;
+            }
+        }
+        
+        if(!notReturnAll)
+        {
+            orderInfo->set_orderstate(BorrowOrderState_ENUMS_RETURN_BAKCK);
+        }
+
+        MaskNumberKeyModifyDirty(libraryId);
+
+        _SendLibraryInfoNty(user);
+        _SendOrderDetailInfoNty(user);
+
+        auto targetMemberInfo = GetMemberInfo(libraryId, orderInfo->userid());
+        g_Log->Info(LOGFMT_OBJ_TAG("return back books library id:%llu, operate user:%s, target user member info:%s, order info:%s")
+        ,  libraryId, user->ToString().c_str(), targetMemberInfo ? targetMemberInfo->ToJsonString().c_str() : KERNEL_NS::StringUtil::Num2Str(orderInfo->userid()).c_str()
+        , orderInfo->ToJsonString().c_str());
+
+        // 取消订单需要通知管理员(所有包括馆长)订单取消
+        auto notifyGlobal = GetGlobalSys<INotifyGlobal>();
+        // "还书操作, 操作人id:{0},操作人昵称:{1}, 订单号:{2}, 借书人id:{3}, 借书人昵称:{4}, 归还的书:\n{5},\n 是否已还全部:{6},剩余未归还图书是否有逾期:{7}."
+        std::vector<VariantParam> params;
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(user->GetUserId());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(user->GetNickname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(orderInfo->orderid());
+            params.push_back(param);
+        }
+        {// 借书人id
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(orderInfo->userid());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(targetMemberInfo ? targetMemberInfo->nickname() : "");
+            params.push_back(param);
+        }
+        {// 归还的书的列表
+            KERNEL_NS::LibString returnBackInfo;
+            for(auto iter : returnBackBookInfoList)
+            {
+                auto &tup = iter.second;
+                auto &isbnCode = std::get<0>(tup);
+                auto &bookName = std::get<1>(tup);
+                auto &bookCount = std::get<2>(tup);
+
+                returnBackInfo.AppendData("BookName:");
+                returnBackInfo.AppendData(bookName);
+                returnBackInfo.AppendData(", ISBN:");
+                returnBackInfo.AppendData(isbnCode);
+                returnBackInfo.AppendFormat(" x %llu\n", bookCount);
+            }
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(returnBackInfo.GetRaw());
+            params.push_back(param);
+        }
+        {// 是否归还全部
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_VALUE);
+            param.set_intvalue(notReturnAll ? 0 : 1);
+            params.push_back(param);
+        }
+        {// 剩余的是否有逾期
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_VALUE);
+            auto hasOverDeadlineBook = _HasOberDeadlineBook(orderInfo, nowTime);
+            param.set_intvalue(hasOverDeadlineBook ? 1 : 0);
+            params.push_back(param);
+        }
+        bool isNotified = false;
+        for(auto &manager: libarayInfo->managerinfolist())
+        {
+            if(manager.userid() == orderInfo->userid())
+                isNotified = true;
+
+            notifyGlobal->SendNotify(manager.userid(), "RETURN_BACK_BOOK_TITLE", {}, "RETURN_BACK_BOOK_CONTENT"
+            , params);
+        }
+
+        if(!isNotified)
+        {
+            notifyGlobal->SendNotify(orderInfo->userid(), "RETURN_BACK_BOOK_TITLE", {}, "RETURN_BACK_BOOK_CONTENT"
+                , params);
+        }
+
+    }while(false);
+
+    ReturnBackRes res;
+    res.set_errcode(err);
+    user->Send(Opcodes::OpcodeConst::OPCODE_ReturnBackRes, res, packet->GetPacketId());
+}
+
 void LibraryGlobal::_BuildOrderDetailInfo(const LibraryInfo *libraryInfo, UInt64 memberUserId, ::google::protobuf::RepeatedPtrField<::CRYSTAL_NET::service::BorrowOrderDetailInfo> *detailInfoList) const
 {
     if(memberUserId)
@@ -2288,6 +2555,7 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
 {
     auto memberInfo = GetMemberInfo(libraryInfo->id(), reqUserId);
     auto targetMember = GetMemberInfo(libraryInfo->id(), targetUser->GetUserId());
+    auto userMgr = GetGlobalSys<IUserMgr>();
 
     // 修改角色
     if(req.has_newrole())
@@ -2310,22 +2578,26 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
             return Status::AuthNotEnough;
         }
 
+        bool hasBindedPhone = userMgr->IsBindedPhone(targetMember->userid());
         if(targetMember->role() == RoleType_ENUMS_NoAuth)
         {// 必须检查手机
-            if(!req.has_newmemberphone())
+            if(!hasBindedPhone)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("need bind phone from no auth to new role:%d, phone number:%llu library:%s, member role:%d,%s, target member role:%d,%s req user id:%llu")
-                ,req.newrole(), req.newmemberphone(), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
-                , targetMember->role(), RoleType::ENUMS_Name(targetMember->role()).c_str(), reqUserId);
-                return Status::InvalidPhoneNubmer;
-            }
+                if(!req.has_newmemberphone())
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("need bind phone from no auth to new role:%d, phone number:%llu library:%s, member role:%d,%s, target member role:%d,%s req user id:%llu")
+                    ,req.newrole(), req.newmemberphone(), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
+                    , targetMember->role(), RoleType::ENUMS_Name(targetMember->role()).c_str(), reqUserId);
+                    return Status::InvalidPhoneNubmer;
+                }
 
-            if(!_IsValidPhone(req.newmemberphone()))
-            {
-                g_Log->Warn(LOGFMT_OBJ_TAG("user bind a invalid phone from no auth to new role:%d, phone number:%llu library:%s, member role:%d,%s, target member role:%d,%s req user id:%llu")
-                ,req.newrole(), req.newmemberphone(), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
-                , targetMember->role(), RoleType::ENUMS_Name(targetMember->role()).c_str(), reqUserId);
-                return Status::InvalidPhoneNubmer;
+                if(!_IsValidPhone(req.newmemberphone()))
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("user bind a invalid phone from no auth to new role:%d, phone number:%llu library:%s, member role:%d,%s, target member role:%d,%s req user id:%llu")
+                    ,req.newrole(), req.newmemberphone(), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
+                    , targetMember->role(), RoleType::ENUMS_Name(targetMember->role()).c_str(), reqUserId);
+                    return Status::InvalidPhoneNubmer;
+                }
             }
         }
 
@@ -2334,7 +2606,8 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
 
         if(oldRole == RoleType_ENUMS_NoAuth)
         {// TODO:绑定手机
-            targetUser->BindPhone(req.newmemberphone());
+            if(!hasBindedPhone)
+               targetUser->BindPhone(req.newmemberphone());
         }
 
         // 管理员变更
@@ -2514,14 +2787,23 @@ bool LibraryGlobal::_HasOverDeadlineOrder(const MemberInfo *memberInfo, const KE
            (orderInfo.orderstate() == BorrowOrderState_ENUMS_RETURN_BAKCK))
             continue;
 
-        for(Int32 bookIdx = 0; bookIdx < bookListSize; ++bookIdx)
+        if(_HasOberDeadlineBook(&orderInfo, nowTime))
+            return true;
+    }
+
+    return false;
+}
+
+bool LibraryGlobal::_HasOberDeadlineBook(const BorrowOrderInfo *orderInfo, const KERNEL_NS::LibTime &nowTime) const
+{
+    const auto bookListSize = orderInfo->borrowbooklist_size();
+    for(Int32 bookIdx = 0; bookIdx < bookListSize; ++bookIdx)
+    {
+        auto &borrowBookInfo = orderInfo->borrowbooklist(bookIdx);
+        if(borrowBookInfo.returnbackcount() < borrowBookInfo.borrowcount())
         {
-            auto &borrowBookInfo = orderInfo.borrowbooklist(bookIdx);
-            if(borrowBookInfo.returnbackcount() < borrowBookInfo.borrowcount())
-            {
-                if(nowTime.GetMilliTimestamp() >= borrowBookInfo.plangivebacktime())
-                    return true;
-            }
+            if(nowTime.GetMilliTimestamp() >= borrowBookInfo.plangivebacktime())
+                return true;
         }
     }
 

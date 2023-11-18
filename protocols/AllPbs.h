@@ -43,6 +43,7 @@
 #include <protocols/cplusplus/library/com_offline.pb.h>
 #include <protocols/cplusplus/com_passtime.pb.h>
 #include <protocols/cplusplus/com_player.pb.h>
+#include <protocols/cplusplus/library/com_syslog.pb.h>
 #include <protocols/cplusplus/com_system_table.pb.h>
 #include <protocols/cplusplus/com_title.pb.h>
 #include <protocols/cplusplus/com_user.pb.h>
@@ -53,6 +54,7 @@
 #include <protocols/cplusplus/login.pb.h>
 #include <protocols/cplusplus/library/notify.pb.h>
 #include <protocols/cplusplus/player.pb.h>
+#include <protocols/cplusplus/library/syslog.pb.h>
 #include <protocols/cplusplus/test_opcode.pb.h>
 #include <protocols/cplusplus/title.pb.h>
 #include <protocols/cplusplus/user.pb.h>

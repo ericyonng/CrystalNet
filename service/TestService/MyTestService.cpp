@@ -188,6 +188,9 @@ void MyTestService::_OnServiceRegisterComps()
 
     // 通知模块
     RegisterComp<NotifyGlobalFactory>();
+
+    // 系统日志模块
+    RegisterComp<SystemLogGlobalFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()

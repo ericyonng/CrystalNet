@@ -178,6 +178,12 @@ extern QuitLibraryReqDefaultTypeInternal _QuitLibraryReq_default_instance_;
 class QuitLibraryRes;
 struct QuitLibraryResDefaultTypeInternal;
 extern QuitLibraryResDefaultTypeInternal _QuitLibraryRes_default_instance_;
+class ReturnBackReq;
+struct ReturnBackReqDefaultTypeInternal;
+extern ReturnBackReqDefaultTypeInternal _ReturnBackReq_default_instance_;
+class ReturnBackRes;
+struct ReturnBackResDefaultTypeInternal;
+extern ReturnBackResDefaultTypeInternal _ReturnBackRes_default_instance_;
 class TransferLibraianReq;
 struct TransferLibraianReqDefaultTypeInternal;
 extern TransferLibraianReqDefaultTypeInternal _TransferLibraianReq_default_instance_;
@@ -238,6 +244,8 @@ template<> ::CRYSTAL_NET::service::OutStoreOrderReq* Arena::CreateMaybeMessage<:
 template<> ::CRYSTAL_NET::service::OutStoreOrderRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::OutStoreOrderRes>(Arena*);
 template<> ::CRYSTAL_NET::service::QuitLibraryReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::QuitLibraryReq>(Arena*);
 template<> ::CRYSTAL_NET::service::QuitLibraryRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::QuitLibraryRes>(Arena*);
+template<> ::CRYSTAL_NET::service::ReturnBackReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ReturnBackReq>(Arena*);
+template<> ::CRYSTAL_NET::service::ReturnBackRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::ReturnBackRes>(Arena*);
 template<> ::CRYSTAL_NET::service::TransferLibraianReq* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TransferLibraianReq>(Arena*);
 template<> ::CRYSTAL_NET::service::TransferLibraianRes* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TransferLibraianRes>(Arena*);
 template<> ::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserGetBooksOrderConfirmNty>(Arena*);
@@ -13521,6 +13529,605 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   union { Impl_ _impl_; };
   friend struct ::TableStruct_library_2eproto;
 };
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(112), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class ReturnBackReq final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ReturnBackReq) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ReturnBackReq failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline ReturnBackReq() : ReturnBackReq(nullptr) {}
+  ~ReturnBackReq() override;
+  explicit PROTOBUF_CONSTEXPR ReturnBackReq(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ReturnBackReq(const ReturnBackReq& from);
+  ReturnBackReq(ReturnBackReq&& from) noexcept
+    : ReturnBackReq() {
+    *this = ::std::move(from);
+  }
+
+  inline ReturnBackReq& operator=(const ReturnBackReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ReturnBackReq& operator=(ReturnBackReq&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ReturnBackReq& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ReturnBackReq* internal_default_instance() {
+    return reinterpret_cast<const ReturnBackReq*>(
+               &_ReturnBackReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    45;
+
+  friend void swap(ReturnBackReq& a, ReturnBackReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ReturnBackReq* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ReturnBackReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ReturnBackReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ReturnBackReq>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ReturnBackReq& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const ReturnBackReq& from) {
+    ReturnBackReq::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ReturnBackReq* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.ReturnBackReq";
+  }
+  protected:
+  explicit ReturnBackReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kSubOrderIdsFieldNumber = 2,
+    kOrderIdFieldNumber = 1,
+  };
+  // repeated uint64 SubOrderIds = 2;
+  int suborderids_size() const;
+  private:
+  int _internal_suborderids_size() const;
+  public:
+  void clear_suborderids();
+  private:
+  uint64_t _internal_suborderids(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
+      _internal_suborderids() const;
+  void _internal_add_suborderids(uint64_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
+      _internal_mutable_suborderids();
+  public:
+  uint64_t suborderids(int index) const;
+  void set_suborderids(int index, uint64_t value);
+  void add_suborderids(uint64_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
+      suborderids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
+      mutable_suborderids();
+
+  // uint64 OrderId = 1;
+  void clear_orderid();
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
+  private:
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ReturnBackReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > suborderids_;
+    mutable std::atomic<int> _suborderids_cached_byte_size_;
+    uint64_t orderid_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(113), nolog(false), XorEncrypt(false), KeyBase64(false)]
+class ReturnBackRes final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ReturnBackRes) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message ReturnBackRes failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline ReturnBackRes() : ReturnBackRes(nullptr) {}
+  ~ReturnBackRes() override;
+  explicit PROTOBUF_CONSTEXPR ReturnBackRes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ReturnBackRes(const ReturnBackRes& from);
+  ReturnBackRes(ReturnBackRes&& from) noexcept
+    : ReturnBackRes() {
+    *this = ::std::move(from);
+  }
+
+  inline ReturnBackRes& operator=(const ReturnBackRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ReturnBackRes& operator=(ReturnBackRes&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ReturnBackRes& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ReturnBackRes* internal_default_instance() {
+    return reinterpret_cast<const ReturnBackRes*>(
+               &_ReturnBackRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    46;
+
+  friend void swap(ReturnBackRes& a, ReturnBackRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ReturnBackRes* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ReturnBackRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ReturnBackRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ReturnBackRes>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ReturnBackRes& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const ReturnBackRes& from) {
+    ReturnBackRes::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ReturnBackRes* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.ReturnBackRes";
+  }
+  protected:
+  explicit ReturnBackRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrCodeFieldNumber = 1,
+  };
+  // sint32 ErrCode = 1;
+  void clear_errcode();
+  int32_t errcode() const;
+  void set_errcode(int32_t value);
+  private:
+  int32_t _internal_errcode() const;
+  void _internal_set_errcode(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ReturnBackRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t errcode_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_library_2eproto;
+};
 // ===================================================================
 
 
@@ -15872,9 +16479,108 @@ inline void CancelOrderRes::set_errcode(int32_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CancelOrderRes.ErrCode)
 }
 
+// -------------------------------------------------------------------
+
+// ReturnBackReq
+
+// uint64 OrderId = 1;
+inline void ReturnBackReq::clear_orderid() {
+  _impl_.orderid_ = uint64_t{0u};
+}
+inline uint64_t ReturnBackReq::_internal_orderid() const {
+  return _impl_.orderid_;
+}
+inline uint64_t ReturnBackReq::orderid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ReturnBackReq.OrderId)
+  return _internal_orderid();
+}
+inline void ReturnBackReq::_internal_set_orderid(uint64_t value) {
+  
+  _impl_.orderid_ = value;
+}
+inline void ReturnBackReq::set_orderid(uint64_t value) {
+  _internal_set_orderid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ReturnBackReq.OrderId)
+}
+
+// repeated uint64 SubOrderIds = 2;
+inline int ReturnBackReq::_internal_suborderids_size() const {
+  return _impl_.suborderids_.size();
+}
+inline int ReturnBackReq::suborderids_size() const {
+  return _internal_suborderids_size();
+}
+inline void ReturnBackReq::clear_suborderids() {
+  _impl_.suborderids_.Clear();
+}
+inline uint64_t ReturnBackReq::_internal_suborderids(int index) const {
+  return _impl_.suborderids_.Get(index);
+}
+inline uint64_t ReturnBackReq::suborderids(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
+  return _internal_suborderids(index);
+}
+inline void ReturnBackReq::set_suborderids(int index, uint64_t value) {
+  _impl_.suborderids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
+}
+inline void ReturnBackReq::_internal_add_suborderids(uint64_t value) {
+  _impl_.suborderids_.Add(value);
+}
+inline void ReturnBackReq::add_suborderids(uint64_t value) {
+  _internal_add_suborderids(value);
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
+ReturnBackReq::_internal_suborderids() const {
+  return _impl_.suborderids_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
+ReturnBackReq::suborderids() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
+  return _internal_suborderids();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
+ReturnBackReq::_internal_mutable_suborderids() {
+  return &_impl_.suborderids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
+ReturnBackReq::mutable_suborderids() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
+  return _internal_mutable_suborderids();
+}
+
+// -------------------------------------------------------------------
+
+// ReturnBackRes
+
+// sint32 ErrCode = 1;
+inline void ReturnBackRes::clear_errcode() {
+  _impl_.errcode_ = 0;
+}
+inline int32_t ReturnBackRes::_internal_errcode() const {
+  return _impl_.errcode_;
+}
+inline int32_t ReturnBackRes::errcode() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ReturnBackRes.ErrCode)
+  return _internal_errcode();
+}
+inline void ReturnBackRes::_internal_set_errcode(int32_t value) {
+  
+  _impl_.errcode_ = value;
+}
+inline void ReturnBackRes::set_errcode(int32_t value) {
+  _internal_set_errcode(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ReturnBackRes.ErrCode)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -17003,6 +17709,52 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::CancelOrderRes(*dynamic_cast<const ::CRYSTAL_NET::service::CancelOrderRes *>(coder));
+    }
+
+};
+
+
+class ReturnBackReqFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, ReturnBackReqFactory);
+public:
+
+    virtual void Release() override {
+        ReturnBackReqFactory::Delete_ReturnBackReqFactory(this);
+    }
+
+    static ReturnBackReqFactory *CreateFactory() {
+        return ReturnBackReqFactory::New_ReturnBackReqFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::ReturnBackReq();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::ReturnBackReq(*dynamic_cast<const ::CRYSTAL_NET::service::ReturnBackReq *>(coder));
+    }
+
+};
+
+
+class ReturnBackResFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, ReturnBackResFactory);
+public:
+
+    virtual void Release() override {
+        ReturnBackResFactory::Delete_ReturnBackResFactory(this);
+    }
+
+    static ReturnBackResFactory *CreateFactory() {
+        return ReturnBackResFactory::New_ReturnBackResFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::ReturnBackRes();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::ReturnBackRes(*dynamic_cast<const ::CRYSTAL_NET::service::ReturnBackRes *>(coder));
     }
 
 };

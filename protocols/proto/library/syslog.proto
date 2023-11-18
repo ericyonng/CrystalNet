@@ -1,0 +1,21 @@
+syntax = "proto3";
+package CRYSTAL_NET.service;
+
+import "com_syslog.proto";
+
+// 系统日志
+/// Opcode:
+message SystemLogDataListReq
+{
+    uint64 BaseNotifyId = 1;
+    
+    // 数量 负数表示 BaseNotifyId 之前的前n个日志, 正数表示 BaseNotifyId 之后n个日志
+    sint32 BookCount = 2;
+}
+
+// 系统日志
+/// Opcode:
+message SystemLogDataListRes
+{
+    repeated SystemLogData LogList = 1;
+}

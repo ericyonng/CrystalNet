@@ -94,6 +94,10 @@ public static class PacketOpcode
         CancelOrderRes = 109,    // library.proto
         OnekeyClearNotifyReq = 110,    // notify.proto
         OnekeyClearNotifyRes = 111,    // notify.proto
-        OpcodeMax = 111,
+        ReturnBackReq = 112,    // library.proto
+        ReturnBackRes = 113,    // library.proto
+        SystemLogDataListReq = 114,    // syslog.proto
+        SystemLogDataListRes = 115,    // syslog.proto
+        OpcodeMax = 115,
     }
 }

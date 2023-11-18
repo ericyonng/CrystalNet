@@ -569,6 +569,57 @@ bool UserMgr::IsPhoneNumberBinded(const IUser *operateUser, UInt64 phoneNubmer, 
     return true;
 }
 
+bool UserMgr::IsBindedPhone(UInt64 userId) const
+{
+    auto user = GetUser(userId);
+    if(user)
+    {
+        return user->HasBindPhone();
+    }
+
+    // 查询用户
+    auto userStorage = GetComp<UserMgrStorage>();
+    auto service = ILogicSys::GetCurrentService();
+    auto mysqlMgr = service->GetComp<IMysqlMgr>();
+    auto descriptor = UserBaseInfo::descriptor();
+    const auto &bindPhnoneName = descriptor->FindFieldByNumber(UserBaseInfo::kBindPhoneFieldNumber)->name();
+    const auto &userIdName = descriptor->FindFieldByNumber(UserBaseInfo::kUserIdFieldNumber)->name();
+
+    KERNEL_NS::SelectSqlBuilder *builder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
+    builder->DB(mysqlMgr->GetCurrentServiceDbName()).From(userStorage->GetTableName())
+    .Where(KERNEL_NS::LibString().AppendFormat("`%s` = %llu and `%s` != 0"
+    , userIdName.c_str(), userId, bindPhnoneName.c_str()));
+
+    UInt64 stub = 0;
+    Int32 err = Status::Success;
+    Int32 opId = mysqlMgr->GetStorageOperatorId();
+    std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
+    auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+    newMysqlBuilder->_builder = builder;
+    builders.push_back(newMysqlBuilder);
+    bool hasBindPhone = false;
+    err = mysqlMgr->NewRequestAndWaitResponseBy2(stub, mysqlMgr->GetCurrentServiceDbName(), opId, builders,
+    [this, &err, &hasBindPhone](KERNEL_NS::MysqlResponse *res){
+        if(res->_errCode != Status::Success)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy2 fail db name:%s res seqId:%llu, mysqlError:%u")
+                    , res->_dbName.c_str(), res->_seqId, res->_mysqlErrno);
+            err = res->_errCode;
+            return;
+        }
+
+        hasBindPhone = !res->_datas.empty();
+    });
+
+    if(err != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
+        return false;
+    }
+
+    return hasBindPhone;
+}
+
 void UserMgr::Purge()
 {
     auto dbMgr = GetGlobalSys<IMysqlMgr>();

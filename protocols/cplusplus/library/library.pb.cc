@@ -48,6 +48,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(UserGetBooksOrderConfirmReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(UserGetBooksOrderConfirmResFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(CancelOrderReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(CancelOrderResFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ReturnBackReqFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ReturnBackResFactory);
 
 #include <algorithm>
 
@@ -665,9 +667,37 @@ struct CancelOrderResDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CancelOrderResDefaultTypeInternal _CancelOrderRes_default_instance_;
+PROTOBUF_CONSTEXPR ReturnBackReq::ReturnBackReq(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.suborderids_)*/{}
+  , /*decltype(_impl_._suborderids_cached_byte_size_)*/{0}
+  , /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct ReturnBackReqDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ReturnBackReqDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ReturnBackReqDefaultTypeInternal() {}
+  union {
+    ReturnBackReq _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ReturnBackReqDefaultTypeInternal _ReturnBackReq_default_instance_;
+PROTOBUF_CONSTEXPR ReturnBackRes::ReturnBackRes(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.errcode_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct ReturnBackResDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ReturnBackResDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ReturnBackResDefaultTypeInternal() {}
+  union {
+    ReturnBackRes _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ReturnBackResDefaultTypeInternal _ReturnBackRes_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
-static ::_pb::Metadata file_level_metadata_library_2eproto[45];
+static ::_pb::Metadata file_level_metadata_library_2eproto[47];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_library_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_library_2eproto = nullptr;
 
@@ -1009,6 +1039,21 @@ const uint32_t TableStruct_library_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::CancelOrderRes, _impl_.errcode_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ReturnBackReq, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ReturnBackReq, _impl_.orderid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ReturnBackReq, _impl_.suborderids_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ReturnBackRes, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::ReturnBackRes, _impl_.errcode_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::GetLibraryInfoReq)},
@@ -1056,6 +1101,8 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 315, -1, -1, sizeof(::CRYSTAL_NET::service::UserGetBooksOrderConfirmRes)},
   { 322, -1, -1, sizeof(::CRYSTAL_NET::service::CancelOrderReq)},
   { 330, -1, -1, sizeof(::CRYSTAL_NET::service::CancelOrderRes)},
+  { 337, -1, -1, sizeof(::CRYSTAL_NET::service::ReturnBackReq)},
+  { 345, -1, -1, sizeof(::CRYSTAL_NET::service::ReturnBackRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -1104,6 +1151,8 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::CRYSTAL_NET::service::_UserGetBooksOrderConfirmRes_default_instance_._instance,
   &::CRYSTAL_NET::service::_CancelOrderReq_default_instance_._instance,
   &::CRYSTAL_NET::service::_CancelOrderRes_default_instance_._instance,
+  &::CRYSTAL_NET::service::_ReturnBackReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_ReturnBackRes_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_library_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -1180,7 +1229,9 @@ const char descriptor_table_protodef_library_2eproto[] PROTOBUF_SECTION_VARIABLE
   "e\030\002 \001(\004\".\n\033UserGetBooksOrderConfirmRes\022\017"
   "\n\007ErrCode\030\001 \001(\021\"1\n\016CancelOrderReq\022\017\n\007Ord"
   "erId\030\001 \001(\004\022\016\n\006Reason\030\002 \001(\014\"!\n\016CancelOrde"
-  "rRes\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
+  "rRes\022\017\n\007ErrCode\030\001 \001(\021\"5\n\rReturnBackReq\022\017"
+  "\n\007OrderId\030\001 \001(\004\022\023\n\013SubOrderIds\030\002 \003(\004\" \n\r"
+  "ReturnBackRes\022\017\n\007ErrCode\030\001 \001(\021b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_library_2eproto_deps[3] = {
   &::descriptor_table_com_5fbook_2eproto,
@@ -1189,9 +1240,9 @@ static const ::_pbi::DescriptorTable* const descriptor_table_library_2eproto_dep
 };
 static ::_pbi::once_flag descriptor_table_library_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_library_2eproto = {
-    false, false, 2949, descriptor_table_protodef_library_2eproto,
+    false, false, 3038, descriptor_table_protodef_library_2eproto,
     "library.proto",
-    &descriptor_table_library_2eproto_once, descriptor_table_library_2eproto_deps, 3, 45,
+    &descriptor_table_library_2eproto_once, descriptor_table_library_2eproto_deps, 3, 47,
     schemas, file_default_instances, TableStruct_library_2eproto::offsets,
     file_level_metadata_library_2eproto, file_level_enum_descriptors_library_2eproto,
     file_level_service_descriptors_library_2eproto,
@@ -9701,6 +9752,404 @@ void CancelOrderRes::InternalSwap(CancelOrderRes* other) {
       file_level_metadata_library_2eproto[44]);
 }
 
+// ===================================================================
+
+class ReturnBackReq::_Internal {
+ public:
+};
+
+ReturnBackReq::ReturnBackReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.ReturnBackReq)
+}
+ReturnBackReq::ReturnBackReq(const ReturnBackReq& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  ReturnBackReq* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.suborderids_){from._impl_.suborderids_}
+    , /*decltype(_impl_._suborderids_cached_byte_size_)*/{0}
+    , decltype(_impl_.orderid_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.orderid_ = from._impl_.orderid_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.ReturnBackReq)
+}
+
+inline void ReturnBackReq::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.suborderids_){arena}
+    , /*decltype(_impl_._suborderids_cached_byte_size_)*/{0}
+    , decltype(_impl_.orderid_){uint64_t{0u}}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+ReturnBackReq::~ReturnBackReq() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.ReturnBackReq)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void ReturnBackReq::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.suborderids_.~RepeatedField();
+}
+
+void ReturnBackReq::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void ReturnBackReq::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.ReturnBackReq)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.suborderids_.Clear();
+  _impl_.orderid_ = uint64_t{0u};
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* ReturnBackReq::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint64 OrderId = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.orderid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated uint64 SubOrderIds = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt64Parser(_internal_mutable_suborderids(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<uint8_t>(tag) == 16) {
+          _internal_add_suborderids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* ReturnBackReq::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.ReturnBackReq)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_orderid(), target);
+  }
+
+  // repeated uint64 SubOrderIds = 2;
+  {
+    int byte_size = _impl_._suborderids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteUInt64Packed(
+          2, _internal_suborderids(), byte_size, target);
+    }
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.ReturnBackReq)
+  return target;
+}
+
+size_t ReturnBackReq::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.ReturnBackReq)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated uint64 SubOrderIds = 2;
+  {
+    size_t data_size = ::_pbi::WireFormatLite::
+      UInt64Size(this->_impl_.suborderids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
+    }
+    int cached_size = ::_pbi::ToCachedSize(data_size);
+    _impl_._suborderids_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // uint64 OrderId = 1;
+  if (this->_internal_orderid() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_orderid());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ReturnBackReq::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    ReturnBackReq::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ReturnBackReq::GetClassData() const { return &_class_data_; }
+
+
+void ReturnBackReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<ReturnBackReq*>(&to_msg);
+  auto& from = static_cast<const ReturnBackReq&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.ReturnBackReq)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_impl_.suborderids_.MergeFrom(from._impl_.suborderids_);
+  if (from._internal_orderid() != 0) {
+    _this->_internal_set_orderid(from._internal_orderid());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ReturnBackReq::CopyFrom(const ReturnBackReq& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.ReturnBackReq)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ReturnBackReq::IsInitialized() const {
+  return true;
+}
+
+void ReturnBackReq::InternalSwap(ReturnBackReq* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.suborderids_.InternalSwap(&other->_impl_.suborderids_);
+  swap(_impl_.orderid_, other->_impl_.orderid_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata ReturnBackReq::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[45]);
+}
+
+// ===================================================================
+
+class ReturnBackRes::_Internal {
+ public:
+};
+
+ReturnBackRes::ReturnBackRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.ReturnBackRes)
+}
+ReturnBackRes::ReturnBackRes(const ReturnBackRes& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  ReturnBackRes* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.errcode_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.errcode_ = from._impl_.errcode_;
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.ReturnBackRes)
+}
+
+inline void ReturnBackRes::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.errcode_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+}
+
+ReturnBackRes::~ReturnBackRes() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.ReturnBackRes)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void ReturnBackRes::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void ReturnBackRes::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void ReturnBackRes::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.ReturnBackRes)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.errcode_ = 0;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* ReturnBackRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // sint32 ErrCode = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.errcode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* ReturnBackRes::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.ReturnBackRes)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(1, this->_internal_errcode(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.ReturnBackRes)
+  return target;
+}
+
+size_t ReturnBackRes::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.ReturnBackRes)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // sint32 ErrCode = 1;
+  if (this->_internal_errcode() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_errcode());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ReturnBackRes::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    ReturnBackRes::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ReturnBackRes::GetClassData() const { return &_class_data_; }
+
+
+void ReturnBackRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<ReturnBackRes*>(&to_msg);
+  auto& from = static_cast<const ReturnBackRes&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.ReturnBackRes)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_errcode() != 0) {
+    _this->_internal_set_errcode(from._internal_errcode());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ReturnBackRes::CopyFrom(const ReturnBackRes& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.ReturnBackRes)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ReturnBackRes::IsInitialized() const {
+  return true;
+}
+
+void ReturnBackRes::InternalSwap(ReturnBackRes* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_.errcode_, other->_impl_.errcode_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata ReturnBackRes::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_library_2eproto_getter, &descriptor_table_library_2eproto_once,
+      file_level_metadata_library_2eproto[46]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace service
 }  // namespace CRYSTAL_NET
@@ -9884,6 +10333,14 @@ Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::CancelOrderReq >(Arena* arena
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::CancelOrderRes*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::CancelOrderRes >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::CancelOrderRes >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::ReturnBackReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ReturnBackReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::ReturnBackReq >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::ReturnBackRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::ReturnBackRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::ReturnBackRes >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

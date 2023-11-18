@@ -119,5 +119,9 @@ public:
     static constexpr Int32 OPCODE_CancelOrderRes = 109;    // library.proto
     static constexpr Int32 OPCODE_OnekeyClearNotifyReq = 110;    // notify.proto
     static constexpr Int32 OPCODE_OnekeyClearNotifyRes = 111;    // notify.proto
-    static constexpr Int32 OPCODE_MAX = 111;
+    static constexpr Int32 OPCODE_ReturnBackReq = 112;    // library.proto
+    static constexpr Int32 OPCODE_ReturnBackRes = 113;    // library.proto
+    static constexpr Int32 OPCODE_SystemLogDataListReq = 114;    // syslog.proto
+    static constexpr Int32 OPCODE_SystemLogDataListRes = 115;    // syslog.proto
+    static constexpr Int32 OPCODE_MAX = 115;
 };

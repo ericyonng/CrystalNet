@@ -4476,7 +4476,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kManagerInfoListFieldNumber = 8,
     kMemberListFieldNumber = 9,
     kBookListFieldNumber = 10,
-    kLogInfoListFieldNumber = 11,
     kNameFieldNumber = 2,
     kAddressFieldNumber = 3,
     kOpenTimeFieldNumber = 4,
@@ -4538,24 +4537,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   ::CRYSTAL_NET::service::BookInfo* add_booklist();
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo >&
       booklist() const;
-
-  // repeated .CRYSTAL_NET.service.OperationLogInfo LogInfoList = 11;
-  int loginfolist_size() const;
-  private:
-  int _internal_loginfolist_size() const;
-  public:
-  void clear_loginfolist();
-  ::CRYSTAL_NET::service::OperationLogInfo* mutable_loginfolist(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OperationLogInfo >*
-      mutable_loginfolist();
-  private:
-  const ::CRYSTAL_NET::service::OperationLogInfo& _internal_loginfolist(int index) const;
-  ::CRYSTAL_NET::service::OperationLogInfo* _internal_add_loginfolist();
-  public:
-  const ::CRYSTAL_NET::service::OperationLogInfo& loginfolist(int index) const;
-  ::CRYSTAL_NET::service::OperationLogInfo* add_loginfolist();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OperationLogInfo >&
-      loginfolist() const;
 
   // bytes Name = 2;
   void clear_name();
@@ -4656,7 +4637,6 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::LibararyManagerInfo > managerinfolist_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::MemberInfo > memberlist_;
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::BookInfo > booklist_;
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OperationLogInfo > loginfolist_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr address_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr opentime_;
@@ -8066,46 +8046,6 @@ inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::
 LibraryInfo::booklist() const {
   // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.LibraryInfo.BookList)
   return _impl_.booklist_;
-}
-
-// repeated .CRYSTAL_NET.service.OperationLogInfo LogInfoList = 11;
-inline int LibraryInfo::_internal_loginfolist_size() const {
-  return _impl_.loginfolist_.size();
-}
-inline int LibraryInfo::loginfolist_size() const {
-  return _internal_loginfolist_size();
-}
-inline void LibraryInfo::clear_loginfolist() {
-  _impl_.loginfolist_.Clear();
-}
-inline ::CRYSTAL_NET::service::OperationLogInfo* LibraryInfo::mutable_loginfolist(int index) {
-  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.LibraryInfo.LogInfoList)
-  return _impl_.loginfolist_.Mutable(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OperationLogInfo >*
-LibraryInfo::mutable_loginfolist() {
-  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.LibraryInfo.LogInfoList)
-  return &_impl_.loginfolist_;
-}
-inline const ::CRYSTAL_NET::service::OperationLogInfo& LibraryInfo::_internal_loginfolist(int index) const {
-  return _impl_.loginfolist_.Get(index);
-}
-inline const ::CRYSTAL_NET::service::OperationLogInfo& LibraryInfo::loginfolist(int index) const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LibraryInfo.LogInfoList)
-  return _internal_loginfolist(index);
-}
-inline ::CRYSTAL_NET::service::OperationLogInfo* LibraryInfo::_internal_add_loginfolist() {
-  return _impl_.loginfolist_.Add();
-}
-inline ::CRYSTAL_NET::service::OperationLogInfo* LibraryInfo::add_loginfolist() {
-  ::CRYSTAL_NET::service::OperationLogInfo* _add = _internal_add_loginfolist();
-  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.LibraryInfo.LogInfoList)
-  return _add;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OperationLogInfo >&
-LibraryInfo::loginfolist() const {
-  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.LibraryInfo.LogInfoList)
-  return _impl_.loginfolist_;
 }
 
 // -------------------------------------------------------------------

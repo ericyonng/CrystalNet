@@ -65,21 +65,20 @@ using ProtoPackage.Attributes;
             "Eg4KBk9wVHlwZRgBIAEoERIQCghPcFVzZXJJZBgCIAEoBBISCgpPcE5pY2tu",
             "YW1lGAMgASgMEgwKBFJvbGUYBCABKBESEAoIT3BUaW1lTXMYBSABKBISMQoG",
             "UGFyYW1zGAYgAygLMiEuQ1JZU1RBTF9ORVQuc2VydmljZS5WYXJpYW50UGFy",
-            "YW0i/wIKC0xpYnJhcnlJbmZvEgoKAklkGAEgASgEEgwKBE5hbWUYAiABKAwS",
+            "YW0iwwIKC0xpYnJhcnlJbmZvEgoKAklkGAEgASgEEgwKBE5hbWUYAiABKAwS",
             "DwoHQWRkcmVzcxgDIAEoDBIQCghPcGVuVGltZRgEIAEoDBIWCg5UZWxwaG9u",
             "ZU51bWJlchgFIAEoCRIXCg9MaWJyYXJpYW5Vc2VySWQYBiABKAQSHQoVTGli",
             "cmFyaWFuVXNlck5pY2tuYW1lGAcgASgMEkEKD01hbmFnZXJJbmZvTGlzdBgI",
             "IAMoCzIoLkNSWVNUQUxfTkVULnNlcnZpY2UuTGliYXJhcnlNYW5hZ2VySW5m",
             "bxIzCgpNZW1iZXJMaXN0GAkgAygLMh8uQ1JZU1RBTF9ORVQuc2VydmljZS5N",
             "ZW1iZXJJbmZvEi8KCEJvb2tMaXN0GAogAygLMh0uQ1JZU1RBTF9ORVQuc2Vy",
-            "dmljZS5Cb29rSW5mbxI6CgtMb2dJbmZvTGlzdBgLIAMoCzIlLkNSWVNUQUxf",
-            "TkVULnNlcnZpY2UuT3BlcmF0aW9uTG9nSW5mbyIkCg9Vc2VyTGlicmFyeUlu",
-            "Zm8SEQoJTGlicmFyeUlkGAEgASgEImIKEkxpYnJhcnlQcmV2aWV3SW5mbxIK",
-            "CgJJZBgBIAEoBBIMCgROYW1lGAIgASgMEhcKD0xpYnJhcmlhblVzZXJJZBgD",
-            "IAEoBBIZChFMaWJyYXJpYW5OaWNrbmFtZRgEIAEoDCIhCg1LZXlXb3Jkc0Zp",
-            "ZWxkEhAKCEtleVdvcmRzGAEgAygMIiIKDVNuYXBzaG90RmllbGQSEQoJU25h",
-            "cHNob3RzGAEgAygJIi4KDU91dFN0b3JlUGFyYW0SDgoGQm9va0lkGAEgASgE",
-            "Eg0KBUNvdW50GAIgASgSYgZwcm90bzM="));
+            "dmljZS5Cb29rSW5mbyIkCg9Vc2VyTGlicmFyeUluZm8SEQoJTGlicmFyeUlk",
+            "GAEgASgEImIKEkxpYnJhcnlQcmV2aWV3SW5mbxIKCgJJZBgBIAEoBBIMCgRO",
+            "YW1lGAIgASgMEhcKD0xpYnJhcmlhblVzZXJJZBgDIAEoBBIZChFMaWJyYXJp",
+            "YW5OaWNrbmFtZRgEIAEoDCIhCg1LZXlXb3Jkc0ZpZWxkEhAKCEtleVdvcmRz",
+            "GAEgAygMIiIKDVNuYXBzaG90RmllbGQSEQoJU25hcHNob3RzGAEgAygJIi4K",
+            "DU91dFN0b3JlUGFyYW0SDgoGQm9va0lkGAEgASgEEg0KBUNvdW50GAIgASgS",
+            "YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComBookReflection.Descriptor, global::CRYSTALNET.Service.ComVariantReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -95,7 +94,7 @@ using ProtoPackage.Attributes;
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.MemberInfo), global::CRYSTALNET.Service.MemberInfo.Parser, new[]{ "UserId", "Role", "Nickname", "BorrowList", "LockTimestampMs", "BindPhone" }, new[]{ "MemberBindPhone" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OperationType), global::CRYSTALNET.Service.OperationType.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.OperationType.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.OperationLogInfo), global::CRYSTALNET.Service.OperationLogInfo.Parser, new[]{ "OpType", "OpUserId", "OpNickname", "Role", "OpTimeMs", "Params" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryInfo), global::CRYSTALNET.Service.LibraryInfo.Parser, new[]{ "Id", "Name", "Address", "OpenTime", "TelphoneNumber", "LibrarianUserId", "LibrarianUserNickname", "ManagerInfoList", "MemberList", "BookList", "LogInfoList" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryInfo), global::CRYSTALNET.Service.LibraryInfo.Parser, new[]{ "Id", "Name", "Address", "OpenTime", "TelphoneNumber", "LibrarianUserId", "LibrarianUserNickname", "ManagerInfoList", "MemberList", "BookList" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserLibraryInfo), global::CRYSTALNET.Service.UserLibraryInfo.Parser, new[]{ "LibraryId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LibraryPreviewInfo), global::CRYSTALNET.Service.LibraryPreviewInfo.Parser, new[]{ "Id", "Name", "LibrarianUserId", "LibrarianNickname" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.KeyWordsField), global::CRYSTALNET.Service.KeyWordsField.Parser, new[]{ "KeyWords" }, null, null, null, null),
@@ -3805,7 +3804,6 @@ using ProtoPackage.Attributes;
       managerInfoList_ = other.managerInfoList_.Clone();
       memberList_ = other.memberList_.Clone();
       bookList_ = other.bookList_.Clone();
-      logInfoList_ = other.logInfoList_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3962,20 +3960,6 @@ using ProtoPackage.Attributes;
       get { return bookList_; }
     }
 
-    /// <summary>Field number for the "LogInfoList" field.</summary>
-    public const int LogInfoListFieldNumber = 11;
-    private static readonly pb::FieldCodec<global::CRYSTALNET.Service.OperationLogInfo> _repeated_logInfoList_codec
-        = pb::FieldCodec.ForMessage(90, global::CRYSTALNET.Service.OperationLogInfo.Parser);
-    private readonly pbc::RepeatedField<global::CRYSTALNET.Service.OperationLogInfo> logInfoList_ = new pbc::RepeatedField<global::CRYSTALNET.Service.OperationLogInfo>();
-    /// <summary>
-    /// 只保留一年的操作日志
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::CRYSTALNET.Service.OperationLogInfo> LogInfoList {
-      get { return logInfoList_; }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -4001,7 +3985,6 @@ using ProtoPackage.Attributes;
       if(!managerInfoList_.Equals(other.managerInfoList_)) return false;
       if(!memberList_.Equals(other.memberList_)) return false;
       if(!bookList_.Equals(other.bookList_)) return false;
-      if(!logInfoList_.Equals(other.logInfoList_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4019,7 +4002,6 @@ using ProtoPackage.Attributes;
       hash ^= managerInfoList_.GetHashCode();
       hash ^= memberList_.GetHashCode();
       hash ^= bookList_.GetHashCode();
-      hash ^= logInfoList_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4069,7 +4051,6 @@ using ProtoPackage.Attributes;
       managerInfoList_.WriteTo(output, _repeated_managerInfoList_codec);
       memberList_.WriteTo(output, _repeated_memberList_codec);
       bookList_.WriteTo(output, _repeated_bookList_codec);
-      logInfoList_.WriteTo(output, _repeated_logInfoList_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4111,7 +4092,6 @@ using ProtoPackage.Attributes;
       managerInfoList_.WriteTo(ref output, _repeated_managerInfoList_codec);
       memberList_.WriteTo(ref output, _repeated_memberList_codec);
       bookList_.WriteTo(ref output, _repeated_bookList_codec);
-      logInfoList_.WriteTo(ref output, _repeated_logInfoList_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4146,7 +4126,6 @@ using ProtoPackage.Attributes;
       size += managerInfoList_.CalculateSize(_repeated_managerInfoList_codec);
       size += memberList_.CalculateSize(_repeated_memberList_codec);
       size += bookList_.CalculateSize(_repeated_bookList_codec);
-      size += logInfoList_.CalculateSize(_repeated_logInfoList_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -4183,7 +4162,6 @@ using ProtoPackage.Attributes;
       managerInfoList_.Add(other.managerInfoList_);
       memberList_.Add(other.memberList_);
       bookList_.Add(other.bookList_);
-      logInfoList_.Add(other.logInfoList_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -4239,10 +4217,6 @@ using ProtoPackage.Attributes;
             bookList_.AddEntriesFrom(input, _repeated_bookList_codec);
             break;
           }
-          case 90: {
-            logInfoList_.AddEntriesFrom(input, _repeated_logInfoList_codec);
-            break;
-          }
         }
       }
     #endif
@@ -4296,10 +4270,6 @@ using ProtoPackage.Attributes;
           }
           case 82: {
             bookList_.AddEntriesFrom(ref input, _repeated_bookList_codec);
-            break;
-          }
-          case 90: {
-            logInfoList_.AddEntriesFrom(ref input, _repeated_logInfoList_codec);
             break;
           }
         }

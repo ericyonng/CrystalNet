@@ -230,7 +230,6 @@ PROTOBUF_CONSTEXPR LibraryInfo::LibraryInfo(
     /*decltype(_impl_.managerinfolist_)*/{}
   , /*decltype(_impl_.memberlist_)*/{}
   , /*decltype(_impl_.booklist_)*/{}
-  , /*decltype(_impl_.loginfolist_)*/{}
   , /*decltype(_impl_.name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.address_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.opentime_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
@@ -456,7 +455,6 @@ const uint32_t TableStruct_com_5flibrary_2eproto::offsets[] PROTOBUF_SECTION_VAR
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LibraryInfo, _impl_.managerinfolist_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LibraryInfo, _impl_.memberlist_),
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LibraryInfo, _impl_.booklist_),
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::LibraryInfo, _impl_.loginfolist_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::UserLibraryInfo, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -511,11 +509,11 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 98, -1, -1, sizeof(::CRYSTAL_NET::service::OperationType)},
   { 104, -1, -1, sizeof(::CRYSTAL_NET::service::OperationLogInfo)},
   { 116, -1, -1, sizeof(::CRYSTAL_NET::service::LibraryInfo)},
-  { 133, -1, -1, sizeof(::CRYSTAL_NET::service::UserLibraryInfo)},
-  { 140, -1, -1, sizeof(::CRYSTAL_NET::service::LibraryPreviewInfo)},
-  { 150, -1, -1, sizeof(::CRYSTAL_NET::service::KeyWordsField)},
-  { 157, -1, -1, sizeof(::CRYSTAL_NET::service::SnapshotField)},
-  { 164, -1, -1, sizeof(::CRYSTAL_NET::service::OutStoreParam)},
+  { 132, -1, -1, sizeof(::CRYSTAL_NET::service::UserLibraryInfo)},
+  { 139, -1, -1, sizeof(::CRYSTAL_NET::service::LibraryPreviewInfo)},
+  { 149, -1, -1, sizeof(::CRYSTAL_NET::service::KeyWordsField)},
+  { 156, -1, -1, sizeof(::CRYSTAL_NET::service::SnapshotField)},
+  { 163, -1, -1, sizeof(::CRYSTAL_NET::service::OutStoreParam)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -583,7 +581,7 @@ const char descriptor_table_protodef_com_5flibrary_2eproto[] PROTOBUF_SECTION_VA
   "\233\001\n\020OperationLogInfo\022\016\n\006OpType\030\001 \001(\021\022\020\n\010"
   "OpUserId\030\002 \001(\004\022\022\n\nOpNickname\030\003 \001(\014\022\014\n\004Ro"
   "le\030\004 \001(\021\022\020\n\010OpTimeMs\030\005 \001(\022\0221\n\006Params\030\006 \003"
-  "(\0132!.CRYSTAL_NET.service.VariantParam\"\377\002"
+  "(\0132!.CRYSTAL_NET.service.VariantParam\"\303\002"
   "\n\013LibraryInfo\022\n\n\002Id\030\001 \001(\004\022\014\n\004Name\030\002 \001(\014\022"
   "\017\n\007Address\030\003 \001(\014\022\020\n\010OpenTime\030\004 \001(\014\022\026\n\016Te"
   "lphoneNumber\030\005 \001(\t\022\027\n\017LibrarianUserId\030\006 "
@@ -592,15 +590,13 @@ const char descriptor_table_protodef_com_5flibrary_2eproto[] PROTOBUF_SECTION_VA
   "e.LibararyManagerInfo\0223\n\nMemberList\030\t \003("
   "\0132\037.CRYSTAL_NET.service.MemberInfo\022/\n\010Bo"
   "okList\030\n \003(\0132\035.CRYSTAL_NET.service.BookI"
-  "nfo\022:\n\013LogInfoList\030\013 \003(\0132%.CRYSTAL_NET.s"
-  "ervice.OperationLogInfo\"$\n\017UserLibraryIn"
-  "fo\022\021\n\tLibraryId\030\001 \001(\004\"b\n\022LibraryPreviewI"
-  "nfo\022\n\n\002Id\030\001 \001(\004\022\014\n\004Name\030\002 \001(\014\022\027\n\017Librari"
-  "anUserId\030\003 \001(\004\022\031\n\021LibrarianNickname\030\004 \001("
-  "\014\"!\n\rKeyWordsField\022\020\n\010KeyWords\030\001 \003(\014\"\"\n\r"
-  "SnapshotField\022\021\n\tSnapshots\030\001 \003(\t\".\n\rOutS"
-  "toreParam\022\016\n\006BookId\030\001 \001(\004\022\r\n\005Count\030\002 \001(\022"
-  "b\006proto3"
+  "nfo\"$\n\017UserLibraryInfo\022\021\n\tLibraryId\030\001 \001("
+  "\004\"b\n\022LibraryPreviewInfo\022\n\n\002Id\030\001 \001(\004\022\014\n\004N"
+  "ame\030\002 \001(\014\022\027\n\017LibrarianUserId\030\003 \001(\004\022\031\n\021Li"
+  "brarianNickname\030\004 \001(\014\"!\n\rKeyWordsField\022\020"
+  "\n\010KeyWords\030\001 \003(\014\"\"\n\rSnapshotField\022\021\n\tSna"
+  "pshots\030\001 \003(\t\".\n\rOutStoreParam\022\016\n\006BookId\030"
+  "\001 \001(\004\022\r\n\005Count\030\002 \001(\022b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_com_5flibrary_2eproto_deps[2] = {
   &::descriptor_table_com_5fbook_2eproto,
@@ -608,7 +604,7 @@ static const ::_pbi::DescriptorTable* const descriptor_table_com_5flibrary_2epro
 };
 static ::_pbi::once_flag descriptor_table_com_5flibrary_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_com_5flibrary_2eproto = {
-    false, false, 2408, descriptor_table_protodef_com_5flibrary_2eproto,
+    false, false, 2348, descriptor_table_protodef_com_5flibrary_2eproto,
     "com_library.proto",
     &descriptor_table_com_5flibrary_2eproto_once, descriptor_table_com_5flibrary_2eproto_deps, 2, 18,
     schemas, file_default_instances, TableStruct_com_5flibrary_2eproto::offsets,
@@ -3535,7 +3531,6 @@ LibraryInfo::LibraryInfo(const LibraryInfo& from)
       decltype(_impl_.managerinfolist_){from._impl_.managerinfolist_}
     , decltype(_impl_.memberlist_){from._impl_.memberlist_}
     , decltype(_impl_.booklist_){from._impl_.booklist_}
-    , decltype(_impl_.loginfolist_){from._impl_.loginfolist_}
     , decltype(_impl_.name_){}
     , decltype(_impl_.address_){}
     , decltype(_impl_.opentime_){}
@@ -3600,7 +3595,6 @@ inline void LibraryInfo::SharedCtor(
       decltype(_impl_.managerinfolist_){arena}
     , decltype(_impl_.memberlist_){arena}
     , decltype(_impl_.booklist_){arena}
-    , decltype(_impl_.loginfolist_){arena}
     , decltype(_impl_.name_){}
     , decltype(_impl_.address_){}
     , decltype(_impl_.opentime_){}
@@ -3646,7 +3640,6 @@ inline void LibraryInfo::SharedDtor() {
   _impl_.managerinfolist_.~RepeatedPtrField();
   _impl_.memberlist_.~RepeatedPtrField();
   _impl_.booklist_.~RepeatedPtrField();
-  _impl_.loginfolist_.~RepeatedPtrField();
   _impl_.name_.Destroy();
   _impl_.address_.Destroy();
   _impl_.opentime_.Destroy();
@@ -3667,7 +3660,6 @@ void LibraryInfo::Clear() {
   _impl_.managerinfolist_.Clear();
   _impl_.memberlist_.Clear();
   _impl_.booklist_.Clear();
-  _impl_.loginfolist_.Clear();
   _impl_.name_.ClearToEmpty();
   _impl_.address_.ClearToEmpty();
   _impl_.opentime_.ClearToEmpty();
@@ -3786,19 +3778,6 @@ const char* LibraryInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* c
         } else
           goto handle_unusual;
         continue;
-      // repeated .CRYSTAL_NET.service.OperationLogInfo LogInfoList = 11;
-      case 11:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
-          ptr -= 1;
-          do {
-            ptr += 1;
-            ptr = ctx->ParseMessage(_internal_add_loginfolist(), ptr);
-            CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<90>(ptr));
-        } else
-          goto handle_unusual;
-        continue;
       default:
         goto handle_unusual;
     }  // switch
@@ -3898,14 +3877,6 @@ uint8_t* LibraryInfo::_InternalSerialize(
         InternalWriteMessage(10, repfield, repfield.GetCachedSize(), target, stream);
   }
 
-  // repeated .CRYSTAL_NET.service.OperationLogInfo LogInfoList = 11;
-  for (unsigned i = 0,
-      n = static_cast<unsigned>(this->_internal_loginfolist_size()); i < n; i++) {
-    const auto& repfield = this->_internal_loginfolist(i);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-        InternalWriteMessage(11, repfield, repfield.GetCachedSize(), target, stream);
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -3939,13 +3910,6 @@ size_t LibraryInfo::ByteSizeLong() const {
   // repeated .CRYSTAL_NET.service.BookInfo BookList = 10;
   total_size += 1UL * this->_internal_booklist_size();
   for (const auto& msg : this->_impl_.booklist_) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
-  }
-
-  // repeated .CRYSTAL_NET.service.OperationLogInfo LogInfoList = 11;
-  total_size += 1UL * this->_internal_loginfolist_size();
-  for (const auto& msg : this->_impl_.loginfolist_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
@@ -4016,7 +3980,6 @@ void LibraryInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PR
   _this->_impl_.managerinfolist_.MergeFrom(from._impl_.managerinfolist_);
   _this->_impl_.memberlist_.MergeFrom(from._impl_.memberlist_);
   _this->_impl_.booklist_.MergeFrom(from._impl_.booklist_);
-  _this->_impl_.loginfolist_.MergeFrom(from._impl_.loginfolist_);
   if (!from._internal_name().empty()) {
     _this->_internal_set_name(from._internal_name());
   }
@@ -4060,7 +4023,6 @@ void LibraryInfo::InternalSwap(LibraryInfo* other) {
   _impl_.managerinfolist_.InternalSwap(&other->_impl_.managerinfolist_);
   _impl_.memberlist_.InternalSwap(&other->_impl_.memberlist_);
   _impl_.booklist_.InternalSwap(&other->_impl_.booklist_);
-  _impl_.loginfolist_.InternalSwap(&other->_impl_.loginfolist_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
       &_impl_.name_, lhs_arena,
       &other->_impl_.name_, rhs_arena

@@ -388,6 +388,24 @@ message CancelOrderRes
     sint32 ErrCode = 1;
 }
 
+// 归还书
+/// Opcode:
+message ReturnBackReq
+{
+    // 订单id
+    uint64 OrderId = 1;
+
+    // 指定自订单
+    repeated uint64 SubOrderIds = 2;
+}
+
+// 归还书
+/// Opcode:
+message ReturnBackRes
+{
+    sint32 ErrCode = 1;
+}
+
 // 创建图书馆, 有开放时间, 初期的时候开放, 需要有邀请码才能建管
 
 // 获取图书馆信息（图书馆地址,图书馆联系电话, 图书馆管理员姓名, 图书馆管理员联系方式, 图书馆管理员昵称）

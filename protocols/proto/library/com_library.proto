@@ -214,8 +214,6 @@ message LibraryInfo
     repeated MemberInfo MemberList = 9;
     // 书不直接推送详情下去 TODO:
     repeated BookInfo BookList = 10;
-    // 只保留一年的操作日志
-    repeated OperationLogInfo LogInfoList = 11;
 }
 
 // 玩家的图书馆数据

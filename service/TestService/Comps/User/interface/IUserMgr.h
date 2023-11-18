@@ -97,6 +97,7 @@ public:
     , KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> var = NULL);
 
     virtual bool IsPhoneNumberBinded(const IUser *operateUser, UInt64 phoneNubmer, const std::set<UInt64> &excludeUserIds, bool &hasBindPhone) const = 0;
+    virtual bool IsBindedPhone(UInt64 userId) const = 0;
 
     virtual void Purge() = 0;
     virtual void PurgeAndWait() = 0;

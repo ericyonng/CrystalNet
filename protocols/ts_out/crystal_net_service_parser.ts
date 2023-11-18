@@ -568,6 +568,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("ReturnBackReq", (jsonData:any):any =>{
+                return this.ReturnBackReqParser(jsonData);
+            })
+
+
+            this.add("ReturnBackRes", (jsonData:any):any =>{
+                return this.ReturnBackResParser(jsonData);
+            })
+
+
             this.add("RoleType", (jsonData:any):any =>{
                 return this.RoleTypeParser(jsonData);
             })
@@ -610,6 +620,21 @@ export namespace crystal_net_service_parser
 
             this.add("SubmitBookBagBorrowInfoRes", (jsonData:any):any =>{
                 return this.SubmitBookBagBorrowInfoResParser(jsonData);
+            })
+
+
+            this.add("SystemLogData", (jsonData:any):any =>{
+                return this.SystemLogDataParser(jsonData);
+            })
+
+
+            this.add("SystemLogDataListReq", (jsonData:any):any =>{
+                return this.SystemLogDataListReqParser(jsonData);
+            })
+
+
+            this.add("SystemLogDataListRes", (jsonData:any):any =>{
+                return this.SystemLogDataListResParser(jsonData);
             })
 
 
@@ -2078,20 +2103,6 @@ export namespace crystal_net_service_parser
                     newInfo.BookList = jsonArray;
                 }
 
-
-                if(jsonData.LogInfoList != undefined)
-                {
-                    var jsonArray = jsonData.LogInfoList.map((value, idx, arr)=>{
-                    var parser = this.getParser("OperationLogInfo");
-                    if(parser == undefined)
-                        return {}
-
-                    return parser(value);
-                    });
-
-                    newInfo.LogInfoList = jsonArray;
-                }
-
                  return newInfo;
             }
 
@@ -3023,6 +3034,40 @@ export namespace crystal_net_service_parser
             }
 
 
+            private ReturnBackReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.ReturnBackReq()
+
+                if(jsonData.OrderId != undefined)
+                {
+                    newInfo.OrderId = parseFloat(jsonData.OrderId);
+                }
+
+
+                if(jsonData.SubOrderIds != undefined)
+                {
+                    var jsonArray = jsonData.SubOrderIds.map((value, idx, arr)=>{
+                    return parseFloat(value);
+                    });
+
+                    newInfo.SubOrderIds = jsonArray;
+                }
+
+                 return newInfo;
+            }
+
+
+            private ReturnBackResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.ReturnBackRes()
+
+                if(jsonData.ErrCode != undefined)
+                {
+                    newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
             private RoleTypeParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.RoleType()
                  return newInfo;
@@ -3162,6 +3207,108 @@ export namespace crystal_net_service_parser
                 if(jsonData.ErrCode != undefined)
                 {
                     newInfo.ErrCode = parseFloat(jsonData.ErrCode);
+                }
+
+                 return newInfo;
+            }
+
+
+            private SystemLogDataParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SystemLogData()
+
+                if(jsonData.Id != undefined)
+                {
+                    newInfo.Id = parseFloat(jsonData.Id);
+                }
+
+
+                if(jsonData.libraryId != undefined)
+                {
+                    newInfo.libraryId = parseFloat(jsonData.libraryId);
+                }
+
+
+                if(jsonData.TitleWordId != undefined)
+                {
+                    newInfo.TitleWordId = jsonData.TitleWordId;
+                }
+
+
+                if(jsonData.TitleParams != undefined)
+                {
+                    var jsonArray = jsonData.TitleParams.map((value, idx, arr)=>{
+                    var parser = this.getParser("VariantParam");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.TitleParams = jsonArray;
+                }
+
+
+                if(jsonData.ContentWordId != undefined)
+                {
+                    newInfo.ContentWordId = jsonData.ContentWordId;
+                }
+
+
+                if(jsonData.ContentParams != undefined)
+                {
+                    var jsonArray = jsonData.ContentParams.map((value, idx, arr)=>{
+                    var parser = this.getParser("VariantParam");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.ContentParams = jsonArray;
+                }
+
+
+                if(jsonData.CreateTime != undefined)
+                {
+                    newInfo.CreateTime = parseFloat(jsonData.CreateTime);
+                }
+
+                 return newInfo;
+            }
+
+
+            private SystemLogDataListReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SystemLogDataListReq()
+
+                if(jsonData.BaseNotifyId != undefined)
+                {
+                    newInfo.BaseNotifyId = parseFloat(jsonData.BaseNotifyId);
+                }
+
+
+                if(jsonData.BookCount != undefined)
+                {
+                    newInfo.BookCount = parseFloat(jsonData.BookCount);
+                }
+
+                 return newInfo;
+            }
+
+
+            private SystemLogDataListResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.SystemLogDataListRes()
+
+                if(jsonData.LogList != undefined)
+                {
+                    var jsonArray = jsonData.LogList.map((value, idx, arr)=>{
+                    var parser = this.getParser("SystemLogData");
+                    if(parser == undefined)
+                        return {}
+
+                    return parser(value);
+                    });
+
+                    newInfo.LogList = jsonArray;
                 }
 
                  return newInfo;

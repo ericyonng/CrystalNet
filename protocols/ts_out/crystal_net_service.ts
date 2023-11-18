@@ -861,9 +861,6 @@ export namespace crystal_net_service
         // 书不直接推送详情下去 TODO:
         BookList:BookInfo[] = [];
 
-        // 只保留一年的操作日志
-        LogInfoList:OperationLogInfo[] = [];
-
 
     }
     // 图书馆信息, 登录成功后主动推送
@@ -1349,6 +1346,26 @@ export namespace crystal_net_service
 
 
     }
+    // 归还书
+    /// Opcode:
+    // library.proto
+    export class ReturnBackReq {
+        // 订单id
+        OrderId:number = 0;
+
+        // 指定自订单
+        SubOrderIds:number[] = [];
+
+
+    }
+    // 归还书
+    /// Opcode:
+    // library.proto
+    export class ReturnBackRes {
+        ErrCode:number = 0;
+
+
+    }
     // 按照权限大小排
     // com_library.proto
     export class RoleType {
@@ -1428,6 +1445,48 @@ export namespace crystal_net_service
     // bookbag.proto
     export class SubmitBookBagBorrowInfoRes {
         ErrCode:number = 0;
+
+
+    }
+    // com_syslog.proto
+    export class SystemLogData {
+        Id:number = 0;
+
+        libraryId:number = 0;
+
+        // title文字id
+        TitleWordId:string = "";
+
+        // title的参数
+        TitleParams:VariantParam[] = [];
+
+        // 内容文字id
+        ContentWordId:string = "";
+
+        // 内容的参数
+        ContentParams:VariantParam[] = [];
+
+        // 时间
+        CreateTime:number = 0;
+
+
+    }
+    // 系统日志
+    /// Opcode:
+    // syslog.proto
+    export class SystemLogDataListReq {
+        BaseNotifyId:number = 0;
+
+        // 数量 负数表示 BaseNotifyId 之前的前n个日志, 正数表示 BaseNotifyId 之后n个日志
+        BookCount:number = 0;
+
+
+    }
+    // 系统日志
+    /// Opcode:
+    // syslog.proto
+    export class SystemLogDataListRes {
+        LogList:SystemLogData[] = [];
 
 
     }
