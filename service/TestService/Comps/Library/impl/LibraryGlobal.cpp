@@ -37,6 +37,7 @@
 #include <Comps/InviteCode/InviteCode.h>
 #include <Comps/NickName/nickname.h>
 #include <Comps/Notify/Notify.h>
+#include <Comps/SystemLog/SystemLog.h>
 
 SERVICE_BEGIN
 
@@ -406,9 +407,81 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         , params);
     }
 
+    // "用户:【{0}】, id:{1},角色:{2}({3}), 创建借书订单, 订单id:{4}, 订单状态:{5}({6}) 借图书列表:\n{7}"
+    // 借书列表:BookName:%s, ISBN:%s, Count x %d, Days x %d
+    auto sysLog = GetGlobalSys<ISystemLogGlobal>();
+    std::vector<VariantParam> params;
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(user->GetNickname());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(user->GetUserId());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_VALUE);
+        param.set_intvalue(static_cast<Int64>(memberInfo->role()));
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(RoleType_ENUMS_Name(memberInfo->role()));
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(newOrderInfo->orderid());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_VALUE);
+        param.set_intvalue(static_cast<Int64>(newOrderInfo->orderstate()));
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(BorrowOrderState_ENUMS_Name(newOrderInfo->orderstate()));
+        params.push_back(param);
+    }
+
+    // 借书列表:BookName:%s, ISBN:%s, Count x %d, Days x %d
+    KERNEL_NS::LibString borrowInfo;
+    for(auto &subOrder : newOrderInfo->borrowbooklist())
+    {
+        auto bookInfo = GetBookInfo(libraryId, subOrder.bookid());
+        borrowInfo.AppendFormat("BookName:");
+        borrowInfo.AppendData(bookInfo->bookname());
+
+        borrowInfo.AppendFormat(", ISBN:%s, Count x %d, BorrowDays x %d\n"
+        , bookInfo->isbncode().c_str()
+        , subOrder.borrowcount(), subOrder.borrowdays());
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(borrowInfo.GetRaw());
+        params.push_back(param);
+    }
+    sysLog->AddLog(libraryId, "CREATE_BORROW_ORDER_TITLE", {}, "CREATE_BORROW_ORDER_CONTENT", params);
+
     g_Log->Info(LOGFMT_OBJ_TAG("create order success, library id:%llu, borrow user:%llu, order info:%s"), libraryId, user->GetUserId(), newOrderInfo->ToJsonString().c_str());
 
     return Status::Success;
+}
+
+bool LibraryGlobal::IsManager(UInt64 libraryId, UInt64 userId) const
+{
+    return _IsManager(libraryId, userId);
 }
 
 Int32 LibraryGlobal::_OnGlobalSysInit()
@@ -735,6 +808,23 @@ void LibraryGlobal::_OnJoinLibraryReq(KERNEL_NS::LibPacket *&packet)
 
         library = libraryInfo;
 
+        // "{0}加入图书馆, 用户id:{1}"
+        auto sysLog = GetGlobalSys<ISystemLogGlobal>();
+        std::vector<VariantParam> params;
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(user->GetNickname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(user->GetUserId());
+            params.push_back(param);
+        }
+        sysLog->AddLog(libraryInfo->id(), "JOIN_LIBRARY_LOG_TITLE", {}, "JOIN_LIBRARY_LOG_CONTENT", params);
+    
     } while (false);
 
     // 同步图书馆数据
@@ -1316,8 +1406,13 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
 
         // 是不是已经存在了
         auto bookInfo = _GetBookInfo(libarayInfo->id(), req->isbncode());
+        KERNEL_NS::LibString oldBookName;
+        Int64 oldPrice = 0;
         if(bookInfo)
         {
+            oldBookName = bookInfo->bookname();
+            oldPrice = bookInfo->variantinfo().price();
+
             if(!req->bookname().empty())
             {
                 if(!KERNEL_NS::StringUtil::IsUtf8String(req->bookname()))
@@ -1430,7 +1525,6 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
 
             if(req->has_snapshot())
                 *bookInfo->mutable_snapshot() = req->snapshot().snapshots();
-
         }
         else
         {
@@ -1558,6 +1652,79 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
 
         MaskNumberKeyModifyDirty(libarayInfo->id());
         
+        // "操作人id:{0}, 昵称:【{1}】 [录书] 图书id:{2}, ISBN:{3}, 书名:【{4}】=>【{5}】,, 库存:{6}=>{7}, 价格:{8}.{9}=>{10}.{11}(单位:元)"
+        auto sysLog = GetGlobalSys<ISystemLogGlobal>();
+        std::vector<VariantParam> params;
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(user->GetUserId());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(user->GetNickname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(bookInfo->id());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(bookInfo->isbncode());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(oldBookName.GetRaw());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(bookInfo->bookname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_VALUE);
+            param.set_intvalue(originalCount);
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_VALUE);
+            param.set_intvalue(bookInfo->variantinfo().count());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_VALUE);
+            param.set_intvalue(oldPrice/100);
+            params.push_back(param);
+
+            param.set_varianttype(VariantParamType_ENUMS_VALUE);
+            param.set_intvalue(oldPrice%100);
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_VALUE);
+            param.set_intvalue(bookInfo->variantinfo().price()/100);
+            params.push_back(param);
+
+            param.set_varianttype(VariantParamType_ENUMS_VALUE);
+            param.set_intvalue(bookInfo->variantinfo().price()%100);
+            params.push_back(param);
+        }
+        sysLog->AddLog(libarayInfo->id(), "ENTER_BOOK_LOG_TITLE", {}, "ENTER_BOOK_LOG_CONTENT", params);
+    
     }while(false);
 
     AddLibraryBookRes res;
@@ -1849,6 +2016,53 @@ void LibraryGlobal::_OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet)
 
         _SendOrderDetailInfoNty(user);
 
+        auto notifyGlobal = GetGlobalSys<INotifyGlobal>();
+        // 订单{0}已经出库，请即时领取
+        std::vector<VariantParam> params;
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(user->GetNickname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(orderInfo->orderid());
+            params.push_back(param);
+        }
+        notifyGlobal->SendNotify(orderInfo->userid(), "OUTSTORE_TITLE", {}, "OUTSTORE_CONTENT"
+        , params);
+
+        // "操作人:【{0}】,id:{1}, 订单号:{2},借书用户id:{3},等待用户领书"
+        auto sysLog = GetGlobalSys<ISystemLogGlobal>();
+        params.clear();
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(user->GetNickname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(user->GetUserId());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(orderInfo->orderid());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(orderInfo->userid());
+            params.push_back(param);
+        }
+        sysLog->AddLog(libraryId, "OUTSTORE_LOG_TITLE", {}, "OUTSTORE_LOG_CONTENT", params);
+
     } while (false);
     
     OutStoreOrderRes res;
@@ -2040,6 +2254,42 @@ void LibraryGlobal::_OnUserGetBooksOrderConfirmReq(KERNEL_NS::LibPacket *&packet
 
         _SendLibraryInfoNty(user);
         _SendOrderDetailInfoNty(user);
+
+        // "用户【{0}】领书,用户id:{1}, 订单号:{2},订单状态:{3}({4})"
+        auto sysLog = GetGlobalSys<ISystemLogGlobal>();
+        std::vector<VariantParam> params;
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(user->GetNickname());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(user->GetUserId());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+            param.set_unsignedvalue(orderInfo->orderid());
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_VALUE);
+            param.set_intvalue(static_cast<Int64>(orderInfo->orderstate()));
+            params.push_back(param);
+        }
+        {
+            VariantParam param;
+            param.set_varianttype(VariantParamType_ENUMS_STRING);
+            param.set_strvalue(BorrowOrderState_ENUMS_Name(orderInfo->orderstate()));
+            params.push_back(param);
+        }
+        sysLog->AddLog(libraryId, "USER_GET_BOOK_TITLE", {}, "USER_GET_BOOK_CONTENT", params);
+        
     } while (false);
 
     UserGetBooksOrderConfirmRes res;
@@ -2228,6 +2478,98 @@ void LibraryGlobal::_OnCancelOrderReq(KERNEL_NS::LibPacket *&packet)
         {
             notifyGlobal->SendNotify(orderInfo->userid(), "CANCEL_ORDER_TITLE", {}, "CANCEL_ORDER_CONTENT"
                 , params);
+        }
+
+        // "用户主动取消订单, 用户id:{0},昵称:【{1}】, 订单号:{2}, 订单状态:{3}({4}), 备注:{5}"
+        auto sysLog = GetGlobalSys<ISystemLogGlobal>();
+        params.clear();
+        if(reasonType == CancelOrderReasonType_ENUMS_MANAGTER_CANCEL)
+        {
+            // "管理员取消订单, 管理员用户id:{0},昵称:【{1}】, 订单号:{2}, 订单状态:{3}({4}) 借书用户id:{5}, 备注:{6}"
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+                param.set_unsignedvalue(user->GetUserId());
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_STRING);
+                param.set_strvalue(user->GetNickname());
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+                param.set_unsignedvalue(orderInfo->orderid());
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_VALUE);
+                param.set_intvalue(static_cast<Int64>(orderInfo->orderstate()));
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_STRING);
+                param.set_strvalue(BorrowOrderState_ENUMS_Name(orderInfo->orderstate()));
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+                param.set_unsignedvalue(orderInfo->userid());
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_STRING);
+                param.set_strvalue(orderInfo->cancelreason().cancelinfo());
+                params.push_back(param);
+            }
+            sysLog->AddLog(libraryId, "CANCEL_ORDER_LOG_TITLE", {}, "CANCEL_ORDER_BY_MANAGER_CONTENT", params);
+        }
+        else
+        {
+            // "用户主动取消订单, 用户id:{0},昵称:【{1}】, 订单号:{2}, 订单状态:{3}({4}), 备注:{5}"
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+                param.set_unsignedvalue(user->GetUserId());
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_STRING);
+                param.set_strvalue(user->GetNickname());
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+                param.set_unsignedvalue(orderInfo->orderid());
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_VALUE);
+                param.set_intvalue(static_cast<Int64>(orderInfo->orderstate()));
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_STRING);
+                param.set_strvalue(BorrowOrderState_ENUMS_Name(orderInfo->orderstate()));
+                params.push_back(param);
+            }
+            {
+                VariantParam param;
+                param.set_varianttype(VariantParamType_ENUMS_STRING);
+                param.set_strvalue(orderInfo->cancelreason().cancelinfo());
+                params.push_back(param);
+            }
+            sysLog->AddLog(libraryId, "CANCEL_ORDER_LOG_TITLE", {}, "CANCEL_ORDER_BY_SELF_CONTENT", params);
         }
 
     } while (false);
@@ -2496,6 +2838,9 @@ void LibraryGlobal::_OnReturnBackReq(KERNEL_NS::LibPacket *&packet)
                 , params);
         }
 
+        auto systemLog = GetGlobalSys<ISystemLogGlobal>();
+        systemLog->AddLog(libraryId, "RETURN_BACK_BOOK_TITLE", {}, "RETURN_BACK_BOOK_CONTENT", params);
+
     }while(false);
 
     ReturnBackRes res;
@@ -2557,6 +2902,9 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
     auto targetMember = GetMemberInfo(libraryInfo->id(), targetUser->GetUserId());
     auto userMgr = GetGlobalSys<IUserMgr>();
 
+    const auto oldPhone = targetUser->GetUserBaseInfo()->bindphone();
+    const auto oldRole = targetMember->role();
+
     // 修改角色
     if(req.has_newrole())
     {
@@ -2601,7 +2949,6 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
             }
         }
 
-        const auto oldRole = targetMember->role();
         targetMember->set_role(req.newrole());
 
         if(oldRole == RoleType_ENUMS_NoAuth)
@@ -2640,9 +2987,88 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
 
     _SendLibraryInfoNty(reqUserId, libraryInfo);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("target member info is modified by user id:%llu, new target member:%s"), reqUserId, _MemberToString(targetMember).c_str());
+    const auto newRole = targetMember->role();
+    const auto newPhone = targetUser->GetUserBaseInfo()->bindphone();
 
-    // TODO:系统日志
+    // 操作人:【{0}】,id:{1} 角色:{2}({3}), 修改用户信息, 被修改用户id:{4},昵称:【{5}】 角色变更:{6}({7})=>{8}({9}),手机变更:{10}=>{11}
+    auto sysLog = GetGlobalSys<ISystemLogGlobal>();
+    std::vector<VariantParam> params;
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(memberInfo->nickname());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(memberInfo->userid());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_VALUE);
+        param.set_intvalue(static_cast<Int64>(memberInfo->role()));
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(RoleType_ENUMS_Name(memberInfo->role()));
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(targetMember->userid());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(targetMember->nickname());
+        params.push_back(param);
+    }
+
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_VALUE);
+        param.set_intvalue(static_cast<Int64>(oldRole));
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(RoleType_ENUMS_Name(oldRole));
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_VALUE);
+        param.set_intvalue(static_cast<Int64>(newRole));
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(RoleType_ENUMS_Name(newRole));
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(oldPhone);
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(newPhone);
+        params.push_back(param);
+    }
+    sysLog->AddLog(libraryInfo->id(), "MODIFY_MEMBER_LOG_TITLE", {}, "MODIFY_MEMBER_LOG_CONTENT", params);
+
+    g_Log->Info(LOGFMT_OBJ_TAG("target member info is modified by user id:%llu, new target member:%s"), reqUserId, _MemberToString(targetMember).c_str());
 
     return Status::Success;
 }
@@ -2691,6 +3117,23 @@ LibraryInfo *LibraryGlobal::_CreateLibrary(IUser *user, const KERNEL_NS::LibStri
     _idRefLibraryInfo.insert(std::make_pair(newLibrary->id(), newLibrary));
     MaskNumberKeyAddDirty(newLibrary->id());
 
+    auto systemLog = GetGlobalSys<ISystemLogGlobal>();
+    // "【{0}】创建图书馆, 用户id:{1}"
+    std::vector<VariantParam> params;
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(user->GetNickname());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(user->GetUserId());
+        params.push_back(param);
+    }
+    systemLog->AddLog(newLibrary->id(), "CREATE_LIBRARY_TITLE", {}, "CREATE_LIBRARY_CONTENT", params);
+
     // 绑定手机
     user->BindPhone(bindPhone);
 
@@ -2701,6 +3144,7 @@ LibraryInfo *LibraryGlobal::_CreateLibrary(IUser *user, const KERNEL_NS::LibStri
     this->_SendLibraryInfoNty(user, newLibrary);
 
     // TODO:系统日志
+    
     g_Log->Info(LOGFMT_OBJ_TAG("create new library, create user:%s, new library:%s"), user->ToString().c_str(), newLibrary->ToJsonString().c_str());
     return newLibrary;
 }
@@ -2818,6 +3262,7 @@ bool LibraryGlobal::_RemoveMember(LibraryInfo *libraryInfo, UInt64 userId)
         return false;
     }
 
+    KERNEL_NS::LibString nickName;
     auto iterMembers = _libraryIdRefUserRefMember.find(libraryInfo->id());
     if(iterMembers != _libraryIdRefUserRefMember.end())
         iterMembers->second.erase(userId);
@@ -2828,6 +3273,7 @@ bool LibraryGlobal::_RemoveMember(LibraryInfo *libraryInfo, UInt64 userId)
         {
             if(libraryInfo->memberlist(idx).userid() == userId)
             {
+                nickName = libraryInfo->memberlist(idx).nickname();
                 g_Log->Info(LOGFMT_OBJ_TAG("library will remove member library info:%s, member info:%s"), LibraryToString(libraryInfo).c_str(), libraryInfo->memberlist(idx).ToJsonString().c_str());
                 libraryInfo->mutable_memberlist()->DeleteSubrange(idx, 1);
                 break;
@@ -2855,6 +3301,23 @@ bool LibraryGlobal::_RemoveMember(LibraryInfo *libraryInfo, UInt64 userId)
     ev->SetParam(Params::USER_ID, userId);
     GetEventMgr()->FireEvent(ev);
 
+    // 退出图书馆日志【{0}】退出了图书馆, 用户id:{1}
+    auto systemLog = GetGlobalSys<ISystemLogGlobal>();
+    std::vector<VariantParam> params;
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(nickName.GetRaw());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(userId);
+        params.push_back(param);
+    }
+    systemLog->AddLog(libraryInfo->id(), "QUIT_LIBRARY_LOG_TITLE", {}, "QUIT_LIBRARY_LOG_CONTENT", params);
+    
     return true;
 }
 
@@ -2966,7 +3429,34 @@ void LibraryGlobal::_TransferMember(LibraryInfo *libraryInfo, MemberInfo *member
     g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo), memberInfo->userid(), role, targetRole);
     g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo), targetMember->userid(), targetRole, role);
 
-    // TODO:系统日志
+    // TODO:系统日志 原图书馆馆长:【{0}】,用户id:{1}, 将图书馆转让给用户:【{2}】,用户id:{3}
+    auto sysLog = GetGlobalSys<ISystemLogGlobal>();
+    std::vector<VariantParam> params;
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(memberInfo->nickname());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(memberInfo->userid());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_STRING);
+        param.set_strvalue(targetMember->nickname());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(targetMember->userid());
+        params.push_back(param);
+    }
+    sysLog->AddLog(libraryInfo->id(), "TRANSFER_LIBRARY_LOG_TITLE", {}, "TRANSFER_LIBRARY_LOG_CONTENT", params);
 
     _SendLibraryInfoNty(memberInfo->userid(), libraryInfo);
 }
@@ -3274,6 +3764,23 @@ void LibraryGlobal::_CancelOrder(UInt64 libraryId, UInt64 orderId, Int32 cancelR
         , orderInfo->ToJsonString().c_str(), libraryId, cancelReason, BorrowOrderState_ENUMS_Name(cancelReason).c_str());
         return;
     }
+
+    // "订单等待用户领取超时取消, 订单号:{0}, 待领取用户id:{1}"
+    auto sysLog = GetGlobalSys<ISystemLogGlobal>();
+    std::vector<VariantParam> params;
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(orderInfo->orderid());
+        params.push_back(param);
+    }
+    {
+        VariantParam param;
+        param.set_varianttype(VariantParamType_ENUMS_UNSIGNED_VALUE);
+        param.set_unsignedvalue(orderInfo->userid());
+        params.push_back(param);
+    }
+    sysLog->AddLog(libraryId, "CANCEL_ORDER_LOG_TITLE", {}, "CANCEL_ORDER_WAIT_USER_RECEIVE_TIMEOUT_CONTENT", params);
 
     orderInfo->set_orderstate(BorrowOrderState_ENUMS_CANCEL_ORDER);
     orderInfo->mutable_cancelreason()->set_cancelreason(cancelReason);

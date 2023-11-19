@@ -3280,15 +3280,15 @@ export namespace crystal_net_service_parser
             private SystemLogDataListReqParser(jsonData:any):any{
                 var newInfo = new crystal_net_service.SystemLogDataListReq()
 
-                if(jsonData.BaseNotifyId != undefined)
+                if(jsonData.BaseLogId != undefined)
                 {
-                    newInfo.BaseNotifyId = parseFloat(jsonData.BaseNotifyId);
+                    newInfo.BaseLogId = parseFloat(jsonData.BaseLogId);
                 }
 
 
-                if(jsonData.BookCount != undefined)
+                if(jsonData.Count != undefined)
                 {
-                    newInfo.BookCount = parseFloat(jsonData.BookCount);
+                    newInfo.Count = parseFloat(jsonData.Count);
                 }
 
                  return newInfo;
@@ -3309,6 +3309,12 @@ export namespace crystal_net_service_parser
                     });
 
                     newInfo.LogList = jsonArray;
+                }
+
+
+                if(jsonData.Count != undefined)
+                {
+                    newInfo.Count = parseFloat(jsonData.Count);
                 }
 
                  return newInfo;

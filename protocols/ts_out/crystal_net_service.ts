@@ -1475,10 +1475,10 @@ export namespace crystal_net_service
     /// Opcode:
     // syslog.proto
     export class SystemLogDataListReq {
-        BaseNotifyId:number = 0;
+        BaseLogId:number = 0;
 
         // 数量 负数表示 BaseNotifyId 之前的前n个日志, 正数表示 BaseNotifyId 之后n个日志
-        BookCount:number = 0;
+        Count:number = 0;
 
 
     }
@@ -1487,6 +1487,9 @@ export namespace crystal_net_service
     // syslog.proto
     export class SystemLogDataListRes {
         LogList:SystemLogData[] = [];
+
+        // 负数表示往前n个日志, 正数表示末尾n个日志
+        Count:number = 0;
 
 
     }

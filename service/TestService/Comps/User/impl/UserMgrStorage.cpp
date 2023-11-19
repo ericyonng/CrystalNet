@@ -59,7 +59,9 @@ bool UserMgrStorage::RegisterStorages()
 {
     // 当前系统属性设置(kv 系统, mysql存储, 某个系统的数据)
     AddFlags(StorageFlagType::MULTI_FIELD_SYSTEM_FLAG | 
-    StorageFlagType::MYSQL_FLAG
+    StorageFlagType::MYSQL_FLAG|
+    StorageFlagType::DISABLE_LOAD_DATA_ON_STARTUP_FLAG
+    
     );
     SetTableName("tbl_user");
     SetComment("user data");

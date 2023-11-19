@@ -1162,7 +1162,7 @@ const char descriptor_table_protodef_library_2eproto[] PROTOBUF_SECTION_VARIABLE
   "nfoNty\0225\n\013LibraryInfo\030\001 \001(\0132 .CRYSTAL_NE"
   "T.service.LibraryInfo\"$\n\021GetLibraryInfoR"
   "es\022\017\n\007ErrCode\030\001 \001(\021\"\202\001\n\020CreateLibraryReq"
-  "\022\022\n\nInviteCode\030\001 \001(\t\022\014\n\004Name\030\002 \001(\014\022\017\n\007Ad"
+  "\022\022\n\nInviteCode\030\001 \001(\014\022\014\n\004Name\030\002 \001(\014\022\017\n\007Ad"
   "dress\030\003 \001(\014\022\020\n\010OpenTime\030\004 \001(\014\022\026\n\016Telphon"
   "eNumber\030\005 \001(\t\022\021\n\tBindPhone\030\006 \001(\004\"#\n\020Crea"
   "teLibraryRes\022\017\n\007ErrCode\030\001 \001(\021\"#\n\016JoinLib"
@@ -1820,13 +1820,12 @@ const char* CreateLibraryReq::_InternalParse(const char* ptr, ::_pbi::ParseConte
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // string InviteCode = 1;
+      // bytes InviteCode = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_invitecode();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.CreateLibraryReq.InviteCode"));
         } else
           goto handle_unusual;
         continue;
@@ -1904,13 +1903,9 @@ uint8_t* CreateLibraryReq::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string InviteCode = 1;
+  // bytes InviteCode = 1;
   if (!this->_internal_invitecode().empty()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_invitecode().data(), static_cast<int>(this->_internal_invitecode().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "CRYSTAL_NET.service.CreateLibraryReq.InviteCode");
-    target = stream->WriteStringMaybeAliased(
+    target = stream->WriteBytesMaybeAliased(
         1, this->_internal_invitecode(), target);
   }
 
@@ -1964,10 +1959,10 @@ size_t CreateLibraryReq::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string InviteCode = 1;
+  // bytes InviteCode = 1;
   if (!this->_internal_invitecode().empty()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_invitecode());
   }
 

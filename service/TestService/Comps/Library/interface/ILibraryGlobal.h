@@ -56,6 +56,9 @@ public:
 
     // 创建订单
     virtual Int32 CreateBorrowOrder(UInt64 libraryId, const IUser *user, const BookBagInfo &bookBagInfo, const KERNEL_NS::LibString &remark) = 0;
+
+    // 是不是管理人员
+    virtual bool IsManager(UInt64 libraryId, UInt64 userId) const = 0;
 };
 
 SERVICE_END

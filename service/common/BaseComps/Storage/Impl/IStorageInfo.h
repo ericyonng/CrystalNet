@@ -119,6 +119,9 @@ private:
         // 公共系统数据(启动时候加载)
         LOAD_DATA_ON_STARTUP_FLAG_POS,
 
+        // 启动时不加载数据
+        DISABLE_LOAD_DATA_ON_STARTUP_FLAG_POS,
+
         // 不自动清库(版本号切换时候会清库), 默认自动清库
         DISABLE_AUTO_DROP_POS,
 
@@ -234,6 +237,9 @@ public:
 
         // 启动时候加载数据
         LOAD_DATA_ON_STARTUP_FLAG = (1LLU << LOAD_DATA_ON_STARTUP_FLAG_POS),
+
+        // 启动时不加载数据
+        DISABLE_LOAD_DATA_ON_STARTUP_FLAG = (1LLU << DISABLE_LOAD_DATA_ON_STARTUP_FLAG_POS),
 
         // 不自动清库(版本号切换时候会清库), 默认自动清库
         DISABLE_AUTO_DROP_FLAG = (1LLU << DISABLE_AUTO_DROP_POS),

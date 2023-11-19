@@ -27,8 +27,8 @@ namespace CRYSTAL_NET {
 namespace service {
 PROTOBUF_CONSTEXPR SystemLogDataListReq::SystemLogDataListReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.basenotifyid_)*/uint64_t{0u}
-  , /*decltype(_impl_.bookcount_)*/0
+    /*decltype(_impl_.baselogid_)*/uint64_t{0u}
+  , /*decltype(_impl_.count_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SystemLogDataListReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR SystemLogDataListReqDefaultTypeInternal()
@@ -42,6 +42,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR SystemLogDataListRes::SystemLogDataListRes(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.loglist_)*/{}
+  , /*decltype(_impl_.count_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SystemLogDataListResDefaultTypeInternal {
   PROTOBUF_CONSTEXPR SystemLogDataListResDefaultTypeInternal()
@@ -65,8 +66,8 @@ const uint32_t TableStruct_syslog_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(p
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SystemLogDataListReq, _impl_.basenotifyid_),
-  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SystemLogDataListReq, _impl_.bookcount_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SystemLogDataListReq, _impl_.baselogid_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SystemLogDataListReq, _impl_.count_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SystemLogDataListRes, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -74,6 +75,7 @@ const uint32_t TableStruct_syslog_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(p
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SystemLogDataListRes, _impl_.loglist_),
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::SystemLogDataListRes, _impl_.count_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::SystemLogDataListReq)},
@@ -87,18 +89,18 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_syslog_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\014syslog.proto\022\023CRYSTAL_NET.service\032\020com"
-  "_syslog.proto\"\?\n\024SystemLogDataListReq\022\024\n"
-  "\014BaseNotifyId\030\001 \001(\004\022\021\n\tBookCount\030\002 \001(\021\"K"
-  "\n\024SystemLogDataListRes\0223\n\007LogList\030\001 \003(\0132"
-  "\".CRYSTAL_NET.service.SystemLogDatab\006pro"
-  "to3"
+  "_syslog.proto\"8\n\024SystemLogDataListReq\022\021\n"
+  "\tBaseLogId\030\001 \001(\004\022\r\n\005Count\030\002 \001(\021\"Z\n\024Syste"
+  "mLogDataListRes\0223\n\007LogList\030\001 \003(\0132\".CRYST"
+  "AL_NET.service.SystemLogData\022\r\n\005Count\030\002 "
+  "\001(\021b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_syslog_2eproto_deps[1] = {
   &::descriptor_table_com_5fsyslog_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_syslog_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_syslog_2eproto = {
-    false, false, 203, descriptor_table_protodef_syslog_2eproto,
+    false, false, 211, descriptor_table_protodef_syslog_2eproto,
     "syslog.proto",
     &descriptor_table_syslog_2eproto_once, descriptor_table_syslog_2eproto_deps, 1, 2,
     schemas, file_default_instances, TableStruct_syslog_2eproto::offsets,
@@ -130,14 +132,14 @@ SystemLogDataListReq::SystemLogDataListReq(const SystemLogDataListReq& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   SystemLogDataListReq* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.basenotifyid_){}
-    , decltype(_impl_.bookcount_){}
+      decltype(_impl_.baselogid_){}
+    , decltype(_impl_.count_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&_impl_.basenotifyid_, &from._impl_.basenotifyid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.bookcount_) -
-    reinterpret_cast<char*>(&_impl_.basenotifyid_)) + sizeof(_impl_.bookcount_));
+  ::memcpy(&_impl_.baselogid_, &from._impl_.baselogid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.count_) -
+    reinterpret_cast<char*>(&_impl_.baselogid_)) + sizeof(_impl_.count_));
   // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.SystemLogDataListReq)
 }
 
@@ -146,8 +148,8 @@ inline void SystemLogDataListReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.basenotifyid_){uint64_t{0u}}
-    , decltype(_impl_.bookcount_){0}
+      decltype(_impl_.baselogid_){uint64_t{0u}}
+    , decltype(_impl_.count_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -175,9 +177,9 @@ void SystemLogDataListReq::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&_impl_.basenotifyid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.bookcount_) -
-      reinterpret_cast<char*>(&_impl_.basenotifyid_)) + sizeof(_impl_.bookcount_));
+  ::memset(&_impl_.baselogid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.count_) -
+      reinterpret_cast<char*>(&_impl_.baselogid_)) + sizeof(_impl_.count_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -187,18 +189,18 @@ const char* SystemLogDataListReq::_InternalParse(const char* ptr, ::_pbi::ParseC
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // uint64 BaseNotifyId = 1;
+      // uint64 BaseLogId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _impl_.basenotifyid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          _impl_.baselogid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // sint32 BookCount = 2;
+      // sint32 Count = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
-          _impl_.bookcount_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
+          _impl_.count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -232,16 +234,16 @@ uint8_t* SystemLogDataListReq::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint64 BaseNotifyId = 1;
-  if (this->_internal_basenotifyid() != 0) {
+  // uint64 BaseLogId = 1;
+  if (this->_internal_baselogid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_basenotifyid(), target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_baselogid(), target);
   }
 
-  // sint32 BookCount = 2;
-  if (this->_internal_bookcount() != 0) {
+  // sint32 Count = 2;
+  if (this->_internal_count() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(2, this->_internal_bookcount(), target);
+    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(2, this->_internal_count(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -260,14 +262,14 @@ size_t SystemLogDataListReq::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // uint64 BaseNotifyId = 1;
-  if (this->_internal_basenotifyid() != 0) {
-    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_basenotifyid());
+  // uint64 BaseLogId = 1;
+  if (this->_internal_baselogid() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_baselogid());
   }
 
-  // sint32 BookCount = 2;
-  if (this->_internal_bookcount() != 0) {
-    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_bookcount());
+  // sint32 Count = 2;
+  if (this->_internal_count() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_count());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -288,11 +290,11 @@ void SystemLogDataListReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, c
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_basenotifyid() != 0) {
-    _this->_internal_set_basenotifyid(from._internal_basenotifyid());
+  if (from._internal_baselogid() != 0) {
+    _this->_internal_set_baselogid(from._internal_baselogid());
   }
-  if (from._internal_bookcount() != 0) {
-    _this->_internal_set_bookcount(from._internal_bookcount());
+  if (from._internal_count() != 0) {
+    _this->_internal_set_count(from._internal_count());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -312,11 +314,11 @@ void SystemLogDataListReq::InternalSwap(SystemLogDataListReq* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(SystemLogDataListReq, _impl_.bookcount_)
-      + sizeof(SystemLogDataListReq::_impl_.bookcount_)
-      - PROTOBUF_FIELD_OFFSET(SystemLogDataListReq, _impl_.basenotifyid_)>(
-          reinterpret_cast<char*>(&_impl_.basenotifyid_),
-          reinterpret_cast<char*>(&other->_impl_.basenotifyid_));
+      PROTOBUF_FIELD_OFFSET(SystemLogDataListReq, _impl_.count_)
+      + sizeof(SystemLogDataListReq::_impl_.count_)
+      - PROTOBUF_FIELD_OFFSET(SystemLogDataListReq, _impl_.baselogid_)>(
+          reinterpret_cast<char*>(&_impl_.baselogid_),
+          reinterpret_cast<char*>(&other->_impl_.baselogid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SystemLogDataListReq::GetMetadata() const {
@@ -345,9 +347,11 @@ SystemLogDataListRes::SystemLogDataListRes(const SystemLogDataListRes& from)
   SystemLogDataListRes* const _this = this; (void)_this;
   new (&_impl_) Impl_{
       decltype(_impl_.loglist_){from._impl_.loglist_}
+    , decltype(_impl_.count_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.count_ = from._impl_.count_;
   // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.SystemLogDataListRes)
 }
 
@@ -357,6 +361,7 @@ inline void SystemLogDataListRes::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.loglist_){arena}
+    , decltype(_impl_.count_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -386,6 +391,7 @@ void SystemLogDataListRes::Clear() {
   (void) cached_has_bits;
 
   _impl_.loglist_.Clear();
+  _impl_.count_ = 0;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -405,6 +411,14 @@ const char* SystemLogDataListRes::_InternalParse(const char* ptr, ::_pbi::ParseC
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+        } else
+          goto handle_unusual;
+        continue;
+      // sint32 Count = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr);
+          CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
@@ -445,6 +459,12 @@ uint8_t* SystemLogDataListRes::_InternalSerialize(
         InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
   }
 
+  // sint32 Count = 2;
+  if (this->_internal_count() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteSInt32ToArray(2, this->_internal_count(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -468,6 +488,11 @@ size_t SystemLogDataListRes::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
+  // sint32 Count = 2;
+  if (this->_internal_count() != 0) {
+    total_size += ::_pbi::WireFormatLite::SInt32SizePlusOne(this->_internal_count());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -487,6 +512,9 @@ void SystemLogDataListRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, c
   (void) cached_has_bits;
 
   _this->_impl_.loglist_.MergeFrom(from._impl_.loglist_);
+  if (from._internal_count() != 0) {
+    _this->_internal_set_count(from._internal_count());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -505,6 +533,7 @@ void SystemLogDataListRes::InternalSwap(SystemLogDataListRes* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   _impl_.loglist_.InternalSwap(&other->_impl_.loglist_);
+  swap(_impl_.count_, other->_impl_.count_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SystemLogDataListRes::GetMetadata() const {

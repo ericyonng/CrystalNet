@@ -234,7 +234,6 @@ ALWAYS_INLINE bool DataTypeHelper::Assign(KERNEL_NS::LibString &field, const KER
         errInfo.AppendFormat("parse json fail, assign LibString value fail dataInfo:%s\n", dataInfo.c_str());
         return false;
     }
-
     field = jsonString.get<std::string>();
     return true;
 }

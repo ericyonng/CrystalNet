@@ -1365,7 +1365,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     kTelphoneNumberFieldNumber = 5,
     kBindPhoneFieldNumber = 6,
   };
-  // string InviteCode = 1;
+  // bytes InviteCode = 1;
   void clear_invitecode();
   const std::string& invitecode() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -14256,7 +14256,7 @@ inline void GetLibraryInfoRes::set_errcode(int32_t value) {
 
 // CreateLibraryReq
 
-// string InviteCode = 1;
+// bytes InviteCode = 1;
 inline void CreateLibraryReq::clear_invitecode() {
   _impl_.invitecode_.ClearToEmpty();
 }
@@ -14268,7 +14268,7 @@ template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void CreateLibraryReq::set_invitecode(ArgT0&& arg0, ArgT... args) {
  
- _impl_.invitecode_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+ _impl_.invitecode_.SetBytes(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CreateLibraryReq.InviteCode)
 }
 inline std::string* CreateLibraryReq::mutable_invitecode() {

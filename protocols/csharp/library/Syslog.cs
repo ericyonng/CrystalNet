@@ -27,15 +27,15 @@ using ProtoPackage.Attributes;
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CgxzeXNsb2cucHJvdG8SE0NSWVNUQUxfTkVULnNlcnZpY2UaEGNvbV9zeXNs",
-            "b2cucHJvdG8iPwoUU3lzdGVtTG9nRGF0YUxpc3RSZXESFAoMQmFzZU5vdGlm",
-            "eUlkGAEgASgEEhEKCUJvb2tDb3VudBgCIAEoESJLChRTeXN0ZW1Mb2dEYXRh",
-            "TGlzdFJlcxIzCgdMb2dMaXN0GAEgAygLMiIuQ1JZU1RBTF9ORVQuc2Vydmlj",
-            "ZS5TeXN0ZW1Mb2dEYXRhYgZwcm90bzM="));
+            "b2cucHJvdG8iOAoUU3lzdGVtTG9nRGF0YUxpc3RSZXESEQoJQmFzZUxvZ0lk",
+            "GAEgASgEEg0KBUNvdW50GAIgASgRIloKFFN5c3RlbUxvZ0RhdGFMaXN0UmVz",
+            "EjMKB0xvZ0xpc3QYASADKAsyIi5DUllTVEFMX05FVC5zZXJ2aWNlLlN5c3Rl",
+            "bUxvZ0RhdGESDQoFQ291bnQYAiABKBFiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::CRYSTALNET.Service.ComSyslogReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SystemLogDataListReq), global::CRYSTALNET.Service.SystemLogDataListReq.Parser, new[]{ "BaseNotifyId", "BookCount" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SystemLogDataListRes), global::CRYSTALNET.Service.SystemLogDataListRes.Parser, new[]{ "LogList" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SystemLogDataListReq), global::CRYSTALNET.Service.SystemLogDataListReq.Parser, new[]{ "BaseLogId", "Count" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.SystemLogDataListRes), global::CRYSTALNET.Service.SystemLogDataListRes.Parser, new[]{ "LogList", "Count" }, null, null, null, null)
           }));
     }
     #endregion
@@ -81,8 +81,8 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SystemLogDataListReq(SystemLogDataListReq other) : this() {
-      baseNotifyId_ = other.baseNotifyId_;
-      bookCount_ = other.bookCount_;
+      baseLogId_ = other.baseLogId_;
+      count_ = other.count_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -92,30 +92,30 @@ using ProtoPackage.Attributes;
       return new SystemLogDataListReq(this);
     }
 
-    /// <summary>Field number for the "BaseNotifyId" field.</summary>
-    public const int BaseNotifyIdFieldNumber = 1;
-    private ulong baseNotifyId_;
+    /// <summary>Field number for the "BaseLogId" field.</summary>
+    public const int BaseLogIdFieldNumber = 1;
+    private ulong baseLogId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong BaseNotifyId {
-      get { return baseNotifyId_; }
+    public ulong BaseLogId {
+      get { return baseLogId_; }
       set {
-        baseNotifyId_ = value;
+        baseLogId_ = value;
       }
     }
 
-    /// <summary>Field number for the "BookCount" field.</summary>
-    public const int BookCountFieldNumber = 2;
-    private int bookCount_;
+    /// <summary>Field number for the "Count" field.</summary>
+    public const int CountFieldNumber = 2;
+    private int count_;
     /// <summary>
     /// 数量 负数表示 BaseNotifyId 之前的前n个日志, 正数表示 BaseNotifyId 之后n个日志
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int BookCount {
-      get { return bookCount_; }
+    public int Count {
+      get { return count_; }
       set {
-        bookCount_ = value;
+        count_ = value;
       }
     }
 
@@ -134,8 +134,8 @@ using ProtoPackage.Attributes;
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (BaseNotifyId != other.BaseNotifyId) return false;
-      if (BookCount != other.BookCount) return false;
+      if (BaseLogId != other.BaseLogId) return false;
+      if (Count != other.Count) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -143,8 +143,8 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (BaseNotifyId != 0UL) hash ^= BaseNotifyId.GetHashCode();
-      if (BookCount != 0) hash ^= BookCount.GetHashCode();
+      if (BaseLogId != 0UL) hash ^= BaseLogId.GetHashCode();
+      if (Count != 0) hash ^= Count.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -163,13 +163,13 @@ using ProtoPackage.Attributes;
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (BaseNotifyId != 0UL) {
+      if (BaseLogId != 0UL) {
         output.WriteRawTag(8);
-        output.WriteUInt64(BaseNotifyId);
+        output.WriteUInt64(BaseLogId);
       }
-      if (BookCount != 0) {
+      if (Count != 0) {
         output.WriteRawTag(16);
-        output.WriteSInt32(BookCount);
+        output.WriteSInt32(Count);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -181,13 +181,13 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (BaseNotifyId != 0UL) {
+      if (BaseLogId != 0UL) {
         output.WriteRawTag(8);
-        output.WriteUInt64(BaseNotifyId);
+        output.WriteUInt64(BaseLogId);
       }
-      if (BookCount != 0) {
+      if (Count != 0) {
         output.WriteRawTag(16);
-        output.WriteSInt32(BookCount);
+        output.WriteSInt32(Count);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -199,11 +199,11 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (BaseNotifyId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BaseNotifyId);
+      if (BaseLogId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(BaseLogId);
       }
-      if (BookCount != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(BookCount);
+      if (Count != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(Count);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -217,11 +217,11 @@ using ProtoPackage.Attributes;
       if (other == null) {
         return;
       }
-      if (other.BaseNotifyId != 0UL) {
-        BaseNotifyId = other.BaseNotifyId;
+      if (other.BaseLogId != 0UL) {
+        BaseLogId = other.BaseLogId;
       }
-      if (other.BookCount != 0) {
-        BookCount = other.BookCount;
+      if (other.Count != 0) {
+        Count = other.Count;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -239,11 +239,11 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            BaseNotifyId = input.ReadUInt64();
+            BaseLogId = input.ReadUInt64();
             break;
           }
           case 16: {
-            BookCount = input.ReadSInt32();
+            Count = input.ReadSInt32();
             break;
           }
         }
@@ -262,11 +262,11 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            BaseNotifyId = input.ReadUInt64();
+            BaseLogId = input.ReadUInt64();
             break;
           }
           case 16: {
-            BookCount = input.ReadSInt32();
+            Count = input.ReadSInt32();
             break;
           }
         }
@@ -316,6 +316,7 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public SystemLogDataListRes(SystemLogDataListRes other) : this() {
       logList_ = other.logList_.Clone();
+      count_ = other.count_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -336,6 +337,21 @@ using ProtoPackage.Attributes;
       get { return logList_; }
     }
 
+    /// <summary>Field number for the "Count" field.</summary>
+    public const int CountFieldNumber = 2;
+    private int count_;
+    /// <summary>
+    /// 负数表示往前n个日志, 正数表示末尾n个日志
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Count {
+      get { return count_; }
+      set {
+        count_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -352,6 +368,7 @@ using ProtoPackage.Attributes;
         return true;
       }
       if(!logList_.Equals(other.logList_)) return false;
+      if (Count != other.Count) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -360,6 +377,7 @@ using ProtoPackage.Attributes;
     public override int GetHashCode() {
       int hash = 1;
       hash ^= logList_.GetHashCode();
+      if (Count != 0) hash ^= Count.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -379,6 +397,10 @@ using ProtoPackage.Attributes;
       output.WriteRawMessage(this);
     #else
       logList_.WriteTo(output, _repeated_logList_codec);
+      if (Count != 0) {
+        output.WriteRawTag(16);
+        output.WriteSInt32(Count);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -390,6 +412,10 @@ using ProtoPackage.Attributes;
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
       logList_.WriteTo(ref output, _repeated_logList_codec);
+      if (Count != 0) {
+        output.WriteRawTag(16);
+        output.WriteSInt32(Count);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -401,6 +427,9 @@ using ProtoPackage.Attributes;
     public int CalculateSize() {
       int size = 0;
       size += logList_.CalculateSize(_repeated_logList_codec);
+      if (Count != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeSInt32Size(Count);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -414,6 +443,9 @@ using ProtoPackage.Attributes;
         return;
       }
       logList_.Add(other.logList_);
+      if (other.Count != 0) {
+        Count = other.Count;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -433,6 +465,10 @@ using ProtoPackage.Attributes;
             logList_.AddEntriesFrom(input, _repeated_logList_codec);
             break;
           }
+          case 16: {
+            Count = input.ReadSInt32();
+            break;
+          }
         }
       }
     #endif
@@ -450,6 +486,10 @@ using ProtoPackage.Attributes;
             break;
           case 10: {
             logList_.AddEntriesFrom(ref input, _repeated_logList_codec);
+            break;
+          }
+          case 16: {
+            Count = input.ReadSInt32();
             break;
           }
         }

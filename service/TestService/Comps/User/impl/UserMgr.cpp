@@ -587,8 +587,22 @@ bool UserMgr::IsBindedPhone(UInt64 userId) const
 
     KERNEL_NS::SelectSqlBuilder *builder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
     builder->DB(mysqlMgr->GetCurrentServiceDbName()).From(userStorage->GetTableName())
-    .Where(KERNEL_NS::LibString().AppendFormat("`%s` = %llu and `%s` != 0"
+    .Where(KERNEL_NS::LibString().AppendFormat("`%s` = ? and `%s` != ?"
     , userIdName.c_str(), userId, bindPhnoneName.c_str()));
+
+    std::vector<KERNEL_NS::Field *> fields;
+    fields.resize(2);
+    {
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(userStorage->GetTableName(), userIdName, MYSQL_TYPE_LONGLONG, 0);
+        v->Write(&userId, static_cast<Int64>(sizeof(userId)));
+        fields[0] = v;
+    }
+    {
+        KERNEL_NS::Field *v = KERNEL_NS::Field::Create(userStorage->GetTableName(), bindPhnoneName, MYSQL_TYPE_LONGLONG, 0);
+        UInt64 value = 0;
+        v->Write(&value, static_cast<Int64>(sizeof(value)));
+        fields[1] = v;
+    }
 
     UInt64 stub = 0;
     Int32 err = Status::Success;
@@ -596,6 +610,7 @@ bool UserMgr::IsBindedPhone(UInt64 userId) const
     std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
     auto newMysqlBuilder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
     newMysqlBuilder->_builder = builder;
+    newMysqlBuilder->_fields = fields;
     builders.push_back(newMysqlBuilder);
     bool hasBindPhone = false;
     err = mysqlMgr->NewRequestAndWaitResponseBy2(stub, mysqlMgr->GetCurrentServiceDbName(), opId, builders,
@@ -738,6 +753,7 @@ Int32 UserMgr::_OnGlobalSysCompsCreated()
     auto storageInfo = GetStorageInfo();
     if(LIKELY(storageInfo))
         storageInfo->ClearFlags(StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG);
+        
     return Status::Success;
 }
 

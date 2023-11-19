@@ -109,6 +109,9 @@ protected:
     virtual Int32 _OnSysInit() final;
     virtual Int32 _OnGlobalSysInit() { return Status::Success; }
 
+    virtual Int32 _OnHostWillStart() final;
+    virtual Int32 _OnGlobalSysWillStart() { return Status::Success; }
+
     virtual Int32 _OnSysCompsCreated() final;
     virtual Int32 _OnGlobalSysCompsCreated() { return Status::Success; }
 

@@ -282,10 +282,9 @@ void IGlobalSys::ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &c
 Int32 IGlobalSys::_OnSysInit()
 {
     SetEventMgr(GetService()->GetEventMgr());
-
     _onServiceWillStartupStub = GetEventMgr()->AddListener(EventEnums::SERVICE_WILL_STARTUP, this, &IGlobalSys::_OnWillStartupEv);
     _onServiceStartupStub = GetEventMgr()->AddListener(EventEnums::SERVICE_STARTUP, this, &IGlobalSys::_OnStartupEv);
-
+        
     auto st = _OnGlobalSysInit();
     if(st != Status::Success)
     {
@@ -296,13 +295,27 @@ Int32 IGlobalSys::_OnSysInit()
     return Status::Success;
 }
 
-Int32 IGlobalSys::_OnSysCompsCreated()
+Int32 IGlobalSys::_OnHostWillStart()
 {
     // 全局系统需要启动时加载数据
     auto storageInfo = GetStorageInfo();
     if(storageInfo)
-        storageInfo->AddFlags(StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG);
-        
+    {
+        if(!storageInfo->HasFlags(StorageFlagType::DISABLE_LOAD_DATA_ON_STARTUP_FLAG))
+            storageInfo->AddFlags(StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG);
+    }
+    
+    auto st = _OnGlobalSysWillStart();
+    if(st != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("global sys will start fail %s"), ToString().c_str());
+        return st;
+    }
+    return Status::Success;
+}
+
+Int32 IGlobalSys::_OnSysCompsCreated()
+{
     auto st = _OnGlobalSysCompsCreated();
     if(st != Status::Success)
     {

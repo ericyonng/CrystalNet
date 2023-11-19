@@ -28,7 +28,7 @@ message GetLibraryInfoRes
 message CreateLibraryReq
 {
     // 邀请码
-    string InviteCode = 1;
+    bytes InviteCode = 1;
     // 管名
     bytes Name = 2;
     // 书馆地址

@@ -27,8 +27,7 @@ public:
 public:
     Int32 _id;    // id
 
-    KERNEL_NS::LibString _inviteCode;    // 邀请码(不超过64个英文字符),且邀请码不重复
-
+    KERNEL_NS::LibString _inviteCode;    // 邀请码(不超�?4个英文字�?,且邀请码不重�?
 
 };
 

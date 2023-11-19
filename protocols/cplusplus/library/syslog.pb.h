@@ -335,25 +335,25 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBaseNotifyIdFieldNumber = 1,
-    kBookCountFieldNumber = 2,
+    kBaseLogIdFieldNumber = 1,
+    kCountFieldNumber = 2,
   };
-  // uint64 BaseNotifyId = 1;
-  void clear_basenotifyid();
-  uint64_t basenotifyid() const;
-  void set_basenotifyid(uint64_t value);
+  // uint64 BaseLogId = 1;
+  void clear_baselogid();
+  uint64_t baselogid() const;
+  void set_baselogid(uint64_t value);
   private:
-  uint64_t _internal_basenotifyid() const;
-  void _internal_set_basenotifyid(uint64_t value);
+  uint64_t _internal_baselogid() const;
+  void _internal_set_baselogid(uint64_t value);
   public:
 
-  // sint32 BookCount = 2;
-  void clear_bookcount();
-  int32_t bookcount() const;
-  void set_bookcount(int32_t value);
+  // sint32 Count = 2;
+  void clear_count();
+  int32_t count() const;
+  void set_count(int32_t value);
   private:
-  int32_t _internal_bookcount() const;
-  void _internal_set_bookcount(int32_t value);
+  int32_t _internal_count() const;
+  void _internal_set_count(int32_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SystemLogDataListReq)
@@ -364,8 +364,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    uint64_t basenotifyid_;
-    int32_t bookcount_;
+    uint64_t baselogid_;
+    int32_t count_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -634,6 +634,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   enum : int {
     kLogListFieldNumber = 1,
+    kCountFieldNumber = 2,
   };
   // repeated .CRYSTAL_NET.service.SystemLogData LogList = 1;
   int loglist_size() const;
@@ -653,6 +654,15 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SystemLogData >&
       loglist() const;
 
+  // sint32 Count = 2;
+  void clear_count();
+  int32_t count() const;
+  void set_count(int32_t value);
+  private:
+  int32_t _internal_count() const;
+  void _internal_set_count(int32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SystemLogDataListRes)
  private:
   class _Internal;
@@ -662,6 +672,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::SystemLogData > loglist_;
+    int32_t count_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -678,44 +689,44 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 #endif  // __GNUC__
 // SystemLogDataListReq
 
-// uint64 BaseNotifyId = 1;
-inline void SystemLogDataListReq::clear_basenotifyid() {
-  _impl_.basenotifyid_ = uint64_t{0u};
+// uint64 BaseLogId = 1;
+inline void SystemLogDataListReq::clear_baselogid() {
+  _impl_.baselogid_ = uint64_t{0u};
 }
-inline uint64_t SystemLogDataListReq::_internal_basenotifyid() const {
-  return _impl_.basenotifyid_;
+inline uint64_t SystemLogDataListReq::_internal_baselogid() const {
+  return _impl_.baselogid_;
 }
-inline uint64_t SystemLogDataListReq::basenotifyid() const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SystemLogDataListReq.BaseNotifyId)
-  return _internal_basenotifyid();
+inline uint64_t SystemLogDataListReq::baselogid() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SystemLogDataListReq.BaseLogId)
+  return _internal_baselogid();
 }
-inline void SystemLogDataListReq::_internal_set_basenotifyid(uint64_t value) {
+inline void SystemLogDataListReq::_internal_set_baselogid(uint64_t value) {
   
-  _impl_.basenotifyid_ = value;
+  _impl_.baselogid_ = value;
 }
-inline void SystemLogDataListReq::set_basenotifyid(uint64_t value) {
-  _internal_set_basenotifyid(value);
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SystemLogDataListReq.BaseNotifyId)
+inline void SystemLogDataListReq::set_baselogid(uint64_t value) {
+  _internal_set_baselogid(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SystemLogDataListReq.BaseLogId)
 }
 
-// sint32 BookCount = 2;
-inline void SystemLogDataListReq::clear_bookcount() {
-  _impl_.bookcount_ = 0;
+// sint32 Count = 2;
+inline void SystemLogDataListReq::clear_count() {
+  _impl_.count_ = 0;
 }
-inline int32_t SystemLogDataListReq::_internal_bookcount() const {
-  return _impl_.bookcount_;
+inline int32_t SystemLogDataListReq::_internal_count() const {
+  return _impl_.count_;
 }
-inline int32_t SystemLogDataListReq::bookcount() const {
-  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SystemLogDataListReq.BookCount)
-  return _internal_bookcount();
+inline int32_t SystemLogDataListReq::count() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SystemLogDataListReq.Count)
+  return _internal_count();
 }
-inline void SystemLogDataListReq::_internal_set_bookcount(int32_t value) {
+inline void SystemLogDataListReq::_internal_set_count(int32_t value) {
   
-  _impl_.bookcount_ = value;
+  _impl_.count_ = value;
 }
-inline void SystemLogDataListReq::set_bookcount(int32_t value) {
-  _internal_set_bookcount(value);
-  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SystemLogDataListReq.BookCount)
+inline void SystemLogDataListReq::set_count(int32_t value) {
+  _internal_set_count(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SystemLogDataListReq.Count)
 }
 
 // -------------------------------------------------------------------
@@ -757,6 +768,26 @@ inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::
 SystemLogDataListRes::loglist() const {
   // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.SystemLogDataListRes.LogList)
   return _impl_.loglist_;
+}
+
+// sint32 Count = 2;
+inline void SystemLogDataListRes::clear_count() {
+  _impl_.count_ = 0;
+}
+inline int32_t SystemLogDataListRes::_internal_count() const {
+  return _impl_.count_;
+}
+inline int32_t SystemLogDataListRes::count() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SystemLogDataListRes.Count)
+  return _internal_count();
+}
+inline void SystemLogDataListRes::_internal_set_count(int32_t value) {
+  
+  _impl_.count_ = value;
+}
+inline void SystemLogDataListRes::set_count(int32_t value) {
+  _internal_set_count(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SystemLogDataListRes.Count)
 }
 
 #ifdef __GNUC__

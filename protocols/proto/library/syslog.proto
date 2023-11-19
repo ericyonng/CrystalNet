@@ -7,10 +7,10 @@ import "com_syslog.proto";
 /// Opcode:
 message SystemLogDataListReq
 {
-    uint64 BaseNotifyId = 1;
+    uint64 BaseLogId = 1;
     
     // 数量 负数表示 BaseNotifyId 之前的前n个日志, 正数表示 BaseNotifyId 之后n个日志
-    sint32 BookCount = 2;
+    sint32 Count = 2;
 }
 
 // 系统日志
@@ -18,4 +18,7 @@ message SystemLogDataListReq
 message SystemLogDataListRes
 {
     repeated SystemLogData LogList = 1;
+
+    // 负数表示往前n个日志, 正数表示末尾n个日志
+    sint32 Count = 2;
 }

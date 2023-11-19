@@ -31,7 +31,7 @@ using ProtoPackage.Attributes;
             "EUdldExpYnJhcnlJbmZvUmVxIkcKDkxpYnJhcnlJbmZvTnR5EjUKC0xpYnJh",
             "cnlJbmZvGAEgASgLMiAuQ1JZU1RBTF9ORVQuc2VydmljZS5MaWJyYXJ5SW5m",
             "byIkChFHZXRMaWJyYXJ5SW5mb1JlcxIPCgdFcnJDb2RlGAEgASgRIoIBChBD",
-            "cmVhdGVMaWJyYXJ5UmVxEhIKCkludml0ZUNvZGUYASABKAkSDAoETmFtZRgC",
+            "cmVhdGVMaWJyYXJ5UmVxEhIKCkludml0ZUNvZGUYASABKAwSDAoETmFtZRgC",
             "IAEoDBIPCgdBZGRyZXNzGAMgASgMEhAKCE9wZW5UaW1lGAQgASgMEhYKDlRl",
             "bHBob25lTnVtYmVyGAUgASgJEhEKCUJpbmRQaG9uZRgGIAEoBCIjChBDcmVh",
             "dGVMaWJyYXJ5UmVzEg8KB0VyckNvZGUYASABKBEiIwoOSm9pbkxpYnJhcnlS",
@@ -757,13 +757,13 @@ using ProtoPackage.Attributes;
 
     /// <summary>Field number for the "InviteCode" field.</summary>
     public const int InviteCodeFieldNumber = 1;
-    private string inviteCode_ = "";
+    private pb::ByteString inviteCode_ = pb::ByteString.Empty;
     /// <summary>
     /// 邀请码
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string InviteCode {
+    public pb::ByteString InviteCode {
       get { return inviteCode_; }
       set {
         inviteCode_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
@@ -899,7 +899,7 @@ using ProtoPackage.Attributes;
     #else
       if (InviteCode.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(InviteCode);
+        output.WriteBytes(InviteCode);
       }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
@@ -933,7 +933,7 @@ using ProtoPackage.Attributes;
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
       if (InviteCode.Length != 0) {
         output.WriteRawTag(10);
-        output.WriteString(InviteCode);
+        output.WriteBytes(InviteCode);
       }
       if (Name.Length != 0) {
         output.WriteRawTag(18);
@@ -966,7 +966,7 @@ using ProtoPackage.Attributes;
     public int CalculateSize() {
       int size = 0;
       if (InviteCode.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(InviteCode);
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(InviteCode);
       }
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeBytesSize(Name);
@@ -1029,7 +1029,7 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            InviteCode = input.ReadString();
+            InviteCode = input.ReadBytes();
             break;
           }
           case 18: {
@@ -1068,7 +1068,7 @@ using ProtoPackage.Attributes;
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
-            InviteCode = input.ReadString();
+            InviteCode = input.ReadBytes();
             break;
           }
           case 18: {

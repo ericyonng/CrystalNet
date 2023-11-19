@@ -34,6 +34,11 @@
 #include <Comps/SystemLog/Impl/SystemLogGlobalFactory.h>
 #include <Comps/config/config.h>
 #include <protocols/protocols.h>
+#include <Comps/User/User.h>
+#include <Comps/Library/library.h>
+#include <Comps/UserSys/UserSys.h>
+#include <Comps/DB/db.h>
+#include <OptionComp/storage/mysql/mysqlcomp.h>
 
 SERVICE_BEGIN
 
@@ -64,11 +69,6 @@ Int32 SystemLogGlobal::_OnGlobalSysInit()
 {
     Subscribe(Opcodes::OpcodeConst::OPCODE_SystemLogDataListReq, this, &SystemLogGlobal::_OnSystemLogDataListReq);
     
-    return Status::Success;
-}
-
-Int32 SystemLogGlobal::OnLoaded(UInt64 key, const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db)
-{
     return Status::Success;
 }
 
@@ -122,6 +122,7 @@ void SystemLogGlobal::AddLog(UInt64 libraryId, const KERNEL_NS::LibString &title
     newData->set_id(uid);
     newData->set_libraryid(libraryId);
     newData->set_titlewordid(titleWordId.GetRaw());
+    newData->set_createtime(KERNEL_NS::LibTime::NowMilliTimestamp());
 
     for(auto &param : titleParams)
         *newData->add_titleparams() = param;
@@ -138,8 +139,122 @@ void SystemLogGlobal::AddLog(UInt64 libraryId, const KERNEL_NS::LibString &title
 
 void SystemLogGlobal::_OnSystemLogDataListReq(KERNEL_NS::LibPacket *&packet)
 {
-    // 
-    
+    auto userMgr = GetGlobalSys<IUserMgr>();
+    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    if(UNLIKELY(!user))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
+        return;
+    }
+
+    auto req = packet->GetCoder<SystemLogDataListReq>();
+    auto libraryMgr = user->GetSys<ILibraryMgr>();
+    const auto libraryId = libraryMgr->GetMyLibraryId();
+    auto libraryGlobal = GetGlobalSys<ILibraryGlobal>();
+    std::vector<SystemLogData> logDatas;
+
+    do
+    {
+        if(libraryId == 0)
+            break;
+
+        if(!libraryGlobal->IsManager(libraryId, user->GetUserId()))
+            break;
+
+        const auto baseId = req->baselogid();
+        const auto absBookCount = std::abs(req->count());
+
+        UInt64 stub = 0;
+        auto mysqlMgr = GetGlobalSys<IMysqlMgr>();
+        std::vector<KERNEL_NS::MysqlSqlBuilderInfo *> builders;
+
+        // builder构建
+        auto builder = KERNEL_NS::MysqlSqlBuilderInfo::Create();
+        builders.push_back(builder);
+
+        auto selectBuilder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
+        builder->_builder = selectBuilder;
+        auto storageInfo = GetComp<SystemLogGlobalStorage>();
+        selectBuilder->DB(mysqlMgr->GetCurrentServiceDbName()).From(storageInfo->GetTableName());
+        if(req->count() >= 0)
+        {
+            selectBuilder->Where(KERNEL_NS::LibString().AppendFormat("`%s` = ? and `%s` > ?", SystemLogGlobalStorage::LIBRARY_ID_NAME, SystemLogGlobalStorage::ID))
+            .Limit(absBookCount)
+            .OrderBy(KERNEL_NS::LibString().AppendFormat("%s asc", SystemLogGlobalStorage::ID));
+        }
+        else
+        {
+            selectBuilder->Where(KERNEL_NS::LibString().AppendFormat("`%s` = ? and `%s` < ?", SystemLogGlobalStorage::LIBRARY_ID_NAME, SystemLogGlobalStorage::ID))
+            .Limit(absBookCount)
+            .OrderBy(KERNEL_NS::LibString().AppendFormat("%s desc", SystemLogGlobalStorage::ID));
+        }
+
+        // stmt的fields绑定
+        std::vector<KERNEL_NS::Field *> fields;
+        fields.resize(2);
+        {
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), SystemLogGlobalStorage::LIBRARY_ID_NAME, MYSQL_TYPE_LONGLONG, 0);
+            v->Write(&libraryId, static_cast<Int64>(sizeof(libraryId)));
+            fields[0] = v;
+        }
+        {
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), SystemLogGlobalStorage::ID, MYSQL_TYPE_LONGLONG, 0);
+            v->Write(&baseId, static_cast<Int64>(sizeof(baseId)));
+            fields[1] = v;
+        }
+        builder->_fields = fields;
+
+        Int32 err = Status::Success;
+        err = mysqlMgr->NewRequestAndWaitResponseBy2(stub, mysqlMgr->GetCurrentServiceDbName(), user->GetStorageOperatorId(), builders
+            ,[&err, this, &logDatas](KERNEL_NS::MysqlResponse *res)
+            {
+                if(res->_errCode != Status::Success)
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy2 fail db name:%s res seqId:%llu, mysqlError:%u")
+                            , res->_dbName.c_str(), res->_seqId, res->_mysqlErrno);
+                    err = res->_errCode;
+                    return;
+                }
+
+                auto &records = res->_datas;
+                for(auto &record : records)
+                {
+                    auto field = record->GetField(SystemLogGlobalStorage::LOG_DATA_NAME);
+                    auto data = field->GetData();
+                    if(!data)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("have no data, record:%s"), record->ToString().c_str());
+                        continue;
+                    }
+
+                    SystemLogData logData;
+                    if(!logData.Decode(*data))
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("decode data fail, record:%s"), record->ToString().c_str());
+                        continue;
+                    }
+
+                    logDatas.push_back(logData);
+                }
+            });
+
+        if(err != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy2 fail user:%s, err:%d, req:%s")
+            , user->ToString().c_str(), err, req->ToJsonString().c_str());
+            break;
+        }
+        
+    }while(false);
+
+    SystemLogDataListRes res;
+    if(!logDatas.empty())
+    {
+        for(auto &data : logDatas)
+            *res.add_loglist() = data;
+    }
+
+    user->Send(Opcodes::OpcodeConst::OPCODE_SystemLogDataListRes, res, packet->GetPacketId());
 }
 
 SERVICE_END

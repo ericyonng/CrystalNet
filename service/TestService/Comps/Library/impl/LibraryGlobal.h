@@ -63,6 +63,8 @@ public:
 
     virtual Int32 CreateBorrowOrder(UInt64 libraryId, const IUser *user, const BookBagInfo &bookBagInfo, const KERNEL_NS::LibString &remark) override;
 
+    virtual bool IsManager(UInt64 libraryId, UInt64 userId) const override;
+
 protected:
     virtual Int32 _OnGlobalSysInit() override;
 

@@ -57,7 +57,8 @@ bool SystemLogGlobalStorage::RegisterStorages()
 {
     AddFlags(StorageFlagType::MULTI_FIELD_SYSTEM_FLAG | 
     StorageFlagType::MYSQL_FLAG | 
-    StorageFlagType::SYSTEM_DATA_STORAGE_FLAG
+    StorageFlagType::SYSTEM_DATA_STORAGE_FLAG|
+    StorageFlagType::DISABLE_LOAD_DATA_ON_STARTUP_FLAG
     );
 
     auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(SystemLogGlobalStorage::ID);
