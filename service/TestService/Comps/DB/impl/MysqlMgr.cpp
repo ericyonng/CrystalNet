@@ -5245,7 +5245,7 @@ bool MysqlMgr::_ModifyDbNumberDataType(IStorageInfo *storageInfo, IStorageInfo *
             if(dataType != oldFieldType)
             {
                 g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: number field sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                 if(!StorageFlagType::UpdateNumberStorageInfo(subStorageInfo, oldFieldType))
                 {
@@ -5367,7 +5367,7 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
             if(dataType != oldFieldType)
             {
                 g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: text string sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                 if(!StorageFlagType::UpdateTextStringStorageInfo(subStorageInfo, oldFieldType))
                 {
@@ -5449,7 +5449,7 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
                 if(oldCapacitySize != subStorageInfo->GetCapacitySize())
                 {
                     g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: var binary sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
-                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                     if(!StorageFlagType::UpdateNormalBinaryStorageInfo(subStorageInfo, oldCapacitySize))
                     {
@@ -5490,7 +5490,7 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
             if(dataType != oldFieldType)
             {
                 g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: blob type field sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                 if(!StorageFlagType::UpdateBlobTypeBinaryStorageInfo(subStorageInfo, oldFieldType))
                 {
