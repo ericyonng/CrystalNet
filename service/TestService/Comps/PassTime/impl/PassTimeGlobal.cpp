@@ -160,6 +160,8 @@ void PassTimeGlobal::_DoCheckPassTime(const KERNEL_NS::LibTime &nowTime)
 
         _passTimeData->set_lastpassdaytime(nowTime.GetMilliTimestamp());
         MaskNumberKeyModifyDirty(_key);
+
+        g_Log->Info(LOGFMT_OBJ_TAG("system pass day."));
     }
 }
 
