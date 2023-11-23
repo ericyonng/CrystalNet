@@ -26,6 +26,8 @@
  * Description: 
 */
 
+#pragma once
+
 #include <service/TestService/ServiceCompHeader.h>
 #include <OptionComp/storage/mysql/impl/SqlBuilder.h>
 #include <OptionComp/storage/mysql/impl/Field.h>

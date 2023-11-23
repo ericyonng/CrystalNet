@@ -34,6 +34,8 @@
 #include <service/TestService/Comps/DB/impl/TableInfo.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrStorage.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrStorageFactory.h>
+#include <service/common/BaseComps/Storage/Impl/MysqlDefs.h>
+
 
 SERVICE_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(IMysqlMgr);
