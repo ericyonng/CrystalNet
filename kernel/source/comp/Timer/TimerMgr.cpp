@@ -107,7 +107,7 @@ Int64 TimerMgr::Drive()
                 if(LIKELY(timeData->_owner))
                 {
                     // 重新被调度
-                    if(timeData->_isScheduing)
+                    if(timeData->_asynData && (!BitUtil::IsSet(timeData->_asynData->_flag, AsynOpType::OP_REGISTER)))
                         _AsynRegister(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
                 }
             }
@@ -163,7 +163,10 @@ void TimerMgr::SafetyDrive()
                     {
                         // 重新被调度
                         if(timeData->_isScheduing)
-                            _AsynRegister(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+                        {
+                            if(timeData->_asynData && (!BitUtil::IsSet(timeData->_asynData->_flag, AsynOpType::OP_REGISTER)))
+                                _AsynRegister(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+                        }
                     }
                 }
             }
