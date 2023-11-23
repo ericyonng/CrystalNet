@@ -1445,5 +1445,18 @@ using LibStreamTL = LibStream<_Build::TL>;
 
 KERNEL_END
 
+/**
+ * \brief Variant stream output function.
+ */
+template<typename T>
+extern KERNEL_EXPORT KERNEL_NS::LibStream<T> &operator <<(KERNEL_NS::LibStream<T> &o, const KERNEL_NS::LibString &str);
+
+template<typename T>
+ALWAYS_INLINE KERNEL_NS::LibStream<T> &operator <<(KERNEL_NS::LibStream<T> &o, const KERNEL_NS::LibString &str)
+{
+    o.Write(str);
+    return o;
+}
+
 #endif
 

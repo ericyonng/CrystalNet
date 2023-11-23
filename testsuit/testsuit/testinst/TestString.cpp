@@ -79,7 +79,7 @@ void TestString::Run()
     stringEx = "hello";
     stringEx = std::string("big world");
     stringEx += std::string("5564");
-    stringEx << std::string("123");
+    stringEx += std::string("123");
 }
 
 

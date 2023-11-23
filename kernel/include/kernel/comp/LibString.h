@@ -48,14 +48,6 @@ KERNEL_END
 // template<typename ObjType>
 // extern KERNEL_EXPORT KERNEL_NS::LibString &operator <<(KERNEL_NS::LibString &dest, const ObjType &obj);
 
-/**
- * \brief Variant stream output function.
- */
-template<typename T>
-extern KERNEL_EXPORT KERNEL_NS::LibStream<T> &operator <<(KERNEL_NS::LibStream<T> &o, const KERNEL_NS::LibString &str);
-
-extern KERNEL_EXPORT std::string &operator <<(std::string &o, const KERNEL_NS::LibString &str);
-
 KERNEL_BEGIN
 
 #undef CRYSTAL_FMTFLAGS
@@ -623,8 +615,10 @@ ALWAYS_INLINE LibString &LibString::operator << (const std::string &str)
 ALWAYS_INLINE LibString &LibString::operator << (std::string &&str)
 {
     _raw += str;
-    if (UNLIKELY(&_raw != &str))
-        str.clear();    return *this;
+    if(UNLIKELY(&_raw != &str))
+        str.clear();    
+        
+    return *this;
 }
 
 ALWAYS_INLINE LibString &LibString::operator << (const bool &val)
@@ -979,8 +973,10 @@ ALWAYS_INLINE bool LibString::FromHexString(const LibString &hexString)
     _raw.reserve(_raw.size() + hexLen / 2);
     for(UInt64 idx = 0; idx < hexLen; idx += 2)
     {
-        auto &hi = ChHexToDecimalValues[hexString[idx]];
-        auto &lo = ChHexToDecimalValues[hexString[idx + 1]];
+        const Int32 hiIdx = static_cast<Int32>(hexString[idx]);
+        const Int32 loIdx = static_cast<Int32>(hexString[idx + 1]);
+        auto &hi = ChHexToDecimalValues[hiIdx];
+        auto &lo = ChHexToDecimalValues[loIdx];
         U8 decimalNumber = (hi << 4) | lo;
         _raw.append(reinterpret_cast<Byte8 *>(&decimalNumber), 1);
     }
@@ -2104,11 +2100,6 @@ struct hash<KERNEL_NS::LibString>
 
 }
 
-template<typename T>
-ALWAYS_INLINE KERNEL_NS::LibStream<T> &operator <<(KERNEL_NS::LibStream<T> &o, const KERNEL_NS::LibString &str)
-{
-    o.Write(str);
-    return o;
-}
+
 
 #endif
