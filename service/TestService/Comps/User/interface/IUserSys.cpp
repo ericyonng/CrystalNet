@@ -107,7 +107,7 @@ Int32 IUserSys::_OnSysInit()
     auto err = _OnUserSysInit();
     if(err != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("_OnUserSysInit fail err:%d, user:%s"), _userOwner->ToString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("_OnUserSysInit fail err:%d, user:%s"), err, _userOwner->ToString().c_str());
         return err;
     }
 

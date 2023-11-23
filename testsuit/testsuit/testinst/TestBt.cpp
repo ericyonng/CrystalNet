@@ -140,7 +140,7 @@ void TestBt::Run()
     auto &&bodyLam = [&loopCount](){
         g_Log->Custom("hello world loopCount:%d", loopCount);
     };
-    auto &quitLoop = [&loopCount]() -> bool 
+    auto &&quitLoop = [&loopCount]() -> bool 
     {
         --loopCount;
         return loopCount > 0;

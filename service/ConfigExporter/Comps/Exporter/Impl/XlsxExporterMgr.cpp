@@ -2282,7 +2282,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
                             fileContent.AppendFormat("        // check unique\n");
                             fileContent.AppendFormat("        if(%s.find(config->%s) != %s.end())\n", uniqueCheckFieldName.c_str(), memberName.c_str(), uniqueCheckFieldName.c_str());
                             fileContent.AppendFormat("        {\n");
-                            fileContent.AppendFormat("            g_Log->Warn(LOGFMT_OBJ_TAG(\"duplicate %s:%%d data path:%%s line:%%d, lineData:%%s\"), config->%s, wholePath.c_str(), line, lineData.c_str());\n", fieldInfo->_fieldName.c_str(), memberName.c_str());
+                            fileContent.AppendFormat("            g_Log->Warn(LOGFMT_OBJ_TAG(\"duplicate %s:%%s data path:%%s line:%%d, lineData:%%s\"), (KERNEL_NS::LibString() << config->%s).c_str(), wholePath.c_str(), line, lineData.c_str());\n", fieldInfo->_fieldName.c_str(), memberName.c_str());
                             fileContent.AppendFormat("            return Status::Failed;\n");
                             fileContent.AppendFormat("        }\n");
                             fileContent.AppendFormat("\n");

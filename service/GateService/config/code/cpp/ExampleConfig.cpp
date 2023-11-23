@@ -842,7 +842,7 @@ Int32 ExampleConfigMgr::Load()
         // check unique
         if(unique_ids.find(config->_id) != unique_ids.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Id:%d data path:%s line:%d, lineData:%s"), config->_id, wholePath.c_str(), line, lineData.c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Id:%s data path:%s line:%d, lineData:%s"), (KERNEL_NS::LibString() << config->_id).c_str(), wholePath.c_str(), line, lineData.c_str());
             return Status::Failed;
         }
 

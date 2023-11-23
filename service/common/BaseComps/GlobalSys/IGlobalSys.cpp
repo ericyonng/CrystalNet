@@ -73,7 +73,7 @@ void IGlobalSys::Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const
     auto session = sessionMgr->GetSession(sessionId);
     if(UNLIKELY(!session))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu, opcode:%d,%s"), sessionId, packet->GetOpcode(), OpcodeToString(packet->GetOpcode()));
+        g_Log->Warn(LOGFMT_OBJ_TAG("session not found sessionId:%llu, opcode:%d,%s"), sessionId, packet->GetOpcode(), OpcodeToString(packet->GetOpcode()).c_str());
         packet->ReleaseUsingPool();
         return;
     }
@@ -319,7 +319,7 @@ Int32 IGlobalSys::_OnSysCompsCreated()
     auto st = _OnGlobalSysCompsCreated();
     if(st != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("_OnGlobalSysCompsCreated fail st:%d, global sys:%s"), GetObjName().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("_OnGlobalSysCompsCreated fail st:%d, global sys:%s"), st, GetObjName().c_str());
         return st;
     }
 

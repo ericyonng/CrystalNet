@@ -1,5 +1,5 @@
 Id|StringValue|
-30
+32
 column_2_29:"HAVE_NEW_BORROW_APPLY_ORDER"|column_3_23:"有新的借书申请"|
 column_2_22:"BORROW_ORDER_CONTENT"|column_3_69:"{0}申请借书, 用户id:{1}, 订单号:{2},请即时处理出库."|
 column_2_20:"CANCEL_ORDER_TITLE"|column_3_20:"取消订单通知"|
@@ -17,14 +17,16 @@ column_2_30:"TRANSFER_LIBRARY_LOG_CONTENT"|column_3_95:"原图书馆馆长:【{0
 column_2_25:"MODIFY_MEMBER_LOG_TITLE"|column_3_20:"修改成员信息"|
 column_2_27:"MODIFY_MEMBER_LOG_CONTENT"|column_3_160:"操作人:【{0}】,id:{1} 角色:{2}({3}), 修改用户信息, 被修改用户id:{4},昵称:【{5}】 角色变更:{6}({7})=>{8}({9}),手机变更:{10}=>{11}"|
 column_2_22:"ENTER_BOOK_LOG_TITLE"|column_3_8:"录书"|
-column_2_24:"ENTER_BOOK_LOG_CONTENT"|column_3_131:"操作人id:{0}, 昵称:【{1}】 [录书] 图书id:{2}, ISBN:{3}, 书名:【{4}】=>【{5}】,, 库存:{6}=>{7}, 价格:{8}=>{9}"|
+column_2_24:"ENTER_BOOK_LOG_CONTENT"|column_3_152:"操作人id:{0}, 昵称:【{1}】 [录书] 图书id:{2}, ISBN:{3}, 书名:【{4}】=>【{5}】, 库存:{6}=>{7}, 价格:{8}.{9}=>{10}.{11}(单位:元)"|
 column_2_27:"CREATE_BORROW_ORDER_TITLE"|column_3_20:"创建借书订单"|
 column_2_29:"CREATE_BORROW_ORDER_CONTENT"|column_3_121:"用户:【{0}】, id:{1},角色:{2}({3}), 创建借书订单, 订单id:{4}, 订单状态:{5}({6}) 借图书列表:\n{7}"|
 column_2_20:"OUTSTORE_LOG_TITLE"|column_3_20:"借书订单出库"|
-column_2_22:"OUTSTORE_LOG_CONTENT"|column_3_81:"操作人:【{0}】,id:{1}, 订单号:{2},借书用户id:{1},等待用户领书"|
+column_2_22:"OUTSTORE_LOG_CONTENT"|column_3_81:"操作人:【{0}】,id:{1}, 订单号:{2},借书用户id:{3},等待用户领书"|
 column_2_24:"CANCEL_ORDER_LOG_TITLE"|column_3_14:"取消订单"|
 column_2_48:"CANCEL_ORDER_WAIT_USER_RECEIVE_TIMEOUT_CONTENT"|column_3_76:"订单等待用户领取超时取消, 订单号:{0}, 待领取用户id:{1}"|
 column_2_33:"CANCEL_ORDER_BY_MANAGER_CONTENT"|column_3_132:"管理员取消订单, 管理员用户id:{0},昵称:【{1}】, 订单号:{2}, 订单状态:{3}({4}) 借书用户id:{5}, 备注:{6}"|
 column_2_30:"CANCEL_ORDER_BY_SELF_CONTENT"|column_3_107:"用户主动取消订单, 用户id:{0},昵称:【{1}】, 订单号:{2}, 订单状态:{3}({4}), 备注:{5}"|
 column_2_21:"USER_GET_BOOK_TITLE"|column_3_14:"用户领书"|
 column_2_23:"USER_GET_BOOK_CONTENT"|column_3_73:"用户【{0}】领书,用户id:{1}, 订单号:{2},订单状态:{3}({4})"|
+column_2_16:"OUTSTORE_TITLE"|column_3_20:"订单出库通知"|
+column_2_18:"OUTSTORE_CONTENT"|column_3_41:"订单{0}已经出库，请即时领取"|

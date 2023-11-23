@@ -179,7 +179,7 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
             SendBookBagInfoNty();
 
             err = Status::BookCountOverCapacity;
-            g_Log->Warn(LOGFMT_OBJ_TAG("book over count%lld, item bookcount:%lld book id:%llu, library id:%llu user:%s")
+            g_Log->Warn(LOGFMT_OBJ_TAG("book over count%lld, item bookcount:%d book id:%llu, library id:%llu user:%s")
             ,bookInfo->variantinfo().count(), item.bookcount(), item.bookid(), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
             break;
         }

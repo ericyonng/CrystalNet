@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/CenterService/config/xlsx/ÑûÇëÂë.xlsx
+// file path:../../service/CenterService/config/xlsx/é‚€è¯·ç .xlsx
 // sheet name:é‚€è¯·ç |InviteCode
 
 #include <pch.h>
@@ -336,7 +336,7 @@ Int32 InviteCodeConfigMgr::Load()
         // check unique
         if(unique_ids.find(config->_id) != unique_ids.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Id:%d data path:%s line:%d, lineData:%s"), config->_id, wholePath.c_str(), line, lineData.c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Id:%s data path:%s line:%d, lineData:%s"), (KERNEL_NS::LibString() << config->_id).c_str(), wholePath.c_str(), line, lineData.c_str());
             return Status::Failed;
         }
 
@@ -345,7 +345,7 @@ Int32 InviteCodeConfigMgr::Load()
         // check unique
         if(unique_inviteCodes.find(config->_inviteCode) != unique_inviteCodes.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate InviteCode:%d data path:%s line:%d, lineData:%s"), config->_inviteCode, wholePath.c_str(), line, lineData.c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate InviteCode:%s data path:%s line:%d, lineData:%s"), (KERNEL_NS::LibString() << config->_inviteCode).c_str(), wholePath.c_str(), line, lineData.c_str());
             return Status::Failed;
         }
 

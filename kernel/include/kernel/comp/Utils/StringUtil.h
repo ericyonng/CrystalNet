@@ -1219,19 +1219,19 @@ ALWAYS_INLINE LibString StringUtil::RemoveNameSpace(const LibString &name)
 
 	return splitNameSpace.empty() ? "" : splitNameSpace[splitNameSpace.size() - 1];
 
-    LibString icompName;
-    splitSize = static_cast<Int32>(splitNameSpace.size());
-    for(Int32 idx = 0; idx < splitSize; ++idx)
-    {
-        if(idx == splitSize -1)
-            icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
+    // LibString icompName;
+    // splitSize = static_cast<Int32>(splitNameSpace.size());
+    // for(Int32 idx = 0; idx < splitSize; ++idx)
+    // {
+    //     if(idx == splitSize -1)
+    //         icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
 
-        if(!splitNameSpace[idx].empty())
-            icompName.AppendFormat("%s", splitNameSpace[idx].c_str());
+    //     if(!splitNameSpace[idx].empty())
+    //         icompName.AppendFormat("%s", splitNameSpace[idx].c_str());
 
-        if(idx != splitSize -1)
-            icompName.AppendFormat("::");
-    }
+    //     if(idx != splitSize -1)
+    //         icompName.AppendFormat("::");
+    // }
 }
 
 ALWAYS_INLINE LibString StringUtil::InterfaceObjName(const LibString &name)

@@ -588,7 +588,7 @@ bool UserMgr::IsBindedPhone(UInt64 userId) const
     KERNEL_NS::SelectSqlBuilder *builder = KERNEL_NS::SelectSqlBuilder::NewThreadLocal_SelectSqlBuilder();
     builder->DB(mysqlMgr->GetCurrentServiceDbName()).From(userStorage->GetTableName())
     .Where(KERNEL_NS::LibString().AppendFormat("`%s` = ? and `%s` != ?"
-    , userIdName.c_str(), userId, bindPhnoneName.c_str()));
+    , userIdName.c_str(), bindPhnoneName.c_str()));
 
     std::vector<KERNEL_NS::Field *> fields;
     fields.resize(2);
@@ -1458,7 +1458,7 @@ Int32 UserMgr::_CheckRegisterInfo(const LoginInfo &loginInfo) const
     KERNEL_NS::LibString accountname = regiseterInfo.accountname();
     if(static_cast<Int32>(accountname.length_with_utf8()) > nameMaxLenConfig->_value)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("name len too long account name:%s"), regiseterInfo.accountname());
+        g_Log->Warn(LOGFMT_OBJ_TAG("name len too long account name:%s"), regiseterInfo.accountname().c_str());
         return Status::NameTooLong;
     }
 

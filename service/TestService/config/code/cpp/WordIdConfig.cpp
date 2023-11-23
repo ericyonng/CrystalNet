@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/TestService/config/xlsx/ÎÄ×Öid.xlsx
+// file path:../../service/TestService/config/xlsx/æ–‡å­—id.xlsx
 // sheet name:æ–‡å­—id|WordId
 
 #include <pch.h>
@@ -334,7 +334,7 @@ Int32 WordIdConfigMgr::Load()
         // check unique
         if(unique_ids.find(config->_id) != unique_ids.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Id:%d data path:%s line:%d, lineData:%s"), config->_id, wholePath.c_str(), line, lineData.c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Id:%s data path:%s line:%d, lineData:%s"), (KERNEL_NS::LibString() << config->_id).c_str(), wholePath.c_str(), line, lineData.c_str());
             return Status::Failed;
         }
 
