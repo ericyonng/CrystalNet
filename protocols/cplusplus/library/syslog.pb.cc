@@ -27,7 +27,7 @@ namespace CRYSTAL_NET {
 namespace service {
 PROTOBUF_CONSTEXPR SystemLogDataListReq::SystemLogDataListReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.baselogid_)*/UInt64{0u}
+    /*decltype(_impl_.baselogid_)*/uint64_t{0u}
   , /*decltype(_impl_.count_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SystemLogDataListReqDefaultTypeInternal {
@@ -148,7 +148,7 @@ inline void SystemLogDataListReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.baselogid_){UInt64{0u}}
+      decltype(_impl_.baselogid_){uint64_t{0u}}
     , decltype(_impl_.count_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };

@@ -54,7 +54,7 @@ struct RoleTypeDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RoleTypeDefaultTypeInternal _RoleType_default_instance_;
 PROTOBUF_CONSTEXPR LibararyManagerInfo::LibararyManagerInfo(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.userid_)*/UInt64{0u}
+    /*decltype(_impl_.userid_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct LibararyManagerInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR LibararyManagerInfoDefaultTypeInternal()
@@ -68,14 +68,14 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR BorrowBookInfo::BorrowBookInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.isbncode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.bookid_)*/UInt64{0u}
-  , /*decltype(_impl_.borrowtime_)*/Int64{0}
-  , /*decltype(_impl_.plangivebacktime_)*/Int64{0}
-  , /*decltype(_impl_.realgivebacktime_)*/Int64{0}
+  , /*decltype(_impl_.bookid_)*/uint64_t{0u}
+  , /*decltype(_impl_.borrowtime_)*/int64_t{0}
+  , /*decltype(_impl_.plangivebacktime_)*/int64_t{0}
+  , /*decltype(_impl_.realgivebacktime_)*/int64_t{0}
   , /*decltype(_impl_.borrowcount_)*/0
   , /*decltype(_impl_.borrowdays_)*/0
-  , /*decltype(_impl_.returnbackcount_)*/UInt64{0u}
-  , /*decltype(_impl_.suborderid_)*/UInt64{0u}
+  , /*decltype(_impl_.returnbackcount_)*/uint64_t{0u}
+  , /*decltype(_impl_.suborderid_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct BorrowBookInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR BorrowBookInfoDefaultTypeInternal()
@@ -141,10 +141,10 @@ PROTOBUF_CONSTEXPR BorrowOrderInfo::BorrowOrderInfo(
     /*decltype(_impl_.borrowbooklist_)*/{}
   , /*decltype(_impl_.remark_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.cancelreason_)*/nullptr
-  , /*decltype(_impl_.orderid_)*/UInt64{0u}
-  , /*decltype(_impl_.createordertime_)*/UInt64{0u}
-  , /*decltype(_impl_.getovertime_)*/Int64{0}
-  , /*decltype(_impl_.userid_)*/UInt64{0u}
+  , /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_.createordertime_)*/uint64_t{0u}
+  , /*decltype(_impl_.getovertime_)*/int64_t{0}
+  , /*decltype(_impl_.userid_)*/uint64_t{0u}
   , /*decltype(_impl_.orderstate_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct BorrowOrderInfoDefaultTypeInternal {
@@ -162,10 +162,10 @@ PROTOBUF_CONSTEXPR BorrowOrderDetailInfo::BorrowOrderDetailInfo(
   , /*decltype(_impl_.remark_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.nickname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.cancelreason_)*/nullptr
-  , /*decltype(_impl_.orderid_)*/UInt64{0u}
-  , /*decltype(_impl_.createordertime_)*/UInt64{0u}
-  , /*decltype(_impl_.getovertime_)*/Int64{0}
-  , /*decltype(_impl_.userid_)*/UInt64{0u}
+  , /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_.createordertime_)*/uint64_t{0u}
+  , /*decltype(_impl_.getovertime_)*/int64_t{0}
+  , /*decltype(_impl_.userid_)*/uint64_t{0u}
   , /*decltype(_impl_.orderstate_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct BorrowOrderDetailInfoDefaultTypeInternal {
@@ -181,8 +181,8 @@ PROTOBUF_CONSTEXPR MemberInfo::MemberInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.borrowlist_)*/{}
   , /*decltype(_impl_.nickname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.userid_)*/UInt64{0u}
-  , /*decltype(_impl_.locktimestampms_)*/Int64{0}
+  , /*decltype(_impl_.userid_)*/uint64_t{0u}
+  , /*decltype(_impl_.locktimestampms_)*/int64_t{0}
   , /*decltype(_impl_.role_)*/0
   , /*decltype(_impl_.MemberBindPhone_)*/{}
   , /*decltype(_impl_._cached_size_)*/{}
@@ -211,10 +211,10 @@ PROTOBUF_CONSTEXPR OperationLogInfo::OperationLogInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.params_)*/{}
   , /*decltype(_impl_.opnickname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.opuserid_)*/UInt64{0u}
+  , /*decltype(_impl_.opuserid_)*/uint64_t{0u}
   , /*decltype(_impl_.optype_)*/0
   , /*decltype(_impl_.role_)*/0
-  , /*decltype(_impl_.optimems_)*/Int64{0}
+  , /*decltype(_impl_.optimems_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct OperationLogInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR OperationLogInfoDefaultTypeInternal()
@@ -235,8 +235,8 @@ PROTOBUF_CONSTEXPR LibraryInfo::LibraryInfo(
   , /*decltype(_impl_.opentime_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.telphonenumber_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.librarianusernickname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.id_)*/UInt64{0u}
-  , /*decltype(_impl_.librarianuserid_)*/UInt64{0u}
+  , /*decltype(_impl_.id_)*/uint64_t{0u}
+  , /*decltype(_impl_.librarianuserid_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct LibraryInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR LibraryInfoDefaultTypeInternal()
@@ -249,7 +249,7 @@ struct LibraryInfoDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LibraryInfoDefaultTypeInternal _LibraryInfo_default_instance_;
 PROTOBUF_CONSTEXPR UserLibraryInfo::UserLibraryInfo(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.libraryid_)*/UInt64{0u}
+    /*decltype(_impl_.libraryid_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct UserLibraryInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR UserLibraryInfoDefaultTypeInternal()
@@ -264,8 +264,8 @@ PROTOBUF_CONSTEXPR LibraryPreviewInfo::LibraryPreviewInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.librariannickname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.id_)*/UInt64{0u}
-  , /*decltype(_impl_.librarianuserid_)*/UInt64{0u}
+  , /*decltype(_impl_.id_)*/uint64_t{0u}
+  , /*decltype(_impl_.librarianuserid_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct LibraryPreviewInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR LibraryPreviewInfoDefaultTypeInternal()
@@ -304,8 +304,8 @@ struct SnapshotFieldDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SnapshotFieldDefaultTypeInternal _SnapshotField_default_instance_;
 PROTOBUF_CONSTEXPR OutStoreParam::OutStoreParam(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.bookid_)*/UInt64{0u}
-  , /*decltype(_impl_.count_)*/Int64{0}
+    /*decltype(_impl_.bookid_)*/uint64_t{0u}
+  , /*decltype(_impl_.count_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct OutStoreParamDefaultTypeInternal {
   PROTOBUF_CONSTEXPR OutStoreParamDefaultTypeInternal()
@@ -785,7 +785,7 @@ inline void LibararyManagerInfo::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.userid_){UInt64{0u}}
+      decltype(_impl_.userid_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -813,7 +813,7 @@ void LibararyManagerInfo::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.userid_ = UInt64{0u};
+  _impl_.userid_ = uint64_t{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -982,14 +982,14 @@ inline void BorrowBookInfo::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.isbncode_){}
-    , decltype(_impl_.bookid_){UInt64{0u}}
-    , decltype(_impl_.borrowtime_){Int64{0}}
-    , decltype(_impl_.plangivebacktime_){Int64{0}}
-    , decltype(_impl_.realgivebacktime_){Int64{0}}
+    , decltype(_impl_.bookid_){uint64_t{0u}}
+    , decltype(_impl_.borrowtime_){int64_t{0}}
+    , decltype(_impl_.plangivebacktime_){int64_t{0}}
+    , decltype(_impl_.realgivebacktime_){int64_t{0}}
     , decltype(_impl_.borrowcount_){0}
     , decltype(_impl_.borrowdays_){0}
-    , decltype(_impl_.returnbackcount_){UInt64{0u}}
-    , decltype(_impl_.suborderid_){UInt64{0u}}
+    , decltype(_impl_.returnbackcount_){uint64_t{0u}}
+    , decltype(_impl_.suborderid_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.isbncode_.InitDefault();
@@ -1943,10 +1943,10 @@ inline void BorrowOrderInfo::SharedCtor(
       decltype(_impl_.borrowbooklist_){arena}
     , decltype(_impl_.remark_){}
     , decltype(_impl_.cancelreason_){nullptr}
-    , decltype(_impl_.orderid_){UInt64{0u}}
-    , decltype(_impl_.createordertime_){UInt64{0u}}
-    , decltype(_impl_.getovertime_){Int64{0}}
-    , decltype(_impl_.userid_){UInt64{0u}}
+    , decltype(_impl_.orderid_){uint64_t{0u}}
+    , decltype(_impl_.createordertime_){uint64_t{0u}}
+    , decltype(_impl_.getovertime_){int64_t{0}}
+    , decltype(_impl_.userid_){uint64_t{0u}}
     , decltype(_impl_.orderstate_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -2358,10 +2358,10 @@ inline void BorrowOrderDetailInfo::SharedCtor(
     , decltype(_impl_.remark_){}
     , decltype(_impl_.nickname_){}
     , decltype(_impl_.cancelreason_){nullptr}
-    , decltype(_impl_.orderid_){UInt64{0u}}
-    , decltype(_impl_.createordertime_){UInt64{0u}}
-    , decltype(_impl_.getovertime_){Int64{0}}
-    , decltype(_impl_.userid_){UInt64{0u}}
+    , decltype(_impl_.orderid_){uint64_t{0u}}
+    , decltype(_impl_.createordertime_){uint64_t{0u}}
+    , decltype(_impl_.getovertime_){int64_t{0}}
+    , decltype(_impl_.userid_){uint64_t{0u}}
     , decltype(_impl_.orderstate_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -2798,8 +2798,8 @@ inline void MemberInfo::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.borrowlist_){arena}
     , decltype(_impl_.nickname_){}
-    , decltype(_impl_.userid_){UInt64{0u}}
-    , decltype(_impl_.locktimestampms_){Int64{0}}
+    , decltype(_impl_.userid_){uint64_t{0u}}
+    , decltype(_impl_.locktimestampms_){int64_t{0}}
     , decltype(_impl_.role_){0}
     , decltype(_impl_.MemberBindPhone_){}
     , /*decltype(_impl_._cached_size_)*/{}
@@ -3215,10 +3215,10 @@ inline void OperationLogInfo::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.params_){arena}
     , decltype(_impl_.opnickname_){}
-    , decltype(_impl_.opuserid_){UInt64{0u}}
+    , decltype(_impl_.opuserid_){uint64_t{0u}}
     , decltype(_impl_.optype_){0}
     , decltype(_impl_.role_){0}
-    , decltype(_impl_.optimems_){Int64{0}}
+    , decltype(_impl_.optimems_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.opnickname_.InitDefault();
@@ -3600,8 +3600,8 @@ inline void LibraryInfo::SharedCtor(
     , decltype(_impl_.opentime_){}
     , decltype(_impl_.telphonenumber_){}
     , decltype(_impl_.librarianusernickname_){}
-    , decltype(_impl_.id_){UInt64{0u}}
-    , decltype(_impl_.librarianuserid_){UInt64{0u}}
+    , decltype(_impl_.id_){uint64_t{0u}}
+    , decltype(_impl_.librarianuserid_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.name_.InitDefault();
@@ -4086,7 +4086,7 @@ inline void UserLibraryInfo::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.libraryid_){UInt64{0u}}
+      decltype(_impl_.libraryid_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -4114,7 +4114,7 @@ void UserLibraryInfo::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.libraryid_ = UInt64{0u};
+  _impl_.libraryid_ = uint64_t{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -4287,8 +4287,8 @@ inline void LibraryPreviewInfo::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.name_){}
     , decltype(_impl_.librariannickname_){}
-    , decltype(_impl_.id_){UInt64{0u}}
-    , decltype(_impl_.librarianuserid_){UInt64{0u}}
+    , decltype(_impl_.id_){uint64_t{0u}}
+    , decltype(_impl_.librarianuserid_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.name_.InitDefault();
@@ -4945,8 +4945,8 @@ inline void OutStoreParam::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.bookid_){UInt64{0u}}
-    , decltype(_impl_.count_){Int64{0}}
+      decltype(_impl_.bookid_){uint64_t{0u}}
+    , decltype(_impl_.count_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }

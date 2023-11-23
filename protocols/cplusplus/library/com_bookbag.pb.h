@@ -340,11 +340,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 BookId = 1;
   void clear_bookid();
-  UInt64 bookid() const;
-  void set_bookid(UInt64 value);
+  uint64_t bookid() const;
+  void set_bookid(uint64_t value);
   private:
-  UInt64 _internal_bookid() const;
-  void _internal_set_bookid(UInt64 value);
+  uint64_t _internal_bookid() const;
+  void _internal_set_bookid(uint64_t value);
   public:
 
   // sint32 BookCount = 2;
@@ -373,7 +373,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 bookid_;
+    uint64_t bookid_;
     int32_t bookcount_;
     int32_t borrowdays_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -690,20 +690,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // uint64 BookId = 1;
 inline void BookInfoItem::clear_bookid() {
-  _impl_.bookid_ = UInt64{0u};
+  _impl_.bookid_ = uint64_t{0u};
 }
-inline UInt64 BookInfoItem::_internal_bookid() const {
+inline uint64_t BookInfoItem::_internal_bookid() const {
   return _impl_.bookid_;
 }
-inline UInt64 BookInfoItem::bookid() const {
+inline uint64_t BookInfoItem::bookid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookInfoItem.BookId)
   return _internal_bookid();
 }
-inline void BookInfoItem::_internal_set_bookid(UInt64 value) {
+inline void BookInfoItem::_internal_set_bookid(uint64_t value) {
   
   _impl_.bookid_ = value;
 }
-inline void BookInfoItem::set_bookid(UInt64 value) {
+inline void BookInfoItem::set_bookid(uint64_t value) {
   _internal_set_bookid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfoItem.BookId)
 }

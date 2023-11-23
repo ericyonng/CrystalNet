@@ -27,7 +27,7 @@ namespace service {
 PROTOBUF_CONSTEXPR TestMgrData::TestMgrData(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.account_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.testid_)*/Int64{0}
+  , /*decltype(_impl_.testid_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct TestMgrDataDefaultTypeInternal {
   PROTOBUF_CONSTEXPR TestMgrDataDefaultTypeInternal()
@@ -124,7 +124,7 @@ inline void TestMgrData::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.account_){}
-    , decltype(_impl_.testid_){Int64{0}}
+    , decltype(_impl_.testid_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.account_.InitDefault();
@@ -158,7 +158,7 @@ void TestMgrData::Clear() {
   (void) cached_has_bits;
 
   _impl_.account_.ClearToEmpty();
-  _impl_.testid_ = Int64{0};
+  _impl_.testid_ = int64_t{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 

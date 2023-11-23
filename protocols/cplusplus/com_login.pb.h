@@ -364,11 +364,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // sint64 KeyExpireTime = 3;
   void clear_keyexpiretime();
-  Int64 keyexpiretime() const;
-  void set_keyexpiretime(Int64 value);
+  int64_t keyexpiretime() const;
+  void set_keyexpiretime(int64_t value);
   private:
-  Int64 _internal_keyexpiretime() const;
-  void _internal_set_keyexpiretime(Int64 value);
+  int64_t _internal_keyexpiretime() const;
+  void _internal_set_keyexpiretime(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserLoginInfo)
@@ -381,7 +381,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr token_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr key_;
-    Int64 keyexpiretime_;
+    int64_t keyexpiretime_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -500,20 +500,20 @@ inline void UserLoginInfo::set_allocated_key(std::string* key) {
 
 // sint64 KeyExpireTime = 3;
 inline void UserLoginInfo::clear_keyexpiretime() {
-  _impl_.keyexpiretime_ = Int64{0};
+  _impl_.keyexpiretime_ = int64_t{0};
 }
-inline Int64 UserLoginInfo::_internal_keyexpiretime() const {
+inline int64_t UserLoginInfo::_internal_keyexpiretime() const {
   return _impl_.keyexpiretime_;
 }
-inline Int64 UserLoginInfo::keyexpiretime() const {
+inline int64_t UserLoginInfo::keyexpiretime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserLoginInfo.KeyExpireTime)
   return _internal_keyexpiretime();
 }
-inline void UserLoginInfo::_internal_set_keyexpiretime(Int64 value) {
+inline void UserLoginInfo::_internal_set_keyexpiretime(int64_t value) {
   
   _impl_.keyexpiretime_ = value;
 }
-inline void UserLoginInfo::set_keyexpiretime(Int64 value) {
+inline void UserLoginInfo::set_keyexpiretime(int64_t value) {
   _internal_set_keyexpiretime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserLoginInfo.KeyExpireTime)
 }

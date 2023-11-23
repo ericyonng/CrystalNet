@@ -1437,11 +1437,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 BindPhone = 6;
   void clear_bindphone();
-  UInt64 bindphone() const;
-  void set_bindphone(UInt64 value);
+  uint64_t bindphone() const;
+  void set_bindphone(uint64_t value);
   private:
-  UInt64 _internal_bindphone() const;
-  void _internal_set_bindphone(UInt64 value);
+  uint64_t _internal_bindphone() const;
+  void _internal_set_bindphone(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.CreateLibraryReq)
@@ -1457,7 +1457,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr address_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr opentime_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr telphonenumber_;
-    UInt64 bindphone_;
+    uint64_t bindphone_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -2016,11 +2016,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 LibraryId = 1;
   void clear_libraryid();
-  UInt64 libraryid() const;
-  void set_libraryid(UInt64 value);
+  uint64_t libraryid() const;
+  void set_libraryid(uint64_t value);
   private:
-  UInt64 _internal_libraryid() const;
-  void _internal_set_libraryid(UInt64 value);
+  uint64_t _internal_libraryid() const;
+  void _internal_set_libraryid(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.JoinLibraryReq)
@@ -2031,7 +2031,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 libraryid_;
+    uint64_t libraryid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -3687,11 +3687,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 TargetUserId = 1;
   void clear_targetuserid();
-  UInt64 targetuserid() const;
-  void set_targetuserid(UInt64 value);
+  uint64_t targetuserid() const;
+  void set_targetuserid(uint64_t value);
   private:
-  UInt64 _internal_targetuserid() const;
-  void _internal_set_targetuserid(UInt64 value);
+  uint64_t _internal_targetuserid() const;
+  void _internal_set_targetuserid(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TransferLibraianReq)
@@ -3702,7 +3702,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 targetuserid_;
+    uint64_t targetuserid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -4273,11 +4273,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 memberUserId = 1;
   void clear_memberuserid();
-  UInt64 memberuserid() const;
-  void set_memberuserid(UInt64 value);
+  uint64_t memberuserid() const;
+  void set_memberuserid(uint64_t value);
   private:
-  UInt64 _internal_memberuserid() const;
-  void _internal_set_memberuserid(UInt64 value);
+  uint64_t _internal_memberuserid() const;
+  void _internal_set_memberuserid(uint64_t value);
   public:
 
   // sint32 newRole = 2;
@@ -4299,11 +4299,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   bool _internal_has_newmemberphone() const;
   public:
   void clear_newmemberphone();
-  UInt64 newmemberphone() const;
-  void set_newmemberphone(UInt64 value);
+  uint64_t newmemberphone() const;
+  void set_newmemberphone(uint64_t value);
   private:
-  UInt64 _internal_newmemberphone() const;
-  void _internal_set_newmemberphone(UInt64 value);
+  uint64_t _internal_newmemberphone() const;
+  void _internal_set_newmemberphone(uint64_t value);
   public:
 
   void clear_ModifyRole();
@@ -4326,7 +4326,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 memberuserid_;
+    uint64_t memberuserid_;
     union ModifyRoleUnion {
       constexpr ModifyRoleUnion() : _constinit_{} {}
         ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
@@ -4335,7 +4335,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     union ModifyPhoneNumberUnion {
       constexpr ModifyPhoneNumberUnion() : _constinit_{} {}
         ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
-      UInt64 newmemberphone_;
+      uint64_t newmemberphone_;
     } ModifyPhoneNumber_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     uint32_t _oneof_case_[2];
@@ -5812,20 +5812,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // sint64 Price = 4;
   void clear_price();
-  Int64 price() const;
-  void set_price(Int64 value);
+  int64_t price() const;
+  void set_price(int64_t value);
   private:
-  Int64 _internal_price() const;
-  void _internal_set_price(Int64 value);
+  int64_t _internal_price() const;
+  void _internal_set_price(int64_t value);
   public:
 
   // sint64 ModifyCount = 5;
   void clear_modifycount();
-  Int64 modifycount() const;
-  void set_modifycount(Int64 value);
+  int64_t modifycount() const;
+  void set_modifycount(int64_t value);
   private:
-  Int64 _internal_modifycount() const;
-  void _internal_set_modifycount(Int64 value);
+  int64_t _internal_modifycount() const;
+  void _internal_set_modifycount(int64_t value);
   public:
 
   // string BookCoverImage = 3;
@@ -5934,8 +5934,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bookname_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr isbncode_;
-    Int64 price_;
-    Int64 modifycount_;
+    int64_t price_;
+    int64_t modifycount_;
     union BookCoverImageOptionUnion {
       constexpr BookCoverImageOptionUnion() : _constinit_{} {}
         ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
@@ -6517,20 +6517,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 BookId = 1;
   void clear_bookid();
-  UInt64 bookid() const;
-  void set_bookid(UInt64 value);
+  uint64_t bookid() const;
+  void set_bookid(uint64_t value);
   private:
-  UInt64 _internal_bookid() const;
-  void _internal_set_bookid(UInt64 value);
+  uint64_t _internal_bookid() const;
+  void _internal_set_bookid(uint64_t value);
   public:
 
   // sint64 ModifyCount = 2;
   void clear_modifycount();
-  Int64 modifycount() const;
-  void set_modifycount(Int64 value);
+  int64_t modifycount() const;
+  void set_modifycount(int64_t value);
   private:
-  Int64 _internal_modifycount() const;
-  void _internal_set_modifycount(Int64 value);
+  int64_t _internal_modifycount() const;
+  void _internal_set_modifycount(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.AddLibraryBookCountReq)
@@ -6541,8 +6541,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 bookid_;
-    Int64 modifycount_;
+    uint64_t bookid_;
+    int64_t modifycount_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -9721,11 +9721,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 BaseBookId = 1;
   void clear_basebookid();
-  UInt64 basebookid() const;
-  void set_basebookid(UInt64 value);
+  uint64_t basebookid() const;
+  void set_basebookid(uint64_t value);
   private:
-  UInt64 _internal_basebookid() const;
-  void _internal_set_basebookid(UInt64 value);
+  uint64_t _internal_basebookid() const;
+  void _internal_set_basebookid(uint64_t value);
   public:
 
   // sint32 BookCount = 2;
@@ -9745,7 +9745,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 basebookid_;
+    uint64_t basebookid_;
     int32_t bookcount_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -11173,11 +11173,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 OrderId = 1;
   void clear_orderid();
-  UInt64 orderid() const;
-  void set_orderid(UInt64 value);
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
   private:
-  UInt64 _internal_orderid() const;
-  void _internal_set_orderid(UInt64 value);
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.OutStoreOrderReq)
@@ -11189,7 +11189,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::OutStoreParam > bookparams_;
-    UInt64 orderid_;
+    uint64_t orderid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -11748,11 +11748,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 OrderId = 1;
   void clear_orderid();
-  UInt64 orderid() const;
-  void set_orderid(UInt64 value);
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
   private:
-  UInt64 _internal_orderid() const;
-  void _internal_set_orderid(UInt64 value);
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq)
@@ -11763,7 +11763,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 orderid_;
+    uint64_t orderid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -12036,20 +12036,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 OrderId = 1;
   void clear_orderid();
-  UInt64 orderid() const;
-  void set_orderid(UInt64 value);
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
   private:
-  UInt64 _internal_orderid() const;
-  void _internal_set_orderid(UInt64 value);
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
   public:
 
   // uint64 ConfirmCode = 2;
   void clear_confirmcode();
-  UInt64 confirmcode() const;
-  void set_confirmcode(UInt64 value);
+  uint64_t confirmcode() const;
+  void set_confirmcode(uint64_t value);
   private:
-  UInt64 _internal_confirmcode() const;
-  void _internal_set_confirmcode(UInt64 value);
+  uint64_t _internal_confirmcode() const;
+  void _internal_set_confirmcode(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty)
@@ -12060,8 +12060,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 orderid_;
-    UInt64 confirmcode_;
+    uint64_t orderid_;
+    uint64_t confirmcode_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -12621,20 +12621,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 OrderId = 1;
   void clear_orderid();
-  UInt64 orderid() const;
-  void set_orderid(UInt64 value);
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
   private:
-  UInt64 _internal_orderid() const;
-  void _internal_set_orderid(UInt64 value);
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
   public:
 
   // uint64 ConfirmCode = 2;
   void clear_confirmcode();
-  UInt64 confirmcode() const;
-  void set_confirmcode(UInt64 value);
+  uint64_t confirmcode() const;
+  void set_confirmcode(uint64_t value);
   private:
-  UInt64 _internal_confirmcode() const;
-  void _internal_set_confirmcode(UInt64 value);
+  uint64_t _internal_confirmcode() const;
+  void _internal_set_confirmcode(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq)
@@ -12645,8 +12645,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 orderid_;
-    UInt64 confirmcode_;
+    uint64_t orderid_;
+    uint64_t confirmcode_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -13220,11 +13220,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 OrderId = 1;
   void clear_orderid();
-  UInt64 orderid() const;
-  void set_orderid(UInt64 value);
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
   private:
-  UInt64 _internal_orderid() const;
-  void _internal_set_orderid(UInt64 value);
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.CancelOrderReq)
@@ -13236,7 +13236,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr reason_;
-    UInt64 orderid_;
+    uint64_t orderid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -13801,16 +13801,16 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   public:
   void clear_suborderids();
   private:
-  UInt64 _internal_suborderids(int index) const;
+  uint64_t _internal_suborderids(int index) const;
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_suborderids() const;
-  void _internal_add_suborderids(UInt64 value);
+  void _internal_add_suborderids(uint64_t value);
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
       _internal_mutable_suborderids();
   public:
-  UInt64 suborderids(int index) const;
-  void set_suborderids(int index, UInt64 value);
-  void add_suborderids(UInt64 value);
+  uint64_t suborderids(int index) const;
+  void set_suborderids(int index, uint64_t value);
+  void add_suborderids(uint64_t value);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       suborderids() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
@@ -13818,11 +13818,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 OrderId = 1;
   void clear_orderid();
-  UInt64 orderid() const;
-  void set_orderid(UInt64 value);
+  uint64_t orderid() const;
+  void set_orderid(uint64_t value);
   private:
-  UInt64 _internal_orderid() const;
-  void _internal_set_orderid(UInt64 value);
+  uint64_t _internal_orderid() const;
+  void _internal_set_orderid(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ReturnBackReq)
@@ -13835,7 +13835,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > suborderids_;
     mutable std::atomic<int> _suborderids_cached_byte_size_;
-    UInt64 orderid_;
+    uint64_t orderid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -14508,20 +14508,20 @@ inline void CreateLibraryReq::set_allocated_telphonenumber(std::string* telphone
 
 // uint64 BindPhone = 6;
 inline void CreateLibraryReq::clear_bindphone() {
-  _impl_.bindphone_ = UInt64{0u};
+  _impl_.bindphone_ = uint64_t{0u};
 }
-inline UInt64 CreateLibraryReq::_internal_bindphone() const {
+inline uint64_t CreateLibraryReq::_internal_bindphone() const {
   return _impl_.bindphone_;
 }
-inline UInt64 CreateLibraryReq::bindphone() const {
+inline uint64_t CreateLibraryReq::bindphone() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.CreateLibraryReq.BindPhone)
   return _internal_bindphone();
 }
-inline void CreateLibraryReq::_internal_set_bindphone(UInt64 value) {
+inline void CreateLibraryReq::_internal_set_bindphone(uint64_t value) {
   
   _impl_.bindphone_ = value;
 }
-inline void CreateLibraryReq::set_bindphone(UInt64 value) {
+inline void CreateLibraryReq::set_bindphone(uint64_t value) {
   _internal_set_bindphone(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CreateLibraryReq.BindPhone)
 }
@@ -14556,20 +14556,20 @@ inline void CreateLibraryRes::set_errcode(int32_t value) {
 
 // uint64 LibraryId = 1;
 inline void JoinLibraryReq::clear_libraryid() {
-  _impl_.libraryid_ = UInt64{0u};
+  _impl_.libraryid_ = uint64_t{0u};
 }
-inline UInt64 JoinLibraryReq::_internal_libraryid() const {
+inline uint64_t JoinLibraryReq::_internal_libraryid() const {
   return _impl_.libraryid_;
 }
-inline UInt64 JoinLibraryReq::libraryid() const {
+inline uint64_t JoinLibraryReq::libraryid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.JoinLibraryReq.LibraryId)
   return _internal_libraryid();
 }
-inline void JoinLibraryReq::_internal_set_libraryid(UInt64 value) {
+inline void JoinLibraryReq::_internal_set_libraryid(uint64_t value) {
   
   _impl_.libraryid_ = value;
 }
-inline void JoinLibraryReq::set_libraryid(UInt64 value) {
+inline void JoinLibraryReq::set_libraryid(uint64_t value) {
   _internal_set_libraryid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.JoinLibraryReq.LibraryId)
 }
@@ -14677,20 +14677,20 @@ GetLibraryListRes::librarypreviewinfolist() const {
 
 // uint64 TargetUserId = 1;
 inline void TransferLibraianReq::clear_targetuserid() {
-  _impl_.targetuserid_ = UInt64{0u};
+  _impl_.targetuserid_ = uint64_t{0u};
 }
-inline UInt64 TransferLibraianReq::_internal_targetuserid() const {
+inline uint64_t TransferLibraianReq::_internal_targetuserid() const {
   return _impl_.targetuserid_;
 }
-inline UInt64 TransferLibraianReq::targetuserid() const {
+inline uint64_t TransferLibraianReq::targetuserid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TransferLibraianReq.TargetUserId)
   return _internal_targetuserid();
 }
-inline void TransferLibraianReq::_internal_set_targetuserid(UInt64 value) {
+inline void TransferLibraianReq::_internal_set_targetuserid(uint64_t value) {
   
   _impl_.targetuserid_ = value;
 }
-inline void TransferLibraianReq::set_targetuserid(UInt64 value) {
+inline void TransferLibraianReq::set_targetuserid(uint64_t value) {
   _internal_set_targetuserid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TransferLibraianReq.TargetUserId)
 }
@@ -14725,20 +14725,20 @@ inline void TransferLibraianRes::set_errcode(int32_t value) {
 
 // uint64 memberUserId = 1;
 inline void ModifyMemberInfoReq::clear_memberuserid() {
-  _impl_.memberuserid_ = UInt64{0u};
+  _impl_.memberuserid_ = uint64_t{0u};
 }
-inline UInt64 ModifyMemberInfoReq::_internal_memberuserid() const {
+inline uint64_t ModifyMemberInfoReq::_internal_memberuserid() const {
   return _impl_.memberuserid_;
 }
-inline UInt64 ModifyMemberInfoReq::memberuserid() const {
+inline uint64_t ModifyMemberInfoReq::memberuserid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ModifyMemberInfoReq.memberUserId)
   return _internal_memberuserid();
 }
-inline void ModifyMemberInfoReq::_internal_set_memberuserid(UInt64 value) {
+inline void ModifyMemberInfoReq::_internal_set_memberuserid(uint64_t value) {
   
   _impl_.memberuserid_ = value;
 }
-inline void ModifyMemberInfoReq::set_memberuserid(UInt64 value) {
+inline void ModifyMemberInfoReq::set_memberuserid(uint64_t value) {
   _internal_set_memberuserid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ModifyMemberInfoReq.memberUserId)
 }
@@ -14793,28 +14793,28 @@ inline void ModifyMemberInfoReq::set_has_newmemberphone() {
 }
 inline void ModifyMemberInfoReq::clear_newmemberphone() {
   if (_internal_has_newmemberphone()) {
-    _impl_.ModifyPhoneNumber_.newmemberphone_ = UInt64{0u};
+    _impl_.ModifyPhoneNumber_.newmemberphone_ = uint64_t{0u};
     clear_has_ModifyPhoneNumber();
   }
 }
-inline UInt64 ModifyMemberInfoReq::_internal_newmemberphone() const {
+inline uint64_t ModifyMemberInfoReq::_internal_newmemberphone() const {
   if (_internal_has_newmemberphone()) {
     return _impl_.ModifyPhoneNumber_.newmemberphone_;
   }
-  return UInt64{0u};
+  return uint64_t{0u};
 }
-inline void ModifyMemberInfoReq::_internal_set_newmemberphone(UInt64 value) {
+inline void ModifyMemberInfoReq::_internal_set_newmemberphone(uint64_t value) {
   if (!_internal_has_newmemberphone()) {
     clear_ModifyPhoneNumber();
     set_has_newmemberphone();
   }
   _impl_.ModifyPhoneNumber_.newmemberphone_ = value;
 }
-inline UInt64 ModifyMemberInfoReq::newmemberphone() const {
+inline uint64_t ModifyMemberInfoReq::newmemberphone() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ModifyMemberInfoReq.newMemberPhone)
   return _internal_newmemberphone();
 }
-inline void ModifyMemberInfoReq::set_newmemberphone(UInt64 value) {
+inline void ModifyMemberInfoReq::set_newmemberphone(uint64_t value) {
   _internal_set_newmemberphone(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ModifyMemberInfoReq.newMemberPhone)
 }
@@ -15198,40 +15198,40 @@ inline void AddLibraryBookReq::set_allocated_bookcoverimage(std::string* bookcov
 
 // sint64 Price = 4;
 inline void AddLibraryBookReq::clear_price() {
-  _impl_.price_ = Int64{0};
+  _impl_.price_ = int64_t{0};
 }
-inline Int64 AddLibraryBookReq::_internal_price() const {
+inline int64_t AddLibraryBookReq::_internal_price() const {
   return _impl_.price_;
 }
-inline Int64 AddLibraryBookReq::price() const {
+inline int64_t AddLibraryBookReq::price() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookReq.Price)
   return _internal_price();
 }
-inline void AddLibraryBookReq::_internal_set_price(Int64 value) {
+inline void AddLibraryBookReq::_internal_set_price(int64_t value) {
   
   _impl_.price_ = value;
 }
-inline void AddLibraryBookReq::set_price(Int64 value) {
+inline void AddLibraryBookReq::set_price(int64_t value) {
   _internal_set_price(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.Price)
 }
 
 // sint64 ModifyCount = 5;
 inline void AddLibraryBookReq::clear_modifycount() {
-  _impl_.modifycount_ = Int64{0};
+  _impl_.modifycount_ = int64_t{0};
 }
-inline Int64 AddLibraryBookReq::_internal_modifycount() const {
+inline int64_t AddLibraryBookReq::_internal_modifycount() const {
   return _impl_.modifycount_;
 }
-inline Int64 AddLibraryBookReq::modifycount() const {
+inline int64_t AddLibraryBookReq::modifycount() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookReq.ModifyCount)
   return _internal_modifycount();
 }
-inline void AddLibraryBookReq::_internal_set_modifycount(Int64 value) {
+inline void AddLibraryBookReq::_internal_set_modifycount(int64_t value) {
   
   _impl_.modifycount_ = value;
 }
-inline void AddLibraryBookReq::set_modifycount(Int64 value) {
+inline void AddLibraryBookReq::set_modifycount(int64_t value) {
   _internal_set_modifycount(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookReq.ModifyCount)
 }
@@ -15511,40 +15511,40 @@ inline void AddLibraryBookRes::set_errcode(int32_t value) {
 
 // uint64 BookId = 1;
 inline void AddLibraryBookCountReq::clear_bookid() {
-  _impl_.bookid_ = UInt64{0u};
+  _impl_.bookid_ = uint64_t{0u};
 }
-inline UInt64 AddLibraryBookCountReq::_internal_bookid() const {
+inline uint64_t AddLibraryBookCountReq::_internal_bookid() const {
   return _impl_.bookid_;
 }
-inline UInt64 AddLibraryBookCountReq::bookid() const {
+inline uint64_t AddLibraryBookCountReq::bookid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookCountReq.BookId)
   return _internal_bookid();
 }
-inline void AddLibraryBookCountReq::_internal_set_bookid(UInt64 value) {
+inline void AddLibraryBookCountReq::_internal_set_bookid(uint64_t value) {
   
   _impl_.bookid_ = value;
 }
-inline void AddLibraryBookCountReq::set_bookid(UInt64 value) {
+inline void AddLibraryBookCountReq::set_bookid(uint64_t value) {
   _internal_set_bookid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookCountReq.BookId)
 }
 
 // sint64 ModifyCount = 2;
 inline void AddLibraryBookCountReq::clear_modifycount() {
-  _impl_.modifycount_ = Int64{0};
+  _impl_.modifycount_ = int64_t{0};
 }
-inline Int64 AddLibraryBookCountReq::_internal_modifycount() const {
+inline int64_t AddLibraryBookCountReq::_internal_modifycount() const {
   return _impl_.modifycount_;
 }
-inline Int64 AddLibraryBookCountReq::modifycount() const {
+inline int64_t AddLibraryBookCountReq::modifycount() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.AddLibraryBookCountReq.ModifyCount)
   return _internal_modifycount();
 }
-inline void AddLibraryBookCountReq::_internal_set_modifycount(Int64 value) {
+inline void AddLibraryBookCountReq::_internal_set_modifycount(int64_t value) {
   
   _impl_.modifycount_ = value;
 }
-inline void AddLibraryBookCountReq::set_modifycount(Int64 value) {
+inline void AddLibraryBookCountReq::set_modifycount(int64_t value) {
   _internal_set_modifycount(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.AddLibraryBookCountReq.ModifyCount)
 }
@@ -15988,20 +15988,20 @@ GetBookByBookNameRes::bookinfolist() const {
 
 // uint64 BaseBookId = 1;
 inline void GetBookInfoListReq::clear_basebookid() {
-  _impl_.basebookid_ = UInt64{0u};
+  _impl_.basebookid_ = uint64_t{0u};
 }
-inline UInt64 GetBookInfoListReq::_internal_basebookid() const {
+inline uint64_t GetBookInfoListReq::_internal_basebookid() const {
   return _impl_.basebookid_;
 }
-inline UInt64 GetBookInfoListReq::basebookid() const {
+inline uint64_t GetBookInfoListReq::basebookid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.GetBookInfoListReq.BaseBookId)
   return _internal_basebookid();
 }
-inline void GetBookInfoListReq::_internal_set_basebookid(UInt64 value) {
+inline void GetBookInfoListReq::_internal_set_basebookid(uint64_t value) {
   
   _impl_.basebookid_ = value;
 }
-inline void GetBookInfoListReq::set_basebookid(UInt64 value) {
+inline void GetBookInfoListReq::set_basebookid(uint64_t value) {
   _internal_set_basebookid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.GetBookInfoListReq.BaseBookId)
 }
@@ -16142,20 +16142,20 @@ inline void GetBookOrderDetailInfoRes::set_errcode(int32_t value) {
 
 // uint64 OrderId = 1;
 inline void OutStoreOrderReq::clear_orderid() {
-  _impl_.orderid_ = UInt64{0u};
+  _impl_.orderid_ = uint64_t{0u};
 }
-inline UInt64 OutStoreOrderReq::_internal_orderid() const {
+inline uint64_t OutStoreOrderReq::_internal_orderid() const {
   return _impl_.orderid_;
 }
-inline UInt64 OutStoreOrderReq::orderid() const {
+inline uint64_t OutStoreOrderReq::orderid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OutStoreOrderReq.OrderId)
   return _internal_orderid();
 }
-inline void OutStoreOrderReq::_internal_set_orderid(UInt64 value) {
+inline void OutStoreOrderReq::_internal_set_orderid(uint64_t value) {
   
   _impl_.orderid_ = value;
 }
-inline void OutStoreOrderReq::set_orderid(UInt64 value) {
+inline void OutStoreOrderReq::set_orderid(uint64_t value) {
   _internal_set_orderid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OutStoreOrderReq.OrderId)
 }
@@ -16227,20 +16227,20 @@ inline void OutStoreOrderRes::set_errcode(int32_t value) {
 
 // uint64 OrderId = 1;
 inline void ManagerScanOrderForUserGettingBooksReq::clear_orderid() {
-  _impl_.orderid_ = UInt64{0u};
+  _impl_.orderid_ = uint64_t{0u};
 }
-inline UInt64 ManagerScanOrderForUserGettingBooksReq::_internal_orderid() const {
+inline uint64_t ManagerScanOrderForUserGettingBooksReq::_internal_orderid() const {
   return _impl_.orderid_;
 }
-inline UInt64 ManagerScanOrderForUserGettingBooksReq::orderid() const {
+inline uint64_t ManagerScanOrderForUserGettingBooksReq::orderid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq.OrderId)
   return _internal_orderid();
 }
-inline void ManagerScanOrderForUserGettingBooksReq::_internal_set_orderid(UInt64 value) {
+inline void ManagerScanOrderForUserGettingBooksReq::_internal_set_orderid(uint64_t value) {
   
   _impl_.orderid_ = value;
 }
-inline void ManagerScanOrderForUserGettingBooksReq::set_orderid(UInt64 value) {
+inline void ManagerScanOrderForUserGettingBooksReq::set_orderid(uint64_t value) {
   _internal_set_orderid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq.OrderId)
 }
@@ -16251,40 +16251,40 @@ inline void ManagerScanOrderForUserGettingBooksReq::set_orderid(UInt64 value) {
 
 // uint64 OrderId = 1;
 inline void UserGetBooksOrderConfirmNty::clear_orderid() {
-  _impl_.orderid_ = UInt64{0u};
+  _impl_.orderid_ = uint64_t{0u};
 }
-inline UInt64 UserGetBooksOrderConfirmNty::_internal_orderid() const {
+inline uint64_t UserGetBooksOrderConfirmNty::_internal_orderid() const {
   return _impl_.orderid_;
 }
-inline UInt64 UserGetBooksOrderConfirmNty::orderid() const {
+inline uint64_t UserGetBooksOrderConfirmNty::orderid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty.OrderId)
   return _internal_orderid();
 }
-inline void UserGetBooksOrderConfirmNty::_internal_set_orderid(UInt64 value) {
+inline void UserGetBooksOrderConfirmNty::_internal_set_orderid(uint64_t value) {
   
   _impl_.orderid_ = value;
 }
-inline void UserGetBooksOrderConfirmNty::set_orderid(UInt64 value) {
+inline void UserGetBooksOrderConfirmNty::set_orderid(uint64_t value) {
   _internal_set_orderid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty.OrderId)
 }
 
 // uint64 ConfirmCode = 2;
 inline void UserGetBooksOrderConfirmNty::clear_confirmcode() {
-  _impl_.confirmcode_ = UInt64{0u};
+  _impl_.confirmcode_ = uint64_t{0u};
 }
-inline UInt64 UserGetBooksOrderConfirmNty::_internal_confirmcode() const {
+inline uint64_t UserGetBooksOrderConfirmNty::_internal_confirmcode() const {
   return _impl_.confirmcode_;
 }
-inline UInt64 UserGetBooksOrderConfirmNty::confirmcode() const {
+inline uint64_t UserGetBooksOrderConfirmNty::confirmcode() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty.ConfirmCode)
   return _internal_confirmcode();
 }
-inline void UserGetBooksOrderConfirmNty::_internal_set_confirmcode(UInt64 value) {
+inline void UserGetBooksOrderConfirmNty::_internal_set_confirmcode(uint64_t value) {
   
   _impl_.confirmcode_ = value;
 }
-inline void UserGetBooksOrderConfirmNty::set_confirmcode(UInt64 value) {
+inline void UserGetBooksOrderConfirmNty::set_confirmcode(uint64_t value) {
   _internal_set_confirmcode(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty.ConfirmCode)
 }
@@ -16319,40 +16319,40 @@ inline void ManagerScanOrderForUserGettingBooksRes::set_errcode(int32_t value) {
 
 // uint64 OrderId = 1;
 inline void UserGetBooksOrderConfirmReq::clear_orderid() {
-  _impl_.orderid_ = UInt64{0u};
+  _impl_.orderid_ = uint64_t{0u};
 }
-inline UInt64 UserGetBooksOrderConfirmReq::_internal_orderid() const {
+inline uint64_t UserGetBooksOrderConfirmReq::_internal_orderid() const {
   return _impl_.orderid_;
 }
-inline UInt64 UserGetBooksOrderConfirmReq::orderid() const {
+inline uint64_t UserGetBooksOrderConfirmReq::orderid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq.OrderId)
   return _internal_orderid();
 }
-inline void UserGetBooksOrderConfirmReq::_internal_set_orderid(UInt64 value) {
+inline void UserGetBooksOrderConfirmReq::_internal_set_orderid(uint64_t value) {
   
   _impl_.orderid_ = value;
 }
-inline void UserGetBooksOrderConfirmReq::set_orderid(UInt64 value) {
+inline void UserGetBooksOrderConfirmReq::set_orderid(uint64_t value) {
   _internal_set_orderid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq.OrderId)
 }
 
 // uint64 ConfirmCode = 2;
 inline void UserGetBooksOrderConfirmReq::clear_confirmcode() {
-  _impl_.confirmcode_ = UInt64{0u};
+  _impl_.confirmcode_ = uint64_t{0u};
 }
-inline UInt64 UserGetBooksOrderConfirmReq::_internal_confirmcode() const {
+inline uint64_t UserGetBooksOrderConfirmReq::_internal_confirmcode() const {
   return _impl_.confirmcode_;
 }
-inline UInt64 UserGetBooksOrderConfirmReq::confirmcode() const {
+inline uint64_t UserGetBooksOrderConfirmReq::confirmcode() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq.ConfirmCode)
   return _internal_confirmcode();
 }
-inline void UserGetBooksOrderConfirmReq::_internal_set_confirmcode(UInt64 value) {
+inline void UserGetBooksOrderConfirmReq::_internal_set_confirmcode(uint64_t value) {
   
   _impl_.confirmcode_ = value;
 }
-inline void UserGetBooksOrderConfirmReq::set_confirmcode(UInt64 value) {
+inline void UserGetBooksOrderConfirmReq::set_confirmcode(uint64_t value) {
   _internal_set_confirmcode(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq.ConfirmCode)
 }
@@ -16387,20 +16387,20 @@ inline void UserGetBooksOrderConfirmRes::set_errcode(int32_t value) {
 
 // uint64 OrderId = 1;
 inline void CancelOrderReq::clear_orderid() {
-  _impl_.orderid_ = UInt64{0u};
+  _impl_.orderid_ = uint64_t{0u};
 }
-inline UInt64 CancelOrderReq::_internal_orderid() const {
+inline uint64_t CancelOrderReq::_internal_orderid() const {
   return _impl_.orderid_;
 }
-inline UInt64 CancelOrderReq::orderid() const {
+inline uint64_t CancelOrderReq::orderid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.CancelOrderReq.OrderId)
   return _internal_orderid();
 }
-inline void CancelOrderReq::_internal_set_orderid(UInt64 value) {
+inline void CancelOrderReq::_internal_set_orderid(uint64_t value) {
   
   _impl_.orderid_ = value;
 }
-inline void CancelOrderReq::set_orderid(UInt64 value) {
+inline void CancelOrderReq::set_orderid(uint64_t value) {
   _internal_set_orderid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.CancelOrderReq.OrderId)
 }
@@ -16485,20 +16485,20 @@ inline void CancelOrderRes::set_errcode(int32_t value) {
 
 // uint64 OrderId = 1;
 inline void ReturnBackReq::clear_orderid() {
-  _impl_.orderid_ = UInt64{0u};
+  _impl_.orderid_ = uint64_t{0u};
 }
-inline UInt64 ReturnBackReq::_internal_orderid() const {
+inline uint64_t ReturnBackReq::_internal_orderid() const {
   return _impl_.orderid_;
 }
-inline UInt64 ReturnBackReq::orderid() const {
+inline uint64_t ReturnBackReq::orderid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ReturnBackReq.OrderId)
   return _internal_orderid();
 }
-inline void ReturnBackReq::_internal_set_orderid(UInt64 value) {
+inline void ReturnBackReq::_internal_set_orderid(uint64_t value) {
   
   _impl_.orderid_ = value;
 }
-inline void ReturnBackReq::set_orderid(UInt64 value) {
+inline void ReturnBackReq::set_orderid(uint64_t value) {
   _internal_set_orderid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ReturnBackReq.OrderId)
 }
@@ -16513,21 +16513,21 @@ inline int ReturnBackReq::suborderids_size() const {
 inline void ReturnBackReq::clear_suborderids() {
   _impl_.suborderids_.Clear();
 }
-inline UInt64 ReturnBackReq::_internal_suborderids(int index) const {
+inline uint64_t ReturnBackReq::_internal_suborderids(int index) const {
   return _impl_.suborderids_.Get(index);
 }
-inline UInt64 ReturnBackReq::suborderids(int index) const {
+inline uint64_t ReturnBackReq::suborderids(int index) const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
   return _internal_suborderids(index);
 }
-inline void ReturnBackReq::set_suborderids(int index, UInt64 value) {
+inline void ReturnBackReq::set_suborderids(int index, uint64_t value) {
   _impl_.suborderids_.Set(index, value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
 }
-inline void ReturnBackReq::_internal_add_suborderids(UInt64 value) {
+inline void ReturnBackReq::_internal_add_suborderids(uint64_t value) {
   _impl_.suborderids_.Add(value);
 }
-inline void ReturnBackReq::add_suborderids(UInt64 value) {
+inline void ReturnBackReq::add_suborderids(uint64_t value) {
   _internal_add_suborderids(value);
   // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
 }

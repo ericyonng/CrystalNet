@@ -659,20 +659,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 UserId = 2;
   void clear_userid();
-  UInt64 userid() const;
-  void set_userid(UInt64 value);
+  uint64_t userid() const;
+  void set_userid(uint64_t value);
   private:
-  UInt64 _internal_userid() const;
-  void _internal_set_userid(UInt64 value);
+  uint64_t _internal_userid() const;
+  void _internal_set_userid(uint64_t value);
   public:
 
   // sint64 ServerTime = 3;
   void clear_servertime();
-  Int64 servertime() const;
-  void set_servertime(Int64 value);
+  int64_t servertime() const;
+  void set_servertime(int64_t value);
   private:
-  Int64 _internal_servertime() const;
-  void _internal_set_servertime(Int64 value);
+  int64_t _internal_servertime() const;
+  void _internal_set_servertime(int64_t value);
   public:
 
   // sint32 errCode = 1;
@@ -692,8 +692,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 userid_;
-    Int64 servertime_;
+    uint64_t userid_;
+    int64_t servertime_;
     int32_t errcode_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -981,11 +981,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // sint64 KeyExpireTime = 2;
   void clear_keyexpiretime();
-  Int64 keyexpiretime() const;
-  void set_keyexpiretime(Int64 value);
+  int64_t keyexpiretime() const;
+  void set_keyexpiretime(int64_t value);
   private:
-  Int64 _internal_keyexpiretime() const;
-  void _internal_set_keyexpiretime(Int64 value);
+  int64_t _internal_keyexpiretime() const;
+  void _internal_set_keyexpiretime(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.LoginInfoNty)
@@ -997,7 +997,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr token_;
-    Int64 keyexpiretime_;
+    int64_t keyexpiretime_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -2229,40 +2229,40 @@ inline void LoginRes::set_errcode(int32_t value) {
 
 // uint64 UserId = 2;
 inline void LoginRes::clear_userid() {
-  _impl_.userid_ = UInt64{0u};
+  _impl_.userid_ = uint64_t{0u};
 }
-inline UInt64 LoginRes::_internal_userid() const {
+inline uint64_t LoginRes::_internal_userid() const {
   return _impl_.userid_;
 }
-inline UInt64 LoginRes::userid() const {
+inline uint64_t LoginRes::userid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginRes.UserId)
   return _internal_userid();
 }
-inline void LoginRes::_internal_set_userid(UInt64 value) {
+inline void LoginRes::_internal_set_userid(uint64_t value) {
   
   _impl_.userid_ = value;
 }
-inline void LoginRes::set_userid(UInt64 value) {
+inline void LoginRes::set_userid(uint64_t value) {
   _internal_set_userid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginRes.UserId)
 }
 
 // sint64 ServerTime = 3;
 inline void LoginRes::clear_servertime() {
-  _impl_.servertime_ = Int64{0};
+  _impl_.servertime_ = int64_t{0};
 }
-inline Int64 LoginRes::_internal_servertime() const {
+inline int64_t LoginRes::_internal_servertime() const {
   return _impl_.servertime_;
 }
-inline Int64 LoginRes::servertime() const {
+inline int64_t LoginRes::servertime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginRes.ServerTime)
   return _internal_servertime();
 }
-inline void LoginRes::_internal_set_servertime(Int64 value) {
+inline void LoginRes::_internal_set_servertime(int64_t value) {
   
   _impl_.servertime_ = value;
 }
-inline void LoginRes::set_servertime(Int64 value) {
+inline void LoginRes::set_servertime(int64_t value) {
   _internal_set_servertime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginRes.ServerTime)
 }
@@ -2323,20 +2323,20 @@ inline void LoginInfoNty::set_allocated_token(std::string* token) {
 
 // sint64 KeyExpireTime = 2;
 inline void LoginInfoNty::clear_keyexpiretime() {
-  _impl_.keyexpiretime_ = Int64{0};
+  _impl_.keyexpiretime_ = int64_t{0};
 }
-inline Int64 LoginInfoNty::_internal_keyexpiretime() const {
+inline int64_t LoginInfoNty::_internal_keyexpiretime() const {
   return _impl_.keyexpiretime_;
 }
-inline Int64 LoginInfoNty::keyexpiretime() const {
+inline int64_t LoginInfoNty::keyexpiretime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfoNty.KeyExpireTime)
   return _internal_keyexpiretime();
 }
-inline void LoginInfoNty::_internal_set_keyexpiretime(Int64 value) {
+inline void LoginInfoNty::_internal_set_keyexpiretime(int64_t value) {
   
   _impl_.keyexpiretime_ = value;
 }
-inline void LoginInfoNty::set_keyexpiretime(Int64 value) {
+inline void LoginInfoNty::set_keyexpiretime(int64_t value) {
   _internal_set_keyexpiretime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfoNty.KeyExpireTime)
 }

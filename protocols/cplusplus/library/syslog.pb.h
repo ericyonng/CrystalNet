@@ -340,11 +340,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 BaseLogId = 1;
   void clear_baselogid();
-  UInt64 baselogid() const;
-  void set_baselogid(UInt64 value);
+  uint64_t baselogid() const;
+  void set_baselogid(uint64_t value);
   private:
-  UInt64 _internal_baselogid() const;
-  void _internal_set_baselogid(UInt64 value);
+  uint64_t _internal_baselogid() const;
+  void _internal_set_baselogid(uint64_t value);
   public:
 
   // sint32 Count = 2;
@@ -364,7 +364,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 baselogid_;
+    uint64_t baselogid_;
     int32_t count_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -691,20 +691,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // uint64 BaseLogId = 1;
 inline void SystemLogDataListReq::clear_baselogid() {
-  _impl_.baselogid_ = UInt64{0u};
+  _impl_.baselogid_ = uint64_t{0u};
 }
-inline UInt64 SystemLogDataListReq::_internal_baselogid() const {
+inline uint64_t SystemLogDataListReq::_internal_baselogid() const {
   return _impl_.baselogid_;
 }
-inline UInt64 SystemLogDataListReq::baselogid() const {
+inline uint64_t SystemLogDataListReq::baselogid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SystemLogDataListReq.BaseLogId)
   return _internal_baselogid();
 }
-inline void SystemLogDataListReq::_internal_set_baselogid(UInt64 value) {
+inline void SystemLogDataListReq::_internal_set_baselogid(uint64_t value) {
   
   _impl_.baselogid_ = value;
 }
-inline void SystemLogDataListReq::set_baselogid(UInt64 value) {
+inline void SystemLogDataListReq::set_baselogid(uint64_t value) {
   _internal_set_baselogid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SystemLogDataListReq.BaseLogId)
 }

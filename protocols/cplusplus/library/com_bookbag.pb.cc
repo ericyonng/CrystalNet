@@ -27,7 +27,7 @@ namespace CRYSTAL_NET {
 namespace service {
 PROTOBUF_CONSTEXPR BookInfoItem::BookInfoItem(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.bookid_)*/UInt64{0u}
+    /*decltype(_impl_.bookid_)*/uint64_t{0u}
   , /*decltype(_impl_.bookcount_)*/0
   , /*decltype(_impl_.borrowdays_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
@@ -145,7 +145,7 @@ inline void BookInfoItem::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.bookid_){UInt64{0u}}
+      decltype(_impl_.bookid_){uint64_t{0u}}
     , decltype(_impl_.bookcount_){0}
     , decltype(_impl_.borrowdays_){0}
     , /*decltype(_impl_._cached_size_)*/{}

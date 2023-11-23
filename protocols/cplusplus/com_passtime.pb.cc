@@ -26,7 +26,7 @@ namespace CRYSTAL_NET {
 namespace service {
 PROTOBUF_CONSTEXPR PassTimeData::PassTimeData(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.lastpassdaytime_)*/Int64{0}
+    /*decltype(_impl_.lastpassdaytime_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct PassTimeDataDefaultTypeInternal {
   PROTOBUF_CONSTEXPR PassTimeDataDefaultTypeInternal()
@@ -112,7 +112,7 @@ inline void PassTimeData::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.lastpassdaytime_){Int64{0}}
+      decltype(_impl_.lastpassdaytime_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -140,7 +140,7 @@ void PassTimeData::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.lastpassdaytime_ = Int64{0};
+  _impl_.lastpassdaytime_ = int64_t{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 

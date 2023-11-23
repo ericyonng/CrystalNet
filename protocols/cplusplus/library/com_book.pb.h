@@ -676,11 +676,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // sint64 Id = 1;
   void clear_id();
-  Int64 id() const;
-  void set_id(Int64 value);
+  int64_t id() const;
+  void set_id(int64_t value);
   private:
-  Int64 _internal_id() const;
-  void _internal_set_id(Int64 value);
+  int64_t _internal_id() const;
+  void _internal_set_id(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SnapshotClientInfo)
@@ -692,7 +692,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr filepath_;
-    Int64 id_;
+    int64_t id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1145,11 +1145,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 Id = 1;
   void clear_id();
-  UInt64 id() const;
-  void set_id(UInt64 value);
+  uint64_t id() const;
+  void set_id(uint64_t value);
   private:
-  UInt64 _internal_id() const;
-  void _internal_set_id(UInt64 value);
+  uint64_t _internal_id() const;
+  void _internal_set_id(uint64_t value);
   public:
 
   // sint32 BookType = 2;
@@ -1172,11 +1172,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 BorrowedCount = 8;
   void clear_borrowedcount();
-  UInt64 borrowedcount() const;
-  void set_borrowedcount(UInt64 value);
+  uint64_t borrowedcount() const;
+  void set_borrowedcount(uint64_t value);
   private:
-  UInt64 _internal_borrowedcount() const;
-  void _internal_set_borrowedcount(UInt64 value);
+  uint64_t _internal_borrowedcount() const;
+  void _internal_set_borrowedcount(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BookInfo)
@@ -1197,10 +1197,10 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr coverimagepath_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr keywordsstring_;
     ::CRYSTAL_NET::service::BookVariantInfo* variantinfo_;
-    UInt64 id_;
+    uint64_t id_;
     int32_t booktype_;
     int32_t isonshelves_;
-    UInt64 borrowedcount_;
+    uint64_t borrowedcount_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1473,20 +1473,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // sint64 Count = 1;
   void clear_count();
-  Int64 count() const;
-  void set_count(Int64 value);
+  int64_t count() const;
+  void set_count(int64_t value);
   private:
-  Int64 _internal_count() const;
-  void _internal_set_count(Int64 value);
+  int64_t _internal_count() const;
+  void _internal_set_count(int64_t value);
   public:
 
   // sint64 Price = 2;
   void clear_price();
-  Int64 price() const;
-  void set_price(Int64 value);
+  int64_t price() const;
+  void set_price(int64_t value);
   private:
-  Int64 _internal_price() const;
-  void _internal_set_price(Int64 value);
+  int64_t _internal_price() const;
+  void _internal_set_price(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BookVariantInfo)
@@ -1497,8 +1497,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    Int64 count_;
-    Int64 price_;
+    int64_t count_;
+    int64_t price_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1789,11 +1789,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 Id = 1;
   void clear_id();
-  UInt64 id() const;
-  void set_id(UInt64 value);
+  uint64_t id() const;
+  void set_id(uint64_t value);
   private:
-  UInt64 _internal_id() const;
-  void _internal_set_id(UInt64 value);
+  uint64_t _internal_id() const;
+  void _internal_set_id(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.BookVariantInfoItem)
@@ -1805,7 +1805,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::CRYSTAL_NET::service::BookVariantInfo* bookvariantinfo_;
-    UInt64 id_;
+    uint64_t id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1828,20 +1828,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // sint64 Id = 1;
 inline void SnapshotClientInfo::clear_id() {
-  _impl_.id_ = Int64{0};
+  _impl_.id_ = int64_t{0};
 }
-inline Int64 SnapshotClientInfo::_internal_id() const {
+inline int64_t SnapshotClientInfo::_internal_id() const {
   return _impl_.id_;
 }
-inline Int64 SnapshotClientInfo::id() const {
+inline int64_t SnapshotClientInfo::id() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SnapshotClientInfo.Id)
   return _internal_id();
 }
-inline void SnapshotClientInfo::_internal_set_id(Int64 value) {
+inline void SnapshotClientInfo::_internal_set_id(int64_t value) {
   
   _impl_.id_ = value;
 }
-inline void SnapshotClientInfo::set_id(Int64 value) {
+inline void SnapshotClientInfo::set_id(int64_t value) {
   _internal_set_id(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SnapshotClientInfo.Id)
 }
@@ -1902,20 +1902,20 @@ inline void SnapshotClientInfo::set_allocated_filepath(std::string* filepath) {
 
 // uint64 Id = 1;
 inline void BookInfo::clear_id() {
-  _impl_.id_ = UInt64{0u};
+  _impl_.id_ = uint64_t{0u};
 }
-inline UInt64 BookInfo::_internal_id() const {
+inline uint64_t BookInfo::_internal_id() const {
   return _impl_.id_;
 }
-inline UInt64 BookInfo::id() const {
+inline uint64_t BookInfo::id() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookInfo.Id)
   return _internal_id();
 }
-inline void BookInfo::_internal_set_id(UInt64 value) {
+inline void BookInfo::_internal_set_id(uint64_t value) {
   
   _impl_.id_ = value;
 }
-inline void BookInfo::set_id(UInt64 value) {
+inline void BookInfo::set_id(uint64_t value) {
   _internal_set_id(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.Id)
 }
@@ -2202,20 +2202,20 @@ inline void BookInfo::set_allocated_variantinfo(::CRYSTAL_NET::service::BookVari
 
 // uint64 BorrowedCount = 8;
 inline void BookInfo::clear_borrowedcount() {
-  _impl_.borrowedcount_ = UInt64{0u};
+  _impl_.borrowedcount_ = uint64_t{0u};
 }
-inline UInt64 BookInfo::_internal_borrowedcount() const {
+inline uint64_t BookInfo::_internal_borrowedcount() const {
   return _impl_.borrowedcount_;
 }
-inline UInt64 BookInfo::borrowedcount() const {
+inline uint64_t BookInfo::borrowedcount() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookInfo.BorrowedCount)
   return _internal_borrowedcount();
 }
-inline void BookInfo::_internal_set_borrowedcount(UInt64 value) {
+inline void BookInfo::_internal_set_borrowedcount(uint64_t value) {
   
   _impl_.borrowedcount_ = value;
 }
-inline void BookInfo::set_borrowedcount(UInt64 value) {
+inline void BookInfo::set_borrowedcount(uint64_t value) {
   _internal_set_borrowedcount(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookInfo.BorrowedCount)
 }
@@ -2566,40 +2566,40 @@ BookInfo::snapshotpreivewinfolist() const {
 
 // sint64 Count = 1;
 inline void BookVariantInfo::clear_count() {
-  _impl_.count_ = Int64{0};
+  _impl_.count_ = int64_t{0};
 }
-inline Int64 BookVariantInfo::_internal_count() const {
+inline int64_t BookVariantInfo::_internal_count() const {
   return _impl_.count_;
 }
-inline Int64 BookVariantInfo::count() const {
+inline int64_t BookVariantInfo::count() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookVariantInfo.Count)
   return _internal_count();
 }
-inline void BookVariantInfo::_internal_set_count(Int64 value) {
+inline void BookVariantInfo::_internal_set_count(int64_t value) {
   
   _impl_.count_ = value;
 }
-inline void BookVariantInfo::set_count(Int64 value) {
+inline void BookVariantInfo::set_count(int64_t value) {
   _internal_set_count(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookVariantInfo.Count)
 }
 
 // sint64 Price = 2;
 inline void BookVariantInfo::clear_price() {
-  _impl_.price_ = Int64{0};
+  _impl_.price_ = int64_t{0};
 }
-inline Int64 BookVariantInfo::_internal_price() const {
+inline int64_t BookVariantInfo::_internal_price() const {
   return _impl_.price_;
 }
-inline Int64 BookVariantInfo::price() const {
+inline int64_t BookVariantInfo::price() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookVariantInfo.Price)
   return _internal_price();
 }
-inline void BookVariantInfo::_internal_set_price(Int64 value) {
+inline void BookVariantInfo::_internal_set_price(int64_t value) {
   
   _impl_.price_ = value;
 }
-inline void BookVariantInfo::set_price(Int64 value) {
+inline void BookVariantInfo::set_price(int64_t value) {
   _internal_set_price(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookVariantInfo.Price)
 }
@@ -2610,20 +2610,20 @@ inline void BookVariantInfo::set_price(Int64 value) {
 
 // uint64 Id = 1;
 inline void BookVariantInfoItem::clear_id() {
-  _impl_.id_ = UInt64{0u};
+  _impl_.id_ = uint64_t{0u};
 }
-inline UInt64 BookVariantInfoItem::_internal_id() const {
+inline uint64_t BookVariantInfoItem::_internal_id() const {
   return _impl_.id_;
 }
-inline UInt64 BookVariantInfoItem::id() const {
+inline uint64_t BookVariantInfoItem::id() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.BookVariantInfoItem.Id)
   return _internal_id();
 }
-inline void BookVariantInfoItem::_internal_set_id(UInt64 value) {
+inline void BookVariantInfoItem::_internal_set_id(uint64_t value) {
   
   _impl_.id_ = value;
 }
-inline void BookVariantInfoItem::set_id(UInt64 value) {
+inline void BookVariantInfoItem::set_id(uint64_t value) {
   _internal_set_id(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.BookVariantInfoItem.Id)
 }

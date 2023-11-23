@@ -382,20 +382,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 UserId = 2;
   void clear_userid();
-  UInt64 userid() const;
-  void set_userid(UInt64 value);
+  uint64_t userid() const;
+  void set_userid(uint64_t value);
   private:
-  UInt64 _internal_userid() const;
-  void _internal_set_userid(UInt64 value);
+  uint64_t _internal_userid() const;
+  void _internal_set_userid(uint64_t value);
   public:
 
   // sint64 CreateTime = 4;
   void clear_createtime();
-  Int64 createtime() const;
-  void set_createtime(Int64 value);
+  int64_t createtime() const;
+  void set_createtime(int64_t value);
   private:
-  Int64 _internal_createtime() const;
-  void _internal_set_createtime(Int64 value);
+  int64_t _internal_createtime() const;
+  void _internal_set_createtime(int64_t value);
   public:
 
   // sint32 OfflineType = 1;
@@ -416,8 +416,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr offlinedata_;
-    UInt64 userid_;
-    Int64 createtime_;
+    uint64_t userid_;
+    int64_t createtime_;
     int32_t offlinetype_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -744,20 +744,20 @@ inline void OfflineData::set_offlinetype(int32_t value) {
 
 // uint64 UserId = 2;
 inline void OfflineData::clear_userid() {
-  _impl_.userid_ = UInt64{0u};
+  _impl_.userid_ = uint64_t{0u};
 }
-inline UInt64 OfflineData::_internal_userid() const {
+inline uint64_t OfflineData::_internal_userid() const {
   return _impl_.userid_;
 }
-inline UInt64 OfflineData::userid() const {
+inline uint64_t OfflineData::userid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OfflineData.UserId)
   return _internal_userid();
 }
-inline void OfflineData::_internal_set_userid(UInt64 value) {
+inline void OfflineData::_internal_set_userid(uint64_t value) {
   
   _impl_.userid_ = value;
 }
-inline void OfflineData::set_userid(UInt64 value) {
+inline void OfflineData::set_userid(uint64_t value) {
   _internal_set_userid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OfflineData.UserId)
 }
@@ -814,20 +814,20 @@ inline void OfflineData::set_allocated_offlinedata(std::string* offlinedata) {
 
 // sint64 CreateTime = 4;
 inline void OfflineData::clear_createtime() {
-  _impl_.createtime_ = Int64{0};
+  _impl_.createtime_ = int64_t{0};
 }
-inline Int64 OfflineData::_internal_createtime() const {
+inline int64_t OfflineData::_internal_createtime() const {
   return _impl_.createtime_;
 }
-inline Int64 OfflineData::createtime() const {
+inline int64_t OfflineData::createtime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.OfflineData.CreateTime)
   return _internal_createtime();
 }
-inline void OfflineData::_internal_set_createtime(Int64 value) {
+inline void OfflineData::_internal_set_createtime(int64_t value) {
   
   _impl_.createtime_ = value;
 }
-inline void OfflineData::set_createtime(Int64 value) {
+inline void OfflineData::set_createtime(int64_t value) {
   _internal_set_createtime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.OfflineData.CreateTime)
 }

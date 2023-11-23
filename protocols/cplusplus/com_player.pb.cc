@@ -30,7 +30,7 @@ PROTOBUF_CONSTEXPR PlayerData::PlayerData(
   , /*decltype(_impl_._cached_size_)*/{}
   , /*decltype(_impl_.account_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.playerid_)*/Int64{0}
+  , /*decltype(_impl_.playerid_)*/int64_t{0}
   , /*decltype(_impl_.sex_)*/0} {}
 struct PlayerDataDefaultTypeInternal {
   PROTOBUF_CONSTEXPR PlayerDataDefaultTypeInternal()
@@ -164,7 +164,7 @@ inline void PlayerData::SharedCtor(
     , /*decltype(_impl_._cached_size_)*/{}
     , decltype(_impl_.account_){}
     , decltype(_impl_.name_){}
-    , decltype(_impl_.playerid_){Int64{0}}
+    , decltype(_impl_.playerid_){int64_t{0}}
     , decltype(_impl_.sex_){0}
   };
   _impl_.account_.InitDefault();

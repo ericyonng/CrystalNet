@@ -24,7 +24,7 @@ VER="$1"
 	then
 		sudo mkdir ${OUTPUT_DIR}../../3rd/kernel
 	    sudo rm -f ${OUTPUT_DIR}../../3rd/kernel/libCrystalKernel_debug.a
-		sudo cp -rf ${OUTPUT_DIR}libCrystalKernel_debug.a ${OUTPUT_DIR}../../3rd/kernel/
+		sudo cp -rf ${OUTPUT_DIR}libCrystalKernel_debug.a ${OUTPUT_DIR}../../3rd/kernel/libCrystalKernel_debug.a
 
 		# 拷贝mysqlclient.so到运行目录
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
@@ -40,7 +40,7 @@ VER="$1"
 	else
 		sudo mkdir ${OUTPUT_DIR}../../3rd/kernel
 	    sudo rm -f ${OUTPUT_DIR}../../3rd/kernel/libCrystalKernel.a
-		sudo cp -rf ${OUTPUT_DIR}libCrystalKernel.a ${OUTPUT_DIR}../../3rd/kernel/
+		sudo cp -rf ${OUTPUT_DIR}libCrystalKernel.a ${OUTPUT_DIR}../../3rd/kernel/libCrystalKernel.a
 
 		# 拷贝mysqlclient.so到运行目录
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/

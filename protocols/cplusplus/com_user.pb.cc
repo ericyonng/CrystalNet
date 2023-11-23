@@ -41,11 +41,11 @@ PROTOBUF_CONSTEXPR UserBaseInfo::UserBaseInfo(
   , /*decltype(_impl_.createip_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.createphoneimei_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.bindmailaddr_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.userid_)*/UInt64{0u}
-  , /*decltype(_impl_.bindphone_)*/UInt64{0u}
-  , /*decltype(_impl_.lastlogintime_)*/Int64{0}
-  , /*decltype(_impl_.createtime_)*/Int64{0}
-  , /*decltype(_impl_.lastpassdaytime_)*/Int64{0}
+  , /*decltype(_impl_.userid_)*/uint64_t{0u}
+  , /*decltype(_impl_.bindphone_)*/uint64_t{0u}
+  , /*decltype(_impl_.lastlogintime_)*/int64_t{0}
+  , /*decltype(_impl_.createtime_)*/int64_t{0}
+  , /*decltype(_impl_.lastpassdaytime_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct UserBaseInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR UserBaseInfoDefaultTypeInternal()
@@ -95,7 +95,7 @@ PROTOBUF_CONSTEXPR LoginInfo::LoginInfo(
   , /*decltype(_impl_.origintext_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.loginmode_)*/0
   , /*decltype(_impl_.port_)*/0u
-  , /*decltype(_impl_.versionid_)*/UInt64{0u}
+  , /*decltype(_impl_.versionid_)*/uint64_t{0u}
   , /*decltype(_impl_.RegisterInfo_)*/{}
   , /*decltype(_impl_._cached_size_)*/{}
   , /*decltype(_impl_._oneof_case_)*/{}} {}
@@ -122,8 +122,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR SimpleUserInfo::SimpleUserInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.nickname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.userid_)*/UInt64{0u}
-  , /*decltype(_impl_.bindphone_)*/UInt64{0u}
+  , /*decltype(_impl_.userid_)*/uint64_t{0u}
+  , /*decltype(_impl_.bindphone_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SimpleUserInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR SimpleUserInfoDefaultTypeInternal()
@@ -467,11 +467,11 @@ inline void UserBaseInfo::SharedCtor(
     , decltype(_impl_.createip_){}
     , decltype(_impl_.createphoneimei_){}
     , decltype(_impl_.bindmailaddr_){}
-    , decltype(_impl_.userid_){UInt64{0u}}
-    , decltype(_impl_.bindphone_){UInt64{0u}}
-    , decltype(_impl_.lastlogintime_){Int64{0}}
-    , decltype(_impl_.createtime_){Int64{0}}
-    , decltype(_impl_.lastpassdaytime_){Int64{0}}
+    , decltype(_impl_.userid_){uint64_t{0u}}
+    , decltype(_impl_.bindphone_){uint64_t{0u}}
+    , decltype(_impl_.lastlogintime_){int64_t{0}}
+    , decltype(_impl_.createtime_){int64_t{0}}
+    , decltype(_impl_.lastpassdaytime_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.accountname_.InitDefault();
@@ -1638,7 +1638,7 @@ inline void LoginInfo::SharedCtor(
     , decltype(_impl_.origintext_){}
     , decltype(_impl_.loginmode_){0}
     , decltype(_impl_.port_){0u}
-    , decltype(_impl_.versionid_){UInt64{0u}}
+    , decltype(_impl_.versionid_){uint64_t{0u}}
     , decltype(_impl_.RegisterInfo_){}
     , /*decltype(_impl_._cached_size_)*/{}
     , /*decltype(_impl_._oneof_case_)*/{}
@@ -2295,8 +2295,8 @@ inline void SimpleUserInfo::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.nickname_){}
-    , decltype(_impl_.userid_){UInt64{0u}}
-    , decltype(_impl_.bindphone_){UInt64{0u}}
+    , decltype(_impl_.userid_){uint64_t{0u}}
+    , decltype(_impl_.bindphone_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.nickname_.InitDefault();

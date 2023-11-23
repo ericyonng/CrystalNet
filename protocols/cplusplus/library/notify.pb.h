@@ -1256,16 +1256,16 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   public:
   void clear_notifyids();
   private:
-  UInt64 _internal_notifyids(int index) const;
+  uint64_t _internal_notifyids(int index) const;
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_notifyids() const;
-  void _internal_add_notifyids(UInt64 value);
+  void _internal_add_notifyids(uint64_t value);
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
       _internal_mutable_notifyids();
   public:
-  UInt64 notifyids(int index) const;
-  void set_notifyids(int index, UInt64 value);
-  void add_notifyids(UInt64 value);
+  uint64_t notifyids(int index) const;
+  void set_notifyids(int index, uint64_t value);
+  void add_notifyids(uint64_t value);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       notifyids() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
@@ -1552,11 +1552,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // uint64 NotifyId = 1;
   void clear_notifyid();
-  UInt64 notifyid() const;
-  void set_notifyid(UInt64 value);
+  uint64_t notifyid() const;
+  void set_notifyid(uint64_t value);
   private:
-  UInt64 _internal_notifyid() const;
-  void _internal_set_notifyid(UInt64 value);
+  uint64_t _internal_notifyid() const;
+  void _internal_set_notifyid(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ReadNotifyReq)
@@ -1567,7 +1567,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    UInt64 notifyid_;
+    uint64_t notifyid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -2626,21 +2626,21 @@ inline int RemoveUserNotifyDataItemNty::notifyids_size() const {
 inline void RemoveUserNotifyDataItemNty::clear_notifyids() {
   _impl_.notifyids_.Clear();
 }
-inline UInt64 RemoveUserNotifyDataItemNty::_internal_notifyids(int index) const {
+inline uint64_t RemoveUserNotifyDataItemNty::_internal_notifyids(int index) const {
   return _impl_.notifyids_.Get(index);
 }
-inline UInt64 RemoveUserNotifyDataItemNty::notifyids(int index) const {
+inline uint64_t RemoveUserNotifyDataItemNty::notifyids(int index) const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.RemoveUserNotifyDataItemNty.NotifyIds)
   return _internal_notifyids(index);
 }
-inline void RemoveUserNotifyDataItemNty::set_notifyids(int index, UInt64 value) {
+inline void RemoveUserNotifyDataItemNty::set_notifyids(int index, uint64_t value) {
   _impl_.notifyids_.Set(index, value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.RemoveUserNotifyDataItemNty.NotifyIds)
 }
-inline void RemoveUserNotifyDataItemNty::_internal_add_notifyids(UInt64 value) {
+inline void RemoveUserNotifyDataItemNty::_internal_add_notifyids(uint64_t value) {
   _impl_.notifyids_.Add(value);
 }
-inline void RemoveUserNotifyDataItemNty::add_notifyids(UInt64 value) {
+inline void RemoveUserNotifyDataItemNty::add_notifyids(uint64_t value) {
   _internal_add_notifyids(value);
   // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.RemoveUserNotifyDataItemNty.NotifyIds)
 }
@@ -2669,20 +2669,20 @@ RemoveUserNotifyDataItemNty::mutable_notifyids() {
 
 // uint64 NotifyId = 1;
 inline void ReadNotifyReq::clear_notifyid() {
-  _impl_.notifyid_ = UInt64{0u};
+  _impl_.notifyid_ = uint64_t{0u};
 }
-inline UInt64 ReadNotifyReq::_internal_notifyid() const {
+inline uint64_t ReadNotifyReq::_internal_notifyid() const {
   return _impl_.notifyid_;
 }
-inline UInt64 ReadNotifyReq::notifyid() const {
+inline uint64_t ReadNotifyReq::notifyid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ReadNotifyReq.NotifyId)
   return _internal_notifyid();
 }
-inline void ReadNotifyReq::_internal_set_notifyid(UInt64 value) {
+inline void ReadNotifyReq::_internal_set_notifyid(uint64_t value) {
   
   _impl_.notifyid_ = value;
 }
-inline void ReadNotifyReq::set_notifyid(UInt64 value) {
+inline void ReadNotifyReq::set_notifyid(uint64_t value) {
   _internal_set_notifyid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ReadNotifyReq.NotifyId)
 }

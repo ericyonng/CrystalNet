@@ -745,29 +745,29 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 UserId = 1;
   void clear_userid();
-  UInt64 userid() const;
-  void set_userid(UInt64 value);
+  uint64_t userid() const;
+  void set_userid(uint64_t value);
   private:
-  UInt64 _internal_userid() const;
-  void _internal_set_userid(UInt64 value);
+  uint64_t _internal_userid() const;
+  void _internal_set_userid(uint64_t value);
   public:
 
   // sint64 TokenExpireTime = 8;
   void clear_tokenexpiretime();
-  Int64 tokenexpiretime() const;
-  void set_tokenexpiretime(Int64 value);
+  int64_t tokenexpiretime() const;
+  void set_tokenexpiretime(int64_t value);
   private:
-  Int64 _internal_tokenexpiretime() const;
-  void _internal_set_tokenexpiretime(Int64 value);
+  int64_t _internal_tokenexpiretime() const;
+  void _internal_set_tokenexpiretime(int64_t value);
   public:
 
   // uint64 BindPhone = 9;
   void clear_bindphone();
-  UInt64 bindphone() const;
-  void set_bindphone(UInt64 value);
+  uint64_t bindphone() const;
+  void set_bindphone(uint64_t value);
   private:
-  UInt64 _internal_bindphone() const;
-  void _internal_set_bindphone(UInt64 value);
+  uint64_t _internal_bindphone() const;
+  void _internal_set_bindphone(uint64_t value);
   public:
 
   // sint32 ClientStatus = 6;
@@ -792,9 +792,9 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr nickname_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr phoneimei_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr lasttoken_;
-    UInt64 userid_;
-    Int64 tokenexpiretime_;
-    UInt64 bindphone_;
+    uint64_t userid_;
+    int64_t tokenexpiretime_;
+    uint64_t bindphone_;
     int32_t clientstatus_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -818,20 +818,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // uint64 UserId = 1;
 inline void ClientUserInfo::clear_userid() {
-  _impl_.userid_ = UInt64{0u};
+  _impl_.userid_ = uint64_t{0u};
 }
-inline UInt64 ClientUserInfo::_internal_userid() const {
+inline uint64_t ClientUserInfo::_internal_userid() const {
   return _impl_.userid_;
 }
-inline UInt64 ClientUserInfo::userid() const {
+inline uint64_t ClientUserInfo::userid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.UserId)
   return _internal_userid();
 }
-inline void ClientUserInfo::_internal_set_userid(UInt64 value) {
+inline void ClientUserInfo::_internal_set_userid(uint64_t value) {
   
   _impl_.userid_ = value;
 }
-inline void ClientUserInfo::set_userid(UInt64 value) {
+inline void ClientUserInfo::set_userid(uint64_t value) {
   _internal_set_userid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.UserId)
 }
@@ -1108,40 +1108,40 @@ inline void ClientUserInfo::set_allocated_lasttoken(std::string* lasttoken) {
 
 // sint64 TokenExpireTime = 8;
 inline void ClientUserInfo::clear_tokenexpiretime() {
-  _impl_.tokenexpiretime_ = Int64{0};
+  _impl_.tokenexpiretime_ = int64_t{0};
 }
-inline Int64 ClientUserInfo::_internal_tokenexpiretime() const {
+inline int64_t ClientUserInfo::_internal_tokenexpiretime() const {
   return _impl_.tokenexpiretime_;
 }
-inline Int64 ClientUserInfo::tokenexpiretime() const {
+inline int64_t ClientUserInfo::tokenexpiretime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.TokenExpireTime)
   return _internal_tokenexpiretime();
 }
-inline void ClientUserInfo::_internal_set_tokenexpiretime(Int64 value) {
+inline void ClientUserInfo::_internal_set_tokenexpiretime(int64_t value) {
   
   _impl_.tokenexpiretime_ = value;
 }
-inline void ClientUserInfo::set_tokenexpiretime(Int64 value) {
+inline void ClientUserInfo::set_tokenexpiretime(int64_t value) {
   _internal_set_tokenexpiretime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.TokenExpireTime)
 }
 
 // uint64 BindPhone = 9;
 inline void ClientUserInfo::clear_bindphone() {
-  _impl_.bindphone_ = UInt64{0u};
+  _impl_.bindphone_ = uint64_t{0u};
 }
-inline UInt64 ClientUserInfo::_internal_bindphone() const {
+inline uint64_t ClientUserInfo::_internal_bindphone() const {
   return _impl_.bindphone_;
 }
-inline UInt64 ClientUserInfo::bindphone() const {
+inline uint64_t ClientUserInfo::bindphone() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientUserInfo.BindPhone)
   return _internal_bindphone();
 }
-inline void ClientUserInfo::_internal_set_bindphone(UInt64 value) {
+inline void ClientUserInfo::_internal_set_bindphone(uint64_t value) {
   
   _impl_.bindphone_ = value;
 }
-inline void ClientUserInfo::set_bindphone(UInt64 value) {
+inline void ClientUserInfo::set_bindphone(uint64_t value) {
   _internal_set_bindphone(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientUserInfo.BindPhone)
 }

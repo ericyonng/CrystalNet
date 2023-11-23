@@ -377,11 +377,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   bool _internal_has_playerid() const;
   public:
   void clear_playerid();
-  Int64 playerid() const;
-  void set_playerid(Int64 value);
+  int64_t playerid() const;
+  void set_playerid(int64_t value);
   private:
-  Int64 _internal_playerid() const;
-  void _internal_set_playerid(Int64 value);
+  int64_t _internal_playerid() const;
+  void _internal_set_playerid(int64_t value);
   public:
 
   // optional sint32 sex = 3;
@@ -409,7 +409,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr account_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
-    Int64 playerid_;
+    int64_t playerid_;
     int32_t sex_;
   };
   union { Impl_ _impl_; };
@@ -503,21 +503,21 @@ inline bool PlayerData::has_playerid() const {
   return _internal_has_playerid();
 }
 inline void PlayerData::clear_playerid() {
-  _impl_.playerid_ = Int64{0};
+  _impl_.playerid_ = int64_t{0};
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
-inline Int64 PlayerData::_internal_playerid() const {
+inline int64_t PlayerData::_internal_playerid() const {
   return _impl_.playerid_;
 }
-inline Int64 PlayerData::playerid() const {
+inline int64_t PlayerData::playerid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.PlayerData.playerId)
   return _internal_playerid();
 }
-inline void PlayerData::_internal_set_playerid(Int64 value) {
+inline void PlayerData::_internal_set_playerid(int64_t value) {
   _impl_._has_bits_[0] |= 0x00000004u;
   _impl_.playerid_ = value;
 }
-inline void PlayerData::set_playerid(Int64 value) {
+inline void PlayerData::set_playerid(int64_t value) {
   _internal_set_playerid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.PlayerData.playerId)
 }

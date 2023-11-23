@@ -566,47 +566,47 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 UserId = 1;
   void clear_userid();
-  UInt64 userid() const;
-  void set_userid(UInt64 value);
+  uint64_t userid() const;
+  void set_userid(uint64_t value);
   private:
-  UInt64 _internal_userid() const;
-  void _internal_set_userid(UInt64 value);
+  uint64_t _internal_userid() const;
+  void _internal_set_userid(uint64_t value);
   public:
 
   // uint64 BindPhone = 7;
   void clear_bindphone();
-  UInt64 bindphone() const;
-  void set_bindphone(UInt64 value);
+  uint64_t bindphone() const;
+  void set_bindphone(uint64_t value);
   private:
-  UInt64 _internal_bindphone() const;
-  void _internal_set_bindphone(UInt64 value);
+  uint64_t _internal_bindphone() const;
+  void _internal_set_bindphone(uint64_t value);
   public:
 
   // sint64 LastLoginTime = 8;
   void clear_lastlogintime();
-  Int64 lastlogintime() const;
-  void set_lastlogintime(Int64 value);
+  int64_t lastlogintime() const;
+  void set_lastlogintime(int64_t value);
   private:
-  Int64 _internal_lastlogintime() const;
-  void _internal_set_lastlogintime(Int64 value);
+  int64_t _internal_lastlogintime() const;
+  void _internal_set_lastlogintime(int64_t value);
   public:
 
   // sint64 CreateTime = 12;
   void clear_createtime();
-  Int64 createtime() const;
-  void set_createtime(Int64 value);
+  int64_t createtime() const;
+  void set_createtime(int64_t value);
   private:
-  Int64 _internal_createtime() const;
-  void _internal_set_createtime(Int64 value);
+  int64_t _internal_createtime() const;
+  void _internal_set_createtime(int64_t value);
   public:
 
   // sint64 LastPassDayTime = 15;
   void clear_lastpassdaytime();
-  Int64 lastpassdaytime() const;
-  void set_lastpassdaytime(Int64 value);
+  int64_t lastpassdaytime() const;
+  void set_lastpassdaytime(int64_t value);
   private:
-  Int64 _internal_lastpassdaytime() const;
-  void _internal_set_lastpassdaytime(Int64 value);
+  int64_t _internal_lastpassdaytime() const;
+  void _internal_set_lastpassdaytime(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.UserBaseInfo)
@@ -627,11 +627,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr createip_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr createphoneimei_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr bindmailaddr_;
-    UInt64 userid_;
-    UInt64 bindphone_;
-    Int64 lastlogintime_;
-    Int64 createtime_;
-    Int64 lastpassdaytime_;
+    uint64_t userid_;
+    uint64_t bindphone_;
+    int64_t lastlogintime_;
+    int64_t createtime_;
+    int64_t lastpassdaytime_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1678,11 +1678,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 versionId = 12;
   void clear_versionid();
-  UInt64 versionid() const;
-  void set_versionid(UInt64 value);
+  uint64_t versionid() const;
+  void set_versionid(uint64_t value);
   private:
-  UInt64 _internal_versionid() const;
-  void _internal_set_versionid(UInt64 value);
+  uint64_t _internal_versionid() const;
+  void _internal_set_versionid(uint64_t value);
   public:
 
   // .CRYSTAL_NET.service.RegisterUserInfo UserRegisterInfo = 8;
@@ -1727,7 +1727,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr origintext_;
     int32_t loginmode_;
     uint32_t port_;
-    UInt64 versionid_;
+    uint64_t versionid_;
     union RegisterInfoUnion {
       constexpr RegisterInfoUnion() : _constinit_{} {}
         ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
@@ -2319,20 +2319,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 UserId = 1;
   void clear_userid();
-  UInt64 userid() const;
-  void set_userid(UInt64 value);
+  uint64_t userid() const;
+  void set_userid(uint64_t value);
   private:
-  UInt64 _internal_userid() const;
-  void _internal_set_userid(UInt64 value);
+  uint64_t _internal_userid() const;
+  void _internal_set_userid(uint64_t value);
   public:
 
   // uint64 BindPhone = 3;
   void clear_bindphone();
-  UInt64 bindphone() const;
-  void set_bindphone(UInt64 value);
+  uint64_t bindphone() const;
+  void set_bindphone(uint64_t value);
   private:
-  UInt64 _internal_bindphone() const;
-  void _internal_set_bindphone(UInt64 value);
+  uint64_t _internal_bindphone() const;
+  void _internal_set_bindphone(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SimpleUserInfo)
@@ -2344,8 +2344,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr nickname_;
-    UInt64 userid_;
-    UInt64 bindphone_;
+    uint64_t userid_;
+    uint64_t bindphone_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -2364,20 +2364,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // uint64 UserId = 1;
 inline void UserBaseInfo::clear_userid() {
-  _impl_.userid_ = UInt64{0u};
+  _impl_.userid_ = uint64_t{0u};
 }
-inline UInt64 UserBaseInfo::_internal_userid() const {
+inline uint64_t UserBaseInfo::_internal_userid() const {
   return _impl_.userid_;
 }
-inline UInt64 UserBaseInfo::userid() const {
+inline uint64_t UserBaseInfo::userid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.UserId)
   return _internal_userid();
 }
-inline void UserBaseInfo::_internal_set_userid(UInt64 value) {
+inline void UserBaseInfo::_internal_set_userid(uint64_t value) {
   
   _impl_.userid_ = value;
 }
-inline void UserBaseInfo::set_userid(UInt64 value) {
+inline void UserBaseInfo::set_userid(uint64_t value) {
   _internal_set_userid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.UserId)
 }
@@ -2634,40 +2634,40 @@ inline void UserBaseInfo::set_allocated_pwdsalt(std::string* pwdsalt) {
 
 // uint64 BindPhone = 7;
 inline void UserBaseInfo::clear_bindphone() {
-  _impl_.bindphone_ = UInt64{0u};
+  _impl_.bindphone_ = uint64_t{0u};
 }
-inline UInt64 UserBaseInfo::_internal_bindphone() const {
+inline uint64_t UserBaseInfo::_internal_bindphone() const {
   return _impl_.bindphone_;
 }
-inline UInt64 UserBaseInfo::bindphone() const {
+inline uint64_t UserBaseInfo::bindphone() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.BindPhone)
   return _internal_bindphone();
 }
-inline void UserBaseInfo::_internal_set_bindphone(UInt64 value) {
+inline void UserBaseInfo::_internal_set_bindphone(uint64_t value) {
   
   _impl_.bindphone_ = value;
 }
-inline void UserBaseInfo::set_bindphone(UInt64 value) {
+inline void UserBaseInfo::set_bindphone(uint64_t value) {
   _internal_set_bindphone(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.BindPhone)
 }
 
 // sint64 LastLoginTime = 8;
 inline void UserBaseInfo::clear_lastlogintime() {
-  _impl_.lastlogintime_ = Int64{0};
+  _impl_.lastlogintime_ = int64_t{0};
 }
-inline Int64 UserBaseInfo::_internal_lastlogintime() const {
+inline int64_t UserBaseInfo::_internal_lastlogintime() const {
   return _impl_.lastlogintime_;
 }
-inline Int64 UserBaseInfo::lastlogintime() const {
+inline int64_t UserBaseInfo::lastlogintime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.LastLoginTime)
   return _internal_lastlogintime();
 }
-inline void UserBaseInfo::_internal_set_lastlogintime(Int64 value) {
+inline void UserBaseInfo::_internal_set_lastlogintime(int64_t value) {
   
   _impl_.lastlogintime_ = value;
 }
-inline void UserBaseInfo::set_lastlogintime(Int64 value) {
+inline void UserBaseInfo::set_lastlogintime(int64_t value) {
   _internal_set_lastlogintime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.LastLoginTime)
 }
@@ -2824,20 +2824,20 @@ inline void UserBaseInfo::set_allocated_createip(std::string* createip) {
 
 // sint64 CreateTime = 12;
 inline void UserBaseInfo::clear_createtime() {
-  _impl_.createtime_ = Int64{0};
+  _impl_.createtime_ = int64_t{0};
 }
-inline Int64 UserBaseInfo::_internal_createtime() const {
+inline int64_t UserBaseInfo::_internal_createtime() const {
   return _impl_.createtime_;
 }
-inline Int64 UserBaseInfo::createtime() const {
+inline int64_t UserBaseInfo::createtime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.CreateTime)
   return _internal_createtime();
 }
-inline void UserBaseInfo::_internal_set_createtime(Int64 value) {
+inline void UserBaseInfo::_internal_set_createtime(int64_t value) {
   
   _impl_.createtime_ = value;
 }
-inline void UserBaseInfo::set_createtime(Int64 value) {
+inline void UserBaseInfo::set_createtime(int64_t value) {
   _internal_set_createtime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.CreateTime)
 }
@@ -2944,20 +2944,20 @@ inline void UserBaseInfo::set_allocated_bindmailaddr(std::string* bindmailaddr) 
 
 // sint64 LastPassDayTime = 15;
 inline void UserBaseInfo::clear_lastpassdaytime() {
-  _impl_.lastpassdaytime_ = Int64{0};
+  _impl_.lastpassdaytime_ = int64_t{0};
 }
-inline Int64 UserBaseInfo::_internal_lastpassdaytime() const {
+inline int64_t UserBaseInfo::_internal_lastpassdaytime() const {
   return _impl_.lastpassdaytime_;
 }
-inline Int64 UserBaseInfo::lastpassdaytime() const {
+inline int64_t UserBaseInfo::lastpassdaytime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserBaseInfo.LastPassDayTime)
   return _internal_lastpassdaytime();
 }
-inline void UserBaseInfo::_internal_set_lastpassdaytime(Int64 value) {
+inline void UserBaseInfo::_internal_set_lastpassdaytime(int64_t value) {
   
   _impl_.lastpassdaytime_ = value;
 }
-inline void UserBaseInfo::set_lastpassdaytime(Int64 value) {
+inline void UserBaseInfo::set_lastpassdaytime(int64_t value) {
   _internal_set_lastpassdaytime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.LastPassDayTime)
 }
@@ -3690,20 +3690,20 @@ inline void LoginInfo::set_allocated_origintext(std::string* origintext) {
 
 // uint64 versionId = 12;
 inline void LoginInfo::clear_versionid() {
-  _impl_.versionid_ = UInt64{0u};
+  _impl_.versionid_ = uint64_t{0u};
 }
-inline UInt64 LoginInfo::_internal_versionid() const {
+inline uint64_t LoginInfo::_internal_versionid() const {
   return _impl_.versionid_;
 }
-inline UInt64 LoginInfo::versionid() const {
+inline uint64_t LoginInfo::versionid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.LoginInfo.versionId)
   return _internal_versionid();
 }
-inline void LoginInfo::_internal_set_versionid(UInt64 value) {
+inline void LoginInfo::_internal_set_versionid(uint64_t value) {
   
   _impl_.versionid_ = value;
 }
-inline void LoginInfo::set_versionid(UInt64 value) {
+inline void LoginInfo::set_versionid(uint64_t value) {
   _internal_set_versionid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.LoginInfo.versionId)
 }
@@ -3727,20 +3727,20 @@ inline LoginInfo::RegisterInfoCase LoginInfo::RegisterInfo_case() const {
 
 // uint64 UserId = 1;
 inline void SimpleUserInfo::clear_userid() {
-  _impl_.userid_ = UInt64{0u};
+  _impl_.userid_ = uint64_t{0u};
 }
-inline UInt64 SimpleUserInfo::_internal_userid() const {
+inline uint64_t SimpleUserInfo::_internal_userid() const {
   return _impl_.userid_;
 }
-inline UInt64 SimpleUserInfo::userid() const {
+inline uint64_t SimpleUserInfo::userid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleUserInfo.UserId)
   return _internal_userid();
 }
-inline void SimpleUserInfo::_internal_set_userid(UInt64 value) {
+inline void SimpleUserInfo::_internal_set_userid(uint64_t value) {
   
   _impl_.userid_ = value;
 }
-inline void SimpleUserInfo::set_userid(UInt64 value) {
+inline void SimpleUserInfo::set_userid(uint64_t value) {
   _internal_set_userid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleUserInfo.UserId)
 }
@@ -3797,20 +3797,20 @@ inline void SimpleUserInfo::set_allocated_nickname(std::string* nickname) {
 
 // uint64 BindPhone = 3;
 inline void SimpleUserInfo::clear_bindphone() {
-  _impl_.bindphone_ = UInt64{0u};
+  _impl_.bindphone_ = uint64_t{0u};
 }
-inline UInt64 SimpleUserInfo::_internal_bindphone() const {
+inline uint64_t SimpleUserInfo::_internal_bindphone() const {
   return _impl_.bindphone_;
 }
-inline UInt64 SimpleUserInfo::bindphone() const {
+inline uint64_t SimpleUserInfo::bindphone() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleUserInfo.BindPhone)
   return _internal_bindphone();
 }
-inline void SimpleUserInfo::_internal_set_bindphone(UInt64 value) {
+inline void SimpleUserInfo::_internal_set_bindphone(uint64_t value) {
   
   _impl_.bindphone_ = value;
 }
-inline void SimpleUserInfo::set_bindphone(UInt64 value) {
+inline void SimpleUserInfo::set_bindphone(uint64_t value) {
   _internal_set_bindphone(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleUserInfo.BindPhone)
 }

@@ -43,9 +43,9 @@ PROTOBUF_CONSTEXPR ClientUserInfo::ClientUserInfo(
   , /*decltype(_impl_.nickname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.phoneimei_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.lasttoken_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.userid_)*/UInt64{0u}
-  , /*decltype(_impl_.tokenexpiretime_)*/Int64{0}
-  , /*decltype(_impl_.bindphone_)*/UInt64{0u}
+  , /*decltype(_impl_.userid_)*/uint64_t{0u}
+  , /*decltype(_impl_.tokenexpiretime_)*/int64_t{0}
+  , /*decltype(_impl_.bindphone_)*/uint64_t{0u}
   , /*decltype(_impl_.clientstatus_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ClientUserInfoDefaultTypeInternal {
@@ -282,9 +282,9 @@ inline void ClientUserInfo::SharedCtor(
     , decltype(_impl_.nickname_){}
     , decltype(_impl_.phoneimei_){}
     , decltype(_impl_.lasttoken_){}
-    , decltype(_impl_.userid_){UInt64{0u}}
-    , decltype(_impl_.tokenexpiretime_){Int64{0}}
-    , decltype(_impl_.bindphone_){UInt64{0u}}
+    , decltype(_impl_.userid_){uint64_t{0u}}
+    , decltype(_impl_.tokenexpiretime_){int64_t{0}}
+    , decltype(_impl_.bindphone_){uint64_t{0u}}
     , decltype(_impl_.clientstatus_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };

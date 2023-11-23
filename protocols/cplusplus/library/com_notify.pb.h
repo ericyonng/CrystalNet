@@ -440,20 +440,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 NotifyId = 1;
   void clear_notifyid();
-  UInt64 notifyid() const;
-  void set_notifyid(UInt64 value);
+  uint64_t notifyid() const;
+  void set_notifyid(uint64_t value);
   private:
-  UInt64 _internal_notifyid() const;
-  void _internal_set_notifyid(UInt64 value);
+  uint64_t _internal_notifyid() const;
+  void _internal_set_notifyid(uint64_t value);
   public:
 
   // sint64 CreateTime = 6;
   void clear_createtime();
-  Int64 createtime() const;
-  void set_createtime(Int64 value);
+  int64_t createtime() const;
+  void set_createtime(int64_t value);
   private:
-  Int64 _internal_createtime() const;
-  void _internal_set_createtime(Int64 value);
+  int64_t _internal_createtime() const;
+  void _internal_set_createtime(int64_t value);
   public:
 
   // sint32 IsRead = 7;
@@ -477,8 +477,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam > contentparams_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr notifytitlewordid_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr notifycontentwordid_;
-    UInt64 notifyid_;
-    Int64 createtime_;
+    uint64_t notifyid_;
+    int64_t createtime_;
     int32_t isread_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -1081,20 +1081,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // uint64 NotifyId = 1;
 inline void UserNotifyDataItem::clear_notifyid() {
-  _impl_.notifyid_ = UInt64{0u};
+  _impl_.notifyid_ = uint64_t{0u};
 }
-inline UInt64 UserNotifyDataItem::_internal_notifyid() const {
+inline uint64_t UserNotifyDataItem::_internal_notifyid() const {
   return _impl_.notifyid_;
 }
-inline UInt64 UserNotifyDataItem::notifyid() const {
+inline uint64_t UserNotifyDataItem::notifyid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyDataItem.NotifyId)
   return _internal_notifyid();
 }
-inline void UserNotifyDataItem::_internal_set_notifyid(UInt64 value) {
+inline void UserNotifyDataItem::_internal_set_notifyid(uint64_t value) {
   
   _impl_.notifyid_ = value;
 }
-inline void UserNotifyDataItem::set_notifyid(UInt64 value) {
+inline void UserNotifyDataItem::set_notifyid(uint64_t value) {
   _internal_set_notifyid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserNotifyDataItem.NotifyId)
 }
@@ -1275,20 +1275,20 @@ UserNotifyDataItem::contentparams() const {
 
 // sint64 CreateTime = 6;
 inline void UserNotifyDataItem::clear_createtime() {
-  _impl_.createtime_ = Int64{0};
+  _impl_.createtime_ = int64_t{0};
 }
-inline Int64 UserNotifyDataItem::_internal_createtime() const {
+inline int64_t UserNotifyDataItem::_internal_createtime() const {
   return _impl_.createtime_;
 }
-inline Int64 UserNotifyDataItem::createtime() const {
+inline int64_t UserNotifyDataItem::createtime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.UserNotifyDataItem.CreateTime)
   return _internal_createtime();
 }
-inline void UserNotifyDataItem::_internal_set_createtime(Int64 value) {
+inline void UserNotifyDataItem::_internal_set_createtime(int64_t value) {
   
   _impl_.createtime_ = value;
 }
-inline void UserNotifyDataItem::set_createtime(Int64 value) {
+inline void UserNotifyDataItem::set_createtime(int64_t value) {
   _internal_set_createtime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserNotifyDataItem.CreateTime)
 }

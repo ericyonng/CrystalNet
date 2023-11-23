@@ -26,9 +26,9 @@ namespace CRYSTAL_NET {
 namespace service {
 PROTOBUF_CONSTEXPR SimpleInfo::SimpleInfo(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.maxincid_)*/Int64{0}
-  , /*decltype(_impl_.dirtycount_)*/Int64{0}
-  , /*decltype(_impl_.versionno_)*/Int64{0}
+    /*decltype(_impl_.maxincid_)*/int64_t{0}
+  , /*decltype(_impl_.dirtycount_)*/int64_t{0}
+  , /*decltype(_impl_.versionno_)*/int64_t{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SimpleInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR SimpleInfoDefaultTypeInternal()
@@ -121,9 +121,9 @@ inline void SimpleInfo::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.maxincid_){Int64{0}}
-    , decltype(_impl_.dirtycount_){Int64{0}}
-    , decltype(_impl_.versionno_){Int64{0}}
+      decltype(_impl_.maxincid_){int64_t{0}}
+    , decltype(_impl_.dirtycount_){int64_t{0}}
+    , decltype(_impl_.versionno_){int64_t{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }

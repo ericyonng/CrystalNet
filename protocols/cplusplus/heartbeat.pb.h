@@ -621,11 +621,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // sint64 NowTimeNanoseconds = 1;
   void clear_nowtimenanoseconds();
-  Int64 nowtimenanoseconds() const;
-  void set_nowtimenanoseconds(Int64 value);
+  int64_t nowtimenanoseconds() const;
+  void set_nowtimenanoseconds(int64_t value);
   private:
-  Int64 _internal_nowtimenanoseconds() const;
-  void _internal_set_nowtimenanoseconds(Int64 value);
+  int64_t _internal_nowtimenanoseconds() const;
+  void _internal_set_nowtimenanoseconds(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.NodeHeartbeatRes)
@@ -636,7 +636,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    Int64 nowtimenanoseconds_;
+    int64_t nowtimenanoseconds_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -2362,11 +2362,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // sint64 ServerTimeMs = 1;
   void clear_servertimems();
-  Int64 servertimems() const;
-  void set_servertimems(Int64 value);
+  int64_t servertimems() const;
+  void set_servertimems(int64_t value);
   private:
-  Int64 _internal_servertimems() const;
-  void _internal_set_servertimems(Int64 value);
+  int64_t _internal_servertimems() const;
+  void _internal_set_servertimems(int64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.ClientHeartbeatRes)
@@ -2377,7 +2377,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    Int64 servertimems_;
+    int64_t servertimems_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -2400,20 +2400,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // sint64 NowTimeNanoseconds = 1;
 inline void NodeHeartbeatRes::clear_nowtimenanoseconds() {
-  _impl_.nowtimenanoseconds_ = Int64{0};
+  _impl_.nowtimenanoseconds_ = int64_t{0};
 }
-inline Int64 NodeHeartbeatRes::_internal_nowtimenanoseconds() const {
+inline int64_t NodeHeartbeatRes::_internal_nowtimenanoseconds() const {
   return _impl_.nowtimenanoseconds_;
 }
-inline Int64 NodeHeartbeatRes::nowtimenanoseconds() const {
+inline int64_t NodeHeartbeatRes::nowtimenanoseconds() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.NodeHeartbeatRes.NowTimeNanoseconds)
   return _internal_nowtimenanoseconds();
 }
-inline void NodeHeartbeatRes::_internal_set_nowtimenanoseconds(Int64 value) {
+inline void NodeHeartbeatRes::_internal_set_nowtimenanoseconds(int64_t value) {
   
   _impl_.nowtimenanoseconds_ = value;
 }
-inline void NodeHeartbeatRes::set_nowtimenanoseconds(Int64 value) {
+inline void NodeHeartbeatRes::set_nowtimenanoseconds(int64_t value) {
   _internal_set_nowtimenanoseconds(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.NodeHeartbeatRes.NowTimeNanoseconds)
 }
@@ -2711,20 +2711,20 @@ GetNodeListRes::nodeinfolist() const {
 
 // sint64 ServerTimeMs = 1;
 inline void ClientHeartbeatRes::clear_servertimems() {
-  _impl_.servertimems_ = Int64{0};
+  _impl_.servertimems_ = int64_t{0};
 }
-inline Int64 ClientHeartbeatRes::_internal_servertimems() const {
+inline int64_t ClientHeartbeatRes::_internal_servertimems() const {
   return _impl_.servertimems_;
 }
-inline Int64 ClientHeartbeatRes::servertimems() const {
+inline int64_t ClientHeartbeatRes::servertimems() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.ClientHeartbeatRes.ServerTimeMs)
   return _internal_servertimems();
 }
-inline void ClientHeartbeatRes::_internal_set_servertimems(Int64 value) {
+inline void ClientHeartbeatRes::_internal_set_servertimems(int64_t value) {
   
   _impl_.servertimems_ = value;
 }
-inline void ClientHeartbeatRes::set_servertimems(Int64 value) {
+inline void ClientHeartbeatRes::set_servertimems(int64_t value) {
   _internal_set_servertimems(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.ClientHeartbeatRes.ServerTimeMs)
 }
