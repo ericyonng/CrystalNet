@@ -317,7 +317,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         // 是否超库存
         if((iter.second == 0) || bookInfo->variantinfo().count() < static_cast<Int64>(iter.second))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("book count is empty or over capacity,book id:%llu book count:%lld, will borrow count:%d libraryId:%llu, user id:%llu")
+            g_Log->Warn(LOGFMT_OBJ_TAG("book count is empty or over capacity,book id:%llu book count:%lld, will borrow count:%d libraryId:%lld, user id:%llu")
             , iter.first, bookInfo->variantinfo().count(), iter.second, libraryId, memberUserId);
             return Status::BookCountOverCapacity;
         }
@@ -345,12 +345,10 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
 
     newOrderInfo->set_userid(user->GetUserId());
 
-    std::map<UInt64, BorrowBookInfo *> bookIdRefBorrowInfo;
     for(auto &item : bookBagInfo.bookinfoitemlist())
     {
         auto bookInfo = GetBookInfo(libraryId, item.bookid());
 
-        auto iter = bookIdRefBorrowInfo.find(bookInfo->id());
         const auto bookCount = static_cast<Int64>(item.bookcount());
         auto newSubOrder = newOrderInfo->add_borrowbooklist();
         newSubOrder->set_bookid(item.bookid());
@@ -527,7 +525,6 @@ void LibraryGlobal::_OnGetLibraryInfoReq(KERNEL_NS::LibPacket *&packet)
         return;
     }
 
-    auto req = packet->GetCoder<GetLibraryInfoReq>();
     auto libraryMgr = user->GetSys<ILibraryMgr>();
     const auto myLibraryId = libraryMgr->GetMyLibraryId();
     Int32 errCode = Status::Success;
@@ -558,8 +555,6 @@ void LibraryGlobal::_OnGetLibraryListReq(KERNEL_NS::LibPacket *&packet)
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
         return;
     }
-
-    auto req = packet->GetCoder<GetLibraryListReq>();
 
     GetLibraryListRes res;
     for(auto &iter : _idRefLibraryInfo)
@@ -845,7 +840,6 @@ void LibraryGlobal::_OnQuitLibraryReq(KERNEL_NS::LibPacket *&packet)
         return;
     }
 
-    auto req = packet->GetCoder<QuitLibraryReq>();
     QuitLibraryRes res;
 
     Int32 errCode = Status::Success;
@@ -1239,7 +1233,6 @@ void LibraryGlobal::_OnGetLibraryMemberSimpleInfoReq(KERNEL_NS::LibPacket *&pack
         return;
     }
 
-    auto req = packet->GetCoder<GetLibraryMemberSimpleInfoReq>();  
     Int32 errCode = Status::Success;
     const auto packetId = packet->GetPacketId();
 
@@ -1378,7 +1371,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
         auto req = packet->GetCoder<AddLibraryBookReq>();
         if((req->isbncode().size() >= contentMaxLen) || req->isbncode().empty())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("isbn too long:%llu user:%s"), req->isbncode().size(), user->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("isbn too long:%llu user:%s"), static_cast<UInt64>(req->isbncode().size()), user->ToString().c_str());
             err = Status::ParamError;
             break;
         }
@@ -1424,7 +1417,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
 
                 if((req->bookname().size() >= contentMaxLen) || req->bookname().empty())
                 {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("book name too long:%llu user:%s"), req->bookname().size(), user->ToString().c_str());
+                    g_Log->Warn(LOGFMT_OBJ_TAG("book name too long:%llu user:%s"), static_cast<UInt64>(req->bookname().size()), user->ToString().c_str());
                     err = Status::ParamError;
                     break;
                 }
@@ -1435,7 +1428,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                 {
                     if((req->bookcoverimage().size() * 3 / 4) >= imageMaxSize)
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), req->bookcoverimage().size(), user->ToString().c_str());
+                        g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), static_cast<UInt64>(req->bookcoverimage().size()), user->ToString().c_str());
                         err = Status::ImageTooLarge;
                         break;
                     }
@@ -1470,7 +1463,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                     if(keyword.size() > contentMaxLen)
                     {
                         g_Log->Warn(LOGFMT_OBJ_TAG("keyword too long :%llu limit:%llu user:%s")
-                        , keyword.size(), contentMaxLen, user->ToString().c_str());
+                        , static_cast<UInt64>(keyword.size()), contentMaxLen, user->ToString().c_str());
                         err = Status::ContentTooLong;
                         break;
                     }
@@ -1496,7 +1489,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                 {
                     if((snapshot.size() * 3 / 4) >= imageMaxSize)
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("snapshot image too large :%llu user:%s"), snapshot.size(), user->ToString().c_str());
+                        g_Log->Warn(LOGFMT_OBJ_TAG("snapshot image too large :%llu user:%s"), static_cast<UInt64>(snapshot.size()), user->ToString().c_str());
                         err = Status::ImageTooLarge;
                         break;
                     }
@@ -1537,7 +1530,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
 
             if((req->bookname().size() >= contentMaxLen) || req->bookname().empty())
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("book name too long:%llu user:%s"), req->bookname().size(), user->ToString().c_str());
+                g_Log->Warn(LOGFMT_OBJ_TAG("book name too long:%llu user:%s"), static_cast<UInt64>(req->bookname().size()), user->ToString().c_str());
                 err = Status::ParamError;
                 break;
             }
@@ -1546,7 +1539,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
             {
                 if((req->bookcoverimage().size() * 3 / 4) >= imageMaxSize)
                 {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), req->bookcoverimage().size(), user->ToString().c_str());
+                    g_Log->Warn(LOGFMT_OBJ_TAG("cover image too large :%llu user:%s"), static_cast<UInt64>(req->bookcoverimage().size()), user->ToString().c_str());
                     err = Status::ImageTooLarge;
                     break;
                 }
@@ -1587,7 +1580,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                     if(keyword.size() > contentMaxLen)
                     {
                         g_Log->Warn(LOGFMT_OBJ_TAG("keyword too long :%llu limit:%llu user:%s")
-                        , keyword.size(), contentMaxLen, user->ToString().c_str());
+                        , static_cast<UInt64>(keyword.size()), contentMaxLen, user->ToString().c_str());
                         err = Status::ContentTooLong;
                         break;
                     }
@@ -1612,7 +1605,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                 {
                     if((snapshot.size() * 3 / 4) >= imageMaxSize)
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("snapshot image too large :%llu user:%s"), snapshot.size(), user->ToString().c_str());
+                        g_Log->Warn(LOGFMT_OBJ_TAG("snapshot image too large :%llu user:%s"), static_cast<UInt64>(snapshot.size()), user->ToString().c_str());
                         err = Status::ImageTooLarge;
                         break;
                     }
@@ -1890,7 +1883,6 @@ void LibraryGlobal::_OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet)
     // 先推送图书馆信息
     _SendLibraryInfoNty(user);
 
-    bool isGetSelf = false;
     Int32 err = _SendOrderDetailInfoNty(user);
     if(err != Status::Success)
     {
@@ -2733,7 +2725,7 @@ void LibraryGlobal::_OnReturnBackReq(KERNEL_NS::LibPacket *&packet)
         bool notReturnAll = false;
         for(auto subOrderInfo : orderInfo->borrowbooklist())
         {
-            if(subOrderInfo.borrowcount() != subOrderInfo.returnbackcount())
+            if(static_cast<UInt64>(subOrderInfo.borrowcount()) != subOrderInfo.returnbackcount())
             {
                 notReturnAll = true;
                 break;
@@ -3201,7 +3193,7 @@ bool LibraryGlobal::_IsReturnBackAllBook(const MemberInfo *memberInfo) const
         for(Int32 bookIdx = 0; bookIdx < bookListSize; ++bookIdx)
         {
             auto &borrowBookInfo = orderInfo.borrowbooklist(bookIdx);
-            if(borrowBookInfo.returnbackcount() < borrowBookInfo.borrowcount())
+            if(borrowBookInfo.returnbackcount() < static_cast<UInt64>(borrowBookInfo.borrowcount()))
                 return false;
         }
     }
@@ -3220,7 +3212,6 @@ bool LibraryGlobal::_HasOverDeadlineOrder(const MemberInfo *memberInfo, const KE
     for(Int32 idx = 0; idx < len; ++idx)
     {
         auto &orderInfo = memberInfo->borrowlist(idx);
-        const Int32 bookListSize = orderInfo.borrowbooklist_size();
 
         // 已领取之前
         if(orderInfo.orderstate() < BorrowOrderState_ENUMS_WAIT_USER_RETURN_BACK)
@@ -3244,7 +3235,7 @@ bool LibraryGlobal::_HasOberDeadlineBook(const BorrowOrderInfo *orderInfo, const
     for(Int32 bookIdx = 0; bookIdx < bookListSize; ++bookIdx)
     {
         auto &borrowBookInfo = orderInfo->borrowbooklist(bookIdx);
-        if(borrowBookInfo.returnbackcount() < borrowBookInfo.borrowcount())
+        if(borrowBookInfo.returnbackcount() < static_cast<UInt64>(borrowBookInfo.borrowcount()))
         {
             if(nowTime.GetMilliTimestamp() >= borrowBookInfo.plangivebacktime())
                 return true;
@@ -3426,8 +3417,8 @@ void LibraryGlobal::_TransferMember(LibraryInfo *libraryInfo, MemberInfo *member
 
     MaskNumberKeyModifyDirty(libraryInfo->id());
 
-    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo), memberInfo->userid(), role, targetRole);
-    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo), targetMember->userid(), targetRole, role);
+    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), memberInfo->userid(), role, targetRole);
+    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), targetMember->userid(), targetRole, role);
 
     // TODO:系统日志 原图书馆馆长:【{0}】,用户id:{1}, 将图书馆转让给用户:【{2}】,用户id:{3}
     auto sysLog = GetGlobalSys<ISystemLogGlobal>();
@@ -3499,8 +3490,6 @@ void LibraryGlobal::_BuildPreviewInfo(LibraryPreviewInfo *previewInfo, const Lib
 
 void LibraryGlobal::_SendLibraryInfoNty(const IUser *user, const LibraryInfo *libraryInfo) const
 {
-    auto libraryMgr = user->GetSys<ILibraryMgr>();
-
     LibraryInfoNty nty;
     auto newLibraryInfo = nty.mutable_libraryinfo();
     *newLibraryInfo = *libraryInfo;
