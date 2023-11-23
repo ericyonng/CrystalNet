@@ -40,7 +40,7 @@
     # 选择mysql 8.0
     ```
 
-    
+    TencentOs需要修改include/main.sh脚本识别系统
 
 * 下载8.0rpm包
 

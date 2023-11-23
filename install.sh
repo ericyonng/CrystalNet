@@ -63,32 +63,32 @@ VER="$1"
 	SYSCTL_CONF_PATH="/etc/sysctl.conf"
 	
 	# coredump设置永久生效
-	# if [ -n "$2" ]
-	# then
-	# 	if [ $COREDUMPFLAG = $OPEN_COREDUMP ]
-	# 	then
-	# 		# 设置无限制
-	# 		echo "set forever unlimited"
-	# 		if grep -qE ".*@root soft core unlimited.*" ${LIMITS_CONF_PATH}
-	# 		then
-	# 			echo "it is already setted unlimited forever"
-	# 		else
-	# 			echo "will set unlimited forever"
-	# 			sudo echo -e "@root soft core unlimited \n@root hard core unlimited\n" >> ${LIMITS_CONF_PATH}
-	# 		fi
+	if [ -n "$2" ]
+	then
+		if [ $COREDUMPFLAG = $OPEN_COREDUMP ]
+		then
+			# 设置无限制
+			echo "set forever unlimited"
+			if grep -qE ".*@root soft core unlimited.*" ${LIMITS_CONF_PATH}
+			then
+				echo "it is already setted unlimited forever"
+			else
+				echo "will set unlimited forever"
+				sudo echo -e "@root soft core unlimited \n@root hard core unlimited\n" >> ${LIMITS_CONF_PATH}
+			fi
 			
-	# 		# 设置cordump 系统级别	 
-	# 		echo "set forever coredump format"
-	# 		if grep -qE ".*${SET_PATTEN}.*" ${SYSCTL_CONF_PATH}
-	# 		then
-	# 			echo "core dump format is already setted forever"
-	# 		else
-	# 			echo "will set core dump format forever"
-	# 			sudo echo -e "kernel.core_pattern=${SET_PATTEN}\nkernel.core_uses_pid=0\n" >> ${SYSCTL_CONF_PATH}
-	# 			# sysctl -p
-	# 		fi
-	# 	fi
-	# fi	
+			# 设置cordump 系统级别	 
+			echo "set forever coredump format"
+			if grep -qE ".*${SET_PATTEN}.*" ${SYSCTL_CONF_PATH}
+			then
+				echo "core dump format is already setted forever"
+			else
+				echo "will set core dump format forever"
+				sudo echo -e "kernel.core_pattern=${SET_PATTEN}\nkernel.core_uses_pid=0\n" >> ${SYSCTL_CONF_PATH}
+				# sysctl -p
+			fi
+		fi
+	fi	
 	
 	# 修改当前系统最大文件描述符打开数量
 	echo "modify file describe quantity"
