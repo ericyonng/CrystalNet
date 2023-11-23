@@ -1214,8 +1214,6 @@ bool MysqlMgr::_LoadSystemTable()
 {
     // TODO:不应该load自己的表, 而应该从db中获取所有现有的表, 一系列建表,修改表结构后再load全部公共表, 运行时改字段是安全的, 只是性能会变差, 不过由于只会往大的改, 所以最终会趋于稳定
     // 表不存在则创建
-    auto service = GetService();
-    auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
     auto storageInfo = GetStorageInfo();
     const auto &systemTableName = storageInfo->GetTableName();
     UInt64 stub = 0;
