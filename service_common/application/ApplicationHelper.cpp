@@ -43,8 +43,11 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application will start."));
 
    #if CRYSTAL_STORAGE_ENABLE
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application will init mysql..."));
     mysql_library_init(0, 0, 0);
    #endif
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(ApplicationHelper, "application will inited mysql."));
 
     // 设置配置
     if(memoryIniConfig.empty())
