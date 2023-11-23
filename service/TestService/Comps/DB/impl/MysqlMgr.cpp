@@ -4551,7 +4551,7 @@ void MysqlMgr::_OnDurtyPurgeFinishHandler(KERNEL_NS::MysqlResponse *res)
 
         if(LIKELY(handler))
         {
-            Int32 err = errList->IsEmpty() ? Status::Success : Status::DBError;
+            const Int32 err = errList->IsEmpty() ? static_cast<Int32>(Status::Success) : static_cast<Int32>(Status::DBError);
             handler->Invoke(err);
             handler->Release();
         }
