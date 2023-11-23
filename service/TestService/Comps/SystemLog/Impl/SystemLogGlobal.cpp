@@ -178,13 +178,13 @@ void SystemLogGlobal::_OnSystemLogDataListReq(KERNEL_NS::LibPacket *&packet)
         selectBuilder->DB(mysqlMgr->GetCurrentServiceDbName()).From(storageInfo->GetTableName());
         if(req->count() >= 0)
         {
-            selectBuilder->Where(KERNEL_NS::LibString().AppendFormat("`%s` = ? and `%s` > ?", SystemLogGlobalStorage::LIBRARY_ID_NAME, SystemLogGlobalStorage::ID))
+            selectBuilder->Where(KERNEL_NS::LibString().AppendFormat("`%s` = ? and `%s` > ?", SystemLogGlobalStorage::LIBRARY_ID_NAME.c_str(), SystemLogGlobalStorage::ID.c_str()))
             .Limit(absBookCount)
-            .OrderBy(KERNEL_NS::LibString().AppendFormat("%s asc", SystemLogGlobalStorage::ID));
+            .OrderBy(KERNEL_NS::LibString().AppendFormat("%s asc", SystemLogGlobalStorage::ID.c_str()));
         }
         else
         {
-            selectBuilder->Where(KERNEL_NS::LibString().AppendFormat("`%s` = ? and `%s` < ?", SystemLogGlobalStorage::LIBRARY_ID_NAME, SystemLogGlobalStorage::ID))
+            selectBuilder->Where(KERNEL_NS::LibString().AppendFormat("`%s` = ? and `%s` < ?", SystemLogGlobalStorage::LIBRARY_ID_NAME.c_str(), SystemLogGlobalStorage::ID.c_str()))
             .Limit(absBookCount)
             .OrderBy(KERNEL_NS::LibString().AppendFormat("%s desc", SystemLogGlobalStorage::ID));
         }
@@ -193,12 +193,12 @@ void SystemLogGlobal::_OnSystemLogDataListReq(KERNEL_NS::LibPacket *&packet)
         std::vector<KERNEL_NS::Field *> fields;
         fields.resize(2);
         {
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), SystemLogGlobalStorage::LIBRARY_ID_NAME, MYSQL_TYPE_LONGLONG, 0);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), SystemLogGlobalStorage::LIBRARY_ID_NAME.c_str(), MYSQL_TYPE_LONGLONG, 0);
             v->Write(&libraryId, static_cast<Int64>(sizeof(libraryId)));
             fields[0] = v;
         }
         {
-            KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), SystemLogGlobalStorage::ID, MYSQL_TYPE_LONGLONG, 0);
+            KERNEL_NS::Field *v = KERNEL_NS::Field::Create(storageInfo->GetTableName(), SystemLogGlobalStorage::ID.c_str(), MYSQL_TYPE_LONGLONG, 0);
             v->Write(&baseId, static_cast<Int64>(sizeof(baseId)));
             fields[1] = v;
         }
