@@ -1257,18 +1257,18 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void clear_notifyids();
   private:
   UInt64 _internal_notifyids(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >&
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_notifyids() const;
   void _internal_add_notifyids(UInt64 value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >*
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
       _internal_mutable_notifyids();
   public:
   UInt64 notifyids(int index) const;
   void set_notifyids(int index, UInt64 value);
   void add_notifyids(UInt64 value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >&
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       notifyids() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >*
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
       mutable_notifyids();
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.RemoveUserNotifyDataItemNty)
@@ -1279,7 +1279,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 > notifyids_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > notifyids_;
     mutable std::atomic<int> _notifyids_cached_byte_size_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -2644,20 +2644,20 @@ inline void RemoveUserNotifyDataItemNty::add_notifyids(UInt64 value) {
   _internal_add_notifyids(value);
   // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.RemoveUserNotifyDataItemNty.NotifyIds)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
 RemoveUserNotifyDataItemNty::_internal_notifyids() const {
   return _impl_.notifyids_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
 RemoveUserNotifyDataItemNty::notifyids() const {
   // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.RemoveUserNotifyDataItemNty.NotifyIds)
   return _internal_notifyids();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
 RemoveUserNotifyDataItemNty::_internal_mutable_notifyids() {
   return &_impl_.notifyids_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
 RemoveUserNotifyDataItemNty::mutable_notifyids() {
   // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.RemoveUserNotifyDataItemNty.NotifyIds)
   return _internal_mutable_notifyids();

@@ -13802,18 +13802,18 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   void clear_suborderids();
   private:
   UInt64 _internal_suborderids(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >&
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_suborderids() const;
   void _internal_add_suborderids(UInt64 value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >*
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
       _internal_mutable_suborderids();
   public:
   UInt64 suborderids(int index) const;
   void set_suborderids(int index, UInt64 value);
   void add_suborderids(UInt64 value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >&
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       suborderids() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >*
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
       mutable_suborderids();
 
   // uint64 OrderId = 1;
@@ -13833,7 +13833,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 > suborderids_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > suborderids_;
     mutable std::atomic<int> _suborderids_cached_byte_size_;
     UInt64 orderid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -16531,20 +16531,20 @@ inline void ReturnBackReq::add_suborderids(UInt64 value) {
   _internal_add_suborderids(value);
   // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
 ReturnBackReq::_internal_suborderids() const {
   return _impl_.suborderids_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
 ReturnBackReq::suborderids() const {
   // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
   return _internal_suborderids();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
 ReturnBackReq::_internal_mutable_suborderids() {
   return &_impl_.suborderids_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< UInt64 >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
 ReturnBackReq::mutable_suborderids() {
   // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.ReturnBackReq.SubOrderIds)
   return _internal_mutable_suborderids();

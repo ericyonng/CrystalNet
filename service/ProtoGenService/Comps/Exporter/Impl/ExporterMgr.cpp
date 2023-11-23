@@ -750,6 +750,36 @@ bool ExporterMgr::_ModifyCppPbHeader(const KERNEL_NS::LibString &pbHeaderName, s
             
             return true;
         });
+
+        // 误伤 RepeatedField< UInt64 >
+        // 误伤 RepeatedField< Int64 >
+        // 替换uint64_t
+        ProtobuffHelper::Modifylines(lines, 
+        [] (Int32 curLine, KERNEL_NS::LibString &lineData, bool &isContinue) -> bool
+        {
+            isContinue = true;
+            const std::string replaceFlag = "RepeatedField< uint64_t >";
+
+            std::string flag = "RepeatedField< UInt64 >";
+
+            lineData.findreplace(flag, replaceFlag);
+            
+            return true;
+        });
+
+        // 替换 int64_t
+        ProtobuffHelper::Modifylines(lines, 
+        [] (Int32 curLine, KERNEL_NS::LibString &lineData, bool &isContinue) -> bool
+        {
+            isContinue = true;
+            const std::string replaceFlag = "RepeatedField< int64_t >";
+
+            std::string flag = "RepeatedField< Int64 >";
+
+            lineData.findreplace(flag, replaceFlag);
+            
+            return true;
+        });
     }
     
     // 3.添加工厂类
@@ -1274,6 +1304,36 @@ bool ExporterMgr::_ModifyCppPbCC(const KERNEL_NS::LibString &pbCCName, std::vect
             lineData.findreplace(fix6, replaceFlag6);
             lineData.findreplace(fix7, replaceFlag7);
             lineData.findreplace(fix8, replaceFlag8);
+            
+            return true;
+        });
+
+        // 误伤 RepeatedField< UInt64 >
+        // 误伤 RepeatedField< Int64 >
+        // 替换uint64_t
+        ProtobuffHelper::Modifylines(lines, 
+        [] (Int32 curLine, KERNEL_NS::LibString &lineData, bool &isContinue) -> bool
+        {
+            isContinue = true;
+            const std::string replaceFlag = "RepeatedField< uint64_t >";
+
+            std::string flag = "RepeatedField< UInt64 >";
+
+            lineData.findreplace(flag, replaceFlag);
+            
+            return true;
+        });
+
+        // 替换 int64_t
+        ProtobuffHelper::Modifylines(lines, 
+        [] (Int32 curLine, KERNEL_NS::LibString &lineData, bool &isContinue) -> bool
+        {
+            isContinue = true;
+            const std::string replaceFlag = "RepeatedField< int64_t >";
+
+            std::string flag = "RepeatedField< Int64 >";
+
+            lineData.findreplace(flag, replaceFlag);
             
             return true;
         });
