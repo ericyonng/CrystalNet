@@ -405,29 +405,29 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // uint64 Id = 1;
   void clear_id();
-  uint64_t id() const;
-  void set_id(uint64_t value);
+  UInt64 id() const;
+  void set_id(UInt64 value);
   private:
-  uint64_t _internal_id() const;
-  void _internal_set_id(uint64_t value);
+  UInt64 _internal_id() const;
+  void _internal_set_id(UInt64 value);
   public:
 
   // uint64 libraryId = 2;
   void clear_libraryid();
-  uint64_t libraryid() const;
-  void set_libraryid(uint64_t value);
+  UInt64 libraryid() const;
+  void set_libraryid(UInt64 value);
   private:
-  uint64_t _internal_libraryid() const;
-  void _internal_set_libraryid(uint64_t value);
+  UInt64 _internal_libraryid() const;
+  void _internal_set_libraryid(UInt64 value);
   public:
 
   // sint64 CreateTime = 7;
   void clear_createtime();
-  int64_t createtime() const;
-  void set_createtime(int64_t value);
+  Int64 createtime() const;
+  void set_createtime(Int64 value);
   private:
-  int64_t _internal_createtime() const;
-  void _internal_set_createtime(int64_t value);
+  Int64 _internal_createtime() const;
+  void _internal_set_createtime(Int64 value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SystemLogData)
@@ -442,9 +442,9 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::VariantParam > contentparams_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr titlewordid_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr contentwordid_;
-    uint64_t id_;
-    uint64_t libraryid_;
-    int64_t createtime_;
+    UInt64 id_;
+    UInt64 libraryid_;
+    Int64 createtime_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -463,40 +463,40 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // uint64 Id = 1;
 inline void SystemLogData::clear_id() {
-  _impl_.id_ = uint64_t{0u};
+  _impl_.id_ = UInt64{0u};
 }
-inline uint64_t SystemLogData::_internal_id() const {
+inline UInt64 SystemLogData::_internal_id() const {
   return _impl_.id_;
 }
-inline uint64_t SystemLogData::id() const {
+inline UInt64 SystemLogData::id() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SystemLogData.Id)
   return _internal_id();
 }
-inline void SystemLogData::_internal_set_id(uint64_t value) {
+inline void SystemLogData::_internal_set_id(UInt64 value) {
   
   _impl_.id_ = value;
 }
-inline void SystemLogData::set_id(uint64_t value) {
+inline void SystemLogData::set_id(UInt64 value) {
   _internal_set_id(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SystemLogData.Id)
 }
 
 // uint64 libraryId = 2;
 inline void SystemLogData::clear_libraryid() {
-  _impl_.libraryid_ = uint64_t{0u};
+  _impl_.libraryid_ = UInt64{0u};
 }
-inline uint64_t SystemLogData::_internal_libraryid() const {
+inline UInt64 SystemLogData::_internal_libraryid() const {
   return _impl_.libraryid_;
 }
-inline uint64_t SystemLogData::libraryid() const {
+inline UInt64 SystemLogData::libraryid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SystemLogData.libraryId)
   return _internal_libraryid();
 }
-inline void SystemLogData::_internal_set_libraryid(uint64_t value) {
+inline void SystemLogData::_internal_set_libraryid(UInt64 value) {
   
   _impl_.libraryid_ = value;
 }
-inline void SystemLogData::set_libraryid(uint64_t value) {
+inline void SystemLogData::set_libraryid(UInt64 value) {
   _internal_set_libraryid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SystemLogData.libraryId)
 }
@@ -677,20 +677,20 @@ SystemLogData::contentparams() const {
 
 // sint64 CreateTime = 7;
 inline void SystemLogData::clear_createtime() {
-  _impl_.createtime_ = int64_t{0};
+  _impl_.createtime_ = Int64{0};
 }
-inline int64_t SystemLogData::_internal_createtime() const {
+inline Int64 SystemLogData::_internal_createtime() const {
   return _impl_.createtime_;
 }
-inline int64_t SystemLogData::createtime() const {
+inline Int64 SystemLogData::createtime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SystemLogData.CreateTime)
   return _internal_createtime();
 }
-inline void SystemLogData::_internal_set_createtime(int64_t value) {
+inline void SystemLogData::_internal_set_createtime(Int64 value) {
   
   _impl_.createtime_ = value;
 }
-inline void SystemLogData::set_createtime(int64_t value) {
+inline void SystemLogData::set_createtime(Int64 value) {
   _internal_set_createtime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SystemLogData.CreateTime)
 }

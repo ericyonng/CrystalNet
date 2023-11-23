@@ -30,9 +30,9 @@ PROTOBUF_CONSTEXPR SystemLogData::SystemLogData(
   , /*decltype(_impl_.contentparams_)*/{}
   , /*decltype(_impl_.titlewordid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.contentwordid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.id_)*/uint64_t{0u}
-  , /*decltype(_impl_.libraryid_)*/uint64_t{0u}
-  , /*decltype(_impl_.createtime_)*/int64_t{0}
+  , /*decltype(_impl_.id_)*/UInt64{0u}
+  , /*decltype(_impl_.libraryid_)*/UInt64{0u}
+  , /*decltype(_impl_.createtime_)*/Int64{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SystemLogDataDefaultTypeInternal {
   PROTOBUF_CONSTEXPR SystemLogDataDefaultTypeInternal()
@@ -166,9 +166,9 @@ inline void SystemLogData::SharedCtor(
     , decltype(_impl_.contentparams_){arena}
     , decltype(_impl_.titlewordid_){}
     , decltype(_impl_.contentwordid_){}
-    , decltype(_impl_.id_){uint64_t{0u}}
-    , decltype(_impl_.libraryid_){uint64_t{0u}}
-    , decltype(_impl_.createtime_){int64_t{0}}
+    , decltype(_impl_.id_){UInt64{0u}}
+    , decltype(_impl_.libraryid_){UInt64{0u}}
+    , decltype(_impl_.createtime_){Int64{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.titlewordid_.InitDefault();

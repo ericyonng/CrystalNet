@@ -365,11 +365,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // sint64 TestId = 2;
   void clear_testid();
-  int64_t testid() const;
-  void set_testid(int64_t value);
+  Int64 testid() const;
+  void set_testid(Int64 value);
   private:
-  int64_t _internal_testid() const;
-  void _internal_set_testid(int64_t value);
+  Int64 _internal_testid() const;
+  void _internal_set_testid(Int64 value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOpcodeReq)
@@ -381,7 +381,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
-    int64_t testid_;
+    Int64 testid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -668,11 +668,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
   // sint64 TestId = 2;
   void clear_testid();
-  int64_t testid() const;
-  void set_testid(int64_t value);
+  Int64 testid() const;
+  void set_testid(Int64 value);
   private:
-  int64_t _internal_testid() const;
-  void _internal_set_testid(int64_t value);
+  Int64 _internal_testid() const;
+  void _internal_set_testid(Int64 value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOpcodeRes)
@@ -684,7 +684,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
-    int64_t testid_;
+    Int64 testid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1689,20 +1689,20 @@ inline void TestOpcodeReq::set_allocated_content(std::string* content) {
 
 // sint64 TestId = 2;
 inline void TestOpcodeReq::clear_testid() {
-  _impl_.testid_ = int64_t{0};
+  _impl_.testid_ = Int64{0};
 }
-inline int64_t TestOpcodeReq::_internal_testid() const {
+inline Int64 TestOpcodeReq::_internal_testid() const {
   return _impl_.testid_;
 }
-inline int64_t TestOpcodeReq::testid() const {
+inline Int64 TestOpcodeReq::testid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeReq.TestId)
   return _internal_testid();
 }
-inline void TestOpcodeReq::_internal_set_testid(int64_t value) {
+inline void TestOpcodeReq::_internal_set_testid(Int64 value) {
   
   _impl_.testid_ = value;
 }
-inline void TestOpcodeReq::set_testid(int64_t value) {
+inline void TestOpcodeReq::set_testid(Int64 value) {
   _internal_set_testid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeReq.TestId)
 }
@@ -1763,20 +1763,20 @@ inline void TestOpcodeRes::set_allocated_content(std::string* content) {
 
 // sint64 TestId = 2;
 inline void TestOpcodeRes::clear_testid() {
-  _impl_.testid_ = int64_t{0};
+  _impl_.testid_ = Int64{0};
 }
-inline int64_t TestOpcodeRes::_internal_testid() const {
+inline Int64 TestOpcodeRes::_internal_testid() const {
   return _impl_.testid_;
 }
-inline int64_t TestOpcodeRes::testid() const {
+inline Int64 TestOpcodeRes::testid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOpcodeRes.TestId)
   return _internal_testid();
 }
-inline void TestOpcodeRes::_internal_set_testid(int64_t value) {
+inline void TestOpcodeRes::_internal_set_testid(Int64 value) {
   
   _impl_.testid_ = value;
 }
-inline void TestOpcodeRes::set_testid(int64_t value) {
+inline void TestOpcodeRes::set_testid(Int64 value) {
   _internal_set_testid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOpcodeRes.TestId)
 }

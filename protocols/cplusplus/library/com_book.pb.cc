@@ -42,7 +42,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR SnapshotClientInfo::SnapshotClientInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.filepath_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.id_)*/int64_t{0}
+  , /*decltype(_impl_.id_)*/Int64{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SnapshotClientInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR SnapshotClientInfoDefaultTypeInternal()
@@ -65,10 +65,10 @@ PROTOBUF_CONSTEXPR BookInfo::BookInfo(
   , /*decltype(_impl_.coverimagepath_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.keywordsstring_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.variantinfo_)*/nullptr
-  , /*decltype(_impl_.id_)*/uint64_t{0u}
+  , /*decltype(_impl_.id_)*/UInt64{0u}
   , /*decltype(_impl_.booktype_)*/0
   , /*decltype(_impl_.isonshelves_)*/0
-  , /*decltype(_impl_.borrowedcount_)*/uint64_t{0u}
+  , /*decltype(_impl_.borrowedcount_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct BookInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR BookInfoDefaultTypeInternal()
@@ -81,8 +81,8 @@ struct BookInfoDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BookInfoDefaultTypeInternal _BookInfo_default_instance_;
 PROTOBUF_CONSTEXPR BookVariantInfo::BookVariantInfo(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.count_)*/int64_t{0}
-  , /*decltype(_impl_.price_)*/int64_t{0}
+    /*decltype(_impl_.count_)*/Int64{0}
+  , /*decltype(_impl_.price_)*/Int64{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct BookVariantInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR BookVariantInfoDefaultTypeInternal()
@@ -96,7 +96,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR BookVariantInfoItem::BookVariantInfoItem(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.bookvariantinfo_)*/nullptr
-  , /*decltype(_impl_.id_)*/uint64_t{0u}
+  , /*decltype(_impl_.id_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct BookVariantInfoItemDefaultTypeInternal {
   PROTOBUF_CONSTEXPR BookVariantInfoItemDefaultTypeInternal()
@@ -316,7 +316,7 @@ inline void SnapshotClientInfo::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.filepath_){}
-    , decltype(_impl_.id_){int64_t{0}}
+    , decltype(_impl_.id_){Int64{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.filepath_.InitDefault();
@@ -350,7 +350,7 @@ void SnapshotClientInfo::Clear() {
   (void) cached_has_bits;
 
   _impl_.filepath_.ClearToEmpty();
-  _impl_.id_ = int64_t{0};
+  _impl_.id_ = Int64{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -617,10 +617,10 @@ inline void BookInfo::SharedCtor(
     , decltype(_impl_.coverimagepath_){}
     , decltype(_impl_.keywordsstring_){}
     , decltype(_impl_.variantinfo_){nullptr}
-    , decltype(_impl_.id_){uint64_t{0u}}
+    , decltype(_impl_.id_){UInt64{0u}}
     , decltype(_impl_.booktype_){0}
     , decltype(_impl_.isonshelves_){0}
-    , decltype(_impl_.borrowedcount_){uint64_t{0u}}
+    , decltype(_impl_.borrowedcount_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.bookname_.InitDefault();
@@ -1238,8 +1238,8 @@ inline void BookVariantInfo::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.count_){int64_t{0}}
-    , decltype(_impl_.price_){int64_t{0}}
+      decltype(_impl_.count_){Int64{0}}
+    , decltype(_impl_.price_){Int64{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -1456,7 +1456,7 @@ inline void BookVariantInfoItem::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.bookvariantinfo_){nullptr}
-    , decltype(_impl_.id_){uint64_t{0u}}
+    , decltype(_impl_.id_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -1489,7 +1489,7 @@ void BookVariantInfoItem::Clear() {
     delete _impl_.bookvariantinfo_;
   }
   _impl_.bookvariantinfo_ = nullptr;
-  _impl_.id_ = uint64_t{0u};
+  _impl_.id_ = UInt64{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 

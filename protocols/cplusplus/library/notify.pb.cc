@@ -86,7 +86,7 @@ struct RemoveUserNotifyDataItemNtyDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RemoveUserNotifyDataItemNtyDefaultTypeInternal _RemoveUserNotifyDataItemNty_default_instance_;
 PROTOBUF_CONSTEXPR ReadNotifyReq::ReadNotifyReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.notifyid_)*/uint64_t{0u}
+    /*decltype(_impl_.notifyid_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ReadNotifyReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR ReadNotifyReqDefaultTypeInternal()
@@ -1055,7 +1055,7 @@ inline void ReadNotifyReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.notifyid_){uint64_t{0u}}
+      decltype(_impl_.notifyid_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -1083,7 +1083,7 @@ void ReadNotifyReq::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.notifyid_ = uint64_t{0u};
+  _impl_.notifyid_ = UInt64{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 

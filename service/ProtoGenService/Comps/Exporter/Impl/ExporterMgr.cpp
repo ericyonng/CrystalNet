@@ -614,6 +614,142 @@ bool ExporterMgr::_ModifyCppPbHeader(const KERNEL_NS::LibString &pbHeaderName, s
             isContinue = true;
             return isMatched;
         });
+
+        // 替换uint64_t
+        ProtobuffHelper::Modifylines(lines, 
+        [] (Int32 curLine, KERNEL_NS::LibString &lineData, bool &isContinue) -> bool
+        {
+            isContinue = true;
+            const std::string replaceFlag = "UInt64";
+            const std::string preReplaceFlag = " UInt64";
+            const std::string afterReplaceFlag = "UInt64 ";
+            const std::string doubleReplaceFlag = " UInt64 ";
+            const std::string initReplaceFlag = " UInt64{";
+            const std::string initReplaceFlag2 = " UInt64(";
+            const std::string initReplaceFlag3 = "(UInt64{";    // 函数
+            const std::string initReplaceFlag4 = "(UInt64(";    // 函数
+            const std::string replaceFlag5 = "*/UInt64{";    // 注释后
+            const std::string replaceFlag6 = "*/UInt64(";    // 注释后
+            const std::string replaceFlag7 = "{UInt64{";
+            const std::string replaceFlag8 = "(UInt64 ";
+
+            std::string flag = "uint64_t";
+            std::string afterFix = "uint64_t ";
+            std::string preFix = " uint64_t";
+            std::string doubleFix = " uint64_t ";
+            std::string initFix = " uint64_t{";
+            std::string initFix2 = " uint64_t(";
+            std::string initFix3 = "(uint64_t{";
+            std::string initFix4 = "(uint64_t(";
+            std::string fix5 = "*/uint64_t{";
+            std::string fix6 = "*/uint64_t(";
+            std::string fix7 = "{uint64_t{";
+            std::string fix8 = "(uint64_t ";
+
+            // 判断是否完全匹配
+            if(lineData == flag)
+            {
+                lineData = replaceFlag;
+            }
+            
+            // 先替换首部
+            auto pos = lineData.GetRaw().find(afterFix);
+            if(pos == 0)
+            {
+                lineData = replaceFlag + " " + lineData.GetRaw().substr(pos + afterFix.size());
+            }
+
+            // 再替换末尾
+            pos = lineData.GetRaw().find(preFix);
+            if(pos != std::string::npos)
+            {
+                if((pos + preFix.size()) == lineData.size())
+                {
+                    lineData = lineData.GetRaw().substr(0, pos + 1) + " " + replaceFlag;
+                }
+            }
+
+            // 再替换中间部位
+            lineData.findreplace(doubleFix, doubleReplaceFlag);
+            lineData.findreplace(initFix, initReplaceFlag);
+            lineData.findreplace(initFix2, initReplaceFlag2);
+            lineData.findreplace(initFix3, initReplaceFlag3);
+            lineData.findreplace(initFix4, initReplaceFlag4);
+            lineData.findreplace(fix5, replaceFlag5);
+            lineData.findreplace(fix6, replaceFlag6);
+            lineData.findreplace(fix7, replaceFlag7);
+            lineData.findreplace(fix8, replaceFlag8);
+            
+            return true;
+        });
+
+        // 替换 int64_t
+        ProtobuffHelper::Modifylines(lines, 
+        [] (Int32 curLine, KERNEL_NS::LibString &lineData, bool &isContinue) -> bool
+        {
+            isContinue = true;
+            const std::string replaceFlag = "Int64";
+            const std::string preReplaceFlag = " Int64";
+            const std::string afterReplaceFlag = "Int64 ";
+            const std::string doubleReplaceFlag = " Int64 ";
+            const std::string initReplaceFlag = " Int64{";
+            const std::string initReplaceFlag2 = " Int64(";
+            const std::string initReplaceFlag3 = "(Int64{";    // 函数
+            const std::string initReplaceFlag4 = "(Int64(";    // 函数
+            const std::string replaceFlag5 = "*/Int64{";    // 注释后
+            const std::string replaceFlag6 = "*/Int64(";    // 注释后
+            const std::string replaceFlag7 = "{Int64{";
+            const std::string replaceFlag8 = "(Int64 ";
+
+            std::string flag = "int64_t";
+            std::string afterFix = "int64_t ";
+            std::string preFix = " int64_t";
+            std::string doubleFix = " int64_t ";
+            std::string initFix = " int64_t{";
+            std::string initFix2 = " int64_t(";
+            std::string initFix3 = "(int64_t{";
+            std::string initFix4 = "(int64_t(";
+            std::string fix5 = "*/int64_t{";
+            std::string fix6 = "*/int64_t(";
+            std::string fix7 = "{int64_t{";
+            std::string fix8 = "(int64_t ";
+
+            // 判断是否完全匹配
+            if(lineData == flag)
+            {
+                lineData = replaceFlag;
+            }
+            
+            // 先替换首部
+            auto pos = lineData.GetRaw().find(afterFix);
+            if(pos == 0)
+            {
+                lineData = replaceFlag + " " + lineData.GetRaw().substr(pos + afterFix.size());
+            }
+
+            // 再替换末尾
+            pos = lineData.GetRaw().find(preFix);
+            if(pos != std::string::npos)
+            {
+                if((pos + preFix.size()) == lineData.size())
+                {
+                    lineData = lineData.GetRaw().substr(0, pos + 1) + " " + replaceFlag;
+                }
+            }
+
+            // 再替换中间部位
+            lineData.findreplace(doubleFix, doubleReplaceFlag);
+            lineData.findreplace(initFix, initReplaceFlag);
+            lineData.findreplace(initFix2, initReplaceFlag2);
+            lineData.findreplace(initFix3, initReplaceFlag3);
+            lineData.findreplace(initFix4, initReplaceFlag4);
+            lineData.findreplace(fix5, replaceFlag5);
+            lineData.findreplace(fix6, replaceFlag6);
+            lineData.findreplace(fix7, replaceFlag7);
+            lineData.findreplace(fix8, replaceFlag8);
+            
+            return true;
+        });
     }
     
     // 3.添加工厂类
@@ -1002,6 +1138,144 @@ bool ExporterMgr::_ModifyCppPbCC(const KERNEL_NS::LibString &pbCCName, std::vect
                 , bool &isContinue) -> bool
         {
             return std::regex_match(lineData.GetRaw(), includeRegex);
+        });
+    }
+
+    {
+       // 替换uint64_t
+        ProtobuffHelper::Modifylines(lines, 
+        [] (Int32 curLine, KERNEL_NS::LibString &lineData, bool &isContinue) -> bool
+        {
+            isContinue = true;
+            const std::string replaceFlag = "UInt64";
+            const std::string preReplaceFlag = " UInt64";
+            const std::string afterReplaceFlag = "UInt64 ";
+            const std::string doubleReplaceFlag = " UInt64 ";
+            const std::string initReplaceFlag = " UInt64{";
+            const std::string initReplaceFlag2 = " UInt64(";
+            const std::string initReplaceFlag3 = "(UInt64{";    // 函数
+            const std::string initReplaceFlag4 = "(UInt64(";    // 函数
+            const std::string replaceFlag5 = "*/UInt64{";    // 注释后
+            const std::string replaceFlag6 = "*/UInt64(";    // 注释后
+            const std::string replaceFlag7 = "{UInt64{";
+            const std::string replaceFlag8 = "(UInt64 ";
+
+            std::string flag = "uint64_t";
+            std::string afterFix = "uint64_t ";
+            std::string preFix = " uint64_t";
+            std::string doubleFix = " uint64_t ";
+            std::string initFix = " uint64_t{";
+            std::string initFix2 = " uint64_t(";
+            std::string initFix3 = "(uint64_t{";
+            std::string initFix4 = "(uint64_t(";
+            std::string fix5 = "*/uint64_t{";
+            std::string fix6 = "*/uint64_t(";
+            std::string fix7 = "{uint64_t{";
+            std::string fix8 = "(uint64_t ";
+
+            // 判断是否完全匹配
+            if(lineData == flag)
+            {
+                lineData = replaceFlag;
+            }
+            
+            // 先替换首部
+            auto pos = lineData.GetRaw().find(afterFix);
+            if(pos == 0)
+            {
+                lineData = replaceFlag + " " + lineData.GetRaw().substr(pos + afterFix.size());
+            }
+
+            // 再替换末尾
+            pos = lineData.GetRaw().find(preFix);
+            if(pos != std::string::npos)
+            {
+                if((pos + preFix.size()) == lineData.size())
+                {
+                    lineData = lineData.GetRaw().substr(0, pos + 1) + " " + replaceFlag;
+                }
+            }
+
+            // 再替换中间部位
+            lineData.findreplace(doubleFix, doubleReplaceFlag);
+            lineData.findreplace(initFix, initReplaceFlag);
+            lineData.findreplace(initFix2, initReplaceFlag2);
+            lineData.findreplace(initFix3, initReplaceFlag3);
+            lineData.findreplace(initFix4, initReplaceFlag4);
+            lineData.findreplace(fix5, replaceFlag5);
+            lineData.findreplace(fix6, replaceFlag6);
+            lineData.findreplace(fix7, replaceFlag7);
+            lineData.findreplace(fix8, replaceFlag8);
+            
+            return true;
+        });
+
+        // 替换 int64_t
+        ProtobuffHelper::Modifylines(lines, 
+        [] (Int32 curLine, KERNEL_NS::LibString &lineData, bool &isContinue) -> bool
+        {
+            isContinue = true;
+            const std::string replaceFlag = "Int64";
+            const std::string preReplaceFlag = " Int64";
+            const std::string afterReplaceFlag = "Int64 ";
+            const std::string doubleReplaceFlag = " Int64 ";
+            const std::string initReplaceFlag = " Int64{";
+            const std::string initReplaceFlag2 = " Int64(";
+            const std::string initReplaceFlag3 = "(Int64{";    // 函数
+            const std::string initReplaceFlag4 = "(Int64(";    // 函数
+            const std::string replaceFlag5 = "*/Int64{";    // 注释后
+            const std::string replaceFlag6 = "*/Int64(";    // 注释后
+            const std::string replaceFlag7 = "{Int64{";
+            const std::string replaceFlag8 = "(Int64 ";
+
+            std::string flag = "int64_t";
+            std::string afterFix = "int64_t ";
+            std::string preFix = " int64_t";
+            std::string doubleFix = " int64_t ";
+            std::string initFix = " int64_t{";
+            std::string initFix2 = " int64_t(";
+            std::string initFix3 = "(int64_t{";
+            std::string initFix4 = "(int64_t(";
+            std::string fix5 = "*/int64_t{";
+            std::string fix6 = "*/int64_t(";
+            std::string fix7 = "{int64_t{";
+            std::string fix8 = "(int64_t ";
+
+            // 判断是否完全匹配
+            if(lineData == flag)
+            {
+                lineData = replaceFlag;
+            }
+            
+            // 先替换首部
+            auto pos = lineData.GetRaw().find(afterFix);
+            if(pos == 0)
+            {
+                lineData = replaceFlag + " " + lineData.GetRaw().substr(pos + afterFix.size());
+            }
+
+            // 再替换末尾
+            pos = lineData.GetRaw().find(preFix);
+            if(pos != std::string::npos)
+            {
+                if((pos + preFix.size()) == lineData.size())
+                {
+                    lineData = lineData.GetRaw().substr(0, pos + 1) + " " + replaceFlag;
+                }
+            }
+
+            // 再替换中间部位
+            lineData.findreplace(doubleFix, doubleReplaceFlag);
+            lineData.findreplace(initFix, initReplaceFlag);
+            lineData.findreplace(initFix2, initReplaceFlag2);
+            lineData.findreplace(initFix3, initReplaceFlag3);
+            lineData.findreplace(initFix4, initReplaceFlag4);
+            lineData.findreplace(fix5, replaceFlag5);
+            lineData.findreplace(fix6, replaceFlag6);
+            lineData.findreplace(fix7, replaceFlag7);
+            lineData.findreplace(fix8, replaceFlag8);
+            
+            return true;
         });
     }
 

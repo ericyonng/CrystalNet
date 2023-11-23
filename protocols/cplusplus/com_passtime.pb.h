@@ -334,11 +334,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // sint64 LastPassDayTime = 1;
   void clear_lastpassdaytime();
-  int64_t lastpassdaytime() const;
-  void set_lastpassdaytime(int64_t value);
+  Int64 lastpassdaytime() const;
+  void set_lastpassdaytime(Int64 value);
   private:
-  int64_t _internal_lastpassdaytime() const;
-  void _internal_set_lastpassdaytime(int64_t value);
+  Int64 _internal_lastpassdaytime() const;
+  void _internal_set_lastpassdaytime(Int64 value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.PassTimeData)
@@ -349,7 +349,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    int64_t lastpassdaytime_;
+    Int64 lastpassdaytime_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -368,20 +368,20 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // sint64 LastPassDayTime = 1;
 inline void PassTimeData::clear_lastpassdaytime() {
-  _impl_.lastpassdaytime_ = int64_t{0};
+  _impl_.lastpassdaytime_ = Int64{0};
 }
-inline int64_t PassTimeData::_internal_lastpassdaytime() const {
+inline Int64 PassTimeData::_internal_lastpassdaytime() const {
   return _impl_.lastpassdaytime_;
 }
-inline int64_t PassTimeData::lastpassdaytime() const {
+inline Int64 PassTimeData::lastpassdaytime() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.PassTimeData.LastPassDayTime)
   return _internal_lastpassdaytime();
 }
-inline void PassTimeData::_internal_set_lastpassdaytime(int64_t value) {
+inline void PassTimeData::_internal_set_lastpassdaytime(Int64 value) {
   
   _impl_.lastpassdaytime_ = value;
 }
-inline void PassTimeData::set_lastpassdaytime(int64_t value) {
+inline void PassTimeData::set_lastpassdaytime(Int64 value) {
   _internal_set_lastpassdaytime(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.PassTimeData.LastPassDayTime)
 }

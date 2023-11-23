@@ -114,7 +114,7 @@ PROTOBUF_CONSTEXPR CreateLibraryReq::CreateLibraryReq(
   , /*decltype(_impl_.address_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.opentime_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.telphonenumber_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.bindphone_)*/uint64_t{0u}
+  , /*decltype(_impl_.bindphone_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct CreateLibraryReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR CreateLibraryReqDefaultTypeInternal()
@@ -140,7 +140,7 @@ struct CreateLibraryResDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CreateLibraryResDefaultTypeInternal _CreateLibraryRes_default_instance_;
 PROTOBUF_CONSTEXPR JoinLibraryReq::JoinLibraryReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.libraryid_)*/uint64_t{0u}
+    /*decltype(_impl_.libraryid_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct JoinLibraryReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR JoinLibraryReqDefaultTypeInternal()
@@ -214,7 +214,7 @@ struct GetLibraryListResDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetLibraryListResDefaultTypeInternal _GetLibraryListRes_default_instance_;
 PROTOBUF_CONSTEXPR TransferLibraianReq::TransferLibraianReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.targetuserid_)*/uint64_t{0u}
+    /*decltype(_impl_.targetuserid_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct TransferLibraianReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR TransferLibraianReqDefaultTypeInternal()
@@ -240,7 +240,7 @@ struct TransferLibraianResDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TransferLibraianResDefaultTypeInternal _TransferLibraianRes_default_instance_;
 PROTOBUF_CONSTEXPR ModifyMemberInfoReq::ModifyMemberInfoReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.memberuserid_)*/uint64_t{0u}
+    /*decltype(_impl_.memberuserid_)*/UInt64{0u}
   , /*decltype(_impl_.ModifyRole_)*/{}
   , /*decltype(_impl_.ModifyPhoneNumber_)*/{}
   , /*decltype(_impl_._cached_size_)*/{}
@@ -309,8 +309,8 @@ PROTOBUF_CONSTEXPR AddLibraryBookReq::AddLibraryBookReq(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.bookname_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.isbncode_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.price_)*/int64_t{0}
-  , /*decltype(_impl_.modifycount_)*/int64_t{0}
+  , /*decltype(_impl_.price_)*/Int64{0}
+  , /*decltype(_impl_.modifycount_)*/Int64{0}
   , /*decltype(_impl_.BookCoverImageOption_)*/{}
   , /*decltype(_impl_.KeyWordsOption_)*/{}
   , /*decltype(_impl_.ContentOption_)*/{}
@@ -341,8 +341,8 @@ struct AddLibraryBookResDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 AddLibraryBookResDefaultTypeInternal _AddLibraryBookRes_default_instance_;
 PROTOBUF_CONSTEXPR AddLibraryBookCountReq::AddLibraryBookCountReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.bookid_)*/uint64_t{0u}
-  , /*decltype(_impl_.modifycount_)*/int64_t{0}
+    /*decltype(_impl_.bookid_)*/UInt64{0u}
+  , /*decltype(_impl_.modifycount_)*/Int64{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct AddLibraryBookCountReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR AddLibraryBookCountReqDefaultTypeInternal()
@@ -484,7 +484,7 @@ struct GetBookByBookNameResDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 GetBookByBookNameResDefaultTypeInternal _GetBookByBookNameRes_default_instance_;
 PROTOBUF_CONSTEXPR GetBookInfoListReq::GetBookInfoListReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.basebookid_)*/uint64_t{0u}
+    /*decltype(_impl_.basebookid_)*/UInt64{0u}
   , /*decltype(_impl_.bookcount_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct GetBookInfoListReqDefaultTypeInternal {
@@ -549,7 +549,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR OutStoreOrderReq::OutStoreOrderReq(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.bookparams_)*/{}
-  , /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_.orderid_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct OutStoreOrderReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR OutStoreOrderReqDefaultTypeInternal()
@@ -575,7 +575,7 @@ struct OutStoreOrderResDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 OutStoreOrderResDefaultTypeInternal _OutStoreOrderRes_default_instance_;
 PROTOBUF_CONSTEXPR ManagerScanOrderForUserGettingBooksReq::ManagerScanOrderForUserGettingBooksReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.orderid_)*/uint64_t{0u}
+    /*decltype(_impl_.orderid_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal()
@@ -588,8 +588,8 @@ struct ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ManagerScanOrderForUserGettingBooksReqDefaultTypeInternal _ManagerScanOrderForUserGettingBooksReq_default_instance_;
 PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmNty::UserGetBooksOrderConfirmNty(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.orderid_)*/uint64_t{0u}
-  , /*decltype(_impl_.confirmcode_)*/uint64_t{0u}
+    /*decltype(_impl_.orderid_)*/UInt64{0u}
+  , /*decltype(_impl_.confirmcode_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct UserGetBooksOrderConfirmNtyDefaultTypeInternal {
   PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmNtyDefaultTypeInternal()
@@ -615,8 +615,8 @@ struct ManagerScanOrderForUserGettingBooksResDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ManagerScanOrderForUserGettingBooksResDefaultTypeInternal _ManagerScanOrderForUserGettingBooksRes_default_instance_;
 PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmReq::UserGetBooksOrderConfirmReq(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.orderid_)*/uint64_t{0u}
-  , /*decltype(_impl_.confirmcode_)*/uint64_t{0u}
+    /*decltype(_impl_.orderid_)*/UInt64{0u}
+  , /*decltype(_impl_.confirmcode_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct UserGetBooksOrderConfirmReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR UserGetBooksOrderConfirmReqDefaultTypeInternal()
@@ -643,7 +643,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR CancelOrderReq::CancelOrderReq(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.reason_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_.orderid_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct CancelOrderReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR CancelOrderReqDefaultTypeInternal()
@@ -671,7 +671,7 @@ PROTOBUF_CONSTEXPR ReturnBackReq::ReturnBackReq(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.suborderids_)*/{}
   , /*decltype(_impl_._suborderids_cached_byte_size_)*/{0}
-  , /*decltype(_impl_.orderid_)*/uint64_t{0u}
+  , /*decltype(_impl_.orderid_)*/UInt64{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ReturnBackReqDefaultTypeInternal {
   PROTOBUF_CONSTEXPR ReturnBackReqDefaultTypeInternal()
@@ -1752,7 +1752,7 @@ inline void CreateLibraryReq::SharedCtor(
     , decltype(_impl_.address_){}
     , decltype(_impl_.opentime_){}
     , decltype(_impl_.telphonenumber_){}
-    , decltype(_impl_.bindphone_){uint64_t{0u}}
+    , decltype(_impl_.bindphone_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.invitecode_.InitDefault();
@@ -1810,7 +1810,7 @@ void CreateLibraryReq::Clear() {
   _impl_.address_.ClearToEmpty();
   _impl_.opentime_.ClearToEmpty();
   _impl_.telphonenumber_.ClearToEmpty();
-  _impl_.bindphone_ = uint64_t{0u};
+  _impl_.bindphone_ = UInt64{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -2290,7 +2290,7 @@ inline void JoinLibraryReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.libraryid_){uint64_t{0u}}
+      decltype(_impl_.libraryid_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -2318,7 +2318,7 @@ void JoinLibraryReq::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.libraryid_ = uint64_t{0u};
+  _impl_.libraryid_ = UInt64{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -3092,7 +3092,7 @@ inline void TransferLibraianReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.targetuserid_){uint64_t{0u}}
+      decltype(_impl_.targetuserid_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -3120,7 +3120,7 @@ void TransferLibraianReq::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.targetuserid_ = uint64_t{0u};
+  _impl_.targetuserid_ = UInt64{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -3471,7 +3471,7 @@ inline void ModifyMemberInfoReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.memberuserid_){uint64_t{0u}}
+      decltype(_impl_.memberuserid_){UInt64{0u}}
     , decltype(_impl_.ModifyRole_){}
     , decltype(_impl_.ModifyPhoneNumber_){}
     , /*decltype(_impl_._cached_size_)*/{}
@@ -3539,7 +3539,7 @@ void ModifyMemberInfoReq::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.memberuserid_ = uint64_t{0u};
+  _impl_.memberuserid_ = UInt64{0u};
   clear_ModifyRole();
   clear_ModifyPhoneNumber();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
@@ -4521,8 +4521,8 @@ inline void AddLibraryBookReq::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.bookname_){}
     , decltype(_impl_.isbncode_){}
-    , decltype(_impl_.price_){int64_t{0}}
-    , decltype(_impl_.modifycount_){int64_t{0}}
+    , decltype(_impl_.price_){Int64{0}}
+    , decltype(_impl_.modifycount_){Int64{0}}
     , decltype(_impl_.BookCoverImageOption_){}
     , decltype(_impl_.KeyWordsOption_){}
     , decltype(_impl_.ContentOption_){}
@@ -5232,8 +5232,8 @@ inline void AddLibraryBookCountReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.bookid_){uint64_t{0u}}
-    , decltype(_impl_.modifycount_){int64_t{0}}
+      decltype(_impl_.bookid_){UInt64{0u}}
+    , decltype(_impl_.modifycount_){Int64{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -7222,7 +7222,7 @@ inline void GetBookInfoListReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.basebookid_){uint64_t{0u}}
+      decltype(_impl_.basebookid_){UInt64{0u}}
     , decltype(_impl_.bookcount_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -8029,7 +8029,7 @@ inline void OutStoreOrderReq::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.bookparams_){arena}
-    , decltype(_impl_.orderid_){uint64_t{0u}}
+    , decltype(_impl_.orderid_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -8059,7 +8059,7 @@ void OutStoreOrderReq::Clear() {
   (void) cached_has_bits;
 
   _impl_.bookparams_.Clear();
-  _impl_.orderid_ = uint64_t{0u};
+  _impl_.orderid_ = UInt64{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -8417,7 +8417,7 @@ inline void ManagerScanOrderForUserGettingBooksReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.orderid_){uint64_t{0u}}
+      decltype(_impl_.orderid_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -8445,7 +8445,7 @@ void ManagerScanOrderForUserGettingBooksReq::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.orderid_ = uint64_t{0u};
+  _impl_.orderid_ = UInt64{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -8598,8 +8598,8 @@ inline void UserGetBooksOrderConfirmNty::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.orderid_){uint64_t{0u}}
-    , decltype(_impl_.confirmcode_){uint64_t{0u}}
+      decltype(_impl_.orderid_){UInt64{0u}}
+    , decltype(_impl_.confirmcode_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -8987,8 +8987,8 @@ inline void UserGetBooksOrderConfirmReq::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.orderid_){uint64_t{0u}}
-    , decltype(_impl_.confirmcode_){uint64_t{0u}}
+      decltype(_impl_.orderid_){UInt64{0u}}
+    , decltype(_impl_.confirmcode_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -9383,7 +9383,7 @@ inline void CancelOrderReq::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.reason_){}
-    , decltype(_impl_.orderid_){uint64_t{0u}}
+    , decltype(_impl_.orderid_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.reason_.InitDefault();
@@ -9417,7 +9417,7 @@ void CancelOrderReq::Clear() {
   (void) cached_has_bits;
 
   _impl_.reason_.ClearToEmpty();
-  _impl_.orderid_ = uint64_t{0u};
+  _impl_.orderid_ = UInt64{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -9780,7 +9780,7 @@ inline void ReturnBackReq::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.suborderids_){arena}
     , /*decltype(_impl_._suborderids_cached_byte_size_)*/{0}
-    , decltype(_impl_.orderid_){uint64_t{0u}}
+    , decltype(_impl_.orderid_){UInt64{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -9810,7 +9810,7 @@ void ReturnBackReq::Clear() {
   (void) cached_has_bits;
 
   _impl_.suborderids_.Clear();
-  _impl_.orderid_ = uint64_t{0u};
+  _impl_.orderid_ = UInt64{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 

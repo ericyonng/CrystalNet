@@ -28,8 +28,8 @@ namespace service {
 PROTOBUF_CONSTEXPR OfflineData::OfflineData(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.offlinedata_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.userid_)*/uint64_t{0u}
-  , /*decltype(_impl_.createtime_)*/int64_t{0}
+  , /*decltype(_impl_.userid_)*/UInt64{0u}
+  , /*decltype(_impl_.createtime_)*/Int64{0}
   , /*decltype(_impl_.offlinetype_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct OfflineDataDefaultTypeInternal {
@@ -175,8 +175,8 @@ inline void OfflineData::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.offlinedata_){}
-    , decltype(_impl_.userid_){uint64_t{0u}}
-    , decltype(_impl_.createtime_){int64_t{0}}
+    , decltype(_impl_.userid_){UInt64{0u}}
+    , decltype(_impl_.createtime_){Int64{0}}
     , decltype(_impl_.offlinetype_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };

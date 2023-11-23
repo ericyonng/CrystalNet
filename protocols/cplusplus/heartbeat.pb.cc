@@ -44,7 +44,7 @@ struct NodeHeartbeatReqDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 NodeHeartbeatReqDefaultTypeInternal _NodeHeartbeatReq_default_instance_;
 PROTOBUF_CONSTEXPR NodeHeartbeatRes::NodeHeartbeatRes(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.nowtimenanoseconds_)*/int64_t{0}
+    /*decltype(_impl_.nowtimenanoseconds_)*/Int64{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct NodeHeartbeatResDefaultTypeInternal {
   PROTOBUF_CONSTEXPR NodeHeartbeatResDefaultTypeInternal()
@@ -121,7 +121,7 @@ struct ClientHeartbeatReqDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ClientHeartbeatReqDefaultTypeInternal _ClientHeartbeatReq_default_instance_;
 PROTOBUF_CONSTEXPR ClientHeartbeatRes::ClientHeartbeatRes(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.servertimems_)*/int64_t{0}
+    /*decltype(_impl_.servertimems_)*/Int64{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ClientHeartbeatResDefaultTypeInternal {
   PROTOBUF_CONSTEXPR ClientHeartbeatResDefaultTypeInternal()
@@ -321,7 +321,7 @@ inline void NodeHeartbeatRes::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.nowtimenanoseconds_){int64_t{0}}
+      decltype(_impl_.nowtimenanoseconds_){Int64{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -349,7 +349,7 @@ void NodeHeartbeatRes::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.nowtimenanoseconds_ = int64_t{0};
+  _impl_.nowtimenanoseconds_ = Int64{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1346,7 +1346,7 @@ inline void ClientHeartbeatRes::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.servertimems_){int64_t{0}}
+      decltype(_impl_.servertimems_){Int64{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -1374,7 +1374,7 @@ void ClientHeartbeatRes::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.servertimems_ = int64_t{0};
+  _impl_.servertimems_ = Int64{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 

@@ -704,11 +704,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   bool _internal_has_intvalue() const;
   public:
   void clear_intvalue();
-  int64_t intvalue() const;
-  void set_intvalue(int64_t value);
+  Int64 intvalue() const;
+  void set_intvalue(Int64 value);
   private:
-  int64_t _internal_intvalue() const;
-  void _internal_set_intvalue(int64_t value);
+  Int64 _internal_intvalue() const;
+  void _internal_set_intvalue(Int64 value);
   public:
 
   // uint64 UnSignedValue = 4;
@@ -717,11 +717,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   bool _internal_has_unsignedvalue() const;
   public:
   void clear_unsignedvalue();
-  uint64_t unsignedvalue() const;
-  void set_unsignedvalue(uint64_t value);
+  UInt64 unsignedvalue() const;
+  void set_unsignedvalue(UInt64 value);
   private:
-  uint64_t _internal_unsignedvalue() const;
-  void _internal_set_unsignedvalue(uint64_t value);
+  UInt64 _internal_unsignedvalue() const;
+  void _internal_set_unsignedvalue(UInt64 value);
   public:
 
   // double DoubleValue = 5;
@@ -759,8 +759,8 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
       constexpr VariantValueUnion() : _constinit_{} {}
         ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr strvalue_;
-      int64_t intvalue_;
-      uint64_t unsignedvalue_;
+      Int64 intvalue_;
+      UInt64 unsignedvalue_;
       double doublevalue_;
     } VariantValue_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -894,28 +894,28 @@ inline void VariantParam::set_has_intvalue() {
 }
 inline void VariantParam::clear_intvalue() {
   if (_internal_has_intvalue()) {
-    _impl_.VariantValue_.intvalue_ = int64_t{0};
+    _impl_.VariantValue_.intvalue_ = Int64{0};
     clear_has_VariantValue();
   }
 }
-inline int64_t VariantParam::_internal_intvalue() const {
+inline Int64 VariantParam::_internal_intvalue() const {
   if (_internal_has_intvalue()) {
     return _impl_.VariantValue_.intvalue_;
   }
-  return int64_t{0};
+  return Int64{0};
 }
-inline void VariantParam::_internal_set_intvalue(int64_t value) {
+inline void VariantParam::_internal_set_intvalue(Int64 value) {
   if (!_internal_has_intvalue()) {
     clear_VariantValue();
     set_has_intvalue();
   }
   _impl_.VariantValue_.intvalue_ = value;
 }
-inline int64_t VariantParam::intvalue() const {
+inline Int64 VariantParam::intvalue() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.VariantParam.IntValue)
   return _internal_intvalue();
 }
-inline void VariantParam::set_intvalue(int64_t value) {
+inline void VariantParam::set_intvalue(Int64 value) {
   _internal_set_intvalue(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.VariantParam.IntValue)
 }
@@ -932,28 +932,28 @@ inline void VariantParam::set_has_unsignedvalue() {
 }
 inline void VariantParam::clear_unsignedvalue() {
   if (_internal_has_unsignedvalue()) {
-    _impl_.VariantValue_.unsignedvalue_ = uint64_t{0u};
+    _impl_.VariantValue_.unsignedvalue_ = UInt64{0u};
     clear_has_VariantValue();
   }
 }
-inline uint64_t VariantParam::_internal_unsignedvalue() const {
+inline UInt64 VariantParam::_internal_unsignedvalue() const {
   if (_internal_has_unsignedvalue()) {
     return _impl_.VariantValue_.unsignedvalue_;
   }
-  return uint64_t{0u};
+  return UInt64{0u};
 }
-inline void VariantParam::_internal_set_unsignedvalue(uint64_t value) {
+inline void VariantParam::_internal_set_unsignedvalue(UInt64 value) {
   if (!_internal_has_unsignedvalue()) {
     clear_VariantValue();
     set_has_unsignedvalue();
   }
   _impl_.VariantValue_.unsignedvalue_ = value;
 }
-inline uint64_t VariantParam::unsignedvalue() const {
+inline UInt64 VariantParam::unsignedvalue() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.VariantParam.UnSignedValue)
   return _internal_unsignedvalue();
 }
-inline void VariantParam::set_unsignedvalue(uint64_t value) {
+inline void VariantParam::set_unsignedvalue(UInt64 value) {
   _internal_set_unsignedvalue(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.VariantParam.UnSignedValue)
 }

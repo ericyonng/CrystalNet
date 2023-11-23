@@ -45,8 +45,8 @@ struct LoginReqDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginReqDefaultTypeInternal _LoginReq_default_instance_;
 PROTOBUF_CONSTEXPR LoginRes::LoginRes(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.userid_)*/uint64_t{0u}
-  , /*decltype(_impl_.servertime_)*/int64_t{0}
+    /*decltype(_impl_.userid_)*/UInt64{0u}
+  , /*decltype(_impl_.servertime_)*/Int64{0}
   , /*decltype(_impl_.errcode_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct LoginResDefaultTypeInternal {
@@ -61,7 +61,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR LoginInfoNty::LoginInfoNty(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.token_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.keyexpiretime_)*/int64_t{0}
+  , /*decltype(_impl_.keyexpiretime_)*/Int64{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct LoginInfoNtyDefaultTypeInternal {
   PROTOBUF_CONSTEXPR LoginInfoNtyDefaultTypeInternal()
@@ -466,8 +466,8 @@ inline void LoginRes::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.userid_){uint64_t{0u}}
-    , decltype(_impl_.servertime_){int64_t{0}}
+      decltype(_impl_.userid_){UInt64{0u}}
+    , decltype(_impl_.servertime_){Int64{0}}
     , decltype(_impl_.errcode_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -707,7 +707,7 @@ inline void LoginInfoNty::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.token_){}
-    , decltype(_impl_.keyexpiretime_){int64_t{0}}
+    , decltype(_impl_.keyexpiretime_){Int64{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.token_.InitDefault();
@@ -741,7 +741,7 @@ void LoginInfoNty::Clear() {
   (void) cached_has_bits;
 
   _impl_.token_.ClearToEmpty();
-  _impl_.keyexpiretime_ = int64_t{0};
+  _impl_.keyexpiretime_ = Int64{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 

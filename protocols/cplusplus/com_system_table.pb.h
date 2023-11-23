@@ -336,29 +336,29 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // sint64 MaxIncId = 1;
   void clear_maxincid();
-  int64_t maxincid() const;
-  void set_maxincid(int64_t value);
+  Int64 maxincid() const;
+  void set_maxincid(Int64 value);
   private:
-  int64_t _internal_maxincid() const;
-  void _internal_set_maxincid(int64_t value);
+  Int64 _internal_maxincid() const;
+  void _internal_set_maxincid(Int64 value);
   public:
 
   // sint64 DirtyCount = 2;
   void clear_dirtycount();
-  int64_t dirtycount() const;
-  void set_dirtycount(int64_t value);
+  Int64 dirtycount() const;
+  void set_dirtycount(Int64 value);
   private:
-  int64_t _internal_dirtycount() const;
-  void _internal_set_dirtycount(int64_t value);
+  Int64 _internal_dirtycount() const;
+  void _internal_set_dirtycount(Int64 value);
   public:
 
   // sint64 VersionNo = 3;
   void clear_versionno();
-  int64_t versionno() const;
-  void set_versionno(int64_t value);
+  Int64 versionno() const;
+  void set_versionno(Int64 value);
   private:
-  int64_t _internal_versionno() const;
-  void _internal_set_versionno(int64_t value);
+  Int64 _internal_versionno() const;
+  void _internal_set_versionno(Int64 value);
   public:
 
   // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.SimpleInfo)
@@ -369,9 +369,9 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    int64_t maxincid_;
-    int64_t dirtycount_;
-    int64_t versionno_;
+    Int64 maxincid_;
+    Int64 dirtycount_;
+    Int64 versionno_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -390,60 +390,60 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 
 // sint64 MaxIncId = 1;
 inline void SimpleInfo::clear_maxincid() {
-  _impl_.maxincid_ = int64_t{0};
+  _impl_.maxincid_ = Int64{0};
 }
-inline int64_t SimpleInfo::_internal_maxincid() const {
+inline Int64 SimpleInfo::_internal_maxincid() const {
   return _impl_.maxincid_;
 }
-inline int64_t SimpleInfo::maxincid() const {
+inline Int64 SimpleInfo::maxincid() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleInfo.MaxIncId)
   return _internal_maxincid();
 }
-inline void SimpleInfo::_internal_set_maxincid(int64_t value) {
+inline void SimpleInfo::_internal_set_maxincid(Int64 value) {
   
   _impl_.maxincid_ = value;
 }
-inline void SimpleInfo::set_maxincid(int64_t value) {
+inline void SimpleInfo::set_maxincid(Int64 value) {
   _internal_set_maxincid(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleInfo.MaxIncId)
 }
 
 // sint64 DirtyCount = 2;
 inline void SimpleInfo::clear_dirtycount() {
-  _impl_.dirtycount_ = int64_t{0};
+  _impl_.dirtycount_ = Int64{0};
 }
-inline int64_t SimpleInfo::_internal_dirtycount() const {
+inline Int64 SimpleInfo::_internal_dirtycount() const {
   return _impl_.dirtycount_;
 }
-inline int64_t SimpleInfo::dirtycount() const {
+inline Int64 SimpleInfo::dirtycount() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleInfo.DirtyCount)
   return _internal_dirtycount();
 }
-inline void SimpleInfo::_internal_set_dirtycount(int64_t value) {
+inline void SimpleInfo::_internal_set_dirtycount(Int64 value) {
   
   _impl_.dirtycount_ = value;
 }
-inline void SimpleInfo::set_dirtycount(int64_t value) {
+inline void SimpleInfo::set_dirtycount(Int64 value) {
   _internal_set_dirtycount(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleInfo.DirtyCount)
 }
 
 // sint64 VersionNo = 3;
 inline void SimpleInfo::clear_versionno() {
-  _impl_.versionno_ = int64_t{0};
+  _impl_.versionno_ = Int64{0};
 }
-inline int64_t SimpleInfo::_internal_versionno() const {
+inline Int64 SimpleInfo::_internal_versionno() const {
   return _impl_.versionno_;
 }
-inline int64_t SimpleInfo::versionno() const {
+inline Int64 SimpleInfo::versionno() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.SimpleInfo.VersionNo)
   return _internal_versionno();
 }
-inline void SimpleInfo::_internal_set_versionno(int64_t value) {
+inline void SimpleInfo::_internal_set_versionno(Int64 value) {
   
   _impl_.versionno_ = value;
 }
-inline void SimpleInfo::set_versionno(int64_t value) {
+inline void SimpleInfo::set_versionno(Int64 value) {
   _internal_set_versionno(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.SimpleInfo.VersionNo)
 }

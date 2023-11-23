@@ -32,8 +32,8 @@ PROTOBUF_CONSTEXPR UserNotifyDataItem::UserNotifyDataItem(
   , /*decltype(_impl_.contentparams_)*/{}
   , /*decltype(_impl_.notifytitlewordid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.notifycontentwordid_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.notifyid_)*/uint64_t{0u}
-  , /*decltype(_impl_.createtime_)*/int64_t{0}
+  , /*decltype(_impl_.notifyid_)*/UInt64{0u}
+  , /*decltype(_impl_.createtime_)*/Int64{0}
   , /*decltype(_impl_.isread_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct UserNotifyDataItemDefaultTypeInternal {
@@ -234,8 +234,8 @@ inline void UserNotifyDataItem::SharedCtor(
     , decltype(_impl_.contentparams_){arena}
     , decltype(_impl_.notifytitlewordid_){}
     , decltype(_impl_.notifycontentwordid_){}
-    , decltype(_impl_.notifyid_){uint64_t{0u}}
-    , decltype(_impl_.createtime_){int64_t{0}}
+    , decltype(_impl_.notifyid_){UInt64{0u}}
+    , decltype(_impl_.createtime_){Int64{0}}
     , decltype(_impl_.isread_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };

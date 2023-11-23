@@ -28,7 +28,7 @@ PROTOBUF_CONSTEXPR UserLoginInfo::UserLoginInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.token_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.key_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.keyexpiretime_)*/int64_t{0}
+  , /*decltype(_impl_.keyexpiretime_)*/Int64{0}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct UserLoginInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR UserLoginInfoDefaultTypeInternal()
@@ -136,7 +136,7 @@ inline void UserLoginInfo::SharedCtor(
   new (&_impl_) Impl_{
       decltype(_impl_.token_){}
     , decltype(_impl_.key_){}
-    , decltype(_impl_.keyexpiretime_){int64_t{0}}
+    , decltype(_impl_.keyexpiretime_){Int64{0}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
   _impl_.token_.InitDefault();
@@ -176,7 +176,7 @@ void UserLoginInfo::Clear() {
 
   _impl_.token_.ClearToEmpty();
   _impl_.key_.ClearToEmpty();
-  _impl_.keyexpiretime_ = int64_t{0};
+  _impl_.keyexpiretime_ = Int64{0};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 

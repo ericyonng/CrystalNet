@@ -335,11 +335,11 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   };
   // sint64 expiredTs = 2;
   void clear_expiredts();
-  int64_t expiredts() const;
-  void set_expiredts(int64_t value);
+  Int64 expiredts() const;
+  void set_expiredts(Int64 value);
   private:
-  int64_t _internal_expiredts() const;
-  void _internal_set_expiredts(int64_t value);
+  Int64 _internal_expiredts() const;
+  void _internal_set_expiredts(Int64 value);
   public:
 
   // sint32 titleCfgId = 1;
@@ -359,7 +359,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    int64_t expiredts_;
+    Int64 expiredts_;
     int32_t titlecfgid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -399,20 +399,20 @@ inline void TitleInfo::set_titlecfgid(int32_t value) {
 
 // sint64 expiredTs = 2;
 inline void TitleInfo::clear_expiredts() {
-  _impl_.expiredts_ = int64_t{0};
+  _impl_.expiredts_ = Int64{0};
 }
-inline int64_t TitleInfo::_internal_expiredts() const {
+inline Int64 TitleInfo::_internal_expiredts() const {
   return _impl_.expiredts_;
 }
-inline int64_t TitleInfo::expiredts() const {
+inline Int64 TitleInfo::expiredts() const {
   // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TitleInfo.expiredTs)
   return _internal_expiredts();
 }
-inline void TitleInfo::_internal_set_expiredts(int64_t value) {
+inline void TitleInfo::_internal_set_expiredts(Int64 value) {
   
   _impl_.expiredts_ = value;
 }
-inline void TitleInfo::set_expiredts(int64_t value) {
+inline void TitleInfo::set_expiredts(Int64 value) {
   _internal_set_expiredts(value);
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TitleInfo.expiredTs)
 }

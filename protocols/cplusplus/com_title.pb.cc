@@ -26,7 +26,7 @@ namespace CRYSTAL_NET {
 namespace service {
 PROTOBUF_CONSTEXPR TitleInfo::TitleInfo(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.expiredts_)*/int64_t{0}
+    /*decltype(_impl_.expiredts_)*/Int64{0}
   , /*decltype(_impl_.titlecfgid_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct TitleInfoDefaultTypeInternal {
@@ -117,7 +117,7 @@ inline void TitleInfo::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.expiredts_){int64_t{0}}
+      decltype(_impl_.expiredts_){Int64{0}}
     , decltype(_impl_.titlecfgid_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
