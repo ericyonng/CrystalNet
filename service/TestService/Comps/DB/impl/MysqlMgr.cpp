@@ -463,7 +463,7 @@ void MysqlMgr::MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNE
     // 已经被删除了不可以modify
     if(UNLIKELY(isDelDirty))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("data already mask delete before please check logic:%s, key:%llu"), logic->GetObjName().c_str(), key);
+        g_Log->Error(LOGFMT_OBJ_TAG("data already mask delete before please check logic:%s, key:%s"), logic->GetObjName().c_str(), key.c_str());
         return;
     }
 
@@ -1069,11 +1069,11 @@ Int32 MysqlMgr::_OnHostStart()
         if(logicSys != this)
             logicSys->SetStorageOperatorId(_systemOperatorUid);
 
-        auto comp = logicSys->GetCompByType(ServiceCompType::STORAGE_COMP);
-        if(!comp)
+        auto subComp = logicSys->GetCompByType(ServiceCompType::STORAGE_COMP);
+        if(!subComp)
             continue;
 
-        auto storageComp = comp->CastTo<IStorageInfo>();
+        auto storageComp = subComp->CastTo<IStorageInfo>();
         if(!storageComp->IsUsingMysql())
             continue;
 
@@ -1116,7 +1116,7 @@ Int32 MysqlMgr::_OnHostStart()
         return Status::Failed;
     }
     
-    g_Log->Info(LOGFMT_OBJ_TAG("mysql mgr start success dependenceNames:[%s]."), KERNEL_NS::StringUtil::ToString(dependenceNames, ","));
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql mgr start success dependenceNames:[%s]."), KERNEL_NS::StringUtil::ToString(dependenceNames, ",").c_str());
     return Status::Success;
 }
 
@@ -1215,10 +1215,7 @@ bool MysqlMgr::_LoadSystemTable()
     // TODO:不应该load自己的表, 而应该从db中获取所有现有的表, 一系列建表,修改表结构后再load全部公共表, 运行时改字段是安全的, 只是性能会变差, 不过由于只会往大的改, 所以最终会趋于稳定
     // 表不存在则创建
     auto service = GetService();
-    auto ini = service->GetApp()->GetIni();
     auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
-    auto &configs = dbMgr->GetConfigs();
-    auto &config = dbMgr->GetConfig(_currentServiceDBName);
     auto storageInfo = GetStorageInfo();
     const auto &systemTableName = storageInfo->GetTableName();
     UInt64 stub = 0;
@@ -1285,9 +1282,7 @@ void MysqlMgr::_OnSystemTableBack(KERNEL_NS::MysqlResponse *res)
             return;
         }
 
-        auto value = record->GetField(MysqlMgrStorage::TABLE_NAME);
         auto &fieldDatas = record->GetFieldDatas();
-
         KERNEL_NS::LibString tableName;
         primaryKey->GetString(tableName);
 
@@ -1327,7 +1322,6 @@ void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
     // 查询库中所有表和字段: 需要校准:tbl_system_data, 1.表校准, 2.表字段校准
     g_Log->Info(LOGFMT_OBJ_TAG("mysql res:%s"), res->ToString().c_str());
 
-    const auto &systemTableName = GetStorageInfo()->GetTableName();
     if(res->_errCode != Status::Success)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("load db table columns fail db name:%s res seqId:%llu, mysqlError:%u")
@@ -1993,7 +1987,7 @@ void MysqlMgr::_OnKvSystemNumberAddDirtyHandler(KERNEL_NS::LibDirtyHelper<UInt64
     err =  NewRequestBy(stub, _currentServiceDBName, logic->GetStorageOperatorId(), builders, handler ? this : NULL, handler ? &MysqlMgr::_OnDurtyPurgeFinishHandler : NULL, &var, mysqlQueue);
     if(err != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%s"), err, logic->GetObjName().c_str(), key);
+        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d, logic:%s key:%llu"), err, logic->GetObjName().c_str(), key);
         (*dirtyHelper->MaskDirty(key, MysqlDirtyType::ADD_TYPE, true))[Params::VAR_LOGIC] = logic;
         return;
     }
@@ -2474,7 +2468,7 @@ void MysqlMgr::_OnKvSystemStringAddDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL
    dirtyHelper->Clear(key, MysqlDirtyType::ADD_TYPE);
     if(UNLIKELY(!logic))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("params is not logic sys please check, key:%llu"), key);
+        g_Log->Error(LOGFMT_OBJ_TAG("params is not logic sys please check, key:%s"), key.c_str());
         return;
     }
 
@@ -2638,7 +2632,7 @@ void MysqlMgr::_OnKvSystemStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
     dirtyHelper->Clear(key, MysqlDirtyType::MODIFY_TYPE);
     if(UNLIKELY(!logic))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("params is not logic sys please check, key:%llu"), key);
+        g_Log->Error(LOGFMT_OBJ_TAG("params is not logic sys please check, key:%s"), key.c_str());
         return;
     }
 
@@ -2801,7 +2795,7 @@ void MysqlMgr::_OnKvSystemStringDeleteDirtyHandler(KERNEL_NS::LibDirtyHelper<KER
    dirtyHelper->Clear(key, MysqlDirtyType::DEL_TYPE);
     if(UNLIKELY(!logic))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("params is not logic sys please check, key:%llu"), key);
+        g_Log->Error(LOGFMT_OBJ_TAG("params is not logic sys please check, key:%s"), key.c_str());
         return;
     }
 
@@ -2902,7 +2896,7 @@ void MysqlMgr::_OnKvSystemStringReplaceDirtyHandler(KERNEL_NS::LibDirtyHelper<KE
     dirtyHelper->Clear(key, MysqlDirtyType::REPLACE_TYPE);
     if(UNLIKELY(!logic))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("params is not logic sys please check, key:%llu"), key);
+        g_Log->Error(LOGFMT_OBJ_TAG("params is not logic sys please check, key:%s"), key.c_str());
         return;
     }
 
@@ -4557,7 +4551,8 @@ void MysqlMgr::_OnDurtyPurgeFinishHandler(KERNEL_NS::MysqlResponse *res)
 
         if(LIKELY(handler))
         {
-            handler->Invoke(errList->IsEmpty() ? Status::Success : Status::DBError);
+            Int32 err = errList->IsEmpty() ? Status::Success : Status::DBError;
+            handler->Invoke(err);
             handler->Release();
         }
         errList->Release();
@@ -4642,7 +4637,6 @@ void MysqlMgr::_PurgeAll()
 
     auto &&nowCounter = KERNEL_NS::LibCpuCounter::Current();
     const auto &startCounter = KERNEL_NS::LibCpuCounter::Current();
-    auto poller = GetService()->GetPoller();
     for(auto iter = _dirtyLogics.begin(); iter != _dirtyLogics.end();)
     {
         auto logic = *iter;
@@ -4812,7 +4806,7 @@ bool MysqlMgr::_CheckStorageInfo(const IStorageInfo *storageInfo)
     if(storageInfo->GetTableName().size() > KERNEL_NS::MysqlLimit::_tableNameLimit)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("table name over mysql limit(%llu), current len:%llu, table name:%s, logic:%s")
-                , KERNEL_NS::MysqlLimit::_tableNameLimit, storageInfo->GetTableName().size()
+                , static_cast<UInt64>(KERNEL_NS::MysqlLimit::_tableNameLimit), static_cast<UInt64>(storageInfo->GetTableName().size())
                 , storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
         return false;
     }
@@ -4841,7 +4835,8 @@ bool MysqlMgr::_CheckStorageInfo(const IStorageInfo *storageInfo)
         if(subStorageInfo->GetFieldName().size() > KERNEL_NS::MysqlLimit::_fieldNameLimit)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("field name over mysql limit(%llu), current len:%llu, field name:%s, table name:%s, logic:%s")
-                    , KERNEL_NS::MysqlLimit::_fieldNameLimit, subStorageInfo->GetFieldName().size(), subStorageInfo->GetFieldName().c_str()
+                    , static_cast<UInt64>(KERNEL_NS::MysqlLimit::_fieldNameLimit), static_cast<UInt64>(subStorageInfo->GetFieldName().size())
+                    , subStorageInfo->GetFieldName().c_str()
                     , storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
             return false;
         }
@@ -5250,12 +5245,12 @@ bool MysqlMgr::_ModifyDbNumberDataType(IStorageInfo *storageInfo, IStorageInfo *
                 if(!StorageFlagType::UpdateNumberStorageInfo(subStorageInfo, oldFieldType))
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("UpdateNumberStorageInfo fail subStorageInfo:%s, oldFieldType:%s, table name:%s, field name:%s, system name:%s")
-                            , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+                            , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
                     return false;
                 }
 
                 g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: number field sub storage info final change to %s success. data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
+                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
             }
 
             return true;
