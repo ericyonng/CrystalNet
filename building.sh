@@ -28,6 +28,7 @@ VER="$1"
 
 		# 拷贝mysqlclient.so到运行目录
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
+		sudo cp -rf  ${SCRIPT_PATH}/3rd/miniz/libs/debug/libminiz.a ${OUTPUT_DIR}/
 
 		# sudo ln -sv ${OUTPUT_DIR}libCrystalKernel_debug.so /usr/lib/libCrystalKernel_debug.so
 		# 创建debug版本的so连接符号
@@ -43,6 +44,7 @@ VER="$1"
 
 		# 拷贝mysqlclient.so到运行目录
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
+		sudo cp -rf  ${SCRIPT_PATH}/3rd/miniz/libs/release/libminiz.a ${OUTPUT_DIR}/
 
 		# sudo ln -sv ${OUTPUT_DIR}libCrystalKernel.so /usr/lib/libCrystalKernel.so
 		# 创建release版本的so连接符号
