@@ -5,4 +5,4 @@
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 # 启动testsuit
-sh $SCRIPT_PATH/linux_run.sh testsuit
+sh $SCRIPT_PATH/linux_run.sh testsuit $1
