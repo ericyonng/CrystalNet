@@ -186,7 +186,7 @@ void SystemLogGlobal::_OnSystemLogDataListReq(KERNEL_NS::LibPacket *&packet)
         {
             selectBuilder->Where(KERNEL_NS::LibString().AppendFormat("`%s` = ? and `%s` < ?", SystemLogGlobalStorage::LIBRARY_ID_NAME.c_str(), SystemLogGlobalStorage::ID.c_str()))
             .Limit(absBookCount)
-            .OrderBy(KERNEL_NS::LibString().AppendFormat("%s desc", SystemLogGlobalStorage::ID));
+            .OrderBy(KERNEL_NS::LibString().AppendFormat("%s desc", SystemLogGlobalStorage::ID.c_str()));
         }
 
         // stmt的fields绑定
