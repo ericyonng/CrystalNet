@@ -488,7 +488,7 @@ Int32 User::OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStre
         if(err != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("logic on save fail err:%d logic:%s, field name:%s")
-                    , logic->GetObjName().c_str(), storageInfo->GetFieldName().c_str());
+                    , err, logic->GetObjName().c_str(), storageInfo->GetFieldName().c_str());
 
             KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(data);
             return err;
@@ -903,8 +903,6 @@ void User::Logout(Int32 logoutReason, bool disconnect, UInt64 willLoginSessionId
     {
         g_Log->Info(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
         
-        auto addr = GetUserAddr();
-
         auto willLoginSession = _userMgr->GetGlobalSys<ISessionMgr>()->GetSession(willLoginSessionId);
         LogoutNty nty;
         nty.set_logoutreason(logoutReason);

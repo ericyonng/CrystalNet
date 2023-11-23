@@ -59,7 +59,7 @@ public:
     virtual void Send(const std::list<KERNEL_NS::LibPacket *> &packets) const override;
     virtual void Send(Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const override;
     virtual void Send(Int32 opcode, KERNEL_NS::ICoder *coder, Int64 packetId = -1) const override;
-    virtual bool User::CanSend() const override;
+    virtual bool CanSend() const override;
 
     virtual void OnPassDay(const KERNEL_NS::LibTime &nowTime) override;
     virtual void OnPassWeek(const KERNEL_NS::LibTime &nowTime) override;
