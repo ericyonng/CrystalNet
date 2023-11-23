@@ -37,25 +37,23 @@ class UserMgrStorage : public IStorageInfo
     POOL_CREATE_OBJ_DEFAULT_P1(IStorageInfo, UserMgrStorage);
 
     // 字段定义
-public:
-    static constexpr const Byte8 *USER_ID = "UserId";
     // 平时使用账号名 + 密码登录
-    static constexpr const Byte8 *ACCOUNT_NAME = "AccountName";
-    static constexpr const Byte8 *NAME = "Name";
-    static constexpr const Byte8 *NICKNAME = "Nickname";
     // 密码存成sha1加密的16进制字符串 通过邮箱修改
-    static constexpr const Byte8 *PWD = "Pwd";
-    static constexpr const Byte8 *BIND_PHONE = "BindPhone";
-
-    static constexpr const Byte8 *LAST_LOGIN_TIME = "LastLoginTime";
-    static constexpr const Byte8 *LAST_LOGIN_IP = "LastLoginIp";
-    static constexpr const Byte8 *LAST_LOGIN_PHONE_IMEI = "LastLoginPhoneImei";
-
-    static constexpr const Byte8 *CREATE_IP = "CreateIp";
-    static constexpr const Byte8 *CREATE_TIME = "CreateTime";
-    static constexpr const Byte8 *CREATE_PHONE_IMEI = "CreatePhoneImei";
     // 必须
-    static constexpr const Byte8 *BIND_MAIL_ADDR = "BindMailAddr";
+public:
+    // static constexpr const Byte8 *USER_ID = "UserId";
+    // static constexpr const Byte8 *ACCOUNT_NAME = "AccountName";
+    // static constexpr const Byte8 *NAME = "Name";
+    // static constexpr const Byte8 *NICKNAME = "Nickname";
+    // static constexpr const Byte8 *PWD = "Pwd";
+    // static constexpr const Byte8 *BIND_PHONE = "BindPhone";
+    // static constexpr const Byte8 *LAST_LOGIN_TIME = "LastLoginTime";
+    // static constexpr const Byte8 *LAST_LOGIN_IP = "LastLoginIp";
+    // static constexpr const Byte8 *LAST_LOGIN_PHONE_IMEI = "LastLoginPhoneImei";
+    // static constexpr const Byte8 *CREATE_IP = "CreateIp";
+    // static constexpr const Byte8 *CREATE_TIME = "CreateTime";
+    // static constexpr const Byte8 *CREATE_PHONE_IMEI = "CreatePhoneImei";
+    // static constexpr const Byte8 *BIND_MAIL_ADDR = "BindMailAddr";
 
     // 角色系统信息（管理员, 读者）
     // static constexpr const Byte8 *ROLE_SYSTEM_INFO = "CreatePhoneImei";

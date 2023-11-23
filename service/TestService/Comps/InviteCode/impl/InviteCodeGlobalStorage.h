@@ -38,8 +38,8 @@ class InviteCodeGlobalStorage : public IStorageInfo
 
     // 字段定义
 public:
-    static constexpr const Byte8 *ID = "Id";
-    static constexpr const Byte8 *INVITE_CODE = "InviteCode";
+    static const KERNEL_NS::LibString ID;
+    static const KERNEL_NS::LibString INVITE_CODE;
     
 public:
     InviteCodeGlobalStorage();

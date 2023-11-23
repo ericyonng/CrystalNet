@@ -38,9 +38,9 @@ class SystemLogGlobalStorage : public IStorageInfo
 
     // 字段定义
 public:
-    static constexpr const Byte8 *ID = "Id";
-    static constexpr const Byte8 *LIBRARY_ID_NAME = "LibraryId";
-    static constexpr const Byte8 *LOG_DATA_NAME = "LogData";
+    static const KERNEL_NS::LibString ID;
+    static const KERNEL_NS::LibString LIBRARY_ID_NAME;
+    static const KERNEL_NS::LibString LOG_DATA_NAME;
     
 public:
     SystemLogGlobalStorage();

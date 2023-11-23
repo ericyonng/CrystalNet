@@ -38,8 +38,8 @@ class PassTimeGlobalStorage : public IStorageInfo
 
     // 字段定义
 public:
-    static constexpr const Byte8 *ID = "Id";
-    static constexpr const Byte8 *DATA = "PassTime";
+    static const KERNEL_NS::LibString ID;
+    static const KERNEL_NS::LibString DATA;
     
 public:
     PassTimeGlobalStorage();

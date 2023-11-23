@@ -38,9 +38,9 @@ class MysqlMgrStorage : public IStorageInfo
 
     // 字段定义
 public:
-    static constexpr const Byte8 *TABLE_NAME = "TableName";
-    static constexpr const Byte8 *SIMPLE_INFO = "SimpleInfo";
-    static constexpr const Byte8 *COUNT = "Count";
+    static  const KERNEL_NS::LibString TABLE_NAME;
+    static  const KERNEL_NS::LibString SIMPLE_INFO;
+    static  const KERNEL_NS::LibString COUNT;
     
 public:
     MysqlMgrStorage();

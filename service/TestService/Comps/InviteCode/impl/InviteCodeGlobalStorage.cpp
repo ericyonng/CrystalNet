@@ -35,6 +35,9 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(InviteCodeGlobalStorage);
 
+const KERNEL_NS::LibString InviteCodeGlobalStorage::ID = "Id";
+const KERNEL_NS::LibString InviteCodeGlobalStorage::INVITE_CODE = "InviteCode";
+
 InviteCodeGlobalStorage::InviteCodeGlobalStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetByType<InviteCodeGlobal>())
 {

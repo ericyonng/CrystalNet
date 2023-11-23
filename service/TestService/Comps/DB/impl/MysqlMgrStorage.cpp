@@ -35,6 +35,11 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlMgrStorage);
 
+const KERNEL_NS::LibString MysqlMgrStorage::TABLE_NAME = "TableName";
+const KERNEL_NS::LibString MysqlMgrStorage::SIMPLE_INFO = "SimpleInfo";
+const KERNEL_NS::LibString MysqlMgrStorage::COUNT = "Count";
+    
+
 MysqlMgrStorage::MysqlMgrStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetByType<MysqlMgr>())
 {
@@ -53,7 +58,7 @@ void MysqlMgrStorage::Release()
 
 bool MysqlMgrStorage::RegisterStorages()
 {
-    
+
     // 当前系统属性设置(kv 系统, mysql存储, 某个系统的数据)
     AddFlags(StorageFlagType::MULTI_FIELD_SYSTEM_FLAG | 
     StorageFlagType::MYSQL_FLAG | 

@@ -60,9 +60,9 @@ public:
 class StorageCommonDefine
 {
 public:
-    static constexpr const Byte8 * STRING_KEY = "StringKey";
-    static constexpr const Byte8 * NUMBER_KEY = "NumberKey";
-    static constexpr const Byte8 * SYSTEM_DATA = "SystemData";
+    static const KERNEL_NS::LibString STRING_KEY;
+    static const KERNEL_NS::LibString NUMBER_KEY;
+    static const KERNEL_NS::LibString SYSTEM_DATA;
 };
 
 SERVICE_END

@@ -38,8 +38,8 @@ class NicknameGlobalStorage : public IStorageInfo
 
     // 字段定义
 public:
-    static constexpr const Byte8 *ID = "Id";
-    static constexpr const Byte8 *NICK_NAME = "Nickname";
+    static const KERNEL_NS::LibString ID;
+    static const KERNEL_NS::LibString NICK_NAME;
     
 public:
     NicknameGlobalStorage();

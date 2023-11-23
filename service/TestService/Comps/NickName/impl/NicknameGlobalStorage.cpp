@@ -35,6 +35,10 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(NicknameGlobalStorage);
 
+const KERNEL_NS::LibString NicknameGlobalStorage::ID = "Id";
+const KERNEL_NS::LibString NicknameGlobalStorage::NICK_NAME = "Nickname";
+
+
 NicknameGlobalStorage::NicknameGlobalStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetByType<NicknameGlobal>())
 {

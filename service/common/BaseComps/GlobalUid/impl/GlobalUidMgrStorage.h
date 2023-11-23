@@ -36,8 +36,8 @@ class GlobalUidMgrStorage : public IStorageInfo
 
     // 字段定义
 public:
-    static constexpr const Byte8 *MACHINE_ID = "MachineId";
-    static constexpr const Byte8 *LAST_UID = "LastUid";
+    static const KERNEL_NS::LibString MACHINE_ID;
+    static const KERNEL_NS::LibString LAST_UID;
     
 public:
     GlobalUidMgrStorage();
