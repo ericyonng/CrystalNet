@@ -61,7 +61,7 @@ KERNEL_NS::LibString PendingUser::ToString() const
     info.AppendFormat("status:%d, login mode:%d, account name:%s, login token:%s, login phone imei:%s, appid:%s, versionId:%llu, _dbOperatorId:%d, byAccountName:%s, byUserId:%llu, _sessionId:%llu cb owner:%s, cb handler:%s"
     , _status, _loginInfo ? _loginInfo->loginmode() : -1, _loginInfo ? _loginInfo->accountname().c_str() : ""
     , _loginInfo ? _loginInfo->logintoken().c_str() : ""
-    , _loginInfo ? _loginInfo->loginphoneimei().c_str() : "", _loginInfo ? _loginInfo->appid().c_str() : "", _loginInfo ? _loginInfo->versionid() : 0
+    , _loginInfo ? _loginInfo->loginphoneimei().c_str() : "", _loginInfo ? _loginInfo->appid().c_str() : "", static_cast<UInt64>(_loginInfo ? _loginInfo->versionid() : 0)
     , _dbOperatorId, _byAccountName.c_str()
     , _byUserId, _sessionId, _cb ? _cb->GetOwnerRtti() : "NONE", _cb ? _cb->GetCallbackRtti() : "NONE");
 
@@ -973,7 +973,7 @@ KERNEL_NS::LibString User::ToString() const
     KERNEL_NS::LibString info;
     const auto &nickname = KERNEL_NS::UrlCoder::Decode(_userBaseInfo->nickname());
     info.AppendFormat("user id:%llu, account name:%s, nickname:%s, status:%d, max packet id:%lld"
-    , _userBaseInfo->userid(), _userBaseInfo->accountname().c_str(), 
+    , static_cast<UInt64>(_userBaseInfo->userid()), _userBaseInfo->accountname().c_str(), 
     nickname.c_str(), _status, _curMaxPacketId);
 
     info.AppendFormat(", session infos:");

@@ -144,7 +144,7 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
         {
             err = Status::BookNotFound;
             g_Log->Warn(LOGFMT_OBJ_TAG("book not exists book id:%llu, library id:%llu user:%s")
-            , item.bookid(), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
+            , static_cast<UInt64>(item.bookid()), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
             break;
         }
 
@@ -152,14 +152,14 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
         {
             err = Status::ParamError;
             g_Log->Warn(LOGFMT_OBJ_TAG("book count error book id:%llu, library id:%llu user:%s")
-            , item.bookid(), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
+            , static_cast<UInt64>(item.bookid()), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
             break;
         }
 
         // 借阅天数
         if(item.borrowdays() <= 0)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays is zero book id:%llu, user:%s"), item.bookid(), GetUser()->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays is zero book id:%llu, user:%s"), static_cast<UInt64>(item.bookid()), GetUser()->ToString().c_str());
             return Status::ParamError;
         }
 
@@ -168,7 +168,7 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays:[%d] over limit:[%d] book id:%llu, user:%s")
             , item.borrowdays(), maxBorrowDaysConfig->_value
-            ,  item.bookid()
+            ,  static_cast<UInt64>(item.bookid())
             , GetUser()->ToString().c_str());
             return Status::ParamError;
         }
@@ -180,7 +180,7 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
 
             err = Status::BookCountOverCapacity;
             g_Log->Warn(LOGFMT_OBJ_TAG("book over count%lld, item bookcount:%d book id:%llu, library id:%llu user:%s")
-            ,bookInfo->variantinfo().count(), item.bookcount(), item.bookid(), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
+            , static_cast<Int64>(bookInfo->variantinfo().count()), item.bookcount(), static_cast<UInt64>(item.bookid()), libraryMgr->GetMyLibraryId(), GetUser()->ToString().c_str());
             break;
         }
         
@@ -241,14 +241,14 @@ Int32 BookBagMgr::Submit(const KERNEL_NS::LibString &remark)
     {
         if(item.bookcount() == 0)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("bookcount is zero book id:%llu, user:%s"), item.bookid(), GetUser()->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("bookcount is zero book id:%llu, user:%s"), static_cast<UInt64>(item.bookid()), GetUser()->ToString().c_str());
             return Status::ParamError;
         }
 
         // 借阅天数
         if(item.borrowdays() <= 0)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays is zero book id:%llu, user:%s"), item.bookid(), GetUser()->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays is zero book id:%llu, user:%s"), static_cast<UInt64>(item.bookid()), GetUser()->ToString().c_str());
             return Status::ParamError;
         }
 
@@ -256,7 +256,7 @@ Int32 BookBagMgr::Submit(const KERNEL_NS::LibString &remark)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays:[%d] over limit:[%d] book id:%llu, user:%s")
             , item.borrowdays(), maxBorrowDaysConfig->_value
-            ,  item.bookid()
+            ,  static_cast<UInt64>(item.bookid())
             , GetUser()->ToString().c_str());
             return Status::ParamError;
         }
@@ -264,15 +264,15 @@ Int32 BookBagMgr::Submit(const KERNEL_NS::LibString &remark)
         auto bookInfo = libraryGlobal->GetBookInfo(myLibraryId, item.bookid());
         if(!bookInfo)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("book not found book id:%llu, user:%s"), item.bookid(), GetUser()->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("book not found book id:%llu, user:%s"), static_cast<UInt64>(item.bookid()), GetUser()->ToString().c_str());
             return Status::BookNotFound;
         }
 
         // 不能超过库存
         if(static_cast<Int64>(item.bookcount()) > bookInfo->variantinfo().count())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("bookcount:[%d] over capacity:[%lld] book id:%llu, user:%s"), item.bookcount(), bookInfo->variantinfo().count()
-            , item.bookid(), GetUser()->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("bookcount:[%d] over capacity:[%lld] book id:%llu, user:%s"), item.bookcount(), static_cast<Int64>(bookInfo->variantinfo().count())
+            , static_cast<UInt64>(item.bookid()), GetUser()->ToString().c_str());
             return Status::BookCountOverCapacity;
         }
 

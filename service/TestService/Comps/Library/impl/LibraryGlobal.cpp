@@ -182,7 +182,7 @@ KERNEL_NS::LibString LibraryGlobal::LibraryToString(const LibraryInfo *libraryIn
         return "";
 
     KERNEL_NS::LibString info;
-    info.AppendFormat("library id:%llu, name:", libraryInfo->id())
+    info.AppendFormat("library id:%llu, name:", static_cast<UInt64>(libraryInfo->id()))
         .AppendData(libraryInfo->name().data(), static_cast<Int64>(libraryInfo->name().size()))
         .AppendFormat(", member count:%d, manager count:%d"
         , libraryInfo->memberlist_size(), libraryInfo->managerinfolist_size());
@@ -275,7 +275,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         auto bookInfo = GetBookInfo(libraryId, item.bookid());
         if(!bookInfo)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("book is not found book id:%llu libraryId:%llu, user id:%llu"), item.bookid(), libraryId, memberUserId);
+            g_Log->Warn(LOGFMT_OBJ_TAG("book is not found book id:%llu libraryId:%llu, user id:%llu"), static_cast<UInt64>(item.bookid()), libraryId, memberUserId);
             return Status::BookNotFound;
         }
 
@@ -283,7 +283,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         if((item.bookcount() == 0) || bookInfo->variantinfo().count() < static_cast<Int64>(item.bookcount()))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("book count is empty or over capacity,book id:%llu book count:%lld, will borrow count:%d libraryId:%llu, user id:%llu")
-            , item.bookid(), bookInfo->variantinfo().count(), item.bookcount(), libraryId, memberUserId);
+            , static_cast<UInt64>(item.bookid()), static_cast<Int64>(bookInfo->variantinfo().count()), item.bookcount(), libraryId, memberUserId);
             return Status::BookCountOverCapacity;
         }
 
@@ -292,7 +292,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("borrowdays:[%d] over limit:[%d] book id:%llu, libraryId:%llu memberUserId:%llu")
             , item.borrowdays(), maxBorrowDaysConfig->_value
-            ,  item.bookid()
+            ,  static_cast<UInt64>(item.bookid())
             , libraryId, memberUserId);
             return Status::ParamError;
         }
@@ -318,7 +318,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         if((iter.second == 0) || bookInfo->variantinfo().count() < static_cast<Int64>(iter.second))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("book count is empty or over capacity,book id:%llu book count:%lld, will borrow count:%lld libraryId:%lld, user id:%llu")
-            , iter.first, bookInfo->variantinfo().count(), iter.second, libraryId, memberUserId);
+            , iter.first, static_cast<Int64>(bookInfo->variantinfo().count()), iter.second, libraryId, memberUserId);
             return Status::BookCountOverCapacity;
         }
     }
@@ -701,12 +701,12 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
 
         // 手机必须是11位数
         KERNEL_NS::LibString phoneNumber;
-        phoneNumber.AppendFormat("%llu", req->bindphone());
+        phoneNumber.AppendFormat("%llu", static_cast<UInt64>(req->bindphone()));
         if(phoneNumber.size() < 11)
         {
             errCode = Status::InvalidPhoneNubmer;
             g_Log->Warn(LOGFMT_OBJ_TAG("phone invalid:%llu, library user:%s, packet:%s, library id:%llu")
-                , req->bindphone(), user->ToString().c_str(), packet->ToString().c_str(), libraryMgr->GetMyLibraryId());
+                , static_cast<UInt64>(req->bindphone()), user->ToString().c_str(), packet->ToString().c_str(), libraryMgr->GetMyLibraryId());
             break;
         }
 
@@ -725,7 +725,7 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
         {
             errCode = Status::NewPhoneIsBindedByOtherUser;
             g_Log->Warn(LOGFMT_OBJ_TAG("phone is binded by other user, phone:%llu, library user:%s, packet:%s, library id:%llu")
-                , req->bindphone(), user->ToString().c_str(), packet->ToString().c_str(), libraryMgr->GetMyLibraryId());
+                , static_cast<UInt64>(req->bindphone()), user->ToString().c_str(), packet->ToString().c_str(), libraryMgr->GetMyLibraryId());
             break;
         }
 
@@ -775,7 +775,7 @@ void LibraryGlobal::_OnJoinLibraryReq(KERNEL_NS::LibPacket *&packet)
         {
             errCode = Status::AlreadyMemberOfLibrary;
             g_Log->Warn(LOGFMT_OBJ_TAG("already a member of library id:%llu cant join library:%llu param user:%s, packet:%s")
-            , libraryMgr->GetMyLibraryId(), req->libraryid(), user->ToString().c_str(), packet->ToString().c_str());
+            , libraryMgr->GetMyLibraryId(), static_cast<UInt64>(req->libraryid()), user->ToString().c_str(), packet->ToString().c_str());
             break;
         }
 
@@ -785,7 +785,7 @@ void LibraryGlobal::_OnJoinLibraryReq(KERNEL_NS::LibPacket *&packet)
         {
             errCode = Status::LibraryNotFound;
             g_Log->Warn(LOGFMT_OBJ_TAG("library not found, library id:%llu, param user:%s, packet:%s")
-            , req->libraryid(), user->ToString().c_str(), packet->ToString().c_str());
+            , static_cast<UInt64>(req->libraryid()), user->ToString().c_str(), packet->ToString().c_str());
             break;
         }
 
@@ -795,7 +795,7 @@ void LibraryGlobal::_OnJoinLibraryReq(KERNEL_NS::LibPacket *&packet)
         {
             errCode = Status::AlreadyMemberOfLibrary;
             g_Log->Warn(LOGFMT_OBJ_TAG("already a member in library but my library id is zero, please check, library id:%llu, param user:%s, packet:%s")
-            , req->libraryid(), user->ToString().c_str(), packet->ToString().c_str());
+            , static_cast<UInt64>(req->libraryid()), user->ToString().c_str(), packet->ToString().c_str());
             break;
         }
 
@@ -923,7 +923,7 @@ void LibraryGlobal::_OnTransferLibraianReq(KERNEL_NS::LibPacket *&packet)
     {
         if((req->targetuserid() == 0) || (req->targetuserid() == user->GetUserId()))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("bad target user id:%llu, user:%s"), req->targetuserid(), user->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("bad target user id:%llu, user:%s"), static_cast<UInt64>(req->targetuserid()), user->ToString().c_str());
             errCode = Status::ParamError;
             break;
         } 
@@ -960,7 +960,7 @@ void LibraryGlobal::_OnTransferLibraianReq(KERNEL_NS::LibPacket *&packet)
         {
             errCode = Status::MemberIsLocked;
             g_Log->Warn(LOGFMT_OBJ_TAG("target user is locked cant handle, library id:%llu, target user:%llu, user:%s, packet:%s")
-                , libraryMgr->GetMyLibraryId(), req->targetuserid(), user->ToString().c_str(), packet->ToString().c_str());
+                , libraryMgr->GetMyLibraryId(), static_cast<UInt64>(req->targetuserid()), user->ToString().c_str(), packet->ToString().c_str());
             break;
         }
 
@@ -988,7 +988,7 @@ void LibraryGlobal::_OnTransferLibraianReq(KERNEL_NS::LibPacket *&packet)
         {
             errCode = Status::ParamError;
             g_Log->Warn(LOGFMT_OBJ_TAG("target user cant be self, library id:%llu, user:%s, target user id:%llu packet:%s")
-                , libraryMgr->GetMyLibraryId(), user->ToString().c_str(), targetmember->userid(), packet->ToString().c_str());
+                , libraryMgr->GetMyLibraryId(), user->ToString().c_str(), static_cast<UInt64>(targetmember->userid()), packet->ToString().c_str());
             break;
         }
 
@@ -1048,7 +1048,7 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
         if(!targetMember)
         {
             errCode = Status::NotMember;
-            g_Log->Warn(LOGFMT_OBJ_TAG("target not member target user id:%llu user:%s"), req->memberuserid(), user->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("target not member target user id:%llu user:%s"), static_cast<UInt64>(req->memberuserid()), user->ToString().c_str());
             break;
         }
 
@@ -1065,7 +1065,7 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
             if(req->has_newrole())
             {
                 errCode = Status::AuthNotEnough;
-                g_Log->Warn(LOGFMT_OBJ_TAG("cant modify self role target user id:%llu user:%s"), req->memberuserid(), user->ToString().c_str());
+                g_Log->Warn(LOGFMT_OBJ_TAG("cant modify self role target user id:%llu user:%s"), static_cast<UInt64>(req->memberuserid()), user->ToString().c_str());
                 break;
             }
         }
@@ -1082,7 +1082,7 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
         {
             errCode = Status::MemberIsLocked;
             g_Log->Warn(LOGFMT_OBJ_TAG("target user is locked cant modify, target user id:%llu library id:%llu, user:%s, packet:%s")
-                , req->memberuserid(), libraryMgr->GetMyLibraryId(), user->ToString().c_str(), packet->ToString().c_str());
+                , static_cast<UInt64>(req->memberuserid()), libraryMgr->GetMyLibraryId(), user->ToString().c_str(), packet->ToString().c_str());
             break;
         }
 
@@ -1090,7 +1090,7 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
          (memberInfo->role() != RoleType_ENUMS_Librarian))
         {
             errCode = Status::AuthNotEnough;
-            g_Log->Warn(LOGFMT_OBJ_TAG("target not member target user id:%llu user:%s"), req->memberuserid(), user->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("target not member target user id:%llu user:%s"), static_cast<UInt64>(req->memberuserid()), user->ToString().c_str());
             break;
         }
 
@@ -1128,21 +1128,21 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
             if(!_IsValidPhone(req->newmemberphone()))
             {
                 errCode = Status::InvalidPhoneNubmer;
-                g_Log->Warn(LOGFMT_OBJ_TAG("invalid phone:%llu, user:%s"), req->newmemberphone(), user->ToString().c_str());
+                g_Log->Warn(LOGFMT_OBJ_TAG("invalid phone:%llu, user:%s"), static_cast<UInt64>(req->newmemberphone()), user->ToString().c_str());
                 break;
             }
 
             bool newPhoneIsBinded = false;
             if(!userMgr->IsPhoneNumberBinded(user, req->newmemberphone(), {req->memberuserid()}, newPhoneIsBinded))
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("db error phone:%llu, user:%s"), req->newmemberphone(), user->ToString().c_str());
+                g_Log->Warn(LOGFMT_OBJ_TAG("db error phone:%llu, user:%s"), static_cast<UInt64>(req->newmemberphone()), user->ToString().c_str());
                 errCode = Status::DBError;
                 break;
             }
 
             if(newPhoneIsBinded)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("new phone:%llu is binded by other user, user:%s"), req->newmemberphone(), user->ToString().c_str());
+                g_Log->Warn(LOGFMT_OBJ_TAG("new phone:%llu is binded by other user, user:%s"), static_cast<UInt64>(req->newmemberphone()), user->ToString().c_str());
                 errCode = Status::NewPhoneIsBindedByOtherUser;
                 break;
             }
@@ -1167,9 +1167,9 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
         auto targetUser = userMgr->GetUser(req->memberuserid());
         if(!targetUser)
         {
-            const auto libraryId = libraryInfo->id();
+            const auto libraryId = static_cast<UInt64>(libraryInfo->id());
             const auto reqUserId = user->GetUserId();
-            const auto targetUserId = targetMember->userid();
+            const auto targetUserId = static_cast<UInt64>(targetMember->userid());
 
             const auto newReq = *req;
             errCode = userMgr->LoadUserBy(req->memberuserid(), [userMgr, libraryId, reqUserId, targetUserId, newReq, packetId, this](Int32 errCode, PendingUser *pending, IUser *targetUser, KERNEL_NS::SmartPtr<KERNEL_NS::Variant, KERNEL_NS::AutoDelMethods::CustomDelete> &param){
@@ -1263,7 +1263,7 @@ void LibraryGlobal::_OnGetLibraryMemberSimpleInfoReq(KERNEL_NS::LibPacket *&pack
         if(!myMemberInfo)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("not library member user:%s, library id:%llu")
-            , user->ToString().c_str(), libraryInfo->id());
+            , user->ToString().c_str(), static_cast<UInt64>(libraryInfo->id()));
             errCode = Status::NotJoinAnyLibrary;
             break;
         }
@@ -1391,7 +1391,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
         if(req->modifycount() > static_cast<Int64>((std::numeric_limits<Int32>::max)()) || 
         req->modifycount() < static_cast<Int64>((std::numeric_limits<Int32>::min)()))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("bad modify count:%lld user:%s"), req->modifycount(), user->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("bad modify count:%lld user:%s"), static_cast<Int64>(req->modifycount()), user->ToString().c_str());
             err = Status::AuthNotEnough;
             break;
         }
@@ -1548,7 +1548,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
 
             if(req->price() <= 0)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("price error :%lld user:%s"), req->price(), user->ToString().c_str());
+                g_Log->Warn(LOGFMT_OBJ_TAG("price error :%lld user:%s"), static_cast<Int64>(req->price()), user->ToString().c_str());
                 err = Status::ParamError;
                 break;
             }
@@ -1938,7 +1938,8 @@ void LibraryGlobal::_OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet)
         {
             err = Status::InvalidOrderState;
             g_Log->Warn(LOGFMT_OBJ_TAG("order not at waiting out of warehouse state:%d,%s order id:%llu manager libraryId:%llu, user:%s")
-            ,orderInfo->orderstate(), BorrowOrderState_ENUMS_Name(orderInfo->orderstate()).c_str(), orderInfo->orderid(), libraryId, user->ToString().c_str());
+            ,orderInfo->orderstate(), BorrowOrderState_ENUMS_Name(orderInfo->orderstate()).c_str(), static_cast<UInt64>(orderInfo->orderid())
+            , libraryId, user->ToString().c_str());
             break;
         }
 
@@ -2119,7 +2120,7 @@ void LibraryGlobal::_OnManagerScanOrderForUserGettingBooksReq(KERNEL_NS::LibPack
         auto orderUser = GetGlobalSys<IUserMgr>()->GetUser(orderInfo->userid());
         if(!orderUser)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("order user:%llu not online, user:%s req:%s"), orderInfo->userid(), user->ToString().c_str(), req->ToJsonString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("order user:%llu not online, user:%s req:%s"), static_cast<UInt64>(orderInfo->userid()), user->ToString().c_str(), req->ToJsonString().c_str());
             err = Status::NotOnline;
             break;
         }
@@ -2160,7 +2161,7 @@ void LibraryGlobal::_OnManagerScanOrderForUserGettingBooksReq(KERNEL_NS::LibPack
         newTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(confirmTimeConfig->_int64Value * KERNEL_NS::TimeDefs::SECOND_PER_MINUTE));
         
         g_Log->Info(LOGFMT_OBJ_TAG("gen confirm code:%llu, order info:%s, library id:%llu, operate user:%s, order user:%s")
-        , confirmId, orderInfo->ToJsonString().c_str(), libraryInfo->id(), user->ToString().c_str(), orderUser->ToString().c_str());
+        , confirmId, orderInfo->ToJsonString().c_str(), static_cast<UInt64>(libraryInfo->id()), user->ToString().c_str(), orderUser->ToString().c_str());
     } while (false);
 
     ManagerScanOrderForUserGettingBooksRes res;
@@ -2214,7 +2215,7 @@ void LibraryGlobal::_OnUserGetBooksOrderConfirmReq(KERNEL_NS::LibPacket *&packet
         auto orderInfo = GetOrderInfo(libraryInfo->id(), iterOrderId->second);
         if(!orderInfo)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("cant find order confirm code%llu, order id:%llu, user:%s req:%s"), req->confirmcode(), iterOrderId->second, user->ToString().c_str(), req->ToJsonString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("cant find order confirm code%llu, order id:%llu, user:%s req:%s"), static_cast<UInt64>(req->confirmcode()), iterOrderId->second, user->ToString().c_str(), req->ToJsonString().c_str());
             err = Status::InvalidConfirmCode;
             break;
         }
@@ -2223,7 +2224,7 @@ void LibraryGlobal::_OnUserGetBooksOrderConfirmReq(KERNEL_NS::LibPacket *&packet
         if(orderInfo->orderstate() != BorrowOrderState_ENUMS_WAIT_USER_RECEIVE)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("order is not wait reciecve confirm code%llu, order id:%llu, order state:%d,%s user:%s req:%s")
-            , req->confirmcode(), iterOrderId->second, orderInfo->orderstate()
+            , static_cast<UInt64>(req->confirmcode()), iterOrderId->second, orderInfo->orderstate()
             , BorrowOrderState_ENUMS_Name(orderInfo->orderstate()).c_str()
             , user->ToString().c_str(), req->ToJsonString().c_str());
             err = Status::InvalidOrderState;
@@ -2672,7 +2673,7 @@ void LibraryGlobal::_OnReturnBackReq(KERNEL_NS::LibPacket *&packet)
                 else
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("book not exists when return back book book id:%llu, isbn:%s, library id:%llu, order info:%s, user:%s")
-                    , subOrderInfo->bookid(), subOrderInfo->isbncode().c_str(), libraryId, orderInfo->ToJsonString().c_str(), user->ToString().c_str());
+                    , static_cast<UInt64>(subOrderInfo->bookid()), subOrderInfo->isbncode().c_str(), libraryId, orderInfo->ToJsonString().c_str(), user->ToString().c_str());
                 }
 
                 auto iter = returnBackBookInfoList.find(subOrderInfo->bookid());
@@ -2707,7 +2708,7 @@ void LibraryGlobal::_OnReturnBackReq(KERNEL_NS::LibPacket *&packet)
                 else
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("book not exists when return back book book id:%llu, isbn:%s, library id:%llu, order info:%s, user:%s")
-                    , subOrderInfo->bookid(), subOrderInfo->isbncode().c_str(), libraryId, orderInfo->ToJsonString().c_str(), user->ToString().c_str());
+                    , static_cast<UInt64>(subOrderInfo->bookid()), subOrderInfo->isbncode().c_str(), libraryId, orderInfo->ToJsonString().c_str(), user->ToString().c_str());
                 }
 
                 auto iter = returnBackBookInfoList.find(subOrderInfo->bookid());
@@ -2877,7 +2878,7 @@ void LibraryGlobal::_BuildOrderDetailInfo(UInt64 libraryId, const MemberInfo *me
             auto bookInfo = GetBookInfo(libraryId, borrowBook.bookid());
             if(!bookInfo)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("book info not found library id:%llu, book id:%llu"), libraryId, borrowBook.bookid());
+                g_Log->Warn(LOGFMT_OBJ_TAG("book info not found library id:%llu, book id:%llu"), libraryId, static_cast<UInt64>(borrowBook.bookid()));
                 continue;
             }
 
@@ -2927,7 +2928,7 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
                 if(!req.has_newmemberphone())
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("need bind phone from no auth to new role:%d, phone number:%llu library:%s, member role:%d,%s, target member role:%d,%s req user id:%llu")
-                    ,req.newrole(), req.newmemberphone(), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
+                    ,req.newrole(), static_cast<UInt64>(req.newmemberphone()), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
                     , targetMember->role(), RoleType::ENUMS_Name(targetMember->role()).c_str(), reqUserId);
                     return Status::InvalidPhoneNubmer;
                 }
@@ -2935,7 +2936,7 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
                 if(!_IsValidPhone(req.newmemberphone()))
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("user bind a invalid phone from no auth to new role:%d, phone number:%llu library:%s, member role:%d,%s, target member role:%d,%s req user id:%llu")
-                    ,req.newrole(), req.newmemberphone(), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
+                    ,req.newrole(), static_cast<UInt64>(req.newmemberphone()), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
                     , targetMember->role(), RoleType::ENUMS_Name(targetMember->role()).c_str(), reqUserId);
                     return Status::InvalidPhoneNubmer;
                 }
@@ -2969,7 +2970,7 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
         if(!_IsValidPhone(req.newmemberphone()))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("user bind a invalid phone from no auth to new role:%d, phone number:%llu library:%s, member role:%d,%s, target member role:%d,%s req user id:%llu")
-            ,req.newrole(), req.newmemberphone(), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
+            ,req.newrole(), static_cast<UInt64>(req.newmemberphone()), LibraryToString(libraryInfo).c_str(), memberInfo->role(), RoleType::ENUMS_Name(memberInfo->role()).c_str()
             , targetMember->role(), RoleType::ENUMS_Name(targetMember->role()).c_str(), reqUserId);
             return Status::InvalidPhoneNubmer;
         }
@@ -3070,12 +3071,12 @@ KERNEL_NS::LibString LibraryGlobal::_MemberToString(const MemberInfo *memberInfo
 {
     KERNEL_NS::LibString info;
     info.AppendFormat("user id:%llu, nickname:%s, role:%d,%s, borrow list:%d, locktime ms:%lld, cur time:%lld"
-    , memberInfo->userid()
+    , static_cast<UInt64>(memberInfo->userid())
     , memberInfo->nickname().c_str()
     , memberInfo->role()
     , RoleType::ENUMS_Name(memberInfo->role()).c_str()
     , memberInfo->borrowlist_size()
-    , memberInfo->locktimestampms()
+    , static_cast<Int64>(memberInfo->locktimestampms())
     , KERNEL_NS::LibTime::NowMilliTimestamp()
     );
 
@@ -3418,8 +3419,8 @@ void LibraryGlobal::_TransferMember(LibraryInfo *libraryInfo, MemberInfo *member
 
     MaskNumberKeyModifyDirty(libraryInfo->id());
 
-    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), memberInfo->userid(), role, targetRole);
-    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), targetMember->userid(), targetRole, role);
+    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), static_cast<UInt64>(memberInfo->userid()), role, targetRole);
+    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), static_cast<UInt64>(targetMember->userid()), targetRole, role);
 
     // TODO:系统日志 原图书馆馆长:【{0}】,用户id:{1}, 将图书馆转让给用户:【{2}】,用户id:{3}
     auto sysLog = GetGlobalSys<ISystemLogGlobal>();
