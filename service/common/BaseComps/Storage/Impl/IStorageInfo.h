@@ -398,6 +398,8 @@ class IStorageInfo : public KERNEL_NS::CompObject
 
 public:
     IStorageInfo(const KERNEL_NS::LibString &systemName);
+    IStorageInfo(Byte8 const * const &systemName);
+    
     virtual ~IStorageInfo();
 
     virtual bool RegisterStorages() { return true; }
