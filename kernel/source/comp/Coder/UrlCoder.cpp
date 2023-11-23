@@ -139,8 +139,8 @@ bool UrlCoder::Decode(const Byte8 *src, UInt64 srcLen, Byte8 *target, UInt64 &ta
 
             ++src;
 
-            auto &hi = HexToDecimalValues[*src++];
-            auto &low = HexToDecimalValues[*src++];
+            auto &hi = HexToDecimalValues[static_cast<Int32>(*src++)];
+            auto &low = HexToDecimalValues[static_cast<Int32>(*src++)];
             if(UNLIKELY(hi < 0 || low < 0))
                 return false;
 
