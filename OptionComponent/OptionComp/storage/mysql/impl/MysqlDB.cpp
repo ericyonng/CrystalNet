@@ -874,7 +874,6 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
 
         if(!curConn->ExecuteSqlUsingTransAction(builders, req->_seqId, cb))
         {
-            const Int32 count = static_cast<Int32>(req->_builderInfos.size());
             g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error  mysql:%s, connection:%s request dump:\n", ToString().c_str(), curConn->ToString().c_str())
                         , req->Dump());
 

@@ -588,7 +588,8 @@ template<typename StorageFactory>
 ALWAYS_INLINE bool IStorageInfo::RegisterStorage()
 {
     auto newFactory = StorageFactory::FactoryCreate();
-    if(!AddStorageInfo(newFactory->Create()->CastTo<IStorageInfo>()))
+    auto newStorageInfo = reinterpret_cast<IStorageInfo *>(newFactory->Create());
+    if(!AddStorageInfo(newStorageInfo))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("AddStorageInfo fail current system :%s"), GetSystemName().c_str());
         newFactory->Release();
@@ -982,14 +983,14 @@ ALWAYS_INLINE bool IStorageInfo::AddStorageInfo(IStorageInfo *storageInfo)
     if(UNLIKELY(iterFieldName != _fieldNameRefStorageInfo.end()))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("storage info already exists, current system name:%s, exists system name:%s, will add system name:%s field name:%s")
-            , GetSystemName().c_str(), storageInfo->GetSystemName().c_str(), storageInfo->GetFieldName().c_str());
+            , GetSystemName().c_str(), iterFieldName->second->GetSystemName().c_str(), storageInfo->GetSystemName().c_str(), storageInfo->GetFieldName().c_str());
         return false;
     }
 
     // 不可以有两个primary key
     if(_primaryKeyStorage && storageInfo->IsPrimaryField())
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("primary key is already exists, current system name:%s, exists system name:%s, will add system name:%s field name:%s")
+        g_Log->Error(LOGFMT_OBJ_TAG("primary key is already exists, current system name:%s, will add system name:%s field name:%s")
             , GetSystemName().c_str(), storageInfo->GetSystemName().c_str(), storageInfo->GetFieldName().c_str());
         return false;
     }

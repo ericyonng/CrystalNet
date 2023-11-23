@@ -357,7 +357,7 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
     }
 
     std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> allRecords;
-    auto rowCount = static_cast<UInt64>(mysql_stmt_num_rows(_stmt));
+    // auto rowCount = static_cast<UInt64>(mysql_stmt_num_rows(_stmt));
     Int32 retFetch = mysql_stmt_fetch(_stmt);
     const Int32 resultFieldCount = static_cast<Int32>(_resultFieldCount);
     while((retFetch == 0) || (retFetch == MYSQL_DATA_TRUNCATED))

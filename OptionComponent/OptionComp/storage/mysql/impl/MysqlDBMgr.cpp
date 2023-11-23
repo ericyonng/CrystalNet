@@ -575,7 +575,7 @@ Int32 MysqlDBMgr::_InitDb()
         if(err != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("db init fail err:%d, db config:%s")
-                        , iter.second->GetConfig().ToString().c_str());
+                        ,err, iter.second->GetConfig().ToString().c_str());
             return err;
         }
     }
