@@ -27,9 +27,9 @@
 */
 
 #include <pch.h>
-#include <service/TestService/Comps/Test/impl/TestMgrStorage.h>
-#include <service/TestService/Comps/Test/impl/TestMgrStorageFactory.h>
-#include <service/TestService/Comps/Test/impl/TestMgr.h>
+#include <service/TestService/Comps/Test/Impl/TestMgrStorage.h>
+#include <service/TestService/Comps/Test/Impl/TestMgrStorageFactory.h>
+#include <service/TestService/Comps/Test/Impl/TestMgr.h>
 
 SERVICE_BEGIN
 

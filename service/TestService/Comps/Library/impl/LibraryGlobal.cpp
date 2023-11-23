@@ -317,7 +317,7 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
         // 是否超库存
         if((iter.second == 0) || bookInfo->variantinfo().count() < static_cast<Int64>(iter.second))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("book count is empty or over capacity,book id:%llu book count:%lld, will borrow count:%d libraryId:%lld, user id:%llu")
+            g_Log->Warn(LOGFMT_OBJ_TAG("book count is empty or over capacity,book id:%llu book count:%lld, will borrow count:%lld libraryId:%lld, user id:%llu")
             , iter.first, bookInfo->variantinfo().count(), iter.second, libraryId, memberUserId);
             return Status::BookCountOverCapacity;
         }
@@ -1116,7 +1116,8 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
                 if(!_IsReturnBackAllBook(targetMember))
                 {
                     errCode = Status::HaveBookBorrowedNotReturnBack;
-                    g_Log->Warn(LOGFMT_OBJ_TAG("have book not return back user:%s, library info:%s"), LibraryToString(libraryInfo).c_str());
+                    g_Log->Warn(LOGFMT_OBJ_TAG("have book not return back user:%s, library info:%s")
+                        , user->ToString().c_str(), LibraryToString(libraryInfo).c_str());
                     break;
                 }
             }
@@ -1442,7 +1443,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                 if((currentLen * 3 / 4) > maxBookContentLen)
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("content too long :%llu limit:%llu user:%s")
-                    , currentLen, maxBookContentLen, user->ToString().c_str());
+                    , static_cast<UInt64>(currentLen), static_cast<UInt64>(maxBookContentLen), user->ToString().c_str());
                     err = Status::ContentTooLong;
                     break;
                 }
@@ -1463,7 +1464,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                     if(keyword.size() > contentMaxLen)
                     {
                         g_Log->Warn(LOGFMT_OBJ_TAG("keyword too long :%llu limit:%llu user:%s")
-                        , static_cast<UInt64>(keyword.size()), contentMaxLen, user->ToString().c_str());
+                        , static_cast<UInt64>(keyword.size()), static_cast<UInt64>(contentMaxLen), user->ToString().c_str());
                         err = Status::ContentTooLong;
                         break;
                     }
@@ -1559,7 +1560,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                 if((currentLen * 3 / 4) > maxBookContentLen)
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("content too long :%llu limit:%llu user:%s")
-                    , currentLen, maxBookContentLen, user->ToString().c_str());
+                    , static_cast<UInt64>(currentLen), static_cast<UInt64>(maxBookContentLen), user->ToString().c_str());
                     err = Status::ContentTooLong;
                     break;
                 }
@@ -1580,7 +1581,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
                     if(keyword.size() > contentMaxLen)
                     {
                         g_Log->Warn(LOGFMT_OBJ_TAG("keyword too long :%llu limit:%llu user:%s")
-                        , static_cast<UInt64>(keyword.size()), contentMaxLen, user->ToString().c_str());
+                        , static_cast<UInt64>(keyword.size()), static_cast<UInt64>(contentMaxLen), user->ToString().c_str());
                         err = Status::ContentTooLong;
                         break;
                     }
@@ -2622,7 +2623,7 @@ void LibraryGlobal::_OnReturnBackReq(KERNEL_NS::LibPacket *&packet)
 
         // 如果还部分的订单
         std::set<UInt64> suborders;
-        for(auto subOrderId : req->suborderids())
+        for(UInt64 subOrderId : req->suborderids())
         {
             bool isExists = false;
             for(auto &subOrder : orderInfo->borrowbooklist())
