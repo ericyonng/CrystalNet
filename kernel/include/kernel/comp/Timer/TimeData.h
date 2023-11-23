@@ -63,6 +63,7 @@ public:
     void MoveParams(Variant *params);
 
     LibString ToString() const;
+    void UpdateTimerInfo();
 
     const Int64 _id;               // 定时器id
     Int64 _expiredTime;             // 当前过期时间 纳秒
@@ -74,6 +75,8 @@ public:
     Variant *_params;             // 参数
     
     TimeData *_next;                // 给遍历过期用的, 其他地方不可以使用
+
+    KERNEL_NS::LibString _timerInfo;
 };
 
 ALWAYS_INLINE bool TimeDataComp::operator()(const TimeData *l, const TimeData *r) const

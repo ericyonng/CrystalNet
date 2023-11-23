@@ -80,10 +80,16 @@ LibString TimeData::ToString() const
 {
     LibString info;
     const auto &now = LibTime::Now();
-    info.AppendFormat("_id=[%lld], _expiredTime=[%lld], _period=[%lld], _owner=[%p], _isScheduing=[%d], left time=[%lld](ns)"
-    , _id,  _expiredTime, _period, _owner, _isScheduing, _expiredTime - now.GetNanoTimestamp());
+    info.AppendFormat("_id=[%lld], _expiredTime=[%lld], _period=[%lld], _owner=[%p], _isScheduing=[%d], left time=[%lld](ns), timer info:%s"
+    , _id,  _expiredTime, _period, _owner, _isScheduing, _expiredTime - now.GetNanoTimestamp(), _timerInfo.c_str());
 
     return info;
+}
+
+void TimeData::UpdateTimerInfo()
+{
+    if(LIKELY(_owner))
+        _timerInfo = _owner->ToString();
 }
 
 KERNEL_END

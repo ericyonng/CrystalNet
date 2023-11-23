@@ -35,6 +35,7 @@
 #include <kernel/comp/Cpu/LibCpuCounter.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Utils/SignalHandleUtil.h>
+#include <kernel/comp/PerformanceRecord.h>
 
 KERNEL_BEGIN
 
@@ -86,6 +87,11 @@ Int64 TimerMgr::Drive()
 
     if(LIKELY(!_expireQueue.empty()))
     {
+        KERNEL_NS::TimeData *timerData = NULL;
+        auto &&outputLogFunc = [&timerData](UInt64 ms){
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(TimerMgr, "timer time out cost:%llu, timer data:%s"), ms, timerData ? timerData->ToString().c_str() : "");
+        };
+
         _curTime = TimeUtil::GetFastNanoTimestamp();
 
         // 为了避免在TimeOut执行过程中定时器重新注册进去导致队列顺序失效, 以及可能注册进去的定时器每次都超时导致死循环, 所以一定是需要异步处理注册定时, 反注册, 以及销毁定时器等操作
@@ -101,6 +107,8 @@ Int64 TimerMgr::Drive()
             iter = _expireQueue.erase(iter);
             if(timeData->_isScheduing)
             {
+                timerData = timeData;
+                PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
                 timeData->_owner->OnTimeOut();
                 ++handled;
 

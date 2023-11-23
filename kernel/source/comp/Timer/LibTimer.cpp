@@ -102,8 +102,8 @@ void LibTimer::Schedule(Int64 startTime, Int64 milliSecPeriod)
 LibString LibTimer::ToString() const
 {
     LibString info;
-    info.AppendFormat("_mgr[%p], _data[%s], _timeroutHandler[%p], _cancelHandler[%p]"
-    , _mgr, _data->ToString().c_str(), _timeroutHandler, _cancelHandler);
+    info.AppendFormat("_mgr[%p], _data[%s], _timeroutHandler:[%p, owner:%s, callback:%s], _cancelHandler[%p]"
+    , _mgr, _data ? _data->ToString().c_str() : "", _timeroutHandler, _timeroutHandler ? _timeroutHandler->GetOwnerRtti() : "", _timeroutHandler ? _timeroutHandler->GetCallbackRtti() : "",  _cancelHandler);
 
     return info;
 }

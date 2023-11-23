@@ -117,18 +117,24 @@ ALWAYS_INLINE void LibTimer::SetTimeOutHandler(ObjType *obj, void (ObjType::*han
 {
     CRYSTAL_DELETE_SAFE(_timeroutHandler);
     _timeroutHandler = DelegateFactory::Create(obj, handler);
+    if(LIKELY(_data))
+        _data->UpdateTimerInfo();
 }
 
 ALWAYS_INLINE void LibTimer::SetTimeOutHandler(void (*handler)(LibTimer *))
 {
     CRYSTAL_DELETE_SAFE(_timeroutHandler);
     _timeroutHandler = DelegateFactory::Create(handler);
+    if(LIKELY(_data))
+        _data->UpdateTimerInfo();
 }
 
 ALWAYS_INLINE void LibTimer::SetTimeOutHandler(IDelegate<void, LibTimer *> *delg)
 {
     CRYSTAL_DELETE_SAFE(_timeroutHandler);
     _timeroutHandler = delg;
+    if(LIKELY(_data))
+        _data->UpdateTimerInfo();
 }
 
 template<typename LambdaType>
