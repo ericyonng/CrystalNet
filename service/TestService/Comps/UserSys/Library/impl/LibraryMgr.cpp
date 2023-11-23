@@ -159,7 +159,7 @@ void LibraryMgr::_SendUserLibraryInfo() const
 
 void LibraryMgr::_OnQuitLibrary()
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("user quit library user:%s, library id:%llu"), GetUser()->ToString().c_str(), _libraryInfo->libraryid());
+    g_Log->Info(LOGFMT_OBJ_TAG("user quit library user:%s, library id:%llu"), GetUser()->ToString().c_str(), static_cast<UInt64>(_libraryInfo->libraryid()));
     _libraryInfo->set_libraryid(0);
     MaskDirty();
     _SendUserLibraryInfo();

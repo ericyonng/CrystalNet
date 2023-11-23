@@ -33,6 +33,8 @@ VER="$1"
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/protobuf/lib/libprotobuf-lited.a ${OUTPUT_DIR}/
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/protobuf/lib/libprotocd.a ${OUTPUT_DIR}/
 
+		sh ${SCRIPT_PATH}/partition_files.sh
+
 		# sudo ln -sv ${OUTPUT_DIR}libCrystalKernel_debug.so /usr/lib/libCrystalKernel_debug.so
 		# 创建debug版本的so连接符号
 		# for libName in $DEBUG_LIBS
@@ -51,6 +53,8 @@ VER="$1"
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/protobuf/lib/libprotobuf.a ${OUTPUT_DIR}/
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/protobuf/lib/libprotobuf-lite.a ${OUTPUT_DIR}/
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/protobuf/lib/libprotoc.a ${OUTPUT_DIR}/
+
+		sh ${SCRIPT_PATH}/partition_files.sh
 
 		# sudo ln -sv ${OUTPUT_DIR}libCrystalKernel.so /usr/lib/libCrystalKernel.so
 		# 创建release版本的so连接符号

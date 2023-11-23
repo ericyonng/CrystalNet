@@ -874,12 +874,12 @@ Int32 MysqlMgr::OnSave(const KERNEL_NS::LibString &key, std::map<KERNEL_NS::LibS
     auto simpleInfoData = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
     simpleInfoData->Init(1);
     simpleInfoData->Write(data.data(), static_cast<Int64>(data.size()));
-    fieldRefdb.insert(std::make_pair(MysqlMgrStorage::SIMPLE_INFO, simpleInfoData));
+    fieldRefdb.insert(std::make_pair(KERNEL_NS::LibString(MysqlMgrStorage::SIMPLE_INFO), simpleInfoData));
     
     auto keyData = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
     keyData->Init(1);
     keyData->Write(key.data(), static_cast<Int64>(key.size()));
-    fieldRefdb.insert(std::make_pair(MysqlMgrStorage::TABLE_NAME, keyData));
+    fieldRefdb.insert(std::make_pair(KERNEL_NS::LibString(MysqlMgrStorage::TABLE_NAME), keyData));
 
     return Status::Success;
 }
