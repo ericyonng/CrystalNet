@@ -30,6 +30,7 @@
 #include <pch.h>
 #include <protocols/Opcodes.h>
 #include <protocols/AllPbs.h>
+#include <service_common/ServiceCommon.h>
 
 std::unordered_map<Int32, OpcodeInfo *> Opcodes::_opcodeIdRefInfo;
 std::unordered_map<KERNEL_NS::LibString, OpcodeInfo *> Opcodes::_opcodeNameRefInfo;
