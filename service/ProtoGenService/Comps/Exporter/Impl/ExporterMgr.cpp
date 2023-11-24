@@ -2081,7 +2081,6 @@ bool ExporterMgr::_GenTsExtends()
         // 1.生成ts对象
         for(auto iter : allCodeUnit)
         {
-            auto &fullName = iter.first;
             auto &codeUnit = iter.second;
 
             // 命名空间过滤
