@@ -6,7 +6,6 @@
 
 // KERNEL_INCLUDED
 #include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
 #include <google/protobuf/util/json_util.h>
 #include <google/protobuf/text_format.h>
 
