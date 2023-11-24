@@ -1924,7 +1924,7 @@ bool ExporterMgr::_GenTs()
         lines.push_back("");
     }
 
-    lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+    lines.push_back(KERNEL_NS::LibString());
     lines.push_back(KERNEL_NS::LibString().AppendFormat("      }"));
 
 
@@ -2027,7 +2027,6 @@ bool ExporterMgr::_GenTsExtends()
         // 生成枚举
         for(auto iter : enumCodeUnits)
         {
-            auto &fullName = iter.first;
             auto &codeUnit = iter.second;
             auto &subCodeUnits = codeUnit->_subCodeUnits;
             const Int32 count = static_cast<Int32>(subCodeUnits.size());
@@ -2285,11 +2284,11 @@ bool ExporterMgr::_GenTsExtends()
 
         // parser
         lines.push_back(KERNEL_NS::LibString().AppendFormat("    export class AllParsers {"));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+        lines.push_back(KERNEL_NS::LibString());
 
         // 1.字典
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        AllParsersDict:Map<string, (jsonData:any)=>any> = new Map<string, (jsonData:any)=>any>();"));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+        lines.push_back(KERNEL_NS::LibString());
 
         // 2.构造初始化parser字典 TODO:
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        constructor()"));
@@ -2298,7 +2297,6 @@ bool ExporterMgr::_GenTsExtends()
         // 1.构造注册parser方法
         for(auto iter : allCodeUnit)
         {
-            auto &fullName = iter.first;
             auto &codeUnit = iter.second;
 
             // 命名空间过滤
@@ -2316,22 +2314,22 @@ bool ExporterMgr::_GenTsExtends()
             if(!KERNEL_NS::CodeUnitFlags::HasFlags(codeUnit->_flags, KERNEL_NS::CodeUnitFlags::DATA_TYPE_DEFINE_FLAG))
                 continue;
 
-            lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+            lines.push_back(KERNEL_NS::LibString());
             lines.push_back(KERNEL_NS::LibString().AppendFormat("            this.add(\"%s\", (jsonData:any):any =>{", codeUnit->_unitName.c_str()));
             lines.push_back(KERNEL_NS::LibString().AppendFormat("                return this.%sParser(jsonData);", codeUnit->_unitName.c_str()));
             lines.push_back(KERNEL_NS::LibString().AppendFormat("            })"));
-            lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+            lines.push_back(KERNEL_NS::LibString());
         }
 
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        }"));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+        lines.push_back(KERNEL_NS::LibString());
 
         // 3.添加add方法
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        public add(pbType:string, cb:(jsonData:any)=>any)"));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        {"));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("            this.AllParsersDict.set(pbType, cb);"));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        }"));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+        lines.push_back(KERNEL_NS::LibString());
 
         // 4.添加getParser方法
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        public getParser(pbType:string):((jsonData:any)=>any)|undefined"));
@@ -2343,12 +2341,11 @@ bool ExporterMgr::_GenTsExtends()
         lines.push_back(KERNEL_NS::LibString().AppendFormat("            }"));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("            return cb;"));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        }"));
-        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+        lines.push_back(KERNEL_NS::LibString());
 
         // 5.添加具体parser的私有方法
         for(auto iter : allCodeUnit)
         {
-            auto &fullName = iter.first;
             auto &codeUnit = iter.second;
 
             // 命名空间过滤
@@ -2366,7 +2363,7 @@ bool ExporterMgr::_GenTsExtends()
             if(!KERNEL_NS::CodeUnitFlags::HasFlags(codeUnit->_flags, KERNEL_NS::CodeUnitFlags::DATA_TYPE_DEFINE_FLAG))
                 continue;
 
-            lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+            lines.push_back(KERNEL_NS::LibString());
             lines.push_back(KERNEL_NS::LibString().AppendFormat("            private %sParser(jsonData:any):any{", codeUnit->_unitName.c_str()));
             lines.push_back(KERNEL_NS::LibString().AppendFormat("                var newInfo = new %s.%s()", ts_objModule.c_str(), codeUnit->_unitName.c_str()));
 
@@ -2382,7 +2379,7 @@ bool ExporterMgr::_GenTsExtends()
 
                 if(KERNEL_NS::CodeUnitFlags::HasFlags(objFieldCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
                 {// 数组
-                    lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                    lines.push_back(KERNEL_NS::LibString());
                     lines.push_back(KERNEL_NS::LibString().AppendFormat("                if(jsonData.%s != undefined)", objFieldCodeUnit->_unitName.c_str()));
                     lines.push_back(KERNEL_NS::LibString().AppendFormat("                {"));
                     lines.push_back(KERNEL_NS::LibString().AppendFormat("                    var jsonArray = jsonData.%s.map((value, idx, arr)=>{", objFieldCodeUnit->_unitName.c_str()));
@@ -2407,15 +2404,15 @@ bool ExporterMgr::_GenTsExtends()
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                    var parser = this.getParser(\"%s\");", fieldDataTypeCodeUnit->_unitName.c_str()));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                    if(parser == undefined)"));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                        return {}"));
-                        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                        lines.push_back(KERNEL_NS::LibString());
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                    return parser(value);"));
                     }
 
                     lines.push_back(KERNEL_NS::LibString().AppendFormat("                    });"));
-                    lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                    lines.push_back(KERNEL_NS::LibString());
                     lines.push_back(KERNEL_NS::LibString().AppendFormat("                    newInfo.%s = jsonArray;", objFieldCodeUnit->_unitName.c_str()));
                     lines.push_back(KERNEL_NS::LibString().AppendFormat("                }"));
-                    lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                    lines.push_back(KERNEL_NS::LibString());
                 }
 
                 // 非数组
@@ -2423,34 +2420,34 @@ bool ExporterMgr::_GenTsExtends()
                 {
                     if(KERNEL_NS::CodeUnitFlags::HasFlags(objFieldCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::NUMBER_FIELD_FLAG))
                     {// 数值
-                        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                        lines.push_back(KERNEL_NS::LibString());
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                if(jsonData.%s != undefined)", objFieldCodeUnit->_unitName.c_str()));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                {"));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                    newInfo.%s = parseFloat(jsonData.%s);", objFieldCodeUnit->_unitName.c_str(), objFieldCodeUnit->_unitName.c_str()));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                }"));
-                        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                        lines.push_back(KERNEL_NS::LibString());
                     }
                     else if(KERNEL_NS::CodeUnitFlags::HasFlags(objFieldCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::STRING_FIELD_FLAG))
                     {
-                        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                        lines.push_back(KERNEL_NS::LibString());
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                if(jsonData.%s != undefined)", objFieldCodeUnit->_unitName.c_str()));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                {"));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                    newInfo.%s = jsonData.%s;", objFieldCodeUnit->_unitName.c_str(), objFieldCodeUnit->_unitName.c_str()));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                }"));
-                        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                        lines.push_back(KERNEL_NS::LibString());
                     }
                     else if(KERNEL_NS::CodeUnitFlags::HasFlags(objFieldCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::BOOL_FIELD_FLAG))
                     {
-                        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                        lines.push_back(KERNEL_NS::LibString());
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                if(jsonData.%s != undefined)", objFieldCodeUnit->_unitName.c_str()));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                {"));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                    newInfo.%s = jsonData.%s == \"true\";", objFieldCodeUnit->_unitName.c_str(), objFieldCodeUnit->_unitName.c_str()));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                }"));
-                        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                        lines.push_back(KERNEL_NS::LibString());
                     }
                     else if(KERNEL_NS::CodeUnitFlags::HasFlags(objFieldCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
                     {
-                        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                        lines.push_back(KERNEL_NS::LibString());
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                if(jsonData.%s != undefined)", objFieldCodeUnit->_unitName.c_str()));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                {"));
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                    var jsonFieldInfo = jsonData.%s;", objFieldCodeUnit->_unitName.c_str()));
@@ -2469,17 +2466,17 @@ bool ExporterMgr::_GenTsExtends()
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                    }"));
 
                         lines.push_back(KERNEL_NS::LibString().AppendFormat("                }"));
-                        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+                        lines.push_back(KERNEL_NS::LibString());
                     }
                 }
             }
             lines.push_back(KERNEL_NS::LibString().AppendFormat("                 return newInfo;"));
             lines.push_back(KERNEL_NS::LibString().AppendFormat("            }"));
-            lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+            lines.push_back(KERNEL_NS::LibString());
         }
         
 
-        lines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+        lines.push_back(KERNEL_NS::LibString());
         lines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
 
         lines.push_back("");
