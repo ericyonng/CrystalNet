@@ -123,7 +123,6 @@ void ClientUserMgr::OnStartup()
 
 Int32 ClientUserMgr::Login(const LoginInfo &loginInfo, Int32 stackType)
 {
-    IClientUser *finalUser = NULL;
     Int32 err = Status::Success;
     do
     {
@@ -135,7 +134,6 @@ Int32 ClientUserMgr::Login(const LoginInfo &loginInfo, Int32 stackType)
 
             user->SetLoginInfo(loginInfo);
             err = user->Login(stackType);
-            finalUser = user;
             break;
         }
 
@@ -180,7 +178,7 @@ Int32 ClientUserMgr::Login(const LoginInfo &loginInfo, Int32 stackType)
             return err;
         }
 
-        finalUser = newUser.pop();
+        newUser.pop();
     } while (false);
     
     // 30秒内没登录成功则移除

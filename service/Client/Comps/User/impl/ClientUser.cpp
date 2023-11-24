@@ -280,7 +280,7 @@ Int32 ClientUser::Login(Int32 stackType)
     if(err != Status::Success)
     {
         _clientInfo->set_clientstatus(ClientUserStatus::UNLOGIN);
-        g_Log->Error(LOGFMT_OBJ_TAG("connect fail err:%d, user:%s"), ToString().c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("connect fail err:%d, user:%s"), err, ToString().c_str());
         return err;
     }
 
@@ -348,12 +348,11 @@ Int64 ClientUser::NewPacketId() const
 
 KERNEL_NS::LibString ClientUser::ToString() const
 {
-    auto descriptor = ClientUserStatus::descriptor();
     const auto &statusName = ClientUserStatus::ENUMS_Name(_clientInfo->clientstatus());
     KERNEL_NS::LibString info;
     info.AppendFormat("account name:%s, user id:%llu, last token:%s, token expire time:%lld, client status:%d,%s, _activedSessionId:%llu, _heartbeatTime:%lld, current server time:%lld, max packet id:%lld"
-    , _clientInfo->accountname().c_str(), _clientInfo->userid(), _clientInfo->lasttoken().c_str()
-    , _clientInfo->tokenexpiretime(), _clientInfo->clientstatus(), statusName.c_str(), _activedSessionId
+    , _clientInfo->accountname().c_str(), static_cast<UInt64>(_clientInfo->userid()), _clientInfo->lasttoken().c_str()
+    , static_cast<Int64>(_clientInfo->tokenexpiretime()), _clientInfo->clientstatus(), statusName.c_str(), _activedSessionId
     , _heartbeatExpireTime, GetNowServerTime(), _maxPacketId);
 
     return info;
