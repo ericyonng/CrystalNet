@@ -613,7 +613,15 @@ bool SystemUtil::IsProcessExist(UInt64 processId)
 bool SystemUtil::SetCurrentThreadName(const LibString &threadName, LibString &err)
 {
 #if CRYSTAL_TARGET_PLATFORM_LINUX
-   auto ret = prctl(PR_SET_NAME, threadName.GetRaw().substr(0, 16).c_str());
+    Int32 ret = 0;
+    if(threadName.size() > 16)
+    {
+        ret = prctl(PR_SET_NAME, threadName.GetRaw().substr(0, 16).c_str());
+    }
+    else
+    {
+        ret = prctl(PR_SET_NAME, threadName.c_str());
+    }
    // auto threadId = SystemUtil::GetCurrentThreadId();
    // auto ret = ::pthread_setname_np(threadId, threadName.c_str());
    if(ret != 0)
