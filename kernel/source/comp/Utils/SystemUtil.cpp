@@ -35,6 +35,9 @@
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Utils/TranscoderUtil.h>
 
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <sys/prctl.h>
+#endif
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 // defines
@@ -610,8 +613,9 @@ bool SystemUtil::IsProcessExist(UInt64 processId)
 bool SystemUtil::SetCurrentThreadName(const LibString &threadName, LibString &err)
 {
 #if CRYSTAL_TARGET_PLATFORM_LINUX
-   auto threadId = SystemUtil::GetCurrentThreadId();
-   auto ret = ::pthread_setname_np(threadId, threadName.c_str());
+   auto ret = prctl(PR_SET_NAME, threadName.GetRaw().substr(0, 16).c_str());
+   // auto threadId = SystemUtil::GetCurrentThreadId();
+   // auto ret = ::pthread_setname_np(threadId, threadName.c_str());
    if(ret != 0)
    {
       err = GetErrString(ret);
