@@ -112,6 +112,7 @@ Int32 Application::_OnHostInit()
     }
 
     _monitor = CRYSTAL_NEW(KERNEL_NS::LibThread);
+    _monitor->SetThreadName("AppMonitor");
     _monitor->AddTask(this, &Application::_OnMonitor);
 
     _configIni = KERNEL_NS::LibIniFile::New_LibIniFile();
