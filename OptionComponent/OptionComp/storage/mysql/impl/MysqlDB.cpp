@@ -127,7 +127,7 @@ Int32 MysqlDB::Init()
         // msyql连接
         newBalance->_conn = MysqlConnect::New_MysqlConnect(++_maxId);
         newBalance->_conn->SetConfig(_cfg);
-        newThread->SetThreadName(KERNEL_NS::LibString().AppendFormat("MysqlDB_%d", _maxId));
+        newThread->SetThreadName(KERNEL_NS::LibString().AppendFormat("MysqlDB_%llu", _maxId));
     }
 
     _msgHandler.resize(MysqlMsgType::Max);
