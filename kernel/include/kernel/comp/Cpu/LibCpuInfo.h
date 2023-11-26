@@ -38,6 +38,7 @@
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
 #include <kernel/comp/Lock/Lock.h>
+#include <kernel/common/procstat.h>
 
 KERNEL_BEGIN
 
