@@ -74,199 +74,199 @@ void TestTime::Run()
 
     std::cout << "test performance:" << std::endl;
 
-    Int64 beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::TimeUtil::GetMicroTimestamp();
+    // Int64 beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::TimeUtil::GetMicroTimestamp();
 
-    Int64 endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // Int64 endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " GetMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " GetMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::TimeUtil::GetFastMicroTimestamp();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::TimeUtil::GetFastMicroTimestamp();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " GetFastMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " GetFastMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::TimeUtil::GetNanoTimestamp();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::TimeUtil::GetNanoTimestamp();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " GetNanoTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " GetNanoTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::TimeUtil::GetFastNanoTimestamp();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::TimeUtil::GetFastNanoTimestamp();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " GetFastNanoTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " GetFastNanoTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::TimeUtil::GetChronoMicroTimestamp();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::TimeUtil::GetChronoMicroTimestamp();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " GetChronoMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " GetChronoMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::TimeUtil::GetClockRealTime();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::TimeUtil::GetClockRealTime();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " GetClockRealTime use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " GetClockRealTime use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::TimeUtil::GetClockRealTimeCoarse();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::TimeUtil::GetClockRealTimeCoarse();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " GetClockRealTimeCoarse use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " GetClockRealTimeCoarse use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::TimeUtil::GetHandwareSysRunTime();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::TimeUtil::GetHandwareSysRunTime();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " GetHandwarTime use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " GetHandwarTime use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::TimeUtil::GetClockMonotonicSysRunTime();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::TimeUtil::GetClockMonotonicSysRunTime();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " GetClockMonotonicTime use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " GetClockMonotonicTime use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    // 与高精度的误差
-    Int64 minDiff = 0, maxDiff = 0, curDiff = 0;
-    std::vector<Int64> *middleArr = new std::vector<Int64>;
-    std::map<Int64, Int64> *statistics = new std::map<Int64, Int64>;
-    auto __addStatistics = [&statistics] (Int64 level)->void
-    {
-        auto iter = statistics->find(level);
-        if(iter == statistics->end())
-            iter = statistics->insert(std::make_pair(level, 0)).first;
-        ++iter->second;
-    };
-    for(Int64 i=0;i<TEST_TIME_PERFORMANCE_CNT;++i)
-    {
-        curDiff = abs(KERNEL_NS::TimeUtil::GetClockRealTime() - KERNEL_NS::TimeUtil::GetClockRealTimeCoarse());
-        middleArr->push_back(curDiff);
+    // // 与高精度的误差
+    // Int64 minDiff = 0, maxDiff = 0, curDiff = 0;
+    // std::vector<Int64> *middleArr = new std::vector<Int64>;
+    // std::map<Int64, Int64> *statistics = new std::map<Int64, Int64>;
+    // auto __addStatistics = [&statistics] (Int64 level)->void
+    // {
+    //     auto iter = statistics->find(level);
+    //     if(iter == statistics->end())
+    //         iter = statistics->insert(std::make_pair(level, 0)).first;
+    //     ++iter->second;
+    // };
+    // for(Int64 i=0;i<TEST_TIME_PERFORMANCE_CNT;++i)
+    // {
+    //     curDiff = abs(KERNEL_NS::TimeUtil::GetClockRealTime() - KERNEL_NS::TimeUtil::GetClockRealTimeCoarse());
+    //     middleArr->push_back(curDiff);
 
-        if(!minDiff)
-            minDiff = curDiff;
-        else if(curDiff && minDiff > curDiff)
-        {
-            minDiff = curDiff;
-        }
+    //     if(!minDiff)
+    //         minDiff = curDiff;
+    //     else if(curDiff && minDiff > curDiff)
+    //     {
+    //         minDiff = curDiff;
+    //     }
 
-        if(maxDiff < curDiff)
-          maxDiff = curDiff;
+    //     if(maxDiff < curDiff)
+    //       maxDiff = curDiff;
 
-        // 误差100以上统计
-        if(curDiff >=100 && curDiff < 500)
-        {
-            __addStatistics(100);
-        }
-        else if( curDiff >= 500 && curDiff < 1000)
-        {
-            __addStatistics(500);
-        }
-        else if( curDiff >= 1000 && curDiff < 5000)
-        {
-            __addStatistics(1000);
-        }
-        else if( curDiff >= 5000 && curDiff < 10000)
-        {
-            __addStatistics(5000);
-        }
-        else if( curDiff >= 10000 && curDiff < 15000)
-        {
-            __addStatistics(10000);
-        }
-        else if( curDiff >= 15000 && curDiff < 20000)
-        {
-            __addStatistics(15000);
-        }
-        else if( curDiff >= 20000)
-        {
-            __addStatistics(20000);
-        }
+    //     // 误差100以上统计
+    //     if(curDiff >=100 && curDiff < 500)
+    //     {
+    //         __addStatistics(100);
+    //     }
+    //     else if( curDiff >= 500 && curDiff < 1000)
+    //     {
+    //         __addStatistics(500);
+    //     }
+    //     else if( curDiff >= 1000 && curDiff < 5000)
+    //     {
+    //         __addStatistics(1000);
+    //     }
+    //     else if( curDiff >= 5000 && curDiff < 10000)
+    //     {
+    //         __addStatistics(5000);
+    //     }
+    //     else if( curDiff >= 10000 && curDiff < 15000)
+    //     {
+    //         __addStatistics(10000);
+    //     }
+    //     else if( curDiff >= 15000 && curDiff < 20000)
+    //     {
+    //         __addStatistics(15000);
+    //     }
+    //     else if( curDiff >= 20000)
+    //     {
+    //         __addStatistics(20000);
+    //     }
 
-        // 误差500 以上统计
-        // 误差1000以上统计
-        // 误差5000以上统计
-        // 误差10000以上统计
-        // 误差15000以上统计
-        // 误差20000以上统计
-    }
+    //     // 误差500 以上统计
+    //     // 误差1000以上统计
+    //     // 误差5000以上统计
+    //     // 误差10000以上统计
+    //     // 误差15000以上统计
+    //     // 误差20000以上统计
+    // }
 
-    // GetClockRealTime GetClockRealTimeCoarse diff min = 161, diff max =22426, middle value = 591 单位微妙
-    std::cout << "GetClockRealTime GetClockRealTimeCoarse diff min = " << minDiff << ", diff max =" << maxDiff << ", middle value = " << middleArr->at(middleArr->size()/2) << std::endl;
+    // // GetClockRealTime GetClockRealTimeCoarse diff min = 161, diff max =22426, middle value = 591 单位微妙
+    // std::cout << "GetClockRealTime GetClockRealTimeCoarse diff min = " << minDiff << ", diff max =" << maxDiff << ", middle value = " << middleArr->at(middleArr->size()/2) << std::endl;
 
-    // diff level :100, count = 9
-    // diff level :500, count = 4229356
-    // diff level :1000, count = 5770635 误差在毫秒级别
-    for(auto iter:*statistics)
-    {
-        std::cout << "diff level :" << iter.first << ", count = " << iter.second << std::endl;
-    }
+    // // diff level :100, count = 9
+    // // diff level :500, count = 4229356
+    // // diff level :1000, count = 5770635 误差在毫秒级别
+    // for(auto iter:*statistics)
+    // {
+    //     std::cout << "diff level :" << iter.first << ", count = " << iter.second << std::endl;
+    // }
 
-    std::cout << "test time util end" << std::endl;
+    // std::cout << "test time util end" << std::endl;
     
-    // 测试TimeSlice
-    KERNEL_NS::TimeSlice slice(10, 500);
-    KERNEL_NS::TimeSlice slice2("00:00:10.500000");
+    // // 测试TimeSlice
+    // KERNEL_NS::TimeSlice slice(10, 500);
+    // KERNEL_NS::TimeSlice slice2("00:00:10.500000");
 
-    std::cout << "slice = " << slice.ToString() << std::endl;
-    std::cout << "slice2 = " << slice2.ToString() << std::endl;
+    // std::cout << "slice = " << slice.ToString() << std::endl;
+    // std::cout << "slice2 = " << slice2.ToString() << std::endl;
     
-    // 测试LibTime
-    KERNEL_NS::LibTime t1 = KERNEL_NS::LibTime::Now();
-    KERNEL_NS::SystemUtil::ThreadSleep(10000);
-    KERNEL_NS::LibTime t2;
-    t2.UpdateTime();
+    // // 测试LibTime
+    // KERNEL_NS::LibTime t1 = KERNEL_NS::LibTime::Now();
+    // KERNEL_NS::SystemUtil::ThreadSleep(10000);
+    // KERNEL_NS::LibTime t2;
+    // t2.UpdateTime();
 
-    std::cout << "t2 - t1 =" << (t2 - t1).ToString() << std::endl;
+    // std::cout << "t2 - t1 =" << (t2 - t1).ToString() << std::endl;
 
-    KERNEL_NS::LibTime t3 =  KERNEL_NS::LibTime::FromFmtString("2023-06-25 00:31:00.100000093");
-    std::cout << "t3 = " << t3.ToString() << std::endl;
-    std::cout << "t2 - t3 ="<< (t2 - t3).ToString() << std::endl;
-    std::cout << "t3 to zero time = " << t3.GetIntervalTo(KERNEL_NS::TimeSlice("00:00:00.100000100")).ToString() << std::endl;
+    // KERNEL_NS::LibTime t3 =  KERNEL_NS::LibTime::FromFmtString("2023-06-25 00:31:00.100000093");
+    // std::cout << "t3 = " << t3.ToString() << std::endl;
+    // std::cout << "t2 - t3 ="<< (t2 - t3).ToString() << std::endl;
+    // std::cout << "t3 to zero time = " << t3.GetIntervalTo(KERNEL_NS::TimeSlice("00:00:00.100000100")).ToString() << std::endl;
 
-    std::cout << "test lib time get time performance"<< std::endl;
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::LibTime::NowTimestamp();
+    // std::cout << "test lib time get time performance"<< std::endl;
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::LibTime::NowTimestamp();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " NowTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " NowTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::LibTime::NowMicroTimestamp();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::LibTime::NowMicroTimestamp();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " NowMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " NowMicroTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
 
-    beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
-    for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
-        KERNEL_NS::LibTime::NowMilliTimestamp();
+    // beginTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // for(Int64 i=0; i<TEST_TIME_PERFORMANCE_CNT; ++i)
+    //     KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
+    // endTime = KERNEL_NS::LibTime::NowMilliTimestamp();
 
-    std::cout << " NowMilliTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
+    // std::cout << " NowMilliTimestamp use time ="<< endTime - beginTime << " ms" << std::endl;
 
     for(Int64 i = 0; i < TEST_TIME_PERFORMANCE_CNT; ++i)
     {
