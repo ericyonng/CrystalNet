@@ -90,7 +90,7 @@ public:
     static bool IsDir(const FindFileInfo &fileAttr);
 };
 
-inline void FileUtil::DelFile(const Byte8 *filePath)
+ALWAYS_INLINE void FileUtil::DelFile(const Byte8 *filePath)
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     std::string strDelCmd = "del ";
@@ -113,210 +113,32 @@ inline void FileUtil::DelFile(const Byte8 *filePath)
 #endif
 }
 
-inline bool FileUtil::DelFileCStyle(const Byte8 *filePath)
+ALWAYS_INLINE bool FileUtil::DelFileCStyle(const Byte8 *filePath)
 {
     return remove(filePath) == 0;
 }
 
-inline FILE  *FileUtil::CreateTmpFile()
+ALWAYS_INLINE FILE  *FileUtil::CreateTmpFile()
 {
     return tmpfile();
 }
 
-inline const Byte8 *FileUtil::GenRandFileName(Byte8 randName[L_tmpnam])
+ALWAYS_INLINE const Byte8 *FileUtil::GenRandFileName(Byte8 randName[L_tmpnam])
 {
     return tmpnam(randName);
 }
 
-inline FILE *FileUtil::OpenFile(const Byte8 *fileName, bool isCreate /*= false*/, const Byte8 *openType /*= "rb+"*/)
-{
-    if(fileName == NULL || openType == NULL)
-        return NULL;
-
-    FILE *fp = NULL;
-    fp = ::fopen(fileName, openType);
-    if(!fp)
-    {
-        if(isCreate)
-        {
-            fp = ::fopen(fileName, "wb+");
-            if(!fp)
-                return NULL;
-                
-            FileUtil::CloseFile(*fp);
-            fp = ::fopen(fileName, openType);
-            if(!fp)
-            {
-                return NULL;
-            }
-        }
-        else
-        {
-            return NULL;
-        }
-    }
-
-    clearerr(fp);
-
-    // 不是追加打开文件的设置开头
-    if(!strchr(openType, 'a'))
-        rewind(fp);
-    return fp;
-}
-
-inline bool FileUtil::CopyFile(const Byte8 *srcFile, const Byte8 *destFile)
-{
-    if(UNLIKELY(!srcFile || !destFile))
-        return false;
-
-    auto srcFp = OpenFile(srcFile);
-    if(!srcFp)
-        return false;
-
-    auto destFp = OpenFile(destFile, true, "wb+");
-    if(!destFp)
-        return false;
-
-    unsigned char get_c = 0;
-    char count = 0, wrCount = 0;
-    bool isDirty = false;
-
-    while(!feof(srcFp))
-    {
-        get_c = 0;
-        count = char(fread(&get_c, 1, 1, srcFp));
-        if(count != 1)
-            break;
-
-        wrCount = char(fwrite(&get_c, 1, 1, destFp));
-        if(wrCount != 1)
-            break;
-
-        isDirty = true;
-    }
-
-    if(isDirty)
-        FlushFile(*destFp);
-
-    CloseFile(*srcFp);
-    CloseFile(*destFp);
-    return true;
-}
-
-inline bool FileUtil::CopyFile(FILE &src, FILE &dest)
-{
-    clearerr(&src);
-    clearerr(&dest);
-    unsigned char get_c = 0;
-    char count = 0, wrCount = 0;
-    bool isDirty = false;
-    while(!feof(&src))
-    {
-        get_c = 0;
-        count = char(fread(&get_c, 1, 1, &src));
-        if(count != 1)
-            break;
-
-        wrCount = char(fwrite(&get_c, 1, 1, &dest));
-        if(wrCount != 1)
-            break;
-
-        isDirty = true;
-    }
-
-    if(isDirty)
-        FlushFile(dest);
-
-    return true;
-}
-
-ALWAYS_INLINE UInt64 FileUtil::ReadFile(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
-{
-    if(!buffer || !bufferSize)
-        return 0;
-
-    clearerr(&fp);
-    UInt64 readCnt = 0;
-    U8 *bufferTmp = reinterpret_cast<U8 *>(buffer);
-    U8 get_c = 0;
-    while(!feof(&fp))
-    {
-        get_c = 0;
-        if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
-        {
-            *bufferTmp = get_c;
-            ++bufferTmp;
-            ++readCnt;
-
-            if(readCnt >= bufferSize)
-                break;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return readCnt;
-}
-
-inline UInt64 FileUtil::ReadFile(FILE &fp, LibString &outString, Int64 sizeLimit)
-{
-    clearerr(&fp);
-    UInt64 readCnt = 0;
-    U8 get_c = 0;
-    while(!feof(&fp))
-    {
-        get_c = 0;
-        if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
-        {
-            outString.AppendData(reinterpret_cast<const Byte8 *>(&get_c), 1);
-            ++readCnt;
-
-            if(sizeLimit > 0 && 
-               static_cast<Int64>(readCnt) >= sizeLimit)
-                break;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return readCnt;
-}
-
-inline Int64 FileUtil::WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToWrite)
-{
-//     if(!buffer || dataLenToWrite == 0)
-//         return 0;
-
-    clearerr(&fp);
-    auto handle = static_cast<Int64>(::fwrite(buffer, dataLenToWrite, 1, &fp));
-    if(LIKELY(handle != 1))
-    {
-        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-            perror("fwrite fail");
-        #endif
-        return 0;
-    }
-
-//     if(dataLenToWrite != cnt)
-//         printf("write error!");
-    return dataLenToWrite;
-}
-
-inline Int64 FileUtil::WriteFile(FILE &fp, const LibString &bitData)
+ALWAYS_INLINE Int64 FileUtil::WriteFile(FILE &fp, const LibString &bitData)
 {
     return WriteFile(fp, bitData.GetRaw().data(), bitData.size());
 }
 
-inline bool FileUtil::IsEnd(FILE &fp)
+ALWAYS_INLINE bool FileUtil::IsEnd(FILE &fp)
 {
     return feof(&fp);
 }
 
-inline bool FileUtil::CloseFile(FILE &fp)
+ALWAYS_INLINE bool FileUtil::CloseFile(FILE &fp)
 {
     clearerr(&fp);
     if(fclose(&fp) != 0)
@@ -325,7 +147,7 @@ inline bool FileUtil::CloseFile(FILE &fp)
     return true;
 }
 
-inline bool FileUtil::IsFileExist(const Byte8 *fileName)
+ALWAYS_INLINE bool FileUtil::IsFileExist(const Byte8 *fileName)
 {
     if(UNLIKELY(!fileName))
         return false;
@@ -341,12 +163,12 @@ inline bool FileUtil::IsFileExist(const Byte8 *fileName)
     return true;
 }
 
-inline Int32 FileUtil::GetFileCusorPos(FILE &fp)
+ALWAYS_INLINE Int32 FileUtil::GetFileCusorPos(FILE &fp)
 {
     return ftell(&fp);
 }
 
-inline bool FileUtil::SetFileCursor(FILE &fp, Int32 enumPos, Long offset)
+ALWAYS_INLINE bool FileUtil::SetFileCursor(FILE &fp, Int32 enumPos, Long offset)
 {
     return fseek(&fp, offset, enumPos) == 0;
 }
@@ -357,50 +179,12 @@ inline void FileUtil::ResetFileCursor(FILE &fp)
     rewind(&fp);
 }
 
-inline bool FileUtil::FlushFile(FILE &fp)
+ALWAYS_INLINE bool FileUtil::FlushFile(FILE &fp)
 {
     return fflush(&fp) == 0;
 }
 
-inline Long FileUtil::GetFileSize(FILE &fp)
-{
-    auto curPos = ftell(&fp);
-    if(UNLIKELY(curPos < 0))
-        return -1;
-
-    if(UNLIKELY(!SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_END, 0L)))
-        return -1;
-
-    auto fileSize = ftell(&fp);
-    if(UNLIKELY(fileSize < 0))
-    {
-        SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_SET, curPos);
-        return -1;
-    }
-
-    SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_SET, curPos);
-    return fileSize;
-}
-
-inline Int64 FileUtil::GetFileSizeEx(const Byte8 *filepath)
-{
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    struct _stat info;
-    if(::_stat(filepath, &info) != 0)
-        return -1;
-
-    return info.st_size;
-#else
-    struct stat info;
-    if(::stat(filepath, &info) != 0)
-        return -1;
-
-    return info.st_size;
-#endif
-
-}
-
-inline void FileUtil::InsertFileTime(const LibString &extensionName, const LibTime &timestamp, LibString &fileName)
+ALWAYS_INLINE void FileUtil::InsertFileTime(const LibString &extensionName, const LibTime &timestamp, LibString &fileName)
 {
     std::string &raw = fileName.GetRaw();
     auto endPos = raw.rfind('.', fileName.length() - 1);
@@ -413,7 +197,7 @@ inline void FileUtil::InsertFileTime(const LibString &extensionName, const LibTi
     raw.insert(endPos, timeFmtStr.GetRaw());
 }
 
-inline void FileUtil::InsertFileTail(const LibString &extensionName, const Byte8 *tail, LibString &fileName)
+ALWAYS_INLINE void FileUtil::InsertFileTail(const LibString &extensionName, const Byte8 *tail, LibString &fileName)
 {
     std::string &raw = fileName.GetRaw();
     auto endPos = raw.rfind('.', fileName.length() - 1);
@@ -426,7 +210,7 @@ inline void FileUtil::InsertFileTail(const LibString &extensionName, const Byte8
     raw.insert(endPos, tail);
 }
 
-inline LibString FileUtil::ExtractFileExtension(const LibString &fileName)
+ALWAYS_INLINE LibString FileUtil::ExtractFileExtension(const LibString &fileName)
 {
     const std::string &raw = fileName.GetRaw();
     auto endPos = raw.rfind('.', fileName.length() - 1);
@@ -436,7 +220,7 @@ inline LibString FileUtil::ExtractFileExtension(const LibString &fileName)
     return raw.substr(endPos, fileName.length() - endPos);
 }
 
-inline LibString FileUtil::ExtractFileWithoutExtension(const LibString &fileName)
+ALWAYS_INLINE LibString FileUtil::ExtractFileWithoutExtension(const LibString &fileName)
 {
     const std::string &raw = fileName.GetRaw();
     auto endPos = raw.rfind('.', fileName.length() - 1);
@@ -449,7 +233,7 @@ inline LibString FileUtil::ExtractFileWithoutExtension(const LibString &fileName
     return raw.substr(0, endPos);
 }
 
-inline Int32 FileUtil::GetFileNo(FILE *fp)
+ALWAYS_INLINE Int32 FileUtil::GetFileNo(FILE *fp)
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     int fileNo = ::_fileno(fp);
@@ -473,112 +257,6 @@ ALWAYS_INLINE Int32 FileUtil::Rename(const LibString &oldPathFile, const LibStri
         return Status::Failed;
 
     return Status::Success;
-}
-
-inline UInt64 FileUtil::ReadOneLine(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
-{
-    if(!buffer || bufferSize == 0)
-        return 0;
-
-    U8 get_c = 0;
-    U8 *bufferTmp = reinterpret_cast<U8 *>(buffer);
-    ::memset(bufferTmp, 0, bufferSize);
-
-    clearerr(&fp);
-    UInt64 cnt = 0;
-    while(!feof(&fp))
-    {
-        get_c = 0;
-        if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
-        {
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            if(get_c == '\r')
-                continue;
-
-            if(get_c != '\n')
-            {
-                *bufferTmp = get_c;
-                ++bufferTmp;
-                ++cnt;
-
-                if(bufferSize <= cnt) 
-                    break;
-            }
-            else
-            {
-                //SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_CUR, 0);
-                break;
-            }
-
-#else
-            if(get_c != '\n')
-            {
-                *bufferTmp++ = get_c;
-                ++cnt;
-
-                if(bufferSize <= cnt) 
-                    break;
-            }
-            else
-            {
-                //fread(&get_c, sizeof(get_c), 1, fpOutCache);
-                break;
-            }
-#endif
-
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return cnt;
-}
-
-inline UInt64 FileUtil::ReadOneLine(FILE &fp, LibString &outBuffer)
-{
-    clearerr(&fp);
-    unsigned char get_c = 0;
-    UInt64 cnt = 0;
-    while(!feof(&fp))
-    {
-        get_c = 0;
-        if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
-        {
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            if(get_c == '\r')
-                continue;
-
-            if(get_c != '\n')
-            {
-                outBuffer.AppendData(reinterpret_cast<const char *>(&get_c), 1);
-                ++cnt;
-            }
-            else
-            {
-                break;
-            }
-#else
-            if(get_c != '\n')
-            {
-                outBuffer.AppendData(reinterpret_cast<const char *>(&get_c), 1);
-                ++cnt;
-            }
-            else
-            {
-                //fread(&get_c, sizeof(get_c), 1, fpOutCache);
-                break;
-            }
-#endif
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return cnt;
 }
 
 ALWAYS_INLINE bool FileUtil::IsFile(const FindFileInfo &fileAttr)

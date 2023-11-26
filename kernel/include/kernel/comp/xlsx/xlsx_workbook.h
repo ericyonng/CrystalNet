@@ -137,36 +137,6 @@ ALWAYS_INLINE std::pair<UInt64, UInt64> XlsxWorkbook::_ParseRowColumnFrom(const 
     return std::make_pair(rowValue, columnValue);
 }
 
-ALWAYS_INLINE UInt64 XlsxWorkbook::_ColumnIndexFrom(const LibString &columnString) const
-{
-    if (columnString.length() > 3 || columnString.empty())
-    {
-        return 0;
-    }
-
-    UInt64 columnIndex = 0;
-    Int32 place = 1;
-
-    for (Int32 i = static_cast<int>(columnString.length()) - 1; i >= 0; --i)
-    {
-        if (!std::isalpha(columnString[static_cast<std::size_t>(i)]))
-        {
-            return 0;
-        }
-
-        auto charIndex = std::toupper(columnString[static_cast<std::size_t>(i)]) - 'A';
-
-        columnIndex += static_cast<UInt64>((charIndex + 1) * place);
-        place *= 26;
-    }
-
-    return columnIndex;
-}
-
-// ALWAYS_INLINE void XlsxWorkbook::_StripBlank(LibString &currentValue)
-// {
-//     currentValue.strip(" \t\n");
-// }
 
 ALWAYS_INLINE XMLDocument *XlsxWorkbook::_GetDocument(const LibString &docPath)
 {

@@ -80,6 +80,168 @@ void VariantRtti::InitRttiTypeNames()
     }
 }
 
+Variant::Variant(const Byte8 *cstrVal)
+{
+    _raw._type = VariantRtti::VT_STRING_DEF;
+    if(LIKELY(cstrVal != NULL))
+    {
+        auto strLen = ::strlen(cstrVal);
+        if(LIKELY(strLen != 0))
+        {
+            if(!_raw._obj._strData)
+                _raw._obj._strData = CRYSTAL_NEW(LibString);
+
+            *_raw._obj._strData = cstrVal;
+        }
+    }
+}
+
+void Variant::Clear()
+{
+    if(IsStr())
+        _raw._obj._strData->clear();
+    else if(IsDict())
+        _raw._obj._dictData->clear();
+    else if(IsSeq())
+        _raw._obj._sequenceData->clear();
+    else if(IsBriefData())
+        _raw._briefData._uint64Data = 0;
+}
+
+bool Variant::IsEmpty() const
+{
+    if(IsStr())
+        return _raw._obj._strData->empty();
+    else if(IsDict())
+        return _raw._obj._dictData->empty();
+    else if(IsSeq())
+        return _raw._obj._sequenceData->empty();
+    else if(IsBriefData())
+        return false;
+
+    return true;
+}
+
+UInt64 Variant::GetCount() const
+{
+    if(IsStr())
+        return _raw._obj._strData->size();
+    else if(IsDict())
+        return _raw._obj._dictData->size();
+    else if(IsSeq())
+        return _raw._obj._sequenceData->size();
+    else if(IsBriefData())
+        return 1;
+
+    return 0;
+}
+
+UInt64 Variant::GetCapacity() const
+{
+    if(IsStr())
+        return _raw._obj._strData->GetRaw().capacity();
+    else if(IsDict())
+        return _raw._obj._dictData->size();
+    else if(IsSeq())
+        return _raw._obj._sequenceData->capacity();
+    else if(IsBriefData())
+        return 1;
+
+    return 0;  
+}
+
+bool Variant::AsBool() const
+{
+    if(IsBriefData())
+    {
+        // 0值比较
+        if(IsFloat() || IsDouble())
+            return std::fabs(_raw._briefData._doubleData) > DBL_EPSILON;
+
+        return _raw._briefData._uint64Data != 0;
+    }
+
+    if(IsNil())
+        return false;
+
+    if(IsDict())
+        return !(_raw._obj._dictData->empty());
+
+    if(IsSeq())
+        return !(_raw._obj._sequenceData->empty());
+
+    if(IsStr())
+    {// 数值型,与true false需要进行转换
+        return !(_raw._obj._strData->empty());
+    }
+
+    return false;
+}
+
+Int64 Variant::AsInt64() const
+{
+    if(IsNil())
+        return 0;
+    else if(IsDict())
+        return 0;
+    else if(IsStr())
+        return (_raw._obj._strData && !_raw._obj._strData->empty()) ? StringUtil::StringToInt64(_raw._obj._strData->c_str()) : 0;
+
+    if(IsDouble() || IsFloat())
+        return static_cast<Int64>(_raw._briefData._doubleData);
+
+    return _raw._briefData._int64Data;
+}
+
+UInt64 Variant::AsUInt64() const
+{
+    if(IsNil())
+        return 0;
+    else if(IsDict() || IsSeq())
+        return 0;
+    else if(IsStr())
+        return (_raw._obj._strData && !_raw._obj._strData->empty()) ? StringUtil::StringToUInt64(_raw._obj._strData->c_str()) : 0;
+
+    if(IsDouble() || IsFloat())
+        return static_cast<UInt64>(_raw._briefData._doubleData);
+
+    return _raw._briefData._uint64Data;
+}
+
+Double Variant::AsDouble() const
+{
+    if(IsNil() || IsDict() || IsSeq())
+        return 0.0;
+    else if(IsStr())
+        return (_raw._obj._strData && !_raw._obj._strData->empty()) ? StringUtil::StringToDouble(_raw._obj._strData->c_str()) : 0;
+
+    if(IsBriefData())
+    {
+        if(IsDouble() || IsFloat())
+            return _raw._briefData._doubleData;
+
+        if(IsSignedBriefData())
+            return static_cast<double>(_raw._briefData._int64Data);
+
+        return static_cast<double>(_raw._briefData._uint64Data);
+    }
+
+    return 0.0;
+}
+
+LibString Variant::ToString() const
+{
+    LibString desc;
+    std::string &descRaw = desc.GetRaw();
+    descRaw.reserve(64);
+    descRaw.append("Variant(", 8);
+
+    descRaw.append(TypeToString().GetRaw());
+    descRaw.append(1, '|');
+    descRaw.append(ValueToString().GetRaw());
+    descRaw.append(1, ')');
+    return desc;
+}
 
 Variant &Variant::operator =(const Variant &val)
 {
@@ -227,5 +389,34 @@ LibString Variant::AsStr() const
     return VariantAssist::__g_nilStr;
 }
 
+void Variant::_CleanTypeData(UInt64 type)
+{
+    typedef VariantRtti _RttiType;
+
+    if (UNLIKELY(type == _RttiType::VT_NIL))
+        return;
+
+    const auto topType = (type & _RttiType::VT_TYPEINFO_MASK);
+    switch(topType)
+    {
+        case _RttiType::VT_BRIEF_DATA:
+            _CleanBriefData();
+            break;
+        case _RttiType::VT_STRING:
+            _CleanStrData();
+            break;
+        case _RttiType::VT_DICTIONARY:
+            _CleanDictData();
+            break;
+        case _RttiType::VT_SEQUENCE:
+            _CleanSeqData();
+            break;
+        case _RttiType::VT_NIL:
+            break;
+        default:
+            CRYSTAL_TRACE("unknown variant type, top type:%llu, type:%llu", topType, type);
+            break;
+    }
+}
 KERNEL_END
 

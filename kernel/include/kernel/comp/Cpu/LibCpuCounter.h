@@ -33,6 +33,7 @@
 
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/memory/memory.h>
+#include <kernel/common/timedefs.h>
 
 KERNEL_BEGIN
 

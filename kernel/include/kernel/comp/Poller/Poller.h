@@ -137,9 +137,46 @@ public:
 
     // 投递事件
     void Push(Int32 level, PollerEvent *ev);
-    void Push(Int32 level, LibList<PollerEvent *> *evList);
+    void Push(Int32 level, LibList<PollerEvent *> *evList)
+    {
+        if(UNLIKELY(!_isEnable))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, evList count:%llu")
+                            , GetId(), evList->GetAmount());
 
-    void Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action);
+            ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
+                ev->Release();
+            });
+            LibList<PollerEvent *>::Delete_LibList(evList);
+            return;
+        }
+
+        const auto amount = static_cast<Int64>(evList->GetAmount());
+        _eventAmountLeft += amount;
+        _genEventAmount += amount;
+
+        _eventsList->PushQueue(level, evList);
+        LibList<PollerEvent *>::Delete_LibList(evList);
+        WakeupEventLoop();
+    }
+
+    void Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action)
+    {
+        if(UNLIKELY(!_isEnable))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying poller obj id:%llu"), GetId());
+            action->Release();
+            return;
+        }
+
+        auto ev = ActionPollerEvent::New_ActionPollerEvent(specifyActionType);
+        ev->_action = action;
+        ++_eventAmountLeft;
+        ++_genEventAmount;
+        _eventsList->PushQueue(level, ev);
+        WakeupEventLoop();
+    }
+
     template<typename LamvadaType>
     void Push(Int32 level, Int32 specifyActionType, LamvadaType &&lambdaType);
 
@@ -352,46 +389,6 @@ ALWAYS_INLINE void Poller::Push(Int32 level, PollerEvent *ev)
     WakeupEventLoop();
 }
 
-ALWAYS_INLINE void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
-{
-    if(UNLIKELY(!_isEnable))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, evList count:%llu")
-                        , GetId(), evList->GetAmount());
-
-        ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
-            ev->Release();
-        });
-        LibList<PollerEvent *>::Delete_LibList(evList);
-        return;
-    }
-
-    const auto amount = static_cast<Int64>(evList->GetAmount());
-    _eventAmountLeft += amount;
-    _genEventAmount += amount;
-
-    _eventsList->PushQueue(level, evList);
-    LibList<PollerEvent *>::Delete_LibList(evList);
-    WakeupEventLoop();
-}
-
-ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action)
-{
-    if(UNLIKELY(!_isEnable))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying poller obj id:%llu"), GetId());
-        action->Release();
-        return;
-    }
-
-    auto ev = ActionPollerEvent::New_ActionPollerEvent(specifyActionType);
-    ev->_action = action;
-    ++_eventAmountLeft;
-    ++_genEventAmount;
-    _eventsList->PushQueue(level, ev);
-    WakeupEventLoop();
-}
-
 template<typename LamvadaType>
 ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, LamvadaType &&lambdaType)
 {
@@ -423,15 +420,6 @@ ALWAYS_INLINE bool Poller::CanQuit() const
     //     return false;
 
     return true;
-}
-
-ALWAYS_INLINE LibString Poller::OnMonitor()
-{
-    LibString pollerInfo;
-    pollerInfo.AppendFormat("[loaded:%llu, gen:%lld, consume:%lld, backlog:%lld]"
-                , CalcLoadScore(), GetAndResetGenCount(), GetAndResetConsumCount(), GetEventAmount());
-
-    return pollerInfo;
 }
 
 ALWAYS_INLINE void Poller::SetDummyRelease()

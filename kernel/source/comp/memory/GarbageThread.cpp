@@ -111,4 +111,67 @@ GarbageThread *GarbageThread::GetInstence()
     return instence;
 }
 
+void GarbageThread::_Work()
+{  
+    // 交换注册
+    std::map<void *, IDelegate<void> *> *tmpRegister;
+    _toRegisterLck.Lock();
+    tmpRegister = _toRegisterPurgeCallback;
+    _toRegisterPurgeCallback = _swapRegisters;
+    _swapRegisters = tmpRegister;
+    _toRegisterLck.Unlock();
+
+    // 交换垃圾
+    std::set<void *> *tmp;
+    _lckPurge.Lock();
+    tmp = _toPurge;
+    _toPurge = _purgeSwap;
+    _purgeSwap = tmp;
+    _lckPurge.Unlock();
+
+    // 回调交换
+    for(auto iterSwap = _swapRegisters->begin(); iterSwap != _swapRegisters->end(); )
+    {
+        _garbagePurgeCallback->insert(std::make_pair(iterSwap->first, iterSwap->second));
+        iterSwap = _swapRegisters->erase(iterSwap);
+    }
+
+    // 当前需要执行的垃圾回收交换
+    for(auto iterSwap = _purgeSwap->begin(); iterSwap != _purgeSwap->end(); )
+    {
+        auto obj = *iterSwap;
+        _unRegisterLck.Lock();
+        auto iterCallback = _garbagePurgeCallback->find(obj);
+        if(_unRegisters.find(obj) == _unRegisters.end())
+        {
+            iterCallback->second->Invoke();
+        }
+        else
+        {// 被反注册了
+            iterCallback->second->Release();
+            _garbagePurgeCallback->erase(iterCallback);
+        }
+        _unRegisterLck.Unlock();
+
+        iterSwap = _purgeSwap->erase(iterSwap);
+    }
+
+    // 移除剩余反注册
+    for(auto iter = _garbagePurgeCallback->begin(); iter != _garbagePurgeCallback->end();)
+    {
+        _unRegisterLck.Lock();
+        if(_unRegisters.find(iter->first) != _unRegisters.end())
+        {
+            _unRegisters.erase(iter->first);
+            iter->second->Release();
+            iter = _garbagePurgeCallback->erase(iter);
+            _unRegisterLck.Unlock();
+            continue;
+        }
+
+        ++iter;
+        _unRegisterLck.Unlock();
+    }
+}
+
 KERNEL_END

@@ -33,7 +33,6 @@
 #pragma once
 
 #include <kernel/kernel_export.h>
-#include <kernel/common/common.h>
 #include <kernel/comp/Delegate/Delegate.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
 

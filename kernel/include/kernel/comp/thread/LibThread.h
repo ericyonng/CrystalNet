@@ -132,7 +132,7 @@ private:
 };
 
 
-inline LibThread::LibThread()
+ALWAYS_INLINE LibThread::LibThread()
     :_id(LibThreadGlobalId::GenId())
     , _threadId{0}
     , _isStart{false}
@@ -144,13 +144,13 @@ inline LibThread::LibThread()
 
 }
 
-inline LibThread::~LibThread()
+ALWAYS_INLINE LibThread::~LibThread()
 {
     Close();
 }
 
 // 启动
-inline void LibThread::Start()
+ALWAYS_INLINE void LibThread::Start()
 {
     if(_isStart.exchange(true))
         return;
@@ -159,7 +159,7 @@ inline void LibThread::Start()
 }
 
 // 关闭
-inline void LibThread::Close()
+ALWAYS_INLINE void LibThread::Close()
 {
     if (!HalfClose())
         return;
@@ -167,7 +167,7 @@ inline void LibThread::Close()
     FinishClose();
 }
 
-inline bool LibThread::HalfClose()
+ALWAYS_INLINE bool LibThread::HalfClose()
 {
     // 已经关闭则不需要重复关闭
     if (!_isStart.exchange(false))
@@ -181,45 +181,14 @@ inline bool LibThread::HalfClose()
     return true;
 }
 
-inline void LibThread::FinishClose()
-{
-    // 线程退出
-    while (true)
-    {
-        // 唤醒
-        Wakeup();
-
-        // 睡眠等待线程退出
-        _quitLck.Lock();
-        _quitLck.TimeWait(THREAD_POOL_WAIT_FOR_COMPLETED_TIME);
-
-        if (!_isWorking.load())
-        {
-            _quitLck.Unlock();
-            break;
-        }
-        _quitLck.Unlock();
-    }
-
-    // CRYSTAL_TRACE("FinishClose thread end threadId[%llu], uid[%llu] left task[%llu]"
-    // , _threadId.load(), _id, static_cast<UInt64>(_tasks.size()));
-
-    // 移除数据
-    for(auto iter = _tasks.begin(); iter != _tasks.end();)
-    {
-        (*iter)->Release();
-        iter = _tasks.erase(iter);
-    }
-}
-
 // 唤醒
-inline void LibThread::Wakeup()
+ALWAYS_INLINE void LibThread::Wakeup()
 {
     // 唤醒
     _condLck.Sinal();
 }
 
-inline bool LibThread::AddTask(ITask *task)
+ALWAYS_INLINE bool LibThread::AddTask(ITask *task)
 {
     if(!_enableAddTask.load())
         return false;
@@ -234,7 +203,7 @@ inline bool LibThread::AddTask(ITask *task)
     return true;
 }
 
-inline bool LibThread::AddTask(IDelegate<void, LibThread *> *callback)
+ALWAYS_INLINE bool LibThread::AddTask(IDelegate<void, LibThread *> *callback)
 {
     if(!_enableAddTask.load())
     {
@@ -254,7 +223,7 @@ inline bool LibThread::AddTask(IDelegate<void, LibThread *> *callback)
 }
 
 template<typename ObjType>
-inline bool LibThread::AddTask(ObjType *obj, void (ObjType::*callback)(LibThread *))
+ALWAYS_INLINE bool LibThread::AddTask(ObjType *obj, void (ObjType::*callback)(LibThread *))
 {
     IDelegate<void, LibThread *> *deleg = DelegateFactory::Create(obj, callback);
     if(UNLIKELY(!AddTask(deleg)))
@@ -266,7 +235,7 @@ inline bool LibThread::AddTask(ObjType *obj, void (ObjType::*callback)(LibThread
     return true;
 }
 
-inline bool LibThread::AddTask(void (*callback)(LibThread *))
+ALWAYS_INLINE bool LibThread::AddTask(void (*callback)(LibThread *))
 {
     IDelegate<void, LibThread *> *deleg = DelegateFactory::Create(callback);
     if(UNLIKELY(!AddTask(deleg)))
@@ -278,7 +247,7 @@ inline bool LibThread::AddTask(void (*callback)(LibThread *))
     return true;
 }
 
-inline bool LibThread::AddTask2(void (*callback)(LibThread *,  Variant *), Variant *params)
+ALWAYS_INLINE bool LibThread::AddTask2(void (*callback)(LibThread *,  Variant *), Variant *params)
 {
     auto *deleg = DelegateFactory::Create(callback);
     if(!UNLIKELY(AddTask2(deleg, params)))
@@ -292,7 +261,7 @@ inline bool LibThread::AddTask2(void (*callback)(LibThread *,  Variant *), Varia
     return true;
 }
 
-inline bool LibThread::AddTask2(IDelegate<void, LibThread *, Variant *> *callback, Variant *params)
+ALWAYS_INLINE bool LibThread::AddTask2(IDelegate<void, LibThread *, Variant *> *callback, Variant *params)
 {
     if(!_enableAddTask.load())
     {
@@ -312,7 +281,7 @@ inline bool LibThread::AddTask2(IDelegate<void, LibThread *, Variant *> *callbac
 }
 
 template<typename ObjType>
-inline bool LibThread::AddTask2(ObjType *obj, void (ObjType::*callback)(LibThread *, Variant *), Variant *params)
+ALWAYS_INLINE bool LibThread::AddTask2(ObjType *obj, void (ObjType::*callback)(LibThread *, Variant *), Variant *params)
 {
     IDelegate<void, LibThread *, Variant *> *deleg = DelegateFactory::Create(obj, callback);
     if(UNLIKELY(!AddTask2(deleg, params)))
@@ -326,32 +295,32 @@ inline bool LibThread::AddTask2(ObjType *obj, void (ObjType::*callback)(LibThrea
     return true;
 }
 
-inline bool LibThread::IsDestroy()
+ALWAYS_INLINE bool LibThread::IsDestroy()
 {
     return _isDestroy.load();
 }
 
-inline bool LibThread::IsBusy()
+ALWAYS_INLINE bool LibThread::IsBusy()
 {
     return _isBusy.load();
 }
 
-inline bool LibThread::IsStart()
+ALWAYS_INLINE bool LibThread::IsStart()
 {
     return _isStart.load();
 }
 
-inline UInt64 LibThread::GetId()
+ALWAYS_INLINE UInt64 LibThread::GetId()
 {
     return _id;
 }
 
-inline UInt64 LibThread::GetTheadId()
+ALWAYS_INLINE UInt64 LibThread::GetTheadId()
 {
     return _threadId.load();
 }
 
-inline void LibThread::SetEnableTask(bool enable)
+ALWAYS_INLINE void LibThread::SetEnableTask(bool enable)
 {
     _enableAddTask = enable;
 }
@@ -364,46 +333,6 @@ ALWAYS_INLINE void LibThread::SetThreadName(const KERNEL_NS::LibString &name)
 ALWAYS_INLINE const LibString &LibThread::GetThreadName() const
 {
     return _threadName;
-}
-
-inline LibString LibThread::ToString()
-{
-    LibString info;
-    info.AppendFormat("id = %llu, thread name:%s, threadId = %llu, isStart = %d, isWorking = %d, \n"
-                    "isBusy = %d, enableAddTask = %d"
-                    , _id, _threadName.c_str(), _threadId.load(), _isStart.load(), _isWorking.load()
-                    , _isBusy.load(), _enableAddTask.load());
-
-    return info;
-}
-
-inline void LibThread::_CreateThread(UInt64 unixStackSize)
-{
-    Int32 ret = 0;
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-        UInt32 threadId = 0;
-        auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(NULL, static_cast<UInt32>(unixStackSize)
-        , LibThread::ThreadHandler, static_cast<void *>(this), 0, &threadId));
-        
-        // 释放资源
-        if(LIKELY(threadHandle != INVALID_HANDLE_VALUE))
-            ::CloseHandle(threadHandle);
-#else
-        pthread_t theadkey;
-        pthread_attr_t threadAttr;
-        pthread_attr_init(&threadAttr);
-        if(unixStackSize)
-           pthread_attr_setstacksize(&threadAttr, unixStackSize);
-        ret = pthread_create(&theadkey, &threadAttr, &LibThread::ThreadHandler, (void *)this);
-        pthread_attr_destroy(&threadAttr);
-        if(ret != 0)
-        {
-            printf("\nret=%d\n", ret);
-            perror("pthread_create error!");
-        }
-#endif
-
-        _isWorking = true;
 }
 
 KERNEL_END

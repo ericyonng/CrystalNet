@@ -32,7 +32,9 @@
 
 #pragma once
 
-#include <kernel/common/common.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/libs.h>
 
 KERNEL_BEGIN
 

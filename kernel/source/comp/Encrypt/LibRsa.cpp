@@ -408,4 +408,239 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
     return true;
 }
 
+Int32 LibRsa::PubKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText)
+{
+    // 填充长度
+    const Int32 paddingSize = LibRsaDefs::GetPaddingSize(_padding);
+    // 求出有效限制的长度
+    const Int64 effectSize = static_cast<Int64>(RSA_size(_pubRsa) - paddingSize);
+    
+    // 循环分组加密
+    UInt64 blockSizeToHandle = 0;
+    Int32 totalBytes = 0;
+    while (plainTextLen)
+    {
+        blockSizeToHandle = (plainTextLen < effectSize) ? plainTextLen : effectSize;
+        Int32 enBytes = RSA_public_encrypt(static_cast<Int32>(blockSizeToHandle), plainText
+        , cypherText, _pubRsa, _padding);
+
+        if(UNLIKELY(enBytes <= 0))
+        {
+            CRYSTAL_TRACE("RSA_public_encrypt fail err = [%d] "
+            " blockSizeToHandle[%llu] plainTextSize[%llu] effectSize[%lld] "
+            "paddingSize[%d] totalBytes[%d]"
+            , _lastErr, blockSizeToHandle, plainTextLen
+            , effectSize, paddingSize, totalBytes);
+
+            return -1;
+        }
+
+        plainText += blockSizeToHandle;
+        cypherText += enBytes;              // 加密后输出modulusSize长度
+        totalBytes += enBytes;
+        plainTextLen -= blockSizeToHandle;
+    }
+
+    if (UNLIKELY(plainTextLen))
+        CRYSTAL_TRACE("PubKeyEncrypt left plain text plainTextLen[%lld]", plainTextLen);
+
+    return totalBytes;
+}
+
+Int32 LibRsa::PrivateKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText)
+{
+    const auto cypherLen = static_cast<UInt64>(cypherText.size());
+    auto plainSize = CalcPlainSizeByPrivKeyCypher(cypherLen);
+    plainText.resize(plainSize);
+    
+    U8 *p = (U8 *)(plainText.data());
+    auto finalBytes = PrivateKeyDecrypt((const U8 *)(cypherText.data()), static_cast<Int64>(cypherLen), p);
+    if(UNLIKELY(finalBytes <= 0))
+    {
+        plainText.clear();
+    }
+    else
+    {
+        plainText.resize(finalBytes);
+    }
+
+    return finalBytes;
+}
+
+Int32 LibRsa::PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText)
+{
+    // 模长即输出的长度
+    const Int64 modulusSize = static_cast<Int64>(RSA_size(_privateRsa));
+
+    // 循环分组解密
+    Int32 totalDecodeBytes = 0;
+    while (cypherLen)
+    {
+        Int32 decodeLen = RSA_private_decrypt(static_cast<Int32>(modulusSize), cypherText
+            , plainText, _privateRsa, _padding);
+        if(UNLIKELY(decodeLen <= 0))
+        {
+            CRYSTAL_TRACE("RSA_private_decrypt fail totalDecodeBytes = [%d]", totalDecodeBytes);
+            return -1;
+        }
+
+        cypherText += modulusSize;
+        cypherLen -= modulusSize;
+        plainText += decodeLen;
+        totalDecodeBytes += decodeLen;
+    }
+
+    if(UNLIKELY(cypherLen))
+        CRYSTAL_TRACE("left cypher text size[%lld]", cypherLen);
+
+    return totalDecodeBytes;
+}
+
+Int32 LibRsa::PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText)
+{
+    auto plainSize = CalcPlainSizeByPrivKeyCypher(cypherLen);
+    plainText.resize(plainSize);
+    
+    U8 *p = (U8 *)(plainText.data());
+    auto finalBytes = PrivateKeyDecrypt(cypherText, cypherLen, p);
+    if(UNLIKELY(finalBytes <= 0))
+    {
+        plainText.clear();
+    }
+    else
+    {
+        plainText.resize(finalBytes);
+    }
+
+    return finalBytes;
+}
+
+Int32 LibRsa::PrivateKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText)
+{
+    auto len = static_cast<UInt64>(plainText.size());
+    auto calcLen = CalcCypherSizeByPrivKeyPlain(len);
+    cypherText.resize(calcLen);
+    
+    U8 * finalCypher = (U8 *)(cypherText.data());
+    auto finalBytes = PrivateKeyEncrypt((const U8 *)(plainText.data()), static_cast<Int64>(len), finalCypher);
+    if(UNLIKELY(finalBytes <= 0))
+    {
+        cypherText.clear();
+    }
+    else
+    {
+        cypherText.resize(finalBytes);
+    }
+
+    return finalBytes;
+}
+
+Int32 LibRsa::PrivateKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText)
+{
+        // 填充长度
+    const Int32 paddingSize = LibRsaDefs::GetPaddingSize(_padding);
+    // 求出有效限制的长度
+    const Int64 effectSize = static_cast<Int64>(RSA_size(_privateRsa) - paddingSize);
+    
+    // 循环分组加密
+    UInt64 blockSizeToHandle = 0;
+    Int32 totalBytes = 0;
+    while (plainTextLen)
+    {
+        blockSizeToHandle = (plainTextLen < effectSize) ? plainTextLen : effectSize;
+        auto enBytes = RSA_private_encrypt(static_cast<Int32>(blockSizeToHandle), plainText
+        , cypherText, _privateRsa, _padding);
+
+        if(UNLIKELY(enBytes <= 0))
+        {
+            cypherText[0] = 0;
+            CRYSTAL_TRACE("RSA_private_encrypt fail err = [%d] "
+            " blockSizeToHandle[%llu] plainTextSize[%llu] effectSize[%lld] "
+            "paddingSize[%d] totalBytes[%d]"
+            , _lastErr, blockSizeToHandle, plainTextLen
+            , effectSize, paddingSize, totalBytes);
+
+            return -1;
+        }
+
+        plainText += blockSizeToHandle;
+        cypherText += enBytes;              // 加密后输出modulusSize长度
+        totalBytes += enBytes;
+        plainTextLen -= blockSizeToHandle;
+    }
+
+    if (UNLIKELY(plainTextLen))
+        CRYSTAL_TRACE("PrivateKeyEncrypt left plain text plainTextLen[%lld]", plainTextLen);
+
+    return totalBytes;
+}
+
+Int32 LibRsa::PubKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::LibString &plainText)
+{
+    const auto cypherLen = static_cast<UInt64>(cypherText.size());
+    auto plainSize = CalcPlainSizeByPubKeyCypher(cypherLen);
+    plainText.resize(plainSize);
+    
+    U8 *p = (U8 *)(plainText.data());
+    auto finalBytes = PubKeyDecrypt((const U8 *)(cypherText.data()), static_cast<Int64>(cypherLen), p);
+    if(UNLIKELY(finalBytes <= 0))
+    {
+        plainText.clear();
+    }
+    else
+    {
+        plainText.resize(finalBytes);
+    }
+
+    return finalBytes;
+}
+
+Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText)
+{
+    // 模长即输出的长度
+    const Int64 modulusSize = static_cast<UInt64>(RSA_size(_pubRsa));
+
+    // 循环分组解密
+    Int32 totalDecodeBytes = 0;
+    while (cypherLen)
+    {
+        auto decodeLen = RSA_public_decrypt(static_cast<Int32>(modulusSize), cypherText, plainText, _pubRsa, _padding);
+        if(UNLIKELY(decodeLen <= 0))
+        {
+            CRYSTAL_TRACE("RSA_public_decrypt fail totalDecodeBytes = [%d]", totalDecodeBytes);
+            return -1;
+        }
+
+        cypherText += modulusSize;
+        cypherLen -= modulusSize;
+        plainText += decodeLen;
+        totalDecodeBytes += decodeLen;
+
+    }
+
+    if(UNLIKELY(cypherLen))
+        CRYSTAL_TRACE("left cypher text size[%lld]", cypherLen);
+
+    return totalDecodeBytes;
+}
+
+Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::LibString &plainText)
+{
+    auto plainSize = CalcPlainSizeByPubKeyCypher(cypherLen);
+    plainText.resize(plainSize);
+    
+    U8 *p = (U8 *)(plainText.data());
+    auto finalBytes = PubKeyDecrypt(cypherText, cypherLen, p);
+    if(UNLIKELY(finalBytes <= 0))
+    {
+        plainText.clear();
+    }
+    else
+    {
+        plainText.resize(finalBytes);
+    }
+
+    return finalBytes;
+}
+
 KERNEL_END

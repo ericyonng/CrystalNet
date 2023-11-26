@@ -659,9 +659,217 @@ public:
 
     // Serialize / DeSerialize support.
     template<typename StreamBuildType>
-    bool Serialize(LibStream<StreamBuildType> &stream) const;
+    bool Serialize(LibStream<StreamBuildType> &stream) const
+    {
+        const auto oldWrPos = stream.GetWriteBytes();
+        if(UNLIKELY(!stream.Write(_raw._type)))
+        {
+            CRYSTAL_TRACE("Variant serialize fail write _type stream buffer not enough lastWrPos:%lld, oldWrPos:%lld, fail write bytes:%llu"
+                        , stream.GetWriteBytes(), oldWrPos, static_cast<UInt64>(sizeof(_raw._type)));
+            stream.SetWritePos(oldWrPos);
+            return false;
+        }
+
+        if (IsBriefData())
+        {
+            if(UNLIKELY(!stream.Write(_raw._briefData._uint64Data)))
+            {
+                CRYSTAL_TRACE("Variant serialize fail write _uint64Data stream buffer not enough lastWrPos:%lld, oldWrPos:%lld, fail write bytes:%llu"
+                        , stream.GetWriteBytes(), oldWrPos, static_cast<UInt64>(sizeof(_raw._briefData._uint64Data)));
+                stream.SetWritePos(oldWrPos);
+                return false; 
+            }
+        }
+        else if (IsStr())
+        {
+            const LibString &toWrite = _raw._obj._strData ? (*_raw._obj._strData) : VariantAssist::__g_nullStr;
+            if(UNLIKELY(!stream.Write(toWrite)))
+            {
+                CRYSTAL_TRACE("Variant serialize fail write _strData stream buffer not enough lastWrPos:%lld, oldWrPos:%lld, fail write bytes:%llu"
+                        , stream.GetWriteBytes(), oldWrPos, static_cast<UInt64>(sizeof(UInt64) + toWrite.size()));
+                stream.SetWritePos(oldWrPos);
+                return false;
+            }
+        }
+        else if(IsSeq())
+        {
+            if(UNLIKELY(!stream.Write(static_cast<UInt64>(_raw._obj._sequenceData->size()))))
+            {
+                CRYSTAL_TRACE("Variant serialize fail write _sequenceData size stream buffer not enough lastWrPos:%lld, oldWrPos:%lld, fail write bytes:%llu"
+                        , stream.GetWriteBytes(), oldWrPos, static_cast<UInt64>(sizeof(UInt64)));
+                stream.SetWritePos(oldWrPos);
+                return false;
+            }
+            auto seq = _raw._obj._sequenceData;
+            for(SequenceConstIter iter = seq->begin(); iter != seq->end(); ++iter)
+            {
+                if(UNLIKELY(!stream.Write(*iter)))
+                {
+                    CRYSTAL_TRACE("Variant serialize fail write _sequenceData elem stream buffer not enough lastWrPos:%lld, oldWrPos:%lld"
+                            , stream.GetWriteBytes(), oldWrPos);
+                    stream.SetWritePos(oldWrPos);
+                    return false;
+                }
+            }
+        }
+        else if (IsDict())
+        {
+            if(UNLIKELY(!stream.Write(static_cast<UInt64>(_raw._obj._dictData->size()))))
+            {
+                CRYSTAL_TRACE("Variant serialize fail write _dictData size stream buffer not enough lastWrPos:%lld, oldWrPos:%lld, fail write bytes:%llu"
+                        , stream.GetWriteBytes(), oldWrPos, static_cast<UInt64>(sizeof(UInt64)));
+                stream.SetWritePos(oldWrPos);
+                return false;
+            }
+
+            for (DictConstIter it = _raw._obj._dictData->begin();
+                it != _raw._obj._dictData->end();
+                ++it)
+            {
+                if(UNLIKELY(!stream.Write(it->first)))
+                {
+                    CRYSTAL_TRACE("Variant serialize fail write _dictData key stream buffer not enough lastWrPos:%lld, oldWrPos:%lld"
+                        , stream.GetWriteBytes(), oldWrPos);
+                    stream.SetWritePos(oldWrPos);
+                    return false;
+                }
+
+                if(UNLIKELY(!stream.Write(it->second)))
+                {
+                    CRYSTAL_TRACE("Variant serialize fail write _dictData value stream buffer not enough lastWrPos:%lld, oldWrPos:%lld"
+                        , stream.GetWriteBytes(), oldWrPos);
+                    stream.SetWritePos(oldWrPos);
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     template<typename StreamBuildType>
-    bool DeSerialize(LibStream<StreamBuildType> &stream);
+    bool DeSerialize(LibStream<StreamBuildType> &stream)
+    {
+        decltype(_raw._type) rawType = VariantRtti::VT_NIL;
+        const UInt64 oldReadPos = stream.GetReadBytes();
+        if (!stream.Read(rawType))
+        {
+            CRYSTAL_TRACE("Variant DeSerialize fail read rawType stream buffer");
+            stream.SetReadPos(oldReadPos);
+            return false;
+        }
+
+        if(rawType != _raw._type)
+            BecomeNil();
+
+        _raw._type = rawType;
+        if (IsNil())
+            return true;
+
+        if (IsBriefData())
+        {
+            if (!stream.Read(_raw._briefData._uint64Data))
+            {
+                CRYSTAL_TRACE("Variant DeSerialize fail read _uint64Data stream buffer");
+                BecomeNil();
+                stream.SetReadPos(oldReadPos);
+                return false;
+            }
+
+            return true;
+        }
+        else if (IsStr())
+        {
+            if (!_raw._obj._strData)
+                _raw._obj._strData = CRYSTAL_NEW(LibString);
+            else
+                _raw._obj._strData->clear();
+
+            if (!stream.Read(*_raw._obj._strData))
+            {
+                CRYSTAL_TRACE("Variant DeSerialize fail read _strData stream buffer");
+                BecomeNil();
+                stream.SetReadPos(oldReadPos);
+                return false;
+            }
+
+            return true;
+        }
+        else if(IsSeq())
+        {
+            UInt64 count = 0;
+            if (!stream.Read(count))
+            {
+                CRYSTAL_TRACE("Variant DeSerialize fail read _sequenceData count stream buffer");
+                BecomeNil();
+                stream.SetReadPos(oldReadPos);
+                return false;
+            }
+
+            if(_raw._obj._sequenceData)
+                _raw._obj._sequenceData->clear();
+            else
+                _raw._obj._sequenceData = CRYSTAL_NEW(Sequence);
+
+            if(count == 0)
+                return true;
+            
+            for(UInt64 idx = 0; idx < count; ++idx)
+            {
+                Variant val;
+                if(!stream.Read(val))
+                {
+                    CRYSTAL_TRACE("Variant DeSerialize fail read _sequenceData elem stream buffer");
+                    BecomeNil();
+                    stream.SetReadPos(oldReadPos);
+                    return false;
+                }
+
+                _raw._obj._sequenceData->push_back(val);
+            }
+
+            return true;  
+        }
+        else if (IsDict())
+        {
+            UInt64 count = 0;
+            if (!stream.Read(count))
+            {
+                CRYSTAL_TRACE("Variant DeSerialize fail read _dictData count stream buffer");
+                BecomeNil();
+                stream.SetReadPos(oldReadPos);
+                return false;
+            }
+
+            if(_raw._obj._dictData)
+                _raw._obj._dictData->clear();
+            else
+                _raw._obj._dictData = CRYSTAL_NEW(Dict);
+
+            if (count == 0)
+                return true;
+
+            for (UInt64 i = 0; i < count; ++i)
+            {
+                Variant key;
+                Variant val;
+                if (!stream.Read(key) || !stream.Read(val))
+                {
+                    CRYSTAL_TRACE("Variant DeSerialize fail read _dictData elem stream buffer");
+                    BecomeNil();
+                    stream.SetReadPos(oldReadPos);
+                    return false;
+                }
+
+                _raw._obj._dictData->insert(std::make_pair(key, val));
+            }
+
+            return true;
+        }
+        
+        stream.SetReadPos(oldReadPos);
+        return false;
+    }
 
 private:
     void _BecomeAndAllocDict();
@@ -685,118 +893,118 @@ private:
     Raw _raw;
 };
 
- // become specify
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_NIL>()
-    {
-        _raw._type = VariantRtti::VT_NIL;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_BOOL>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_BOOL;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_BYTE8>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_BYTE8;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_UINT8>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_UINT8;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_INT16>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_INT16;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_UINT16>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_UINT16;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_INT32>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_INT32;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_UINT32>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_UINT32;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_LONG>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_LONG;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_ULONG>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_ULONG;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_PTR>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_PTR;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_INT64>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_INT64;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_UINT64>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_UINT64;
-        _raw._briefData._uint64Data = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_FLOAT>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_FLOAT;
-        _raw._briefData._doubleData = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_DOUBLE>()
-    {
-        _raw._type = VariantRtti::VT_BRIEF_DOUBLE;
-        _raw._briefData._doubleData = 0;
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_STRING_DEF>()
-    {
-        _raw._type = VariantRtti::VT_STRING_DEF;
-        if(!_raw._obj._strData)
-            _raw._obj._strData = CRYSTAL_NEW(LibString);
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_DICTIONARY_DEF>()
-    {
-        _raw._type = VariantRtti::VT_DICTIONARY_DEF;
-        if(!_raw._obj._dictData)
-            _raw._obj._dictData = CRYSTAL_NEW(Dict);
-    }
-    template<>
-    ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_SEQUENCE_DEF>()
-    {
-        _raw._type = VariantRtti::VT_SEQUENCE_DEF;
-        if(!_raw._obj._sequenceData)
-            _raw._obj._sequenceData = CRYSTAL_NEW(Sequence);
-    }
+// become specify
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_NIL>()
+{
+    _raw._type = VariantRtti::VT_NIL;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_BOOL>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_BOOL;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_BYTE8>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_BYTE8;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_UINT8>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_UINT8;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_INT16>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_INT16;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_UINT16>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_UINT16;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_INT32>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_INT32;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_UINT32>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_UINT32;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_LONG>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_LONG;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_ULONG>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_ULONG;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_PTR>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_PTR;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_INT64>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_INT64;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_UINT64>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_UINT64;
+    _raw._briefData._uint64Data = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_FLOAT>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_FLOAT;
+    _raw._briefData._doubleData = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_BRIEF_DOUBLE>()
+{
+    _raw._type = VariantRtti::VT_BRIEF_DOUBLE;
+    _raw._briefData._doubleData = 0;
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_STRING_DEF>()
+{
+    _raw._type = VariantRtti::VT_STRING_DEF;
+    if(!_raw._obj._strData)
+        _raw._obj._strData = CRYSTAL_NEW(LibString);
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_DICTIONARY_DEF>()
+{
+    _raw._type = VariantRtti::VT_DICTIONARY_DEF;
+    if(!_raw._obj._dictData)
+        _raw._obj._dictData = CRYSTAL_NEW(Dict);
+}
+template<>
+ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_SEQUENCE_DEF>()
+{
+    _raw._type = VariantRtti::VT_SEQUENCE_DEF;
+    if(!_raw._obj._sequenceData)
+        _raw._obj._sequenceData = CRYSTAL_NEW(Sequence);
+}
     
 
 KERNEL_END

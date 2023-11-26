@@ -58,7 +58,7 @@ public:
     static Int32 GetIpByHostName(const LibString &hostName, LibString &ip, Int32 netCardNo = 0, bool isToBind = true, bool isStreamSock = true, bool isIpv4 = true);
 };
 
-inline Int32 IPUtil::GetLocalIP(LibString &ip, Int32 netCardNo, bool isToBind, bool isStreamSock, bool isIpv4)
+ALWAYS_INLINE Int32 IPUtil::GetLocalIP(LibString &ip, Int32 netCardNo, bool isToBind, bool isStreamSock, bool isIpv4)
 {
     // 获得本机主机名+
     char hostname[MAX_PATH] = {0};
@@ -82,8 +82,7 @@ inline Int32 IPUtil::GetLocalIP(LibString &ip, Int32 netCardNo, bool isToBind, b
     return Status::Success;
 }
 
-
-inline Int32 IPUtil::GetNetCardList(Int32 family, std::vector<sockaddr_in> &addrList, Int32 sockType)
+ALWAYS_INLINE Int32 IPUtil::GetNetCardList(Int32 family, std::vector<sockaddr_in> &addrList, Int32 sockType)
 {
     // 获取地址的参数设置
     struct addrinfo hints = {0};

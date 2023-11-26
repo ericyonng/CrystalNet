@@ -44,7 +44,7 @@
 #include <tchar.h>
 #endif
 
-#include <kernel/kernel.h>
+#include <kernel/common/common.h>
 
 #endif
 

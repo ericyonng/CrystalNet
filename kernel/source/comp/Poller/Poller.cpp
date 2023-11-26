@@ -397,6 +397,15 @@ void Poller::OnLoopEnd()
     g_Log->Info(LOGFMT_OBJ_TAG("poller loop end poller info:%s"), ToString().c_str());
 }
 
+LibString Poller::OnMonitor()
+{
+    LibString pollerInfo;
+    pollerInfo.AppendFormat("[loaded:%llu, gen:%lld, consume:%lld, backlog:%lld]"
+                , CalcLoadScore(), GetAndResetGenCount(), GetAndResetConsumCount(), GetEventAmount());
+
+    return pollerInfo;
+}
+
 void Poller::_Clear()
 {
     _isEnable = false;
@@ -468,5 +477,6 @@ void Poller::_Clear()
     CRYSTAL_RELEASE_SAFE(_onTick);
     g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
 }
+
 
 KERNEL_END

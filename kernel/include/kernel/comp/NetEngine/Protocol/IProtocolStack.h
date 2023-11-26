@@ -43,6 +43,7 @@ KERNEL_BEGIN
 
 class LibPacket;
 class LibSession;
+class ICoderFactory;
 
 class KERNEL_EXPORT IProtocolStack 
 {
@@ -142,41 +143,6 @@ ALWAYS_INLINE const LibRsa &IProtocolStack::GetPacketToBinRsa() const
 ALWAYS_INLINE void IProtocolStack::SetKeyExpireTimeIntervalMs(Int64 interval)
 {
     _expireIntervalMs = (interval > 0) ? interval : _expireIntervalMs;
-}
-
-ALWAYS_INLINE bool IProtocolStack::UpdateKey()
-{
-    const auto nowTime = LibTime::NowMilliTimestamp();
-    if(LIKELY(_expireTime > nowTime))
-        return true;
-
-    _expireTime = nowTime + _expireIntervalMs;
-
-    _key.clear();
-    _base64Key.clear();
-    _cypherKey.clear();
-    KERNEL_NS::CypherGeneratorUtil::SpeedGen<KERNEL_NS::_Build::TL>(_key, KERNEL_NS::CypherGeneratorUtil::CYPHER_128BIT);
-    
-    if(_packetToBinRsa.IsPubEncryptPrivDecrypt())
-    {
-        _packetToBinRsa.PubKeyEncrypt(_key, _cypherKey);
-    }
-    else
-    {
-        _packetToBinRsa.PrivateKeyEncrypt(_key, _cypherKey);
-    }
-
-    if(UNLIKELY(_cypherKey.empty()))
-    {
-        _expireTime = nowTime;
-        _key.clear();
-        _base64Key.clear();
-        return false;
-    }
-
-    KERNEL_NS::LibBase64::Encode(_cypherKey.data(), static_cast<UInt64>(_cypherKey.size()), _base64Key);
-
-    return true;
 }
 
 ALWAYS_INLINE const KERNEL_NS::LibString &IProtocolStack::GetKey() const

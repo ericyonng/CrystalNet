@@ -80,7 +80,43 @@ public:
     MemoryAlloctor(const MemoryAlloctorConfig &config);
     virtual ~MemoryAlloctor();
 
-    void *Alloc(UInt64 objBytes);
+    void *Alloc(UInt64 objBytes)
+    {
+        // 从活跃列表中取
+        auto memoryBuffer = _activeHead;
+        if(UNLIKELY(!memoryBuffer))
+        {
+            memoryBuffer = _NewBuffer();
+            _trigerNewBufferWhenAlloc += 1;
+            _AddToList(_activeHead, memoryBuffer);
+        }
+
+        // block 参数设置
+        auto block = memoryBuffer->AllocNewBlock();
+        block->_ref = 1;
+        block->_realUseBytes = objBytes;
+        ++_blockCountInUsed;
+        _bytesInUsed += _blockSizeAfterAlign;
+
+        // 一般情况不会相等
+        if(LIKELY(memoryBuffer->_blockCnt ^ memoryBuffer->_usedBlockCnt))
+            return ((Byte8 *)block) + _memoryBlockHeadSize;
+
+        // memory buffer 被分配光放到busy链表
+        // 从active队列移除
+        _RemoveFromList(_activeHead, memoryBuffer);
+        
+        // 加入busy队列
+        _AddToList(_busyHead, memoryBuffer);
+        memoryBuffer->_isInBusy = true;
+
+        // 归并内存
+        if(LIKELY(_isThreadLocalCreate))
+            _MergeBlocks();
+        
+        return ((Byte8 *)block) + _memoryBlockHeadSize;
+    }
+
     // TODO:需要解决重复释放的问题,重复释放ref<0 需要asset掉 如果block不属于本分配器但是属于同一线程下其他分配器分配的那么会返回其他分配器Alloctor
     void Free(void *ptr);
     void Free(MemoryBlock *block);
@@ -88,6 +124,7 @@ public:
     void AddRef(void *ptr);
     LibString ToString() const;
     LibString UsingInfo() const;
+
     const std::string &GetCreateSource() const;
 
     // 初始化与销毁
@@ -108,21 +145,103 @@ public:
 
     bool CheckOwner(const MemoryBlock *block) const;
 
-    void PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferInfo *head, MergeMemoryBufferInfo *tail);
+    void PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferInfo *head, MergeMemoryBufferInfo *tail)
+    {
+        _toMergeLck.Lock();
+        _needMerge = true;
+        _bufferToMergeCount += memoryBuffMergeNum;
+
+        // 合并链表
+        tail->_next = _mergeBufferListSwap;
+        _mergeBufferListSwap = head;
+        _toMergeLck.Unlock();
+
+        // 不在脏队列中则加入脏队列 放在tls中提供上层去处理合并事情
+        if(LIKELY(_needMerge))
+            _AddSelfToDurtyListIfNotIn();
+    }
 
     void ForceMergeBlocks();
 
     bool IsThreadLocalCreate() const;
 
 private:
-    MemoryBuffer *_NewBuffer();
-    void _GcBuffer(MemoryBuffer *buffer);
+    MemoryBuffer *_NewBuffer()
+    {
+        MemoryBuffer *new_buffer = new MemoryBuffer(this->_blockSizeAfterAlign, this->_curBlockCntPerBuffer, this->_unitBytesToAlloc, this);
+        new_buffer->Init();
+
+        // 下一次block cnt是*2
+        UInt64 blockNum = _curBlockCntPerBuffer << 1;
+        _curBlockCntPerBuffer = blockNum > _bufferBlockNumLimit ? _bufferBlockNumLimit : blockNum;
+        _totalBytes += new_buffer->_bufferSize;
+        _totalBlockAmount += new_buffer->_blockCnt;
+
+        // 占用总大小
+        if(_isThreadLocalCreate)
+            _tlsDefaultObj->_alloctorTotalBytes += new_buffer->_bufferSize;
+
+        ++_curActiveBufferNum;
+        return new_buffer;
+    }
+
+    void _GcBuffer(MemoryBuffer *buffer)
+    {
+        // 降低内存分配占用, 这个时候说明内存不那么紧张了 TODO:测试
+        _curBlockCntPerBuffer >>= 1;
+        _curBlockCntPerBuffer = _curBlockCntPerBuffer >= _initMinBlockCntPerBuffer ? _curBlockCntPerBuffer : _initMinBlockCntPerBuffer;
+
+        // 数据更新
+        _totalBytes -= buffer->_bufferSize;
+        _totalBlockAmount -= buffer->_blockCnt;
+
+        if(_isThreadLocalCreate)
+            _tlsDefaultObj->_alloctorTotalBytes -= buffer->_bufferSize;
+        
+        --_curActiveBufferNum;
+
+        _gc.push(buffer);
+    }
+
     void _AddToList(MemoryBuffer *&listHead, MemoryBuffer *buffer);
     void _RemoveFromList(MemoryBuffer *&listHead, MemoryBuffer *buffer);
     void _JudgeBufferRecycle(MemoryBuffer *buffer);
+
     void _DoFreeBlock(MemoryBlock *block);
 
-    void _MergeBlocks();
+    void _MergeBlocks()
+    {
+        if(LIKELY(_needMerge.load() == false))
+            return;
+
+        // 先进行交换
+        _toMergeLck.Lock();
+        auto toSwap = _mergeBufferList;
+        _mergeBufferList = _mergeBufferListSwap;
+        _mergeBufferListSwap = toSwap;
+        _needMerge = false;
+        _bufferToMergeCount = 0;
+        _toMergeLck.Unlock();
+
+        // 遍历并吧内存归并 为了避免频繁归并内存, 跨线程的时候请使用跨线程版本的分配内存, 生命周期只在单线程的, 使用线程本地版本的分配内存
+        MergeMemoryBufferInfo *bufferList = _mergeBufferList;
+        MergeMemoryBufferInfo *bufferListTail = NULL;
+        UInt64 count = 0;
+        for(;_mergeBufferList;)
+        {
+            _MergeBlocks(_mergeBufferList);
+
+            bufferListTail = _mergeBufferList;
+            _mergeBufferList = _mergeBufferList->_next;
+            ++count;
+        }
+
+        _Recycle(count, bufferList, bufferListTail);
+
+        // 没有需要合并的就把自己移除
+        if(LIKELY(!_needMerge))
+            _RemoveSelfFromDurtyList();
+    }
     void _MergeBlocks(MergeMemoryBufferInfo *memoryBufferInfo);
     void _Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bufferInfoListHead, MergeMemoryBufferInfo *bufferInfoListTail);
 
@@ -175,43 +294,6 @@ public:
     TlsDefaultObj *_tlsDefaultObj;
 };
 
-ALWAYS_INLINE void *MemoryAlloctor::Alloc(UInt64 objBytes)
-{
-    // 从活跃列表中取
-    auto memoryBuffer = _activeHead;
-    if(UNLIKELY(!memoryBuffer))
-    {
-        memoryBuffer = _NewBuffer();
-        _trigerNewBufferWhenAlloc += 1;
-        _AddToList(_activeHead, memoryBuffer);
-    }
-
-    // block 参数设置
-    auto block = memoryBuffer->AllocNewBlock();
-    block->_ref = 1;
-    block->_realUseBytes = objBytes;
-    ++_blockCountInUsed;
-    _bytesInUsed += _blockSizeAfterAlign;
-
-    // 一般情况不会相等
-    if(LIKELY(memoryBuffer->_blockCnt ^ memoryBuffer->_usedBlockCnt))
-        return ((Byte8 *)block) + _memoryBlockHeadSize;
-
-    // memory buffer 被分配光放到busy链表
-    // 从active队列移除
-    _RemoveFromList(_activeHead, memoryBuffer);
-    
-    // 加入busy队列
-    _AddToList(_busyHead, memoryBuffer);
-    memoryBuffer->_isInBusy = true;
-
-    // 归并内存
-    if(LIKELY(_isThreadLocalCreate))
-        _MergeBlocks();
-    
-    return ((Byte8 *)block) + _memoryBlockHeadSize;
-}
-
 ALWAYS_INLINE void MemoryAlloctor::Free(void *ptr)
 {
     MemoryBlock *block = GetMemoryBlockBy(ptr);
@@ -234,25 +316,6 @@ ALWAYS_INLINE LibString MemoryAlloctor::ToString() const
     return UsingInfo();
 }
 
-ALWAYS_INLINE LibString MemoryAlloctor::UsingInfo() const
-{
-    // 总的使用大小,总的大小,使用的block块数,总块数,总的buffer数量,使用的buffer数量,block大小,创建来源,总的使用字节数,总的字节数,当前死亡buffer数量,死亡buffer限制数量,分配与释放操作次数,是否初始化创建buffer,半数空缓存限制,当前活跃buffer数量
-    LibString str;
-
-    str << "alloctor init thread id:" << _threadId << ";\n"
-        << "alloctor address:" << this <<  ";\n"
-        << "block size:" << _blockSizeAfterAlign << ", create source:" << _createSource << "create memory buffer num when init:" << _initMemoryBufferNum <<  ";\n"
-        << "current alloctor buffer total bytes:" << _totalBytes << ", current all using bytes:" << _bytesInUsed << ";\n"
-        << "total block amount:" << _totalBlockAmount << ", using block:" << _blockCountInUsed << ";\n"
-        << "current block count per buffer for next time:" << _curBlockCntPerBuffer << ", max block count limit per buffer:" << _bufferBlockNumLimit << ";\n"
-        << "active buffer num:" << _curActiveBufferNum << ";\n"
-        << "trigger new buffer when alloc block num:" << _trigerNewBufferWhenAlloc << ";\n"
-        << "need to merge buffer count:" << _bufferToMergeCount.load() << ";\n"
-        << "is thread local create alloctor:" << _isThreadLocalCreate << ";\n"
-        ;
-        
-    return str;
-}
 
 ALWAYS_INLINE const std::string &MemoryAlloctor::GetCreateSource() const
 {
@@ -309,22 +372,6 @@ ALWAYS_INLINE bool MemoryAlloctor::CheckOwner(const MemoryBlock *block) const
     return block->_buffer && (block->_buffer->_alloctor == this);
 }
 
-ALWAYS_INLINE void MemoryAlloctor::PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferInfo *head, MergeMemoryBufferInfo *tail)
-{
-    _toMergeLck.Lock();
-    _needMerge = true;
-    _bufferToMergeCount += memoryBuffMergeNum;
-
-    // 合并链表
-    tail->_next = _mergeBufferListSwap;
-    _mergeBufferListSwap = head;
-    _toMergeLck.Unlock();
-
-    // 不在脏队列中则加入脏队列 放在tls中提供上层去处理合并事情
-    if(LIKELY(_needMerge))
-        _AddSelfToDurtyListIfNotIn();
-}
-
 ALWAYS_INLINE void MemoryAlloctor::ForceMergeBlocks()
 {
     _MergeBlocks();
@@ -333,43 +380,6 @@ ALWAYS_INLINE void MemoryAlloctor::ForceMergeBlocks()
 ALWAYS_INLINE bool MemoryAlloctor::IsThreadLocalCreate() const
 {
     return _isThreadLocalCreate;
-}
-
-ALWAYS_INLINE MemoryBuffer *MemoryAlloctor::_NewBuffer()
-{
-    MemoryBuffer *new_buffer = new MemoryBuffer(this->_blockSizeAfterAlign, this->_curBlockCntPerBuffer, this->_unitBytesToAlloc, this);
-    new_buffer->Init();
-
-    // 下一次block cnt是*2
-    UInt64 blockNum = _curBlockCntPerBuffer << 1;
-    _curBlockCntPerBuffer = blockNum > _bufferBlockNumLimit ? _bufferBlockNumLimit : blockNum;
-    _totalBytes += new_buffer->_bufferSize;
-    _totalBlockAmount += new_buffer->_blockCnt;
-
-    // 占用总大小
-    if(_isThreadLocalCreate)
-        _tlsDefaultObj->_alloctorTotalBytes += new_buffer->_bufferSize;
-
-    ++_curActiveBufferNum;
-    return new_buffer;
-}
-
-ALWAYS_INLINE void MemoryAlloctor::_GcBuffer(MemoryBuffer *buffer)
-{
-    // 降低内存分配占用, 这个时候说明内存不那么紧张了 TODO:测试
-    _curBlockCntPerBuffer >>= 1;
-    _curBlockCntPerBuffer = _curBlockCntPerBuffer >= _initMinBlockCntPerBuffer ? _curBlockCntPerBuffer : _initMinBlockCntPerBuffer;
-
-    // 数据更新
-    _totalBytes -= buffer->_bufferSize;
-    _totalBlockAmount -= buffer->_blockCnt;
-
-    if(_isThreadLocalCreate)
-        _tlsDefaultObj->_alloctorTotalBytes -= buffer->_bufferSize;
-    
-    --_curActiveBufferNum;
-
-    _gc.push(buffer);
 }
 
 ALWAYS_INLINE void MemoryAlloctor::_AddToList(MemoryBuffer *&listHead, MemoryBuffer *buffer)
@@ -438,40 +448,6 @@ ALWAYS_INLINE void MemoryAlloctor::_DoFreeBlock(MemoryBlock *block)
     // 合并内存
     if(LIKELY(_isThreadLocalCreate))
         _MergeBlocks();
-}
-
-ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks()
-{
-    if(LIKELY(_needMerge.load() == false))
-        return;
-
-    // 先进行交换
-    _toMergeLck.Lock();
-    auto toSwap = _mergeBufferList;
-    _mergeBufferList = _mergeBufferListSwap;
-    _mergeBufferListSwap = toSwap;
-    _needMerge = false;
-    _bufferToMergeCount = 0;
-    _toMergeLck.Unlock();
-
-    // 遍历并吧内存归并 为了避免频繁归并内存, 跨线程的时候请使用跨线程版本的分配内存, 生命周期只在单线程的, 使用线程本地版本的分配内存
-    MergeMemoryBufferInfo *bufferList = _mergeBufferList;
-    MergeMemoryBufferInfo *bufferListTail = NULL;
-    UInt64 count = 0;
-    for(;_mergeBufferList;)
-    {
-        _MergeBlocks(_mergeBufferList);
-
-        bufferListTail = _mergeBufferList;
-        _mergeBufferList = _mergeBufferList->_next;
-        ++count;
-    }
-
-    _Recycle(count, bufferList, bufferListTail);
-
-    // 没有需要合并的就把自己移除
-    if(LIKELY(!_needMerge))
-        _RemoveSelfFromDurtyList();
 }
 
 ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks(MergeMemoryBufferInfo *memoryBufferInfo)

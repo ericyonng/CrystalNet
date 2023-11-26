@@ -37,6 +37,7 @@
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/MemoryMonitor/memorymonitor_inc.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/common/Destructor.h>
 
 KERNEL_BEGIN
 
@@ -203,10 +204,6 @@ ALWAYS_INLINE ObjType *ObjAlloctor<ObjType>::NewByPtr(void *ptr, Args&&... args)
 template<typename ObjType>
 ALWAYS_INLINE void ObjAlloctor<ObjType>::Delete(ObjType *ptr)
 {
-    // TODO:跨线程的因为性能问题暂时使用系统分配 TODO:对比下跨线程new/delete 与对象池/内存池new/delete性能, 考虑释放优先使用ThreadLocal本地分配
-    // Destructor::Invoke(ptr);
-    // ::free(ptr);
-
     auto memoryBlock = _alloctor.GetMemoryBlockBy(ptr);
     
     // 先析构后释放
@@ -266,26 +263,12 @@ template<typename ObjType>
 ALWAYS_INLINE void ObjAlloctor<ObjType>::DeleteThreadLocal(ObjType *ptr)
 {
     auto memoryBlock = _alloctor.GetMemoryBlockBy(ptr);
+
     // 先析构后释放
     if(LIKELY(memoryBlock->_ref == 1))
         Destructor::Invoke(ptr);
 
-    // c++ 11 支持thread_local
-    // #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    //     _alloctor.Lock();
-    // #endif
-
-    // TODO:判断是不是本线程, 不是本线程扔到中央GC线程
-    // if(UNLIKELY(memoryBlock->_buffer->_alloctor != &_alloctor))
-    // {
-    //     return;
-    // }
-
     _alloctor.Free(memoryBlock);
-
-    // #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    //     _alloctor.Unlock();
-    // #endif
 }
 
 template<typename ObjType>
@@ -343,19 +326,6 @@ ALWAYS_INLINE void ObjAlloctor<ObjType>::AddRefByAdapter(void *ptr)
     AddRefByAdapterBy(BuildType::V, ptr);
 }
 
-// template<typename ObjType>
-// inline void ObjAlloctor<ObjType>::Lock()
-// {
-//     _alloctor.Lock();
-// }
-
-// template<typename ObjType>
-// inline void ObjAlloctor<ObjType>::Unlock()
-// {
-//     _alloctor.Unlock();
-// }
-
-
 template<typename ObjType>
 ALWAYS_INLINE LibString ObjAlloctor<ObjType>::ToString() const
 {
@@ -366,8 +336,6 @@ template<typename ObjType>
 ALWAYS_INLINE LibString ObjAlloctor<ObjType>::UsingInfo() const
 {
     LibString info;
-    // info << _name;
-    // info << "obj name:";
     info << "obj name:" << _name <<", obj size:" << _objSize << ", thread id:" << std::to_string(_threadId) << ", alloctor info: " << _alloctor.UsingInfo();
     return info;
 }

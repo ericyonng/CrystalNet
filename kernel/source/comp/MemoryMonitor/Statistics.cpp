@@ -37,4 +37,25 @@ Statistics::~Statistics()
     ContainerUtil::DelContainer<IDelegate<UInt64, LibString &> *, AutoDelMethods::Release>(_addrRefDeleg);
 }
 
+void Statistics::Remove(IDelegate<UInt64, LibString &> *delg)
+{
+    if(_addrRefDeleg.empty())
+    {
+        CRYSTAL_TRACE("Statistics _addrRefDeleg empty perhaps have released before");
+        return;
+    }
+
+    const Int64 delgSize = static_cast<Int64>(_addrRefDeleg.size());
+    for(Int64 idx = delgSize - 1; idx >= 0; --idx)
+    {
+        if(_addrRefDeleg[idx] == delg)
+        {
+            _addrRefDeleg.erase(_addrRefDeleg.begin() + idx);
+            CRYSTAL_RELEASE_SAFE(delg);
+            // CRYSTAL_TRACE("Statistics remove a delegate idx = [%lld], left count=[%llu]", idx, static_cast<UInt64>(_addrRefDeleg.size()));
+            break;
+        }
+    }
+}
+
 KERNEL_END

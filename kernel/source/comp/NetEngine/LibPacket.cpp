@@ -113,4 +113,13 @@ void LibPacket::SetCoder(ICoder *coder)
     _coder = coder;
 }
 
+LibString LibPacket::ToString() const
+{
+    LibString info;
+    info.AppendFormat("_packetId = [%llu], _sessionId=[%llu], local addr=[%s], remote addr=[%s], opcode:%d"
+    , _packetId, _sessionId, _localAddr.ToString().c_str(), _remoteAddr.ToString().c_str(), _opcode);
+
+    return info;
+}
+
 KERNEL_END

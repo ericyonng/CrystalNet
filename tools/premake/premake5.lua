@@ -298,6 +298,7 @@ project "CrystalKernel"
 		"../../kernel/kernel_pch/",
         ROOT_DIR .. "/3rd/openssl/include/",
         ROOT_DIR .. "/3rd/uuid/include/",
+		ROOT_DIR .. "/3rd/miniz/include/",
      }
 	 
     -- files
@@ -313,6 +314,7 @@ project "CrystalKernel"
 	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
     libdirs { 
         ROOT_DIR .. "3rd/openssL/staticlib/$(Configuration)/lib/",
+		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
         ROOT_DIR .. "3rd/",
     }
 
@@ -326,6 +328,7 @@ project "CrystalKernel"
             "crypto:static",
             "ssl:static",
             "uuid_debug:static",
+            "miniz:static",
         }
     filter {}
     filter { "system:linux", "configurations:release*"}
@@ -337,6 +340,7 @@ project "CrystalKernel"
             "crypto:static",
             "ssl:static",
             "uuid:static",
+            "miniz:static",
         }
     filter {}
 	
@@ -366,6 +370,7 @@ project "CrystalKernel"
             "ws2_32",
             "Mswsock",
             "DbgHelp",
+            "miniz",
         }
 
     filter { "system:macosx" }
@@ -862,7 +867,7 @@ project "ConfigExporter"
     }
 
     -- 导入内核接口
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "DISABLE_OPCODES"}
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "ConfigExporter/ConfigExporter_pch/pch.cpp")
 
@@ -872,6 +877,7 @@ project "ConfigExporter"
 		"../../ConfigExporter/",
 		"../../ConfigExporter/ConfigExporter_pch/",
 		"../../protocols/cplusplus/",
+		ROOT_DIR .. "/3rd/miniz/include/",
     }
 	
 	-- 设置通用选项
@@ -879,9 +885,6 @@ project "ConfigExporter"
 	
     -- files
     files {
-        "../../protocols/**.h",
-		"../../protocols/**.cc",
-		"../../protocols/**.cpp",
 		"../../service/common/**.h",
 		"../../service/common/**.cpp",
 		"../../service/ConfigExporter/**.h",
@@ -911,7 +914,22 @@ project "ConfigExporter"
 
 	-- links
     libdirs { OUTPUT_DIR }	
-	include_libfs(true, true)
+	include_libfs(true, false)
+
+    libdirs { 
+		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
+    }
+
+    filter { "system:linux", "configurations:debug*"}
+        links {
+            "miniz:static",
+        }
+    filter {}
+    filter { "system:linux", "configurations:release*"}
+        links {
+            "miniz:static",
+        }
+    filter {}
 
     -- debug target suffix define
     filter { "configurations:debug*" }

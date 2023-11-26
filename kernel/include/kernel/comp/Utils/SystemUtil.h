@@ -34,6 +34,7 @@
 #include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/Defs/SystemUtilDef.h>
+#include <kernel/common/timedefs.h>
 
 KERNEL_BEGIN
 
@@ -155,13 +156,13 @@ public:
 private:
 };
 
-inline void SystemUtil::ThreadSleep(UInt64 milliSec, UInt64 microSec)
+ALWAYS_INLINE void SystemUtil::ThreadSleep(UInt64 milliSec, UInt64 microSec)
 {
     std::chrono::microseconds t(milliSec * TimeDefs::MICRO_SECOND_PER_MILLI_SECOND + microSec);
     std::this_thread::sleep_for(t);
 }
 
-inline UInt64 SystemUtil::GetCurrentThreadId()
+ALWAYS_INLINE UInt64 SystemUtil::GetCurrentThreadId()
 {
     thread_local UInt64 s_currentThreadId = 0;
 
@@ -197,7 +198,7 @@ inline Int32 SystemUtil::GetCurProcessId()
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
 
-inline UInt64 SystemUtil::GetFreeMemBySysCall()
+ALWAYS_INLINE UInt64 SystemUtil::GetFreeMemBySysCall()
 {
     struct sysinfo info;
     sysinfo(&info); 
@@ -205,7 +206,7 @@ inline UInt64 SystemUtil::GetFreeMemBySysCall()
     return info.freeram;
 }
 
-inline UInt64 SystemUtil::GetAvailableMem()
+ALWAYS_INLINE UInt64 SystemUtil::GetAvailableMem()
 {
     std::map<LibString, LibString> memInfo;
     if(!ReadMemInfoDict(memInfo))
@@ -217,7 +218,7 @@ inline UInt64 SystemUtil::GetAvailableMem()
     return GetAvailableMem(memInfo);
 }
 
-inline UInt64 SystemUtil::GetTotalMem()
+ALWAYS_INLINE UInt64 SystemUtil::GetTotalMem()
 {
     std::map<LibString, LibString> memInfo;
     if(!ReadMemInfoDict(memInfo))
@@ -231,17 +232,17 @@ inline UInt64 SystemUtil::GetTotalMem()
 
 #endif
 
-inline void SystemUtil::LockConsole()
+ALWAYS_INLINE void SystemUtil::LockConsole()
 {
     GetConsoleLocker().Lock();
 }
 
-inline void SystemUtil::UnlockConsole()
+ALWAYS_INLINE void SystemUtil::UnlockConsole()
 {
     GetConsoleLocker().Unlock();
 }
 
-inline void SystemUtil::OutputToConsole(const LibString &outStr)
+ALWAYS_INLINE void SystemUtil::OutputToConsole(const LibString &outStr)
 {
     printf("%s", outStr.c_str());
 }
@@ -258,71 +259,6 @@ ALWAYS_INLINE Int32 SystemUtil::GetErrNo(bool fromNet)
     #endif
 }
 
-ALWAYS_INLINE LibString SystemUtil::GetErrString(Int32 err)
-{
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    return strerror(err);
-#else
-    LibString info;
-    HLOCAL hLocal = nullptr;
-    const DWORD sysLocale = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
-    // const DWORD sysLocale = MAKELANGID(LANG_SYSTEM_DEFAULT, SUBLANG_SYS_DEFAULT);
-    ::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | 
-                            FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                            FORMAT_MESSAGE_IGNORE_INSERTS,
-                        nullptr,
-                        err,
-                        sysLocale,
-                        (PSTR)&hLocal,
-                        0,
-                        nullptr);
-    if (!hLocal)
-    {
-        HMODULE netDll = LoadLibraryExA("netmsg.dll", nullptr, DONT_RESOLVE_DLL_REFERENCES);
-        if (netDll != nullptr)
-        {
-            ::FormatMessageA(FORMAT_MESSAGE_FROM_HMODULE | 
-                                FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                                FORMAT_MESSAGE_IGNORE_INSERTS,
-                                netDll,
-                                err,
-                                sysLocale,
-                                (PSTR)&hLocal,
-                                0,
-                                nullptr);
-                                
-            ::FreeLibrary(netDll);
-        }
-    }
-
-    if (hLocal != nullptr)
-    {
-        PSTR sysErr = (PSTR)::LocalLock(hLocal);
-
-        bool hasCRLF = false;
-        const size_t sysErrLen = strlen(sysErr);
-        if (sysErrLen >= 2)
-            if (sysErr[sysErrLen - 2] == '\r' && 
-                sysErr[sysErrLen - 1] == '\n')
-                    hasCRLF = true;
-
-        if (hasCRLF)
-            sysErr[sysErrLen - 2] = '\0';
-
-        ::LocalUnlock(hLocal);
-
-        info = sysErr;
-        ::LocalFree(hLocal);
-    }
-    else
-    {
-        info.AppendFormat("Unknown error code:[%d]", err);
-    }
-
-    return info;
-#endif
-}
-
 inline void SystemUtil::ChgWorkDir(const LibString &workDir)
 {
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
@@ -331,7 +267,7 @@ inline void SystemUtil::ChgWorkDir(const LibString &workDir)
 #endif
 }
 
-inline void SystemUtil::YieldScheduler()
+ALWAYS_INLINE void SystemUtil::YieldScheduler()
 {
     std::this_thread::yield();
 }

@@ -36,7 +36,6 @@
 #pragma once
 
 #include <kernel/kernel_export.h>
-#include <kernel/common/common.h>
 #include <kernel/comp/AutoDel.h>
 
 KERNEL_BEGIN

@@ -32,6 +32,7 @@
 #pragma once
 
 #include <kernel/kernel_inc.h>
+#include <kernel/common/RemoveReference.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 
 KERNEL_BEGIN

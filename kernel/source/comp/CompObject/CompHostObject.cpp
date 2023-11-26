@@ -856,6 +856,120 @@ bool CompHostObject::_ReplaceComp(CompObject *oldComp, CompObject *comp)
     return true;
 }
 
+void CompHostObject::_RemoveComp(CompObject *comp)
+{
+    {// will reg, 无法移除Factory
+        const Int32 count = static_cast<Int32>(_willRegComps.size());
+        for(Int32 idx = count - 1; idx >= 0; --idx)
+        {
+            auto &regComp = _willRegComps[idx];
+            if(regComp._comp != comp)
+                continue;
+
+            _willRegComps.erase(_willRegComps.begin() + idx);
+        }
+    }
+
+    {
+        const Int32 count = static_cast<Int32>(_comps.size());
+        for(Int32 idx = count - 1; idx >= 0; --idx)
+        {
+            if(_comps[idx] != comp)
+                continue;
+
+            _comps.erase(_comps.begin() + idx);
+        }
+
+        _compIdRefComp.erase(comp->GetId());
+
+        // 组件名容器中移除
+        const auto typeId = KERNEL_NS::RttiUtil::GetTypeIdByObj(comp);
+        {
+            auto iterComps = _compTypeIdRefComps.find(typeId);
+            if(iterComps != _compTypeIdRefComps.end())
+            {
+                auto &comps = iterComps->second;
+                const Int32 countComp = static_cast<Int32>(comps.size());
+                for(Int32 idxComp = countComp - 1; idxComp >= 0; --idxComp)
+                {
+                    if(comps[idxComp] != comp)
+                        continue;
+
+                    comps.erase(comps.begin() + idxComp);
+                }
+
+                if(comps.empty())
+                    _compTypeIdRefComps.erase(iterComps);
+            }
+        }
+
+        // 接口名容器中移除
+        const auto interfaceTypeId = comp->GetInterfaceTypeId();
+        {
+            auto iterComps = _compTypeIdRefComps.find(interfaceTypeId);
+            if(iterComps != _compTypeIdRefComps.end())
+            {
+                auto &comps = iterComps->second;
+                const Int32 countComp = static_cast<Int32>(comps.size());
+                for(Int32 idxComp = countComp - 1; idxComp >= 0; --idxComp)
+                {
+                    if(comps[idxComp] != comp)
+                        continue;
+
+                    comps.erase(comps.begin() + idxComp);
+                }
+
+                if(comps.empty())
+                    _compTypeIdRefComps.erase(iterComps);
+            }
+        }
+
+        // 从名字容器中移除
+        {
+            auto iterComps = _compObjNameRefComps.find(comp->GetObjName());
+            if(iterComps != _compObjNameRefComps.end())
+            {
+                auto &comps = iterComps->second;
+                const Int32 countComp = static_cast<Int32>(comps.size());
+                for(Int32 idxComp = countComp - 1; idxComp >= 0; --idxComp)
+                {
+                    if(comps[idxComp] != comp)
+                        continue;
+
+                    comps.erase(comps.begin() + idxComp);
+                }
+
+                if(comps.empty())
+                    _compObjNameRefComps.erase(iterComps);
+            }
+        }
+
+        if(comp->GetType())
+        {
+            auto iterComps = _compTypeRefComps.find(comp->GetType());
+            if(iterComps != _compTypeRefComps.end())
+            {
+                auto &comps = iterComps->second;
+                const Int32 countComp = static_cast<Int32>(comps.size());
+                for(Int32 idxComp = countComp - 1; idxComp >= 0; --idxComp)
+                {
+                    if(comps[idxComp] != comp)
+                        continue;
+
+                    comps.erase(comps.begin() + idxComp);
+                }
+
+                if(comps.empty())
+                    _compTypeRefComps.erase(iterComps);
+            }
+        }
+    }
+
+    comp->WillClose();
+    comp->Close();
+    comp->Release();
+}
+
 void CompHostObject::_MaskIfFocus(CompObject *comp)
 {
     const Int32 maxFocusEnum = GetMaxFocusEnd();

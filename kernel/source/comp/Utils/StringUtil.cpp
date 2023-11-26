@@ -66,125 +66,6 @@
 
 KERNEL_BEGIN
 
-uintmax_t StringUtil::malloc_strtoumax(const char *nptr, char **endptr, int base)
-{
-uintmax_t ret, digit;
-	unsigned b;
-	bool neg;
-	const char *p, *ns;
-
-	p = nptr;
-	if (base < 0 || base == 1 || base > 36) {
-		ns = p;
-		set_errno(EINVAL);
-		ret = UINTMAX_MAX;
-		goto label_return;
-	}
-	b = base;
-
-	/* Swallow leading whitespace and get sign, if any. */
-	neg = false;
-	while (true) {
-		switch (*p) {
-		case '\t': case '\n': case '\v': case '\f': case '\r': case ' ':
-			++p;
-			break;
-		case '-':
-			neg = true;
-		case '+':
-			++p;
-		default:
-			goto label_prefix;
-		}
-	}
-
-	/* Get prefix, if any. */
-	label_prefix:
-	/*
-	 * Note where the first non-whitespace/sign character is so that it is
-	 * possible to tell whether any digits are consumed (e.g., "  0" vs.
-	 * "  -x").
-	 */
-	ns = p;
-	if (*p == '0') {
-		switch (p[1]) {
-		case '0': case '1': case '2': case '3': case '4': case '5':
-		case '6': case '7':
-			if (b == 0) {
-				b = 8;
-			}
-			if (b == 8) {
-				p++;
-			}
-			break;
-		case 'X': case 'x':
-			switch (p[2]) {
-			case '0': case '1': case '2': case '3': case '4':
-			case '5': case '6': case '7': case '8': case '9':
-			case 'A': case 'B': case 'C': case 'D': case 'E':
-			case 'F':
-			case 'a': case 'b': case 'c': case 'd': case 'e':
-			case 'f':
-				if (b == 0) {
-					b = 16;
-				}
-				if (b == 16) {
-					p += 2;
-				}
-				break;
-			default:
-				break;
-			}
-			break;
-		default:
-			++p;
-			ret = 0;
-			goto label_return;
-		}
-	}
-	if (b == 0) {
-		b = 10;
-	}
-
-	/* Convert. */
-	ret = 0;
-	while ((*p >= '0' && *p <= '9' && (digit = *p - '0') < b)
-	    || (*p >= 'A' && *p <= 'Z' && (digit = 10 + *p - 'A') < b)
-	    || (*p >= 'a' && *p <= 'z' && (digit = 10 + *p - 'a') < b)) {
-		uintmax_t pret = ret;
-		ret *= b;
-		ret += digit;
-		if (ret < pret) {
-			/* Overflow. */
-			set_errno(ERANGE);
-			ret = UINTMAX_MAX;
-			goto label_return;
-		}
-		p++;
-	}
-	if (neg) {
-		ret = (uintmax_t)(-((intmax_t)ret));
-	}
-
-	if (p == ns) {
-		/* No conversion performed. */
-		set_errno(EINVAL);
-		ret = UINTMAX_MAX;
-		goto label_return;
-	}
-
-label_return:
-	if (endptr != NULL) {
-		if (p == ns) {
-			/* No characters were converted. */
-			*endptr = (char *)nptr;
-		} else {
-			*endptr = (char *)p;
-		}
-	}
-	return ret;   
-}
-
 LibString StringUtil::I64toA(Int64 value, Int32 radix)
 {
     char *p;
@@ -430,5 +311,110 @@ bool StringUtil::CheckDoubleString(const LibString &str)
     return hasNumberNum > 0;
 }
 
+
+void StringUtil::ToString(const std::vector<LibString> &contents, const LibString &sep, LibString &target)
+{
+	const Int32 count = static_cast<Int32>(contents.size());
+	for(Int32 idx = 0; idx < count; ++idx)
+	{
+		auto &content = contents[idx];
+		target.AppendData(content);
+		if(idx != (count - 1))
+			target.AppendData(sep);
+	}
+}
+
+bool StringUtil::CheckGeneralName(const LibString &name)
+{
+	if(name.empty())
+	{
+		return false;
+	}
+
+	// 英文,数值,下划线
+	const auto len = static_cast<Int32>(name.size());
+	for(Int32 idx = 0; idx < len; ++idx)
+	{
+		const auto ch = name[idx];
+		if(!KERNEL_NS::LibString::isalpha(ch) && !KERNEL_NS::LibString::isdigit(ch) && ch != '_')
+		{
+			return false;
+		}
+	}
+
+	// 首字母不能是数值
+	if(KERNEL_NS::LibString::isdigit(name[0]))
+		return false;
+
+	return true;
+}
+
+LibString StringUtil::RemoveNameSpace(const LibString &name)
+{
+    // 命名空间检测
+    auto splitNameSpace = name.Split("::", -1, false, true);
+    Int32 splitSize = static_cast<Int32>(splitNameSpace.size());
+
+    // 去末尾空
+    for(Int32 idx = splitSize - 1; idx >= 0; --idx)
+    {
+        if(splitNameSpace[idx].empty())
+        {
+            splitNameSpace.erase(splitNameSpace.begin() + idx);
+        }
+        else
+            break;
+    }
+
+	return splitNameSpace.empty() ? "" : splitNameSpace[splitNameSpace.size() - 1];
+
+    // LibString icompName;
+    // splitSize = static_cast<Int32>(splitNameSpace.size());
+    // for(Int32 idx = 0; idx < splitSize; ++idx)
+    // {
+    //     if(idx == splitSize -1)
+    //         icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
+
+    //     if(!splitNameSpace[idx].empty())
+    //         icompName.AppendFormat("%s", splitNameSpace[idx].c_str());
+
+    //     if(idx != splitSize -1)
+    //         icompName.AppendFormat("::");
+    // }
+}
+
+LibString StringUtil::InterfaceObjName(const LibString &name)
+{
+	// 命名空间检测
+    auto &&splitNameSpace = name.Split("::", -1, false, true);
+    Int32 splitSize = static_cast<Int32>(splitNameSpace.size());
+
+    // 去末尾空
+    for(Int32 idx = splitSize - 1; idx >= 0; --idx)
+    {
+        if(splitNameSpace[idx].empty())
+        {
+            splitNameSpace.erase(splitNameSpace.begin() + idx);
+        }
+        else
+            break;
+    }
+
+    LibString icompName;
+    splitSize = static_cast<Int32>(splitNameSpace.size());
+    for(Int32 idx = 0; idx < splitSize; ++idx)
+    {
+        if(idx == splitSize -1)
+            icompName.AppendFormat("%s", ConstantGather::interfacePrefix.c_str());
+
+        if(!splitNameSpace[idx].empty())
+            icompName.AppendFormat("%s", splitNameSpace[idx].c_str());
+
+        if(idx != splitSize -1)
+            icompName.AppendFormat("::");
+    }
+
+	return icompName;
+}
 KERNEL_END
 

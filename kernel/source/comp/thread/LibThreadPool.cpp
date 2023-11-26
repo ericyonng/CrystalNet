@@ -60,6 +60,193 @@ void LibThreadPool::Release()
     CRYSTAL_DELETE(this);
 }
 
+// 初始化
+void LibThreadPool::Init(Int32 minNum, Int32 maxNum, UInt64 unixStackSize)
+{
+    // 初始化过不可再修改 初始化前不可启动线程池
+    if(_isInit.exchange(true))
+        return;
+
+    _isDestroy = false;
+    _minNum = minNum;
+    _maxNum = maxNum;
+    _curTotalNum = 0;
+    _waitNum = 0;
+    _isEnableTask = true;
+    _unixStackSize = unixStackSize;
+}
+
+bool LibThreadPool::Start(bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+{
+    if(!_isInit.load())
+    {
+        CRYSTAL_TRACE("have no init before");
+        return false;
+    }
+
+    if(_isWorking.exchange(true))
+        return true;
+
+    const auto minNum = _minNum.load();
+    if(minNum)
+      _CreateThread(minNum, _unixStackSize);
+
+    // 唤醒
+    if(_waitNum.load() > 0 && !forceNewThread)
+    {
+        _wakeupAndWait.Sinal();
+        return true;
+    }
+
+    // 是否需要创建线程来执行任务
+    if(UNLIKELY(numOfThreadToCreateIfNeed <= 0))
+        return true;
+
+    _wakeupAndWait.Lock();
+    const Int32 curTotalNum = _curTotalNum.load();
+    const Int32 maxNum = _maxNum.load();
+    const Int32 diffNum = maxNum - curTotalNum;
+    numOfThreadToCreateIfNeed = diffNum > numOfThreadToCreateIfNeed ? numOfThreadToCreateIfNeed : diffNum;
+
+    // 超过最大线程数
+    if(UNLIKELY(curTotalNum + numOfThreadToCreateIfNeed > maxNum))
+    {
+        _wakeupAndWait.Unlock();
+        return false;
+    }
+
+    _CreateThread(numOfThreadToCreateIfNeed, _unixStackSize);
+    _wakeupAndWait.Unlock();
+
+    return true;
+}
+
+bool LibThreadPool::AddThreads(Int32 addNum)
+{
+    if(!_isInit.load() || _isDestroy.load())
+    {
+        CRYSTAL_TRACE("POOL NOT INIT OR IS DESTROY WHEN AddThreads");
+        return false;
+    }
+
+    _wakeupAndWait.Lock();
+    const Int32 curTotalNum = _curTotalNum.load();
+    const Int32 maxNum = _maxNum.load();
+    const Int32 diffNum = maxNum - curTotalNum;
+    addNum = diffNum > addNum ? addNum : diffNum;
+
+    if(UNLIKELY(curTotalNum + addNum > maxNum))
+    {
+        _wakeupAndWait.Unlock();
+        return false;
+    }
+
+    if(LIKELY(addNum))
+        _CreateThread(addNum, _unixStackSize);
+
+    _wakeupAndWait.Unlock();
+
+    return true;
+}
+
+LibString LibThreadPool::ToString()
+{
+    LibString info;
+    const Int32 minNum = _minNum.load();
+    const Int32 maxNum = _maxNum.load();
+    const Int32 curTotalNum = _curTotalNum.load();
+    const Int32 waitNum = _waitNum.load();
+    const UInt64 unixStackSize = _unixStackSize;
+    const bool isInit = _isInit.load();
+    const bool isWorking = _isWorking.load();
+    const bool isEnableTask = _isEnableTask.load();
+
+    info.AppendFormat("thread pool:%s status:minNum[%d], maxNum[%d], curTotalNum[%d], waitNum[%d]"
+    ", unixStackSize[%llu], isInit[%d], isWorking[%d], isEnableTask[%d]"
+    , _poolName.c_str(), minNum, maxNum, curTotalNum, waitNum, unixStackSize, isInit, isWorking, isEnableTask);
+
+    return info;
+}
+
+bool LibThreadPool::AddTask(ITask *task, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+{
+    if(UNLIKELY(!_isEnableTask.load() || _isDestroy.load()))
+        return false;
+
+    _lck.Lock();
+    _tasks.push_back(task);
+    _lck.Unlock();
+
+    // 唤醒
+    if(_waitNum.load() > 0 && !forceNewThread)    // 
+    {
+        _wakeupAndWait.Sinal();
+        return true;
+    }
+
+    // 是否需要创建线程来执行任务
+    if(UNLIKELY(numOfThreadToCreateIfNeed <= 0))
+        return true;
+
+    _wakeupAndWait.Lock();
+    const Int32 curTotalNum = _curTotalNum.load();
+    const Int32 maxNum = _maxNum.load();
+    const Int32 diffNum = maxNum - curTotalNum;
+    numOfThreadToCreateIfNeed = diffNum > numOfThreadToCreateIfNeed ? numOfThreadToCreateIfNeed : diffNum;
+
+    // 超过最大线程数
+    if(UNLIKELY(curTotalNum + numOfThreadToCreateIfNeed > maxNum))
+    {
+        _wakeupAndWait.Unlock();
+        return false;
+    }
+
+    _CreateThread(numOfThreadToCreateIfNeed, _unixStackSize);
+    _wakeupAndWait.Unlock();
+
+    return true; 
+}
+
+bool LibThreadPool::AddTask2(IDelegate<void, LibThreadPool *, Variant *> *callback, Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+{
+    if(UNLIKELY(!_isEnableTask.load() || _isDestroy.load()))
+        return false;
+
+    DelegateWithParamsTask<LibThreadPool> *newTask = DelegateWithParamsTask<LibThreadPool>::New_DelegateWithParamsTask(this, callback, params);
+    _lck.Lock();
+    _tasks.push_back(newTask);
+    _lck.Unlock();
+
+    // 唤醒
+    if(_waitNum.load() > 0 && !forceNewThread)    // 
+    {
+        _wakeupAndWait.Sinal();
+        return true;
+    }
+
+    // 是否需要创建线程来执行任务
+    if(UNLIKELY(numOfThreadToCreateIfNeed <= 0))
+        return true;
+
+    _wakeupAndWait.Lock();
+    const Int32 curTotalNum = _curTotalNum.load();
+    const Int32 maxNum = _maxNum.load();
+    const Int32 diffNum = maxNum - curTotalNum;
+    numOfThreadToCreateIfNeed = diffNum > numOfThreadToCreateIfNeed ? numOfThreadToCreateIfNeed : diffNum;
+
+    // 超过最大线程数
+    if(UNLIKELY(curTotalNum + numOfThreadToCreateIfNeed > maxNum))
+    {
+        _wakeupAndWait.Unlock();
+        return false;
+    }
+
+    _CreateThread(numOfThreadToCreateIfNeed, _unixStackSize);
+    _wakeupAndWait.Unlock();
+
+    return true;
+}
+
 void LibThreadPool::_LibThreadHandlerLogic(void *param)
 {
     LibThreadPool *pool = static_cast<LibThreadPool *>(param);
@@ -168,5 +355,48 @@ void *LibThreadPool::ThreadHandler(void *param)
 
 
 #endif
+
+bool LibThreadPool::_CreateThread(Int32 numToCreate, UInt64 unixStackSize)
+{
+    Int32 ret = 0;
+    for(Int32 i = 0; i < numToCreate; ++i)
+    {
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        UInt32 threadId = 0;
+        auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(NULL, static_cast<UInt32>(unixStackSize)
+        , &LibThreadPool::ThreadHandler, static_cast<void *>(this), 0, &threadId));
+        if(LIKELY(threadHandle != INVALID_HANDLE_VALUE))
+            ::CloseHandle(threadHandle);    // 移除避免浪费内核资源
+        else
+        {
+            if(i == 0)
+                return false;
+
+            break;
+        }
+#else
+        pthread_t theadkey;
+        pthread_attr_t threadAttr;
+        pthread_attr_init(&threadAttr);
+        if(unixStackSize)
+            pthread_attr_setstacksize(&threadAttr, unixStackSize);
+        ret = pthread_create(&theadkey, &threadAttr, &LibThreadPool::ThreadHandler, (void *)this);
+        pthread_attr_destroy(&threadAttr);
+        if(ret != 0)
+        {
+            printf("\nret=%d\n", ret);
+            perror("pthread_create error!");
+
+            if(i == 0)
+                return false;
+
+            break;
+        }
+#endif
+        ++_curTotalNum;
+    }
+
+    return true;
+}
 
 KERNEL_END

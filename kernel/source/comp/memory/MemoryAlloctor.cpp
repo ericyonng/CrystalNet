@@ -127,6 +127,26 @@ void MemoryAlloctor::Free(MemoryBlock *block)
     _DoFreeBlock(block);
 }
 
+LibString MemoryAlloctor::UsingInfo() const
+{
+    // 总的使用大小,总的大小,使用的block块数,总块数,总的buffer数量,使用的buffer数量,block大小,创建来源,总的使用字节数,总的字节数,当前死亡buffer数量,死亡buffer限制数量,分配与释放操作次数,是否初始化创建buffer,半数空缓存限制,当前活跃buffer数量
+    LibString str;
+
+    str << "alloctor init thread id:" << _threadId << ";\n"
+        << "alloctor address:" << this <<  ";\n"
+        << "block size:" << _blockSizeAfterAlign << ", create source:" << _createSource << "create memory buffer num when init:" << _initMemoryBufferNum <<  ";\n"
+        << "current alloctor buffer total bytes:" << _totalBytes << ", current all using bytes:" << _bytesInUsed << ";\n"
+        << "total block amount:" << _totalBlockAmount << ", using block:" << _blockCountInUsed << ";\n"
+        << "current block count per buffer for next time:" << _curBlockCntPerBuffer << ", max block count limit per buffer:" << _bufferBlockNumLimit << ";\n"
+        << "active buffer num:" << _curActiveBufferNum << ";\n"
+        << "trigger new buffer when alloc block num:" << _trigerNewBufferWhenAlloc << ";\n"
+        << "need to merge buffer count:" << _bufferToMergeCount.load() << ";\n"
+        << "is thread local create alloctor:" << _isThreadLocalCreate << ";\n"
+        ;
+        
+    return str;
+}
+
 void MemoryAlloctor::Init(bool isThreadLocalCreate, UInt64 initBlockNumPerBuffer, const std::string &source)
 {
     if(_isInit.exchange(true))

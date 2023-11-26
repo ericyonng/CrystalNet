@@ -307,9 +307,72 @@ public:
     static MemoryAssist<ObjType, BuildType, ParticleType> *GetInstance();
 
     template<typename ObjBuildType>
-    ObjType *WrapNew(ObjType *obj, const Byte8 *fileName, Int32 line);
+    ObjType *WrapNew(ObjType *obj, const Byte8 *fileName, Int32 line)
+    {
+        const LibString buildTypeStr = RttiUtil::GetByType<ObjBuildType>();
+        const LibString objPosStr = LibString(fileName).AppendFormat(":%d", line);
+
+        // 总数统计
+        ++_maInfo._totalNewCount;
+        ++_maInfo._activeObjCount;
+
+        _lck.Lock();
+
+        // 指针对应的位置
+        _maInfo._newObjPtrRefPos[obj] = objPosStr;
+
+        // 位置活跃对象信息
+        bool isNewInfo = false;
+        auto iterActivePos = _maInfo._newObjPosRefActiveCountInfo.find(objPosStr);
+        if(iterActivePos == _maInfo._newObjPosRefActiveCountInfo.end())
+        {
+            auto newPosActiveInfo = OBJ_POOL_WRAP_TEMPLATE_NEW_P2(std::pair, LibString, Int64, BuildType);
+            newPosActiveInfo->first = objPosStr;
+            newPosActiveInfo->second = 0;
+            isNewInfo = true;
+            iterActivePos = _maInfo._newObjPosRefActiveCountInfo.insert(std::make_pair(objPosStr, newPosActiveInfo)).first;
+        }
+        auto posActiveInfo = iterActivePos->second;
+        ++posActiveInfo->second;
+
+        // 添加到打印队列中
+        if(UNLIKELY(isNewInfo))
+        {
+            _maInfo._objPosInfoList.push_back(posActiveInfo);
+            _maInfo._newObjPosRefVecIdx[objPosStr] = _maInfo._objPosInfoList.size() - 1;
+            ++_maInfo._curVecSize;
+        }
+
+        _lck.Unlock();
+
+        return obj;
+    }
+
     template<typename ObjBuildType>
-    void WrapDelete(ObjType *obj);
+    void WrapDelete(ObjType *obj)
+    {
+        const LibString buildTypeStr = RttiUtil::GetByType<ObjBuildType>();
+
+        ++_maInfo._totalDeleteCount;
+        --_maInfo._activeObjCount;
+
+        _lck.Lock();
+
+        auto iterPtrPos = _maInfo._newObjPtrRefPos.find(obj);
+        if(iterPtrPos != _maInfo._newObjPtrRefPos.end())
+        {
+            auto &posStr = iterPtrPos->second;
+
+            auto iterActiveCountPair = _maInfo._newObjPosRefActiveCountInfo.find(posStr);
+            if(iterActiveCountPair != _maInfo._newObjPosRefActiveCountInfo.end())
+            {
+                auto activieInfoPair = iterActiveCountPair->second;
+                --activieInfoPair->second;
+            }
+        }
+
+        _lck.Unlock();
+    }
 
 private:
     static MemoryAssist<ObjType, BuildType, ParticleType> *_GetInstance(_Build::MT::Type);
@@ -354,75 +417,6 @@ ALWAYS_INLINE MemoryAssist<ObjType, BuildType, ParticleType> *MemoryAssist<ObjTy
     return _GetInstance(BuildType::V);
 }
 
-template<typename ObjType, typename BuildType, LockParticleType::ENUMS ParticleType>
-template<typename ObjBuildType>
-ALWAYS_INLINE ObjType *MemoryAssist<ObjType, BuildType, ParticleType>::WrapNew(ObjType *obj, const Byte8 *fileName, Int32 line)
-{
-    const LibString buildTypeStr = RttiUtil::GetByType<ObjBuildType>();
-    const LibString objPosStr = LibString(fileName).AppendFormat(":%d", line);
-
-    // 总数统计
-    ++_maInfo._totalNewCount;
-    ++_maInfo._activeObjCount;
-
-    _lck.Lock();
-
-    // 指针对应的位置
-    _maInfo._newObjPtrRefPos[obj] = objPosStr;
-
-    // 位置活跃对象信息
-    bool isNewInfo = false;
-    auto iterActivePos = _maInfo._newObjPosRefActiveCountInfo.find(objPosStr);
-    if(iterActivePos == _maInfo._newObjPosRefActiveCountInfo.end())
-    {
-        auto newPosActiveInfo = OBJ_POOL_WRAP_TEMPLATE_NEW_P2(std::pair, LibString, Int64, BuildType);
-        newPosActiveInfo->first = objPosStr;
-        newPosActiveInfo->second = 0;
-        isNewInfo = true;
-        iterActivePos = _maInfo._newObjPosRefActiveCountInfo.insert(std::make_pair(objPosStr, newPosActiveInfo)).first;
-    }
-    auto posActiveInfo = iterActivePos->second;
-    ++posActiveInfo->second;
-
-    // 添加到打印队列中
-    if(UNLIKELY(isNewInfo))
-    {
-        _maInfo._objPosInfoList.push_back(posActiveInfo);
-        _maInfo._newObjPosRefVecIdx[objPosStr] = _maInfo._objPosInfoList.size() - 1;
-        ++_maInfo._curVecSize;
-    }
-
-    _lck.Unlock();
-
-    return obj;
-}
-
-template<typename ObjType, typename BuildType, LockParticleType::ENUMS ParticleType>
-template<typename ObjBuildType>
-ALWAYS_INLINE void MemoryAssist<ObjType, BuildType, ParticleType>::WrapDelete(ObjType *obj)
-{
-    const LibString buildTypeStr = RttiUtil::GetByType<ObjBuildType>();
-
-    ++_maInfo._totalDeleteCount;
-    --_maInfo._activeObjCount;
-
-    _lck.Lock();
-
-    auto iterPtrPos = _maInfo._newObjPtrRefPos.find(obj);
-    if(iterPtrPos != _maInfo._newObjPtrRefPos.end())
-    {
-        auto &posStr = iterPtrPos->second;
-
-        auto iterActiveCountPair = _maInfo._newObjPosRefActiveCountInfo.find(posStr);
-        if(iterActiveCountPair != _maInfo._newObjPosRefActiveCountInfo.end())
-        {
-            auto activieInfoPair = iterActiveCountPair->second;
-            --activieInfoPair->second;
-        }
-    }
-
-    _lck.Unlock();
-}
 
 template<typename ObjType, typename BuildType, LockParticleType::ENUMS ParticleType>
 ALWAYS_INLINE MemoryAssist<ObjType, BuildType, ParticleType> *MemoryAssist<ObjType, BuildType, ParticleType>::_GetInstance(_Build::MT::Type)

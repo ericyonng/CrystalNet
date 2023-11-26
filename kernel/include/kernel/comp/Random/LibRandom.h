@@ -127,7 +127,6 @@ ALWAYS_INLINE ValueType LibRandom<ValueType, BuildType, distType, sourceType>::G
     return rand;
 }
 
-
 template<typename Rtn, Int64 minValue, Int64 maxValue>
 ALWAYS_INLINE Rtn &LibRandomInstance::GetInstance(_Build::MT::Type)
 {

@@ -21,61 +21,50 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-03-19 22:43:52
+ * Date: 2023-11-26 14:51:40
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_MEMORY_MONITOR_STATISTICS_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_MEMORY_MONITOR_STATISTICS_H__
-
-#pragma once
-
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <pch.h>
+#include <kernel/comp/NetEngine/Protocol/IProtocolStack.h>
 
 KERNEL_BEGIN
 
-// 只提供注册不提供移除,移除会有性能上的损耗
-class KERNEL_EXPORT Statistics
+bool IProtocolStack::UpdateKey()
 {
-public:
-    // Rtn:返回Buffer占用的内存大小
-    typedef std::vector<IDelegate<UInt64, LibString &> *> Seq;
+    const auto nowTime = LibTime::NowMilliTimestamp();
+    if(LIKELY(_expireTime > nowTime))
+        return true;
 
-public:
-    Statistics(){}
-    ~Statistics();
+    _expireTime = nowTime + _expireIntervalMs;
 
-public:
-    Seq &GetDict();
-    // 会直接释放delg,外部不可自己释放delg
-    void Remove(IDelegate<UInt64, LibString &> *delg);
+    _key.clear();
+    _base64Key.clear();
+    _cypherKey.clear();
+    KERNEL_NS::CypherGeneratorUtil::SpeedGen<KERNEL_NS::_Build::TL>(_key, KERNEL_NS::CypherGeneratorUtil::CYPHER_128BIT);
+    
+    if(_packetToBinRsa.IsPubEncryptPrivDecrypt())
+    {
+        _packetToBinRsa.PubKeyEncrypt(_key, _cypherKey);
+    }
+    else
+    {
+        _packetToBinRsa.PrivateKeyEncrypt(_key, _cypherKey);
+    }
 
-    void Lock();
-    void Unlock();
+    if(UNLIKELY(_cypherKey.empty()))
+    {
+        _expireTime = nowTime;
+        _key.clear();
+        _base64Key.clear();
+        return false;
+    }
 
-private:
-    SpinLock _lck;
-    Seq _addrRefDeleg;
-};
+    KERNEL_NS::LibBase64::Encode(_cypherKey.data(), static_cast<UInt64>(_cypherKey.size()), _base64Key);
 
-ALWAYS_INLINE Statistics::Seq &Statistics::GetDict()
-{
-    return _addrRefDeleg;
-}
-
-ALWAYS_INLINE void Statistics::Lock()
-{
-    _lck.Lock();
-}
-
-ALWAYS_INLINE void Statistics::Unlock()
-{
-    _lck.Unlock();
+    return true;
 }
 
 KERNEL_END
 
-#endif

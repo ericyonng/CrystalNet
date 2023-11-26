@@ -189,10 +189,36 @@ protected:
 
     void _Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize);
     template<typename... Args>
-    void _Common6(const Byte8 *tag, Int32 codeLine, Int32 levelId, Args&&... args);
+    void _Common6(const Byte8 *tag, Int32 codeLine, Int32 levelId, Args&&... args)
+    {
+        if(UNLIKELY(!IsLogOpen()))
+            return;
+    
+        auto levelCfg = _GetLevelCfg(levelId);
+        if(UNLIKELY(!levelCfg))
+        {
+            CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
+            return;
+        }
+
+        // 是否需要输出日志
+        if(UNLIKELY(!levelCfg->_enable))
+            return;
+
+        // 构建日志数据
+        const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
+        LogData *newLogData = LogData::New_LogData();
+        newLogData->_logTime.UpdateTime();
+        auto &logInfo = newLogData->_logInfo;
+        logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu]: ", newLogData->_logTime.ToString().c_str(), levelCfg->_levelName.c_str(), (tag ? tag : ""), codeLine, tid);
+        logInfo.Append(std::forward<Args>(args)...);
+        logInfo.AppendEnd();
+
+        _WriteLog(levelCfg, newLogData);
+    }
 };
 
-inline void ILog::Info(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::Info(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -204,7 +230,7 @@ inline void ILog::Info(const Byte8 *tag, const char *fileName, const char *funcN
     va_end(va);
 }
 
-inline void ILog::Debug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::Debug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -216,7 +242,7 @@ inline void ILog::Debug(const Byte8 *tag, const char *fileName, const char *func
     va_end(va);
 }
 
-inline void ILog::Warn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::Warn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -228,7 +254,7 @@ inline void ILog::Warn(const Byte8 *tag, const char *fileName, const char *funcN
     va_end(va);
 }
 
-inline void ILog::Error(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::Error(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -264,7 +290,7 @@ ALWAYS_INLINE void ILog::Error2(const Byte8 *tag, const char *fileName, const ch
     _Common6(tag, codeLine, LogLevel::Error, std::forward<Args>(args)...);
 }
 
-inline void ILog::Monitor(const char *fmt, ...)
+ALWAYS_INLINE void ILog::Monitor(const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -276,7 +302,7 @@ inline void ILog::Monitor(const char *fmt, ...)
     va_end(va);
 }
 
-inline void ILog::Crash(const char *fmt, ...)
+ALWAYS_INLINE void ILog::Crash(const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -288,7 +314,7 @@ inline void ILog::Crash(const char *fmt, ...)
     va_end(va);
 }
 
-inline void ILog::Net(const Byte8 *tag, const char *fmt, ...)
+ALWAYS_INLINE void ILog::Net(const Byte8 *tag, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -300,7 +326,7 @@ inline void ILog::Net(const Byte8 *tag, const char *fmt, ...)
     va_end(va);
 }
 
-inline void ILog::NetDebug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::NetDebug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -312,7 +338,7 @@ inline void ILog::NetDebug(const Byte8 *tag, const char *fileName, const char *f
     va_end(va);
 }
 
-inline void ILog::NetWarn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::NetWarn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -324,7 +350,7 @@ inline void ILog::NetWarn(const Byte8 *tag, const char *fileName, const char *fu
     va_end(va);
 }
 
-inline void ILog::NetInfo(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::NetInfo(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -336,7 +362,7 @@ inline void ILog::NetInfo(const Byte8 *tag, const char *fileName, const char *fu
     va_end(va);
 }
 
-inline void ILog::NetError(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::NetError(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -348,7 +374,7 @@ inline void ILog::NetError(const Byte8 *tag, const char *fileName, const char *f
     va_end(va);
 }
 
-inline void ILog::NetTrace(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::NetTrace(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -360,7 +386,7 @@ inline void ILog::NetTrace(const Byte8 *tag, const char *fileName, const char *f
     va_end(va);
 }
 
-inline void ILog::Sys(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::Sys(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -372,7 +398,7 @@ inline void ILog::Sys(const Byte8 *tag, const char *fileName, const char *funcNa
     va_end(va);
 }
 
-inline void ILog::MemMonitor(const char *fmt, ...)
+ALWAYS_INLINE void ILog::MemMonitor(const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -384,7 +410,7 @@ inline void ILog::MemMonitor(const char *fmt, ...)
     va_end(va);
 }
 
-inline void ILog::Custom(const char *fmt, ...)
+ALWAYS_INLINE void ILog::Custom(const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -397,7 +423,7 @@ inline void ILog::Custom(const char *fmt, ...)
 }
 
 // 追踪日志
-inline void ILog::Trace(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+ALWAYS_INLINE void ILog::Trace(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);
@@ -422,7 +448,7 @@ ALWAYS_INLINE void ILog::DumpSql(const Byte8 *tag, const char *fileName, const c
 }
 
 template<typename ObjType>
-inline const IDelegate<void> *ILog::InstallAfterLogHookFunc(Int32 level, ObjType *obj, void (ObjType::*cb)())
+ALWAYS_INLINE const IDelegate<void> *ILog::InstallAfterLogHookFunc(Int32 level, ObjType *obj, void (ObjType::*cb)())
 {
     if(UNLIKELY(!IsLogOpen()))
         return NULL;
@@ -442,7 +468,7 @@ inline const IDelegate<void> *ILog::InstallAfterLogHookFunc(Int32 level, ObjType
     return newDelegate;
 }
 
-inline const IDelegate<void> *ILog::InstallAfterLogHookFunc(Int32 level, void (*cb)())
+ALWAYS_INLINE const IDelegate<void> *ILog::InstallAfterLogHookFunc(Int32 level, void (*cb)())
 {
     if(UNLIKELY(!IsLogOpen()))
         return NULL;
@@ -463,7 +489,7 @@ inline const IDelegate<void> *ILog::InstallAfterLogHookFunc(Int32 level, void (*
 }
 
 template<typename ObjType>
-inline const IDelegate<void, LogData *> *ILog::InstallBeforeLogHookFunc(Int32 level, ObjType *obj, void (ObjType::*cb)(LogData *logData))
+ALWAYS_INLINE const IDelegate<void, LogData *> *ILog::InstallBeforeLogHookFunc(Int32 level, ObjType *obj, void (ObjType::*cb)(LogData *logData))
 {
     if(UNLIKELY(!IsLogOpen()))
         return NULL;
@@ -483,7 +509,7 @@ inline const IDelegate<void, LogData *> *ILog::InstallBeforeLogHookFunc(Int32 le
     return newDelegate;
 }
 
-inline const IDelegate<void, LogData *> *ILog::InstallBeforeLogHookFunc(Int32 level, void(*cb)(LogData *logData))
+ALWAYS_INLINE const IDelegate<void, LogData *> *ILog::InstallBeforeLogHookFunc(Int32 level, void(*cb)(LogData *logData))
 {
     if(UNLIKELY(!IsLogOpen()))
         return NULL;
@@ -512,202 +538,6 @@ ALWAYS_INLINE bool ILog::IsEnable(Int32 level) const
     return levelCfg ? levelCfg->_enable : false;
 }
 
-inline void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, va_list va, UInt64 formatFinalSize)
-{
-    if(UNLIKELY(!IsLogOpen()))
-        return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
-    if(UNLIKELY(!levelCfg))
-    {
-        CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
-        return;
-    }
-
-    // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
-        return;
-
-    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-    // 构建日志数据
-    LogData *newLogData = LogData::New_LogData();
-    newLogData->_logTime.UpdateTime();
-    auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][%s][%s][line:%d][tid:%llu]: "
-                                   , newLogData->_logTime.ToString().c_str()
-                                   , levelCfg->_levelName.c_str()
-                                   , (tag ? tag : "")
-                                   , fileName
-                                   , funcName
-                                   , codeLine
-                                   , tid);
-
-    logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
-            .AppendEnd();
-
-
-    _WriteLog(levelCfg, newLogData);
-}
-
-inline void ILog::_Common2(const Byte8 *tag, Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize)
-{
-    if(UNLIKELY(!IsLogOpen()))
-        return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
-    if(UNLIKELY(!levelCfg))
-    {
-        CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
-        return;
-    }
-
-    // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
-        return;
-
-    // 构建日志数据
-    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-    LogData *newLogData = LogData::New_LogData();
-    newLogData->_logTime.UpdateTime();
-    auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][tid:%llu]: "
-                        , newLogData->_logTime.ToString().c_str()
-                        , levelCfg->_levelName.c_str()
-                        , (tag ? tag : "")
-                        , tid);
-
-    logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
-            .AppendEnd();
-
-    _WriteLog(levelCfg, newLogData);
-}
-
-inline void ILog::_Common3(Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize)
-{
-    if(UNLIKELY(!IsLogOpen()))
-        return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
-    if(UNLIKELY(!levelCfg))
-    {
-        CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
-        return;
-    }
-
-    // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
-        return;
-
-    // 构建日志数据
-    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-    LogData *newLogData = LogData::New_LogData();
-    newLogData->_logTime.UpdateTime();
-    auto &logInfo = newLogData->_logInfo;
-
-    logInfo.AppendFormat("[tid:%llu] ", tid);
-    logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
-            .AppendEnd();
-
-    _WriteLog(levelCfg, newLogData);
-}
-
-inline void ILog::_Common4(Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize)
-{
-    if(UNLIKELY(!IsLogOpen()))
-        return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
-    if(UNLIKELY(!levelCfg))
-    {
-        CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
-        return;
-    }
-
-    // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
-        return;
-
-    // 构建日志数据
-    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-    LogData *newLogData = LogData::New_LogData();
-    newLogData->_logTime.UpdateTime();
-
-    auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[tid:%llu]: "
-                        , newLogData->_logTime.ToString().c_str()
-                        , levelCfg->_levelName.c_str()
-                        , tid);
-
-    logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
-            .AppendEnd();
-
-    _WriteLog(levelCfg, newLogData);
-}
-
-inline void ILog::_Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize)
-{
-   if(UNLIKELY(!IsLogOpen()))
-        return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
-    if(UNLIKELY(!levelCfg))
-    {
-        CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
-        return;
-    }
-
-    // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
-        return;
-
-    // 构建日志数据
-    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-    LogData *newLogData = LogData::New_LogData();
-    newLogData->_logTime.UpdateTime();
-    auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu]: "
-                        , newLogData->_logTime.ToString().c_str()
-                        , levelCfg->_levelName.c_str()
-                        , (tag ? tag : "")
-                        , codeLine
-                        , tid);
-
-    logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
-            .AppendEnd();
-
-    _WriteLog(levelCfg, newLogData);
-}
-
-template<typename... Args>
-ALWAYS_INLINE void ILog::_Common6(const Byte8 *tag, Int32 codeLine, Int32 levelId, Args&&... args)
-{
-   if(UNLIKELY(!IsLogOpen()))
-        return;
- 
-    auto levelCfg = _GetLevelCfg(levelId);
-    if(UNLIKELY(!levelCfg))
-    {
-        CRYSTAL_TRACE("log level[%d] cfg not found", levelId);
-        return;
-    }
-
-    // 是否需要输出日志
-    if(UNLIKELY(!levelCfg->_enable))
-        return;
-
-    // 构建日志数据
-    const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-    LogData *newLogData = LogData::New_LogData();
-    newLogData->_logTime.UpdateTime();
-    auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu]: ", newLogData->_logTime.ToString().c_str(), levelCfg->_levelName.c_str(), (tag ? tag : ""), codeLine, tid);
-    logInfo.Append(std::forward<Args>(args)...);
-    logInfo.AppendEnd();
-
-    _WriteLog(levelCfg, newLogData);
-}
-
-    
 KERNEL_END
 
 #endif

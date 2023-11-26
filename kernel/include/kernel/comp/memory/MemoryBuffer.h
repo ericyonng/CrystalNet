@@ -53,7 +53,40 @@ public:
     // 惰性初始化，不完全初始化所有节点（避免瞬间的性能下降）
     void Init();
     // 分配新block节点
-    MemoryBlock *AllocNewBlock();
+    MemoryBlock *AllocNewBlock()
+    {
+        // // 用光一次，向左移位一位
+        if(UNLIKELY(++_usedBlockCnt == _blockCnt))
+            _notEnableGcFlag <<= _shiftBitNum;
+
+        // 优先从释放链表中拿
+        if(LIKELY(_freeHead))
+        {// 
+            MemoryBlock *toAlloc = _freeHead;
+            // 说明正在被其他对象引用需要
+            if(UNLIKELY(toAlloc->_ref > 0))
+            {
+                const auto blockHeaderSize = __MEMORY_ALIGN__(sizeof(MemoryBlock));
+
+                throw std::logic_error(KERNEL_NS::LibString().AppendFormat("block toAlloc:[%p], will alloc obj addr:[%p], size:%llu, is in using please check %s !!!"
+                , toAlloc, reinterpret_cast<Byte8 *>(toAlloc) + blockHeaderSize, toAlloc->_realUseBytes
+                , BackTraceUtil::CrystalCaptureStackBackTrace().c_str()).GetRaw());
+            }
+
+            _freeHead = _freeHead->_next;
+            toAlloc->_next = NULL;
+            return toAlloc;
+        }
+
+        // 不需要考虑_head 是_tail 的情况, 因为用尽的时候再调用AllocNewBlock 此时block一定在_freeHead中, 其他情况一定是异常
+        MemoryBlock *toAlloc = _head;
+        toAlloc->_buffer = this;
+        toAlloc->_next = NULL;
+        toAlloc->_isInAlloctor = true;
+        _head = reinterpret_cast<MemoryBlock *>(_currentBufferPos += _blockSize);
+
+        return toAlloc;
+    }
     // 回收
     void FreeBlock(MemoryBlock *block);
     void FreeBlockList(MemoryBlock *blockHead, MemoryBlock *blockEnd, UInt64 mergeBlockCount);
@@ -138,70 +171,9 @@ ALWAYS_INLINE MemoryBuffer::~MemoryBuffer()
 ALWAYS_INLINE void MemoryBuffer::Init()
 {
     // 出于性能考虑使用惰性初始化
-    // Byte8 *cache = _buffer;
     _head = reinterpret_cast<MemoryBlock *>(_buffer);
     _currentBufferPos = _buffer;
-    // _head->_ref = 0;
-    // _head->_buffer = this;
-    // _head->_next = NULL;
-    // _head->_isInAlloctor = true;
-    // cache += _blockSize;
-
-    // // 构建内存块链表
-    // MemoryBlock *temp = _head;
-    // for(size_t i = 1; i < _blockCnt; ++i)
-    // {
-    //     MemoryBlock *block = reinterpret_cast<MemoryBlock *>(cache);
-    //     block->_ref = 0;
-    //     block->_buffer = this;
-    //     block->_next = NULL;
-    //     block->_isInAlloctor = true;
-    //     block->_realUseBytes = 0;
-        
-    //     temp->_next = block;
-    //     temp = block;
-
-    //     cache += _blockSize;
-    // }
-
     _tail = reinterpret_cast<MemoryBlock *>(_buffer + _bufferSize);
-}
-
-// 分配新block节点
-ALWAYS_INLINE MemoryBlock *MemoryBuffer::AllocNewBlock()
-{
-    // // 用光一次，向左移位一位
-    if(UNLIKELY(++_usedBlockCnt == _blockCnt))
-        _notEnableGcFlag <<= _shiftBitNum;
-
-    // 优先从释放链表中拿
-    if(LIKELY(_freeHead))
-    {// 
-        MemoryBlock *toAlloc = _freeHead;
-        // 说明正在被其他对象引用需要
-        if(UNLIKELY(toAlloc->_ref > 0))
-        {
-            const auto blockHeaderSize = __MEMORY_ALIGN__(sizeof(MemoryBlock));
-
-            throw std::logic_error(KERNEL_NS::LibString().AppendFormat("block toAlloc:[%p], will alloc obj addr:[%p], size:%llu, is in using please check %s !!!"
-            , toAlloc, reinterpret_cast<Byte8 *>(toAlloc) + blockHeaderSize, toAlloc->_realUseBytes
-            , BackTraceUtil::CrystalCaptureStackBackTrace().c_str()).GetRaw());
-        }
-
-        _freeHead = _freeHead->_next;
-        toAlloc->_next = NULL;
-        return toAlloc;
-    }
-
-    // 不需要考虑_head 是_tail 的情况, 因为用尽的时候再调用AllocNewBlock 此时block一定在_freeHead中, 其他情况一定是异常
-    MemoryBlock *toAlloc = _head;
-    toAlloc->_buffer = this;
-    toAlloc->_next = NULL;
-    toAlloc->_isInAlloctor = true;
-    _head = reinterpret_cast<MemoryBlock *>(_currentBufferPos += _blockSize);
-
-    // return (_head ^ _tail) ? toAlloc : NULL;
-    return toAlloc;
 }
 
 ALWAYS_INLINE void MemoryBuffer::FreeBlock(MemoryBlock *block)
@@ -222,20 +194,6 @@ ALWAYS_INLINE void MemoryBuffer::FreeBlockList(MemoryBlock *blockHead, MemoryBlo
     _freeHead = blockHead;
 }
 
-ALWAYS_INLINE LibString MemoryBuffer::ToString()
-{
-    LibString str;
-    str.AppendFormat("const info buffer bufferAddress = %p, "
-    " bufferSize = %llu, blockSize = %llu, blockCnt = %llu, usableBytesPerBlock = %llu \n "
-    "dynamic info: usedBlockCnt = %lld, "
-    "_notEnableGcFlag = %llx, "
-    , _buffer 
-    , _bufferSize, _blockSize, _blockCnt, _usableBytesPerBlock
-    , _usedBlockCnt
-    , _notEnableGcFlag);
-
-    return str;
-}
 
 ALWAYS_INLINE UInt64 MemoryBuffer::GetShiftNum(UInt64 memBytes)
 {

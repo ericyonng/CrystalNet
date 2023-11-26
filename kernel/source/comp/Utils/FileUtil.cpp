@@ -80,6 +80,328 @@ const Byte8 * FileUtil::GenRandFileNameNoDir(Byte8 randName[L_tmpnam])
 #endif
 }
 
+FILE *FileUtil::OpenFile(const Byte8 *fileName, bool isCreate /*= false*/, const Byte8 *openType /*= "rb+"*/)
+{
+    if(fileName == NULL || openType == NULL)
+        return NULL;
+
+    FILE *fp = NULL;
+    fp = ::fopen(fileName, openType);
+    if(!fp)
+    {
+        if(isCreate)
+        {
+            fp = ::fopen(fileName, "wb+");
+            if(!fp)
+                return NULL;
+                
+            FileUtil::CloseFile(*fp);
+            fp = ::fopen(fileName, openType);
+            if(!fp)
+            {
+                return NULL;
+            }
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+
+    clearerr(fp);
+
+    // 不是追加打开文件的设置开头
+    if(!strchr(openType, 'a'))
+        rewind(fp);
+    return fp;
+}
+
+bool FileUtil::CopyFile(const Byte8 *srcFile, const Byte8 *destFile)
+{
+    if(UNLIKELY(!srcFile || !destFile))
+        return false;
+
+    auto srcFp = OpenFile(srcFile);
+    if(!srcFp)
+        return false;
+
+    auto destFp = OpenFile(destFile, true, "wb+");
+    if(!destFp)
+        return false;
+
+    unsigned char get_c = 0;
+    char count = 0, wrCount = 0;
+    bool isDirty = false;
+
+    while(!feof(srcFp))
+    {
+        get_c = 0;
+        count = char(fread(&get_c, 1, 1, srcFp));
+        if(count != 1)
+            break;
+
+        wrCount = char(fwrite(&get_c, 1, 1, destFp));
+        if(wrCount != 1)
+            break;
+
+        isDirty = true;
+    }
+
+    if(isDirty)
+        FlushFile(*destFp);
+
+    CloseFile(*srcFp);
+    CloseFile(*destFp);
+    return true;
+}
+
+bool FileUtil::CopyFile(FILE &src, FILE &dest)
+{
+    clearerr(&src);
+    clearerr(&dest);
+    unsigned char get_c = 0;
+    char count = 0, wrCount = 0;
+    bool isDirty = false;
+    while(!feof(&src))
+    {
+        get_c = 0;
+        count = char(fread(&get_c, 1, 1, &src));
+        if(count != 1)
+            break;
+
+        wrCount = char(fwrite(&get_c, 1, 1, &dest));
+        if(wrCount != 1)
+            break;
+
+        isDirty = true;
+    }
+
+    if(isDirty)
+        FlushFile(dest);
+
+    return true;
+}
+
+UInt64 FileUtil::ReadFile(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
+{
+    if(!buffer || !bufferSize)
+        return 0;
+
+    clearerr(&fp);
+    UInt64 readCnt = 0;
+    U8 *bufferTmp = reinterpret_cast<U8 *>(buffer);
+    U8 get_c = 0;
+    while(!feof(&fp))
+    {
+        get_c = 0;
+        if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
+        {
+            *bufferTmp = get_c;
+            ++bufferTmp;
+            ++readCnt;
+
+            if(readCnt >= bufferSize)
+                break;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return readCnt;
+}
+
+UInt64 FileUtil::ReadFile(FILE &fp, LibString &outString, Int64 sizeLimit)
+{
+    clearerr(&fp);
+    UInt64 readCnt = 0;
+    U8 get_c = 0;
+    while(!feof(&fp))
+    {
+        get_c = 0;
+        if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
+        {
+            outString.AppendData(reinterpret_cast<const Byte8 *>(&get_c), 1);
+            ++readCnt;
+
+            if(sizeLimit > 0 && 
+               static_cast<Int64>(readCnt) >= sizeLimit)
+                break;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return readCnt;
+}
+
+Int64 FileUtil::WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToWrite)
+{
+//     if(!buffer || dataLenToWrite == 0)
+//         return 0;
+
+    clearerr(&fp);
+    auto handle = static_cast<Int64>(::fwrite(buffer, dataLenToWrite, 1, &fp));
+    if(LIKELY(handle != 1))
+    {
+        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+            perror("fwrite fail");
+        #endif
+        return 0;
+    }
+
+//     if(dataLenToWrite != cnt)
+//         printf("write error!");
+    return dataLenToWrite;
+}
+
+Long FileUtil::GetFileSize(FILE &fp)
+{
+    auto curPos = ftell(&fp);
+    if(UNLIKELY(curPos < 0))
+        return -1;
+
+    if(UNLIKELY(!SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_END, 0L)))
+        return -1;
+
+    auto fileSize = ftell(&fp);
+    if(UNLIKELY(fileSize < 0))
+    {
+        SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_SET, curPos);
+        return -1;
+    }
+
+    SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_SET, curPos);
+    return fileSize;
+}
+
+Int64 FileUtil::GetFileSizeEx(const Byte8 *filepath)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    struct _stat info;
+    if(::_stat(filepath, &info) != 0)
+        return -1;
+
+    return info.st_size;
+#else
+    struct stat info;
+    if(::stat(filepath, &info) != 0)
+        return -1;
+
+    return info.st_size;
+#endif
+
+}
+
+UInt64 FileUtil::ReadOneLine(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
+{
+    if(!buffer || bufferSize == 0)
+        return 0;
+
+    U8 get_c = 0;
+    U8 *bufferTmp = reinterpret_cast<U8 *>(buffer);
+    ::memset(bufferTmp, 0, bufferSize);
+
+    clearerr(&fp);
+    UInt64 cnt = 0;
+    while(!feof(&fp))
+    {
+        get_c = 0;
+        if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
+        {
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+            if(get_c == '\r')
+                continue;
+
+            if(get_c != '\n')
+            {
+                *bufferTmp = get_c;
+                ++bufferTmp;
+                ++cnt;
+
+                if(bufferSize <= cnt) 
+                    break;
+            }
+            else
+            {
+                //SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_CUR, 0);
+                break;
+            }
+
+#else
+            if(get_c != '\n')
+            {
+                *bufferTmp++ = get_c;
+                ++cnt;
+
+                if(bufferSize <= cnt) 
+                    break;
+            }
+            else
+            {
+                //fread(&get_c, sizeof(get_c), 1, fpOutCache);
+                break;
+            }
+#endif
+
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return cnt;
+}
+
+UInt64 FileUtil::ReadOneLine(FILE &fp, LibString &outBuffer)
+{
+    clearerr(&fp);
+    unsigned char get_c = 0;
+    UInt64 cnt = 0;
+    while(!feof(&fp))
+    {
+        get_c = 0;
+        if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
+        {
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+            if(get_c == '\r')
+                continue;
+
+            if(get_c != '\n')
+            {
+                outBuffer.AppendData(reinterpret_cast<const char *>(&get_c), 1);
+                ++cnt;
+            }
+            else
+            {
+                break;
+            }
+#else
+            if(get_c != '\n')
+            {
+                outBuffer.AppendData(reinterpret_cast<const char *>(&get_c), 1);
+                ++cnt;
+            }
+            else
+            {
+                //fread(&get_c, sizeof(get_c), 1, fpOutCache);
+                break;
+            }
+#endif
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return cnt;
+}
+
 UInt64 FileUtil::ReadUtf8OneLine(FILE &fp, LibString &outBuffer, UInt64 *utf8CharCount)
 {
     // 读取单字节字符时候判断是否\n

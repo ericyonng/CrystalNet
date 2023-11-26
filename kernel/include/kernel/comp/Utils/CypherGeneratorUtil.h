@@ -53,9 +53,57 @@ public:
     static void Gen(LibString &cypher, Int32 cypherBytes);
 
     template<typename BuildType = _Build::MT>
-    static void SpeedGen(Byte8 *cypher, Int32 cypherBytes);
+    static void SpeedGen(Byte8 *cypher, Int32 cypherBytes)
+    {
+        auto &randomEngine = _GetRandom(BuildType::V);
+
+        const Int32 loopCount = cypherBytes / 4;
+        UInt32 *p = (UInt32 *)(cypher);
+        // 每次产生4个字节的数据
+        for(Int32 i = 0; i < loopCount; ++i)
+        {
+            *p = static_cast<UInt32>(randomEngine.Gen());
+            p += 1;
+        }
+
+        const Int32 leftBytes = cypherBytes % 4;
+        if(UNLIKELY(leftBytes != 0))
+        {
+            Byte8 *b = (Byte8 *)(p);
+            for(Int32 i = 0; i < leftBytes; ++i)
+            {
+                *b = static_cast<U8>(randomEngine.Gen());
+                ++b;
+            }
+        }
+    }
     template<typename BuildType = _Build::MT>
-    static void SpeedGen(LibString &cypher, Int32 cypherBytes);
+    static void SpeedGen(LibString &cypher, Int32 cypherBytes)
+    {
+        auto &randomEngine = _GetRandom(BuildType::V);
+        cypher.resize(static_cast<UInt64>(cypherBytes));
+        auto &raw = cypher.GetRaw();
+
+        // 每次产生4个字节的数据
+        const Int32 loopCount = cypherBytes / 4;
+        UInt32 *p = (UInt32 *)(raw.data());
+        for(Int32 i = 0; i < loopCount; ++i)
+        {
+            *p = static_cast<UInt32>(randomEngine.Gen());
+            p += 1;
+        }
+
+        const Int32 leftBytes = cypherBytes % 4;
+        if(UNLIKELY(leftBytes != 0))
+        {
+            Byte8 *b = (Byte8 *)(p);
+            for(Int32 i = 0; i < leftBytes; ++i)
+            {
+                *b = static_cast<U8>(randomEngine.Gen());
+                ++b;
+            }
+        }
+    }
 
 private:
     static LibInt64Random<_Build::MT> &_GetRandom(_Build::MT::Type);
@@ -86,7 +134,7 @@ ALWAYS_INLINE LibInt64Random<_Build::TL> &CypherGeneratorUtil::_GetViewRandom(_B
 }
 
 template<typename BuildType>
-inline void CypherGeneratorUtil::Gen(Byte8 *cypher, Int32 cypherBytes)
+ALWAYS_INLINE void CypherGeneratorUtil::Gen(Byte8 *cypher, Int32 cypherBytes)
 {
     auto &randomEngine = _GetViewRandom(BuildType::V);
     for(Int32 i = 0; i < cypherBytes; ++i)
@@ -94,68 +142,13 @@ inline void CypherGeneratorUtil::Gen(Byte8 *cypher, Int32 cypherBytes)
 }
 
 template<typename BuildType>
-inline void CypherGeneratorUtil::Gen(LibString &cypher, Int32 cypherBytes)
+ALWAYS_INLINE void CypherGeneratorUtil::Gen(LibString &cypher, Int32 cypherBytes)
 {
     auto &randomEngine = _GetViewRandom(BuildType::V);
     cypher.resize(static_cast<UInt64>(cypherBytes));
     auto &raw = cypher.GetRaw();
     for(Int32 i = 0; i < cypherBytes; ++i)
         raw[i] = static_cast<Int32>(randomEngine.Gen());
-}
-
-template<typename BuildType>
-inline void CypherGeneratorUtil::SpeedGen(Byte8 *cypher, Int32 cypherBytes)
-{
-    auto &randomEngine = _GetRandom(BuildType::V);
-
-    const Int32 loopCount = cypherBytes / 4;
-    UInt32 *p = (UInt32 *)(cypher);
-    // 每次产生4个字节的数据
-    for(Int32 i = 0; i < loopCount; ++i)
-    {
-        *p = static_cast<UInt32>(randomEngine.Gen());
-        p += 1;
-    }
-
-    const Int32 leftBytes = cypherBytes % 4;
-    if(UNLIKELY(leftBytes != 0))
-    {
-        Byte8 *b = (Byte8 *)(p);
-        for(Int32 i = 0; i < leftBytes; ++i)
-        {
-            *b = static_cast<U8>(randomEngine.Gen());
-            ++b;
-        }
-    }
-}
-
-
-template<typename BuildType>
-inline void CypherGeneratorUtil::SpeedGen(LibString &cypher, Int32 cypherBytes)
-{
-    auto &randomEngine = _GetRandom(BuildType::V);
-    cypher.resize(static_cast<UInt64>(cypherBytes));
-    auto &raw = cypher.GetRaw();
-
-    // 每次产生4个字节的数据
-    const Int32 loopCount = cypherBytes / 4;
-    UInt32 *p = (UInt32 *)(raw.data());
-    for(Int32 i = 0; i < loopCount; ++i)
-    {
-        *p = static_cast<UInt32>(randomEngine.Gen());
-        p += 1;
-    }
-
-    const Int32 leftBytes = cypherBytes % 4;
-    if(UNLIKELY(leftBytes != 0))
-    {
-        Byte8 *b = (Byte8 *)(p);
-        for(Int32 i = 0; i < leftBytes; ++i)
-        {
-            *b = static_cast<U8>(randomEngine.Gen());
-            ++b;
-        }
-    }
 }
 
 KERNEL_END

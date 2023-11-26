@@ -51,6 +51,17 @@ LibConnectInfo::LibConnectInfo()
 
 }
 
+LibString LibConnectInfo::ToString() const
+{
+    LibString info;
+    info.AppendFormat("protocol type:[%d,%s] family:[%hu,%s], from local ip:[%s:%hu], to target ip:[%s:%hu]\n"
+                      "message priority level[%d] poller id:[%llu], retry times[%d], period ms:[%lld], stub:[%llu], from service id:[%llu], _sessionOption:%s"
+    , _protocolType, ProtocolType::ToString(_protocolType), _family, FamilyType::ToString(_family), _localIp.c_str(), _localPort, _targetIp.c_str(), _targetPort
+    , _priorityLevel, _pollerId, _retryTimes, _periodMs, _stub, _fromServiceId, _sessionOption.ToString().c_str());
+
+    return info;
+}
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibConnectPendingInfo);
 
 LibConnectPendingInfo::LibConnectPendingInfo()

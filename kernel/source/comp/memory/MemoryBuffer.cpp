@@ -80,4 +80,19 @@ KERNEL_BEGIN
 //     // }
 // }
 
+LibString MemoryBuffer::ToString()
+{
+    LibString str;
+    str.AppendFormat("const info buffer bufferAddress = %p, "
+    " bufferSize = %llu, blockSize = %llu, blockCnt = %llu, usableBytesPerBlock = %llu \n "
+    "dynamic info: usedBlockCnt = %lld, "
+    "_notEnableGcFlag = %llx, "
+    , _buffer 
+    , _bufferSize, _blockSize, _blockCnt, _usableBytesPerBlock
+    , _usedBlockCnt
+    , _notEnableGcFlag);
+
+    return str;
+}
+
 KERNEL_END

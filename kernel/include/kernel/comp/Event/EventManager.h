@@ -113,7 +113,54 @@ public:
 
     // 正在监听某个时间 O(n) ObjType:是监听者, 可以是类对象也可以是函数地址
     template<typename ObjType>
-    bool IsListening(int id, ObjType *obj) const;
+    bool IsListening(int id, ObjType *obj) const
+    {
+        bool isListening = false;
+        {
+            auto iter = _eventIdRefListenerOwners.find(id);
+            if(iter != _eventIdRefListenerOwners.end())
+                isListening = iter->second.find(obj) != iter->second.end();
+        }
+
+        // 在延迟队列中
+        {
+            for(auto &op : _delayedOps)
+            {
+                if(op._op == EventManager::REMOVE)
+                {
+                    if(op._listener._evId == id)
+                    {
+                        isListening = false;
+                        continue;
+                    }
+
+                    if(op._listener._stub)
+                    {
+                        auto iterStub = _stubListeners.find(op._listener._stub);
+                        if(iterStub != _stubListeners.end())
+                        {
+                            auto &listenInfo = iterStub->second;
+                            if(listenInfo._listenCallBack && listenInfo._listenCallBack->IsBelongTo(obj))
+                                isListening = false;
+                        }
+                    }
+                }
+                else if(op._op == EventManager::ADD)
+                {
+                    if(op._listener._evId != id)
+                        continue;
+
+                    if(op._listener._listenCallBack)
+                    {
+                        if(op._listener._listenCallBack->IsBelongTo(obj))
+                            isListening = true;
+                    }
+                }
+            }
+        }
+
+        return isListening;
+    }
 
 protected:
     /**
@@ -195,21 +242,20 @@ protected:
     std::map<Int32, std::set<void *>> _eventIdRefListenerOwners;
 };
 
-
-inline EventManager::_Listener::_Listener()
+ALWAYS_INLINE EventManager::_Listener::_Listener()
     : _stub(INVALID_LISTENER_STUB)
     , _evId(-1)
     , _listenCallBack(NULL)
 {
 }
 
-inline EventManager::_FireInfo::_FireInfo()
+ALWAYS_INLINE EventManager::_FireInfo::_FireInfo()
     : _ev(NULL)
 {
 }
 
 
-inline EventManager::EventManager()
+ALWAYS_INLINE EventManager::EventManager()
 : _firing(0)
 , _delaying(0)
 ,_maxListenerStub(0)
@@ -218,7 +264,7 @@ inline EventManager::EventManager()
 }
 
 template <typename ObjectType>
-inline ListenerStub EventManager::AddListener(int id,
+ALWAYS_INLINE ListenerStub EventManager::AddListener(int id,
                                     ObjectType *obj,
                                     void (ObjectType::*listener)(LibEvent *),
                                     const ListenerStub &bindedStub)
@@ -230,7 +276,7 @@ inline ListenerStub EventManager::AddListener(int id,
     return AddListener(id, listenerDelegate, bindedStub);
 }
 
-inline int EventManager::RemoveListenerX(ListenerStub &stub)
+ALWAYS_INLINE int EventManager::RemoveListenerX(ListenerStub &stub)
 {
     if(RemoveListener(stub) != Status::Success)
     {
@@ -242,64 +288,14 @@ inline int EventManager::RemoveListenerX(ListenerStub &stub)
     return Status::Success;
 }
 
-inline bool EventManager::IsFiring() const
+ALWAYS_INLINE bool EventManager::IsFiring() const
 {
     return _firing > 0;
 }
 
-inline void EventManager::BeforeFireEvent()
+ALWAYS_INLINE void EventManager::BeforeFireEvent()
 {
     ++_firing;
-}
-
-template<typename ObjType>
-ALWAYS_INLINE bool EventManager::IsListening(int id, ObjType *obj) const
-{
-    bool isListening = false;
-    {
-        auto iter = _eventIdRefListenerOwners.find(id);
-        if(iter != _eventIdRefListenerOwners.end())
-            isListening = iter->second.find(obj) != iter->second.end();
-    }
-
-    // 在延迟队列中
-    {
-        for(auto &op : _delayedOps)
-        {
-            if(op._op == EventManager::REMOVE)
-            {
-                if(op._listener._evId == id)
-                {
-                    isListening = false;
-                    continue;
-                }
-
-                if(op._listener._stub)
-                {
-                    auto iterStub = _stubListeners.find(op._listener._stub);
-                    if(iterStub != _stubListeners.end())
-                    {
-                        auto &listenInfo = iterStub->second;
-                        if(listenInfo._listenCallBack && listenInfo._listenCallBack->IsBelongTo(obj))
-                            isListening = false;
-                    }
-                }
-            }
-            else if(op._op == EventManager::ADD)
-            {
-                if(op._listener._evId != id)
-                    continue;
-
-                if(op._listener._listenCallBack)
-                {
-                    if(op._listener._listenCallBack->IsBelongTo(obj))
-                        isListening = true;
-                }
-            }
-        }
-    }
-
-    return isListening;
 }
 
 KERNEL_END

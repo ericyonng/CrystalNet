@@ -198,6 +198,58 @@ void SpecifyLog::CloseAndReopen()
     }
 }
 
+void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
+{
+    // 1.外部判断,按理来说不应该在日志线程即将关闭或者关闭时写日志
+    if(UNLIKELY(_isClose.load()))
+    {
+        LogData::Delete_LogData(logData);
+        return;
+    }
+
+    // 1.是否允许写日志 外部判断
+    // if(!levelCfg._enable)
+    //     return false;
+        
+    // 1.不可做影响log执行的其他事情
+    auto beforeHookList = _beforeHook[levelCfg._level];
+    if(beforeHookList)
+    {
+        for(auto iter:*beforeHookList)
+            iter->Invoke(logData);
+    }
+
+    // 3.拷贝一次数据
+    // LogData cache = *logData;
+
+    // 3.打印到控制台
+    if(levelCfg._enableConsole)
+        _OutputToConsole(levelCfg, logData->_logInfo);
+
+    // 4.将日志数据放入队列
+    if(levelCfg._needWriteFile)
+    {
+        _logLck.Lock();
+        _logData->push_back(logData);
+        _logLck.Unlock();
+
+        // 实时写日志
+        if(UNLIKELY(levelCfg._enableRealTime))
+            _wakeupFlush->Sinal();
+    }
+    else
+    {
+        LogData::Delete_LogData(logData);
+    }
+
+    // 6.日志后hook
+    auto afterHookList = _afterHook[levelCfg._level];
+    if(afterHookList)
+    {
+        for(auto iter:*afterHookList)
+            iter->Invoke();
+    }
+}
 
 void SpecifyLog::_OnThreadWriteLog()
 {

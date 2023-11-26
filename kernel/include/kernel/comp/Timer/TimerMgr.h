@@ -147,30 +147,6 @@ ALWAYS_INLINE TimeData *TimerMgr::NewTimeData(LibTimer *timer)
     return newData;
 }
 
-ALWAYS_INLINE void TimerMgr::OnTimerDestroy(TimeData *timeData)
-{
-    // 先移除
-    if(timeData->_owner)
-    {
-        auto iter = _timerRefDeleteMethod.find(timeData->_owner);
-        if(iter != _timerRefDeleteMethod.end())
-        {
-            iter->second->Release();
-            _timerRefDeleteMethod.erase(iter);
-        }
-    }
-
-    // 在Drive中的时候由Drive函数释放
-    if(_driving <= 0)
-    {
-        _asynDirty.erase(timeData->_asynData);
-        _Destroy(timeData);
-    }
-    else
-    {
-        _AsynDestroy(timeData);
-    }
-}
 
 ALWAYS_INLINE Int64 TimerMgr::GetTimeoutIntervalRecently(Int64 nowMs) const
 {
@@ -215,41 +191,6 @@ ALWAYS_INLINE void TimerMgr::TakeOverLifeTime(LibTimer *timer, LambdaType &&cb)
 ALWAYS_INLINE void TimerMgr::_BeforeDrive()
 {
     ++_driving;
-}
-
-ALWAYS_INLINE void TimerMgr::_AfterDrive()
-{
-    if(--_driving > 0)
-        return;
-
-    _driving = 0;
-
-    for(auto iter = _asynDirty.begin(); iter != _asynDirty.end(); )
-    {
-        auto asynData = *iter;
-        auto flag = asynData->_flag;
-
-        if(UNLIKELY(BitUtil::IsSet(flag, AsynOpType::OP_DESTROY)))
-        {// 数据销毁
-            _Destroy(asynData->_data);
-            asynData = NULL;
-        }
-        else
-        {
-            // 先执行移除
-            if(BitUtil::IsSet(flag, AsynOpType::OP_UNREGISTER))
-                _UnRegister(asynData->_data);
-
-            // 最后添加
-            if(BitUtil::IsSet(flag, AsynOpType::OP_REGISTER) && asynData->_data->_owner)
-                _Register(asynData->_data, asynData->_newPeriod, asynData->_newExpiredTime);
-
-            // 重置数据
-            asynData->Reset();
-        }
-        
-        iter = _asynDirty.erase(iter);
-    }
 }
 
 ALWAYS_INLINE void TimerMgr::_AsynRegister(TimeData *timeData, Int64 newPeriod, Int64 newExpiredTime)

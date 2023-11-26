@@ -50,8 +50,47 @@ public:
     // 线程不安全
 public:
     bool SetMaxLevel(Int32 level);
-    void Init();
-    void Destroy();
+    void Init()
+    {
+        if(_isInit.exchange(true))
+            return;
+            
+        _elemAmount = 0;
+        _guards.resize(_maxLevel + 1);
+        for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+            _guards[idx] = CRYSTAL_NEW(LockType);
+
+        _levelQueue.resize(_maxLevel + 1);
+        for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+            _levelQueue[idx] = LibList<Elem, BuildType>::NewByAdapter_LibList(BuildType::V);
+    }
+
+    void Destroy()
+    {
+        if(!_isInit.exchange(false))
+            return;
+
+        const Int32 guardSize = static_cast<Int32>(_guards.size());
+        for(Int32 idx = guardSize - 1; idx >= 0; --idx)
+        {
+            CRYSTAL_DELETE_SAFE(_guards[idx]);
+            _guards.erase(_guards.begin() + idx);
+        }
+
+        const Int32 queueSize = static_cast<Int32>(_levelQueue.size());
+        for(Int32 idx = queueSize - 1; idx >= 0; --idx)
+        {
+            if(_levelQueue[idx]->GetAmount() != 0)
+            {
+                CRYSTAL_TRACE("ConcurrentPriorityQueue has data left: level:%d, data amount:%llu", idx, _levelQueue[idx]->GetAmount());
+            }
+
+            LibList<Elem, BuildType>::DeleteByAdapter_LibList(BuildType::V, _levelQueue[idx]);
+            _levelQueue.erase(_levelQueue.begin() + idx);
+        }
+
+        _elemAmount = 0;
+    }
 
     // 线程安全接口
 public:
@@ -61,14 +100,119 @@ public:
     void PushQueue(Int32 level, LibList<Elem, BuildType> *queue);
     void PushQueue(Int32 level, Elem e);
     // queuesOut 外部必须要提前创建好,内部只采用交换,提高性能 且BuildType请保持与list一致
-    void SwapAll(LibList<LibList<Elem, BuildType> *, BuildType> *&queuesOut);
+    void SwapAll(LibList<LibList<Elem, BuildType> *, BuildType> *&queuesOut)
+    {
+        if(UNLIKELY(static_cast<Int32>(queuesOut->GetAmount()) != (_maxLevel + 1)))
+        {
+            ASSERT(false);
+            return;
+        }
+
+        auto curNode = queuesOut->Begin();
+        for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+        {
+            _guards[idx]->Lock();
+            auto queue = _levelQueue[idx];
+            _elemAmount -= queue->GetAmount();
+            _elemAmount += curNode->_data->GetAmount();
+            _levelQueue[idx] = curNode->_data;
+            curNode->_data = queue;
+            _guards[idx]->Unlock();
+            curNode = (curNode->_next != NULL) ? curNode->_next : queuesOut->Begin();
+        }
+    }
+
     // queuesOut 外部必须要提前创建好,内部只采用交换,提高性能 且BuildType请保持与list一致
-    void SwapAll(std::vector<LibList<Elem, BuildType> *> &queuesOut);
-    void SwapAllOutIfEmpty(std::vector<LibList<Elem, BuildType> *> &queuesOut);
+    void SwapAll(std::vector<LibList<Elem, BuildType> *> &queuesOut)
+    {
+        if(UNLIKELY(static_cast<Int32>(queuesOut.size()) != _maxLevel + 1))
+        {
+            ASSERT(false);
+            return;
+        }
+
+        for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+        {
+            _guards[idx]->Lock();
+            auto queue = _levelQueue[idx];
+            _elemAmount -= queue->GetAmount();
+            _elemAmount += queuesOut[idx]->GetAmount();
+            _levelQueue[idx] = queuesOut[idx];
+            queuesOut[idx] = queue;
+            _guards[idx]->Unlock();
+        }
+    }
+
+    void SwapAllOutIfEmpty(std::vector<LibList<Elem, BuildType> *> &queuesOut)
+    {
+        if(UNLIKELY(static_cast<Int32>(queuesOut.size()) != _maxLevel + 1))
+        {
+            ASSERT(false);
+            return;
+        }
+
+        for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+        {
+            if(UNLIKELY(!queuesOut[idx]->IsEmpty()))
+                continue;
+
+            _guards[idx]->Lock();
+            auto queue = _levelQueue[idx];
+            _elemAmount -= queue->GetAmount();
+            _levelQueue[idx] = queuesOut[idx];
+            queuesOut[idx] = queue;
+            _guards[idx]->Unlock();
+        }
+    }
+
     // queuesOut 外部必须要提前创建好,内部只采用交换,提高性能 且BuildType请保持与list一致
-    UInt64 MergeTailAllTo(LibList<LibList<Elem, BuildType> *, BuildType> *&queuesOut);
+    UInt64 MergeTailAllTo(LibList<LibList<Elem, BuildType> *, BuildType> *&queuesOut)
+    {
+        if(UNLIKELY(static_cast<Int32>(queuesOut->GetAmount()) != (_maxLevel + 1)))
+        {
+            ASSERT(false);
+            return 0;
+        }
+
+        ListNode<LibList<Elem, BuildType> *> *curNode = queuesOut->Begin();
+        UInt64 mergeCount = 0;
+        for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+        {
+            _guards[idx]->Lock();
+            const auto queuAmount = _levelQueue[idx]->GetAmount();
+            _elemAmount -= queuAmount;
+            mergeCount += queuAmount;
+            curNode->_data->MergeTail(_levelQueue[idx]);
+            _guards[idx]->Unlock();
+            curNode = (curNode->_next != NULL) ? curNode->_next : queuesOut->Begin();
+        }
+
+        return mergeCount;
+    }
+    
     // queuesOut 外部必须要提前创建好,内部只采用交换,提高性能 且BuildType请保持与list一致
-    UInt64 MergeTailAllTo(std::vector<LibList<Elem, BuildType> *> &queuesOut);
+    UInt64 MergeTailAllTo(std::vector<LibList<Elem, BuildType> *> &queuesOut)
+    {
+        if(UNLIKELY(static_cast<Int32>(queuesOut.size()) != _maxLevel + 1))
+        {
+            ASSERT(false);
+            return 0;
+        }
+
+        UInt64 mergeCount = 0;
+        for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+        {
+            _guards[idx]->Lock();
+            const auto queuAmount = _levelQueue[idx]->GetAmount();
+            _elemAmount -= queuAmount;
+            mergeCount += queuAmount;
+            queuesOut[idx]->MergeTail(_levelQueue[idx]);
+            _guards[idx]->Unlock();
+        }
+
+        return mergeCount;
+    }
+    
     UInt64 MergeTailTo(ConcurrentPriorityQueue<Elem, BuildType, LockType> &other);
 
     Int32 GetMaxLevel() const;
@@ -117,50 +261,6 @@ ALWAYS_INLINE bool ConcurrentPriorityQueue<Elem, BuildType, LockType>::SetMaxLev
 }
 
 template<typename Elem, typename BuildType, typename LockType>
-ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::Init()
-{
-    if(_isInit.exchange(true))
-        return;
-        
-    _elemAmount = 0;
-    _guards.resize(_maxLevel + 1);
-    for(Int32 idx = 0; idx <= _maxLevel; ++idx)
-        _guards[idx] = CRYSTAL_NEW(LockType);
-
-    _levelQueue.resize(_maxLevel + 1);
-    for(Int32 idx = 0; idx <= _maxLevel; ++idx)
-        _levelQueue[idx] = LibList<Elem, BuildType>::NewByAdapter_LibList(BuildType::V);
-}
-
-template<typename Elem, typename BuildType, typename LockType>
-ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::Destroy()
-{
-    if(!_isInit.exchange(false))
-        return;
-
-    const Int32 guardSize = static_cast<Int32>(_guards.size());
-    for(Int32 idx = guardSize - 1; idx >= 0; --idx)
-    {
-        CRYSTAL_DELETE_SAFE(_guards[idx]);
-        _guards.erase(_guards.begin() + idx);
-    }
-
-    const Int32 queueSize = static_cast<Int32>(_levelQueue.size());
-    for(Int32 idx = queueSize - 1; idx >= 0; --idx)
-    {
-        if(_levelQueue[idx]->GetAmount() != 0)
-        {
-            CRYSTAL_TRACE("ConcurrentPriorityQueue has data left: level:%d, data amount:%llu", idx, _levelQueue[idx]->GetAmount());
-        }
-
-        LibList<Elem, BuildType>::DeleteByAdapter_LibList(BuildType::V, _levelQueue[idx]);
-        _levelQueue.erase(_levelQueue.begin() + idx);
-    }
-
-    _elemAmount = 0;
-}
-
-template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::SwapQueue(Int32 level, LibList<Elem, BuildType> *&queueOut)
 {
     _guards[level]->Lock();
@@ -190,121 +290,6 @@ ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::PushQueue
     _guards[level]->Unlock();
 }
 
-template<typename Elem, typename BuildType, typename LockType>
-ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::SwapAll(LibList<LibList<Elem, BuildType> *, BuildType> *&queuesOut)
-{
-    if(UNLIKELY(static_cast<Int32>(queuesOut->GetAmount()) != (_maxLevel + 1)))
-    {
-        ASSERT(false);
-        return;
-    }
-
-    auto curNode = queuesOut->Begin();
-    for(Int32 idx = 0; idx <= _maxLevel; ++idx)
-    {
-        _guards[idx]->Lock();
-        auto queue = _levelQueue[idx];
-        _elemAmount -= queue->GetAmount();
-        _elemAmount += curNode->_data->GetAmount();
-        _levelQueue[idx] = curNode->_data;
-        curNode->_data = queue;
-        _guards[idx]->Unlock();
-        curNode = (curNode->_next != NULL) ? curNode->_next : queuesOut->Begin();
-    }
-}
-
-template<typename Elem, typename BuildType, typename LockType>
-ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::SwapAll(std::vector<LibList<Elem, BuildType> *> &queuesOut)
-{
-    if(UNLIKELY(static_cast<Int32>(queuesOut.size()) != _maxLevel + 1))
-    {
-        ASSERT(false);
-        return;
-    }
-
-    for(Int32 idx = 0; idx <= _maxLevel; ++idx)
-    {
-        _guards[idx]->Lock();
-        auto queue = _levelQueue[idx];
-        _elemAmount -= queue->GetAmount();
-        _elemAmount += queuesOut[idx]->GetAmount();
-        _levelQueue[idx] = queuesOut[idx];
-        queuesOut[idx] = queue;
-        _guards[idx]->Unlock();
-    }
-}
-
-template<typename Elem, typename BuildType, typename LockType>
-ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::SwapAllOutIfEmpty(std::vector<LibList<Elem, BuildType> *> &queuesOut)
-{
-    if(UNLIKELY(static_cast<Int32>(queuesOut.size()) != _maxLevel + 1))
-    {
-        ASSERT(false);
-        return;
-    }
-
-    for(Int32 idx = 0; idx <= _maxLevel; ++idx)
-    {
-        if(UNLIKELY(!queuesOut[idx]->IsEmpty()))
-            continue;
-
-        _guards[idx]->Lock();
-        auto queue = _levelQueue[idx];
-        _elemAmount -= queue->GetAmount();
-        _levelQueue[idx] = queuesOut[idx];
-        queuesOut[idx] = queue;
-        _guards[idx]->Unlock();
-    }
-}
-
-template<typename Elem, typename BuildType, typename LockType>
-ALWAYS_INLINE UInt64 ConcurrentPriorityQueue<Elem, BuildType, LockType>::MergeTailAllTo(LibList<LibList<Elem, BuildType> *, BuildType> *&queuesOut)
-{
-    if(UNLIKELY(static_cast<Int32>(queuesOut->GetAmount()) != (_maxLevel + 1)))
-    {
-        ASSERT(false);
-        return 0;
-    }
-
-    ListNode<LibList<Elem, BuildType> *> *curNode = queuesOut->Begin();
-    UInt64 mergeCount = 0;
-    for(Int32 idx = 0; idx <= _maxLevel; ++idx)
-    {
-        _guards[idx]->Lock();
-        const auto queuAmount = _levelQueue[idx]->GetAmount();
-        _elemAmount -= queuAmount;
-        mergeCount += queuAmount;
-        curNode->_data->MergeTail(_levelQueue[idx]);
-        _guards[idx]->Unlock();
-        curNode = (curNode->_next != NULL) ? curNode->_next : queuesOut->Begin();
-    }
-
-    return mergeCount;
-}
-
-// queuesOut 外部必须要提前创建好,内部只采用交换,提高性能 且BuildType请保持与list一致
-template<typename Elem, typename BuildType, typename LockType>
-ALWAYS_INLINE UInt64 ConcurrentPriorityQueue<Elem, BuildType, LockType>::MergeTailAllTo(std::vector<LibList<Elem, BuildType> *> &queuesOut)
-{
-    if(UNLIKELY(static_cast<Int32>(queuesOut.size()) != _maxLevel + 1))
-    {
-        ASSERT(false);
-        return 0;
-    }
-
-    UInt64 mergeCount = 0;
-    for(Int32 idx = 0; idx <= _maxLevel; ++idx)
-    {
-        _guards[idx]->Lock();
-        const auto queuAmount = _levelQueue[idx]->GetAmount();
-        _elemAmount -= queuAmount;
-        mergeCount += queuAmount;
-        queuesOut[idx]->MergeTail(_levelQueue[idx]);
-        _guards[idx]->Unlock();
-    }
-
-    return mergeCount;
-}
 
 template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE UInt64 ConcurrentPriorityQueue<Elem, BuildType, LockType>::MergeTailTo(ConcurrentPriorityQueue<Elem, BuildType, LockType> &other)

@@ -33,6 +33,14 @@
 #pragma once
 
 #include <kernel/kernel_export.h>
-#include <kernel/common/common.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/type.h>
+#include <kernel/common/compile.h>
+#include <kernel/common/tempcompile.h>
+#include <kernel/common/attribute.h>
+#include <kernel/common/libs.h>
+#include <kernel/common/func.h>
+#include <kernel/common/statics.h>
+#include <kernel/common/status.h>
 
 #endif

@@ -39,5 +39,43 @@ TlsHandle &TlsUtil::GetUtileTlsHandle()
     return g_UtilTlsHandle;
 }
 
+// 创建tlsstack
+TlsStack<TlsStackSize::SIZE_1MB> *TlsUtil::GetTlsStack(bool forceCreate)
+{
+    auto &handle = GetUtileTlsHandle();
+    // if(UNLIKELY(handle == INVALID_TLS_HANDLE))
+    // {
+    //     CreateUtilTlsHandle();
+    // }
+
+    TlsStack<TlsStackSize::SIZE_1MB> *tlsStack = NULL;
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    tlsStack = reinterpret_cast<TlsStack<TlsStackSize::SIZE_1MB> *>(pthread_getspecific(handle));
+#else
+    tlsStack = reinterpret_cast<TlsStack<TlsStackSize::SIZE_1MB> *>(::TlsGetValue(handle));
+#endif
+
+    if(LIKELY(tlsStack || !forceCreate))
+        return tlsStack;
+
+    {
+        // auto memPool = MemoryPool::GetDefaultInstance();
+        // void *ptr = memPool->Alloc(__MEMORY_ALIGN__(sizeof(TlsStack<TlsStackSize::SIZE_1MB>)));
+        // tlsStack = AllocUtil::NewByPtrNoConstructorParams<TlsStack<TlsStackSize::SIZE_1MB>>(ptr) ;
+
+        Byte8 *ptr = new Byte8[__MEMORY_ALIGN__(sizeof(TlsStack<TlsStackSize::SIZE_1MB>))];
+        tlsStack = AllocUtil::NewByPtrNoConstructorParams<TlsStack<TlsStackSize::SIZE_1MB>>(ptr) ;
+
+        tlsStack->SetThreadId(SystemUtil::GetCurrentThreadId());
+
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        (void)pthread_setspecific(handle, tlsStack);
+#else
+        (void)::TlsSetValue(handle, tlsStack);
+#endif
+    }
+
+    return tlsStack;
+}
 
 KERNEL_END

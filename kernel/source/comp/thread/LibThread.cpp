@@ -40,6 +40,49 @@ void LibThread::Release()
     CRYSTAL_DELETE(this);
 }
 
+
+void LibThread::FinishClose()
+{
+    // 线程退出
+    while (true)
+    {
+        // 唤醒
+        Wakeup();
+
+        // 睡眠等待线程退出
+        _quitLck.Lock();
+        _quitLck.TimeWait(THREAD_POOL_WAIT_FOR_COMPLETED_TIME);
+
+        if (!_isWorking.load())
+        {
+            _quitLck.Unlock();
+            break;
+        }
+        _quitLck.Unlock();
+    }
+
+    // CRYSTAL_TRACE("FinishClose thread end threadId[%llu], uid[%llu] left task[%llu]"
+    // , _threadId.load(), _id, static_cast<UInt64>(_tasks.size()));
+
+    // 移除数据
+    for(auto iter = _tasks.begin(); iter != _tasks.end();)
+    {
+        (*iter)->Release();
+        iter = _tasks.erase(iter);
+    }
+}
+
+LibString LibThread::ToString()
+{
+    LibString info;
+    info.AppendFormat("id = %llu, thread name:%s, threadId = %llu, isStart = %d, isWorking = %d, \n"
+                    "isBusy = %d, enableAddTask = %d"
+                    , _id, _threadName.c_str(), _threadId.load(), _isStart.load(), _isWorking.load()
+                    , _isBusy.load(), _enableAddTask.load());
+
+    return info;
+}
+
 void LibThread::LibThreadHandlerLogic(void *param)
 {
     LibThread *libThread = static_cast<LibThread *>(param);
@@ -125,7 +168,6 @@ void LibThread::LibThreadHandlerLogic(void *param)
     }
 }
 
-
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 unsigned __stdcall LibThread::ThreadHandler(void *param)
 {
@@ -150,6 +192,36 @@ void *LibThread::ThreadHandler(void *param)
 }
 
 #endif
+
+void LibThread::_CreateThread(UInt64 unixStackSize)
+{
+    Int32 ret = 0;
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        UInt32 threadId = 0;
+        auto threadHandle = reinterpret_cast<HANDLE>(::_beginthreadex(NULL, static_cast<UInt32>(unixStackSize)
+        , LibThread::ThreadHandler, static_cast<void *>(this), 0, &threadId));
+        
+        // 释放资源
+        if(LIKELY(threadHandle != INVALID_HANDLE_VALUE))
+            ::CloseHandle(threadHandle);
+#else
+        pthread_t theadkey;
+        pthread_attr_t threadAttr;
+        pthread_attr_init(&threadAttr);
+        if(unixStackSize)
+           pthread_attr_setstacksize(&threadAttr, unixStackSize);
+        ret = pthread_create(&theadkey, &threadAttr, &LibThread::ThreadHandler, (void *)this);
+        pthread_attr_destroy(&threadAttr);
+        if(ret != 0)
+        {
+            printf("\nret=%d\n", ret);
+            perror("pthread_create error!");
+        }
+#endif
+
+        _isWorking = true;
+}
+
 
 KERNEL_END
 

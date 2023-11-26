@@ -939,6 +939,71 @@ Int32 SystemUtil::GetConsoleColor()
     return 0;
 }
 
+LibString SystemUtil::GetErrString(Int32 err)
+{
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    return strerror(err);
+#else
+    LibString info;
+    HLOCAL hLocal = nullptr;
+    const DWORD sysLocale = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
+    // const DWORD sysLocale = MAKELANGID(LANG_SYSTEM_DEFAULT, SUBLANG_SYS_DEFAULT);
+    ::FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | 
+                            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                            FORMAT_MESSAGE_IGNORE_INSERTS,
+                        nullptr,
+                        err,
+                        sysLocale,
+                        (PSTR)&hLocal,
+                        0,
+                        nullptr);
+    if (!hLocal)
+    {
+        HMODULE netDll = LoadLibraryExA("netmsg.dll", nullptr, DONT_RESOLVE_DLL_REFERENCES);
+        if (netDll != nullptr)
+        {
+            ::FormatMessageA(FORMAT_MESSAGE_FROM_HMODULE | 
+                                FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                                FORMAT_MESSAGE_IGNORE_INSERTS,
+                                netDll,
+                                err,
+                                sysLocale,
+                                (PSTR)&hLocal,
+                                0,
+                                nullptr);
+                                
+            ::FreeLibrary(netDll);
+        }
+    }
+
+    if (hLocal != nullptr)
+    {
+        PSTR sysErr = (PSTR)::LocalLock(hLocal);
+
+        bool hasCRLF = false;
+        const size_t sysErrLen = strlen(sysErr);
+        if (sysErrLen >= 2)
+            if (sysErr[sysErrLen - 2] == '\r' && 
+                sysErr[sysErrLen - 1] == '\n')
+                    hasCRLF = true;
+
+        if (hasCRLF)
+            sysErr[sysErrLen - 2] = '\0';
+
+        ::LocalUnlock(hLocal);
+
+        info = sysErr;
+        ::LocalFree(hLocal);
+    }
+    else
+    {
+        info.AppendFormat("Unknown error code:[%d]", err);
+    }
+
+    return info;
+#endif
+}
+
 void SystemUtil::TurnDaemon(const std::string &stdIoRedirect /*= ""*/, const std::string &workDir)
 {
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
