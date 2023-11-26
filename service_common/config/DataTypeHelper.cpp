@@ -31,6 +31,220 @@
 
 SERVICE_COMMON_BEGIN
 
+bool DataTypeHelper::Assign(bool &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_boolean())
+    {
+        errInfo.AppendFormat("parse json fail, assign boolean value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+    
+    field = jsonString.get<bool>();
+    return true;
+}
+
+ALWAYS_INLINE bool DataTypeHelper::Assign(Byte8 &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_number_integer())
+    {
+        errInfo.AppendFormat("parse json fail, assign byte8 value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    field = static_cast<Byte8>(KERNEL_NS::StringUtil::StringToInt32(dataInfo.c_str()));
+    return true;
+}
+
+bool DataTypeHelper::Assign(U8 &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_number_unsigned())
+    {
+        errInfo.AppendFormat("parse json fail, assign u8 value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    field = jsonString.get<U8>();
+    return true;
+}
+
+bool DataTypeHelper::Assign(Int16 &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_number_integer())
+    {
+        errInfo.AppendFormat("parse json fail, assign Int16 value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    field = jsonString.get<Int16>();
+    return true;
+}
+
+bool DataTypeHelper::Assign(UInt16 &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_number_unsigned())
+    {
+        errInfo.AppendFormat("parse json fail, assign UInt16 value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    field = jsonString.get<UInt16>();
+    return true;
+}
+
+bool DataTypeHelper::Assign(Int32 &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_number_integer())
+    {
+        errInfo.AppendFormat("parse json fail, assign Int32 value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    field = jsonString.get<Int32>();
+    return true;
+}
+
+bool DataTypeHelper::Assign(UInt32 &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_number_unsigned())
+    {
+        errInfo.AppendFormat("parse json fail, assign UInt32 value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    field = jsonString.get<UInt32>();
+    return true;
+}
+
+bool DataTypeHelper::Assign(Int64 &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_number_integer())
+    {
+        errInfo.AppendFormat("parse json fail, assign Int64 value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    field = jsonString.get<Int64>();
+    return true;
+}
+
+bool DataTypeHelper::Assign(UInt64 &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_number_unsigned())
+    {
+        errInfo.AppendFormat("parse json fail, assign UInt64 value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    field = jsonString.get<UInt64>();
+    return true;
+}
+
+bool DataTypeHelper::Assign(KERNEL_NS::LibString &field, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_string())
+    {
+        errInfo.AppendFormat("parse json fail, assign LibString value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+    field = jsonString.get<std::string>();
+    return true;
+}
+
+bool DataTypeHelper::GetEnumName(KERNEL_NS::LibString &enumName, const KERNEL_NS::LibString &dataInfo, KERNEL_NS::LibString &errInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(dataInfo.c_str(), NULL, false);
+    if(!jsonString.is_string())
+    {
+        errInfo.AppendFormat("parse json fail, GetEnumName value fail dataInfo:%s\n", dataInfo.c_str());
+        return false;
+    }
+
+    enumName = jsonString.get<std::string>();
+    return true;
+}
+
+void DataTypeHelper::ToString(const bool &field, KERNEL_NS::LibString &dataInfo)
+{
+    nlohmann::json result;
+    result = field;
+    dataInfo << result.dump();
+}
+
+void DataTypeHelper::ToString(const Byte8 &field, KERNEL_NS::LibString &dataInfo)
+{
+    nlohmann::json result;
+    result = field;
+    dataInfo << result.dump();
+}
+
+void DataTypeHelper::ToString(const U8 &field, KERNEL_NS::LibString &dataInfo)
+{
+    nlohmann::json result;
+    result = field;
+    dataInfo << result.dump();
+}
+
+void DataTypeHelper::ToString(const Int16 &field, KERNEL_NS::LibString &dataInfo)
+{
+    nlohmann::json result;
+    result = field;
+    dataInfo << result.dump();
+}
+
+void DataTypeHelper::ToString(const UInt16 &field, KERNEL_NS::LibString &dataInfo)
+{
+    nlohmann::json result;
+    result = field;
+    dataInfo << result.dump();
+}
+
+void DataTypeHelper::ToString(const Int32 &field, KERNEL_NS::LibString &dataInfo)
+{
+    nlohmann::json result;
+    result = field;
+    dataInfo << result.dump();
+}
+
+void DataTypeHelper::ToString(const UInt32 &field, KERNEL_NS::LibString &dataInfo)
+{
+    nlohmann::json result;
+    result = field;
+    dataInfo << result.dump();
+}
+
+void DataTypeHelper::ToString(const Int64 &field, KERNEL_NS::LibString &dataInfo)
+{
+    nlohmann::json result;
+    result = field;
+    dataInfo << result.dump();
+}
+
+void DataTypeHelper::ToString(const UInt64 &field, KERNEL_NS::LibString &dataInfo)
+{
+    nlohmann::json result;
+    result = field;
+    dataInfo << result.dump();
+}
+
+void DataTypeHelper::ToString(const KERNEL_NS::LibString &field, KERNEL_NS::LibString &dataInfo)
+{
+    const auto &jsonString = nlohmann::json::parse(field.c_str(), NULL, false);
+    if(!jsonString.is_string())
+        return;
+
+    dataInfo << jsonString.dump();
+}
+
 bool DataTypeHelper::Parse(const KERNEL_NS::LibString &typeStr, KERNEL_NS::LibString &targetType, KERNEL_NS::LibString &errInfo)
 {
     // 校验
