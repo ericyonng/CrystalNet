@@ -88,6 +88,151 @@ void ILog::Error(const Byte8 *tag, const char *fileName, const char *funcName, I
     va_end(va);
 }
 
+void ILog::Monitor(const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common4(LogLevel::Monitor, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::Crash(const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common4(LogLevel::Crash, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::Net(const Byte8 *tag, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common2(tag, LogLevel::Net, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::NetDebug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common5(tag, codeLine, LogLevel::NetDebug, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::NetWarn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common5(tag, codeLine, LogLevel::NetWarn, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::NetInfo(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common5(tag, codeLine, LogLevel::NetInfo, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::NetError(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common1(tag, LogLevel::NetError, fileName, funcName, codeLine, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::NetTrace(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common5(tag, codeLine, LogLevel::NetTrace, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::Sys(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common5(tag, codeLine, LogLevel::Sys, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::MemMonitor(const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common4(LogLevel::MemMonitor, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::Custom(const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common3(LogLevel::Custom, fmt, va, finalSize);
+    va_end(va);
+}
+
+// 追踪日志
+void ILog::Trace(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common5(tag, codeLine, LogLevel::Trace, fmt, va, finalSize);
+    va_end(va);
+}
+
 void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, va_list va, UInt64 formatFinalSize)
 {
     if(UNLIKELY(!IsLogOpen()))
