@@ -93,6 +93,8 @@ void MysqlDBMgr::RemoveSkipOperatorId(const LibString &dbName, Int32 oid)
 
 void MysqlDBMgr::CloseMysqlAll(bool forceQuit)
 {
+    g_Log->Info(LOGFMT_OBJ_TAG("will close mysql..."));
+
     if(UNLIKELY(_closeMysqlTimer && _closeMysqlTimer->IsScheduling()))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("mysql db mgr is in closing..."));

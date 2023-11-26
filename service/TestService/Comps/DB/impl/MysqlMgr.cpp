@@ -1157,14 +1157,20 @@ void MysqlMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
         {
             auto dirtyLogics = _dirtyLogics;
             for(auto logic : dirtyLogics)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("waiting logic:%s dirty handle"), logic->GetObjName().c_str());
                 _PurgeDirty(logic);
+            }
 
             return;
         }
 
         // 必须没有需要处理的
         if(dbMgr->HasPendings())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("waiting db mgr:%s handle pending..."), dbMgr->GetObjName().c_str());
             return;
+        }
 
         // 判断依赖是否退出，退出则从依赖列表中移除
         auto dependence = dbMgr->GetDependence();
