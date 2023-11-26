@@ -218,54 +218,6 @@ protected:
     }
 };
 
-ALWAYS_INLINE void ILog::Info(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
-{
-    va_list va;
-    va_start(va, fmt);
-    auto finalSize = LibString::CheckFormatSize(fmt, va);
-    va_end(va);
-
-    va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::Info, fmt, va, finalSize);
-    va_end(va);
-}
-
-ALWAYS_INLINE void ILog::Debug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
-{
-    va_list va;
-    va_start(va, fmt);
-    auto finalSize = LibString::CheckFormatSize(fmt, va);
-    va_end(va);
-
-    va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::Debug, fmt, va, finalSize);
-    va_end(va);
-}
-
-ALWAYS_INLINE void ILog::Warn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
-{
-    va_list va;
-    va_start(va, fmt);
-    auto finalSize = LibString::CheckFormatSize(fmt, va);
-    va_end(va);
-
-    va_start(va, fmt);
-    _Common5(tag, codeLine, LogLevel::Warn, fmt, va, finalSize);
-    va_end(va);
-}
-
-ALWAYS_INLINE void ILog::Error(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
-{
-    va_list va;
-    va_start(va, fmt);
-    auto finalSize = LibString::CheckFormatSize(fmt, va);
-    va_end(va);
-
-    va_start(va, fmt);
-    _Common1(tag, LogLevel::Error, fileName, funcName, codeLine, fmt, va, finalSize);
-    va_end(va);
-}
-
 template<typename... Args>
 ALWAYS_INLINE void ILog::Info2(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, Args&&... args)
 {

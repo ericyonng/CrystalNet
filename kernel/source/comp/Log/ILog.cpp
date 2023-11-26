@@ -40,6 +40,54 @@ KERNEL_BEGIN
 //     return s_log.Cast<ILog>();
 // }
 
+void ILog::Info(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common5(tag, codeLine, LogLevel::Info, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::Debug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common5(tag, codeLine, LogLevel::Debug, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::Warn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common5(tag, codeLine, LogLevel::Warn, fmt, va, finalSize);
+    va_end(va);
+}
+
+void ILog::Error(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    auto finalSize = LibString::CheckFormatSize(fmt, va);
+    va_end(va);
+
+    va_start(va, fmt);
+    _Common1(tag, LogLevel::Error, fileName, funcName, codeLine, fmt, va, finalSize);
+    va_end(va);
+}
+
 void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, va_list va, UInt64 formatFinalSize)
 {
     if(UNLIKELY(!IsLogOpen()))
