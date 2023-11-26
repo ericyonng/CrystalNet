@@ -39,8 +39,7 @@
 #undef min
 #undef max
 
-#include <3rd/json/single_include/nlohmann/json_fwd.hpp>
-#include <3rd/json/single_include/nlohmann/json.hpp>
+#include <3rd/json/include/nlohmann/json.hpp>
 
 #pragma pop_macro("min")
 #pragma pop_macro("max")

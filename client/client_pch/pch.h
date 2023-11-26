@@ -30,8 +30,6 @@
 #ifndef __CLIENT_CLIENT_PCH_PCH_H__
 #define __CLIENT_CLIENT_PCH_PCH_H__
 
-#pragma once
-
 #define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
 

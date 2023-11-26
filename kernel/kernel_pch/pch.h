@@ -30,8 +30,6 @@
 #ifndef __KERNEL_KERNEL_PCH_PCH_H__
 #define __KERNEL_KERNEL_PCH_PCH_H__
 
-#pragma once
-
 #ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
 
 #define _CRT_SECURE_NO_WARNINGS

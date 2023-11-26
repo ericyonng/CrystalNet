@@ -97,11 +97,12 @@ function include_libfs(do_post_build, add_protobuflib)
     -- includedirs
     includedirs {
         ROOT_DIR .. "/kernel/include/",
-				-- openssl
+        -- openssl
 		ROOT_DIR .. "/3rd/openssl/include/",
 		ROOT_DIR .. "/3rd/protobuf/include/",
 		ROOT_DIR .. "/3rd/miniz/include/",
 		ROOT_DIR .. "/3rd/uuid/include/",
+		ROOT_DIR .. "/3rd/json/include/",
     }
 
 	libdirs { 
@@ -299,6 +300,7 @@ project "CrystalKernel"
         ROOT_DIR .. "/3rd/openssl/include/",
         ROOT_DIR .. "/3rd/uuid/include/",
 		ROOT_DIR .. "/3rd/miniz/include/",
+		ROOT_DIR .. "/3rd/json/include/",
      }
 	 
     -- files
