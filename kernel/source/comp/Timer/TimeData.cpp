@@ -30,7 +30,6 @@
 #include <kernel/comp/Timer/TimeData.h>
 #include <kernel/comp/Timer/AsynTimeData.h>
 #include <kernel/comp/Timer/LibTimer.h>
-#include <kernel/comp/Timer/TimerMgr.h>
 #include <kernel/comp/Variant/variant_inc.h>
 #include <kernel/comp/LibTime.h>
 
