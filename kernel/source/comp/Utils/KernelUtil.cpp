@@ -252,7 +252,8 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     auto nowTimeBySystem = KERNEL_NS::TimeUtil::GetNanoTimestamp();
     auto nowFastTime = KERNEL_NS::TimeUtil::GetFastNanoTimestamp();
-    const auto &slice = KERNEL_NS::TimeSlice::FromNanoSeconds(std::abs(nowFastTime - nowTimeBySystem));
+    const auto diffNano = static_cast<Int64>(std::abs(nowFastTime - nowTimeBySystem));
+    const auto &slice = KERNEL_NS::TimeSlice::FromNanoSeconds(diffNano);
     
     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil
     , "kernel inited root path:%s, old file soft limit:%lld, old file hard limit:%lld, new file soft limit:%lld, new file hard limit:%lld system time nanostamp:%lld, fast time nanostamp:%lld diff:%s.")
