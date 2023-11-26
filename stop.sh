@@ -38,5 +38,7 @@ SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 # echo "all process has closed."
 
+sudo chmod a+x $SCRIPT_PATH/tools/CloseProcess/CloseProcess
+
 ${SCRIPT_PATH}/tools/CloseProcess/CloseProcess testsuit is_waiting_close=1
 
