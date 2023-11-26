@@ -277,17 +277,19 @@ ALWAYS_INLINE Int64 TimeUtil::GetFastNanoTimestamp()
 //     return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
 // #endif
 
-    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-        // linux精度到nanosecond
-        const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
-        const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerNanoSecond);
-        return _systemTimeBegin + cpuSlice;
-    #else
-        // windows下的cpu只能支持微妙计数
-        const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
-        const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerMicroSecond);
-        return _systemTimeBegin + cpuSlice * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
-    #endif
+    // TODO:临时处理linux 下rdtsc与真实时间差距太大,跑太快飘到几十秒开外,需要后续处理,暂时用GetMicroTimestamp来处理
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    //     // linux精度到nanosecond
+    //     const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
+    //     const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerNanoSecond);
+    //     return _systemTimeBegin + cpuSlice;
+    // #else
+    //     // windows下的cpu只能支持微妙计数
+    //     const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
+    //     const auto cpuSlice = static_cast<Int64>((nowCpu - _cpuBegin) / LibCpuFrequency::_countPerMicroSecond);
+    //     return _systemTimeBegin + cpuSlice * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    // #endif
 
 }
 
