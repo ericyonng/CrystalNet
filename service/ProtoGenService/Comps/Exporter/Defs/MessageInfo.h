@@ -28,7 +28,8 @@
 
 #pragma once
 
-#include <service/ProtoGenService/ServiceCompHeader.h>
+#include <kernel/kernel.h>
+#include <service/common/macro.h>
 #include <service/ProtoGenService/Comps/Exporter/Defs/PbCacheInfoFormat.h>
 
 SERVICE_BEGIN

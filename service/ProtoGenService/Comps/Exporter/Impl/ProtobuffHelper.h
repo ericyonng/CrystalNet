@@ -28,8 +28,9 @@
 
 #pragma once
 
-#include <service/ProtoGenService/ServiceCompHeader.h>
-#include <OptionComp/CodeAnalyze/CodeAnalyze.h>
+#include <kernel/kernel.h>
+#include <service/common/macro.h>
+#include <OptionComp/CodeAnalyze/impl/CodeUnit.h>
 
 SERVICE_BEGIN
 

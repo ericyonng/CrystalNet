@@ -32,6 +32,7 @@
 
 #include <service/ProtoGenService/Comps/SysLogic/Impl/SysLogicMgr.h>
 #include <service/ProtoGenService/Comps/SysLogic/Impl/SysLogicMgrFactory.h>
+#include <service/common/ServiceConfig.h>
 
 SERVICE_BEGIN
 

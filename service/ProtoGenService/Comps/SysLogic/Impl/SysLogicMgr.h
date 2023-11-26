@@ -28,10 +28,11 @@
 
 #pragma once
 
-#include <service/ProtoGenService/ServiceCompHeader.h>
 #include <service/ProtoGenService/Comps/SysLogic/Interface/ISysLogicMgr.h>
 
 SERVICE_BEGIN
+
+struct AddrConfig;
 
 class SysLogicMgr : public ISysLogicMgr
 {

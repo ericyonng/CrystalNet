@@ -26,7 +26,10 @@
  * Description: 
 */
 
-#include <service/ProtoGenService/ServiceCompHeader.h>
+#pragma once
+
+#include <kernel/kernel.h>
+#include <service/common/macro.h>
 
 SERVICE_BEGIN
 
@@ -140,7 +143,5 @@ struct ProtobufDataTypeInfo
     bool _isStarting = false; // {开始
     bool _isScanEnd = false;  // }结束
 };
-
-
 
 SERVICE_END

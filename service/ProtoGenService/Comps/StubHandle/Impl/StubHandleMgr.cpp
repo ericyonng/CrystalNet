@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <service/ProtoGenService/Comps/StubHandle/Impl/StubHandleMgr.h>
 #include <service/ProtoGenService/Comps/StubHandle/Impl/StubHandleMgrFactory.h>
+#include <service/common/BaseComps/BaseComps.h>
 
 SERVICE_BEGIN
 

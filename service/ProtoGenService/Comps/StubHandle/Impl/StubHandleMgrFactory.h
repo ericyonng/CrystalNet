@@ -28,8 +28,8 @@
 
 #pragma once
 
-
-#include <service/ProtoGenService/ServiceCompFactoryHeader.h>
+#include <kernel/kernel.h>
+#include <service/common/macro.h>
 
 SERVICE_BEGIN
 
