@@ -703,6 +703,11 @@ void MyTestService::_OnFrameTick()
 {
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_FRAME_TICK);
     GetEventMgr()->FireEvent(ev);
+
+    if(GetServiceStatus() >= SERVICE_COMMON_NS::ServiceStatus::SERVICE_WILL_QUIT)
+    {
+        g_Log->Info(LOGFMT_OBJ_TAG("service will quit %s"), ToString().c_str());
+    }
 }
 
 SERVICE_END
