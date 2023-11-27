@@ -634,21 +634,21 @@ bool SystemUtil::SetCurrentThreadName(const LibString &threadName, LibString &er
 #endif
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    auto handle = ::GetCurrentThread();
-    KERNEL_NS::LibString wideStr;
-    auto st = TranscoderUtil::MultiByteToWideChar("UTF8", threadName, wideStr);
-    if(st != Status::Success)
-    {
-        err = GetErrString(GetErrNo());
-        return false;
-    }
+    // auto handle = ::GetCurrentThread();
+    // KERNEL_NS::LibString wideStr;
+    // auto st = TranscoderUtil::MultiByteToWideChar("UTF8", threadName, wideStr);
+    // if(st != Status::Success)
+    // {
+    //     err = GetErrString(GetErrNo());
+    //     return false;
+    // }
 
-    auto ret = SetThreadDescription(handle, reinterpret_cast<const wchar *>(wideStr.data()));
-    if(FAILED(ret))
-    {
-        err = GetErrString(GetErrNo());
-        return false;
-    }
+    // auto ret = SetThreadDescription(handle, reinterpret_cast<const wchar *>(wideStr.data()));
+    // if(FAILED(ret))
+    // {
+    //     err = GetErrString(GetErrNo());
+    //     return false;
+    // }
 
     return true;
 #endif
