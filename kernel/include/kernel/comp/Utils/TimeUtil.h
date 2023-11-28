@@ -55,13 +55,13 @@ public:
 
     // 获取不随调时变化的单调递增硬件时钟(系统启动运行的时间),产生系统调用额外开销 只支持linux版本,windows下会直接调用GetMicroTimestamp 单位微妙
     static Int64 GetHandwareSysRunTime();
-    // clocktime 会随用户调时而变化,系统调用开销
+    // clocktime 会随用户调时而变化,系统调用开销 29ns级别（在vdso加持下）
     static Int64 GetClockRealTime();
     // clocktime 随用户调时而变化 更快精度相对较低的时钟 高性能时钟 千万次调用只话费85ms 精度最差 毫秒级精度
     static Int64 GetClockRealTimeCoarse();
     // clocktime 不会随用户调时而变化的单调递增时钟,有系统调用开销,但会受ntp影响 系统启动运行的时间 单调递增
     static Int64 GetClockMonotonicSysRunTime();
-    // 通用时间 除GetClockRealTimeCoarse外最高性能 但调用一次仍然将近400+ns
+    // 通用时间 除GetClockRealTimeCoarse外最高性能 但调用一次仍然将近400+ns 30ns级别(在vdso加持下)
     static Int64 GetMicroTimestamp();
     // 通用时间 Linux下使用CLOCK_REALTIME 纳秒级精度, windows下使用 GetMicroTimestamp * 1000 微妙级精度
     static Int64 GetNanoTimestamp();
@@ -99,48 +99,48 @@ ALWAYS_INLINE bool TimeUtil::IsLeapYear(Int32 year)
 ALWAYS_INLINE Int64 TimeUtil::GetHandwareSysRunTime()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    return GetMicroTimestamp();
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
 #else
     struct timespec tp;
     ::syscall(SYS_clock_gettime, CLOCK_MONOTONIC_RAW, &tp);
 
-    return (Int64)tp.tv_sec * TimeDefs::MICRO_SECOND_PER_SECOND + tp.tv_nsec / TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
 #endif
 }
 
 ALWAYS_INLINE Int64 TimeUtil::GetClockRealTime()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    return GetMicroTimestamp();
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
 #else
     struct timespec tp;
     ::clock_gettime(CLOCK_REALTIME, &tp);
 
-    return (Int64)tp.tv_sec * TimeDefs::MICRO_SECOND_PER_SECOND + tp.tv_nsec / TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
 #endif
 }
 
 ALWAYS_INLINE Int64 TimeUtil::GetClockRealTimeCoarse()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    return GetMicroTimestamp();
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
 #else
     struct timespec tp;
     ::clock_gettime(CLOCK_REALTIME_COARSE, &tp);
 
-    return (Int64)tp.tv_sec * TimeDefs::MICRO_SECOND_PER_SECOND + tp.tv_nsec / TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
 #endif
 }
 
 ALWAYS_INLINE Int64 TimeUtil::GetClockMonotonicSysRunTime()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    return GetMicroTimestamp();
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
 #else
     struct timespec tp;
     ::clock_gettime(CLOCK_MONOTONIC, &tp);
 
-    return (Int64)tp.tv_sec * TimeDefs::MICRO_SECOND_PER_SECOND + tp.tv_nsec / TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
 #endif
 }
 
@@ -234,7 +234,7 @@ ALWAYS_INLINE Int64 TimeUtil::GetThreadElapseNanoseconds()
 
 ALWAYS_INLINE UInt64 TimeUtil::RdTscTickNum()
 {
-    return KERNEL_NS::CrystalRdTsc();
+    return KERNEL_NS::CrystalNativeRdTsc();
 }
 
 ALWAYS_INLINE UInt64 TimeUtil::GetCpuCounterFrequancy()
@@ -278,7 +278,7 @@ ALWAYS_INLINE Int64 TimeUtil::GetFastNanoTimestamp()
 // #endif
 
     // TODO:临时处理linux 下rdtsc与真实时间差距太大,跑太快飘到几十秒开外,需要后续处理,暂时用GetMicroTimestamp来处理
-    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    return GetClockRealTime();
     // #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     //     // linux精度到nanosecond
     //     const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();

@@ -142,7 +142,7 @@ KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalRdTsc()
 #endif
 }
 
-// 序列化的rdtsc
+// 序列化的rdtsc 10ns级别
 KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalNativeRdTsc()
 {
 #if CRYSTAL_TARGET_PLATFORM_LINUX
