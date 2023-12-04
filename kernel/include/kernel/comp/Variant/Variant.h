@@ -48,6 +48,7 @@
 #include <deque>
 #include <queue>
 #include <algorithm>
+#include <float.h>
 
 KERNEL_BEGIN
 
