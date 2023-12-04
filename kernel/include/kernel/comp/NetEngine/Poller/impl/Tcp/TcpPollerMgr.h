@@ -36,6 +36,7 @@
 #include <kernel/comp/LibList.h>
 
 #include <unordered_map>
+#include <list>
 
 KERNEL_BEGIN
 
