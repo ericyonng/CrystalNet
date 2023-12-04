@@ -35,10 +35,9 @@
 #include <kernel/common/macro.h>
 #include <kernel/common/BaseMacro.h>
 #include <kernel/common/BaseType.h>
+#include <random>
 
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
- #include <random>
-#else
+#if CRYSTAL_TARGET_PLATFORM_LINUX
  #include <tr1/random>
 #endif
 

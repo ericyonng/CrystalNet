@@ -33,6 +33,7 @@
 #pragma once
 
 #include <kernel/comp/Lock/Impl/Locker.h>
+#include <atomic>
 
 KERNEL_BEGIN
 
