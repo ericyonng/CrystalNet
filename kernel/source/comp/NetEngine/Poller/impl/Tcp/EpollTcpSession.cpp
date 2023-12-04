@@ -36,7 +36,7 @@
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
 #include <kernel/comp/Service/Service.h>
 #include <kernel/comp/LibDirtyHelper.h>
-
+#include <kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpSession.h>
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
