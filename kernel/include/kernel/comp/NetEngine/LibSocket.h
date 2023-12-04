@@ -52,7 +52,7 @@ KERNEL_BEGIN
 
 class LibSession;
 
-class LibSocketOptionFlag
+class KERNEL_EXPORT LibSocketOptionFlag
 {
 public:
     enum Type
@@ -113,7 +113,7 @@ private:
     }
 };
 
-class LibSocketOptionPresetParam
+class KERNEL_EXPORT LibSocketOptionPresetParam
 {
 public:
     enum Param : UInt64
@@ -126,7 +126,7 @@ public:
     };
 };
 
-class LibSocket
+class KERNEL_EXPORT LibSocket
 {
     POOL_CREATE_OBJ_DEFAULT(LibSocket);
     NO_COPY(LibSocket);

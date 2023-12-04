@@ -3237,12 +3237,12 @@ bool ExporterMgr::_ScanAProto(const KERNEL_NS::FindFileInfo &fileInfo, const KER
     {
         auto ctxPtr = reinterpret_cast<MD5_CTX *>(ptr);
         if(isCtxInit)
-           KERNEL_NS::LibDigest::MakeMd5Clean(*ctxPtr); 
+           KERNEL_NS::LibDigest::MakeMd5Clean(ctxPtr); 
 
         delete ctxPtr;
     });
 
-    if(!KERNEL_NS::LibDigest::MakeMd5Init(*ctx))
+    if(!KERNEL_NS::LibDigest::MakeMd5Init(ctx.AsSelf()))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("init md5 fail fullFilePath:%s"), fullFilePath.c_str());
         return false;
@@ -3257,7 +3257,7 @@ bool ExporterMgr::_ScanAProto(const KERNEL_NS::FindFileInfo &fileInfo, const KER
         lineRefProtoData.insert(std::make_pair(++currentLine, lineData));
 
         auto lineCopy = lineData + "\n";
-        if(!KERNEL_NS::LibDigest::MakeMd5Continue(*ctx, lineCopy.c_str(), lineCopy.length()))
+        if(!KERNEL_NS::LibDigest::MakeMd5Continue(ctx.AsSelf(), lineCopy.c_str(), lineCopy.length()))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("md5 continue fail fullFilePath:%s, proto line:%d, lineData:%s"), fullFilePath.c_str(), currentLine, lineCopy.c_str());
             return false;
@@ -3369,7 +3369,7 @@ bool ExporterMgr::_ScanAProto(const KERNEL_NS::FindFileInfo &fileInfo, const KER
     }
     
     KERNEL_NS::LibString protoMd5;
-    if(!KERNEL_NS::LibDigest::MakeMd5Final(*ctx, protoMd5))
+    if(!KERNEL_NS::LibDigest::MakeMd5Final(ctx.AsSelf(), protoMd5))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("md5 final fail fullFilePath:%s"), fullFilePath.c_str());
         return false;

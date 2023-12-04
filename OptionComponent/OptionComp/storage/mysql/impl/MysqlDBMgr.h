@@ -32,7 +32,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/CompObject/CompObjectInc.h>
 #include <OptionComp/storage/mysql/impl/MysqlConfig.h>

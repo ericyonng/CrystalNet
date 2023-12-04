@@ -13,6 +13,17 @@ if %errorlevel% equ 0 (
     exit 1
 )
 
+:: Client
+ConfigExporter.exe --config=xlsx --lang=S:cpp@C:csharp,lua  --source_dir=../../service/Client/config/xlsx --target_dir=../../service/Client/config/code --data=../../service/Client/config/data --meta=../../service/Client/config/meta
+
+if %errorlevel% equ 0 (
+	echo Sussess generate Client configs!
+) else (
+    echo Failed to generate Client configs error: %errorlevel%
+    pause
+    exit 1
+)
+
 :: Gateway
 ConfigExporter.exe --config=xlsx --lang=S:cpp@C:csharp,lua  --source_dir=../../service/GateService/config/xlsx --target_dir=../../service/GateService/config/code --data=../../service/GateService/config/data --meta=../../service/GateService/config/meta
 if %errorlevel% equ 0 (

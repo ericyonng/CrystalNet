@@ -1,6 +1,6 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/TestService/config/xlsx/example.xlsx
-// file path:../../service/TestService/config/xlsx/example.xlsx
+// file path:../../service/Client/config/xlsx/example.xlsx
+// file path:../../service/Client/config/xlsx/example.xlsx
 // sheet name:示例part1|Example;示例part2|Example
 
 #ifndef __CONFIG_EXAMPLE_CONFIG_H__

@@ -30,6 +30,11 @@
 #ifndef __CLOSE_PROCESS_CLOSE_PROCESS_PCH_PCH_H__
 #define __CLOSE_PROCESS_CLOSE_PROCESS_PCH_PCH_H__
 
+#include <kernel/common/macro.h>
+#include <kernel/common/libs.h>
+#include <kernel/common/statics.h>
+#include <kernel/common/status.h>
+
 #define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
 // #define CRYSTAL_DEBUG_ENABLE 0

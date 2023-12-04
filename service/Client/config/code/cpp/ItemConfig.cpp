@@ -1,8 +1,17 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/TestService/config/xlsx/Item道具.xlsx
+// file path:../../service/Client/config/xlsx/Item道具.xlsx
 // sheet name:道具|Item
 
 #include <pch.h>
+#include <openssl/md5.h>
+#include <openssl/pem.h>
+#include <openssl/ssl.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/err.h>
+#include <openssl/buffer.h>
+#include <openssl/sha.h>
+#include <openssl/bn.h>
 #include "ItemConfig.h"
 
 SERVICE_BEGIN
@@ -244,7 +253,7 @@ Int32 ItemConfigMgr::Load()
 
     Int32 line = 0;
     MD5_CTX ctx;
-    if(!KERNEL_NS::LibDigest::MakeMd5Init(ctx))
+    if(!KERNEL_NS::LibDigest::MakeMd5Init(&ctx))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("make md5 init fail wholePath:%s"), wholePath.c_str());
         return Status::Failed;
@@ -263,14 +272,14 @@ Int32 ItemConfigMgr::Load()
             if(retBytes == 0)
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("ReadUtf8OneLine fail wholePath:%s, line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
-                KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+                KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
                 return Status::Failed;
             }
             ++line;
-            if(!KERNEL_NS::LibDigest::MakeMd5Continue(ctx, lineData.data(), static_cast<UInt64>(lineData.size())))
+            if(!KERNEL_NS::LibDigest::MakeMd5Continue(&ctx, lineData.data(), static_cast<UInt64>(lineData.size())))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("MakeMd5Continue fail wholePath:%s, line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
-                KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+                KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
                 return Status::Failed;
             }
 
@@ -305,7 +314,7 @@ Int32 ItemConfigMgr::Load()
         {
             g_Log->Error(LOGFMT_OBJ_TAG("Read a line config data fail wholePath:%s, line:%d, "), wholePath.c_str(), line);
             g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("lineData:"), lineData);
-            KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+            KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
             return Status::Failed;
         }
 
@@ -314,10 +323,10 @@ Int32 ItemConfigMgr::Load()
 
         ++line;
 
-        if(!KERNEL_NS::LibDigest::MakeMd5Continue(ctx, lineData.data(), static_cast<UInt64>(lineData.size())))
+        if(!KERNEL_NS::LibDigest::MakeMd5Continue(&ctx, lineData.data(), static_cast<UInt64>(lineData.size())))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("MakeMd5Continue fail wholePath:%s, line:%d, lineData:%s"), wholePath.c_str(), line, lineData.c_str());
-            KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+            KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
             return Status::Failed;
         }
 
@@ -336,7 +345,7 @@ Int32 ItemConfigMgr::Load()
         // check unique
         if(unique_ids.find(config->_id) != unique_ids.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Id:%d data path:%s line:%d, lineData:%s"), config->_id, wholePath.c_str(), line, lineData.c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("duplicate Id:%s data path:%s line:%d, lineData:%s"), (KERNEL_NS::LibString() << config->_id).c_str(), wholePath.c_str(), line, lineData.c_str());
             return Status::Failed;
         }
 
@@ -346,13 +355,13 @@ Int32 ItemConfigMgr::Load()
     }// while(true)
 
     KERNEL_NS::LibString dataMd5;
-    if(!KERNEL_NS::LibDigest::MakeMd5Final(ctx, dataMd5))
+    if(!KERNEL_NS::LibDigest::MakeMd5Final(&ctx, dataMd5))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("MakeMd5Final fail wholePath:%s"), wholePath.c_str());
-        KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+        KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
         return Status::Failed;
     }
-    KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+    KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
 
     _dataMd5 = KERNEL_NS::LibBase64::Encode(dataMd5);
     _configs.swap(*configs.AsSelf());

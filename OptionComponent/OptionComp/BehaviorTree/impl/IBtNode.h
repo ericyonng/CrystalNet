@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibTime.h>
 #include <OptionComp/BehaviorTree/impl/BtNodeData.h>
 

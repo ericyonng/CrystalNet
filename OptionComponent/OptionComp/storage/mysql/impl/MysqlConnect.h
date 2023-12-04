@@ -38,12 +38,11 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/StringUtil.h>
-#include <kernel/comp/memory/memory.h>
 #include <OptionComp/storage/mysql/impl/SqlBuilder.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 #include <OptionComp/storage/mysql/impl/MysqlConfig.h>
 
 struct MYSQL;

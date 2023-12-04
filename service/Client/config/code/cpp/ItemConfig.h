@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/TestService/config/xlsx/Item道具.xlsx
+// file path:../../service/Client/config/xlsx/Item道具.xlsx
 // sheet name:道具|Item
 
 #ifndef __CONFIG_ITEM_CONFIG_H__

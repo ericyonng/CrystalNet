@@ -41,5 +41,7 @@
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
 #include <kernel/comp/NetEngine/INetCfgMgr.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
+#include <kernel/comp/NetEngine/LibSocket.h>
+#include <kernel/comp/NetEngine/LibAddr.h>
 
 #endif

@@ -270,7 +270,7 @@ void *MemoryAlloctor::Alloc(UInt64 objBytes)
     auto memoryBuffer = _activeHead;
     if(UNLIKELY(!memoryBuffer))
     {
-        auto memoryBuffer = _NewBuffer();
+        memoryBuffer = _NewBuffer();
         _trigerNewBufferWhenAlloc += 1;
         _AddToList(_activeHead, memoryBuffer);
     }

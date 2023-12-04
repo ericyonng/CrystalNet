@@ -40,7 +40,7 @@ KERNEL_BEGIN
 
 class LibSocket;
 
-class LibAddr
+class KERNEL_EXPORT LibAddr
 {
     POOL_CREATE_OBJ_DEFAULT(LibAddr);
 public:

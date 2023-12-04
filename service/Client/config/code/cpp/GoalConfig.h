@@ -1,5 +1,5 @@
 // Generate by ConfigExporter, Dont modify it!!!
-// file path:../../service/TestService/config/xlsx/example.xlsx
+// file path:../../service/Client/config/xlsx/example.xlsx
 // sheet name:目标|Goal
 
 #ifndef __CONFIG_GOAL_CONFIG_H__

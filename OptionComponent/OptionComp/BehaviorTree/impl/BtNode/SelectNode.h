@@ -32,7 +32,7 @@
 #pragma once
 
 #include <OptionComp/BehaviorTree/impl/IBtNode.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 
 KERNEL_BEGIN
 

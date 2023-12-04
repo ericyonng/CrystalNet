@@ -31,9 +31,8 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/CompObject/CompObjectInc.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/CompObject/CompHostObject.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 #include <OptionComp/CodeAnalyze/impl/CodeUnit.h>
 
 KERNEL_BEGIN

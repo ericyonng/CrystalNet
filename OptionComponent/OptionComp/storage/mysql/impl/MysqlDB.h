@@ -35,9 +35,8 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/memory/memory.h>
 #include <kernel/comp/Lock/Lock.h>
 #include <kernel/comp/ConcurrentPriorityQueue/ConcurrentPriorityQueue.h>
 #include <OptionComp/storage/mysql/impl/MysqlConfig.h>

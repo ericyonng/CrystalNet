@@ -53,7 +53,7 @@ void ProtoContentInfo::Release()
 void ProtoContentInfo::MakeMd5()
 {
     MD5_CTX ctx;
-    if(!KERNEL_NS::LibDigest::MakeMd5Init(ctx))
+    if(!KERNEL_NS::LibDigest::MakeMd5Init(&ctx))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("md5 ctx init fail"));
         return;
@@ -61,21 +61,21 @@ void ProtoContentInfo::MakeMd5()
     for(auto &iterLineData: _lineRefContent)
     {
         UInt64 len = static_cast<UInt64>(iterLineData.second.size());
-        if(!KERNEL_NS::LibDigest::MakeMd5Continue(ctx, (iterLineData.second + "\n").c_str(), len))
+        if(!KERNEL_NS::LibDigest::MakeMd5Continue(&ctx, (iterLineData.second + "\n").c_str(), len))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("md5 ctx continue fail, line:%d, lineData:%s, size:%llu")
             , iterLineData.first, iterLineData.second.c_str(), len);
-            KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+            KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
             return;
         }
     }
 
-    if(!KERNEL_NS::LibDigest::MakeMd5Final(ctx, _md5))
+    if(!KERNEL_NS::LibDigest::MakeMd5Final(&ctx, _md5))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("md5 final fail line data lines:%llu"), static_cast<UInt64>(_lineRefContent.size()));
     }
 
-    KERNEL_NS::LibDigest::MakeMd5Clean(ctx);
+    KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);
 }
 
 KERNEL_NS::LibString ProtoContentInfo::ToString() const
