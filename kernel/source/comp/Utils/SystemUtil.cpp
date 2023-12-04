@@ -28,6 +28,7 @@
 
 #include <pch.h>
 #include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Utils/Defs/FindFileInfo.h>
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
     #include <unistd.h>
