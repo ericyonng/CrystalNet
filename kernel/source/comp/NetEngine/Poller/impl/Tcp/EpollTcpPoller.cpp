@@ -32,6 +32,7 @@
 #if CRYSTAL_TARGET_PLATFORM_LINUX
 
 #include <kernel/comp/Variant/Variant.h>
+#include <kernel/comp/SmartPtr.h>
 
 #include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/comp/LibDirtyHelper.h>
