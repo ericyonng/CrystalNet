@@ -47,6 +47,7 @@
 #include <unordered_set>
 #include <deque>
 #include <queue>
+#include <algorithm>
 
 KERNEL_BEGIN
 
