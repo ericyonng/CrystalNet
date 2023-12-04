@@ -34,10 +34,9 @@
 #include <kernel/comp/LibString.h>
 #include <map>
 #include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 KERNEL_BEGIN
-
-class SpinLock;
 
 class KERNEL_EXPORT TlsMemoryAlloctor : public ITlsObj
 {

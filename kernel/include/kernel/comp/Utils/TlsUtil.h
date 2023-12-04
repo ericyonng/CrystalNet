@@ -40,6 +40,7 @@
 #include <kernel/comp/Tls/Defs.h>
 #include <kernel/comp/Tls/TlsStack.h>
 #include <kernel/comp/Tls/TlsMemoryAlloctor.h>
+#include <kernel/comp/memory/MemoryDefs.h>
 
 KERNEL_BEGIN
 

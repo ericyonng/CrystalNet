@@ -30,7 +30,6 @@
 #include <kernel/comp/Tls/TlsMemoryAlloctor.h>
 #include <kernel/comp/MemoryMonitor/memorymonitor_inc.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
-#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 KERNEL_BEGIN
 

@@ -29,6 +29,17 @@
 #include <pch.h>
 #include <kernel/comp/Utils/TimeUtil.h>
 #include <atomic>
+#include <chrono>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+#include <sys/syscall.h>
+ #include <time.h>
+ #include <sys/time.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    #include "sysinfoapi.h"
+#endif
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
  #include <time.h>
@@ -79,6 +90,143 @@ Int32 TimeUtil::GetMonthMaxDays(Int32 year, Int32 month)
     {
         return -1;
     }
+}
+
+Int64 TimeUtil::GetNanoTimestamp()
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+#else
+    struct timespec tp;
+    ::clock_gettime(CLOCK_REALTIME, &tp);
+
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
+#endif
+}
+
+Int64 TimeUtil::GetChronoMicroTimestamp()
+{
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock().now().time_since_epoch()).count() / TimeDefs::RESOLUTION_PER_MICROSECOND;
+}
+
+Int64 TimeUtil::GetSystemElapseNanoseconds()
+{
+    #if CRYSTAL_TARGET_PLATFORM_LINUX
+        struct timespec tp;
+        ::clock_gettime(CLOCK_MONOTONIC, &tp);
+
+        return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;   
+    #endif
+
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+		return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+        // static_assert(false, "windows not support GetSystemElapseNanoseconds");
+        // return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    #endif
+}
+
+Int64 TimeUtil::GetProcessElapseNanoseconds()
+{
+    #if CRYSTAL_TARGET_PLATFORM_LINUX
+        struct timespec tp;
+        ::clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
+
+        return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
+    #endif
+
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+		return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+		// static_assert(false, "windows not support GetProcessElapseNanoseconds");
+        // return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    #endif
+}
+
+
+Int64 TimeUtil::GetHandwareSysRunTime()
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+#else
+    struct timespec tp;
+    ::syscall(SYS_clock_gettime, CLOCK_MONOTONIC_RAW, &tp);
+
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
+#endif
+}
+
+Int64 TimeUtil::GetClockRealTime()
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+#else
+    struct timespec tp;
+    ::clock_gettime(CLOCK_REALTIME, &tp);
+
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
+#endif
+}
+
+Int64 TimeUtil::GetClockRealTimeCoarse()
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+#else
+    struct timespec tp;
+    ::clock_gettime(CLOCK_REALTIME_COARSE, &tp);
+
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
+#endif
+}
+
+Int64 TimeUtil::GetClockMonotonicSysRunTime()
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+#else
+    struct timespec tp;
+    ::clock_gettime(CLOCK_MONOTONIC, &tp);
+
+    return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
+#endif
+}
+
+// 通用时间,高性能
+Int64 TimeUtil::GetMicroTimestamp()
+{
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    // 第二个参数返回时区
+    struct timeval timeVal;
+    ::gettimeofday(&timeVal, NULL);
+
+    return (Int64)timeVal.tv_sec * TimeDefs::MICRO_SECOND_PER_SECOND + timeVal.tv_usec;
+
+#else
+    // Get time.
+    FILETIME ft;
+    ::GetSystemTimeAsFileTime(&ft);
+
+    Int64 timeInMicroSec = ((Int64)ft.dwHighDateTime) << 32;
+    timeInMicroSec |= ft.dwLowDateTime;
+    timeInMicroSec /= 10;
+
+    return timeInMicroSec - CRYSTAL_EPOCH_IN_USEC;
+#endif
+}
+
+Int64 TimeUtil::GetThreadElapseNanoseconds()
+{
+    #if CRYSTAL_TARGET_PLATFORM_LINUX
+        struct timespec tp;
+        ::clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp);
+
+        return (Int64)tp.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tp.tv_nsec;
+    #endif
+
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+		return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+		// static_assert(false, "windows not support GetThreadElapseNanoseconds");
+        // return GetMicroTimestamp() * TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
+    #endif
 }
 
 KERNEL_END
