@@ -34,10 +34,6 @@
     #include <intrin.h> // 获取cpuid
 #endif
 
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-    #include <cpuid.h>  // 获取cpuid
-#endif
-
 KERNEL_BEGIN
 
 CpuFeature *CpuFeature::GetInstance()
