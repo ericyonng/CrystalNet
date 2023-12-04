@@ -44,23 +44,13 @@
 
 #pragma once
 
-#include <kernel/comp/memory/MemoryDefs.h>
-#include <kernel/comp/memory/Defs/Defs.h>
-#include <kernel/comp/memory/Defs/TemplateMacro.h>
-#include <kernel/comp/memory/Defs/MemoryAlloctorConfig.h>
-
-#include <kernel/comp/memory/AlloctorInfoCollector.h>
-#include <kernel/comp/memory/MemoryAlloctor.h>
-#include <kernel/comp/memory/MemoryPool.h>
-#include <kernel/comp/memory/ObjAlloctor.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
+
 #include <kernel/comp/memory/GarbageThread.h>
+#include <kernel/comp/memory/CenterMemoryCollector.h>
+
+#include <kernel/comp/memory/MemoryPool.h>
 #include <kernel/comp/memory/ObjPoolWrap.h>
 #include <kernel/comp/memory/MemoryAssist.h>
-#include <kernel/comp/memory/CenterMemoryCollector.h>
-#include <kernel/comp/memory/CenterMemoryThreadInfo.h>
-#include <kernel/comp/memory/MergeMemoryBufferInfo.h>
-#include <kernel/comp/memory/CenterMemoryProfileInfo.h>
-#include <kernel/comp/memory/CenterMemoryTopnThreadInfo.h>
 
 #endif

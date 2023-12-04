@@ -31,7 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 
@@ -173,70 +175,6 @@ ALWAYS_INLINE RawType VariantArithmetic::_Performs_raw_operation(RawType left, R
     return RawType();
 }
 
-ALWAYS_INLINE void VariantArithmetic::Performs(Variant &left, const Variant &right, int type)
-{
-    switch(left.GetType())
-    {
-        case VariantRtti::VT_BRIEF_BOOL:
-            VariantArithmetic::_Performs_bool_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_BYTE8:
-            VariantArithmetic::_Performs_byte8_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_UINT8:
-            VariantArithmetic::_Performs_uint8_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_INT16:
-            VariantArithmetic::_Performs_int16_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_UINT16:
-            VariantArithmetic::_Performs_uint16_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_INT32:
-            VariantArithmetic::_Performs_int32_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_UINT32:
-            VariantArithmetic::_Performs_uint32_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_LONG:
-            VariantArithmetic::_Performs_long_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_ULONG:
-            VariantArithmetic::_Performs_ulong_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_PTR:
-            VariantArithmetic::_Performs_ptr_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_INT64:
-            VariantArithmetic::_Performs_int64_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_UINT64:
-            VariantArithmetic::_Performs_uint64_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_FLOAT:
-            VariantArithmetic::_Performs_float_any(left, right, type);
-            break;
-
-        case VariantRtti::VT_BRIEF_DOUBLE:
-            VariantArithmetic::_Performs_double_any(left, right, type);
-            break;
-
-        default:
-            break;
-    }
-}
 
 KERNEL_END
 

@@ -29,6 +29,8 @@
 #include <pch.h>
 #include <kernel/comp/MemoryMonitor/Statistics.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/comp/Delegate/IDelegate.h>
+#include <kernel/common/macro.h>
 
 KERNEL_BEGIN
 

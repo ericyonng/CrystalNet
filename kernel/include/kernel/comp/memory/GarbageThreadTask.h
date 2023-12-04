@@ -31,9 +31,7 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Task/ITask.h>
-#include <kernel/comp/Delegate/Delegate.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 
 KERNEL_BEGIN
@@ -41,13 +39,16 @@ KERNEL_BEGIN
 class LibThread;
 class ConditionLocker;
 
-class KERNEL_EXPORT GarbageThreadTask : public ITask
+template <typename Rtn, typename... Args>
+class IDelegate;
+
+class GarbageThreadTask : public ITask
 {
     POOL_CREATE_OBJ_DEFAULT_P1(ITask, GarbageThreadTask);
     
 public:
     GarbageThreadTask(LibThread *libThread, IDelegate<void> *callback, UInt64 &workIntervalMsTime, ConditionLocker &lck);
-    ~GarbageThreadTask(){ CRYSTAL_DELETE_SAFE(_callback); }
+    ~GarbageThreadTask();
 
 public:
     void Run();

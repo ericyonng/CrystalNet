@@ -31,12 +31,12 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
+
 #include <kernel/comp/Utils/Defs/LibGuidDefs.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/LibTime.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Utils/Defs/UidDefs.h>
 
 KERNEL_BEGIN
@@ -98,20 +98,6 @@ public:
     static UInt64 SnowflakeBaseSysTime(SnowflakeInfo &snowflakeInfo);
 
 };
-
-ALWAYS_INLINE LibGuid GuidUtil::Gen()
-{
-    LibGuid guid;
-    ::memset(&guid, 0, sizeof(LibGuid));
-
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    uuid_generate(reinterpret_cast<unsigned char *>(&guid));
-#else
-    ::CoCreateGuid(&guid);
-#endif
-
-    return guid;
-}
 
 ALWAYS_INLINE LibString GuidUtil::Format(const LibGuid &guid)
 {

@@ -33,7 +33,7 @@
 
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
-#include <kernel/common/type.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 

@@ -33,9 +33,13 @@
 
 #pragma once
 
-#include <kernel/common/compile.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/LibObject.h>
+#include <kernel/comp/memory/Defs/MemoryAlloctorConfig.h>
 #include <kernel/comp/Utils/TlsUtil.h>
-#include <kernel/comp/Utils/AllocUtil.h>
+#include <kernel/comp/Tls/TlsObjectPool.h>
+#include <kernel/comp/memory/ObjAlloctor.h>
+#include <kernel/comp/memory/AlloctorInfoCollector.h>
 
 // 禁用 new/delete,因为派生类会调用父类的new/delete,如果派生类没哟使用对象池宏,会导致父类的对象池分配子类,将导致内存错误
 // void  *operator new(size_t bytes)                                                                         

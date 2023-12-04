@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/Variant/VariantTraits.h>
 #include <kernel/comp/Variant/Variant.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
 

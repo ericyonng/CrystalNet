@@ -33,6 +33,10 @@
 #include <kernel/comp/memory/CenterMemoryProfileInfo.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/memory/CenterMemoryCollector.h>
+#include <kernel/comp/Tls/TlsStack.h>
+#include <kernel/comp/memory/MemoryBlock.h>
+#include <kernel/comp/memory/MemoryBuffer.h>
+#include <kernel/comp/Tls/Tls.h>
 
 KERNEL_BEGIN
 
@@ -167,6 +171,16 @@ void CenterMemoryThreadInfo::OnThreadWillQuit()
 void CenterMemoryThreadInfo::OnCollectorThreadDown()
 {
     _Clear();
+}
+
+void CenterMemoryThreadInfo::SetForceFreeIdleBuffer(bool force)
+{
+    _tlsStack->GetDef()->_isForceFreeIdleBuffer = force;
+}
+
+UInt64 CenterMemoryThreadInfo::GetAllocBytes() const
+{
+    return _tlsStack->GetDef()->_alloctorTotalBytes;
 }
 
 void CenterMemoryThreadInfo::_Clear()

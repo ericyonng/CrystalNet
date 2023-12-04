@@ -27,15 +27,15 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/Timer/TimeData.h>
 #include <kernel/comp/Timer/TimerMgr.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/Timer/LibTimer.h>
-#include <kernel/comp/Timer/TimerDefs.h>
-#include <kernel/comp/Variant/variant_inc.h>
 #include <kernel/comp/Cpu/LibCpuCounter.h>
 #include <kernel/comp/Log/log.h>
-#include <kernel/comp/Utils/SignalHandleUtil.h>
 #include <kernel/comp/PerformanceRecord.h>
+#include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Utils/TimeUtil.h>
 
 KERNEL_BEGIN
 
@@ -199,6 +199,77 @@ void TimerMgr::SafetyDrive()
     {
         _hasExpired = false;
     }
+}
+
+TimeData *TimerMgr::NewTimeData(LibTimer *timer)
+{
+    auto newData = TimeData::NewThreadLocal_TimeData(++_curMaxId, timer);
+    _allTimeData.insert(newData);
+    return newData;
+}
+
+Int64 TimerMgr::GetTimeoutIntervalRecently(Int64 nowMs) const
+{
+    if(UNLIKELY(_allTimeData.empty()))
+        return -1;
+
+    TimeData *recently = *_allTimeData.begin();
+    Int64 diff = recently->_expiredTime - nowMs;
+    return diff > 0 ? diff : 0;    
+}
+
+void TimerMgr::_AsynRegister(TimeData *timeData, Int64 newPeriod, Int64 newExpiredTime)
+{
+    auto asynData = timeData->_asynData;
+    asynData->MaskRegister(newExpiredTime, newPeriod);
+    timeData->_isScheduing = true;
+
+    _asynDirty.insert(asynData);
+}
+
+void TimerMgr::_Register(TimeData *timeData, Int64 newPeriod, Int64 newExpiredTime)
+{
+    timeData->_period = newPeriod;
+    timeData->_expiredTime = newExpiredTime;
+    timeData->_isScheduing = true;
+
+    _expireQueue.insert(timeData);
+}
+
+void TimerMgr::_AsynUnRegister(TimeData *timeData)
+{
+    auto asynData = timeData->_asynData;
+    timeData->_isScheduing = false;
+    asynData->MaskUnRegister();
+    _asynDirty.insert(asynData);
+}
+
+void TimerMgr::_UnRegister(TimeData *timeData)
+{
+    timeData->_isScheduing = false;
+    _expireQueue.erase(timeData);
+}
+
+void TimerMgr::_Destroy(TimeData *timeData)
+{
+    _expireQueue.erase(timeData);
+    timeData->_isScheduing = false;
+    timeData->_owner = NULL;
+    _allTimeData.erase(timeData);
+    timeData->Release();
+}
+
+void TimerMgr::_AsynDestroy(TimeData *timeData)
+{
+    timeData->_owner = NULL;
+    timeData->_isScheduing = false;
+    timeData->_asynData->MaskDestroy();
+    _asynDirty.insert(timeData->_asynData);
+}
+
+bool TimerMgr::_IsInTimerThread()
+{
+    return _launchThreadId == SystemUtil::GetCurrentThreadId();
 }
 
 void TimerMgr::Close()

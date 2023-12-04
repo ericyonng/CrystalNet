@@ -31,9 +31,8 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
-#include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
+#include <atomic>
 
 KERNEL_BEGIN
 

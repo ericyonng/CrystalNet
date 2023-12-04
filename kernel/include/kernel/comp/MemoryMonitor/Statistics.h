@@ -31,11 +31,20 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <vector>
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 KERNEL_BEGIN
+
+class LibString;
+
+template <typename Rtn, typename... Args>
+class IDelegate;
 
 // 只提供注册不提供移除,移除会有性能上的损耗
 class KERNEL_EXPORT Statistics

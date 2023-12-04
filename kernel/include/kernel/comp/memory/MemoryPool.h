@@ -31,19 +31,24 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <string>
+#include <vector>
+#include <atomic>
+
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 #include <kernel/comp/memory/MemoryDefs.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Utils/MathUtil.h>
-#include <kernel/comp/memory/MemoryBlock.h>
+#include <kernel/comp/Lock/Impl/Locker.h>
+
 #include <kernel/comp/memory/Defs/MemoryAlloctorConfig.h>
-#include <kernel/comp/Delegate/Delegate.h>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 
 class MemoryAlloctor;
-class LibString;
+
+template <typename Rtn, typename... Args>
+class IDelegate;
 
 struct KERNEL_EXPORT InitMemoryPoolInfo
 {

@@ -30,13 +30,14 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Tls/ITlsObj.h>
-#include <kernel/comp/Tls/Defs.h>
-#include <kernel/comp/Lock/Lock.h>
 #include <kernel/comp/LibString.h>
+#include <map>
+#include <kernel/comp/Delegate/LibDelegate.h>
 
 KERNEL_BEGIN
+
+class SpinLock;
 
 class KERNEL_EXPORT TlsMemoryAlloctor : public ITlsObj
 {
@@ -103,17 +104,17 @@ private:
         };
         auto newToStringDelg = DelegateFactory::Create<decltype(toStringFunc), LibString, UInt64 &>(toStringFunc);
 
-        _lck.Lock();
+        _lck->Lock();
         _allocAddrRefDestructor.insert(std::make_pair(newAlloctor, newDestructor));
         _allocAddrRefAllocInfoDelg.insert(std::make_pair(newAlloctor, newToStringDelg));
         _sizeRefMemoryAlloc.insert(std::make_pair(allocUnitBytes, newAlloctor));
-        _lck.Unlock();
+        _lck->Unlock();
 
         return newAlloctor;
     }
 
 private:
-    SpinLock _lck;
+    SpinLock *_lck;
     const std::string _objTypeName;
     std::map<void *, IDelegate<void> *> _allocAddrRefDestructor;
     std::map<void *, IDelegate<LibString, UInt64 &> *> _allocAddrRefAllocInfoDelg;

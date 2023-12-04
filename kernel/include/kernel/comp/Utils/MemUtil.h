@@ -31,7 +31,11 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+#include <type_traits>
+#include <string.h>
 
 KERNEL_BEGIN
 
@@ -49,21 +53,21 @@ public:
 };
 
 template<typename T>
-inline void MemUtil::Memset(T *ptr, Int32 value, UInt64 bytes)
+ALWAYS_INLINE void MemUtil::Memset(T *ptr, Int32 value, UInt64 bytes)
 {
     static_assert(std::is_pod<T>::value, "not pod type:");
     ::memset(ptr, value, bytes);
 }
 
 template<typename T>
-inline void MemUtil::Zeroset(T &podData)
+ALWAYS_INLINE void MemUtil::Zeroset(T &podData)
 {
     static_assert(std::is_pod<T>::value, "not pod type");
     ::memset(&podData, 0, sizeof(podData));
 }
 
 template<typename T>
-inline void MemUtil::Memcpy(T *dest, void *src, UInt64 bytes)
+ALWAYS_INLINE void MemUtil::Memcpy(T *dest, void *src, UInt64 bytes)
 {
     static_assert(std::is_pod<T>::value, "not pod type");
     ::memcpy(dest, src, bytes);

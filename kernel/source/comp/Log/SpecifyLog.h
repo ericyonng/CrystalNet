@@ -31,19 +31,24 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Delegate/Delegate.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Log/LogConfig.h>
-#include <kernel/comp/memory/memory.h>
-#include <kernel/comp/Log/LogData.h>
-#include <kernel/comp/Utils/SystemUtil.h>
-#include <kernel/comp/Log/LogLevel.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+
+#include <list>
+#include <atomic>
+#include <vector>
 
 KERNEL_BEGIN
 
 class LibLogFile;
 class LibThread;
+class ConditionLocker;
+struct LogConfig;
+struct LogLevelCfg;
+struct LogData;
+
+template <typename Rtn, typename... Args>
+class IDelegate;
 
 class SpecifyLog
 {
@@ -105,102 +110,14 @@ ALWAYS_INLINE void SpecifyLog::BindWakeupFlush(ConditionLocker *flusher)
     _wakeupFlush = flusher;
 }
 
-ALWAYS_INLINE void SpecifyLog::Flush()
-{
-    _wakeupFlush->Sinal();
-}
-
-ALWAYS_INLINE Int32 SpecifyLog::GetThreadRelationId() const
-{
-    return _config->_threadRelationId;
-}
-
 ALWAYS_INLINE void SpecifyLog::ForceToDisk()
 {
     CloseAndReopen();
 }
 
-ALWAYS_INLINE void SpecifyLog::_WakupFlush()
-{
-    _wakeupFlush->Sinal();
-}
-
-ALWAYS_INLINE void SpecifyLog::_OutputToConsole(const LogLevelCfg &levelCfg, const LibString &logInfo)
-{
-    SystemUtil::LockConsole();
-    const Int32 oldColor = SystemUtil::GetConsoleColor();
-    SystemUtil::SetConsoleColor(levelCfg._fgColor | levelCfg._bgColor);
-    SystemUtil::OutputToConsole(logInfo);
-    SystemUtil::SetConsoleColor(oldColor);
-    SystemUtil::UnlockConsole();
-}
-
-ALWAYS_INLINE void SpecifyLog::InstallBeforeHook(Int32 level, IDelegate<void, LogData *> *deleg)
-{
-    auto hookList = _beforeHook[level];
-    if(UNLIKELY(!hookList))
-    {
-        hookList = new std::list<IDelegate<void, LogData *> *>;
-        _beforeHook[level] = hookList;
-    }
-
-    hookList->push_back(deleg);
-}
-
-ALWAYS_INLINE void SpecifyLog::InstallAfterHook(Int32 level, IDelegate<void> *deleg)
-{   
-    auto hookList = _afterHook[level];
-    if(UNLIKELY(!hookList))
-    {
-        hookList = new std::list<IDelegate<void> *>;
-        _afterHook[level] = hookList;
-    }
-
-    hookList->push_back(deleg);
-}
-
-ALWAYS_INLINE void SpecifyLog::UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *deleg)
-{
-    auto hookList = _afterHook[level];
-    if(!hookList)
-        return;
-
-    for(auto iter = hookList->begin(); iter != hookList->end(); ++iter)
-    {
-        if(*iter == deleg)
-        {
-            (*iter)->Release();
-            hookList->erase(iter);
-            return;
-        }
-    }
-}
-
-ALWAYS_INLINE void SpecifyLog::UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogData *> *deleg)
-{
-    auto hookList = _beforeHook[level];
-    if(!hookList)
-        return;
-
-    for(auto iter = hookList->begin(); iter != hookList->end(); ++iter)
-    {
-        if(*iter == deleg)
-        {
-            (*iter)->Release();
-            hookList->erase(iter);
-            return;
-        }
-    }
-}
-
 ALWAYS_INLINE bool SpecifyLog::IsClose() const
 {
     return _isClose.load();
-}
-
-ALWAYS_INLINE UInt64 SpecifyLog::GetLogCount() const
-{
-    return static_cast<UInt64>(_logData->size());
 }
 
 KERNEL_END

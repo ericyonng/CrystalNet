@@ -31,10 +31,15 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Variant/variant_inc.h>
+#include <kernel/comp/Variant/Variant.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+
+#include <map>
 
 KERNEL_BEGIN
 
@@ -214,30 +219,30 @@ ALWAYS_INLINE void LibEvent::SetRelease(Method &&func)
     _releaseFunc = KERNEL_CREATE_CLOSURE_DELEGATE(func, void, LibEvent *);
 }
 
-inline int LibEvent::GetId() const
+ALWAYS_INLINE int LibEvent::GetId() const
 {
     return _id;
 }
 
-inline bool LibEvent::IsDontDelAfterFire() const
+ALWAYS_INLINE bool LibEvent::IsDontDelAfterFire() const
 {
     return _dontDelAfterFire;
 }
 
-inline void LibEvent::SetDontDelAfterFire(bool dontDelAfterFire)
+ALWAYS_INLINE void LibEvent::SetDontDelAfterFire(bool dontDelAfterFire)
 {
     _dontDelAfterFire = dontDelAfterFire;
 }
 
 template <typename ParamType>
-inline LibEvent &LibEvent::SetParam(int key, const ParamType &param)
+ALWAYS_INLINE LibEvent &LibEvent::SetParam(int key, const ParamType &param)
 {
     const Variant varParam(param);
     return SetParam(key, varParam);
 }
 
 template <typename ParamType>
-inline LibEvent &LibEvent::SetParam(const char *key, const ParamType &param)
+ALWAYS_INLINE LibEvent &LibEvent::SetParam(const char *key, const ParamType &param)
 {
     const Variant varParam(param);
     return SetParam(key, varParam);
@@ -250,16 +255,15 @@ inline LibEvent &LibEvent::SetParam(const LibString &key, const ParamType &param
     return SetParam(key, varParam);
 }
 
-inline size_t LibEvent::GetIntKeyParamsCount() const
+ALWAYS_INLINE size_t LibEvent::GetIntKeyParamsCount() const
 {
     return _intKeyParams != NULL ? _intKeyParams->size() : 0;
 }
 
-inline size_t LibEvent::GetStrKeyParamsCount() const
+ALWAYS_INLINE size_t LibEvent::GetStrKeyParamsCount() const
 {
     return _strKeyParams != NULL ? _strKeyParams->size() : 0;
 }
-
 
 KERNEL_END
 

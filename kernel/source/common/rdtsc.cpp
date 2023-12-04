@@ -21,24 +21,35 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-03-30 11:22:57
+ * Date: 2023-12-04 13:24:15
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_MOVE_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_MOVE_H__
+#include <pch.h>
+#include <kernel/common/rdtsc.h>
 
-#pragma once
-
-#include <kernel/kernel_export.h>
-#include <kernel/common/macro.h>
-#include <kernel/common/type.h>
-#include <kernel/common/RemoveReference.h>
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    #include <WinSock2.h>
+    #include <profileapi.h> // cpucounter
+#endif
 
 KERNEL_BEGIN
 
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+UInt64 WindowsCrystalRdTsc()
+{
+    LARGE_INTEGER li;
+    QueryPerformanceCounter(&li);
+    return static_cast<UInt64>(li.QuadPart);
+}
+
+UInt64 WindowsCrystalGetCpuCounterFrequancy()
+{
+    LARGE_INTEGER li;
+    QueryPerformanceFrequency(&li);
+    return static_cast<UInt64>(li.QuadPart);
+}
+#endif
 
 KERNEL_END
-
-#endif

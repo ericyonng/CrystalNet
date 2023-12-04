@@ -31,16 +31,17 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-
+    #include <WinSock2.h>
 KERNEL_BEGIN
 
 struct IoData;
 struct IoEvent;
 
-class KERNEL_EXPORT LibIocp
+class LibIocp
 {
 public:
     LibIocp();

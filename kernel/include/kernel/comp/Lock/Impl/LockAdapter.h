@@ -31,11 +31,11 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Lock/Impl/LockType.h>
 #include <kernel/comp/Lock/Impl/SpinLock.h>
 #include <kernel/comp/Lock/Impl/Locker.h>
 #include <kernel/comp/Lock/Impl/ConditionLocker.h>
+#include <kernel/common/status.h>
 
 KERNEL_BEGIN
 

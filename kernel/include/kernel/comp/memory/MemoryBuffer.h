@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include<kernel/kernel_inc.h>
-#include<kernel/comp/LibStack.h>
+#include <kernel/kernel_export.h>
+
 #include<kernel/comp/memory/MemoryBlock.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
@@ -43,7 +43,7 @@ KERNEL_BEGIN
 class MemoryBuffer;
 class MemoryAlloctor;
 
-class KERNEL_EXPORT  MemoryBuffer
+class  MemoryBuffer
 {
 public:
     // 内存大小 = blockSize * blockCnt

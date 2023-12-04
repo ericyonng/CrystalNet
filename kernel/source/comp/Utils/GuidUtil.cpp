@@ -28,8 +28,29 @@
 
 #include <pch.h>
 #include <kernel/comp/Utils/GuidUtil.h>
+#include <string.h>
+#include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Utils/TimeUtil.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+    #include <uuid/uuid.h> // 真正在uuid/uuid.h
+#endif
 
 KERNEL_BEGIN
+
+LibGuid GuidUtil::Gen()
+{
+    LibGuid guid;
+    ::memset(&guid, 0, sizeof(LibGuid));
+
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    uuid_generate(reinterpret_cast<unsigned char *>(&guid));
+#else
+    ::CoCreateGuid(&guid);
+#endif
+
+    return guid;
+}
 
 bool GuidUtil::InitSnowFlake(SnowflakeInfo &historyInfo
 , UInt64 instanceId

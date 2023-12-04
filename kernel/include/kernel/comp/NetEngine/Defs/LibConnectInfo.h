@@ -31,11 +31,10 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
-#include <kernel/comp/NetEngine/Defs/ProtocolType.h>
 #include <kernel/comp/NetEngine/Defs/NetDefs.h>
 #include <kernel/comp/NetEngine/Poller/impl/Session/SessionOption.h>
 
@@ -44,10 +43,7 @@ KERNEL_BEGIN
 class IMsgDispatcher;
 class MessageQueue;
 class LibTimer;
-class INetIo;
 class IProtocolStack;
-class Poller;
-class IServiceLayer;
 
 // TODO:初始化列表未完善
 struct KERNEL_EXPORT LibConnectInfo

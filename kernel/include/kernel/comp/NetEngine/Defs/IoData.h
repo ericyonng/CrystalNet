@@ -31,8 +31,14 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/common/macro.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <kernel/comp/memory/ObjPoolMacro.h>
+ #include <ws2def.h>
+ #include <minwinbase.h>
+ #include <string.h>
+#endif
 
 KERNEL_BEGIN
 
@@ -42,7 +48,7 @@ template<typename BuildType>
 class LibStream;
 // template class LibStream<_Build::TL>;
 
-struct KERNEL_EXPORT IoData
+struct IoData
 {
     POOL_CREATE_OBJ_DEFAULT(IoData);
 

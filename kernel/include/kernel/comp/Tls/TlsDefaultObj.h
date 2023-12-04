@@ -31,10 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Tls/ITlsObj.h>
 #include <kernel/comp/Tls/Defs.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <string>
 
 KERNEL_BEGIN
 
@@ -43,6 +42,7 @@ class LibThreadPool;
 class TimerMgr;
 class Poller;
 class MemoryAlloctor;
+class SpinLock;
 
 class KERNEL_EXPORT TlsDefaultObj : public ITlsObj
 {
@@ -78,7 +78,7 @@ public:
 
     // 跨线程读写 以下MemoryAlloctor必须都是threadlocal的,且是本线程创建的,否则将引发问题
     // 用于跨线程下内存合并,如果有需要合并则放到这上面, 合并完成后从中移除
-    SpinLock _lck;
+    SpinLock *_lck;
     // 脏队列
     std::set<MemoryAlloctor *> *_durtyList;
     // 上层将脏队列与_headSwap交换 并遍历_headSwap处理合并

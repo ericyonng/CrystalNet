@@ -32,7 +32,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
@@ -47,21 +46,6 @@ struct KERNEL_EXPORT BaseAppOption
     UInt32 _blackWhiteListFlag = 0;                 // 黑白名单模式
     UInt32 _instanceId = 0;                         // 机器id
 };
-
-inline LibString BaseAppOption::ToString() const
-{
-    LibString info;
-
-    info.AppendFormat("_logIniName:%s, ", _logIniName.c_str())
-        .AppendFormat("_iniPath:%s, ", _iniPath.c_str())
-        .AppendFormat("_appMonitorFrameMilliSecInterval:%llu, ", _appMonitorFrameMilliSecInterval)
-        .AppendFormat("_blackWhiteListFlag:%u, ", _blackWhiteListFlag)
-        .AppendFormat("_instanceId:%u, ", _instanceId)
-        ;
-        
-    return info;
-}
-
 
 KERNEL_END
 

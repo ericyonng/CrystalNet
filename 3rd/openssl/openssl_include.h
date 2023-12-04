@@ -21,16 +21,26 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-02-21 19:05:27
+ * Date: 2023-12-04 11:19:53
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_FOR_STD_TYPE_TRAITS_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_FOR_STD_TYPE_TRAITS_H__
+#ifndef __3rd_OPENSSL_OPENSSL_INCLUDE_H__
+#define __3rd_OPENSSL_OPENSSL_INCLUDE_H__
 
 #pragma once
 
-#include <kernel/common/for_std/BasicDataTrait.h>
+#include <openssl/md5.h>
+#include <openssl/aes.h>
+#include <openssl/pem.h>
+#include <openssl/ssl.h>
+#include <openssl/rsa.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/err.h>
+#include <openssl/buffer.h>
+#include <openssl/sha.h>
+#include <openssl/bn.h>
 
 #endif

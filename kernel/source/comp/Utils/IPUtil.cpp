@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/Utils/IPUtil.h>
 #include <kernel/comp/Utils/SocketUtil.h>
+#include <kernel/common/Buffer.h>
 
 KERNEL_BEGIN
 

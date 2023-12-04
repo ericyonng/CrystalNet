@@ -27,7 +27,13 @@
 */
 
 #include <pch.h>
+#include <kernel/common/Buffer.h>
 #include <kernel/comp/LibTime.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+  #include <WinSock2.h>
+#endif
+
 #include <kernel/comp/TimeSlice.h>
 #include <kernel/comp/Utils/StringUtil.h>
 #include <kernel/comp/Utils/TimeUtil.h>

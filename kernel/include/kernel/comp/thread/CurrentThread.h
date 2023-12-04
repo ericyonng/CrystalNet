@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 
 KERNEL_BEGIN

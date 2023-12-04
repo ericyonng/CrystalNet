@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/NetEngine/Poller/impl/PollerMgr.h>
 #include <kernel/comp/NetEngine/Poller/impl/PollerMgrFactory.h>
+#include <kernel/comp/memory/ObjPoolWrap.h>
 
 KERNEL_BEGIN
 

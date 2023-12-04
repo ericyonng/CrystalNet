@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/LibStream.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
 #include <kernel/comp/NetEngine/Protocol/Protocol.h>
 #include <kernel/comp/Log/log.h>

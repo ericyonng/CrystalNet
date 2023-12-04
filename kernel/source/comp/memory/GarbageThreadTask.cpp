@@ -27,9 +27,10 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/Delegate/IDelegate.h>
 #include <kernel/comp/memory/GarbageThreadTask.h>
-#include <kernel/comp/thread/thread.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <kernel/comp/thread/LibThread.h>
+#include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Log/log.h>
 
@@ -44,6 +45,11 @@ GarbageThreadTask::GarbageThreadTask(LibThread *libThread, IDelegate<void> *call
     ,_lck(lck)
 {
 
+}
+
+GarbageThreadTask::~GarbageThreadTask()
+{ 
+    CRYSTAL_DELETE_SAFE(_callback); 
 }
 
 void GarbageThreadTask::Run()

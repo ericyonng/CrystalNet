@@ -31,7 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 

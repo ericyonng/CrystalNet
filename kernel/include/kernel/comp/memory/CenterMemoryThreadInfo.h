@@ -31,11 +31,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <map>
+#include <atomic>
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/Tls/Defs.h>
 #include <kernel/comp/memory/MemoryBlock.h>
-#include <kernel/comp/Tls/TlsStack.h>
 
 KERNEL_BEGIN
 
@@ -45,7 +50,10 @@ class MemoryBuffer;
 struct CenterMemoryProfileInfo;
 class CenterMemoryCollector;
 
-struct KERNEL_EXPORT MergeMemoryAlloctorInfo
+template<TlsStackSize::SizeType TlsSizeType>
+class TlsStack;
+
+struct MergeMemoryAlloctorInfo
 {
     UInt64 _alloctorCreateThreadId; // 分配器创建时所在线程id
 
@@ -56,7 +64,7 @@ struct KERNEL_EXPORT MergeMemoryAlloctorInfo
     std::map<MemoryBuffer *, MergeMemoryBufferInfo *> _memoryBufferRefMergeInfo;
 };
 
-class KERNEL_EXPORT CenterMemoryThreadInfo
+class CenterMemoryThreadInfo
 {
 public:
     CenterMemoryThreadInfo(UInt64 threadId, CenterMemoryCollector *collector);
@@ -136,11 +144,6 @@ ALWAYS_INLINE void CenterMemoryThreadInfo::PushBlock(MemoryBlock *block)
     ++_historyBlockCount;
 }
 
-ALWAYS_INLINE void CenterMemoryThreadInfo::SetForceFreeIdleBuffer(bool force)
-{
-    _tlsStack->GetDef()->_isForceFreeIdleBuffer = force;
-}
-
 ALWAYS_INLINE bool CenterMemoryThreadInfo::IsEmpty() const
 {
     auto ret = _pendingBlockCount == 0;
@@ -156,11 +159,6 @@ ALWAYS_INLINE bool CenterMemoryThreadInfo::IsQuit() const
 ALWAYS_INLINE void CenterMemoryThreadInfo::SetTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
 {
     _tlsStack = tlsStack;
-}
-
-ALWAYS_INLINE UInt64 CenterMemoryThreadInfo::GetAllocBytes() const
-{
-    return _tlsStack->GetDef()->_alloctorTotalBytes;
 }
 
 KERNEL_END

@@ -35,7 +35,6 @@
 #include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerDirty.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerEvent.h>
-#include <kernel/comp/NetEngine/Poller/Defs/PollerFeature.h>
 #include <kernel/comp/NetEngine/Poller/Defs/TcpPollerConfig.h>
 #include <kernel/comp/NetEngine/Poller/Defs/UdpDefs.h>
 #include <kernel/comp/NetEngine/Poller/Defs/UdpPollerConfig.h>
@@ -43,15 +42,11 @@
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgrFactory.h>
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h>
 #include <kernel/comp/NetEngine/Poller/impl/Session/SessionOption.h>
-#include <kernel/comp/NetEngine/Poller/impl/Session/LibSession.h>
-#include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpPoller.h>
-#include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpSession.h>
-#include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpPoller.h>
-#include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpSession.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgr.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgrFactory.h>
 #include <kernel/comp/NetEngine/Poller/impl/PollerMgr.h>
 #include <kernel/comp/NetEngine/Poller/impl/PollerMgrFactory.h>
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
+#include <kernel/comp/NetEngine/Poller/impl/Session/LibSession.h>
 
 #endif

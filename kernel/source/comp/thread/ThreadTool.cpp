@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/common/Buffer.h>
 #include <kernel/comp/thread/ThreadTool.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Tls/Tls.h>

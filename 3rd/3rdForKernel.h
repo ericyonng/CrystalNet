@@ -34,17 +34,8 @@
 // openssl
 
 // openssl 请注意内存释放
-#include <openssl/md5.h>
-#include <openssl/aes.h>
-#include <openssl/pem.h>
-#include <openssl/ssl.h>
-#include <openssl/rsa.h>
-#include <openssl/evp.h>
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/buffer.h>
-#include <openssl/sha.h>
-#include <openssl/bn.h>
+
+#include <3rd/openssl/openssl_include.h>
 
 #ifdef _WIN32
 

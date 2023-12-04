@@ -31,10 +31,8 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Cpu/LibCpuCounter.h>
-#include <kernel/comp/Log/log.h>
 
 KERNEL_BEGIN
 

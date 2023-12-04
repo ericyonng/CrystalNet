@@ -31,10 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/BitUtil.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 
 KERNEL_BEGIN
 
@@ -80,25 +79,9 @@ struct KERNEL_EXPORT CloseSessionInfo
         return BitUtil::IsSet(_reason, reasonFlag);
     }
 
-    LibString ToString() const
-    {
-        LibString reason;
-        reason.AppendFormat("_reason = [%llu, %llx, %s], _lastErrNo=[%d]", _reason, _reason, ToReasonString(_reason).c_str(),  _lastErrNo);
+    LibString ToString() const;
 
-        return reason;
-    }
-
-    LibString ToReasonString(UInt64 reason) const
-    {  
-        LibString info;
-        for(UInt64 idx = CloseSessionInfo::NONE; idx < CloseSessionInfo::REASON_END; ++idx)
-        {
-            if(IsMask(idx))
-                info.AppendFormat("%s|", _TurnStr(static_cast<Int32>(idx)));
-        }
-
-        return info;
-    }
+    LibString ToReasonString(UInt64 reason) const;
 
     static const Byte8 *GetCloseReason(Int32 reason)
     {

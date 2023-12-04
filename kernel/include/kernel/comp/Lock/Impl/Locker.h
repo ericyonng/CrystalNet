@@ -50,6 +50,10 @@ public:
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     bool IsOtherThreadOwnLock() const;
+
+    void WinLock();
+    void WinUnlock();
+    bool WinTryLock();
 #endif
 
 protected:
@@ -59,7 +63,7 @@ protected:
 ALWAYS_INLINE void Locker::Lock()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    ::EnterCriticalSection(&(_handle));
+    WinLock();
 #else
     pthread_mutex_lock(&(_handle));
 #endif
@@ -68,7 +72,7 @@ ALWAYS_INLINE void Locker::Lock()
 ALWAYS_INLINE void Locker::Unlock()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    ::LeaveCriticalSection(&(_handle));
+    WinUnlock();
 #else
     pthread_mutex_unlock(&(_handle));
 #endif
@@ -77,7 +81,7 @@ ALWAYS_INLINE void Locker::Unlock()
 ALWAYS_INLINE bool Locker::TryLock()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    return ::TryEnterCriticalSection(&(_handle));
+    return WinTryLock();
 #else
     return ::pthread_mutex_trylock(&(_handle)) == 0;
     // if (LIKELY(ret == 0))

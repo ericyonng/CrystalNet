@@ -29,17 +29,27 @@
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_IMPL_TCP_EPOLL_TCP_POLLER_H__
 #define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_IMPL_TCP_EPOLL_TCP_POLLER_H__
 
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/CompObject/CompObjectInc.h>
-#include <kernel/comp/NetEngine/Poller/Defs/PollerEvent.h>
+#include <kernel/common/macro.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+
+#include <kernel/common/LibObject.h>
+#include <kernel/comp/CompObject/CompHostObject.h>
 #include <kernel/comp/LibList.h>
-#include <kernel/comp/LibDirtyHelper.h>
+
+#include <vector>
+#include <list>
+#include <set>
+#include <map>
+#include <atomic>
 
 KERNEL_BEGIN
+
+class Variant;
+
+struct PollerEvent;
 
 class Poller;
 class EpollTcpSession;
@@ -57,7 +67,11 @@ class IServiceProxy;
 struct IpControlInfo;
 class TlsMemoryCleanerComp;
 
-class KERNEL_EXPORT EpollTcpPoller : public CompHostObject
+
+template<typename KeyType, typename MaskValue>
+class LibDirtyHelper;
+
+class EpollTcpPoller : public CompHostObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, EpollTcpPoller);
 

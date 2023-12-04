@@ -33,9 +33,8 @@
 #pragma once
 
 #include <kernel/kernel_export.h>
-#include <kernel/common/type.h>
-#include <kernel/common/libs.h>
-#include <kernel/common/macro.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 #include <kernel/common/LibObject.h>
 
 KERNEL_BEGIN
@@ -93,14 +92,14 @@ extern void KernelFreeMemoryBy(void *pool, void *ptr);
 
 // 类型转换
 template<typename T>
-inline T *KernelCastTo(void *p)
+ALWAYS_INLINE T *KernelCastTo(void *p)
 {
     return reinterpret_cast<T *>(p);
 }
 
 // 类型转换
 template<typename T>
-inline T *KernelCastTo(const void *p)
+ALWAYS_INLINE T *KernelCastTo(const void *p)
 {
     return reinterpret_cast<T *>(const_cast<void *>(p));
 }
@@ -119,99 +118,10 @@ ALWAYS_INLINE void *KernelToVoid(const T *ptr)
     return const_cast<T *>(ptr);
 }
 
-// 序列化的rdtsc
-KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalRdTsc()
-{
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-    UInt64 var;
-    __asm__ volatile ("lfence\n\t"
-                    "rdtsc\n\t"  
-                    "shl $32,%%rdx;"
-                    "or %%rdx,%%rax;"
-                    "mov %%rax, %0;"
-                    "lfence\n\t":"=r"(var)
-                    ::"%rax", "%rbx", "%rcx", "%rdx");
-
-    return var;
-#endif
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    LARGE_INTEGER li;
-    ::QueryPerformanceCounter(&li);
-    return static_cast<UInt64>(li.QuadPart);
-#endif
-}
-
-// 序列化的rdtsc 10ns级别
-KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalNativeRdTsc()
-{
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-    UInt32 low, high;
-    __asm__ volatile ("rdtsc" : "=a"(low), "=d"(high));
-
-    return (low) | ((UInt64)(high) << 32);
-#endif
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    LARGE_INTEGER li;
-    ::QueryPerformanceCounter(&li);
-    return static_cast<UInt64>(li.QuadPart);
-#endif
-}
-
-// 获取rdtsc frequancy 一个程序只需要get一次即可
-KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalGetCpuCounterFrequancy()
-{
-// 只有在x86下才有rdtsc
-#if CRYSTAL_TARGET_PROCESSOR_X86_64 ||  CRYSTAL_TARGET_PROCESSOR_X86
-    // windows下只需要使用api不需要使用tsc
-    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-        LARGE_INTEGER li;
-        ::QueryPerformanceFrequency(&li);
-        return static_cast<UInt64>(li.QuadPart);
-    #else
-        // params
-        // struct timespec tpStart, tpEnd;
-        UInt64 tscStart, tscEnd;
-
-        // start calculate using clock_gettime CLOCK_MONOTONIC nanoseconds since system boot
-        // UInt64 startNano = ::clock_gettime(CLOCK_MONOTONIC, &tpStart);    // start time
-        tscStart = CrystalRdTsc();   
-        ::sleep(1);
-        tscEnd = CrystalRdTsc();
-        //::clock_gettime(CLOCK_MONOTONIC, &tpEnd);
-
-        // calculate elapsed
-        // const UInt64 nanoEndTime = ((tpEnd.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND) + tpEnd.tv_nsec);
-        // const UInt64 nanoStartTime = (tpStart.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tpStart.tv_nsec);
-        // const UInt64 nanosecElapsed = nanoEndTime - nanoStartTime;
-        // const UInt64 tscElapsed = tscEnd - tscStart;
-
-        // calculate tsc frequancy = elapsedTsc * nanoSecondPerSecond / elapsedNanoSecond;
-        // return tscElapsed * TimeDefs::NANO_SECOND_PER_SECOND / nanosecElapsed;
-        return tscEnd - tscStart;
-    #endif
-#else
-    return CRYSTAL_INFINITE;
-#endif
-}
-
 KERNEL_EXPORT SpinLock &GetConsoleLocker();
 KERNEL_EXPORT void LockConsole();
 KERNEL_EXPORT void UnlockConsole();
 
-// KERNEL_EXPORT SpinLock& GetBackTraceLock();
-// KERNEL_EXPORT void LockBackTrace();
-// KERNEL_EXPORT void UnlockBackTrace();
-
-KERNEL_EXPORT LibString &KernelAppendFormat(LibString &o, const Byte8 *fmt, ...) LIB_KERNEL_FORMAT_CHECK(2, 3);
-
 KERNEL_END
-
-// extern KERNEL_EXPORT std::atomic<Int64> g_TotalBytes;
-// extern KERNEL_EXPORT std::string g_MemleakBackTrace;
-
-// extern void *operator new(size_t bytes);
-// extern void *operator new[](size_t bytes);
 
 #endif

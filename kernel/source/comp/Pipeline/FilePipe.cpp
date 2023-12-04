@@ -27,10 +27,11 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/File/FileCursorOffsetType.h>
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Pipline/PipeType.h>
-
+#include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/comp/Pipline/FilePipe.h>
 
 KERNEL_BEGIN

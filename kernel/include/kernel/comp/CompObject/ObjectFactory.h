@@ -32,8 +32,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 
 KERNEL_BEGIN
 

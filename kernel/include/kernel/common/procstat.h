@@ -31,13 +31,11 @@
 
 #pragma once
 
-#include <kernel/kernel_export.h>
-#include <kernel/common/macro.h>
-#include <kernel/common/type.h>
+#include <kernel/common/BaseMacro.h>
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT ProcStat
+class ProcStat
 {
 public:
     enum
@@ -56,7 +54,7 @@ public:
     };
 };
 
-class KERNEL_EXPORT ProcPidStat
+class ProcPidStat
 {
 public:
     enum

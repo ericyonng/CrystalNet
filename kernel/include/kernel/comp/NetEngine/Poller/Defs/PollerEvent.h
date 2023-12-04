@@ -44,12 +44,13 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
 #include <kernel/comp/LibList.h>
-#include <kernel/comp/NetEngine/Defs/IoEvent.h>
 #include <kernel/comp/Poller/PollerEvent.h>
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
+
+#include <kernel/comp/NetEngine/Poller/Defs/PollerEventType.h>
+
+#include <vector>
 
 KERNEL_BEGIN
 
@@ -57,8 +58,6 @@ struct LibConnectInfo;
 template<typename T>
 class LibStream;
 class LibPacket;
-struct BuildSessionInfo;
-struct LibListenInfo;
 
 // poller网络事件
 // class KERNEL_EXPORT PollerNetEventType
@@ -75,187 +74,6 @@ struct LibListenInfo;
 //     };
 // };
 
-class KERNEL_EXPORT PollerEventType
-{
-public:
-    enum Type
-    {
-        EvNone = 0,                 // 无效
-        Write = 1,                  // 发数据 框架层监听的事件
-        AsynConnect = 2,            // 连接 框架层监听的事件
-        NewSession = 3,             // connect/accept suc 框架层监听的事件
-        Monitor = 4,                // 监听器事件 框架层监听的事件
-        CloseSession = 5,           // 关闭 框架层监听的事件
-        AddListen = 6,              // 监听事件 框架层监听的事件
-
-
-        SessionCreated = 7,         // 会话创建（连入,连出） 业务层监听的事件
-        AsynConnectRes = 8,         // 连接回执 业务层监听的事件
-        AddListenRes = 9,           // 监听回执 业务层监听的事件
-        SessionDestroy = 10,        // 会话销毁 业务层监听事件
-        RecvMsg = 11,               // 收到网络消息 业务层监听事件
-
-        IpRuleControl = 12,         // ip规则控制
-        QuitServiceSessionsEvent = 13,  // 退出所有session
-        QuitServiceEvent = 14,  // 退出service
-        RealDoQuitServiceSessionEvent = 15, // 真正的踢session
-
-        QuitApplicationEvent = 16, // 退出app事件
-        EvMax,                      // 枚举
-    };
-
-    static const Byte8 *ToString(Int32 type)
-    {
-        switch(type)
-        {
-        case PollerEventType::EvNone: return "EvNone";
-        case PollerEventType::Write: return "Write";                // 框架层监听的事件
-        case PollerEventType::AsynConnect: return "AsynConnect";    // 框架层监听的事件
-        case PollerEventType::NewSession: return "NewSession";      // 框架层监听的事件
-        case PollerEventType::Monitor: return "Monitor";            // 框架层监听的事件
-        case PollerEventType::CloseSession: return "CloseSession";  // 框架层监听的事件
-        case PollerEventType::AddListen: return "AddListen";        // 框架层监听的事件
-        case PollerEventType::IpRuleControl: return "IpRuleControl";  // 框架层监听的事件
-        case PollerEventType::QuitServiceSessionsEvent: return "QuitServiceSessionsEvent";  // 退出所有会话 框架层监听的事件
-
-        case PollerEventType::SessionCreated: return "SessionCreated";  // 业务层监听的事件
-        case PollerEventType::AsynConnectRes: return "AsynConnectRes";  // 业务层监听的事件 res之前会先收到SessionCreated事件,初始化业务层session, 然后收到res
-        case PollerEventType::AddListenRes: return "AddListenRes";  // 业务层监听的事件 res之前会先收到SessionCreated事件,初始化业务层session, 然后收到res
-        case PollerEventType::SessionDestroy: return "SessionDestroy";  // 会话销毁 业务层监听事件
-        case PollerEventType::RecvMsg: return "RecvMsg";  // 收到网络消息 业务层监听事件
-        case PollerEventType::QuitServiceEvent: return "QuitServiceEvent";  // 退出服务 业务层监听事件
-        case PollerEventType::QuitApplicationEvent: return "QuitApplicationEvent";  // 退出app
-        default:
-            break;
-        };
-
-        return "Unknown";
-    }
-};
-
-struct KERNEL_EXPORT MonitorPollerEvent : public PollerEvent
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, MonitorPollerEvent);
-    
-    MonitorPollerEvent();
-    ~MonitorPollerEvent();
-    virtual void Release();
-    LibString ToString() const override;
-
-    #if CRYSTAL_TARGET_PLATFORM_LINUX
-        union
-        {
-            Byte8 *_bytes;          // 内存池创建epoll_event 的缓存
-            epoll_event *_epEvents;
-        }_epEvents;                     // 事件数组
-        Int32 _count;                   // 事件个数
-    #endif
-
-    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-        IoEvent _io;
-        Int32 _errCode;
-    #endif
-};
-
-struct KERNEL_EXPORT AsynSendEvent : public PollerEvent
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AsynSendEvent);
-
-    AsynSendEvent();
-    ~AsynSendEvent();
-    virtual void Release();
-    LibString ToString() const override;
-
-    UInt64 _sessionId; 
-    LibList<LibPacket *> *_packets;
-};
-
-struct KERNEL_EXPORT AsynConnectEvent : public PollerEvent
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AsynConnectEvent);
-
-    AsynConnectEvent();
-    virtual void Release();
-    LibString ToString() const override;
-
-    LibConnectInfo *_connectInfo;
-};
-
-// 新建会话
-struct KERNEL_EXPORT NewSessionEvent : public PollerEvent
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, NewSessionEvent);
-
-    NewSessionEvent();
-    virtual void Release();
-    LibString ToString() const override;
-
-    BuildSessionInfo *_buildInfo;
-};
-
-// 关闭:对端关闭保留读消息,本端关闭,保留写消息
-struct KERNEL_EXPORT CloseSessionEvent : public PollerEvent
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, CloseSessionEvent);
-
-    CloseSessionEvent();
-    virtual void Release();
-    LibString ToString() const override;
-
-    UInt64 _sessionId;
-    UInt64 _fromServiceId;
-    UInt32 _priorityLevel;
-    Int64 _closeMillisecondTime;  // 指定关闭时间戳 延迟关闭一般是为了保证底层消息的正常到达远端
-    UInt64 _stub;
-    bool _forbidRead;
-    bool _forbidWrite;
-};
-
-// 根据serviceId关闭所有session
-struct KERNEL_EXPORT QuitServiceSessionsEvent : public PollerEvent
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, QuitServiceSessionsEvent);
-
-    QuitServiceSessionsEvent();
-    virtual void Release();
-    LibString ToString() const override;
-
-    UInt64 _fromServiceId;
-    UInt32 _priorityLevel;
-};
-
-struct KERNEL_EXPORT QuitSessionInfo
-{
-    POOL_CREATE_OBJ_DEFAULT(QuitSessionInfo);
-
-    UInt64 _sessionId;
-    UInt32 _priorityLevel;
-};
-
-struct KERNEL_EXPORT RealDoQuitServiceSessionEvent : public PollerEvent
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, RealDoQuitServiceSessionEvent);
-    RealDoQuitServiceSessionEvent();
-    ~RealDoQuitServiceSessionEvent();
-
-    virtual void Release();
-    LibString ToString() const override;
-
-    UInt64 _fromServiceId;
-    LibList<QuitSessionInfo *> *_quitSessionInfo;
-};
-
-// 监听
-struct KERNEL_EXPORT AddListenEvent : public PollerEvent
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AddListenEvent);
-    AddListenEvent();
-
-    virtual void Release();
-    LibString ToString() const override;
-
-    std::vector<LibListenInfo *> _addListenInfoList;
-};
 
 // 监听
 struct KERNEL_EXPORT SessionCreatedEvent : public PollerEvent
@@ -377,22 +195,6 @@ struct KERNEL_EXPORT IpControlInfo
 
     std::vector<Int32> _controlFlow;    // 控制流
     LibString _ip;   // ip
-};
-
-// ip规则控制
-struct KERNEL_EXPORT IpRuleControlEvent : public PollerEvent
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, IpRuleControlEvent);
-
-    IpRuleControlEvent();
-    ~IpRuleControlEvent();
-
-    static IpRuleControlEvent *Create();
-    virtual void Release();
-
-    LibString ToString() const override;
-
-    std::list<IpControlInfo *> _ipControlList;
 };
 
 // 退出服务

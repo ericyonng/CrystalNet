@@ -35,14 +35,20 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
 #include <kernel/comp/Utils/Defs/TlsDefs.h>
-#include <kernel/comp/Tls/Tls.h>
-#include <kernel/comp/memory/MemoryPool.h>
-#include <kernel/comp/Utils/AllocUtil.h>
-#include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Tls/Defs.h>
+#include <kernel/comp/Tls/TlsStack.h>
+#include <kernel/comp/Tls/TlsMemoryAlloctor.h>
 
 KERNEL_BEGIN
+
+class MemoryPool;
+
+class TlsMemoryPool;
+
+template<typename ObjPoolType>
+class TlsObjectPool;
 
 class KERNEL_EXPORT TlsUtil
 {
@@ -106,30 +112,6 @@ ALWAYS_INLINE void TlsUtil::DestroyTlsStack()
     DestroyTlsStack(tlsStack);
 }
 
-ALWAYS_INLINE void TlsUtil::DestroyTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
-{
-    tlsStack->FreeAll();
-    // memPool->Free(tlsStack);
-
-    // 设置null
-    if(tlsStack->GetThreadId() == SystemUtil::GetCurrentThreadId())
-        SetTlsValueNull();
-
-    Byte8 *ptr = reinterpret_cast<Byte8 *>(tlsStack);
-    CRYSTAL_DELETE_SAFE(ptr);
-}
-
-ALWAYS_INLINE void TlsUtil::SetTlsValueNull()
-{
-    // 设置null
-    auto &handle = GetUtileTlsHandle();
-    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-            (void)pthread_setspecific(handle, NULL);
-    #else
-            (void)::TlsSetValue(handle, NULL);
-    #endif
-}
-
 template<typename MemAlloctorType, typename MemAloctorCfgType>
 ALWAYS_INLINE MemAlloctorType *TlsUtil::GetMemoryAlloctor(UInt64 allocUnitBytes)
 {
@@ -144,16 +126,6 @@ ALWAYS_INLINE MemAlloctorType *TlsUtil::CreateMemoryAlloctor(UInt64 allocUnitByt
     // static_assert(false, "forbid use CreateMemoryAlloctor");
     TlsMemoryAlloctor *alloctorHost = GetTlsMemoryAlloctorHost();
     return alloctorHost->CreateMemoryAlloctor<MemAlloctorType, MemAloctorCfgType>(allocUnitBytes, initBlockNumPerBuffer, source);
-}
-
-ALWAYS_INLINE MemoryPool *TlsUtil::GetMemoryPool()
-{
-    return GetTlsMemoryPoolHost()->GetPool<MemoryPool>();
-}
-
-ALWAYS_INLINE MemoryPool *TlsUtil::CreateMemoryPool(const std::string &reason)
-{
-    return GetTlsMemoryPoolHost()->CreatePool<MemoryPool, InitMemoryPoolInfo>(reason);
 }
 
 ALWAYS_INLINE void TlsUtil::ClearTlsResource()
@@ -190,44 +162,6 @@ ALWAYS_INLINE TlsMemoryAlloctor *TlsUtil::GetTlsMemoryAlloctorHost()
 ALWAYS_INLINE TlsMemoryPool *TlsUtil::GetTlsMemoryPoolHost()
 {
     return *GetTlsMemoryPoolHostThreadLocalAddr();
-}
-
-ALWAYS_INLINE TlsMemoryPool **TlsUtil::GetTlsMemoryPoolHostThreadLocalAddr()
-{
-    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsMemoryPool *tlsPool = NULL;
-    if(UNLIKELY(!tlsPool))
-    {
-        tlsPool = TlsUtil::GetTlsStack()->New<TlsMemoryPool>();
-    }
-
-    return &tlsPool;
-}
-
-ALWAYS_INLINE TlsHandle TlsUtil::CreateTlsHandle()
-{
-    bool tlsCreated = false;
-    TlsHandle tlsHandle = INVALID_TLS_HANDLE;
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    tlsCreated = (pthread_key_create(&tlsHandle, NULL) == 0) ? true : false;
-#else
-    tlsCreated = ((tlsHandle = ::TlsAlloc()) != TLS_OUT_OF_INDEXES) ? true : false;
-#endif
-
-    if(!tlsCreated)
-        return INVALID_TLS_HANDLE;
-
-    return tlsHandle;
-}
-
-ALWAYS_INLINE void TlsUtil::DestroyTlsHandle(TlsHandle &tlsHandle)
-{
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    (void)pthread_key_delete(tlsHandle);
-#else
-    (void)::TlsFree(tlsHandle);
-#endif
-
-    tlsHandle = INVALID_TLS_HANDLE;
 }
 
 KERNEL_END

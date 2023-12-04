@@ -32,9 +32,7 @@
 #pragma once
 
 #include <kernel/kernel_export.h>
-#include <kernel/common/type.h>
-#include <kernel/common/libs.h>
-#include <kernel/common/for_std/TypeTraits.h>
+#include <kernel/common/BasicDataTrait.h>
 #include <kernel/common/RemoveReference.h>
 
 KERNEL_BEGIN
@@ -144,7 +142,7 @@ _IsConst, _IsBreifData, _IsArray, _IsUnion, _IsClass, _IsFunction, _IsVoid, true
 template<typename _Ty>
 class LibTraitsDataType 
 : public KernelTraitsDataType< std::is_const<_Ty>::value 
-                        , std::is_basic_data<RemoveReferenceType<_Ty>>::value
+                        , is_basic_data<RemoveReferenceType<_Ty>>::value
                         , std::is_array<RemoveReferenceType<_Ty>>::value
                         , std::is_union<RemoveReferenceType<_Ty>>::value
                         , std::is_class<RemoveReferenceType<_Ty>>::value

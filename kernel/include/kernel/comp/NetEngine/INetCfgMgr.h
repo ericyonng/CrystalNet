@@ -31,7 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 
@@ -62,17 +64,17 @@ protected:
     
 };
 
-inline Int64 INetCfgMgr::GetConnectorTimeoutMsPerTimes() const
+ALWAYS_INLINE Int64 INetCfgMgr::GetConnectorTimeoutMsPerTimes() const
 {
     return _connectTimoutMsPerTimes;
 }
 
-inline Int64 INetCfgMgr::GetReconnectTimes() const
+ALWAYS_INLINE Int64 INetCfgMgr::GetReconnectTimes() const
 {
     return _reconnectTimes;
 }
 
-inline UInt32 INetCfgMgr::GetConnectorBlackWhiteFlagMode() const
+ALWAYS_INLINE UInt32 INetCfgMgr::GetConnectorBlackWhiteFlagMode() const
 {
     return _connectBlackWhiteFlagMode;
 }

@@ -51,6 +51,14 @@ LibString PollerEvent::ToString() const
     return LibString().AppendFormat("poller event type:%d, obj name:%s", _type, RttiUtil::GetByObj(this));
 }
 
+ActionPollerEvent::~ActionPollerEvent()
+{
+    if(_action)
+        _action->Release();
+
+    _action = NULL;
+}
+
 void ActionPollerEvent::Release()
 {
     ActionPollerEvent::Delete_ActionPollerEvent(this);

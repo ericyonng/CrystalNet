@@ -33,4 +33,24 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(CloseSessionInfo);
 
+LibString CloseSessionInfo::ToString() const
+{
+    LibString reason;
+    reason.AppendFormat("_reason = [%llu, %llx, %s], _lastErrNo=[%d]", _reason, _reason, ToReasonString(_reason).c_str(),  _lastErrNo);
+
+    return reason;
+}
+
+LibString CloseSessionInfo::ToReasonString(UInt64 reason) const
+{  
+    LibString info;
+    for(UInt64 idx = CloseSessionInfo::NONE; idx < CloseSessionInfo::REASON_END; ++idx)
+    {
+        if(IsMask(idx))
+            info.AppendFormat("%s|", _TurnStr(static_cast<Int32>(idx)));
+    }
+
+    return info;
+}
+
 KERNEL_END

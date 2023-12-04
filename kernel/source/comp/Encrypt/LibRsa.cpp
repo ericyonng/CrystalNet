@@ -27,13 +27,59 @@
 */
 
 #include <pch.h>
-#include <kernel/comp/Encrypt/LibRsa.h>
+
+#include <kernel/common/macro.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+  #include <WinSock2.h>
+#endif
+
 #include <kernel/comp/memory/MemoryPool.h>
 #include <kernel/comp/Coder/base64.h>
 #include <kernel/comp/Utils/BitUtil.h>
+#include <kernel/comp/Utils/FileUtil.h>
+
+// openssl 请注意内存释放
+#include <openssl/pem.h>
+#include <openssl/ssl.h>
+#include <openssl/rsa.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/err.h>
+#include <openssl/buffer.h>
+#include <openssl/bn.h>
+
+#include <kernel/comp/Encrypt/LibRsa.h>
 
 
 KERNEL_BEGIN
+
+const Int32 LibRsaDefs::PADDING_MODE_BEGIN = 0;
+const Int32 LibRsaDefs::PADDING_MODE_PKCS1_PADDING = RSA_PKCS1_PADDING;
+const Int32 LibRsaDefs::PADDING_MODE_NO_PADDING = RSA_NO_PADDING;
+const Int32 LibRsaDefs::PADDING_MODE_PKCS1_OAEP_PADDING = RSA_PKCS1_OAEP_PADDING;
+const Int32 LibRsaDefs::PADDING_MODE_END =  RSA_PKCS1_OAEP_PADDING + 1;
+
+const Int32 LibRsaDefs::DIGEST_TYPE_SHA1 = NID_sha1;
+const Int32 LibRsaDefs::DIGEST_TYPE_SHA224 = NID_sha224;
+const Int32 LibRsaDefs::DIGEST_TYPE_SHA256 = NID_sha256;
+const Int32 LibRsaDefs::DIGEST_TYPE_SHA384 = NID_sha384;
+const Int32 LibRsaDefs::DIGEST_TYPE_SHA512 = NID_sha512;
+const Int32 LibRsaDefs::DIGEST_TYPE_MD5 = NID_md5;
+
+static ALWAYS_INLINE  Int32 GetPaddingSize(Int32 padding)
+{
+    static const Int32 paddingSize[LibRsaDefs::PADDING_MODE_END] = {
+        -1,
+        RSA_PKCS1_PADDING_SIZE, // PKCS1_PADDING size
+        -1,
+        0, // RSA_NO_PADDING 不填充
+        41, // RSA_PKCS1_OAEP_PADDING 
+    };
+
+    return paddingSize[padding];
+}
+
 LibRsa::LibRsa()
 :_mode(LibRsa::PUB_ENCRYPT_PRIV_DECRYPT)
 ,_pubRsa(NULL)
@@ -48,10 +94,10 @@ LibRsa::LibRsa()
 LibRsa::~LibRsa()
 {
     if(_pubRsa)
-        RSA_free(_pubRsa);
+        RSA_free((RSA *)_pubRsa);
 
     if(_privateRsa)
-        RSA_free(_privateRsa);
+        RSA_free((RSA *)_privateRsa);
 }
 
 bool LibRsa::GenKey(Int32 keyBits, UInt32 flags, bool needImport)
@@ -293,7 +339,7 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
 
         // 释放公钥 TODO:需要检测内存增长情况,网上反馈有内存泄漏
         if(UNLIKELY(_pubRsa))
-            RSA_free(_pubRsa);
+            RSA_free((RSA *)_pubRsa);
 
         // 从已有的内存字符串创建bio
         BIO *bio = BIO_new_mem_buf(pubKey->c_str(), -1);
@@ -301,7 +347,7 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
         if((flags & LibRsa::PUB_PKC1_FLAG) == LibRsa::PUB_PKC1_FLAG)
         {
             // pkc#1 PEM_read_bio_RSAPublicKey pkc#8 PEM_read_bio_RSA_PUBKEY
-            _pubRsa = PEM_read_bio_RSAPublicKey(bio, &_pubRsa, NULL, NULL);
+            _pubRsa = PEM_read_bio_RSAPublicKey(bio, (RSA **)(&_pubRsa), NULL, NULL);
             BIO_free(bio);
 
             if(!_pubRsa)
@@ -313,7 +359,7 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
         else if((flags & LibRsa::PUB_PKC8_FLAG) == LibRsa::PUB_PKC8_FLAG)
         {
             // pkc#1 PEM_read_bio_RSAPublicKey pkc#8 PEM_read_bio_RSA_PUBKEY
-            _pubRsa = PEM_read_bio_RSA_PUBKEY(bio, &_pubRsa, NULL, NULL);
+            _pubRsa = PEM_read_bio_RSA_PUBKEY(bio, (RSA **)&_pubRsa, NULL, NULL);
             BIO_free(bio);
 
             if(!_pubRsa)
@@ -330,12 +376,12 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
         }
 
         // key的位数
-        Int32 lenBits = static_cast<Int32>(RSA_size(_pubRsa)) * 8;
+        Int32 lenBits = static_cast<Int32>(RSA_size((RSA *)_pubRsa)) * 8;
         pubBits = __getBits(lenBits);
         if(UNLIKELY(!pubBits))
         {
             CRYSTAL_TRACE("pub key not surport lenBits = [%d]", lenBits);
-            RSA_free(_pubRsa);
+            RSA_free((RSA *)_pubRsa);
             _pubRsa = NULL;
             return false;
         }
@@ -351,10 +397,10 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
 
         // 释放私钥 TODO:需要检测内存增长情况,网上反馈有内存泄漏
         if(UNLIKELY(_privateRsa))
-            RSA_free(_privateRsa);
+            RSA_free((RSA *)_privateRsa);
 
         BIO *bio = BIO_new_mem_buf(privateKey->c_str(), -1);
-        _privateRsa = PEM_read_bio_RSAPrivateKey(bio, &_privateRsa, NULL, NULL);
+        _privateRsa = PEM_read_bio_RSAPrivateKey(bio, (RSA **)&_privateRsa, NULL, NULL);
         BIO_free(bio);
         
         if(!_privateRsa)
@@ -364,7 +410,7 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
         }
 
         // key的位数
-        Int32 lenBits = static_cast<Int32>(RSA_size(_privateRsa)) * 8;
+        Int32 lenBits = static_cast<Int32>(RSA_size((RSA *)_privateRsa)) * 8;
         privateBits = __getBits(lenBits);
         if(UNLIKELY(!privateBits))
         {
@@ -372,11 +418,11 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
 
             if(_pubRsa)
             {
-                RSA_free(_pubRsa);
+                RSA_free((RSA *)_pubRsa);
                 _pubRsa = NULL;
             }
 
-            RSA_free(_privateRsa);
+            RSA_free((RSA *)_privateRsa);
             _privateRsa = NULL;
 
             return false;
@@ -391,9 +437,9 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
         CRYSTAL_TRACE("private key pub key not match!!!! privateBits=[%d], pubBits=[%d]"
         , privateBits, pubBits);
 
-        RSA_free(_pubRsa);
+        RSA_free((RSA *)_pubRsa);
         _pubRsa = NULL;
-        RSA_free(_privateRsa);
+        RSA_free((RSA *)_privateRsa);
         _privateRsa = NULL;
 
         return false;
@@ -411,9 +457,9 @@ bool LibRsa::ImportKey(const LibString *pubKey, const LibString *privateKey, UIn
 Int32 LibRsa::PubKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText)
 {
     // 填充长度
-    const Int32 paddingSize = LibRsaDefs::GetPaddingSize(_padding);
+    const Int32 paddingSize = GetPaddingSize(_padding);
     // 求出有效限制的长度
-    const Int64 effectSize = static_cast<Int64>(RSA_size(_pubRsa) - paddingSize);
+    const Int64 effectSize = static_cast<Int64>(RSA_size((RSA *)_pubRsa) - paddingSize);
     
     // 循环分组加密
     UInt64 blockSizeToHandle = 0;
@@ -422,7 +468,7 @@ Int32 LibRsa::PubKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherT
     {
         blockSizeToHandle = (plainTextLen < effectSize) ? plainTextLen : effectSize;
         Int32 enBytes = RSA_public_encrypt(static_cast<Int32>(blockSizeToHandle), plainText
-        , cypherText, _pubRsa, _padding);
+        , cypherText, (RSA *)_pubRsa, _padding);
 
         if(UNLIKELY(enBytes <= 0))
         {
@@ -470,14 +516,14 @@ Int32 LibRsa::PrivateKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_N
 Int32 LibRsa::PrivateKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText)
 {
     // 模长即输出的长度
-    const Int64 modulusSize = static_cast<Int64>(RSA_size(_privateRsa));
+    const Int64 modulusSize = static_cast<Int64>(RSA_size((RSA *)_privateRsa));
 
     // 循环分组解密
     Int32 totalDecodeBytes = 0;
     while (cypherLen)
     {
         Int32 decodeLen = RSA_private_decrypt(static_cast<Int32>(modulusSize), cypherText
-            , plainText, _privateRsa, _padding);
+            , plainText, (RSA *)_privateRsa, _padding);
         if(UNLIKELY(decodeLen <= 0))
         {
             CRYSTAL_TRACE("RSA_private_decrypt fail totalDecodeBytes = [%d]", totalDecodeBytes);
@@ -538,9 +584,9 @@ Int32 LibRsa::PrivateKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS
 Int32 LibRsa::PrivateKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cypherText)
 {
         // 填充长度
-    const Int32 paddingSize = LibRsaDefs::GetPaddingSize(_padding);
+    const Int32 paddingSize = GetPaddingSize(_padding);
     // 求出有效限制的长度
-    const Int64 effectSize = static_cast<Int64>(RSA_size(_privateRsa) - paddingSize);
+    const Int64 effectSize = static_cast<Int64>(RSA_size((RSA *)_privateRsa) - paddingSize);
     
     // 循环分组加密
     UInt64 blockSizeToHandle = 0;
@@ -549,7 +595,7 @@ Int32 LibRsa::PrivateKeyEncrypt(const U8 *plainText, Int64 plainTextLen, U8 *cyp
     {
         blockSizeToHandle = (plainTextLen < effectSize) ? plainTextLen : effectSize;
         auto enBytes = RSA_private_encrypt(static_cast<Int32>(blockSizeToHandle), plainText
-        , cypherText, _privateRsa, _padding);
+        , cypherText, (RSA *)_privateRsa, _padding);
 
         if(UNLIKELY(enBytes <= 0))
         {
@@ -598,13 +644,13 @@ Int32 LibRsa::PubKeyDecrypt(const KERNEL_NS::LibString &cypherText, KERNEL_NS::L
 Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, U8 *plainText)
 {
     // 模长即输出的长度
-    const Int64 modulusSize = static_cast<UInt64>(RSA_size(_pubRsa));
+    const Int64 modulusSize = static_cast<UInt64>(RSA_size((RSA *)_pubRsa));
 
     // 循环分组解密
     Int32 totalDecodeBytes = 0;
     while (cypherLen)
     {
-        auto decodeLen = RSA_public_decrypt(static_cast<Int32>(modulusSize), cypherText, plainText, _pubRsa, _padding);
+        auto decodeLen = RSA_public_decrypt(static_cast<Int32>(modulusSize), cypherText, plainText, (RSA *)_pubRsa, _padding);
         if(UNLIKELY(decodeLen <= 0))
         {
             CRYSTAL_TRACE("RSA_public_decrypt fail totalDecodeBytes = [%d]", totalDecodeBytes);
@@ -643,4 +689,116 @@ Int32 LibRsa::PubKeyDecrypt(const U8 *cypherText, Int64 cypherLen, KERNEL_NS::Li
     return finalBytes;
 }
 
+void LibRsa::PubKeyToFile(FILE *fp)
+{
+    FileUtil::WriteFile(*fp, _pubPkc1Key);
+    FileUtil::FlushFile(*fp);
+}
+
+void LibRsa::PrivateKeyToFile(FILE *fp)
+{
+    FileUtil::WriteFile(*fp, _privateKey);
+    FileUtil::FlushFile(*fp);
+}
+
+UInt64 LibRsa::CalcCypherSizeByPubKeyPlain(UInt64 plainTextSize) const
+{
+    // 填充长度
+    const Int32 paddingSize = GetPaddingSize(_padding);
+    // 模长即输出的长度
+    const UInt64 modulusSize = static_cast<UInt64>(RSA_size((RSA *)_pubRsa));
+    // 求出有效限制的长度
+    const UInt64 effectSize = static_cast<UInt64>(RSA_size((RSA *)_pubRsa) - paddingSize);
+    
+    const auto multiple = plainTextSize / effectSize;
+    const auto leftMultiple = (plainTextSize % effectSize) ? 1 : 0;
+    return (multiple + leftMultiple) * modulusSize + 1;
+}
+
+UInt64 LibRsa::CalcCypherSizeByPrivKeyPlain(UInt64 plainTextSize) const
+{
+    // 填充长度
+    const Int32 paddingSize = GetPaddingSize(_padding);
+    // 模长即输出的长度
+    const UInt64 modulusSize = static_cast<UInt64>(RSA_size((RSA *)_privateRsa));
+    // 求出有效限制的长度
+    const UInt64 effectSize = static_cast<UInt64>(RSA_size((RSA *)_privateRsa) - paddingSize);
+
+    const auto multiple = plainTextSize / effectSize;
+    const auto leftMultiple = (plainTextSize % effectSize) ? 1 : 0;
+    return (multiple + leftMultiple) * modulusSize + 1;
+}
+
+UInt64 LibRsa::CalcPlainSizeByPubKeyCypher(UInt64 cypherLen) const
+{
+    // 填充长度
+    const Int32 paddingSize = GetPaddingSize(_padding);
+    // 模长即输出的长度
+    const UInt64 modulusSize = static_cast<UInt64>(RSA_size((RSA *)_pubRsa));
+    // 求出有效限制的长度
+    const UInt64 effectSize = static_cast<UInt64>(RSA_size((RSA *)_pubRsa) - paddingSize);
+
+    return (cypherLen / modulusSize) * effectSize + 1;
+}
+
+UInt64 LibRsa::CalcPlainSizeByPrivKeyCypher(UInt64 cypherLen) const
+{
+    // 填充长度
+    const Int32 paddingSize = GetPaddingSize(_padding);
+    // 模长即输出的长度
+    const UInt64 modulusSize = static_cast<UInt64>(RSA_size((RSA *)_privateRsa));
+    // 求出有效限制的长度
+    const UInt64 effectSize = static_cast<UInt64>(RSA_size((RSA *)_privateRsa) - paddingSize);
+
+    return (cypherLen / modulusSize) * effectSize + 1;
+}
+
+Int32 LibRsa::PubKeyEncrypt(const KERNEL_NS::LibString &plainText, KERNEL_NS::LibString &cypherText)
+{
+    auto len = static_cast<UInt64>(plainText.size());
+    auto calcLen = CalcCypherSizeByPubKeyPlain(len);
+    cypherText.resize(calcLen);
+    
+    U8 * finalCypher = (U8 *)(cypherText.data());
+    auto finalBytes = PubKeyEncrypt((const U8 *)(plainText.data()), static_cast<Int64>(len), finalCypher);
+    if(UNLIKELY(finalBytes <= 0))
+    {
+        cypherText.clear();
+    }
+    else
+    {
+        cypherText.resize(finalBytes);
+    }
+
+    return finalBytes;
+}
+
+UInt32 LibRsa::SignDigest(Int32 digestType, const U8 *digest, UInt32 digestLen, U8 *signBuffer, UInt32 &signBufferSize)
+{
+    _lastErr = RSA_sign(digestType, digest, digestLen, signBuffer, &signBufferSize, (RSA *)_privateRsa);
+    if(UNLIKELY(_lastErr != ERR_LIB_NONE))
+    {
+        CRYSTAL_TRACE("RSA_sign fail digestType[%d] signBufferSize[%u] _lastErr[%d]", digestType, signBufferSize, _lastErr);
+        return 0;
+    }
+
+    return signBufferSize;
+}
+
+bool LibRsa::VerifyDigest(Int32 digestType, const U8 *digest, UInt32 digestLen, const U8 *signData, UInt32 signLen)
+{
+    _lastErr = RSA_verify(digestType, digest, digestLen, signData, signLen, (RSA *)_pubRsa);
+    if(UNLIKELY(_lastErr != ERR_LIB_NONE))
+    {
+        CRYSTAL_TRACE("RSA_verify fail digestType[%d] _lastErr[%d]", digestType, _lastErr);
+        return false;
+    }
+
+    return true;
+}
+
+UInt32 LibRsa::CalcSignSize()
+{
+    return static_cast<UInt32>(RSA_size((RSA *)_privateRsa) + 1);
+}
 KERNEL_END

@@ -45,11 +45,13 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
-#include <kernel/comp/LibStream.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/common/LibObject.h>
 
 KERNEL_BEGIN
+
+template<typename BuildType>
+class LibStream;
 
 // 编码器
 class KERNEL_EXPORT ICoder

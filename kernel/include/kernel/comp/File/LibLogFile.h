@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/File/LibFile.h>
 
 KERNEL_BEGIN
@@ -58,7 +57,7 @@ protected:
     LibTime  _lastPassDayTime;
 };
 
-inline bool LibLogFile::IsTooLarge(Int64 limitSize) const
+ALWAYS_INLINE bool LibLogFile::IsTooLarge(Int64 limitSize) const
 {
     if(limitSize <= 0)
         return false;
@@ -66,12 +65,12 @@ inline bool LibLogFile::IsTooLarge(Int64 limitSize) const
     return _fileSize >= limitSize;
 }
 
-inline bool LibLogFile::IsDayPass(const LibTime &nowTime) const
+ALWAYS_INLINE bool LibLogFile::IsDayPass(const LibTime &nowTime) const
 {
     return _lastPassDayTime.GetZeroTime() != nowTime.GetZeroTime();
 }
 
-inline void LibLogFile::UpdateLastPassDayTime(LibTime *nowTime)
+ALWAYS_INLINE void LibLogFile::UpdateLastPassDayTime(LibTime *nowTime)
 {
     if(!nowTime)
     {

@@ -28,14 +28,13 @@
 
 #include <pch.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/LibList.h>
 
 #include <kernel/comp/Utils/ContainerUtil.h>
-#include <kernel/comp/NetEngine/Poller/Defs/TcpPollerConfig.h>
 #include <kernel/comp/NetEngine/Defs/LibConnectInfo.h>
 #include <kernel/comp/NetEngine/Defs/BuildSessionInfo.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
-#include <kernel/comp/NetEngine/Poller/Defs/PollerFeature.h>
 #include <kernel/comp/NetEngine/Defs/LibListenInfo.h>
 #include <kernel/comp/Utils/SocketUtil.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgrFactory.h>

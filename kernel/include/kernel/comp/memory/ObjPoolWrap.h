@@ -31,11 +31,10 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/common/macro.h>
 #include <kernel/comp/memory/Defs/MemoryAlloctorConfig.h>
 #include <kernel/comp/memory/ObjAlloctor.h>
 #include <kernel/comp/Utils/TlsUtil.h>
-#include <kernel/comp/Utils/AllocUtil.h>
 
 KERNEL_BEGIN
 

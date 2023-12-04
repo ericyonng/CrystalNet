@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <kernel/comp/MemoryMonitor/Statistics.h>
 #include <kernel/comp/MemoryMonitor/MemoryMonitor.h>
 
 #endif

@@ -32,9 +32,8 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibList.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 KERNEL_BEGIN
 

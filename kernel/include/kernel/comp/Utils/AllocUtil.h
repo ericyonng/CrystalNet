@@ -31,10 +31,17 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseType.h>
+#include <type_traits>
+#include <functional>
+#include <kernel/common/macro.h>
+
 #include <kernel/comp/Utils/RttiUtil.h>
 
 KERNEL_BEGIN
+
+class LibString;
 
 class KERNEL_EXPORT AllocUtil
 {
@@ -59,32 +66,32 @@ public:
 };
 
 template<typename ObjType, typename... Args>
-inline ObjType *AllocUtil::NewByPtr(void *ptr, Args&&... args)
+ALWAYS_INLINE ObjType *AllocUtil::NewByPtr(void *ptr, Args&&... args)
 {
     return ::new(ptr)ObjType(std::forward<Args>(args)...);
 }
 
 template<typename ObjType, typename... Args>
-inline ObjType *AllocUtil::NewMultiByPtr(void *ptr, UInt64 count, Args&&... args)
+ALWAYS_INLINE ObjType *AllocUtil::NewMultiByPtr(void *ptr, UInt64 count, Args&&... args)
 {
     return ::new(ptr)ObjType[count](std::forward<Args>(args)...);
 }
 
 template<typename ObjType>
-inline ObjType *AllocUtil::NewByPtrNoConstructorParams(void *ptr)
+ALWAYS_INLINE ObjType *AllocUtil::NewByPtrNoConstructorParams(void *ptr)
 {
     return ::new(ptr)ObjType();
 }
 
 template<typename ObjType>
-inline ObjType *&AllocUtil::GetStaticTemplateObjNoFree(std::function<ObjType *()> &&createFactory)
+ALWAYS_INLINE ObjType *&AllocUtil::GetStaticTemplateObjNoFree(std::function<ObjType *()> &&createFactory)
 {
     static ObjType *s_obj = createFactory();
     return s_obj;
 }
 
 template<typename ObjType>
-inline ObjType *AllocUtil::GetStaticThreadLocalTemplateObjNoFree(std::function<void *()> &&createFactory)
+ALWAYS_INLINE ObjType *AllocUtil::GetStaticThreadLocalTemplateObjNoFree(std::function<void *()> &&createFactory)
 {
     DEF_STATIC_THREAD_LOCAL_DECLEAR ObjType *s_obj = NULL;
     if(UNLIKELY(s_obj == NULL))

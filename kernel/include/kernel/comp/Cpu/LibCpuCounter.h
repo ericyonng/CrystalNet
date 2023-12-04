@@ -31,9 +31,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/common/timedefs.h>
+#include <kernel/common/rdtsc.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+
+#endif
 
 KERNEL_BEGIN
 
@@ -47,19 +54,6 @@ public:
     static UInt64 _countPerMicroSecond;
     static UInt64 _countPerNanoSecond;
 };
-
-ALWAYS_INLINE void LibCpuFrequency::InitFrequancy()
-{
-    _countPerSecond = KERNEL_NS::CrystalGetCpuCounterFrequancy();
-    _countPerMillisecond = std::max<UInt64>(_countPerSecond / TimeDefs::MILLI_SECOND_PER_SECOND, 1);
-    _countPerMicroSecond = std::max<UInt64>(_countPerSecond / TimeDefs::MICRO_SECOND_PER_SECOND, 1);
-
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-    _countPerNanoSecond = std::max<UInt64>(_countPerSecond / TimeDefs::NANO_SECOND_PER_SECOND, 1);
-#else
-    _countPerNanoSecond = _countPerMicroSecond * 1000;
-#endif // CRYSTAL_TARGET_PLATFORM_LINUX
-}
 
 
 class KERNEL_EXPORT LibCpuSlice
@@ -247,6 +241,12 @@ public:
     UInt64 GetCurCount() const;
 
 private:
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    void _UpdateWin();
+#endif
+
+private:
     UInt64 _count;          // linux下是当前tsc计数 windows下是QueryPerformanceCounter计数器
 };
 
@@ -274,9 +274,7 @@ ALWAYS_INLINE LibCpuCounter &LibCpuCounter::Update()
     #endif
 
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    LARGE_INTEGER li;
-    ::QueryPerformanceCounter(&li);
-    _count = li.QuadPart;
+    _UpdateWin();
     #endif
 
     return *this;
@@ -295,7 +293,7 @@ ALWAYS_INLINE UInt64 LibCpuCounter::ElapseNanoseconds(const LibCpuCounter &start
 #else
 ALWAYS_INLINE UInt64 LibCpuCounter::ElapseNanoseconds(const LibCpuCounter &start) const
 {
-    return (_count - start._count) * 1000 / LibCpuFrequency::_countPerMicroSecond;
+    return (_count - start._count) / LibCpuFrequency::_countPerNanoSecond;
 }
 #endif // CRYSTAL_TARGET_PLATFORM_LINUX
 

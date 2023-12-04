@@ -39,13 +39,22 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/LibString.h>
-#include <kernel/comp/Task/Task.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
 #include <kernel/comp/thread/ThreadDefs.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Variant/Variant.h>
+
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/Lock/Impl/ConditionLocker.h>
+
+#include <atomic>
 
 KERNEL_BEGIN
+
+class ITask;
 
 class KERNEL_EXPORT LibThreadPool
 {
@@ -201,19 +210,6 @@ ALWAYS_INLINE void LibThreadPool::SetPoolName(const LibString &name)
 ALWAYS_INLINE const LibString &LibThreadPool::GetPoolName() const
 {
     return _poolName;
-}
-
-ALWAYS_INLINE bool LibThreadPool::AddTask(IDelegate<void, LibThreadPool *> *callback, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
-{
-    DelegateTask<LibThreadPool> *newTask = DelegateTask<LibThreadPool>::New_DelegateTask(this, callback);
-    if(UNLIKELY(!AddTask(newTask, forceNewThread, numOfThreadToCreateIfNeed)))
-    {
-        newTask->PopCallback();
-        newTask->Release();
-        return false;
-    }
-
-    return true;
 }
 
 template<typename ObjType>

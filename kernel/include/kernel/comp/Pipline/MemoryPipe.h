@@ -32,12 +32,14 @@
 #pragma once
 
 #include <kernel/comp/Pipline/IPipe.h>
-#include <kernel/comp/memory//memory.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/comp/LibStream.h>
 #include <kernel/comp/Pipline/PipeType.h>
+#include <kernel/common/func.h>
+#include <functional>
 
 KERNEL_BEGIN
+
 
 template<typename BuildType = _Build::MT>
 class MemoryPipe : public IPipe

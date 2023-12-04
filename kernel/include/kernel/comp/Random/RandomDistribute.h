@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Random/RandomDefs.h>
 
 KERNEL_BEGIN

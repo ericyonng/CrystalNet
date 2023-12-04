@@ -31,10 +31,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/Lock/Impl/Locker.h>
+
+#include <map>
+#include <unordered_map>
 
 KERNEL_BEGIN
 

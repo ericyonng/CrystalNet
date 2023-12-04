@@ -32,7 +32,6 @@
 
 #pragma once
 
-#include <kernel/common/macro.h>
 #include <kernel/common/DataTypeAdapter.h>
 
 KERNEL_BEGIN

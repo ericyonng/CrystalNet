@@ -42,8 +42,19 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/common/macro.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    #include <WinSock2.h> // ipv4
+    #include <ws2ipdef.h>   // ipv6等
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <netinet/ip.h> /* superset of previous */
+#endif
 
 KERNEL_BEGIN
 

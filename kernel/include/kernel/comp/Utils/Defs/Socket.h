@@ -31,9 +31,14 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <sys/socket.h>
+#else
+    #include <WinSock2.h>
+#endif
 
 #ifndef INVALID_SOCKET_IDD
 #define INVALID_SOCKET_IDD  ~0ULL       // 无效套接字

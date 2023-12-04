@@ -33,9 +33,8 @@
 #pragma once
 
 #include <kernel/kernel_export.h>
-#include <kernel/comp/AutoDel.h>
 #include <kernel/comp/SmartPtr.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <type_traits>
 
 KERNEL_BEGIN
 

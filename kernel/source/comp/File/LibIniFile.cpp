@@ -28,9 +28,15 @@
 
 #include <pch.h>
 #include <kernel/comp/File/LibIniFile.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+  #include <WinSock2.h>
+#endif
+
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
 #include <kernel/comp/File/IniFileDefs.h>
+#include <string.h>
 
 KERNEL_BEGIN
 

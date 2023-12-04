@@ -38,13 +38,15 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <unordered_map>
+#include <vector>
+#include <map>
+
+#include <kernel/common/status.h>
+#include <kernel/comp/CompObject/CompFactory.h>
 #include <kernel/comp/CompObject/CompObject.h>
-#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
-
-class CompFactory;
 
 class KERNEL_EXPORT CompHostObject : public CompObject
 {
@@ -441,7 +443,6 @@ ALWAYS_INLINE void CompHostObject::_ResizeFocusDict()
     _focusTypeRefComps.resize(GetMaxFocusEnd());
 }
 
-
 ALWAYS_INLINE void CompHostObject::_Release(CompFactory *factory)
 {
     factory->Release();
@@ -452,7 +453,6 @@ ALWAYS_INLINE void CompHostObject::_Release(const std::vector<CompFactory *> &fa
     for(auto factory : factorys)
         factory->Release();
 }
-
 
 KERNEL_END
 

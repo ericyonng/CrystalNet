@@ -31,8 +31,11 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
 #include <kernel/comp/LibString.h>
+#include <map>
 
 KERNEL_BEGIN
 
@@ -100,17 +103,17 @@ private:
     std::map<LibString, Int32> _backNameRefColor;
 };
 
-inline const ConsoleFrontColor &ConsoleConfigMgr::GetFrontColor() const
+ALWAYS_INLINE const ConsoleFrontColor &ConsoleConfigMgr::GetFrontColor() const
 {
     return _front;
 }
 
-inline const ConsoleBackColor &ConsoleConfigMgr::GetBackColor() const
+ALWAYS_INLINE const ConsoleBackColor &ConsoleConfigMgr::GetBackColor() const
 {
     return _back;
 }
 
-inline bool ConsoleConfigMgr::IsInit() const
+ALWAYS_INLINE bool ConsoleConfigMgr::IsInit() const
 {
     return _ini != NULL;
 }

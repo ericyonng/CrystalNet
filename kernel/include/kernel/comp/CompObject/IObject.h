@@ -37,11 +37,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <unordered_map>
+#include <atomic>
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Utils/BitUtil.h>
-#include <kernel/comp/Utils/RttiUtil.h>
+#include <kernel/common/status.h>
 
 KERNEL_BEGIN
 
@@ -300,21 +305,6 @@ ALWAYS_INLINE const ObjType *IObject::CastTo() const
 ALWAYS_INLINE const IObject *IObject::GetOwner() const
 {
     return _owner;
-}
-
-ALWAYS_INLINE void IObject::SetFocus(Int32 focusEnum)
-{
-    SimpleBitmapUtil::Set(_focusInterfaceBitmapFlag, focusEnum);
-}
-
-ALWAYS_INLINE void IObject::ClearFocus(Int32 focusEnum)
-{
-    SimpleBitmapUtil::Clear(_focusInterfaceBitmapFlag, focusEnum);
-}
-
-ALWAYS_INLINE bool IObject::IsFocus(Int32 focusEnum) const
-{
-    return SimpleBitmapUtil::IsSet(_focusInterfaceBitmapFlag, focusEnum);
 }
 
 ALWAYS_INLINE void IObject::_SetType(Int32 type)

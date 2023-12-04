@@ -31,17 +31,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
-#include <kernel/comp/NetEngine/Defs/NetDefs.h>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 
 class LibSocket;
 
-class KERNEL_EXPORT LibAddr
+class LibAddr
 {
     POOL_CREATE_OBJ_DEFAULT(LibAddr);
 public:

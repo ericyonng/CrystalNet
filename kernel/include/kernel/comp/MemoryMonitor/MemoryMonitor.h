@@ -55,13 +55,15 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/MemoryMonitor/Statistics.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <atomic>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 
-class LibThread;
+template <typename Rtn, typename... Args>
+class IDelegate;
 
 class KERNEL_EXPORT MemoryMonitor
 {
@@ -93,11 +95,6 @@ private:
 ALWAYS_INLINE Int64 MemoryMonitor::GetMilliSecInterval() const
 {
     return _milliSecInterval;
-}
-
-ALWAYS_INLINE IDelegate<void> *MemoryMonitor::MakeWorkTask()
-{
-    return DelegateFactory::Create(this, &MemoryMonitor::_DoWork);
 }
 
 KERNEL_END

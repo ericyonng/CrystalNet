@@ -31,33 +31,11 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/common/RemoveReference.h>
 #include <kernel/comp/Utils/RttiUtil.h>
+#include <kernel/comp/Delegate/IDelegate.h>
 
 KERNEL_BEGIN
-
-// R回调返回值类型，Args回调函数参数包 委托基类 用于解耦具体类型，创建类型无关的委托
-template <typename Rtn, typename... Args>
-class IDelegate
-{
-public:
-    IDelegate();
-    virtual ~IDelegate();
-    // 左值会绑定成左值引用，右值会绑定成右值引用
-    // 请注意引用折叠适当使用std::forward可以完美的将参数传入，原来什么类型传入后绑定的就是什么类型
-    virtual Rtn Invoke(Args... args) = 0;   // 为什么不使用 && 因为为了匹配被委托的参数类型, 只要内部使用std::forward即可完美转发
-    virtual Rtn Invoke(Args... args) const = 0;
-    virtual IDelegate<Rtn, Args...> *CreateNewCopy() const = 0;
-    virtual void Release();
-
-    // 判断是否是某个对象的回调
-    virtual bool IsBelongTo(void *obj) const { return false; }
-    virtual const void *GetOwner() const { return NULL; }
-    virtual void *GetOwner() { return NULL; }
-    virtual const Byte8 * GetOwnerRtti() { return ""; }
-    virtual const Byte8 * GetCallbackRtti() { return ""; }
-};
 
 ////////////////////
 // 类委托

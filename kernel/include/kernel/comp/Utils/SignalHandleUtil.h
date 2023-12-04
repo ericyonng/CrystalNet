@@ -32,11 +32,21 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Delegate/Delegate.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/LibString.h>
+#include <unordered_map>
+#include <vector>
+#include <unordered_set>
+#include <setjmp.h>
 
 KERNEL_BEGIN
+
+template <typename Rtn, typename... Args>
+class IDelegate;
 
 class KERNEL_EXPORT SignalHandleUtil
 {

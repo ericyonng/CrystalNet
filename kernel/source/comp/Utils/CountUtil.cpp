@@ -28,6 +28,7 @@
 
 #include <pch.h>
 #include <kernel/comp/Utils/CountUtil.h>
+#include <string.h>
 
 KERNEL_BEGIN
 
@@ -55,5 +56,15 @@ UInt32 *CountUtil::_GetCountTable()
     };
 
     return table;
+}
+
+void CountUtil::Generate8BitStatistics1Table(UInt32 array[256])
+{
+    ::memset(array, 0, 256 * sizeof(UInt32));
+
+    // 偶数1的个数与n/2的个数是一样的,是由n/2左移得到的,个数不变
+    // 奇数1的个数是n/2的个数左移后+1而来的
+    for(Int32 i = 0; i < 256; ++i )
+        array[i] = (i & 1) + array[i/2];
 }
 KERNEL_END

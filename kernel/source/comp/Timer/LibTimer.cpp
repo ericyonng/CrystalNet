@@ -33,7 +33,7 @@
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Log/log.h>
-
+#include <kernel/comp/Tls/Tls.h>
 
 KERNEL_BEGIN
 

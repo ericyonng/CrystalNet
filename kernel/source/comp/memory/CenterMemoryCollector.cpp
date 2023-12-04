@@ -27,12 +27,21 @@
 */
 
 #include <pch.h>
-#include <kernel/comp/memory/CenterMemoryCollector.h>
+
+#include <kernel/comp/memory/MemoryBlock.h>
+#include <kernel/comp/memory/MergeMemoryBufferInfo.h>
+#include <kernel/comp/memory/CenterMemoryTopnThreadInfo.h>
+#include <kernel/comp/SmartPtr.h>
+#include <kernel/comp/BinaryArray.h>
+#include <kernel/comp/Tls/TlsStack.h>
 #include <kernel/comp/memory/CenterMemoryThreadInfo.h>
-#include <kernel/comp/thread/thread.h>
+#include <kernel/comp/thread/LibThread.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/common/statics.h>
+
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/memory/CenterMemoryCollector.h>
 
 KERNEL_BEGIN
 

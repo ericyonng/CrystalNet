@@ -33,8 +33,7 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/common/CopyAdapter.h>
 

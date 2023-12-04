@@ -28,6 +28,7 @@
 
 #include <pch.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/common/statics.h>
 
 #include <kernel/comp/CompObject/CompObject.h>
 

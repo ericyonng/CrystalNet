@@ -32,13 +32,6 @@
 
 #pragma once
 
-#include <kernel/comp/Lock/Impl/LockType.h>
-#include <kernel/comp/Lock/Impl/Locker.h>
-#include <kernel/comp/Lock/Impl/ConditionLocker.h>
-#include <kernel/comp/Lock/Impl/SpinLock.h>
-#include <kernel/comp/Lock/Impl/LockAdapter.h>
-// #include <kernel/comp/Lock/Impl/SpinConditionLocker.h>
 #include <kernel/comp/Lock/Impl/LockWrap.h>
-#include <kernel/comp/Lock/Impl/ProcessLocker.h>
 
 #endif

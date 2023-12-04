@@ -58,7 +58,6 @@
 #include <kernel/comp/Utils/MemUtil.h>
 #include <kernel/comp/Utils/NumWidthUtil.h>
 #include <kernel/comp/Utils/RttiUtil.h>
-#include <kernel/comp/Utils/SockErrorMsgUtil.h>
 #include <kernel/comp/Utils/SocketUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>

@@ -34,17 +34,19 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Delegate/Delegate.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Task/ITask.h>
-#include <kernel/comp/thread/LibThreadGlobalId.h>
-#include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Variant/Variant.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/comp/thread/ThreadDefs.h>
-#include <kernel/comp/Task/DelegateTask.h>
-#include <kernel/comp/Task/DelegateWithParamsTask.h>
 
 KERNEL_BEGIN
+
+class ITask;
 
 class KERNEL_EXPORT LibThread
 {
@@ -131,24 +133,6 @@ private:
     LibString _threadName;
 };
 
-
-ALWAYS_INLINE LibThread::LibThread()
-    :_id(LibThreadGlobalId::GenId())
-    , _threadId{0}
-    , _isStart{false}
-    , _isWorking{false}
-    , _isDestroy{ false }
-    ,_isBusy{false}
-    ,_enableAddTask{true}
-{
-
-}
-
-ALWAYS_INLINE LibThread::~LibThread()
-{
-    Close();
-}
-
 // 启动
 ALWAYS_INLINE void LibThread::Start()
 {
@@ -203,25 +187,6 @@ ALWAYS_INLINE bool LibThread::AddTask(ITask *task)
     return true;
 }
 
-ALWAYS_INLINE bool LibThread::AddTask(IDelegate<void, LibThread *> *callback)
-{
-    if(!_enableAddTask.load())
-    {
-        //CRYSTAL_RELEASE(callback);
-        return false;
-    }
-
-    auto newTask = DelegateTask<LibThread>::New_DelegateTask(this, callback);
-    _taskLck.Lock();
-    _tasks.push_back(newTask);
-    _taskLck.Unlock();
-
-    // 唤醒
-    _condLck.Sinal();
-
-    return true;
-}
-
 template<typename ObjType>
 ALWAYS_INLINE bool LibThread::AddTask(ObjType *obj, void (ObjType::*callback)(LibThread *))
 {
@@ -257,25 +222,6 @@ ALWAYS_INLINE bool LibThread::AddTask2(void (*callback)(LibThread *,  Variant *)
            Variant::Delete_Variant(params);
         return false;
     }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibThread::AddTask2(IDelegate<void, LibThread *, Variant *> *callback, Variant *params)
-{
-    if(!_enableAddTask.load())
-    {
-        //CRYSTAL_RELEASE(callback);
-        return false;
-    }
-
-    DelegateWithParamsTask<LibThread> *newTask = DelegateWithParamsTask<LibThread>::New_DelegateWithParamsTask(this, callback, params);
-    _taskLck.Lock();
-    _tasks.push_back(newTask);
-    _taskLck.Unlock();
-
-    // 唤醒
-    _condLck.Sinal();
 
     return true;
 }

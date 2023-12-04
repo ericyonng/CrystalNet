@@ -31,9 +31,25 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Utils/Defs/Socket.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <sys/socket.h>
+ #include <errno.h>
+ #include <arpa/inet.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    #include <WinSock2.h>
+    #include <ws2ipdef.h>   // ipv6等
+    #include <ws2tcpip.h>
+#endif
+
 #include <kernel/comp/Log/log.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/common/LibSockLen.h>
+#include <kernel/comp/Utils/Defs/Socket.h>
 
 KERNEL_BEGIN
 
@@ -41,6 +57,20 @@ struct BriefAddrInfo;
 struct BriefSockAddr;
 class KernelSockAddrIn;
 struct IoData;
+
+// 网络模型
+class KERNEL_EXPORT NetIoModule
+{
+public:
+    enum Type
+    {
+        EPOLL = 0,
+        IOCP = 1,
+
+        EPOLL_LT = 2,
+        EPOLL_ET = 3,
+    };
+};
 
 class KERNEL_EXPORT SocketUtil
 {
@@ -241,7 +271,7 @@ inline Int32 SocketUtil::Bind(SOCKET sock, const BriefAddrInfo &briefAddr
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
 template<>
-inline Int32 SocketUtil::Write<NetIoModule::EPOLL_LT>(SOCKET sock, const Byte8 *buffer, UInt64 bufferSize, Int32 &err)
+ALWAYS_INLINE Int32 SocketUtil::Write<NetIoModule::EPOLL_LT>(SOCKET sock, const Byte8 *buffer, UInt64 bufferSize, Int32 &err)
 {
     Int32 ret = ::send(sock, buffer, bufferSize, 0);
     err = errno;
@@ -255,7 +285,7 @@ inline Int32 SocketUtil::Write<NetIoModule::EPOLL_LT>(SOCKET sock, const Byte8 *
 }
 
 template<>
-inline Int32 SocketUtil::Write<NetIoModule::EPOLL_ET>(SOCKET sock, const Byte8 *buffer, UInt64 bufferSize, Int32 &err)
+ALWAYS_INLINE Int32 SocketUtil::Write<NetIoModule::EPOLL_ET>(SOCKET sock, const Byte8 *buffer, UInt64 bufferSize, Int32 &err)
 {
     Int32 ret = 0;
     while ((ret = ::send(sock,
@@ -277,7 +307,7 @@ inline Int32 SocketUtil::Write<NetIoModule::EPOLL_ET>(SOCKET sock, const Byte8 *
 }
 
 template<>
-inline Int32 SocketUtil::Read<NetIoModule::EPOLL_LT>(SOCKET sock, Byte8 *buffer, UInt64 bufferSize, Int32 &err)
+ALWAYS_INLINE Int32 SocketUtil::Read<NetIoModule::EPOLL_LT>(SOCKET sock, Byte8 *buffer, UInt64 bufferSize, Int32 &err)
 {
     Int32 ret = ::recv(sock, buffer, bufferSize, 0);
     if(ret <= 0)
@@ -291,7 +321,7 @@ inline Int32 SocketUtil::Read<NetIoModule::EPOLL_LT>(SOCKET sock, Byte8 *buffer,
 }
 
 template<>
-inline Int32 SocketUtil::Read<NetIoModule::EPOLL_ET>(SOCKET sock, Byte8 *buffer, UInt64 bufferSize, Int32 &err)
+ALWAYS_INLINE Int32 SocketUtil::Read<NetIoModule::EPOLL_ET>(SOCKET sock, Byte8 *buffer, UInt64 bufferSize, Int32 &err)
 {
     Int32 ret;
     while ((ret = ::recv(sock,

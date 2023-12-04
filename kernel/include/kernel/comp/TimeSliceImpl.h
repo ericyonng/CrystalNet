@@ -28,176 +28,174 @@
 
 #ifdef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TIME_SLICE_H__
 
-#include <kernel/comp/LibTime.h>
-
 KERNEL_BEGIN
 
-inline TimeSlice::TimeSlice()
+ALWAYS_INLINE TimeSlice::TimeSlice()
     :_slice(0)
 {
 
 }
 
-inline TimeSlice::TimeSlice(int seconds, Int64 milliSeconds /*= 0*/, Int64 microSeconds /*= 0*/, Int64 nanoSeconds /*= 0*/)
+ALWAYS_INLINE TimeSlice::TimeSlice(int seconds, Int64 milliSeconds /*= 0*/, Int64 microSeconds /*= 0*/, Int64 nanoSeconds /*= 0*/)
 {
     _slice = seconds * TimeDefs::NANO_SECOND_PER_SECOND +
         milliSeconds * TimeDefs::NANO_SECOND_PER_MILLI_SECOND + microSeconds * TimeDefs::NANO_SECOND_PER_MICRO_SECOND + nanoSeconds;
 }
 
-inline TimeSlice::TimeSlice(const TimeSlice &slice)
+ALWAYS_INLINE TimeSlice::TimeSlice(const TimeSlice &slice)
     :_slice(slice._slice)
 {
 }
 
-inline TimeSlice::TimeSlice(int days, int hours, int minutes, Int64 seconds, Int64 milliSeconds /* = 0 */, Int64 microSeconds /* = 0 */, Int64 nanoSeconds)
+ALWAYS_INLINE TimeSlice::TimeSlice(int days, int hours, int minutes, Int64 seconds, Int64 milliSeconds /* = 0 */, Int64 microSeconds /* = 0 */, Int64 nanoSeconds)
 {
     _slice = static_cast<Int64>((((((days * 24) + hours) * 60) + minutes) * 60) + seconds) *
         TimeDefs::NANO_SECOND_PER_SECOND + milliSeconds * TimeDefs::NANO_SECOND_PER_MILLI_SECOND + microSeconds * TimeDefs::NANO_SECOND_PER_MICRO_SECOND + nanoSeconds;
 }
 
-inline TimeSlice::~TimeSlice()
+ALWAYS_INLINE TimeSlice::~TimeSlice()
 {
 }
 
-inline int TimeSlice::GetDays() const
+ALWAYS_INLINE int TimeSlice::GetDays() const
 {
     return static_cast<int>(_slice / TimeDefs::NANO_SECOND_PER_DAY);
 }
 
-inline int TimeSlice::GetHours() const
+ALWAYS_INLINE int TimeSlice::GetHours() const
 {
     return static_cast<int>((_slice % TimeDefs::NANO_SECOND_PER_DAY) /
                             TimeDefs::NANO_SECOND_PER_HOUR);
 }
 
-inline int TimeSlice::GetMinutes() const
+ALWAYS_INLINE int TimeSlice::GetMinutes() const
 {
     return static_cast<int>(_slice % TimeDefs::NANO_SECOND_PER_HOUR  /
                             TimeDefs::NANO_SECOND_PER_MINUTE);
 }
 
-inline int TimeSlice::GetSeconds() const
+ALWAYS_INLINE int TimeSlice::GetSeconds() const
 {
     return static_cast<int>(_slice %  TimeDefs::NANO_SECOND_PER_MINUTE /
                             TimeDefs::NANO_SECOND_PER_SECOND);
 }
 
-inline int TimeSlice::GetMilliSeconds() const
+ALWAYS_INLINE int TimeSlice::GetMilliSeconds() const
 {
     return static_cast<int>(_slice % TimeDefs::NANO_SECOND_PER_SECOND /
                             TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
 }
 
-inline int TimeSlice::GetMicroSeconds() const
+ALWAYS_INLINE int TimeSlice::GetMicroSeconds() const
 {
     return static_cast<int>(_slice % TimeDefs::NANO_SECOND_PER_MILLI_SECOND / TimeDefs::NANO_SECOND_PER_MICRO_SECOND);
 }
 
-inline int TimeSlice::GetNanoSeconds() const
+ALWAYS_INLINE int TimeSlice::GetNanoSeconds() const
 {
     return static_cast<int>(_slice % TimeDefs::NANO_SECOND_PER_MICRO_SECOND);
 }
 
-inline int TimeSlice::GetTotalDays() const
+ALWAYS_INLINE int TimeSlice::GetTotalDays() const
 {
     return static_cast<int>(_slice / TimeDefs::NANO_SECOND_PER_DAY);
 }
 
-inline int TimeSlice::GetTotalHours() const
+ALWAYS_INLINE int TimeSlice::GetTotalHours() const
 {
     return static_cast<int>(_slice / TimeDefs::NANO_SECOND_PER_HOUR);
 }
 
-inline int TimeSlice::GetTotalMinutes() const
+ALWAYS_INLINE int TimeSlice::GetTotalMinutes() const
 {
     return static_cast<int>(_slice / TimeDefs::NANO_SECOND_PER_MINUTE);
 }
 
-inline int TimeSlice::GetTotalSeconds() const
+ALWAYS_INLINE int TimeSlice::GetTotalSeconds() const
 {
     return static_cast<int>(_slice / TimeDefs::NANO_SECOND_PER_SECOND);
 }
 
-inline Int64 TimeSlice::GetTotalMilliSeconds() const
+ALWAYS_INLINE Int64 TimeSlice::GetTotalMilliSeconds() const
 {
     return static_cast<Int64>(_slice / TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
 }
 
-inline const Int64 TimeSlice::GetTotalMicroSeconds() const
+ALWAYS_INLINE const Int64 TimeSlice::GetTotalMicroSeconds() const
 {
     return static_cast<Int64>(_slice / TimeDefs::NANO_SECOND_PER_MICRO_SECOND);
 }
 
-inline const Int64 &TimeSlice::GetTotalNanoSeconds() const
+ALWAYS_INLINE const Int64 &TimeSlice::GetTotalNanoSeconds() const
 {
     return _slice;
 }
 
-inline TimeSlice TimeSlice::operator +(const TimeSlice &slice) const
+ALWAYS_INLINE TimeSlice TimeSlice::operator +(const TimeSlice &slice) const
 {
     return TimeSlice(_slice + slice._slice);
 }
 
-inline TimeSlice TimeSlice::operator -(const TimeSlice &slice) const
+ALWAYS_INLINE TimeSlice TimeSlice::operator -(const TimeSlice &slice) const
 {
     return TimeSlice(_slice - slice._slice);
 }
 
-inline TimeSlice &TimeSlice::operator +=(const TimeSlice &slice)
+ALWAYS_INLINE TimeSlice &TimeSlice::operator +=(const TimeSlice &slice)
 {
     _slice += slice._slice;
     return *this;
 }
 
-inline TimeSlice &TimeSlice::operator -=(const TimeSlice &slice)
+ALWAYS_INLINE TimeSlice &TimeSlice::operator -=(const TimeSlice &slice)
 {
     _slice -= slice._slice;
     return *this;
 }
 
-inline bool TimeSlice::operator ==(const TimeSlice &slice) const
+ALWAYS_INLINE bool TimeSlice::operator ==(const TimeSlice &slice) const
 {
     return _slice == slice._slice;
 }
 
-inline bool TimeSlice::operator !=(const TimeSlice &slice) const
+ALWAYS_INLINE bool TimeSlice::operator !=(const TimeSlice &slice) const
 {
     return !(*this == slice);
 }
 
-inline bool TimeSlice::operator <(const TimeSlice &slice) const
+ALWAYS_INLINE bool TimeSlice::operator <(const TimeSlice &slice) const
 {
     return _slice < slice._slice;
 }
 
-inline bool TimeSlice::operator >(const TimeSlice &slice) const
+ALWAYS_INLINE bool TimeSlice::operator >(const TimeSlice &slice) const
 {
     return _slice > slice._slice;
 }
 
-inline bool TimeSlice::operator <=(const TimeSlice &slice) const
+ALWAYS_INLINE bool TimeSlice::operator <=(const TimeSlice &slice) const
 {
     return _slice <= slice._slice;
 }
 
-inline bool TimeSlice::operator >=(const TimeSlice &slice) const
+ALWAYS_INLINE bool TimeSlice::operator >=(const TimeSlice &slice) const
 {
     return _slice >= slice._slice;
 }
 
-inline TimeSlice &TimeSlice::operator =(const TimeSlice &slice)
+ALWAYS_INLINE TimeSlice &TimeSlice::operator =(const TimeSlice &slice)
 {
     _slice = slice._slice;
     return *this;
 }
 
-inline TimeSlice &TimeSlice::operator =(Int64 nanoSecSlice)
+ALWAYS_INLINE TimeSlice &TimeSlice::operator =(Int64 nanoSecSlice)
 {
     _slice = nanoSecSlice;
     return *this;
 }
 
-inline LibString TimeSlice::ToString() const
+ALWAYS_INLINE LibString TimeSlice::ToString() const
 {
     int days = GetDays();
     if(days != 0)
@@ -208,7 +206,7 @@ inline LibString TimeSlice::ToString() const
                                     GetHours(), GetMinutes(), GetSeconds(), static_cast<Int32>(_slice % TimeDefs::NANO_SECOND_PER_SECOND));
 }
 
-inline TimeSlice::TimeSlice(const Int64 &slice)
+ALWAYS_INLINE TimeSlice::TimeSlice(const Int64 &slice)
 :_slice(slice)
 {
 

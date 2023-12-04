@@ -27,6 +27,12 @@
 */
 
 #include <pch.h>
+#include <kernel/common/macro.h>
+
+#include <atomic>
+
+#include <kernel/comp/Delegate/IDelegate.h>
+#include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Utils/KernelUtil.h>
 #include <kernel/comp/thread/thread.h>
 #include <kernel/comp/Utils/SystemUtil.h>
@@ -43,6 +49,8 @@
 #include <kernel/comp/memory/CenterMemoryCollector.h>
 #include <kernel/comp/Coder/UrlCoder.h>
 #include <kernel/comp/TimeSlice.h>
+#include <kernel/comp/memory/GarbageThread.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
 
 KERNEL_NS::LibCpuInfo *g_cpu = NULL;
 // KERNEL_NS::CpuFeature *g_cpuFeature = NULL;

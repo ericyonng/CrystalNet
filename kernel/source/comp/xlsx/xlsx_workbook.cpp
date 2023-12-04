@@ -30,6 +30,12 @@
 #include <kernel/comp/xlsx/xlsx_workbook.h>
 #include <kernel/comp/xlsx/xlsx_worksheet.h>
 #include <kernel/comp/SmartPtr.h>
+#include <kernel/comp/Utils/StringUtil.h>
+#include <kernel/comp/Log/log.h>
+#include <kernel/comp/Archive/archive.h>
+#include <kernel/comp/xml/xml.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/comp/Utils/DirectoryUtil.h>
 
 KERNEL_BEGIN
 
@@ -149,8 +155,6 @@ bool XlsxWorkbook::Parse(const LibString &xlsxPath)
     return true;
 }
 
-
-
 bool XlsxWorkbook::_ParseAllSharedStrings(const ArchiveFile &achive, std::vector<LibString> &allSharedString)
 {
     LibString tablePath = "xl/sharedStrings.xml";
@@ -187,6 +191,32 @@ bool XlsxWorkbook::_ParseAllSharedStrings(const ArchiveFile &achive, std::vector
     }
 
     return true;
+}
+
+std::pair<UInt64, UInt64> XlsxWorkbook::_ParseRowColumnFrom(const LibString &tupleString) const
+{
+    //sample input A1
+    uint32_t columnCharSize = 0;
+    while (::isalpha(tupleString[columnCharSize]))
+        ++columnCharSize;
+
+    UInt64 columnValue = _ColumnIndexFrom(tupleString.GetRaw().substr(0, columnCharSize));
+    UInt64 rowValue = StringUtil::StringToUInt64(tupleString.GetRaw().substr(columnCharSize).c_str());
+    return std::make_pair(rowValue, columnValue);
+}
+
+XMLDocument *XlsxWorkbook::_GetDocumentBy(ArchiveFile &achive, UInt64 sheetIdx)
+{
+    LibString sheetPath = "xl/worksheets/sheet" + StringUtil::Num2Str(sheetIdx) + ".xml";
+    XMLDocument *doc = NULL;
+    if(!_ParseXml(achive, sheetPath, doc))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("parse xml fail when get document by sheet idx :%llu, achive:%s.")
+        , sheetIdx, achive.GetFilePath().c_str());
+        return NULL;
+    }
+
+    return doc;
 }
 
 bool XlsxWorkbook::_ParseXml(const ArchiveFile &achive, const LibString &docPath, XMLDocument *&docXml)

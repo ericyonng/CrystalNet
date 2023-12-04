@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/common/macro.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibTime.h>
 
 KERNEL_BEGIN
@@ -48,7 +48,7 @@ struct KERNEL_EXPORT LogData
     UInt64 CalcBytes() const;
 };
 
-inline UInt64 LogData::CalcBytes() const
+ALWAYS_INLINE UInt64 LogData::CalcBytes() const
 {
     return __MEMORY_ALIGN__( sizeof(LogData) + _logInfo.GetRaw().size());
 }

@@ -31,7 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 
 #undef __LIB_POLLER_MONITOR_TIME_OUT_INTERVAL__
 #define __LIB_POLLER_MONITOR_TIME_OUT_INTERVAL__    20

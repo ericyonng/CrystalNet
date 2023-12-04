@@ -28,9 +28,9 @@
 
 #include <pch.h>
 #include <kernel/comp/NetEngine/LibAddr.h>
-#include <kernel/comp/NetEngine/Poller/impl/Session/LibSession.h>
 #include <kernel/comp/NetEngine/LibSocket.h>
 #include <kernel/comp/Utils/SocketUtil.h>
+#include <kernel/comp/NetEngine/Defs/NetDefs.h>
 
 KERNEL_BEGIN
 

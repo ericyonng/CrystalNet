@@ -31,12 +31,22 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
 #include <kernel/comp/AutoDel.h>
 #include <kernel/comp/LibList.h>
 
-KERNEL_BEGIN
+#include <map>
+#include <unordered_map>
+#include <set>
+#include <unordered_set>
+#include <vector>
+#include <deque>
+#include <list>
+#include <stack>
+#include <queue>
 
+KERNEL_BEGIN
 
 class KERNEL_EXPORT ContainerUtil
 {

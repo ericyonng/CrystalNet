@@ -41,23 +41,19 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <vector>
+#include <atomic>
+
+#include <kernel/kernel_export.h>
+#include <kernel/comp/CompObject/CompHostObject.h>
+#include <kernel/comp/Lock/Impl/LockWrap.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/SmartPtr.h>
-#include <kernel/comp/App/BaseAppOption.h>
-#include <kernel/comp/CompObject/CompObjectInc.h>
-#include <kernel/comp/Lock/Lock.h>
 #include <kernel/comp/LibTime.h>
 
 KERNEL_BEGIN
 
-class LibThread;
-class PollerMgr;
-class IServiceProxy;
-class ILogFactory;
-class IServiceProxyFactory;
-struct PollerEvent;
 class Poller;
+class LibTime;
 
 class KERNEL_EXPORT IApplication : public CompHostObject
 {

@@ -29,8 +29,6 @@
 
 #include <pch.h>
 #include <kernel/common/statics.h>
-#include <kernel/comp/Utils/NumWidthUtil.h>
-#include <kernel/comp/Log/log.h>
 
 KERNEL_BEGIN
 const std::string ConstantGather::anyIp = "ANY";

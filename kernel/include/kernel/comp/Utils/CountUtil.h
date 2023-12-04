@@ -32,7 +32,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 
@@ -53,7 +55,7 @@ private:
 };
 
 template <typename NumType>
-inline UInt32 CountUtil::Count1InBinary(NumType num)
+ALWAYS_INLINE UInt32 CountUtil::Count1InBinary(NumType num)
 {
     auto countArr = _GetCountTable();
     UInt32 countNum = 0;
@@ -66,15 +68,6 @@ inline UInt32 CountUtil::Count1InBinary(NumType num)
     return countNum;
 }
 
-inline void CountUtil::Generate8BitStatistics1Table(UInt32 array[256])
-{
-    ::memset(array, 0, 256 * sizeof(UInt32));
-
-    // 偶数1的个数与n/2的个数是一样的,是由n/2左移得到的,个数不变
-    // 奇数1的个数是n/2的个数左移后+1而来的
-    for(Int32 i = 0; i < 256; ++i )
-        array[i] = (i & 1) + array[i/2];
-}
 
 // inline bool CountUtil::Comp(UInt32 array[256])
 // {

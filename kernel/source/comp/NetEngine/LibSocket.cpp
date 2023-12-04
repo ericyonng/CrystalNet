@@ -39,6 +39,17 @@
 
 #include <kernel/comp/NetEngine/LibSocket.h>
 
+#if CRYSTAL_TARGET_PLATFROM_LINUX
+    #include <sys/time.h>
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    #include <sys/eventfd.h>    // 多线程多进程事件通知机制
+#endif
+
+#if CRYSTAL_TARGET_PLATFROM_WINDOWS
+
+#endif
+
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibSocket);

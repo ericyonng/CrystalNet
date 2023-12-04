@@ -36,18 +36,13 @@
 #pragma once
 
 #include <kernel/kernel_export.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/common/macro.h>
+#include <vector>
+#include <map>
+#include <kernel/comp/BinaryArrayDefaultComp.h>
 
 KERNEL_BEGIN
-
-template<typename Elem>
-class BinaryArrayDefaultComp
-{
-public:
-    bool operator() (const Elem &l, const Elem &r) const
-    {
-        return l < r;    
-    }
-};
 
 template<typename Elem, typename Comp = BinaryArrayDefaultComp<Elem>>
 class BinaryArray

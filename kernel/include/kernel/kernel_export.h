@@ -34,8 +34,6 @@
 // 设置文档格式utf8
 // #pragma execution_character_set("utf-8")
 
-#include <kernel/common/compile.h>
-
 // 使用动态库导出符号定义宏
 #undef KERNEL_EXTERN_DEFINE
 #ifndef KERNEL_EXPORT

@@ -29,8 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/memory/GarbageThread.h>
 #include <kernel/comp/memory/GarbageThreadTask.h>
-#include <kernel/comp/thread/thread.h>
-#include <kernel/comp/memory/MemoryDefs.h>
+#include <kernel/comp/thread/LibThread.h>
 
 KERNEL_BEGIN
 
@@ -47,6 +46,21 @@ GarbageThread::GarbageThread(UInt64 gcIntervalMs)
 
 }
 
+GarbageThread::~GarbageThread()
+{
+    Close();
+
+    _toRegisterLck.Lock();
+    CRYSTAL_DELETE_SAFE(_garbagePurgeCallback);
+    CRYSTAL_DELETE_SAFE(_toRegisterPurgeCallback);
+    CRYSTAL_DELETE_SAFE(_swapRegisters);
+    _toRegisterLck.Unlock();
+    
+    _lckPurge.Lock();
+    CRYSTAL_DELETE_SAFE(_toPurge);
+    CRYSTAL_DELETE_SAFE(_purgeSwap);
+    _lckPurge.Unlock();
+}
 
 void GarbageThread::Start()
 {

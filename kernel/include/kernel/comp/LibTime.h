@@ -31,10 +31,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <string.h>
+#include <time.h>
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/TimeUtil.h>
-#include <kernel/comp/memory/memory.h>
 
 KERNEL_BEGIN
 
@@ -173,8 +179,6 @@ public:
     LibString ToString() const;
     LibString ToStringOfMillSecondPrecision() const;
     
-
-     
 private:
     explicit LibTime(Int64 microSecTimestamp);
     // explicit LibTime(const std::chrono::system_clock::time_point &now);

@@ -22,25 +22,40 @@
  * SOFTWARE.
  *  
  * 
- * Date: 2020-10-11 21:54:15
+ * Date: 2020-10-06 18:57:50
  * Author: Eric Yonng
- * Description: kernel组件等包含的文件
+ * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_KERNEL_INC_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_KERNEL_INC_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_INT128_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_INT128_H__
 
 #pragma once
 
-#include <kernel/kernel_export.h>
-#include <kernel/common/macro.h>
-#include <kernel/common/type.h>
 #include <kernel/common/compile.h>
-#include <kernel/common/tempcompile.h>
-#include <kernel/common/attribute.h>
-#include <kernel/common/libs.h>
-#include <kernel/common/func.h>
-#include <kernel/common/statics.h>
-#include <kernel/common/status.h>
+#include <kernel/common/BaseType.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ typedef struct alignas(16) {
+     UInt64 low;
+     UInt64 high;
+ } UInt128; 
+ typedef  struct alignas(16) {
+     Int64 low;
+     Int64 high;
+ } Int128; 
+
+ // 宽字节字符
+ typedef __wchar_t wchar; 
+
+#elif CRYSTAL_TARGET_PLATFORM_LINUX 
+
+ #undef MEM_ALIGNED_16BYTE
+ #define MEM_ALIGNED_16BYTE __attribute__(( __aligned__(16) )) 
+ typedef __uint128_t UInt128;
+ typedef __int128_t Int128; 
+ typedef unsigned short wchar;
+
+#endif
 
 #endif

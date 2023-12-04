@@ -27,10 +27,12 @@
 */
 
 #include <pch.h>
+#include <kernel/common/statics.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/CompObject/IObject.h>
 #include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Utils/BitUtil.h>
 
 KERNEL_BEGIN
 
@@ -257,6 +259,22 @@ UInt64 IObject::NewId()
     static std::atomic<UInt64> s_maxId = {0};
     return ++s_maxId;
 }
+
+void IObject::SetFocus(Int32 focusEnum)
+{
+    SimpleBitmapUtil::Set(_focusInterfaceBitmapFlag, focusEnum);
+}
+
+void IObject::ClearFocus(Int32 focusEnum)
+{
+    SimpleBitmapUtil::Clear(_focusInterfaceBitmapFlag, focusEnum);
+}
+
+bool IObject::IsFocus(Int32 focusEnum) const
+{
+    return SimpleBitmapUtil::IsSet(_focusInterfaceBitmapFlag, focusEnum);
+}
+
 
 void IObject::_Clear()
 {

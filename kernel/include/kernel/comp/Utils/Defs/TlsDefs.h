@@ -31,17 +31,18 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/compile.h>
 
 KERNEL_BEGIN
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-
     // windows
-    typedef DWORD TlsHandle;
+    typedef unsigned long TlsHandle;
     #define INVALID_TLS_HANDLE             ((DWORD)(-1))
 
 #else
+    #include <pthread.h>
 
     typedef pthread_key_t TlsHandle;
     #define INVALID_TLS_HANDLE             ((pthread_key_t)(-1))

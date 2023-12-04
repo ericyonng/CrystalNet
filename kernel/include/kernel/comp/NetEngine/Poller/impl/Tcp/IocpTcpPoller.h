@@ -32,16 +32,20 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/CompObject/CompObjectInc.h>
-#include <kernel/comp/NetEngine/Poller/Defs/PollerEvent.h>
-#include <kernel/comp/LibList.h>
-#include <kernel/comp/Delegate/Delegate.h>
-#include <kernel/comp/LibDirtyHelper.h>
+#include <kernel/common/macro.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
+#include <kernel/comp/CompObject/CompHostObject.h>
+#include <kernel/common/LibObject.h>
+#include <kernel/comp/LibList.h>
+
 KERNEL_BEGIN
+
+template <typename Rtn, typename... Args>
+class IDelegate;
+
+struct PollerEvent;
 
 class Poller;
 class IocpTcpSession;
@@ -58,8 +62,13 @@ class IPollerMgr;
 class IServiceProxy;
 struct IpControlInfo;
 class TlsMemoryCleanerComp;
+class Variant;
+struct IoEvent;
 
-class KERNEL_EXPORT IocpTcpPoller : public CompHostObject
+template<typename KeyType, typename MaskValue>
+class LibDirtyHelper;
+
+class IocpTcpPoller : public CompHostObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IocpTcpPoller);
 

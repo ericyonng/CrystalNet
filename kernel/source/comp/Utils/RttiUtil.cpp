@@ -32,6 +32,15 @@
 #include <kernel/comp/Tls/Tls.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    // linux下类型识别接口相关
+    #include <cxxabi.h>
+    // linux下堆栈追踪头文件
+    #include <execinfo.h>
+
+#endif
+
+
 KERNEL_BEGIN
 
 

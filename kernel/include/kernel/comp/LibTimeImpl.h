@@ -31,46 +31,46 @@
 KERNEL_BEGIN
 
 // Inline
-inline LibTime LibTime::Now()
+ALWAYS_INLINE LibTime LibTime::Now()
 {
     return LibTime(TimeUtil::GetFastNanoTimestamp());
 }
 
-inline Int64 LibTime::NowTimestamp()
+ALWAYS_INLINE Int64 LibTime::NowTimestamp()
 {
     return TimeUtil::GetFastNanoTimestamp() / TimeDefs::NANO_SECOND_PER_SECOND;
     // return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 }
 
-inline Int64 LibTime::NowMilliTimestamp()
+ALWAYS_INLINE Int64 LibTime::NowMilliTimestamp()
 {
     return TimeUtil::GetFastNanoTimestamp() / TimeDefs::NANO_SECOND_PER_MILLI_SECOND;
     // return (std::chrono::system_clock().now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond) / LibTime::_microSecondPerMilliSecond;
 }
 
-inline Int64 LibTime::NowMicroTimestamp()
+ALWAYS_INLINE Int64 LibTime::NowMicroTimestamp()
 {
     return TimeUtil::GetFastNanoTimestamp() / TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
     // syscall(SYS_clock_gettime, CLOCK_MONOTONIC_RAW, &monotonic_time)
     // return (std::chrono::system_clock().now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond);
 }
 
-inline Int64 LibTime::NowNanoTimestamp()
+ALWAYS_INLINE Int64 LibTime::NowNanoTimestamp()
 {
     return TimeUtil::GetFastNanoTimestamp();
 }
 
-inline Int64 LibTime::GetSecTimestamp() const
+ALWAYS_INLINE Int64 LibTime::GetSecTimestamp() const
 {
     return _rawTime / TimeDefs::NANO_SECOND_PER_SECOND;
 }
 
-inline Int64 LibTime::GetMilliTimestamp() const
+ALWAYS_INLINE Int64 LibTime::GetMilliTimestamp() const
 {
     return _rawTime / TimeDefs::NANO_SECOND_PER_MILLI_SECOND;
 }
 
-inline Int64 LibTime::GetMicroTimestamp() const
+ALWAYS_INLINE Int64 LibTime::GetMicroTimestamp() const
 {
     return _rawTime / TimeDefs::NANO_SECOND_PER_MICRO_SECOND;
 }
@@ -80,7 +80,7 @@ ALWAYS_INLINE Int64 LibTime::GetNanoTimestamp() const
     return _rawTime;
 }
 
-inline const LibTime &LibTime::UpdateTime()
+ALWAYS_INLINE const LibTime &LibTime::UpdateTime()
 {
     _rawTime = TimeUtil::GetFastNanoTimestamp();
     // _rawTime = std::chrono::system_clock::now().time_since_epoch().count() / LibTime::_resolutionPerMicroSecond;
@@ -88,132 +88,132 @@ inline const LibTime &LibTime::UpdateTime()
     return *this;
 }
 
-inline const LibTime &LibTime::UpdateTime(Int64 nanoSecTime)
+ALWAYS_INLINE const LibTime &LibTime::UpdateTime(Int64 nanoSecTime)
 {
     _rawTime = nanoSecTime;
     _UpdateTimeStructs();
     return *this;
 }
 
-inline bool LibTime::operator ==(const LibTime &time) const
+ALWAYS_INLINE bool LibTime::operator ==(const LibTime &time) const
 {
     return _rawTime == time._rawTime;
 }
 
-inline bool LibTime::operator ==(const Int64 &nanoSecondTimestamp) const
+ALWAYS_INLINE bool LibTime::operator ==(const Int64 &nanoSecondTimestamp) const
 {
     return _rawTime == nanoSecondTimestamp;
 }
 
-inline bool LibTime::operator !=(const LibTime &time) const
+ALWAYS_INLINE bool LibTime::operator !=(const LibTime &time) const
 {
     return _rawTime != time._rawTime;
 }
 
-inline bool LibTime::operator <(const LibTime &time) const
+ALWAYS_INLINE bool LibTime::operator <(const LibTime &time) const
 {
     return _rawTime < time._rawTime;
 }
 
-inline bool LibTime::operator >(const LibTime &time) const
+ALWAYS_INLINE bool LibTime::operator >(const LibTime &time) const
 {
     return _rawTime > time._rawTime;
 }
 
-inline bool LibTime::operator >=(const LibTime &time) const
+ALWAYS_INLINE bool LibTime::operator >=(const LibTime &time) const
 {
     return _rawTime >= time._rawTime;
 }
 
-inline bool LibTime::operator <=(const LibTime &time) const
+ALWAYS_INLINE bool LibTime::operator <=(const LibTime &time) const
 {
     return _rawTime <= time._rawTime;
 }
 
-inline const tm &LibTime::GetGmtTime() const
+ALWAYS_INLINE const tm &LibTime::GetGmtTime() const
 {
     return _gmtTimeStruct;
 }
 
-inline void LibTime::GetGmtTime(tm &timeStruct) const
+ALWAYS_INLINE void LibTime::GetGmtTime(tm &timeStruct) const
 {
-     memcpy(&timeStruct, &_gmtTimeStruct, sizeof(tm));
+     ::memcpy(&timeStruct, &_gmtTimeStruct, sizeof(tm));
 }
 
-inline const tm &LibTime::GetLocalTime() const
+ALWAYS_INLINE const tm &LibTime::GetLocalTime() const
 {
     return _localTimeStruct;
 }
 
-inline void LibTime::GetLocalTime(tm &timeStruct) const
+ALWAYS_INLINE void LibTime::GetLocalTime(tm &timeStruct) const
 {
     memcpy(&timeStruct, &_localTimeStruct, sizeof(tm));
 }
 
-inline Int32 LibTime::GetLocalYear() const
+ALWAYS_INLINE Int32 LibTime::GetLocalYear() const
 {
     return _localTimeStruct.tm_year + 1900;     // since 1900
 }
 
-inline Int32 LibTime::GetLocalMonth() const
+ALWAYS_INLINE Int32 LibTime::GetLocalMonth() const
 {
     return _localTimeStruct.tm_mon + 1;     // start by 1
 }
 
-inline Int32 LibTime::GetLocalDay() const
+ALWAYS_INLINE Int32 LibTime::GetLocalDay() const
 {
     return _localTimeStruct.tm_mday;
 }
 
-inline Int32 LibTime::GetLocalDayOfWeek() const
+ALWAYS_INLINE Int32 LibTime::GetLocalDayOfWeek() const
 {
     return _localTimeStruct.tm_wday;        // start by 0
 }
 
-inline Int32 LibTime::GetLocalDayOfYear() const
+ALWAYS_INLINE Int32 LibTime::GetLocalDayOfYear() const
 {
     return _localTimeStruct.tm_yday + 1;    // start by 1
 }
 
-inline Int32 LibTime::GetLocalHour() const
+ALWAYS_INLINE Int32 LibTime::GetLocalHour() const
 {
     return _localTimeStruct.tm_hour;
 }
 
-inline Int32 LibTime::GetLocalMinute() const
+ALWAYS_INLINE Int32 LibTime::GetLocalMinute() const
 {
     return _localTimeStruct.tm_min;
 }
 
-inline Int32 LibTime::GetLocalSecond() const
+ALWAYS_INLINE Int32 LibTime::GetLocalSecond() const
 {
     return _localTimeStruct.tm_sec;
 }
 
-inline Int32 LibTime::GetLocalMilliSecond() const
+ALWAYS_INLINE Int32 LibTime::GetLocalMilliSecond() const
 {
     auto localTime = _rawTime - static_cast<Int64>(TimeUtil::GetTimeZone() * TimeDefs::NANO_SECOND_PER_SECOND);
     return static_cast<Int32>((localTime % TimeDefs::NANO_SECOND_PER_SECOND) / TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
 }
 
-inline Int32 LibTime::GetLocalMicroSecond() const
+ALWAYS_INLINE Int32 LibTime::GetLocalMicroSecond() const
 {
     auto localTime = _rawTime - static_cast<Int64>(TimeUtil::GetTimeZone() * TimeDefs::NANO_SECOND_PER_SECOND);
     return static_cast<Int32>((localTime % TimeDefs::NANO_SECOND_PER_MILLI_SECOND) / TimeDefs::NANO_SECOND_PER_MICRO_SECOND);
 }
 
-inline Int32 LibTime::GetLocalNanoSecond() const
+ALWAYS_INLINE Int32 LibTime::GetLocalNanoSecond() const
 {
     auto localTime = _rawTime - static_cast<Int64>(TimeUtil::GetTimeZone() * TimeDefs::NANO_SECOND_PER_SECOND);
     return static_cast<Int32>(localTime % TimeDefs::NANO_SECOND_PER_MICRO_SECOND);
 }
 
-inline LibString LibTime::Format(time_t timestamp, const Byte8 *outFmt)
+ALWAYS_INLINE LibString LibTime::Format(time_t timestamp, const Byte8 *outFmt)
 {
     return FromSeconds(timestamp).Format(outFmt);
 }
 
-inline LibString LibTime::FormatAsGmt(time_t timestamp, const char *outFmt)
+ALWAYS_INLINE LibString LibTime::FormatAsGmt(time_t timestamp, const char *outFmt)
 {
     return FromSeconds(timestamp).FormatAsGmt(outFmt);
 }

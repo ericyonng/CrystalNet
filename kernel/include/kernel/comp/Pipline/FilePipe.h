@@ -33,9 +33,12 @@
 
 #include <kernel/comp/Pipline/IPipe.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <functional>
 
 KERNEL_BEGIN
+
+template <typename Rtn, typename... Args>
+class IDelegate;
 
 class KERNEL_EXPORT FilePipe : public IPipe
 {

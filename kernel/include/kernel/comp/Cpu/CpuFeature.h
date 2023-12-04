@@ -31,8 +31,15 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/SmartPtr.h>
+#include <bitset>
+#include <array>
+#include <vector>
+#include <string>
+#include <string.h>
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 
@@ -69,101 +76,9 @@ public:
     {
     }
 
-    static CpuFeature *GetInstance()
-    {
-        SmartPtr<CpuFeature> s_inst = new CpuFeature; 
-        return s_inst.AsSelf();
-    }
+    static CpuFeature *GetInstance();
 
-    void Init()
-    {
-        //int cpuInfo[4] = {-1};
-        std::array<Int32, 4> cpui{ 0 };
-
-        // Calling __cpuid with 0x0 as the function_id argument
-        // gets the number of the highest valid function ID.
-        _GetCpuId(reinterpret_cast<int *>(cpui.data()), 0);
-        _ids = cpui[0];
-
-        for (int i = 0; i <= _ids; ++i)
-        {
-            _GetCpuIdEx(reinterpret_cast<int *>(cpui.data()), i, 0);
-            _data.push_back(cpui);
-        }
-
-        // Capture vendor string 获取供应商
-        char vendor[0x20];
-        ::memset(vendor, 0, sizeof(vendor));
-        Int32 *vendorAddr = reinterpret_cast<int *>(vendor);
-        Int32 *vendorAddrShift4 = reinterpret_cast<int *>(vendor + 4);
-        Int32 *vendorAddrShift8 = reinterpret_cast<int *>(vendor + 8);
-        *vendorAddr = _data[0][1];
-        *vendorAddrShift4= _data[0][3];
-        *vendorAddrShift8 = _data[0][2];
-        _vendor = vendor;
-        if (_vendor == "GenuineIntel")
-        {
-            _isIntel = true;
-        }
-        else if (_vendor == "AuthenticAMD")
-        {
-            _isAMD = true;
-        }
-
-        // load bitset with flags for function 0x00000001
-        if (_ids >= 1)
-        {
-            _f_1_ECX = _data[1][2];
-            _f_1_EDX = _data[1][3];
-        }
-
-        // load bitset with flags for function 0x00000007
-        if (_ids >= 7)
-        {
-            _f_7_EBX = _data[7][1];
-            _f_7_ECX = _data[7][2];
-        }
-
-        // Calling __cpuid with 0x80000000 as the function_id argument
-        // gets the number of the highest valid extended ID.
-        _GetCpuId(reinterpret_cast<int *>(cpui.data()), 0x80000000);
-        // 最大的扩展id（子功能号）通过主功能号获取cpuinfo 然后cpui[0]就是最大支持的子功能号
-        _exIds = cpui[0];
-
-        char brand[0x40];
-        ::memset(brand, 0, sizeof(brand));
-
-        // 获取子功能号信息
-        for (int i = 0x80000000; i <= _exIds; ++i)
-        {
-            _GetCpuIdEx(reinterpret_cast<int *>(cpui.data()), i, 0);
-            _extdata.push_back(cpui);
-        }
-
-        // load bitset with flags for function 0x80000001
-        if (_exIds >= Int32(0x80000001))
-        {// extdata[] = {eax, ebx, ecx,edx}
-            _f_81_ECX = _extdata[1][2];
-            _f_81_EDX = _extdata[1][3];
-        }
-
-        // Interpret CPU brand string if reported
-        if (_exIds >= Int32(0x80000004))
-        {
-            ::memcpy(brand, _extdata[2].data(), sizeof(cpui));
-            ::memcpy(brand + 16, _extdata[3].data(), sizeof(cpui));
-            ::memcpy(brand + 32, _extdata[4].data(), sizeof(cpui));
-            _brand = brand;
-        }
-
-        // 0x80 00 00 07
-        if(_exIds >= Int32(0x80000007))
-        {
-            // 0x80000007的功能标志位
-            _f_87_ECX = _extdata[7][ExtRegisterType::ECX];
-            _f_87_EDX = _extdata[7][ExtRegisterType::EDX];
-        }
-    }
+    void Init();
 
     // cpu厂商
     const std::string &GetVendor() const;
@@ -231,27 +146,8 @@ public:
     bool _3DNOW(void);
 
 private:
-    void _GetCpuId(int *info, Int32 functionId)
-    {
-        #if CRYSTAL_TARGET_PLATFORM_LINUX
-            __cpuid(functionId, info[0], info[1], info[2], info[3]);
-        #endif
-
-        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            __cpuid(info, functionId);
-        #endif
-    }
-
-    void _GetCpuIdEx(int *info, Int32 functionId, Int32 subFunctionId)
-    {
-        #if CRYSTAL_TARGET_PLATFORM_LINUX
-            __cpuid_count(functionId, subFunctionId, info[0], info[1], info[2], info[3]);
-        #endif
-
-        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-            __cpuidex(info, functionId, subFunctionId);
-        #endif
-    }
+    void _GetCpuId(int *info, Int32 functionId);
+    void _GetCpuIdEx(int *info, Int32 functionId, Int32 subFunctionId);
 
 private:
     Int32 _ids;
@@ -282,177 +178,177 @@ private:
 };
 
 
-inline bool CpuFeature::SSE3(void) 
+ALWAYS_INLINE bool CpuFeature::SSE3(void) 
 { 
     return _f_1_ECX[0]; 
 }
 
-inline bool CpuFeature::PCLMULQDQ(void) 
+ALWAYS_INLINE bool CpuFeature::PCLMULQDQ(void) 
 { 
     return _f_1_ECX[1]; 
 }
 
-inline bool CpuFeature::MONITOR(void) 
+ALWAYS_INLINE bool CpuFeature::MONITOR(void) 
 { return _f_1_ECX[3]; }
 
-inline bool CpuFeature::SSSE3(void) 
+ALWAYS_INLINE bool CpuFeature::SSSE3(void) 
 { return _f_1_ECX[9]; }
 
-inline bool CpuFeature::FMA(void) 
+ALWAYS_INLINE bool CpuFeature::FMA(void) 
 { return _f_1_ECX[12]; }
 
-inline bool CpuFeature::CMPXCHG16B(void) 
+ALWAYS_INLINE bool CpuFeature::CMPXCHG16B(void) 
 { return _f_1_ECX[13]; }
 
-inline bool CpuFeature::SSE41(void) 
+ALWAYS_INLINE bool CpuFeature::SSE41(void) 
 { return _f_1_ECX[19]; }
 
-inline bool CpuFeature::SSE42(void) 
+ALWAYS_INLINE bool CpuFeature::SSE42(void) 
 { return _f_1_ECX[20]; }
 
-inline bool CpuFeature::MOVBE(void) 
+ALWAYS_INLINE bool CpuFeature::MOVBE(void) 
 { return _f_1_ECX[22]; }
 
-inline bool CpuFeature::POPCNT(void) 
+ALWAYS_INLINE bool CpuFeature::POPCNT(void) 
 { return _f_1_ECX[23]; }
 
-inline bool CpuFeature::AES(void) 
+ALWAYS_INLINE bool CpuFeature::AES(void) 
 { return _f_1_ECX[25]; }
 
-inline bool CpuFeature::XSAVE(void) 
+ALWAYS_INLINE bool CpuFeature::XSAVE(void) 
 { return _f_1_ECX[26]; }
 
-inline bool CpuFeature::OSXSAVE(void) 
+ALWAYS_INLINE bool CpuFeature::OSXSAVE(void) 
 { return _f_1_ECX[27]; }
 
-inline bool CpuFeature::AVX(void) 
+ALWAYS_INLINE bool CpuFeature::AVX(void) 
 { return _f_1_ECX[28]; }
 
-inline bool CpuFeature::F16C(void) 
+ALWAYS_INLINE bool CpuFeature::F16C(void) 
 { return _f_1_ECX[29]; }
 
-inline bool CpuFeature::RDRAND(void) 
+ALWAYS_INLINE bool CpuFeature::RDRAND(void) 
 { return _f_1_ECX[30]; }
 
-inline bool CpuFeature::MSR(void) 
+ALWAYS_INLINE bool CpuFeature::MSR(void) 
 { return _f_1_EDX[5]; }
 
-inline bool CpuFeature::CX8(void) 
+ALWAYS_INLINE bool CpuFeature::CX8(void) 
 { return _f_1_EDX[8]; }
 
-inline bool CpuFeature::SEP(void) 
+ALWAYS_INLINE bool CpuFeature::SEP(void) 
 { return _f_1_EDX[11]; }
 
-inline bool CpuFeature::CMOV(void) 
+ALWAYS_INLINE bool CpuFeature::CMOV(void) 
 { return _f_1_EDX[15]; }
 
-inline bool CpuFeature::CLFSH(void) 
+ALWAYS_INLINE bool CpuFeature::CLFSH(void) 
 { return _f_1_EDX[19]; }
 
-inline bool CpuFeature::MMX(void) 
+ALWAYS_INLINE bool CpuFeature::MMX(void) 
 { return _f_1_EDX[23]; }
 
-inline bool CpuFeature::FXSR(void) 
+ALWAYS_INLINE bool CpuFeature::FXSR(void) 
 { return _f_1_EDX[24]; }
 
-inline bool CpuFeature::SSE(void) 
+ALWAYS_INLINE bool CpuFeature::SSE(void) 
 { return _f_1_EDX[25]; }
 
-inline bool CpuFeature::SSE2(void) 
+ALWAYS_INLINE bool CpuFeature::SSE2(void) 
 { return _f_1_EDX[26]; }
 
-inline bool CpuFeature::FSGSBASE(void) 
+ALWAYS_INLINE bool CpuFeature::FSGSBASE(void) 
 { return _f_7_EBX[0]; }
 
-inline bool CpuFeature::BMI1(void) 
+ALWAYS_INLINE bool CpuFeature::BMI1(void) 
 { return _f_7_EBX[3]; }
 
-inline bool CpuFeature::HLE(void) 
+ALWAYS_INLINE bool CpuFeature::HLE(void) 
 { return _isIntel && _f_7_EBX[4]; }
 
-inline bool CpuFeature::AVX2(void) 
+ALWAYS_INLINE bool CpuFeature::AVX2(void) 
 { return _f_7_EBX[5]; }
 
-inline bool CpuFeature::BMI2(void) 
+ALWAYS_INLINE bool CpuFeature::BMI2(void) 
 { return _f_7_EBX[8]; }
 
-inline bool CpuFeature::ERMS(void) 
+ALWAYS_INLINE bool CpuFeature::ERMS(void) 
 { return _f_7_EBX[9]; }
 
-inline bool CpuFeature::INVPCID(void) 
+ALWAYS_INLINE bool CpuFeature::INVPCID(void) 
 { return _f_7_EBX[10]; }
 
-inline bool CpuFeature::RTM(void) 
+ALWAYS_INLINE bool CpuFeature::RTM(void) 
 { return _isIntel && _f_7_EBX[11]; }
 
-inline bool CpuFeature::AVX512F(void) 
+ALWAYS_INLINE bool CpuFeature::AVX512F(void) 
 { return _f_7_EBX[16]; }
 
-inline bool CpuFeature::RDSEED(void) 
+ALWAYS_INLINE bool CpuFeature::RDSEED(void) 
 { return _f_7_EBX[18]; }
 
-inline bool CpuFeature::ADX(void) 
+ALWAYS_INLINE bool CpuFeature::ADX(void) 
 { return _f_7_EBX[19]; }
 
-inline bool CpuFeature::AVX512PF(void) 
+ALWAYS_INLINE bool CpuFeature::AVX512PF(void) 
 { return _f_7_EBX[26]; }
 
-inline bool CpuFeature::AVX512ER(void) 
+ALWAYS_INLINE bool CpuFeature::AVX512ER(void) 
 { return _f_7_EBX[27]; }
 
-inline bool CpuFeature::AVX512CD(void) 
+ALWAYS_INLINE bool CpuFeature::AVX512CD(void) 
 { return _f_7_EBX[28]; }
 
-inline bool CpuFeature::SHA(void) 
+ALWAYS_INLINE bool CpuFeature::SHA(void) 
 { return _f_7_EBX[29]; }
 
-inline bool CpuFeature::PREFETCHWT1(void) 
+ALWAYS_INLINE bool CpuFeature::PREFETCHWT1(void) 
 { return _f_7_ECX[0]; }
 
-inline bool CpuFeature::LAHF(void) 
+ALWAYS_INLINE bool CpuFeature::LAHF(void) 
 { return _f_81_ECX[0]; }
 
-inline bool CpuFeature::LZCNT(void) 
+ALWAYS_INLINE bool CpuFeature::LZCNT(void) 
 { return _isIntel && _f_81_ECX[5]; }
 
-inline bool CpuFeature::ABM(void) 
+ALWAYS_INLINE bool CpuFeature::ABM(void) 
 { return _isAMD && _f_81_ECX[5]; }
 
-inline bool CpuFeature::SSE4a(void) 
+ALWAYS_INLINE bool CpuFeature::SSE4a(void) 
 { return _isAMD && _f_81_ECX[6]; }
 
-inline bool CpuFeature::XOP(void) 
+ALWAYS_INLINE bool CpuFeature::XOP(void) 
 { return _isAMD && _f_81_ECX[11]; }
 
-inline bool CpuFeature::TBM(void) 
+ALWAYS_INLINE bool CpuFeature::TBM(void) 
 { return _isAMD && _f_81_ECX[21]; }
 
-inline bool CpuFeature::SYSCALL(void) 
+ALWAYS_INLINE bool CpuFeature::SYSCALL(void) 
 { return _isIntel && _f_81_EDX[11]; }
 
-inline bool CpuFeature::MMXEXT(void) 
+ALWAYS_INLINE bool CpuFeature::MMXEXT(void) 
 { return _isAMD && _f_81_EDX[22]; }
 
-inline bool CpuFeature::RDTSCP(void) 
+ALWAYS_INLINE bool CpuFeature::RDTSCP(void) 
 { return _isIntel && _f_81_EDX[27]; }
 
-inline bool CpuFeature::ConstantTscRate() 
+ALWAYS_INLINE bool CpuFeature::ConstantTscRate() 
 { return _f_87_ECX[8]; }
 
-inline const std::string &CpuFeature::GetVendor() const
+ALWAYS_INLINE const std::string &CpuFeature::GetVendor() const
 {
     return _vendor;
 }
 
-inline const std::string &CpuFeature::GetBrand() const
+ALWAYS_INLINE const std::string &CpuFeature::GetBrand() const
 {
     return _brand;
 }
 
-inline bool CpuFeature::_3DNOWEXT(void) 
+ALWAYS_INLINE bool CpuFeature::_3DNOWEXT(void) 
 { return _isAMD && _f_81_EDX[30]; }
 
-inline bool CpuFeature::_3DNOW(void) 
+ALWAYS_INLINE bool CpuFeature::_3DNOW(void) 
 { return _isAMD && _f_81_EDX[31]; }
 
 KERNEL_END

@@ -31,18 +31,11 @@
 
 #pragma once
 
-#include <kernel/kernel_export.h>
-#include <kernel/common/type.h>
-#include <kernel/common/LibObject.h>
-
-KERNEL_BEGIN
 
 // template<typename T>
 // class LibStream;
 // 
 // extern template KERNEL_EXPORT class LibStream<_Build::MT>;
 // extern template KERNEL_EXPORT class LibStream<_Build::TL>;
-
-KERNEL_END
 
 #endif

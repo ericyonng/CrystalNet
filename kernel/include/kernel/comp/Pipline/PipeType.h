@@ -31,7 +31,8 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
 
 KERNEL_BEGIN
 

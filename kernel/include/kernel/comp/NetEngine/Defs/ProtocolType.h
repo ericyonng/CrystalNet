@@ -31,8 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Log/log.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 
@@ -54,7 +55,7 @@ public:
         case ProtocolType::UDP: return "UDP";
         case ProtocolType::QUIC: return "QUIC";
         default:
-            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::ProtocolType, "unknown protocoltype:%d"), protocolType);
+            // g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::ProtocolType, "unknown protocoltype:%d"), protocolType);
             break;
         }
 
@@ -68,7 +69,7 @@ public:
         case ProtocolType::TCP: return SOCK_STREAM;
         case ProtocolType::UDP: return SOCK_DGRAM;
         default:
-            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::ProtocolType, "unknown protocoltype:%d"), protocolType);
+            // g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::ProtocolType, "unknown protocoltype:%d"), protocolType);
             break;
         }
 
@@ -82,7 +83,7 @@ public:
         case SOCK_STREAM: return "SOCK_STREAM";
         case SOCK_DGRAM: return "SOCK_DGRAM";
         default:
-            g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::ProtocolType, "unknown type:%d"), type);
+            // g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::ProtocolType, "unknown type:%d"), type);
             break;
         }
 

@@ -38,12 +38,17 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/common/BaseMacro.h>
 #include <kernel/comp/Tls/Defs.h>
 #include <kernel/comp/Tls/ITlsObj.h>
+#include <kernel/common/Buffer.h>
 #include <kernel/comp/Tls/TlsDefaultObj.h>
 
+#include <string>
+
 KERNEL_BEGIN
+
+class TlsDefaultObj;
 
 template<TlsStackSize::SizeType TlsSizeType = TlsStackSize::SIZE_2MB>
 class TlsStack

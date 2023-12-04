@@ -31,10 +31,17 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Delegate/Delegate.h>
-#include <kernel/comp/memory/MemoryDefs.h>
+#include <map>
+#include <set>
+#include <atomic>
+
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/Lock/Impl/ConditionLocker.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+
+// GC间隔时间 100ms 清理一次
+#undef DEF_GC_INTERVAL
+#define DEF_GC_INTERVAL 100
 
 KERNEL_BEGIN
 
@@ -92,22 +99,6 @@ private:
     UInt64 _gcIntervalMs;
     ConditionLocker _gcTaskLck;
 };
-
-inline GarbageThread::~GarbageThread()
-{
-    Close();
-
-    _toRegisterLck.Lock();
-    CRYSTAL_DELETE_SAFE(_garbagePurgeCallback);
-    CRYSTAL_DELETE_SAFE(_toRegisterPurgeCallback);
-    CRYSTAL_DELETE_SAFE(_swapRegisters);
-    _toRegisterLck.Unlock();
-    
-    _lckPurge.Lock();
-    CRYSTAL_DELETE_SAFE(_toPurge);
-    CRYSTAL_DELETE_SAFE(_purgeSwap);
-    _lckPurge.Unlock();
-}
 
 template<typename ObjType>
 ALWAYS_INLINE void GarbageThread::RegisterPurge(ObjType *gc, void(ObjType::*callback)(void))

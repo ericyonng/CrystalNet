@@ -27,6 +27,9 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/LibStream.h>
+#include <kernel/comp/LibList.h>
+
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/NetEngine/LibSocket.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
@@ -36,6 +39,7 @@
 #include <kernel/comp/NetEngine/Poller/impl/Session/LibSession.h>
 
 KERNEL_BEGIN
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibSession);
 
 LibSession::LibSession(UInt64 sessionId, bool isLinker, bool isConnectToRemote)

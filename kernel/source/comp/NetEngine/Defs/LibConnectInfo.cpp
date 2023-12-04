@@ -30,6 +30,7 @@
 #include <kernel/comp/NetEngine/Defs/LibConnectInfo.h>
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/Timer/Timer.h>
+#include <kernel/comp/NetEngine/Defs/ProtocolType.h>
 
 KERNEL_BEGIN
 

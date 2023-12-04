@@ -28,7 +28,3 @@
 
 #include <pch.h>
 #include <kernel/comp/Lock/Impl/ProcessLocker.h>
-
-KERNEL_BEGIN
-
-KERNEL_END

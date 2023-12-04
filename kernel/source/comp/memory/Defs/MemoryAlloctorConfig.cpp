@@ -29,7 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/memory/Defs/MemoryAlloctorConfig.h>
 #include <kernel/comp/memory/EmptyBufferLimitType.h>
-
+#include <kernel/comp/memory/MemoryDefs.h>
 
 KERNEL_BEGIN
 

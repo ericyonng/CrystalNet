@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <kernel/kernel_export.h>
 #include <kernel/comp/AutoDel.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 
 KERNEL_BEGIN
 

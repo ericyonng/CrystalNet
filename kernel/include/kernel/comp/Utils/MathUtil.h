@@ -31,7 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/common/BaseMacro.h>
 
 KERNEL_BEGIN
 
@@ -47,7 +49,7 @@ public:
     static Int64 GetLcm(Int64 a, Int64 b);
 };
 
-inline UInt64 MathUtil::log(UInt64 base, UInt64 trueNum)
+ALWAYS_INLINE UInt64 MathUtil::log(UInt64 base, UInt64 trueNum)
 {
     UInt64 result = 0;
     const UInt64 multi = base;    
@@ -59,7 +61,7 @@ inline UInt64 MathUtil::log(UInt64 base, UInt64 trueNum)
 }
 
 // 最大公约数（欧几里得算法）
-inline Int64 MathUtil::GetGcd(Int64 a, Int64 b)
+ALWAYS_INLINE Int64 MathUtil::GetGcd(Int64 a, Int64 b)
 {
     // 当b为0时,得出结果,a既为结果
     Int64 t = 0;
@@ -77,7 +79,7 @@ inline Int64 MathUtil::GetGcd(Int64 a, Int64 b)
 }
 
 // 最小公倍数
-inline Int64 MathUtil::GetLcm(Int64 a, Int64 b)
+ALWAYS_INLINE Int64 MathUtil::GetLcm(Int64 a, Int64 b)
 {
     return a * b / GetGcd(a, b);
 }

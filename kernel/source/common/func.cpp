@@ -119,20 +119,6 @@ void UnlockConsole()
 //     GetBackTraceLock().Unlock();
 // }
 
-LibString &KernelAppendFormat(LibString &o, const Byte8 *fmt, ...)
-{
-    va_list va;
-    va_start(va, fmt);
-    auto fmtSize = o.CheckFormatSize(fmt, va);
-    va_end(va);
-
-    va_start(va, fmt);
-    o.AppendFormatWithVaList(fmtSize, fmt, va);
-    va_end(va);
-    
-    return o;
-}
-
 template<>
 void *KernelAllocMemoryBy<_Build::MT>(void *pool, UInt64 memSize)
 {

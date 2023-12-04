@@ -31,20 +31,28 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Utils/Defs/Socket.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/BitUtil.h>
 #include <kernel/comp/Log/log.h>
-#include <kernel/comp/Delegate/Delegate.h>
 #include <kernel/comp/NetEngine/LibAddr.h>
+#include <kernel/common/LibSockLen.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <linux/version.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <ws2def.h>
+ #include <WinSock2.h>
+#endif
 
 KERNEL_BEGIN
 
 class LibSession;
 
-class KERNEL_EXPORT LibSocketOptionFlag
+class LibSocketOptionFlag
 {
 public:
     enum Type
@@ -105,7 +113,7 @@ private:
     }
 };
 
-class KERNEL_EXPORT LibSocketOptionPresetParam
+class LibSocketOptionPresetParam
 {
 public:
     enum Param : UInt64
@@ -118,7 +126,7 @@ public:
     };
 };
 
-class KERNEL_EXPORT LibSocket
+class LibSocket
 {
     POOL_CREATE_OBJ_DEFAULT(LibSocket);
     NO_COPY(LibSocket);

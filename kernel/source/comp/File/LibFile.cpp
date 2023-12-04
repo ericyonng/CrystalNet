@@ -27,9 +27,18 @@
 */
 
 #include <pch.h>
+#include <kernel/common/macro.h>
 #include <kernel/comp/File/LibFile.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <WinSock2.h>
+#endif
+
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/DirectoryUtil.h>
+#include <kernel/common/status.h>
+
+#include <stdio.h>
 
 KERNEL_BEGIN
 

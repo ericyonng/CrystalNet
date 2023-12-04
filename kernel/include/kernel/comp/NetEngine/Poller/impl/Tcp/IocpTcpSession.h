@@ -31,17 +31,24 @@
 
 #pragma once
 
-#include <kernel/comp/NetEngine/Poller/impl/Session/LibSession.h>
-#include <kernel/comp/LibDirtyHelper.h>
+#include <kernel/common/macro.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
+#include <kernel/comp/NetEngine/Poller/impl/Session/LibSession.h>
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/LibStream.h>
+
 KERNEL_BEGIN
 
+struct IoEvent;
 struct IoData;
 class LibPacket;
 class IServiceProxy;
 class IPollerMgr;
+
+template<typename KeyType, typename MaskValue>
+class LibDirtyHelper;
 
 class KERNEL_EXPORT IocpTcpSession : public LibSession
 {

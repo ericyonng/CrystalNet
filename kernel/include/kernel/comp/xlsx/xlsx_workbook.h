@@ -35,16 +35,10 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Archive/archive.h>
-#include <kernel/comp/Log/log.h>
-#include <kernel/comp/xml/xml.h>
-#include <kernel/comp/Utils/ContainerUtil.h>
-#include <kernel/comp/Utils/StringUtil.h>
-#include <kernel/comp/Utils/DirectoryUtil.h>
-#include <kernel/comp/SmartPtr.h>
+#include <cstdint>
+#include <map>
 
 KERNEL_BEGIN
 
@@ -125,19 +119,6 @@ ALWAYS_INLINE const XlsxSheet *XlsxWorkbook::GetSheet(const LibString &sheetName
     return iter == _sheetNameRefSheet.end() ? NULL : iter->second;   
 }
 
-ALWAYS_INLINE std::pair<UInt64, UInt64> XlsxWorkbook::_ParseRowColumnFrom(const LibString &tupleString) const
-{
-    //sample input A1
-    uint32_t columnCharSize = 0;
-    while (::isalpha(tupleString[columnCharSize]))
-        ++columnCharSize;
-
-    UInt64 columnValue = _ColumnIndexFrom(tupleString.GetRaw().substr(0, columnCharSize));
-    UInt64 rowValue = StringUtil::StringToUInt64(tupleString.GetRaw().substr(columnCharSize).c_str());
-    return std::make_pair(rowValue, columnValue);
-}
-
-
 ALWAYS_INLINE XMLDocument *XlsxWorkbook::_GetDocument(const LibString &docPath)
 {
     auto iter = _docPathRefXmlDoc.find(docPath);
@@ -148,20 +129,6 @@ ALWAYS_INLINE const XMLDocument *XlsxWorkbook::_GetDocument(const LibString &doc
 {
     auto iter = _docPathRefXmlDoc.find(docPath);
     return iter == _docPathRefXmlDoc.end() ? NULL : iter->second;
-}
-
-ALWAYS_INLINE XMLDocument *XlsxWorkbook::_GetDocumentBy(ArchiveFile &achive, UInt64 sheetIdx)
-{
-    LibString sheetPath = "xl/worksheets/sheet" + StringUtil::Num2Str(sheetIdx) + ".xml";
-    XMLDocument *doc = NULL;
-    if(!_ParseXml(achive, sheetPath, doc))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("parse xml fail when get document by sheet idx :%llu, achive:%s.")
-        , sheetIdx, achive.GetFilePath().c_str());
-        return NULL;
-    }
-
-    return doc;
 }
 
 KERNEL_END

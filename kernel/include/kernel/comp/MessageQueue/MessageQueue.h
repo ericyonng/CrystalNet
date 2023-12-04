@@ -31,14 +31,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Utils/ContainerUtil.h>
-#include <kernel/comp/MessageQueue/MessageBlock.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+
+#include <atomic>
+#include <list>
 
 KERNEL_BEGIN
 
 struct MessageBlock;
+class ConditionLocker;
 
 // 生产者持有,消费者只引用
 class KERNEL_EXPORT MessageQueue
@@ -83,102 +85,12 @@ private:
     std::atomic_bool _isStart = {false};
 };
 
-inline Int32 MessageQueue::Start()
-{
-    if(_isStart.exchange(true))
-        return Status::Success;
-
-    _isWorking.store(true);
-    if(!_consumer)
-    {
-        _isAttach = false;
-        _consumer = CRYSTAL_NEW(ConditionLocker);
-    }
-
-    return Status::Success;
-}
-
-inline void MessageQueue::OnekeyClose()
-{
-    if(!HalfClose())
-        return;
-
-    FinishClose();
-}
-
-inline bool MessageQueue::HalfClose()
-{
-    if (!_isStart)
-        return false;
-
-    if (!_isWorking.exchange(false))
-        return false;
-
-    _consumer->Broadcast();
-
-    return true;
-}
-
-inline void MessageQueue::FinishClose()
-{
-    if(!_isStart.exchange(false))
-        return;
-
-    UInt64 unhandleAmount = _msgQueue->size();
-    ContainerUtil::DelContainer<MessageBlock *, AutoDelMethods::Release>(*_msgQueue);
-    CRYSTAL_TRACE("message queue has %llu msg unhandlerd", unhandleAmount);
-
-    CRYSTAL_DELETE_SAFE(_msgQueue);
-    if(_isAttach)
-        CRYSTAL_DELETE_SAFE(_consumer);
-}
-
-inline bool MessageQueue::IsWorking() const
+ALWAYS_INLINE bool MessageQueue::IsWorking() const
 {
     return _isWorking.load();
 }
 
-inline void MessageQueue::Attach(ConditionLocker *consumer)
-{
-    if(UNLIKELY(_consumer && _isAttach))
-        CRYSTAL_DELETE_SAFE(_consumer);
-
-    _consumer = consumer;
-    _isAttach = true;
-}
-
-inline bool MessageQueue::Push(std::list<MessageBlock *> *&swapList)
-{
-    if(UNLIKELY(!_isWorking))
-        return false;
-
-    _lck.Lock();
-
-    if(_hasMsg)
-    {// 追加
-        for(auto iterMsg = swapList->begin(); iterMsg != swapList->end();)
-        {
-            _msgQueue->push_back(*iterMsg);
-            iterMsg = swapList->erase(iterMsg);
-        }
-    }
-    else
-    {// 交换
-        std::list<MessageBlock *> *temp = NULL;
-        temp = swapList;
-        swapList = _msgQueue;
-        _msgQueue = temp;
-        _hasMsg = true;
-    }
-
-    _lck.Unlock();
-
-    Sinal();
-
-    return true;
-}
-
-inline bool MessageQueue::Push(MessageBlock *msg)
+ALWAYS_INLINE bool MessageQueue::Push(MessageBlock *msg)
 {
     if(UNLIKELY(!_isWorking))
         return false;
@@ -193,53 +105,19 @@ inline bool MessageQueue::Push(MessageBlock *msg)
     return true;
 }
 
-inline Int32 MessageQueue::TimeWait(std::list<MessageBlock *> *&swapList, UInt64 timeoutMs)
-{
-    _consumer->Lock();
-    Int32 ret = Status::Success;
-    if(!_hasMsg)
-        ret = _consumer->TimeWait(timeoutMs);
-    _consumer->Unlock();
-
-    _lck.Lock();
-    _PopImmediately(swapList);
-    _lck.Unlock();
-
-    return ret;
-}
-
-inline Int32 MessageQueue::Wait(std::list<MessageBlock *> *&swapList)
-{
-    _consumer->Lock();
-    Int32 ret = Status::Success;
-    if(!_hasMsg)
-        ret = _consumer->Wait();
-    _consumer->Unlock();
-
-    _lck.Lock();
-    _PopImmediately(swapList);
-    _lck.Unlock();
-    return ret;
-}
-
-inline void MessageQueue::PopImmediately(std::list<MessageBlock *> *&swapList)
+ALWAYS_INLINE void MessageQueue::PopImmediately(std::list<MessageBlock *> *&swapList)
 {
     _lck.Lock();
     _PopImmediately(swapList);
     _lck.Unlock();
 }
 
-inline void MessageQueue::Sinal()
-{
-    _consumer->Sinal();
-}
-
-inline bool MessageQueue::HasMsg()
+ALWAYS_INLINE bool MessageQueue::HasMsg()
 {
     return _hasMsg.load();
 }
 
-inline UInt64 MessageQueue::GetMsgCount()
+ALWAYS_INLINE UInt64 MessageQueue::GetMsgCount()
 {
     _lck.Lock();
     auto count = _msgQueue->size();
@@ -248,7 +126,7 @@ inline UInt64 MessageQueue::GetMsgCount()
     return count;
 }
 
-inline void MessageQueue::_PopImmediately(std::list<MessageBlock *> *&swapList)
+ALWAYS_INLINE void MessageQueue::_PopImmediately(std::list<MessageBlock *> *&swapList)
 {
     if(!_hasMsg.exchange(false))
         return;

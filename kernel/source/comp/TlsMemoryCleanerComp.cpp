@@ -32,6 +32,8 @@
 #include <kernel/comp/Tls/TlsDefaultObj.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/memory/ObjPoolWrap.h>
 
 KERNEL_BEGIN
 
@@ -168,11 +170,11 @@ Int32 TlsMemoryCleanerComp::_DoStart()
 
 void TlsMemoryCleanerComp::_PurgeTlsMemory()
 {
-    _tlsDefaultObj->_lck.Lock();
+    _tlsDefaultObj->_lck->Lock();
     auto toSwap = _tlsDefaultObj->_durtyList;
     _tlsDefaultObj->_durtyList = _tlsDefaultObj->_durtyListSwap;
     _tlsDefaultObj->_durtyListSwap = toSwap;
-    _tlsDefaultObj->_lck.Unlock();
+    _tlsDefaultObj->_lck->Unlock();
 
     for(auto iter = toSwap->begin(); iter != toSwap->end();)
     {

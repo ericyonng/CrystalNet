@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Pipline/PipeType.h>
 #include <kernel/comp/Pipline/MemoryPipe.h>
 #include <kernel/comp/Pipline/FilePipe.h>

@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/common/LibObject.h>
 #include <kernel/comp/Lock/Impl/LockAdapter.h>
 
 KERNEL_BEGIN

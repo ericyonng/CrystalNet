@@ -41,7 +41,21 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    #include <ws2ipdef.h>   // ipv6等
+    #include <Ws2def.h>
+    #include <ws2tcpip.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <unistd.h>
+#endif
 
 KERNEL_BEGIN
 

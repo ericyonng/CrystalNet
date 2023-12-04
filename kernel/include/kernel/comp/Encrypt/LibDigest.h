@@ -47,9 +47,10 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
-#include <3rd/3rdForKernel.h>
+#include <kernel/common/macro.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 
@@ -59,55 +60,55 @@ public:
     static LibString MakeMd5(const LibString &src);
     static bool MakeMd5(const LibString &src, LibString &digest);
     static bool MakeMd5(const Byte8 *src, UInt64 len, LibString &digest);
-    static bool MakeMd5Init(MD5_CTX &ctx);
-    static bool MakeMd5Continue(MD5_CTX &ctx, const Byte8 *src, UInt64 len);
-    static bool MakeMd5Final(MD5_CTX &ctx, LibString &digest);
-    static void MakeMd5Clean(MD5_CTX &ctx);
+    static bool MakeMd5Init(void *ctx);
+    static bool MakeMd5Continue(void *ctx, const Byte8 *src, UInt64 len);
+    static bool MakeMd5Final(void *ctx, LibString &digest);
+    static void MakeMd5Clean(void *ctx);
     static bool MakeFileMd5(const LibString &file, LibString &md5);
 
     static LibString MakeSha1(const LibString &src);
     static bool MakeSha1(const LibString &src, LibString &digest);
     static bool MakeSha1(const Byte8 *src, UInt64 len, LibString &digest);
-    static bool MakeSha1Init(SHA_CTX &ctx);
-    static bool MakeSha1Continue(SHA_CTX &ctx, const Byte8 *src, UInt64 len);
-    static bool MakeSha1Final(SHA_CTX &ctx, LibString &digest);
-    static void MakeSha1Clean(SHA_CTX &ctx);
+    static bool MakeSha1Init(void *ctx);
+    static bool MakeSha1Continue(void *ctx, const Byte8 *src, UInt64 len);
+    static bool MakeSha1Final(void *ctx, LibString &digest);
+    static void MakeSha1Clean(void *ctx);
     static bool MakeFileSha1(const LibString &file, LibString &sha1Out);
 
     static LibString MakeSha224(const LibString &src);
     static bool MakeSha224(const LibString &src, LibString &digest);
     static bool MakeSha224(const Byte8 *src, UInt64 len, LibString &digest);
-    static bool MakeSha224Init(SHA256_CTX &ctx);
-    static bool MakeSha224Continue(SHA256_CTX &ctx, const Byte8 *src, UInt64 len);
-    static bool MakeSha224Final(SHA256_CTX &ctx, LibString &digest);
-    static void MakeSha224Clean(SHA256_CTX &ctx);
+    static bool MakeSha224Init(void *ctx);
+    static bool MakeSha224Continue(void *ctx, const Byte8 *src, UInt64 len);
+    static bool MakeSha224Final(void *ctx, LibString &digest);
+    static void MakeSha224Clean(void *ctx);
     static bool MakeFileSha224(const LibString &file, LibString &result);
     
     static LibString MakeSha256(const LibString &src);
     static bool MakeSha256(const LibString &src, LibString &digest);
     static bool MakeSha256(const Byte8 *src, UInt64 len, LibString &digest);
-    static bool MakeSha256Init(SHA256_CTX &ctx);
-    static bool MakeSha256Continue(SHA256_CTX &ctx, const Byte8 *src, UInt64 len);
-    static bool MakeSha256Final(SHA256_CTX &ctx, LibString &digest);
-    static void MakeSha256Clean(SHA256_CTX &ctx);
+    static bool MakeSha256Init(void *ctx);
+    static bool MakeSha256Continue(void *ctx, const Byte8 *src, UInt64 len);
+    static bool MakeSha256Final(void *ctx, LibString &digest);
+    static void MakeSha256Clean(void *ctx);
     static bool MakeFileSha256(const LibString &file, LibString &result);
     
     static LibString MakeSha384(const LibString &src);
     static bool MakeSha384(const LibString &src, LibString &digest);
     static bool MakeSha384(const Byte8 *src, UInt64 len, LibString &digest);
-    static bool MakeSha384Init(SHA512_CTX &ctx);
-    static bool MakeSha384Continue(SHA512_CTX &ctx, const Byte8 *src, UInt64 len);
-    static bool MakeSha384Final(SHA512_CTX &ctx, LibString &digest);
-    static void MakeSha384Clean(SHA512_CTX &ctx);
+    static bool MakeSha384Init(void *ctx);
+    static bool MakeSha384Continue(void *ctx, const Byte8 *src, UInt64 len);
+    static bool MakeSha384Final(void *ctx, LibString &digest);
+    static void MakeSha384Clean(void *ctx);
     static bool MakeFileSha384(const LibString &file, LibString &result);
     
     static LibString MakeSha512(const LibString &src);
     static bool MakeSha512(const LibString &src, LibString &digest);
     static bool MakeSha512(const Byte8 *src, UInt64 len, LibString &digest);
-    static bool MakeSha512Init(SHA512_CTX &ctx);
-    static bool MakeSha512Continue(SHA512_CTX &ctx, const Byte8 *src, UInt64 len);
-    static bool MakeSha512Final(SHA512_CTX &ctx, LibString &digest);
-    static void MakeSha512Clean(SHA512_CTX &ctx);
+    static bool MakeSha512Init(void *ctx);
+    static bool MakeSha512Continue(void *ctx, const Byte8 *src, UInt64 len);
+    static bool MakeSha512Final(void *ctx, LibString &digest);
+    static void MakeSha512Clean(void *ctx);
     static bool MakeFileSha512(const LibString &file, LibString &result);
 };
 
@@ -123,52 +124,6 @@ ALWAYS_INLINE bool LibDigest::MakeMd5(const LibString &src, LibString &digest)
     return MakeMd5(src.c_str(), src.length(), digest);
 }
 
-
-ALWAYS_INLINE bool LibDigest::MakeMd5Init(MD5_CTX &ctx)
-{
-    auto err = MD5_Init(&ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("MD5_Init fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeMd5Continue(MD5_CTX &ctx, const Byte8 *src, UInt64 len)
-{
-    auto err = MD5_Update(&ctx, src, len);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("MD5_Update fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeMd5Final(MD5_CTX &ctx, LibString &digest)
-{
-    U8 bufferMd5[MD5_DIGEST_LENGTH] = {0};
-    auto err = MD5_Final(&(bufferMd5[0]), &ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("MD5_Final fail err[%d]", err);
-        return false;
-    }
-
-    digest.AppendData(reinterpret_cast<const Byte8 *>(bufferMd5), MD5_DIGEST_LENGTH);
-
-    return true;
-}
-
-ALWAYS_INLINE void LibDigest::MakeMd5Clean(MD5_CTX &ctx)
-{
-    OPENSSL_cleanse(&ctx, sizeof(ctx));
-}
-
-
 ALWAYS_INLINE LibString LibDigest::MakeSha1(const LibString &src)
 {
     LibString digest;
@@ -179,50 +134,6 @@ ALWAYS_INLINE LibString LibDigest::MakeSha1(const LibString &src)
 ALWAYS_INLINE bool LibDigest::MakeSha1(const LibString &src, LibString &digest)
 {
     return MakeSha1(src.c_str(), src.length(), digest);
-}
-
-
-ALWAYS_INLINE bool LibDigest::MakeSha1Init(SHA_CTX &ctx)
-{
-    auto err = SHA1_Init(&ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA1_Init fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha1Continue(SHA_CTX &ctx, const Byte8 *src, UInt64 len)
-{
-    auto err = SHA1_Update(&ctx, src,len);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA1_Update fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha1Final(SHA_CTX &ctx, LibString &digest)
-{
-    U8 digestBuffer[SHA_DIGEST_LENGTH] = {0};
-    auto err = SHA1_Final(digestBuffer, &ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA1_Final fail err[%d]", err);
-        return false;
-    }
-
-    digest.AppendData(reinterpret_cast<const Byte8 *>(digestBuffer), SHA_DIGEST_LENGTH);
-    return true;
-}
-
-ALWAYS_INLINE void LibDigest::MakeSha1Clean(SHA_CTX &ctx)
-{
-    OPENSSL_cleanse(&ctx, sizeof(ctx));
 }
 
 ALWAYS_INLINE LibString LibDigest::MakeSha224(const LibString &src)
@@ -237,51 +148,6 @@ ALWAYS_INLINE bool LibDigest::MakeSha224(const LibString &src, LibString &digest
     return MakeSha224(src.c_str(), src.length(), digest);
 }
 
-
-ALWAYS_INLINE bool LibDigest::MakeSha224Init(SHA256_CTX &ctx)
-{
-    auto err = SHA224_Init(&ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA224_Init fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha224Continue(SHA256_CTX &ctx, const Byte8 *src, UInt64 len)
-{
-    auto err = SHA224_Update(&ctx, src, len);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA224_Update fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha224Final(SHA256_CTX &ctx, LibString &digest)
-{
-    U8 digestBuffer[SHA224_DIGEST_LENGTH] = {0};
-    auto err = SHA224_Final(digestBuffer, &ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA224_Final fail err[%d]", err);
-        return false;
-    }
-
-    digest.AppendData(reinterpret_cast<const Byte8 *>(digestBuffer), SHA224_DIGEST_LENGTH);
-
-    return true;
-}
-
-ALWAYS_INLINE void LibDigest::MakeSha224Clean(SHA256_CTX &ctx)
-{
-    OPENSSL_cleanse(&ctx, sizeof(ctx));
-}
-
 ALWAYS_INLINE LibString LibDigest::MakeSha256(const LibString &src)
 {
     LibString digest;
@@ -292,50 +158,6 @@ ALWAYS_INLINE LibString LibDigest::MakeSha256(const LibString &src)
 ALWAYS_INLINE bool LibDigest::MakeSha256(const LibString &src, LibString &digest)
 {
     return MakeSha256(src.c_str(), src.length(), digest);
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha256Init(SHA256_CTX &ctx)
-{
-    auto err = SHA256_Init(&ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA256_Init fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha256Continue(SHA256_CTX &ctx, const Byte8 *src, UInt64 len)
-{
-    auto err = SHA256_Update(&ctx, src,len);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA256_Update fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha256Final(SHA256_CTX &ctx, LibString &digest)
-{
-    U8 digestBuffer[SHA256_DIGEST_LENGTH] = {0};
-    auto err = SHA256_Final(digestBuffer, &ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA256_Final fail err[%d]", err);
-        return false;
-    }
-
-    digest.AppendData(reinterpret_cast<const Byte8 *>(digestBuffer), SHA256_DIGEST_LENGTH);
-
-    return true;
-}
-
-ALWAYS_INLINE void LibDigest::MakeSha256Clean(SHA256_CTX &ctx)
-{
-    OPENSSL_cleanse(&ctx, sizeof(ctx));
 }
 
 ALWAYS_INLINE LibString LibDigest::MakeSha384(const LibString &src)
@@ -350,49 +172,6 @@ ALWAYS_INLINE bool LibDigest::MakeSha384(const LibString &src, LibString &digest
     return MakeSha384(src.c_str(), src.length(), digest);
 }
 
-ALWAYS_INLINE bool LibDigest::MakeSha384Init(SHA512_CTX &ctx)
-{
-    auto err = SHA384_Init(&ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA384_Init fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha384Continue(SHA512_CTX &ctx, const Byte8 *src, UInt64 len)
-{
-    auto err = SHA384_Update(&ctx, src, len);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA384_Update fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha384Final(SHA512_CTX &ctx, LibString &digest)
-{
-    U8 digestBuffer[SHA384_DIGEST_LENGTH] = {0};
-    auto err = SHA384_Final(digestBuffer, &ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA384_Final fail err[%d]", err);
-        return false;
-    }
-
-    digest.AppendData(reinterpret_cast<const Byte8 *>(digestBuffer), SHA384_DIGEST_LENGTH);
-    return true;
-}
-
-ALWAYS_INLINE void LibDigest::MakeSha384Clean(SHA512_CTX &ctx)
-{
-    OPENSSL_cleanse(&ctx, sizeof(ctx));
-}
-
 ALWAYS_INLINE LibString LibDigest::MakeSha512(const LibString &src)
 {
     LibString digest;
@@ -403,50 +182,6 @@ ALWAYS_INLINE LibString LibDigest::MakeSha512(const LibString &src)
 ALWAYS_INLINE bool LibDigest::MakeSha512(const LibString &src, LibString &digest)
 {
     return MakeSha512(src.c_str(), src.length(), digest);
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha512Init(SHA512_CTX &ctx)
-{
-    auto err = SHA512_Init(&ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA512_Init fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha512Continue(SHA512_CTX &ctx, const Byte8 *src, UInt64 len)
-{
-    auto err = SHA512_Update(&ctx, src,len);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA512_Update fail err[%d]", err);
-        return false;
-    }
-
-    return true;
-}
-
-ALWAYS_INLINE bool LibDigest::MakeSha512Final(SHA512_CTX &ctx, LibString &digest)
-{
-    U8 digestBuffer[SHA512_DIGEST_LENGTH] = {0};
-    auto err = SHA512_Final(digestBuffer, &ctx);
-    if(UNLIKELY(err != ERR_LIB_NONE))
-    {
-        CRYSTAL_TRACE("SHA512_Final fail err[%d]", err);
-        return false;
-    }
-
-    digest.AppendData(reinterpret_cast<const Byte8 *>(digestBuffer), SHA512_DIGEST_LENGTH);
-
-    return true;
-}
-
-ALWAYS_INLINE void LibDigest::MakeSha512Clean(SHA512_CTX &ctx)
-{
-    OPENSSL_cleanse(&ctx, sizeof(ctx));
 }
 
 KERNEL_END

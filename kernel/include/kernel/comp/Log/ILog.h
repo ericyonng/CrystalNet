@@ -42,10 +42,13 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <stdarg.h>
+#include <utility>
+
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Log/LogDefs.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 

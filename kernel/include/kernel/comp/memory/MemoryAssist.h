@@ -35,18 +35,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/LibString.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Delegate/Delegate.h>
-#include <kernel/comp/MemoryMonitor/memorymonitor_inc.h>
-#include <kernel/comp/SmartPtr.h>
-#include <kernel/comp/Utils/RttiUtil.h>
-#include <kernel/comp/memory/ObjAlloctor.h>
+#include <memory>
+
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/memory/ObjPoolWrap.h>
-#include <kernel/comp/memory/Defs/MemoryAlloctorConfig.h>
-#include <kernel/comp/memory/AlloctorInfoCollector.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/common/LibObject.h>
+#include <kernel/comp/Lock/Impl/LockWrap.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Utils/RttiUtil.h>
+#include <kernel/comp/MemoryMonitor/memorymonitor_inc.h>
 #include <kernel/comp/Utils/AllocUtil.h>
 
 // // 使用常规对象池创建对象
@@ -75,7 +73,6 @@ __CRYSTAL_MA_NEW_BY_POOL_WRAP(ObjType, BuildType, __FILE__, __LINE__, ##__VA_ARG
 #undef OBJ_POOL_DEL
 #define OBJ_POOL_DEL(ObjType, BuildType, ptr)   \
 KERNEL_NS::MemoryAssist<ObjType, BuildType>::GetInstance()->WrapDelete<BuildType>(ptr), KERNEL_NS::ObjPoolWrap<ObjType>::DeleteByAdapter(BuildType::V, ptr)
-
 
 
 // // 常规模版对象池创建对象
@@ -157,9 +154,6 @@ __CRYSTAL_MA_TEMPLATE_NEW_P6(cls, P1, P2, P3, P4, P5, P6, BuildType, __FILE__, _
 #undef CRYSTAL_MA_TEMPLATE_DELETE_P6
 #define CRYSTAL_MA_TEMPLATE_DELETE_P6(cls, P1, P2, P3, P4, P5, P6, BuildType, ptr)      \
 KERNEL_NS::MemoryAssist<cls<P1, P2, P3, P4, P5, P6>, BuildType>::GetInstance()->WrapDelete<BuildType>(ptr), cls<P1, P2, P3, P4, P5, P6>::DeleteByAdapter_##cls(BuildType::V, ptr)
-
-
-
 
 // // 使用ObjPoolWrap 模版版本对象池创建对象
 

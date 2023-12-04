@@ -29,8 +29,13 @@
 
 #include <pch.h>
 #include <kernel/comp/LibTime.h>
-#include <kernel/comp/Lock/Defs/MetaLocker.h>
 #include <kernel/comp/Lock/Impl/ConditionLocker.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <WinSock2.h>
+ #include <synchapi.h>
+#endif
+
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Utils/TimeUtil.h>
 

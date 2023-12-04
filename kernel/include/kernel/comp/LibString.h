@@ -35,8 +35,18 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <set>
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/func.h>
+#include <kernel/common/Buffer.h>
+
 #include <kernel/comp/LibStringOut.h>
+#include <stdarg.h>     // c风格格式化vs_arg等接口
 
 KERNEL_BEGIN
 class LibString;
@@ -964,6 +974,8 @@ ALWAYS_INLINE void LibString::remove_utf8_bomb()
     if (this->has_utf8_bomb())
         _raw.erase(0, 3);
 }
+
+KERNEL_EXPORT LibString &KernelAppendFormat(LibString &o, const Byte8 *fmt, ...) LIB_KERNEL_FORMAT_CHECK(2, 3);
 
 KERNEL_END
 

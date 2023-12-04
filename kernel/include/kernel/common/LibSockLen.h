@@ -22,29 +22,28 @@
  * SOFTWARE.
  *  
  * 
- * Date: 2020-10-08 19:05:26
+ * Date: 2023-11-29 10:49:19
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Lock/Defs/MetaLocker.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_LIBSOCKLEN_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_LIBSOCKLEN_H__
 
-KERNEL_BEGIN
+#pragma once
 
-MetaLocker::MetaLocker()
-{
-    ::memset(&_handle, 0, sizeof(_handle));
-}
+#include <kernel/common/compile.h>
+#include <kernel/common/BaseType.h>
 
-MetaLocker::~MetaLocker()
-{
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <sys/socket.h> // 支持socklen_t等
+#endif
 
-}
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    typedef socklen_t LibSockLen;
+#else
+    typedef Int32 LibSockLen;
+#endif
 
-void MetaLocker::Release()
-{
-    CRYSTAL_DELETE(this);
-}
 
-KERNEL_END
+#endif

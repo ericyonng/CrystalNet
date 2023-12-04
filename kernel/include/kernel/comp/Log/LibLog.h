@@ -31,14 +31,17 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Log/ILog.h>
+#include <atomic>
+#include <vector>
 
 KERNEL_BEGIN
 
 class SpecifyLog;
 class LogIniCfgMgr;
 class Variant;
+class LibThread;
+class ConditionLocker;
 
 class KERNEL_EXPORT LibLog : public ILog
 {

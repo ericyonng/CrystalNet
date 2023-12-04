@@ -31,11 +31,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <kernel/comp/Lock/Impl/Locker.h>
+
+#include <stdio.h>
 
 KERNEL_BEGIN
 
@@ -116,58 +121,57 @@ protected:
     Locker  _locker;
 };
 
-
-inline void LibFile::Lock()
+ALWAYS_INLINE void LibFile::Lock()
 {
     _locker.Lock();
 }
 
-inline void LibFile::UnLock()
+ALWAYS_INLINE void LibFile::UnLock()
 {
     _locker.Unlock();
 }
 
-inline bool LibFile::IsOpen() const
+ALWAYS_INLINE bool LibFile::IsOpen() const
 {
     return _fp != NULL;
 }
 
-inline const LibString &LibFile::GetPath() const
+ALWAYS_INLINE const LibString &LibFile::GetPath() const
 {
     return _path;
 }
 
-inline const LibString &LibFile::GetFileName() const
+ALWAYS_INLINE const LibString &LibFile::GetFileName() const
 {
     return _fileName;
 }
 
-inline Int64 LibFile::GetSize() const
+ALWAYS_INLINE Int64 LibFile::GetSize() const
 {
     return _fileSize;
 }
 
-inline void LibFile::GetCurrentFileName(LibString &curName) const
+ALWAYS_INLINE void LibFile::GetCurrentFileName(LibString &curName) const
 {
     _BuildFileName(curName);
 }
 
-inline FILE *LibFile::GetFp()
+ALWAYS_INLINE FILE *LibFile::GetFp()
 {
     return _fp;
 }
 
-inline LibFile::operator bool() const
+ALWAYS_INLINE LibFile::operator bool() const
 {
     return _fp != NULL;
 }
 
-inline LibFile::operator FILE *()
+ALWAYS_INLINE LibFile::operator FILE *()
 {
     return _fp;
 }
 
-inline LibFile::operator const FILE *() const
+ALWAYS_INLINE LibFile::operator const FILE *() const
 {
     return _fp;
 }

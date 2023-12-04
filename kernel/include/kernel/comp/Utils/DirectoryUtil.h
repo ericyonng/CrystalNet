@@ -32,14 +32,17 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Delegate/Delegate.h>
-#include <kernel/comp/Utils/Defs/FindFileInfo.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <io.h>
+#endif
 
 KERNEL_BEGIN
 
-
+struct FindFileInfo;
 
 class KERNEL_EXPORT DirectoryUtil 
 {

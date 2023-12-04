@@ -27,6 +27,11 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpSession.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+
+#include <kernel/comp/LibDirtyHelper.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerDirty.h>
 #include <kernel/comp/NetEngine/Poller/Defs/CloseSessionInfo.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpPoller.h>
@@ -38,10 +43,9 @@
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
 #include <kernel/comp/Utils/Utils.h>
 #include <kernel/comp/Service/Service.h>
-
-#include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpSession.h>
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+#include <kernel/comp/NetEngine/Defs/IoEvent.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerEvent.h>
 
 KERNEL_BEGIN
 

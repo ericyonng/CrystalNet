@@ -32,7 +32,10 @@
 
 #pragma once
 
-#include "kernel/kernel_inc.h"
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/common/macro.h>
+#include <typeinfo>
 
 KERNEL_BEGIN
 
@@ -62,19 +65,19 @@ public:
 };
 
 template<typename ObjType>
-inline const Byte8 *RttiUtil::GetByType()
+ALWAYS_INLINE const Byte8 *RttiUtil::GetByType()
 {
     return GetByTypeName(typeid(ObjType).name());
 }
 
 template<typename ObjType>
-inline const Byte8 *RttiUtil::GetByObj(ObjType *obj)
+ALWAYS_INLINE const Byte8 *RttiUtil::GetByObj(ObjType *obj)
 {
     return GetByTypeName(typeid(*obj).name());
 }
 
 template<typename ObjType>
-inline UInt64 RttiUtil::GetTypeHashCode()
+ALWAYS_INLINE UInt64 RttiUtil::GetTypeHashCode()
 {
     return typeid(ObjType).hash_code();
 }
@@ -93,6 +96,5 @@ ALWAYS_INLINE UInt64 RttiUtil::GetTypeIdByObj(ObjType *obj)
 }
 
 KERNEL_END
-
 
 #endif

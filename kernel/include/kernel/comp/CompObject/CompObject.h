@@ -36,7 +36,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/CompObject/IObject.h>
 
 KERNEL_BEGIN
@@ -66,7 +65,6 @@ protected:
 
 private:
     void _Clear();
-
 };
 
 

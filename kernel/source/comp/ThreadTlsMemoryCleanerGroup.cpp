@@ -30,6 +30,7 @@
 #include <kernel/comp/ThreadTlsMemoryCleanerGroup.h>
 #include <kernel/comp/TlsMemoryCleanerComp.h>
 #include <kernel/comp/Timer/Timer.h>
+#include <kernel/comp/memory/ObjPoolWrap.h>
 
 KERNEL_BEGIN
 

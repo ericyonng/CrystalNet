@@ -32,22 +32,28 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
 #include <kernel/comp/CompObject/CompObject.h>
-#include <kernel/comp/LibDirtyHelper.h>
-#include <kernel/comp/Delegate/Delegate.h>
-#include <kernel/comp/Poller/PollerEvent.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/common/LibObject.h>
+
+#include <kernel/comp/Lock/Impl/ConditionLocker.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 #include <kernel/comp/LibList.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Log/log.h>
-#include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/ConcurrentPriorityQueue/ConcurrentPriorityQueue.h>
+#include <kernel/comp/Cpu/LibCpuCounter.h>
+
+#include <unordered_map>
+#include <atomic>
 
 KERNEL_BEGIN
 
+struct PollerEvent;
+
 class TimerMgr;
 class TimeSlice;
+
+template<typename KeyType, typename MaskValue>
+class LibDirtyHelper;
 
 class KERNEL_EXPORT Poller : public CompObject
 {
@@ -137,45 +143,8 @@ public:
 
     // 投递事件
     void Push(Int32 level, PollerEvent *ev);
-    void Push(Int32 level, LibList<PollerEvent *> *evList)
-    {
-        if(UNLIKELY(!_isEnable))
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, evList count:%llu")
-                            , GetId(), evList->GetAmount());
-
-            ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
-                ev->Release();
-            });
-            LibList<PollerEvent *>::Delete_LibList(evList);
-            return;
-        }
-
-        const auto amount = static_cast<Int64>(evList->GetAmount());
-        _eventAmountLeft += amount;
-        _genEventAmount += amount;
-
-        _eventsList->PushQueue(level, evList);
-        LibList<PollerEvent *>::Delete_LibList(evList);
-        WakeupEventLoop();
-    }
-
-    void Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action)
-    {
-        if(UNLIKELY(!_isEnable))
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying poller obj id:%llu"), GetId());
-            action->Release();
-            return;
-        }
-
-        auto ev = ActionPollerEvent::New_ActionPollerEvent(specifyActionType);
-        ev->_action = action;
-        ++_eventAmountLeft;
-        ++_genEventAmount;
-        _eventsList->PushQueue(level, ev);
-        WakeupEventLoop();
-    }
+    void Push(Int32 level, LibList<PollerEvent *> *evList);
+    void Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action);
 
     template<typename LamvadaType>
     void Push(Int32 level, Int32 specifyActionType, LamvadaType &&lambdaType);
@@ -344,16 +313,6 @@ ALWAYS_INLINE void Poller::SetMaxSleepMilliseconds(UInt64 maxMilliseconds)
     _maxSleepMilliseconds = maxMilliseconds;
 }
 
-ALWAYS_INLINE void Poller::SetMaxPriorityLevel(Int32 level)
-{
-    _eventsList->SetMaxLevel(level);
-}
-
-ALWAYS_INLINE Int32 Poller::GetMaxPriorityLevel() const
-{
-    return _eventsList->GetMaxLevel();
-}
-
 ALWAYS_INLINE void Poller::SetLoopDetectTimeout(Int32 loopCount)
 {
     _loopDetectTimeout = loopCount;
@@ -374,21 +333,6 @@ ALWAYS_INLINE const TimerMgr *Poller::GetTimerMgr() const
     return _timerMgr;
 }
 
-ALWAYS_INLINE void Poller::Push(Int32 level, PollerEvent *ev)
-{
-    if(UNLIKELY(!_isEnable))
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, ev:%s"), GetId(), ev->ToString().c_str());
-        ev->Release();
-        return;
-    }
-    
-    ++_eventAmountLeft;
-    ++_genEventAmount;
-    _eventsList->PushQueue(level, ev);
-    WakeupEventLoop();
-}
-
 template<typename LamvadaType>
 ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, LamvadaType &&lambdaType)
 {
@@ -405,21 +349,6 @@ ALWAYS_INLINE void Poller::QuitLoop()
 {
     _isQuitLoop = true;
     WakeupEventLoop();
-}
-
-ALWAYS_INLINE bool Poller::CanQuit() const
-{
-    if(_eventAmountLeft != 0)
-        return false;
-
-    if(_dirtyHelper && _dirtyHelper->HasDirty())
-        return false;
-
-    // 不需要考虑定时器事件,因为当要quit的时候应该所有模块的定时器都是停止的
-    // if(_timerMgr && !_timerMgr->IsDriving() && _timerMgr->HasExpired())
-    //     return false;
-
-    return true;
 }
 
 ALWAYS_INLINE void Poller::SetDummyRelease()

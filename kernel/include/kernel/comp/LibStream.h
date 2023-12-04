@@ -33,10 +33,12 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/common/LibObject.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/RttiUtil.h>
+#include <kernel/comp/memory/MemoryPool.h>
+#include <kernel/common/func.h>
 
 KERNEL_BEGIN
 

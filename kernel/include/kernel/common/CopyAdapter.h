@@ -33,9 +33,9 @@
 
 #include <kernel/common/macro.h>
 #include <kernel/common/DataTypeAdapter.h>
+#include <string.h>
 
 KERNEL_BEGIN
-
 
 // 流输出必须区分,指针,pod类型
 template<typename _Ty, LibDataType::ENUMS _DataType>

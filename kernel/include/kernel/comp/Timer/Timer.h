@@ -34,6 +34,5 @@
 #include <kernel/comp/Timer/TimeData.h>
 #include <kernel/comp/Timer/LibTimer.h>
 #include <kernel/comp/Timer/TimerMgr.h>
-#include <kernel/comp/Timer/TimerDefs.h>
 
 #endif

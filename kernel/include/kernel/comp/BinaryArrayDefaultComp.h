@@ -22,30 +22,28 @@
  * SOFTWARE.
  *  
  * 
- * Date: 2020-10-08 18:54:51
+ * Date: 2023.11.30 21:02:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_LOCK_DEFS_META_LOCKER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_LOCK_DEFS_META_LOCKER_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_BINARY_ARRAY_DEFAULT_COMP_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_BINARY_ARRAY_DEFAULT_COMP_H__
 
 #pragma once
 
-#include <kernel/kernel_export.h>
-#include <kernel/comp/Lock/Defs/LockerHandle.h>
+#include <kernel/common/BaseMacro.h>
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT MetaLocker
+template<typename Elem>
+class BinaryArrayDefaultComp
 {
 public:
-    MetaLocker();
-    virtual ~MetaLocker();
-    virtual void Release();
-
-public:
-    LockerHandle _handle;
+    bool operator() (const Elem &l, const Elem &r) const
+    {
+        return l < r;    
+    }
 };
 
 KERNEL_END

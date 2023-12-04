@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <kernel/comp/Encrypt/Defs.h>
 #include <kernel/comp/Encrypt/LibAes.h>
 #include <kernel/comp/Encrypt/XorEncrypt.h>
 #include <kernel/comp/Encrypt/LibRsa.h>

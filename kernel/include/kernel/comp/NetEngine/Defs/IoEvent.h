@@ -31,17 +31,18 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
-#include <kernel/comp/LibString.h>
+#include <kernel/common/macro.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 
 struct IoData;
 
-class KERNEL_EXPORT IoEventType
+class IoEventType
 {
 public:
     /* IO操作类型 */
@@ -71,7 +72,7 @@ public:
 };
 
 
-struct KERNEL_EXPORT IoEvent
+struct IoEvent
 {
     POOL_CREATE_OBJ_DEFAULT(IoEvent);
     IoEvent();
@@ -82,7 +83,7 @@ struct KERNEL_EXPORT IoEvent
     Int64 _bytesTrans;  // 传输的字节数
 };
 
-inline IoEvent::IoEvent()
+ALWAYS_INLINE IoEvent::IoEvent()
 :_sessionId(0)
 ,_ioData(NULL)
 ,_bytesTrans(0)

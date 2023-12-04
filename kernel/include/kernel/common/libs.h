@@ -163,7 +163,7 @@
     // 支持获取网卡信息
     #include	<net/if.h>
 
-    #include <sys/sysctl.h> // sysctl函数
+    #include <sys/sysctl.h> // sysctl 函数
     #include <net/route.h>  // 路由表 ifa_msghdr等
     // #include <net/if_dl.h> // 数据结构 sockaddr_dl 需要安装unp才可以，废弃
 

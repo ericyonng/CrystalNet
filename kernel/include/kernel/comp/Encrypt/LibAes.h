@@ -31,13 +31,26 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Utils/CypherGeneratorUtil.h>
-#include <kernel/comp/Encrypt/Defs.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 
 class LibString;
+
+class KERNEL_EXPORT LibAesDefs
+{
+public:     
+    // 密文类型
+    enum CYPHER_TYPE
+    {
+        AES_CYPHER_128 = 0,             // 128bit加密
+        AES_CYPHER_192,                 // 192bit
+        AES_CYPHER_256,                 // 256bit
+    };
+};
+
 
 class KERNEL_EXPORT LibAes
 {
@@ -53,14 +66,7 @@ private:
     static Int32 GetAesKeyBytes(Int32 mode = LibAesDefs::AES_CYPHER_192);
 };
 
-inline void LibAes::GenerateKey(LibString &key, Int32 mode)
-{
-    const Int32 bytes = GetAesKeyBytes(mode);
-    key.resize(static_cast<UInt64>(bytes));
-    CypherGeneratorUtil::Gen(key, bytes);
-}
-
-inline Int32 LibAes::GetAesKeyBytes(Int32 mode)
+ALWAYS_INLINE Int32 LibAes::GetAesKeyBytes(Int32 mode)
 {
     static const int keyBytes[] = {
         /* AES_CYPHER_128 */  16,

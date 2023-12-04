@@ -31,10 +31,4 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-
-KERNEL_BEGIN
-
-KERNEL_END
-
 #endif

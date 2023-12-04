@@ -31,7 +31,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
@@ -54,14 +53,14 @@ public:
     static UInt64 CalcEncodeLen(UInt64 dataLen);
 };
 
-inline LibString LibBase64::Encode(const LibString &src)
+ALWAYS_INLINE LibString LibBase64::Encode(const LibString &src)
 {
     LibString outStr;
     Encode(src.data(), src.size(), outStr);
     return outStr;
 }
 
-inline bool LibBase64::Encode(const Byte8 *data, UInt64 len, LibString &base64Text)
+ALWAYS_INLINE bool LibBase64::Encode(const Byte8 *data, UInt64 len, LibString &base64Text)
 {
 	// BUF_MEM *bufferPtr;
 	// BIO *b64 = BIO_new(BIO_f_base64());
@@ -89,7 +88,7 @@ inline bool LibBase64::Encode(const Byte8 *data, UInt64 len, LibString &base64Te
 }
 
 
-//  inline bool LibBase64::Decode(const Byte8 *data, Int32 decodeLen, Byte8 *buffer, Int32 *len)
+//  ALWAYS_INLINE bool LibBase64::Decode(const Byte8 *data, Int32 decodeLen, Byte8 *buffer, Int32 *len)
 //  {
 // 	BIO *bio = BIO_new_mem_buf(data, -1);
 // 	BIO *b64 = BIO_new(BIO_f_base64());
@@ -114,20 +113,20 @@ inline bool LibBase64::Encode(const Byte8 *data, UInt64 len, LibString &base64Te
 //     return true;
 //  }
 
-// inline bool LibBase64::Decode(const Byte8 *data, Byte8 *buffer, Int32 *len)
+// ALWAYS_INLINE bool LibBase64::Decode(const Byte8 *data, Byte8 *buffer, Int32 *len)
 // {
 // 	Int32 decodeLen = CalcDecodeLen(data);
 //     return Decode(data, decodeLen, buffer, len);
 // }
 
-inline LibString LibBase64::Decode(const LibString &src)
+ALWAYS_INLINE LibString LibBase64::Decode(const LibString &src)
 {
     LibString outStr;
     Decode(src.data(), src.size(), outStr);
     return outStr;
 }
 
-inline bool LibBase64::Decode(const Byte8 *data, UInt64 inputLen, LibString &plainText)
+ALWAYS_INLINE bool LibBase64::Decode(const Byte8 *data, UInt64 inputLen, LibString &plainText)
 {
     UInt64 outputLen = CalcDecodeLen(data, inputLen);
     if (UNLIKELY(outputLen == 0))
@@ -141,7 +140,7 @@ inline bool LibBase64::Decode(const Byte8 *data, UInt64 inputLen, LibString &pla
 }
 
 
-inline UInt64 LibBase64::CalcDecodeLen(const Byte8 *input, UInt64 len)
+ALWAYS_INLINE UInt64 LibBase64::CalcDecodeLen(const Byte8 *input, UInt64 len)
 {
     UInt64 placeHolderCount = 0;
     for (UInt64 i = len - 1; input[i] == CRYSTAL_BASE64_PADDING; --i)
@@ -150,7 +149,7 @@ inline UInt64 LibBase64::CalcDecodeLen(const Byte8 *input, UInt64 len)
     return ((6 * len) / 8) - placeHolderCount;
 }
 
-inline UInt64 LibBase64::CalcEncodeLen(UInt64 dataLen)
+ALWAYS_INLINE UInt64 LibBase64::CalcEncodeLen(UInt64 dataLen)
 {
     return (dataLen + 2 - ((dataLen + 2) % 3)) / 3 * 4;
 }

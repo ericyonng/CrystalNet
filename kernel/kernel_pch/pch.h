@@ -30,6 +30,11 @@
 #ifndef __KERNEL_KERNEL_PCH_PCH_H__
 #define __KERNEL_KERNEL_PCH_PCH_H__
 
+#include <kernel/common/macro.h>
+#include <kernel/common/libs.h>
+#include <kernel/common/statics.h>
+#include <kernel/common/status.h>
+
 #ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -41,8 +46,6 @@
 #include "windows.h"
 #include <tchar.h>
 #endif
-
-#include <kernel/common/common.h>
 
 #endif
 

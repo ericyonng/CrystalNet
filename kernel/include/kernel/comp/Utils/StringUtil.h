@@ -31,9 +31,15 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Cpu/CpuDefs.h>
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <vector>
 
 KERNEL_BEGIN
 
@@ -405,13 +411,6 @@ ALWAYS_INLINE LibString StringUtil::ToString(const std::set<const T *> &contents
 	
 	return StringUtil::ToString(strs, sep);
 }
-
-
-ALWAYS_INLINE bool StringUtil::IsMatch(const LibString &content, const LibString &matchStr)
-{
-	return std::regex_match(content.GetRaw(), std::regex(matchStr.c_str()));
-}
-
 
 KERNEL_END
 

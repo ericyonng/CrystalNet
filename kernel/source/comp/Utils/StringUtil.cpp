@@ -30,8 +30,8 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/Utils/StringUtil.h>
-#include <3rd/3rdForKernel.h>
 #include <kernel/comp/Log/log.h>
+#include <regex>
 
 // 
 // // 3rd
@@ -416,5 +416,11 @@ LibString StringUtil::InterfaceObjName(const LibString &name)
 
 	return icompName;
 }
+
+bool StringUtil::IsMatch(const LibString &content, const LibString &matchStr)
+{
+	return std::regex_match(content.GetRaw(), std::regex(matchStr.c_str()));
+}
+
 KERNEL_END
 

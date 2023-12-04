@@ -21,17 +21,32 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-02-15 13:18:24
+ * Date: 2021-02-07 21:00:13
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/common/KernelExternTemplate.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_FILE_CURSOR_OFFSET_TYPE_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_FILE_FILE_CURSOR_OFFSET_TYPE_H__
 
+#pragma once
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
 
 KERNEL_BEGIN
 
-// template class LibStream<_Build::TL>;
+class KERNEL_EXPORT FileCursorOffsetType
+{
+public:
+    enum FILE_CURSOR_POS
+    {
+        FILE_CURSOR_POS_SET = 0,    // 起始位置
+        FILE_CURSOR_POS_CUR = 1,    // 当前位置
+        FILE_CURSOR_POS_END = 2,    // 文件末尾
+    };
+};
 
 KERNEL_END
+
+#endif

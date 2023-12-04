@@ -31,18 +31,18 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Timer/TimeData.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Timer/AsynTimeData.h>
-#include <kernel/comp/Utils/SystemUtil.h>
-#include <kernel/comp/Utils/TimeUtil.h>
-#include <kernel/comp/memory/memory.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+
+#include <map>
+#include <set>
 
 KERNEL_BEGIN
 
 class LibCpuCounter;
 class LibTimer;
+class TimeData;
 
 // 不支持多线程,请在单线程使用定时器
 class KERNEL_EXPORT TimerMgr
@@ -140,24 +140,6 @@ ALWAYS_INLINE void TimerMgr::UnRegister(TimeData *timeData)
     _UnRegister(timeData);
 }
 
-ALWAYS_INLINE TimeData *TimerMgr::NewTimeData(LibTimer *timer)
-{
-    auto newData = TimeData::NewThreadLocal_TimeData(++_curMaxId, timer);
-    _allTimeData.insert(newData);
-    return newData;
-}
-
-
-ALWAYS_INLINE Int64 TimerMgr::GetTimeoutIntervalRecently(Int64 nowMs) const
-{
-    if(UNLIKELY(_allTimeData.empty()))
-        return -1;
-
-    TimeData *recently = *_allTimeData.begin();
-    Int64 diff = recently->_expiredTime - nowMs;
-    return diff > 0 ? diff : 0;    
-}
-
 ALWAYS_INLINE UInt64 TimerMgr::GetTimerLoaded() const
 {
     return _allTimeData.size();
@@ -191,60 +173,6 @@ ALWAYS_INLINE void TimerMgr::TakeOverLifeTime(LibTimer *timer, LambdaType &&cb)
 ALWAYS_INLINE void TimerMgr::_BeforeDrive()
 {
     ++_driving;
-}
-
-ALWAYS_INLINE void TimerMgr::_AsynRegister(TimeData *timeData, Int64 newPeriod, Int64 newExpiredTime)
-{
-    auto asynData = timeData->_asynData;
-    asynData->MaskRegister(newExpiredTime, newPeriod);
-    timeData->_isScheduing = true;
-
-    _asynDirty.insert(asynData);
-}
-
-ALWAYS_INLINE void TimerMgr::_Register(TimeData *timeData, Int64 newPeriod, Int64 newExpiredTime)
-{
-    timeData->_period = newPeriod;
-    timeData->_expiredTime = newExpiredTime;
-    timeData->_isScheduing = true;
-
-    _expireQueue.insert(timeData);
-}
-
-ALWAYS_INLINE void TimerMgr::_AsynUnRegister(TimeData *timeData)
-{
-    auto asynData = timeData->_asynData;
-    timeData->_isScheduing = false;
-    asynData->MaskUnRegister();
-    _asynDirty.insert(asynData);
-}
-
-ALWAYS_INLINE void TimerMgr::_UnRegister(TimeData *timeData)
-{
-    timeData->_isScheduing = false;
-    _expireQueue.erase(timeData);
-}
-
-ALWAYS_INLINE void TimerMgr::_Destroy(TimeData *timeData)
-{
-    _expireQueue.erase(timeData);
-    timeData->_isScheduing = false;
-    timeData->_owner = NULL;
-    _allTimeData.erase(timeData);
-    timeData->Release();
-}
-
-ALWAYS_INLINE void TimerMgr::_AsynDestroy(TimeData *timeData)
-{
-    timeData->_owner = NULL;
-    timeData->_isScheduing = false;
-    timeData->_asynData->MaskDestroy();
-    _asynDirty.insert(timeData->_asynData);
-}
-
-ALWAYS_INLINE bool TimerMgr::_IsInTimerThread()
-{
-    return _launchThreadId == SystemUtil::GetCurrentThreadId();
 }
 
 ALWAYS_INLINE void TimerMgr::_WakeupMgrThread()

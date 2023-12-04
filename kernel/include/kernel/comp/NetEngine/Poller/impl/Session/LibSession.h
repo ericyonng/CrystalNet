@@ -31,15 +31,15 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
-#include <kernel/comp/LibStream.h>
-#include <kernel/comp/LibList.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/common/LibObject.h>
+
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/BitUtil.h>
 #include <kernel/comp/NetEngine/Poller/impl/Session/SessionOption.h>
 #include <kernel/comp/NetEngine/Poller/Defs/CloseSessionInfo.h>
 #include <kernel/comp/Cpu/LibCpuCounter.h>
+#include <kernel/comp/LibList.h>
 
 KERNEL_BEGIN
 
@@ -47,7 +47,10 @@ class LibSocket;
 class IProtocolStack;
 class LibPacket;
 
-class KERNEL_EXPORT SessionStreamCtrl
+template<typename BuildType>
+class LibStream;
+
+class SessionStreamCtrl
 {
 public:
     enum ENUMS : UInt64

@@ -31,10 +31,6 @@
 
 #pragma once
 
-#include <kernel/common/compile.h>
-#include <kernel/comp/Utils/TlsUtil.h>
-#include <kernel/comp/Utils/AllocUtil.h>
-
 
 /// 内存池创建对象便利宏
 // 禁止直接使用 OBJ_POOL_CREATE 直接使用会大概率出现内存非法写入到其他对象内存区 ！！！！！！！！！！！！！！！！！！！！！

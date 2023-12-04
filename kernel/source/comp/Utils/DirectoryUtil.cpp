@@ -28,9 +28,21 @@
 */
 
 #include <pch.h>
+#include <kernel/common/macro.h>
 #include <kernel/comp/Utils/DirectoryUtil.h>
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Utils/Defs/FindFileInfo.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <io.h>          // access func 遍历目录
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <unistd.h>
+ #include <dirent.h>
+#include <sys/stat.h>
+#endif
 
 KERNEL_BEGIN
 

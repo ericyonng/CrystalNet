@@ -33,15 +33,12 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Delegate/IDelegate.h>
 #include <kernel/comp/Utils/BitUtil.h>
-#include <kernel/comp/memory/memory.h>
 #include <kernel/comp/Variant/variant_inc.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Cpu/LibCpuCounter.h>
-#include <kernel/comp/Log/log.h>
 
 KERNEL_BEGIN
 
@@ -241,34 +238,34 @@ POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(LibDirtyHelper, KeyType, MaskValue);
 
 
 template<typename KeyType, typename MaskValue>
-inline LibDirtyHelper<KeyType, MaskValue>::LibDirtyHelper()
+ALWAYS_INLINE LibDirtyHelper<KeyType, MaskValue>::LibDirtyHelper()
     :_dirtyTypeAmount(0)
     ,_inPurge(0)
 {
 }
 
 template<typename KeyType, typename MaskValue>
-inline LibDirtyHelper<KeyType, MaskValue>::~LibDirtyHelper()
+ALWAYS_INLINE LibDirtyHelper<KeyType, MaskValue>::~LibDirtyHelper()
 {
     Destroy();
 }
 
 template<typename KeyType, typename MaskValue>
-inline void LibDirtyHelper<KeyType, MaskValue>::Init(Int32 dirtyTypeAmount)
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Init(Int32 dirtyTypeAmount)
 {
     _dirtyTypeAmount = dirtyTypeAmount;
     _dirtyTypeRefHandler.resize(_dirtyTypeAmount);
 }
 
 template<typename KeyType, typename MaskValue>
-inline void LibDirtyHelper<KeyType, MaskValue>::Destroy()
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Destroy()
 {
     if(!_keyRefMask.empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG( "has dirty elem not purge count = [%llu]"), static_cast<UInt64>(_keyRefMask.size()));
+        // g_Log->Warn(LOGFMT_OBJ_TAG( "has dirty elem not purge count = [%llu]"), static_cast<UInt64>(_keyRefMask.size()));
 
         ContainerUtil::DelContainer(_keyRefMask, [this](DirtyMask<KeyType, MaskValue> *&mask)->void{
-            g_Log->Warn(LOGFMT_OBJ_TAG("dirty key = [%s] not purge"), mask->ToString().c_str());
+            // g_Log->Warn(LOGFMT_OBJ_TAG("dirty key = [%s] not purge"), mask->ToString().c_str());
 
             DirtyMask<KeyType, MaskValue>::DeleteThreadLocal_DirtyMask(mask);
             mask = NULL;
@@ -282,7 +279,7 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Destroy()
     if(!_delayOperations.empty())
     {
         ContainerUtil::DelContainer(_delayOperations, [this](DirtyHelperDelayOp<KeyType, MaskValue> *delay)->void{
-            g_Log->Warn(LOGFMT_OBJ_TAG("delay dirty mask = [%s] not purge"), delay->_mask->ToString().c_str());
+            // g_Log->Warn(LOGFMT_OBJ_TAG("delay dirty mask = [%s] not purge"), delay->_mask->ToString().c_str());
 
             DirtyHelperDelayOp<KeyType, MaskValue>::DeleteThreadLocal_DirtyHelperDelayOp(delay);
             delay = NULL;
@@ -292,7 +289,7 @@ inline void LibDirtyHelper<KeyType, MaskValue>::Destroy()
 }
 
 template<typename KeyType, typename MaskValue>
-inline void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyType, IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler)
+ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyType, IDelegate<void, LibDirtyHelper<KeyType, MaskValue> *, KeyType &, Variant *> *handler)
 {
     auto h = _dirtyTypeRefHandler[dirtyType];
     if(UNLIKELY(h))
@@ -310,7 +307,7 @@ ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::SetHandler(Int32 dirtyTyp
 }
 
 template<typename KeyType, typename MaskValue>
-inline Variant *LibDirtyHelper<KeyType, MaskValue>::MaskDirty(KeyType k, Int32 dirtyType, bool fillParams)
+ALWAYS_INLINE Variant *LibDirtyHelper<KeyType, MaskValue>::MaskDirty(KeyType k, Int32 dirtyType, bool fillParams)
 {
     auto iter = _keyRefMask.find(k);
     DirtyMask<KeyType, MaskValue> *mask = NULL;

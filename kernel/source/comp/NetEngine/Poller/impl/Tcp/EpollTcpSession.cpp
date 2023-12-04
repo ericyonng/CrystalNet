@@ -29,18 +29,17 @@
 #include <pch.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerDirty.h>
 #include <kernel/comp/NetEngine/Poller/Defs/CloseSessionInfo.h>
-#include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpPoller.h>
+// #include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpPoller.h>
 #include <kernel/comp/NetEngine/LibSocket.h>
 #include <kernel/comp/NetEngine/Protocol/Protocol.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
 #include <kernel/comp/Service/Service.h>
+#include <kernel/comp/LibDirtyHelper.h>
 
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpSession.h>
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
-
-
 
 KERNEL_BEGIN
 

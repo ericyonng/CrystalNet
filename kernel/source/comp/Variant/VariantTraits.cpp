@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/Variant/Variant.h>
 
+#include <kernel/comp/Variant/VariantArithmetic.h>
 #include <kernel/comp/Variant/VariantTraits.h>
 
 KERNEL_BEGIN
@@ -821,6 +822,21 @@ void VariantTraits::div_equal(Variant &left, const Variant &right)
 
     // Left[BriefData] / Right[BriefData] = VariantArithmetic(l, r, op)
     VariantArithmetic::Performs(left, right, VariantArithmetic::VT_ARITHMETIC_DIV);
+}
+
+bool VariantTraits::gt(const Variant &left, const Variant &right)
+{
+    return right < left;
+}
+
+bool VariantTraits::le(const Variant &left, const Variant &right)
+{
+    return !(right < left);
+}
+
+bool VariantTraits::ge(const Variant &left, const Variant &right)
+{
+    return !(left < right);
 }
 
 KERNEL_END

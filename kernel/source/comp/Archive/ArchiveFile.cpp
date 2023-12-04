@@ -32,7 +32,9 @@
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/Log/log.h>
-#include <3rd/3rdForKernel.h>
+#include <kernel/comp/memory/MemoryPool.h>
+#include <3rd/miniz/include/miniz/miniz.h>
+#include <kernel/common/statics.h>
 
 
 static inline void *miniz_alloc_func(void *opaque, size_t items, size_t size)

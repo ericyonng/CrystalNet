@@ -28,6 +28,11 @@
 
 #include <pch.h>
 #include <kernel/comp/File/LibLogFile.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <WinSock2.h>
+#endif
+
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 

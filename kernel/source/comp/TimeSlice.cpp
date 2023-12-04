@@ -27,7 +27,6 @@
 */
 
 #include <pch.h>
-#include <kernel/comp/LibString.h>
 #include <kernel/comp/TimeSlice.h>
 #include <kernel/comp/Utils/StringUtil.h>
 

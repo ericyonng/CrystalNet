@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/common/Int128.h>
 #include <kernel/comp/LibString.h>
 
 // iconv lib header file.

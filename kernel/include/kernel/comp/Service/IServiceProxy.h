@@ -32,9 +32,11 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/LibList.h>
-#include <kernel/comp/CompObject/CompObjectInc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+
+#include <kernel/comp/CompObject/CompObject.h>
 
 KERNEL_BEGIN
 

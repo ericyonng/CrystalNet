@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/Delegate/IDelegate.h>
 #include <kernel/comp/Utils/SignalHandleUtil.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>

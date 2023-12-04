@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
 #include <kernel/comp/NetEngine/Poller/impl/PollerMgrFactory.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/TcpPollerMgrFactory.h>
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgrFactory.h>

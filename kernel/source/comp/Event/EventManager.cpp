@@ -31,7 +31,6 @@
 #include <kernel/comp/Event/LibEvent.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
-#include <kernel/comp/Utils/RttiUtil.h>
 
 KERNEL_BEGIN
 

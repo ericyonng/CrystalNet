@@ -27,6 +27,8 @@
 */
 
 #include <pch.h>
+#include <kernel/common/macro.h>
+#include <kernel/comp/File/FileCursorOffsetType.h>
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/DirectoryUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
@@ -34,6 +36,18 @@
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/Utils/Defs/FindFileInfo.h>
+#include <kernel/comp/LibTime.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <unistd.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <io.h>          // access func 遍历目录
+#endif
 
 KERNEL_BEGIN
 
@@ -733,5 +747,144 @@ bool FileUtil::ReplaceFile(const LibString &fileName, const std::map<Int32, LibS
     return true;
 }
 
+bool FileUtil::IsFile(const FindFileInfo &fileAttr)
+{
+    return fileAttr._fileAttr & FindFileInfo::F_FILE;
+}
+
+bool FileUtil::IsDir(const FindFileInfo &fileAttr)
+{
+    return fileAttr._fileAttr & FindFileInfo::F_DIR;
+}
+
+void FileUtil::InsertFileTime(const LibString &extensionName, const LibTime &timestamp, LibString &fileName)
+{
+    std::string &raw = fileName.GetRaw();
+    auto endPos = raw.rfind('.', fileName.length() - 1);
+    const auto &timeFmtStr = timestamp.Format("-%Y-%m-%d");
+    if(endPos == std::string::npos)
+    {
+        fileName << timeFmtStr << extensionName;
+        return;
+    }
+    raw.insert(endPos, timeFmtStr.GetRaw());
+}
+
+Int32 FileUtil::GetFileNo(FILE *fp)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    int fileNo = ::_fileno(fp);
+#else
+    int fileNo = ::fileno(fp);
+#endif
+
+    if (UNLIKELY(fileNo == -1))
+    {
+        CRYSTAL_TRACE("GetFileNo FAIL fp[%p]", fp);
+        return -1;
+    }
+
+    return fileNo;
+}
+
+
+Int32 FileUtil::GetFileCusorPos(FILE &fp)
+{
+    return ftell(&fp);
+}
+
+bool FileUtil::SetFileCursor(FILE &fp, Int32 enumPos, Long offset)
+{
+    return fseek(&fp, offset, enumPos) == 0;
+}
+
+void FileUtil::ResetFileCursor(FILE &fp)
+{
+    clearerr(&fp);
+    rewind(&fp);
+}
+
+bool FileUtil::FlushFile(FILE &fp)
+{
+    return fflush(&fp) == 0;
+}
+
+Int32 FileUtil::Rename(const LibString &oldPathFile, const LibString &newPathFile)
+{
+    auto ret = ::rename(oldPathFile.c_str(), newPathFile.c_str());
+    if(ret != 0)
+        return Status::Failed;
+
+    return Status::Success;
+}
+
+void FileUtil::DelFile(const Byte8 *filePath)
+{
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    std::string strDelCmd = "del ";
+    strDelCmd += filePath;
+    size_t findPos = 0;
+    int nCount = 0;
+    const auto strCount = strDelCmd.length();
+    while((findPos = strDelCmd.find_first_of('/', findPos)) != std::string::npos)
+    {
+        strDelCmd[findPos] = '\\';
+    }
+    strDelCmd += " /f/s/q";
+
+    system(strDelCmd.c_str());
+#else
+    std::string strDelCmd = "sudo rm -rf ";
+    strDelCmd += filePath;
+    if(system(strDelCmd.c_str()) == -1)
+        perror("del files fail");
+#endif
+}
+
+bool FileUtil::DelFileCStyle(const Byte8 *filePath)
+{
+    return remove(filePath) == 0;
+}
+
+FILE  *FileUtil::CreateTmpFile()
+{
+    return tmpfile();
+}
+
+const Byte8 *FileUtil::GenRandFileName(Byte8 randName[L_tmpnam])
+{
+    return tmpnam(randName);
+}
+
+
+bool FileUtil::IsEnd(FILE &fp)
+{
+    return feof(&fp);
+}
+
+bool FileUtil::CloseFile(FILE &fp)
+{
+    clearerr(&fp);
+    if(fclose(&fp) != 0)
+        return false;
+
+    return true;
+}
+
+bool FileUtil::IsFileExist(const Byte8 *fileName)
+{
+    if(UNLIKELY(!fileName))
+        return false;
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    if(::_access(fileName, 0) == -1)
+        return false;
+#else
+    if(::access(fileName, 0) == -1)
+        return false;
+#endif
+
+    return true;
+}
 
 KERNEL_END

@@ -32,8 +32,28 @@
 #include <kernel/comp/Tls/Tls.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/thread/ThreadTool.h>
+#include <kernel/comp/thread/LibThreadGlobalId.h>
+#include <kernel/comp/Task/DelegateTask.h>
+#include <kernel/comp/Task/DelegateWithParamsTask.h>
 
 KERNEL_BEGIN
+
+LibThread::LibThread()
+    :_id(LibThreadGlobalId::GenId())
+    , _threadId{0}
+    , _isStart{false}
+    , _isWorking{false}
+    , _isDestroy{ false }
+    ,_isBusy{false}
+    ,_enableAddTask{true}
+{
+
+}
+
+LibThread::~LibThread()
+{
+    Close();
+}
 
 void LibThread::Release()
 {
@@ -70,6 +90,44 @@ void LibThread::FinishClose()
         (*iter)->Release();
         iter = _tasks.erase(iter);
     }
+}
+
+bool LibThread::AddTask(IDelegate<void, LibThread *> *callback)
+{
+    if(!_enableAddTask.load())
+    {
+        //CRYSTAL_RELEASE(callback);
+        return false;
+    }
+
+    auto newTask = DelegateTask<LibThread>::New_DelegateTask(this, callback);
+    _taskLck.Lock();
+    _tasks.push_back(newTask);
+    _taskLck.Unlock();
+
+    // 唤醒
+    _condLck.Sinal();
+
+    return true;
+}
+
+bool LibThread::AddTask2(IDelegate<void, LibThread *, Variant *> *callback, Variant *params)
+{
+    if(!_enableAddTask.load())
+    {
+        //CRYSTAL_RELEASE(callback);
+        return false;
+    }
+
+    DelegateWithParamsTask<LibThread> *newTask = DelegateWithParamsTask<LibThread>::New_DelegateWithParamsTask(this, callback, params);
+    _taskLck.Lock();
+    _tasks.push_back(newTask);
+    _taskLck.Unlock();
+
+    // 唤醒
+    _condLck.Sinal();
+
+    return true;
 }
 
 LibString LibThread::ToString()

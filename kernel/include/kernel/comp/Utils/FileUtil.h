@@ -31,13 +31,14 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/LibTime.h>
-#include <kernel/comp/Utils/Defs/FindFileInfo.h>
+#include <map>
 
 KERNEL_BEGIN
 
+struct FindFileInfo;
+class LibTime;
 
 class KERNEL_EXPORT FileUtil
 {
@@ -90,112 +91,11 @@ public:
     static bool IsDir(const FindFileInfo &fileAttr);
 };
 
-ALWAYS_INLINE void FileUtil::DelFile(const Byte8 *filePath)
-{
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    std::string strDelCmd = "del ";
-    strDelCmd += filePath;
-    size_t findPos = 0;
-    int nCount = 0;
-    const auto strCount = strDelCmd.length();
-    while((findPos = strDelCmd.find_first_of('/', findPos)) != std::string::npos)
-    {
-        strDelCmd[findPos] = '\\';
-    }
-    strDelCmd += " /f/s/q";
-
-    system(strDelCmd.c_str());
-#else
-    std::string strDelCmd = "sudo rm -rf ";
-    strDelCmd += filePath;
-    if(system(strDelCmd.c_str()) == -1)
-        perror("del files fail");
-#endif
-}
-
-ALWAYS_INLINE bool FileUtil::DelFileCStyle(const Byte8 *filePath)
-{
-    return remove(filePath) == 0;
-}
-
-ALWAYS_INLINE FILE  *FileUtil::CreateTmpFile()
-{
-    return tmpfile();
-}
-
-ALWAYS_INLINE const Byte8 *FileUtil::GenRandFileName(Byte8 randName[L_tmpnam])
-{
-    return tmpnam(randName);
-}
-
 ALWAYS_INLINE Int64 FileUtil::WriteFile(FILE &fp, const LibString &bitData)
 {
     return WriteFile(fp, bitData.GetRaw().data(), bitData.size());
 }
 
-ALWAYS_INLINE bool FileUtil::IsEnd(FILE &fp)
-{
-    return feof(&fp);
-}
-
-ALWAYS_INLINE bool FileUtil::CloseFile(FILE &fp)
-{
-    clearerr(&fp);
-    if(fclose(&fp) != 0)
-        return false;
-
-    return true;
-}
-
-ALWAYS_INLINE bool FileUtil::IsFileExist(const Byte8 *fileName)
-{
-    if(UNLIKELY(!fileName))
-        return false;
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    if(::_access(fileName, 0) == -1)
-        return false;
-#else
-    if(::access(fileName, 0) == -1)
-        return false;
-#endif
-
-    return true;
-}
-
-ALWAYS_INLINE Int32 FileUtil::GetFileCusorPos(FILE &fp)
-{
-    return ftell(&fp);
-}
-
-ALWAYS_INLINE bool FileUtil::SetFileCursor(FILE &fp, Int32 enumPos, Long offset)
-{
-    return fseek(&fp, offset, enumPos) == 0;
-}
-
-inline void FileUtil::ResetFileCursor(FILE &fp)
-{
-    clearerr(&fp);
-    rewind(&fp);
-}
-
-ALWAYS_INLINE bool FileUtil::FlushFile(FILE &fp)
-{
-    return fflush(&fp) == 0;
-}
-
-ALWAYS_INLINE void FileUtil::InsertFileTime(const LibString &extensionName, const LibTime &timestamp, LibString &fileName)
-{
-    std::string &raw = fileName.GetRaw();
-    auto endPos = raw.rfind('.', fileName.length() - 1);
-    const auto &timeFmtStr = timestamp.Format("-%Y-%m-%d");
-    if(endPos == std::string::npos)
-    {
-        fileName << timeFmtStr << extensionName;
-        return;
-    }
-    raw.insert(endPos, timeFmtStr.GetRaw());
-}
 
 ALWAYS_INLINE void FileUtil::InsertFileTail(const LibString &extensionName, const Byte8 *tail, LibString &fileName)
 {
@@ -231,42 +131,6 @@ ALWAYS_INLINE LibString FileUtil::ExtractFileWithoutExtension(const LibString &f
         return "";
 
     return raw.substr(0, endPos);
-}
-
-ALWAYS_INLINE Int32 FileUtil::GetFileNo(FILE *fp)
-{
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    int fileNo = ::_fileno(fp);
-#else
-    int fileNo = ::fileno(fp);
-#endif
-
-    if (UNLIKELY(fileNo == -1))
-    {
-        CRYSTAL_TRACE("GetFileNo FAIL fp[%p]", fp);
-        return -1;
-    }
-
-    return fileNo;
-}
- 
-ALWAYS_INLINE Int32 FileUtil::Rename(const LibString &oldPathFile, const LibString &newPathFile)
-{
-    auto ret = ::rename(oldPathFile.c_str(), newPathFile.c_str());
-    if(ret != 0)
-        return Status::Failed;
-
-    return Status::Success;
-}
-
-ALWAYS_INLINE bool FileUtil::IsFile(const FindFileInfo &fileAttr)
-{
-    return fileAttr._fileAttr & FindFileInfo::F_FILE;
-}
-
-ALWAYS_INLINE bool FileUtil::IsDir(const FindFileInfo &fileAttr)
-{
-    return fileAttr._fileAttr & FindFileInfo::F_DIR;
 }
 
 KERNEL_END

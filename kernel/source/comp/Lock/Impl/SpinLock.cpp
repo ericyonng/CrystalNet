@@ -28,7 +28,11 @@
 
 #include <pch.h>
 #include <kernel/comp/Lock/Impl/SpinLock.h>
-#include <kernel/comp/Utils/CountUtil.h>
+
+// 平台有关库
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    #include <WinSock2.h>
+#endif
 
 KERNEL_BEGIN
 
@@ -50,6 +54,41 @@ pthread_spin_init(&_handle, 0);
 
 }
 
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+void SpinLock::Lock(Int64 loop_cnt_to_yield)
+{
+    // 自旋休眠次数
+    const Int64 loop_count_to_yield = loop_cnt_to_yield;
+
+    // test and wait 直到flag被clear
+    bool exp = false;
+    while(!_flag.compare_exchange_weak(exp, true))
+    {
+        exp = false;
+
+        // _mm_pause();
+        if (LIKELY(--loop_cnt_to_yield))
+            continue;
+
+        // 自旋次数达到则切换线程
+        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+        #if CRYSTAL_TARGET_PLATFORM_LINUX || CRYSTAL_TARGET_PLATFORM_ANDROID || CRYSTAL_TARGET_PLATFORM_MAC
+            asm volatile ("rep;nop" : : : "memory");
+        #else
+            asm volatile ("nop");
+        #endif
+        #else // WINDOWS platform
+            YieldProcessor();
+        #endif // Non-WINDOWS platform
+
+        #ifdef _DEBUG
+            printf("\nperhaps in dead loop!\n");
+        #endif
+        loop_cnt_to_yield = loop_count_to_yield;
+    }
+}
 #endif
 
 KERNEL_END

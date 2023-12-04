@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/common/status.h>
 #include <kernel/source/comp/Log/SpecifyLog.h>
 #include <kernel/comp/File/File.h>
 #include <kernel/comp/Utils/FileUtil.h>
@@ -34,8 +35,12 @@
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/thread/thread.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
-#include <kernel/comp/Log/LogData.h>
 #include <kernel/comp/Log/LogDefs.h>
+#include <kernel/comp/Lock/Impl/ConditionLocker.h>
+#include <kernel/comp/Log/LogConfig.h>
+#include <kernel/comp/Log/LogLevel.h>
+#include <kernel/comp/Log/LogData.h>
+#include <kernel/comp/Delegate/IDelegate.h>
 
 KERNEL_BEGIN
 
@@ -341,4 +346,97 @@ const LibString &SpecifyLog::GetLogName() const
     static const LibString emptyLog;
     return _logFile ? _logFile->GetFileName() : emptyLog;
 }
+
+
+void SpecifyLog::Flush()
+{
+    _wakeupFlush->Sinal();
+}
+
+
+void SpecifyLog::_WakupFlush()
+{
+    _wakeupFlush->Sinal();
+}
+
+void SpecifyLog::_OutputToConsole(const LogLevelCfg &levelCfg, const LibString &logInfo)
+{
+    SystemUtil::LockConsole();
+    const Int32 oldColor = SystemUtil::GetConsoleColor();
+    SystemUtil::SetConsoleColor(levelCfg._fgColor | levelCfg._bgColor);
+    SystemUtil::OutputToConsole(logInfo);
+    SystemUtil::SetConsoleColor(oldColor);
+    SystemUtil::UnlockConsole();
+}
+
+UInt64 SpecifyLog::GetLogCount() const
+{
+    return static_cast<UInt64>(_logData->size());
+}
+
+
+void SpecifyLog::InstallBeforeHook(Int32 level, IDelegate<void, LogData *> *deleg)
+{
+    auto hookList = _beforeHook[level];
+    if(UNLIKELY(!hookList))
+    {
+        hookList = new std::list<IDelegate<void, LogData *> *>;
+        _beforeHook[level] = hookList;
+    }
+
+    hookList->push_back(deleg);
+}
+
+void SpecifyLog::InstallAfterHook(Int32 level, IDelegate<void> *deleg)
+{   
+    auto hookList = _afterHook[level];
+    if(UNLIKELY(!hookList))
+    {
+        hookList = new std::list<IDelegate<void> *>;
+        _afterHook[level] = hookList;
+    }
+
+    hookList->push_back(deleg);
+}
+
+void SpecifyLog::UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *deleg)
+{
+    auto hookList = _afterHook[level];
+    if(!hookList)
+        return;
+
+    for(auto iter = hookList->begin(); iter != hookList->end(); ++iter)
+    {
+        if(*iter == deleg)
+        {
+            (*iter)->Release();
+            hookList->erase(iter);
+            return;
+        }
+    }
+}
+
+void SpecifyLog::UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogData *> *deleg)
+{
+    auto hookList = _beforeHook[level];
+    if(!hookList)
+        return;
+
+    for(auto iter = hookList->begin(); iter != hookList->end(); ++iter)
+    {
+        if(*iter == deleg)
+        {
+            (*iter)->Release();
+            hookList->erase(iter);
+            return;
+        }
+    }
+}
+
+Int32 SpecifyLog::GetThreadRelationId() const
+{
+    return _config->_threadRelationId;
+}
+
+
 KERNEL_END

@@ -28,15 +28,17 @@
 
 #include <pch.h>
 #include <kernel/comp/App/IApplication.h>
-#include <kernel/comp/Log/log.h>
-#include <kernel/comp/Utils/Utils.h>
-#include <kernel/comp/Event/event_inc.h>
-#include <kernel/comp/Variant/variant_inc.h>
-#include <kernel/comp/App/BaseAppOption.h>
-#include <kernel/comp/Service/Service.h>
-#include <kernel/comp/Poller/PollerInc.h>
-#include <kernel/comp/Cpu/cpu.h>
+#include <kernel/comp/Utils/KernelUtil.h>
+#include <kernel/comp/Tls/Tls.h>
+
+#include <kernel/common/timedefs.h>
 #include <kernel/comp/TimeSlice.h>
+#include <kernel/comp/LibTime.h>
+
+#include <kernel/comp/Log/log.h>
+
+#include <kernel/comp/Poller/PollerInc.h>
+#include <kernel/comp/Cpu/LibCpuInfo.h>
 
 KERNEL_NS::IApplication *g_Application = NULL;
 

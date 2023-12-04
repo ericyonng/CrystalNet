@@ -33,6 +33,8 @@
 #pragma once
 
 #include <kernel/common/compile.h>
+#include <kernel/common/BaseMacro.h>
+#include <assert.h> 
 
 #ifndef CRYSTAL_DEBUG_ENABLE
     #define CRYSTAL_DEBUG_ENABLE 1
@@ -42,9 +44,6 @@
 #ifndef USE_SYSTEM_SPIN_LOCK
     #define USE_SYSTEM_SPIN_LOCK 1
 #endif
-
-#undef NULL
-#define NULL nullptr
 
 // 自旋锁，自选轮询次数
 #undef SPINNING_COUNT
@@ -57,29 +56,6 @@
 // 符号最大长度
 #undef SYMBOL_MAX_SYMBOL_NAME
 #define SYMBOL_MAX_SYMBOL_NAME 63
-
-// 命名空间
-#undef CRYSTAL_NET_BEGIN
-#define CRYSTAL_NET_BEGIN namespace CRYSTAL_NET {
-
-#undef CRYSTAL_NET_END
-#define CRYSTAL_NET_END }
-
-#undef KERNEL_BEGIN
-#define KERNEL_BEGIN                                    \
-CRYSTAL_NET_BEGIN                                       \
-    namespace kernel {
-
-#undef KERNEL_END
-#define KERNEL_END } CRYSTAL_NET_END
-
-// CRYSTAL_NET命名空间
-#undef CRYSTAL_NET_NS
-#define CRYSTAL_NET_NS ::CRYSTAL_NET
-
-// kernel命名空间
-#undef KERNEL_NS
-#define KERNEL_NS   CRYSTAL_NET_NS::kernel
 
 #undef DISABLE_COPY_ASSIGN_MOVE
 #define DISABLE_COPY_ASSIGN_MOVE(cls)                   \
@@ -159,22 +135,6 @@ delete [] p
 
 #undef FLOAT_FMT_STR
 #define FLOAT_FMT_STR "%.8lf"
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    #ifndef LIKELY
-        #define LIKELY(x) (x)
-    #endif
-    #ifndef UNLIKELY
-        #define UNLIKELY(x) (x)
-    #endif
-#else
-    #ifndef LIKELY
-        #define LIKELY(x) __builtin_expect(!!(x), 1)
-    #endif
-    #ifndef UNLIKELY
-        #define UNLIKELY(x) __builtin_expect(!!(x), 0)
-    #endif
-#endif
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
@@ -556,15 +516,6 @@ __rdtscp(&cpuCoreId)
 #undef CRYSTAL_ORDERED_RDTSC_START
 #define CRYSTAL_ORDERED_RDTSC_START
 
-// Force inline macro define. __forceinline
-#undef CRYSTAL_FORCE_INLINE
-#if defined(_MSC_VER)
- #define CRYSTAL_FORCE_INLINE inline
-#elif defined(__GNUC__) || defined(__clang__)
- #define CRYSTAL_FORCE_INLINE __inline__ __attribute__((always_inline))
-#else
- #define CRYSTAL_FORCE_INLINE inline
-#endif
 
 /**
  * Function string format arguments check macro define.
@@ -576,16 +527,6 @@ __rdtscp(&cpuCoreId)
 #else // Non-Win32
  #define LIB_KERNEL_FORMAT_CHECK(fmtIdx, fmtArgsBegIdx) __attribute__((format(printf, fmtIdx, fmtArgsBegIdx)))
 #endif // LLBC_TARGET_PLATFORM_WIN32
-
-// 内联属性
-#undef ALWAYS_INLINE
-#define ALWAYS_INLINE CRYSTAL_FORCE_INLINE
-
-// 标准库名字空间
-#undef FOR_STD_LIB_BEGIN
-#define FOR_STD_LIB_BEGIN namespace std { 
-#undef FOR_STD_LIB_END
-#define FOR_STD_LIB_END }
 
 // SOCKET_ERROR
 #undef KERNEL_SOCKET_ERROR
@@ -603,6 +544,19 @@ Int32 _againstLazy = 0
 // 不使用的变量
 #ifndef UNUSED
  #define UNUSED(x) (void)(x)
+#endif
+
+#undef CRYSTAL_ATTRIBUTE_PURE
+// gcc 或者clang下pure属性可以当作内联
+#if CRYSTAL_CUR_COMP == CRYSTAL_COMP_GCC || CRYSTAL_CUR_COMP == CRYSTAL_COMP_CLANG
+ #define CRYSTAL_ATTRIBUTE_PURE __attribute__((pure))
+#else
+ // gcc 或者clang下pure属性可以当作内联
+ #define CRYSTAL_ATTRIBUTE_PURE
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ 
 #endif
 
 #endif

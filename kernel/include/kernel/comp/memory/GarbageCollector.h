@@ -31,15 +31,17 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/MemoryBuffer.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/Utils/ListUtil.h>
-#include <kernel/comp/memory/GarbageThread.h>
+#include <list>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT GarbageCollector
+class MemoryBuffer;
+
+class GarbageCollector
 {
 public:
     GarbageCollector();
@@ -56,58 +58,6 @@ private:
     std::list<MemoryBuffer *> *_garbageList;
     std::list<MemoryBuffer *> *_swapList;
 };
-
-inline GarbageCollector::GarbageCollector()
-{
-    _garbageList = new std::list<MemoryBuffer *>;
-    _swapList = new std::list<MemoryBuffer *>;
-
-    GarbageThread::GetInstence()->RegisterPurge(this, &GarbageCollector::_ThreadPurge);
-}
-
-inline GarbageCollector:: ~GarbageCollector()
-{
-    GarbageThread::GetInstence()->UnRegisterPurge(this);
-    
-    _lck.Lock();
-    for (auto &iterMemoryBuffer:*_garbageList)
-        ListUtil::Destroy(iterMemoryBuffer);
-
-    for (auto &iterMemoryBuffer:*_swapList)
-        ListUtil::Destroy(iterMemoryBuffer);
-
-    CRYSTAL_DELETE_SAFE(_garbageList);
-    CRYSTAL_DELETE_SAFE(_swapList);
-    _lck.Unlock();
-}
-
-inline void GarbageCollector::push(MemoryBuffer *&head)
-{
-    _lck.Lock();
-    _garbageList->push_back(head);
-    head = NULL;
-    _lck.Unlock();
-
-    GarbageThread::GetInstence()->MaskPurge(this);
-}
-
-inline void GarbageCollector::_ThreadPurge()
-{
-    // 交换避免锁冲突
-    _lck.Lock();
-    std::list<MemoryBuffer *> *tmp = _swapList;
-    _swapList = _garbageList;
-    _garbageList = tmp;
-    _lck.Unlock();
-
-    MemoryBuffer *ele;
-    for (auto iterEle = _swapList->begin(); iterEle != _swapList->end();)
-    {
-        ele = *iterEle;
-        ListUtil::Destroy(ele);
-        iterEle = _swapList->erase(iterEle);
-    }
-}
 
 KERNEL_END
 

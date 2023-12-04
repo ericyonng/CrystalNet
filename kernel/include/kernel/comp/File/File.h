@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <kernel/comp/File/FileCursorOffsetType.h>
 #include <kernel/comp/File/IniFileDefs.h>
 #include <kernel/comp/File/LibIniFile.h>
 #include <kernel/comp/File/LibLogFile.h>

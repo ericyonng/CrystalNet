@@ -40,10 +40,6 @@
 #include <kernel/comp/NetEngine/Protocol/Protocol.h>
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
 #include <kernel/comp/NetEngine/INetCfgMgr.h>
-#include <kernel/comp/NetEngine/LibAddr.h>
-#include <kernel/comp/NetEngine/LibEpoll.h>
-#include <kernel/comp/NetEngine/LibIocp.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
-#include <kernel/comp/NetEngine/LibSocket.h>
 
 #endif

@@ -35,21 +35,6 @@ ALWAYS_INLINE bool VariantTraits::ne(const Variant &left, const Variant &right)
     return !VariantTraits::eq(left, right);
 }
 
-ALWAYS_INLINE bool VariantTraits::gt(const Variant &left, const Variant &right)
-{
-    return right < left;
-}
-
-ALWAYS_INLINE bool VariantTraits::le(const Variant &left, const Variant &right)
-{
-    return !(right < left);
-}
-
-ALWAYS_INLINE bool VariantTraits::ge(const Variant &left, const Variant &right)
-{
-    return !(left < right);
-}
-
 KERNEL_END
 
 #endif

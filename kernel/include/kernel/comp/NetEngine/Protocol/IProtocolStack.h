@@ -30,16 +30,16 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/LibList.h>
-#include <kernel/comp/LibStream.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/LibObject.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/LibTime.h>
-#include <kernel/comp/Encrypt/Encrypt.h>
-#include <kernel/comp/Coder/coder.h>
-#include <kernel/comp/Utils/CypherGeneratorUtil.h>
+#include <kernel/comp/Encrypt/LibRsa.h>
+#include <kernel/comp/LibList.h>
 
 KERNEL_BEGIN
+
+template<typename BuildType>
+class LibStream;
 
 class LibPacket;
 class LibSession;
@@ -105,17 +105,17 @@ protected:
     Int64 _expireIntervalMs = 3000;         // key过期时间间隔
 };
 
-inline void IProtocolStack::SetProtoVersionNumber(UInt64 ver)
+ALWAYS_INLINE void IProtocolStack::SetProtoVersionNumber(UInt64 ver)
 {
     _protoVersionNumber = ver;
 }
 
-inline UInt64 IProtocolStack::GetProtoVersionNumber() const
+ALWAYS_INLINE UInt64 IProtocolStack::GetProtoVersionNumber() const
 {
     return _protoVersionNumber;
 }
 
-inline Int32 IProtocolStack::GetType() const
+ALWAYS_INLINE Int32 IProtocolStack::GetType() const
 {
     return _type;
 }

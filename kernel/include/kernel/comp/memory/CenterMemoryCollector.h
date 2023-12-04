@@ -34,13 +34,15 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Lock/Lock.h>
-#include <kernel/comp/LibString.h>
-#include <kernel/comp/Tls/TlsStack.h>
-#include <kernel/comp/BinaryArray.h>
-#include <kernel/comp/memory/CenterMemoryTopnThreadInfo.h>
+#include <unordered_map>
+#include <atomic>
+
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/Lock/Impl/ConditionLocker.h>
+#include <kernel/comp/Tls/Defs.h>
 #include <kernel/comp/SmartPtr.h>
+
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 
@@ -50,6 +52,14 @@ class LibThread;
 struct MemoryBlock;
 struct MergeMemoryBufferInfo;
 
+struct CenterMemoryTopnThreadInfo;
+class CenterMemoryTopnThreadInfoComp;
+
+template<typename Elem, typename Comp>
+class BinaryArray;
+
+template<TlsStackSize::SizeType TlsSizeType>
+class TlsStack;
 
 class KERNEL_EXPORT CenterMemoryCollector
 {

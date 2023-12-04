@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/common/macro.h>
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
 
@@ -42,7 +42,7 @@ struct epoll_event;
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT LibEpoll
+class LibEpoll
 {
 public:
     LibEpoll();
@@ -72,17 +72,17 @@ private:
 };
 
 
-inline bool LibEpoll::IsDestroy() const
+ALWAYS_INLINE bool LibEpoll::IsDestroy() const
 {
     return (Int32)(_evFd) == EpollDefs::InvalidFd;
 }
 
-inline epoll_event *LibEpoll::GetEvs()
+ALWAYS_INLINE epoll_event *LibEpoll::GetEvs()
 {
     return _evPtr;
 }
 
-inline Int32 LibEpoll::GetEvFd()const
+ALWAYS_INLINE Int32 LibEpoll::GetEvFd()const
 {
     return _evFd;
 }

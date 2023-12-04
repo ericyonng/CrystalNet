@@ -32,9 +32,17 @@
 
 #pragma once
 
-#include <kernel/kernel_export.h>
-#include <kernel/common/macro.h>
-#include <kernel/common/libs.h>
+#include <kernel/common/compile.h>
+#include <kernel/common/BaseMacro.h>
+
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+ #include <pthread.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <windows.h>
+ #include <synchapi.h>
+#endif
 
 KERNEL_BEGIN
 

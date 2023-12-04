@@ -29,12 +29,15 @@
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_IMPL_TCP_EPOLL_TCP_SESSION_H__
 #define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_POLLER_IMPL_TCP_EPOLL_TCP_SESSION_H__
 
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-
 #pragma once
 
+#include <kernel/common/macro.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+
 #include <kernel/comp/NetEngine/Poller/impl/Session/LibSession.h>
-#include <kernel/comp/LibDirtyHelper.h>
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/LibStream.h>
 
 KERNEL_BEGIN
 
@@ -43,7 +46,10 @@ class EpollTcpPoller;
 class IServiceProxy;
 class IPollerMgr;
 
-class KERNEL_EXPORT EpollTcpSession : public LibSession
+template<typename KeyType, typename MaskValue>
+class LibDirtyHelper;
+
+class EpollTcpSession : public LibSession
 {
     POOL_CREATE_OBJ_DEFAULT_P1(LibSession, EpollTcpSession);
 

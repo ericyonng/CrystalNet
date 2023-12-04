@@ -1873,6 +1873,15 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
 
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("#include <pch.h>\n");
+    fileContent.AppendFormat("#include <openssl/md5.h>\n");
+    fileContent.AppendFormat("#include <openssl/pem.h>\n");
+    fileContent.AppendFormat("#include <openssl/ssl.h>\n");
+    fileContent.AppendFormat("#include <openssl/evp.h>\n");
+    fileContent.AppendFormat("#include <openssl/bio.h>\n");
+    fileContent.AppendFormat("#include <openssl/err.h>\n");
+    fileContent.AppendFormat("#include <openssl/buffer.h>\n");
+    fileContent.AppendFormat("#include <openssl/sha.h>\n");
+    fileContent.AppendFormat("#include <openssl/bn.h>\n");
     fileContent.AppendFormat("#include \"%s.h\"\n", className.c_str());
 
     fileContent.AppendFormat("\n");
@@ -2117,7 +2126,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("    Int32 line = 0;\n");
             fileContent.AppendFormat("    MD5_CTX ctx;\n");
-            fileContent.AppendFormat("    if(!KERNEL_NS::LibDigest::MakeMd5Init(ctx))\n");
+            fileContent.AppendFormat("    if(!KERNEL_NS::LibDigest::MakeMd5Init(&ctx))\n");
             fileContent.AppendFormat("    {\n");
             fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"make md5 init fail wholePath:%%s\"), wholePath.c_str());\n");
             fileContent.AppendFormat("        return Status::Failed;\n");
@@ -2189,14 +2198,14 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("            if(retBytes == 0)\n");
             fileContent.AppendFormat("            {\n");
             fileContent.AppendFormat("                g_Log->Error(LOGFMT_OBJ_TAG(\"ReadUtf8OneLine fail wholePath:%%s, line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n");
-            fileContent.AppendFormat("                KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("                KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("                return Status::Failed;\n");
             fileContent.AppendFormat("            }\n");
             fileContent.AppendFormat("            ++line;\n");
-            fileContent.AppendFormat("            if(!KERNEL_NS::LibDigest::MakeMd5Continue(ctx, lineData.data(), static_cast<UInt64>(lineData.size())))\n");
+            fileContent.AppendFormat("            if(!KERNEL_NS::LibDigest::MakeMd5Continue(&ctx, lineData.data(), static_cast<UInt64>(lineData.size())))\n");
             fileContent.AppendFormat("            {\n");
             fileContent.AppendFormat("                g_Log->Error(LOGFMT_OBJ_TAG(\"MakeMd5Continue fail wholePath:%%s, line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n");
-            fileContent.AppendFormat("                KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("                KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("                return Status::Failed;\n");
             fileContent.AppendFormat("            }\n");
             fileContent.AppendFormat("\n");
@@ -2232,7 +2241,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("        {\n");
             fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"Read a line config data fail wholePath:%%s, line:%%d, \"), wholePath.c_str(), line);\n");
             fileContent.AppendFormat("            g_Log->Error2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString(\"lineData:\"), lineData);\n");
-            fileContent.AppendFormat("            KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("            KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("            return Status::Failed;\n");
             fileContent.AppendFormat("        }\n");
             fileContent.AppendFormat("\n");
@@ -2241,10 +2250,10 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("        ++line;\n");
             fileContent.AppendFormat("\n");
-            fileContent.AppendFormat("        if(!KERNEL_NS::LibDigest::MakeMd5Continue(ctx, lineData.data(), static_cast<UInt64>(lineData.size())))\n");
+            fileContent.AppendFormat("        if(!KERNEL_NS::LibDigest::MakeMd5Continue(&ctx, lineData.data(), static_cast<UInt64>(lineData.size())))\n");
             fileContent.AppendFormat("        {\n");
             fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"MakeMd5Continue fail wholePath:%%s, line:%%d, lineData:%%s\"), wholePath.c_str(), line, lineData.c_str());\n");
-            fileContent.AppendFormat("            KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("            KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("            return Status::Failed;\n");
             fileContent.AppendFormat("        }\n");
             fileContent.AppendFormat("\n");
@@ -2298,13 +2307,13 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
 
             fileContent.AppendFormat("\n");
             fileContent.AppendFormat("    KERNEL_NS::LibString dataMd5;\n");
-            fileContent.AppendFormat("    if(!KERNEL_NS::LibDigest::MakeMd5Final(ctx, dataMd5))\n");
+            fileContent.AppendFormat("    if(!KERNEL_NS::LibDigest::MakeMd5Final(&ctx, dataMd5))\n");
             fileContent.AppendFormat("    {\n");
             fileContent.AppendFormat("        g_Log->Error(LOGFMT_OBJ_TAG(\"MakeMd5Final fail wholePath:%%s\"), wholePath.c_str());\n");
-            fileContent.AppendFormat("        KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("        KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("        return Status::Failed;\n");
             fileContent.AppendFormat("    }\n");
-            fileContent.AppendFormat("    KERNEL_NS::LibDigest::MakeMd5Clean(ctx);\n");
+            fileContent.AppendFormat("    KERNEL_NS::LibDigest::MakeMd5Clean(&ctx);\n");
             fileContent.AppendFormat("\n");
 
             fileContent.AppendFormat("    _dataMd5 = KERNEL_NS::LibBase64::Encode(dataMd5);\n");

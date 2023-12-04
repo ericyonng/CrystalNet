@@ -31,12 +31,13 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
+
+template <typename Rtn, typename... Args>
+class IDelegate;
 
 struct KERNEL_EXPORT PollerEvent
 {
@@ -74,13 +75,7 @@ struct KERNEL_EXPORT ActionPollerEvent : public PollerEvent
 
     }
 
-    ~ActionPollerEvent()
-    {
-        if(_action)
-            _action->Release();
-
-        _action = NULL;
-    }
+    ~ActionPollerEvent();
 
     virtual void Release() override;
     virtual LibString ToString() const override;

@@ -31,9 +31,12 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+
+#include <sys/epoll.h>
 
 #undef __LIB_MAX_EVENT_NUM_TO_HANDLE_ONCE_DEF__
 #define __LIB_MAX_EVENT_NUM_TO_HANDLE_ONCE_DEF__     128                         // 每次默认处理的最大事件上限
@@ -55,7 +58,7 @@
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT EpollWaitTimeOutType
+class EpollWaitTimeOutType
 {
 public:
     enum
@@ -65,7 +68,7 @@ public:
     };
 };
 
-class KERNEL_EXPORT EpollDefs
+class EpollDefs
 {
 public:
     enum

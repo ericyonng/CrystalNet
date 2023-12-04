@@ -29,14 +29,15 @@
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_DEFS_LIB_OVERLAPPED_H__
 #define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_DEFS_LIB_OVERLAPPED_H__
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/common/macro.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
+#include <kernel/comp/memory/ObjPoolMacro.h>
+
 KERNEL_BEGIN
 
-class KERNEL_EXPORT OverLappedOpcode
+class OverLappedOpcode
 {
 public:
     enum 
@@ -65,7 +66,7 @@ public:
     };
 };
 
-struct KERNEL_EXPORT LibOverlapped : public OVERLAPPED
+struct LibOverlapped : public OVERLAPPED
 {
     POOL_CREATE_OBJ_DEFAULT(LibOverlapped);
 

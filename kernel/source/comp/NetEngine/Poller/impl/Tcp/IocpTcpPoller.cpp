@@ -27,20 +27,27 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpPoller.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+
+#include <kernel/comp/LibDirtyHelper.h>
+#include <kernel/comp/NetEngine/Defs/IoEvent.h>
+
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerEvent.h>
 
 #include <kernel/comp/Poller/PollerInc.h>
-#include <kernel/comp/NetEngine/Poller/Defs/TcpPollerConfig.h>
 #include <kernel/comp/TimeSlice.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerDirty.h>
 #include <kernel/comp/NetEngine/LibIocp.h>
 #include <kernel/comp/NetEngine/Poller/interface/IPollerMgr.h>
 #include <kernel/comp/thread/LibThread.h>
-#include <kernel/comp/NetEngine/Defs/LibConnectInfo.h>
 #include <kernel/comp/NetEngine/LibPacket.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpSession.h>
 #include <kernel/comp/NetEngine/Poller/Defs/CloseSessionInfo.h>
-#include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h>
 #include <kernel/comp/NetEngine/Defs/BuildSessionInfo.h>
 #include <kernel/comp/NetEngine/LibSocket.h>
 #include <kernel/comp/NetEngine/LibAddr.h>
@@ -55,12 +62,13 @@
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h>
 #include <kernel/comp/Utils/BitUtil.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
+#include <kernel/comp/Variant/Variant.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h>
+#include <kernel/comp/NetEngine/Defs/ProtocolType.h>
+#include <kernel/comp/Tls/Tls.h>
 
-#include <kernel/comp/NetEngine/Poller/impl/Tcp/IocpTcpPoller.h>
 #include <kernel/comp/TlsMemoryCleanerComp.h>
 
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
 
 KERNEL_BEGIN
 

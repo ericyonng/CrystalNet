@@ -27,57 +27,12 @@
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_TYPE_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_TYPE_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_BUFFER_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_BUFFER_H__
 
 #pragma once
 
-#include <kernel/kernel_export.h>
-#include <kernel/common/macro.h>
-#include <kernel/common/compile.h>
-
-#if CRYSTAL_TARGET_PLATFORM_LINUX
- #include <sys/socket.h> // 支持socklen_t等
-#endif
-
-typedef char Byte8;
-typedef unsigned char U8;
-typedef short Int16;
-typedef unsigned short UInt16;
-typedef int Int32;
-typedef unsigned int UInt32;
-typedef long Long;
-typedef unsigned long ULong;
-typedef long long Int64;
-typedef unsigned long long UInt64;
-typedef float Float;
-typedef double Double;
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-typedef struct alignas(16) {
-    UInt64 low;
-    UInt64 high;
-} UInt128;
-
-typedef  struct alignas(16) {
-    Int64 low;
-    Int64 high;
-} Int128;
-
-// 宽字节字符
-typedef __wchar_t wchar;
-
-#elif CRYSTAL_TARGET_PLATFORM_LINUX
-
-#undef MEM_ALIGNED_16BYTE
-#define MEM_ALIGNED_16BYTE __attribute__(( __aligned__(16) ))
-
-typedef __uint128_t UInt128;
-typedef __int128_t Int128;
-
-typedef unsigned short wchar;
-
-#endif
+#include <kernel/common/BaseType.h>
 
 // cache
 #define BUFFER_LEN2         2
@@ -100,47 +55,5 @@ typedef Byte8 BUFFER128[BUFFER_LEN128];
 typedef Byte8 BUFFER256[BUFFER_LEN256];
 typedef Byte8 BUFFER512[BUFFER_LEN512];
 typedef Byte8 BUFFER1024[BUFFER_LEN1024];
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-typedef size_t ssize_t;
-#endif
-
-// 文件光标位置
-KERNEL_BEGIN
-
-class KERNEL_EXPORT FileCursorOffsetType
-{
-public:
-    enum FILE_CURSOR_POS
-    {
-        FILE_CURSOR_POS_SET = 0,    // 起始位置
-        FILE_CURSOR_POS_CUR = 1,    // 当前位置
-        FILE_CURSOR_POS_END = 2,    // 文件末尾
-    };
-};
-
-// 网络模型
-class KERNEL_EXPORT NetIoModule
-{
-public:
-    enum Type
-    {
-        EPOLL = 0,
-        IOCP = 1,
-
-        EPOLL_LT = 2,
-        EPOLL_ET = 3,
-    };
-};
-
-KERNEL_END
-
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    typedef void* HANDLE;
-    #define MAX_PATH  PATH_MAX
-    typedef socklen_t LibSockLen;
-#else
-    typedef int LibSockLen;
-#endif
 
 #endif

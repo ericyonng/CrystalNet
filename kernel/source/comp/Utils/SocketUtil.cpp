@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/common/Buffer.h>
 #include <kernel/comp/Utils/SocketUtil.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/LibString.h>
@@ -38,6 +39,9 @@
 #include <kernel/comp/Utils/SockErrorMsgUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
 #include <kernel/comp/NetEngine/Defs/IoEvent.h>
+#include <kernel/comp/Utils/Defs/LibGuidDefs.h>
+#include <kernel/common/statics.h>
+#include <kernel/common/status.h>
 
 // extern "C"
 // {
@@ -46,6 +50,26 @@
 //         g_Log->Warn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "signal no[%d] raise"), signalNo);
 //     }
 // }
+
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ typedef size_t ssize_t;
+
+ #include <WinSock2.h>
+ #include <ws2def.h>
+ #include <ws2tcpip.h>
+ #include<MSWSock.h>
+ 
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <fcntl.h>
+ #include <linux/version.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <netinet/tcp.h>
+ #include <arpa/inet.h>
+#endif
 
 KERNEL_BEGIN
 

@@ -31,13 +31,10 @@
 
 #pragma once
 
-#include <kernel/kernel_export.h>
-#include <kernel/common/macro.h>
-#include <kernel/common/type.h>
-
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
-
 
 template<typename _Ty>
 struct RemoveReference

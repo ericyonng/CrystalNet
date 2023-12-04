@@ -31,7 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
 
 KERNEL_BEGIN
 
@@ -53,7 +55,7 @@ public:
 
 
 template <typename NodeType>
-inline void ListUtil::SetNext(NodeType *&cur)
+ALWAYS_INLINE void ListUtil::SetNext(NodeType *&cur)
 {
     cur = cur->_next;
 }
@@ -61,7 +63,7 @@ inline void ListUtil::SetNext(NodeType *&cur)
 
 // 赋值成前节点
 template <typename NodeType>
-inline void ListUtil::SetPre(NodeType *&cur)
+ALWAYS_INLINE void ListUtil::SetPre(NodeType *&cur)
 {
     cur = cur->_pre;
 }
@@ -69,7 +71,7 @@ inline void ListUtil::SetPre(NodeType *&cur)
 
 // 释放
 template <typename NodeType>
-inline void ListUtil::Destroy(NodeType *&head)
+ALWAYS_INLINE void ListUtil::Destroy(NodeType *&head)
 {
     NodeType *tmp;
     for(; head; head = tmp)

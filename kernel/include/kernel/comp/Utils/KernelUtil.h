@@ -31,8 +31,7 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/SmartPtr.h>
+#include <kernel/kernel_export.h>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
@@ -41,6 +40,9 @@ class ILogFactory;
 class LibCpuInfo;
 class CpuFeature;
 class MemoryMonitor;
+
+template <typename Rtn, typename... Args>
+class IDelegate;
 
 class KERNEL_EXPORT KernelUtil
 {

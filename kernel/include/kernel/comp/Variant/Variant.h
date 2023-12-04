@@ -34,10 +34,19 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/memory/memory.h>
-#include <kernel/comp/SmartPtr.h>
+#include <kernel/comp/LibStream.h>
+
+#include <unordered_map>
+#include <string.h>
+#include <vector>
+#include <list>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <deque>
+#include <queue>
 
 KERNEL_BEGIN
 
@@ -239,8 +248,6 @@ struct Raw
         return *this;
     }
 
-    
-
 private:
     void _CopyInAssign(const Variant::Raw &other)
     {
@@ -302,8 +309,6 @@ private:
         ::memset(&other._briefData, 0, sizeof(other._briefData));
         ::memset(&other._obj, 0, sizeof(other._obj));
     }
-
-
 
 public:
     friend class Variant;
@@ -1006,7 +1011,6 @@ ALWAYS_INLINE void Variant::_BecomeSpecify<VariantRtti::VT_SEQUENCE_DEF>()
         _raw._obj._sequenceData = CRYSTAL_NEW(Sequence);
 }
     
-
 KERNEL_END
 
 #include <kernel/comp/Variant/VariantImpl.h>

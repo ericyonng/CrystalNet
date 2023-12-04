@@ -28,26 +28,7 @@
 
 #ifdef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_DELEGATE_LIB_DELEGATE_H__
 
-#pragma once
-
 KERNEL_BEGIN
-
-// 委托抽象类
-template <typename Rtn, typename... Args>
-inline IDelegate<Rtn, Args...>::IDelegate()
-{
-}
-
-template <typename Rtn, typename... Args>
-inline IDelegate<Rtn, Args...>::~IDelegate()
-{
-}
-
-template <typename Rtn, typename... Args>
-inline void IDelegate<Rtn, Args...>::Release()
-{
-    delete this;
-}
 
 // 类委托
 template <typename ObjType, class Rtn, typename... Args>

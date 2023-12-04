@@ -32,9 +32,8 @@
 
 #pragma once
 
-#include <kernel/kernel_export.h>
-#include <kernel/comp/Delegate/Delegate.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
+#include <kernel/comp/Delegate/IDelegate.h>
 
 KERNEL_BEGIN
 
@@ -280,8 +279,6 @@ public:
 
     IDelegate<void, void *> *_delg;
 };
-
-
 
 KERNEL_END
 

@@ -42,6 +42,8 @@
 #include <kernel/comp/TlsMemoryCleanerComp.h>
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Timer/Timer.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/Lock/Impl/ConditionLocker.h>
 
 
 KERNEL_BEGIN

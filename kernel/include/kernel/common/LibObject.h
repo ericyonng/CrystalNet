@@ -32,8 +32,7 @@
 #pragma once
 
 #include <kernel/kernel_export.h>
-#include <kernel/common/macro.h>
-#include <kernel/common/type.h>
+#include <kernel/common/BaseMacro.h>
 
 KERNEL_BEGIN
 
@@ -64,38 +63,6 @@ struct KERNEL_EXPORT _Build
     {
     };
 };
-
-// // 构建对象方法类型
-// class KERNEL_EXPORT _Build
-// {
-// public:
-//     // 多线程版本 multi thread
-//     enum MT
-//     {
-//         V = 0,
-//     };
-//     // 线程本地版本thread local
-//     enum TL
-//     {
-//         V = 0,
-//     };
-// };
-
-// // 对象构建适配器
-// namespace ObjBuild
-// {
-//     template<BuildType::ThreadType threadType, BuildType::ClassType classType>
-//     struct Adapter{};
-//     typedef KERNEL_EXPORT Adapter<BuildType::MULTI_THREAD, BuildType::NORMAL> NormalMultiAdapter;             // 普通类多线程版本
-//     typedef KERNEL_EXPORT Adapter<BuildType::THREAD_LOCAL, BuildType::NORMAL> NormalThreadLocalAdapter;   // 普通类线程局部版本
-//     typedef KERNEL_EXPORT Adapter<BuildType::MULTI_THREAD, BuildType::TEMPLATE> TemplateMultiAdapter;    // 泛型类多线程版本
-//     typedef KERNEL_EXPORT Adapter<BuildType::THREAD_LOCAL, BuildType::TEMPLATE> TemplateThreadLocalAdapter;  // 泛型类线程局部版本
-
-//     extern KERNEL_EXPORT const NormalMultiAdapter *_normalMultiAdapter;
-//     extern KERNEL_EXPORT const NormalThreadLocalAdapter *_normalThreadLocalAdapter;
-//     extern KERNEL_EXPORT const TemplateMultiAdapter *_templateMultiAdapter;
-//     extern KERNEL_EXPORT const TemplateThreadLocalAdapter *_templateThreadLocalAdapter;
-// };
 
 KERNEL_END
 

@@ -38,7 +38,6 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
@@ -62,18 +61,18 @@ private:
 };
 
 template <typename ObjType>
-inline void AlloctorInfoCollector::Collect(ObjType &alloctor)
+ALWAYS_INLINE void AlloctorInfoCollector::Collect(ObjType &alloctor)
 {
     // 收集信息
     _collector.AppendFormat("[%s]", alloctor.UsingInfo().c_str());
 }
 
-inline void AlloctorInfoCollector::AddDecorate(const LibString &str)
+ALWAYS_INLINE void AlloctorInfoCollector::AddDecorate(const LibString &str)
 {
     _collector += str;
 }
 
-inline const LibString &AlloctorInfoCollector::Result() const
+ALWAYS_INLINE const LibString &AlloctorInfoCollector::Result() const
 {
     return _collector;
 }

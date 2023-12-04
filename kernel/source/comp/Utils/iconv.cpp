@@ -28,6 +28,8 @@
 
 #include <pch.h>
 #include <kernel/comp/Utils/iconv.h>
+#include <string.h>
+#include <stdio.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 

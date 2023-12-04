@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Random/RandomDefs.h>
+#include <chrono>
 
 KERNEL_BEGIN
 
@@ -64,7 +64,6 @@ struct RandomSource<RandValType, RandSourceAlgorithmType::RAND_GEN_ALGORITHM_TYP
 
     }
 };
-
 
 // 64与32在不同编译器上的性能各不相同，一般64比32会快一点 所以建议使用MT19937-64
 typedef RandomSource<Int64, RandSourceAlgorithmType::RAND_GEN_ALGORITHM_TYPE_MT19937_64> MT1993764RandSrc;

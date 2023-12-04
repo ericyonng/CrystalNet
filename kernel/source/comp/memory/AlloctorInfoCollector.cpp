@@ -39,5 +39,4 @@ AlloctorInfoCollector::~AlloctorInfoCollector()
 {
 }
 
-
 KERNEL_END

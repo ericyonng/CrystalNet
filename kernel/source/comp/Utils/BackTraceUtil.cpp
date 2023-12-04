@@ -27,13 +27,29 @@
 */
 
 #include <pch.h>
+#include <kernel/common/macro.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
+
+#if CRYSTAL_TARGET_PLATFROM_LINUX
+    // linux下堆栈追踪头文件
+    #include <execinfo.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <WinSock2.h>
+ #include <dbghelp.h>
+#endif
+
+#include <kernel/comp/Delegate/IDelegate.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Utils/DirectoryUtil.h>
 #include <3rd/3rdForKernel.h>
 #include <kernel/comp/Tls/Tls.h>
 #include <kernel/comp/Utils/KernelUtil.h>
+#include <string.h>
+#include <kernel/common/statics.h>
+#include <kernel/common/status.h>
 
 static KERNEL_NS::ILog *s_BackTraceLog = NULL;
 static KERNEL_NS::LibString  __dumpFileName;

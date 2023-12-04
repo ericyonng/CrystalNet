@@ -28,15 +28,49 @@
 
 #include <pch.h>
 #include <kernel/comp/Utils/SystemUtil.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+    #include <unistd.h>
+
+    // syscall 系统调用获取硬件时钟,单调递增,不随用户调整而变化,不受ntp影响 系统调用会有上下文切换开销
+    #include <sys/syscall.h>
+
+    // 包含sysinfo结构体信息
+    #include <linux/kernel.h>
+    #include <sys/sysinfo.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <process.h>
+ #include <tchar.h>
+ #include "Psapi.h"
+ #include "tlhelp32.h"
+#endif
+
+#include <kernel/common/Buffer.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/DirectoryUtil.h>
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/Utils/StringUtil.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Utils/TranscoderUtil.h>
+#include <kernel/common/func.h>
+#include <kernel/common/status.h>
+#include <kernel/common/statics.h>
+#include <kernel/common/Int128.h>
+
+
+#include <thread>
+#include <chrono>
+#include <map>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ typedef size_t ssize_t;
+#endif
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
  #include <sys/prctl.h>
+ #include <limits.h> // 含有PATH_MAX
 #endif
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -1155,6 +1189,135 @@ Int32 SystemUtil::GetProcessFileDescriptLimit(Int32 resourceId, Int64 &softLimit
     return Status::Success;
 }
 #endif
+
+void SystemUtil::ThreadSleep(UInt64 milliSec, UInt64 microSec)
+{
+    std::chrono::microseconds t(milliSec * TimeDefs::MICRO_SECOND_PER_MILLI_SECOND + microSec);
+    std::this_thread::sleep_for(t);
+}
+
+UInt64 SystemUtil::GetCurrentThreadId()
+{
+    thread_local UInt64 s_currentThreadId = 0;
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+	// pthread_self是获取的是pthread_create创建的tcb块的首地址，基本一样,不是真正的线程id,应该使用gettid()
+	// linux glibc 不提供gettid只能手动调用系统调用 __NR_gettid 224
+	// return ::pthread_self();
+	// return ::gettid();
+    if(UNLIKELY(s_currentThreadId == 0))
+        s_currentThreadId = static_cast<UInt64>(::syscall(__NR_gettid));
+#else
+    if(UNLIKELY(s_currentThreadId == 0))
+        s_currentThreadId = ::GetCurrentThreadId();
+	// TODO:windows
+#endif
+
+	return s_currentThreadId;
+}
+
+Int32 SystemUtil::GetCurProcessId()
+{
+    static Int32 s_pid = 0;
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    if(s_pid == 0)
+        s_pid =  static_cast<Int32>(::_getpid());
+    return s_pid;
+#else
+    if(s_pid == 0)
+        s_pid = static_cast<Int32>(::getpid());
+    return s_pid;
+#endif
+}
+
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+
+UInt64 SystemUtil::GetFreeMemBySysCall()
+{
+    struct sysinfo info;
+    sysinfo(&info); 
+
+    return info.freeram;
+}
+
+UInt64 SystemUtil::GetAvailableMem()
+{
+    std::map<LibString, LibString> memInfo;
+    if(!ReadMemInfoDict(memInfo))
+    {
+        CRYSTAL_TRACE("read mem info fail.");
+        return 0;
+    }
+
+    return GetAvailableMem(memInfo);
+}
+
+UInt64 SystemUtil::GetTotalMem()
+{
+    std::map<LibString, LibString> memInfo;
+    if(!ReadMemInfoDict(memInfo))
+    {
+        CRYSTAL_TRACE("read mem info fail.");
+        return 0;
+    }
+
+    return GetTotalMem(memInfo);
+}
+
+#endif
+
+void SystemUtil::LockConsole()
+{
+    GetConsoleLocker().Lock();
+}
+
+void SystemUtil::UnlockConsole()
+{
+    GetConsoleLocker().Unlock();
+}
+
+void SystemUtil::OutputToConsole(const LibString &outStr)
+{
+    printf("%s", outStr.c_str());
+}
+
+Int32 SystemUtil::GetErrNo(bool fromNet)
+{
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+     if(fromNet)    // 网络,由于是多线程请调用WSA版本，如socket上的错误
+         return ::WSAGetLastError();
+ 
+     return ::GetLastError();
+    #else
+     return errno;
+    #endif
+}
+
+void SystemUtil::ChgWorkDir(const LibString &workDir)
+{
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    if (workDir.length())
+        chdir(workDir.c_str());
+#endif
+}
+
+void SystemUtil::YieldScheduler()
+{
+    std::this_thread::yield();
+}
+
+void SystemUtil::RelaxCpu()
+{
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+ #if CRYSTAL_TARGET_PLATFORM_LINUX || CRYSTAL_TARGET_PLATFORM_ANDROID || CRYSTAL_TARGET_PLATFORM_MAC
+    asm volatile ("rep;nop" : : : "memory");
+ #else
+    asm volatile ("nop");
+ #endif
+#else // WINDOWS platform
+    YieldProcessor();
+#endif // Non-WINDOWS platform
+}
 
 KERNEL_END
 

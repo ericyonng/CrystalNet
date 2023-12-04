@@ -31,10 +31,12 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/Defs/SystemUtilDef.h>
 #include <kernel/common/timedefs.h>
+#include <kernel/common/macro.h>
+#include <map>
 
 KERNEL_BEGIN
 
@@ -155,135 +157,6 @@ public:
 
 private:
 };
-
-ALWAYS_INLINE void SystemUtil::ThreadSleep(UInt64 milliSec, UInt64 microSec)
-{
-    std::chrono::microseconds t(milliSec * TimeDefs::MICRO_SECOND_PER_MILLI_SECOND + microSec);
-    std::this_thread::sleep_for(t);
-}
-
-ALWAYS_INLINE UInt64 SystemUtil::GetCurrentThreadId()
-{
-    thread_local UInt64 s_currentThreadId = 0;
-
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-	// pthread_self是获取的是pthread_create创建的tcb块的首地址，基本一样,不是真正的线程id,应该使用gettid()
-	// linux glibc 不提供gettid只能手动调用系统调用 __NR_gettid 224
-	// return ::pthread_self();
-	// return ::gettid();
-    if(UNLIKELY(s_currentThreadId == 0))
-        s_currentThreadId = static_cast<UInt64>(::syscall(__NR_gettid));
-#else
-    if(UNLIKELY(s_currentThreadId == 0))
-        s_currentThreadId = ::GetCurrentThreadId();
-	// TODO:windows
-#endif
-
-	return s_currentThreadId;
-}
-
-inline Int32 SystemUtil::GetCurProcessId()
-{
-    static Int32 s_pid = 0;
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    if(s_pid == 0)
-        s_pid =  static_cast<Int32>(::_getpid());
-    return s_pid;
-#else
-    if(s_pid == 0)
-        s_pid = static_cast<Int32>(::getpid());
-    return s_pid;
-#endif
-}
-
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-
-ALWAYS_INLINE UInt64 SystemUtil::GetFreeMemBySysCall()
-{
-    struct sysinfo info;
-    sysinfo(&info); 
-
-    return info.freeram;
-}
-
-ALWAYS_INLINE UInt64 SystemUtil::GetAvailableMem()
-{
-    std::map<LibString, LibString> memInfo;
-    if(!ReadMemInfoDict(memInfo))
-    {
-        CRYSTAL_TRACE("read mem info fail.");
-        return 0;
-    }
-
-    return GetAvailableMem(memInfo);
-}
-
-ALWAYS_INLINE UInt64 SystemUtil::GetTotalMem()
-{
-    std::map<LibString, LibString> memInfo;
-    if(!ReadMemInfoDict(memInfo))
-    {
-        CRYSTAL_TRACE("read mem info fail.");
-        return 0;
-    }
-
-    return GetTotalMem(memInfo);
-}
-
-#endif
-
-ALWAYS_INLINE void SystemUtil::LockConsole()
-{
-    GetConsoleLocker().Lock();
-}
-
-ALWAYS_INLINE void SystemUtil::UnlockConsole()
-{
-    GetConsoleLocker().Unlock();
-}
-
-ALWAYS_INLINE void SystemUtil::OutputToConsole(const LibString &outStr)
-{
-    printf("%s", outStr.c_str());
-}
-
-ALWAYS_INLINE Int32 SystemUtil::GetErrNo(bool fromNet)
-{
-    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-     if(fromNet)    // 网络,由于是多线程请调用WSA版本，如socket上的错误
-         return ::WSAGetLastError();
- 
-     return ::GetLastError();
-    #else
-     return errno;
-    #endif
-}
-
-inline void SystemUtil::ChgWorkDir(const LibString &workDir)
-{
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-    if (workDir.length())
-        chdir(workDir.c_str());
-#endif
-}
-
-ALWAYS_INLINE void SystemUtil::YieldScheduler()
-{
-    std::this_thread::yield();
-}
-
-ALWAYS_INLINE void SystemUtil::RelaxCpu()
-{
-#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
- #if CRYSTAL_TARGET_PLATFORM_LINUX || CRYSTAL_TARGET_PLATFORM_ANDROID || CRYSTAL_TARGET_PLATFORM_MAC
-    asm volatile ("rep;nop" : : : "memory");
- #else
-    asm volatile ("nop");
- #endif
-#else // WINDOWS platform
-    YieldProcessor();
-#endif // Non-WINDOWS platform
-}
 
 KERNEL_END
 

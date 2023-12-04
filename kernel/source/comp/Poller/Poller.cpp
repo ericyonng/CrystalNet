@@ -27,12 +27,17 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/LibDirtyHelper.h>
+#include <kernel/comp/Poller/PollerEvent.h>
+#include <kernel/comp/Log/log.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
+
 #include <kernel/comp/Poller/Poller.h>
 #include <kernel/comp/Timer/Timer.h>
 #include <kernel/comp/thread/thread.h>
 #include <kernel/comp/TimeSlice.h>
 #include <kernel/comp/Utils/TlsUtil.h>
-#include <kernel/comp/Utils/SignalHandleUtil.h>
+#include <kernel/comp/Tls/Tls.h>
 
 static ALWAYS_INLINE bool IsPriorityEvenetsQueueEmpty(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
 {
@@ -404,6 +409,86 @@ LibString Poller::OnMonitor()
                 , CalcLoadScore(), GetAndResetGenCount(), GetAndResetConsumCount(), GetEventAmount());
 
     return pollerInfo;
+}
+
+bool Poller::CanQuit() const
+{
+    if(_eventAmountLeft != 0)
+        return false;
+
+    if(_dirtyHelper && _dirtyHelper->HasDirty())
+        return false;
+
+    // 不需要考虑定时器事件,因为当要quit的时候应该所有模块的定时器都是停止的
+    // if(_timerMgr && !_timerMgr->IsDriving() && _timerMgr->HasExpired())
+    //     return false;
+
+    return true;
+}
+
+void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
+{
+    if(UNLIKELY(!_isEnable))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, evList count:%llu")
+                        , GetId(), evList->GetAmount());
+
+        ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
+            ev->Release();
+        });
+        LibList<PollerEvent *>::Delete_LibList(evList);
+        return;
+    }
+
+    const auto amount = static_cast<Int64>(evList->GetAmount());
+    _eventAmountLeft += amount;
+    _genEventAmount += amount;
+
+    _eventsList->PushQueue(level, evList);
+    LibList<PollerEvent *>::Delete_LibList(evList);
+    WakeupEventLoop();
+}
+
+void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action)
+{
+    if(UNLIKELY(!_isEnable))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying poller obj id:%llu"), GetId());
+        action->Release();
+        return;
+    }
+
+    auto ev = ActionPollerEvent::New_ActionPollerEvent(specifyActionType);
+    ev->_action = action;
+    ++_eventAmountLeft;
+    ++_genEventAmount;
+    _eventsList->PushQueue(level, ev);
+    WakeupEventLoop();
+}
+
+void Poller::Push(Int32 level, PollerEvent *ev)
+{
+    if(UNLIKELY(!_isEnable))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, ev:%s"), GetId(), ev->ToString().c_str());
+        ev->Release();
+        return;
+    }
+    
+    ++_eventAmountLeft;
+    ++_genEventAmount;
+    _eventsList->PushQueue(level, ev);
+    WakeupEventLoop();
+}
+
+void Poller::SetMaxPriorityLevel(Int32 level)
+{
+    _eventsList->SetMaxLevel(level);
+}
+
+Int32 Poller::GetMaxPriorityLevel() const
+{
+    return _eventsList->GetMaxLevel();
 }
 
 void Poller::_Clear()

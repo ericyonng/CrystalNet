@@ -31,18 +31,17 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/SmartPtr.h>
 
 KERNEL_BEGIN
 
-struct KERNEL_EXPORT CenterMemoryTopnThreadInfo
+struct CenterMemoryTopnThreadInfo
 {
     UInt64 _threadId = 0;
     UInt64 _totalAllocBytes = 0;
 };
 
-class KERNEL_EXPORT CenterMemoryTopnThreadInfoComp
+class CenterMemoryTopnThreadInfoComp
 {
 public:
     bool operator()(const SmartPtr<CenterMemoryTopnThreadInfo> &l, const SmartPtr<CenterMemoryTopnThreadInfo> &r) const;

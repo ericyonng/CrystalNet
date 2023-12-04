@@ -31,8 +31,7 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/CompObject/CompObjectInc.h>
+#include <kernel/comp/CompObject/CompHostObject.h>
 
 KERNEL_BEGIN
 

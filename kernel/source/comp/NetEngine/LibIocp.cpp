@@ -33,6 +33,8 @@
 #include <kernel/comp/NetEngine/Defs/IoData.h>
 #include <kernel/comp/NetEngine/Defs/IoEvent.h>
 #include <kernel/comp/Utils/SocketUtil.h>
+#include <kernel/common/status.h>
+#include <kernel/common/statics.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 

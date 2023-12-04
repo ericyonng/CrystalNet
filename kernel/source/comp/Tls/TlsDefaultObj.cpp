@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/Tls/TlsDefaultObj.h>
 #include <kernel/comp/Utils/RttiUtil.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 KERNEL_BEGIN
 
@@ -42,6 +43,7 @@ TlsDefaultObj::TlsDefaultObj()
     ,_threadPool(NULL)
     ,_pollerTimerMgr(NULL)
     ,_poller(NULL)
+    ,_lck(new SpinLock)
     ,_durtyList(new std::set<MemoryAlloctor *>)
     ,_durtyListSwap(new std::set<MemoryAlloctor *>)
     ,_isForceFreeIdleBuffer(false)
@@ -54,6 +56,7 @@ TlsDefaultObj::~TlsDefaultObj()
 {
     CRYSTAL_DELETE_SAFE(_durtyList);
     CRYSTAL_DELETE_SAFE(_durtyListSwap);
+    CRYSTAL_DELETE_SAFE(_lck);
 }
 
 KERNEL_END

@@ -31,11 +31,12 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Utils/StringUtil.h>
-#include <kernel/comp/Variant/Variant.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
 
 KERNEL_BEGIN
+
+class Variant;
 
 class KERNEL_EXPORT VariantTraits
 {

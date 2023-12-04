@@ -31,13 +31,15 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Tls/TlsStack.h>
+#include <kernel/comp/Tls/Defs.h>
 
 KERNEL_BEGIN
 
 class LibThread;
 class LibThreadPool;
+
+template<TlsStackSize::SizeType TlsSizeType>
+class TlsStack;
 
 class KERNEL_EXPORT ThreadTool
 {

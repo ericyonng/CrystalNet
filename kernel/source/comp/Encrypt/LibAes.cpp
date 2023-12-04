@@ -28,8 +28,17 @@
 
 #include <pch.h>
 #include <kernel/comp/Encrypt/LibAes.h>
-#include <3rd/3rdForKernel.h>
 
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+  #include <WinSock2.h>
+#endif
+
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/Utils/CypherGeneratorUtil.h>
+#include "openssl/aes.h"
+
+// macro
+#define LIB_AES_256_KEY_LEN     32       // 256bit/8bit
 
 // // openssl
 // #ifdef _WIN32
@@ -63,6 +72,13 @@
 
 
 KERNEL_BEGIN
+
+void LibAes::GenerateKey(LibString &key, Int32 mode)
+{
+    const Int32 bytes = GetAesKeyBytes(mode);
+    key.resize(static_cast<UInt64>(bytes));
+    CypherGeneratorUtil::Gen(key, bytes);
+}
 
 Int32 LibAes::Encrypt_Data(const LibString &key, const LibString &plaintext, LibString &cyphertext, Int32 mode)
 {

@@ -31,11 +31,12 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/Delegate/Delegate.h>
 
 KERNEL_BEGIN
+
+template <typename Rtn, typename... Args>
+class IDelegate;
 
 class ILog;
 struct LogData;

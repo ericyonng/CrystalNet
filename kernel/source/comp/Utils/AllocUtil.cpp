@@ -31,6 +31,7 @@
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 

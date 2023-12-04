@@ -28,10 +28,14 @@
 
 #include <pch.h>
 #include <kernel/comp/memory/MemoryPool.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/memory/MemoryBlock.h>
 #include <kernel/comp/memory/BufferBlockLimit.h>
 #include <kernel/comp/memory/MemoryAlloctor.h>
 #include <kernel/comp/MemoryMonitor/memorymonitor_inc.h>
-#include <kernel/comp/LibString.h>
+#include <kernel/comp/Utils/MathUtil.h>
+#include <kernel/comp/memory/MemoryBuffer.h>
+
 #include <kernel/comp/Utils/SystemUtil.h>
 
 

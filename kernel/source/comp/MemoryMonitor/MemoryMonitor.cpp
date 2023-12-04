@@ -27,15 +27,18 @@
 */
 
 #include <pch.h>
-#include <kernel/comp/MemoryMonitor/MemoryMonitor.h>
-#include <kernel/comp/SmartPtr.h>
-#include <kernel/comp/thread/LibThread.h>
-#include <kernel/comp/Utils/SystemUtil.h>
+#include <memory>
+
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/common/macro.h>
+#include <kernel/comp/memory/CenterMemoryCollector.h>
 #include <kernel/comp/Log/log.h>
-#include <kernel/comp/Utils/TimeUtil.h>
+
+#include <kernel/comp/MemoryMonitor/MemoryMonitor.h>
+#include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Cpu/LibCpuCounter.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/memory/CenterMemoryCollector.h>
+#include <kernel/comp/MemoryMonitor/Statistics.h>
 
 KERNEL_BEGIN
 
@@ -94,6 +97,11 @@ Statistics *MemoryMonitor::GetStatistics()
     static std::shared_ptr<Statistics> s_statistics(new Statistics);
 
     return s_statistics.get();
+}
+
+IDelegate<void> *MemoryMonitor::MakeWorkTask()
+{
+    return DelegateFactory::Create(this, &MemoryMonitor::_DoWork);
 }
 
 void MemoryMonitor::_DoWork()

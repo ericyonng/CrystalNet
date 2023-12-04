@@ -28,6 +28,9 @@
 
 #include <pch.h>
 #include <kernel/comp/NetEngine/Protocol/IProtocolStack.h>
+#include <kernel/comp/LibTime.h>
+#include <kernel/comp/Utils/CypherGeneratorUtil.h>
+#include <kernel/comp/Coder/coder.h>
 
 KERNEL_BEGIN
 

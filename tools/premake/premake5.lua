@@ -373,6 +373,11 @@ project "CrystalKernel"
             "Mswsock",
             "DbgHelp",
             "miniz",
+            "Crypt32",
+            "libcrypto",
+            "libssl",
+            "shlwapi",
+            "Iphlpapi",
         }
 
     filter { "system:macosx" }

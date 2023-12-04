@@ -30,11 +30,10 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Tls/ITlsObj.h>
 #include <kernel/comp/Tls/Defs.h>
-#include <kernel/comp/Lock/Lock.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>
+#include <string>
 
 KERNEL_BEGIN
 

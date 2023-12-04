@@ -28,6 +28,11 @@
 
 #include <pch.h>
 #include <kernel/comp/File/ConsoleConfigMgr.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+  #include <WinSock2.h>
+#endif
+
 #include <kernel/comp/Utils/FileUtil.h>
 #include <kernel/comp/File/LibIniFile.h>
 #include <kernel/comp/SmartPtr.h>

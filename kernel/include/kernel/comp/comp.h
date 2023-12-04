@@ -32,8 +32,6 @@
 
 #pragma once
 
-// defs
-#include <kernel/comp/Defs/Defs.h>
 
 // 基础组件
 #include <kernel/comp/LibString.h>
@@ -52,7 +50,7 @@
 #include <kernel/comp/PerformanceRecord.h>
 
 // 简单组件
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/comp/Tls/Tls.h>
 #include <kernel/comp/Encrypt/Encrypt.h>
 #include <kernel/comp/Coder/coder.h>

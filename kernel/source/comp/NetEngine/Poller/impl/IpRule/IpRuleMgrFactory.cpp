@@ -28,7 +28,7 @@
 
 #include <pch.h>
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolWrap.h>
 
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgrFactory.h>
 

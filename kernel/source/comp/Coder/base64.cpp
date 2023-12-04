@@ -36,7 +36,7 @@ const char __b64Alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                              "0123456789+/";
 
 
-inline void __A3ToA4(U8 *a3, U8 *a4)
+ALWAYS_INLINE void __A3ToA4(U8 *a3, U8 *a4)
 {
     a4[0] = (a3[0] & 0xfc) >> 2;
     a4[1] = ((a3[0] & 0x03) << 4) + ((a3[1] & 0xf0) >> 4);
@@ -44,14 +44,14 @@ inline void __A3ToA4(U8 *a3, U8 *a4)
     a4[3] = (a3[2] & 0x3f);
 }
 
-inline void __A4ToA3(U8 *a4, U8 *a3)
+ALWAYS_INLINE void __A4ToA3(U8 *a4, U8 *a3)
 {
     a3[0] = (a4[0] << 2) + ((a4[1] & 0x30) >> 4);
     a3[1] = ((a4[1] & 0xf) << 4) + ((a4[2] & 0x3c) >> 2);
     a3[2] = ((a4[2] & 0x3) << 6) + a4[3];
 }
 
-inline U8 __B64Lookup(Byte8 c)
+ALWAYS_INLINE U8 __B64Lookup(Byte8 c)
 {
     if (c >= 'A' && c <= 'Z') return c - 'A';
     else if (c >= 'a' && c <= 'z') return c - 71;

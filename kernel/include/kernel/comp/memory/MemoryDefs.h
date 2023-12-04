@@ -65,6 +65,4 @@
 #define MIN_EMPTY_BUFFER_NUM_LIMIT 2048
 #define MAX_EMPTY_BUFFER_NUM_LIMIT 4
 
-// GC间隔时间 100ms 清理一次
-#define DEF_GC_INTERVAL     100
 #endif

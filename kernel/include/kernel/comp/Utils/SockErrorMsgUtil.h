@@ -31,12 +31,12 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/LibString.h>
+#include <unordered_map>
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT SockErrorMsgUtil
+class SockErrorMsgUtil
 {
 public:
     static void Init();

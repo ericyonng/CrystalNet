@@ -32,25 +32,21 @@
 
 #pragma once
 
-#include <kernel/common/for_std/for_std.h>
-
-#include <kernel/common/RemoveReference.h>
-#include <kernel/common/Move.h>
-#include <kernel/common/DataTypeAdapter.h>
-#include <kernel/common/procstat.h>
-#include <kernel/common/timedefs.h>
+#include <kernel/common/compile.h>
 #include <kernel/common/macro.h>
-#include <kernel/common/attribute.h>
-#include <kernel/common/libs.h>
-#include <kernel/common/type.h>
+
+#include <kernel/common/BasicDataTrait.h>
+#include <kernel/common/Buffer.h>
+#include <kernel/common/CopyAdapter.h>
+#include <kernel/common/DataTypeAdapter.h>
+#include <kernel/common/Destructor.h>
+#include <kernel/common/func.h>
+#include <kernel/common/Int128.h>
+#include <kernel/common/LibObject.h>
+#include <kernel/common/LibSockLen.h>
+#include <kernel/common/RemoveReference.h>
 #include <kernel/common/statics.h>
 #include <kernel/common/status.h>
-#include <kernel/common/func.h>
-#include <kernel/common/compile.h>
-#include <kernel/common/tempcompile.h>
-#include <kernel/common/LibObject.h>
-#include <kernel/common/KernelExternTemplate.h>
-#include <kernel/common/Destructor.h>
-#include <kernel/common/CopyAdapter.h>
+#include <kernel/common/timedefs.h>
 
 #endif

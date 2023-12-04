@@ -31,9 +31,12 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <vector>
+#include <set>
+
+#include <kernel/common/macro.h>
 #include <kernel/comp/BlackWhiteList/BlackWhiteDef.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 KERNEL_BEGIN
 
@@ -106,25 +109,25 @@ ALWAYS_INLINE BlackWhiteList<Elem>::BlackWhiteList()
 }
 
 template<typename Elem>
-inline BlackWhiteList<Elem>::~BlackWhiteList()
+ALWAYS_INLINE BlackWhiteList<Elem>::~BlackWhiteList()
 {
 
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::Lock()
+ALWAYS_INLINE void BlackWhiteList<Elem>::Lock()
 {
     _lck.Lock();
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::Unlock()
+ALWAYS_INLINE void BlackWhiteList<Elem>::Unlock()
 {
     _lck.Unlock();
 }
 
 template<typename Elem>
-inline bool BlackWhiteList<Elem>::SetMode(UInt32 flag)
+ALWAYS_INLINE bool BlackWhiteList<Elem>::SetMode(UInt32 flag)
 {
     auto cb = _checkArray[flag];
     if(UNLIKELY(!cb))
@@ -135,102 +138,102 @@ inline bool BlackWhiteList<Elem>::SetMode(UInt32 flag)
 }
 
 template<typename Elem>
-inline bool BlackWhiteList<Elem>::Check(const Elem &e) const
+ALWAYS_INLINE bool BlackWhiteList<Elem>::Check(const Elem &e) const
 {
     return (this->*_check)(e);
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::PushWhite(Elem &e)
+ALWAYS_INLINE void BlackWhiteList<Elem>::PushWhite(Elem &e)
 {
     _black.erase(e);
     _white.insert(e);
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::PushWhite(const Elem &e)
+ALWAYS_INLINE void BlackWhiteList<Elem>::PushWhite(const Elem &e)
 {
     _black.erase(e);
     _white.insert(e);
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::EraseWhite(const Elem &e)
+ALWAYS_INLINE void BlackWhiteList<Elem>::EraseWhite(const Elem &e)
 {
     _white.erase(e);
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::EraseWhite(Elem &e)
+ALWAYS_INLINE void BlackWhiteList<Elem>::EraseWhite(Elem &e)
 {
     _white.erase(e);
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::PushBlack(Elem &e)
-{
-    _white.erase(e);
-    _black.insert(e);
-}
-
-template<typename Elem>
-inline void BlackWhiteList<Elem>::PushBlack(const Elem &e)
+ALWAYS_INLINE void BlackWhiteList<Elem>::PushBlack(Elem &e)
 {
     _white.erase(e);
     _black.insert(e);
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::EraseBlack(const Elem &e)
+ALWAYS_INLINE void BlackWhiteList<Elem>::PushBlack(const Elem &e)
+{
+    _white.erase(e);
+    _black.insert(e);
+}
+
+template<typename Elem>
+ALWAYS_INLINE void BlackWhiteList<Elem>::EraseBlack(const Elem &e)
 {
     _black.erase(e);
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::EraseBlack(Elem &e)
+ALWAYS_INLINE void BlackWhiteList<Elem>::EraseBlack(Elem &e)
 {
     _black.erase(e);
 }
 
 template<typename Elem>
-inline const std::set<Elem> &BlackWhiteList<Elem>::GetBlackList() const
+ALWAYS_INLINE const std::set<Elem> &BlackWhiteList<Elem>::GetBlackList() const
 {
     return _black;
 }
 
 template<typename Elem>
-inline const std::set<Elem> &BlackWhiteList<Elem>::GetWhiteList() const
+ALWAYS_INLINE const std::set<Elem> &BlackWhiteList<Elem>::GetWhiteList() const
 {
     return _white;
 }
 
 template<typename Elem>
-inline void BlackWhiteList<Elem>::Clear()
+ALWAYS_INLINE void BlackWhiteList<Elem>::Clear()
 {
     _black.clear();
     _white.clear();
 }
 
 template<typename Elem>
-inline bool BlackWhiteList<Elem>::_AllowAll(const Elem &e) const
+ALWAYS_INLINE bool BlackWhiteList<Elem>::_AllowAll(const Elem &e) const
 {
     return true;
 }
 
 template<typename Elem>
-inline bool BlackWhiteList<Elem>::_CheckWhite(const Elem &e) const
+ALWAYS_INLINE bool BlackWhiteList<Elem>::_CheckWhite(const Elem &e) const
 {
     return _white.find(e) != _white.end();
 }
 
 template<typename Elem>
-inline bool BlackWhiteList<Elem>::_CheckBlack(const Elem &e) const
+ALWAYS_INLINE bool BlackWhiteList<Elem>::_CheckBlack(const Elem &e) const
 {
     return _black.find(e) == _black.end();
 }
 
 template<typename Elem>
-inline bool BlackWhiteList<Elem>::_CheckWhiteBlack(const Elem &e) const
+ALWAYS_INLINE bool BlackWhiteList<Elem>::_CheckWhiteBlack(const Elem &e) const
 {
     // 黑名单禁止
     if(_black.find(e) != _black.end())
@@ -241,7 +244,7 @@ inline bool BlackWhiteList<Elem>::_CheckWhiteBlack(const Elem &e) const
 }
 
 template<typename Elem>
-inline bool BlackWhiteList<Elem>::_CheckWhiteBlackAllowUnknown(const Elem &e) const
+ALWAYS_INLINE bool BlackWhiteList<Elem>::_CheckWhiteBlackAllowUnknown(const Elem &e) const
 {
     // 黑名单禁止
     if(_black.find(e) != _black.end())

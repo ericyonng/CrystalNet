@@ -31,9 +31,8 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/comp/Timer/TimeData.h>
 #include <kernel/comp/Utils/TimeUtil.h>
 #include <kernel/comp/TimeSlice.h>

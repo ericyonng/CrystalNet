@@ -33,6 +33,7 @@
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/thread/ThreadTool.h>
 #include <kernel/comp/thread/LibThreadGlobalId.h>
+#include <kernel/comp/Task/Task.h>
 
 KERNEL_BEGIN
 
@@ -167,6 +168,20 @@ LibString LibThreadPool::ToString()
 
     return info;
 }
+
+bool LibThreadPool::AddTask(IDelegate<void, LibThreadPool *> *callback, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+{
+    DelegateTask<LibThreadPool> *newTask = DelegateTask<LibThreadPool>::New_DelegateTask(this, callback);
+    if(UNLIKELY(!AddTask(newTask, forceNewThread, numOfThreadToCreateIfNeed)))
+    {
+        newTask->PopCallback();
+        newTask->Release();
+        return false;
+    }
+
+    return true;
+}
+
 
 bool LibThreadPool::AddTask(ITask *task, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 {

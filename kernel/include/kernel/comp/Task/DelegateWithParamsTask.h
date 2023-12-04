@@ -32,9 +32,8 @@
 #pragma once
 
 
-#include <kernel/kernel_inc.h>
 #include <kernel/comp/Task/ITask.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/comp/Delegate/IDelegate.h>
 #include <kernel/comp/Variant/Variant.h>
 
 KERNEL_BEGIN

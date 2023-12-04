@@ -31,13 +31,20 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/common/status.h>
+
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Event/Defs.h>
-#include <kernel/comp/memory/memory.h>
+
+#include <map>
+#include <vector>
+#include <list>
 
 KERNEL_BEGIN
-
 
 class LibEvent;
 

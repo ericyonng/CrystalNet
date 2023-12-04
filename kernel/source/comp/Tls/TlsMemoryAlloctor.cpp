@@ -30,11 +30,13 @@
 #include <kernel/comp/Tls/TlsMemoryAlloctor.h>
 #include <kernel/comp/MemoryMonitor/memorymonitor_inc.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
 
 KERNEL_BEGIN
 
 TlsMemoryAlloctor::TlsMemoryAlloctor()
-    :_objTypeName("TlsMemoryAlloctor")
+    :_lck(new SpinLock)
+    ,_objTypeName("TlsMemoryAlloctor")
     ,_monitorLog(NULL)
 {
     _monitorLog = DelegateFactory::Create(this, &TlsMemoryAlloctor::MemMonitor);
@@ -51,14 +53,14 @@ TlsMemoryAlloctor::~TlsMemoryAlloctor()
 
 void TlsMemoryAlloctor::Destoy()
 {
-    _lck.Lock();
+    _lck->Lock();
     if(UNLIKELY(!_allocAddrRefDestructor.empty()))
     {
         CRYSTAL_TRACE("repeat destroy %p %s", this, _objTypeName.c_str());
-        _lck.Unlock();
+        _lck->Unlock();
         return;
     }
-    _lck.Unlock();
+    _lck->Unlock();
 
     CRYSTAL_TRACE("TlsMemoryAlloctor will destroy %llu memory alloctor", static_cast<UInt64>(_allocAddrRefDestructor.size()));
 
@@ -71,7 +73,7 @@ void TlsMemoryAlloctor::Destoy()
         _monitorLog = NULL;
     }
 
-    _lck.Lock();
+    _lck->Lock();
     CRYSTAL_TRACE("TlsMemoryAlloctor do destroy %llu memory alloctor", static_cast<UInt64>(_allocAddrRefDestructor.size()));
     ContainerUtil::DelContainer(_allocAddrRefAllocInfoDelg);
     for(auto iter = _allocAddrRefDestructor.begin(); iter != _allocAddrRefDestructor.end(); )
@@ -80,7 +82,9 @@ void TlsMemoryAlloctor::Destoy()
         iter = _allocAddrRefDestructor.erase(iter);
     }
     _sizeRefMemoryAlloc.clear();
-    _lck.Unlock();
+    _lck->Unlock();
+
+    CRYSTAL_DELETE_SAFE(_lck);
 
     ITlsObj::Destoy();
 }
@@ -88,10 +92,10 @@ void TlsMemoryAlloctor::Destoy()
 UInt64 TlsMemoryAlloctor::MemMonitor(LibString &info)
 {
     UInt64 totalBytes = 0;
-    _lck.Lock();
+    _lck->Lock();
     for(auto iter :_allocAddrRefAllocInfoDelg)
         info += iter.second->Invoke(totalBytes);
-    _lck.Unlock();
+    _lck->Unlock();
 
     return totalBytes;
 }

@@ -31,7 +31,10 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
@@ -45,7 +48,6 @@ public:
 
     static void EncryptStringBuffer(const LibString &key, const LibString &plainText, LibString &cypherText);
     static void DecryptStringBuffer(const LibString &key, const LibString &cypherText, LibString &plainText);
-
 };
 
 ALWAYS_INLINE void XorEncrypt::Encrypt(const Byte8 *key, Int32 keySize, const Byte8 *plainText, Int32 plainSize, Byte8 *cypherText)

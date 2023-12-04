@@ -30,12 +30,6 @@
 
 #pragma once
 
-#include <kernel/comp/Utils/StringUtil.h>
-#include <kernel/comp/Variant/VariantArithmetic.h>
-#include <kernel/comp/Variant/VariantTraits.h>
-#include <kernel/comp/LibStream.h>
-
-
 ALWAYS_INLINE std::ostream &operator <<(std::ostream &o, const KERNEL_NS::Variant &var)
 {
     const KERNEL_NS::LibString &str = var.ToString();

@@ -31,9 +31,28 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/BaseType.h>
+
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Utils/Defs/IPUtilDef.h>
+
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    #ifndef MAX_PATH
+        #define MAX_PATH  PATH_MAX
+    #endif
+
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <netdb.h>
+    #include <errno.h>
+    #include <stdio.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <ws2tcpip.h>
+#endif
 
 KERNEL_BEGIN
 

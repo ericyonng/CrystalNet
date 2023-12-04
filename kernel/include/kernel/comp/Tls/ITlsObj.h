@@ -31,8 +31,9 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Delegate/Delegate.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 
 KERNEL_BEGIN
 

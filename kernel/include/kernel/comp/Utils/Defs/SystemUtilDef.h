@@ -31,8 +31,15 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/Lock/Lock.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/common/macro.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include "shlwapi.h"        // 控制台程序接口
+#else
+ #include <sys/resource.h>
+#endif
 
 KERNEL_BEGIN
 

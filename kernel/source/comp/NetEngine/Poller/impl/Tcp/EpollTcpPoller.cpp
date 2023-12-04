@@ -27,9 +27,18 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpPoller.h>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+
+#include <kernel/comp/Variant/Variant.h>
+
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/LibDirtyHelper.h>
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerEvent.h>
 
 #include <kernel/comp/Poller/PollerInc.h>
-#include <kernel/comp/NetEngine/Poller/Defs/TcpPollerConfig.h>
 #include <kernel/comp/TimeSlice.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerDirty.h>
 #include <kernel/comp/NetEngine/LibEpoll.h>
@@ -52,11 +61,7 @@
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
 #include <kernel/comp/TlsMemoryCleanerComp.h>
-
-#include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpPoller.h>
-
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-
+#include <kernel/comp/NetEngine/Defs/ProtocolType.h>
 
 KERNEL_BEGIN
 

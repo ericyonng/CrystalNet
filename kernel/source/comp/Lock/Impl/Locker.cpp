@@ -28,8 +28,18 @@
 */
 
 #include <pch.h>
+#include <kernel/common/macro.h>
 #include <kernel/comp/Lock/Impl/Locker.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+  #include <WinSock2.h>
+#endif
+
 #include <kernel/comp/Utils/CountUtil.h>
+#include <kernel/common/macro.h>
+#include <kernel/common/func.h>
+#include <limits>   
+#include <string.h>
 
 KERNEL_BEGIN
 
@@ -74,6 +84,21 @@ bool Locker::IsOtherThreadOwnLock() const
 {
     auto curThread = ULongToHandle(static_cast<ULong>(KernelGetCurrentThreadId()));
     return _handle.OwningThread && (_handle.OwningThread != curThread);
+}
+
+void Locker::WinLock()
+{
+    ::EnterCriticalSection(&(_handle));
+}
+
+void Locker::WinUnlock()
+{
+    ::LeaveCriticalSection(&(_handle));
+}
+
+bool Locker::WinTryLock()
+{
+    return ::TryEnterCriticalSection(&(_handle));
 }
 #endif
 KERNEL_END

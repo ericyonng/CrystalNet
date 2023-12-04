@@ -31,15 +31,17 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
-#include <kernel/comp/LibStream.h>
+#include <kernel/common/LibObject.h>
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
 
 KERNEL_BEGIN
 
 class ICoder;
+
+template<typename BuildType>
+class LibStream;
 
 class KERNEL_EXPORT LibPacket
 {

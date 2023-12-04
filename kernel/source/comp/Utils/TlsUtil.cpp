@@ -28,6 +28,18 @@
 
 #include <pch.h>
 #include <kernel/comp/Utils/TlsUtil.h>
+#include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/memory/MemoryPool.h>
+#include <kernel/comp/Tls/TlsMemoryPool.h>
+#include <kernel/comp/Utils/AllocUtil.h>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <processthreadsapi.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <pthread.h>
+#endif
 
 KERNEL_BEGIN
 
@@ -76,6 +88,79 @@ TlsStack<TlsStackSize::SIZE_1MB> *TlsUtil::GetTlsStack(bool forceCreate)
     }
 
     return tlsStack;
+}
+
+void TlsUtil::DestroyTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
+{
+    tlsStack->FreeAll();
+    // memPool->Free(tlsStack);
+
+    // 设置null
+    if(tlsStack->GetThreadId() == SystemUtil::GetCurrentThreadId())
+        SetTlsValueNull();
+
+    Byte8 *ptr = reinterpret_cast<Byte8 *>(tlsStack);
+    CRYSTAL_DELETE_SAFE(ptr);
+}
+
+MemoryPool *TlsUtil::GetMemoryPool()
+{
+    return GetTlsMemoryPoolHost()->GetPool<MemoryPool>();
+}
+
+MemoryPool *TlsUtil::CreateMemoryPool(const std::string &reason)
+{
+    return GetTlsMemoryPoolHost()->CreatePool<MemoryPool, InitMemoryPoolInfo>(reason);
+}
+
+
+TlsHandle TlsUtil::CreateTlsHandle()
+{
+    bool tlsCreated = false;
+    TlsHandle tlsHandle = INVALID_TLS_HANDLE;
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    tlsCreated = (pthread_key_create(&tlsHandle, NULL) == 0) ? true : false;
+#else
+    tlsCreated = ((tlsHandle = ::TlsAlloc()) != TLS_OUT_OF_INDEXES) ? true : false;
+#endif
+
+    if(!tlsCreated)
+        return INVALID_TLS_HANDLE;
+
+    return tlsHandle;
+}
+
+void TlsUtil::DestroyTlsHandle(TlsHandle &tlsHandle)
+{
+#if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    (void)pthread_key_delete(tlsHandle);
+#else
+    (void)::TlsFree(tlsHandle);
+#endif
+
+    tlsHandle = INVALID_TLS_HANDLE;
+}
+
+void TlsUtil::SetTlsValueNull()
+{
+    // 设置null
+    auto &handle = GetUtileTlsHandle();
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+            (void)pthread_setspecific(handle, NULL);
+    #else
+            (void)::TlsSetValue(handle, NULL);
+    #endif
+}
+
+TlsMemoryPool **TlsUtil::GetTlsMemoryPoolHostThreadLocalAddr()
+{
+    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsMemoryPool *tlsPool = NULL;
+    if(UNLIKELY(!tlsPool))
+    {
+        tlsPool = TlsUtil::GetTlsStack()->New<TlsMemoryPool>();
+    }
+
+    return &tlsPool;
 }
 
 KERNEL_END

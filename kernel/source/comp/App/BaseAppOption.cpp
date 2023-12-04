@@ -21,16 +21,28 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-02-21 19:00:20
+ * Date: 2023-11-29 21:01:31
  * Author: Eric Yonng
- * Description: 补充标准库方法
+ * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_FOR_STD_FOR_STD_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_FOR_STD_FOR_STD_H__
+#include <pch.h>
+#include <kernel/comp/App/BaseAppOption.h>
 
-#pragma once
+KERNEL_BEGIN
 
-#include <kernel/common/for_std/TypeTraits.h>
+LibString BaseAppOption::ToString() const
+{
+    LibString info;
 
-#endif
+    info.AppendFormat("_logIniName:%s, ", _logIniName.c_str())
+        .AppendFormat("_iniPath:%s, ", _iniPath.c_str())
+        .AppendFormat("_appMonitorFrameMilliSecInterval:%llu, ", _appMonitorFrameMilliSecInterval)
+        .AppendFormat("_blackWhiteListFlag:%u, ", _blackWhiteListFlag)
+        .AppendFormat("_instanceId:%u, ", _instanceId)
+        ;
+        
+    return info;
+}
+
+KERNEL_END

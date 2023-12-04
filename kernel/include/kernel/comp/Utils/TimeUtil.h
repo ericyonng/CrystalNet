@@ -31,7 +31,22 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
+#include <kernel/common/macro.h>
+#include <chrono>
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+ #include <syscalls.h>
+ #include <time.h>
+ #include <sys/time.h>
+#endif
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    #include "sysinfoapi.h"
+#endif
+
+#include <kernel/common/rdtsc.h>
+#include <kernel/common/timedefs.h>
+
 #include <kernel/comp/Cpu/LibCpuCounter.h>
 
 KERNEL_BEGIN

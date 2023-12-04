@@ -28,6 +28,11 @@
 
 #include <pch.h>
 #include <kernel/comp/Utils/TimeUtil.h>
+#include <atomic>
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <time.h>
+#endif
 
 KERNEL_BEGIN
 
@@ -72,7 +77,6 @@ Int32 TimeUtil::GetMonthMaxDays(Int32 year, Int32 month)
     }
     else
     {
-        printf("error param");
         return -1;
     }
 }

@@ -31,8 +31,7 @@
 
 #pragma once
 
-#include <kernel/kernel_inc.h>
-#include <kernel/comp/memory/memory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 
 KERNEL_BEGIN
 
@@ -51,7 +50,7 @@ public:
 };
 
 template<typename MsgType>
-inline MsgType *MessageBlock::Cast()
+ALWAYS_INLINE MsgType *MessageBlock::Cast()
 {
     return reinterpret_cast<MsgType *>(this);
 }
