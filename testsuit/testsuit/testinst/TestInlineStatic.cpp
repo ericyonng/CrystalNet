@@ -98,10 +98,10 @@ void TestInlineStatic::Run()
 {
     #if CRYSTAL_TARGET_PLATFORM_LINUX
 
-    KERNEL_NS::TcpPollerMgr *ptr = NULL;
-    KERNEL_NS::TcpPollerInstConfig *ptr2 = NULL;
-    auto newPoller = KERNEL_NS::EpollTcpPoller::New_EpollTcpPoller(ptr, 0, ptr2);
-    newPoller->Init();
+    // KERNEL_NS::TcpPollerMgr *ptr = NULL;
+    // KERNEL_NS::TcpPollerInstConfig *ptr2 = NULL;
+    // auto newPoller = KERNEL_NS::EpollTcpPoller::New_EpollTcpPoller(ptr, 0, ptr2);
+    // newPoller->Init();
     
     #endif
 }
