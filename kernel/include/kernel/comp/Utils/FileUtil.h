@@ -46,7 +46,7 @@ public:
     static void DelFile(const Byte8 *filePath);
     static bool DelFileCStyle(const Byte8 *filePath);
     static FILE *CreateTmpFile();
-    static const Byte8 *GenRandFileName(Byte8 randName[L_tmpnam]);
+    // static const Byte8 *GenRandFileName(Byte8 randName[L_tmpnam]);
     static const Byte8 *GenRandFileNameNoDir(Byte8 randName[L_tmpnam]);
     // 清除文件错误 不是追加打开文件的，文件光标设置开头
     static FILE *OpenFile(const Byte8 *fileName, bool isCreate = false, const Byte8 *openType = "rb+");

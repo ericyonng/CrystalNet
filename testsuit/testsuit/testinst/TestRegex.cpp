@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <regex>
 #include <testsuit/testinst/TestRegex.h>
 
 void TestRegex::Run(int argc, char const *argv[])

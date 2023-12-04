@@ -446,5 +446,10 @@ void MemoryAlloctor::PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferI
         _AddSelfToDurtyListIfNotIn();
 }
 
+void MemoryAlloctor::ForceMergeBlocks()
+{
+    _MergeBlocks();
+}
+
 KERNEL_END
 

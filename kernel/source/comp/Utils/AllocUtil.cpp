@@ -27,6 +27,8 @@
 */
 
 #include <pch.h>
+#include <unordered_map>
+
 #include <kernel/comp/Utils/AllocUtil.h>
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Log/log.h>

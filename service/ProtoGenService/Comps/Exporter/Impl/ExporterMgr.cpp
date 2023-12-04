@@ -28,6 +28,8 @@
 
 
 #include "pch.h"
+#include <regex>
+
 #include <service/ProtoGenService/Comps/Exporter/Impl/ExporterMgrFactory.h>
 #include <service/ProtoGenService/Comps/Exporter/Defs/Defs.h>
 #include <service/ProtoGenService/Comps/Exporter/Defs/ProtoContentInfo.h>

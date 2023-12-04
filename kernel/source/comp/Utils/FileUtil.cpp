@@ -851,10 +851,10 @@ FILE  *FileUtil::CreateTmpFile()
     return tmpfile();
 }
 
-const Byte8 *FileUtil::GenRandFileName(Byte8 randName[L_tmpnam])
-{
-    return tmpnam(randName);
-}
+// const Byte8 *FileUtil::GenRandFileName(Byte8 randName[L_tmpnam])
+// {
+//     return tmpnam(randName);
+// }
 
 
 bool FileUtil::IsEnd(FILE &fp)

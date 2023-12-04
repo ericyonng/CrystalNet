@@ -34,6 +34,7 @@
 #include <kernel/comp/Tls/ITlsObj.h>
 #include <kernel/comp/Tls/Defs.h>
 #include <string>
+#include <set>
 
 KERNEL_BEGIN
 

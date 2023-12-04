@@ -254,11 +254,6 @@ ALWAYS_INLINE UInt64 MemoryAlloctor::GetOwnerThreadId() const
     return _threadId;
 }
 
-ALWAYS_INLINE void MemoryAlloctor::ForceMergeBlocks()
-{
-    _MergeBlocks();
-}
-
 ALWAYS_INLINE bool MemoryAlloctor::IsThreadLocalCreate() const
 {
     return _isThreadLocalCreate;

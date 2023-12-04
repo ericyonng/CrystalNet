@@ -31,7 +31,7 @@
 #define __CENTER_SERVER_CENTER_SERVER_PCH_PCH_H__
 
 #include <kernel/common/macro.h>
-#include <kernel/common/libs.h>
+#include <kernel/common/os_libs.h>
 #include <kernel/common/statics.h>
 #include <kernel/common/status.h>
 

@@ -27,6 +27,8 @@
 */
 
 #include <pch.h>
+#include <regex>
+
 #include <service/ProtoGenService/Comps/Exporter/Impl/ProtobuffHelper.h>
 #include <service/ProtoGenService/Comps/Exporter/Defs/Defs.h>
 

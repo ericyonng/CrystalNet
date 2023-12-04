@@ -27,6 +27,8 @@
 */
 
 #include <pch.h>
+#include <regex>
+
 #include <file_tool/FileTool.h>
 
 // 分割文件
