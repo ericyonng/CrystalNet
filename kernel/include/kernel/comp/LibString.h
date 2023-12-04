@@ -39,6 +39,7 @@
 #include <vector>
 #include <iostream>
 #include <set>
+#include <cstring>
 
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
