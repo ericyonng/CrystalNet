@@ -33,7 +33,7 @@
 #pragma once
 
 #include <kernel/common/compile.h>
-#include <kernel/common/BaseMacro.h>
+#include <kernel/common/func.h>
 #include <assert.h> 
 
 #ifndef CRYSTAL_DEBUG_ENABLE
