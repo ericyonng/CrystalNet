@@ -37,6 +37,7 @@
 #include <kernel/comp/LibDirtyHelper.h>
 #include <kernel/comp/LibList.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerEvent.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h>
 
 #include <kernel/comp/Poller/PollerInc.h>
 #include <kernel/comp/TimeSlice.h>
