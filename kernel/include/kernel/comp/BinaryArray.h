@@ -41,6 +41,7 @@
 #include <vector>
 #include <map>
 #include <kernel/comp/BinaryArrayDefaultComp.h>
+#include <algorithm>
 
 KERNEL_BEGIN
 
