@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <memory>
 #include <kernel/comp/memory/MemoryPool.h>
 #include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/comp/memory/MemoryBlock.h>

@@ -46,6 +46,7 @@
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/MemoryMonitor/memorymonitor_inc.h>
 #include <kernel/comp/Utils/AllocUtil.h>
+#include <memory>
 
 // // 使用常规对象池创建对象
 #undef __CRYSTAL_MA_NEW
