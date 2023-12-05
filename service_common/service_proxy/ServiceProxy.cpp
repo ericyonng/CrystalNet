@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service_common/service_proxy/ServiceProxy.h>
 #include <service_common/service/service.h>
 #include <service_common/application/Application.h>
@@ -256,6 +257,96 @@ void ServiceProxy::Clear()
 {
     _Clear();
     g_Log->Info(LOGFMT_OBJ_TAG("service proxy clear"));
+}
+
+
+void ServiceProxy::AddWhite(const KERNEL_NS::LibString &ip, Int32 level)
+{
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    auto newInfo = KERNEL_NS::IpControlInfo::Create();
+    newInfo->_ip = ip;
+    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_WHITE);
+    ControlIpPipline(newList, level);
+}
+
+void ServiceProxy::AddBlack(const KERNEL_NS::LibString &ip, Int32 level)
+{
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    auto newInfo = KERNEL_NS::IpControlInfo::Create();
+    newInfo->_ip = ip;
+    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_BLACK);
+    ControlIpPipline(newList, level);
+}
+
+void ServiceProxy::EraseWhite(const KERNEL_NS::LibString &ip, Int32 level)
+{
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    auto newInfo = KERNEL_NS::IpControlInfo::Create();
+    newInfo->_ip = ip;
+    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_WHITE);
+    ControlIpPipline(newList, level);
+}
+
+void ServiceProxy::EraseBlack(const KERNEL_NS::LibString &ip, Int32 level)
+{
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    auto newInfo = KERNEL_NS::IpControlInfo::Create();
+    newInfo->_ip = ip;
+    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_BLACK);
+    ControlIpPipline(newList, level);
+}
+
+void ServiceProxy::AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
+{
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    for(auto &ip : ips)
+    {
+        auto newInfo = KERNEL_NS::IpControlInfo::Create();
+        newInfo->_ip = ip;
+        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_WHITE);
+    }
+    ControlIpPipline(newList, level);
+}
+
+void ServiceProxy::AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
+{
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    for(auto &ip : ips)
+    {
+        auto newInfo = KERNEL_NS::IpControlInfo::Create();
+        newInfo->_ip = ip;
+        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_BLACK);
+    }
+    ControlIpPipline(newList, level);
+}
+
+void ServiceProxy::EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
+{
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    for(auto &ip : ips)
+    {
+        auto newInfo = KERNEL_NS::IpControlInfo::Create();
+        newInfo->_ip = ip;
+        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_WHITE);
+    }
+    ControlIpPipline(newList, level);
+}
+
+void ServiceProxy::EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
+{
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    for(auto &ip : ips)
+    {
+        auto newInfo = KERNEL_NS::IpControlInfo::Create();
+        newInfo->_ip = ip;
+        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_BLACK);
+    }
+    ControlIpPipline(newList, level);
+}
+
+void ServiceProxy::ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level)
+{
+    _tcpPollerMgr->PostIpControl(level, controlInfoList);
 }
 
 Int32 ServiceProxy::_OnInit() 

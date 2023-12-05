@@ -32,9 +32,33 @@
 
 #pragma once
 
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/Service/IServiceProxy.h>
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+
 #include <service_common/common/common.h>
-#include <kernel/kernel.h>
 #include <service_common/service/ServiceOption.h>
+
+#include <list>
+#include <vector>
+#include <unordered_map>
+#include <atomic>
+
+KERNEL_BEGIN
+
+struct PollerEvent;
+class LibSession;
+class IProtocolStack;
+class LibPacket;
+struct SessionOption;
+struct IpControlInfo;
+class LibThread;
+class Variant;
+class TcpPollerMgr;
+class IPollerMgr;
+
+KERNEL_END
 
 SERVICE_COMMON_BEGIN
 
@@ -136,95 +160,6 @@ ALWAYS_INLINE Application *ServiceProxy::GetApp()
 ALWAYS_INLINE const Application *ServiceProxy::GetApp() const
 {
     return GetOwner()->CastTo<Application>();
-}
-
-ALWAYS_INLINE void ServiceProxy::AddWhite(const KERNEL_NS::LibString &ip, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    auto newInfo = KERNEL_NS::IpControlInfo::Create();
-    newInfo->_ip = ip;
-    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_WHITE);
-    ControlIpPipline(newList, level);
-}
-
-ALWAYS_INLINE void ServiceProxy::AddBlack(const KERNEL_NS::LibString &ip, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    auto newInfo = KERNEL_NS::IpControlInfo::Create();
-    newInfo->_ip = ip;
-    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_BLACK);
-    ControlIpPipline(newList, level);
-}
-
-ALWAYS_INLINE void ServiceProxy::EraseWhite(const KERNEL_NS::LibString &ip, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    auto newInfo = KERNEL_NS::IpControlInfo::Create();
-    newInfo->_ip = ip;
-    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_WHITE);
-    ControlIpPipline(newList, level);
-}
-
-ALWAYS_INLINE void ServiceProxy::EraseBlack(const KERNEL_NS::LibString &ip, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    auto newInfo = KERNEL_NS::IpControlInfo::Create();
-    newInfo->_ip = ip;
-    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_BLACK);
-    ControlIpPipline(newList, level);
-}
-
-ALWAYS_INLINE void ServiceProxy::AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    for(auto &ip : ips)
-    {
-        auto newInfo = KERNEL_NS::IpControlInfo::Create();
-        newInfo->_ip = ip;
-        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_WHITE);
-    }
-    ControlIpPipline(newList, level);
-}
-
-ALWAYS_INLINE void ServiceProxy::AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    for(auto &ip : ips)
-    {
-        auto newInfo = KERNEL_NS::IpControlInfo::Create();
-        newInfo->_ip = ip;
-        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_BLACK);
-    }
-    ControlIpPipline(newList, level);
-}
-
-ALWAYS_INLINE void ServiceProxy::EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    for(auto &ip : ips)
-    {
-        auto newInfo = KERNEL_NS::IpControlInfo::Create();
-        newInfo->_ip = ip;
-        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_WHITE);
-    }
-    ControlIpPipline(newList, level);
-}
-
-ALWAYS_INLINE void ServiceProxy::EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    for(auto &ip : ips)
-    {
-        auto newInfo = KERNEL_NS::IpControlInfo::Create();
-        newInfo->_ip = ip;
-        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_BLACK);
-    }
-    ControlIpPipline(newList, level);
-}
-
-ALWAYS_INLINE void ServiceProxy::ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level)
-{
-    _tcpPollerMgr->PostIpControl(level, controlInfoList);
 }
 
 ALWAYS_INLINE void ServiceProxy::_RejectService(UInt64 serviceId)

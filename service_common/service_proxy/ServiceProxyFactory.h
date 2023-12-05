@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/common/common.h>
+#include <kernel/comp/CompObject/CompFactory.h>
+#include <service_common/common/macro.h>
 
 SERVICE_COMMON_BEGIN
 

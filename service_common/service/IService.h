@@ -31,9 +31,28 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/CompObject/CompHostObject.h>
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+
 #include <service_common/common/common.h>
 #include <service_common/service/ServiceOption.h>
+
+#include <atomic>
+#include <set>
+
+KERNEL_BEGIN
+
+class Poller;
+struct PollerEvent;
+class LibSession;
+class IProtocolStack;
+class TimerMgr;
+class LibPacket;
+class EventManager;
+
+KERNEL_END
 
 SERVICE_COMMON_BEGIN
 
@@ -301,42 +320,6 @@ ALWAYS_INLINE const KERNEL_NS::Poller *IService::GetPoller() const
     return _poller;
 }
 
-ALWAYS_INLINE void IService::EventLoop()
-{
-    _OnEventLoopStart();
-    _poller->EventLoop();
-}
-
-ALWAYS_INLINE void IService::OnLoopEnd()
-{
-    _poller->OnLoopEnd();
-
-    MaskReady(false);
-}
-
-ALWAYS_INLINE bool IService::PrepareLoop()
-{
-    if(!_poller->PrepareLoop())
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("poller prepare loop fail please check."));
-        return false;
-    }
-
-    MaskReady(true);
-
-    return true;
-}
-
-ALWAYS_INLINE void IService::Push(Int32 level, KERNEL_NS::PollerEvent *ev)
-{
-    _poller->Push(level, ev);
-}
-
-ALWAYS_INLINE void IService::Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList)
-{
-    _poller->Push(level, evList);
-}
-
 ALWAYS_INLINE void IService::AddRecvPackets(Int64 recvPackets)
 {
     _recvPackets += recvPackets;
@@ -378,22 +361,6 @@ ALWAYS_INLINE Int32 IService::GetServiceStatus() const
 {
     return _serviceStatus;
 }
-
-ALWAYS_INLINE void IService::SetServiceStatus(Int32 serviceStatus)
-{
-    const auto oldServiceStatus = _serviceStatus;
-    if(_serviceStatus >= serviceStatus)
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("error service status:%d,%s please check, current service status:%d,%s")
-                , serviceStatus, ServiceStatusToString(serviceStatus).c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
-        return;
-    }
-
-    _serviceStatus = serviceStatus;
-    g_Log->Info(LOGFMT_OBJ_TAG("service status changed [%d,%s] => [%d,%s].")
-                , oldServiceStatus, ServiceStatusToString(oldServiceStatus).c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
-}
-
 
 SERVICE_COMMON_END
 

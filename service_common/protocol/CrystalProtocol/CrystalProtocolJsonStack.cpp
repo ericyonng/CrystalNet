@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service_common/protocol/CrystalProtocol/CrystalProtocolJsonStack.h>
 #include "service_common/protocol/CrystalProtocol/CrystalMsgHeader.h"
 #ifndef DISABLE_OPCODES

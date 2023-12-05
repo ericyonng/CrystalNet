@@ -32,13 +32,26 @@
 
 #pragma once
 
-#include <service_common/common/common.h>
-#include <kernel/kernel.h>
+#include <service_common/common/macro.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
+#include <kernel/comp/App/app.h>
 #include <service_common/application/KernelConfig.h>
 #include <service_common/application/ApplicationConfig.h>
-#include <service_common/application/ResponseInfo.h>
+
+KERNEL_BEGIN
+
+class LibIniFile;
+class LibThread;
+class LibTimer;
+
+KERNEL_END
 
 SERVICE_COMMON_BEGIN
+
+struct StatisticsInfo;
 
 class Application : public KERNEL_NS::IApplication
 {
@@ -170,15 +183,6 @@ ALWAYS_INLINE UInt32 Application::GetMachineId() const
     return _appConfig._machineId;
 }
 
-ALWAYS_INLINE void Application::SetMachineId(UInt32 machineId)
-{
-    _appConfig._machineId = machineId;
-
-    _configIni->Lock();
-    _configIni->WriteNumber(APPLICATION_CONFIG_SEG, MACHINE_ID_KEY, static_cast<UInt64>(machineId));
-    _configIni->Unlock();
-}
-
 ALWAYS_INLINE const KERNEL_NS::LibIniFile *Application::GetIni() const
 {
     return _configIni;
@@ -187,19 +191,6 @@ ALWAYS_INLINE const KERNEL_NS::LibIniFile *Application::GetIni() const
 ALWAYS_INLINE KERNEL_NS::LibIniFile *Application::GetIni()
 {
     return _configIni;
-}
-
-ALWAYS_INLINE void Application::PushResponceNs(UInt64 costNs)
-{
-    _guard.Lock();
-    if(_statisticsInfo->_minResNs == 0)
-        _statisticsInfo->_minResNs = costNs;
-    if(_statisticsInfo->_maxResNs < costNs)
-        _statisticsInfo->_maxResNs = costNs;
-
-    ++_statisticsInfo->_resCount;
-    _statisticsInfo->_resTotalNs += costNs;
-    _guard.Unlock();
 }
 
 ALWAYS_INLINE void Application::SetMaxEventType(Int32 maxEventType)

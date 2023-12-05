@@ -31,8 +31,11 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/common/common.h>
+#include <functional>
+#include <vector>
+#include <type_traits>
+#include <kernel/comp/LibString.h>
+#include <service_common/common/macro.h>
 
 SERVICE_COMMON_BEGIN
 

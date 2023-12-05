@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/comp/memory/ObjPoolWrap.h>
 #include <service_common/KillMonitor/impl/KillMonitorMgr.h>
 #include <service_common/KillMonitor/impl/KillMonitorMgrFactory.h>
 

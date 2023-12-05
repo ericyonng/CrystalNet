@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/memory/ObjPoolWrap.h>
 #include <service_common/service_proxy/ServiceProxyFactory.h>
 #include <service_common/service_proxy/ServiceProxy.h>
 

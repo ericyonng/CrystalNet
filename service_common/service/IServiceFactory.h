@@ -31,8 +31,14 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 #include <service_common/common/common.h>
+
+KERNEL_BEGIN
+
+class LibString;
+
+KERNEL_END
 
 SERVICE_COMMON_BEGIN
 

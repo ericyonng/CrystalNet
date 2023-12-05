@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service_common/service/IService.h>
 #include <service_common/service_proxy/ServiceProxyCompType.h>
 #include <service_common/service_proxy/ServiceProxy.h>
@@ -183,6 +184,57 @@ Application *IService::GetApp()
 UInt64 IService::GetSessionAmount() const
 {
     return 0;
+}
+
+void IService::SetServiceStatus(Int32 serviceStatus)
+{
+    const auto oldServiceStatus = _serviceStatus;
+    if(_serviceStatus >= serviceStatus)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("error service status:%d,%s please check, current service status:%d,%s")
+                , serviceStatus, ServiceStatusToString(serviceStatus).c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
+        return;
+    }
+
+    _serviceStatus = serviceStatus;
+    g_Log->Info(LOGFMT_OBJ_TAG("service status changed [%d,%s] => [%d,%s].")
+                , oldServiceStatus, ServiceStatusToString(oldServiceStatus).c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
+}
+
+void IService::EventLoop()
+{
+    _OnEventLoopStart();
+    _poller->EventLoop();
+}
+
+void IService::OnLoopEnd()
+{
+    _poller->OnLoopEnd();
+
+    MaskReady(false);
+}
+
+bool IService::PrepareLoop()
+{
+    if(!_poller->PrepareLoop())
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("poller prepare loop fail please check."));
+        return false;
+    }
+
+    MaskReady(true);
+
+    return true;
+}
+
+void IService::Push(Int32 level, KERNEL_NS::PollerEvent *ev)
+{
+    _poller->Push(level, ev);
+}
+
+void IService::Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList)
+{
+    _poller->Push(level, evList);
 }
 
 Int32 IService::_OnHostInit()

@@ -32,6 +32,14 @@
 #pragma once
 
 #include <service_common/KillMonitor/interface/IKillMonitorMgr.h>
+#include <kernel/comp/TimeSlice.h>
+#include <kernel/comp/LibString.h>
+
+KERNEL_BEGIN
+
+class LibTimer;
+
+KERNEL_END
 
 SERVICE_COMMON_BEGIN
 

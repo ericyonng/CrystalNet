@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/comp/Timer/Timer.h>
 #include <service_common/KillMonitor/impl/KillMonitorMgr.h>
 #include <service_common/KillMonitor/impl/KillMonitorMgrFactory.h>
 

@@ -31,8 +31,10 @@
 
 #pragma once
 
-#include <service_common/common/common.h>
-#include <kernel/kernel.h>
+#include <service_common/common/macro.h>
+#include <kernel/comp/CompObject/CompHostObject.h>
+#include <kernel/comp/LibString.h>
+#include <vector>
 
 SERVICE_COMMON_BEGIN
 

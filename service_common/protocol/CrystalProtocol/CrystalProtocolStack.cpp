@@ -27,6 +27,7 @@
 */
 
 #include "pch.h"
+#include <kernel/kernel.h>
 #include "service_common/protocol/CrystalProtocol/CrystalProtocolStack.h"
 #include "service_common/protocol/CrystalProtocol/CrystalMsgHeader.h"
 

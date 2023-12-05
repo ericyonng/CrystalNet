@@ -32,8 +32,12 @@
 #pragma once
 
 #include <service_common/common/common.h>
-#include <kernel/kernel.h>
-#include <3rd/3rd.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/Utils/RttiUtil.h>
+#include <vector>
+#include <unordered_map>
+#include <map>
+#include <3rd/json/include/nlohmann/json.hpp>
 
 SERVICE_COMMON_BEGIN
 

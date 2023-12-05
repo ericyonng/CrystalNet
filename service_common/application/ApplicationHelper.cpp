@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service_common/application/ApplicationHelper.h>
 #include <service_common/application/Application.h>
 #include <service_common/service_proxy/ServiceProxy.h>

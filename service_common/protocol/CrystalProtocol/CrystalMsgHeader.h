@@ -38,7 +38,8 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/LibString.h>
 #include <service_common/common/common.h>
 
 SERVICE_COMMON_BEGIN

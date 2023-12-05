@@ -31,9 +31,20 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
 #include <service_common/common/common.h>
 #include <service_common/protocol/CrystalProtocol/CrystalProtocolStackType.h>
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/LibStream.h>
+#include <kernel/comp/NetEngine/Protocol/IProtocolStack.h>
+#include <kernel/comp/NetEngine/Protocol/ICoder.h>
+
+KERNEL_BEGIN
+
+class LibPacket;
+class LibSession;
+
+KERNEL_END
+
 
 SERVICE_COMMON_BEGIN
 

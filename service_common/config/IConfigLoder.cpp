@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service_common/config/IConfigMgr.h>
 #include <service_common/config/IConfigLoder.h>
 

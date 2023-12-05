@@ -27,6 +27,8 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/application/ResponseInfo.h>
 #include <service_common/service_proxy/ServiceProxyInc.h>
 
 #include <service_common/KillMonitor/KillMonitor.h>
@@ -100,6 +102,28 @@ void Application::SinalFinish(Int32 err)
     _poller->Push(0, ev);
 
     // _lck.Sinal();
+}
+
+void Application::SetMachineId(UInt32 machineId)
+{
+    _appConfig._machineId = machineId;
+
+    _configIni->Lock();
+    _configIni->WriteNumber(APPLICATION_CONFIG_SEG, MACHINE_ID_KEY, static_cast<UInt64>(machineId));
+    _configIni->Unlock();
+}
+
+void Application::PushResponceNs(UInt64 costNs)
+{
+    _guard.Lock();
+    if(_statisticsInfo->_minResNs == 0)
+        _statisticsInfo->_minResNs = costNs;
+    if(_statisticsInfo->_maxResNs < costNs)
+        _statisticsInfo->_maxResNs = costNs;
+
+    ++_statisticsInfo->_resCount;
+    _statisticsInfo->_resTotalNs += costNs;
+    _guard.Unlock();
 }
 
 Int32 Application::_OnHostInit()

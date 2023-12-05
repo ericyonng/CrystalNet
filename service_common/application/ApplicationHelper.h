@@ -31,8 +31,8 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/common/common.h>
+#include <service_common/common/macro.h>
+#include <kernel/comp/LibString.h>
 
 SERVICE_COMMON_BEGIN
 
