@@ -205,8 +205,8 @@ void TestInst::Run(int argc, char const *argv[])
 //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "pone:%p, ptow:%p"), pone, ptow);
 
     // TestMemoryAlloctor::Run();
-    // TestMemoryPool::Run();
-    TestObjAlloctor::Run();
+    TestMemoryPool::Run();
+    // TestObjAlloctor::Run();
     // TestThread::Run();
 
     // //TestGarbageCollector::Run();
@@ -244,7 +244,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
-    TestPoller::Run();
+    // TestPoller::Run();
     // TestMemoryAssist::Run();
     // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
