@@ -33,10 +33,14 @@
 
 #include <pch.h>
 #include <testsuit/testinst/TestService.h>
-#include <service/TestService/service.h>
+
+#ifdef ENABLE_TEST_SERVICE
+ #include <service/TestService/service.h>
+#endif
 
 void TestService::Run(int argc, char const *argv[])
 {
+#ifdef ENABLE_TEST_SERVICE
     KERNEL_NS::SmartPtr<SERVICE_COMMON_NS::Application, KERNEL_NS::AutoDelMethods::CustomDelete> app = SERVICE_COMMON_NS::Application::New_Application();
     app.SetClosureDelegate([](void *ptr)
     {
@@ -46,4 +50,5 @@ void TestService::Run(int argc, char const *argv[])
     });
 
     SERVICE_COMMON_NS::ApplicationHelper::Start(app.AsSelf(), SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "./ini/service.ini");
+#endif
 }
