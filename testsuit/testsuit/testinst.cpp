@@ -206,7 +206,7 @@ void TestInst::Run(int argc, char const *argv[])
 
     // TestMemoryAlloctor::Run();
     // TestMemoryPool::Run();
-    // TestObjAlloctor::Run();
+    TestObjAlloctor::Run();
     // TestThread::Run();
 
     // //TestGarbageCollector::Run();

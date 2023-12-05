@@ -164,7 +164,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(SmartPtrRaw);
 
 // TODO:测试性能+测试相邻内存的内存践踏，测试继承的内存践踏 性能与内存践踏已通过测试
 
-#define  TEST_OBJ_ALLOCTOR_NUM 10000
+#define  TEST_OBJ_ALLOCTOR_NUM 1000000
 void TestObjAlloctor::Run()
 {
     // KERNEL_NS::ObjAlloctor<Int32> int32Alloctor; 
