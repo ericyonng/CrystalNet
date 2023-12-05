@@ -693,8 +693,9 @@ bool SystemUtil::GetCurrentThreadName(LibString &threadName, LibString &err)
 {
 #if CRYSTAL_TARGET_PLATFORM_LINUX
     threadName.resize(256);
-   auto threadId = SystemUtil::GetCurrentThreadId();
-   auto ret = ::pthread_getname_np(threadId, const_cast<Byte8 *>(threadName.data()), 256);
+    auto ret = prctl(PR_GET_NAME, threadName.data());
+   // auto threadId = SystemUtil::GetCurrentThreadId();
+   // auto ret = ::pthread_setname_np(threadId, threadName.c_str());
    if(ret != 0)
    {
       err = GetErrString(ret);
