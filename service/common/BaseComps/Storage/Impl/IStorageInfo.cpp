@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/common/BaseComps/Storage/Impl/IStorageInfo.h>
 #include <service/common/BaseComps/ServiceCompType.h>
 

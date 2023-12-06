@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/BookBag/impl/BookBagGlobalFactory.h>
 #include <Comps/BookBag/impl/BookBagGlobal.h>
 

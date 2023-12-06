@@ -1487,9 +1487,21 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("#pragma once\n");
         fileContent.AppendFormat("\n");
 
-        fileContent.AppendFormat("#include <kernel/kernel.h>\n");
-        fileContent.AppendFormat("#include <service_common/config/config.h>\n");
-        fileContent.AppendFormat("#include <service/common/common.h>\n");
+        fileContent.AppendFormat("#include <kernel/common/common.h>\n");
+        fileContent.AppendFormat("#include <kernel/comp/CompObject/CompObjectInc.h>\n");
+        fileContent.AppendFormat("#include <kernel/comp/LibString.h>\n");
+        fileContent.AppendFormat("#include <kernel/comp/memory/ObjPoolMacro.h>\n");
+        fileContent.AppendFormat("#include <kernel/comp/memory/ObjPoolWrap.h>\n");
+        fileContent.AppendFormat("#include <service_common/config/IConfigMgr.h>\n");
+        fileContent.AppendFormat("#include <service/common/macro.h>\n");
+        fileContent.AppendFormat("#include <service/common/status.h>\n");
+
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("#include <map>\n");
+        fileContent.AppendFormat("#include <vector>\n");
+        fileContent.AppendFormat("#include <set>\n");
+        fileContent.AppendFormat("#include <unordered_map>\n");
+        fileContent.AppendFormat("#include <unordered_set>\n");
         fileContent.AppendFormat("\n");
 
         fileContent.AppendFormat("SERVICE_BEGIN\n");
@@ -1873,6 +1885,8 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
 
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("#include <pch.h>\n");
+    fileContent.AppendFormat("#include <kernel/kernel.h>\n");
+    fileContent.AppendFormat("#include <service_common/config/DataTypeHelper.h>\n");
     fileContent.AppendFormat("#include <openssl/md5.h>\n");
     fileContent.AppendFormat("#include <openssl/pem.h>\n");
     fileContent.AppendFormat("#include <openssl/ssl.h>\n");

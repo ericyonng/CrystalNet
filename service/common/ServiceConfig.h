@@ -28,9 +28,13 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
 #include <service/common/macro.h>
 #include <service_common/ServiceCommon.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
+#include <unordered_map>
+#include <vector>
 
 
 SERVICE_BEGIN

@@ -27,6 +27,11 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <Comps/User/impl/UserSessionMgr.h>
 #include <Comps/User/impl/UserSessionMgrFactory.h>
 #include <Comps/User/impl/UserMgr.h>

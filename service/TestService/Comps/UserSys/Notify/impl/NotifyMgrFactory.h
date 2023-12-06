@@ -30,6 +30,7 @@
 #pragma once
 
 #include <ServiceCompFactoryHeader.h>
+#include <kernel/comp/CompObject/CompFactory.h>
 
 SERVICE_BEGIN
 

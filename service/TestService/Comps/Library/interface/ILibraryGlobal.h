@@ -29,12 +29,16 @@
 #pragma once
 
 #include <ServiceCompHeader.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/LibString.h>
 
 SERVICE_BEGIN
 
 class LibraryInfo;
 class BookBagInfo;
+class BookInfo;
 class IUser;
+class MemberInfo;
 
 class ILibraryGlobal : public IGlobalSys
 {

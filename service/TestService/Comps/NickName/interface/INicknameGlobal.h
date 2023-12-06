@@ -29,6 +29,8 @@
 #pragma once
 
 #include <ServiceCompHeader.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/LibString.h>
 
 SERVICE_BEGIN
 

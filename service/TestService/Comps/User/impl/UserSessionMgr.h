@@ -39,6 +39,20 @@
 
 #include <ServiceCompHeader.h>
 #include <Comps/User/impl/UserHeartbeatComp.h>
+#include <kernel/comp/CompObject/CompObject.h>
+#include <kernel/comp/Event/Defs.h>
+
+#include <set>
+#include <map>
+
+KERNEL_BEGIN
+
+class LibEvent;
+class LibTimer;
+class LibPacket;
+class EventManager;
+
+KERNEL_END
 
 SERVICE_BEGIN
 

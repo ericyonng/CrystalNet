@@ -28,7 +28,8 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
+#include <unordered_set>
+#include <kernel/comp/LibString.h>
 #include <service/common/macro.h>
 
 SERVICE_BEGIN

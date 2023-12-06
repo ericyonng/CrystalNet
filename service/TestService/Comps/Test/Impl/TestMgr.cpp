@@ -27,6 +27,10 @@
 */
 
 #include <pch.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <service/TestService/Comps/Test/Impl/TestMgrFactory.h>
 
 #include <service/TestService/MyTestService.h>

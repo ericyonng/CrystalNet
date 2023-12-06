@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
+#include <kernel/comp/LibString.h>
 #include <service/common/macro.h>
 #include <service/common/status.h>
 

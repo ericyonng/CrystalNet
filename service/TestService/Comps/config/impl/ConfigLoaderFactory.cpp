@@ -27,6 +27,8 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/common/common.h>
 #include <Comps/config/impl/ConfigLoaderFactory.h>
 #include <Comps/config/impl/ConfigLoader.h>
 

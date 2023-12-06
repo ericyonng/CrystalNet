@@ -29,6 +29,8 @@
 #pragma once
 
 
+#include <service/common/macro.h>
+#include <kernel/comp/CompObject/CompFactory.h>
 #include <service/TestService/ServiceCompFactoryHeader.h>
 
 SERVICE_BEGIN

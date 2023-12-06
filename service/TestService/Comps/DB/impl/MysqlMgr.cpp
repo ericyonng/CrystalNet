@@ -26,6 +26,11 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <service/TestService/Comps/DB/impl/MysqlMgr.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrFactory.h>
 #include <service/TestService/Comps/StubHandle/StubHandle.h>

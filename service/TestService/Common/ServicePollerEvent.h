@@ -28,7 +28,10 @@
 
 #pragma once
 
-#include <service/common/common.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerEventType.h>
+#include <service/common/macro.h>
+
+SERVICE_BEGIN
 
 namespace ServicePollerEvent
 {
@@ -42,6 +45,5 @@ namespace ServicePollerEvent
     };
 }
 
-SERVICE_BEGIN
 
 SERVICE_END

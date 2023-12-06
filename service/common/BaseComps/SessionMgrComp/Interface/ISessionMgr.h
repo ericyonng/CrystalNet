@@ -28,8 +28,6 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
 #include <service/common/macro.h>
 #include <service/common/status.h>
 #include <service/common/Params.h>
@@ -40,6 +38,7 @@
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>
 
 SERVICE_BEGIN
+
 class ServiceSession;
 
 class ISessionMgr : public IGlobalSys

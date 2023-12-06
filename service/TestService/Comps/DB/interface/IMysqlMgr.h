@@ -28,11 +28,18 @@
 
 #pragma once
 
-#include <service/TestService/ServiceCompHeader.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/Cpu/LibCpuCounter.h>
+
 #include <OptionComp/storage/mysql/impl/SqlBuilder.h>
 #include <OptionComp/storage/mysql/impl/Field.h>
 #include <OptionComp/storage/mysql/impl/Record.h>
 #include <OptionComp/storage/mysql/impl/MysqlMsg.h>
+
+#include <vector>
 
 SERVICE_BEGIN
 

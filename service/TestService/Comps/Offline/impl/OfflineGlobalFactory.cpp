@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/Offline/impl/OfflineGlobalFactory.h>
 #include <Comps/Offline/impl/OfflineGlobal.h>
 

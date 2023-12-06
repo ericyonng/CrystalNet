@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/User/impl/UserHeartbeatComp.h>
 #include <Comps/User/interface/IUser.h>
 

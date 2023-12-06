@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/common/ServiceConfig.h>
 #include <service/common/PriorityLevelDefine.h>
 #include <service/common/SessionType.h>

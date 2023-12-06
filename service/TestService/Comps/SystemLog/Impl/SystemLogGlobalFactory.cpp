@@ -28,6 +28,7 @@
 
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/SystemLog/Impl/SystemLogGlobalFactory.h>
 #include <Comps/SystemLog/Impl/SystemLogGlobal.h>
 

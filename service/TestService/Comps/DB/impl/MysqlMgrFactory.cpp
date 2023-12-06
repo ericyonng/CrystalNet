@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrFactory.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgr.h>
 

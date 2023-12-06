@@ -27,6 +27,10 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/service/service.h>
+#include <service_common/service_proxy/ServiceProxyInc.h>
+#include <service_common/application/Application.h>
 #include <service/common/BaseComps/LogicSys/Impl/ILogicSys.h>
 #include <service/common/BaseComps/Event/Defs/EventEnums.h>
 #include <service/common/BaseComps/ServiceCompType.h>

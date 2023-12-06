@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/User/impl/UserMgr.h>
 #include <Comps/User/impl/UserMgrFactory.h>
 

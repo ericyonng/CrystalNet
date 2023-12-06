@@ -28,7 +28,6 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
 #include <service/common/macro.h>
 #include <service/common/Params.h>
 

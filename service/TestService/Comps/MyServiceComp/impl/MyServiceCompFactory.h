@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
+#include <kernel/comp/CompObject/CompFactory.h>
 #include <service/common/common.h>
 
 SERVICE_BEGIN

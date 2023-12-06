@@ -29,6 +29,8 @@
 #pragma once
 
 #include <ServiceCompHeader.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Timer/LibTimer.h>
 
 SERVICE_BEGIN
 

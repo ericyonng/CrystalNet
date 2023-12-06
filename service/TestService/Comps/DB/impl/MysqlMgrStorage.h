@@ -29,6 +29,7 @@
 #pragma once
 
 #include <service/TestService/ServiceCompHeader.h>
+#include <service/common/BaseComps/Storage/storage.h>
 
 SERVICE_BEGIN
 

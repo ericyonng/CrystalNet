@@ -28,7 +28,8 @@
 
 #pragma once
 
-#include <ServiceCompHeader.h>
+#include <service/common/macro.h>
+#include <service_common/config/IConfigLoder.h>
 
 SERVICE_BEGIN
 

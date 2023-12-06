@@ -28,8 +28,28 @@
 
 #pragma once
 
-#include <service_common/ServiceCommon.h>
 #include <service/common/common.h>
+#include <service_common/service/service.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/Event/Defs.h>
+
+#include <unordered_map>
+
+KERNEL_BEGIN
+
+class LibSession;
+class IProtocolStack;
+class TimerMgr;
+class LibPacket;
+class EventManager;
+struct PollerEvent;
+class Poller;
+class LibEvent;
+class LibTimer;
+
+KERNEL_END
 
 SERVICE_BEGIN
 

@@ -28,6 +28,10 @@
 
 
 #include <pch.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <Comps/SystemLog/Impl/SystemLogGlobal.h>
 #include <Comps/SystemLog/Impl/SystemLogGlobalStorageFactory.h>
 #include <Comps/SystemLog/Impl/SystemLogGlobalStorage.h>

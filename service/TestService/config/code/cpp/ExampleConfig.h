@@ -1,16 +1,27 @@
 // Generate by ConfigExporter, Dont modify it!!!
 // file path:../../service/TestService/config/xlsx/example.xlsx
 // file path:../../service/TestService/config/xlsx/example.xlsx
-// sheet name:示例part2|Example;示例part1|Example
+// sheet name:示例part1|Example;示例part2|Example
 
 #ifndef __CONFIG_EXAMPLE_CONFIG_H__
 #define __CONFIG_EXAMPLE_CONFIG_H__
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/config/config.h>
-#include <service/common/common.h>
+#include <kernel/common/common.h>
+#include <kernel/comp/CompObject/CompObjectInc.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/memory/ObjPoolWrap.h>
+#include <service_common/config/IConfigMgr.h>
+#include <service/common/macro.h>
+#include <service/common/status.h>
+
+#include <map>
+#include <vector>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
 
 SERVICE_BEGIN
 

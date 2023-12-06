@@ -29,6 +29,23 @@
 #pragma once
 
 #include <ServiceCompHeader.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/SmartPtr.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <service/common/BaseComps/LogicSys/LogicSys.h>
+#include <kernel/comp/Event/event_inc.h>
+
+#include <list>
+
+KERNEL_BEGIN
+class LibEvent;
+class LibPacket;
+class ICoder;
+
+struct BriefSockAddr;
+
+KERNEL_END
 
 SERVICE_BEGIN
 
@@ -36,7 +53,9 @@ class IUserMgr;
 class IUserSys;
 class IUser;
 
+class LoginInfo;
 class OfflineData;
+class UserBaseInfo;
 
 class UserStatus
 {

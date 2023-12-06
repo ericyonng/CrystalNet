@@ -29,6 +29,16 @@
 #pragma once
 
 #include <Comps/EventRelay/interface/IEventRelayGlobal.h>
+#include <kernel/comp/Event/Defs.h>
+
+#include <map>
+#include <set>
+
+KERNEL_BEGIN
+
+class LibEvent;
+
+KERNEL_END
 
 SERVICE_BEGIN
 

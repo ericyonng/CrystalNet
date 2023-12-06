@@ -30,6 +30,11 @@
 
 #include <Comps/User/interface/IUser.h>
 #include <protocols/protocols.h>
+#include <kernel/kernel.h>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <vector>
 
 SERVICE_BEGIN
 

@@ -28,8 +28,16 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
 #include <service/common/macro.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/NetEngine/BriefSockAddr.h>
+
+KERNEL_BEGIN
+
+class IProtocolStack;
+
+KERNEL_END
+
 
 SERVICE_BEGIN
 

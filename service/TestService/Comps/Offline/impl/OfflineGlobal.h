@@ -29,6 +29,9 @@
 #pragma once
 
 #include <Comps/Offline/interface/IOfflineGlobal.h>
+#include <protocols/protocols.h>
+#include <map>
+#include <kernel/comp/Event/Defs.h>
 
 SERVICE_BEGIN
 

@@ -30,6 +30,8 @@
 #pragma once
 
 #include <Comps/Notify/interface/INotifyGlobal.h>
+#include <protocols/protocols.h>
+#include <kernel/comp/NetEngine/LibPacket.h>
 
 SERVICE_BEGIN
 

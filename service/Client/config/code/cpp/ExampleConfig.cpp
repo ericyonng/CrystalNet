@@ -4,6 +4,8 @@
 // sheet name:示例part1|Example;示例part2|Example
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/config/DataTypeHelper.h>
 #include <openssl/md5.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>

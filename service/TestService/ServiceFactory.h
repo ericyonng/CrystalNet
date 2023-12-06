@@ -28,9 +28,11 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
 #include <service/common/common.h>
+#include <service_common/service/service.h>
+#include <kernel/common/LibObject.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
 
 SERVICE_BEGIN
 

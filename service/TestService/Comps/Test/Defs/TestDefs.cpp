@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/TestService/Comps/Test/Defs/TestDefs.h>
 
 SERVICE_BEGIN

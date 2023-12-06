@@ -27,6 +27,10 @@
 */
 
 #include <pch.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <Comps/UserSys/Login/impl/LoginMgr.h>
 #include <Comps/UserSys/Login/impl/LoginMgrFactory.h>
 #include <Comps/config/config.h>

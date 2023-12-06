@@ -30,6 +30,7 @@
 
 
 #include <Comps/UserSys/BookBag/interface/IBookBagMgr.h>
+#include <kernel/kernel.h>
 
 SERVICE_BEGIN
 

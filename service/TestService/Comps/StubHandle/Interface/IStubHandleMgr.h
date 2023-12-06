@@ -29,6 +29,9 @@
 #pragma once
 
 #include <service/TestService/ServiceCompHeader.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Variant/variant_inc.h>
 
 SERVICE_BEGIN
 

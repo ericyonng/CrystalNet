@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Common/StorageHelper.h>
 #include <service/common/common.h>
 

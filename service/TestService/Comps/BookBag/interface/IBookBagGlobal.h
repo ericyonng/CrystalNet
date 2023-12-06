@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <ServiceCompHeader.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
 
 SERVICE_BEGIN
 

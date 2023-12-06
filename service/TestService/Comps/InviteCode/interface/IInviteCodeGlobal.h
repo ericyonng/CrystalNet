@@ -30,6 +30,8 @@
 
 
 #include <ServiceCompHeader.h>
+#include <kernel/comp/LibString.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
 
 SERVICE_BEGIN
 

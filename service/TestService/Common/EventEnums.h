@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <service/common/common.h>
+#include <service/common/BaseComps/Event/Defs/EventEnums.h>
 
 namespace EventEnums
 {

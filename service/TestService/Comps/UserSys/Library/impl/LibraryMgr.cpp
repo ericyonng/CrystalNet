@@ -27,6 +27,10 @@
 */
 
 #include <pch.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <Comps/UserSys/Library/impl/LibraryMgr.h>
 #include <Comps/UserSys/Library/impl/LibraryMgrFactory.h>
 #include <protocols/protocols.h>

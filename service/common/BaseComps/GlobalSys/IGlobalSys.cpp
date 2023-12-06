@@ -27,6 +27,9 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/service_proxy/ServiceProxyInc.h>
+#include <service_common/application/Application.h>
 #include <service/common/BaseComps/GlobalSys/IGlobalSys.h>
 #include <service/common/BaseComps/SessionMgrComp/SessionMgr.h>
 #include <service/common/BaseComps/Storage/storage.h>

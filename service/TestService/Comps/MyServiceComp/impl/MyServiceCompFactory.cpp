@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/TestService/Comps/MyServiceComp/impl/MyServiceComp.h>
 #include <service/TestService/Comps/MyServiceComp/impl/MyServiceCompFactory.h>
 

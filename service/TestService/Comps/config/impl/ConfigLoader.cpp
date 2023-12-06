@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/config/impl/ConfigLoader.h>
 #include <Comps/config/impl/ConfigLoaderFactory.h>
 #include <cpp/AllConfigs.h>

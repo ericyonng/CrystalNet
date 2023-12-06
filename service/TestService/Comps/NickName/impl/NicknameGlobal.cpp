@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/NickName/impl/NicknameGlobal.h>
 #include <Comps/NickName/impl/NicknameGlobalStorageFactory.h>
 #include <Comps/NickName/impl/NicknameGlobalFactory.h>

@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/EventRelay/impl/EventRelayGlobal.h>
 #include <Comps/EventRelay/impl/EventRelayGlobalFactory.h>
 

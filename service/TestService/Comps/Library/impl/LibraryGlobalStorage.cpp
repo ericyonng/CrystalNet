@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/Library/impl/LibraryGlobalStorage.h>
 #include <Comps/Library/impl/LibraryGlobalStorageFactory.h>
 #include <Comps/Library/impl/LibraryGlobal.h>

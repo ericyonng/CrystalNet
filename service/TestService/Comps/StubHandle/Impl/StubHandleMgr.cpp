@@ -27,6 +27,11 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <service/TestService/Comps/StubHandle/Impl/StubHandleMgr.h>
 #include <service/TestService/Comps/StubHandle/Impl/StubHandleMgrFactory.h>
 

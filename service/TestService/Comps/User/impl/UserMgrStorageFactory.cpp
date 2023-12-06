@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/User/impl/UserMgrStorageFactory.h>
 #include <Comps/User/impl/UserMgrStorage.h>
 #include <Comps/User/impl/UserMgr.h>

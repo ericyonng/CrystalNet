@@ -27,6 +27,7 @@
 */
 
 #include <Comps/UserSys/Notify/interface/INotifyMgr.h>
+#include <kernel/kernel.h>
 
 
 SERVICE_BEGIN

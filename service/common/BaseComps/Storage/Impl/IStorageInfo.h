@@ -28,11 +28,19 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
 #include <service/common/macro.h>
 #include <service/common/status.h>
 #include <service/common/BaseComps/Storage/Impl/StorageInfoFactory.h>
+
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/CompObject/CompObject.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Log/log.h>
+#include <kernel/common/statics.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
+
+#include <unordered_map>
+#include <vector>
 
 SERVICE_BEGIN
 

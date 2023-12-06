@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/InviteCode/impl/InviteCodeGlobalStorageFactory.h>
 #include <Comps/InviteCode/impl/InviteCodeGlobalStorage.h>
 

@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/Notify/impl/NotifyGlobal.h>
 #include <Comps/Notify/impl/NotifyGlobalFactory.h>
 

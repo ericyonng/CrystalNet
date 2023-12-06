@@ -30,6 +30,7 @@
 
 #include <Comps/UserSys/Login/interface/ILoginMgr.h>
 #include <protocols/protocols.h>
+#include <kernel/kernel.h>
 
 SERVICE_BEGIN
 

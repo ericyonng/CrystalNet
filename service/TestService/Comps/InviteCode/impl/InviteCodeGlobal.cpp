@@ -27,11 +27,15 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <Comps/InviteCode/impl/InviteCodeGlobal.h>
 #include <Comps/InviteCode/impl/InviteCodeGlobalFactory.h>
 #include <Comps/InviteCode/impl/InviteCodeGlobalStorageFactory.h>
 #include <Comps/config/config.h>
-
 
 SERVICE_BEGIN
 

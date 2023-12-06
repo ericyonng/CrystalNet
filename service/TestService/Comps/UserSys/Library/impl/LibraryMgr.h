@@ -31,6 +31,7 @@
 
 #include <Comps/UserSys/Library/interface/ILibraryMgr.h>
 #include <protocols/protocols.h>
+#include <kernel/kernel.h>
 
 SERVICE_BEGIN
 

@@ -30,6 +30,7 @@
 #pragma once
 
 #include <ServiceCompHeader.h>
+#include <service/common/BaseComps/Storage/storage.h>
 
 SERVICE_BEGIN
 

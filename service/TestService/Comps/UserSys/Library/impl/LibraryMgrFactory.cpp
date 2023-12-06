@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/UserSys/Library/impl/LibraryMgrFactory.h>
 #include <Comps/UserSys/Library/impl/LibraryMgr.h>
 

@@ -31,6 +31,7 @@
 
 
 #include <service/TestService/ServiceCompFactoryHeader.h>
+#include <kernel/comp/CompObject/CompFactory.h>
 
 SERVICE_BEGIN
 

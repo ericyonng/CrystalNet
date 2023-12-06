@@ -27,6 +27,10 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
 
 // TODO:业务组件
 #include <service/TestService/Comps/Comps.h>

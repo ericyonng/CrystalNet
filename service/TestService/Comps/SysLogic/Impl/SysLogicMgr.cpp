@@ -30,6 +30,9 @@
 #include <service/TestService/Comps/StubHandle/StubHandle.h>
 #include <service/TestService/MyTestService.h>
 
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <service/TestService/Comps/SysLogic/Impl/SysLogicMgr.h>
 #include <service/TestService/Comps/SysLogic/Impl/SysLogicMgrFactory.h>
 

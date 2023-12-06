@@ -29,6 +29,10 @@
 #pragma once
 
 #include <service/common/BaseComps/SessionMgrComp/Interface/ISessionMgr.h>
+#include <kernel/comp/Event/Defs.h>
+
+#include <map>
+#include <atomic>
 
 SERVICE_BEGIN
 

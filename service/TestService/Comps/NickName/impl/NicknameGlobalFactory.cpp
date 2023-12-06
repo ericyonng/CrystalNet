@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/NickName/impl/NicknameGlobalFactory.h>
 #include <Comps/NickName/impl/NicknameGlobal.h>
 

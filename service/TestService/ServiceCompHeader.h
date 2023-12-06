@@ -28,7 +28,6 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
-#include <service/common/common.h>
-#include <service/TestService/Common/ServiceCommon.h>
+#include <service_common/common/common.h>
+#include <service/common/macro.h>
+#include <service/common/status.h>

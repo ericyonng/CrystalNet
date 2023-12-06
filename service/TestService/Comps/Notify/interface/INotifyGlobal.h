@@ -30,9 +30,13 @@
 
 
 #include <ServiceCompHeader.h>
-#include <protocols/protocols.h>
+#include <kernel/comp/LibString.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <vector>
 
 SERVICE_BEGIN
+
+class VariantParam;
 
 class INotifyGlobal : public IGlobalSys
 {

@@ -28,6 +28,7 @@
 
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/UserSys/Notify/impl/NotifyMgrFactory.h>
 #include <Comps/UserSys/Notify/impl/NotifyMgr.h>
 

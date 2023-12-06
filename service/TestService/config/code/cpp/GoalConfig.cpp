@@ -3,6 +3,8 @@
 // sheet name:目标|Goal
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/config/DataTypeHelper.h>
 #include <openssl/md5.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>

@@ -27,6 +27,11 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <Comps/PassTime/impl/PassTimeGlobal.h>
 #include <Comps/PassTime/impl/PassTimeGlobalFactory.h>
 #include <Comps/PassTime/impl/PassTimeGlobalStorageFactory.h>

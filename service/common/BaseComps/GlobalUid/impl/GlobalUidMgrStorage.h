@@ -27,6 +27,7 @@
 */
 
 #include <service/common/BaseComps/Storage/storage.h>
+#include <kernel/comp/LibString.h>
 
 SERVICE_BEGIN
 

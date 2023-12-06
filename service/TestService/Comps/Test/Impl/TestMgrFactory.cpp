@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/TestService/Comps/Test/Impl/TestMgr.h>
 #include <service/TestService/Comps/Test/Impl/TestMgrFactory.h>
 

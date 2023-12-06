@@ -28,8 +28,9 @@
 
 #pragma once
 
-#include <service/common/common.h>
-#include <kernel/kernel.h>
+#include <service/common/macro.h>
+#include <kernel/comp/Log/LibLog.h>
+#include <kernel/comp/Log/ILogFactory.h>
 
 SERVICE_BEGIN
 

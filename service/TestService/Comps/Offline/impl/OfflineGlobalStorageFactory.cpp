@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/Offline/impl/OfflineGlobalStorage.h>
 #include <Comps/Offline/impl/OfflineGlobalStorageFactory.h>
 

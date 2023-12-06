@@ -30,8 +30,12 @@
 
 #include <service/TestService/ServiceCompHeader.h>
 #include <service/TestService/Comps/SysLogic/Interface/ISysLogicMgr.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
 
 SERVICE_BEGIN
+
+struct AddrConfig;
 
 class SysLogicMgr : public ISysLogicMgr
 {

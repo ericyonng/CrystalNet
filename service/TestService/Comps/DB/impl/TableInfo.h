@@ -28,10 +28,10 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service/common/common.h>
-#include <OptionComp/storage/mysql/mysqlcomp.h>
 #include <protocols/protocols.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <service/common/macro.h>
 
 SERVICE_BEGIN
 

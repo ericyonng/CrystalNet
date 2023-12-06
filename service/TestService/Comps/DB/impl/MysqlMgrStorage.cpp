@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrStorage.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgrStorageFactory.h>
 #include <service/TestService/Comps/DB/impl/MysqlMgr.h>

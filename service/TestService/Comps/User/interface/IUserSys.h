@@ -31,6 +31,7 @@
 #include <ServiceCompHeader.h>
 #include <Comps/User/interface/IUser.h>
 #include <Comps/User/interface/IUserMgr.h>
+#include <service/common/status.h>
 
 SERVICE_BEGIN
 

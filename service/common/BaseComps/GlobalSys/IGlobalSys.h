@@ -28,11 +28,24 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
 #include <service/common/SessionType.h>
 #include <service/common/PriorityLevelDefine.h>
 #include <service/common/BaseComps/LogicSys/LogicSys.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <service/common/status.h>
+#include <kernel/comp/Event/Defs.h>
+#include <service_common/service/service.h>
+
+#include <list>
+
+KERNEL_BEGIN
+
+struct IpControlInfo;
+class LibPacket;
+class ICoder;
+class LibEvent;
+
+KERNEL_END
 
 SERVICE_BEGIN
 

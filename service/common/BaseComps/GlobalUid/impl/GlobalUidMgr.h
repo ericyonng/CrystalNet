@@ -30,6 +30,12 @@
 
 #include <service/common/BaseComps/GlobalUid/interface/IGlobalUidMgr.h>
 
+KERNEL_BEGIN
+
+struct SnowflakeInfo;
+
+KERNEL_END
+
 SERVICE_BEGIN
 
 class GlobalUidMgr : public IGlobalUidMgr

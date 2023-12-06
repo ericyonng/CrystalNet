@@ -30,8 +30,13 @@
 #pragma once
 
 #include <ServiceCompHeader.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+
+#include <vector>
 
 SERVICE_BEGIN
+
+class VariantParam;
 
 class ISystemLogGlobal : public IGlobalSys
 {

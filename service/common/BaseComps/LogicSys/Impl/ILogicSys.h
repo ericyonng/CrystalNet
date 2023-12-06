@@ -28,10 +28,33 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
 #include <service/common/SessionType.h>
 #include <service/common/PriorityLevelDefine.h>
+#include <kernel/comp/CompObject/CompHostObject.h>
+#include <service_common/common/common.h>
+#include <kernel/comp/LibStream.h>
+#include <kernel/comp/Event/Defs.h>
+#include <kernel/comp/Utils/BitUtil.h>
+#include <kernel/comp/Timer/Timer.h>
+
+#include <map>
+#include <unordered_map>
+
+KERNEL_BEGIN
+
+class EventManager;
+class LibTime;
+class LibEvent;
+
+KERNEL_END
+
+SERVICE_COMMON_BEGIN
+
+class IService;
+class ServiceProxy;
+class Application;
+
+SERVICE_COMMON_END
 
 SERVICE_BEGIN
 

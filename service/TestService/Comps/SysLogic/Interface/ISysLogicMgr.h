@@ -29,6 +29,15 @@
 #pragma once
 
 #include <service/TestService/ServiceCompHeader.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/Log/log.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/common/statics.h>
+
+KERNEL_BEGIN
+class Variant;
+class IProtocolStack;
+KERNEL_END
 
 SERVICE_BEGIN
 

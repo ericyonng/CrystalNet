@@ -28,7 +28,6 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
 #include <service/common/macro.h>
 #include <service/common/status.h>
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>

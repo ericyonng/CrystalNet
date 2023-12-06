@@ -31,6 +31,9 @@
 #pragma once
 
 #include <Comps/SystemLog/Interface/ISystemLogGlobal.h>
+#include <kernel/kernel.h>
+
+#include <map>
 
 SERVICE_BEGIN
 

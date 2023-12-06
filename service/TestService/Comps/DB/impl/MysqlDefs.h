@@ -30,6 +30,8 @@
 
 #include <kernel/common/common.h>
 #include <service/common/common.h>
+#include <vector>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 class CreateTableSqlBuilder;

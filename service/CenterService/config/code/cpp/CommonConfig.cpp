@@ -3,6 +3,8 @@
 // sheet name:公共参数|Common
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/config/DataTypeHelper.h>
 #include <openssl/md5.h>
 #include <openssl/pem.h>
 #include <openssl/ssl.h>

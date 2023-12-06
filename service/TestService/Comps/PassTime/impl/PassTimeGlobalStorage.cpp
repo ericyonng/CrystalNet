@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/PassTime/impl/PassTimeGlobalStorage.h>
 #include <Comps/PassTime/impl/PassTimeGlobalStorageFactory.h>
 #include <Comps/PassTime/impl/PassTimeGlobal.h>

@@ -7,9 +7,20 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/config/config.h>
-#include <service/common/common.h>
+#include <kernel/common/common.h>
+#include <kernel/comp/CompObject/CompObjectInc.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/memory/ObjPoolWrap.h>
+#include <service_common/config/IConfigMgr.h>
+#include <service/common/macro.h>
+#include <service/common/status.h>
+
+#include <map>
+#include <vector>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
 
 SERVICE_BEGIN
 

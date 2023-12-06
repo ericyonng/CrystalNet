@@ -28,11 +28,13 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
 #include <service/common/macro.h>
 #include <service/common/status.h>
-#include <protocols/protocols.h>
+
+#include <kernel/comp/LibString.h>
+#include <google/protobuf/message.h>
+#include <set>
+
 
 SERVICE_BEGIN
 
@@ -42,7 +44,11 @@ class StorageHelper
 {
 public:
     // field是map/repeated/Message的会使用text 请序列化的时候序列化成json
-    static bool AddMysqlStorageInfoWithPb(IStorageInfo *ownerStorageInfo, const ::google::protobuf::Descriptor *descriptor, const KERNEL_NS::LibString *primaryKey, const std::set<KERNEL_NS::LibString> &uniqueKeys, const std::set<KERNEL_NS::LibString> &indexs);
+    static bool AddMysqlStorageInfoWithPb(IStorageInfo *ownerStorageInfo
+    , const ::google::protobuf::Descriptor *descriptor
+    , const KERNEL_NS::LibString *primaryKey
+    , const std::set<KERNEL_NS::LibString> &uniqueKeys
+    , const std::set<KERNEL_NS::LibString> &indexs);
 };
 
 SERVICE_END

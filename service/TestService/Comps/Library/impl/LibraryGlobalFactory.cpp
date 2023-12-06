@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/Library/impl/LibraryGlobalFactory.h>
 #include <Comps/Library/impl/LibraryGlobal.h>
 

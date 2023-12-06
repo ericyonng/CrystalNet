@@ -29,12 +29,26 @@
 #pragma once
 
 #include <ServiceCompHeader.h>
-#include <protocols/protocols.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/SmartPtr.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+
+#include <set>
+
+KERNEL_BEGIN
+
+class Variant;
+class LibRsa;
+
+KERNEL_END
 
 SERVICE_BEGIN
 
 class IUser;
 class PendingUser;
+
+class LoginInfo;
 
 class IUserMgr : public IGlobalSys
 {

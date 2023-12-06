@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/TestService/Comps/SysLogic/Impl/SysLogicMgr.h>
 #include <service/TestService/Comps/SysLogic/Impl/SysLogicMgrFactory.h>
 

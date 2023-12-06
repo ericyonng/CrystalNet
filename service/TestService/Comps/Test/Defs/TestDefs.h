@@ -29,6 +29,11 @@
 #pragma once
 
 #include <service/TestService/ServiceCompHeader.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/Cpu/cpu.h>
+#include <kernel/comp/Timer/Timer.h>
+
+#include <map>
 
 SERVICE_BEGIN
 

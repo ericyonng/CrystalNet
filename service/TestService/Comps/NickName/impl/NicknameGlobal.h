@@ -29,6 +29,9 @@
 #pragma once
 
 #include <Comps/NickName/interface/INicknameGlobal.h>
+#include <kernel/comp/LibStream.h>
+#include <set>
+#include <map>
 
 SERVICE_BEGIN
 

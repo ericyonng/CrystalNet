@@ -27,6 +27,11 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <Comps/Library/impl/LibraryGlobal.h>
 #include <Comps/Library/impl/LibraryGlobalStorageFactory.h>
 #include <Comps/Library/impl/LibraryGlobalFactory.h>

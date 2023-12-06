@@ -27,6 +27,9 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
 #include <Comps/User/impl/UserMgrStorage.h>
 #include <Comps/User/impl/UserMgrStorageFactory.h>
 #include <Comps/User/impl/UserMgr.h>

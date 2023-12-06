@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/UserSys/BookBag/impl/BookBagMgrStorage.h>
 #include <Comps/UserSys/BookBag/impl/BookBagMgrStorageFactory.h>
 #include <Comps/UserSys/BookBag/impl/BookBagMgr.h>

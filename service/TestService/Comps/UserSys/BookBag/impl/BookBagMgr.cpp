@@ -26,6 +26,10 @@
  * Description: 
 */
 #include <pch.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <Comps/UserSys/BookBag/impl/BookBagMgr.h>
 #include <Comps/UserSys/BookBag/impl/BookBagMgrFactory.h>
 #include <protocols/protocols.h>

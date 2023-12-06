@@ -29,6 +29,13 @@
 #pragma once
 
 #include <Comps/BookBag/interface/IBookBagGlobal.h>
+#include <kernel/comp/LibStream.h>
+
+KERNEL_BEGIN
+
+class LibPacket;
+
+KERNEL_END
 
 SERVICE_BEGIN
 

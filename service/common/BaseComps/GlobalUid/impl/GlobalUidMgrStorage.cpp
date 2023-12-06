@@ -26,6 +26,7 @@
  * Description: 
 */
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/common/BaseComps/GlobalUid/impl/GlobalUidMgrStorage.h>
 #include <service/common/BaseComps/GlobalUid/impl/GlobalUidMgrStorageFactory.h>
 #include <service/common/BaseComps/GlobalUid/impl/GlobalUidMgr.h>

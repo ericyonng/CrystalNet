@@ -31,6 +31,7 @@
 #include <Comps/User/interface/IUserMgr.h>
 #include <Comps/User/impl/UserLruCompare.h>
 #include <protocols/protocols.h>
+#include <kernel/kernel.h>
 
 KERNEL_BEGIN
 

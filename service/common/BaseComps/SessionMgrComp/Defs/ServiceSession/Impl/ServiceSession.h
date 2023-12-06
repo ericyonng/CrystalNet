@@ -28,8 +28,6 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
 #include <service/common/SessionType.h>
 #include <service/common/PriorityLevelDefine.h>
 #include <service/common/ServiceConfig.h>

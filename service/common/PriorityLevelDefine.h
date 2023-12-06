@@ -29,6 +29,7 @@
 #pragma once
 
 #include <service/common/macro.h>
+#include <kernel/comp/LibString.h>
 
 SERVICE_BEGIN
 

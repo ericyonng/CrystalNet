@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <service/TestService/ServiceFactory.h>
 #include <service/TestService/MyTestService.h>
 

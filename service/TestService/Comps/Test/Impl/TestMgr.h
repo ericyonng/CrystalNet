@@ -29,10 +29,15 @@
 #pragma once
 
 #include <service/TestService/ServiceCompHeader.h>
+#include <kernel/kernel.h>
 #include <service/TestService/Comps/Test/Interface/ITestMgr.h>
 #include <protocols/protocols.h>
+#include <unordered_map>
 
 SERVICE_BEGIN
+
+struct ServiceConfig;
+struct AddrConfig;
 
 struct SessionAnalyzeInfo;
 

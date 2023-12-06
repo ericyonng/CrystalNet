@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/UserSys/Notify/impl/NotifyMgrStorageFactory.h>
 #include <Comps/UserSys/Notify/impl/NotifyMgrStorage.h>
 

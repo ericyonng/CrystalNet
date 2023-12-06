@@ -27,6 +27,7 @@
 */
 
 #include <pch.h>
+#include <kernel/kernel.h>
 #include <Comps/UserSys/Login/impl/LoginMgrStorage.h>
 #include <Comps/UserSys/Login/impl/LoginMgr.h>
 #include <Comps/UserSys/Login/impl/LoginMgrStorageFactory.h>

@@ -30,6 +30,13 @@
 
 #include <service/TestService/Comps/DB/interface/IMysqlMgr.h>
 #include <protocols/protocols.h>
+#include <kernel/comp/LibStream.h>
+#include <kernel/comp/LibDirtyHelper.h>
+#include <kernel/comp/Event/Defs.h>
+
+#include <map>
+#include <vector>
+#include <set>
 
 SERVICE_BEGIN
 

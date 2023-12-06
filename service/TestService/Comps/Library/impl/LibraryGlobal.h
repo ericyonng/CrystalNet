@@ -30,6 +30,11 @@
 
 #include <Comps/Library/interface/ILibraryGlobal.h>
 #include <protocols/protocols.h>
+#include <kernel/comp/LibStream.h>
+#include <kernel/comp/NetEngine/LibPacket.h>
+#include <kernel/comp/LibTime.h>
+#include <map>
+#include <set>
 
 SERVICE_BEGIN
 

@@ -28,7 +28,8 @@
 
 #pragma once
 
-#include <kernel/kernel.h>
+#include <kernel/common/BaseType.h>
+#include <kernel/common/status.h>
 
 namespace Status
 {
