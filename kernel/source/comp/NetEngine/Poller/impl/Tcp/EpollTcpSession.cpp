@@ -114,6 +114,10 @@ void EpollTcpSession::ContinueSend()
         return;
     }
 
+    g_Log->Info(LOGFMT_OBJ_TAG("ContinueSend session:%llu, _sendPacketList :%s"), GetId(), _sendPacketList ? _sendPacketList->ToString([](LibPacket *packet){
+        return packet->ToString();
+    }).c_str():"NONE");
+
     UInt64 handledBytes = 0;
 
     if(UNLIKELY(IsSendEagain()))
@@ -126,8 +130,8 @@ void EpollTcpSession::ContinueSend()
         _SendPackets(handledBytes);
     
     // 跟踪日志
-    // g_Log->NetTrace(LOGFMT_OBJ_TAG("%s send total bytes = [%llu], _lastSendLeft left bytes unhandled = [%llu], rest packets amount = [%llu]")
-    //                 , ToString().c_str(), handledBytes, _lastSendLeft ? _lastSendLeft->GetReadableSize() : 0, _sendPacketList->GetAmount());
+    g_Log->Info(LOGFMT_OBJ_TAG("%s send total bytes = [%llu], _lastSendLeft left bytes unhandled = [%llu], rest packets amount = [%llu], backtrace:%s")
+                    , ToString().c_str(), handledBytes, _lastSendLeft ? _lastSendLeft->GetReadableSize() : 0, _sendPacketList->GetAmount(),  KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
 }
 
 void EpollTcpSession::OnRecv()
