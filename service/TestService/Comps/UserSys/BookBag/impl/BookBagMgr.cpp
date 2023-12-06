@@ -127,7 +127,7 @@ void BookBagMgr::SendBookBagInfoNty() const
 
     Send(Opcodes::OpcodeConst::OPCODE_BookBagInfoNty, nty);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("send OPCODE_BookBagInfoNty to client user:%s"), GetUser()->ToString().c_str());
+    // g_Log->Info(LOGFMT_OBJ_TAG("send OPCODE_BookBagInfoNty to client user:%s"), GetUser()->ToString().c_str());
 }
 
 Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)

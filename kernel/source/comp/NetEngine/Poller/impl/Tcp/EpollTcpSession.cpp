@@ -69,9 +69,9 @@ void EpollTcpSession::Close()
 
 void EpollTcpSession::SendPackets(LibList<LibPacket *> *packets)
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("session:%llu, send packets :%s"), GetId(), packets->ToString([](LibPacket *packet){
-        return packet->ToString();
-    }).c_str());
+    // g_Log->Info(LOGFMT_OBJ_TAG("session:%llu, send packets :%s"), GetId(), packets->ToString([](LibPacket *packet){
+    //     return packet->ToString();
+    // }).c_str());
 
     _dirtyHelper->Clear(this, PollerDirty::WRITE);
     if(UNLIKELY(!CanSend()))
@@ -101,8 +101,8 @@ void EpollTcpSession::SendPackets(LibList<LibPacket *> *packets)
         _SendPackets(handledBytes);
     
     // 跟踪日志
-    g_Log->Info(LOGFMT_OBJ_TAG("%s send total bytes = [%llu], _lastSendLeft left bytes unhandled = [%llu], rest packets amount = [%llu], trace:%s")
-                    , ToString().c_str(), handledBytes, _lastSendLeft ? _lastSendLeft->GetReadableSize() : 0, _sendPacketList->GetAmount(), KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
+    // g_Log->Info(LOGFMT_OBJ_TAG("%s send total bytes = [%llu], _lastSendLeft left bytes unhandled = [%llu], rest packets amount = [%llu], trace:%s")
+    //                 , ToString().c_str(), handledBytes, _lastSendLeft ? _lastSendLeft->GetReadableSize() : 0, _sendPacketList->GetAmount(), KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
 }
 
 void EpollTcpSession::ContinueSend()
@@ -114,9 +114,9 @@ void EpollTcpSession::ContinueSend()
         return;
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("ContinueSend session:%llu, _sendPacketList :%s"), GetId(), _sendPacketList ? _sendPacketList->ToString([](LibPacket *packet){
-        return packet->ToString();
-    }).c_str():"NONE");
+    // g_Log->Info(LOGFMT_OBJ_TAG("ContinueSend session:%llu, _sendPacketList :%s"), GetId(), _sendPacketList ? _sendPacketList->ToString([](LibPacket *packet){
+    //     return packet->ToString();
+    // }).c_str():"NONE");
 
     UInt64 handledBytes = 0;
 
@@ -130,8 +130,8 @@ void EpollTcpSession::ContinueSend()
         _SendPackets(handledBytes);
     
     // 跟踪日志
-    g_Log->Info(LOGFMT_OBJ_TAG("%s send total bytes = [%llu], _lastSendLeft left bytes unhandled = [%llu], rest packets amount = [%llu], backtrace:%s")
-                    , ToString().c_str(), handledBytes, _lastSendLeft ? _lastSendLeft->GetReadableSize() : 0, _sendPacketList->GetAmount(),  KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
+    // g_Log->Info(LOGFMT_OBJ_TAG("%s send total bytes = [%llu], _lastSendLeft left bytes unhandled = [%llu], rest packets amount = [%llu], backtrace:%s")
+    //                 , ToString().c_str(), handledBytes, _lastSendLeft ? _lastSendLeft->GetReadableSize() : 0, _sendPacketList->GetAmount(),  KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
 }
 
 void EpollTcpSession::OnRecv()
@@ -395,7 +395,7 @@ void EpollTcpSession::_SendPackets(UInt64 &handledBytes)
         newSteam->Init(_bufferCapacity, KernelGetTlsMemoryPool());
         
         UInt64 binBytes = 0;
-        g_Log->Info(LOGFMT_OBJ_TAG("epoll tcp session send msg session id:%llu, packet:%s"), GetId(), node->_data->ToString().c_str());
+        // g_Log->Info(LOGFMT_OBJ_TAG("epoll tcp session send msg session id:%llu, packet:%s"), GetId(), node->_data->ToString().c_str());
         Int32 errCode = _protocolStack->PacketsToBin(this, node->_data, newSteam, binBytes);
         if(UNLIKELY(errCode != Status::Success))
         {
