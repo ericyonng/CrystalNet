@@ -410,6 +410,8 @@ void EpollTcpSession::_SendPackets(UInt64 &handledBytes)
             if(UNLIKELY(!_SendStream(newSteam, handledBytes)))
             {
                 _lastSendLeft = newSteam;
+                LibPacket::Delete_LibPacket(node->_data);
+                node = _sendPacketList->Erase(node);
                 break;
             }
         }
