@@ -28,6 +28,10 @@
 
 #include <pch.h>
 #include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/TestService/Common/ServiceCommon.h>
+
 #include <Comps/NickName/impl/NicknameGlobal.h>
 #include <Comps/NickName/impl/NicknameGlobalStorageFactory.h>
 #include <Comps/NickName/impl/NicknameGlobalFactory.h>
