@@ -276,7 +276,11 @@ void Poller::EventLoop()
     LibCpuCounter performaceStart;
 
     const UInt64 pollerId = GetId();
+    
+    #if ENABLE_POLLER_PERFORMANCE
     const UInt64 curThreadId = _workThreadId.load();
+    #endif
+
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
 
     UInt64 mergeNumber = 0;
@@ -342,10 +346,17 @@ void Poller::EventLoop()
         }
 
         // 脏处理
+        #if ENABLE_POLLER_PERFORMANCE
         Int64 dirtyHandled = 0;
+        #endif
+
         if(UNLIKELY(_dirtyHelper->HasDirty()))
         {
-            dirtyHandled = _dirtyHelper->Purge(&errLog);
+            #if ENABLE_POLLER_PERFORMANCE
+             dirtyHandled = _dirtyHelper->Purge(&errLog);
+            #else
+             _dirtyHelper->Purge(&errLog);
+            #endif
             if(UNLIKELY(!errLog.empty()))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
@@ -354,8 +365,12 @@ void Poller::EventLoop()
         }
 
         // 处理定时器
+        #if ENABLE_POLLER_PERFORMANCE
         auto handled = _timerMgr->Drive();
-
+        #else
+        _timerMgr->Drive();
+        #endif
+        
         if(_onTick)
             _onTick->Invoke();
 

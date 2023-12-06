@@ -91,7 +91,7 @@ void TestMemoryPool::Run()
             memoryPool->AllocThreadLocal(testBufferSize);
         auto endPoolTime = KERNEL_NS::LibTime::Now();
         endCount.Update();
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST speed blockSize:%d, test count:%llu, pool total cost:%lld, unit cost:%lld")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST speed blockSize:%d, test count:%d, pool total cost:%lld, unit cost:%lld")
                     , testBufferSize, testLoopCount, (endPoolTime - startPoolTime).GetTotalMicroSeconds(), (endPoolTime - startPoolTime).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
 
         KERNEL_NS::LibCpuCounter startSystem;
@@ -103,7 +103,7 @@ void TestMemoryPool::Run()
         auto endSysTime = KERNEL_NS::LibTime::Now();
         endCountSystem.Update();
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST speed blockSize:%d, test count:%llu, system malloc total cost:%lld, unit cost:%llu")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST speed blockSize:%d, test count:%d, system malloc total cost:%lld, unit cost:%llu")
                     , testBufferSize, testLoopCount, (endSysTime - startSysTime).GetTotalMicroSeconds(), (endSysTime - startSysTime).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
 
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "memory pool info:%s"), memoryPool->ToString().c_str());
@@ -140,7 +140,7 @@ void TestMemoryPool::Run()
     }
 
     {// 无所测试分配与释放 pool 是 system的4倍左右
-        const UInt64 testLoopCount = 100000;
+        const Int32 testLoopCount = 100000;
         const Int32 testBufferSize = TEST_ALLOC_UNIT_BYTES;
 
         auto poolStart = KERNEL_NS::LibTime::Now();
@@ -149,7 +149,7 @@ void TestMemoryPool::Run()
 
         auto poolEnd = KERNEL_NS::LibTime::Now();
         
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST pool free speed blockSize:%d, test count:%llu, pool total cost:%lld, unit cost:%lld")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST pool free speed blockSize:%d, test count:%d, pool total cost:%lld, unit cost:%lld")
                     , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalMicroSeconds(), (poolEnd - poolStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
 
         auto sysStart = KERNEL_NS::LibTime::Now();
@@ -157,7 +157,7 @@ void TestMemoryPool::Run()
             delete [] (new Byte8[testBufferSize]);
         auto sysEnd = KERNEL_NS::LibTime::Now();
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST system delete speed blockSize:%d, test count:%llu, system malloc total cost:%lld, unit cost:%llu")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST system delete speed blockSize:%d, test count:%d, system malloc total cost:%lld, unit cost:%llu")
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalMicroSeconds(), (sysEnd - sysStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
     
     }
@@ -172,7 +172,7 @@ void TestMemoryPool::Run()
 
         auto poolEnd = KERNEL_NS::LibTime::Now();
         
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST pool free speed blockSize:%d, test count:%llu, pool total cost:%lld, unit cost:%lld")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST pool free speed blockSize:%d, test count:%d, pool total cost:%lld, unit cost:%lld")
                     , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalMicroSeconds(), (poolEnd - poolStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
 
         auto sysStart = KERNEL_NS::LibTime::Now();
@@ -180,7 +180,7 @@ void TestMemoryPool::Run()
             new Byte8[testBufferSize];
         auto sysEnd = KERNEL_NS::LibTime::Now();
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST system delete speed blockSize:%d, test count:%llu, system malloc total cost:%lld, unit cost:%llu")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST system delete speed blockSize:%d, test count:%d, system malloc total cost:%lld, unit cost:%llu")
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalMicroSeconds(), (sysEnd - sysStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
     }
 
@@ -197,10 +197,10 @@ void TestMemoryPool::Run()
 
         auto poolEnd = KERNEL_NS::LibTime::Now();
         
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST pool free speed blockSize:%d, test count:%llu, pool total cost:%lld, unit cost:%lld")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST pool free speed blockSize:%d, test count:%d, pool total cost:%lld, unit cost:%lld")
                     , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalMicroSeconds(), (poolEnd - poolStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
 
-        std::vector<void *> sysPtrs;
+        std::vector<Byte8 *> sysPtrs;
         for(Int32 idx = 0; idx < testLoopCount; ++idx)
             sysPtrs.push_back(new Byte8[testBufferSize]);
 
@@ -209,7 +209,7 @@ void TestMemoryPool::Run()
             delete [] sysPtrs[idx];
         auto sysEnd = KERNEL_NS::LibTime::Now();
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST system delete speed blockSize:%d, test count:%llu, system malloc total cost:%lld, unit cost:%llu")
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryPool, "TEST system delete speed blockSize:%d, test count:%d, system malloc total cost:%lld, unit cost:%llu")
                     , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalMicroSeconds(), (sysEnd - sysStart).GetTotalMicroSeconds() / static_cast<Int64>(testLoopCount));
     }
 
