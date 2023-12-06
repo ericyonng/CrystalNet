@@ -162,6 +162,7 @@ const KERNEL_NS::LibString &localIp, UInt16 localPort)
 
 void ServiceProxy::TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, KERNEL_NS::LibPacket *packet)
 {
+    g_Log->Info(LOGFMT_OBJ_TAG("service send msg session id:%llu, packet:%s"), sessionId, packet->ToString().c_str());
     _tcpPollerMgr->PostSend(pollerId, level, sessionId, packet);
     // g_Log->Debug(LOGFMT_OBJ_TAG("send msg packet info:%s"), packet->ToString().c_str());
 }

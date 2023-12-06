@@ -386,6 +386,7 @@ void EpollTcpSession::_SendPackets(UInt64 &handledBytes)
         newSteam->Init(_bufferCapacity, KernelGetTlsMemoryPool());
         
         UInt64 binBytes = 0;
+        g_Log->Info(LOGFMT_OBJ_TAG("epoll tcp session send msg session id:%llu, packet:%s"), GetId(), node->_data->ToString().c_str());
         Int32 errCode = _protocolStack->PacketsToBin(this, node->_data, newSteam, binBytes);
         if(UNLIKELY(errCode != Status::Success))
         {
@@ -403,6 +404,7 @@ void EpollTcpSession::_SendPackets(UInt64 &handledBytes)
                 break;
             }
         }
+
 
         LibPacket::Delete_LibPacket(node->_data);
         node = _sendPacketList->Erase(node);
