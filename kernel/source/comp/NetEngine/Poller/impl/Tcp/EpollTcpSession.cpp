@@ -39,6 +39,7 @@
 #include <kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerEvent.h>
 #include <kernel/comp/NetEngine/Poller/impl/Tcp/EpollTcpSession.h>
+#include <kernel/comp/Utils/BackTraceUtil.h>
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
 
@@ -68,6 +69,10 @@ void EpollTcpSession::Close()
 
 void EpollTcpSession::SendPackets(LibList<LibPacket *> *packets)
 {
+    g_Log->Info(LOGFMT_OBJ_TAG("session:%llu, send packets :%s"), GetId(), packets->ToString([](LibPacket *packet){
+        return packet->ToString();
+    }).c_str());
+
     _dirtyHelper->Clear(this, PollerDirty::WRITE);
     if(UNLIKELY(!CanSend()))
     {
@@ -96,8 +101,8 @@ void EpollTcpSession::SendPackets(LibList<LibPacket *> *packets)
         _SendPackets(handledBytes);
     
     // 跟踪日志
-    // g_Log->NetTrace(LOGFMT_OBJ_TAG("%s send total bytes = [%llu], _lastSendLeft left bytes unhandled = [%llu], rest packets amount = [%llu]")
-    //                 , ToString().c_str(), handledBytes, _lastSendLeft ? _lastSendLeft->GetReadableSize() : 0, _sendPacketList->GetAmount());
+    g_Log->Info(LOGFMT_OBJ_TAG("%s send total bytes = [%llu], _lastSendLeft left bytes unhandled = [%llu], rest packets amount = [%llu], trace:%s")
+                    , ToString().c_str(), handledBytes, _lastSendLeft ? _lastSendLeft->GetReadableSize() : 0, _sendPacketList->GetAmount(), KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
 }
 
 void EpollTcpSession::ContinueSend()
