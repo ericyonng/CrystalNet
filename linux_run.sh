@@ -36,7 +36,7 @@ IS_START=0
 
 echo "wait ${GREP_FLAG} start"
 
-while [$IS_START -eq 0 ]
+while [ $IS_START -eq 0 ]
 do
   if [ -n "$(ps |grep ${GREP_FLAG} | sed '1d')" ]
   then
