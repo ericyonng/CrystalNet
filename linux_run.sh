@@ -30,5 +30,23 @@ echo "will run process:${RUN_NAME}"
 
 nohup ${RUN_PATH}/${RUN_NAME} > ${RUN_PATH}/${RUN_NAME}.nohup 2>&1 &
 
+GREP_FLAG="${RUN_NAME}"
+
+IS_START=0
+
+echo "wait ${GREP_FLAG} start"
+
+while [$IS_START -eq 0 ]
+do
+  if [ -n "$(ps |grep ${GREP_FLAG} | sed '1d')" ]
+  then
+      IS_START=1
+      echo "${GREP_FLAG} started."
+  else
+     sleep 1
+     echo "wait ${GREP_FLAG} start"
+  fi
+done
+
 echo "run process success."
 
