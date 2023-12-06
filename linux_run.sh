@@ -38,7 +38,7 @@ echo "wait ${GREP_FLAG} start"
 
 while [ $IS_START -eq 0 ]
 do
-  if [ -n "$(ps |grep ${GREP_FLAG} | sed '1d')" ]
+  if [ -n "$(ps -e | grep ${GREP_FLAG} | awk '{print $1}')" ]
   then
       IS_START=1
       echo "${GREP_FLAG} started."
