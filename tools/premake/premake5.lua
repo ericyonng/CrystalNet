@@ -21,6 +21,8 @@ ENABLE_PERFORMANCE_RECORD = 1
 
 ENABLE_POLLER_PERFORMANCE = 0
 
+ENABLE_TEST_SERVICE = 1
+
 -----------------------------------------------------------------------------------------------------------
 
 -- Common functional functions define
@@ -85,6 +87,9 @@ function set_common_options()
     end
     if ENABLE_POLLER_PERFORMANCE ~= 0 then
         defines("ENABLE_POLLER_PERFORMANCE")
+    end
+    if ENABLE_TEST_SERVICE ~= 0 then
+        defines("ENABLE_TEST_SERVICE")
     end
 
 	filter {"language:c++", "system:windows" }
