@@ -38,10 +38,11 @@ echo "wait ${GREP_FLAG} start"
 
 while [ $IS_START -eq 0 ]
 do
-  if [ -n "$(ps -e | grep ${GREP_FLAG} | awk '{print $1}')" ]
+  PID_LIST=$(ps -e | grep ${GREP_FLAG} | awk '{print $1}')
+  if [ -n "${PID_LIST}" ]
   then
       IS_START=1
-      echo "${GREP_FLAG} started."
+      echo "${GREP_FLAG} started pids:${PID_LIST}."
   else
      sleep 1
      echo "wait ${GREP_FLAG} start"
