@@ -29,6 +29,9 @@
 
 #include "pch.h"
 #include <regex>
+#include <service_common/ServiceCommon.h>
+#include <service/common/common.h>
+#include <service/ProtoGenService/Common/ServiceCommon.h>
 
 #include <service/ProtoGenService/Comps/Exporter/Impl/ExporterMgrFactory.h>
 #include <service/ProtoGenService/Comps/Exporter/Defs/Defs.h>
