@@ -903,10 +903,10 @@ template<typename BuildType>
 template<typename ObjType>
 ALWAYS_INLINE bool LibStream<BuildType>::Read(ObjType &obj) const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto ret = newSteam->Read(obj);
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return ret;
 }
 
@@ -919,10 +919,10 @@ ALWAYS_INLINE bool LibStream<BuildType>::Read(LibString &str)
 template<typename BuildType>
 ALWAYS_INLINE bool LibStream<BuildType>::Read(LibString &str) const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto ret = newSteam->Read(str);
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return ret;
 }
 
@@ -958,10 +958,10 @@ ALWAYS_INLINE bool LibStream<BuildType>::Read(std::string &str)
 template<typename BuildType>
 ALWAYS_INLINE bool LibStream<BuildType>::Read(std::string &str) const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto ret = newSteam->Read(str);
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return ret;
 }
 
@@ -976,10 +976,10 @@ ALWAYS_INLINE void LibStream<BuildType>::Read(void *data, Int64 specifyBytes)
 template<typename BuildType>
 ALWAYS_INLINE void LibStream<BuildType>::Read(void *data, Int64 specifyBytes) const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     newSteam->Read(data, specifyBytes);
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
 }
 
 template<typename BuildType>
@@ -993,10 +993,10 @@ ALWAYS_INLINE Byte8 LibStream<BuildType>::ReadInt8()
 template<typename BuildType>
 ALWAYS_INLINE Byte8 LibStream<BuildType>::ReadInt8() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadInt8();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 
@@ -1011,10 +1011,10 @@ ALWAYS_INLINE Int16 LibStream<BuildType>::ReadInt16()
 template<typename BuildType>
 ALWAYS_INLINE Int16 LibStream<BuildType>::ReadInt16() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadInt16();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 
@@ -1029,10 +1029,10 @@ ALWAYS_INLINE Int32 LibStream<BuildType>::ReadInt32()
 template<typename BuildType>
 ALWAYS_INLINE Int32 LibStream<BuildType>::ReadInt32() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadInt32();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 
@@ -1047,10 +1047,10 @@ ALWAYS_INLINE Int64 LibStream<BuildType>::ReadInt64()
 template<typename BuildType>
 ALWAYS_INLINE Int64 LibStream<BuildType>::ReadInt64() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadInt64();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 
@@ -1065,10 +1065,10 @@ ALWAYS_INLINE U8 LibStream<BuildType>::ReadUInt8()
 template<typename BuildType>
 ALWAYS_INLINE U8 LibStream<BuildType>::ReadUInt8() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadUInt8();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 
@@ -1083,10 +1083,10 @@ ALWAYS_INLINE UInt16 LibStream<BuildType>::ReadUInt16()
 template<typename BuildType>
 ALWAYS_INLINE UInt16 LibStream<BuildType>::ReadUInt16() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadUInt16();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 
@@ -1101,10 +1101,10 @@ ALWAYS_INLINE UInt32 LibStream<BuildType>::ReadUInt32()
 template<typename BuildType>
 ALWAYS_INLINE UInt32 LibStream<BuildType>::ReadUInt32() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadUInt32();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 
@@ -1119,10 +1119,10 @@ ALWAYS_INLINE UInt64 LibStream<BuildType>::ReadUInt64()
 template<typename BuildType>
 ALWAYS_INLINE UInt64 LibStream<BuildType>::ReadUInt64() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadUInt64();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 
@@ -1137,10 +1137,10 @@ ALWAYS_INLINE Float LibStream<BuildType>::ReadFloat()
 template<typename BuildType>
 ALWAYS_INLINE Float LibStream<BuildType>::ReadFloat() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadFloat();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 
@@ -1155,10 +1155,10 @@ ALWAYS_INLINE Double LibStream<BuildType>::ReadDouble()
 template<typename BuildType>
 ALWAYS_INLINE Double LibStream<BuildType>::ReadDouble() const
 {
-    LibStream<_Build::TL> *newSteam = LibStream<BuildType>::NewThreadLocal_LibStream();
+    LibStream<_Build::TL> *newSteam = LibStream<_Build::TL>::NewThreadLocal_LibStream();
     newSteam->Attach(_buff, _size, _readPos, _writePos);
     auto value = newSteam->ReadDouble();
-    LibStream<BuildType>::DeleteThreadLocal_LibStream(newSteam);
+    LibStream<_Build::TL>::DeleteThreadLocal_LibStream(newSteam);
     return value;
 }
 

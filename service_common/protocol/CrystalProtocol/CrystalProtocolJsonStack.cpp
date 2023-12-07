@@ -95,12 +95,14 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
 , UInt64 &packetCount
 , KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *, KERNEL_NS::_Build::TL> *&recvPacketsBatch)
 {
-    #ifdef ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
+    #if defined(ENABLE_PERFORMANCE_RECORD) && defined(_DEBUG)
+
     auto &&outputLogFunc = [](UInt64 costMs){
         g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
     };
         
     PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
+
     #endif
 
     const auto &option = session->GetOption();
@@ -316,12 +318,14 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
 , KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *stream
 , UInt64 &handledBytes)
 {
-   #ifdef ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
+   #if defined(ENABLE_PERFORMANCE_RECORD) && defined(_DEBUG)
+
     auto &&outputLogFunc = [](UInt64 costMs){
         g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
     };
         
     PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 5);
+
     #endif
     
     Int32 errCode = Status::Success;
@@ -337,7 +341,8 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
             break;
         }
 
-    #ifdef ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
+    #if defined(ENABLE_PERFORMANCE_RECORD) && defined(_DEBUG)
+
         const auto opcode = packet->GetOpcode();
         const auto sessionId = packet->GetSessionId();
         auto &&outputLogFunc = [opcode, sessionId](UInt64 costMs){
@@ -346,6 +351,7 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
         };
             
         PERFORMANCE_RECORD_DEF(middlePr, outputLogFunc, 5);
+
     #endif
 
         // 2.预留header空间

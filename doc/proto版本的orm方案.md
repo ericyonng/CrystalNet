@@ -16,7 +16,7 @@
 
 * ```
   
-  /// [Storage]
+  /// EnableStorage:true
   message TestORMData
   {
     uint64 Id = 1;
@@ -26,8 +26,18 @@
     repeated int32 ConfigIdList = 3;
   }
   
+  class ORMId
+  {
+  public:
+  	enum ENUMS
+  	{
+  		UNKNOWN = 0,
+  		TestORMDataORMData = 1, 
+  	};
+  };
+  
   // =>
-  class TestORMDataORMData
+  class TestORMDataORMData : public IORMData
   {
       POOL_CREATE_OBJ_DEFAULT(TestORMDataORMData);
   
@@ -41,6 +51,11 @@
       UInt64 get_userid() const
       {
           return _testORMData->userid();
+      }
+      
+      Int64 ORMId() const
+      {
+      	return ORMId::TestORMDataORMData;
       }
   
       bool IsDirty() const;
@@ -84,7 +99,7 @@
           _lastInvokeNotConstTimeNs = KERNEL_NS::LibTime::NowNanoTimestamp();
           _dirtyIndexes.insert(idx);
   
-          if(!isDirty && _dirtyCb)
+        if(!isDirty && _dirtyCb)
               _dirtyCb->Invoke(this);
       }
   
@@ -97,7 +112,13 @@
       KERNEL_NS::IDelegate<void, TestORMDataORMData *> *_dirtyCb;
   };
   
+  class TestORMDataORMDataFactory : public IORMFactory
+  {
+  public:
+  	
+  };
+  
   
   ```
-
+  
   

@@ -95,12 +95,14 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
 , UInt64 &packetCount
 , KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *, KERNEL_NS::_Build::TL> *&recvPacketsBatch)
 {
-    #ifdef ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
+    #if defined(ENABLE_PERFORMANCE_RECORD) && defined(_DEBUG)
+
     auto &&outputLogFunc = [](UInt64 costMs){
         g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolStack, "costMs:%llu ms"), costMs);
     };
         
     PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 5);
+
     #endif
 
     const auto &option = session->GetOption();
@@ -236,7 +238,8 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
             }
         }
 
-        #ifdef ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
+        #if defined(ENABLE_PERFORMANCE_RECORD) && defined(_DEBUG)
+
         const auto opcode = header._opcodeId;
         const auto headerLen = header._len;
         auto &&outputLogFunc = [opcode, headerLen, session](UInt64 costMs){
@@ -245,6 +248,7 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
         };
             
         PERFORMANCE_RECORD_DEF(middlePr, outputLogFunc, 5);
+
         #endif
 
         // 4.创建编码器并解码
@@ -332,12 +336,14 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
 , KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *stream
 , UInt64 &handledBytes)
 {
-    #ifdef ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
+    #if defined(ENABLE_PERFORMANCE_RECORD) && defined(_DEBUG)
+
     auto &&outputLogFunc = [](UInt64 costMs){
         g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolStack, "costMs:%llu ms"), costMs);
     };
         
     PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 5);
+
     #endif
     
     Int32 errCode = Status::Success;
@@ -353,7 +359,7 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
             break;
         }
 
-    #if ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
+    #if defined(ENABLE_PERFORMANCE_RECORD) && defined(_DEBUG)
         const auto opcode = packet->GetOpcode();
         const auto sessionId = packet->GetSessionId();
         auto &&outputLogFunc = [opcode, sessionId](UInt64 costMs){

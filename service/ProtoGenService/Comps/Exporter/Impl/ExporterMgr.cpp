@@ -257,6 +257,9 @@ Int32 ExporterMgr::_OnHostStart()
             // 生成ts
             _GenTsExtends();
 
+            // 生成ORM相关代码
+            _GenORM();
+
             // 强制更新以及带谷歌proto目录的需要给每个cc添加pch.h 不需要了
             // if(!_googleProtoIncludePath.empty() && _forceGenAll)
             // {
@@ -2511,6 +2514,10 @@ bool ExporterMgr::_GenTsExtends()
 }
 
 
+void ExporterMgr::_GenORM()
+{
+
+}
 
 bool ExporterMgr::_GrammarAnalyze()
 {

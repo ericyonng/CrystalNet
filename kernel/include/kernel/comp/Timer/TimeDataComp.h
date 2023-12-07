@@ -21,18 +21,29 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-06-26 21:52:52
  * Author: Eric Yonng
- * Description: 协议
+ * Date: 2023-12-07 16:38:46
+ * Description:
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_PROTOCOL_PROTOCOL_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_PROTOCOL_PROTOCOL_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TIMER_TIMER_DATA_COMP_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TIMER_TIMER_DATA_COMP_H__
 
 #pragma once
 
-#include <service_common/protocol/Coder/Coder.h>
-#include <service_common/protocol/CrystalProtocol/CrystalProtocol.h>
-#include <service_common/protocol/ORM/IOrmData.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+
+KERNEL_BEGIN
+
+class TimeData;
+
+class KERNEL_EXPORT TimeDataComp
+{
+public:
+    bool operator()(const TimeData *l, const TimeData *r) const;
+};
+
+KERNEL_END
 
 #endif

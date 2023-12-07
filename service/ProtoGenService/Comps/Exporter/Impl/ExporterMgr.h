@@ -81,6 +81,9 @@ protected:
     bool _GenTs();
     bool _GenTsExtends();
 
+    // 生成ORM
+    void _GenORM();
+
     // protobuf语法分析
     bool _GrammarAnalyze();
     bool _ScanProtoDataType(const KERNEL_NS::FindFileInfo &fileInfo, const KERNEL_NS::LibString &fullFilePath, bool &isParentPathContinue);
