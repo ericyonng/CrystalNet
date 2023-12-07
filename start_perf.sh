@@ -31,7 +31,8 @@ then
 fi
 
 # 获取进程id
-TARGET_PIDS=$(ps -e | grep ${GREP_FLAG} | awk '{print $1}')
+TARGET_PIDS=$(ps -aux | grep "${GREP_FLAG}" | sed '/grep/d' | sed '/start_perf/d'  | sed '/stop_perf/d' | awk '{print $2}')
+
 # TARGET_PIDS="$(ps -aux |grep "${GREP_FLAG}" | sed '/grep/d' | sed '/start_perf/d' | sed '/stop_perf/d' | sed 's/^[^ ]* //' | sed 's/^ *//' | sed 's/ .*$//')"
 
 echo "start_perf GREP_FLAG:${GREP_FLAG} TARGET_PIDS:${TARGET_PIDS}"

@@ -6,9 +6,15 @@
 # 脚本路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
-TARGET_PIDS=$(ps -e | grep "perf record" | awk '{print $1}')
+TARGET_PIDS=$(ps -aux | grep "perf record" | sed '/grep/d' | sed '/start_perf/d'  | sed '/stop_perf/d' | awk '{print $2}')
 
 # TARGET_PIDS="$(ps -aux |grep "perf record" | sed '/grep/d' | sed '/start_perf/d' | sed '/stop_perf/d' | sed 's/^[^ ]* //' | sed 's/^ *//' | sed 's/ .*$//')"
+
+if [ -z "${TARGET_PIDS}" ]
+then
+    echo "have no any perf process"
+    exit 1
+fi
 
 for pid in $TARGET_PIDS
 do
@@ -58,11 +64,12 @@ then
     exit 1
 fi
 
-PERF_RECORD_SUB_DIR_LIST=$(ls ${PERF_PATH} |grep "^perf_record_.*")
+PERF_RECORD_SUB_DIR_LIST=$(ls ${PERF_PATH} |grep "^perf_record_.*" | sed '/\.svg/d')
+echo "PERF_RECORD_SUB_DIR_LIST: ${PERF_RECORD_SUB_DIR_LIST}"
 
 for sub_dir in $PERF_RECORD_SUB_DIR_LIST
 do
-    TOTAL_DIR=${PERF_PATH}/${sub_dir}
+    TOTAL_DIR=${PERF_PATH}${sub_dir}
     echo "TOTAL_DIR:${TOTAL_DIR}, sub_dir:${sub_dir}"
     echo "perf script -i ${TOTAL_DIR}/perf.data &> ${TOTAL_DIR}/${sub_dir}.unfold"
 
