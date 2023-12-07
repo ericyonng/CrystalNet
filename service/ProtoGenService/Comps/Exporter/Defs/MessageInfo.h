@@ -51,6 +51,7 @@ struct MessageInfo
     bool _noLog;
     bool _isXorEncrypt;
     bool _isKeyBase64;
+    bool _enableStorage;
     
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> _annotationParamNameRefValue;  // 注解kv
 };

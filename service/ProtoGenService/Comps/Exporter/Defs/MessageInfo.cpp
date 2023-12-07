@@ -38,6 +38,7 @@ MessageInfo::MessageInfo()
 ,_noLog(false)
 ,_isXorEncrypt(false)
 ,_isKeyBase64(false)
+,_enableStorage(false)
 {
 
 }
@@ -87,6 +88,12 @@ void MessageInfo::FieldsFromAnnotations(Int32 &maxOpcode)
                 _isKeyBase64 = (kv.second.strip().tolower()) == "true";
             } 
         }
+
+        if(kv.first == ProtobufMessageParam::EnableStorage)
+        {
+            const auto &v = kv.second.strip().tolower();
+            _enableStorage = ((v.size() == 0) ? "true" : (v == "true"));
+        }
     }
 }
 
@@ -100,6 +107,7 @@ PbCaheInfo MessageInfo::ToPbCache(const KERNEL_NS::LibString &protoName, const K
     info._noLog = _noLog;
     info._isXorEncrypt = _isXorEncrypt;
     info._isKeyBase64 = _isKeyBase64;
+    info._enableStorage = _enableStorage;
 
     return info;
 }

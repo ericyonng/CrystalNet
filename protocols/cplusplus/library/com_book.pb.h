@@ -111,7 +111,7 @@ inline bool BookType_ENUMS_Parse(
 }
 // ===================================================================
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookType final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookType) */ , public KERNEL_NS::ICoder {
 public:
@@ -396,7 +396,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class SnapshotClientInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SnapshotClientInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -699,7 +699,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -1207,7 +1207,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookVariantInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookVariantInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -1505,7 +1505,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookVariantInfoItem final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookVariantInfoItem) */ , public KERNEL_NS::ICoder {
 public:

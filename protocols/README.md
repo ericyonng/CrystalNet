@@ -27,6 +27,7 @@
    NoLog:true/false 用来指定是不是不需要打印协议的网络日志
    XorEncrypt:true 开启xor加密
    KeyBase64:true 生成的key需要base64编码
+   EnableStorage:true 该数据会生成orm相关代码
    ```
    
 4. 关于pbcache文件

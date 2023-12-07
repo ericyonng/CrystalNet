@@ -96,7 +96,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(80), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(80), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookBagInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookBagInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -353,7 +353,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(81), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(81), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookBagInfoNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookBagInfoNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -669,7 +669,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(82), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(82), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookBagInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookBagInfoRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -956,7 +956,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(83), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(83), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class SetBookBagInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SetBookBagInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -1252,7 +1252,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(84), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(84), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class SetBookBagInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SetBookBagInfoRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -1539,7 +1539,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(89), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(89), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class SubmitBookBagBorrowInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SubmitBookBagBorrowInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -1831,7 +1831,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(90), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(90), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class SubmitBookBagBorrowInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SubmitBookBagBorrowInfoRes) */ , public KERNEL_NS::ICoder {
 public:

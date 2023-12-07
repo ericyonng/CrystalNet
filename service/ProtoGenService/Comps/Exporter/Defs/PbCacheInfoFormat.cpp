@@ -41,14 +41,15 @@ PbCaheInfo::PbCaheInfo()
 ,_noLog(false)
 ,_isXorEncrypt(false)
 ,_isKeyBase64(false)
+,_enableStorage(false)
 {
 
 }
 
 bool PbCaheInfo::CheckValid() const
 {
-    if(_opcode <= 0)
-        return false;
+    // if(_opcode <= 0)
+    //     return false;
 
     if(_line <= 0)
         return false;
@@ -76,6 +77,7 @@ KERNEL_NS::LibString PbCaheInfo::ToPbChacheString() const
         .AppendFormat("%s%s%s%s", ProtobufMessageParam::NoLog.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _noLog?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s%s%s%s", ProtobufMessageParam::XorEncrypt.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _isXorEncrypt?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s%s%s%s", ProtobufMessageParam::KeyBase64.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _isKeyBase64?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
+        .AppendFormat("%s%s%s%s", ProtobufMessageParam::EnableStorage.c_str(), ProtobufMessageParam::CacheKVSepFlag.c_str(), _enableStorage?"true":"false", ProtobufMessageParam::CacheSegSepFlag.c_str())
         .AppendFormat("%s", ProtobufMessageParam::MessageEndFlag.c_str())
         ;
 
@@ -106,6 +108,12 @@ KERNEL_NS::LibString PbCaheInfo::GetAnnotationValue(const KERNEL_NS::LibString &
     if(annotationKey == ProtobufMessageParam::KeyBase64)
     {
         value.AppendFormat("%s", _isKeyBase64 ? "true":"false");
+        return value;
+    }
+
+    if(annotationKey == ProtobufMessageParam::EnableStorage)
+    {
+        value.AppendFormat("%s", _enableStorage ? "true":"false");
         return value;
     }
 
@@ -324,6 +332,10 @@ bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibStrin
         else if(kv.first == ProtobufMessageParam::KeyBase64)
         {
             pbCache->_isKeyBase64 = (kv.second.strip().tolower()) == "true";
+        }
+        else if(kv.first == ProtobufMessageParam::EnableStorage)
+        {
+            pbCache->_enableStorage = (kv.second.strip().tolower()) == "true";
         }
     }
 

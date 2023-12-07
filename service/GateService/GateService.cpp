@@ -452,14 +452,17 @@ void GateService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
             continue;
         }
 
-        const auto sessionId = packet->GetSessionId();
-        const auto packetId = packet->GetPacketId();
-        auto &&outputLogFunc = [sessionId, packetId, opcode](UInt64 costMs){
-            const auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
-            g_Log->Warn(LOGFMT_NON_OBJ_TAG(GateService, "sessionId:%llu, packetid:%lld, opcode:%d,[%s], costMs:%llu ms. "),  sessionId, packetId, opcode, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.", costMs);
-        };
-            
-        PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
+        #ifdef ENABLE_PERFORMANCE_RECORD
+            const auto sessionId = packet->GetSessionId();
+            const auto packetId = packet->GetPacketId();
+            auto &&outputLogFunc = [sessionId, packetId, opcode](UInt64 costMs){
+                const auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(GateService, "sessionId:%llu, packetid:%lld, opcode:%d,[%s], costMs:%llu ms. "),  sessionId, packetId, opcode, opcodeInfo ? opcodeInfo->_opcodeName.c_str() : "Unknown Opcode.", costMs);
+            };
+                
+            PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
+        #endif
+        
         handler->Invoke(packet);
         if(LIKELY(packet))
             packet->ReleaseUsingPool();

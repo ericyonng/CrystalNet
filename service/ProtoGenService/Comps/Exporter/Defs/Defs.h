@@ -71,6 +71,9 @@ public:
     static const KERNEL_NS::LibString NoLog;
     static const KERNEL_NS::LibString XorEncrypt;
     static const KERNEL_NS::LibString KeyBase64;
+    static const KERNEL_NS::LibString EnableStorage;
+
+
     static const KERNEL_NS::LibString Md5;
     static const KERNEL_NS::LibString ModifyTime;
 };

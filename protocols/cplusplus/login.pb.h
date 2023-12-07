@@ -96,7 +96,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(1), nolog(false), XorEncrypt(true), KeyBase64(true)]
+// AnnotaionInfo[opcode(1), nolog(false), XorEncrypt(true), KeyBase64(true), EnableStorage:(false)]
 class LoginReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -392,7 +392,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(2), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(2), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class LoginRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -701,7 +701,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(22), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(22), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class LoginInfoNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginInfoNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -1004,7 +1004,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(31), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(31), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class LogoutReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LogoutReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -1261,7 +1261,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(32), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(32), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class LogoutNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LogoutNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -1564,7 +1564,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(60), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(60), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class LoginFinishReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginFinishReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -1821,7 +1821,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(61), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(61), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class LoginFinishRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginFinishRes) */ , public KERNEL_NS::ICoder {
 public:

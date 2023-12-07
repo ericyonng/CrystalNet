@@ -341,13 +341,16 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
                         break;
                     }
 
-                    auto outputLogFunc = [&req](UInt64 costMs)
-                    {
-                        g_Log->DumpSql(LOGFMT_NON_OBJ_TAG_NO_FMT(MysqlDB), KERNEL_NS::LibString().AppendFormat("seq id:%llu, cost %llu ms", req->_seqId, costMs));
-                    };
-                    
-                    // TODO:性能监控日志输出优化
-                    PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 100);
+                    #ifdef ENABLE_PERFORMANCE_RECORD
+                        auto outputLogFunc = [&req](UInt64 costMs)
+                        {
+                            g_Log->DumpSql(LOGFMT_NON_OBJ_TAG_NO_FMT(MysqlDB), KERNEL_NS::LibString().AppendFormat("seq id:%llu, cost %llu ms", req->_seqId, costMs));
+                        };
+                        
+                        // TODO:性能监控日志输出优化
+                        PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 100);
+                    #endif
+
                     (this->*handler)(workerBalance->_conn, req, pingExpireTime);
                 } while (false);
 

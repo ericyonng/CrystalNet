@@ -73,7 +73,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookInfoItem final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookInfoItem) */ , public KERNEL_NS::ICoder {
 public:
@@ -382,7 +382,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookBagInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookBagInfo) */ , public KERNEL_NS::ICoder {
 public:

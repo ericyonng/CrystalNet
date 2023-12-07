@@ -103,7 +103,7 @@ inline bool VariantParamType_ENUMS_Parse(
 }
 // ===================================================================
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class VariantParamType final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.VariantParamType) */ , public KERNEL_NS::ICoder {
 public:
@@ -396,7 +396,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class VariantParam final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.VariantParam) */ , public KERNEL_NS::ICoder {
 public:

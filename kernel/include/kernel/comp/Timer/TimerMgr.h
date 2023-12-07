@@ -34,6 +34,7 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Timer/AsynTimeData.h>
 #include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Timer/TimeDataComp.h>
 
 #include <map>
 #include <set>

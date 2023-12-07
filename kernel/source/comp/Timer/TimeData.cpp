@@ -32,8 +32,23 @@
 #include <kernel/comp/Timer/LibTimer.h>
 #include <kernel/comp/Variant/variant_inc.h>
 #include <kernel/comp/LibTime.h>
+#include <Kernel/comp/Timer/TimeDataComp.h>
 
 KERNEL_BEGIN
+
+bool TimeDataComp::operator()(const TimeData *l, const TimeData *r) const
+{
+    if(!l || !r)
+        return l < r;
+
+    if(l == r)
+        return false;
+    
+    if(l->_expiredTime == r->_expiredTime)
+        return l->_id < r->_id;
+
+    return l->_expiredTime < r->_expiredTime;
+}
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(TimeData);
 

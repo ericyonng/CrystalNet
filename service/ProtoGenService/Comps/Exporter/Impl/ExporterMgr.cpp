@@ -554,8 +554,9 @@ bool ExporterMgr::_ModifyCppPbHeader(const KERNEL_NS::LibString &pbHeaderName, s
                 classNames.push_back(className);
 
                 // 2.类前注解
-                const auto annotationInfo = KERNEL_NS::LibString().AppendFormat("// AnnotaionInfo[opcode(%d), nolog(%s), XorEncrypt(%s), KeyBase64(%s)]"
-                , messageInfo->_opcode, messageInfo->_noLog ? "true" : "false", messageInfo->_isXorEncrypt ? "true" : "false", messageInfo->_isKeyBase64 ? "true" : "false");
+                const auto annotationInfo = KERNEL_NS::LibString().AppendFormat("// AnnotaionInfo[opcode(%d), nolog(%s), XorEncrypt(%s), KeyBase64(%s), EnableStorage:(%s)]"
+                , messageInfo->_opcode, messageInfo->_noLog ? "true" : "false", messageInfo->_isXorEncrypt ? "true" : "false"
+                , messageInfo->_isKeyBase64 ? "true" : "false", messageInfo->_enableStorage ? "true" : "false");
                 addLineDatasBefore.push_back(annotationInfo);
 
                 // 3.添加基类
@@ -1494,6 +1495,7 @@ void ExporterMgr::_GenOpcodeInfo()
         lines.push_back("        auto info = OpcodeInfo();");
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._opcode = %d;", messageInfo->_opcode));
         lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._noLog = %s;", messageInfo->_noLog ? "true" : "false"));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("        info._enableStorage = %s;", messageInfo->_enableStorage ? "true" : "false"));
 
         // 加密
         if(messageInfo->_isXorEncrypt)
@@ -3418,9 +3420,9 @@ bool ExporterMgr::_UpdateProtoCache()
         {
             auto messageInfo = iter.second;
             const auto &updateCacheInfo = messageInfo->ToPbCache(protoContent->_protoInfo._fileName, protoContent->_fullPathName);
-            // 没有协议号的不用缓存
-            if(updateCacheInfo._opcode <= 0)
-                continue;
+            // // 没有协议号的不用缓存
+            // if(updateCacheInfo._opcode <= 0)
+            //     continue;
 
             if(_pbCacheContent->IsMessageCacheExists(updateCacheInfo._protoPath, updateCacheInfo._messageName))
             {

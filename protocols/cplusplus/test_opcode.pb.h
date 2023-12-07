@@ -85,7 +85,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(3), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(3), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class TestOpcodeReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcodeReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -388,7 +388,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(4), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(4), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class TestOpcodeRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcodeRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -691,7 +691,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(5), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(5), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class TestOpcode2Req final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcode2Req) */ , public KERNEL_NS::ICoder {
 public:
@@ -1003,7 +1003,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class TestOpcodeInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcodeInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -1315,7 +1315,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(6), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(6), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class TestOpcode2Res final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOpcode2Res) */ , public KERNEL_NS::ICoder {
 public:

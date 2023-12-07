@@ -56,6 +56,9 @@ struct PbCaheInfo
     bool _noLog;    // 不打印日志, 和opcode互相配合
     bool _isXorEncrypt;
     bool _isKeyBase64;
+
+    // 开启存储
+    bool _enableStorage;
 };
 
 // 排序

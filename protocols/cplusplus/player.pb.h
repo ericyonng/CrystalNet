@@ -86,7 +86,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(7), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(7), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class PlayerDataReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.PlayerDataReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -403,7 +403,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(8), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(8), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class PlayerDataRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.PlayerDataRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -735,7 +735,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(9), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(9), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ModifyPlayerNameReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ModifyPlayerNameReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -1032,7 +1032,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(10), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(10), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ModifyPlayerNameRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ModifyPlayerNameRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -1324,7 +1324,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(11), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(11), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class PlayerDataNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.PlayerDataNty) */ , public KERNEL_NS::ICoder {
 public:

@@ -74,7 +74,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(114), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(114), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class SystemLogDataListReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SystemLogDataListReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -372,7 +372,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(115), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(115), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class SystemLogDataListRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.SystemLogDataListRes) */ , public KERNEL_NS::ICoder {
 public:

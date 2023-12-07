@@ -95,7 +95,7 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
 , UInt64 &packetCount
 , KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *, KERNEL_NS::_Build::TL> *&recvPacketsBatch)
 {
-    #ifdef _DEBUG
+    #ifdef ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
     auto &&outputLogFunc = [](UInt64 costMs){
         g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
     };
@@ -147,13 +147,13 @@ Int32 CrystalProtocolJsonStack::ParsingPacket(KERNEL_NS::LibSession *session
                 break;
             }
 
-            if(header._packetId < 0)
-            {
-                g_Log->NetWarn(LOGFMT_OBJ_TAG("bad msg:bad packet id:%lld, header:%s, session:%s")
-                            , header._packetId, header.ToString().c_str(), session->ToString().c_str());
-                errCode = Status::ParsingPacketFail;
-                break;
-            }
+            // if(header._packetId < 0)
+            // {
+            //     g_Log->NetWarn(LOGFMT_OBJ_TAG("bad msg:bad packet id:%lld, header:%s, session:%s")
+            //                 , header._packetId, header.ToString().c_str(), session->ToString().c_str());
+            //     errCode = Status::ParsingPacketFail;
+            //     break;
+            // }
         }
 
         // 2.剩余包数据是否够解析包体
@@ -316,7 +316,7 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
 , KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *stream
 , UInt64 &handledBytes)
 {
-   #if _DEBUG
+   #ifdef ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
     auto &&outputLogFunc = [](UInt64 costMs){
         g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(CrystalProtocolJsonStack, "costMs:%llu ms"), costMs);
     };
@@ -337,7 +337,7 @@ Int32 CrystalProtocolJsonStack::PacketsToBin(KERNEL_NS::LibSession *session
             break;
         }
 
-    #if _DEBUG 
+    #ifdef ENABLE_PERFORMANCE_RECORD && defined(_DEBUG)
         const auto opcode = packet->GetOpcode();
         const auto sessionId = packet->GetSessionId();
         auto &&outputLogFunc = [opcode, sessionId](UInt64 costMs){

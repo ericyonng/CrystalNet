@@ -39,12 +39,6 @@ KERNEL_BEGIN
 class TimeData;
 class Variant;
 
-class KERNEL_EXPORT TimeDataComp
-{
-public:
-    bool operator()(const TimeData *l, const TimeData *r) const;
-};
-
 class LibTimer;
 template<typename T>
 class LibStream;
@@ -77,20 +71,6 @@ public:
 
     KERNEL_NS::LibString _timerInfo;
 };
-
-ALWAYS_INLINE bool TimeDataComp::operator()(const TimeData *l, const TimeData *r) const
-{
-    if(!l || !r)
-        return l < r;
-
-    if(l == r)
-        return false;
-    
-    if(l->_expiredTime == r->_expiredTime)
-        return l->_id < r->_id;
-
-    return l->_expiredTime < r->_expiredTime;
-}
 
 ALWAYS_INLINE void TimeData::Release()
 {

@@ -83,7 +83,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(37), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(37), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class UserClientInfoNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserClientInfoNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -379,7 +379,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ModifyPwdInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ModifyPwdInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -687,7 +687,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(58), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(58), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ModifyUserInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ModifyUserInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -1022,7 +1022,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(59), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(59), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ModifyUserInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ModifyUserInfoRes) */ , public KERNEL_NS::ICoder {
 public:

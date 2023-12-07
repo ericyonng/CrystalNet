@@ -87,10 +87,12 @@ Int64 TimerMgr::Drive()
 
     if(LIKELY(!_expireQueue.empty()))
     {
-        KERNEL_NS::TimeData *timerData = NULL;
-        auto &&outputLogFunc = [&timerData](UInt64 ms){
-            g_Log->Warn(LOGFMT_NON_OBJ_TAG(TimerMgr, "timer time out cost:%llu, timer data:%s"), ms, timerData ? timerData->ToString().c_str() : "");
-        };
+        #ifdef ENABLE_PERFORMANCE_RECORD
+            KERNEL_NS::TimeData *timerData = NULL;
+            auto &&outputLogFunc = [&timerData](UInt64 ms){
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(TimerMgr, "timer time out cost:%llu, timer data:%s"), ms, timerData ? timerData->ToString().c_str() : "");
+            };
+        #endif
 
         _curTime = TimeUtil::GetFastNanoTimestamp();
 
@@ -107,8 +109,11 @@ Int64 TimerMgr::Drive()
             iter = _expireQueue.erase(iter);
             if(timeData->_isScheduing)
             {
-                timerData = timeData;
-                PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
+                #ifdef ENABLE_PERFORMANCE_RECORD
+                    timerData = timeData;
+                    PERFORMANCE_RECORD_DEF(pr, outputLogFunc, 10);
+                #endif
+
                 timeData->_owner->OnTimeOut();
                 ++handled;
 

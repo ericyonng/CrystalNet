@@ -107,7 +107,6 @@ void ClientUserMgr::OnStartup()
     auto registerInfo = loginInfo.mutable_userregisterinfo();
     registerInfo->set_accountname(accountName.GetRaw());
     registerInfo->set_pwd(loginInfo.pwd());
-    registerInfo->set_nickname("123456");
     registerInfo->set_createphoneimei("123456");
     auto err = Login(loginInfo, _targetAddrConfig->_remoteProtocolStackType);
     if(err != Status::Success)

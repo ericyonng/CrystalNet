@@ -257,7 +257,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(42), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(42), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetLibraryInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetLibraryInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -514,7 +514,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(46), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(46), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class LibraryInfoNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LibraryInfoNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -810,7 +810,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(43), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(43), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetLibraryInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetLibraryInfoRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -1097,7 +1097,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(44), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(44), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class CreateLibraryReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.CreateLibraryReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -1464,7 +1464,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(45), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(45), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class CreateLibraryRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.CreateLibraryRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -1751,7 +1751,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(47), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(47), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class JoinLibraryReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.JoinLibraryReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -2038,7 +2038,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(48), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(48), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class JoinLibraryRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.JoinLibraryRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -2325,7 +2325,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(51), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(51), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class QuitLibraryReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.QuitLibraryReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -2582,7 +2582,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(52), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(52), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class QuitLibraryRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.QuitLibraryRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -2869,7 +2869,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(49), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(49), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetLibraryListReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetLibraryListReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -3126,7 +3126,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(50), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(50), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetLibraryListRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetLibraryListRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -3422,7 +3422,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(53), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(53), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class TransferLibraianReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TransferLibraianReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -3709,7 +3709,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(54), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(54), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class TransferLibraianRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TransferLibraianRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -3996,7 +3996,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(55), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(55), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ModifyMemberInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ModifyMemberInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -4345,7 +4345,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(56), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(56), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ModifyMemberInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ModifyMemberInfoRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -4632,7 +4632,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(57), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(57), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class UserLibraryInfoNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserLibraryInfoNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -4928,7 +4928,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(62), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(62), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetLibraryMemberSimpleInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -5185,7 +5185,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(63), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(63), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetLibraryMemberSimpleInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetLibraryMemberSimpleInfoRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -5492,7 +5492,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(64), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(64), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class AddLibraryBookReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.AddLibraryBookReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -5964,7 +5964,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(65), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(65), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class AddLibraryBookRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.AddLibraryBookRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -6251,7 +6251,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(66), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(66), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class AddLibraryBookCountReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.AddLibraryBookCountReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -6549,7 +6549,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(67), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(67), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class AddLibraryBookCountRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.AddLibraryBookCountRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -6836,7 +6836,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(68), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(68), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookListReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookListReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -7093,7 +7093,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(69), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(69), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookListNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookListNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -7389,7 +7389,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(70), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(70), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BooksChangeNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BooksChangeNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -7685,7 +7685,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(73), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(73), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class BookVariantInfoItemsNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookVariantInfoItemsNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -7981,7 +7981,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(72), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(72), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookListRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookListRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -8268,7 +8268,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(74), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(74), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -8560,7 +8560,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(75), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(75), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookInfoRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -8867,7 +8867,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(76), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(76), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookByBookNameReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookByBookNameReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -9159,7 +9159,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(77), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(77), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookByBookNameRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookByBookNameRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -9455,7 +9455,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(85), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(85), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookInfoListReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookInfoListReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -9753,7 +9753,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(86), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(86), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookInfoListRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookInfoListRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -10049,7 +10049,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(97), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(97), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookOrderDetailInfoReq final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookOrderDetailInfoReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -10306,7 +10306,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(98), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(98), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookOrderDetailInfoNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookOrderDetailInfoNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -10602,7 +10602,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(100), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(100), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class GetBookOrderDetailInfoRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.GetBookOrderDetailInfoRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -10889,7 +10889,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(101), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(101), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class OutStoreOrderReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OutStoreOrderReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -11196,7 +11196,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(102), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(102), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class OutStoreOrderRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OutStoreOrderRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -11483,7 +11483,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(103), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(103), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ManagerScanOrderForUserGettingBooksReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -11770,7 +11770,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(104), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(104), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class UserGetBooksOrderConfirmNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserGetBooksOrderConfirmNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -12068,7 +12068,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(105), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(105), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ManagerScanOrderForUserGettingBooksRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ManagerScanOrderForUserGettingBooksRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -12355,7 +12355,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(106), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(106), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class UserGetBooksOrderConfirmReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserGetBooksOrderConfirmReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -12653,7 +12653,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(107), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(107), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class UserGetBooksOrderConfirmRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserGetBooksOrderConfirmRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -12940,7 +12940,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(108), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(108), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class CancelOrderReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.CancelOrderReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -13243,7 +13243,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(109), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(109), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class CancelOrderRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.CancelOrderRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -13530,7 +13530,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(112), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(112), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ReturnBackReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ReturnBackReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -13842,7 +13842,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(113), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(113), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ReturnBackRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ReturnBackRes) */ , public KERNEL_NS::ICoder {
 public:

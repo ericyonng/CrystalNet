@@ -1584,6 +1584,7 @@ export namespace crystal_net_service
 
 
     }
+    /// EnableStorage:true
     // com_user.proto
     export class UserBaseInfo {
         // uid

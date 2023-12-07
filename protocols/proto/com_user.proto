@@ -1,6 +1,7 @@
 syntax = "proto3";
 package CRYSTAL_NET.service;
 
+/// EnableStorage:true
 message UserBaseInfo
 {
     // uid
@@ -128,84 +129,3 @@ message SimpleUserInfo
     uint64 BindPhone = 3;
 }
 
-
-/// [Storage]
-message TestORMData
-{
-  uint64 Id = 1;
-
-  string Data = 2;
-
-  repeated int32 ConfigIdList = 3;
-}
-
-// =>
-class TestORMDataORMData
-{
-    POOL_CREATE_OBJ_DEFAULT(TestORMDataORMData);
-
-public:
-    void set_userid(UInt64 id)
-    {
-        _testORMData->set_userid(id);
-        _MaskDirty(1);
-    }
-
-    UInt64 get_userid() const
-    {
-        return _testORMData->userid();
-    }
-
-    bool IsDirty() const;
-    {
-        return _lastInvokeNotConstTimeNs > _lastPurgeTimeNs;
-    }
-
-    void Purge()
-    {
-      _lastPurgeTimeNs = KERNEL_NS::LibTime::NowNanoTimestamp();
-      _dirtyIndexes.clear();
-    }
-
-    void SetDirtyCallback(KERNEL_NS::IDelegate<void, TestORMDataORMData *> *cb)
-    {
-        CRYSTAL_RELEASE_SAFE(_dirtyCb);
-        _dirtyCb = cb;
-    }
-
-    const ::google::protobuf::TestORMData &GetRawData() const
-    {
-        return *_testORMData;
-    }
-
-    const std::set<Int32> &GetDirtyIndexList() const
-    {
-        return _dirtyIndexes;
-    }
-
-    ::google::RepeatedField<int32> *mutable_configidlist()
-    {
-        _MaskDirty(3);
-
-        return _testORMData->mutable_configidlist();
-    }
-
-private:
-    void _MaskDirty(Int32 idx)
-    {
-        const auto isDirty = IsDirty();
-        _lastInvokeNotConstTimeNs = KERNEL_NS::LibTime::NowNanoTimestamp();
-        _dirtyIndexes.insert(idx);
-
-        if(!isDirty && _dirtyCb)
-            _dirtyCb->Invoke(this);
-    }
-
-private:
-    ::google::protobuf::TestORMData *_testORMData;
-
-    Int64 _lastPurgeTimeNs;
-    Int64 _lastInvokeNotConstTimeNs;
-    std::set<Int32> _dirtyIndexes;
-    KERNEL_NS::IDelegate<void, TestORMDataORMData *> *_dirtyCb;
-};

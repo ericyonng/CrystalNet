@@ -67,7 +67,7 @@ Int32 Opcodes::Init()
         }
 
         {// 2.2 opcode名字字典校验
-            auto iter = _opcodeNameRefInfo.find(opcodeInfo._opcode);
+            auto iter = _opcodeNameRefInfo.find(opcodeInfo._opcodeName);
             if(iter != _opcodeNameRefInfo.end())
             {// 重复
                 auto oldInfo = iter->second;

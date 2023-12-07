@@ -71,6 +71,7 @@ struct OpcodeInfo
 
     Int32 _opcode = 0;                  // 协议id
     bool _noLog = false;                // 消息需不需要打印日志
+    bool _enableStorage = false;        // 需不需要存储能力
     UInt32 _msgFlags = 0;                  // MsgFlagsType
     KERNEL_NS::LibString _opcodeName;   // 协议名
     KERNEL_NS::LibString _protoFile;    // 协议所属文件名

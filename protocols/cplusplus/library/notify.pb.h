@@ -98,7 +98,7 @@ namespace service {
 
 // ===================================================================
 
-// AnnotaionInfo[opcode(91), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(91), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class UserNotifyDataNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserNotifyDataNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -394,7 +394,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(94), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(94), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class UserNotifyChangeNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.UserNotifyChangeNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -690,7 +690,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(92), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(92), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class AddUserNotifyDataItemNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.AddUserNotifyDataItemNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -986,7 +986,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(93), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(93), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class RemoveUserNotifyDataItemNty final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.RemoveUserNotifyDataItemNty) */ , public KERNEL_NS::ICoder {
 public:
@@ -1287,7 +1287,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(95), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(95), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ReadNotifyReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ReadNotifyReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -1574,7 +1574,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(96), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(96), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class ReadNotifyRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.ReadNotifyRes) */ , public KERNEL_NS::ICoder {
 public:
@@ -1861,7 +1861,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(110), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(110), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class OnekeyClearNotifyReq final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OnekeyClearNotifyReq) */ , public KERNEL_NS::ICoder {
 public:
@@ -2148,7 +2148,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(111), nolog(false), XorEncrypt(false), KeyBase64(false)]
+// AnnotaionInfo[opcode(111), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class OnekeyClearNotifyRes final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.OnekeyClearNotifyRes) */ , public KERNEL_NS::ICoder {
 public:

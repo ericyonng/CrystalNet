@@ -30,6 +30,7 @@
         auto info = OpcodeInfo();
         info._opcode = 1;
         info._noLog = false;
+        info._enableStorage = false;
         info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::XOR_ENCRYPT_FLAG;
         info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::KEY_IN_BASE64_FLAG;
         info._opcodeName = "LoginReq";
@@ -42,6 +43,7 @@
         auto info = OpcodeInfo();
         info._opcode = 2;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "LoginRes";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -52,6 +54,7 @@
         auto info = OpcodeInfo();
         info._opcode = 3;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "TestOpcodeReq";
         info._protoFile = "test_opcode.proto";
         _allOpcodeInfo.push_back(info);
@@ -62,6 +65,7 @@
         auto info = OpcodeInfo();
         info._opcode = 4;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "TestOpcodeRes";
         info._protoFile = "test_opcode.proto";
         _allOpcodeInfo.push_back(info);
@@ -72,6 +76,7 @@
         auto info = OpcodeInfo();
         info._opcode = 5;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "TestOpcode2Req";
         info._protoFile = "test_opcode.proto";
         _allOpcodeInfo.push_back(info);
@@ -82,6 +87,7 @@
         auto info = OpcodeInfo();
         info._opcode = 6;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "TestOpcode2Res";
         info._protoFile = "test_opcode.proto";
         _allOpcodeInfo.push_back(info);
@@ -92,6 +98,7 @@
         auto info = OpcodeInfo();
         info._opcode = 7;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "PlayerDataReq";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -102,6 +109,7 @@
         auto info = OpcodeInfo();
         info._opcode = 8;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "PlayerDataRes";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -112,6 +120,7 @@
         auto info = OpcodeInfo();
         info._opcode = 9;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ModifyPlayerNameReq";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -122,6 +131,7 @@
         auto info = OpcodeInfo();
         info._opcode = 10;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ModifyPlayerNameRes";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -132,6 +142,7 @@
         auto info = OpcodeInfo();
         info._opcode = 11;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "PlayerDataNty";
         info._protoFile = "player.proto";
         _allOpcodeInfo.push_back(info);
@@ -142,6 +153,7 @@
         auto info = OpcodeInfo();
         info._opcode = 20;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "TitleInfoReq";
         info._protoFile = "title.proto";
         _allOpcodeInfo.push_back(info);
@@ -152,6 +164,7 @@
         auto info = OpcodeInfo();
         info._opcode = 21;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "TitleInfoRes";
         info._protoFile = "title.proto";
         _allOpcodeInfo.push_back(info);
@@ -162,6 +175,7 @@
         auto info = OpcodeInfo();
         info._opcode = 22;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "LoginInfoNty";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -172,6 +186,7 @@
         auto info = OpcodeInfo();
         info._opcode = 23;
         info._noLog = true;
+        info._enableStorage = false;
         info._opcodeName = "NodeHeartbeatReq";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -182,6 +197,7 @@
         auto info = OpcodeInfo();
         info._opcode = 24;
         info._noLog = true;
+        info._enableStorage = false;
         info._opcodeName = "NodeHeartbeatRes";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -192,6 +208,7 @@
         auto info = OpcodeInfo();
         info._opcode = 25;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "RegisterNodeReq";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -202,6 +219,7 @@
         auto info = OpcodeInfo();
         info._opcode = 26;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "RegisterNodeRes";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -212,6 +230,7 @@
         auto info = OpcodeInfo();
         info._opcode = 27;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetNodeListReq";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -222,6 +241,7 @@
         auto info = OpcodeInfo();
         info._opcode = 28;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetNodeListRes";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -232,6 +252,7 @@
         auto info = OpcodeInfo();
         info._opcode = 29;
         info._noLog = true;
+        info._enableStorage = false;
         info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::XOR_ENCRYPT_FLAG;
         info._msgFlags |= SERVICE_COMMON_NS::MsgFlagsType::KEY_IN_BASE64_FLAG;
         info._opcodeName = "ClientHeartbeatReq";
@@ -244,6 +265,7 @@
         auto info = OpcodeInfo();
         info._opcode = 30;
         info._noLog = true;
+        info._enableStorage = false;
         info._opcodeName = "ClientHeartbeatRes";
         info._protoFile = "heartbeat.proto";
         _allOpcodeInfo.push_back(info);
@@ -254,6 +276,7 @@
         auto info = OpcodeInfo();
         info._opcode = 31;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "LogoutReq";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -264,6 +287,7 @@
         auto info = OpcodeInfo();
         info._opcode = 32;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "LogoutNty";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -274,6 +298,7 @@
         auto info = OpcodeInfo();
         info._opcode = 37;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "UserClientInfoNty";
         info._protoFile = "user.proto";
         _allOpcodeInfo.push_back(info);
@@ -284,6 +309,7 @@
         auto info = OpcodeInfo();
         info._opcode = 42;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetLibraryInfoReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -294,6 +320,7 @@
         auto info = OpcodeInfo();
         info._opcode = 43;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetLibraryInfoRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -304,6 +331,7 @@
         auto info = OpcodeInfo();
         info._opcode = 44;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "CreateLibraryReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -314,6 +342,7 @@
         auto info = OpcodeInfo();
         info._opcode = 45;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "CreateLibraryRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -324,6 +353,7 @@
         auto info = OpcodeInfo();
         info._opcode = 46;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "LibraryInfoNty";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -334,6 +364,7 @@
         auto info = OpcodeInfo();
         info._opcode = 47;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "JoinLibraryReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -344,6 +375,7 @@
         auto info = OpcodeInfo();
         info._opcode = 48;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "JoinLibraryRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -354,6 +386,7 @@
         auto info = OpcodeInfo();
         info._opcode = 49;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetLibraryListReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -364,6 +397,7 @@
         auto info = OpcodeInfo();
         info._opcode = 50;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetLibraryListRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -374,6 +408,7 @@
         auto info = OpcodeInfo();
         info._opcode = 51;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "QuitLibraryReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -384,6 +419,7 @@
         auto info = OpcodeInfo();
         info._opcode = 52;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "QuitLibraryRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -394,6 +430,7 @@
         auto info = OpcodeInfo();
         info._opcode = 53;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "TransferLibraianReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -404,6 +441,7 @@
         auto info = OpcodeInfo();
         info._opcode = 54;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "TransferLibraianRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -414,6 +452,7 @@
         auto info = OpcodeInfo();
         info._opcode = 55;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ModifyMemberInfoReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -424,6 +463,7 @@
         auto info = OpcodeInfo();
         info._opcode = 56;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ModifyMemberInfoRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -434,6 +474,7 @@
         auto info = OpcodeInfo();
         info._opcode = 57;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "UserLibraryInfoNty";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -444,6 +485,7 @@
         auto info = OpcodeInfo();
         info._opcode = 58;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ModifyUserInfoReq";
         info._protoFile = "user.proto";
         _allOpcodeInfo.push_back(info);
@@ -454,6 +496,7 @@
         auto info = OpcodeInfo();
         info._opcode = 59;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ModifyUserInfoRes";
         info._protoFile = "user.proto";
         _allOpcodeInfo.push_back(info);
@@ -464,6 +507,7 @@
         auto info = OpcodeInfo();
         info._opcode = 60;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "LoginFinishReq";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -474,6 +518,7 @@
         auto info = OpcodeInfo();
         info._opcode = 61;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "LoginFinishRes";
         info._protoFile = "login.proto";
         _allOpcodeInfo.push_back(info);
@@ -484,6 +529,7 @@
         auto info = OpcodeInfo();
         info._opcode = 62;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetLibraryMemberSimpleInfoReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -494,6 +540,7 @@
         auto info = OpcodeInfo();
         info._opcode = 63;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetLibraryMemberSimpleInfoRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -504,6 +551,7 @@
         auto info = OpcodeInfo();
         info._opcode = 64;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "AddLibraryBookReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -514,6 +562,7 @@
         auto info = OpcodeInfo();
         info._opcode = 65;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "AddLibraryBookRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -524,6 +573,7 @@
         auto info = OpcodeInfo();
         info._opcode = 66;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "AddLibraryBookCountReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -534,6 +584,7 @@
         auto info = OpcodeInfo();
         info._opcode = 67;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "AddLibraryBookCountRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -544,6 +595,7 @@
         auto info = OpcodeInfo();
         info._opcode = 68;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookListReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -554,6 +606,7 @@
         auto info = OpcodeInfo();
         info._opcode = 69;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "BookListNty";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -564,6 +617,7 @@
         auto info = OpcodeInfo();
         info._opcode = 70;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "BooksChangeNty";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -574,6 +628,7 @@
         auto info = OpcodeInfo();
         info._opcode = 72;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookListRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -584,6 +639,7 @@
         auto info = OpcodeInfo();
         info._opcode = 73;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "BookVariantInfoItemsNty";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -594,6 +650,7 @@
         auto info = OpcodeInfo();
         info._opcode = 74;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookInfoReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -604,6 +661,7 @@
         auto info = OpcodeInfo();
         info._opcode = 75;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookInfoRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -614,6 +672,7 @@
         auto info = OpcodeInfo();
         info._opcode = 76;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookByBookNameReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -624,6 +683,7 @@
         auto info = OpcodeInfo();
         info._opcode = 77;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookByBookNameRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -634,6 +694,7 @@
         auto info = OpcodeInfo();
         info._opcode = 80;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "BookBagInfoReq";
         info._protoFile = "bookbag.proto";
         _allOpcodeInfo.push_back(info);
@@ -644,6 +705,7 @@
         auto info = OpcodeInfo();
         info._opcode = 81;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "BookBagInfoNty";
         info._protoFile = "bookbag.proto";
         _allOpcodeInfo.push_back(info);
@@ -654,6 +716,7 @@
         auto info = OpcodeInfo();
         info._opcode = 82;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "BookBagInfoRes";
         info._protoFile = "bookbag.proto";
         _allOpcodeInfo.push_back(info);
@@ -664,6 +727,7 @@
         auto info = OpcodeInfo();
         info._opcode = 83;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "SetBookBagInfoReq";
         info._protoFile = "bookbag.proto";
         _allOpcodeInfo.push_back(info);
@@ -674,6 +738,7 @@
         auto info = OpcodeInfo();
         info._opcode = 84;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "SetBookBagInfoRes";
         info._protoFile = "bookbag.proto";
         _allOpcodeInfo.push_back(info);
@@ -684,6 +749,7 @@
         auto info = OpcodeInfo();
         info._opcode = 85;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookInfoListReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -694,6 +760,7 @@
         auto info = OpcodeInfo();
         info._opcode = 86;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookInfoListRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -704,6 +771,7 @@
         auto info = OpcodeInfo();
         info._opcode = 89;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "SubmitBookBagBorrowInfoReq";
         info._protoFile = "bookbag.proto";
         _allOpcodeInfo.push_back(info);
@@ -714,6 +782,7 @@
         auto info = OpcodeInfo();
         info._opcode = 90;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "SubmitBookBagBorrowInfoRes";
         info._protoFile = "bookbag.proto";
         _allOpcodeInfo.push_back(info);
@@ -724,6 +793,7 @@
         auto info = OpcodeInfo();
         info._opcode = 91;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "UserNotifyDataNty";
         info._protoFile = "notify.proto";
         _allOpcodeInfo.push_back(info);
@@ -734,6 +804,7 @@
         auto info = OpcodeInfo();
         info._opcode = 92;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "AddUserNotifyDataItemNty";
         info._protoFile = "notify.proto";
         _allOpcodeInfo.push_back(info);
@@ -744,6 +815,7 @@
         auto info = OpcodeInfo();
         info._opcode = 93;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "RemoveUserNotifyDataItemNty";
         info._protoFile = "notify.proto";
         _allOpcodeInfo.push_back(info);
@@ -754,6 +826,7 @@
         auto info = OpcodeInfo();
         info._opcode = 94;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "UserNotifyChangeNty";
         info._protoFile = "notify.proto";
         _allOpcodeInfo.push_back(info);
@@ -764,6 +837,7 @@
         auto info = OpcodeInfo();
         info._opcode = 95;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ReadNotifyReq";
         info._protoFile = "notify.proto";
         _allOpcodeInfo.push_back(info);
@@ -774,6 +848,7 @@
         auto info = OpcodeInfo();
         info._opcode = 96;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ReadNotifyRes";
         info._protoFile = "notify.proto";
         _allOpcodeInfo.push_back(info);
@@ -784,6 +859,7 @@
         auto info = OpcodeInfo();
         info._opcode = 97;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookOrderDetailInfoReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -794,6 +870,7 @@
         auto info = OpcodeInfo();
         info._opcode = 98;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookOrderDetailInfoNty";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -804,6 +881,7 @@
         auto info = OpcodeInfo();
         info._opcode = 100;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "GetBookOrderDetailInfoRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -814,6 +892,7 @@
         auto info = OpcodeInfo();
         info._opcode = 101;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "OutStoreOrderReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -824,6 +903,7 @@
         auto info = OpcodeInfo();
         info._opcode = 102;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "OutStoreOrderRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -834,6 +914,7 @@
         auto info = OpcodeInfo();
         info._opcode = 103;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ManagerScanOrderForUserGettingBooksReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -844,6 +925,7 @@
         auto info = OpcodeInfo();
         info._opcode = 104;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "UserGetBooksOrderConfirmNty";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -854,6 +936,7 @@
         auto info = OpcodeInfo();
         info._opcode = 105;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ManagerScanOrderForUserGettingBooksRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -864,6 +947,7 @@
         auto info = OpcodeInfo();
         info._opcode = 106;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "UserGetBooksOrderConfirmReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -874,6 +958,7 @@
         auto info = OpcodeInfo();
         info._opcode = 107;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "UserGetBooksOrderConfirmRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -884,6 +969,7 @@
         auto info = OpcodeInfo();
         info._opcode = 108;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "CancelOrderReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -894,6 +980,7 @@
         auto info = OpcodeInfo();
         info._opcode = 109;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "CancelOrderRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -904,6 +991,7 @@
         auto info = OpcodeInfo();
         info._opcode = 110;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "OnekeyClearNotifyReq";
         info._protoFile = "notify.proto";
         _allOpcodeInfo.push_back(info);
@@ -914,6 +1002,7 @@
         auto info = OpcodeInfo();
         info._opcode = 111;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "OnekeyClearNotifyRes";
         info._protoFile = "notify.proto";
         _allOpcodeInfo.push_back(info);
@@ -924,6 +1013,7 @@
         auto info = OpcodeInfo();
         info._opcode = 112;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ReturnBackReq";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -934,6 +1024,7 @@
         auto info = OpcodeInfo();
         info._opcode = 113;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "ReturnBackRes";
         info._protoFile = "library.proto";
         _allOpcodeInfo.push_back(info);
@@ -944,6 +1035,7 @@
         auto info = OpcodeInfo();
         info._opcode = 114;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "SystemLogDataListReq";
         info._protoFile = "syslog.proto";
         _allOpcodeInfo.push_back(info);
@@ -954,6 +1046,7 @@
         auto info = OpcodeInfo();
         info._opcode = 115;
         info._noLog = false;
+        info._enableStorage = false;
         info._opcodeName = "SystemLogDataListRes";
         info._protoFile = "syslog.proto";
         _allOpcodeInfo.push_back(info);
