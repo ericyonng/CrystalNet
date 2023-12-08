@@ -612,82 +612,86 @@ void TestMemoryAlloctor::Run()
 
     {
         // 正常的分配释放
-        std::vector<void *> alloctorPtrs;
-        std::vector<char *> systemPtrs;
-        const Int32 testLoopCount = TEST_ALLOC_LOOP;
-        const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
-
-        auto poolStart = KERNEL_NS::LibTime::Now();
-        auto poolEnd = KERNEL_NS::LibTime::Now();
-        auto poolFreeStart = KERNEL_NS::LibTime::Now();
-        auto poolFreeEnd = KERNEL_NS::LibTime::Now();
-        
+        for(Int32 loopCount = 0; loopCount < 100; ++loopCount)
         {
-            poolStart = KERNEL_NS::LibTime::Now();
+            std::vector<void *> alloctorPtrs;
+            std::vector<char *> systemPtrs;
+            const Int32 testLoopCount = TEST_ALLOC_LOOP;
+            const UInt64 testBufferSize = TEST_ALLOC_UNIT_BYTES;
+
+            auto poolStart = KERNEL_NS::LibTime::Now();
+            auto poolEnd = KERNEL_NS::LibTime::Now();
+            auto poolFreeStart = KERNEL_NS::LibTime::Now();
+            auto poolFreeEnd = KERNEL_NS::LibTime::Now();
+            
+            {
+                poolStart = KERNEL_NS::LibTime::Now();
+                for(Int32 idx = 0; idx < testLoopCount; ++idx)
+                    alloctorPtrs.push_back(alloctor.Alloc(testBufferSize));
+
+                poolEnd = KERNEL_NS::LibTime::Now();
+
+                poolFreeStart = KERNEL_NS::LibTime::Now();
+                for(Int32 idx = 0; idx < testLoopCount; ++idx)
+                    alloctor.Free(alloctorPtrs[idx]);
+
+                poolFreeEnd = KERNEL_NS::LibTime::Now();
+
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 1 speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lf ns, alloctor info:%s")
+                            , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), ((double)(poolEnd - poolStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 1 free speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lf ns, alloctor info:%s")
+                            , testBufferSize, testLoopCount, (poolFreeEnd - poolFreeStart).GetTotalNanoSeconds(), ((double)(poolFreeEnd - poolFreeStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
+
+                poolStart = KERNEL_NS::LibTime::Now();
+                for(Int32 idx = 0; idx < testLoopCount; ++idx)
+                    alloctorPtrs[idx] = alloctor.Alloc(testBufferSize);
+
+                poolEnd = KERNEL_NS::LibTime::Now();
+
+                poolFreeStart = KERNEL_NS::LibTime::Now();
+                for(Int32 idx = 0; idx < testLoopCount; ++idx)
+                    alloctor.Free(alloctorPtrs[idx]);
+
+                poolFreeEnd = KERNEL_NS::LibTime::Now();
+                alloctorPtrs.clear();
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 2 speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lf ns, alloctor info:%s")
+                            , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), ((double)(poolEnd - poolStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 2 free speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lf ns, alloctor info:%s")
+                            , testBufferSize, testLoopCount, (poolFreeEnd - poolFreeStart).GetTotalNanoSeconds(), ((double)(poolFreeEnd - poolFreeStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
+            }
+            
+            auto sysStart = KERNEL_NS::LibTime::Now();
             for(Int32 idx = 0; idx < testLoopCount; ++idx)
-                alloctorPtrs.push_back(alloctor.Alloc(testBufferSize));
+                systemPtrs.push_back(new Byte8[testBufferSize]);
+            auto sysEnd = KERNEL_NS::LibTime::Now();
 
-            poolEnd = KERNEL_NS::LibTime::Now();
-
-            poolFreeStart = KERNEL_NS::LibTime::Now();
+            auto sysFreeStart = KERNEL_NS::LibTime::Now();
             for(Int32 idx = 0; idx < testLoopCount; ++idx)
-                alloctor.Free(alloctorPtrs[idx]);
+                delete [](systemPtrs[idx]);
+            auto sysFreeEnd = KERNEL_NS::LibTime::Now();
 
-            poolFreeEnd = KERNEL_NS::LibTime::Now();
-
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 1 speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lf ns, alloctor info:%s")
-                        , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), ((double)(poolEnd - poolStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 1 free speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lf ns, alloctor info:%s")
-                        , testBufferSize, testLoopCount, (poolFreeEnd - poolFreeStart).GetTotalNanoSeconds(), ((double)(poolFreeEnd - poolFreeStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
-
-            poolStart = KERNEL_NS::LibTime::Now();
-            for(Int32 idx = 0; idx < testLoopCount; ++idx)
-                alloctorPtrs[idx] = alloctor.Alloc(testBufferSize);
-
-            poolEnd = KERNEL_NS::LibTime::Now();
-
-            poolFreeStart = KERNEL_NS::LibTime::Now();
-            for(Int32 idx = 0; idx < testLoopCount; ++idx)
-                alloctor.Free(alloctorPtrs[idx]);
-
-            poolFreeEnd = KERNEL_NS::LibTime::Now();
-            alloctorPtrs.clear();
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 2 speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lf ns, alloctor info:%s")
-                        , testBufferSize, testLoopCount, (poolEnd - poolStart).GetTotalNanoSeconds(), ((double)(poolEnd - poolStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST pool alloc 2 free speed blockSize:%llu, test count:%d, pool total cost:%lld ns, unit cost:%lf ns, alloctor info:%s")
-                        , testBufferSize, testLoopCount, (poolFreeEnd - poolFreeStart).GetTotalNanoSeconds(), ((double)(poolFreeEnd - poolFreeStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount), alloctor.ToString().c_str());
-        }
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 1 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%lf ns")
+                        , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), ((double)(sysEnd - sysStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount));
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 1 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%lf ns")
+                        , testBufferSize, testLoopCount, (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds(), ((double)(sysFreeEnd - sysFreeStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount));
         
-        auto sysStart = KERNEL_NS::LibTime::Now();
-        for(Int32 idx = 0; idx < testLoopCount; ++idx)
-            systemPtrs.push_back(new Byte8[testBufferSize]);
-        auto sysEnd = KERNEL_NS::LibTime::Now();
+            sysStart = KERNEL_NS::LibTime::Now();
+            for(Int32 idx = 0; idx < testLoopCount; ++idx)
+                systemPtrs[idx] = new Byte8[testBufferSize];
+            sysEnd = KERNEL_NS::LibTime::Now();
 
-        auto sysFreeStart = KERNEL_NS::LibTime::Now();
-        for(Int32 idx = 0; idx < testLoopCount; ++idx)
-            delete [](systemPtrs[idx]);
-        auto sysFreeEnd = KERNEL_NS::LibTime::Now();
+            sysFreeStart = KERNEL_NS::LibTime::Now();
+            for(Int32 idx = 0; idx < testLoopCount; ++idx)
+                delete [](systemPtrs[idx]);
+            sysFreeEnd = KERNEL_NS::LibTime::Now();
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 1 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%lf ns")
-                    , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), ((double)(sysEnd - sysStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount));
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 1 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%lf ns")
-                    , testBufferSize, testLoopCount, (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds(), ((double)(sysFreeEnd - sysFreeStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount));
-    
-        sysStart = KERNEL_NS::LibTime::Now();
-        for(Int32 idx = 0; idx < testLoopCount; ++idx)
-            systemPtrs[idx] = new Byte8[testBufferSize];
-        sysEnd = KERNEL_NS::LibTime::Now();
-
-        sysFreeStart = KERNEL_NS::LibTime::Now();
-        for(Int32 idx = 0; idx < testLoopCount; ++idx)
-            delete [](systemPtrs[idx]);
-        sysFreeEnd = KERNEL_NS::LibTime::Now();
-
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 2 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%lf ns")
-                    , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), ((double)(sysEnd - sysStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount));
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 2 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%lf ns")
-                    , testBufferSize, testLoopCount, (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds(), ((double)(sysFreeEnd - sysFreeStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount));
-    
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 2 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%lf ns")
+                        , testBufferSize, testLoopCount, (sysEnd - sysStart).GetTotalNanoSeconds(), ((double)(sysEnd - sysStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount));
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMemoryAlloctor, "TEST system alloc 2 speed blockSize:%llu, test count:%d, system malloc total cost:%lld ns, unit cost:%lf ns")
+                        , testBufferSize, testLoopCount, (sysFreeEnd - sysFreeStart).GetTotalNanoSeconds(), ((double)(sysFreeEnd - sysFreeStart).GetTotalNanoSeconds()) / static_cast<Int64>(testLoopCount));
+        
+        }
+       
     }
 
     // 结论: 当分配器的Free链表有block时候其分配性能会是系统的2倍由于, 但及时没有Free链表的优化也会比系统性能略好，武罗是有加锁还是没有加锁
