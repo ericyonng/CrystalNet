@@ -32,7 +32,7 @@
 #include <kernel/comp/Timer/LibTimer.h>
 #include <kernel/comp/Variant/variant_inc.h>
 #include <kernel/comp/LibTime.h>
-#include <Kernel/comp/Timer/TimeDataComp.h>
+#include <kernel/comp/Timer/TimeDataComp.h>
 
 KERNEL_BEGIN
 
