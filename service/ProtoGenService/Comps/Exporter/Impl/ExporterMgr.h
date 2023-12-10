@@ -113,6 +113,8 @@ private:
     KERNEL_NS::LibString _cppProtocPath;    // cpp生成工具路径（相对于工具）
     KERNEL_NS::LibString _csharpProtocPath; // csharp生成工具路径（相对于工具）
     KERNEL_NS::LibString _googleProtoIncludePath;   // proto库目录
+    KERNEL_NS::LibString _ormOutPath;        // orm生成路径 (相对于工具)
+
     bool _forceGenAll;                      // 强制全部重新生成
 
     // 当前最大opcode

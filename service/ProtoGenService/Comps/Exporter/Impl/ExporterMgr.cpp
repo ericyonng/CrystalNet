@@ -129,6 +129,10 @@ Int32 ExporterMgr::_OnGlobalSysInit()
         {
             _googleProtoIncludePath = value;
         }
+        else if(key == "--orm_out")
+        {
+            _ormOutPath = value;
+        }
         else
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("unknown key:%s, value:%s"), key.c_str(), value.c_str());
@@ -2516,7 +2520,41 @@ bool ExporterMgr::_GenTsExtends()
 
 void ExporterMgr::_GenORM()
 {
+    g_Log->Custom("[PROTO GEN ORM] PROTO PATH:%s", _protoPath.c_str());
 
+    // 获取命名空间
+    auto codeAnalyzeMgr = GetService()->GetComp<KERNEL_NS::ICodeAnalyzeMgr>();
+    auto &allCodeUnit = codeAnalyzeMgr->GetAllCodeUnits();
+    const auto appName = GetServiceProxy()->GetApp()->GetAppName();
+    const auto &appFullPath = GetServiceProxy()->GetApp()->GetAppPath();
+    const auto appPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(appFullPath);
+
+    if(_ormOutPath.empty())
+        _ormOutPath = "orm_out";
+    const auto &ormRootPath = appPath  + "/" + _ormOutPath + "/";
+    KERNEL_NS::DirectoryUtil::CreateDir(ormRootPath);
+
+    for(auto iterProtoInfo : _protoNameRefProtoInfo)
+    {
+        auto protoInfo = iterProtoInfo.second;
+        for(auto iterMessageInfo : protoInfo->_messageNameRefMessageInfo)
+        {
+            auto messageInfo = iterMessageInfo.second;
+            if(!messageInfo->_enableStorage)
+                continue;
+
+            // 获取代码单元
+            const auto &codeUnitFullName = protoInfo->_packageName + messageInfo->_messageName;
+            auto codeUnit = codeAnalyzeMgr->GetCodeUnit(codeUnitFullName);
+            if(!codeUnit)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("message not in code unit codeUnitFullName:%s, message name:%s"), codeUnitFullName.c_str(), messageInfo->_messageName.c_str());
+                continue;
+            }
+
+            // 
+        }
+    }
 }
 
 bool ExporterMgr::_GrammarAnalyze()

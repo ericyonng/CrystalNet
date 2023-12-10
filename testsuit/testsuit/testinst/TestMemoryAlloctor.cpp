@@ -611,7 +611,7 @@ void TestMemoryAlloctor::Run()
     }
 
     {
-        // 正常的分配释放
+        // 正常的分配释放 结论: 库的性能是10ns每次（除了第一次略高100ns左右）, 系统性能是38ns左右(系统第一次也偏高600ns左右)
         for(Int32 loopCount = 0; loopCount < 100; ++loopCount)
         {
             std::vector<void *> alloctorPtrs;
