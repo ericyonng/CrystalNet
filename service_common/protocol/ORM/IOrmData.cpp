@@ -98,7 +98,7 @@ void IOrmData::_MaskDirty(bool isForce)
 
     _lastMaskDirtyTime = KERNEL_NS::LibTime::NowNanoTimestamp();
 
-    if(!isDirty && _maskDirtyCb || isForce)
+    if((!isDirty && _maskDirtyCb) || isForce)
         _maskDirtyCb->Invoke(this);
 }
 

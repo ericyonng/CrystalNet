@@ -195,14 +195,12 @@ function include_libfs(do_post_build, add_protobuflib)
         filter { "system:windows", "configurations:debug*" }
             links {
                 "libprotobufd",
-                "libprotocd",
                 "miniz",
             }
         filter {}
         filter { "system:windows", "configurations:release*" }
             links {
                 "libprotobuf",
-                "libprotoc",
                 "miniz",
             }
         filter {}
@@ -210,14 +208,12 @@ function include_libfs(do_post_build, add_protobuflib)
         filter { "system:not windows", "configurations:debug*" }
         links {
             "protobufd:static",
-            "protocd:static",
             "miniz:static",
         }
         filter {}
         filter { "system:not windows", "configurations:release*" }
             links {
                 "protobuf:static",
-                "protoc:static",
                 "miniz:static",
             }
         filter {}

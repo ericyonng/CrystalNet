@@ -92,7 +92,7 @@ void MessageInfo::FieldsFromAnnotations(Int32 &maxOpcode)
         if(kv.first == ProtobufMessageParam::EnableStorage)
         {
             const auto &v = kv.second.strip().tolower();
-            _enableStorage = ((v.size() == 0) ? "true" : (v == "true"));
+            _enableStorage = ((v.size() == 0) ? true : (v == "true"));
         }
     }
 }
