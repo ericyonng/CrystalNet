@@ -2648,7 +2648,6 @@ bool ExporterMgr::_GenORM()
 
     // 获取命名空间
     auto codeAnalyzeMgr = GetService()->GetComp<KERNEL_NS::ICodeAnalyzeMgr>();
-    auto &allCodeUnit = codeAnalyzeMgr->GetAllCodeUnits();
     const auto appName = GetServiceProxy()->GetApp()->GetAppName();
     const auto &appFullPath = GetServiceProxy()->GetApp()->GetAppPath();
     const auto appPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(appFullPath);
