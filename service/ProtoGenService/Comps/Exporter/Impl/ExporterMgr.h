@@ -31,12 +31,21 @@
 
 #include <service/ProtoGenService/Comps/Exporter/Interface/IExporterMgr.h>
 #include <service/ProtoGenService/Comps/Exporter/Defs/PbRawInfo.h>
+#include <service/ProtoGenService/Comps/Exporter/Defs/Orm.h>
+
+KERNEL_BEGIN
+
+class CodeUnit;
+
+KERNEL_END
+
 
 SERVICE_BEGIN
 
 struct ProtoContentInfo;
 struct PbCacheFileContent;
 struct PbCacheFileInfo;
+struct CodeUnitTopologyTreeNode;
 
 class ExporterMgr : public IExporterMgr
 {
@@ -82,7 +91,20 @@ protected:
     bool _GenTsExtends();
 
     // 生成ORM
-    void _GenORM();
+    bool _LoadOrmCache();
+    bool _GenORM();
+    bool _GenOrmHeader(const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName, KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit);
+    bool _GenOrmHeaderInterface(const KERNEL_NS::LibString &nameSapce, const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName
+    , KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit, std::vector<KERNEL_NS::LibString> &headerCodeLines
+    , std::set<Int32> &preDeclareTypes, std::vector<KERNEL_NS::LibString> &googlePre, std::vector<KERNEL_NS::LibString> &protobufPreDeclare, std::vector<KERNEL_NS::LibString> &serviceCommonPreDeclare
+    ,  std::vector<KERNEL_NS::LibString> &stdLibs);
+    
+    bool _GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName, KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit);
+    void _CreateFieldOrmData(const KERNEL_NS::LibString &fieldName, const KERNEL_NS::LibString &fieldDataType, std::vector<KERNEL_NS::LibString> &lines) const;
+    void _CreateVarOrmData(const KERNEL_NS::LibString &varName, const KERNEL_NS::LibString &pbName, const KERNEL_NS::LibString &varDataType, std::vector<KERNEL_NS::LibString> &lines) const;
+    void _CreateFieldOrmDataArray(const KERNEL_NS::LibString &fieldName, const KERNEL_NS::LibString &fieldDataType, std::vector<KERNEL_NS::LibString> &lines) const;
+    bool _GenOrmHeaderInterfaceImpl(const KERNEL_NS::LibString &nameSapce, const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName, KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit, std::vector<KERNEL_NS::LibString> &implCodeLines);
+    void _UpdateOrmCache();
 
     // protobuf语法分析
     bool _GrammarAnalyze();
@@ -132,6 +154,23 @@ private:
 
     // protobuf基本数据类型
     std::set<KERNEL_NS::LibString> _protobufBaseDataType;
+
+    // 文件的import依赖
+    std::map<KERNEL_NS::LibString, std::vector<KERNEL_NS::LibString>> _fullPathRefImportFilePath;
+
+    // orm信息
+    std::map<KERNEL_NS::LibString, OrmInfo> _typeNameRefOrmInfo;
+
+    Int64 _maxOrmId;
+
+    bool _isOrmCacheDirty;
+
+    // 扫描所有需要storage的
+    std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release>> _codeUnits;
+    // 文件为单位的类型拓扑
+    std::map<KERNEL_NS::LibString, std::vector<KERNEL_NS::SmartPtr<CodeUnitTopologyTreeNode>>> _fileRefTreeNode;
+    // 所有
+    std::map<KERNEL_NS::LibString, KERNEL_NS::SmartPtr<CodeUnitTopologyTreeNode>> _classRefTreeNode;
 };
 
 SERVICE_END

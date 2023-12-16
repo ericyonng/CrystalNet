@@ -248,7 +248,7 @@ bool PbCacheFileContent::LoadPbCache(const KERNEL_NS::LibString &pbcacheFile, In
 
 bool PbCacheFileContent::UpdatePbCache(const KERNEL_NS::LibString &pbcacheFile)
 {
-    return KERNEL_NS::FileUtil::ReplaceFile(pbcacheFile, _lineRefContent);
+    return KERNEL_NS::FileUtil::ReplaceFileBy(pbcacheFile, _lineRefContent);
 }
 
 bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibString &lineData, bool &isContinue, Int32 &maxOpcode, std::set<Int32> &opcodeFilter)

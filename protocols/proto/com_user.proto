@@ -36,6 +36,36 @@ message UserBaseInfo
     sint64 LastPassDayTime = 15;
 }
 
+message TestCustomData
+{
+    int32 TestInt = 1;
+}
+
+/// EnableStorage:true
+message TestOrm
+{
+    int32 TestInt = 1;
+
+    string TestString = 2;
+
+    repeated int32 TestIntArray = 3;
+
+    repeated string TestStringArray = 4;
+
+    TestCustomData TestCustom = 5;
+
+    repeated TestCustomData TestCustomArray = 6;
+
+    oneof TestOneOf
+    {
+        int32 TestOneOfInt = 7;
+
+        string TestOneOfString = 8;
+
+        TestCustomData TestOneOfCustom = 9;
+    }
+}
+
 // 登录模式
 message LoginMode
 {

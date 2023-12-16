@@ -44,6 +44,53 @@
 
 #include <OptionComp/CodeAnalyze/CodeAnalyze.h>
 
+#include <vector>
+
+#include <service/ProtoGenService/Comps/Exporter/Defs/TopologyTree.h>
+
+// SERVICE_COMMON_BEGIN
+
+// class Borm : public IOrmData
+// {
+// public:
+//     Borm()
+//     {
+//         IOrmData *b;
+//         b->SetMaskDirtyCallback([this](IOrmData *b){
+//             _MaskDirty();
+//         });
+//     }
+// };
+
+// SERVICE_COMMON_END
+
+namespace
+{
+    class PredeclareType
+    {
+    public:
+        enum ENUMS
+        {
+            UNKNOWN = 0,
+
+            RepeatedField,
+
+            RepeatedPtrField,
+        };
+    };
+
+    class StdLibsType
+    {
+    public:
+        enum ENUMS
+        {
+            UNKNOWN = 0,
+            STRING, 
+            VECTOR,
+        };
+    };
+};
+
 SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IExporterMgr);
@@ -56,6 +103,8 @@ _forceGenAll(false)
 ,_maxOpcode(0)
 ,_pbCacheContent(NULL)
 ,_closeServiceStub(INVALID_LISTENER_STUB)
+,_maxOrmId(0)
+,_isOrmCacheDirty(false)
 {
 
 }
@@ -189,6 +238,7 @@ Int32 ExporterMgr::_OnGlobalSysInit()
     _protobufBaseDataType.insert("uint32");
     _protobufBaseDataType.insert("uint64");
     _protobufBaseDataType.insert("sint32");
+    _protobufBaseDataType.insert("int64");
     _protobufBaseDataType.insert("sint64");
     _protobufBaseDataType.insert("fixed32");
     _protobufBaseDataType.insert("fixed64");
@@ -249,7 +299,11 @@ Int32 ExporterMgr::_OnHostStart()
             _GenAllPbs();
 
             // 语法分析
-            _GrammarAnalyze();
+            if(!_GrammarAnalyze())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("_GrammarAnalyze fail."));
+                break;
+            }
             
             // 5.生成ts信息
             if(!_GenTs())
@@ -261,8 +315,22 @@ Int32 ExporterMgr::_OnHostStart()
             // 生成ts
             _GenTsExtends();
 
+            // 加载orm缓存数据
+            if(!_LoadOrmCache())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("load orm cache fail."));
+                break;
+            }
+
             // 生成ORM相关代码
-            _GenORM();
+            if(!_GenORM())
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("gen orm fail."));
+                break;
+            }
+
+            if(_isOrmCacheDirty)
+                _UpdateOrmCache();
 
             // 强制更新以及带谷歌proto目录的需要给每个cc添加pch.h 不需要了
             // if(!_googleProtoIncludePath.empty() && _forceGenAll)
@@ -450,7 +518,7 @@ bool ExporterMgr::_GenCplusplus()
             fp.pop();
 
             // 4.用新内容替换文件
-            if(!KERNEL_NS::FileUtil::ReplaceFile(pbHeaderName, lineContents))
+            if(!KERNEL_NS::FileUtil::ReplaceFileBy(pbHeaderName, lineContents))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("replace file fail:%s"), pbHeaderName.c_str());
                 return false;
@@ -493,7 +561,7 @@ bool ExporterMgr::_GenCplusplus()
             fp.pop();
 
             // 4.用新内容替换文件
-            if(!KERNEL_NS::FileUtil::ReplaceFile(pbCCName, lineContents))
+            if(!KERNEL_NS::FileUtil::ReplaceFileBy(pbCCName, lineContents))
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("replace file fail:%s"), pbCCName.c_str());
                 return false;
@@ -1406,7 +1474,7 @@ void ExporterMgr::_GenOpcodeEnums()
         lines.push_back("");
 
         const auto opcodeEnums = _protocolsPath + "/OpcodeEnums.h";
-        if(!KERNEL_NS::FileUtil::ReplaceFile(opcodeEnums, lines))
+        if(!KERNEL_NS::FileUtil::ReplaceFileBy(opcodeEnums, lines))
         {
             g_Log->Custom("[PROTO GEN CPP] OPCODE ENUMS FAILED.");
         }
@@ -1455,7 +1523,7 @@ void ExporterMgr::_GenOpcodeEnums()
         lines.push_back("");
 
         const auto opcodeEnums = _protocolsPath + "/csharp_common/csharp_common/ProtoPackage/PacketOpcode.cs";
-        if(!KERNEL_NS::FileUtil::ReplaceFile(opcodeEnums, lines))
+        if(!KERNEL_NS::FileUtil::ReplaceFileBy(opcodeEnums, lines))
         {
             g_Log->Custom("[PROTO GEN CSHARP] OPCODE ENUMS FAILED.");
         }
@@ -1521,7 +1589,7 @@ void ExporterMgr::_GenOpcodeInfo()
         lines.push_back("");
     }
 
-    if(!KERNEL_NS::FileUtil::ReplaceFile(opcodeInfoHeader, lines))
+    if(!KERNEL_NS::FileUtil::ReplaceFileBy(opcodeInfoHeader, lines))
     {
         g_Log->Custom("[PROTO GEN] OPCODE INFO FAILED.");
         return;
@@ -1577,7 +1645,7 @@ void ExporterMgr::_GenAllPbs()
     lines.push_back("#endif // __PROTOCOLS_ALLPBS_H__");
     lines.push_back("");
 
-    if(!KERNEL_NS::FileUtil::ReplaceFile(opcodeInfoHeader, lines))
+    if(!KERNEL_NS::FileUtil::ReplaceFileBy(opcodeInfoHeader, lines))
     {
         g_Log->Custom("[PROTO GEN] ALL PBS HEADER FAILED.");
         return;
@@ -1639,7 +1707,7 @@ void ExporterMgr::_GenAllPbs()
 //             if(!isFound && !lines.empty())
 //                 lines.insert(lines.begin(), "#include <pch.h>");
 
-//             if(!KERNEL_NS::FileUtil::ReplaceFile(fullFilePath, lines))
+//             if(!KERNEL_NS::FileUtil::ReplaceFileBy(fullFilePath, lines))
 //                 g_Log->Warn(LOGFMT_OBJ_TAG("replace file with new lines fail:%s"), fullFilePath.c_str());
 
 //         } while (false);
@@ -1773,7 +1841,7 @@ bool ExporterMgr::_GenCSharp()
         fp.pop();
 
         // 4.用新内容替换文件
-        if(!KERNEL_NS::FileUtil::ReplaceFile(wholeCSharpName, lineContents))
+        if(!KERNEL_NS::FileUtil::ReplaceFileBy(wholeCSharpName, lineContents))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("replace file fail:%s"), wholeCSharpName.c_str());
             return false;
@@ -1945,7 +2013,7 @@ bool ExporterMgr::_GenTs()
     lines.push_back("    }");
     lines.push_back("}");
     
-    if(!KERNEL_NS::FileUtil::ReplaceFile(tsPbInfoFile, lines))
+    if(!KERNEL_NS::FileUtil::ReplaceFileBy(tsPbInfoFile, lines))
     {
         g_Log->Custom("[PROTO GEN] TS INFO FAILED.");
         return false;
@@ -2263,7 +2331,7 @@ bool ExporterMgr::_GenTsExtends()
         lines.push_back("");
         lines.push_back("}");
 
-        if(!KERNEL_NS::FileUtil::ReplaceFile(tsPbInfoFile, lines))
+        if(!KERNEL_NS::FileUtil::ReplaceFileBy(tsPbInfoFile, lines))
         {
             g_Log->Custom("[PROTO GEN TYPESCRIPT] %s.ts FAILED.", namespaceStr.c_str());
             return false;
@@ -2494,7 +2562,7 @@ bool ExporterMgr::_GenTsExtends()
         lines.push_back("");
         lines.push_back("}");
 
-        if(!KERNEL_NS::FileUtil::ReplaceFile(tsPbInfoFile, lines))
+        if(!KERNEL_NS::FileUtil::ReplaceFileBy(tsPbInfoFile, lines))
         {
             g_Log->Custom("[PROTO GEN TYPESCRIPT] %s.ts FAILED.", namespaceStr.c_str());
             return false;
@@ -2517,8 +2585,64 @@ bool ExporterMgr::_GenTsExtends()
     return true;
 }
 
+bool ExporterMgr::_LoadOrmCache()
+{
+    const auto appName = GetServiceProxy()->GetApp()->GetAppName();
+    const auto &appFullPath = GetServiceProxy()->GetApp()->GetAppPath();
+    const auto appPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(appFullPath);
 
-void ExporterMgr::_GenORM()
+    if(_ormOutPath.empty())
+        _ormOutPath = "orm_out";
+    const auto &ormRootPath = appPath  + "/" + _protocolsPath + _ormOutPath + "/";
+    KERNEL_NS::DirectoryUtil::CreateDir(ormRootPath);
+
+    const auto cacheFilePath = ormRootPath + "orm_cache.orm";
+    g_Log->Custom("[PROTO GEN ORM] LOAD ORM CACHE:%s...", cacheFilePath.c_str());
+
+    KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(cacheFilePath.c_str(), false, "rb");
+    if(!fp)
+        return true;
+
+    fp.SetClosureDelegate([](void *ptr){
+
+        g_Log->Custom("[PROTO GEN ORM] LOAD ORM CACHE FINISH");
+
+        KERNEL_NS::FileUtil::CloseFile(*KERNEL_NS::KernelCastTo<FILE>(ptr));
+    });
+
+    std::vector<KERNEL_NS::LibString> lines;
+    KERNEL_NS::FileUtil::ReadUtf8File(*fp, lines);
+
+    for(auto &lineData : lines)
+    {
+        auto parts = lineData.Split('|');
+
+        OrmInfo cache;
+        for(Int32 idx = 0; idx < static_cast<Int32>(parts.size()); ++idx)
+        {
+            auto &part = parts[idx];
+            switch (idx)
+            {
+            case 0:
+            {
+                cache._ormTypeName = part.strip();
+            }break;
+            case 1:
+            {
+                cache._ormId = KERNEL_NS::StringUtil::StringToInt64(part.c_str());
+            }break;
+            default:
+                break;
+            }
+        }
+
+        _typeNameRefOrmInfo.insert(std::make_pair(cache._ormTypeName, cache));
+    }
+
+    return true;
+}
+
+bool ExporterMgr::_GenORM()
 {
     g_Log->Custom("[PROTO GEN ORM] PROTO PATH:%s", _protoPath.c_str());
 
@@ -2528,23 +2652,24 @@ void ExporterMgr::_GenORM()
     const auto appName = GetServiceProxy()->GetApp()->GetAppName();
     const auto &appFullPath = GetServiceProxy()->GetApp()->GetAppPath();
     const auto appPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(appFullPath);
+    const auto fullProtoPath = appPath + _protoPath;
 
     if(_ormOutPath.empty())
         _ormOutPath = "orm_out";
-    const auto &ormRootPath = appPath  + "/" + _ormOutPath + "/";
+    const auto &ormRootPath = appPath  + "/" + _protocolsPath + _ormOutPath + "/";
     KERNEL_NS::DirectoryUtil::CreateDir(ormRootPath);
 
+    // 类型拓扑树
     for(auto iterProtoInfo : _protoNameRefProtoInfo)
     {
         auto protoInfo = iterProtoInfo.second;
         for(auto iterMessageInfo : protoInfo->_messageNameRefMessageInfo)
         {
             auto messageInfo = iterMessageInfo.second;
-            if(!messageInfo->_enableStorage)
-                continue;
 
             // 获取代码单元
-            const auto &codeUnitFullName = protoInfo->_packageName + messageInfo->_messageName;
+            auto packageName = protoInfo->_packageName;
+            const auto &codeUnitFullName = packageName.findreplace("::", ".") + messageInfo->_messageName;
             auto codeUnit = codeAnalyzeMgr->GetCodeUnit(codeUnitFullName);
             if(!codeUnit)
             {
@@ -2552,9 +2677,1530 @@ void ExporterMgr::_GenORM()
                 continue;
             }
 
-            // 
+            if(messageInfo->_enableStorage)
+                _codeUnits.push_back(codeUnit);
+
+            KERNEL_NS::SmartPtr<CodeUnitTopologyTreeNode> newNode(new CodeUnitTopologyTreeNode);
+            newNode->_codeUnit = codeUnit;
+
+            auto rootPath = appPath + protoInfo->_fullPathName;
+            auto relationPath = _cppOutPath - _basePath + KERNEL_NS::DirectoryUtil::GetFileDirInPath(rootPath - fullProtoPath);
+            const auto protoFileName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(protoInfo->_protoInfo._fileName);
+
+            newNode->_includeFilePath.AppendFormat("%s%s.pb.h", relationPath.c_str(), protoFileName.c_str());
+            _classRefTreeNode.insert(std::make_pair(codeUnit->GetFullName(), newNode));
+
+            auto iter = _fileRefTreeNode.find(codeUnit->_fileName);
+            if(iter == _fileRefTreeNode.end())
+                iter = _fileRefTreeNode.insert(std::make_pair(codeUnit->_fullPath, std::vector<KERNEL_NS::SmartPtr<CodeUnitTopologyTreeNode>>())).first;
+
+            iter->second.push_back(newNode);
         }
     }
+
+    // 依赖扫描 :TODO:依赖如果脏了可以通过回调把宿主设置脏
+    std::vector<KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release>> dependences;
+    for(auto &codeUnit : _codeUnits)
+    {
+        auto iterTreeNode = _classRefTreeNode.find(codeUnit->GetFullName());
+        auto &treeNode = iterTreeNode->second;
+        for(auto &subCodeUnit : codeUnit->_subCodeUnits)
+        {
+            // 命名空间跳过
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::NAMESPACE_FLAG))
+                continue;
+            
+            // 数据类型定义跳过
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::DATA_TYPE_DEFINE_FLAG))
+                continue;    
+
+            // 非自定义类型的跳过
+            if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
+                continue;
+
+            // 不需要
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, CodeUnitFlagsExt::ONEOF_FIELD_FLAG))
+                continue;
+
+            const auto &subCodeUnitName = subCodeUnit->GetDataTypeAsField();
+            auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnitName);
+            if(iterSubTreeNode == _classRefTreeNode.end())
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("sub code unit not found:%s, when scan code unit:%s"), subCodeUnitName.c_str(), codeUnit->GetFullName().c_str());
+                return false;
+            }
+
+            bool isExists = false;
+            for(auto &depend : dependences)
+            {
+                if(depend->GetFullName() == subCodeUnitName)
+                {
+                    isExists = true;
+                    break;
+                }
+            }
+
+            if(!isExists)
+                dependences.push_back(iterSubTreeNode->second->_codeUnit);
+
+            isExists = false;
+            for(auto &dependence : treeNode->_dependences)
+            {
+                if(dependence->_codeUnit->GetFullName() == subCodeUnitName)
+                {
+                    isExists = true;
+                    break;
+                }
+            }
+            
+            if(!isExists)
+                treeNode->_dependences.push_back(iterSubTreeNode->second);
+        }
+    }
+
+    // 合并依赖到要生成的队列
+    for(auto &depend : dependences)
+    {
+        bool isExists = false;
+        for(auto &codeUnit : _codeUnits)
+        {
+            if(codeUnit->GetFullName() == depend->GetFullName())
+            {
+                isExists = true;
+                break;
+            }
+        }
+
+        if(isExists)
+            continue;
+        
+        _codeUnits.push_back(depend);
+    }
+
+    // 生成代码
+    for(auto &codeUnit : _codeUnits)
+    {
+        if(!_GenOrmHeader(ormRootPath,  appName, codeUnit))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("_GenOrmHeader fail class :%s"), codeUnit->_unitName.c_str());
+            return false;
+        }
+
+        if(!_GenOrmImpl(ormRootPath, appName, codeUnit))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("_GenOrmHeader fail class :%s"), codeUnit->_unitName.c_str());
+            return false;
+        }
+
+        g_Log->Custom("[PROTO GEN ORM] %s", codeUnit->_unitName.c_str());
+    }
+
+    g_Log->Custom("[PROTO GEN ORM] FINISH");
+
+    return true;
+}
+
+bool ExporterMgr::_GenOrmHeader(const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName, KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit)
+{
+    // 文件头部分
+    std::vector<KERNEL_NS::LibString> headerPreLines;
+    // 前置类型声明
+    std::vector<KERNEL_NS::LibString> headerPreDeclare;
+    // pb的前置声明
+    std::vector<KERNEL_NS::LibString> protobufPreDeclare;
+    // service 前置声明
+    std::vector<KERNEL_NS::LibString> googlePre;
+    // service common前置声明
+    std::vector<KERNEL_NS::LibString> serviceCommonPreDeclare;
+    // 标准库
+    std::vector<KERNEL_NS::LibString> stdLibs;
+    // 前置声明类型
+    std::set<Int32> preDeclareTypes;
+    // 类型代码
+    std::vector<KERNEL_NS::LibString> headerCodeLines;
+    // 文件尾
+    std::vector<KERNEL_NS::LibString> headerTail;
+    // 命名空间
+    auto &&nameSpace = codeUnit->GetBelongToArea("::");
+    nameSpace.findreplace(".", "::");
+    const auto &nameSpaceParts = nameSpace.Split("::");
+
+    const auto fileHeader = _FileHeader(KERNEL_NS::LibTime::Now(), KERNEL_NS::LibString().AppendFormat("Generated By %s, Dont Modify This File!!!", appName.c_str()));
+    headerPreLines.push_back(fileHeader);
+    headerPreLines.push_back(KERNEL_NS::LibString());
+
+    // 宏
+    KERNEL_NS::LibString fileMacro;
+    auto ormOutPath = _ormOutPath;
+    ormOutPath.findreplace("/", '_');
+    ormOutPath.findreplace("//", '_');
+    ormOutPath.findreplace("\\", '_');
+    ormOutPath.findreplace("\\\\", '_');
+    ormOutPath = ormOutPath.toupper();
+
+    const auto &messageName = codeUnit->_unitName + "OrmData";
+    fileMacro.AppendFormat("__%s_%s_H__", ormOutPath.c_str(), messageName.toupper().c_str());
+    headerPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#ifndef %s", fileMacro.c_str()));
+    headerPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#define %s", fileMacro.c_str()));
+    headerPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#pragma once"));
+
+    headerPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#include <kernel/kernel.h>"));
+    headerPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#include <service_common/protocol/ORM/IOrmData.h>"));
+
+    protobufPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("class %s;", codeUnit->_unitName.c_str()));
+
+    // 类型
+    const auto &fullName = codeUnit->GetFullName();
+
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("SERVICE_COMMON_BEGIN"));
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("class %s : public SERVICE_COMMON_NS::IOrmData", messageName.c_str()));
+
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    POOL_CREATE_OBJ_DEFAULT_P1(IOrmData, %s)", messageName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("public:"));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    %s();", messageName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    %s(::%s::%s *pb);", messageName.c_str(), nameSpace.c_str(), codeUnit->_unitName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    ~%s();", messageName.c_str()));
+
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual void Release() override;"));
+
+    auto iterOrmInfo = _typeNameRefOrmInfo.find(fullName);
+    Int64 ormId = 0;
+    if(iterOrmInfo == _typeNameRefOrmInfo.end())
+    {
+        _isOrmCacheDirty = true;
+        OrmInfo ormInfo;
+        ormInfo._ormTypeName = fullName;
+        ormInfo._ormId = ++_maxOrmId;
+        iterOrmInfo = _typeNameRefOrmInfo.insert(std::make_pair(fullName, ormInfo)).first;
+    }
+    
+    ormId = iterOrmInfo->second._ormId;
+
+    // 生成get/set接口
+    // GetOrmId
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual Int64 GetOrmId() const override{ return %lld; }", ormId));
+
+    // 生成自定义类型的mutable方法 TODO:如果子字段是数组,子字段如果是普通类型的数组, 则需要添加 add接口, size接口, mutable接口,访问, 普通的mutable需要标脏(因为普通mutable是不会包装的而是赤裸的给出原始数据, 所以需要直接标脏) 那么就弄成std::vector<IOrmData>来处理, 它的dirty, 就是每个子元素的dirty, 数组只暴露 mutable_xxx(int index)和add_xxx(), 以及xxx_size()接口, 其他不暴露
+    if(!_GenOrmHeaderInterface(nameSpace, ormRootPath, appName, codeUnit, headerCodeLines, preDeclareTypes, googlePre, protobufPreDeclare, serviceCommonPreDeclare, stdLibs))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("_GenOrmHeaderInterface fail code unit:%s, file:%s"), codeUnit->_unitName.c_str(), codeUnit->_fileName.c_str());
+        return false;
+    }
+
+    // 内部接口
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("protected:"));
+
+    // 编码成字节流
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual bool _OnEncode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override;"));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual bool _OnEncode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override;"));
+
+    // 反编码
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual bool _OnDecode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override;"));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual bool _OnDecode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override;"));
+
+    // _AttachPb
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual void _AttachPb(void *pb) override;"));
+
+    // 数据成员
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("private:"));
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+    // protobuf 数据
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    ::%s::%s *_ormRawPbData;", nameSpace.c_str(), codeUnit->_unitName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+    // 自定义类型的子成员 TODO:如果子字段是数组, 那么就弄成std::vector<IOrmData>来处理, 它的dirty, 就是每个子元素的dirty, 数组只暴露 mutable_xxx(int index)和add_xxx(), 以及xxx_size()接口, 其他不暴露
+    for(auto &subCodeUnit : codeUnit->_subCodeUnits)
+    {
+        // 命名空间跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::NAMESPACE_FLAG))
+            continue;
+        
+        // 数据类型定义跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::DATA_TYPE_DEFINE_FLAG))
+            continue;    
+
+        // 非自定义类型的跳过
+        if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
+            continue;
+
+        auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
+        auto &subTreeNode = iterSubTreeNode->second;
+
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
+        {
+            headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    std::vector<KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete>> _%s;"
+            , (subTreeNode->_codeUnit->_unitName + "OrmData").c_str(), subCodeUnit->_unitName.tolower().c_str()));
+            headerCodeLines.push_back(KERNEL_NS::LibString());
+        }
+        else
+        {
+            headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> _%s;"
+            , (subTreeNode->_codeUnit->_unitName + "OrmData").c_str(), subCodeUnit->_unitName.tolower().c_str()));
+            headerCodeLines.push_back(KERNEL_NS::LibString());
+        }
+    }
+    
+    // 结束
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("};"));
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+    // factory
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("class %sFactory : public IOrmDataFactory", messageName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    POOL_CREATE_OBJ_DEFAULT_P1(IOrmDataFactory, %sFactory);", messageName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("public:"));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    %sFactory(){}", messageName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    ~%sFactory(){}", messageName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual void Release() override { %sFactory::DeleteThreadLocal_%sFactory(this);}", messageName.c_str(), messageName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual IOrmData *Create() const override;"));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    virtual Int64 GetOrmId() const override { return %lld; }", ormId));
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("};"));
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("SERVICE_COMMON_END"));
+
+    headerTail.push_back(KERNEL_NS::LibString().AppendFormat("#endif // %s", fileMacro.c_str()));
+
+    // 标准库
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+    for(auto &lineData : stdLibs)
+        headerPreDeclare.push_back(lineData);
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+
+    // pb 前置声明
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+    for(auto &part : nameSpaceParts)
+    {
+        if(part.empty())
+            continue;
+
+        headerPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("namespace %s {", part.c_str()));
+    }
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+
+    for(auto &lineData : protobufPreDeclare)
+        headerPreDeclare.push_back(lineData);
+
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+
+    for(auto &part : nameSpaceParts)
+    {
+        if(part.empty())
+            continue;
+
+        headerPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    }
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+
+    headerPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("namespace google {"));
+    headerPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("    namespace protobuf {"));
+
+    for(auto &part : googlePre)
+        headerPreDeclare.push_back(part);
+
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+    headerPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
+    headerPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+
+    // SERVICE_COMMON 的前置声明
+    headerPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("SERVICE_COMMON_BEGIN"));
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+
+    for(auto &lineData : serviceCommonPreDeclare)
+        headerPreDeclare.push_back(lineData);
+
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+    headerPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("SERVICE_COMMON_END"));
+    headerPreDeclare.push_back(KERNEL_NS::LibString());
+
+    // 组装成lines
+    std::vector<KERNEL_NS::LibString> finalLines;
+    for(auto &lineData : headerPreLines)
+        finalLines.push_back(lineData);
+    for(auto &lineData : headerPreDeclare)
+        finalLines.push_back(lineData);
+    for(auto &lineData : headerCodeLines)
+        finalLines.push_back(lineData);
+    for(auto &lineData : headerTail)
+        finalLines.push_back(lineData);
+
+    const KERNEL_NS::LibString filePath = ormRootPath + messageName + ".h";
+    if(!KERNEL_NS::FileUtil::ReplaceFileBy(filePath, finalLines))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("replace file fail %s"), filePath.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool ExporterMgr::_GenOrmHeaderInterface(const KERNEL_NS::LibString &nameSapce, const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName
+, KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit, std::vector<KERNEL_NS::LibString> &headerCodeLines
+, std::set<Int32> &preDeclareTypes, std::vector<KERNEL_NS::LibString> &googlePre, std::vector<KERNEL_NS::LibString> &protobufPreDeclare, std::vector<KERNEL_NS::LibString> &serviceCommonPreDeclare
+,  std::vector<KERNEL_NS::LibString> &stdLibs)
+{
+    // pb const接口
+    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const ::%s::%s *GetPbRawData() const;"
+    , nameSapce.c_str(), codeUnit->_unitName.c_str()));
+    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+    std::set<Int32> stdLibTypes;
+    std::set<Int32> googlePreType;
+    std::set<KERNEL_NS::LibString> serviceCommon;
+    std::set<KERNEL_NS::LibString> servicePre;
+    std::set<KERNEL_NS::LibString> pbPreDecType;
+
+    // 生成自定义类型的mutable方法 TODO:如果子字段是数组,子字段如果是普通类型的数组, 则需要添加 add接口, size接口, mutable接口,访问, 普通的mutable需要标脏(因为普通mutable是不会包装的而是赤裸的给出原始数据, 所以需要直接标脏) 那么就弄成std::vector<IOrmData>来处理, 它的dirty, 就是每个子元素的dirty, 数组只暴露 mutable_xxx(int index)和add_xxx(), 以及xxx_size()接口, 其他不暴露
+    for(auto &subCodeUnit : codeUnit->_subCodeUnits)
+    {
+        // 命名空间跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::NAMESPACE_FLAG))
+            continue;
+        
+        // 数据类型定义跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::DATA_TYPE_DEFINE_FLAG))
+            continue;    
+
+        // 数组
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
+        {
+            if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG) && 
+               !KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::SIMPLE_TYPE_FIELD_FLAG))
+                continue;
+
+            if(stdLibTypes.find(StdLibsType::VECTOR) == stdLibTypes.end())
+            {
+                stdLibTypes.insert(StdLibsType::VECTOR);
+                stdLibs.push_back(KERNEL_NS::LibString().AppendFormat("#include <vector>"));
+            }
+
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
+            {
+                auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
+                auto &subTreeNode = iterSubTreeNode->second;
+
+                const auto &ormdDataType = subTreeNode->_codeUnit->_unitName + "OrmData";
+                const auto &subCodeFullName = subTreeNode->_codeUnit->GetFullName();
+
+                if(pbPreDecType.find(subCodeFullName) == pbPreDecType.end())
+                {
+                    pbPreDecType.insert(subCodeFullName);
+                    protobufPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("class %s;", subTreeNode->_codeUnit->_unitName.c_str()));
+                }
+
+                if(serviceCommon.find(subCodeFullName + "OrmData") == serviceCommon.end())
+                {
+                    serviceCommon.insert(subCodeFullName + "OrmData");
+
+                    serviceCommonPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("class %s;", ormdDataType.c_str()));
+                }
+
+                headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    Int32 %s_size() const;"
+                , subCodeUnit->_unitName.tolower().c_str()));
+                headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &mutable_%s(Int32 idx);"
+                , ormdDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                // 删除元素
+                headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void DeleteArray_%s(Int32 idx, Int32 count = 1);"
+                , subCodeUnit->_unitName.tolower().c_str()));
+                headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const std::vector<KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete>> &%s() const;"
+                , ormdDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &%s(Int32 idx) const;"
+                , ormdDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &add_%s();"
+                , ormdDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const ::google::protobuf::RepeatedPtrField<::%s::%s> &%s() const;"
+                , nameSapce.c_str(), subTreeNode->_codeUnit->_unitName.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                // 前置声明
+                if(googlePreType.find(PredeclareType::RepeatedPtrField) == googlePreType.end())
+                {
+                    googlePreType.insert(PredeclareType::RepeatedPtrField);
+                    googlePre.push_back(KERNEL_NS::LibString().AppendFormat("template <typename Element>"));
+                    googlePre.push_back(KERNEL_NS::LibString().AppendFormat("class RepeatedPtrField;"));
+                    googlePre.push_back(KERNEL_NS::LibString());
+                }
+
+                continue;
+            }
+
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::SIMPLE_TYPE_FIELD_FLAG))
+            {
+                const auto &pbDataType = subCodeUnit->_params[subCodeUnit->_params.size() - 1];
+                const auto &cppDataType = ProtobuffHelper::TurnProtobufBaseTypeToCppType(pbDataType);
+                if(cppDataType.empty())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("TurnProtobufBaseTypeToCppType fail pbDataType:%s, message:%s, field:%s, file:%s")
+                    , pbDataType.c_str(), codeUnit->_unitName.c_str(), subCodeUnit->_unitName.c_str(), codeUnit->_fileName.c_str());
+                    return false;
+                }
+
+                if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::STRING_FIELD_FLAG))
+                {
+                    if(stdLibTypes.find(StdLibsType::STRING) == stdLibTypes.end())
+                    {
+                        stdLibTypes.insert(StdLibsType::STRING);
+                        stdLibs.push_back(KERNEL_NS::LibString().AppendFormat("#include <string>"));
+                    }
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    Int32 %s_size() const;"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void clear_%s();"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const %s &%s(Int32 idx) const;"
+                    , cppDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void set_%s(Int32 idx, const %s &value);"
+                    , subCodeUnit->_unitName.tolower().c_str(), cppDataType.c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void set_%s(Int32 idx, %s &&value);"
+                    , subCodeUnit->_unitName.tolower().c_str(), cppDataType.c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void set_%s(Int32 idx, const Byte8 *value);"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void set_%s(Int32 idx, const Byte8 *value, size_t sz);"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    %s *add_%s();"
+                    , cppDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void add_%s(const %s &value);"
+                    , subCodeUnit->_unitName.tolower().c_str(), cppDataType.c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void add_%s(%s &&value);"
+                    , subCodeUnit->_unitName.tolower().c_str(), cppDataType.c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void add_%s(const Byte8 *value);"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void add_%s(const Byte8 *value, size_t sz);"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    // 删除元素
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void DeleteArray_%s(Int32 idx, Int32 count = 1);"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const ::google::protobuf::RepeatedPtrField<%s> &%s() const;"
+                    , cppDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    // 前置声明
+                    if(googlePreType.find(PredeclareType::RepeatedPtrField) == googlePreType.end())
+                    {
+                        googlePreType.insert(PredeclareType::RepeatedPtrField);
+                        googlePre.push_back(KERNEL_NS::LibString().AppendFormat("template <typename Element>"));
+                        googlePre.push_back(KERNEL_NS::LibString().AppendFormat("class RepeatedPtrField;"));
+                        googlePre.push_back(KERNEL_NS::LibString());
+                    }
+                }
+                else
+                {
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    Int32 %s_size() const;"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void clear_%s();"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    %s %s(Int32 idx) const;"
+                    , cppDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void set_%s(Int32 idx, %s value);"
+                    , subCodeUnit->_unitName.tolower().c_str(), cppDataType.c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void add_%s(%s value);"
+                    , subCodeUnit->_unitName.tolower().c_str(), cppDataType.c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    // 删除元素
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void DeleteArray_%s(Int32 idx, Int32 count = 1);"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    // const接口
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const ::google::protobuf::RepeatedField<%s> &%s() const;"
+                    , cppDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    // 前置声明
+                    if(googlePreType.find(PredeclareType::RepeatedField) == googlePreType.end())
+                    {
+                        googlePreType.insert(PredeclareType::RepeatedField);
+                        googlePre.push_back(KERNEL_NS::LibString().AppendFormat("template <typename Element>"));
+                        googlePre.push_back(KERNEL_NS::LibString().AppendFormat("class RepeatedField;"));
+                        googlePre.push_back(KERNEL_NS::LibString());
+                    }
+                }
+
+                continue;
+            }
+
+            continue;
+        }
+        else
+        {
+
+            if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG) && 
+               !KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::SIMPLE_TYPE_FIELD_FLAG))
+                continue;
+
+            // 非自定义类型的跳过
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
+            {
+                auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
+                auto &subTreeNode = iterSubTreeNode->second;
+                const auto &ormdDataType = subTreeNode->_codeUnit->_unitName + "OrmData";
+                const auto &subCodeFullName = subTreeNode->_codeUnit->GetFullName();
+
+                if(pbPreDecType.find(subCodeFullName) == pbPreDecType.end())
+                {
+                    pbPreDecType.insert(subCodeFullName);
+                    protobufPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("class %s;", subTreeNode->_codeUnit->_unitName.c_str()));
+
+                }
+
+                if(serviceCommon.find(subCodeFullName + "OrmData") == serviceCommon.end())
+                {
+                    serviceCommon.insert(subCodeFullName + "OrmData");
+
+                    serviceCommonPreDeclare.push_back(KERNEL_NS::LibString().AppendFormat("class %s;", ormdDataType.c_str()));
+                }
+
+                // 基本pb接口
+                {
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &mutable_%s();"
+                    , ormdDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    ::%s::%s &%s() const;"
+                    , nameSapce.c_str(), subTreeNode->_codeUnit->_unitName.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    bool has_%s() const;"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void clear_%s();"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+                }
+
+                continue;
+            }
+
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::SIMPLE_TYPE_FIELD_FLAG))
+            {
+                const auto &pbDataType = subCodeUnit->_params[subCodeUnit->_params.size() - 1];
+                const auto &cppDataType = ProtobuffHelper::TurnProtobufBaseTypeToCppType(pbDataType);
+                if(cppDataType.empty())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("TurnProtobufBaseTypeToCppType fail pbDataType:%s, message:%s, field:%s, file:%s")
+                    , pbDataType.c_str(), codeUnit->_unitName.c_str(), subCodeUnit->_unitName.c_str(), codeUnit->_fileName.c_str());
+                    return false;
+                }
+
+                if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::OPTION_FILED_FLAG))
+                {
+                    headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    bool has_%s() const;"
+                    , subCodeUnit->_unitName.tolower().c_str()));
+                    headerCodeLines.push_back(KERNEL_NS::LibString());
+                }
+
+                // string
+                if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::STRING_FIELD_FLAG))
+                {
+                    if(stdLibTypes.find(StdLibsType::STRING) == stdLibTypes.end())
+                    {
+                        stdLibTypes.insert(StdLibsType::STRING);
+                        stdLibs.push_back(KERNEL_NS::LibString().AppendFormat("#include <string>"));
+                    }
+                    
+                    // 基本pb接口
+                    {
+                        headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void clear_%s();"
+                        , subCodeUnit->_unitName.tolower().c_str()));
+                        headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                        headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const %s &%s() const;"
+                        , cppDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                        headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                        headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void set_%s(const %s &value);"
+                        , subCodeUnit->_unitName.tolower().c_str(), cppDataType.c_str()));
+                        headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                        headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    %s *mutable_%s();"
+                        , cppDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                        headerCodeLines.push_back(KERNEL_NS::LibString());
+                    }
+                }
+                else
+                {
+                    // 基本pb接口
+                    {
+                        headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void clear_%s();"
+                        , subCodeUnit->_unitName.tolower().c_str()));
+                        headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                        headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    %s %s() const;"
+                        , cppDataType.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                        headerCodeLines.push_back(KERNEL_NS::LibString());
+
+                        headerCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void set_%s(%s value);"
+                        , subCodeUnit->_unitName.tolower().c_str(), cppDataType.c_str()));
+                        headerCodeLines.push_back(KERNEL_NS::LibString());
+                    }
+                }
+
+                continue;
+            }
+
+        }
+    }
+
+    return true;
+}
+
+bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName, KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit)
+{
+    const auto &fullName = codeUnit->GetFullName();
+    auto iterClass = _classRefTreeNode.find(fullName);
+    auto &treeNode = iterClass->second;
+
+    // 文件头部分
+    std::vector<KERNEL_NS::LibString> implPreLines;
+    // 类型代码
+    std::vector<KERNEL_NS::LibString> implCodeLines;
+    const auto &messageName = codeUnit->_unitName + "OrmData";
+    // 命名空间
+    auto &&nameSpace = codeUnit->GetBelongToArea("::");
+    nameSpace.findreplace(".", "::");
+    const auto &nameSpaceParts = nameSpace.Split("::");
+
+    const auto fileHeader = _FileHeader(KERNEL_NS::LibTime::Now(), KERNEL_NS::LibString().AppendFormat("Generated By %s, Dont Modify This File!!!", appName.c_str()));
+    implPreLines.push_back(fileHeader);
+    implPreLines.push_back(KERNEL_NS::LibString());
+
+    implPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#include \"pch.h\""));
+    implPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#include <%s>", treeNode->_includeFilePath.c_str()));
+    implPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#include \"%s.h\"", messageName.c_str()));
+
+    // 依赖的头文件
+    for(auto &depend : treeNode->_dependences)
+    {
+        const auto &dependType = depend->_codeUnit->_unitName + "OrmData";
+
+        implPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#include \"%s.h\"", dependType.c_str()));
+
+        // 依赖的pb include
+        implPreLines.push_back(KERNEL_NS::LibString().AppendFormat("#include <%s>", depend->_includeFilePath.c_str()));
+    }
+
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("SERVICE_COMMON_BEGIN"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("POOL_CREATE_OBJ_DEFAULT_IMPL(%s);", messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("%s::%s()", messageName.c_str(), messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat(":_ormRawPbData(new ::%s::%s)", nameSpace.c_str(), codeUnit->_unitName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("%s::%s(::%s::%s *pb)", messageName.c_str(), messageName.c_str(), nameSpace.c_str(), codeUnit->_unitName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    AttachPb(pb);"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("%s::~%s()", messageName.c_str(), messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(LIKELY(!IsAttachPb()))"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        CRYSTAL_RELEASE_SAFE(_ormRawPbData);"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::Release()", messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    %s::DeleteThreadLocal_%s(this);", messageName.c_str(), messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    // _AttachPb
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::_AttachPb(void *pb)", messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(LIKELY(!IsAttachPb()))"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        CRYSTAL_RELEASE_SAFE(_ormRawPbData);"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData = reinterpret_cast<::%s::%s *>(pb);", nameSpace.c_str(), codeUnit->_unitName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+    // 子字段初始化
+    for(auto &subCodeUnit : codeUnit->_subCodeUnits)
+    {
+        // 命名空间跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::NAMESPACE_FLAG))
+            continue;
+        
+        // 数据类型定义跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::DATA_TYPE_DEFINE_FLAG))
+            continue;    
+
+        if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
+            continue;
+
+        auto iterSubCodeTreeNode = _classRefTreeNode.find(subCodeUnit->GetDataTypeAsField());
+        auto &subCodeTreeNode = iterSubCodeTreeNode->second;
+
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
+        {
+            const auto &subCodeUnitFieldName = subCodeUnit->_unitName.tolower();
+            auto &subFieldCodeUnit = subCodeTreeNode->_codeUnit;
+            _CreateFieldOrmDataArray(subCodeUnitFieldName, subFieldCodeUnit->_unitName + "OrmData", implCodeLines);
+        }
+        else
+        {
+            const auto &subFieldName = subCodeUnit->_unitName.tolower();
+
+            // 有该字段则创建
+            _CreateFieldOrmData(subFieldName, subCodeTreeNode->_codeUnit->_unitName + "OrmData", implCodeLines);
+        }
+
+        implCodeLines.push_back(KERNEL_NS::LibString());
+    }
+    implCodeLines.push_back(KERNEL_NS::LibString());
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    // 成员必备接口
+    if(!_GenOrmHeaderInterfaceImpl(nameSpace, ormRootPath, appName, codeUnit, implCodeLines))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("_GenOrmHeaderInterfaceImpl fail coude unit:%s, file:%s"), codeUnit->_unitName.c_str(), codeUnit->_fileName.c_str());
+        return false;
+    }
+
+    // 编码成字节流
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("bool %s::_OnEncode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const", messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->Encode(stream);"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("bool %s::_OnEncode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const", messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->Encode(stream);"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    // 反编码
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("bool %s::_OnDecode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream)", messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const auto ret = _ormRawPbData->Decode(stream);"));
+    
+    bool hasSubCodeUnit = false;
+    std::vector<KERNEL_NS::LibString> subCodeLines;
+    // TODO:如果有依赖字段的需要在这里列出来
+    for(auto &subCodeUnit : codeUnit->_subCodeUnits)
+    {
+        // 命名空间跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::NAMESPACE_FLAG))
+            continue;
+        
+        // 数据类型定义跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::DATA_TYPE_DEFINE_FLAG))
+            continue;    
+
+        // 非自定义类型的跳过
+        if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
+            continue;
+
+        hasSubCodeUnit = true;
+        auto iterSubCodeTreeNode = _classRefTreeNode.find(subCodeUnit->GetDataTypeAsField());
+        auto &subCodeTreeNode = iterSubCodeTreeNode->second;
+
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
+        {
+            const auto &subCodeUnitFieldName = subCodeUnit->_unitName.tolower();
+            auto &subFieldCodeUnit = subCodeTreeNode->_codeUnit;
+            _CreateFieldOrmDataArray(subCodeUnitFieldName, subFieldCodeUnit->_unitName + "OrmData", subCodeLines);
+        }
+        else
+        {
+            const auto &subFieldName = subCodeUnit->_unitName.tolower();
+
+            // 有该字段则创建
+            _CreateFieldOrmData(subFieldName, subCodeTreeNode->_codeUnit->_unitName + "OrmData", subCodeLines);
+        }
+
+        subCodeLines.push_back(KERNEL_NS::LibString());
+    }
+
+    if(hasSubCodeUnit)
+    {
+        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(ret)"));
+        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    {"));
+
+        for(auto &lineData : subCodeLines)
+            implCodeLines.push_back(lineData);
+
+        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
+    }
+
+    implCodeLines.push_back(KERNEL_NS::LibString());
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return ret;"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("bool %s::_OnDecode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream)", messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    const auto ret = _ormRawPbData->Decode(stream);"));
+
+    hasSubCodeUnit = false;
+    subCodeLines.clear();
+    // TODO:如果有依赖字段的需要在这里列出来
+    for(auto &subCodeUnit : codeUnit->_subCodeUnits)
+    {
+        // 命名空间跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::NAMESPACE_FLAG))
+            continue;
+        
+        // 数据类型定义跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::DATA_TYPE_DEFINE_FLAG))
+            continue;    
+
+        // 非自定义类型的跳过
+        if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
+            continue;
+
+        hasSubCodeUnit = true;
+        auto iterSubCodeTreeNode = _classRefTreeNode.find(subCodeUnit->GetDataTypeAsField());
+        auto &subCodeTreeNode = iterSubCodeTreeNode->second;
+
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
+        {
+            const auto &subCodeUnitFieldName = subCodeUnit->_unitName.tolower();
+            auto &subFieldCodeUnit = subCodeTreeNode->_codeUnit;
+            _CreateFieldOrmDataArray(subCodeUnitFieldName, subFieldCodeUnit->_unitName + "OrmData", subCodeLines);
+        }
+        else
+        {
+            const auto &subFieldName = subCodeUnit->_unitName.tolower();
+
+            // 有该字段则创建
+            _CreateFieldOrmData(subFieldName, subCodeTreeNode->_codeUnit->_unitName + "OrmData", subCodeLines);
+        }
+
+        subCodeLines.push_back(KERNEL_NS::LibString());
+    }
+
+    if(hasSubCodeUnit)
+    {
+        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(ret)"));
+        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    {"));
+
+        for(auto &lineData : subCodeLines)
+            implCodeLines.push_back(lineData);
+
+        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
+    }
+
+    implCodeLines.push_back(KERNEL_NS::LibString());
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return ret;"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("POOL_CREATE_OBJ_DEFAULT_IMPL(%sFactory);", messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("IOrmData *%sFactory::Create() const", messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return %s::NewThreadLocal_%s();", messageName.c_str(), messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    implCodeLines.push_back(KERNEL_NS::LibString());
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("SERVICE_COMMON_END"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    std::vector<KERNEL_NS::LibString> finalLines;
+    for(auto &lineData : implPreLines)
+        finalLines.push_back(lineData);
+    for(auto &lineData : implCodeLines)
+        finalLines.push_back(lineData);
+
+    const KERNEL_NS::LibString filePath = ormRootPath + messageName + ".cpp";
+    if(!KERNEL_NS::FileUtil::ReplaceFileBy(filePath, finalLines))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("replace file fail %s"), filePath.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+void ExporterMgr::_CreateFieldOrmData(const KERNEL_NS::LibString &fieldName, const KERNEL_NS::LibString &fieldDataType, std::vector<KERNEL_NS::LibString> &lines) const
+{
+    // 有该字段则创建
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("    if(_%s)", fieldName.c_str()));
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        _%s.Release();", fieldName.c_str()));
+    lines.push_back(KERNEL_NS::LibString());
+
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("    if(_ormRawPbData->has_%s())", fieldName.c_str()));
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("    {"));
+
+    _CreateVarOrmData(KERNEL_NS::LibString().AppendFormat("_%s", fieldName.c_str()), KERNEL_NS::LibString().AppendFormat("_ormRawPbData->mutable_%s()", fieldName.c_str())
+    , fieldDataType, lines);
+
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
+}
+
+void ExporterMgr::_CreateVarOrmData(const KERNEL_NS::LibString &varName, const KERNEL_NS::LibString &pbName, const KERNEL_NS::LibString &varDataType, std::vector<KERNEL_NS::LibString> &lines) const
+{
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s = SERVICE_COMMON_NS::%s::NewThreadLocal_%s(%s);"
+    , varName.c_str(), varDataType.c_str(), varDataType.c_str()
+    , pbName.c_str()));
+    lines.push_back(KERNEL_NS::LibString());
+
+    // 设置释放对象回调
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s.SetClosureDelegate([](void *ptr){", varName.c_str()));
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("            SERVICE_COMMON_NS::%s::DeleteThreadLocal_%s(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::%s>(ptr));"
+    , varDataType.c_str(), varDataType.c_str(), varDataType.c_str()));
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        }) ;"));
+    lines.push_back(KERNEL_NS::LibString());
+
+    // 设置脏回调
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s->SetMaskDirtyCallback([this](IOrmData *ptr){", varName.c_str()));
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("            _MaskDirty(true);"));
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        }) ;"));
+    lines.push_back(KERNEL_NS::LibString());
+}
+
+void ExporterMgr::_CreateFieldOrmDataArray(const KERNEL_NS::LibString &fieldName, const KERNEL_NS::LibString &fieldDataType, std::vector<KERNEL_NS::LibString> &lines) const
+{
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("    {"));
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        auto arr = _ormRawPbData->mutable_%s();", fieldName.c_str()));
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        const auto count = _ormRawPbData->%s_size();", fieldName.c_str()));
+    lines.push_back(KERNEL_NS::LibString());
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        _%s.resize(count);", fieldName.c_str()));
+    lines.push_back(KERNEL_NS::LibString());
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        for(Int32 idx = 0; idx < count; ++idx)"));
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        {"));
+
+    _CreateVarOrmData(KERNEL_NS::LibString().AppendFormat("_%s[idx]", fieldName.c_str()), KERNEL_NS::LibString().AppendFormat("_ormRawPbData->mutable_%s(idx)", fieldName.c_str())
+    , fieldDataType, lines);
+
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("        }")); // for end
+    lines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
+    lines.push_back(KERNEL_NS::LibString());
+}
+
+bool ExporterMgr::_GenOrmHeaderInterfaceImpl(const KERNEL_NS::LibString &nameSapce, const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName, KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit, std::vector<KERNEL_NS::LibString> &implCodeLines)
+{
+    const auto &messageName = codeUnit->_unitName + "OrmData";
+
+    // pb const接口
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("const ::%s::%s *%s::GetPbRawData() const"
+    , nameSapce.c_str(), codeUnit->_unitName.c_str(), messageName.c_str()));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData;"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+
+    for(auto &subCodeUnit : codeUnit->_subCodeUnits)
+    {
+        // 命名空间跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::NAMESPACE_FLAG))
+            continue;
+        
+        // 数据类型定义跳过
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::DATA_TYPE_DEFINE_FLAG))
+            continue;   
+
+        const auto &fieldName = subCodeUnit->_unitName.tolower();
+
+        if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
+        {
+            if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG) && 
+               !KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::SIMPLE_TYPE_FIELD_FLAG))
+                continue;
+
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
+            {
+                auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
+                auto &subTreeNode = iterSubTreeNode->second;
+
+                const auto &ormdDataType = subTreeNode->_codeUnit->_unitName + "OrmData";
+                const auto &subCodeFullName = subTreeNode->_codeUnit->GetFullName();
+
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("Int32 %s::%s_size() const"
+                , messageName.c_str(), fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s_size();", fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                implCodeLines.push_back(KERNEL_NS::LibString());
+
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &%s::mutable_%s(Int32 idx)"
+                , ormdDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _%s[idx];", fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                implCodeLines.push_back(KERNEL_NS::LibString());
+
+                // 删除元素
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::DeleteArray_%s(Int32 idx, Int32 count)"
+                , messageName.c_str(), fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    for(Int32 pos = idx + count - 1; pos >= idx; --pos)"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    {"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        _%s.erase(_%s.begin() + pos);", fieldName.c_str(), fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
+                implCodeLines.push_back(KERNEL_NS::LibString());
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->mutable_%s().DeleteSubrange(idx, count);", fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                implCodeLines.push_back(KERNEL_NS::LibString());
+
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("const std::vector<KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete>> &%s::%s() const"
+                , ormdDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _%s;", fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                implCodeLines.push_back(KERNEL_NS::LibString());
+
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("const KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &%s::%s(Int32 idx) const"
+                , ormdDataType.c_str(), messageName.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _%s[idx];", fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                implCodeLines.push_back(KERNEL_NS::LibString());
+
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &%s::add_%s()"
+                , ormdDataType.c_str(), messageName.c_str(), subCodeUnit->_unitName.tolower().c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    auto newPb = _ormRawPbData->add_%s();", fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _%s.push_back(KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete>());", fieldName.c_str(), ormdDataType.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    auto &elem = _%s.back();", fieldName.c_str()));
+                _CreateVarOrmData("elem", "newPb", ormdDataType, implCodeLines);
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                implCodeLines.push_back(KERNEL_NS::LibString());
+
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("const ::google::protobuf::RepeatedPtrField<::%s::%s> &%s::%s() const"
+                , nameSapce.c_str(), subTreeNode->_codeUnit->_unitName.c_str(), messageName.c_str(), fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s();", fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                implCodeLines.push_back(KERNEL_NS::LibString());
+
+                continue;
+            }
+        
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::SIMPLE_TYPE_FIELD_FLAG))
+            {
+                const auto &pbDataType = subCodeUnit->_params[subCodeUnit->_params.size() - 1];
+                const auto &cppDataType = ProtobuffHelper::TurnProtobufBaseTypeToCppType(pbDataType);
+                if(cppDataType.empty())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("TurnProtobufBaseTypeToCppType fail pbDataType:%s, message:%s, field:%s, file:%s")
+                    , pbDataType.c_str(), codeUnit->_unitName.c_str(), subCodeUnit->_unitName.c_str(), codeUnit->_fileName.c_str());
+                    return false;
+                }
+
+                if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::STRING_FIELD_FLAG))
+                {
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("Int32 %s::%s_size() const"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s_size();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::clear_%s()"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->clear_%s();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("const %s &%s::%s(Int32 idx) const"
+                    , cppDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s(idx);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::set_%s(Int32 idx, const %s &value)"
+                    , messageName.c_str(), fieldName.c_str(), cppDataType.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->set_%s(idx, value);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::set_%s(Int32 idx, %s &&value)"
+                    , messageName.c_str(), fieldName.c_str(), cppDataType.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->set_%s(idx, std::forward<%s>(value);", fieldName.c_str(), cppDataType.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::set_%s(Int32 idx, const Byte8 *value)"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->set_%s(idx, value);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::set_%s(Int32 idx, const Byte8 *value, size_t sz)"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->set_%s(idx, value, sz);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("%s *%s::add_%s()"
+                    , cppDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    auto newElem = _ormRawPbData->add_%s();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return newElem;"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::add_%s(const %s &value)"
+                    ,messageName.c_str(), fieldName.c_str(), cppDataType.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->add_%s(value);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::add_%s(%s &&value)"
+                    , messageName.c_str(), fieldName.c_str(), cppDataType.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->add_%s(std::forward<%s>(value));", fieldName.c_str(), cppDataType.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::add_%s(const Byte8 *value)"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->add_%s(value);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::add_%s(const Byte8 *value, size_t sz)"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->add_%s(value, sz);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    // 删除元素
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::DeleteArray_%s(Int32 idx, Int32 count)"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->mutable_%s().DeleteSubrange(idx, count);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("const ::google::protobuf::RepeatedPtrField<%s> &%s::%s() const"
+                    , cppDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+                }
+                else
+                {
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("Int32 %s::%s_size() const"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s_size();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::clear_%s()"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->clear_%s();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("%s %s::%s(Int32 idx) const"
+                    , cppDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s(idx);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::set_%s(Int32 idx, %s value)"
+                    , messageName.c_str(), fieldName.c_str(), cppDataType.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->set_%s(idx, value);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::add_%s(%s value)"
+                    , messageName.c_str(), subCodeUnit->_unitName.tolower().c_str(), cppDataType.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->add_%s(value);", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    // 删除元素
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::DeleteArray_%s(Int32 idx, Int32 count)"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->mutable_%s()->erase(_ormRawPbData->%s().begin() + idx, _ormRawPbData->%s().begin() + idx + count)", fieldName.c_str(), fieldName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    // const接口
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("const ::google::protobuf::RepeatedField<%s> &%s::%s() const"
+                    , cppDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+                }
+
+                continue;
+            }
+        }
+        else
+        {
+            if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG) && 
+               !KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::SIMPLE_TYPE_FIELD_FLAG))
+                continue;
+
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
+            {
+                auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
+                auto &subTreeNode = iterSubTreeNode->second;
+                const auto &ormdDataType = subTreeNode->_codeUnit->_unitName + "OrmData";
+                const auto &subCodeFullName = subTreeNode->_codeUnit->GetFullName();
+
+                // 基本pb接口
+                {
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &%s::mutable_%s()"
+                    , ormdDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(LIKELY(_%s))", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        return _%s;", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+                    _CreateFieldOrmData(fieldName, ormdDataType, implCodeLines);
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("::%s::%s &%s::%s() const"
+                    , nameSapce.c_str(), subTreeNode->_codeUnit->_unitName.c_str(), messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("bool %s::has_%s() const"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->has_%s();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    void %s::clear_%s()"
+                    , messageName.c_str(), fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->clear_%s();", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                    implCodeLines.push_back(KERNEL_NS::LibString());
+                }
+
+                continue;
+            }
+
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::OPTION_FILED_FLAG))
+            {
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("bool %s::has_%s() const"
+                , messageName.c_str(), fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->has_%s();", fieldName.c_str()));
+                implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+
+                implCodeLines.push_back(KERNEL_NS::LibString());
+            }
+
+            if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::SIMPLE_TYPE_FIELD_FLAG))
+            {
+                const auto &pbDataType = subCodeUnit->_params[subCodeUnit->_params.size() - 1];
+                const auto &cppDataType = ProtobuffHelper::TurnProtobufBaseTypeToCppType(pbDataType);
+                if(cppDataType.empty())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("TurnProtobufBaseTypeToCppType fail pbDataType:%s, message:%s, field:%s, file:%s")
+                    , pbDataType.c_str(), codeUnit->_unitName.c_str(), subCodeUnit->_unitName.c_str(), codeUnit->_fileName.c_str());
+                    return false;
+                }
+
+                if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::STRING_FIELD_FLAG))
+                {// string类型
+                    // 基本pb接口
+                    {
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::clear_%s()"
+                        ,messageName.c_str(), fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->clear_%s();", fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                        implCodeLines.push_back(KERNEL_NS::LibString());
+
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("const %s &%s::%s() const"
+                        , cppDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s();", fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                        implCodeLines.push_back(KERNEL_NS::LibString());
+
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::set_%s(const %s &value)"
+                        , messageName.c_str(), fieldName.c_str(), cppDataType.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->set_%s(value);", fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                        implCodeLines.push_back(KERNEL_NS::LibString());
+
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("%s *%s::mutable_%s()"
+                        , cppDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->mutable_%s();", fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                        implCodeLines.push_back(KERNEL_NS::LibString());
+                    }
+                }
+                else
+                {
+                    // 基本pb接口
+                    {
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::clear_%s()"
+                        , messageName.c_str(), fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->clear_%s();", fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                        implCodeLines.push_back(KERNEL_NS::LibString());
+
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("%s %s::%s() const"
+                        , cppDataType.c_str(), messageName.c_str(), fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return _ormRawPbData->%s();", fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+                        implCodeLines.push_back(KERNEL_NS::LibString());
+
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("void %s::set_%s(%s value)", messageName.c_str(), fieldName.c_str(), cppDataType.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData->set_%s(value);", fieldName.c_str()));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
+                        implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
+
+                        implCodeLines.push_back(KERNEL_NS::LibString());
+                    }
+                }
+
+                continue;
+            }
+        }
+    }
+
+    return true;
+}
+
+void ExporterMgr::_UpdateOrmCache()
+{
+    const auto appName = GetServiceProxy()->GetApp()->GetAppName();
+    const auto &appFullPath = GetServiceProxy()->GetApp()->GetAppPath();
+    const auto appPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(appFullPath);
+
+    if(_ormOutPath.empty())
+        _ormOutPath = "orm_out";
+    const auto &ormRootPath = appPath  + "/" + _protocolsPath + _ormOutPath + "/";
+    KERNEL_NS::DirectoryUtil::CreateDir(ormRootPath);
+
+    const auto cacheFilePath = ormRootPath + "orm_cache.orm";
+    g_Log->Custom("[PROTO GEN ORM] UPDATE ORM CACHE:%s...", cacheFilePath.c_str());
+
+    std::vector<KERNEL_NS::LibString> lines;
+    for(auto &iter : _typeNameRefOrmInfo)
+    {
+        KERNEL_NS::LibString info;
+        iter.second.Serialize(info);
+        lines.push_back(info);
+    }
+
+    if(!KERNEL_NS::FileUtil::ReplaceFileBy(cacheFilePath, lines))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("[PROTO GEN ORM] UPDATE ORM CACHE FAIL:%s..."), cacheFilePath.c_str());
+        return;
+    }
+
+    g_Log->Warn(LOGFMT_OBJ_TAG("[PROTO GEN ORM] UPDATE ORM CACHE SUCCESS."));
 }
 
 bool ExporterMgr::_GrammarAnalyze()
@@ -2566,13 +4212,21 @@ bool ExporterMgr::_GrammarAnalyze()
     // 不支持Map
     auto &codeUnitStack = codeAnalyzeMgr->GetCodeUnitStack();
     KERNEL_NS::LibString packageName;
-    codeAnalyzeMgr->ScanDir(_protoPath, {".proto"}, [codeAnalyzeMgr, &codeUnitStack, &packageName, this](KERNEL_NS::LibString &validData, Int32 currentLine, const KERNEL_NS::LibString &fullPath, const std::vector<KERNEL_NS::LibString> &lineDatas){
+    bool isSuc = true;
+    codeAnalyzeMgr->ScanDir(_protoPath, {".proto"}, [codeAnalyzeMgr, &codeUnitStack, &packageName, this, &isSuc](KERNEL_NS::LibString &validData, Int32 currentLine, const KERNEL_NS::LibString &fullPath, const std::vector<KERNEL_NS::LibString> &lineDatas){
         validData.strip();
         if(ProtobuffHelper::HasSyntax(validData))
             return;
 
         if(ProtobuffHelper::IsImport(validData))
+        {
+            auto iter = _fullPathRefImportFilePath.find(fullPath);
+            if(iter == _fullPathRefImportFilePath.end())
+                iter = _fullPathRefImportFilePath.insert(std::make_pair(fullPath, std::vector<KERNEL_NS::LibString>())).first;
+            
+            iter->second.push_back(validData.sub("\"", "\"").strip());
             return;
+        }
         
         // package
         auto &areaUnits = codeUnitStack->_codeUnits;
@@ -2590,6 +4244,7 @@ bool ExporterMgr::_GrammarAnalyze()
                     newCodeUnit->_unitName = packageName;
                     newCodeUnit->_line = currentLine + 1;
                     newCodeUnit->_fileName = KERNEL_NS::DirectoryUtil::GetFileNameInPath(fullPath);
+                    newCodeUnit->_fullPath = fullPath;
 
                     if(!areaUnits.empty())
                     {
@@ -2632,6 +4287,7 @@ bool ExporterMgr::_GrammarAnalyze()
                     newCodeUnit->_unitName = messageName;
                     newCodeUnit->_line = currentLine + 1;
                     newCodeUnit->_fileName = KERNEL_NS::DirectoryUtil::GetFileNameInPath(fullPath);
+                    newCodeUnit->_fullPath = fullPath;
 
                     if(!areaUnits.empty())
                     {
@@ -2656,6 +4312,7 @@ bool ExporterMgr::_GrammarAnalyze()
                 newCodeUnit->_unitName = enumDataTypeName;
                 newCodeUnit->_line = currentLine + 1;
                 newCodeUnit->_fileName = KERNEL_NS::DirectoryUtil::GetFileNameInPath(fullPath);
+                newCodeUnit->_fullPath = fullPath;
 
                 if(!areaUnits.empty())
                 {
@@ -2685,6 +4342,7 @@ bool ExporterMgr::_GrammarAnalyze()
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("have no any code unit but analyze a field:%s, file:%s, line:%d")
                         , validData.c_str(), fullPath.c_str(), currentLine);
+                    isSuc = false;
                     return;
                 }
 
@@ -2692,6 +4350,7 @@ bool ExporterMgr::_GrammarAnalyze()
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("code unit not start code unit:%s but analyze a field:%s, file:%s, line:%d")
                         , currentCodeUnit->_unitName.c_str(), validData.c_str(), fullPath.c_str(), currentLine);
+                    isSuc = false;
                     return;
                 }
 
@@ -2699,6 +4358,7 @@ bool ExporterMgr::_GrammarAnalyze()
                 {
                     g_Log->Error(LOGFMT_OBJ_TAG("code unit had finished code unit:%s but analyze a field:%s, file:%s, line:%d")
                         , currentCodeUnit->_unitName.c_str(), validData.c_str(), fullPath.c_str(), currentLine);
+                    isSuc = false;
                     return;
                 }
 
@@ -2750,6 +4410,8 @@ bool ExporterMgr::_GrammarAnalyze()
                     newCodeUnit->_unitName = fieldName;
                     newCodeUnit->_line = currentLine + 1;
                     newCodeUnit->_fileName = KERNEL_NS::DirectoryUtil::GetFileNameInPath(fullPath);
+                    newCodeUnit->_fullPath = fullPath;
+
                     if(!areaUnits.empty())
                     {
                         for(auto &unit : areaUnits)
@@ -2834,6 +4496,8 @@ bool ExporterMgr::_GrammarAnalyze()
                     newCodeUnit->_unitName = fieldName;
                     newCodeUnit->_line = currentLine + 1;
                     newCodeUnit->_fileName = KERNEL_NS::DirectoryUtil::GetFileNameInPath(fullPath);
+                    newCodeUnit->_fullPath = fullPath;
+
                     if(!areaUnits.empty())
                     {
                         if(KERNEL_NS::CodeUnitFlags::HasFlags(currentCodeUnit->_flags, CodeUnitFlagsExt::ONEOF_FIELD_FLAG))
@@ -2862,7 +4526,8 @@ bool ExporterMgr::_GrammarAnalyze()
 
                     if(ProtobuffHelper::IsMapDataType(dataType))
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("cant support map data type file name:%s, line:%d"), fullPath.c_str(), currentLine);
+                        g_Log->Error(LOGFMT_OBJ_TAG("cant support map data type file name:%s, line:%d"), fullPath.c_str(), currentLine);
+                        isSuc = false;
                         return;
                     }
 
@@ -2879,6 +4544,7 @@ bool ExporterMgr::_GrammarAnalyze()
                             (dataType == "uint32"   )||
                             (dataType == "uint64"   )||
                             (dataType == "sint32"   )||
+                            (dataType == "int64"   )||
                             (dataType == "sint64"   )||
                             (dataType == "fixed32"  )||
                             (dataType == "fixed64"  )||
@@ -2887,14 +4553,17 @@ bool ExporterMgr::_GrammarAnalyze()
                         )
                         {
                             KERNEL_NS::CodeUnitFlags::SetFlags(newCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::NUMBER_FIELD_FLAG);
+                            newCodeUnit->_params.push_back(dataType);
                         }
                         else if(dataType == "bool")
                         {
                             KERNEL_NS::CodeUnitFlags::SetFlags(newCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::BOOL_FIELD_FLAG);
+                            newCodeUnit->_params.push_back(dataType);
                         }
                         else if((dataType == "string") || (dataType == "bytes"))
                         {
                             KERNEL_NS::CodeUnitFlags::SetFlags(newCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::STRING_FIELD_FLAG);
+                            newCodeUnit->_params.push_back(dataType);
                         }
                     }
                     else
@@ -2950,6 +4619,7 @@ bool ExporterMgr::_GrammarAnalyze()
                 newCodeUnit->_unitName = oneofName;
                 newCodeUnit->_line = currentLine + 1;
                 newCodeUnit->_fileName = KERNEL_NS::DirectoryUtil::GetFileNameInPath(fullPath);
+                newCodeUnit->_fullPath = fullPath;
 
                 if(!areaUnits.empty())
                 {
@@ -2976,7 +4646,7 @@ bool ExporterMgr::_GrammarAnalyze()
 
     g_Log->Custom("[PROTO GRAMMER ANALYZE] SUCCESS.");
 
-    return true;
+    return isSuc;
 }
 
 bool ExporterMgr::_ScanProtoDataType(const KERNEL_NS::FindFileInfo &fileInfo, const KERNEL_NS::LibString &fullFilePath, bool &isParentPathContinue)

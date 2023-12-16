@@ -551,5 +551,54 @@ void ProtobuffHelper::GetComment(const KERNEL_NS::LibString &validData, KERNEL_N
     comment = validData.GetRaw().substr(pos + strlen("//"));
 }
 
+KERNEL_NS::LibString ProtobuffHelper::TurnProtobufBaseTypeToCppType(const KERNEL_NS::LibString &baseType)
+{
+    if(baseType == "double")
+        return "double";
+    
+    if(baseType == "float")
+        return "float";
+
+    if(baseType == "int32")
+        return "int32_t";
+
+    if(baseType == "uint32")
+        return "uint32_t";
+    
+    if(baseType == "sint32")
+        return "int32_t";
+
+    if(baseType == "int64")
+        return "int64_t";
+
+    if(baseType == "sint64")
+        return "int64_t";
+
+    if(baseType == "uint64")
+        return "uint64_t";
+
+    if(baseType == "fixed32")
+        return "uint32_t";
+
+    if(baseType == "fixed64")
+        return "uint64_t";
+
+    if(baseType == "sfixed32")
+        return "int32_t";
+
+    if(baseType == "sfixed64")
+        return "int64_t";
+
+    if(baseType == "bool")
+        return "bool";
+
+    if(baseType == "string")
+        return "std::string";
+
+    if(baseType == "bytes")
+        return "std::string";
+
+    return "";
+}
 
 SERVICE_END

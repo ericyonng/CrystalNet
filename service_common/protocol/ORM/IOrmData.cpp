@@ -39,6 +39,7 @@ IOrmData::IOrmData()
 :_lastPurgeTime(0)
 ,_lastMaskDirtyTime(0)
 ,_maskDirtyCb(NULL)
+,_isAttachPb(false)
 {
 
 }
@@ -56,12 +57,6 @@ bool IOrmData::Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const
     stream.Write(_lastPurgeTime);
     stream.Write(_lastMaskDirtyTime);
 
-    const Int32 dirtyCount = static_cast<Int32>(_dirtyTagIds.size());
-    stream.Write(dirtyCount);
-
-    for(auto &v : _dirtyTagIds)
-        stream.Write(v);
-    
     return _OnEncode(stream);
 }
 
@@ -73,45 +68,21 @@ bool IOrmData::Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const
     stream.Write(_lastPurgeTime);
     stream.Write(_lastMaskDirtyTime);
 
-    const Int32 dirtyCount = static_cast<Int32>(_dirtyTagIds.size());
-    stream.Write(dirtyCount);
-
-    for(auto &v : _dirtyTagIds)
-        stream.Write(v);
-    
     return _OnEncode(stream);
 }
 
 bool IOrmData::Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream)
 {
-    _dirtyTagIds.clear();
     _lastPurgeTime = stream.ReadInt64();
     _lastMaskDirtyTime = stream.ReadInt64();
-
-    const Int32 dirtyCount = stream.ReadInt32();
-
-    for(Int32 idx = 0; idx < dirtyCount; ++idx)
-    {
-        const auto dirtyTagId = stream.ReadInt32();
-        _dirtyTagIds.insert(dirtyTagId);
-    }
 
     return _OnDecode(stream);
 }
 
 bool IOrmData::Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream)
 {
-    _dirtyTagIds.clear();
     _lastPurgeTime = stream.ReadInt64();
     _lastMaskDirtyTime = stream.ReadInt64();
-
-    const Int32 dirtyCount = stream.ReadInt32();
-
-    for(Int32 idx = 0; idx < dirtyCount; ++idx)
-    {
-        const auto dirtyTagId = stream.ReadInt32();
-        _dirtyTagIds.insert(dirtyTagId);
-    }
 
     return _OnDecode(stream);
 }
@@ -119,17 +90,15 @@ bool IOrmData::Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream)
 void IOrmData::AfterPurge()
 {
     _lastPurgeTime = KERNEL_NS::LibTime::NowNanoTimestamp();
-    _dirtyTagIds.clear();
 }
 
-void IOrmData::_MaskDirty(Int32 tagId)
+void IOrmData::_MaskDirty(bool isForce)
 {
     const auto isDirty = IsDirty();
 
     _lastMaskDirtyTime = KERNEL_NS::LibTime::NowNanoTimestamp();
-    _dirtyTagIds.insert(tagId);
 
-    if(!isDirty && _maskDirtyCb)
+    if(!isDirty && _maskDirtyCb || isForce)
         _maskDirtyCb->Invoke(this);
 }
 

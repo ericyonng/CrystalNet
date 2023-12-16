@@ -525,7 +525,7 @@ Int64 FileUtil::ReadUtf8File(FILE &fp, std::vector<KERNEL_NS::LibString> &lines,
     return line;
 }
 
-bool FileUtil::ReplaceFile(const KERNEL_NS::LibString &fileName, const std::vector<KERNEL_NS::LibString> &newLines)
+bool FileUtil::ReplaceFileBy(const KERNEL_NS::LibString &fileName, const std::vector<KERNEL_NS::LibString> &newLines)
 {
     if(newLines.empty())
     {
@@ -636,7 +636,7 @@ bool FileUtil::ReplaceFile(const KERNEL_NS::LibString &fileName, const std::vect
     return true;
 }
 
-bool FileUtil::ReplaceFile(const LibString &fileName, const std::map<Int32, LibString> &newLines)
+bool FileUtil::ReplaceFileBy(const LibString &fileName, const std::map<Int32, LibString> &newLines)
 {
     if(newLines.empty())
     {

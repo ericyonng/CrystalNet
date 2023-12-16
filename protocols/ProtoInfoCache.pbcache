@@ -34,7 +34,7 @@
 
 /// ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,Md5:c0Fbk007EjrRWNurFc8b1Q==,ModifyTime:1692361715,
 
-/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:7M9sw1lEvl48rQghydL4cQ==,ModifyTime:1701950546,
+/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:7QsUV0ZGCz//a5bZAtPojg==,ModifyTime:1702660455,
 
 /// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:JRP2AJHv8EggvaSBDetgvA==,ModifyTime:1693475814,
 
@@ -211,3 +211,5 @@
 [ProtoName:com_variant.proto,ProtoPath:../../protocols/proto/library/com_variant.proto,MessageName:VariantParamType,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcodeInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:user.proto,ProtoPath:../../protocols/proto/user.proto,MessageName:ModifyPwdInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,MessageName:TestCustomData,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,MessageName:TestOrm,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:true,]

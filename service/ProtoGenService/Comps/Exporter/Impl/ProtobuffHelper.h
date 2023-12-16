@@ -108,6 +108,9 @@ public:
     static void BuildComments(Int32 currentLine, const std::vector<KERNEL_NS::LibString> &lineDatas, std::vector<KERNEL_NS::LibString> &comments);
 
     static void GetComment(const KERNEL_NS::LibString &validData, KERNEL_NS::LibString &comment);
+
+    // 从protobuf声明的类型转成c++类型
+    static KERNEL_NS::LibString TurnProtobufBaseTypeToCppType(const KERNEL_NS::LibString &baseType);
 };
 
 SERVICE_END

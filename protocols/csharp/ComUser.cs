@@ -33,27 +33,37 @@ using ProtoPackage.Attributes;
             "TG9naW5UaW1lGAggASgSEhMKC0xhc3RMb2dpbklwGAkgASgJEhoKEkxhc3RM",
             "b2dpblBob25lSW1laRgKIAEoCRIQCghDcmVhdGVJcBgLIAEoCRISCgpDcmVh",
             "dGVUaW1lGAwgASgSEhcKD0NyZWF0ZVBob25lSW1laRgNIAEoCRIUCgxCaW5k",
-            "TWFpbEFkZHIYDiABKAkSFwoPTGFzdFBhc3NEYXlUaW1lGA8gASgSIkUKCUxv",
-            "Z2luTW9kZSI4CgVFTlVNUxIMCghQQVNTV09SRBAAEhMKD1VTRV9MT0dJTl9U",
-            "T0tFThABEgwKCFJFR0lTVEVSEAIiXwoQUmVnaXN0ZXJVc2VySW5mbxITCgtB",
-            "Y2NvdW50TmFtZRgBIAEoDBIQCghOaWNrbmFtZRgCIAEoDBILCgNQd2QYAyAB",
-            "KAkSFwoPQ3JlYXRlUGhvbmVJbWVpGAQgASgJIqkCCglMb2dpbkluZm8SEQoJ",
-            "TG9naW5Nb2RlGAEgASgREhMKC0FjY291bnROYW1lGAIgASgMEgsKA1B3ZBgD",
-            "IAEoCRISCgpMb2dpblRva2VuGAQgASgJEhYKDkxvZ2luUGhvbmVJbWVpGAUg",
-            "ASgJEhAKCFRhcmdldElwGAYgASgMEgwKBFBvcnQYByABKA0SQQoQVXNlclJl",
-            "Z2lzdGVySW5mbxgIIAEoCzIlLkNSWVNUQUxfTkVULnNlcnZpY2UuUmVnaXN0",
-            "ZXJVc2VySW5mb0gAEg0KBUFwcElkGAkgASgJEhIKCmN5cGhlclRleHQYCiAB",
-            "KAkSEgoKb3JpZ2luVGV4dBgLIAEoCRIRCgl2ZXJzaW9uSWQYDCABKARCDgoM",
-            "UmVnaXN0ZXJJbmZvIpoBCgxMb2dvdXRSZWFzb24iiQEKBUVOVU1TEhUKEUxP",
-            "R0lOX09USEVSX1BMQUNFEAASEAoMT1RIRVJfUkVBU09OEAESDwoLVVNFUl9M",
-            "T0dPVVQQAhINCglVU0VSX0lETEUQAxILCgdUSU1FT1VUEAQSEAoMQ0xPU0Vf",
-            "U0VSVkVSEAUSGAoUTE9HX0lOX09USEVSX0FDQ09VTlQQBiJFCg5TaW1wbGVV",
-            "c2VySW5mbxIOCgZVc2VySWQYASABKAQSEAoITmlja25hbWUYAiABKAwSEQoJ",
-            "QmluZFBob25lGAMgASgEYgZwcm90bzM="));
+            "TWFpbEFkZHIYDiABKAkSFwoPTGFzdFBhc3NEYXlUaW1lGA8gASgSIiEKDlRl",
+            "c3RDdXN0b21EYXRhEg8KB1Rlc3RJbnQYASABKAUi1AIKB1Rlc3RPcm0SDwoH",
+            "VGVzdEludBgBIAEoBRISCgpUZXN0U3RyaW5nGAIgASgJEhQKDFRlc3RJbnRB",
+            "cnJheRgDIAMoBRIXCg9UZXN0U3RyaW5nQXJyYXkYBCADKAkSNwoKVGVzdEN1",
+            "c3RvbRgFIAEoCzIjLkNSWVNUQUxfTkVULnNlcnZpY2UuVGVzdEN1c3RvbURh",
+            "dGESPAoPVGVzdEN1c3RvbUFycmF5GAYgAygLMiMuQ1JZU1RBTF9ORVQuc2Vy",
+            "dmljZS5UZXN0Q3VzdG9tRGF0YRIWCgxUZXN0T25lT2ZJbnQYByABKAVIABIZ",
+            "Cg9UZXN0T25lT2ZTdHJpbmcYCCABKAlIABI+Cg9UZXN0T25lT2ZDdXN0b20Y",
+            "CSABKAsyIy5DUllTVEFMX05FVC5zZXJ2aWNlLlRlc3RDdXN0b21EYXRhSABC",
+            "CwoJVGVzdE9uZU9mIkUKCUxvZ2luTW9kZSI4CgVFTlVNUxIMCghQQVNTV09S",
+            "RBAAEhMKD1VTRV9MT0dJTl9UT0tFThABEgwKCFJFR0lTVEVSEAIiXwoQUmVn",
+            "aXN0ZXJVc2VySW5mbxITCgtBY2NvdW50TmFtZRgBIAEoDBIQCghOaWNrbmFt",
+            "ZRgCIAEoDBILCgNQd2QYAyABKAkSFwoPQ3JlYXRlUGhvbmVJbWVpGAQgASgJ",
+            "IqkCCglMb2dpbkluZm8SEQoJTG9naW5Nb2RlGAEgASgREhMKC0FjY291bnRO",
+            "YW1lGAIgASgMEgsKA1B3ZBgDIAEoCRISCgpMb2dpblRva2VuGAQgASgJEhYK",
+            "DkxvZ2luUGhvbmVJbWVpGAUgASgJEhAKCFRhcmdldElwGAYgASgMEgwKBFBv",
+            "cnQYByABKA0SQQoQVXNlclJlZ2lzdGVySW5mbxgIIAEoCzIlLkNSWVNUQUxf",
+            "TkVULnNlcnZpY2UuUmVnaXN0ZXJVc2VySW5mb0gAEg0KBUFwcElkGAkgASgJ",
+            "EhIKCmN5cGhlclRleHQYCiABKAkSEgoKb3JpZ2luVGV4dBgLIAEoCRIRCgl2",
+            "ZXJzaW9uSWQYDCABKARCDgoMUmVnaXN0ZXJJbmZvIpoBCgxMb2dvdXRSZWFz",
+            "b24iiQEKBUVOVU1TEhUKEUxPR0lOX09USEVSX1BMQUNFEAASEAoMT1RIRVJf",
+            "UkVBU09OEAESDwoLVVNFUl9MT0dPVVQQAhINCglVU0VSX0lETEUQAxILCgdU",
+            "SU1FT1VUEAQSEAoMQ0xPU0VfU0VSVkVSEAUSGAoUTE9HX0lOX09USEVSX0FD",
+            "Q09VTlQQBiJFCg5TaW1wbGVVc2VySW5mbxIOCgZVc2VySWQYASABKAQSEAoI",
+            "Tmlja25hbWUYAiABKAwSEQoJQmluZFBob25lGAMgASgEYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.UserBaseInfo), global::CRYSTALNET.Service.UserBaseInfo.Parser, new[]{ "UserId", "AccountName", "Name", "Nickname", "Pwd", "PwdSalt", "BindPhone", "LastLoginTime", "LastLoginIp", "LastLoginPhoneImei", "CreateIp", "CreateTime", "CreatePhoneImei", "BindMailAddr", "LastPassDayTime" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.TestCustomData), global::CRYSTALNET.Service.TestCustomData.Parser, new[]{ "TestInt" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.TestOrm), global::CRYSTALNET.Service.TestOrm.Parser, new[]{ "TestInt", "TestString", "TestIntArray", "TestStringArray", "TestCustom", "TestCustomArray", "TestOneOfInt", "TestOneOfString", "TestOneOfCustom" }, new[]{ "TestOneOf" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LoginMode), global::CRYSTALNET.Service.LoginMode.Parser, null, null, new[]{ typeof(global::CRYSTALNET.Service.LoginMode.Types.ENUMS) }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.RegisterUserInfo), global::CRYSTALNET.Service.RegisterUserInfo.Parser, new[]{ "AccountName", "Nickname", "Pwd", "CreatePhoneImei" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::CRYSTALNET.Service.LoginInfo), global::CRYSTALNET.Service.LoginInfo.Parser, new[]{ "LoginMode", "AccountName", "Pwd", "LoginToken", "LoginPhoneImei", "TargetIp", "Port", "UserRegisterInfo", "AppId", "CypherText", "OriginText", "VersionId" }, new[]{ "RegisterInfo" }, null, null, null),
@@ -820,6 +830,710 @@ using ProtoPackage.Attributes;
 
   }
 
+  public sealed partial class TestCustomData : pb::IMessage<TestCustomData>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<TestCustomData> _parser = new pb::MessageParser<TestCustomData>(() => new TestCustomData());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<TestCustomData> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TestCustomData() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TestCustomData(TestCustomData other) : this() {
+      testInt_ = other.testInt_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TestCustomData Clone() {
+      return new TestCustomData(this);
+    }
+
+    /// <summary>Field number for the "TestInt" field.</summary>
+    public const int TestIntFieldNumber = 1;
+    private int testInt_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int TestInt {
+      get { return testInt_; }
+      set {
+        testInt_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as TestCustomData);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(TestCustomData other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (TestInt != other.TestInt) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (TestInt != 0) hash ^= TestInt.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (TestInt != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(TestInt);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (TestInt != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(TestInt);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (TestInt != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(TestInt);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(TestCustomData other) {
+      if (other == null) {
+        return;
+      }
+      if (other.TestInt != 0) {
+        TestInt = other.TestInt;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            TestInt = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            TestInt = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  //// EnableStorage:true
+  /// </summary>
+  public sealed partial class TestOrm : pb::IMessage<TestOrm>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<TestOrm> _parser = new pb::MessageParser<TestOrm>(() => new TestOrm());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<TestOrm> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[2]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TestOrm() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TestOrm(TestOrm other) : this() {
+      testInt_ = other.testInt_;
+      testString_ = other.testString_;
+      testIntArray_ = other.testIntArray_.Clone();
+      testStringArray_ = other.testStringArray_.Clone();
+      testCustom_ = other.testCustom_ != null ? other.testCustom_.Clone() : null;
+      testCustomArray_ = other.testCustomArray_.Clone();
+      switch (other.TestOneOfCase) {
+        case TestOneOfOneofCase.TestOneOfInt:
+          TestOneOfInt = other.TestOneOfInt;
+          break;
+        case TestOneOfOneofCase.TestOneOfString:
+          TestOneOfString = other.TestOneOfString;
+          break;
+        case TestOneOfOneofCase.TestOneOfCustom:
+          TestOneOfCustom = other.TestOneOfCustom.Clone();
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TestOrm Clone() {
+      return new TestOrm(this);
+    }
+
+    /// <summary>Field number for the "TestInt" field.</summary>
+    public const int TestIntFieldNumber = 1;
+    private int testInt_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int TestInt {
+      get { return testInt_; }
+      set {
+        testInt_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "TestString" field.</summary>
+    public const int TestStringFieldNumber = 2;
+    private string testString_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string TestString {
+      get { return testString_; }
+      set {
+        testString_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "TestIntArray" field.</summary>
+    public const int TestIntArrayFieldNumber = 3;
+    private static readonly pb::FieldCodec<int> _repeated_testIntArray_codec
+        = pb::FieldCodec.ForInt32(26);
+    private readonly pbc::RepeatedField<int> testIntArray_ = new pbc::RepeatedField<int>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<int> TestIntArray {
+      get { return testIntArray_; }
+    }
+
+    /// <summary>Field number for the "TestStringArray" field.</summary>
+    public const int TestStringArrayFieldNumber = 4;
+    private static readonly pb::FieldCodec<string> _repeated_testStringArray_codec
+        = pb::FieldCodec.ForString(34);
+    private readonly pbc::RepeatedField<string> testStringArray_ = new pbc::RepeatedField<string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<string> TestStringArray {
+      get { return testStringArray_; }
+    }
+
+    /// <summary>Field number for the "TestCustom" field.</summary>
+    public const int TestCustomFieldNumber = 5;
+    private global::CRYSTALNET.Service.TestCustomData testCustom_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::CRYSTALNET.Service.TestCustomData TestCustom {
+      get { return testCustom_; }
+      set {
+        testCustom_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "TestCustomArray" field.</summary>
+    public const int TestCustomArrayFieldNumber = 6;
+    private static readonly pb::FieldCodec<global::CRYSTALNET.Service.TestCustomData> _repeated_testCustomArray_codec
+        = pb::FieldCodec.ForMessage(50, global::CRYSTALNET.Service.TestCustomData.Parser);
+    private readonly pbc::RepeatedField<global::CRYSTALNET.Service.TestCustomData> testCustomArray_ = new pbc::RepeatedField<global::CRYSTALNET.Service.TestCustomData>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::CRYSTALNET.Service.TestCustomData> TestCustomArray {
+      get { return testCustomArray_; }
+    }
+
+    /// <summary>Field number for the "TestOneOfInt" field.</summary>
+    public const int TestOneOfIntFieldNumber = 7;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int TestOneOfInt {
+      get { return testOneOfCase_ == TestOneOfOneofCase.TestOneOfInt ? (int) testOneOf_ : 0; }
+      set {
+        testOneOf_ = value;
+        testOneOfCase_ = TestOneOfOneofCase.TestOneOfInt;
+      }
+    }
+
+    /// <summary>Field number for the "TestOneOfString" field.</summary>
+    public const int TestOneOfStringFieldNumber = 8;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string TestOneOfString {
+      get { return testOneOfCase_ == TestOneOfOneofCase.TestOneOfString ? (string) testOneOf_ : ""; }
+      set {
+        testOneOf_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        testOneOfCase_ = TestOneOfOneofCase.TestOneOfString;
+      }
+    }
+
+    /// <summary>Field number for the "TestOneOfCustom" field.</summary>
+    public const int TestOneOfCustomFieldNumber = 9;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::CRYSTALNET.Service.TestCustomData TestOneOfCustom {
+      get { return testOneOfCase_ == TestOneOfOneofCase.TestOneOfCustom ? (global::CRYSTALNET.Service.TestCustomData) testOneOf_ : null; }
+      set {
+        testOneOf_ = value;
+        testOneOfCase_ = value == null ? TestOneOfOneofCase.None : TestOneOfOneofCase.TestOneOfCustom;
+      }
+    }
+
+    private object testOneOf_;
+    /// <summary>Enum of possible cases for the "TestOneOf" oneof.</summary>
+    public enum TestOneOfOneofCase {
+      None = 0,
+      TestOneOfInt = 7,
+      TestOneOfString = 8,
+      TestOneOfCustom = 9,
+    }
+    private TestOneOfOneofCase testOneOfCase_ = TestOneOfOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public TestOneOfOneofCase TestOneOfCase {
+      get { return testOneOfCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void ClearTestOneOf() {
+      testOneOfCase_ = TestOneOfOneofCase.None;
+      testOneOf_ = null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as TestOrm);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(TestOrm other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (TestInt != other.TestInt) return false;
+      if (TestString != other.TestString) return false;
+      if(!testIntArray_.Equals(other.testIntArray_)) return false;
+      if(!testStringArray_.Equals(other.testStringArray_)) return false;
+      if (!object.Equals(TestCustom, other.TestCustom)) return false;
+      if(!testCustomArray_.Equals(other.testCustomArray_)) return false;
+      if (TestOneOfInt != other.TestOneOfInt) return false;
+      if (TestOneOfString != other.TestOneOfString) return false;
+      if (!object.Equals(TestOneOfCustom, other.TestOneOfCustom)) return false;
+      if (TestOneOfCase != other.TestOneOfCase) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (TestInt != 0) hash ^= TestInt.GetHashCode();
+      if (TestString.Length != 0) hash ^= TestString.GetHashCode();
+      hash ^= testIntArray_.GetHashCode();
+      hash ^= testStringArray_.GetHashCode();
+      if (testCustom_ != null) hash ^= TestCustom.GetHashCode();
+      hash ^= testCustomArray_.GetHashCode();
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfInt) hash ^= TestOneOfInt.GetHashCode();
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfString) hash ^= TestOneOfString.GetHashCode();
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfCustom) hash ^= TestOneOfCustom.GetHashCode();
+      hash ^= (int) testOneOfCase_;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (TestInt != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(TestInt);
+      }
+      if (TestString.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(TestString);
+      }
+      testIntArray_.WriteTo(output, _repeated_testIntArray_codec);
+      testStringArray_.WriteTo(output, _repeated_testStringArray_codec);
+      if (testCustom_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(TestCustom);
+      }
+      testCustomArray_.WriteTo(output, _repeated_testCustomArray_codec);
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfInt) {
+        output.WriteRawTag(56);
+        output.WriteInt32(TestOneOfInt);
+      }
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfString) {
+        output.WriteRawTag(66);
+        output.WriteString(TestOneOfString);
+      }
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfCustom) {
+        output.WriteRawTag(74);
+        output.WriteMessage(TestOneOfCustom);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (TestInt != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(TestInt);
+      }
+      if (TestString.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(TestString);
+      }
+      testIntArray_.WriteTo(ref output, _repeated_testIntArray_codec);
+      testStringArray_.WriteTo(ref output, _repeated_testStringArray_codec);
+      if (testCustom_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(TestCustom);
+      }
+      testCustomArray_.WriteTo(ref output, _repeated_testCustomArray_codec);
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfInt) {
+        output.WriteRawTag(56);
+        output.WriteInt32(TestOneOfInt);
+      }
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfString) {
+        output.WriteRawTag(66);
+        output.WriteString(TestOneOfString);
+      }
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfCustom) {
+        output.WriteRawTag(74);
+        output.WriteMessage(TestOneOfCustom);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (TestInt != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(TestInt);
+      }
+      if (TestString.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(TestString);
+      }
+      size += testIntArray_.CalculateSize(_repeated_testIntArray_codec);
+      size += testStringArray_.CalculateSize(_repeated_testStringArray_codec);
+      if (testCustom_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(TestCustom);
+      }
+      size += testCustomArray_.CalculateSize(_repeated_testCustomArray_codec);
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfInt) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(TestOneOfInt);
+      }
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfString) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(TestOneOfString);
+      }
+      if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfCustom) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(TestOneOfCustom);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(TestOrm other) {
+      if (other == null) {
+        return;
+      }
+      if (other.TestInt != 0) {
+        TestInt = other.TestInt;
+      }
+      if (other.TestString.Length != 0) {
+        TestString = other.TestString;
+      }
+      testIntArray_.Add(other.testIntArray_);
+      testStringArray_.Add(other.testStringArray_);
+      if (other.testCustom_ != null) {
+        if (testCustom_ == null) {
+          TestCustom = new global::CRYSTALNET.Service.TestCustomData();
+        }
+        TestCustom.MergeFrom(other.TestCustom);
+      }
+      testCustomArray_.Add(other.testCustomArray_);
+      switch (other.TestOneOfCase) {
+        case TestOneOfOneofCase.TestOneOfInt:
+          TestOneOfInt = other.TestOneOfInt;
+          break;
+        case TestOneOfOneofCase.TestOneOfString:
+          TestOneOfString = other.TestOneOfString;
+          break;
+        case TestOneOfOneofCase.TestOneOfCustom:
+          if (TestOneOfCustom == null) {
+            TestOneOfCustom = new global::CRYSTALNET.Service.TestCustomData();
+          }
+          TestOneOfCustom.MergeFrom(other.TestOneOfCustom);
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            TestInt = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            TestString = input.ReadString();
+            break;
+          }
+          case 26:
+          case 24: {
+            testIntArray_.AddEntriesFrom(input, _repeated_testIntArray_codec);
+            break;
+          }
+          case 34: {
+            testStringArray_.AddEntriesFrom(input, _repeated_testStringArray_codec);
+            break;
+          }
+          case 42: {
+            if (testCustom_ == null) {
+              TestCustom = new global::CRYSTALNET.Service.TestCustomData();
+            }
+            input.ReadMessage(TestCustom);
+            break;
+          }
+          case 50: {
+            testCustomArray_.AddEntriesFrom(input, _repeated_testCustomArray_codec);
+            break;
+          }
+          case 56: {
+            TestOneOfInt = input.ReadInt32();
+            break;
+          }
+          case 66: {
+            TestOneOfString = input.ReadString();
+            break;
+          }
+          case 74: {
+            global::CRYSTALNET.Service.TestCustomData subBuilder = new global::CRYSTALNET.Service.TestCustomData();
+            if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfCustom) {
+              subBuilder.MergeFrom(TestOneOfCustom);
+            }
+            input.ReadMessage(subBuilder);
+            TestOneOfCustom = subBuilder;
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            TestInt = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            TestString = input.ReadString();
+            break;
+          }
+          case 26:
+          case 24: {
+            testIntArray_.AddEntriesFrom(ref input, _repeated_testIntArray_codec);
+            break;
+          }
+          case 34: {
+            testStringArray_.AddEntriesFrom(ref input, _repeated_testStringArray_codec);
+            break;
+          }
+          case 42: {
+            if (testCustom_ == null) {
+              TestCustom = new global::CRYSTALNET.Service.TestCustomData();
+            }
+            input.ReadMessage(TestCustom);
+            break;
+          }
+          case 50: {
+            testCustomArray_.AddEntriesFrom(ref input, _repeated_testCustomArray_codec);
+            break;
+          }
+          case 56: {
+            TestOneOfInt = input.ReadInt32();
+            break;
+          }
+          case 66: {
+            TestOneOfString = input.ReadString();
+            break;
+          }
+          case 74: {
+            global::CRYSTALNET.Service.TestCustomData subBuilder = new global::CRYSTALNET.Service.TestCustomData();
+            if (testOneOfCase_ == TestOneOfOneofCase.TestOneOfCustom) {
+              subBuilder.MergeFrom(TestOneOfCustom);
+            }
+            input.ReadMessage(subBuilder);
+            TestOneOfCustom = subBuilder;
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   /// <summary>
   /// 登录模式
   /// </summary>
@@ -837,7 +1551,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[1]; }
+      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1012,7 +1726,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[2]; }
+      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1327,7 +2041,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[3]; }
+      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2000,7 +2714,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[4]; }
+      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2194,7 +2908,7 @@ using ProtoPackage.Attributes;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[5]; }
+      get { return global::CRYSTALNET.Service.ComUserReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

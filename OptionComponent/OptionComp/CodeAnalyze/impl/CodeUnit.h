@@ -81,6 +81,9 @@ public:
         // 可选
         OPTION_FILED_FLAG_POS,
 
+        // 简单数据类型字段
+        SIMPLE_TYPE_FIELD_FLAG_POS,
+
         // 最大
         MAX_POS,
     };
@@ -93,14 +96,15 @@ public:
 
         NAMESPACE_FLAG = (1LLU << NAMESPACE_FLAG_POS),
 
+        SIMPLE_TYPE_FIELD_FLAG = (1LLU << SIMPLE_TYPE_FIELD_FLAG_POS),
+
         FIELD_FLAG = (1LLU << FIELD_FLAG_POS),
-        NUMBER_FIELD_FLAG = FIELD_FLAG | (1LLU << NUMBER_FIELD_FLAG_POS),
-        ENUM_FIELD_FLAG = FIELD_FLAG | (1LLU << ENUM_FIELD_FLAG_POS),
-        BOOL_FIELD_FLAG = FIELD_FLAG | (1LLU << BOOL_FIELD_FLAG_POS),
-        STRING_FIELD_FLAG = FIELD_FLAG | (1LLU << STRING_FIELD_FLAG_POS),
+        NUMBER_FIELD_FLAG = FIELD_FLAG | (1LLU << NUMBER_FIELD_FLAG_POS) | SIMPLE_TYPE_FIELD_FLAG,
+        ENUM_FIELD_FLAG = FIELD_FLAG | (1LLU << ENUM_FIELD_FLAG_POS) | SIMPLE_TYPE_FIELD_FLAG,
+        BOOL_FIELD_FLAG = FIELD_FLAG | (1LLU << BOOL_FIELD_FLAG_POS) | SIMPLE_TYPE_FIELD_FLAG,
+        STRING_FIELD_FLAG = FIELD_FLAG | (1LLU << STRING_FIELD_FLAG_POS) | SIMPLE_TYPE_FIELD_FLAG,
         CUSTOM_FIELD_FLAG = FIELD_FLAG | (1LLU << CUSTOM_FIELD_FLAG_POS),
         ARRAY_FIELD_FLAG = FIELD_FLAG | (1LLU << ARRAY_FIELD_FLAG_POS),
-
 
         FUNCTION_FLAG = FIELD_FLAG | (1LLU << FUNCTION_FLAG_POS),
 
@@ -137,10 +141,12 @@ public:
     static SmartPtr<CodeUnit, AutoDelMethods::Release> CreateCodeUnit();
 
     LibString GetFullName() const;
+    // 当是字段时候获取类型名(自定义类型会获取全名)
+    LibString GetDataTypeAsField() const;
     const LibString &GetUnitName() const;
     Int32 GetLine() const;
     const LibString &GetFileName() const;
-    LibString GetBelongToArea() const;
+    LibString GetBelongToArea(const KERNEL_NS::LibString &sep = "") const;
 
     // 单元名
     LibString _unitName;
@@ -150,6 +156,9 @@ public:
 
     // 所在文件名
     LibString _fileName;
+
+    // 完整路径
+    LibString _fullPath;
 
     // 所属的域
     std::vector<KERNEL_NS::LibString> _belongToArea;
@@ -181,6 +190,14 @@ ALWAYS_INLINE LibString CodeUnit::GetFullName() const
     return fullName;    
 }
 
+ALWAYS_INLINE LibString CodeUnit::GetDataTypeAsField() const
+{
+    if(!_params.empty())
+        return _params[_params.size() - 1];
+
+    return "";
+}
+
 ALWAYS_INLINE const LibString &CodeUnit::GetUnitName() const
 {
     return _unitName;
@@ -196,11 +213,17 @@ ALWAYS_INLINE const LibString &CodeUnit::GetFileName() const
     return _fileName;
 }
 
-ALWAYS_INLINE LibString CodeUnit::GetBelongToArea() const
+ALWAYS_INLINE LibString CodeUnit::GetBelongToArea(const KERNEL_NS::LibString &sep) const
 {
     KERNEL_NS::LibString area;
-    for(auto &item : _belongToArea)
-        area.AppendData(item);
+    const Int32 count = static_cast<Int32>(_belongToArea.size());
+    for(Int32 idx = 0; idx < count; ++idx)
+    {
+        area.AppendData(_belongToArea[idx]);
+
+        if(!sep.empty() && (idx != (count - 1)))
+            area.AppendData(sep);
+    }
 
     return area;
 }

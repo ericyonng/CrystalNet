@@ -74,8 +74,8 @@ public:
     static LibString ExtractFileWithoutExtension(const LibString &fileName); 
     static Int32 GetFileNo(FILE *fp);
     static Int32 Rename(const LibString &oldPathFile, const LibString &newPathFile);
-    static bool ReplaceFile(const LibString &fileName, const std::vector<LibString> &newLines);
-    static bool ReplaceFile(const LibString &fileName, const std::map<Int32, LibString> &newLines);
+    static bool ReplaceFileBy(const LibString &fileName, const std::vector<LibString> &newLines);
+    static bool ReplaceFileBy(const LibString &fileName, const std::map<Int32, LibString> &newLines);
 
     //
     // 读取ASCII行

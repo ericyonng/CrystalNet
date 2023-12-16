@@ -73,6 +73,12 @@ extern RegisterUserInfoDefaultTypeInternal _RegisterUserInfo_default_instance_;
 class SimpleUserInfo;
 struct SimpleUserInfoDefaultTypeInternal;
 extern SimpleUserInfoDefaultTypeInternal _SimpleUserInfo_default_instance_;
+class TestCustomData;
+struct TestCustomDataDefaultTypeInternal;
+extern TestCustomDataDefaultTypeInternal _TestCustomData_default_instance_;
+class TestOrm;
+struct TestOrmDefaultTypeInternal;
+extern TestOrmDefaultTypeInternal _TestOrm_default_instance_;
 class UserBaseInfo;
 struct UserBaseInfoDefaultTypeInternal;
 extern UserBaseInfoDefaultTypeInternal _UserBaseInfo_default_instance_;
@@ -84,6 +90,8 @@ template<> ::CRYSTAL_NET::service::LoginMode* Arena::CreateMaybeMessage<::CRYSTA
 template<> ::CRYSTAL_NET::service::LogoutReason* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::LogoutReason>(Arena*);
 template<> ::CRYSTAL_NET::service::RegisterUserInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::RegisterUserInfo>(Arena*);
 template<> ::CRYSTAL_NET::service::SimpleUserInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::SimpleUserInfo>(Arena*);
+template<> ::CRYSTAL_NET::service::TestCustomData* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TestCustomData>(Arena*);
+template<> ::CRYSTAL_NET::service::TestOrm* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::TestOrm>(Arena*);
 template<> ::CRYSTAL_NET::service::UserBaseInfo* Arena::CreateMaybeMessage<::CRYSTAL_NET::service::UserBaseInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace CRYSTAL_NET {
@@ -639,6 +647,763 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 // -------------------------------------------------------------------
 
 // AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
+class TestCustomData final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestCustomData) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message TestCustomData failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message TestCustomData failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message TestCustomData failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message TestCustomData failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message TestCustomData failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message TestCustomData failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline TestCustomData() : TestCustomData(nullptr) {}
+  ~TestCustomData() override;
+  explicit PROTOBUF_CONSTEXPR TestCustomData(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  TestCustomData(const TestCustomData& from);
+  TestCustomData(TestCustomData&& from) noexcept
+    : TestCustomData() {
+    *this = ::std::move(from);
+  }
+
+  inline TestCustomData& operator=(const TestCustomData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TestCustomData& operator=(TestCustomData&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const TestCustomData& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const TestCustomData* internal_default_instance() {
+    return reinterpret_cast<const TestCustomData*>(
+               &_TestCustomData_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(TestCustomData& a, TestCustomData& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TestCustomData* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(TestCustomData* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  TestCustomData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<TestCustomData>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const TestCustomData& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const TestCustomData& from) {
+    TestCustomData::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(TestCustomData* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.TestCustomData";
+  }
+  protected:
+  explicit TestCustomData(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTestIntFieldNumber = 1,
+  };
+  // int32 TestInt = 1;
+  void clear_testint();
+  int32_t testint() const;
+  void set_testint(int32_t value);
+  private:
+  int32_t _internal_testint() const;
+  void _internal_set_testint(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestCustomData)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    int32_t testint_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5fuser_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(true)]
+class TestOrm final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.TestOrm) */ , public KERNEL_NS::ICoder {
+public:
+virtual void Release() override {
+    delete this;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message TestOrm failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message TestOrm failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const override {
+    if (UNLIKELY(!IsInitialized()))
+    {
+      g_Log->Error(LOGFMT_OBJ_TAG("Encode message TestOrm failed, error: %s"), InitializationErrorString().c_str());
+      return false;
+    }
+
+    size_t payloadSize = ByteSizeLong();
+    if (payloadSize == 0)
+      return true;
+
+    if(UNLIKELY(stream.GetBuffer() == NULL))
+        stream.Init(payloadSize);
+
+    auto writableSize = stream.GetWritableSize();
+    if (writableSize < static_cast<Int64>(payloadSize))
+    {
+        if(UNLIKELY(!stream.AppendCapacity(static_cast<Int64>(payloadSize) - writableSize)))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("stream append capacity fail IsAttach:%d"), stream.IsAttach());
+            return false;
+        }
+    }
+
+    if (UNLIKELY(!SerializeToArray(stream.GetWriteBegin(), static_cast<Int32>(stream.GetWritableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Encode message TestOrm failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    stream.ShiftWritePos(payloadSize);
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message TestOrm failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    if (stream.GetReadableSize() == 0)
+    {
+        Clear();
+        return true;
+    }
+
+    if (UNLIKELY(!ParseFromArray(stream.GetReadBegin(), static_cast<Int32>(stream.GetReadableSize()))))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("Decode message TestOrm failed, error: %s"), InitializationErrorString().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+virtual KERNEL_NS::LibString ToJsonString() const override {
+    KERNEL_NS::LibString data;
+    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return "";
+    }
+
+    return data;
+}
+
+virtual bool ToJsonString(std::string *data) const override {
+    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+virtual bool FromJsonString(const Byte8 *data, size_t len) override {
+    auto &&jsonString = ::google::protobuf::StringPiece(data, len);
+    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        return false;
+    }
+
+    return true;
+}
+
+
+ public:
+  inline TestOrm() : TestOrm(nullptr) {}
+  ~TestOrm() override;
+  explicit PROTOBUF_CONSTEXPR TestOrm(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  TestOrm(const TestOrm& from);
+  TestOrm(TestOrm&& from) noexcept
+    : TestOrm() {
+    *this = ::std::move(from);
+  }
+
+  inline TestOrm& operator=(const TestOrm& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TestOrm& operator=(TestOrm&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const TestOrm& default_instance() {
+    return *internal_default_instance();
+  }
+  enum TestOneOfCase {
+    kTestOneOfInt = 7,
+    kTestOneOfString = 8,
+    kTestOneOfCustom = 9,
+    TESTONEOF_NOT_SET = 0,
+  };
+
+  static inline const TestOrm* internal_default_instance() {
+    return reinterpret_cast<const TestOrm*>(
+               &_TestOrm_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(TestOrm& a, TestOrm& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TestOrm* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(TestOrm* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  TestOrm* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<TestOrm>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const TestOrm& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const TestOrm& from) {
+    TestOrm::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(TestOrm* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "CRYSTAL_NET.service.TestOrm";
+  }
+  protected:
+  explicit TestOrm(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTestIntArrayFieldNumber = 3,
+    kTestStringArrayFieldNumber = 4,
+    kTestCustomArrayFieldNumber = 6,
+    kTestStringFieldNumber = 2,
+    kTestCustomFieldNumber = 5,
+    kTestIntFieldNumber = 1,
+    kTestOneOfIntFieldNumber = 7,
+    kTestOneOfStringFieldNumber = 8,
+    kTestOneOfCustomFieldNumber = 9,
+  };
+  // repeated int32 TestIntArray = 3;
+  int testintarray_size() const;
+  private:
+  int _internal_testintarray_size() const;
+  public:
+  void clear_testintarray();
+  private:
+  int32_t _internal_testintarray(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      _internal_testintarray() const;
+  void _internal_add_testintarray(int32_t value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      _internal_mutable_testintarray();
+  public:
+  int32_t testintarray(int index) const;
+  void set_testintarray(int index, int32_t value);
+  void add_testintarray(int32_t value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+      testintarray() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+      mutable_testintarray();
+
+  // repeated string TestStringArray = 4;
+  int teststringarray_size() const;
+  private:
+  int _internal_teststringarray_size() const;
+  public:
+  void clear_teststringarray();
+  const std::string& teststringarray(int index) const;
+  std::string* mutable_teststringarray(int index);
+  void set_teststringarray(int index, const std::string& value);
+  void set_teststringarray(int index, std::string&& value);
+  void set_teststringarray(int index, const char* value);
+  void set_teststringarray(int index, const char* value, size_t size);
+  std::string* add_teststringarray();
+  void add_teststringarray(const std::string& value);
+  void add_teststringarray(std::string&& value);
+  void add_teststringarray(const char* value);
+  void add_teststringarray(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& teststringarray() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_teststringarray();
+  private:
+  const std::string& _internal_teststringarray(int index) const;
+  std::string* _internal_add_teststringarray();
+  public:
+
+  // repeated .CRYSTAL_NET.service.TestCustomData TestCustomArray = 6;
+  int testcustomarray_size() const;
+  private:
+  int _internal_testcustomarray_size() const;
+  public:
+  void clear_testcustomarray();
+  ::CRYSTAL_NET::service::TestCustomData* mutable_testcustomarray(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TestCustomData >*
+      mutable_testcustomarray();
+  private:
+  const ::CRYSTAL_NET::service::TestCustomData& _internal_testcustomarray(int index) const;
+  ::CRYSTAL_NET::service::TestCustomData* _internal_add_testcustomarray();
+  public:
+  const ::CRYSTAL_NET::service::TestCustomData& testcustomarray(int index) const;
+  ::CRYSTAL_NET::service::TestCustomData* add_testcustomarray();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TestCustomData >&
+      testcustomarray() const;
+
+  // string TestString = 2;
+  void clear_teststring();
+  const std::string& teststring() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_teststring(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_teststring();
+  PROTOBUF_NODISCARD std::string* release_teststring();
+  void set_allocated_teststring(std::string* teststring);
+  private:
+  const std::string& _internal_teststring() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_teststring(const std::string& value);
+  std::string* _internal_mutable_teststring();
+  public:
+
+  // .CRYSTAL_NET.service.TestCustomData TestCustom = 5;
+  bool has_testcustom() const;
+  private:
+  bool _internal_has_testcustom() const;
+  public:
+  void clear_testcustom();
+  const ::CRYSTAL_NET::service::TestCustomData& testcustom() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::TestCustomData* release_testcustom();
+  ::CRYSTAL_NET::service::TestCustomData* mutable_testcustom();
+  void set_allocated_testcustom(::CRYSTAL_NET::service::TestCustomData* testcustom);
+  private:
+  const ::CRYSTAL_NET::service::TestCustomData& _internal_testcustom() const;
+  ::CRYSTAL_NET::service::TestCustomData* _internal_mutable_testcustom();
+  public:
+  void unsafe_arena_set_allocated_testcustom(
+      ::CRYSTAL_NET::service::TestCustomData* testcustom);
+  ::CRYSTAL_NET::service::TestCustomData* unsafe_arena_release_testcustom();
+
+  // int32 TestInt = 1;
+  void clear_testint();
+  int32_t testint() const;
+  void set_testint(int32_t value);
+  private:
+  int32_t _internal_testint() const;
+  void _internal_set_testint(int32_t value);
+  public:
+
+  // int32 TestOneOfInt = 7;
+  bool has_testoneofint() const;
+  private:
+  bool _internal_has_testoneofint() const;
+  public:
+  void clear_testoneofint();
+  int32_t testoneofint() const;
+  void set_testoneofint(int32_t value);
+  private:
+  int32_t _internal_testoneofint() const;
+  void _internal_set_testoneofint(int32_t value);
+  public:
+
+  // string TestOneOfString = 8;
+  bool has_testoneofstring() const;
+  private:
+  bool _internal_has_testoneofstring() const;
+  public:
+  void clear_testoneofstring();
+  const std::string& testoneofstring() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_testoneofstring(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_testoneofstring();
+  PROTOBUF_NODISCARD std::string* release_testoneofstring();
+  void set_allocated_testoneofstring(std::string* testoneofstring);
+  private:
+  const std::string& _internal_testoneofstring() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_testoneofstring(const std::string& value);
+  std::string* _internal_mutable_testoneofstring();
+  public:
+
+  // .CRYSTAL_NET.service.TestCustomData TestOneOfCustom = 9;
+  bool has_testoneofcustom() const;
+  private:
+  bool _internal_has_testoneofcustom() const;
+  public:
+  void clear_testoneofcustom();
+  const ::CRYSTAL_NET::service::TestCustomData& testoneofcustom() const;
+  PROTOBUF_NODISCARD ::CRYSTAL_NET::service::TestCustomData* release_testoneofcustom();
+  ::CRYSTAL_NET::service::TestCustomData* mutable_testoneofcustom();
+  void set_allocated_testoneofcustom(::CRYSTAL_NET::service::TestCustomData* testoneofcustom);
+  private:
+  const ::CRYSTAL_NET::service::TestCustomData& _internal_testoneofcustom() const;
+  ::CRYSTAL_NET::service::TestCustomData* _internal_mutable_testoneofcustom();
+  public:
+  void unsafe_arena_set_allocated_testoneofcustom(
+      ::CRYSTAL_NET::service::TestCustomData* testoneofcustom);
+  ::CRYSTAL_NET::service::TestCustomData* unsafe_arena_release_testoneofcustom();
+
+  void clear_TestOneOf();
+  TestOneOfCase TestOneOf_case() const;
+  // @@protoc_insertion_point(class_scope:CRYSTAL_NET.service.TestOrm)
+ private:
+  class _Internal;
+  void set_has_testoneofint();
+  void set_has_testoneofstring();
+  void set_has_testoneofcustom();
+
+  inline bool has_TestOneOf() const;
+  inline void clear_has_TestOneOf();
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > testintarray_;
+    mutable std::atomic<int> _testintarray_cached_byte_size_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> teststringarray_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TestCustomData > testcustomarray_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr teststring_;
+    ::CRYSTAL_NET::service::TestCustomData* testcustom_;
+    int32_t testint_;
+    union TestOneOfUnion {
+      constexpr TestOneOfUnion() : _constinit_{} {}
+        ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+      int32_t testoneofint_;
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr testoneofstring_;
+      ::CRYSTAL_NET::service::TestCustomData* testoneofcustom_;
+    } TestOneOf_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+    uint32_t _oneof_case_[1];
+
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_com_5fuser_2eproto;
+};
+// -------------------------------------------------------------------
+
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
 class LoginMode final :
     public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.LoginMode) */ , public KERNEL_NS::ICoder {
 public:
@@ -824,7 +1589,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LoginMode_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    3;
 
   friend void swap(LoginMode& a, LoginMode& b) {
     a.Swap(&b);
@@ -1114,7 +1879,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_RegisterUserInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    4;
 
   friend void swap(RegisterUserInfo& a, RegisterUserInfo& b) {
     a.Swap(&b);
@@ -1459,7 +2224,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LoginInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    5;
 
   friend void swap(LoginInfo& a, LoginInfo& b) {
     a.Swap(&b);
@@ -1927,7 +2692,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_LogoutReason_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    6;
 
   friend void swap(LogoutReason& a, LogoutReason& b) {
     a.Swap(&b);
@@ -2225,7 +2990,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
                &_SimpleUserInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    7;
 
   friend void swap(SimpleUserInfo& a, SimpleUserInfo& b) {
     a.Swap(&b);
@@ -2961,6 +3726,554 @@ inline void UserBaseInfo::set_lastpassdaytime(int64_t value) {
   // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.UserBaseInfo.LastPassDayTime)
 }
 
+// -------------------------------------------------------------------
+
+// TestCustomData
+
+// int32 TestInt = 1;
+inline void TestCustomData::clear_testint() {
+  _impl_.testint_ = 0;
+}
+inline int32_t TestCustomData::_internal_testint() const {
+  return _impl_.testint_;
+}
+inline int32_t TestCustomData::testint() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestCustomData.TestInt)
+  return _internal_testint();
+}
+inline void TestCustomData::_internal_set_testint(int32_t value) {
+  
+  _impl_.testint_ = value;
+}
+inline void TestCustomData::set_testint(int32_t value) {
+  _internal_set_testint(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestCustomData.TestInt)
+}
+
+// -------------------------------------------------------------------
+
+// TestOrm
+
+// int32 TestInt = 1;
+inline void TestOrm::clear_testint() {
+  _impl_.testint_ = 0;
+}
+inline int32_t TestOrm::_internal_testint() const {
+  return _impl_.testint_;
+}
+inline int32_t TestOrm::testint() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOrm.TestInt)
+  return _internal_testint();
+}
+inline void TestOrm::_internal_set_testint(int32_t value) {
+  
+  _impl_.testint_ = value;
+}
+inline void TestOrm::set_testint(int32_t value) {
+  _internal_set_testint(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOrm.TestInt)
+}
+
+// string TestString = 2;
+inline void TestOrm::clear_teststring() {
+  _impl_.teststring_.ClearToEmpty();
+}
+inline const std::string& TestOrm::teststring() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOrm.TestString)
+  return _internal_teststring();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void TestOrm::set_teststring(ArgT0&& arg0, ArgT... args) {
+ 
+ _impl_.teststring_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOrm.TestString)
+}
+inline std::string* TestOrm::mutable_teststring() {
+  std::string* _s = _internal_mutable_teststring();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOrm.TestString)
+  return _s;
+}
+inline const std::string& TestOrm::_internal_teststring() const {
+  return _impl_.teststring_.Get();
+}
+inline void TestOrm::_internal_set_teststring(const std::string& value) {
+  
+  _impl_.teststring_.Set(value, GetArenaForAllocation());
+}
+inline std::string* TestOrm::_internal_mutable_teststring() {
+  
+  return _impl_.teststring_.Mutable(GetArenaForAllocation());
+}
+inline std::string* TestOrm::release_teststring() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOrm.TestString)
+  return _impl_.teststring_.Release();
+}
+inline void TestOrm::set_allocated_teststring(std::string* teststring) {
+  if (teststring != nullptr) {
+    
+  } else {
+    
+  }
+  _impl_.teststring_.SetAllocated(teststring, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.teststring_.IsDefault()) {
+    _impl_.teststring_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOrm.TestString)
+}
+
+// repeated int32 TestIntArray = 3;
+inline int TestOrm::_internal_testintarray_size() const {
+  return _impl_.testintarray_.size();
+}
+inline int TestOrm::testintarray_size() const {
+  return _internal_testintarray_size();
+}
+inline void TestOrm::clear_testintarray() {
+  _impl_.testintarray_.Clear();
+}
+inline int32_t TestOrm::_internal_testintarray(int index) const {
+  return _impl_.testintarray_.Get(index);
+}
+inline int32_t TestOrm::testintarray(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOrm.TestIntArray)
+  return _internal_testintarray(index);
+}
+inline void TestOrm::set_testintarray(int index, int32_t value) {
+  _impl_.testintarray_.Set(index, value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOrm.TestIntArray)
+}
+inline void TestOrm::_internal_add_testintarray(int32_t value) {
+  _impl_.testintarray_.Add(value);
+}
+inline void TestOrm::add_testintarray(int32_t value) {
+  _internal_add_testintarray(value);
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.TestOrm.TestIntArray)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+TestOrm::_internal_testintarray() const {
+  return _impl_.testintarray_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
+TestOrm::testintarray() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.TestOrm.TestIntArray)
+  return _internal_testintarray();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+TestOrm::_internal_mutable_testintarray() {
+  return &_impl_.testintarray_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
+TestOrm::mutable_testintarray() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.TestOrm.TestIntArray)
+  return _internal_mutable_testintarray();
+}
+
+// repeated string TestStringArray = 4;
+inline int TestOrm::_internal_teststringarray_size() const {
+  return _impl_.teststringarray_.size();
+}
+inline int TestOrm::teststringarray_size() const {
+  return _internal_teststringarray_size();
+}
+inline void TestOrm::clear_teststringarray() {
+  _impl_.teststringarray_.Clear();
+}
+inline std::string* TestOrm::add_teststringarray() {
+  std::string* _s = _internal_add_teststringarray();
+  // @@protoc_insertion_point(field_add_mutable:CRYSTAL_NET.service.TestOrm.TestStringArray)
+  return _s;
+}
+inline const std::string& TestOrm::_internal_teststringarray(int index) const {
+  return _impl_.teststringarray_.Get(index);
+}
+inline const std::string& TestOrm::teststringarray(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOrm.TestStringArray)
+  return _internal_teststringarray(index);
+}
+inline std::string* TestOrm::mutable_teststringarray(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOrm.TestStringArray)
+  return _impl_.teststringarray_.Mutable(index);
+}
+inline void TestOrm::set_teststringarray(int index, const std::string& value) {
+  _impl_.teststringarray_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOrm.TestStringArray)
+}
+inline void TestOrm::set_teststringarray(int index, std::string&& value) {
+  _impl_.teststringarray_.Mutable(index)->assign(std::move(value));
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOrm.TestStringArray)
+}
+inline void TestOrm::set_teststringarray(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.teststringarray_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:CRYSTAL_NET.service.TestOrm.TestStringArray)
+}
+inline void TestOrm::set_teststringarray(int index, const char* value, size_t size) {
+  _impl_.teststringarray_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:CRYSTAL_NET.service.TestOrm.TestStringArray)
+}
+inline std::string* TestOrm::_internal_add_teststringarray() {
+  return _impl_.teststringarray_.Add();
+}
+inline void TestOrm::add_teststringarray(const std::string& value) {
+  _impl_.teststringarray_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.TestOrm.TestStringArray)
+}
+inline void TestOrm::add_teststringarray(std::string&& value) {
+  _impl_.teststringarray_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.TestOrm.TestStringArray)
+}
+inline void TestOrm::add_teststringarray(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _impl_.teststringarray_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:CRYSTAL_NET.service.TestOrm.TestStringArray)
+}
+inline void TestOrm::add_teststringarray(const char* value, size_t size) {
+  _impl_.teststringarray_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:CRYSTAL_NET.service.TestOrm.TestStringArray)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+TestOrm::teststringarray() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.TestOrm.TestStringArray)
+  return _impl_.teststringarray_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+TestOrm::mutable_teststringarray() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.TestOrm.TestStringArray)
+  return &_impl_.teststringarray_;
+}
+
+// .CRYSTAL_NET.service.TestCustomData TestCustom = 5;
+inline bool TestOrm::_internal_has_testcustom() const {
+  return this != internal_default_instance() && _impl_.testcustom_ != nullptr;
+}
+inline bool TestOrm::has_testcustom() const {
+  return _internal_has_testcustom();
+}
+inline void TestOrm::clear_testcustom() {
+  if (GetArenaForAllocation() == nullptr && _impl_.testcustom_ != nullptr) {
+    delete _impl_.testcustom_;
+  }
+  _impl_.testcustom_ = nullptr;
+}
+inline const ::CRYSTAL_NET::service::TestCustomData& TestOrm::_internal_testcustom() const {
+  const ::CRYSTAL_NET::service::TestCustomData* p = _impl_.testcustom_;
+  return p != nullptr ? *p : reinterpret_cast<const ::CRYSTAL_NET::service::TestCustomData&>(
+      ::CRYSTAL_NET::service::_TestCustomData_default_instance_);
+}
+inline const ::CRYSTAL_NET::service::TestCustomData& TestOrm::testcustom() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOrm.TestCustom)
+  return _internal_testcustom();
+}
+inline void TestOrm::unsafe_arena_set_allocated_testcustom(
+    ::CRYSTAL_NET::service::TestCustomData* testcustom) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.testcustom_);
+  }
+  _impl_.testcustom_ = testcustom;
+  if (testcustom) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.TestOrm.TestCustom)
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::release_testcustom() {
+  
+  ::CRYSTAL_NET::service::TestCustomData* temp = _impl_.testcustom_;
+  _impl_.testcustom_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::unsafe_arena_release_testcustom() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOrm.TestCustom)
+  
+  ::CRYSTAL_NET::service::TestCustomData* temp = _impl_.testcustom_;
+  _impl_.testcustom_ = nullptr;
+  return temp;
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::_internal_mutable_testcustom() {
+  
+  if (_impl_.testcustom_ == nullptr) {
+    auto* p = CreateMaybeMessage<::CRYSTAL_NET::service::TestCustomData>(GetArenaForAllocation());
+    _impl_.testcustom_ = p;
+  }
+  return _impl_.testcustom_;
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::mutable_testcustom() {
+  ::CRYSTAL_NET::service::TestCustomData* _msg = _internal_mutable_testcustom();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOrm.TestCustom)
+  return _msg;
+}
+inline void TestOrm::set_allocated_testcustom(::CRYSTAL_NET::service::TestCustomData* testcustom) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.testcustom_;
+  }
+  if (testcustom) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(testcustom);
+    if (message_arena != submessage_arena) {
+      testcustom = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, testcustom, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.testcustom_ = testcustom;
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOrm.TestCustom)
+}
+
+// repeated .CRYSTAL_NET.service.TestCustomData TestCustomArray = 6;
+inline int TestOrm::_internal_testcustomarray_size() const {
+  return _impl_.testcustomarray_.size();
+}
+inline int TestOrm::testcustomarray_size() const {
+  return _internal_testcustomarray_size();
+}
+inline void TestOrm::clear_testcustomarray() {
+  _impl_.testcustomarray_.Clear();
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::mutable_testcustomarray(int index) {
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOrm.TestCustomArray)
+  return _impl_.testcustomarray_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TestCustomData >*
+TestOrm::mutable_testcustomarray() {
+  // @@protoc_insertion_point(field_mutable_list:CRYSTAL_NET.service.TestOrm.TestCustomArray)
+  return &_impl_.testcustomarray_;
+}
+inline const ::CRYSTAL_NET::service::TestCustomData& TestOrm::_internal_testcustomarray(int index) const {
+  return _impl_.testcustomarray_.Get(index);
+}
+inline const ::CRYSTAL_NET::service::TestCustomData& TestOrm::testcustomarray(int index) const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOrm.TestCustomArray)
+  return _internal_testcustomarray(index);
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::_internal_add_testcustomarray() {
+  return _impl_.testcustomarray_.Add();
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::add_testcustomarray() {
+  ::CRYSTAL_NET::service::TestCustomData* _add = _internal_add_testcustomarray();
+  // @@protoc_insertion_point(field_add:CRYSTAL_NET.service.TestOrm.TestCustomArray)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::CRYSTAL_NET::service::TestCustomData >&
+TestOrm::testcustomarray() const {
+  // @@protoc_insertion_point(field_list:CRYSTAL_NET.service.TestOrm.TestCustomArray)
+  return _impl_.testcustomarray_;
+}
+
+// int32 TestOneOfInt = 7;
+inline bool TestOrm::_internal_has_testoneofint() const {
+  return TestOneOf_case() == kTestOneOfInt;
+}
+inline bool TestOrm::has_testoneofint() const {
+  return _internal_has_testoneofint();
+}
+inline void TestOrm::set_has_testoneofint() {
+  _impl_._oneof_case_[0] = kTestOneOfInt;
+}
+inline void TestOrm::clear_testoneofint() {
+  if (_internal_has_testoneofint()) {
+    _impl_.TestOneOf_.testoneofint_ = 0;
+    clear_has_TestOneOf();
+  }
+}
+inline int32_t TestOrm::_internal_testoneofint() const {
+  if (_internal_has_testoneofint()) {
+    return _impl_.TestOneOf_.testoneofint_;
+  }
+  return 0;
+}
+inline void TestOrm::_internal_set_testoneofint(int32_t value) {
+  if (!_internal_has_testoneofint()) {
+    clear_TestOneOf();
+    set_has_testoneofint();
+  }
+  _impl_.TestOneOf_.testoneofint_ = value;
+}
+inline int32_t TestOrm::testoneofint() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOrm.TestOneOfInt)
+  return _internal_testoneofint();
+}
+inline void TestOrm::set_testoneofint(int32_t value) {
+  _internal_set_testoneofint(value);
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOrm.TestOneOfInt)
+}
+
+// string TestOneOfString = 8;
+inline bool TestOrm::_internal_has_testoneofstring() const {
+  return TestOneOf_case() == kTestOneOfString;
+}
+inline bool TestOrm::has_testoneofstring() const {
+  return _internal_has_testoneofstring();
+}
+inline void TestOrm::set_has_testoneofstring() {
+  _impl_._oneof_case_[0] = kTestOneOfString;
+}
+inline void TestOrm::clear_testoneofstring() {
+  if (_internal_has_testoneofstring()) {
+    _impl_.TestOneOf_.testoneofstring_.Destroy();
+    clear_has_TestOneOf();
+  }
+}
+inline const std::string& TestOrm::testoneofstring() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOrm.TestOneOfString)
+  return _internal_testoneofstring();
+}
+template <typename ArgT0, typename... ArgT>
+inline void TestOrm::set_testoneofstring(ArgT0&& arg0, ArgT... args) {
+  if (!_internal_has_testoneofstring()) {
+    clear_TestOneOf();
+    set_has_testoneofstring();
+    _impl_.TestOneOf_.testoneofstring_.InitDefault();
+  }
+  _impl_.TestOneOf_.testoneofstring_.Set( static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:CRYSTAL_NET.service.TestOrm.TestOneOfString)
+}
+inline std::string* TestOrm::mutable_testoneofstring() {
+  std::string* _s = _internal_mutable_testoneofstring();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOrm.TestOneOfString)
+  return _s;
+}
+inline const std::string& TestOrm::_internal_testoneofstring() const {
+  if (_internal_has_testoneofstring()) {
+    return _impl_.TestOneOf_.testoneofstring_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void TestOrm::_internal_set_testoneofstring(const std::string& value) {
+  if (!_internal_has_testoneofstring()) {
+    clear_TestOneOf();
+    set_has_testoneofstring();
+    _impl_.TestOneOf_.testoneofstring_.InitDefault();
+  }
+  _impl_.TestOneOf_.testoneofstring_.Set(value, GetArenaForAllocation());
+}
+inline std::string* TestOrm::_internal_mutable_testoneofstring() {
+  if (!_internal_has_testoneofstring()) {
+    clear_TestOneOf();
+    set_has_testoneofstring();
+    _impl_.TestOneOf_.testoneofstring_.InitDefault();
+  }
+  return _impl_.TestOneOf_.testoneofstring_.Mutable(      GetArenaForAllocation());
+}
+inline std::string* TestOrm::release_testoneofstring() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOrm.TestOneOfString)
+  if (_internal_has_testoneofstring()) {
+    clear_has_TestOneOf();
+    return _impl_.TestOneOf_.testoneofstring_.Release();
+  } else {
+    return nullptr;
+  }
+}
+inline void TestOrm::set_allocated_testoneofstring(std::string* testoneofstring) {
+  if (has_TestOneOf()) {
+    clear_TestOneOf();
+  }
+  if (testoneofstring != nullptr) {
+    set_has_testoneofstring();
+    _impl_.TestOneOf_.testoneofstring_.InitAllocated(testoneofstring, GetArenaForAllocation());
+  }
+  // @@protoc_insertion_point(field_set_allocated:CRYSTAL_NET.service.TestOrm.TestOneOfString)
+}
+
+// .CRYSTAL_NET.service.TestCustomData TestOneOfCustom = 9;
+inline bool TestOrm::_internal_has_testoneofcustom() const {
+  return TestOneOf_case() == kTestOneOfCustom;
+}
+inline bool TestOrm::has_testoneofcustom() const {
+  return _internal_has_testoneofcustom();
+}
+inline void TestOrm::set_has_testoneofcustom() {
+  _impl_._oneof_case_[0] = kTestOneOfCustom;
+}
+inline void TestOrm::clear_testoneofcustom() {
+  if (_internal_has_testoneofcustom()) {
+    if (GetArenaForAllocation() == nullptr) {
+      delete _impl_.TestOneOf_.testoneofcustom_;
+    }
+    clear_has_TestOneOf();
+  }
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::release_testoneofcustom() {
+  // @@protoc_insertion_point(field_release:CRYSTAL_NET.service.TestOrm.TestOneOfCustom)
+  if (_internal_has_testoneofcustom()) {
+    clear_has_TestOneOf();
+    ::CRYSTAL_NET::service::TestCustomData* temp = _impl_.TestOneOf_.testoneofcustom_;
+    if (GetArenaForAllocation() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.TestOneOf_.testoneofcustom_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::CRYSTAL_NET::service::TestCustomData& TestOrm::_internal_testoneofcustom() const {
+  return _internal_has_testoneofcustom()
+      ? *_impl_.TestOneOf_.testoneofcustom_
+      : reinterpret_cast< ::CRYSTAL_NET::service::TestCustomData&>(::CRYSTAL_NET::service::_TestCustomData_default_instance_);
+}
+inline const ::CRYSTAL_NET::service::TestCustomData& TestOrm::testoneofcustom() const {
+  // @@protoc_insertion_point(field_get:CRYSTAL_NET.service.TestOrm.TestOneOfCustom)
+  return _internal_testoneofcustom();
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::unsafe_arena_release_testoneofcustom() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:CRYSTAL_NET.service.TestOrm.TestOneOfCustom)
+  if (_internal_has_testoneofcustom()) {
+    clear_has_TestOneOf();
+    ::CRYSTAL_NET::service::TestCustomData* temp = _impl_.TestOneOf_.testoneofcustom_;
+    _impl_.TestOneOf_.testoneofcustom_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void TestOrm::unsafe_arena_set_allocated_testoneofcustom(::CRYSTAL_NET::service::TestCustomData* testoneofcustom) {
+  clear_TestOneOf();
+  if (testoneofcustom) {
+    set_has_testoneofcustom();
+    _impl_.TestOneOf_.testoneofcustom_ = testoneofcustom;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:CRYSTAL_NET.service.TestOrm.TestOneOfCustom)
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::_internal_mutable_testoneofcustom() {
+  if (!_internal_has_testoneofcustom()) {
+    clear_TestOneOf();
+    set_has_testoneofcustom();
+    _impl_.TestOneOf_.testoneofcustom_ = CreateMaybeMessage< ::CRYSTAL_NET::service::TestCustomData >(GetArenaForAllocation());
+  }
+  return _impl_.TestOneOf_.testoneofcustom_;
+}
+inline ::CRYSTAL_NET::service::TestCustomData* TestOrm::mutable_testoneofcustom() {
+  ::CRYSTAL_NET::service::TestCustomData* _msg = _internal_mutable_testoneofcustom();
+  // @@protoc_insertion_point(field_mutable:CRYSTAL_NET.service.TestOrm.TestOneOfCustom)
+  return _msg;
+}
+
+inline bool TestOrm::has_TestOneOf() const {
+  return TestOneOf_case() != TESTONEOF_NOT_SET;
+}
+inline void TestOrm::clear_has_TestOneOf() {
+  _impl_._oneof_case_[0] = TESTONEOF_NOT_SET;
+}
+inline TestOrm::TestOneOfCase TestOrm::TestOneOf_case() const {
+  return TestOrm::TestOneOfCase(_impl_._oneof_case_[0]);
+}
 // -------------------------------------------------------------------
 
 // LoginMode
@@ -3827,6 +5140,10 @@ inline void SimpleUserInfo::set_bindphone(uint64_t value) {
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -3870,6 +5187,52 @@ public:
 
     virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
         return new ::CRYSTAL_NET::service::UserBaseInfo(*dynamic_cast<const ::CRYSTAL_NET::service::UserBaseInfo *>(coder));
+    }
+
+};
+
+
+class TestCustomDataFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, TestCustomDataFactory);
+public:
+
+    virtual void Release() override {
+        TestCustomDataFactory::Delete_TestCustomDataFactory(this);
+    }
+
+    static TestCustomDataFactory *CreateFactory() {
+        return TestCustomDataFactory::New_TestCustomDataFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::TestCustomData();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::TestCustomData(*dynamic_cast<const ::CRYSTAL_NET::service::TestCustomData *>(coder));
+    }
+
+};
+
+
+class TestOrmFactory : public KERNEL_NS::ICoderFactory {
+    POOL_CREATE_OBJ_DEFAULT_P1(ICoderFactory, TestOrmFactory);
+public:
+
+    virtual void Release() override {
+        TestOrmFactory::Delete_TestOrmFactory(this);
+    }
+
+    static TestOrmFactory *CreateFactory() {
+        return TestOrmFactory::New_TestOrmFactory();
+    }
+
+    virtual KERNEL_NS::ICoder *Create() const override {
+        return new ::CRYSTAL_NET::service::TestOrm();
+    }
+
+    virtual KERNEL_NS::ICoder *Create(const KERNEL_NS::ICoder *coder) const override {
+        return new ::CRYSTAL_NET::service::TestOrm(*dynamic_cast<const ::CRYSTAL_NET::service::TestOrm *>(coder));
     }
 
 };

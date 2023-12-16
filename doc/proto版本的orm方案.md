@@ -115,7 +115,10 @@
   class TestORMDataORMDataFactory : public IORMFactory
   {
   public:
-  	
+  	IORMData *Create() const
+  	{
+  		return new TestORMDataORMData();
+  	}
   };
   
   

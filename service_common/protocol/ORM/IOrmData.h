@@ -51,6 +51,10 @@ public:
 
     virtual void Release() = 0;
 
+    // 附着pb数据
+    void AttachPb(void *pb);
+    bool IsAttachPb() const;
+
     virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const final;
     virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const final;
 
@@ -69,12 +73,14 @@ public:
     // 设置标脏回调
     void SetMaskDirtyCallback(KERNEL_NS::IDelegate<void, IOrmData *> *cb);
 
-    // 获取脏标签id
-    const std::set<Int32> GetDirtyTagIds() const;
+    template<typename ObjType>
+    void SetMaskDirtyCallback(ObjType *objType, void (ObjType::*cb)(IOrmData *));
+    template<typename LambdaType>
+    void SetMaskDirtyCallback(LambdaType&& cb);
 
 protected:
     // 标脏
-    void _MaskDirty(Int32 tagId);
+    void _MaskDirty(bool isForce = false);
 
     // 编码成字节流
     virtual bool _OnEncode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const = 0;
@@ -84,6 +90,9 @@ protected:
     virtual bool _OnDecode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) = 0;
     virtual bool _OnDecode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) = 0;
 
+    // 附着
+    virtual void _AttachPb(void *pb) = 0;
+
 private:
     // 最后一次清洗数据时间(纳秒)
     Int64 _lastPurgeTime;
@@ -91,12 +100,24 @@ private:
     // 最后一次标脏时间(纳秒)
     Int64 _lastMaskDirtyTime;
 
-    // 脏的tag
-    std::set<Int32> _dirtyTagIds;
-
     // 脏回调
     KERNEL_NS::IDelegate<void, IOrmData *> *_maskDirtyCb;
+
+    // 是否附着pb数据
+    bool _isAttachPb;
 };
+
+ALWAYS_INLINE void IOrmData::AttachPb(void *pb)
+{
+    _AttachPb(pb);
+
+    _isAttachPb = true;
+}
+
+ALWAYS_INLINE bool IOrmData::IsAttachPb() const
+{
+    return _isAttachPb;
+}
 
 ALWAYS_INLINE bool IOrmData::IsDirty() const 
 { 
@@ -109,9 +130,18 @@ ALWAYS_INLINE void IOrmData::SetMaskDirtyCallback(KERNEL_NS::IDelegate<void, IOr
     _maskDirtyCb = cb;
 }
 
-ALWAYS_INLINE const std::set<Int32> IOrmData::GetDirtyTagIds() const
+template<typename ObjType>
+ALWAYS_INLINE void IOrmData::SetMaskDirtyCallback(ObjType *objType, void (ObjType::*cb)(IOrmData *))
 {
-    return _dirtyTagIds;
+    auto delg = KERNEL_NS::DelegateFactory::Create(objType, cb);
+    SetMaskDirtyCallback(delg);
+}
+
+template<typename LambdaType>
+ALWAYS_INLINE void IOrmData::SetMaskDirtyCallback(LambdaType&& cb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, IOrmData *);
+    SetMaskDirtyCallback(delg);
 }
 
 class IOrmDataFactory
@@ -121,9 +151,14 @@ class IOrmDataFactory
 public:
     IOrmDataFactory() {}
     virtual ~IOrmDataFactory() {}
+    
     virtual void Release() = 0;
 
+    // 创建orm data
     virtual IOrmData *Create() const = 0;
+
+    // 获取orm id
+    virtual Int64 GetOrmId() const = 0;
 };
 
 SERVICE_COMMON_END
