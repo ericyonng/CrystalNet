@@ -36,6 +36,7 @@
 #include <Comps/Library/library.h>
 #include <Comps/UserSys/Library/Library.h>
 #include <Comps/config/config.h>
+#include <protocols/orm_out/AllOrmDatas.h>
 
 SERVICE_BEGIN
 
@@ -43,11 +44,16 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IBookBagMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagMgr);
 
 BookBagMgr::BookBagMgr()
-:_bookBagInfo(new BookBagInfo)
+:_bookBagInfo(SERVICE_COMMON_NS::BookBagInfoOrmData::NewThreadLocal_BookBagInfoOrmData())
 ,_quitLibraryStub(INVALID_LISTENER_STUB)
 ,_joinLibraryStub(INVALID_LISTENER_STUB)
 {
+    _bookBagInfo->SetMaskDirtyCallback([this](SERVICE_COMMON_NS::IOrmData *ptr){
+        MaskDirty();
 
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_OBJ_TAG("mask book bag mgr dirty data:%s"), ptr->ToJsonString().c_str());
+    });
 }
 
 BookBagMgr::~BookBagMgr()
@@ -107,7 +113,7 @@ void BookBagMgr::OnLogout()
 void BookBagMgr::SendBookBagInfoNty() const
 {
     BookBagInfoNty nty;
-    *nty.mutable_bookbaginfo() = *_bookBagInfo;
+    *nty.mutable_bookbaginfo() = *_bookBagInfo->GetPbRawData();
     auto libraryGlobal = GetUserMgr()->GetGlobalSys<ILibraryGlobal>();
 
     auto libraryMgr = GetUser()->GetSys<ILibraryMgr>();
@@ -199,7 +205,7 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
             {
                 if(item.bookcount() == 0)
                 {
-                    _bookBagInfo->mutable_bookinfoitemlist()->DeleteSubrange(idx, 1);
+                    _bookBagInfo->DeleteArray_bookinfoitemlist(idx, 1);
                 }
                 else
                 {
@@ -207,7 +213,6 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
                     bookInfoItem->set_borrowdays(item.borrowdays());
                 }
 
-                MaskDirty();
                 isExists = true;
                 break;
             }
@@ -219,7 +224,6 @@ Int32 BookBagMgr::SetBookBagInfo(const BookInfoItem &item)
             {
                 auto newItem = _bookBagInfo->add_bookinfoitemlist();
                 *newItem = item;
-                MaskDirty();
             }
         }
 
@@ -286,7 +290,7 @@ Int32 BookBagMgr::Submit(const KERNEL_NS::LibString &remark)
     }
 
     auto libararyGlobal = GetUserMgr()->GetGlobalSys<ILibraryGlobal>();
-    auto err = libararyGlobal->CreateBorrowOrder(myLibraryId, GetUser(), *_bookBagInfo, remark);
+    auto err = libararyGlobal->CreateBorrowOrder(myLibraryId, GetUser(), *_bookBagInfo->GetPbRawData(), remark);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("CreateBorrowOrder fail err:%d, user:%s, book bag info:%s")
@@ -295,7 +299,6 @@ Int32 BookBagMgr::Submit(const KERNEL_NS::LibString &remark)
     }
 
     _bookBagInfo->Clear();
-    MaskDirty();
 
     SendBookBagInfoNty();
     return Status::Success;
@@ -351,7 +354,6 @@ void BookBagMgr::_UnRegisterEvents()
 void BookBagMgr::_OnQuitLibrary(KERNEL_NS::LibEvent *ev)
 {
     _bookBagInfo->Clear();
-    MaskDirty();
 
     SendBookBagInfoNty();
 }
@@ -359,7 +361,6 @@ void BookBagMgr::_OnQuitLibrary(KERNEL_NS::LibEvent *ev)
 void BookBagMgr::_OnJoinLibrary(KERNEL_NS::LibEvent *ev)
 {
     _bookBagInfo->Clear();
-    MaskDirty();
 
     SendBookBagInfoNty();
 }

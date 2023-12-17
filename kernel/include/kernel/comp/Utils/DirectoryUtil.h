@@ -55,6 +55,7 @@ public:
     static LibString GetFileNameInPath(const char *path);
     static LibString GetFileDirInPath(const LibString &path);
     static LibString GetFileDirInPath(const char *path);
+    static LibString GetFinalDirInPath(const LibString &path);
 
     // return(bool):是否继续遍历
     // callback: 

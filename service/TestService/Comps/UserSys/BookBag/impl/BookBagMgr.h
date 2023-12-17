@@ -31,6 +31,11 @@
 
 #include <Comps/UserSys/BookBag/interface/IBookBagMgr.h>
 #include <kernel/kernel.h>
+#include <service_common/common/macro.h>
+
+SERVICE_COMMON_BEGIN
+class BookBagInfoOrmData;
+SERVICE_COMMON_END
 
 SERVICE_BEGIN
 
@@ -71,7 +76,7 @@ protected:
     void _OnJoinLibrary(KERNEL_NS::LibEvent *ev);
 
 private:
-    BookBagInfo *_bookBagInfo;
+    SERVICE_COMMON_NS::BookBagInfoOrmData *_bookBagInfo;
     KERNEL_NS::ListenerStub _quitLibraryStub;
     KERNEL_NS::ListenerStub _joinLibraryStub;
 };

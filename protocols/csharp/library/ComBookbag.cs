@@ -319,6 +319,7 @@ using ProtoPackage.Attributes;
 
   /// <summary>
   /// 背包数据
+  //// EnableStorage:true
   /// </summary>
   public sealed partial class BookBagInfo : pb::IMessage<BookBagInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE

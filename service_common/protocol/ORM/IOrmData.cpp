@@ -44,6 +44,51 @@ IOrmData::IOrmData()
 
 }
 
+IOrmData::IOrmData(const IOrmData &other)
+:_lastPurgeTime(other._lastPurgeTime)
+,_lastMaskDirtyTime(other._lastMaskDirtyTime)
+,_maskDirtyCb(other._maskDirtyCb ? other._maskDirtyCb->CreateNewCopy() : NULL)
+,_isAttachPb(other._isAttachPb)
+{
+
+}
+
+IOrmData::IOrmData(IOrmData &&other)
+:_lastPurgeTime(other._lastPurgeTime)
+,_lastMaskDirtyTime(other._lastMaskDirtyTime)
+,_maskDirtyCb(other._maskDirtyCb)
+,_isAttachPb(other._isAttachPb)
+{
+    other._lastPurgeTime = 0;
+    other._lastMaskDirtyTime = 0;
+    other._maskDirtyCb = NULL;
+    other._isAttachPb = false;
+}
+
+IOrmData &IOrmData::operator =(const IOrmData &other)
+{
+    _lastPurgeTime = other._lastPurgeTime;
+    _lastMaskDirtyTime = other._lastMaskDirtyTime;
+    _maskDirtyCb = other._maskDirtyCb ? other._maskDirtyCb->CreateNewCopy() : NULL;
+    _isAttachPb = other._isAttachPb;
+
+    return *this;
+}
+
+IOrmData &IOrmData::operator =(IOrmData &&other)
+{
+    _lastPurgeTime = other._lastPurgeTime;
+    _lastMaskDirtyTime = other._lastMaskDirtyTime;
+    _maskDirtyCb = other._maskDirtyCb;
+    _isAttachPb = other._isAttachPb;
+
+    other._lastPurgeTime = 0;
+    other._lastMaskDirtyTime = 0;
+    other._maskDirtyCb = NULL;
+    other._isAttachPb = false;
+    return *this;
+}
+
 IOrmData::~IOrmData()
 {
     CRYSTAL_RELEASE_SAFE(_maskDirtyCb);
@@ -73,13 +118,31 @@ bool IOrmData::Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const
 
 bool IOrmData::Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream)
 {
+    auto attachStream = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+    attachStream->Attach(stream);
+    auto ret = Decode(*attachStream);
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(attachStream);
+    return ret;
+}
+
+bool IOrmData::Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream)
+{
+    auto attachStream = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+    attachStream->Attach(stream);
+    auto ret = Decode(*attachStream);
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(attachStream);
+    return ret;
+}
+
+bool IOrmData::Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream)
+{
     _lastPurgeTime = stream.ReadInt64();
     _lastMaskDirtyTime = stream.ReadInt64();
 
     return _OnDecode(stream);
 }
 
-bool IOrmData::Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream)
+bool IOrmData::Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream)
 {
     _lastPurgeTime = stream.ReadInt64();
     _lastMaskDirtyTime = stream.ReadInt64();
@@ -98,7 +161,7 @@ void IOrmData::_MaskDirty(bool isForce)
 
     _lastMaskDirtyTime = KERNEL_NS::LibTime::NowNanoTimestamp();
 
-    if((!isDirty && _maskDirtyCb) || isForce)
+    if((!isDirty || isForce) && _maskDirtyCb)
         _maskDirtyCb->Invoke(this);
 }
 

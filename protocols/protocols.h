@@ -40,4 +40,8 @@
 #include <protocols/AllPbs.h>
 #include <protocols/Opcodes.h>
 
+#include <protocols/OrmMgrFactory.h>
+#include <protocols/IOrmMgr.h>
+#include <protocols/orm_out/orm_out.h>
+
 #endif

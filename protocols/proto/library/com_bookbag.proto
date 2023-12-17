@@ -15,6 +15,7 @@ message BookInfoItem
 }
 
 // 背包数据
+/// EnableStorage:true
 message BookBagInfo
 {
     repeated BookInfoItem BookInfoItemList = 1;

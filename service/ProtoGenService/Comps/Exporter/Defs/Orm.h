@@ -46,9 +46,13 @@ struct OrmInfo
             {
             case 0:
             {
-                _ormTypeName = part.strip();
+                _orginPbFullName = part.strip();
             }break;
             case 1:
+            {
+                _ormDataType = part.strip();
+            }break;
+            case 2:
             {
                 _ormId = KERNEL_NS::StringUtil::StringToInt64(part.c_str());
             }break;
@@ -63,10 +67,11 @@ struct OrmInfo
 
     void Serialize(KERNEL_NS::LibString &info) const
     {
-        info.AppendFormat("%s|%lld", _ormTypeName.c_str(), _ormId);
+        info.AppendFormat("%s|%s|%lld", _orginPbFullName.c_str(), _ormDataType.c_str(), _ormId);
     }
 
-    KERNEL_NS::LibString _ormTypeName;
+    KERNEL_NS::LibString _orginPbFullName;
+    KERNEL_NS::LibString _ormDataType;
     Int64 _ormId = 0;
 };
 

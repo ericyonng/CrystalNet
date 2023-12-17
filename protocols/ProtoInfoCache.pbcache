@@ -34,7 +34,7 @@
 
 /// ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,Md5:c0Fbk007EjrRWNurFc8b1Q==,ModifyTime:1692361715,
 
-/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:7QsUV0ZGCz//a5bZAtPojg==,ModifyTime:1702660455,
+/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:7QsUV0ZGCz//a5bZAtPojg==,ModifyTime:1702808345,
 
 /// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:JRP2AJHv8EggvaSBDetgvA==,ModifyTime:1693475814,
 
@@ -67,7 +67,7 @@
 
 
 
-/// ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,Md5:2Hx7DwIiqHPbNd/ZC0btkw==,ModifyTime:1700446518,
+/// ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,Md5:AXd1YMLB4/l5Ia4lyvT7Ng==,ModifyTime:1702819726,
 
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:CreateLibraryReq,Opcode:44,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:CreateLibraryRes,Opcode:45,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
@@ -117,7 +117,7 @@
 [ProtoName:bookbag.proto,ProtoPath:../../protocols/proto/library/bookbag.proto,MessageName:SetBookBagInfoRes,Opcode:84,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 /// ProtoName:bookbag.proto,ProtoPath:../../protocols/proto/library/bookbag.proto,Md5:K1dXN4dIHvzbY7EXwyy/jA==,ModifyTime:1698629745,
 
-/// ProtoName:com_bookbag.proto,ProtoPath:../../protocols/proto/library/com_bookbag.proto,Md5:xWgO/pohncfQ9l0Vk837xw==,ModifyTime:1698046998,
+/// ProtoName:com_bookbag.proto,ProtoPath:../../protocols/proto/library/com_bookbag.proto,Md5:/inT9sw/fyksOgGX6oB3vQ==,ModifyTime:1702820170,
 
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetBookInfoListReq,Opcode:85,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetBookInfoListRes,Opcode:86,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
@@ -181,7 +181,7 @@
 [ProtoName:com_book.proto,ProtoPath:../../protocols/proto/library/com_book.proto,MessageName:BookVariantInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_book.proto,ProtoPath:../../protocols/proto/library/com_book.proto,MessageName:BookVariantInfoItem,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_book.proto,ProtoPath:../../protocols/proto/library/com_book.proto,MessageName:SnapshotClientInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
-[ProtoName:com_bookbag.proto,ProtoPath:../../protocols/proto/library/com_bookbag.proto,MessageName:BookBagInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:com_bookbag.proto,ProtoPath:../../protocols/proto/library/com_bookbag.proto,MessageName:BookBagInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:true,]
 [ProtoName:com_bookbag.proto,ProtoPath:../../protocols/proto/library/com_bookbag.proto,MessageName:BookInfoItem,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:BorrowBookDetailInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:BorrowBookInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
@@ -192,7 +192,7 @@
 [ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:CancelOrderReasonType,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:KeyWordsField,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:LibararyManagerInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
-[ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:LibraryInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:LibraryInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:true,]
 [ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:LibraryPreviewInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:MemberInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,MessageName:OperationLogInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]

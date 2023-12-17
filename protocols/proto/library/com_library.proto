@@ -192,6 +192,7 @@ message OperationLogInfo
     repeated VariantParam Params = 6;
 }
 
+/// EnableStorage:true
 message LibraryInfo 
 {
     // 唯一id

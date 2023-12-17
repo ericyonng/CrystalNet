@@ -3760,6 +3760,9 @@ using ProtoPackage.Attributes;
 
   }
 
+  /// <summary>
+  //// EnableStorage:true
+  /// </summary>
   public sealed partial class LibraryInfo : pb::IMessage<LibraryInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage

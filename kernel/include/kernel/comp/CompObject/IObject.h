@@ -124,9 +124,6 @@ protected:
     virtual void _OnWillClose() {}
     virtual void _OnClose() {}
 
-    // 启动完毕（比较特殊的函数,它不应该被外部直接调用（除了CompHostObject））
-    virtual Int32 _Startup() = delete;
-
     // 属性
 public:
     // 对象信息

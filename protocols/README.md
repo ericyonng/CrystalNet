@@ -54,7 +54,15 @@
 
 9. protobuf 下bytes转成json的时候会使用base64编码
 
-   
+## ORM 规则
+
+1. 在需要orm的message添加注解: EnableStorage:true
+2. 被标注了EnableStorage:true的message及其依赖(所有依赖，包括依赖的依赖)都会自动生成orm对象
+3. 通过protoc.bat/protoc.sh 会生成对应的OrmData
+4. 在创建OrmData后需要SetDirtyCallback来设置标脏回调
+5. 当调用set等变更数据的方法会自动的MaskDirty
+6. 在Purge时候需要调用AfterPurge来，清楚脏标记
+7. 具体使用方法可以看testsuit/testinsts/TestOrm.h用例
 
 ### proto文件结构/格式约束
 

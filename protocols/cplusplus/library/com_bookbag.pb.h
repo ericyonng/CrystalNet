@@ -149,7 +149,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     return true;
 }
 
-virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
     if (stream.GetReadableSize() == 0)
     {
         Clear();
@@ -162,10 +162,11 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) o
         return false;
     }
 
+    stream.ShiftReadPos(ByteSizeLong());
     return true;
 }
 
-virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
     if (stream.GetReadableSize() == 0)
     {
         Clear();
@@ -178,7 +179,24 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
         return false;
     }
 
+    stream.ShiftReadPos(ByteSizeLong());
     return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    auto attachStream = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+    attachStream->Attach(stream);
+    auto ret = Decode(*attachStream);
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(attachStream);
+    return ret;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    auto attachStream = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+    attachStream->Attach(stream);
+    auto ret = Decode(*attachStream);
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(attachStream);
+    return ret;
 }
 
 virtual KERNEL_NS::LibString ToJsonString() const override {
@@ -382,7 +400,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
 };
 // -------------------------------------------------------------------
 
-// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(false)]
+// AnnotaionInfo[opcode(0), nolog(false), XorEncrypt(false), KeyBase64(false), EnableStorage:(true)]
 class BookBagInfo final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:CRYSTAL_NET.service.BookBagInfo) */ , public KERNEL_NS::ICoder {
 public:
@@ -458,7 +476,7 @@ virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const o
     return true;
 }
 
-virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
     if (stream.GetReadableSize() == 0)
     {
         Clear();
@@ -471,10 +489,11 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) o
         return false;
     }
 
+    stream.ShiftReadPos(ByteSizeLong());
     return true;
 }
 
-virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+virtual bool Decode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
     if (stream.GetReadableSize() == 0)
     {
         Clear();
@@ -487,7 +506,24 @@ virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) o
         return false;
     }
 
+    stream.ShiftReadPos(ByteSizeLong());
     return true;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) override {
+    auto attachStream = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+    attachStream->Attach(stream);
+    auto ret = Decode(*attachStream);
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(attachStream);
+    return ret;
+}
+
+virtual bool Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) override {
+    auto attachStream = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+    attachStream->Attach(stream);
+    auto ret = Decode(*attachStream);
+    KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(attachStream);
+    return ret;
 }
 
 virtual KERNEL_NS::LibString ToJsonString() const override {

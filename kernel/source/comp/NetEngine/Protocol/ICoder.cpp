@@ -28,11 +28,31 @@
 
 #include <pch.h>
 #include <kernel/comp/NetEngine/Protocol/ICoder.h>
+#include <kernel/comp/LibStream.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ICoder);
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ICoderFactory);
+
+// bool ICoder::Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream)
+// {
+//     auto attachStream = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+//     attachStream->Attach(stream);
+//     auto ret = Decode(*attachStream);
+
+//     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(attachStream);
+//     return ret;
+// }
+
+// bool ICoder::Decode(const KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream)
+// {
+//     auto attachStream = KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::NewThreadLocal_LibStream();
+//     attachStream->Attach(stream);
+//     auto ret = Decode(*attachStream);
+//     KERNEL_NS::LibStream<KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibStream(attachStream);
+//     return ret;
+// }
 
 KERNEL_END

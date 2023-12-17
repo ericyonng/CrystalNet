@@ -147,6 +147,48 @@ LibString DirectoryUtil::GetFileDirInPath(const LibString &path)
     return pathRaw.substr(0, i);
 }
 
+LibString DirectoryUtil::GetFinalDirInPath(const LibString &path)
+{
+    if(path.empty())
+        return "";
+
+    auto copyPath = path;
+    while (!copyPath.empty())
+    {
+        const auto finalChar = copyPath[copyPath.size() - 1];
+        if(finalChar == '/' || finalChar == '\\')
+        {
+            copyPath = copyPath.GetRaw().substr(0, path.size() - 1);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    if(copyPath.empty())
+        return "";
+    
+    auto &pathRaw = copyPath.GetRaw();
+    Byte8 c = 0;
+    Int32 i = 0;
+    const Int32 len = static_cast<Int32>(pathRaw.length());
+    for(i = len - 1; i >= 0; --i)
+    {
+        c = pathRaw.at(i);
+        if(c == '\\' || c == '/')
+        {
+            ++i;
+            break;
+        }
+    }
+
+    if(UNLIKELY(i < 0))
+        return path;
+
+    return pathRaw.substr(i, len - i);
+}
+
 bool DirectoryUtil::IsDirExists(const LibString &dir)
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS    
