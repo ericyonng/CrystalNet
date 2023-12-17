@@ -32,7 +32,11 @@
 
 * 实现对代码的通用分析
 
-#### 实现办法
+#### 原理介绍
+
+引入一个概念就是代码单元，它的起始和结束使用特殊的字符比如{}, 当分析代码碰到{时创建一个CodeUnit, 并入栈，那么当前的代码单元就是CodeUnit, 当碰到}时候CodeUnit结束并弹栈，所有创建的CodeUnit会被放到字典中
+
+实现办法
 
 * 数据结构：
   * 语法单元堆栈: CodeUnitQueue, std::vector<KERNEL_NS::SmartPtr<CodeUnit, KERNEL_NS::AutoMethods::Release>>，
