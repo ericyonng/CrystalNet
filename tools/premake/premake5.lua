@@ -6,6 +6,8 @@
 IS_WINDOWS = string.match(_ACTION, 'vs') ~= nil
 ISUSE_CLANG = _ARGS[1] and (_ARGS[1] == 'clang')
 
+print('_ARGS:', _ARGS[1], _ARGS[2], _ARGS[3], ', ISUSE_CLANG:', ISUSE_CLANG)
+
 -- header directory
 KERNEL_HEADER_DIR = "../../kernel/kernel_pch/"
 -- All libraries output directory
