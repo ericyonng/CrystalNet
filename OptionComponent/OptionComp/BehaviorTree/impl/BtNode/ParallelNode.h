@@ -43,7 +43,7 @@ class ParallelNode : public IBtNode
 public:
     ParallelNode(IBtNode *parent);
     ~ParallelNode();
-    void Release();
+    void Release() override;
 
     static ParallelNode *Create(IBtNode *parent);
 

@@ -43,7 +43,7 @@ class LoopNode : public IBtNode
 public:
     LoopNode(IBtNode *parent);
     ~LoopNode();
-    void Release();
+    void Release() override;
 
     static LoopNode *Create(IBtNode *parent);
 

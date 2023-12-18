@@ -43,7 +43,7 @@ class SelectNode : public IBtNode
 public:
     SelectNode(IBtNode *parent);
     ~SelectNode();
-    void Release();
+    void Release() override;
 
     static SelectNode *Create(IBtNode *parent);
 

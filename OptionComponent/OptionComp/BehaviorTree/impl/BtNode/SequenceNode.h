@@ -42,7 +42,7 @@ class SequenceNode : public IBtNode
 public:
     SequenceNode(IBtNode *parent);
     ~SequenceNode();
-    void Release();
+    void Release() override;
 
     static SequenceNode *Create(IBtNode *parent);
 
