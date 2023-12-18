@@ -71,12 +71,6 @@ public:
 
     // 获取本地字节序
     static Int32 GetLocalMachineEndianType();
-    // 获取字节序
-    static Int32 GetEndianType(Int32 detectData, Byte8 sucDetectFlag, Byte8 flagOffset);
-    // 判断小端
-    static bool IsLittleEndian(Int32 detectData, Byte8 sucDetectFlag, Byte8 flagOffset);
-    // 判断大端
-    static bool IsBigEndian(Int32 detectData, Byte8 sucDetectFlag, Byte8 flagOffset);
 
 private:
     static Int32 _GetLocalMachineEndianType();
@@ -89,37 +83,6 @@ ALWAYS_INLINE Int32 LibEndian::GetLocalMachineEndianType()
     return _machineEndianType;
 }
 
-ALWAYS_INLINE Int32 LibEndian::GetEndianType(Int32 detectData, Byte8 sucDetectFlag, Byte8 flagOffset)
-{
-    // 是否小端
-    if(IsLittleEndian(detectData, sucDetectFlag, flagOffset))
-        return LibEndianType::LittleEndian;
-
-    // 是否大端
-    if(IsBigEndian(detectData, sucDetectFlag, flagOffset))
-        return LibEndianType::BigEndian;
-
-    return LibEndianType::UnknownEndian;
-}
-
-ALWAYS_INLINE bool LibEndian::IsLittleEndian(Int32 detectData, Byte8 sucDetectFlag, Byte8 flagOffset)
-{
-    // 是否小端
-    if(static_cast<Byte8>(detectData >> flagOffset) == sucDetectFlag)
-        return true;
-
-    return false;
-}
-
-ALWAYS_INLINE bool LibEndian::IsBigEndian(Int32 detectData, Byte8 sucDetectFlag, Byte8 flagOffset)
-{
-    // 是否小端
-    if(static_cast<Byte8>(detectData >> flagOffset) == sucDetectFlag)
-        return true;
-
-    return false;
-}
-
 ALWAYS_INLINE Int32 LibEndian::_GetLocalMachineEndianType()
 {
     // 若是小端字节序，从低位开始存储，则顺序为l,?,?,b, 则endian_test.l的第一个字节为'l',若是大端则是'b'
@@ -128,7 +91,11 @@ ALWAYS_INLINE Int32 LibEndian::_GetLocalMachineEndianType()
         int l;
     } endian_test = {{'l', '?', '?', 'b'}};
 
-    return GetEndianType(endian_test.l, '1', 0);
+    Byte8 testFlag = endian_test.l & 0x0FF;
+    if(testFlag == 'l')
+        return LibEndianType::LittleEndian;
+
+    return LibEndianType::BigEndian;
 }
 
 KERNEL_END

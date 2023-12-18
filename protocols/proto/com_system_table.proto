@@ -2,6 +2,7 @@ syntax = "proto3";
 package CRYSTAL_NET.service;
 
 // 表结构信息
+/// EnableStorage:true
 message SimpleInfo
 {
     // 当前自增id最大值（配合id池）

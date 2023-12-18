@@ -41,6 +41,7 @@ using ProtoPackage.Attributes;
   #region Messages
   /// <summary>
   /// 表结构信息
+  //// EnableStorage:true
   /// </summary>
   public sealed partial class SimpleInfo : pb::IMessage<SimpleInfo>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE

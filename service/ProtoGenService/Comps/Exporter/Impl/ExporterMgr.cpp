@@ -3881,8 +3881,6 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    CRYSTAL_RELEASE_SAFE(_ormRawPbData);"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(other._ormRawPbData)"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        _ormRawPbData = new ::%s::%s(*other._ormRawPbData);", nameSpace.c_str(), codeUnit->_unitName.c_str()));
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(_ormRawPbData)"));
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    {"));
     {
         // 子字段初始化
         std::vector<KERNEL_NS::LibString> copyInits;
@@ -3917,12 +3915,20 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
             }
             copyInits.push_back(KERNEL_NS::LibString());
         }
+
+        if(!copyInits.empty())
+        {
+            implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(_ormRawPbData)"));
+            implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    {"));
+        }
         
         for(auto &copyLine : copyInits)
             implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        ") + copyLine);
+
+        if(!copyInits.empty())
+            implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
     }
     
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
     implCodeLines.push_back(KERNEL_NS::LibString());
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    return *this;"));

@@ -92,9 +92,6 @@ LibararyManagerInfoOrmData &LibararyManagerInfoOrmData::operator =(const Libarar
     CRYSTAL_RELEASE_SAFE(_ormRawPbData);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::LibararyManagerInfo(*other._ormRawPbData);
-    if(_ormRawPbData)
-    {
-    }
     _MaskDirty(true);
 
     return *this;

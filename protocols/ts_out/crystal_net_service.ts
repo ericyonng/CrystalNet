@@ -1390,6 +1390,7 @@ export namespace crystal_net_service
 
     }
     // 表结构信息
+    /// EnableStorage:true
     // com_system_table.proto
     export class SimpleInfo {
         // 当前自增id最大值（配合id池）

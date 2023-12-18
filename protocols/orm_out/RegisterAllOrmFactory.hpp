@@ -40,3 +40,4 @@ _ormIdRefOrmFactory.insert(std::make_pair(12, BorrowBookInfoOrmDataFactory::NewT
 _ormIdRefOrmFactory.insert(std::make_pair(13, CancelOrderReasonOrmDataFactory::NewThreadLocal_CancelOrderReasonOrmDataFactory()));
 _ormIdRefOrmFactory.insert(std::make_pair(14, BookVariantInfoOrmDataFactory::NewThreadLocal_BookVariantInfoOrmDataFactory()));
 _ormIdRefOrmFactory.insert(std::make_pair(15, SnapshotClientInfoOrmDataFactory::NewThreadLocal_SnapshotClientInfoOrmDataFactory()));
+_ormIdRefOrmFactory.insert(std::make_pair(16, SimpleInfoOrmDataFactory::NewThreadLocal_SimpleInfoOrmDataFactory()));

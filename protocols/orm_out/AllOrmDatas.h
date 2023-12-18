@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <protocols/orm_out/SimpleInfoOrmData.h>
 #include <protocols/orm_out/TestOrmOrmData.h>
 #include <protocols/orm_out/UserBaseInfoOrmData.h>
 #include <protocols/orm_out/BookBagInfoOrmData.h>

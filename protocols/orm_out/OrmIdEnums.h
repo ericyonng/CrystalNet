@@ -55,7 +55,8 @@ public:
         CancelOrderReasonOrmData = 13,
         BookVariantInfoOrmData = 14,
         SnapshotClientInfoOrmData = 15,
-        MAX_ORM_ID = SnapshotClientInfoOrmData,
+        SimpleInfoOrmData = 16,
+        MAX_ORM_ID = SimpleInfoOrmData,
     };
 };
 

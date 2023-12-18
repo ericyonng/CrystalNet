@@ -12,3 +12,4 @@ CRYSTAL_NET.serviceBorrowBookInfo|BorrowBookInfoOrmData|12
 CRYSTAL_NET.serviceCancelOrderReason|CancelOrderReasonOrmData|13
 CRYSTAL_NET.serviceBookVariantInfo|BookVariantInfoOrmData|14
 CRYSTAL_NET.serviceSnapshotClientInfo|SnapshotClientInfoOrmData|15
+CRYSTAL_NET.serviceSimpleInfo|SimpleInfoOrmData|16

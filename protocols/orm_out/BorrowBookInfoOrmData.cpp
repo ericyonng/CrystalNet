@@ -92,9 +92,6 @@ BorrowBookInfoOrmData &BorrowBookInfoOrmData::operator =(const BorrowBookInfoOrm
     CRYSTAL_RELEASE_SAFE(_ormRawPbData);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::BorrowBookInfo(*other._ormRawPbData);
-    if(_ormRawPbData)
-    {
-    }
     _MaskDirty(true);
 
     return *this;

@@ -32,9 +32,9 @@
 
 /// ProtoName:comp_test.proto,ProtoPath:../../protocols/proto/comp_test.proto,Md5:r96rH7S9dzFcZ57L7dWFPA==,ModifyTime:1692361737,
 
-/// ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,Md5:c0Fbk007EjrRWNurFc8b1Q==,ModifyTime:1692361715,
+/// ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,Md5:DWJh8xBio+HSoXo39+tFoA==,ModifyTime:1702915574,
 
-/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:7QsUV0ZGCz//a5bZAtPojg==,ModifyTime:1702660455,
+/// ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,Md5:7QsUV0ZGCz//a5bZAtPojg==,ModifyTime:1702808345,
 
 /// ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,Md5:JRP2AJHv8EggvaSBDetgvA==,ModifyTime:1693475814,
 
@@ -67,7 +67,7 @@
 
 
 
-/// ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,Md5:AXd1YMLB4/l5Ia4lyvT7Ng==,ModifyTime:1702866058,
+/// ProtoName:com_library.proto,ProtoPath:../../protocols/proto/library/com_library.proto,Md5:AXd1YMLB4/l5Ia4lyvT7Ng==,ModifyTime:1702819726,
 
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:CreateLibraryReq,Opcode:44,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:CreateLibraryRes,Opcode:45,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
@@ -117,7 +117,7 @@
 [ProtoName:bookbag.proto,ProtoPath:../../protocols/proto/library/bookbag.proto,MessageName:SetBookBagInfoRes,Opcode:84,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 /// ProtoName:bookbag.proto,ProtoPath:../../protocols/proto/library/bookbag.proto,Md5:K1dXN4dIHvzbY7EXwyy/jA==,ModifyTime:1698629745,
 
-/// ProtoName:com_bookbag.proto,ProtoPath:../../protocols/proto/library/com_bookbag.proto,Md5:/inT9sw/fyksOgGX6oB3vQ==,ModifyTime:1702866058,
+/// ProtoName:com_bookbag.proto,ProtoPath:../../protocols/proto/library/com_bookbag.proto,Md5:/inT9sw/fyksOgGX6oB3vQ==,ModifyTime:1702820170,
 
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetBookInfoListReq,Opcode:85,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:library.proto,ProtoPath:../../protocols/proto/library/library.proto,MessageName:GetBookInfoListRes,Opcode:86,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
@@ -167,7 +167,7 @@
 [ProtoName:com_login.proto,ProtoPath:../../protocols/proto/com_login.proto,MessageName:UserLoginInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_passtime.proto,ProtoPath:../../protocols/proto/com_passtime.proto,MessageName:PassTimeData,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_player.proto,ProtoPath:../../protocols/proto/com_player.proto,MessageName:PlayerData,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
-[ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,MessageName:SimpleInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:com_system_table.proto,ProtoPath:../../protocols/proto/com_system_table.proto,MessageName:SimpleInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:true,]
 [ProtoName:com_title.proto,ProtoPath:../../protocols/proto/com_title.proto,MessageName:TitleInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,MessageName:LoginInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,MessageName:LoginMode,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
