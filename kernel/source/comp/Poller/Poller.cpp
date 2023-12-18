@@ -389,7 +389,7 @@ void Poller::EventLoop()
     if(leftElemCount != 0)
         g_Log->Warn(LOGFMT_OBJ_TAG("has unhandled events left:%llu, poller info:%s"), leftElemCount, ToString().c_str());
     
-    ContainerUtil::DelContainer(*priorityEvents, [this](LibList<PollerEvent *, _Build::MT> *evList){
+    ContainerUtil::DelContainer(*priorityEvents, [](LibList<PollerEvent *, _Build::MT> *evList){
         ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
             g_Log->Warn(LOGFMT_NON_OBJ_TAG(Poller, "event type:%d, not handled when poller will closed."), ev->_type);
             ev->Release();

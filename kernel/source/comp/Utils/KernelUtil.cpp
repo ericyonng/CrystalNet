@@ -107,7 +107,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     KERNEL_NS::UrlCoder::Init();
 
     // 只支持小端系统
-    if(!LibEndian::GetLocalMachineEndianType() != LibEndianType::LittleEndian)
+    if(LibEndian::GetLocalMachineEndianType() != LibEndianType::LittleEndian)
     {
         CRYSTAL_TRACE("system endian type:%s not little endian system, kernel only support little endian!", LibEndianType::ToString(LibEndian::GetLocalMachineEndianType()));
         return Status::SystemUtil_NotLittleEndian;

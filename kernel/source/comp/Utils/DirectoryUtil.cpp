@@ -494,22 +494,22 @@ bool DirectoryUtil::_CreateRecursiveDir(const LibString &masterDir, const LibStr
     return true;
 }
 
-static inline LibString NextFileError(int err)
-{
-    switch (err)
-    {
-    case EINVAL:
-        return LibString().AppendFormat("err:%d Invalid parameter: filespec or fileinfo was NULL. Or, the operating system returned an unexpected error", err);
-    case ENOENT:
-        return LibString().AppendFormat("err:%d File specification that could not be matched.", err);
-    case ENOMEM:
-        return LibString().AppendFormat("err:%d Insufficient memory.", err);
-    default:
-        break;
-    }
+// static inline LibString NextFileError(int err)
+// {
+//     switch (err)
+//     {
+//     case EINVAL:
+//         return LibString().AppendFormat("err:%d Invalid parameter: filespec or fileinfo was NULL. Or, the operating system returned an unexpected error", err);
+//     case ENOENT:
+//         return LibString().AppendFormat("err:%d File specification that could not be matched.", err);
+//     case ENOMEM:
+//         return LibString().AppendFormat("err:%d Insufficient memory.", err);
+//     default:
+//         break;
+//     }
 
-    return LibString().AppendFormat("unknown find next error err:%d", err);
-}
+//     return LibString().AppendFormat("unknown find next error err:%d", err);
+// }
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 bool DirectoryUtil::_FindNextFile(intptr_t handle, _finddata_t &fileData)
