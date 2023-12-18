@@ -4,7 +4,7 @@
 
 -- python tool define
 IS_WINDOWS = string.match(_ACTION, 'vs') ~= nil
-ISUSE_CLANG = _ARGS[3] and (_ARGS[3] == 'clang')
+ISUSE_CLANG = _ARGS[1] and (_ARGS[1] == 'clang')
 
 -- header directory
 KERNEL_HEADER_DIR = "../../kernel/kernel_pch/"
