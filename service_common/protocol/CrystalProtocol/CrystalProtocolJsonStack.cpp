@@ -51,6 +51,8 @@ static ALWAYS_INLINE KERNEL_NS::LibString StackPacketToString(const KERNEL_NS::L
     return packetString;
 }
 
+#if defined(ENABLE_PERFORMANCE_RECORD) && defined(_DEBUG)
+
 static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
 {
     KERNEL_NS::LibString opcodeName;
@@ -65,6 +67,8 @@ static ALWAYS_INLINE KERNEL_NS::LibString StackOpcodeToString(Int32 opcode)
 
     return opcodeName;
 }
+
+#endif
 
 static ALWAYS_INLINE bool IsNeedLog(Int32 opcode)
 {

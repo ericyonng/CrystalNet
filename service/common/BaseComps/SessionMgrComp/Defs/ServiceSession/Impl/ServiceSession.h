@@ -45,7 +45,7 @@ class ServiceSession
 
 public:
     ServiceSession(SessionMgr *sessionMgr);
-    ~ServiceSession();
+    virtual ~ServiceSession();
 
     virtual void Release();
 
