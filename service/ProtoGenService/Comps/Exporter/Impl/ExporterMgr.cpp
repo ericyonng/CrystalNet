@@ -3763,8 +3763,6 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
             continue;
 
         auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
-        auto &subTreeNode = iterSubTreeNode->second;
-
         if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
         {
             implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _%s = std::move(other._%s);"
@@ -3879,7 +3877,7 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(this == &other)"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        return *this;"));
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+    implCodeLines.push_back(KERNEL_NS::LibString());
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    CRYSTAL_RELEASE_SAFE(_ormRawPbData);"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(other._ormRawPbData)"));
@@ -3958,8 +3956,6 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
                 continue;
 
             auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
-            auto &subTreeNode = iterSubTreeNode->second;
-
             if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
             {
                 copyInits.push_back(KERNEL_NS::LibString().AppendFormat("    _%s = std::move(other._%s);"
@@ -4000,8 +3996,6 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
                 continue;
 
             auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
-            auto &subTreeNode = iterSubTreeNode->second;
-
             if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
             {
                 implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _%s.clear();"
@@ -4016,10 +4010,10 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
             }
         }
     }
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+    implCodeLines.push_back(KERNEL_NS::LibString());
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(_ormRawPbData)"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        _ormRawPbData->Clear();"));
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat(""));
+    implCodeLines.push_back(KERNEL_NS::LibString());
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _MaskDirty(true);"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("}"));
 
