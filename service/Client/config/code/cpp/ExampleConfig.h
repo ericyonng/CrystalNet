@@ -138,12 +138,12 @@ public:
         return KERNEL_NS::ObjPoolWrap<ExampleConfigMgrFactory>::NewByAdapter(_buildType.V);
     }
 
-    virtual void Release()
+    virtual void Release() override
     {
         KERNEL_NS::ObjPoolWrap<ExampleConfigMgrFactory>::DeleteByAdapter(_buildType.V, this);
     }
 
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return ExampleConfigMgr::NewByAdapter_ExampleConfigMgr(_buildType.V);
     }

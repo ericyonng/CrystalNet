@@ -107,12 +107,12 @@ public:
         return KERNEL_NS::ObjPoolWrap<WordIdConfigMgrFactory>::NewByAdapter(_buildType.V);
     }
 
-    virtual void Release()
+    virtual void Release() override
     {
         KERNEL_NS::ObjPoolWrap<WordIdConfigMgrFactory>::DeleteByAdapter(_buildType.V, this);
     }
 
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return WordIdConfigMgr::NewByAdapter_WordIdConfigMgr(_buildType.V);
     }

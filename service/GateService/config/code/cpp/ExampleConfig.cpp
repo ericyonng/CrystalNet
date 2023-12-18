@@ -1,7 +1,7 @@
 // Generate by ConfigExporter, Dont modify it!!!
 // file path:../../service/GateService/config/xlsx/example.xlsx
 // file path:../../service/GateService/config/xlsx/example.xlsx
-// sheet name:示例part2|Example;示例part1|Example
+// sheet name:示例part1|Example;示例part2|Example
 
 #include <pch.h>
 #include <kernel/kernel.h>

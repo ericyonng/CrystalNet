@@ -181,7 +181,7 @@ struct KERNEL_EXPORT IpControlInfo
     POOL_CREATE_OBJ_DEFAULT(IpControlInfo);
 
     static IpControlInfo *Create();
-    void Release() override;
+    void Release();
 
     enum CONTROL_TYPE
     {

@@ -123,12 +123,12 @@ public:
         return KERNEL_NS::ObjPoolWrap<InviteCodeConfigMgrFactory>::NewByAdapter(_buildType.V);
     }
 
-    virtual void Release()
+    virtual void Release() override
     {
         KERNEL_NS::ObjPoolWrap<InviteCodeConfigMgrFactory>::DeleteByAdapter(_buildType.V, this);
     }
 
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return InviteCodeConfigMgr::NewByAdapter_InviteCodeConfigMgr(_buildType.V);
     }

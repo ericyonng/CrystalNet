@@ -1,7 +1,7 @@
 // Generate by ConfigExporter, Dont modify it!!!
 // file path:../../service/GateService/config/xlsx/example.xlsx
 // file path:../../service/GateService/config/xlsx/example.xlsx
-// sheet name:示例part2|Example;示例part1|Example
+// sheet name:示例part1|Example;示例part2|Example
 
 #ifndef __CONFIG_EXAMPLE_CONFIG_H__
 #define __CONFIG_EXAMPLE_CONFIG_H__
@@ -138,12 +138,12 @@ public:
         return KERNEL_NS::ObjPoolWrap<ExampleConfigMgrFactory>::NewByAdapter(_buildType.V);
     }
 
-    virtual void Release()
+    virtual void Release() override
     {
         KERNEL_NS::ObjPoolWrap<ExampleConfigMgrFactory>::DeleteByAdapter(_buildType.V, this);
     }
 
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return ExampleConfigMgr::NewByAdapter_ExampleConfigMgr(_buildType.V);
     }
