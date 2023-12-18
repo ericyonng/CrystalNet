@@ -40,7 +40,7 @@ ServiceSession::ServiceSession(SessionMgr *sessionMgr)
 :_sessionInfo(ServiceSessionInfo::NewThreadLocal_ServiceSessionInfo())
 ,_sessionMgr(sessionMgr)
 {
-
+    UNUSED(_sessionMgr);
 }
 
 ServiceSession::~ServiceSession()
