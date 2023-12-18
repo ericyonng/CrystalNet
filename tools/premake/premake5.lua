@@ -280,9 +280,16 @@ workspace ("CrystalNet_" .. _ACTION)
 -- ****************************************************************************
 -- FS core library compile setting
 project "CrystalKernel"
+    
+    if not IS_WINDOWS then
+        toolset("clang")
+    end
+
     -- language, kind
     language "c++"
     kind "StaticLib"
+
+
 	
     -- symbols
 	debugdir(DEBUG_DIR)
