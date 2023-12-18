@@ -31,6 +31,8 @@
 static const Int32 TestCount = 1000000;
 void TestSimpleApi::Run()
 {
+    UNUSED(TestCount);
+    
     // auto err = SimpleApiInit(false);
     // if(err != Status::Success)
     // {

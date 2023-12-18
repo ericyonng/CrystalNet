@@ -194,6 +194,8 @@ static void GenTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
 
 static void ComsumerTask2(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
 {
+    UNUSED(g_backLogNum.load());
+
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "ComsumerTask"));
 
     std::vector<KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT> *> cache;

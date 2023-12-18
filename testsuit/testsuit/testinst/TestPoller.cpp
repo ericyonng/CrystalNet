@@ -44,14 +44,14 @@ public:
 
     }
 
-    void Release()
+    void Release() override
     {
         HostObj::Delete_HostObj(this);
     }
 
-    virtual void DefaultMaskReady(bool isReady){}
+    virtual void DefaultMaskReady(bool isReady) override{}
 
-    virtual void OnRegisterComps()
+    virtual void OnRegisterComps() override
     {
         RegisterComp<KERNEL_NS::PollerFactory>();
     }
@@ -132,7 +132,7 @@ protected:
         return Status::Success;
     }
 
-    virtual void _OnHostBeforeCompsWillClose() 
+    virtual void _OnHostBeforeCompsWillClose() override
     {
         auto poller = GetComp<KERNEL_NS::Poller>();
         poller->QuitLoop();
@@ -140,7 +140,7 @@ protected:
     }
 
     // 在组件Close之后
-    virtual void _OnHostClose()
+    virtual void _OnHostClose() override
     {
         // 等待ready
         KERNEL_NS::CompObject *notReady = NULL;
@@ -245,7 +245,7 @@ public:
     {
        return KERNEL_NS::ObjPoolWrap<HostObjFactory>::NewByAdapter(_buildType.V);
     }
-    void Release()
+    void Release() override
     {
         KERNEL_NS::ObjPoolWrap<HostObjFactory>::DeleteByAdapter(_buildType.V, this);
     }
@@ -275,7 +275,7 @@ struct  HelloWorldReq : public KERNEL_NS::PollerEvent
         HelloWorldReq::Delete_HelloWorldReq(this);
     }
 
-    virtual KERNEL_NS::LibString ToString() const
+    virtual KERNEL_NS::LibString ToString() const override
     {
         return KERNEL_NS::PollerEvent::ToString().AppendFormat(", hello world request.");
     }
@@ -365,7 +365,7 @@ struct AcEvent : public KERNEL_NS::PollerEvent
 
     }
 
-    virtual void Release()
+    virtual void Release() override
     {
         // delete this;
         AcEvent::DeleteThreadLocal_AcEvent(this);

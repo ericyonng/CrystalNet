@@ -45,7 +45,7 @@ public:
         g_Log->Info(LOGFMT_OBJ_TAG("CompA destructor."));
     }
 
-    void Release()
+    void Release() override
     {
         CompA::Delete_CompA(this);
     }
@@ -127,7 +127,7 @@ public:
     {
         g_Log->Info(LOGFMT_OBJ_TAG("CompB destructor."));
     }
-    void Release()
+    void Release() override
     {
         CompB::Delete_CompB(this);
     }
@@ -207,7 +207,7 @@ public:
         g_Log->Info(LOGFMT_OBJ_TAG("CompFault destructor."));
     }
     
-    void Release()
+    void Release() override
     {
         CompFault::Delete_CompFault(this);
     }
@@ -289,7 +289,7 @@ public:
     {
         g_Log->Info(LOGFMT_OBJ_TAG("HostA destructor."));
     }
-    void Release()
+    void Release() override
     {
         HostA::Delete_HostA(this);
     }
@@ -307,7 +307,7 @@ public:
         KERNEL_NS::CompHostObject::Clear();
     }
 
-    virtual void OnRegisterComps();
+    virtual void OnRegisterComps() override;
 
     // 组件接口资源
 protected:
@@ -364,19 +364,19 @@ protected:
     }
 
     // 在组件Close之后
-    virtual void _OnHostClose()
+    virtual void _OnHostClose() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s on host close."), ToString().c_str());
     }
 
     // 在组件更新之前
-    virtual void _OnWillHostUpdate() 
+    virtual void _OnWillHostUpdate() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s on will host update before comps."), ToString().c_str());
     }
 
     // 在组件更新之后
-    virtual void _OnHostUpdate() 
+    virtual void _OnHostUpdate() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s on host update after comps."), ToString().c_str());
     }
@@ -409,7 +409,7 @@ public:
 
     }
 
-    void Release()
+    void Release() override
     {
         HostB::Delete_HostB(this);
     }
@@ -428,7 +428,7 @@ public:
         KERNEL_NS::CompHostObject::Clear();
     }
     
-    virtual void OnRegisterComps();
+    virtual void OnRegisterComps() override;
 
     // 组件接口资源
 protected:
@@ -485,19 +485,19 @@ protected:
     }
 
     // 在组件Close之后
-    virtual void _OnHostClose()
+    virtual void _OnHostClose() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s on host close."), ToString().c_str());
     }
 
     // 在组件更新之前
-    virtual void _OnWillHostUpdate() 
+    virtual void _OnWillHostUpdate() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s on will host update before comps."), ToString().c_str());
     }
 
     // 在组件更新之后
-    virtual void _OnHostUpdate() 
+    virtual void _OnHostUpdate() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s on host update after comps."), ToString().c_str());
     }
@@ -547,7 +547,7 @@ public:
         _Clear();
     }
 
-    void Release()
+    void Release() override
     {
         CompC::Delete_CompC(this);
     }
@@ -589,12 +589,12 @@ public:
         _Clear();
     }
 
-    void Release()
+    void Release() override
     {
         HostC::Delete_HostC(this);
     }
     
-    virtual void OnRegisterComps();
+    virtual void OnRegisterComps() override;
 
     // 组件接口资源
 protected:
@@ -614,7 +614,7 @@ protected:
     }
 
     // 在组件Close之后
-    virtual void _OnHostClose()
+    virtual void _OnHostClose() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s on host close."), ToString().c_str());
     }
@@ -643,7 +643,7 @@ public:
        return KERNEL_NS::ObjPoolWrap<CompAFactory>::NewByAdapter(_buildType.V);
     }
 
-    void Release()
+    void Release() override
     {
         KERNEL_NS::ObjPoolWrap<CompAFactory>::DeleteByAdapter(_buildType.V, this);
     }
@@ -665,7 +665,7 @@ public:
        return KERNEL_NS::ObjPoolWrap<CompBFactory>::NewByAdapter(_buildType.V);
     }
 
-    void Release()
+    void Release() override
     {
         KERNEL_NS::ObjPoolWrap<CompBFactory>::DeleteByAdapter(_buildType.V, this);
     }
@@ -685,7 +685,7 @@ public:
        return KERNEL_NS::ObjPoolWrap<CompFaultFactory>::NewByAdapter(_buildType.V);
     }
 
-    void Release()
+    void Release() override
     {
         KERNEL_NS::ObjPoolWrap<CompFaultFactory>::DeleteByAdapter(_buildType.V, this);
     }
@@ -703,7 +703,7 @@ public:
     {
        return KERNEL_NS::ObjPoolWrap<CompCFactory>::NewByAdapter(_buildType.V);
     }
-    void Release()
+    void Release() override
     {
         KERNEL_NS::ObjPoolWrap<CompCFactory>::DeleteByAdapter(_buildType.V, this);
     }
@@ -724,7 +724,7 @@ public:
     {
        return KERNEL_NS::ObjPoolWrap<HostAFactory>::NewByAdapter(_buildType.V);
     }
-    void Release()
+    void Release() override
     {
         KERNEL_NS::ObjPoolWrap<HostAFactory>::DeleteByAdapter(_buildType.V, this);
     }
@@ -742,7 +742,7 @@ public:
     {
        return KERNEL_NS::ObjPoolWrap<HostAFactory>::NewByAdapter(_buildType.V);
     }
-    void Release()
+    void Release() override
     {
         KERNEL_NS::ObjPoolWrap<HostBFactory>::DeleteByAdapter(_buildType.V, this);
     }
@@ -760,7 +760,7 @@ public:
     {
        return KERNEL_NS::ObjPoolWrap<HostCFactory>::NewByAdapter(_buildType.V);
     }
-    void Release()
+    void Release() override
     {
         KERNEL_NS::ObjPoolWrap<HostCFactory>::DeleteByAdapter(_buildType.V, this);
     }

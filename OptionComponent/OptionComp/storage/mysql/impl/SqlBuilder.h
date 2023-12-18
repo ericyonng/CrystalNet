@@ -420,7 +420,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::SELECT fields:[");
@@ -640,7 +640,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::INSERT fields:[");
@@ -839,7 +839,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::REPLACE_INTO fields:[");
@@ -997,7 +997,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::UPDATE kvs:[");
@@ -1103,7 +1103,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::DELETE_RECORD ");
@@ -1426,7 +1426,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::CREATE_TABLE db:%s \n", _db.c_str());
@@ -1555,7 +1555,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::TRUNCATE_TABLE db:%s \n", _db.c_str());
@@ -1626,7 +1626,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::DROP_TABLE db:%s \n", _db.c_str());
@@ -1711,7 +1711,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::CREATE_DB db:%s \n", _db.c_str());
@@ -1778,7 +1778,7 @@ public:
         return sql;
     }
     
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::DROP_DB db:%s \n", _db.c_str());
@@ -2122,7 +2122,7 @@ public:
         return "";
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::ALTER_TABLE db:%s \n", _db.c_str());
@@ -2588,7 +2588,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::SHOW_INDEX db:%s, ", _db.c_str());
@@ -2659,7 +2659,7 @@ public:
         return sql;
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::OPTIMIZE_TABLE db:%s, ", _db.c_str());
@@ -2708,7 +2708,7 @@ public:
         return "START TRANSACTION";
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::START_TRANSACTION");
@@ -2760,7 +2760,7 @@ public:
         return LibString().AppendFormat("set autocommit = %d", _autoCommit ? 1 : 0);
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::SET_AUTOCOMMIT autoCommit:%s", _autoCommit ? "true" : "false");
@@ -2807,7 +2807,7 @@ public:
         return "ROLLBACK";
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::ROLLBACK ");
@@ -2852,7 +2852,7 @@ public:
         return "COMMIT";
     }
 
-    LibString ToString() const
+    LibString ToString() const override
     {
         LibString info;
         info.AppendFormat("SqlBuilderType::COMMIT_TRANSACTION ");

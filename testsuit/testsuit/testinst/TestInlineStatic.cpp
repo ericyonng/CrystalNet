@@ -46,7 +46,7 @@ public:
         _Clear();
     }
 
-    void Release()
+    void Release() override
     {
         TestStaticInlineHostC::Delete_TestStaticInlineHostC(this);
     }
@@ -71,7 +71,7 @@ protected:
     }
 
     // 在组件Close之后
-    virtual void _OnHostClose()
+    virtual void _OnHostClose() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("%s on host close."), ToString().c_str());
     }

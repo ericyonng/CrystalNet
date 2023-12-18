@@ -45,7 +45,7 @@ struct DbEvent : public KERNEL_NS::PollerEvent
 
     DbEvent(Int32 type);
     ~DbEvent();
-    virtual void Release();
+    virtual void Release() override;
     KERNEL_NS::LibString ToString() const override;
     
     KERNEL_NS::MysqlResponse *_res;

@@ -55,7 +55,7 @@ public:
     // 释放
     virtual void Release() override;
     // 需要手动设置ready
-    virtual void DefaultMaskReady(bool isReady) {}
+    virtual void DefaultMaskReady(bool isReady) override {}
     virtual void OnRegisterComps() override;  
 
     // 公共接口

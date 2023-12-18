@@ -1133,7 +1133,7 @@ void TestSql::Run()
                 incId = insertId;
 
             affectedRowCount += affectedRows;
-
+            UNUSED(count);
         });
         auto elapseMs = KERNEL_NS::LibCpuCounter::Current().ElapseMilliseconds(cpucount);
 

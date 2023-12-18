@@ -33,7 +33,9 @@ class TestRttiObj
 {
 public:
     TestRttiObj(){}
-    ~TestRttiObj(){}
+    ~TestRttiObj(){
+        UNUSED(_raw);
+    }
 
 private:
     Byte8 _raw[16];
