@@ -49,6 +49,7 @@ LibararyManagerInfoOrmData::LibararyManagerInfoOrmData(const LibararyManagerInfo
 :IOrmData(reinterpret_cast<const IOrmData &>(other))
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::LibararyManagerInfo(*other._ormRawPbData) : NULL)
 {
+    SetAttachPbFlag(false);
 }
 
 LibararyManagerInfoOrmData::LibararyManagerInfoOrmData(LibararyManagerInfoOrmData &&other)
@@ -77,7 +78,10 @@ void LibararyManagerInfoOrmData::Release()
 
 LibararyManagerInfoOrmData &LibararyManagerInfoOrmData::operator =(const ::CRYSTAL_NET::service::LibararyManagerInfo &pb)
 {
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    SetAttachPbFlag(false);
     _ormRawPbData = new ::CRYSTAL_NET::service::LibararyManagerInfo(pb);
     _MaskDirty(true);
     return *this;
@@ -89,7 +93,11 @@ LibararyManagerInfoOrmData &LibararyManagerInfoOrmData::operator =(const Libarar
         return *this;
 
     IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    _ormRawPbData = NULL;
+    SetAttachPbFlag(false);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::LibararyManagerInfo(*other._ormRawPbData);
     _MaskDirty(true);

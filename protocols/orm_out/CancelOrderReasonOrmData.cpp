@@ -49,6 +49,7 @@ CancelOrderReasonOrmData::CancelOrderReasonOrmData(const CancelOrderReasonOrmDat
 :IOrmData(reinterpret_cast<const IOrmData &>(other))
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::CancelOrderReason(*other._ormRawPbData) : NULL)
 {
+    SetAttachPbFlag(false);
 }
 
 CancelOrderReasonOrmData::CancelOrderReasonOrmData(CancelOrderReasonOrmData &&other)
@@ -77,7 +78,10 @@ void CancelOrderReasonOrmData::Release()
 
 CancelOrderReasonOrmData &CancelOrderReasonOrmData::operator =(const ::CRYSTAL_NET::service::CancelOrderReason &pb)
 {
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    SetAttachPbFlag(false);
     _ormRawPbData = new ::CRYSTAL_NET::service::CancelOrderReason(pb);
     _MaskDirty(true);
     return *this;
@@ -89,7 +93,11 @@ CancelOrderReasonOrmData &CancelOrderReasonOrmData::operator =(const CancelOrder
         return *this;
 
     IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    _ormRawPbData = NULL;
+    SetAttachPbFlag(false);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::CancelOrderReason(*other._ormRawPbData);
     _MaskDirty(true);

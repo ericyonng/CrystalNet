@@ -51,6 +51,7 @@ BookBagInfoOrmData::BookBagInfoOrmData(const BookBagInfoOrmData &other)
 :IOrmData(reinterpret_cast<const IOrmData &>(other))
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::BookBagInfo(*other._ormRawPbData) : NULL)
 {
+    SetAttachPbFlag(false);
     {
         const auto count = _ormRawPbData->bookinfoitemlist_size();
 
@@ -123,7 +124,10 @@ void BookBagInfoOrmData::Release()
 
 BookBagInfoOrmData &BookBagInfoOrmData::operator =(const ::CRYSTAL_NET::service::BookBagInfo &pb)
 {
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    SetAttachPbFlag(false);
     _ormRawPbData = new ::CRYSTAL_NET::service::BookBagInfo(pb);
     {
         const auto count = _ormRawPbData->bookinfoitemlist_size();
@@ -156,7 +160,11 @@ BookBagInfoOrmData &BookBagInfoOrmData::operator =(const BookBagInfoOrmData &oth
         return *this;
 
     IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    _ormRawPbData = NULL;
+    SetAttachPbFlag(false);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::BookBagInfo(*other._ormRawPbData);
     if(_ormRawPbData)

@@ -51,6 +51,7 @@ MemberInfoOrmData::MemberInfoOrmData(const MemberInfoOrmData &other)
 :IOrmData(reinterpret_cast<const IOrmData &>(other))
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::MemberInfo(*other._ormRawPbData) : NULL)
 {
+    SetAttachPbFlag(false);
     {
         const auto count = _ormRawPbData->borrowlist_size();
 
@@ -123,7 +124,10 @@ void MemberInfoOrmData::Release()
 
 MemberInfoOrmData &MemberInfoOrmData::operator =(const ::CRYSTAL_NET::service::MemberInfo &pb)
 {
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    SetAttachPbFlag(false);
     _ormRawPbData = new ::CRYSTAL_NET::service::MemberInfo(pb);
     {
         const auto count = _ormRawPbData->borrowlist_size();
@@ -156,7 +160,11 @@ MemberInfoOrmData &MemberInfoOrmData::operator =(const MemberInfoOrmData &other)
         return *this;
 
     IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    _ormRawPbData = NULL;
+    SetAttachPbFlag(false);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::MemberInfo(*other._ormRawPbData);
     if(_ormRawPbData)

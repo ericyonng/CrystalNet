@@ -59,6 +59,7 @@ public:
     // 附着pb数据
     void AttachPb(void *pb);
     bool IsAttachPb() const;
+    void SetAttachPbFlag(bool isAttach);
 
     virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const final;
     virtual bool Encode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream) const final;
@@ -142,6 +143,11 @@ ALWAYS_INLINE void IOrmData::AttachPb(void *pb)
 ALWAYS_INLINE bool IOrmData::IsAttachPb() const
 {
     return _isAttachPb;
+}
+
+ALWAYS_INLINE void IOrmData::SetAttachPbFlag(bool isAttach)
+{
+    _isAttachPb = isAttach;
 }
 
 ALWAYS_INLINE bool IOrmData::PbEncode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stream) const

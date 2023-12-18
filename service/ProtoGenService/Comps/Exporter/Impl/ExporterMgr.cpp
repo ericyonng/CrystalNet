@@ -3706,6 +3706,7 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat(":IOrmData(reinterpret_cast<const IOrmData &>(other))"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat(",_ormRawPbData(other._ormRawPbData ? new ::%s::%s(*other._ormRawPbData) : NULL)", nameSpace.c_str(), codeUnit->_unitName.c_str()));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    SetAttachPbFlag(false);"));
     // 子字段初始化
     for(auto &subCodeUnit : codeUnit->_subCodeUnits)
     {
@@ -3833,7 +3834,10 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
 
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("%s &%s::operator =(const ::%s::%s &pb)", messageName.c_str(), messageName.c_str(), nameSpace.c_str(), codeUnit->_unitName.c_str()));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    CRYSTAL_RELEASE_SAFE(_ormRawPbData);"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(LIKELY(!IsAttachPb()))"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        CRYSTAL_RELEASE_SAFE(_ormRawPbData);"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    SetAttachPbFlag(false);"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData = new ::%s::%s(pb);", nameSpace.c_str(), codeUnit->_unitName.c_str()));
     // 子字段初始化
     for(auto &subCodeUnit : codeUnit->_subCodeUnits)
@@ -3878,7 +3882,11 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        return *this;"));
     implCodeLines.push_back(KERNEL_NS::LibString());
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));"));
-    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    CRYSTAL_RELEASE_SAFE(_ormRawPbData);"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(LIKELY(!IsAttachPb()))"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        CRYSTAL_RELEASE_SAFE(_ormRawPbData);"));
+    implCodeLines.push_back(KERNEL_NS::LibString());
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _ormRawPbData = NULL;"));
+    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    SetAttachPbFlag(false);"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(other._ormRawPbData)"));
     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        _ormRawPbData = new ::%s::%s(*other._ormRawPbData);", nameSpace.c_str(), codeUnit->_unitName.c_str()));
     {

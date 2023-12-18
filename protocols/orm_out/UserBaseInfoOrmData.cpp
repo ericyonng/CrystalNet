@@ -49,6 +49,7 @@ UserBaseInfoOrmData::UserBaseInfoOrmData(const UserBaseInfoOrmData &other)
 :IOrmData(reinterpret_cast<const IOrmData &>(other))
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::UserBaseInfo(*other._ormRawPbData) : NULL)
 {
+    SetAttachPbFlag(false);
 }
 
 UserBaseInfoOrmData::UserBaseInfoOrmData(UserBaseInfoOrmData &&other)
@@ -77,7 +78,10 @@ void UserBaseInfoOrmData::Release()
 
 UserBaseInfoOrmData &UserBaseInfoOrmData::operator =(const ::CRYSTAL_NET::service::UserBaseInfo &pb)
 {
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    SetAttachPbFlag(false);
     _ormRawPbData = new ::CRYSTAL_NET::service::UserBaseInfo(pb);
     _MaskDirty(true);
     return *this;
@@ -89,7 +93,11 @@ UserBaseInfoOrmData &UserBaseInfoOrmData::operator =(const UserBaseInfoOrmData &
         return *this;
 
     IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    _ormRawPbData = NULL;
+    SetAttachPbFlag(false);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::UserBaseInfo(*other._ormRawPbData);
     _MaskDirty(true);

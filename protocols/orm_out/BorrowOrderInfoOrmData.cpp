@@ -53,6 +53,7 @@ BorrowOrderInfoOrmData::BorrowOrderInfoOrmData(const BorrowOrderInfoOrmData &oth
 :IOrmData(reinterpret_cast<const IOrmData &>(other))
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::BorrowOrderInfo(*other._ormRawPbData) : NULL)
 {
+    SetAttachPbFlag(false);
     {
         const auto count = _ormRawPbData->borrowbooklist_size();
 
@@ -161,7 +162,10 @@ void BorrowOrderInfoOrmData::Release()
 
 BorrowOrderInfoOrmData &BorrowOrderInfoOrmData::operator =(const ::CRYSTAL_NET::service::BorrowOrderInfo &pb)
 {
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    SetAttachPbFlag(false);
     _ormRawPbData = new ::CRYSTAL_NET::service::BorrowOrderInfo(pb);
     {
         const auto count = _ormRawPbData->borrowbooklist_size();
@@ -211,7 +215,11 @@ BorrowOrderInfoOrmData &BorrowOrderInfoOrmData::operator =(const BorrowOrderInfo
         return *this;
 
     IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    _ormRawPbData = NULL;
+    SetAttachPbFlag(false);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::BorrowOrderInfo(*other._ormRawPbData);
     if(_ormRawPbData)

@@ -49,6 +49,7 @@ BookVariantInfoOrmData::BookVariantInfoOrmData(const BookVariantInfoOrmData &oth
 :IOrmData(reinterpret_cast<const IOrmData &>(other))
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::BookVariantInfo(*other._ormRawPbData) : NULL)
 {
+    SetAttachPbFlag(false);
 }
 
 BookVariantInfoOrmData::BookVariantInfoOrmData(BookVariantInfoOrmData &&other)
@@ -77,7 +78,10 @@ void BookVariantInfoOrmData::Release()
 
 BookVariantInfoOrmData &BookVariantInfoOrmData::operator =(const ::CRYSTAL_NET::service::BookVariantInfo &pb)
 {
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    SetAttachPbFlag(false);
     _ormRawPbData = new ::CRYSTAL_NET::service::BookVariantInfo(pb);
     _MaskDirty(true);
     return *this;
@@ -89,7 +93,11 @@ BookVariantInfoOrmData &BookVariantInfoOrmData::operator =(const BookVariantInfo
         return *this;
 
     IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    _ormRawPbData = NULL;
+    SetAttachPbFlag(false);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::BookVariantInfo(*other._ormRawPbData);
     _MaskDirty(true);

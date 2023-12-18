@@ -49,6 +49,7 @@ SnapshotClientInfoOrmData::SnapshotClientInfoOrmData(const SnapshotClientInfoOrm
 :IOrmData(reinterpret_cast<const IOrmData &>(other))
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::SnapshotClientInfo(*other._ormRawPbData) : NULL)
 {
+    SetAttachPbFlag(false);
 }
 
 SnapshotClientInfoOrmData::SnapshotClientInfoOrmData(SnapshotClientInfoOrmData &&other)
@@ -77,7 +78,10 @@ void SnapshotClientInfoOrmData::Release()
 
 SnapshotClientInfoOrmData &SnapshotClientInfoOrmData::operator =(const ::CRYSTAL_NET::service::SnapshotClientInfo &pb)
 {
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    SetAttachPbFlag(false);
     _ormRawPbData = new ::CRYSTAL_NET::service::SnapshotClientInfo(pb);
     _MaskDirty(true);
     return *this;
@@ -89,7 +93,11 @@ SnapshotClientInfoOrmData &SnapshotClientInfoOrmData::operator =(const SnapshotC
         return *this;
 
     IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    _ormRawPbData = NULL;
+    SetAttachPbFlag(false);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::SnapshotClientInfo(*other._ormRawPbData);
     _MaskDirty(true);

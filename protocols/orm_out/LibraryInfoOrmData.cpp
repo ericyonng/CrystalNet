@@ -55,6 +55,7 @@ LibraryInfoOrmData::LibraryInfoOrmData(const LibraryInfoOrmData &other)
 :IOrmData(reinterpret_cast<const IOrmData &>(other))
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::LibraryInfo(*other._ormRawPbData) : NULL)
 {
+    SetAttachPbFlag(false);
     {
         const auto count = _ormRawPbData->managerinfolist_size();
 
@@ -215,7 +216,10 @@ void LibraryInfoOrmData::Release()
 
 LibraryInfoOrmData &LibraryInfoOrmData::operator =(const ::CRYSTAL_NET::service::LibraryInfo &pb)
 {
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    SetAttachPbFlag(false);
     _ormRawPbData = new ::CRYSTAL_NET::service::LibraryInfo(pb);
     {
         const auto count = _ormRawPbData->managerinfolist_size();
@@ -290,7 +294,11 @@ LibraryInfoOrmData &LibraryInfoOrmData::operator =(const LibraryInfoOrmData &oth
         return *this;
 
     IOrmData::operator =(reinterpret_cast<const IOrmData &>(other));
-    CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+    if(LIKELY(!IsAttachPb()))
+        CRYSTAL_RELEASE_SAFE(_ormRawPbData);
+
+    _ormRawPbData = NULL;
+    SetAttachPbFlag(false);
     if(other._ormRawPbData)
         _ormRawPbData = new ::CRYSTAL_NET::service::LibraryInfo(*other._ormRawPbData);
     if(_ormRawPbData)
