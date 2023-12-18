@@ -53,7 +53,7 @@ function set_optimize_opts()
 end
 
 -- set common options
-function set_common_options()
+function set_common_options(optOption)
     -- rdynamic coredump符号
     filter { "language:c++", "system:not windows" }
         -- buildoptions {
@@ -75,11 +75,11 @@ function set_common_options()
     filter {}
 
     filter { "configurations:debug*", "language:not c++" }
-        optimize "Debug"
+        optimize (optOption and optOption or "Debug")
     filter {}
 
     filter { "configurations:release*" }
-        optimize "Speed"
+        optimize (optOption and optOption or "Speed")
     filter {}
 
     if ENABLE_PERFORMANCE_RECORD ~= 0 then
@@ -706,7 +706,7 @@ project "protogentool"
     }
 	
 	-- 设置通用选项
-    set_common_options()
+    set_common_options("Size")
 	
     defines("DISABLE_OPCODES")
     
@@ -798,7 +798,7 @@ project "filetool"
     }
 
     -- 设置通用选项
-    set_common_options()
+    set_common_options("Size")
 
     defines("DISABLE_OPCODES")
 
@@ -889,7 +889,7 @@ project "ConfigExporter"
     }
 	
 	-- 设置通用选项
-    set_common_options()
+    set_common_options("Size")
 	
     -- files
     files {
@@ -992,7 +992,7 @@ project "md5tool"
     }
 
     -- 设置通用选项
-    set_common_options()
+    set_common_options("Size")
 
     -- files
     files {
@@ -1078,7 +1078,7 @@ project "CloseProcess"
     }
 	
 	-- 设置通用选项
-    set_common_options()
+    set_common_options("Size")
 	
     -- files
     files {
@@ -1362,7 +1362,7 @@ project "RsaGen"
     }
 	
 	-- 设置通用选项
-    set_common_options()
+    set_common_options("Size")
 	
     -- files
     files {
