@@ -59,7 +59,7 @@ class KERNEL_EXPORT ICoder
     POOL_CREATE_OBJ_DEFAULT(ICoder);
 
 public:
-    ICoder(){}
+    constexpr ICoder(){}
     virtual ~ICoder(){}
     virtual void Release() = 0;
 
