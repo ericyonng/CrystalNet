@@ -3762,7 +3762,6 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
         if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
             continue;
 
-        auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
         if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
         {
             implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _%s = std::move(other._%s);"
@@ -3955,7 +3954,6 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
             if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
                 continue;
 
-            auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
             if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
             {
                 copyInits.push_back(KERNEL_NS::LibString().AppendFormat("    _%s = std::move(other._%s);"
@@ -3995,7 +3993,6 @@ bool ExporterMgr::_GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KER
             if(!KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::CUSTOM_FIELD_FLAG))
                 continue;
 
-            auto iterSubTreeNode = _classRefTreeNode.find(subCodeUnit->_params[subCodeUnit->_params.size() - 1]);
             if(KERNEL_NS::CodeUnitFlags::HasFlags(subCodeUnit->_flags, KERNEL_NS::CodeUnitFlags::ARRAY_FIELD_FLAG))
             {
                 implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    _%s.clear();"
