@@ -4,6 +4,8 @@
 
 -- python tool define
 IS_WINDOWS = string.match(_ACTION, 'vs') ~= nil
+ISUSE_CLANG = _ARGS[3] and (_ARGS[3] == 'clang')
+
 -- header directory
 KERNEL_HEADER_DIR = "../../kernel/kernel_pch/"
 -- All libraries output directory
@@ -54,6 +56,10 @@ end
 
 -- set common options
 function set_common_options(optOption)
+    if ISUSE_CLANG then
+        toolset("clang")
+    end
+
     -- rdynamic coredump符号 通知连接器所有符号添加到动态符号表中
     filter { "language:c++", "system:not windows" }
         -- buildoptions {
@@ -281,11 +287,6 @@ workspace ("CrystalNet_" .. _ACTION)
 -- ****************************************************************************
 -- FS core library compile setting
 project "CrystalKernel"
-    
-    if not IS_WINDOWS then
-        toolset("clang")
-    end
-
     -- language, kind
     language "c++"
     kind "StaticLib"
