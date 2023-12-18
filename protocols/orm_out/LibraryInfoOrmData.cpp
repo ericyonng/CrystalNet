@@ -56,7 +56,6 @@ LibraryInfoOrmData::LibraryInfoOrmData(const LibraryInfoOrmData &other)
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::LibraryInfo(*other._ormRawPbData) : NULL)
 {
     {
-        auto arr = _ormRawPbData->mutable_managerinfolist();
         const auto count = _ormRawPbData->managerinfolist_size();
 
         _managerinfolist.resize(count);
@@ -78,7 +77,6 @@ LibraryInfoOrmData::LibraryInfoOrmData(const LibraryInfoOrmData &other)
 
 
     {
-        auto arr = _ormRawPbData->mutable_memberlist();
         const auto count = _ormRawPbData->memberlist_size();
 
         _memberlist.resize(count);
@@ -100,7 +98,6 @@ LibraryInfoOrmData::LibraryInfoOrmData(const LibraryInfoOrmData &other)
 
 
     {
-        auto arr = _ormRawPbData->mutable_booklist();
         const auto count = _ormRawPbData->booklist_size();
 
         _booklist.resize(count);
@@ -140,7 +137,6 @@ LibraryInfoOrmData::LibraryInfoOrmData(const ::CRYSTAL_NET::service::LibraryInfo
 :_ormRawPbData(new ::CRYSTAL_NET::service::LibraryInfo(pb))
 {
     {
-        auto arr = _ormRawPbData->mutable_managerinfolist();
         const auto count = _ormRawPbData->managerinfolist_size();
 
         _managerinfolist.resize(count);
@@ -162,7 +158,6 @@ LibraryInfoOrmData::LibraryInfoOrmData(const ::CRYSTAL_NET::service::LibraryInfo
 
 
     {
-        auto arr = _ormRawPbData->mutable_memberlist();
         const auto count = _ormRawPbData->memberlist_size();
 
         _memberlist.resize(count);
@@ -184,7 +179,6 @@ LibraryInfoOrmData::LibraryInfoOrmData(const ::CRYSTAL_NET::service::LibraryInfo
 
 
     {
-        auto arr = _ormRawPbData->mutable_booklist();
         const auto count = _ormRawPbData->booklist_size();
 
         _booklist.resize(count);
@@ -224,7 +218,6 @@ LibraryInfoOrmData &LibraryInfoOrmData::operator =(const ::CRYSTAL_NET::service:
     CRYSTAL_RELEASE_SAFE(_ormRawPbData);
     _ormRawPbData = new ::CRYSTAL_NET::service::LibraryInfo(pb);
     {
-        auto arr = _ormRawPbData->mutable_managerinfolist();
         const auto count = _ormRawPbData->managerinfolist_size();
 
         _managerinfolist.resize(count);
@@ -246,7 +239,6 @@ LibraryInfoOrmData &LibraryInfoOrmData::operator =(const ::CRYSTAL_NET::service:
 
 
     {
-        auto arr = _ormRawPbData->mutable_memberlist();
         const auto count = _ormRawPbData->memberlist_size();
 
         _memberlist.resize(count);
@@ -268,7 +260,6 @@ LibraryInfoOrmData &LibraryInfoOrmData::operator =(const ::CRYSTAL_NET::service:
 
 
     {
-        auto arr = _ormRawPbData->mutable_booklist();
         const auto count = _ormRawPbData->booklist_size();
 
         _booklist.resize(count);
@@ -305,7 +296,6 @@ LibraryInfoOrmData &LibraryInfoOrmData::operator =(const LibraryInfoOrmData &oth
     if(_ormRawPbData)
     {
             {
-                auto arr = _ormRawPbData->mutable_managerinfolist();
                 const auto count = _ormRawPbData->managerinfolist_size();
         
                 _managerinfolist.resize(count);
@@ -327,7 +317,6 @@ LibraryInfoOrmData &LibraryInfoOrmData::operator =(const LibraryInfoOrmData &oth
         
         
             {
-                auto arr = _ormRawPbData->mutable_memberlist();
                 const auto count = _ormRawPbData->memberlist_size();
         
                 _memberlist.resize(count);
@@ -349,7 +338,6 @@ LibraryInfoOrmData &LibraryInfoOrmData::operator =(const LibraryInfoOrmData &oth
         
         
             {
-                auto arr = _ormRawPbData->mutable_booklist();
                 const auto count = _ormRawPbData->booklist_size();
         
                 _booklist.resize(count);
@@ -418,7 +406,6 @@ void LibraryInfoOrmData::_AttachPb(void *pb)
     _ormRawPbData = reinterpret_cast<::CRYSTAL_NET::service::LibraryInfo *>(pb);
 
     {
-        auto arr = _ormRawPbData->mutable_managerinfolist();
         const auto count = _ormRawPbData->managerinfolist_size();
 
         _managerinfolist.resize(count);
@@ -440,7 +427,6 @@ void LibraryInfoOrmData::_AttachPb(void *pb)
 
 
     {
-        auto arr = _ormRawPbData->mutable_memberlist();
         const auto count = _ormRawPbData->memberlist_size();
 
         _memberlist.resize(count);
@@ -462,7 +448,6 @@ void LibraryInfoOrmData::_AttachPb(void *pb)
 
 
     {
-        auto arr = _ormRawPbData->mutable_booklist();
         const auto count = _ormRawPbData->booklist_size();
 
         _booklist.resize(count);
@@ -502,7 +487,6 @@ bool LibraryInfoOrmData::FromJsonString(const Byte8 *data, size_t len)
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_managerinfolist();
             const auto count = _ormRawPbData->managerinfolist_size();
     
             _managerinfolist.resize(count);
@@ -524,7 +508,6 @@ bool LibraryInfoOrmData::FromJsonString(const Byte8 *data, size_t len)
     
     
         {
-            auto arr = _ormRawPbData->mutable_memberlist();
             const auto count = _ormRawPbData->memberlist_size();
     
             _memberlist.resize(count);
@@ -546,7 +529,6 @@ bool LibraryInfoOrmData::FromJsonString(const Byte8 *data, size_t len)
     
     
         {
-            auto arr = _ormRawPbData->mutable_booklist();
             const auto count = _ormRawPbData->booklist_size();
     
             _booklist.resize(count);
@@ -943,7 +925,6 @@ bool LibraryInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_managerinfolist();
             const auto count = _ormRawPbData->managerinfolist_size();
     
             _managerinfolist.resize(count);
@@ -965,7 +946,6 @@ bool LibraryInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &
     
     
         {
-            auto arr = _ormRawPbData->mutable_memberlist();
             const auto count = _ormRawPbData->memberlist_size();
     
             _memberlist.resize(count);
@@ -987,7 +967,6 @@ bool LibraryInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &
     
     
         {
-            auto arr = _ormRawPbData->mutable_booklist();
             const auto count = _ormRawPbData->booklist_size();
     
             _booklist.resize(count);
@@ -1019,7 +998,6 @@ bool LibraryInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_managerinfolist();
             const auto count = _ormRawPbData->managerinfolist_size();
     
             _managerinfolist.resize(count);
@@ -1041,7 +1019,6 @@ bool LibraryInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &
     
     
         {
-            auto arr = _ormRawPbData->mutable_memberlist();
             const auto count = _ormRawPbData->memberlist_size();
     
             _memberlist.resize(count);
@@ -1063,7 +1040,6 @@ bool LibraryInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &
     
     
         {
-            auto arr = _ormRawPbData->mutable_booklist();
             const auto count = _ormRawPbData->booklist_size();
     
             _booklist.resize(count);

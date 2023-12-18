@@ -52,7 +52,6 @@ MemberInfoOrmData::MemberInfoOrmData(const MemberInfoOrmData &other)
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::MemberInfo(*other._ormRawPbData) : NULL)
 {
     {
-        auto arr = _ormRawPbData->mutable_borrowlist();
         const auto count = _ormRawPbData->borrowlist_size();
 
         _borrowlist.resize(count);
@@ -88,7 +87,6 @@ MemberInfoOrmData::MemberInfoOrmData(const ::CRYSTAL_NET::service::MemberInfo &p
 :_ormRawPbData(new ::CRYSTAL_NET::service::MemberInfo(pb))
 {
     {
-        auto arr = _ormRawPbData->mutable_borrowlist();
         const auto count = _ormRawPbData->borrowlist_size();
 
         _borrowlist.resize(count);
@@ -128,7 +126,6 @@ MemberInfoOrmData &MemberInfoOrmData::operator =(const ::CRYSTAL_NET::service::M
     CRYSTAL_RELEASE_SAFE(_ormRawPbData);
     _ormRawPbData = new ::CRYSTAL_NET::service::MemberInfo(pb);
     {
-        auto arr = _ormRawPbData->mutable_borrowlist();
         const auto count = _ormRawPbData->borrowlist_size();
 
         _borrowlist.resize(count);
@@ -165,7 +162,6 @@ MemberInfoOrmData &MemberInfoOrmData::operator =(const MemberInfoOrmData &other)
     if(_ormRawPbData)
     {
             {
-                auto arr = _ormRawPbData->mutable_borrowlist();
                 const auto count = _ormRawPbData->borrowlist_size();
         
                 _borrowlist.resize(count);
@@ -226,7 +222,6 @@ void MemberInfoOrmData::_AttachPb(void *pb)
     _ormRawPbData = reinterpret_cast<::CRYSTAL_NET::service::MemberInfo *>(pb);
 
     {
-        auto arr = _ormRawPbData->mutable_borrowlist();
         const auto count = _ormRawPbData->borrowlist_size();
 
         _borrowlist.resize(count);
@@ -266,7 +261,6 @@ bool MemberInfoOrmData::FromJsonString(const Byte8 *data, size_t len)
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_borrowlist();
             const auto count = _ormRawPbData->borrowlist_size();
     
             _borrowlist.resize(count);
@@ -476,7 +470,6 @@ bool MemberInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &s
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_borrowlist();
             const auto count = _ormRawPbData->borrowlist_size();
     
             _borrowlist.resize(count);
@@ -508,7 +501,6 @@ bool MemberInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &s
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_borrowlist();
             const auto count = _ormRawPbData->borrowlist_size();
     
             _borrowlist.resize(count);

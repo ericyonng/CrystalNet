@@ -69,7 +69,6 @@ TestOrmOrmData::TestOrmOrmData(const TestOrmOrmData &other)
     }
 
     {
-        auto arr = _ormRawPbData->mutable_testcustomarray();
         const auto count = _ormRawPbData->testcustomarray_size();
 
         _testcustomarray.resize(count);
@@ -143,7 +142,6 @@ TestOrmOrmData::TestOrmOrmData(const ::CRYSTAL_NET::service::TestOrm &pb)
     }
 
     {
-        auto arr = _ormRawPbData->mutable_testcustomarray();
         const auto count = _ormRawPbData->testcustomarray_size();
 
         _testcustomarray.resize(count);
@@ -217,7 +215,6 @@ TestOrmOrmData &TestOrmOrmData::operator =(const ::CRYSTAL_NET::service::TestOrm
     }
 
     {
-        auto arr = _ormRawPbData->mutable_testcustomarray();
         const auto count = _ormRawPbData->testcustomarray_size();
 
         _testcustomarray.resize(count);
@@ -288,7 +285,6 @@ TestOrmOrmData &TestOrmOrmData::operator =(const TestOrmOrmData &other)
             }
         
             {
-                auto arr = _ormRawPbData->mutable_testcustomarray();
                 const auto count = _ormRawPbData->testcustomarray_size();
         
                 _testcustomarray.resize(count);
@@ -391,7 +387,6 @@ void TestOrmOrmData::_AttachPb(void *pb)
     }
 
     {
-        auto arr = _ormRawPbData->mutable_testcustomarray();
         const auto count = _ormRawPbData->testcustomarray_size();
 
         _testcustomarray.resize(count);
@@ -465,7 +460,6 @@ bool TestOrmOrmData::FromJsonString(const Byte8 *data, size_t len)
         }
     
         {
-            auto arr = _ormRawPbData->mutable_testcustomarray();
             const auto count = _ormRawPbData->testcustomarray_size();
     
             _testcustomarray.resize(count);
@@ -914,7 +908,6 @@ bool TestOrmOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &stre
         }
     
         {
-            auto arr = _ormRawPbData->mutable_testcustomarray();
             const auto count = _ormRawPbData->testcustomarray_size();
     
             _testcustomarray.resize(count);
@@ -980,7 +973,6 @@ bool TestOrmOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stre
         }
     
         {
-            auto arr = _ormRawPbData->mutable_testcustomarray();
             const auto count = _ormRawPbData->testcustomarray_size();
     
             _testcustomarray.resize(count);

@@ -52,7 +52,6 @@ BookBagInfoOrmData::BookBagInfoOrmData(const BookBagInfoOrmData &other)
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::BookBagInfo(*other._ormRawPbData) : NULL)
 {
     {
-        auto arr = _ormRawPbData->mutable_bookinfoitemlist();
         const auto count = _ormRawPbData->bookinfoitemlist_size();
 
         _bookinfoitemlist.resize(count);
@@ -88,7 +87,6 @@ BookBagInfoOrmData::BookBagInfoOrmData(const ::CRYSTAL_NET::service::BookBagInfo
 :_ormRawPbData(new ::CRYSTAL_NET::service::BookBagInfo(pb))
 {
     {
-        auto arr = _ormRawPbData->mutable_bookinfoitemlist();
         const auto count = _ormRawPbData->bookinfoitemlist_size();
 
         _bookinfoitemlist.resize(count);
@@ -128,7 +126,6 @@ BookBagInfoOrmData &BookBagInfoOrmData::operator =(const ::CRYSTAL_NET::service:
     CRYSTAL_RELEASE_SAFE(_ormRawPbData);
     _ormRawPbData = new ::CRYSTAL_NET::service::BookBagInfo(pb);
     {
-        auto arr = _ormRawPbData->mutable_bookinfoitemlist();
         const auto count = _ormRawPbData->bookinfoitemlist_size();
 
         _bookinfoitemlist.resize(count);
@@ -165,7 +162,6 @@ BookBagInfoOrmData &BookBagInfoOrmData::operator =(const BookBagInfoOrmData &oth
     if(_ormRawPbData)
     {
             {
-                auto arr = _ormRawPbData->mutable_bookinfoitemlist();
                 const auto count = _ormRawPbData->bookinfoitemlist_size();
         
                 _bookinfoitemlist.resize(count);
@@ -226,7 +222,6 @@ void BookBagInfoOrmData::_AttachPb(void *pb)
     _ormRawPbData = reinterpret_cast<::CRYSTAL_NET::service::BookBagInfo *>(pb);
 
     {
-        auto arr = _ormRawPbData->mutable_bookinfoitemlist();
         const auto count = _ormRawPbData->bookinfoitemlist_size();
 
         _bookinfoitemlist.resize(count);
@@ -266,7 +261,6 @@ bool BookBagInfoOrmData::FromJsonString(const Byte8 *data, size_t len)
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_bookinfoitemlist();
             const auto count = _ormRawPbData->bookinfoitemlist_size();
     
             _bookinfoitemlist.resize(count);
@@ -380,7 +374,6 @@ bool BookBagInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_bookinfoitemlist();
             const auto count = _ormRawPbData->bookinfoitemlist_size();
     
             _bookinfoitemlist.resize(count);
@@ -412,7 +405,6 @@ bool BookBagInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_bookinfoitemlist();
             const auto count = _ormRawPbData->bookinfoitemlist_size();
     
             _bookinfoitemlist.resize(count);

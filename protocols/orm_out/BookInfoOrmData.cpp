@@ -71,7 +71,6 @@ BookInfoOrmData::BookInfoOrmData(const BookInfoOrmData &other)
     }
 
     {
-        auto arr = _ormRawPbData->mutable_snapshotpreivewinfolist();
         const auto count = _ormRawPbData->snapshotpreivewinfolist_size();
 
         _snapshotpreivewinfolist.resize(count);
@@ -126,7 +125,6 @@ BookInfoOrmData::BookInfoOrmData(const ::CRYSTAL_NET::service::BookInfo &pb)
     }
 
     {
-        auto arr = _ormRawPbData->mutable_snapshotpreivewinfolist();
         const auto count = _ormRawPbData->snapshotpreivewinfolist_size();
 
         _snapshotpreivewinfolist.resize(count);
@@ -183,7 +181,6 @@ BookInfoOrmData &BookInfoOrmData::operator =(const ::CRYSTAL_NET::service::BookI
     }
 
     {
-        auto arr = _ormRawPbData->mutable_snapshotpreivewinfolist();
         const auto count = _ormRawPbData->snapshotpreivewinfolist_size();
 
         _snapshotpreivewinfolist.resize(count);
@@ -237,7 +234,6 @@ BookInfoOrmData &BookInfoOrmData::operator =(const BookInfoOrmData &other)
             }
         
             {
-                auto arr = _ormRawPbData->mutable_snapshotpreivewinfolist();
                 const auto count = _ormRawPbData->snapshotpreivewinfolist_size();
         
                 _snapshotpreivewinfolist.resize(count);
@@ -319,7 +315,6 @@ void BookInfoOrmData::_AttachPb(void *pb)
     }
 
     {
-        auto arr = _ormRawPbData->mutable_snapshotpreivewinfolist();
         const auto count = _ormRawPbData->snapshotpreivewinfolist_size();
 
         _snapshotpreivewinfolist.resize(count);
@@ -376,7 +371,6 @@ bool BookInfoOrmData::FromJsonString(const Byte8 *data, size_t len)
         }
     
         {
-            auto arr = _ormRawPbData->mutable_snapshotpreivewinfolist();
             const auto count = _ormRawPbData->snapshotpreivewinfolist_size();
     
             _snapshotpreivewinfolist.resize(count);
@@ -931,7 +925,6 @@ bool BookInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::MT> &str
         }
     
         {
-            auto arr = _ormRawPbData->mutable_snapshotpreivewinfolist();
             const auto count = _ormRawPbData->snapshotpreivewinfolist_size();
     
             _snapshotpreivewinfolist.resize(count);
@@ -980,7 +973,6 @@ bool BookInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &str
         }
     
         {
-            auto arr = _ormRawPbData->mutable_snapshotpreivewinfolist();
             const auto count = _ormRawPbData->snapshotpreivewinfolist_size();
     
             _snapshotpreivewinfolist.resize(count);

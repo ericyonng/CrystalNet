@@ -54,7 +54,6 @@ BorrowOrderInfoOrmData::BorrowOrderInfoOrmData(const BorrowOrderInfoOrmData &oth
 ,_ormRawPbData(other._ormRawPbData ? new ::CRYSTAL_NET::service::BorrowOrderInfo(*other._ormRawPbData) : NULL)
 {
     {
-        auto arr = _ormRawPbData->mutable_borrowbooklist();
         const auto count = _ormRawPbData->borrowbooklist_size();
 
         _borrowbooklist.resize(count);
@@ -109,7 +108,6 @@ BorrowOrderInfoOrmData::BorrowOrderInfoOrmData(const ::CRYSTAL_NET::service::Bor
 :_ormRawPbData(new ::CRYSTAL_NET::service::BorrowOrderInfo(pb))
 {
     {
-        auto arr = _ormRawPbData->mutable_borrowbooklist();
         const auto count = _ormRawPbData->borrowbooklist_size();
 
         _borrowbooklist.resize(count);
@@ -166,7 +164,6 @@ BorrowOrderInfoOrmData &BorrowOrderInfoOrmData::operator =(const ::CRYSTAL_NET::
     CRYSTAL_RELEASE_SAFE(_ormRawPbData);
     _ormRawPbData = new ::CRYSTAL_NET::service::BorrowOrderInfo(pb);
     {
-        auto arr = _ormRawPbData->mutable_borrowbooklist();
         const auto count = _ormRawPbData->borrowbooklist_size();
 
         _borrowbooklist.resize(count);
@@ -220,7 +217,6 @@ BorrowOrderInfoOrmData &BorrowOrderInfoOrmData::operator =(const BorrowOrderInfo
     if(_ormRawPbData)
     {
             {
-                auto arr = _ormRawPbData->mutable_borrowbooklist();
                 const auto count = _ormRawPbData->borrowbooklist_size();
         
                 _borrowbooklist.resize(count);
@@ -302,7 +298,6 @@ void BorrowOrderInfoOrmData::_AttachPb(void *pb)
     _ormRawPbData = reinterpret_cast<::CRYSTAL_NET::service::BorrowOrderInfo *>(pb);
 
     {
-        auto arr = _ormRawPbData->mutable_borrowbooklist();
         const auto count = _ormRawPbData->borrowbooklist_size();
 
         _borrowbooklist.resize(count);
@@ -359,7 +354,6 @@ bool BorrowOrderInfoOrmData::FromJsonString(const Byte8 *data, size_t len)
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_borrowbooklist();
             const auto count = _ormRawPbData->borrowbooklist_size();
     
             _borrowbooklist.resize(count);
@@ -640,7 +634,6 @@ bool BorrowOrderInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::M
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_borrowbooklist();
             const auto count = _ormRawPbData->borrowbooklist_size();
     
             _borrowbooklist.resize(count);
@@ -689,7 +682,6 @@ bool BorrowOrderInfoOrmData::_OnDecode(KERNEL_NS::LibStream<KERNEL_NS::_Build::T
     if(ret)
     {
         {
-            auto arr = _ormRawPbData->mutable_borrowbooklist();
             const auto count = _ormRawPbData->borrowbooklist_size();
     
             _borrowbooklist.resize(count);
