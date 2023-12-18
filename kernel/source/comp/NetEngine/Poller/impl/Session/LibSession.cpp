@@ -178,9 +178,9 @@ void LibSession::_Destroy()
     
     if(LIKELY(_recvBuffers))
     {
-        ContainerUtil::DelContainer(*_recvBuffers, [this](LibStream<_Build::TL> *stream)
+        ContainerUtil::DelContainer(*_recvBuffers, [](LibStream<_Build::TL> *stream)
         {
-            g_Log->NetInfo(LOGFMT_OBJ_TAG("unhandled recv buffer data len:%llu"), stream->GetReadableSize());
+            g_Log->NetInfo(LOGFMT_NON_OBJ_TAG(LibSession, "unhandled recv buffer data len:%llu"), stream->GetReadableSize());
             LibStream<_Build::TL>::DeleteThreadLocal_LibStream(stream);
         });
 

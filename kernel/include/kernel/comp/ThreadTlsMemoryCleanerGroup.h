@@ -48,7 +48,7 @@ public:
     virtual void Release() override;
 
 public:
-    virtual void OnRegisterComps();
+    virtual void OnRegisterComps() override;
 
     // 设置清理时间间隔, 默认1分钟清理一次
     void SetIntervalMs(Int64 intervalMs);

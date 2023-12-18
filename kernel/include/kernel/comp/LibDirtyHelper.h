@@ -264,7 +264,7 @@ ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Destroy()
     {
         // g_Log->Warn(LOGFMT_OBJ_TAG( "has dirty elem not purge count = [%llu]"), static_cast<UInt64>(_keyRefMask.size()));
 
-        ContainerUtil::DelContainer(_keyRefMask, [this](DirtyMask<KeyType, MaskValue> *&mask)->void{
+        ContainerUtil::DelContainer(_keyRefMask, [](DirtyMask<KeyType, MaskValue> *&mask)->void{
             // g_Log->Warn(LOGFMT_OBJ_TAG("dirty key = [%s] not purge"), mask->ToString().c_str());
 
             DirtyMask<KeyType, MaskValue>::DeleteThreadLocal_DirtyMask(mask);
@@ -278,7 +278,7 @@ ALWAYS_INLINE void LibDirtyHelper<KeyType, MaskValue>::Destroy()
 
     if(!_delayOperations.empty())
     {
-        ContainerUtil::DelContainer(_delayOperations, [this](DirtyHelperDelayOp<KeyType, MaskValue> *delay)->void{
+        ContainerUtil::DelContainer(_delayOperations, [](DirtyHelperDelayOp<KeyType, MaskValue> *delay)->void{
             // g_Log->Warn(LOGFMT_OBJ_TAG("delay dirty mask = [%s] not purge"), delay->_mask->ToString().c_str());
 
             DirtyHelperDelayOp<KeyType, MaskValue>::DeleteThreadLocal_DirtyHelperDelayOp(delay);

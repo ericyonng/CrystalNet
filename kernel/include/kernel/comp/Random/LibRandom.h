@@ -141,7 +141,7 @@ ALWAYS_INLINE Rtn &LibRandomInstance::GetInstance(_Build::MT::Type)
 template<typename Rtn, Int64 minValue, Int64 maxValue>
 ALWAYS_INLINE Rtn &LibRandomInstance::GetInstance(_Build::TL::Type)
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR SmartPtr<Rtn> instance;
+    DEF_STATIC_THREAD_LOCAL_DECLEAR Rtn *instance;
     if(UNLIKELY(!instance))
     {
         instance = KERNEL_NS::AllocUtil::GetStaticThreadLocalTemplateObjNoFree<Rtn>([]()-> void *{

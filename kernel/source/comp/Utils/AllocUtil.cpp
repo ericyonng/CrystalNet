@@ -51,7 +51,7 @@ void *&AllocUtil::GetThreadLocalStaticObjNoFree(std::function<void *()> &&create
 
 void *AllocUtil::GetThreadLocalStaticObjNoFreeByDict(const KERNEL_NS::LibString &objName, std::function<void *()> &&createFactory)
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR SmartPtr<std::unordered_map<LibString, void *>> s_objTypeRefPtr;
+    DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<LibString, void *>* s_objTypeRefPtr = NULL;
     if(UNLIKELY(!s_objTypeRefPtr))
     {
         s_objTypeRefPtr = new std::unordered_map<LibString, void *>;

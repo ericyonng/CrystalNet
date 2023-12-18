@@ -489,6 +489,7 @@ void EpollTcpSession::_OnRecved()
     if(leftStream)
         _recvBuffers->PushBack(leftStream);
 
+    UNUSED(totalHandledBytes);
     // 本次接收数据信息
     // g_Log->NetDebug(LOGFMT_OBJ_TAG("session info = [%s]"
     //                         " total recv buffer amount = [%llu] "

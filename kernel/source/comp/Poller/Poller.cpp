@@ -39,19 +39,19 @@
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Tls/Tls.h>
 
-static ALWAYS_INLINE bool IsPriorityEvenetsQueueEmpty(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
-{
-    if(UNLIKELY(queue.empty()))
-        return true;
+// static ALWAYS_INLINE bool IsPriorityEvenetsQueueEmpty(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
+// {
+//     if(UNLIKELY(queue.empty()))
+//         return true;
 
-    for(auto &evList:queue)
-    {
-        if(!evList->IsEmpty())
-            return false;
-    }
+//     for(auto &evList:queue)
+//     {
+//         if(!evList->IsEmpty())
+//             return false;
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
 {
@@ -65,31 +65,31 @@ static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const KERNEL_NS::Li
     return count;
 }
 
-static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
-{
-    if(UNLIKELY(queue.empty()))
-        return 0;
+// static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
+// {
+//     if(UNLIKELY(queue.empty()))
+//         return 0;
 
-    UInt64 count = 0;
-    for(auto node : queue)
-        count += node->GetAmount();
+//     UInt64 count = 0;
+//     for(auto node : queue)
+//         count += node->GetAmount();
 
-    return count;
-}
+//     return count;
+// }
 
-static ALWAYS_INLINE void MergePriorityEvenetsQueue(std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &from,std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &to)
-{
-    if(UNLIKELY(from.empty()))
-        return;
+// static ALWAYS_INLINE void MergePriorityEvenetsQueue(std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &from,std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &to)
+// {
+//     if(UNLIKELY(from.empty()))
+//         return;
 
-    Int32 queueSize = static_cast<Int32>(from.size());
-    for(Int32 idx = 0; idx < queueSize; ++idx)
-    {
-        auto fromQueue = from[idx];
-        auto toQueue = to[idx];
-        toQueue->MergeTail(fromQueue);
-    }
-}
+//     Int32 queueSize = static_cast<Int32>(from.size());
+//     for(Int32 idx = 0; idx < queueSize; ++idx)
+//     {
+//         auto fromQueue = from[idx];
+//         auto toQueue = to[idx];
+//         toQueue->MergeTail(fromQueue);
+//     }
+// }
 
 KERNEL_BEGIN
 
@@ -390,8 +390,8 @@ void Poller::EventLoop()
         g_Log->Warn(LOGFMT_OBJ_TAG("has unhandled events left:%llu, poller info:%s"), leftElemCount, ToString().c_str());
     
     ContainerUtil::DelContainer(*priorityEvents, [this](LibList<PollerEvent *, _Build::MT> *evList){
-        ContainerUtil::DelContainer(*evList, [this](PollerEvent *ev){
-            g_Log->Warn(LOGFMT_OBJ_TAG("event type:%d, not handled when poller will closed."), ev->_type);
+        ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(Poller, "event type:%d, not handled when poller will closed."), ev->_type);
             ev->Release();
         });
         LibList<PollerEvent *, _Build::MT>::Delete_LibList(evList);
