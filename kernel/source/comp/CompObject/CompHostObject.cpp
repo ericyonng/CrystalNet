@@ -665,7 +665,7 @@ void CompHostObject::_DestroyWillRegComps()
 
 void CompHostObject::_DestroyComps()
 {
-    ContainerUtil::DelContainer(_comps, [this](CompObject *comp){
+    ContainerUtil::DelContainer(_comps, [](CompObject *comp){
         const auto compName = comp->GetObjName();
         comp->Release();
     });

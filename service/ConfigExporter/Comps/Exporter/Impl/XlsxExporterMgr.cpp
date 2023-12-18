@@ -1841,12 +1841,12 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("        return KERNEL_NS::ObjPoolWrap<%s>::NewByAdapter(_buildType.V);\n", mgrFactoryClassName.c_str());
         fileContent.AppendFormat("    }\n");
         fileContent.AppendFormat("\n");
-        fileContent.AppendFormat("    virtual void Release()\n");
+        fileContent.AppendFormat("    virtual void Release() override\n");
         fileContent.AppendFormat("    {\n");
         fileContent.AppendFormat("        KERNEL_NS::ObjPoolWrap<%s>::DeleteByAdapter(_buildType.V, this);\n", mgrFactoryClassName.c_str());
         fileContent.AppendFormat("    }\n");
         fileContent.AppendFormat("\n");
-        fileContent.AppendFormat("    virtual KERNEL_NS::CompObject *Create() const\n");
+        fileContent.AppendFormat("    virtual KERNEL_NS::CompObject *Create() const override\n");
         fileContent.AppendFormat("    {\n");
         fileContent.AppendFormat("        return %s::NewByAdapter_%s(_buildType.V);\n", mgrClassName.c_str(), mgrClassName.c_str());
         fileContent.AppendFormat("    }\n");

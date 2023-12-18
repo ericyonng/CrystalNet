@@ -649,7 +649,7 @@ public:
     }
 
 
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return CompA::NewByAdapter_CompA(_buildType.V);
     }
@@ -670,7 +670,7 @@ public:
         KERNEL_NS::ObjPoolWrap<CompBFactory>::DeleteByAdapter(_buildType.V, this);
     }
 
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return CompB::NewByAdapter_CompB(_buildType.V);
     }
@@ -689,7 +689,7 @@ public:
     {
         KERNEL_NS::ObjPoolWrap<CompFaultFactory>::DeleteByAdapter(_buildType.V, this);
     }
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return CompFault::NewByAdapter_CompFault(_buildType.V);
     }
@@ -709,7 +709,7 @@ public:
     }
 
 
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         CREATE_CRYSTAL_COMP(comp, CompC);
         return comp;
@@ -728,7 +728,7 @@ public:
     {
         KERNEL_NS::ObjPoolWrap<HostAFactory>::DeleteByAdapter(_buildType.V, this);
     }
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return HostA::NewByAdapter_HostA(_buildType.V);
     }
@@ -746,7 +746,7 @@ public:
     {
         KERNEL_NS::ObjPoolWrap<HostBFactory>::DeleteByAdapter(_buildType.V, this);
     }
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return HostB::NewByAdapter_HostB(_buildType.V);
     }
@@ -764,7 +764,7 @@ public:
     {
         KERNEL_NS::ObjPoolWrap<HostCFactory>::DeleteByAdapter(_buildType.V, this);
     }
-    virtual KERNEL_NS::CompObject *Create() const
+    virtual KERNEL_NS::CompObject *Create() const override
     {
         return HostC::NewByAdapter_HostC(_buildType.V);
     }

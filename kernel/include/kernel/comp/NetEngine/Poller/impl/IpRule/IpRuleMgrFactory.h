@@ -44,7 +44,7 @@ public:
     void Release() override;
     
 public:
-    virtual CompObject *Create() const;
+    virtual CompObject *Create() const override;
 };
 
 KERNEL_END

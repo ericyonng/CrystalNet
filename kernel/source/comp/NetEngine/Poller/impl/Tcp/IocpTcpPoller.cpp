@@ -252,11 +252,10 @@ IocpTcpSession *IocpTcpPoller::_GetSession(UInt64 sessionId)
     return iter == _sessionIdRefSession.end() ? NULL : iter->second;
 }
 
-std::set<IocpTcpSession *> &IocpTcpPoller::_GetSessionsByIp(const LibString &ip)
+std::set<IocpTcpSession *> *IocpTcpPoller::_GetSessionsByIp(const LibString &ip)
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR std::set<IocpTcpSession *> s_empty;
     auto iter = _ipRefSessions.find(ip);
-    return iter == _ipRefSessions.end() ? s_empty : iter->second;
+    return iter == _ipRefSessions.end() ? NULL : &(iter->second);
 }
 
 IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
@@ -567,8 +566,9 @@ void IocpTcpPoller::_CloseSession(IocpTcpSession *session, Int32 closeReasonEnum
             auto addr = sock->GetAddr();
             if(LIKELY(addr))
             {
-                auto &sessions = _GetSessionsByIp(addr->GetRemoteIpStr());
-                sessions.erase(session);
+                auto sessions = _GetSessionsByIp(addr->GetRemoteIpStr());
+                if(sessions)
+                    sessions->erase(session);
             }
         }
     }
@@ -1400,9 +1400,12 @@ void IocpTcpPoller::_OnIpRuleControl(PollerEvent *ev)
         if(!ipRuleMgr->Check(ctrlInfo->_ip))
         {
             // 延迟1ms关闭
-            auto &sessions = _GetSessionsByIp(ctrlInfo->_ip);
-            for(auto session : sessions)
-                _ControlCloseSession(session, CloseSessionInfo::BY_BLACK_WHITE_LIST_CHECK, 1, 0);
+            auto sessions = _GetSessionsByIp(ctrlInfo->_ip);
+            if(sessions)
+            {
+                for(auto session : *sessions)
+                    _ControlCloseSession(session, CloseSessionInfo::BY_BLACK_WHITE_LIST_CHECK, 1, 0);
+            }
         }
     }
 }

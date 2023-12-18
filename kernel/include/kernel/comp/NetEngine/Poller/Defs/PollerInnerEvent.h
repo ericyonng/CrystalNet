@@ -58,7 +58,7 @@ struct KERNEL_EXPORT MonitorPollerEvent : public PollerEvent
     
     MonitorPollerEvent();
     ~MonitorPollerEvent();
-    virtual void Release();
+    virtual void Release() override;
     LibString ToString() const override;
 
     #if CRYSTAL_TARGET_PLATFORM_LINUX
@@ -82,7 +82,7 @@ struct NewSessionEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, NewSessionEvent);
 
     NewSessionEvent();
-    virtual void Release();
+    virtual void Release() override;
     LibString ToString() const override;
 
     BuildSessionInfo *_buildInfo;
@@ -94,7 +94,7 @@ struct AsynSendEvent : public PollerEvent
 
     AsynSendEvent();
     ~AsynSendEvent();
-    virtual void Release();
+    virtual void Release() override;
     LibString ToString() const override;
 
     UInt64 _sessionId; 
@@ -106,7 +106,7 @@ struct AsynConnectEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AsynConnectEvent);
 
     AsynConnectEvent();
-    virtual void Release();
+    virtual void Release() override;
     LibString ToString() const override;
 
     LibConnectInfo *_connectInfo;
@@ -119,7 +119,7 @@ struct CloseSessionEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, CloseSessionEvent);
 
     CloseSessionEvent();
-    virtual void Release();
+    virtual void Release() override;
     LibString ToString() const override;
 
     UInt64 _sessionId;
@@ -137,7 +137,7 @@ struct QuitServiceSessionsEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, QuitServiceSessionsEvent);
 
     QuitServiceSessionsEvent();
-    virtual void Release();
+    virtual void Release() override;
     LibString ToString() const override;
 
     UInt64 _fromServiceId;
@@ -158,7 +158,7 @@ struct RealDoQuitServiceSessionEvent : public PollerEvent
     RealDoQuitServiceSessionEvent();
     ~RealDoQuitServiceSessionEvent();
 
-    virtual void Release();
+    virtual void Release() override;
     LibString ToString() const override;
 
     UInt64 _fromServiceId;
@@ -171,7 +171,7 @@ struct AddListenEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AddListenEvent);
     AddListenEvent();
 
-    virtual void Release();
+    virtual void Release() override;
     LibString ToString() const override;
 
     std::vector<LibListenInfo *> _addListenInfoList;
@@ -186,7 +186,7 @@ struct IpRuleControlEvent : public PollerEvent
     ~IpRuleControlEvent();
 
     static IpRuleControlEvent *Create();
-    virtual void Release();
+    virtual void Release() override;
 
     LibString ToString() const override;
 

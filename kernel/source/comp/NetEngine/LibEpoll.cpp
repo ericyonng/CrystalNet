@@ -36,9 +36,8 @@
 KERNEL_BEGIN
 
 LibEpoll::LibEpoll()
-    :_ev{static_cast<UInt32>(EpollDefs::InvalidFd)}
-
 {
+    ::memset(&_ev, static_cast<UInt32>(EpollDefs::InvalidFd), sizeof(_ev));
     _evPtr = KernelCastTo<epoll_event>(_ev);
     _evFd = EpollDefs::InvalidFd;
 }

@@ -988,9 +988,13 @@ void EpollTcpPoller::_OnIpRuleControl(PollerEvent *ev)
         if(!ipRuleMgr->Check(ctrlInfo->_ip))
         {
             // 延迟1ms关闭
-            auto &sessions = _GetSessionsByIp(ctrlInfo->_ip);
-            for(auto session : sessions)
-                _ControlCloseSession(session, CloseSessionInfo::BY_BLACK_WHITE_LIST_CHECK, 1, 0);
+            auto sessions = _GetSessionsByIp(ctrlInfo->_ip);
+            if(sessions)
+            {
+                for(auto session : *sessions)
+                    _ControlCloseSession(session, CloseSessionInfo::BY_BLACK_WHITE_LIST_CHECK, 1, 0);
+            }
+
         }
     }
 }
@@ -1907,8 +1911,9 @@ void EpollTcpPoller::_CloseSession(EpollTcpSession *session, Int32 closeReasonEn
             auto addr = sock->GetAddr();
             if(LIKELY(addr))
             {
-                auto &sessions = _GetSessionsByIp(addr->GetRemoteIpStr());
-                sessions.erase(session);
+                auto sessions = _GetSessionsByIp(addr->GetRemoteIpStr());
+                if(sessions)
+                    sessions->erase(session);
             }
         }
     }

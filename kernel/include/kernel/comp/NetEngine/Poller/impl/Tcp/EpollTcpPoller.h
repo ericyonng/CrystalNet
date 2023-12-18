@@ -104,7 +104,7 @@ public:
 
 private:
     EpollTcpSession *_GetSession(UInt64 sessionId);
-    std::set<EpollTcpSession *> &_GetSessionsByIp(const LibString &ip);
+    std::set<EpollTcpSession *> *_GetSessionsByIp(const LibString &ip);
     EpollTcpSession *_CreateSession(BuildSessionInfo *sessionInfo);
     EpollTcpSession *_CreateSession(LibListenInfo *listenInfo);
     void _CloseSession(EpollTcpSession *session, Int32 closeReasonEnum, UInt64 stub);
@@ -207,11 +207,10 @@ ALWAYS_INLINE EpollTcpSession *EpollTcpPoller::_GetSession(UInt64 sessionId)
     return iter == _sessionIdRefSession.end() ? NULL : iter->second;   
 }
 
-ALWAYS_INLINE std::set<EpollTcpSession *> &EpollTcpPoller::_GetSessionsByIp(const LibString &ip)
+ALWAYS_INLINE std::set<EpollTcpSession *> *EpollTcpPoller::_GetSessionsByIp(const LibString &ip)
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR std::set<EpollTcpSession *> s_empty;
     auto iter = _ipRefSessions.find(ip);
-    return iter == _ipRefSessions.end() ? s_empty : iter->second;
+    return iter == _ipRefSessions.end() ? NULL : &(iter->second);
 }
 
 ALWAYS_INLINE UInt64 EpollTcpPoller::GetPollerId() const

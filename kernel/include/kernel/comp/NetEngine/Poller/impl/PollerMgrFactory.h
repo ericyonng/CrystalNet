@@ -43,7 +43,7 @@ public:
     static CompFactory *FactoryCreate();
     virtual void Release() override;
 public:
-    virtual CompObject *Create() const;
+    virtual CompObject *Create() const override;
 };
 
 KERNEL_END

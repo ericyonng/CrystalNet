@@ -101,7 +101,7 @@ public:
 
 private:
     IocpTcpSession *_GetSession(UInt64 sessionId);
-    std::set<IocpTcpSession *> &_GetSessionsByIp(const LibString &ip);
+    std::set<IocpTcpSession *> *_GetSessionsByIp(const LibString &ip);
     IocpTcpSession *_CreateSession(BuildSessionInfo *sessionInfo);
     IocpTcpSession *_CreateSession(LibListenInfo *listenInfo);
     void _CloseSession(IocpTcpSession *session, Int32 closeReasonEnum, UInt64 stub);

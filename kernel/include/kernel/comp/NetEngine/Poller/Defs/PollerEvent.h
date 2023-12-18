@@ -81,7 +81,7 @@ struct KERNEL_EXPORT SessionCreatedEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, SessionCreatedEvent);
     SessionCreatedEvent();
 
-    virtual void Release();
+    virtual void Release() override;
     LibString ToString() const override;
 
     UInt64 _sessionId;          // 会话id
@@ -105,7 +105,7 @@ struct KERNEL_EXPORT AsynConnectResEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AsynConnectResEvent);
 
     AsynConnectResEvent();
-    virtual void Release();
+    virtual void Release() override;
 
     LibString ToString() const override;
 
@@ -127,7 +127,7 @@ struct KERNEL_EXPORT AddListenResEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AddListenResEvent);
 
     AddListenResEvent();
-    virtual void Release();
+    virtual void Release() override;
 
     LibString ToString() const override;
 
@@ -147,7 +147,7 @@ struct KERNEL_EXPORT SessionDestroyEvent : public PollerEvent
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, SessionDestroyEvent);
 
     SessionDestroyEvent();
-    virtual void Release();
+    virtual void Release() override;
 
     LibString ToString() const override;
 
@@ -165,7 +165,7 @@ struct KERNEL_EXPORT RecvMsgEvent : public PollerEvent
 
     RecvMsgEvent();
     virtual ~RecvMsgEvent();
-    virtual void Release();
+    virtual void Release() override;
 
     LibString ToString() const override;
 
@@ -181,7 +181,7 @@ struct KERNEL_EXPORT IpControlInfo
     POOL_CREATE_OBJ_DEFAULT(IpControlInfo);
 
     static IpControlInfo *Create();
-    void Release();
+    void Release() override;
 
     enum CONTROL_TYPE
     {
@@ -204,7 +204,7 @@ struct KERNEL_EXPORT QuitServiceEvent : public PollerEvent
     QuitServiceEvent();
     ~QuitServiceEvent();
 
-    virtual void Release();
+    virtual void Release() override;
 
     LibString ToString() const override;
 };
@@ -216,7 +216,7 @@ struct KERNEL_EXPORT QuitApplicationEvent : public PollerEvent
     QuitApplicationEvent();
     ~QuitApplicationEvent();
 
-    virtual void Release();
+    virtual void Release() override;
 
     LibString ToString() const override;
 };
