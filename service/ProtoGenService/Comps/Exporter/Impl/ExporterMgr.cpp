@@ -4704,7 +4704,7 @@ bool ExporterMgr::_GenOrmHeaderInterfaceImpl(const KERNEL_NS::LibString &nameSap
                     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &%s::mutable_%s()"
                     , ormdDataType.c_str(), messageName.c_str(), fieldName.c_str()));
                     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
-                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(LIKELY(_%s))", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(LIKELY(_%s.AsSelf() != NULL))", fieldName.c_str()));
                     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        return _%s;", fieldName.c_str()));
                     implCodeLines.push_back(KERNEL_NS::LibString());
                     _CreateFieldOrmData(fieldName, ormdDataType, implCodeLines, false, false);
