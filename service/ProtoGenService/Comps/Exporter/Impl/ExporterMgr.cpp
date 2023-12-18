@@ -4359,7 +4359,6 @@ void ExporterMgr::_CreateVarOrmData(const KERNEL_NS::LibString &varName, const K
 void ExporterMgr::_CreateFieldOrmDataArray(const KERNEL_NS::LibString &fieldName, const KERNEL_NS::LibString &fieldDataType, std::vector<KERNEL_NS::LibString> &lines) const
 {
     lines.push_back(KERNEL_NS::LibString().AppendFormat("    {"));
-    lines.push_back(KERNEL_NS::LibString().AppendFormat("        auto arr = _ormRawPbData->mutable_%s();", fieldName.c_str()));
     lines.push_back(KERNEL_NS::LibString().AppendFormat("        const auto count = _ormRawPbData->%s_size();", fieldName.c_str()));
     lines.push_back(KERNEL_NS::LibString());
     lines.push_back(KERNEL_NS::LibString().AppendFormat("        _%s.resize(count);", fieldName.c_str()));

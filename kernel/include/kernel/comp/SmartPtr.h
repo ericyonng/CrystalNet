@@ -244,10 +244,10 @@ public:
         return *_ptr;
     }
 
-    // operator bool()
-    // {
-    //     return _ptr != NULL;
-    // }
+    operator bool()
+    {
+        return _ptr != NULL;
+    }
 
     ObjType *AsSelf()
     {
