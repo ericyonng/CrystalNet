@@ -521,7 +521,7 @@ void BorrowOrderInfoOrmData::set_orderstate(int32_t value)
 
 KERNEL_NS::SmartPtr<CancelOrderReasonOrmData, KERNEL_NS::AutoDelMethods::CustomDelete> &BorrowOrderInfoOrmData::mutable_cancelreason()
 {
-    if(LIKELY(_cancelreason))
+    if(LIKELY(_cancelreason.AsSelf() != NULL))
         return _cancelreason;
 
         _cancelreason = SERVICE_COMMON_NS::CancelOrderReasonOrmData::NewThreadLocal_CancelOrderReasonOrmData(_ormRawPbData->mutable_cancelreason());

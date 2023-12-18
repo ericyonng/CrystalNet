@@ -676,7 +676,7 @@ const ::google::protobuf::RepeatedPtrField<std::string> &TestOrmOrmData::teststr
 
 KERNEL_NS::SmartPtr<TestCustomDataOrmData, KERNEL_NS::AutoDelMethods::CustomDelete> &TestOrmOrmData::mutable_testcustom()
 {
-    if(LIKELY(_testcustom))
+    if(LIKELY(_testcustom.AsSelf() != NULL))
         return _testcustom;
 
         _testcustom = SERVICE_COMMON_NS::TestCustomDataOrmData::NewThreadLocal_TestCustomDataOrmData(_ormRawPbData->mutable_testcustom());
@@ -835,7 +835,7 @@ std::string *TestOrmOrmData::mutable_testoneofstring()
 
 KERNEL_NS::SmartPtr<TestCustomDataOrmData, KERNEL_NS::AutoDelMethods::CustomDelete> &TestOrmOrmData::mutable_testoneofcustom()
 {
-    if(LIKELY(_testoneofcustom))
+    if(LIKELY(_testoneofcustom.AsSelf() != NULL))
         return _testoneofcustom;
 
         _testoneofcustom = SERVICE_COMMON_NS::TestCustomDataOrmData::NewThreadLocal_TestCustomDataOrmData(_ormRawPbData->mutable_testoneofcustom());

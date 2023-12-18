@@ -523,7 +523,7 @@ void BookInfoOrmData::set_isonshelves(int32_t value)
 
 KERNEL_NS::SmartPtr<BookVariantInfoOrmData, KERNEL_NS::AutoDelMethods::CustomDelete> &BookInfoOrmData::mutable_variantinfo()
 {
-    if(LIKELY(_variantinfo))
+    if(LIKELY(_variantinfo.AsSelf() != NULL))
         return _variantinfo;
 
         _variantinfo = SERVICE_COMMON_NS::BookVariantInfoOrmData::NewThreadLocal_BookVariantInfoOrmData(_ormRawPbData->mutable_variantinfo());
