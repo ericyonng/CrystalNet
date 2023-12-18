@@ -47,9 +47,9 @@ public:
     DelegateClass(const ObjType *t, Rtn(ObjType::*f)(Args...) const);
     virtual ~DelegateClass();
 
-    virtual Rtn Invoke(Args... args);
-    virtual Rtn Invoke(Args... args) const;
-    virtual IDelegate<Rtn, Args...> *CreateNewCopy() const;
+    virtual Rtn Invoke(Args... args) override;
+    virtual Rtn Invoke(Args... args) const  override;
+    virtual IDelegate<Rtn, Args...> *CreateNewCopy() const override;
     virtual bool IsBelongTo(void *obj) const override { return reinterpret_cast<void *>(_obj) == obj; }
     virtual const void *GetOwner() const override { return _obj; }
     virtual void *GetOwner() override { return _obj; }
@@ -73,8 +73,8 @@ public:
     DelegateClassDelObj(const ObjType *t, Rtn(ObjType::*f)(Args...) const);
     virtual ~DelegateClassDelObj();
 
-    virtual Rtn Invoke(Args... args);
-    virtual Rtn Invoke(Args... args) const;
+    virtual Rtn Invoke(Args... args) override;
+    virtual Rtn Invoke(Args... args) const override;
     virtual bool IsBelongTo(void *obj) const override { return reinterpret_cast<void *>(_obj) == obj; }
     virtual const void *GetOwner() const override { return _obj; }
     virtual void *GetOwner() override { return _obj; }
@@ -85,7 +85,7 @@ public:
 private:
     DelegateClassDelObj(const DelegateClassDelObj<ObjType, Rtn, Args...> &) {}
     DelegateClassDelObj<ObjType, Rtn, Args...> &operator=(const DelegateClass<ObjType, Rtn, Args...> &) {}
-    virtual IDelegate<Rtn, Args...> *CreateNewCopy() const { return NULL; }
+    virtual IDelegate<Rtn, Args...> *CreateNewCopy() const override { return NULL; }
 
 private:
     mutable ObjType * _obj;
@@ -103,11 +103,11 @@ public:
     DelegateFunction(Rtn(*f)(Args...));
     virtual ~DelegateFunction();
 
-    virtual Rtn Invoke(Args... args);
-    virtual Rtn Invoke(Args... args) const;
-    virtual IDelegate<Rtn, Args...> *CreateNewCopy() const;
-    virtual bool IsBelongTo(void *f) const { return f == reinterpret_cast<void *>(_f); }
-    virtual const void *GetOwner() const { return reinterpret_cast<const void *>(_f); }
+    virtual Rtn Invoke(Args... args) override;
+    virtual Rtn Invoke(Args... args) const override;
+    virtual IDelegate<Rtn, Args...> *CreateNewCopy() const override;
+    virtual bool IsBelongTo(void *f) const override { return f == reinterpret_cast<void *>(_f); }
+    virtual const void *GetOwner() const override { return reinterpret_cast<const void *>(_f); }
     virtual void *GetOwner() override { return reinterpret_cast<void *>(_f); }
     virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_f); }
     virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(_f); }
@@ -128,9 +128,9 @@ public:
     DelegateClosureFunc(const ClosureFuncType &closureFunc);
     virtual ~DelegateClosureFunc();
 
-    virtual Rtn Invoke(Args... args);
-    virtual Rtn Invoke(Args... args) const;
-    virtual IDelegate<Rtn, Args...> *CreateNewCopy() const;
+    virtual Rtn Invoke(Args... args) override;
+    virtual Rtn Invoke(Args... args) const override;
+    virtual IDelegate<Rtn, Args...> *CreateNewCopy() const override;
     virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(&_closureFun); }
     virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(&_closureFun); }
 

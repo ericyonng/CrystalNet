@@ -85,7 +85,9 @@ ALWAYS_INLINE UInt64 RttiUtil::GetTypeHashCode()
 template<typename ObjType>
 ALWAYS_INLINE UInt64 RttiUtil::GetTypeId()
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR UInt64 s_objTypeId = typeid(ObjType).hash_code();
+    DEF_STATIC_THREAD_LOCAL_DECLEAR UInt64 s_objTypeId = 0;
+    if(UNLIKELY(s_objTypeId == 0))
+        s_objTypeId = typeid(ObjType).hash_code();
     return s_objTypeId;
 }
 

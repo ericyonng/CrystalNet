@@ -74,28 +74,28 @@ static ALWAYS_INLINE Byte8 *InitHexToDecimalValues()
     ::memset(arr, -1, 128);
 
     // 16进制转码
-    arr['0'] = 0;
-    arr['1'] = 1;
-    arr['2'] = 2;
-    arr['3'] = 3;
-    arr['4'] = 4;
-    arr['5'] = 5;
-    arr['6'] = 6;
-    arr['7'] = 7;
-    arr['8'] = 8;
-    arr['9'] = 9;
-    arr['A'] = 10;
-    arr['B'] = 11;
-    arr['C'] = 12;
-    arr['D'] = 13;
-    arr['E'] = 14;
-    arr['F'] = 15;
-    arr['a'] = 10;
-    arr['b'] = 11;
-    arr['c'] = 12;
-    arr['d'] = 13;
-    arr['e'] = 14;
-    arr['f'] = 15;
+    arr[Int32('0')] = 0;
+    arr[Int32('1')] = 1;
+    arr[Int32('2')] = 2;
+    arr[Int32('3')] = 3;
+    arr[Int32('4')] = 4;
+    arr[Int32('5')] = 5;
+    arr[Int32('6')] = 6;
+    arr[Int32('7')] = 7;
+    arr[Int32('8')] = 8;
+    arr[Int32('9')] = 9;
+    arr[Int32('A')] = 10;
+    arr[Int32('B')] = 11;
+    arr[Int32('C')] = 12;
+    arr[Int32('D')] = 13;
+    arr[Int32('E')] = 14;
+    arr[Int32('F')] = 15;
+    arr[Int32('a')] = 10;
+    arr[Int32('b')] = 11;
+    arr[Int32('c')] = 12;
+    arr[Int32('d')] = 13;
+    arr[Int32('e')] = 14;
+    arr[Int32('f')] = 15;
     return arr;
 }
 
