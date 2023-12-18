@@ -102,7 +102,7 @@ protected:
     
     bool _GenOrmImpl(const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName, KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit);
     void _CreateFieldOrmData(const KERNEL_NS::LibString &fieldName, const KERNEL_NS::LibString &fieldDataType, std::vector<KERNEL_NS::LibString> &lines, bool needRelease = true, bool needCheckHasCustom = true) const;
-    void _CreateVarOrmData(const KERNEL_NS::LibString &varName, const KERNEL_NS::LibString &pbName, const KERNEL_NS::LibString &varDataType, std::vector<KERNEL_NS::LibString> &lines) const;
+    void _CreateVarOrmData(const KERNEL_NS::LibString &varName, const KERNEL_NS::LibString &pbName, const KERNEL_NS::LibString &varDataType, std::vector<KERNEL_NS::LibString> &lines, bool needCheckHasCustom = true) const;
     void _CreateFieldOrmDataArray(const KERNEL_NS::LibString &fieldName, const KERNEL_NS::LibString &fieldDataType, std::vector<KERNEL_NS::LibString> &lines) const;
     bool _GenOrmHeaderInterfaceImpl(const KERNEL_NS::LibString &nameSapce, const KERNEL_NS::LibString &ormRootPath, const KERNEL_NS::LibString &appName, KERNEL_NS::SmartPtr<KERNEL_NS::CodeUnit, KERNEL_NS::AutoDelMethods::Release> &codeUnit, std::vector<KERNEL_NS::LibString> &implCodeLines);
     void _UpdateOrmCache();

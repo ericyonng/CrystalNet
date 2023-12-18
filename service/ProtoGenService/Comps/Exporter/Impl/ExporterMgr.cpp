@@ -4329,31 +4329,54 @@ void ExporterMgr::_CreateFieldOrmData(const KERNEL_NS::LibString &fieldName, con
     }
 
     _CreateVarOrmData(KERNEL_NS::LibString().AppendFormat("_%s", fieldName.c_str()), KERNEL_NS::LibString().AppendFormat("_ormRawPbData->mutable_%s()", fieldName.c_str())
-    , fieldDataType, lines);
+    , fieldDataType, lines, needCheckHasCustom);
 
     if(needCheckHasCustom)
         lines.push_back(KERNEL_NS::LibString().AppendFormat("    }"));
 }
 
-void ExporterMgr::_CreateVarOrmData(const KERNEL_NS::LibString &varName, const KERNEL_NS::LibString &pbName, const KERNEL_NS::LibString &varDataType, std::vector<KERNEL_NS::LibString> &lines) const
+void ExporterMgr::_CreateVarOrmData(const KERNEL_NS::LibString &varName, const KERNEL_NS::LibString &pbName, const KERNEL_NS::LibString &varDataType, std::vector<KERNEL_NS::LibString> &lines, bool needCheckHasCustom) const
 {
-    lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s = SERVICE_COMMON_NS::%s::NewThreadLocal_%s(%s);"
-    , varName.c_str(), varDataType.c_str(), varDataType.c_str()
-    , pbName.c_str()));
-    lines.push_back(KERNEL_NS::LibString());
+    if(needCheckHasCustom)
+    {
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s = SERVICE_COMMON_NS::%s::NewThreadLocal_%s(%s);"
+        , varName.c_str(), varDataType.c_str(), varDataType.c_str()
+        , pbName.c_str()));
+        lines.push_back(KERNEL_NS::LibString());
 
-    // 设置释放对象回调
-    lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s.SetClosureDelegate([](void *ptr){", varName.c_str()));
-    lines.push_back(KERNEL_NS::LibString().AppendFormat("            SERVICE_COMMON_NS::%s::DeleteThreadLocal_%s(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::%s>(ptr));"
-    , varDataType.c_str(), varDataType.c_str(), varDataType.c_str()));
-    lines.push_back(KERNEL_NS::LibString().AppendFormat("        }) ;"));
-    lines.push_back(KERNEL_NS::LibString());
+        // 设置释放对象回调
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s.SetClosureDelegate([](void *ptr){", varName.c_str()));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("            SERVICE_COMMON_NS::%s::DeleteThreadLocal_%s(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::%s>(ptr));"
+        , varDataType.c_str(), varDataType.c_str(), varDataType.c_str()));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("        }) ;"));
+        lines.push_back(KERNEL_NS::LibString());
 
-    // 设置脏回调
-    lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s->SetMaskDirtyCallback([this](IOrmData *ptr){", varName.c_str()));
-    lines.push_back(KERNEL_NS::LibString().AppendFormat("            _MaskDirty(true);"));
-    lines.push_back(KERNEL_NS::LibString().AppendFormat("        }) ;"));
-    lines.push_back(KERNEL_NS::LibString());
+        // 设置脏回调
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("        %s->SetMaskDirtyCallback([this](IOrmData *ptr){", varName.c_str()));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("            _MaskDirty(true);"));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("        }) ;"));
+        lines.push_back(KERNEL_NS::LibString());
+    }
+    else
+    {
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("    %s = SERVICE_COMMON_NS::%s::NewThreadLocal_%s(%s);"
+        , varName.c_str(), varDataType.c_str(), varDataType.c_str()
+        , pbName.c_str()));
+        lines.push_back(KERNEL_NS::LibString());
+
+        // 设置释放对象回调
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("    %s.SetClosureDelegate([](void *ptr){", varName.c_str()));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("        SERVICE_COMMON_NS::%s::DeleteThreadLocal_%s(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::%s>(ptr));"
+        , varDataType.c_str(), varDataType.c_str(), varDataType.c_str()));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("    }) ;"));
+        lines.push_back(KERNEL_NS::LibString());
+
+        // 设置脏回调
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("    %s->SetMaskDirtyCallback([this](IOrmData *ptr){", varName.c_str()));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("       _MaskDirty(true);"));
+        lines.push_back(KERNEL_NS::LibString().AppendFormat("    }) ;"));
+        lines.push_back(KERNEL_NS::LibString());
+    }
 }
 
 void ExporterMgr::_CreateFieldOrmDataArray(const KERNEL_NS::LibString &fieldName, const KERNEL_NS::LibString &fieldDataType, std::vector<KERNEL_NS::LibString> &lines) const
@@ -4704,7 +4727,7 @@ bool ExporterMgr::_GenOrmHeaderInterfaceImpl(const KERNEL_NS::LibString &nameSap
                     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("KERNEL_NS::SmartPtr<%s, KERNEL_NS::AutoDelMethods::CustomDelete> &%s::mutable_%s()"
                     , ormdDataType.c_str(), messageName.c_str(), fieldName.c_str()));
                     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("{"));
-                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(LIKELY(_%s.AsSelf() != NULL))", fieldName.c_str()));
+                    implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("    if(LIKELY(_%s))", fieldName.c_str()));
                     implCodeLines.push_back(KERNEL_NS::LibString().AppendFormat("        return _%s;", fieldName.c_str()));
                     implCodeLines.push_back(KERNEL_NS::LibString());
                     _CreateFieldOrmData(fieldName, ormdDataType, implCodeLines, false, false);

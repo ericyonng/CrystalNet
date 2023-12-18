@@ -523,18 +523,18 @@ void BookInfoOrmData::set_isonshelves(int32_t value)
 
 KERNEL_NS::SmartPtr<BookVariantInfoOrmData, KERNEL_NS::AutoDelMethods::CustomDelete> &BookInfoOrmData::mutable_variantinfo()
 {
-    if(LIKELY(_variantinfo.AsSelf() != NULL))
+    if(LIKELY(_variantinfo))
         return _variantinfo;
 
-        _variantinfo = SERVICE_COMMON_NS::BookVariantInfoOrmData::NewThreadLocal_BookVariantInfoOrmData(_ormRawPbData->mutable_variantinfo());
+    _variantinfo = SERVICE_COMMON_NS::BookVariantInfoOrmData::NewThreadLocal_BookVariantInfoOrmData(_ormRawPbData->mutable_variantinfo());
 
-        _variantinfo.SetClosureDelegate([](void *ptr){
-            SERVICE_COMMON_NS::BookVariantInfoOrmData::DeleteThreadLocal_BookVariantInfoOrmData(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::BookVariantInfoOrmData>(ptr));
-        }) ;
+    _variantinfo.SetClosureDelegate([](void *ptr){
+        SERVICE_COMMON_NS::BookVariantInfoOrmData::DeleteThreadLocal_BookVariantInfoOrmData(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::BookVariantInfoOrmData>(ptr));
+    }) ;
 
-        _variantinfo->SetMaskDirtyCallback([this](IOrmData *ptr){
-            _MaskDirty(true);
-        }) ;
+    _variantinfo->SetMaskDirtyCallback([this](IOrmData *ptr){
+       _MaskDirty(true);
+    }) ;
 
     return _variantinfo;
 }

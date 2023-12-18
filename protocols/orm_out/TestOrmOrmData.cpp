@@ -676,18 +676,18 @@ const ::google::protobuf::RepeatedPtrField<std::string> &TestOrmOrmData::teststr
 
 KERNEL_NS::SmartPtr<TestCustomDataOrmData, KERNEL_NS::AutoDelMethods::CustomDelete> &TestOrmOrmData::mutable_testcustom()
 {
-    if(LIKELY(_testcustom.AsSelf() != NULL))
+    if(LIKELY(_testcustom))
         return _testcustom;
 
-        _testcustom = SERVICE_COMMON_NS::TestCustomDataOrmData::NewThreadLocal_TestCustomDataOrmData(_ormRawPbData->mutable_testcustom());
+    _testcustom = SERVICE_COMMON_NS::TestCustomDataOrmData::NewThreadLocal_TestCustomDataOrmData(_ormRawPbData->mutable_testcustom());
 
-        _testcustom.SetClosureDelegate([](void *ptr){
-            SERVICE_COMMON_NS::TestCustomDataOrmData::DeleteThreadLocal_TestCustomDataOrmData(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::TestCustomDataOrmData>(ptr));
-        }) ;
+    _testcustom.SetClosureDelegate([](void *ptr){
+        SERVICE_COMMON_NS::TestCustomDataOrmData::DeleteThreadLocal_TestCustomDataOrmData(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::TestCustomDataOrmData>(ptr));
+    }) ;
 
-        _testcustom->SetMaskDirtyCallback([this](IOrmData *ptr){
-            _MaskDirty(true);
-        }) ;
+    _testcustom->SetMaskDirtyCallback([this](IOrmData *ptr){
+       _MaskDirty(true);
+    }) ;
 
     return _testcustom;
 }
@@ -835,18 +835,18 @@ std::string *TestOrmOrmData::mutable_testoneofstring()
 
 KERNEL_NS::SmartPtr<TestCustomDataOrmData, KERNEL_NS::AutoDelMethods::CustomDelete> &TestOrmOrmData::mutable_testoneofcustom()
 {
-    if(LIKELY(_testoneofcustom.AsSelf() != NULL))
+    if(LIKELY(_testoneofcustom))
         return _testoneofcustom;
 
-        _testoneofcustom = SERVICE_COMMON_NS::TestCustomDataOrmData::NewThreadLocal_TestCustomDataOrmData(_ormRawPbData->mutable_testoneofcustom());
+    _testoneofcustom = SERVICE_COMMON_NS::TestCustomDataOrmData::NewThreadLocal_TestCustomDataOrmData(_ormRawPbData->mutable_testoneofcustom());
 
-        _testoneofcustom.SetClosureDelegate([](void *ptr){
-            SERVICE_COMMON_NS::TestCustomDataOrmData::DeleteThreadLocal_TestCustomDataOrmData(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::TestCustomDataOrmData>(ptr));
-        }) ;
+    _testoneofcustom.SetClosureDelegate([](void *ptr){
+        SERVICE_COMMON_NS::TestCustomDataOrmData::DeleteThreadLocal_TestCustomDataOrmData(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::TestCustomDataOrmData>(ptr));
+    }) ;
 
-        _testoneofcustom->SetMaskDirtyCallback([this](IOrmData *ptr){
-            _MaskDirty(true);
-        }) ;
+    _testoneofcustom->SetMaskDirtyCallback([this](IOrmData *ptr){
+       _MaskDirty(true);
+    }) ;
 
     return _testoneofcustom;
 }

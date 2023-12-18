@@ -521,18 +521,18 @@ void BorrowOrderInfoOrmData::set_orderstate(int32_t value)
 
 KERNEL_NS::SmartPtr<CancelOrderReasonOrmData, KERNEL_NS::AutoDelMethods::CustomDelete> &BorrowOrderInfoOrmData::mutable_cancelreason()
 {
-    if(LIKELY(_cancelreason.AsSelf() != NULL))
+    if(LIKELY(_cancelreason))
         return _cancelreason;
 
-        _cancelreason = SERVICE_COMMON_NS::CancelOrderReasonOrmData::NewThreadLocal_CancelOrderReasonOrmData(_ormRawPbData->mutable_cancelreason());
+    _cancelreason = SERVICE_COMMON_NS::CancelOrderReasonOrmData::NewThreadLocal_CancelOrderReasonOrmData(_ormRawPbData->mutable_cancelreason());
 
-        _cancelreason.SetClosureDelegate([](void *ptr){
-            SERVICE_COMMON_NS::CancelOrderReasonOrmData::DeleteThreadLocal_CancelOrderReasonOrmData(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::CancelOrderReasonOrmData>(ptr));
-        }) ;
+    _cancelreason.SetClosureDelegate([](void *ptr){
+        SERVICE_COMMON_NS::CancelOrderReasonOrmData::DeleteThreadLocal_CancelOrderReasonOrmData(KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::CancelOrderReasonOrmData>(ptr));
+    }) ;
 
-        _cancelreason->SetMaskDirtyCallback([this](IOrmData *ptr){
-            _MaskDirty(true);
-        }) ;
+    _cancelreason->SetMaskDirtyCallback([this](IOrmData *ptr){
+       _MaskDirty(true);
+    }) ;
 
     return _cancelreason;
 }
