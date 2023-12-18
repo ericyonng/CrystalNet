@@ -47,6 +47,8 @@
 
 * Linux
 
+  * 支持Clang构建，且linux下默认使用clang构建，clang具有编译快生成的体积小且代码检查严格等特点
+
   * 构建: onekeybuild_linux.sh debug clean // 生成debug版本，在生成前clean表示清理原先生成的结果，默认不填写debug表示release版本或者显示指定release
 
   * 运行

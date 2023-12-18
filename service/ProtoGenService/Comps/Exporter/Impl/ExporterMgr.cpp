@@ -1924,7 +1924,7 @@ void ExporterMgr::_ProtoMessageAttribute(const ProtoContentInfo *protoFile, std:
     const auto &classPatternRegex = std::regex(".* class .* .*");
     std::vector<KERNEL_NS::LibString> addLines;
     ProtobuffHelper::Modifylines(lines, addLines, 
-    [protoFile, &classPatternRegex, this, &lines] (Int32 curLine, KERNEL_NS::LibString &lineData
+    [protoFile, &classPatternRegex] (Int32 curLine, KERNEL_NS::LibString &lineData
     , std::vector<KERNEL_NS::LibString> &addLineDatasBefore
     , std::vector<KERNEL_NS::LibString> &addLineDatasAfter
     , bool &isContinue) -> bool
@@ -5566,8 +5566,7 @@ bool ExporterMgr::_ScanProtos()
 {
     g_Log->Custom("SCAN PROTOS IN PROTO PATH:%s", _protoPath.c_str());
 
-    auto nowTs = KERNEL_NS::LibTime::Now();
-    auto traverseCallback = [this, &nowTs] (const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentPathContinue) -> bool {
+    auto traverseCallback = [this] (const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentPathContinue) -> bool {
 
         bool isContinue = true;
         do

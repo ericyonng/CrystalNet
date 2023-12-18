@@ -42,7 +42,7 @@ public:
     SysLogicMgr();
     ~SysLogicMgr();
 
-    void Release();
+    void Release() override;
 
   /*
   * 新增监听
@@ -88,7 +88,7 @@ public:
   , UInt32 priorityLevel = PriorityLevelDefine::INNER /* 消息队列优先级 */
   , Int32 sessionType = SessionType::INNER /* 会话类型 */
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
-  ) const;
+  ) const  override;
 
 protected:
    Int32 _OnGlobalSysInit() override;

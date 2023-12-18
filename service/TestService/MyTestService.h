@@ -62,7 +62,7 @@ class MyTestService : public SERVICE_COMMON_NS::IService
 public:
     MyTestService();
     ~MyTestService();
-    void Release();
+    void Release() override;
 
     // 协议栈
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
@@ -72,14 +72,14 @@ public:
 
 
     // 获取定时器
-    KERNEL_NS::TimerMgr *GetTimerMgr();
-    const KERNEL_NS::TimerMgr *GetTimerMgr() const;
+    KERNEL_NS::TimerMgr *GetTimerMgr() override;
+    const KERNEL_NS::TimerMgr *GetTimerMgr() const override;
 
     // 协议订阅 已经存在的订阅会被新的覆盖并报warn
-    virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg);
+    virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) override;
 
-    KERNEL_NS::EventManager *GetEventMgr();
-    const KERNEL_NS::EventManager *GetEventMgr() const;
+    KERNEL_NS::EventManager *GetEventMgr() override;
+    const KERNEL_NS::EventManager *GetEventMgr() const override;
 
     // 获取会话类型
     Int32 GetSessionTypeByPort(UInt16 port) const;

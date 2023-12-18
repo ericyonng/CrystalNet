@@ -42,7 +42,7 @@ public:
     virtual void Release() override;
     
 public:
-    virtual KERNEL_NS::CompObject *Create() const;
+    virtual KERNEL_NS::CompObject *Create() const override;
 };
 
 SERVICE_END

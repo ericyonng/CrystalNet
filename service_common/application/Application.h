@@ -60,7 +60,7 @@ class Application : public KERNEL_NS::IApplication
 public:
     Application();
     ~Application();
-    void Release();
+    void Release() override;
 
 public:
     void SetIniFile(const KERNEL_NS::LibString &ini);
@@ -73,7 +73,7 @@ public:
     void SetMachineId(UInt32 machineId);
     const KERNEL_NS::LibIniFile *GetIni() const;
     KERNEL_NS::LibIniFile *GetIni();
-    virtual const KERNEL_NS::LibString &GetAppAliasName() const;
+    virtual const KERNEL_NS::LibString &GetAppAliasName() const override;
 
     void Clear() override;
     virtual KERNEL_NS::LibString ToString() const override;

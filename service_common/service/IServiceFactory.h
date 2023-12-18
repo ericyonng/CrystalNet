@@ -48,6 +48,9 @@ class IServiceFactory
     POOL_CREATE_OBJ_DEFAULT(IServiceFactory);
 
 public:
+    IServiceFactory(){}
+    virtual ~IServiceFactory(){}
+
     virtual IService *Create(const KERNEL_NS::LibString &serviceName) = 0;
     virtual void Release() = 0;
 };

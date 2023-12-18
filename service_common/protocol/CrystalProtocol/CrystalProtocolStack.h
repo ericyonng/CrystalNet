@@ -61,21 +61,21 @@ public:
                                 , KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &stream
                                 , UInt64 &handledBytes
                                 , UInt64 &packetCount
-                                , KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *, KERNEL_NS::_Build::TL> *&recvPacketsBatch);
+                                , KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *, KERNEL_NS::_Build::TL> *&recvPacketsBatch) override;
 
     // 包转流
     virtual Int32 PacketsToBin(KERNEL_NS::LibSession *session
                                 , KERNEL_NS::LibPacket *packet
                                 , KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *stream
-                                , UInt64 &handledBytes);
+                                , UInt64 &handledBytes) override;
 
-    virtual KERNEL_NS::ICoderFactory *GetCoderFactory(Int32 opcode);
-    virtual void RegisterCoderFactory(Int32 opcode, KERNEL_NS::ICoderFactory *factory);
+    virtual KERNEL_NS::ICoderFactory *GetCoderFactory(Int32 opcode) override;
+    virtual void RegisterCoderFactory(Int32 opcode, KERNEL_NS::ICoderFactory *factory) override;
 
     void SetMaxRecvMsgContentBytes(UInt64 maxBytesLimit);
     UInt64 GetMaxRecvMsgContentBytes() const;
 
-    virtual void SetOpenPorotoLog(bool enable) override{ _enableProtocolLog = enable;}
+    virtual void SetOpenPorotoLog(bool enable) override { _enableProtocolLog = enable;}
 
 private:
     UInt64 _maxRecvContenBytes = 0;

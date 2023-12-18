@@ -41,7 +41,7 @@ public:
     SysLogicMgr();
     ~SysLogicMgr();
 
-    void Release();
+    void Release() override;
 
   /*
   * 新增监听
@@ -88,7 +88,7 @@ public:
   , Int32 sessionType = SessionType::INNER /* 会话类型 */
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
-  ) const;
+  ) const  override;
 
 protected:
    Int32 _OnGlobalSysInit() override;
