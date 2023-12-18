@@ -210,11 +210,11 @@ void SystemLogGlobal::_OnSystemLogDataListReq(KERNEL_NS::LibPacket *&packet)
 
         Int32 err = Status::Success;
         err = mysqlMgr->NewRequestAndWaitResponseBy2(stub, mysqlMgr->GetCurrentServiceDbName(), user->GetStorageOperatorId(), builders
-            ,[&err, this, &logDatas](KERNEL_NS::MysqlResponse *res)
+            ,[&err, &logDatas](KERNEL_NS::MysqlResponse *res)
             {
                 if(res->_errCode != Status::Success)
                 {
-                    g_Log->Error(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy2 fail db name:%s res seqId:%llu, mysqlError:%u")
+                    g_Log->Error(LOGFMT_NON_OBJ_TAG(SystemLogGlobal, "NewRequestAndWaitResponseBy2 fail db name:%s res seqId:%llu, mysqlError:%u")
                             , res->_dbName.c_str(), res->_seqId, res->_mysqlErrno);
                     err = res->_errCode;
                     return;
@@ -227,14 +227,14 @@ void SystemLogGlobal::_OnSystemLogDataListReq(KERNEL_NS::LibPacket *&packet)
                     auto data = field->GetData();
                     if(!data)
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("have no data, record:%s"), record->ToString().c_str());
+                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(SystemLogGlobal, "have no data, record:%s"), record->ToString().c_str());
                         continue;
                     }
 
                     SystemLogData logData;
                     if(!logData.Decode(*data))
                     {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("decode data fail, record:%s"), record->ToString().c_str());
+                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(SystemLogGlobal, "decode data fail, record:%s"), record->ToString().c_str());
                         continue;
                     }
 
@@ -244,7 +244,7 @@ void SystemLogGlobal::_OnSystemLogDataListReq(KERNEL_NS::LibPacket *&packet)
 
         if(err != Status::Success)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy2 fail user:%s, err:%d, req:%s")
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(SystemLogGlobal, "NewRequestAndWaitResponseBy2 fail user:%s, err:%d, req:%s")
             , user->ToString().c_str(), err, req->ToJsonString().c_str());
             break;
         }

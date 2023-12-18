@@ -58,7 +58,7 @@ public:
     MysqlMgr();
     ~MysqlMgr();
 
-    void Release();
+    void Release() override;
     virtual void OnRegisterComps() override;
     virtual void DefaultMaskReady(bool isReady) override {}
 

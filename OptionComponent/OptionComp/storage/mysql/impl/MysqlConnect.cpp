@@ -334,7 +334,7 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, Mysq
 
     MYSQL_ROW row;
     auto fieldNum = mysql_num_fields(res);
-    Int32 rowCount = 0;
+    // Int32 rowCount = 0;
     std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> records;
     while ((row = mysql_fetch_row(res)) != NULL)
     {
@@ -346,7 +346,7 @@ void MysqlConnect::_FetchRows(MYSQL_RES *res, UInt64 seqId, IDelegate<void, Mysq
         });
 
         record->SetFieldAmount(fieldNum);
-        ++rowCount;
+        // ++rowCount;
 
         for(UInt32 idx = 0; idx < fieldNum; ++idx)
         {

@@ -51,7 +51,7 @@ public:
         TestStaticInlineHostC::Delete_TestStaticInlineHostC(this);
     }
     
-    virtual void OnRegisterComps();
+    virtual void OnRegisterComps() override;
 
     // 组件接口资源
 protected:

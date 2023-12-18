@@ -419,8 +419,8 @@ UInt32 PrepareStmt::FetchRows(IDelegate<void, MysqlConnect *, UInt64, Int32, UIn
 LibString PrepareStmt::ToString() const
 {
     LibString info;
-    info.AppendFormat("seq id:%llu, has error:%d, is init:%d, param count:%lld, result field count:%u, result has records%d, do success obtain result set metadata:%d, sql:"
-                    , _seqId, _isError, _isInit, _paramCount, _resultFieldCount, _hasRecords, _isSucObtainResultSetMetadata)
+    info.AppendFormat("prepare stmt id:%llu, seq id:%llu, has error:%d, is init:%d, param count:%lld, result field count:%u, result has records%d, do success obtain result set metadata:%d, sql:"
+                    ,_id, _seqId, _isError, _isInit, _paramCount, _resultFieldCount, _hasRecords, _isSucObtainResultSetMetadata)
         .AppendData(_sql);
 
     return info;

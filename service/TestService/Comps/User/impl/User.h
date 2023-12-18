@@ -50,12 +50,12 @@ class User : public IUser
 public:
     User(IUserMgr *userMgr);
     ~User();
-    void Release();
+    void Release() override;
 
    virtual void OnRegisterComps() override;
 
-   virtual Int32 OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb);
-   virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const;
+   virtual Int32 OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) override;
+   virtual Int32 OnSave(UInt64 key, std::map<KERNEL_NS::LibString, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> *> &fieldRefdb) const override;
 
     virtual IUserMgr *GetUserMgr() override;
     virtual const IUserMgr *GetUserMgr() const override;
@@ -132,7 +132,7 @@ public:
     // 昵称
     virtual const std::string &GetNickname() const override;
     // 绑定手机
-    virtual void BindPhone(UInt64 phoneNumber);
+    virtual void BindPhone(UInt64 phoneNumber) override;
 
     virtual bool HasBindPhone() const override;
 

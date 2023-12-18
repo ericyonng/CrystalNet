@@ -88,6 +88,7 @@ MysqlDB::MysqlDB(MysqlDBMgr *owner)
 
 MysqlDB::~MysqlDB()
 {
+    UNUSED(_owner);
     _Clear();
 }
 
@@ -395,12 +396,12 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
 
     UInt32 mysqlDbErr = 0;
     Int32 finalErrCode = Status::Success;
-    auto &&cb = [this, req, &res, &mysqlDbErr, &finalErrCode](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
+    auto &&cb = [req, &res, &mysqlDbErr, &finalErrCode](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
     Int64 insertId, Int64 affectedRows, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &records)
     {
         if(errCode != Status::Success)
         {
-            g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("sql using stmt fail, errCode:%d, mysqlErrno:%u seq id:%llu, maxInsertId:%lld, totalAffectedRows:%lld req:"
+            g_Log->Warn2(LOGFMT_NON_OBJ_TAG_NO_FMT(MysqlDB), LibString().AppendFormat("sql using stmt fail, errCode:%d, mysqlErrno:%u seq id:%llu, maxInsertId:%lld, totalAffectedRows:%lld req:"
             , errCode, mysqlErrno, seqId, res->_maxInsertId, res->_affectedRows), req->Dump());
 
             finalErrCode = errCode;
@@ -601,7 +602,7 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
 
     UInt32 mysqlDbErr = 0;
     UInt32 finalErrCode = Status::Success;
-    auto &&cb = [this, req, &res, &mysqlDbErr, &finalErrCode](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
+    auto &&cb = [req, &res, &mysqlDbErr, &finalErrCode](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
     Int64 insertId, Int64 affectedRows, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &records)
     {
         if(res->_maxInsertId < insertId)
@@ -611,7 +612,7 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
 
         if(errCode != Status::Success)
         {
-            g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("sql using stmt fail, errCode:%d, seq id:%llu, maxInsertId:%lld, totalAffectedRows:%lld req:"
+            g_Log->Warn2(LOGFMT_NON_OBJ_TAG_NO_FMT(MysqlDB), LibString().AppendFormat("sql using stmt fail, errCode:%d, seq id:%llu, maxInsertId:%lld, totalAffectedRows:%lld req:"
             , errCode, seqId, res->_maxInsertId, res->_affectedRows), req->ToString().c_str());
 
             finalErrCode = errCode;
@@ -810,7 +811,7 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
     res->_var = req->_var;
     req->_var = NULL;
     
-    auto &&cb = [this, req, &res](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
+    auto &&cb = [req, &res](MysqlConnect *conn, UInt64 seqId, Int32 errCode, UInt32 mysqlErrno, bool isSendToMysql, 
     Int64 insertId, Int64 affectedRows, std::vector<SmartPtr<Record, AutoDelMethods::CustomDelete>> &records)
     {
         if(res->_maxInsertId < insertId)
@@ -820,7 +821,7 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
 
         if(errCode != Status::Success)
         {
-            g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("sql using stmt fail, errCode:%d, seq id:%llu, maxInsertId:%lld, totalAffectedRows:%lld req:"
+            g_Log->Warn2(LOGFMT_NON_OBJ_TAG_NO_FMT(MysqlDB), LibString().AppendFormat("sql using stmt fail, errCode:%d, seq id:%llu, maxInsertId:%lld, totalAffectedRows:%lld req:"
             , errCode, seqId, res->_maxInsertId, res->_affectedRows), req->ToString().c_str());
 
             res->_errCode = errCode;

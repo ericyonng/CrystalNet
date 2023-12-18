@@ -552,10 +552,10 @@ bool UserMgr::IsPhoneNumberBinded(const IUser *operateUser, UInt64 phoneNubmer, 
     newMysqlBuilder->_builder = builder;
     builders.push_back(newMysqlBuilder);
     err = mysqlMgr->NewRequestAndWaitResponseBy2(stub, mysqlMgr->GetCurrentServiceDbName(), opId, builders,
-    [this, phoneNubmer, &err, &hasBindPhone](KERNEL_NS::MysqlResponse *res){
+    [phoneNubmer, &err, &hasBindPhone](KERNEL_NS::MysqlResponse *res){
         if(res->_errCode != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy2 fail db name:%s res seqId:%llu, mysqlError:%u, bind phone:%llu")
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(UserMgr, "NewRequestAndWaitResponseBy2 fail db name:%s res seqId:%llu, mysqlError:%u, bind phone:%llu")
                     , res->_dbName.c_str(), res->_seqId, res->_mysqlErrno, phoneNubmer);
             err = res->_errCode;
             return;
@@ -566,7 +566,7 @@ bool UserMgr::IsPhoneNumberBinded(const IUser *operateUser, UInt64 phoneNubmer, 
 
     if(err != Status::Success)
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("NewRequestBy fail err:%d"), err);
+        g_Log->Warn(LOGFMT_NON_OBJ_TAG(UserMgr,"NewRequestBy fail err:%d"), err);
         return false;
     }
 
@@ -618,10 +618,10 @@ bool UserMgr::IsBindedPhone(UInt64 userId) const
     builders.push_back(newMysqlBuilder);
     bool hasBindPhone = false;
     err = mysqlMgr->NewRequestAndWaitResponseBy2(stub, mysqlMgr->GetCurrentServiceDbName(), opId, builders,
-    [this, &err, &hasBindPhone](KERNEL_NS::MysqlResponse *res){
+    [&err, &hasBindPhone](KERNEL_NS::MysqlResponse *res){
         if(res->_errCode != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("NewRequestAndWaitResponseBy2 fail db name:%s res seqId:%llu, mysqlError:%u")
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(UserMgr, "NewRequestAndWaitResponseBy2 fail db name:%s res seqId:%llu, mysqlError:%u")
                     , res->_dbName.c_str(), res->_seqId, res->_mysqlErrno);
             err = res->_errCode;
             return;

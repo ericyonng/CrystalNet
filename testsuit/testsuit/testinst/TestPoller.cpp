@@ -201,10 +201,10 @@ protected:
         timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
             KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
         });
-        auto timeoutHandler = [poller, this](KERNEL_NS::LibTimer *tm)
+        auto timeoutHandler = [poller](KERNEL_NS::LibTimer *tm)
         {
             auto drityHelper = poller->GetDirtyHelper();
-            g_Log->Info(LOGFMT_OBJ_TAG("on work frame poller loaded:%llu"), poller->CalcLoadScore());
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(HostObj, "on work frame poller loaded:%llu"), poller->CalcLoadScore());
             drityHelper->MaskDirty(NULL, 0, true)->BecomeStr() = "hello dirty!";
         };
 
