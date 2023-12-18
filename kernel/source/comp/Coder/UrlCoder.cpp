@@ -73,22 +73,22 @@ static ALWAYS_INLINE bool IsUnReservedChars(Byte8 c)
 void UrlCoder::Init()
 {
     // 16进制转码
-    HexToDecimalValues['0'] = 0;
-    HexToDecimalValues['1'] = 1;
-    HexToDecimalValues['2'] = 2;
-    HexToDecimalValues['3'] = 3;
-    HexToDecimalValues['4'] = 4;
-    HexToDecimalValues['5'] = 5;
-    HexToDecimalValues['6'] = 6;
-    HexToDecimalValues['7'] = 7;
-    HexToDecimalValues['8'] = 8;
-    HexToDecimalValues['9'] = 9;
-    HexToDecimalValues['A'] = 10;
-    HexToDecimalValues['B'] = 11;
-    HexToDecimalValues['C'] = 12;
-    HexToDecimalValues['D'] = 13;
-    HexToDecimalValues['E'] = 14;
-    HexToDecimalValues['F'] = 15;
+    HexToDecimalValues[Int32('0')] = 0;
+    HexToDecimalValues[Int32('1')] = 1;
+    HexToDecimalValues[Int32('2')] = 2;
+    HexToDecimalValues[Int32('3')] = 3;
+    HexToDecimalValues[Int32('4')] = 4;
+    HexToDecimalValues[Int32('5')] = 5;
+    HexToDecimalValues[Int32('6')] = 6;
+    HexToDecimalValues[Int32('7')] = 7;
+    HexToDecimalValues[Int32('8')] = 8;
+    HexToDecimalValues[Int32('9')] = 9;
+    HexToDecimalValues[Int32('A')] = 10;
+    HexToDecimalValues[Int32('B')] = 11;
+    HexToDecimalValues[Int32('C')] = 12;
+    HexToDecimalValues[Int32('D')] = 13;
+    HexToDecimalValues[Int32('E')] = 14;
+    HexToDecimalValues[Int32('F')] = 15;
 }
 
 // 除RFC3986_ReservedChars/RFC3986_UnReservedChars 之外都要百分号编码

@@ -50,25 +50,25 @@ public:
     virtual ~LibLog();
 
 public:
-    virtual bool Init(const Byte8 *logConfigFile = "LogCfg.ini", const Byte8 *logCfgDir = NULL, const LibString &logContent = LibString(), const LibString &consoleConntent = LibString());
-    virtual void Start();
-    virtual void Close();
-    virtual void FlushAll();
-    virtual const LibString &GetLogRootPath() const;
+    virtual bool Init(const Byte8 *logConfigFile = "LogCfg.ini", const Byte8 *logCfgDir = NULL, const LibString &logContent = LibString(), const LibString &consoleConntent = LibString()) override;
+    virtual void Start() override;
+    virtual void Close() override;
+    virtual void FlushAll() override;
+    virtual const LibString &GetLogRootPath() const override;
     virtual bool IsStart() const override;
-    virtual bool IsLogOpen() const;
+    virtual bool IsLogOpen() const override;
     virtual void ForceLogToDiskAll() override;
 
-    virtual void UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *delegate);
-    virtual void UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogData *> *delegate);
+    virtual void UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *delegate) override;
+    virtual void UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogData *> *delegate) override;
 
 protected:
-    virtual void _InstallAfterLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void> *delegate);
-    virtual void _InstallBeforeLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void, LogData *> *delegate);
+    virtual void _InstallAfterLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void> *delegate) override;
+    virtual void _InstallBeforeLogHookFunc(const LogLevelCfg *levelCfg, IDelegate<void, LogData *> *delegate) override;
 
 protected:
-    virtual const LogLevelCfg *_GetLevelCfg(Int32 level) const;
-    virtual void _WriteLog(const LogLevelCfg *levelCfg, LogData *logData);
+    virtual const LogLevelCfg *_GetLevelCfg(Int32 level) const override;
+    virtual void _WriteLog(const LogLevelCfg *levelCfg, LogData *logData) override;
     void _OnLogThreadFlush(LibThread *t, Variant *params);
     void _OnLogFlush(std::vector<SpecifyLog *> &logs, Int32 threadRelationIdx, Int32 logCount);
 

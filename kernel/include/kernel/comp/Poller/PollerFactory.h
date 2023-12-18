@@ -47,7 +47,7 @@ public:
     CompObject* Create() const override;
 
     // poller属于高优先级创建
-    virtual Int32 GetPriorityLevel() const { return CompPriorityLevel::HIGH; }
+    virtual Int32 GetPriorityLevel() const override { return CompPriorityLevel::HIGH; }
 };
 
 KERNEL_END

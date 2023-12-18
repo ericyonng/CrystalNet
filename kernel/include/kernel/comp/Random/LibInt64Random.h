@@ -132,7 +132,7 @@ ALWAYS_INLINE Rtn &LibInt64RandomInstance::GetInstance(_Build::MT::Type)
 template<typename Rtn, Int64 minValue, Int64 maxValue>
 ALWAYS_INLINE Rtn &LibInt64RandomInstance::GetInstance(_Build::TL::Type)
 {
-    DEF_STATIC_THREAD_LOCAL_DECLEAR  SmartPtr<Rtn> instance;
+    DEF_STATIC_THREAD_LOCAL_DECLEAR  Rtn *instance = NULL;
     if(UNLIKELY(!instance))
     {
         instance = new Rtn(minValue, maxValue);

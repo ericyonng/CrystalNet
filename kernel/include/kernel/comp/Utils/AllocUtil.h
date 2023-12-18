@@ -48,8 +48,8 @@ class KERNEL_EXPORT AllocUtil
 public:
     template<typename ObjType, typename... Args>
     static ObjType *NewByPtr(void *ptr, Args&&... args);
-    template<typename ObjType, typename... Args>
-    static ObjType *NewMultiByPtr(void *ptr, UInt64 count, Args&&... args);
+    template<typename ObjType>
+    static ObjType *NewMultiByPtr(void *ptr, UInt64 count);
     template<typename ObjType>
     static ObjType *NewByPtrNoConstructorParams(void *ptr);
 
@@ -71,10 +71,10 @@ ALWAYS_INLINE ObjType *AllocUtil::NewByPtr(void *ptr, Args&&... args)
     return ::new(ptr)ObjType(std::forward<Args>(args)...);
 }
 
-template<typename ObjType, typename... Args>
-ALWAYS_INLINE ObjType *AllocUtil::NewMultiByPtr(void *ptr, UInt64 count, Args&&... args)
+template<typename ObjType>
+ALWAYS_INLINE ObjType *AllocUtil::NewMultiByPtr(void *ptr, UInt64 count)
 {
-    return ::new(ptr)ObjType[count](std::forward<Args>(args)...);
+    return ::new(ptr)ObjType[count];
 }
 
 template<typename ObjType>

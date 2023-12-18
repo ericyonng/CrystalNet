@@ -71,7 +71,7 @@ public:
 public:
     Poller();
     ~Poller();
-    virtual void Release();
+    virtual void Release() override;
 
 public:
     virtual void Clear() override;

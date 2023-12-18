@@ -62,7 +62,7 @@ public:
     IApplication();
     virtual ~IApplication();
     // 多线程组件需要重写该接口
-    virtual void DefaultMaskReady(bool isReady) {}
+    virtual void DefaultMaskReady(bool isReady) override {}
 
 public:
     virtual void WaitFinish(Int32 &err);
