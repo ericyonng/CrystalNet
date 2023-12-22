@@ -84,20 +84,29 @@ private:
         auto newAlloctor = new MemAllocType(MemAllocCfgType(allocUnitBytes));
         newAlloctor->Init(true, initBlockNumPerBuffer, source);
         // 2.绑定删除器
-        auto destructorFunc = [this, newAlloctor]() mutable ->void{
-            #if _DEBUG
+        #if _DEBUG
+         auto destructorFunc = [this, newAlloctor]() mutable ->void{
+
              CRYSTAL_TRACE("destroy a %s newAlloctor=%p, alloctor info = %s, ", _objTypeName.c_str(), newAlloctor, newAlloctor->ToString().c_str());
-            #endif
-            
+        #else
+         auto destructorFunc = [newAlloctor]() mutable ->void{
+        #endif
+
             CRYSTAL_DELETE_SAFE(newAlloctor);
         };
         auto newDestructor = DelegateFactory::Create<decltype(destructorFunc), void>(destructorFunc);
-        // 3.绑定分配器信息回调
-        auto toStringFunc = [this, newAlloctor](UInt64 &totalBytes)->LibString {
-            #if _DEBUG
+
+        #if _DEBUG
+         auto toStringFunc = [this, newAlloctor](UInt64 &totalBytes)->LibString {
              CRYSTAL_TRACE("print a %s newAlloctor=%p, alloctor info = %s, ", _objTypeName.c_str(), newAlloctor, newAlloctor->ToString().c_str());
-            #endif
             
+        #else
+         auto toStringFunc = [newAlloctor](UInt64 &totalBytes)->LibString {
+            
+        #endif
+
+        // 3.绑定分配器信息回调
+
             totalBytes += newAlloctor->GetTotalBytes();
             return newAlloctor->ToString();
         };
