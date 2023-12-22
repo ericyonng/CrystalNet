@@ -33,6 +33,7 @@
 #include <kernel/comp/Utils/BackTraceUtil.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/App/IApplication.h>
+#include <kernel/comp/Utils/SystemUtil.h>
 
 extern "C"
 {
@@ -592,6 +593,13 @@ bool SignalHandleUtil::IsSignalRecoverable(Int32 signalId, bool skipLock)
         _lck.Unlock();
 
     return ret;
+}
+
+void SignalHandleUtil::KillSelf(Int32 sig)
+{
+    #if CRYSTAL_TARGET_PLATFORM_LINUX
+        ::kill((pid_t)SystemUtil::GetCurProcessId(), sig);
+    #endif
 }
 
 KERNEL_END

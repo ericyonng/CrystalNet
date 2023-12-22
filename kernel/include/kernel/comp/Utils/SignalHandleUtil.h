@@ -89,6 +89,9 @@ public:
     // 是否是可恢复的信号
     static bool IsSignalRecoverable(Int32 signalId, bool skipLock = false);
 
+    // 发信号
+    static void KillSelf(Int32 sig);
+
 private:
     static SpinLock _lck;
     static std::unordered_map<Int32, std::vector<IDelegate<void> *>> _signalRefTasks;
