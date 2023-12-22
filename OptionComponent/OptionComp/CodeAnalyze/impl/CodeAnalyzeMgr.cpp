@@ -104,7 +104,7 @@ void CodeAnalyzeMgr::AddCodeUnit(SmartPtr<CodeUnit, AutoDelMethods::Release> &co
         return;
 
     _fullNameRefCodeUnit.insert(std::make_pair(fullName, codeUnit));
-    g_Log->Info(LOGFMT_OBJ_TAG("add new code unit, full name:%s, unit name:%s file:%s, line:%d"), codeUnit->GetFullName().c_str(), codeUnit->_unitName.c_str(), codeUnit->_fileName.c_str(), codeUnit->_line);
+    g_Log->Custom("add new code unit, full name:%s, unit name:%s file:%s, line:%d", codeUnit->GetFullName().c_str(), codeUnit->_unitName.c_str(), codeUnit->_fileName.c_str(), codeUnit->_line);
 }
 
 std::map<LibString, SmartPtr<CodeUnit, AutoDelMethods::Release>> &CodeAnalyzeMgr::GetAllCodeUnits()
