@@ -67,7 +67,6 @@ public:
     // 获取单元堆栈
     virtual const SmartPtr<CodeUnitStack, AutoDelMethods::Release> &GetCodeUnitStack() const = 0;
     virtual SmartPtr<CodeUnitStack, AutoDelMethods::Release> &GetCodeUnitStack() = 0;
-
 };
 
 template<typename CallbackType, typename FileEndCallbackType>

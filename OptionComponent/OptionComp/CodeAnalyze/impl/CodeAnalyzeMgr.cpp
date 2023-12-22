@@ -139,6 +139,20 @@ SmartPtr<CodeUnitStack, AutoDelMethods::Release> &CodeAnalyzeMgr::GetCodeUnitSta
     return _codeUnitStack;
 }
 
+LibString CodeAnalyzeMgr::ToString() const
+{
+    LibString info;
+
+    info.AppendFormat("code unit count:%lld", static_cast<Int64>(_fullNameRefCodeUnit.size()));
+    for(auto iter : _fullNameRefCodeUnit)
+    {
+        auto &codeUnit = iter.second;
+        info.AppendFormat("code unit full name:%s, unit name:%s, file:%s, line:%d", codeUnit->GetFileName().c_str(), codeUnit->_unitName.c_str(), codeUnit->_fileName.c_str(), codeUnit->_line);
+    }
+
+    return info;
+}
+
 Int32 CodeAnalyzeMgr::_OnHostInit()
 {
     _codeUnitStack = CodeUnitStack::Create();

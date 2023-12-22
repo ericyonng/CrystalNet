@@ -270,10 +270,6 @@ Int64 FileUtil::WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToWrite)
         const auto err = SystemUtil::GetErrNo();
         const auto &errStr = SystemUtil::GetErrString(err);
         g_Log->Error(LOGFMT_NON_OBJ_TAG(FileUtil, "write file fail buffer:%p, dataLenToWrite:%lld, errno:%d, err:%s"), buffer, dataLenToWrite, err, errStr.c_str());
- 
-        #if CRYSTAL_TARGET_PLATFORM_LINUX
-         SignalHandleUtil::KillSelf(SIGSEGV);
-        #endif
         return 0;
     }
 
