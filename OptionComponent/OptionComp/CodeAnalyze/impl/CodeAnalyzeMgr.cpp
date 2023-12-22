@@ -150,7 +150,7 @@ LibString CodeAnalyzeMgr::ToString() const
     for(auto iter : _fullNameRefCodeUnit)
     {
         auto &codeUnit = iter.second;
-        info.AppendFormat("code unit full name:%s, unit name:%s, file:%s, line:%d", codeUnit->GetFileName().c_str(), codeUnit->_unitName.c_str(), codeUnit->_fileName.c_str(), codeUnit->_line);
+        info.AppendFormat("code unit full name:%s, unit name:%s, file:%s, line:%d\n", codeUnit->GetFileName().c_str(), codeUnit->_unitName.c_str(), codeUnit->_fileName.c_str(), codeUnit->_line);
     }
 
     return info;
@@ -171,8 +171,6 @@ void CodeAnalyzeMgr::_OnScanFile(const KERNEL_NS::LibString &fullFilePath, IDele
         g_Log->Warn(LOGFMT_OBJ_TAG("OpenFile fail fullFilePath:%s"), fullFilePath.c_str());
         return;
     }
-
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(CodeAnalyzeMgr, "start scan file:%s"), fullFilePath.c_str());
 
     fp.SetClosureDelegate([](void *p){
         FileUtil::CloseFile(*KernelCastTo<FILE>(p));
