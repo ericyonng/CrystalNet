@@ -156,7 +156,12 @@ bool FileUtil::CopyFile(const Byte8 *srcFile, const Byte8 *destFile)
 
         wrCount = char(fwrite(&get_c, 1, 1, destFp));
         if(wrCount != 1)
+        {
+            const auto err = SystemUtil::GetErrNo();
+            const auto &errStr = SystemUtil::GetErrString(err);
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(FileUtil, "write file fail errno:%d, err:%s"), err, errStr.c_str());
             break;
+        }
 
         isDirty = true;
     }
@@ -261,9 +266,9 @@ Int64 FileUtil::WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToWrite)
     auto handle = static_cast<Int64>(::fwrite(buffer, dataLenToWrite, 1, &fp));
     if(LIKELY(handle != 1))
     {
-        #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
-            perror("fwrite fail");
-        #endif
+        const auto err = SystemUtil::GetErrNo();
+        const auto &errStr = SystemUtil::GetErrString(err);
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(FileUtil, "write file fail buffer:%p, dataLenToWrite:%lld, errno:%d, err:%s"), buffer, dataLenToWrite, err, errStr.c_str());
         return 0;
     }
 
