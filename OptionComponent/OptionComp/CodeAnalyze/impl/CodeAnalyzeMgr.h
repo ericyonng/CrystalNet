@@ -68,6 +68,9 @@ public:
     virtual const SmartPtr<CodeUnitStack, AutoDelMethods::Release> &GetCodeUnitStack() const override;
     virtual SmartPtr<CodeUnitStack, AutoDelMethods::Release> &GetCodeUnitStack() override;
 
+    // 代码信息
+    virtual LibString ToString() const override;
+
 protected:
     virtual Int32 _OnHostInit() override;
 
