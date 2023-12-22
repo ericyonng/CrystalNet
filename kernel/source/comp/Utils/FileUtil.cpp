@@ -573,11 +573,14 @@ bool FileUtil::ReplaceFileBy(const KERNEL_NS::LibString &fileName, const std::ve
     for(Int32 idx = 0; idx < maxLine; ++idx)
     {
         auto &lineData = newLines[idx];
-        auto ret = FileUtil::WriteFile(*fp, lineData);
-        if(ret != static_cast<Int64>(lineData.size()))
+        if(!lineData.empty())
         {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(FileUtil, "write line not match write bytes:%lld, real bytes:%lld"), ret, static_cast<Int64>(lineData.size()));
-            return false;
+            auto ret = FileUtil::WriteFile(*fp, lineData);
+            if(ret != static_cast<Int64>(lineData.size()))
+            {
+                g_Log->Error(LOGFMT_NON_OBJ_TAG(FileUtil, "write line not match write bytes:%lld, real bytes:%lld"), ret, static_cast<Int64>(lineData.size()));
+                return false;
+            }
         }
 
         if(idx != (maxLine - 1))
