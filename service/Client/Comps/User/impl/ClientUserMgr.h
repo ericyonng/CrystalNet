@@ -52,7 +52,7 @@ public:
     virtual void OnWillStartup() override;
     virtual void OnStartup() override;
 
-    virtual Int32 Login(const LoginInfo &loginInfo, Int32 stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL);
+    virtual Int32 Login(const LoginInfo &loginInfo, Int32 stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) override;
     IClientUser *GetUser(const KERNEL_NS::LibString &accountName);
     const IClientUser *GetUser(const KERNEL_NS::LibString &accountName) const;
     IClientUser *GetUserBySessinId(UInt64 sessionId);

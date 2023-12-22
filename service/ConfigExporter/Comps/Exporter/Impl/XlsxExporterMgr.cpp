@@ -2799,7 +2799,6 @@ void XlsxExporterMgr::_ExportCppAllConfigHeaderFile(const KERNEL_NS::LibString &
     const auto rootPath = _targetDir + "/" + lang + "/";
      g_Log->Custom("start export AllConfigs.h file to dir:%s...", rootPath.c_str());
 
-    bool isSuc = true;
     KERNEL_NS::LibString content;
     content.AppendFormat("// Generate by %s, Dont modify it!!!\n", GetApp()->GetAppName().c_str());
 
@@ -2809,7 +2808,7 @@ void XlsxExporterMgr::_ExportCppAllConfigHeaderFile(const KERNEL_NS::LibString &
 
     content.AppendFormat("\n");
 
-    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(rootPath, [this, &content, &isSuc](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
+    KERNEL_NS::DirectoryUtil::TraverseDirRecursively(rootPath, [this, &content](const KERNEL_NS::FindFileInfo &fileInfo, bool &isParentDirContinue){
         
         bool isContinue = true;
         do
@@ -2842,12 +2841,6 @@ void XlsxExporterMgr::_ExportCppAllConfigHeaderFile(const KERNEL_NS::LibString &
         
         return isContinue;
     });
-
-    if(!isSuc)
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("export allconfigs.h fail targetDir:%s."), _targetDir.c_str());
-        return;
-    }
 
     content.AppendFormat("#endif\n");
 

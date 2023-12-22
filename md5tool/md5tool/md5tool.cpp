@@ -47,10 +47,9 @@ public:
 
 static Int32 Run(int argc, char const *argv[])
 {
-    bool isErr = false;
     KERNEL_NS::LibString targetFile;
     bool isFirstParam = true;
-    auto count = SERVICE_COMMON_NS::ParamsHandler::GetStandardParams(argc, argv, [&targetFile, &isErr, &isFirstParam](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam){
+    auto count = SERVICE_COMMON_NS::ParamsHandler::GetStandardParams(argc, argv, [&targetFile, &isFirstParam](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam){
         // 只解析第一个非空参数
         if(isFirstParam)
         {
@@ -71,11 +70,6 @@ static Int32 Run(int argc, char const *argv[])
 
     if(count == 0)
         return Status::Success;
-
-    if(isErr)
-    {
-        return Status::Failed;
-    }
 
     if(targetFile.empty())
     {

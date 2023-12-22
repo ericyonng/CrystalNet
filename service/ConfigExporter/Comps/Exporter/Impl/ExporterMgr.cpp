@@ -89,12 +89,12 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
 
     // 1.解析程序参数
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> kv;
-    SERVICE_COMMON_NS::ParamsHandler::GetParams(appArgs, [this, &kv](const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)->bool{
+    SERVICE_COMMON_NS::ParamsHandler::GetParams(appArgs, [&kv](const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)->bool{
 
         auto iter = kv.find(key);
         if(iter != kv.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeated kv:%s=>%s, old kv:%s=>%s"), key.c_str(), value.c_str(), iter->first.c_str(), iter->second.c_str());
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(ExporterMgr, "repeated kv:%s=>%s, old kv:%s=>%s"), key.c_str(), value.c_str(), iter->first.c_str(), iter->second.c_str());
             return false;
         }
 
@@ -110,7 +110,7 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
         auto iterConfig = kv.find("--config");
         if(iterConfig == kv.end())
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("have no config set please select a config to export."));
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(ExporterMgr, "have no config set please select a config to export."));
             err = Status::ParamError;
             break;
         }
@@ -121,14 +121,14 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
             err = xlsxExporter->ExportConfigs(kv);
             if(err != Status::Success)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("xlsx export config fail err:%d"), err);
+                g_Log->Warn(LOGFMT_NON_OBJ_TAG(ExporterMgr, "xlsx export config fail err:%d"), err);
                 break;
             }
         }
         else
         {
             err = Status::ParamError;
-            g_Log->Warn(LOGFMT_OBJ_TAG("cant surport current config:%s export!!!"), iterConfig->second.c_str());
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(ExporterMgr, "cant surport current config:%s export!!!"), iterConfig->second.c_str());
             break;
         }
 

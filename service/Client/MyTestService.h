@@ -42,7 +42,7 @@ class MyTestService : public SERVICE_COMMON_NS::IService
 public:
     MyTestService();
     ~MyTestService();
-    void Release();
+    void Release() override;
 
     // 协议栈
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
