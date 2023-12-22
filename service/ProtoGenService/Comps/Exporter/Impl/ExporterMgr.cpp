@@ -4922,8 +4922,6 @@ bool ExporterMgr::_GrammarAnalyze()
 
     auto codeAnalyzeMgr = GetService()->GetComp<KERNEL_NS::ICodeAnalyzeMgr>();
 
-    g_Log->Custom("[PROTO GRAMMER ANALYZE]\n, code analyze result:%s", codeAnalyzeMgr->ToString().c_str());
-
     // 不支持Map
     auto &codeUnitStack = codeAnalyzeMgr->GetCodeUnitStack();
     KERNEL_NS::LibString packageName;
@@ -5358,6 +5356,8 @@ bool ExporterMgr::_GrammarAnalyze()
         codeUnitStack->_codeUnits.pop_back();
         packageName.clear();
     });
+
+    g_Log->Custom("[PROTO GRAMMER ANALYZE]\n, code analyze result:%s", codeAnalyzeMgr->ToString().c_str());
 
     g_Log->Custom("[PROTO GRAMMER ANALYZE] SUCCESS.");
 
