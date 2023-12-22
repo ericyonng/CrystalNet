@@ -70,7 +70,7 @@ void CodeAnalyzeMgr::ScanDir(const KERNEL_NS::LibString &dir, const std::set<Lib
         isContinueCurrentDir = true;
         const auto &fileExt = fileInfo._extension.strip();
 
-        g_Log->Custom("scan file:%s", fileInfo._fullName.c_str());
+        g_Log->Custom("scan file:%s", fileInfo.ToString().c_str());
 
         // 指定的后缀
         if(!specifyFileExts.empty())
