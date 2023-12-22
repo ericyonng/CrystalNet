@@ -318,6 +318,7 @@ bool DirectoryUtil::_TraverseDirRecursively(const LibString &dir
 
         FindFileInfo findFile;
         findFile._fileName = file->d_name;
+        findFile._extension = FileUtil::ExtractFileExtension(findFile._fileName);
         findFile._rootPath = dir;
 
         findFile._fullName = dir;
