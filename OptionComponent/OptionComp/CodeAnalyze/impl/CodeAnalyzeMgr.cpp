@@ -150,7 +150,7 @@ LibString CodeAnalyzeMgr::ToString() const
     for(auto iter : _fullNameRefCodeUnit)
     {
         auto &codeUnit = iter.second;
-        info.AppendFormat("code unit full name:%s, unit name:%s, file:%s, line:%d\n", codeUnit->GetFileName().c_str(), codeUnit->_unitName.c_str(), codeUnit->_fileName.c_str(), codeUnit->_line);
+        info.AppendFormat("code unit full name:%s, unit name:%s, file:%s, line:%d\n", codeUnit->GetFullName().c_str(), codeUnit->_unitName.c_str(), codeUnit->_fileName.c_str(), codeUnit->_line);
     }
 
     return info;
