@@ -65,11 +65,12 @@ void CodeAnalyzeMgr::SetMultiCommentFlag(const LibString &startFlag, const LibSt
 
 void CodeAnalyzeMgr::ScanDir(const KERNEL_NS::LibString &dir, const std::set<LibString> &specifyFileExts, IDelegate<void, LibString &, Int32, const LibString &, const std::vector<LibString> &> *onScan, IDelegate<void> *onFileEnd)
 {
+    g_Log->Custom("scan dir:%s, specifyFileExts:%s", dir.c_str(), KERNEL_NS::StringUtil::ToString(specifyFileExts, ',').c_str());
     auto cb = [&specifyFileExts, onScan, this, onFileEnd](const FindFileInfo &fileInfo, bool &isContinueCurrentDir)->bool{
         isContinueCurrentDir = true;
         const auto &fileExt = fileInfo._extension.strip();
 
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(CodeAnalyzeMgr, "scan file:%s"), fileInfo._fullName.c_str());
+        g_Log->Custom("scan file:%s", fileInfo._fullName.c_str());
 
         // 指定的后缀
         if(!specifyFileExts.empty())
