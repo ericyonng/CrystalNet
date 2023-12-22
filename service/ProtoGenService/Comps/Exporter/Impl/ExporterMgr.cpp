@@ -5890,9 +5890,12 @@ bool ExporterMgr::_UpdateProtoCache()
         _RemoveInvalidFiles(protoFile);
 
     // 有更新就重写缓存文件
+
     if(!_protoNameRefProtoInfo.empty())
     {
-        const auto pbcacheFile = _protoPath + "/../" + ProtobufMessageParam::ProtoInfoCacheFile;    
+        const auto pbcacheFile = _protoPath + "/../" + ProtobufMessageParam::ProtoInfoCacheFile;
+
+        g_Log->Custom("[PROTO GEN] START UPDATE PB CACHE %s ...", pbcacheFile.c_str());
         if(!_pbCacheContent->UpdatePbCache(pbcacheFile))
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("update pb cache fail please check pbcacheFile:%s"), pbcacheFile.c_str());

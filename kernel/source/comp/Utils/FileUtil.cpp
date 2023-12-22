@@ -692,9 +692,9 @@ bool FileUtil::ReplaceFileBy(const LibString &fileName, const std::map<Int32, Li
     for(auto &kv : newLines)
     {
         auto &lineData = kv.second;
-        auto ret = FileUtil::WriteFile(*fp, lineData);
         if(!lineData.empty())
         {
+            auto ret = FileUtil::WriteFile(*fp, lineData);
             if(ret != static_cast<Int64>(lineData.size()))
             {
                 g_Log->Error(LOGFMT_NON_OBJ_TAG(FileUtil, "write line not match write bytes:%lld, real bytes:%lld"), ret, static_cast<Int64>(lineData.size()));
