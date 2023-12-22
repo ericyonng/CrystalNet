@@ -42,7 +42,7 @@ class ClientUser : public IClientUser
 public:
     ClientUser(IClientUserMgr *userMgr);
     ~ClientUser();
-    void Release();
+    void Release() override;
 
    virtual void OnRegisterComps() override;
 
