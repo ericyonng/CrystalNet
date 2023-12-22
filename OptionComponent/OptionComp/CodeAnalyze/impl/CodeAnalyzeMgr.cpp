@@ -69,6 +69,8 @@ void CodeAnalyzeMgr::ScanDir(const KERNEL_NS::LibString &dir, const std::set<Lib
         isContinueCurrentDir = true;
         const auto &fileExt = fileInfo._extension.strip();
 
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(CodeAnalyzeMgr, "scan file:%s"), fileInfo._fullName.c_str());
+
         // 指定的后缀
         if(!specifyFileExts.empty())
         {
@@ -165,8 +167,11 @@ void CodeAnalyzeMgr::_OnScanFile(const KERNEL_NS::LibString &fullFilePath, IDele
     SmartPtr<FILE, AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(fullFilePath.c_str(), false, "rb");
     if(!fp)
     {
+        g_Log->Warn(LOGFMT_OBJ_TAG("OpenFile fail fullFilePath:%s"), fullFilePath.c_str());
         return;
     }
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(CodeAnalyzeMgr, "start scan file:%s"), fullFilePath.c_str());
 
     fp.SetClosureDelegate([](void *p){
         FileUtil::CloseFile(*KernelCastTo<FILE>(p));
