@@ -29,27 +29,8 @@
 
 #include <pch.h>
 #include <ProtoGen/protogen.h>
-#include <service/ProtoGenService/service.h>
 #include <ProtoGen/ProtogenIni.h>
-
-class ProtoGenApp : public SERVICE_COMMON_NS::Application
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(Application, ProtoGenApp);
-
-protected:
-    virtual void _OnMonitorThreadFrame() override
-    {
-        // 不打印帧状态
-    }
-};
-
-// TODO:
-// 1.禁用日志显示
-// 2.扩展日志打印接口 格式:[PROTOGEN]: cpp gen file:%s, success!
-// 3.Csharp导出
-
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ProtoGenApp);
+#include <ProtoGen/ProtoGenApp.h>
 
 Int32 ProtoGen::Run(int argc, char const *argv[])
 {
@@ -61,5 +42,24 @@ Int32 ProtoGen::Run(int argc, char const *argv[])
         ptr = NULL;
     });
 
-    return SERVICE_COMMON_NS::ApplicationHelper::Start(app.AsSelf(), SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "", s_appIniContent);
+    app->SetArgs(argc, argv);
+
+    auto err = app->Init();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(ProtoGen, "init fail err:%d"), err);
+        return err;
+    }
+
+    err = app->Start();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(ProtoGen, "start fail err:%d"), err);
+        return err;
+    }
+
+    app->WillClose();
+    app->Close();
+
+    return Status::Success;
 }

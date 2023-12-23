@@ -723,12 +723,6 @@ project "protogentool"
     
     -- files
     files {
-		"../../service/common/**.h",
-		"../../service/common/**.cpp",
-		"../../service/ProtoGenService/**.h",
-		"../../service/ProtoGenService/**.cpp",
-		"../../service_common/**.h",
-        "../../service_common/**.cpp",
         "../../ProtoGen/**.h",
         "../../ProtoGen/**.cpp",
 		"../../OptionComponent/OptionComp/CodeAnalyze/**.h",
