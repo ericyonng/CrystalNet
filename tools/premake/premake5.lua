@@ -1001,8 +1001,10 @@ project "md5tool"
 
     -- files
     files {
-        "../../service_common/**.h",
-        "../../service_common/**.cpp",
+		"../../service_common/common/**.h",
+		"../../service_common/common/**.cpp",
+		"../../service_common/params/**.h",
+		"../../service_common/params/**.cpp",
         "../../md5tool/**.h",
         "../../md5tool/**.cpp",
     }
@@ -1087,8 +1089,10 @@ project "CloseProcess"
 	
     -- files
     files {
-		"../../service_common/**.h",
-        "../../service_common/**.cpp",
+		"../../service_common/common/**.h",
+		"../../service_common/common/**.cpp",
+		"../../service_common/params/**.h",
+		"../../service_common/params/**.cpp",
         "../../CloseProcess/**.h",
         "../../CloseProcess/**.cpp",
     }
@@ -1371,8 +1375,6 @@ project "RsaGen"
 	
     -- files
     files {
-		"../../service_common/**.h",
-        "../../service_common/**.cpp",
         "../../RsaGen/**.h",
         "../../RsaGen/**.cpp",
     }

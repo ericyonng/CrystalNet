@@ -29,7 +29,6 @@
 
 #include <pch.h>
 #include <RsaGen/RsaGen.h>
-#include <service_common/ServiceCommon.h>
 #include <RsaGen/RsaGenIni.h>
 
 Int32 RsaGen::Run(int argc, char const *argv[])
