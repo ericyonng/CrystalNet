@@ -45,7 +45,6 @@
 #endif
 
 #include <kernel/kernel.h>
-#include <3rd/3rd.h>
 
 #endif
 
