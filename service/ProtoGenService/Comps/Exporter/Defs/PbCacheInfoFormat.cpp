@@ -346,11 +346,16 @@ bool PbCacheFileContent::_LoadMessageInfo(Int32 currentLine, KERNEL_NS::LibStrin
         return false;
     }
 
-    if(opcodeFilter.find(pbCache->_opcode) != opcodeFilter.end())
+    if(pbCache->_opcode != 0)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("duplicate opcode:%d in pb cache pb cache line:%d, line data:%s"), pbCache->_opcode, pbCache->_line, lineData.c_str());
-        PbCaheInfo::Delete_PbCaheInfo(pbCache);
-        return false;
+        if(opcodeFilter.find(pbCache->_opcode) != opcodeFilter.end())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("duplicate opcode:%d in pb cache pb cache line:%d, line data:%s"), pbCache->_opcode, pbCache->_line, lineData.c_str());
+            PbCaheInfo::Delete_PbCaheInfo(pbCache);
+            return false;
+        }   
+
+        opcodeFilter.insert(pbCache->_opcode);
     }
 
     _lineRefMessageInfo.insert(std::make_pair(currentLine, pbCache));
