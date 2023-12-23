@@ -21,31 +21,14 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-06-26 17:51:22
+ * Date: 2023-02-19 19:52:14
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <service/ConfigExporter/ServiceFactory.h>
-#include <service/ConfigExporter/ConfigExporterService.h>
+#pragma once
 
-SERVICE_BEGIN
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceFactory);
-
-SERVICE_COMMON_NS::IService *ServiceFactory::Create(const KERNEL_NS::LibString &serviceName)
-{
-    if(serviceName == "ConfigExporter")
-        return ConfigExporterService::NewByAdapter_ConfigExporterService(_buildType.V);
-    
-    g_Log->Warn(LOGFMT_OBJ_TAG("unknown service name:%s"), serviceName.c_str());
-    return NULL;
-}
-
-void ServiceFactory::Release()
-{
-    ServiceFactory::Delete_ServiceFactory(this);
-}
-
-SERVICE_END
+#include <ConfigExporter/Exporter/Interface/IXlsxExporterMgr.h>
+#include <ConfigExporter/Exporter/Interface/IExporterMgr.h>
+#include <ConfigExporter/Exporter/Impl/XlsxExporterMgrFactory.h>
+#include <ConfigExporter/Exporter/Impl/ExporterMgrFactory.h>

@@ -21,28 +21,27 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-06-26 16:19:22
+ * Date: 2023-02-19 22:12:07
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <ConfigExporter/Exporter/Impl/XlsxExporterMgr.h>
+#include <ConfigExporter/Exporter/Impl/XlsxExporterMgrFactory.h>
 
-#include <kernel/kernel.h>
-#include <service_common/ServiceCommon.h>
-#include <service/common/common.h>
-
-SERVICE_BEGIN
-
-class ServiceFactory :public SERVICE_COMMON_NS::IServiceFactory
+KERNEL_NS::CompFactory *XlsxExporterMgrFactory::FactoryCreate()
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IServiceFactory, ServiceFactory);
+    return KERNEL_NS::ObjPoolWrap<XlsxExporterMgrFactory>::NewByAdapter(_buildType.V);
+}
 
-public:
-    virtual SERVICE_COMMON_NS::IService *Create(const KERNEL_NS::LibString &serviceName) override;
-    virtual void Release() override;
+void XlsxExporterMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<XlsxExporterMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
 
-    static constexpr KERNEL_NS::_Build::TL _buildType{};
-};
-
-SERVICE_END
+KERNEL_NS::CompObject *XlsxExporterMgrFactory::Create() const
+{
+    CREATE_CRYSTAL_COMP(comp, XlsxExporterMgr);
+    return comp;
+}

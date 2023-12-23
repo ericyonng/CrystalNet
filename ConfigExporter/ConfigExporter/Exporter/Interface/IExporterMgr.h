@@ -21,28 +21,17 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-22 15:03:11
+ * Date: 2023-02-19 22:12:07
  * Author: Eric Yonng
- * Description: 系统的业务,如连接，监听等
+ * Description: 
 */
 
 #pragma once
 
-#include <service/ConfigExporter/ServiceCompFactoryHeader.h>
+#include <kernel/comp/CompObject/CompObject.h>
 
-SERVICE_BEGIN
-
-class SysLogicMgrFactory : public KERNEL_NS::CompFactory
+class IExporterMgr : public KERNEL_NS::CompObject
 {
-public:
-    static constexpr KERNEL_NS::_Build::TL _buildType{};
-
-    static KERNEL_NS::CompFactory *FactoryCreate();
-
-    virtual void Release() override;
-    
-public:
-    virtual KERNEL_NS::CompObject *Create() const override;
+    POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IExporterMgr);
 };
 
-SERVICE_END

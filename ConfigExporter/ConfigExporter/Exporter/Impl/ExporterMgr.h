@@ -21,31 +21,38 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-22 15:03:11
+ * Date: 2023-02-19 22:12:07
  * Author: Eric Yonng
- * Description: 系统的业务,如连接，监听等
+ * Description: 
 */
 
-#include <pch.h>
-#include <service/ConfigExporter/Comps/SysLogic/Impl/SysLogicMgr.h>
-#include <service/ConfigExporter/Comps/SysLogic/Impl/SysLogicMgrFactory.h>
+#pragma once
 
-SERVICE_BEGIN
+#include <ConfigExporter/Exporter/Interface/IExporterMgr.h>
 
-KERNEL_NS::CompFactory *SysLogicMgrFactory::FactoryCreate()
+class ExporterMgr : public IExporterMgr
 {
-    return KERNEL_NS::ObjPoolWrap<SysLogicMgrFactory>::NewByAdapter(_buildType.V);
-}
+    POOL_CREATE_OBJ_DEFAULT_P1(IExporterMgr, ExporterMgr);
 
-void SysLogicMgrFactory::Release()
-{
-    KERNEL_NS::ObjPoolWrap<SysLogicMgrFactory>::DeleteByAdapter(_buildType.V, this);
-}
+public:
+    ExporterMgr();
+    ~ExporterMgr();
 
-KERNEL_NS::CompObject *SysLogicMgrFactory::Create() const
-{
-    CREATE_CRYSTAL_COMP(comp, SysLogicMgr);
-    return comp;
-}
+    void Release() override;
 
-SERVICE_END
+public:
+    virtual KERNEL_NS::LibString ToString() const override;
+
+protected:
+    Int32 _OnInit() override;
+    Int32 _OnStart() override;
+
+    void _OnWillClose() override;
+
+    void _ExportConfigs();
+
+private:
+    void _Clear();
+
+private:
+};

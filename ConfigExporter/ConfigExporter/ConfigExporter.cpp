@@ -29,27 +29,8 @@
 
 #include <pch.h>
 #include <ConfigExporter/ConfigExporter.h>
-#include <service/ConfigExporter/service.h>
 #include <ConfigExporter/ConfigExporterIni.h>
-
-class ConfigExporterApp : public SERVICE_COMMON_NS::Application
-{
-    POOL_CREATE_OBJ_DEFAULT_P1(Application, ConfigExporterApp);
-
-protected:
-    virtual void _OnMonitorThreadFrame() override
-    {
-        // 不打印帧状态
-    }
-};
-
-// TODO:
-// 1.禁用日志显示
-// 2.扩展日志打印接口 格式:[PROTOGEN]: cpp gen file:%s, success!
-// 3.Csharp导出
-
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigExporterApp);
+#include <ConfigExporter/ConfigExporterApp.h>
 
 Int32 ConfigExporter::Run(int argc, char const *argv[])
 {
@@ -61,5 +42,24 @@ Int32 ConfigExporter::Run(int argc, char const *argv[])
         ptr = NULL;
     });
 
-    return SERVICE_COMMON_NS::ApplicationHelper::Start(app.AsSelf(), SERVICE_NS::ServiceFactory::New_ServiceFactory(), argc, argv, "", s_appIniContent);
+    app->SetArgs(argc, argv);
+
+    auto err = app->Init();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(ConfigExporter, "init fail err:%d"), err);
+        return err;
+    }
+
+    err = app->Start();
+    if(err != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(ConfigExporter, "start fail err:%d"), err);
+        return err;
+    }
+
+    app->WillClose();
+    app->Close();
+
+    return Status::Success;
 }

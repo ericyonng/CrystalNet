@@ -28,9 +28,13 @@
 
 #pragma once
 
-#include <service/ConfigExporter/Comps/Exporter/Interface/IXlsxExporterMgr.h>
+#include <ConfigExporter/Exporter/Interface/IXlsxExporterMgr.h>
+#include <kernel/comp/LibString.h>
+#include <kernel/comp/xlsx/xlsx.h>
 
-SERVICE_BEGIN
+#include <unordered_map>
+#include <set>
+#include <unordered_set>
 
 class XlsxConfigMetaInfo;
 class XlsxConfigTableInfo;
@@ -45,14 +49,16 @@ public:
 
     void Release() override;
 
+
+
     virtual Int32 ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> &params) override;
 
 public:
     virtual KERNEL_NS::LibString ToString() const override;
 
 protected:
-    Int32 _OnGlobalSysInit() override;
-    void _OnGlobalSysClose() override;
+    Int32 _OnInit() override;
+    void _OnWillClose() override;
 
     // 扫描meta文件
     bool _ScanMeta();
@@ -101,11 +107,6 @@ protected:
 private:
     void _Clear();
 
-    void _RegisterEvents();
-    void _UnRegisterEvents();
-
-    void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
-
 private:
     // target字典
     KERNEL_NS::LibString _sourceDir;
@@ -123,8 +124,6 @@ private:
     std::unordered_map<KERNEL_NS::LibString, KERNEL_NS::XlsxWorkbook *> _xlsxFileRefWorkbook;   // 所有的配置xlsx
 
     std::map<KERNEL_NS::LibString, std::map<KERNEL_NS::LibString, XlsxConfigTableInfo *>> _ownTypeRefConfigTypeRefXlsxConfigTableInfo;    // 每个配置类型对应的配置信息
-
-    KERNEL_NS::ListenerStub _closeServiceStub;
 
     KERNEL_NS::LibString _allConfigsHeader;
     KERNEL_NS::LibString _registerAllConfigs;
@@ -152,5 +151,3 @@ ALWAYS_INLINE KERNEL_NS::LibString XlsxExporterMgr::_MakeConfigMemberName(const 
 {
     return "_" + fieldName.FirstCharToLower();
 }
-
-SERVICE_END

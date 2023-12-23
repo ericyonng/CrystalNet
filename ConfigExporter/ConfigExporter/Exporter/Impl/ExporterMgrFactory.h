@@ -21,15 +21,27 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-06-26 16:17:57
+ * Date: 2023-02-19 22:12:07
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
-#include <service/common/common.h>
-#include <service/ConfigExporter/ServiceFactory.h>
-#include <service_common/ServiceCommon.h>
+#include <kernel/comp/CompObject/CompObject.h>
+#include <kernel/comp/CompObject/CompFactory.h>
 
-#include <service/ConfigExporter/ConfigExporter.h>
+class ExporterMgrFactory : public KERNEL_NS::CompFactory
+{
+    // 创建factory对象时候使用创建的方法类型
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
+
+    static KERNEL_NS::CompFactory *FactoryCreate();
+
+    virtual void Release() override;
+    
+public:
+    virtual KERNEL_NS::CompObject *Create() const override;
+};
+

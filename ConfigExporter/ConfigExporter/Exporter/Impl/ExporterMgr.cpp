@@ -27,11 +27,10 @@
 */
 
 #include <pch.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgr.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/ExporterMgrFactory.h>
-#include <service/ConfigExporter/Comps/Exporter/Interface/IXlsxExporterMgr.h>
-
-SERVICE_BEGIN
+#include <ConfigExporter/Exporter/Impl/ExporterMgr.h>
+#include <ConfigExporter/Exporter/Impl/ExporterMgrFactory.h>
+#include <ConfigExporter/Exporter/Interface/IXlsxExporterMgr.h>
+#include <service_common/params/params.h>
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IExporterMgr);
 
@@ -57,39 +56,31 @@ KERNEL_NS::LibString ExporterMgr::ToString() const
     return IExporterMgr::ToString();
 }
 
-Int32 ExporterMgr::_OnGlobalSysInit() 
+Int32 ExporterMgr::_OnInit() 
 {
-    _RegisterEvents();
-
-    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-    timer->GetMgr()->TakeOverLifeTime(timer, [](KERNEL_NS::LibTimer *t){
-        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
-    });
-    timer->SetTimeOutHandler(this, &ExporterMgr::_OnExporter);
-    timer->Schedule(0);
-
-    // 1.读取所有配置表数据
-    // 2.读取表头
-    // 3.生成配置
-
     return Status::Success;
 }
 
-void ExporterMgr::_OnGlobalSysClose()
+Int32 ExporterMgr::_OnStart()
+{
+    _ExportConfigs();
+    return Status::Success;
+}
+
+void ExporterMgr::_OnWillClose()
 {
     _Clear();
 }
 
-void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
+void ExporterMgr::_ExportConfigs()
 {
-    auto app = GetApp();
-    const auto &appArgs = app->GetAppArgs();
-    
-    // ConfigExporter --config=xlsx --lang=S:cpp|C:C#,lua --source_dir=/xxx/ --target_dir=/xxx/ --data=/xx/ --meta=/xxx/
+    // 设置传入的参数
+    auto owner = GetOwner();
+    const auto &args = owner->GetArgs();
 
     // 1.解析程序参数
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> kv;
-    SERVICE_COMMON_NS::ParamsHandler::GetParams(appArgs, [&kv](const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)->bool{
+    SERVICE_COMMON_NS::ParamsHandler::GetParams(args, [&kv](const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)->bool{
 
         auto iter = kv.find(key);
         if(iter != kv.end())
@@ -117,7 +108,7 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
 
         if(iterConfig->second == "xlsx")
         {// 解析xlsx
-            auto xlsxExporter = GetGlobalSys<IXlsxExporterMgr>();
+            auto xlsxExporter = GetOwner()->CastTo<KERNEL_NS::CompHostObject>()->GetComp<IXlsxExporterMgr>();
             err = xlsxExporter->ExportConfigs(kv);
             if(err != Status::Success)
             {
@@ -134,28 +125,8 @@ void ExporterMgr::_OnExporter(KERNEL_NS::LibTimer *t)
 
         g_Log->Custom("config:%s, export success.", iterConfig->second.c_str());
     }while(false);
-
-    // 4.关闭app
-    GetServiceProxy()->CloseApp(err);
-    
-    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
 }
 
 void ExporterMgr::_Clear()
 {
-    _UnRegisterEvents();
-
 }
-
-void ExporterMgr::_RegisterEvents()
-{
-
-}
-
-void ExporterMgr::_UnRegisterEvents()
-{
-
-}
-
-
-SERVICE_END

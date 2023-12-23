@@ -28,9 +28,11 @@
 
 #pragma once
 
-#include <service/ConfigExporter/ServiceCompHeader.h>
-
-SERVICE_BEGIN
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/LibString.h>
+#include <vector>
+#include <unordered_set>
+#include <map>
 
 class XlsxConfigTableInfo;
 
@@ -117,5 +119,3 @@ public:
     static const KERNEL_NS::LibString MULTI_DISABLE_FLAG;        // 注释多行 ###
     static constexpr Byte8 OWN_TYPE_SEP = '|';        // own type的分隔符
 };
-
-SERVICE_END

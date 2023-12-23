@@ -27,9 +27,7 @@
 */
 
 #include <pch.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxConfigInfo.h>
-
-SERVICE_BEGIN
+#include <ConfigExporter/Exporter/Impl/XlsxConfigInfo.h>
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxConfigFieldInfo);
 
@@ -199,6 +197,3 @@ bool XlsxConfigTableInfo::CheckHeaderSame(const XlsxConfigTableInfo *other, KERN
 
 const KERNEL_NS::LibString ConfigTableDefine::SINGLE_DISABLE_FLAG = "#";
 const KERNEL_NS::LibString ConfigTableDefine::MULTI_DISABLE_FLAG = "###";
-
-
-SERVICE_END

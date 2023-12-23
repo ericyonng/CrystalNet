@@ -21,30 +21,39 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-09-19 02:24:49
+ * Date: 2023-12-23 18:09:27
  * Author: Eric Yonng
  * Description: 
 */
 
 #pragma once
 
+#include <kernel/comp/CompObject/CompHostObject.h>
 
-#include <service/ConfigExporter/ServiceCompFactoryHeader.h>
-
-SERVICE_BEGIN
-
-class StubHandleMgrFactory : public KERNEL_NS::CompFactory
+class ConfigExporterApp : public KERNEL_NS::CompHostObject
 {
-    // 创建factory对象时候使用创建的方法类型
-public:
-    static constexpr KERNEL_NS::_Build::TL _buildType{};
+    POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, ConfigExporterApp);
 
-    static KERNEL_NS::CompFactory *FactoryCreate();
+public:
+    ConfigExporterApp()
+    {
+
+    }
+
+    ~ConfigExporterApp()
+    {
+    }
+
+    virtual Int32 _OnHostInit() override;
+
+    virtual Int32 _OnHostStart() override;
 
     virtual void Release() override;
-    
-public:
-    virtual KERNEL_NS::CompObject *Create() const  override;
-};
 
-SERVICE_END
+    virtual void OnRegisterComps() override;
+
+    const KERNEL_NS::LibString &GetAppName() const;
+
+private:
+    KERNEL_NS::LibString _appName;
+};

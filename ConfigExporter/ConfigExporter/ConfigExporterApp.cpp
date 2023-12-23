@@ -21,11 +21,40 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2022-06-26 19:03:49
+ * Date: 2023-12-23 18:09:37
  * Author: Eric Yonng
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <ConfigExporter/ConfigExporterApp.h>
+#include <ConfigExporter/Exporter/exporter.h>
 
-#include <service/ConfigExporter/ConfigExporterService.h>
+POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigExporterApp);
+
+Int32 ConfigExporterApp::_OnHostInit() 
+{ 
+    _appName = KERNEL_NS::SystemUtil::GetCurProgramNameWithoutExt();
+    return Status::Success; 
+};
+
+Int32 ConfigExporterApp::_OnHostStart()
+{
+    return Status::Success; 
+}
+
+void ConfigExporterApp::Release()
+{
+    ConfigExporterApp::DeleteThreadLocal_ConfigExporterApp(this);
+}
+
+void ConfigExporterApp::OnRegisterComps() 
+{
+    RegisterComp<XlsxExporterMgrFactory>();
+    RegisterComp<ExporterMgrFactory>();
+};  
+
+const KERNEL_NS::LibString &ConfigExporterApp::GetAppName() const
+{
+    return _appName;
+}

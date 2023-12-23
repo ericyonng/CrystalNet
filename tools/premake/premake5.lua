@@ -904,12 +904,12 @@ project "ConfigExporter"
 	
     -- files
     files {
-		"../../service/common/**.h",
-		"../../service/common/**.cpp",
-		"../../service/ConfigExporter/**.h",
-		"../../service/ConfigExporter/**.cpp",
-		"../../service_common/**.h",
-        "../../service_common/**.cpp",
+		"../../service_common/common/**.h",
+		"../../service_common/common/**.cpp",
+		"../../service_common/params/**.h",
+		"../../service_common/params/**.cpp",
+        "../../service_common/config/DataTypeHelper.h",
+        "../../service_common/config/DataTypeHelper.cpp",
         "../../ConfigExporter/**.h",
         "../../ConfigExporter/**.cpp",
     }

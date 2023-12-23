@@ -28,36 +28,14 @@
 
 #pragma once
 
-#include <service/ConfigExporter/Comps/Exporter/Interface/IExporterMgr.h>
+#include <kernel/comp/CompObject/CompObject.h>
+#include <kernel/comp/LibString.h>
+#include <map>
 
-SERVICE_BEGIN
-
-class ExporterMgr : public IExporterMgr
+class IXlsxExporterMgr : public KERNEL_NS::CompObject
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(IExporterMgr, ExporterMgr);
+    POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IXlsxExporterMgr);
 
 public:
-    ExporterMgr();
-    ~ExporterMgr();
-
-    void Release() override;
-
-public:
-    virtual KERNEL_NS::LibString ToString() const override;
-
-protected:
-    Int32 _OnGlobalSysInit() override;
-    void _OnGlobalSysClose() override;
-
-    void _OnExporter(KERNEL_NS::LibTimer *t);
-
-private:
-    void _Clear();
-
-    void _RegisterEvents();
-    void _UnRegisterEvents();
-
-private:
+    virtual Int32 ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> &params) = 0;
 };
-
-SERVICE_END

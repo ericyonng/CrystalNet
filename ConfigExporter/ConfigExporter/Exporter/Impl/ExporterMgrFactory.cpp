@@ -26,25 +26,22 @@
  * Description: 
 */
 
-#pragma once
+#include <pch.h>
+#include <ConfigExporter/Exporter/Impl/ExporterMgr.h>
+#include <ConfigExporter/Exporter/Impl/ExporterMgrFactory.h>
 
-
-#include <service/ConfigExporter/ServiceCompFactoryHeader.h>
-
-SERVICE_BEGIN
-
-class XlsxExporterMgrFactory : public KERNEL_NS::CompFactory
+KERNEL_NS::CompFactory *ExporterMgrFactory::FactoryCreate()
 {
-    // 创建factory对象时候使用创建的方法类型
-public:
-    static constexpr KERNEL_NS::_Build::TL _buildType{};
+    return KERNEL_NS::ObjPoolWrap<ExporterMgrFactory>::NewByAdapter(_buildType.V);
+}
 
-    static KERNEL_NS::CompFactory *FactoryCreate();
+void ExporterMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<ExporterMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
 
-    virtual void Release() override;
-    
-public:
-    virtual KERNEL_NS::CompObject *Create() const override;
-};
-
-SERVICE_END
+KERNEL_NS::CompObject *ExporterMgrFactory::Create() const
+{
+    CREATE_CRYSTAL_COMP(comp, ExporterMgr);
+    return comp;
+}

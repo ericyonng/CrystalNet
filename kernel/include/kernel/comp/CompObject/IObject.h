@@ -39,6 +39,7 @@
 
 #include <unordered_map>
 #include <atomic>
+#include <vector>
 
 #include <kernel/kernel_export.h>
 #include <kernel/common/BaseMacro.h>
@@ -115,6 +116,10 @@ public:
 
     void SetInterfaceTypeId(UInt64 id);
     UInt64 GetInterfaceTypeId() const;
+
+    // 设置参数
+    void SetArgs(int argc, char const *argv[]);
+    const std::vector<KERNEL_NS::LibString> &GetArgs() const;
     
     // 派生类统一重载接口
 protected:
@@ -200,6 +205,8 @@ private:
 
     // 指定的接口类typeid
     UInt64 _interfaceTypeId;
+
+    std::vector<LibString> _args;
 };
 
 ALWAYS_INLINE Int32 IObject::GetErrCode() const
@@ -302,6 +309,17 @@ ALWAYS_INLINE const ObjType *IObject::CastTo() const
 ALWAYS_INLINE const IObject *IObject::GetOwner() const
 {
     return _owner;
+}
+
+ALWAYS_INLINE void IObject::SetArgs(int argc, char const *argv[])
+{
+    for(Int32 idx = 0; idx < argc; ++idx)
+        _args.push_back(KERNEL_NS::LibString(argv[idx]));
+}
+
+ALWAYS_INLINE const std::vector<KERNEL_NS::LibString> &IObject::GetArgs() const
+{
+    return _args;
 }
 
 ALWAYS_INLINE void IObject::_SetType(Int32 type)

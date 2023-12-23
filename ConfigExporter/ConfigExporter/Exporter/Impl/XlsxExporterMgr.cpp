@@ -27,18 +27,17 @@
 */
 
 #include <pch.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxExporterMgr.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxExporterMgrFactory.h>
-#include <service/ConfigExporter/Comps/Exporter/Impl/XlsxConfigInfo.h>
-
-SERVICE_BEGIN
+#include <ConfigExporter/Exporter/Impl/XlsxExporterMgr.h>
+#include <ConfigExporter/Exporter/Impl/XlsxExporterMgrFactory.h>
+#include <ConfigExporter/Exporter/Impl/XlsxConfigInfo.h>
+#include <ConfigExporter/ConfigExporterApp.h>
+#include <service_common/config/DataTypeHelper.h>
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IXlsxExporterMgr);
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxExporterMgr);
 
 XlsxExporterMgr::XlsxExporterMgr()
-:_closeServiceStub(INVALID_LISTENER_STUB)
 {
 
 }
@@ -58,21 +57,15 @@ KERNEL_NS::LibString XlsxExporterMgr::ToString() const
     return IXlsxExporterMgr::ToString();
 }
 
-Int32 XlsxExporterMgr::_OnGlobalSysInit() 
+Int32 XlsxExporterMgr::_OnInit() 
 {
-    _RegisterEvents();
-
-    // 1.读取所有配置表数据
-    // 2.读取表头
-    // 3.生成配置
-
     _allConfigsHeader = "AllConfigs.h";
     _registerAllConfigs = "RegisterAllConfigs.hpp";
 
     return Status::Success;
 }
 
-void XlsxExporterMgr::_OnGlobalSysClose()
+void XlsxExporterMgr::_OnWillClose()
 {
     _Clear();
 }
@@ -1458,9 +1451,11 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
     const auto mgrFactoryClassName = mgrClassName + "Factory";
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> fieldNameRefDataType;
 
+    auto owner = GetOwner()->CastTo<ConfigExporterApp>();
+
     // 生成文件头注释
     {
-        fileContent.AppendFormat("// Generate by %s, Dont modify it!!!\n", GetApp()->GetAppName().c_str());
+        fileContent.AppendFormat("// Generate by %s, Dont modify it!!!\n", owner->GetAppName().c_str());
 
         // 文件路径
         const auto multiLinePaths = configInfo->_xlsxPath.Split("\n");
@@ -1869,8 +1864,10 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
     const auto mgrClassName = className + "Mgr";
     const auto mgrClassFactory = mgrClassName + "Factory";
 
+    auto owner = GetOwner()->CastTo<ConfigExporterApp>();
+
     {// 生成文件头注释
-        fileContent.AppendFormat("// Generate by %s, Dont modify it!!!\n", GetApp()->GetAppName().c_str());
+        fileContent.AppendFormat("// Generate by %s, Dont modify it!!!\n", owner->GetAppName().c_str());
 
         // 文件路径
         const auto multiLinePaths = configInfo->_xlsxPath.Split("\n");
@@ -2799,8 +2796,10 @@ void XlsxExporterMgr::_ExportCppAllConfigHeaderFile(const KERNEL_NS::LibString &
     const auto rootPath = _targetDir + "/" + lang + "/";
      g_Log->Custom("start export AllConfigs.h file to dir:%s...", rootPath.c_str());
 
+    auto owner = GetOwner()->CastTo<ConfigExporterApp>();
+
     KERNEL_NS::LibString content;
-    content.AppendFormat("// Generate by %s, Dont modify it!!!\n", GetApp()->GetAppName().c_str());
+    content.AppendFormat("// Generate by %s, Dont modify it!!!\n", owner->GetAppName().c_str());
 
     const auto allConfigsName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(_allConfigsHeader);
     content.AppendFormat("#ifndef __CONFIG_%s_H__\n", allConfigsName.toupper().c_str());
@@ -2881,8 +2880,10 @@ void XlsxExporterMgr::_ExportCppRegisterConfigs(const KERNEL_NS::LibString &lang
     const auto rootPath = _targetDir + "/" + lang + "/";
      g_Log->Custom("start export %s file to dir:%s...", _registerAllConfigs.c_str(), rootPath.c_str());
 
+    auto owner = GetOwner()->CastTo<ConfigExporterApp>();
+
     KERNEL_NS::LibString content;
-    content.AppendFormat("// Generate by %s, Dont modify it!!!\n", GetApp()->GetAppName().c_str());
+    content.AppendFormat("// Generate by %s, Dont modify it!!!\n", owner->GetAppName().c_str());
 
     const auto registerConfigsName = KERNEL_NS::FileUtil::ExtractFileWithoutExtension(_registerAllConfigs);
     content.AppendFormat("\n");
@@ -2957,8 +2958,6 @@ bool XlsxExporterMgr::_UpdateMetas()
 
 void XlsxExporterMgr::_Clear()
 {
-    _UnRegisterEvents();
-
     _ownTypeRefLangTypes.clear();
     KERNEL_NS::ContainerUtil::DelContainer(_metaNameRefConfigMetaInfo, [](XlsxConfigMetaInfo *ptr){
         XlsxConfigMetaInfo::Delete_XlsxConfigMetaInfo(ptr);
@@ -2978,22 +2977,3 @@ void XlsxExporterMgr::_Clear()
     });
 }
 
-void XlsxExporterMgr::_RegisterEvents()
-{
-    if(_closeServiceStub == INVALID_LISTENER_STUB)
-        _closeServiceStub = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &XlsxExporterMgr::_CloseServiceEvent);
-}
-
-void XlsxExporterMgr::_UnRegisterEvents()
-{
-    if(_closeServiceStub != INVALID_LISTENER_STUB)
-        GetEventMgr()->RemoveListenerX(_closeServiceStub);
-}
-
-void XlsxExporterMgr::_CloseServiceEvent(KERNEL_NS::LibEvent *ev)
-{
-    GetService()->MaskServiceModuleQuitFlag(this);
-}
-
-
-SERVICE_END
