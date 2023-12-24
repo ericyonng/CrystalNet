@@ -41,6 +41,16 @@
     ```
 
     TencentOs需要修改include/main.sh脚本识别系统，grep /etc/*-release || grep 'TecentOS'
+    
+    ```
+        elif grep -Eq "TencentOS" /etc/*-release; then
+            DISTRO='TencentOS'
+            PM='yum'
+        else
+    
+    ```
+    
+    
 
 * 下载8.0rpm包
 
