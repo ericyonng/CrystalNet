@@ -183,6 +183,8 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
     _sessionIdRefLoginPendingInfo.insert(std::make_pair(sessionId, pending.AsSelf()));
     pending->_timer->SetTimeOutHandler([this, sessionId](KERNEL_NS::LibTimer *t)
     {
+        g_Log->Warn(LOGFMT_OBJ_TAG("session heartbeat timeout will close session sessionId:%llu"), sessionId);
+        
         auto iter = _sessionIdRefLoginPendingInfo.find(sessionId);
         auto pending = iter->second;
         _sessionIdRefLoginPendingInfo.erase(iter);

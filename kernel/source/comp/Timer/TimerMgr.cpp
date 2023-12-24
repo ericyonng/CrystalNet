@@ -117,7 +117,7 @@ Int64 TimerMgr::Drive()
                 timeData->_owner->OnTimeOut();
                 ++handled;
 
-                if(LIKELY(timeData->_owner))
+                if(LIKELY(timeData->_owner && timeData->_isScheduing))
                 {
                     // 重新被调度
                     if(timeData->_asynData && (!BitUtil::IsSet(timeData->_asynData->_flag, AsynOpType::OP_REGISTER)))

@@ -210,6 +210,7 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
         return;
 
     _enableStartLink = false;
+    g_Log->Info(LOGFMT_OBJ_TAG("session reach enough test session count:%d, limit:%d"), static_cast<Int32>(_sessionIdRefAnalyzeInfo.size()), _testSessionCount);
 
     // 下一帧开始测试
     auto nextFrame = [this](KERNEL_NS::LibTimer *t)
@@ -320,6 +321,7 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
         return;
 
     _enableStartLink = true;
+    g_Log->Info(LOGFMT_OBJ_TAG("common ready start test."));
 
     // 一直连接直到连接数足够
     auto linkTimerOut = [this](KERNEL_NS::LibTimer *t) mutable -> void 

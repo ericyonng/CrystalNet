@@ -373,6 +373,7 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
 
     if(_unhandledListenAddr.empty() && _unhandledContectAddr.empty())
     {
+        g_Log->Info(LOGFMT_OBJ_TAG("detect link ready."));
         timer->Cancel();
 
         auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_COMMON_SESSION_READY);
