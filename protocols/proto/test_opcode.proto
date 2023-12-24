@@ -2,21 +2,21 @@ syntax = "proto3";
 package CRYSTAL_NET.service;
 
 // bytes 数据结构转json的时候会转成base64编码
-/// Opcode:
+/// Opcode:,NoLog:true
 message TestOpcodeReq
 {
     string content = 1;
     sint64 TestId = 2;
 }
 
-/// Opcode:
+/// Opcode:,NoLog:true
 message TestOpcodeRes
 {
     string content = 1;
     sint64 TestId = 2;
 }
 
-/// Opcode:
+/// Opcode:,NoLog:true
 message TestOpcode2Req
 {
     optional sint32 id = 1;
@@ -29,7 +29,7 @@ message TestOpcodeInfo
     optional string errMsg = 2;
 }
 
-/// Opcode:
+/// Opcode:,NoLog:true
 message TestOpcode2Res
 {
 	optional int32 id_info = 1;

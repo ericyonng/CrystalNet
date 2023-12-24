@@ -1510,7 +1510,7 @@ export namespace crystal_net_service
 
 
     }
-    /// Opcode:
+    /// Opcode:,NoLog:true
     // test_opcode.proto
     export class TestOpcode2Req {
         id:number = 0;
@@ -1519,7 +1519,7 @@ export namespace crystal_net_service
 
 
     }
-    /// Opcode:
+    /// Opcode:,NoLog:true
     // test_opcode.proto
     export class TestOpcode2Res {
         id_info:number = 0;
@@ -1537,7 +1537,7 @@ export namespace crystal_net_service
 
     }
     // bytes 数据结构转json的时候会转成base64编码
-    /// Opcode:
+    /// Opcode:,NoLog:true
     // test_opcode.proto
     export class TestOpcodeReq {
         content:string = "";
@@ -1546,7 +1546,7 @@ export namespace crystal_net_service
 
 
     }
-    /// Opcode:
+    /// Opcode:,NoLog:true
     // test_opcode.proto
     export class TestOpcodeRes {
         content:string = "";

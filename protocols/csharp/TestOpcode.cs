@@ -52,7 +52,7 @@ using ProtoPackage.Attributes;
   #region Messages
   /// <summary>
   /// bytes 数据结构转json的时候会转成base64编码
-  //// Opcode:
+  //// Opcode:,NoLog:true
   /// </summary>
 [ProtoMessage(3)]
   public sealed partial class TestOpcodeReq : pb::IMessage<TestOpcodeReq>
@@ -282,7 +282,7 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  //// Opcode:
+  //// Opcode:,NoLog:true
   /// </summary>
 [ProtoMessage(4)]
   public sealed partial class TestOpcodeRes : pb::IMessage<TestOpcodeRes>
@@ -512,7 +512,7 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  //// Opcode:
+  //// Opcode:,NoLog:true
   /// </summary>
 [ProtoMessage(5)]
   public sealed partial class TestOpcode2Req : pb::IMessage<TestOpcode2Req>
@@ -1022,7 +1022,7 @@ using ProtoPackage.Attributes;
   }
 
   /// <summary>
-  //// Opcode:
+  //// Opcode:,NoLog:true
   /// </summary>
 [ProtoMessage(6)]
   public sealed partial class TestOpcode2Res : pb::IMessage<TestOpcode2Res>

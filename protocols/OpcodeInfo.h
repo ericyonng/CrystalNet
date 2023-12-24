@@ -53,7 +53,7 @@
     {// TestOpcodeReq
         auto info = OpcodeInfo();
         info._opcode = 3;
-        info._noLog = false;
+        info._noLog = true;
         info._enableStorage = false;
         info._opcodeName = "TestOpcodeReq";
         info._protoFile = "test_opcode.proto";
@@ -64,7 +64,7 @@
     {// TestOpcodeRes
         auto info = OpcodeInfo();
         info._opcode = 4;
-        info._noLog = false;
+        info._noLog = true;
         info._enableStorage = false;
         info._opcodeName = "TestOpcodeRes";
         info._protoFile = "test_opcode.proto";
@@ -75,7 +75,7 @@
     {// TestOpcode2Req
         auto info = OpcodeInfo();
         info._opcode = 5;
-        info._noLog = false;
+        info._noLog = true;
         info._enableStorage = false;
         info._opcodeName = "TestOpcode2Req";
         info._protoFile = "test_opcode.proto";
@@ -86,7 +86,7 @@
     {// TestOpcode2Res
         auto info = OpcodeInfo();
         info._opcode = 6;
-        info._noLog = false;
+        info._noLog = true;
         info._enableStorage = false;
         info._opcodeName = "TestOpcode2Res";
         info._protoFile = "test_opcode.proto";

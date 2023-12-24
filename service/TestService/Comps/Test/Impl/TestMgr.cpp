@@ -224,7 +224,6 @@ void TestMgr::_OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet)
         return;
 
     auto req = packet->GetCoder<TestOpcodeReq>();
-    g_Log->Custom("req:%s", req->DebugString().c_str());
 
     TestOpcodeRes res;
     res.set_content(req->content());
@@ -260,8 +259,8 @@ void TestMgr::_OnTestOpcodeRes(KERNEL_NS::LibPacket *&packet)
     GetApp()->PushResponceNs(costNs);
 
     auto res = packet->GetCoder<TestOpcodeRes>();
-    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Custom))
-        g_Log->Custom("packet id:%lld, TestOpcodeRes res size:%d cost %llu (ns).", packet->GetPacketId(), static_cast<Int32>(res->ByteSizeLong()), costNs);
+    // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Custom))
+    //     g_Log->Custom("packet id:%lld, TestOpcodeRes res size:%d cost %llu (ns).", packet->GetPacketId(), static_cast<Int32>(res->ByteSizeLong()), costNs);
 
     // 始终使用同一个packetId
     if(_testSendMode == 1)
