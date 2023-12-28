@@ -33,108 +33,102 @@
 
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Lock/Impl/SpinLock.h>
-
-#include <atomic>
-#include <list>
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
 
 KERNEL_BEGIN
 
-struct MessageBlock;
-class ConditionLocker;
-
 // 生产者持有,消费者只引用
-class KERNEL_EXPORT MessageQueue
+template<typename Elem, typename BuildType = _Build::MT, typename LockType = SpinLock>
+class MessageQueue
 {
-    POOL_CREATE_OBJ_DEFAULT(MessageQueue);
+    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(MessageQueue, Elem, BuildType, LockType);
 
 public:
     MessageQueue();
     virtual ~MessageQueue();
 
 public:
-    Int32 Start();
+    void Clear();
+    template<typename DeleElemMethod>
+    void Clear(DeleElemMethod &&cb)
+    {
+        ContainerUtil::DelContainer(*_queue, std::forward<DeleElemMethod>(cb));
+    }
 
-    void OnekeyClose();
-    bool HalfClose();
-    void FinishClose();
-    bool IsWorking() const;
-
-public:
-    void Attach(ConditionLocker *consumer);
-    bool Push(std::list<MessageBlock *> *&swapList);
-    bool Push(MessageBlock *msg);
-    Int32 TimeWait(std::list<MessageBlock *> *&swapList, UInt64 timeoutMs);
-    Int32 Wait(std::list<MessageBlock *> *&swapList);
-    void PopImmediately(std::list<MessageBlock *> *&swapList);
-    void Sinal();
-    bool HasMsg();
-    UInt64 GetMsgCount();
+    void PushBack(Elem e);
+    void MergeTail(LibList<Elem, BuildType> *elems);
+    void SwapQueue(LibList<Elem, BuildType> *&elems);
+    UInt64 GetAmount() const;
 
 private:
-    void _PopImmediately(std::list<MessageBlock *> *&swapList);
-    
-private:
-    std::atomic_bool _isAttach = {false};
-    ConditionLocker *_consumer = NULL;
-    SpinLock _lck;
-    std::atomic_bool _hasMsg = {false};
-    std::list<MessageBlock *> *_msgQueue = CRYSTAL_NEW(std::list<MessageBlock *>);
-
-    /* 系统参数 */
-    std::atomic_bool _isWorking = {false};
-    std::atomic_bool _isStart = {false};
+    LockType _lck;
+    LibList<Elem, BuildType> *_queue;
 };
 
-ALWAYS_INLINE bool MessageQueue::IsWorking() const
+template<typename Elem, typename BuildType, typename LockType>
+POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(MessageQueue, Elem, BuildType, LockType);
+
+template<typename Elem, typename BuildType, typename LockType>
+POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(MessageQueue, Elem, BuildType, LockType);
+
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE MessageQueue<Elem, BuildType, LockType>::MessageQueue()
+:_queue(LibList<Elem, BuildType>::NewByAdapter_LibList(BuildType::V))
 {
-    return _isWorking.load();
+
 }
 
-ALWAYS_INLINE bool MessageQueue::Push(MessageBlock *msg)
-{
-    if(UNLIKELY(!_isWorking))
-        return false;
-
-    _lck.Lock();
-    _hasMsg = true;
-    _msgQueue->push_back(msg);
-    _lck.Unlock();
-
-    Sinal();
-
-    return true;
-}
-
-ALWAYS_INLINE void MessageQueue::PopImmediately(std::list<MessageBlock *> *&swapList)
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE MessageQueue<Elem, BuildType, LockType>::~MessageQueue()
 {
     _lck.Lock();
-    _PopImmediately(swapList);
+    if(LIKELY(_queue))
+    {
+        LibList<Elem, BuildType>::DeleteByAdapter_LibList(BuildType::V, _queue);
+        _queue = NULL;
+    }
     _lck.Unlock();
 }
 
-ALWAYS_INLINE bool MessageQueue::HasMsg()
-{
-    return _hasMsg.load();
-}
-
-ALWAYS_INLINE UInt64 MessageQueue::GetMsgCount()
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::Clear()
 {
     _lck.Lock();
-    auto count = _msgQueue->size();
+    _queue->Clear();
     _lck.Unlock();
-
-    return count;
 }
 
-ALWAYS_INLINE void MessageQueue::_PopImmediately(std::list<MessageBlock *> *&swapList)
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::PushBack(Elem e)
 {
-    if(!_hasMsg.exchange(false))
-        return;
+    _lck.Lock();
+    _queue->PushBack(e);
+    _lck.Unlock();
+}
 
-    std::list<MessageBlock *> *temp = NULL;
-    temp = swapList;
-    swapList = _msgQueue;
-    _msgQueue = temp;
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::MergeTail(LibList<Elem, BuildType> *elems)
+{
+    _lck.Lock();
+    _queue->MergeTail(elems);
+    _lck.Unlock();
+}
+
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::SwapQueue(LibList<Elem, BuildType> *&elems)
+{
+    _lck.Lock();
+    auto temp = _queue;
+    _queue = elems;
+    elems = temp;
+    _lck.Unlock();
+}
+
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE UInt64 MessageQueue<Elem, BuildType, LockType>::GetAmount() const
+{
+    return _queue->GetAmount();
 }
 
 KERNEL_END

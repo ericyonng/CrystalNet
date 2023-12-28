@@ -41,7 +41,6 @@
 KERNEL_BEGIN
 
 class IMsgDispatcher;
-class MessageQueue;
 class LibTimer;
 class IProtocolStack;
 
