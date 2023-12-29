@@ -1755,7 +1755,6 @@ void IocpTcpPoller::_OnMonitorThread(LibThread *t)
         Int32 ret = _iocp->WaitForCompletion(io, errCode);
         if(ret == Status::Ignore)
         {
-            g_Log->NetDebug(LOGFMT_OBJ_TAG("ignore iocpcompletion"));
             continue;
         }
 

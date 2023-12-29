@@ -53,11 +53,28 @@ public:
     template<typename DeleElemMethod>
     void Clear(DeleElemMethod &&cb)
     {
+        _lck.Lock();
         ContainerUtil::DelContainer(*_queue, std::forward<DeleElemMethod>(cb));
+        _lck.Unlock();
     }
 
     void PushBack(Elem e);
     void MergeTail(LibList<Elem, BuildType> *elems);
+    bool PopFront(Elem &e);
+    template<typename T>
+    bool PopFront(T &e)
+    {
+        if(UNLIKELY(_queue->IsEmpty()))
+            return false;
+        
+        _lck.Lock();
+        e = T(_queue->Begin()->_data);
+        _queue->PopFront();
+        _lck.Unlock();
+
+        return true;
+    }
+
     void SwapQueue(LibList<Elem, BuildType> *&elems);
     UInt64 GetAmount() const;
 
@@ -114,6 +131,21 @@ ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::MergeTail(LibList<El
     _queue->MergeTail(elems);
     _lck.Unlock();
 }
+
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE bool MessageQueue<Elem, BuildType, LockType>::PopFront(Elem &e)
+{
+    if(UNLIKELY(_queue->IsEmpty()))
+        return false;
+    
+    _lck.Lock();
+    e = _queue->Begin()->_data;
+    _queue->PopFront();
+    _lck.Unlock();
+
+    return true;
+}
+
 
 template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::SwapQueue(LibList<Elem, BuildType> *&elems)

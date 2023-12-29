@@ -32,15 +32,17 @@
 #include <pch.h>
 #include <testsuit/testinst/TestMessageQueue.h>
 
-#define TEST_MQ_MAX_CHANNEL 4
+#define TEST_MQ_MAX_CHANNEL 1
 #define TEST_MQ_CONSUMER_COUNT 1
 
-static std::atomic<UInt64> g_curMsgCount{0};
+static std::atomic<UInt64> g_curMsgConsume{0};
 static std::atomic<UInt64> g_genTotalMsgCount{ 0 };
 static std::atomic<UInt64> g_curGenTotalMsgCount{ 0 };
 static std::atomic<UInt64> g_consumerTotalMsgCount{ 0 };
 
-class TestMqBlock : public KERNEL_NS::PollerEvent
+static KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *> *g_Queue = NULL;
+
+struct TestMqBlock : public KERNEL_NS::PollerEvent
 {
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, TestMqBlock);
 
@@ -50,217 +52,304 @@ public:
 
     virtual void Release()
     {
-        // CRYSTAL_DELETE(this);
         TestMqBlock::Delete_TestMqBlock(this);
     }
 
 public:
-    KERNEL_NS::LibString _data;
-
+    BUFFER128 _buffer = {0};
 };
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestMqBlock);
 
-class TestMq
+// mid:4247kqps, average:4246kqps
+static void Generator(KERNEL_NS::LibThread *t)
 {
-public:
-    TestMq(UInt64 id)
+    while (!t->IsDestroy())
     {
-        _id = id;
-        _queue = KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *>::New_MessageQueue();
+        auto newEv = TestMqBlock::New_TestMqBlock();
+        ++g_genTotalMsgCount;
+        ++g_curGenTotalMsgCount;
+        g_Queue->PushBack(newEv);
     }
+}
 
-    void Run(KERNEL_NS::LibThread *pool)
-    {
-        KERNEL_NS::LibTime lastTime = KERNEL_NS::LibTime::Now();
-
-        g_Log->Info(LOGFMT_OBJ_TAG("start mq id[%llu], thread state[%s] "), _id, pool->ToString().c_str());
-        
-        // std::vector<Int64> *pushcost = new std::vector<Int64>;
-        // std::vector<Int64> *sinalcost = new std::vector<Int64>;
-        while (!pool->IsDestroy())
-        {
-            auto newBlock = TestMqBlock::New_TestMqBlock();
-            // newBlock->_data.AppendFormat("hello test mq thread id[%llu] id[%llu]"
-            // , threadId, _id);
-
-            ++g_genTotalMsgCount;
-            ++g_curGenTotalMsgCount;
-
-            // lastTime1 = KERNEL_NS::TimeUtil::GetMicroTimestamp();
-            _queue->PushBack(newBlock);
-            // lastTime2 = KERNEL_NS::TimeUtil::GetMicroTimestamp();
-
-            // 性能消耗大, 每1min导致延迟11秒左右 若没有sinal可提示一倍的性能
-            // lastTime3 = KERNEL_NS::TimeUtil::GetMicroTimestamp();
-
-            // pushcost->push_back(lastTime2-lastTime1);
-            // sinalcost->push_back(lastTime3-lastTime2);
-        }
-
-        // std::sort(pushcost->begin(), pushcost->end(), [](Int64 l, Int64 r) ->bool 
-        // {
-        //     return l < r;
-        // });
-        // std::sort(sinalcost->begin(), sinalcost->end(), [](Int64 l, Int64 r) ->bool 
-        // {
-        //     return l < r;
-        // });
-
-        // {
-        //     Int64 count = static_cast<Int64>(pushcost->size());
-        //     Int64 total = 0;
-        //     for(auto v:*pushcost)
-        //         total += v;
-        //     Int64 average = total/count;
-        //     Int64 mid = static_cast<Int64>(pushcost->at(count/2));
-        //     g_Log->Info(LOGFMT_OBJ_TAG("push op count[%lld] total[%lld] average[%lld] mic sec, mid[%lld] mic sec"), count, total, average, mid);
-        // }
-
-        // {
-        //     Int64 count = static_cast<Int64>(sinalcost->size());
-        //     Int64 total = 0;
-        //     for(auto v:*sinalcost)
-        //         total += v;
-        //     Int64 average= total/ count;
-        //     Int64 mid = static_cast<Int64>(sinalcost->at(count/2));
-        //     g_Log->Info(LOGFMT_OBJ_TAG("sinalcost op count[%lld] total[%lld] average[%lld] mic sec, mid[%lld] mic sec"), count, total, average, mid);
-        // }
-
-
-        // 唤醒继续消费
-        // if(_queue->HasMsg())
-        //     _queue->Sinal();
-        g_Log->Info(LOGFMT_OBJ_TAG("thread quit id[%llu]"), _id);
-    }
-
-    KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *> *GetQueue()
-    {
-        return _queue.AsSelf();
-    }
-
-private:
-    UInt64 _id;
-    KERNEL_NS::SmartPtr<KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *>> _queue;
-};
-
-
-class TestConsumer
+// mid:3745kqps, average:3759kqps
+static void Consumer(KERNEL_NS::LibThread *t)
 {
-public:
-    TestConsumer(UInt64 id)
+    TestMqBlock *newEv = NULL;
+    while (!t->IsDestroy())
     {
-        _id = id;
-    }
-
-    void Attach(KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *> *queue, UInt64 genId)
-    {
-        _queue.push_back(queue);
-        _swapMsgList.resize(_queue.size());
-        _attachGenIds.push_back(genId);
-    }
-    
-    void Run(KERNEL_NS::LibThread *pool)
-    {
-        const UInt64 queueSize = static_cast<UInt64>(_queue.size());
-        for (UInt64 idx = 0; idx < queueSize; ++idx)
+        newEv = NULL;
+        if(g_Queue->PopFront(newEv))
         {
-            _swapMsgList[idx] = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *>::New_LibList();
+            newEv->Release();
+            ++g_curMsgConsume;
+            ++g_consumerTotalMsgCount;
+        }
+    }
+}
+
+// mid:3840kqps, average:3837kqps
+static void Generator2(KERNEL_NS::LibThread *t)
+{
+    // 定时管理
+    KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
+    timerMgr.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<KERNEL_NS::TimerMgr *>(p);
+        KERNEL_NS::TimerMgr::Delete_TimerMgr(ptr);
+    });
+    timerMgr->Launch(NULL);
+
+    // 内存定时清理
+    KERNEL_NS::SmartPtr<KERNEL_NS::TlsMemoryCleanerComp, KERNEL_NS::AutoDelMethods::CustomDelete> memoryCleaner = KERNEL_NS::TlsMemoryCleanerCompFactory::StaticCreate()->CastTo<KERNEL_NS::TlsMemoryCleanerComp>();
+    memoryCleaner.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<KERNEL_NS::TlsMemoryCleanerComp *>(p);
+        ptr->Release();
+    });
+
+    // 设置
+    memoryCleaner->SetTimerMgr(timerMgr.AsSelf());
+
+    // 启动内存清理
+    do
+    {
+        auto err = memoryCleaner->Init();
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("memory cleaner init fail err:%d", err);
+            break;
         }
 
-        g_Log->Info(LOGFMT_OBJ_TAG("start TestConsumer id[%llu], thread state[%s] "), _id, pool->ToString().c_str());
-        KERNEL_NS::LibTime lastTime = KERNEL_NS::LibTime::Now();
-        while ( !pool->IsDestroy())
+        err = memoryCleaner->Start();
+        if(err != Status::Success)
         {
-            _lck.Lock();
-            _lck.Wait();
-            _lck.Unlock();
-
-            for (UInt64 idx = 0; idx < queueSize; ++idx)
-            {
-                auto queue = _queue[idx];
-                if (queue->GetAmount() == 0)
-                    continue;
-
-                auto &swapMsgList = _swapMsgList[idx];
-                queue->SwapQueue(swapMsgList);
-                for (auto iterList = swapMsgList->Begin(); iterList;)
-                {
-                    auto msg = iterList->_data->CastTo<TestMqBlock>();
-                    ++g_curMsgCount;
-                    ++g_consumerTotalMsgCount;
-                    msg->Release();
-                    iterList = swapMsgList->Erase(iterList);
-                }
-            }
+            CRYSTAL_TRACE("memory cleaner start fail err:%d", err);
+            break;
         }
+    } while (false);
 
-        UInt64 leftMsg = 0;
-        for (auto &swapMsg : _swapMsgList)
-            leftMsg += swapMsg->GetAmount();
-
-        for(auto &queue:_queue)
-            leftMsg += queue->GetAmount();
-        
-        KERNEL_NS::LibString genString = "attach genids:";
-        for (auto genId : _attachGenIds)
-            genString.AppendFormat("%llu,", genId);
-        
-        g_Log->Info(LOGFMT_OBJ_TAG("%s swapListCount[%llu] left msg count[%llu], consumer id[%llu]")
-            , genString.c_str(), static_cast<UInt64>(_swapMsgList.size()), leftMsg, _id);
-
-        for (auto &swapMsg : _swapMsgList)
-        {
-            KERNEL_NS::ContainerUtil::DelContainer(*swapMsg, [](KERNEL_NS::PollerEvent *p){
-                p->Release();
-            });
-
-            KERNEL_NS::LibList<KERNEL_NS::PollerEvent *>::Delete_LibList(swapMsg);
-        }
-        _swapMsgList.clear();
-    }
-
-    KERNEL_NS::ConditionLocker *GetLck()
+    while (!t->IsDestroy())
     {
-        return &_lck;
+        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
+        ++g_genTotalMsgCount;
+        ++g_curGenTotalMsgCount;
+        g_Queue->PushBack(newEv);
+
+        timerMgr->Drive();
     }
 
-private:
-    KERNEL_NS::ConditionLocker _lck;
-    UInt64 _id;
-    std::vector<KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *> *> _queue;
-    std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *> _swapMsgList;
-    std::vector<UInt64> _attachGenIds;
-};
+    // 关闭
+    memoryCleaner->WillClose();
+    memoryCleaner->Close();
+}
+
+// mid:3661kqps, average:3655kqps
+static void Consumer2(KERNEL_NS::LibThread *t)
+{
+    TestMqBlock *newEv = NULL;
+    while (!t->IsDestroy())
+    {
+        newEv = NULL;
+        if(g_Queue->PopFront(newEv))
+        {
+            newEv->Release();
+            ++g_curMsgConsume;
+            ++g_consumerTotalMsgCount;
+        }
+    }
+}
+
+
+// mid:3602kqps, average:3603kqps
+static void Generator3(KERNEL_NS::LibThread *t)
+{
+    while (!t->IsDestroy())
+    {
+        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
+        ++g_genTotalMsgCount;
+        ++g_curGenTotalMsgCount;
+        g_Queue->PushBack(newEv);
+    }
+}
+
+// mid:3432kqps, average:3426kqps
+static void Consumer3(KERNEL_NS::LibThread *t)
+{
+    TestMqBlock *newEv = NULL;
+    while (!t->IsDestroy())
+    {
+        newEv = NULL;
+        if(g_Queue->PopFront(newEv))
+        {
+            newEv->Release();
+            ++g_curMsgConsume;
+            ++g_consumerTotalMsgCount;
+        }
+    }
+}
+
+
+// mid:5358kqps, average:5364kqps
+static void Generator4(KERNEL_NS::LibThread *t)
+{
+    while (!t->IsDestroy())
+    {
+        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
+        ++g_genTotalMsgCount;
+        ++g_curGenTotalMsgCount;
+        g_Queue->PushBack(newEv);
+    }
+}
+
+// mid:4654kqps, average:4633kqps
+static void Consumer4(KERNEL_NS::LibThread *t)
+{
+    KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *lis = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList();
+    TestMqBlock *newEv = NULL;
+    while (!t->IsDestroy())
+    {
+        newEv = NULL;
+        g_Queue->SwapQueue(lis);
+        for(auto iter = lis->Begin(); iter;)
+        {
+            auto data = iter->_data;
+            data->Release();
+            iter = lis->Erase(iter);
+            ++g_curMsgConsume;
+            ++g_consumerTotalMsgCount;
+        }
+    }
+}
+
+/// 最优解
+// mid:5278kqps, average:5296kqps
+static void Generator5(KERNEL_NS::LibThread *t)
+{
+    // 定时管理
+    KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
+    timerMgr.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<KERNEL_NS::TimerMgr *>(p);
+        KERNEL_NS::TimerMgr::Delete_TimerMgr(ptr);
+    });
+    timerMgr->Launch(NULL);
+
+    // 内存定时清理
+    KERNEL_NS::SmartPtr<KERNEL_NS::TlsMemoryCleanerComp, KERNEL_NS::AutoDelMethods::CustomDelete> memoryCleaner = KERNEL_NS::TlsMemoryCleanerCompFactory::StaticCreate()->CastTo<KERNEL_NS::TlsMemoryCleanerComp>();
+    memoryCleaner.SetClosureDelegate([](void *p){
+        auto ptr = reinterpret_cast<KERNEL_NS::TlsMemoryCleanerComp *>(p);
+        ptr->Release();
+    });
+
+    // 设置
+    memoryCleaner->SetTimerMgr(timerMgr.AsSelf());
+
+    // 启动内存清理
+    do
+    {
+        auto err = memoryCleaner->Init();
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("memory cleaner init fail err:%d", err);
+            break;
+        }
+
+        err = memoryCleaner->Start();
+        if(err != Status::Success)
+        {
+            CRYSTAL_TRACE("memory cleaner start fail err:%d", err);
+            break;
+        }
+    } while (false);
+
+    while (!t->IsDestroy())
+    {
+        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
+        ++g_genTotalMsgCount;
+        ++g_curGenTotalMsgCount;
+        g_Queue->PushBack(newEv);
+
+        timerMgr->Drive();
+    }
+
+    memoryCleaner->WillClose();
+    memoryCleaner->Close();
+}
+
+/// 最优解
+// mid:4804kqps, average:4796kqps
+static void Consumer5(KERNEL_NS::LibThread *t)
+{
+    KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *lis = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList();
+    TestMqBlock *newEv = NULL;
+    while (!t->IsDestroy())
+    {
+        newEv = NULL;
+        g_Queue->SwapQueue(lis);
+        for(auto iter = lis->Begin(); iter;)
+        {
+            auto data = iter->_data;
+            data->Release();
+            iter = lis->Erase(iter);
+            ++g_curMsgConsume;
+            ++g_consumerTotalMsgCount;
+        }
+    }
+}
+
+
+// mid:4204kqps, average:4213kqps
+static void Generator6(KERNEL_NS::LibThread *t)
+{
+    while (!t->IsDestroy())
+    {
+        auto newEv = TestMqBlock::New_TestMqBlock();
+        ++g_genTotalMsgCount;
+        ++g_curGenTotalMsgCount;
+        g_Queue->PushBack(newEv);
+    }
+}
+
+// mid:4204kqps, average:4213kqps
+static void Consumer6(KERNEL_NS::LibThread *t)
+{
+    KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *lis = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList();
+    TestMqBlock *newEv = NULL;
+    while (!t->IsDestroy())
+    {
+        newEv = NULL;
+        g_Queue->SwapQueue(lis);
+        for(auto iter = lis->Begin(); iter;)
+        {
+            auto data = iter->_data;
+            data->Release();
+            iter = lis->Erase(iter);
+            ++g_curMsgConsume;
+            ++g_consumerTotalMsgCount;
+        }
+    }
+}
 
 void TestMessageQueue::Run() 
 {
+    g_Queue = KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *>::New_MessageQueue();
+
     // 初始化
     std::vector<KERNEL_NS::LibThread *> consumerThreads;
     consumerThreads.resize(TEST_MQ_CONSUMER_COUNT);
     std::vector<KERNEL_NS::LibThread *> genThreads;
     genThreads.resize(TEST_MQ_MAX_CHANNEL);
 
-    std::vector<TestConsumer *> vecConsumer;
-    vecConsumer.resize(TEST_MQ_CONSUMER_COUNT);
     for (auto idx = 0; idx < TEST_MQ_CONSUMER_COUNT; ++idx)
     {
-        vecConsumer[idx] = new TestConsumer(idx);
         consumerThreads[idx] = new KERNEL_NS::LibThread;
-        consumerThreads[idx]->AddTask(vecConsumer[idx], &TestConsumer::Run);
+        consumerThreads[idx]->AddTask(&Consumer6);
     }
 
-    std::vector<TestMq *> vecMq;
-    vecMq.resize(TEST_MQ_MAX_CHANNEL);
     for(UInt64 idx = 0; idx < TEST_MQ_MAX_CHANNEL; ++idx)
     {
-        UInt64 consumerId = idx % TEST_MQ_CONSUMER_COUNT;
-
-        vecMq[idx] = new TestMq(idx);
-        // 消费者绑定消息队列
-        vecConsumer[consumerId]->Attach(vecMq[idx]->GetQueue(), idx);
         // 消息队列绑定消费者
         genThreads[idx] = new KERNEL_NS::LibThread;
-        genThreads[idx]->AddTask(vecMq[idx], &TestMq::Run);
+        genThreads[idx]->AddTask(&Generator6);
     }
 
     for(auto &t:consumerThreads)
@@ -277,7 +366,7 @@ void TestMessageQueue::Run()
     while (seconds > 0)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        UInt64 curCount = g_curMsgCount.exchange(0);
+        UInt64 curCount = g_curMsgConsume.exchange(0);
         UInt64 curGen = g_curGenTotalMsgCount.exchange(0);
         msgCountsPerSecond->push_back(curCount);
         genMsgCountsPerSecond->push_back(curGen);
@@ -296,11 +385,6 @@ void TestMessageQueue::Run()
     for(auto &t:consumerThreads)
         t->HalfClose();
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "after consumer threads half close."));
-    for (auto &consumer : vecConsumer)
-        consumer->GetLck()->Broadcast();
-
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "after consumer threads Broadcast."));
     for(auto &t:consumerThreads)
         t->FinishClose();
 
@@ -347,10 +431,13 @@ void TestMessageQueue::Run()
         genAvarage/=genCount;
     }
 
-    KERNEL_NS::ContainerUtil::DelContainer(vecMq);
-    KERNEL_NS::ContainerUtil::DelContainer(vecConsumer);
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "consumer quit consumerMid pps[%llu]/s, consumerAvarage pps[%llu]/s, "
     "genMid pps[%llu]/s, genAvarage pps[%llu]/s g_consumerTotalMsgCount[%llu] g_genTotalMsgCount[%llu]")
         , consumerMid, consumerAvarage, genMid, genAvarage, g_consumerTotalMsgCount.load(), g_genTotalMsgCount.load());
 
+    KERNEL_NS::ContainerUtil::DelContainer(genThreads);
+    KERNEL_NS::ContainerUtil::DelContainer(consumerThreads);
+    KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *>::Delete_MessageQueue(g_Queue);
+    g_Queue = NULL;
+    getchar();
 }
