@@ -342,14 +342,14 @@ void TestMessageQueue::Run()
     for (auto idx = 0; idx < TEST_MQ_CONSUMER_COUNT; ++idx)
     {
         consumerThreads[idx] = new KERNEL_NS::LibThread;
-        consumerThreads[idx]->AddTask(&Consumer6);
+        consumerThreads[idx]->AddTask(&Consumer5);
     }
 
     for(UInt64 idx = 0; idx < TEST_MQ_MAX_CHANNEL; ++idx)
     {
         // 消息队列绑定消费者
         genThreads[idx] = new KERNEL_NS::LibThread;
-        genThreads[idx]->AddTask(&Generator6);
+        genThreads[idx]->AddTask(&Generator5);
     }
 
     for(auto &t:consumerThreads)
