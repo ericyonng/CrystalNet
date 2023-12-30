@@ -295,7 +295,7 @@ static void Consumer5(KERNEL_NS::LibThreadPool *t)
 }
 
 
-// mid:4204kqps, average:4213kqps
+// >= 1000w qps
 static void Generator6(KERNEL_NS::LibThreadPool *t)
 {
  // 定时管理
@@ -386,6 +386,7 @@ static void Consumer6(KERNEL_NS::LibThreadPool *t)
     {
         newEv = NULL;
         swapCounterStart.Update();
+        // 在双核平台上由于冲突严重SwapQueue会达到100ns以上, 导致内存暴涨（消费速度<生产速度）
         g_Queue->SwapQueue(lis);
         g_swapTime += swapCounterEnd.Update().ElapseNanoseconds(swapCounterStart);
         ++g_swapTimeCount;
