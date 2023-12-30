@@ -346,7 +346,7 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
 
     while (!t->IsDestroy())
     {
-        startFrame.Update();
+        // startFrame.Update();
         // newCounterStart.Update();
         auto newEv = TestMqBlock::New_TestMqBlock();
         // g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
@@ -360,13 +360,13 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
 
         ++g_curGenCount;
 
-        startCounter.Update();
-        timerMgr->Drive();
-        g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
-        ++g_TimerDriveCount;
+        // startCounter.Update();
+        // timerMgr->Drive();
+        // g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
+        // ++g_TimerDriveCount;
 
-        g_FrameTime += endFrame.Update().ElapseNanoseconds(startFrame);
-        ++g_FrameCount;
+        // g_FrameTime += endFrame.Update().ElapseNanoseconds(startFrame);
+        // ++g_FrameCount;
     }
 
     memoryCleaner->WillClose();
@@ -424,7 +424,7 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *t)
         const UInt64 frameTotalCount = g_FrameCount;
         g_FrameTime -= frameTotalTime;
         g_FrameCount -= frameTotalCount;
-        const UInt64 frameTimeAverage = frameTotalTime/frameTotalCount;
+        const UInt64 frameTimeAverage = (frameTotalCount > 0) ? (frameTotalTime/frameTotalCount) : 0;
 
         const UInt64 allocTotalTime = g_MemoryAllocTime;
         const UInt64 allocTotalCount = g_MemoryAllocCount;
