@@ -40,6 +40,8 @@ static std::atomic<UInt64> g_curGenCount{ 0 };
 
 static std::atomic<UInt64> g_TimerDriveTime {0};
 static std::atomic<UInt64> g_TimerDriveCount {0};
+static std::atomic<UInt64> g_FrameTime {0};
+static std::atomic<UInt64> g_FrameCount {0};
 
 static KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *> *g_Queue = NULL;
 
@@ -323,9 +325,12 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
     } while (false);
 
     KERNEL_NS::LibCpuCounter startCounter;
+    KERNEL_NS::LibCpuCounter startFrame;
     KERNEL_NS::LibCpuCounter endCounter;
+    KERNEL_NS::LibCpuCounter endFrame;
     while (!t->IsDestroy())
     {
+        startFrame.Update();
         g_Queue->PushBack(TestMqBlock::New_TestMqBlock());
         ++g_curGenCount;
 
@@ -333,7 +338,10 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         timerMgr->Drive();
         endCounter.Update();
         ++g_TimerDriveCount;
-        g_TimerDriveTime += (startCounter - endCounter).GetTotalNanoseconds();
+        g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
+
+        g_FrameTime = endFrame.Update().ElapseNanoseconds(startFrame);
+        ++g_FrameCount;
     }
 
     memoryCleaner->WillClose();
@@ -378,10 +386,16 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *t)
         g_TimerDriveTime -= totalDriveTime;
         g_TimerDriveCount -= totalDriveCount;
         const UInt64 driveTimeAverage = totalDriveTime/totalDriveCount;
+        
+        const UInt64 frameTotalTime = g_FrameTime;
+        const UInt64 frameTotalCount = g_FrameCount;
+        g_FrameTime -= frameTotalTime;
+        g_FrameCount -= frameTotalCount;
+        const UInt64 frameTimeAverage = frameTotalTime/frameTotalCount;
 
         const Int64 backlogNum = static_cast<Int64>(g_Queue->GetAmount());
-        g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld], driveTimeAverage:%llu ns"
-        , genNum, comsumNum, backlogNum, driveTimeAverage);
+        g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld], driveTimeAverage:%llu ns, frameTimeAverage:%llu ns"
+        , genNum, comsumNum, backlogNum, driveTimeAverage, frameTimeAverage);
 
         if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO, false))
             memoryMonitorWork->Invoke();
