@@ -137,12 +137,31 @@
 //     delete t3;
 // }
 
+struct TestMqBlock2 : public KERNEL_NS::PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, TestMqBlock2);
+
+public:
+    TestMqBlock2():KERNEL_NS::PollerEvent(1){}
+    virtual ~TestMqBlock2(){}
+
+    virtual void Release()
+    {
+        TestMqBlock2::Delete_TestMqBlock2(this);
+    }
+
+public:
+    BUFFER128 _buffer = {0};
+};
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(TestMqBlock2);
+
 // 测试性能
 static std::atomic<Int64> g_genNum{0};
 static std::atomic<Int64> g_consumNum{0};
 static std::atomic<Int64> g_backLogNum{0};
 
-static KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::LibString *> *g_concurrentQueue = NULL;
+static KERNEL_NS::ConcurrentPriorityQueue<TestMqBlock2 *> *g_concurrentQueue = NULL;
 static const Int32 g_maxConcurrentLevel = 1;
 
 static void GenTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
@@ -152,7 +171,7 @@ static void GenTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
 
     while (!pool->IsDestroy())
     {
-        g_concurrentQueue->PushQueue(idx, &((new KERNEL_NS::LibString())->AppendFormat("hello idx:%d", idx)));
+        g_concurrentQueue->PushQueue(idx, TestMqBlock2::New_TestMqBlock2());
         ++g_genNum;
     }
 
@@ -198,9 +217,9 @@ static void ComsumerTask2(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *va
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "ComsumerTask"));
 
-    std::vector<KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT> *> cache;
+    std::vector<KERNEL_NS::LibList<TestMqBlock2 *, KERNEL_NS::_Build::MT> *> cache;
     for(Int32 idx = 0; idx <= g_maxConcurrentLevel; ++idx)
-        cache.push_back(KERNEL_NS::LibList<KERNEL_NS::LibString *, KERNEL_NS::_Build::MT>::New_LibList());
+        cache.push_back(KERNEL_NS::LibList<TestMqBlock2 *, KERNEL_NS::_Build::MT>::New_LibList());
 
     while (!pool->IsDestroy())
     {
@@ -214,10 +233,10 @@ static void ComsumerTask2(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *va
             for(auto node = list->Begin(); node;)
             {
                 auto data = node->_data;
-                ++g_consumNum;
-
-                CRYSTAL_DELETE(data);
+                data->Release();
                 node = list->Erase(node);
+
+                ++g_consumNum;
             }
         }
     }
@@ -265,9 +284,11 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
         const Int64 genNum = g_genNum;
         const Int64 comsumNum = g_consumNum;
-        const Int64 backlogNum = static_cast<Int64>(g_concurrentQueue->GetAmount());
         g_genNum -= genNum;
         g_consumNum -= comsumNum;
+
+        const Int64 backlogNum = static_cast<Int64>(g_concurrentQueue->GetAmount());
+
 
         g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
     }
@@ -278,7 +299,7 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
 void TestConcurrentPriorityQueue::Run()
 {
     KERNEL_NS::LibThreadPool *pool = new KERNEL_NS::LibThreadPool;
-    g_concurrentQueue = KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::LibString *>::New_ConcurrentPriorityQueue();
+    g_concurrentQueue = KERNEL_NS::ConcurrentPriorityQueue<TestMqBlock2 *>::New_ConcurrentPriorityQueue();
     g_concurrentQueue->SetMaxLevel(g_maxConcurrentLevel);
     g_concurrentQueue->Init();
 
@@ -305,7 +326,7 @@ void TestConcurrentPriorityQueue::Run()
         pool->FinishClose();
 
     g_concurrentQueue->Destroy();
-    KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::LibString *>::Delete_ConcurrentPriorityQueue(g_concurrentQueue);
+    KERNEL_NS::ConcurrentPriorityQueue<TestMqBlock2 *>::Delete_ConcurrentPriorityQueue(g_concurrentQueue);
 
     delete pool;
 }
