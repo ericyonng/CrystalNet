@@ -52,7 +52,7 @@ public:
 
     virtual void Release()
     {
-        TestMqBlock::DeleteThreadLocal_TestMqBlock(this);
+        TestMqBlock::Delete_TestMqBlock(this);
     }
 
 public:
@@ -367,8 +367,10 @@ void TestMessageQueue::Run()
     while (seconds > 0)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        UInt64 curCount = g_curMsgConsume.exchange(0);
-        UInt64 curGen = g_curGenTotalMsgCount.exchange(0);
+        const UInt64 curCount = g_curMsgConsume;
+        const UInt64 curGen = g_curGenTotalMsgCount;
+        g_curMsgConsume -= curCount;
+        g_curGenTotalMsgCount -= curGen;
         auto backlog = g_Queue->GetAmount();
 
         g_Log->Custom("gen :%llu ps, consume:%llu, backlog:%llu", curGen, curCount, backlog);
