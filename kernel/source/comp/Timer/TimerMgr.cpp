@@ -85,7 +85,7 @@ Int64 TimerMgr::Drive()
     Int64 handled = 0;
     _BeforeDrive();
 
-    if(LIKELY(!_expireQueue.empty()))
+    if(!_expireQueue.empty())
     {
         #ifdef ENABLE_PERFORMANCE_RECORD
             KERNEL_NS::TimeData *timerData = NULL;

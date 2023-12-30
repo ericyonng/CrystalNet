@@ -309,7 +309,10 @@ void Poller::EventLoop()
             mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
 
         // 处理事件
+        #if ENABLE_POLLER_PERFORMANCE
         UInt64 curConsumeEventsCount = 0;
+        #endif
+
         Int32 detectTimeoutLoopCount = _loopDetectTimeout;
 
         for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber != 0);)
@@ -330,7 +333,10 @@ void Poller::EventLoop()
                 --_eventAmountLeft;
                 --mergeNumber;
                 ++_consumEventCount;
+
+                #if ENABLE_POLLER_PERFORMANCE
                  ++curConsumeEventsCount;
+                #endif
             }
 
             listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
