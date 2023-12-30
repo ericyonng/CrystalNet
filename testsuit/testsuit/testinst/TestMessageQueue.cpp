@@ -64,7 +64,7 @@ public:
 
     virtual void Release()
     {
-        TestMqBlock::DeleteThreadLocal_TestMqBlock(this);
+        TestMqBlock::Delete_TestMqBlock(this);
     }
 
 public:
@@ -347,7 +347,7 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
     {
         startFrame.Update();
         newCounterStart.Update();
-        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
+        auto newEv = TestMqBlock::New_TestMqBlock();
         g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
         ++g_MemoryAllocCount;
 
@@ -358,11 +358,11 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
 
         ++g_curGenCount;
 
-        startCounter.Update();
-        timerMgr->Drive();
-        endCounter.Update();
-        ++g_TimerDriveCount;
-        g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
+        // startCounter.Update();
+        // timerMgr->Drive();
+        // endCounter.Update();
+        // ++g_TimerDriveCount;
+        // g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
 
         g_FrameTime += endFrame.Update().ElapseNanoseconds(startFrame);
         ++g_FrameCount;
@@ -417,7 +417,7 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *t)
         const UInt64 totalDriveCount = g_TimerDriveCount;
         g_TimerDriveTime -= totalDriveTime;
         g_TimerDriveCount -= totalDriveCount;
-        const UInt64 driveTimeAverage = totalDriveTime/totalDriveCount;
+        const UInt64 driveTimeAverage = (totalDriveCount > 0) ? (totalDriveTime/totalDriveCount) : 0;
         
         const UInt64 frameTotalTime = g_FrameTime;
         const UInt64 frameTotalCount = g_FrameCount;
