@@ -331,6 +331,8 @@ static void Consumer6(KERNEL_NS::LibThread *t)
 
 void TestMessageQueue::Run() 
 {
+    KERNEL_NS::SignalHandleUtil::SetSignoIgnore(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO);
+
     g_Queue = KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *>::New_MessageQueue();
 
     // 初始化

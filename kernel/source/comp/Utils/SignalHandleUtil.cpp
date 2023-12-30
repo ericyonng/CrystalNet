@@ -67,6 +67,17 @@ extern "C"
                 delg->Invoke();
         }
 
+        // 信号忽略
+        if(KERNEL_NS::SignalHandleUtil::IsIgnoreSigno(signalNo))
+        {
+            if(LIKELY(g_Log))
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "signal:%d, %s, is ignore, process id:%d thread id:%llu, main thread id:%llu")
+                    , signalNo, KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), processId, KERNEL_NS::SystemUtil::GetCurrentThreadId(), mainThreadId);
+            }
+            return;
+        }
+
         // 4.恢复系统默认处理方式
         KERNEL_NS::SignalHandleUtil::RecoverDefault(signalNo);
 
@@ -186,6 +197,7 @@ std::unordered_set<Int32> SignalHandleUtil::_concernSignals;
 std::unordered_set<Int32> SignalHandleUtil::_recoverableSignals;
 std::vector<jmp_buf *> s_stackFrames;
 std::atomic<UInt64> SignalHandleUtil::_signoTriggerFlags = {0};
+std::atomic<UInt64> SignalHandleUtil::_ignoreSignoList = {0};
 
 void SignalHandleUtil::Lock()
 {
@@ -257,6 +269,22 @@ bool SignalHandleUtil::ExchangeSignoTriggerFlag(Int32 signo, bool isTrigger)
     }
 
     return oldTrigger;
+}
+
+bool SignalHandleUtil::IsIgnoreSigno(Int32 signo)
+{
+    if(signo > SignoList::MAX_SIGNO)
+        return false;
+
+    return (_ignoreSignoList.load() & (1LLU << UInt64(signo))) != 0;
+}
+
+void SignalHandleUtil::SetSignoIgnore(Int32 signo)
+{
+    auto exp = _ignoreSignoList.load(std::memory_order_acquire);
+    for(UInt64 setValue = exp | (1LLU << UInt64(signo));
+        !_ignoreSignoList.compare_exchange_weak(exp, setValue);)
+        setValue = exp | (1LLU << UInt64(signo));
 }
 
 Int32 SignalHandleUtil::Init()
@@ -483,6 +511,23 @@ Int32 SignalHandleUtil::Init()
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     // SetHook();
     SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE);
+    #endif
+
+    // 所有信号都catch
+    #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
+    for(Int32 idx = SignoList::BEGIN + 1; idx <= SignoList::MAX_SIGNO; ++idx)
+    {
+        if(_concernSignals.find(idx) != _concernSignals.end())
+            continue;
+
+        if(::signal(idx, CatchSigHandler) == SIG_ERR)
+        {
+            CRYSTAL_TRACE("signal set handler error, signal:%s", SignalToString(idx).c_str());
+            return Status::Error;
+        }
+
+        _concernSignals.insert(idx);
+    }
     #endif
 
     return Status::Success;

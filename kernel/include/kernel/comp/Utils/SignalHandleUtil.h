@@ -55,8 +55,10 @@ class KERNEL_EXPORT SignoList
 public:
     enum ENUMS
     {
+        BEGIN = 0,
         // 内存日志的信号
         MEMORY_LOG_SIGNO = 63,
+        MAX_SIGNO = 63,
     };
 };
 
@@ -80,6 +82,9 @@ public:
     static void ClearSignoTrigger(Int32 signo);
     static void SetSignoTrigger(Int32 signo);
     static bool ExchangeSignoTriggerFlag(Int32 signo, bool isTrigger);
+
+    static bool IsIgnoreSigno(Int32 signo);
+    static void SetSignoIgnore(Int32 signo);
 
     // 2.初始化信号处理
     static Int32 Init();
@@ -119,6 +124,7 @@ private:
     static std::unordered_set<Int32> _concernSignals;
     static std::unordered_set<Int32> _recoverableSignals;
     static std::atomic<UInt64> _signoTriggerFlags;
+    static std::atomic<UInt64> _ignoreSignoList;
 };
 
 template<typename LambdaCb>

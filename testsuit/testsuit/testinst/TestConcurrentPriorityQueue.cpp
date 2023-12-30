@@ -299,6 +299,9 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
 
 void TestConcurrentPriorityQueue::Run()
 {
+    // 忽略内存日志信号(保证收到信号的时候不会退出)
+    KERNEL_NS::SignalHandleUtil::SetSignoIgnore(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO);
+
     KERNEL_NS::LibThreadPool *pool = new KERNEL_NS::LibThreadPool;
     g_concurrentQueue = KERNEL_NS::ConcurrentPriorityQueue<TestMqBlock2 *>::New_ConcurrentPriorityQueue();
     g_concurrentQueue->SetMaxLevel(g_maxConcurrentLevel);
