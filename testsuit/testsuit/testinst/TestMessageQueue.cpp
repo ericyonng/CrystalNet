@@ -353,8 +353,8 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
 
         pushCounterStart.Update();
         g_Queue->PushBack(newEv);
-        g_pushTime += pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart);
-        ++g_pushTimeCount;
+        g_pushTime.fetch_add(pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart), std::memory_order_release);
+        g_pushTimeCount.fetch_add(1, std::memory_order_release);
 
         ++g_curGenCount;
 
@@ -431,10 +431,10 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *t)
         g_MemoryAllocCount -= allocTotalCount;
         const UInt64 allcAverage = (allocTotalCount > 0) ? (allocTotalTime/allocTotalCount) : 0;
 
-        const UInt64 pushTotalTime = g_pushTime;
-        const UInt64 pushTotalCount = g_pushTimeCount;
-        g_pushTime -= pushTotalTime;
-        g_pushTimeCount -= pushTotalCount;
+        const UInt64 pushTotalTime = g_pushTime.load(std::memory_order_acquire);
+        const UInt64 pushTotalCount = g_pushTimeCount.load(std::memory_order_acquire);
+        g_pushTime.fetch_sub(pushTotalTime, std::memory_order_release);
+        g_pushTimeCount.fetch_sub(pushTotalCount, std::memory_order_relaxed);
         const UInt64 pushAverage = (pushTotalCount>0) ? (pushTotalTime/pushTotalCount) : 0;
 
         const UInt64 swapTotalTime = g_swapTime;
