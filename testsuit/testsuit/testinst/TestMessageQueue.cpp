@@ -338,7 +338,7 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
     {
         startFrame.Update();
         newCounterStart.Update();
-        auto newEv = TestMqBlock::New_TestMqBlock();
+        auto newEv = new TestMqBlock();
         g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
         ++g_MemoryAllocCount;
 
@@ -371,7 +371,7 @@ static void Consumer6(KERNEL_NS::LibThreadPool *t)
         for(auto iter = lis->Begin(); iter;)
         {
             auto data = iter->_data;
-            data->Release();
+            delete data;
             iter = lis->Erase(iter);
             ++g_curMsgConsume;
         }
