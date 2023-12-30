@@ -46,6 +46,12 @@ static std::atomic<UInt64> g_FrameCount {0};
 static std::atomic<UInt64> g_MemoryAllocTime {0};
 static std::atomic<UInt64> g_MemoryAllocCount {0};
 
+static std::atomic<UInt64> g_pushTime {0};
+static std::atomic<UInt64> g_pushTimeCount {0};
+
+static std::atomic<UInt64> g_swapTime {0};
+static std::atomic<UInt64> g_swapTimeCount {0};
+
 static KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *> *g_Queue = NULL;
 
 struct TestMqBlock : public KERNEL_NS::PollerEvent
@@ -334,6 +340,9 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
     KERNEL_NS::LibCpuCounter newCounterStart;
     KERNEL_NS::LibCpuCounter newCounterEnd;
 
+    KERNEL_NS::LibCpuCounter pushCounterStart;
+    KERNEL_NS::LibCpuCounter pushCounterEnd;
+
     while (!t->IsDestroy())
     {
         startFrame.Update();
@@ -342,7 +351,11 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
         ++g_MemoryAllocCount;
 
+        pushCounterStart.Update();
         g_Queue->PushBack(newEv);
+        g_pushTime += pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart);
+        ++g_pushTimeCount;
+
         ++g_curGenCount;
 
         startCounter.Update();
@@ -364,10 +377,18 @@ static void Consumer6(KERNEL_NS::LibThreadPool *t)
 {
     KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *lis = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList();
     TestMqBlock *newEv = NULL;
+
+    KERNEL_NS::LibCpuCounter swapCounterStart;
+    KERNEL_NS::LibCpuCounter swapCounterEnd;
+
     while (!t->IsDestroy())
     {
         newEv = NULL;
+        swapCounterStart.Update();
         g_Queue->SwapQueue(lis);
+        g_swapTime += swapCounterEnd.Update().ElapseNanoseconds(swapCounterStart);
+        ++g_swapTimeCount;
+
         for(auto iter = lis->Begin(); iter;)
         {
             auto data = iter->_data;
@@ -410,9 +431,21 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *t)
         g_MemoryAllocCount -= allocTotalCount;
         const UInt64 allcAverage = allocTotalTime/allocTotalCount;
 
+        const UInt64 pushTotalTime = g_pushTime;
+        const UInt64 pushTotalCount = g_pushTimeCount;
+        g_pushTime -= allocTotalTime;
+        g_pushTimeCount -= pushTotalCount;
+        const UInt64 pushAverage = pushTotalTime/pushTotalCount;
+
+        const UInt64 swapTotalTime = g_swapTime;
+        const UInt64 swapTotalCount = g_swapTimeCount;
+        g_swapTime -= swapTotalTime;
+        g_swapTimeCount -= swapTotalCount;
+        const UInt64 swapAverage = swapTotalTime/swapTotalCount;
+
         const Int64 backlogNum = static_cast<Int64>(g_Queue->GetAmount());
-        g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld], driveTimeAverage:%llu ns, frameTimeAverage:%llu ns, allcAverage:%llu ns"
-        , genNum, comsumNum, backlogNum, driveTimeAverage, frameTimeAverage, allcAverage);
+        g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld], driveTimeAverage:%llu ns, frameTimeAverage:%llu ns, allcAverage:%llu ns, pushAverage:%llu ns, swapAverage:%llu ns"
+        , genNum, comsumNum, backlogNum, driveTimeAverage, frameTimeAverage, allcAverage, pushAverage, swapAverage);
 
         if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO, false))
             memoryMonitorWork->Invoke();
