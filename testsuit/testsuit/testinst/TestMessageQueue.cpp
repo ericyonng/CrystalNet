@@ -36,9 +36,7 @@
 #define TEST_MQ_CONSUMER_COUNT 1
 
 static std::atomic<UInt64> g_curMsgConsume{0};
-static std::atomic<UInt64> g_genTotalMsgCount{ 0 };
 static std::atomic<UInt64> g_curGenCount{ 0 };
-static std::atomic<UInt64> g_consumerTotalMsgCount{ 0 };
 
 static KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *> *g_Queue = NULL;
 
@@ -302,10 +300,8 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
 {
     while (!t->IsDestroy())
     {
-        auto newEv = TestMqBlock::New_TestMqBlock();
-        ++g_genTotalMsgCount;
+        g_Queue->PushBack(TestMqBlock::New_TestMqBlock());
         ++g_curGenCount;
-        g_Queue->PushBack(newEv);
     }
 }
 
@@ -324,7 +320,6 @@ static void Consumer6(KERNEL_NS::LibThreadPool *t)
             data->Release();
             iter = lis->Erase(iter);
             ++g_curMsgConsume;
-            ++g_consumerTotalMsgCount;
         }
     }
 }
