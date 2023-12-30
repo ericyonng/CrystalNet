@@ -522,8 +522,11 @@ Int32 SignalHandleUtil::Init()
 
         if(::signal(idx, CatchSigHandler) == SIG_ERR)
         {
-            CRYSTAL_TRACE("signal set handler error, signal:%s", SignalToString(idx).c_str());
-            return Status::Error;
+            auto errNo = KERNEL_NS::SystemUtil::GetErrNo();
+            const auto &errStr = KERNEL_NS::SystemUtil::GetErrString(errNo);
+            CRYSTAL_TRACE("signal set handler error, signal:%s, errNo:%d, err:%s"
+            , SignalToString(idx).c_str(), errNo, errStr.c_str());
+            continue;
         }
 
         _concernSignals.insert(idx);
