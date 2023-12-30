@@ -346,15 +346,15 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
     while (!t->IsDestroy())
     {
         startFrame.Update();
-        newCounterStart.Update();
+        // newCounterStart.Update();
         auto newEv = TestMqBlock::New_TestMqBlock();
-        g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
-        ++g_MemoryAllocCount;
+        // g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
+        // ++g_MemoryAllocCount;
 
-        pushCounterStart.Update();
+        // pushCounterStart.Update();
         g_Queue->PushBack(newEv);
-        g_pushTime += pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart);
-        ++g_pushTimeCount;
+        // g_pushTime += pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart);
+        // ++g_pushTimeCount;
 
         ++g_curGenCount;
 
@@ -429,19 +429,19 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *t)
         const UInt64 allocTotalCount = g_MemoryAllocCount;
         g_MemoryAllocTime -= allocTotalTime;
         g_MemoryAllocCount -= allocTotalCount;
-        const UInt64 allcAverage = allocTotalTime/allocTotalCount;
+        const UInt64 allcAverage = (allocTotalCount > 0) ? (allocTotalTime/allocTotalCount) : 0;
 
         const UInt64 pushTotalTime = g_pushTime;
         const UInt64 pushTotalCount = g_pushTimeCount;
         g_pushTime -= pushTotalTime;
         g_pushTimeCount -= pushTotalCount;
-        const UInt64 pushAverage = pushTotalTime/pushTotalCount;
+        const UInt64 pushAverage = (pushTotalCount>0) ? (pushTotalTime/pushTotalCount) : 0;
 
         const UInt64 swapTotalTime = g_swapTime;
         const UInt64 swapTotalCount = g_swapTimeCount;
         g_swapTime -= swapTotalTime;
         g_swapTimeCount -= swapTotalCount;
-        const UInt64 swapAverage = swapTotalTime/swapTotalCount;
+        const UInt64 swapAverage = (swapTotalCount>0) ? (swapTotalTime/swapTotalCount) : 0;
 
         const Int64 backlogNum = static_cast<Int64>(g_Queue->GetAmount());
         g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld], driveTimeAverage:%llu ns, frameTimeAverage:%llu ns, allcAverage:%llu ns, pushAverage:%llu ns, swapAverage:%llu ns"
