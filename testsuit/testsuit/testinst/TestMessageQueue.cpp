@@ -58,7 +58,7 @@ public:
 
     virtual void Release()
     {
-        TestMqBlock::Delete_TestMqBlock(this);
+        TestMqBlock::DeleteThreadLocal_TestMqBlock(this);
     }
 
 public:
@@ -338,7 +338,7 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
     {
         startFrame.Update();
         newCounterStart.Update();
-        auto newEv = new TestMqBlock();
+        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
         g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
         ++g_MemoryAllocCount;
 
@@ -371,7 +371,7 @@ static void Consumer6(KERNEL_NS::LibThreadPool *t)
         for(auto iter = lis->Begin(); iter;)
         {
             auto data = iter->_data;
-            delete data;
+            data->Release();
             iter = lis->Erase(iter);
             ++g_curMsgConsume;
         }
