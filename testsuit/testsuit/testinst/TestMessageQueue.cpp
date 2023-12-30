@@ -340,7 +340,7 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         ++g_TimerDriveCount;
         g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
 
-        g_FrameTime = endFrame.Update().ElapseNanoseconds(startFrame);
+        g_FrameTime += endFrame.Update().ElapseNanoseconds(startFrame);
         ++g_FrameCount;
     }
 
