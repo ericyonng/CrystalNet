@@ -433,7 +433,7 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *t)
 
         const UInt64 pushTotalTime = g_pushTime;
         const UInt64 pushTotalCount = g_pushTimeCount;
-        g_pushTime -= allocTotalTime;
+        g_pushTime -= pushTotalTime;
         g_pushTimeCount -= pushTotalCount;
         const UInt64 pushAverage = pushTotalTime/pushTotalCount;
 
