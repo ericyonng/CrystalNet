@@ -353,8 +353,9 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
 
         pushCounterStart.Update();
         g_Queue->PushBack(newEv);
-        g_pushTime.fetch_add(pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart), std::memory_order_release);
-        g_pushTimeCount.fetch_add(1, std::memory_order_release);
+        // g_pushTime.fetch_add(pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart), std::memory_order_release);
+        // g_pushTimeCount.fetch_add(1, std::memory_order_release);
+        pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart);
 
         ++g_curGenCount;
 
