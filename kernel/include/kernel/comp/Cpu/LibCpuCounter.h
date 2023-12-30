@@ -208,7 +208,7 @@ public:
 
     static LibCpuCounter Current();
 
-    // counter更新
+    // counter更新(10ns左右)
     LibCpuCounter &Update();
 
     // counter流逝的时间

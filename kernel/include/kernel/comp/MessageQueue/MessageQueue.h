@@ -58,6 +58,7 @@ public:
         _lck.Unlock();
     }
 
+    // 60ns左右
     void PushBack(Elem e);
     void MergeTail(LibList<Elem, BuildType> *elems);
     bool PopFront(Elem &e);
@@ -75,6 +76,7 @@ public:
         return true;
     }
 
+    // 35ns左右
     void SwapQueue(LibList<Elem, BuildType> *&elems);
     UInt64 GetAmount() const;
 

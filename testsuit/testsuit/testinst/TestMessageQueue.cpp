@@ -27,6 +27,7 @@
  *             1.8生产者,1消费者 1min测试：中位数:1035948 pps, 平均值: 1048130 pps, 总包数: 62865186
  *             2.8生产者,8消费者 1min测试: 
  *             3.linux 单线程生产极限30w/s
+ * 原子操作一次在10ns左右，一次LibCpuCounter.Update也在10ns左右
 */
 
 #include <pch.h>
@@ -351,19 +352,18 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         // g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
         // ++g_MemoryAllocCount;
 
-        pushCounterStart.Update();
+        // pushCounterStart.Update();
         g_Queue->PushBack(newEv);
         // g_pushTime.fetch_add(pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart), std::memory_order_release);
         // g_pushTimeCount.fetch_add(1, std::memory_order_release);
-        pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart);
+        // pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart);
 
         ++g_curGenCount;
 
-        // startCounter.Update();
-        // timerMgr->Drive();
-        // endCounter.Update();
-        // ++g_TimerDriveCount;
-        // g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
+        startCounter.Update();
+        timerMgr->Drive();
+        g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
+        ++g_TimerDriveCount;
 
         g_FrameTime += endFrame.Update().ElapseNanoseconds(startFrame);
         ++g_FrameCount;
