@@ -76,6 +76,9 @@ public:
     const LibTime &GetAppStartTime() const;
     Int32 GetCpuCoreAmount() const;
 
+    void ImmediatelyPrintMemoryLog();
+    bool IsNeedPrintMemoryLogImmediately() const;
+
     void SetAppArgs(const std::vector<KERNEL_NS::LibString> &args);
     const std::vector<KERNEL_NS::LibString> &GetAppArgs() const;
 
@@ -133,6 +136,9 @@ protected:
     UInt64 _maxSleepMilliseconds;       // poller 的扫描时间间隔
 
     LockWrap<_Build::MT, LockParticleType::Heavy> _lck;
+
+    // 内存日志信号
+    Int32 _memoryLogSigno;
 };
 
 ALWAYS_INLINE const LibString &IApplication::GetAppName() const

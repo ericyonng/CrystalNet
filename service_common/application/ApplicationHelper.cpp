@@ -66,6 +66,7 @@ Int32 ApplicationHelper::Start(Application *app,  IServiceFactory *serviceFactor
         args.push_back(KERNEL_NS::LibString(argv[idx]));
 
     app->SetAppArgs(args);
+    app->SetArgs(argc, argv);
 
     // 异常关闭app
     const auto currentTid = KERNEL_NS::SystemUtil::GetCurrentThreadId();

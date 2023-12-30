@@ -42,11 +42,23 @@
 #include <vector>
 #include <unordered_set>
 #include <setjmp.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <atomic>
 
 KERNEL_BEGIN
 
 template <typename Rtn, typename... Args>
 class IDelegate;
+
+class KERNEL_EXPORT SignoList
+{
+public:
+    enum ENUMS
+    {
+        // 内存日志的信号
+        MEMORY_LOG_SIGNO = 63,
+    };
+};
 
 class KERNEL_EXPORT SignalHandleUtil
 {
@@ -58,8 +70,16 @@ public:
 public:
     // 1.注册信号处理要执行的任务
     static void PushSignalTask(Int32 signalId, IDelegate<void> *task);
+    template<typename LambdaCb>
+    static void PushSignalTask(Int32 signalId, LambdaCb &&);
     // 3.底层异常处理
     static void PushAllConcernSignalTask(IDelegate<void> *task);
+
+    // 是否信号触发过 仅支持 1 - 63信号
+    static bool IsSignoTrigger(Int32 signo);
+    static void ClearSignoTrigger(Int32 signo);
+    static void SetSignoTrigger(Int32 signo);
+    static bool ExchangeSignoTriggerFlag(Int32 signo, bool isTrigger);
 
     // 2.初始化信号处理
     static Int32 Init();
@@ -98,7 +118,15 @@ private:
     static std::vector<IDelegate<void> *> _allSignalTasksPending;
     static std::unordered_set<Int32> _concernSignals;
     static std::unordered_set<Int32> _recoverableSignals;
+    static std::atomic<UInt64> _signoTriggerFlags;
 };
+
+template<typename LambdaCb>
+ALWAYS_INLINE void SignalHandleUtil::PushSignalTask(Int32 signalId, LambdaCb &&cb)
+{
+    auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void);
+    PushSignalTask(signalId, deleg);
+}
 
 KERNEL_END
 

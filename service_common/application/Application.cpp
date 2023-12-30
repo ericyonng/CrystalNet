@@ -175,6 +175,35 @@ Int32 Application::_OnHostInit()
     // 生成apply id
     _GenerateMachineApplyId();
 
+    // 信号处理
+    auto &args = GetAppArgs();
+
+    for(auto &arg : args)
+    {
+        g_Log->Info(LOGFMT_OBJ_TAG("arg:%s"), arg.c_str());
+        auto seps = arg.Split("=");
+        if(seps.empty())
+            continue;
+
+        if(seps.size() != 2)
+        {
+            g_Log->Debug(LOGFMT_OBJ_TAG("param format error, arg:%s"), arg.c_str());
+            continue;
+        }
+
+        auto key = seps[0].strip();
+        auto value = seps[1].strip();
+
+        if(key == "--memory_log_signo")
+        {
+            _memoryLogSigno = KERNEL_NS::StringUtil::StringToInt32(value.c_str());
+        }
+        else
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("unknown key:%s, value:%s"), key.c_str(), value.c_str());
+        }
+    }
+
     return Status::Success;
 }
 
@@ -1151,6 +1180,10 @@ void Application::_OnMonitor(KERNEL_NS::LibThread *t)
         {
             timerMgr->Drive();
             KERNEL_NS::SystemUtil::ThreadSleep(100);
+
+            // 内存日志信号触发则立即答应日志
+            if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(_memoryLogSigno, false))
+                workHandler->Invoke();
         }
 
         workHandler->Invoke();

@@ -279,6 +279,8 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
 {
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestConcurrentPriorityQueue, "MonitorTask"));
 
+    KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> memoryMonitorWork = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
+
     while (!pool->IsDestroy())
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
@@ -288,13 +290,12 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
         g_consumNum -= comsumNum;
 
         const Int64 backlogNum = static_cast<Int64>(g_concurrentQueue->GetAmount());
-
-
         g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
+
+        if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO, false))
+            memoryMonitorWork->Invoke();
     }
 }
-
-
 
 void TestConcurrentPriorityQueue::Run()
 {

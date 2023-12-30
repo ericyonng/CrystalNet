@@ -361,6 +361,7 @@ void TestMessageQueue::Run()
     // 1min
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "start calclate 1min."));
     Int64 seconds = 60;
+    KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> memoryMonitorWork = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
     while (seconds > 0)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
@@ -370,6 +371,9 @@ void TestMessageQueue::Run()
 
         g_Log->Custom("gen :%llu ps, consume:%llu, backlog:%llu", curGen, curCount, backlog);
         --seconds;
+
+        if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO, false))
+            memoryMonitorWork->Invoke();
     }
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "will quit."));

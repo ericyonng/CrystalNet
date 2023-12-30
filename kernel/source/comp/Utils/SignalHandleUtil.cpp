@@ -51,6 +51,8 @@ extern "C"
                  KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
         }
 
+        KERNEL_NS::SignalHandleUtil::SetSignoTrigger(signalNo);
+
         // 可恢复栈帧的信号 经常coredump 恢复栈帧的先延后TODO
         // if(KERNEL_NS::SignalHandleUtil::IsSignalRecoverable(signalNo, true))
         // {
@@ -183,6 +185,7 @@ std::vector<IDelegate<void> *> SignalHandleUtil::_allSignalTasksPending;
 std::unordered_set<Int32> SignalHandleUtil::_concernSignals;
 std::unordered_set<Int32> SignalHandleUtil::_recoverableSignals;
 std::vector<jmp_buf *> s_stackFrames;
+std::atomic<UInt64> SignalHandleUtil::_signoTriggerFlags = {0};
 
 void SignalHandleUtil::Lock()
 {
@@ -218,6 +221,42 @@ void SignalHandleUtil::PushAllConcernSignalTask(IDelegate<void> *task)
         for(auto signalId : _concernSignals)
             PushSignalTask(signalId, task);
     }
+}
+
+bool SignalHandleUtil::IsSignoTrigger(Int32 signo)
+{
+    auto exp = _signoTriggerFlags.load(std::memory_order_acquire);
+    return (exp & (1LLU << UInt64(signo))) != 0;
+}
+
+void SignalHandleUtil::ClearSignoTrigger(Int32 signo)
+{
+    auto exp = _signoTriggerFlags.load(std::memory_order_acquire);
+    for(auto setValue = exp & (~(1LLU << UInt64(signo)));
+    !_signoTriggerFlags.compare_exchange_weak(exp, setValue);)
+        setValue = exp & (~(1LLU << UInt64(signo)));
+}
+
+void SignalHandleUtil::SetSignoTrigger(Int32 signo)
+{
+    auto exp = _signoTriggerFlags.load(std::memory_order_acquire);
+    for(UInt64 setValue = exp | (1LLU << UInt64(signo));
+        !_signoTriggerFlags.compare_exchange_weak(exp, setValue);)
+        setValue = exp | (1LLU << UInt64(signo));
+}
+
+bool SignalHandleUtil::ExchangeSignoTriggerFlag(Int32 signo, bool isTrigger)
+{
+    auto exp = _signoTriggerFlags.load(std::memory_order_acquire);
+    bool oldTrigger = (exp & (1LLU << UInt64(signo))) != 0;
+    for(UInt64 setValue = isTrigger ? (exp | (1LLU << UInt64(signo))) : (exp & (~(1LLU << UInt64(signo))));
+        !_signoTriggerFlags.compare_exchange_weak(exp, setValue);)
+    {
+        oldTrigger = (exp & (1LLU << UInt64(signo))) != 0;
+        setValue = isTrigger ? (exp | (1LLU << UInt64(signo))) : (exp & (~(1LLU << UInt64(signo))));
+    }
+
+    return oldTrigger;
 }
 
 Int32 SignalHandleUtil::Init()

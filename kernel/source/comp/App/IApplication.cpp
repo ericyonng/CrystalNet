@@ -39,6 +39,7 @@
 
 #include <kernel/comp/Poller/PollerInc.h>
 #include <kernel/comp/Cpu/LibCpuInfo.h>
+#include <kernel/comp/Utils/SignalHandleUtil.h>
 
 KERNEL_NS::IApplication *g_Application = NULL;
 
@@ -55,6 +56,7 @@ IApplication::IApplication()
     ,_maxPieceTimeInMicroseconds(TimeDefs::MICRO_SECOND_PER_SECOND) // 默认1秒扫描间隔
     ,_maxPriorityLevel(0)
     ,_maxSleepMilliseconds(TimeDefs::MILLI_SECOND_PER_SECOND)   // 默认1秒
+    ,_memoryLogSigno(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO)
 {
     if(g_Application == NULL)
         g_Application = this;
