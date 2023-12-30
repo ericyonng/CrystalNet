@@ -52,7 +52,7 @@ public:
 
     virtual void Release()
     {
-        TestMqBlock::DeleteThreadLocal_TestMqBlock(this);
+        TestMqBlock::Delete_TestMqBlock(this);
     }
 
 public:
@@ -362,11 +362,11 @@ void TestMessageQueue::Run()
 
     const Int32 count = TEST_MQ_MAX_CHANNEL;
     for(Int32 idx = 1; idx <= count; ++idx)
-        pool->AddTask(&Generator5);
+        pool->AddTask(&Generator6);
 
     // pool->AddTask2(ComsumerTask2, NULL, false, 0);
     // pool->AddTask2(ComsumerTask, NULL, false, 0);
-    pool->AddTask(&Consumer5);
+    pool->AddTask(&Consumer6);
     pool->AddTask(&MonitorTask);
 
     pool->Start(true, TEST_MQ_CONSUMER_COUNT + TEST_MQ_MAX_CHANNEL + 1);
