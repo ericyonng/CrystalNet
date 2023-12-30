@@ -351,10 +351,10 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         // g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
         // ++g_MemoryAllocCount;
 
-        // pushCounterStart.Update();
+        pushCounterStart.Update();
         g_Queue->PushBack(newEv);
-        // g_pushTime += pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart);
-        // ++g_pushTimeCount;
+        g_pushTime += pushCounterEnd.Update().ElapseNanoseconds(pushCounterStart);
+        ++g_pushTimeCount;
 
         ++g_curGenCount;
 
