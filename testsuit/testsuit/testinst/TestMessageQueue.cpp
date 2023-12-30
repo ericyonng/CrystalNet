@@ -50,7 +50,7 @@ public:
 
     virtual void Release()
     {
-        TestMqBlock::Delete_TestMqBlock(this);
+        TestMqBlock::DeleteThreadLocal_TestMqBlock(this);
     }
 
 public:

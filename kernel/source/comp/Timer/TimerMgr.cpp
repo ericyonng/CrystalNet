@@ -130,7 +130,7 @@ Int64 TimerMgr::Drive()
     _AfterDrive();
 
     // 重算过期标记
-    if(UNLIKELY(!_expireQueue.empty()))
+    if(!_expireQueue.empty())
     {
         auto timeData =  *_expireQueue.begin();
         _hasExpired = (_curTime = TimeUtil::GetFastNanoTimestamp()) >= timeData->_expiredTime;
