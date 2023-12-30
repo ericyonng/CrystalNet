@@ -64,10 +64,8 @@ static void Generator(KERNEL_NS::LibThreadPool *t)
 {
     while (!t->IsDestroy())
     {
-        auto newEv = TestMqBlock::New_TestMqBlock();
-        ++g_genTotalMsgCount;
+        g_Queue->PushBack(TestMqBlock::New_TestMqBlock());
         ++g_curGenCount;
-        g_Queue->PushBack(newEv);
     }
 }
 
@@ -82,7 +80,6 @@ static void Consumer(KERNEL_NS::LibThreadPool *t)
         {
             newEv->Release();
             ++g_curMsgConsume;
-            ++g_consumerTotalMsgCount;
         }
     }
 }
@@ -128,10 +125,8 @@ static void Generator2(KERNEL_NS::LibThreadPool *t)
 
     while (!t->IsDestroy())
     {
-        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
-        ++g_genTotalMsgCount;
+        g_Queue->PushBack(TestMqBlock::NewThreadLocal_TestMqBlock());
         ++g_curGenCount;
-        g_Queue->PushBack(newEv);
 
         timerMgr->Drive();
     }
@@ -152,7 +147,6 @@ static void Consumer2(KERNEL_NS::LibThreadPool *t)
         {
             newEv->Release();
             ++g_curMsgConsume;
-            ++g_consumerTotalMsgCount;
         }
     }
 }
@@ -163,10 +157,8 @@ static void Generator3(KERNEL_NS::LibThreadPool *t)
 {
     while (!t->IsDestroy())
     {
-        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
-        ++g_genTotalMsgCount;
+        g_Queue->PushBack(TestMqBlock::NewThreadLocal_TestMqBlock());
         ++g_curGenCount;
-        g_Queue->PushBack(newEv);
     }
 }
 
@@ -181,7 +173,6 @@ static void Consumer3(KERNEL_NS::LibThreadPool *t)
         {
             newEv->Release();
             ++g_curMsgConsume;
-            ++g_consumerTotalMsgCount;
         }
     }
 }
@@ -192,10 +183,8 @@ static void Generator4(KERNEL_NS::LibThreadPool *t)
 {
     while (!t->IsDestroy())
     {
-        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
-        ++g_genTotalMsgCount;
+        g_Queue->PushBack(TestMqBlock::NewThreadLocal_TestMqBlock());
         ++g_curGenCount;
-        g_Queue->PushBack(newEv);
     }
 }
 
@@ -214,7 +203,6 @@ static void Consumer4(KERNEL_NS::LibThreadPool *t)
             data->Release();
             iter = lis->Erase(iter);
             ++g_curMsgConsume;
-            ++g_consumerTotalMsgCount;
         }
     }
 }
@@ -261,10 +249,8 @@ static void Generator5(KERNEL_NS::LibThreadPool *t)
 
     while (!t->IsDestroy())
     {
-        auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
-        ++g_genTotalMsgCount;
+        g_Queue->PushBack(TestMqBlock::NewThreadLocal_TestMqBlock());
         ++g_curGenCount;
-        g_Queue->PushBack(newEv);
 
         timerMgr->Drive();
     }
@@ -289,7 +275,6 @@ static void Consumer5(KERNEL_NS::LibThreadPool *t)
             data->Release();
             iter = lis->Erase(iter);
             ++g_curMsgConsume;
-            ++g_consumerTotalMsgCount;
         }
     }
 }
