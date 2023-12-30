@@ -232,7 +232,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestLog::Run();
     // TestStream::Run();
     // // TestLocker::Run();
-    TestMessageQueue::Run();
+    // TestMessageQueue::Run();
     // TestVariant::Run();
     // TestTimer::Run();
     // // TestCpuInfo::Run();
@@ -245,7 +245,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
-    // TestPoller::Run();
+    TestPoller::Run();
     // TestMemoryAssist::Run();
     // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
