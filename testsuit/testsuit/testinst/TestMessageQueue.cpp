@@ -339,7 +339,7 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         startFrame.Update();
         newCounterStart.Update();
         auto newEv = TestMqBlock::New_TestMqBlock();
-        g_MemoryAllocTime += newCounterEnd.ElapseNanoseconds(newCounterStart);
+        g_MemoryAllocTime += newCounterEnd.Update().ElapseNanoseconds(newCounterStart);
         ++g_MemoryAllocCount;
 
         g_Queue->PushBack(newEv);
