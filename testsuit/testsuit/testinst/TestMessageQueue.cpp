@@ -37,7 +37,7 @@
 
 static std::atomic<UInt64> g_curMsgConsume{0};
 static std::atomic<UInt64> g_genTotalMsgCount{ 0 };
-static std::atomic<UInt64> g_curGenTotalMsgCount{ 0 };
+static std::atomic<UInt64> g_curGenCount{ 0 };
 static std::atomic<UInt64> g_consumerTotalMsgCount{ 0 };
 
 static KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *> *g_Queue = NULL;
@@ -52,7 +52,7 @@ public:
 
     virtual void Release()
     {
-        TestMqBlock::Delete_TestMqBlock(this);
+        TestMqBlock::DeleteThreadLocal_TestMqBlock(this);
     }
 
 public:
@@ -62,19 +62,19 @@ public:
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestMqBlock);
 
 // mid:4247kqps, average:4246kqps
-static void Generator(KERNEL_NS::LibThread *t)
+static void Generator(KERNEL_NS::LibThreadPool *t)
 {
     while (!t->IsDestroy())
     {
         auto newEv = TestMqBlock::New_TestMqBlock();
         ++g_genTotalMsgCount;
-        ++g_curGenTotalMsgCount;
+        ++g_curGenCount;
         g_Queue->PushBack(newEv);
     }
 }
 
 // mid:3745kqps, average:3759kqps
-static void Consumer(KERNEL_NS::LibThread *t)
+static void Consumer(KERNEL_NS::LibThreadPool *t)
 {
     TestMqBlock *newEv = NULL;
     while (!t->IsDestroy())
@@ -90,7 +90,7 @@ static void Consumer(KERNEL_NS::LibThread *t)
 }
 
 // mid:3840kqps, average:3837kqps
-static void Generator2(KERNEL_NS::LibThread *t)
+static void Generator2(KERNEL_NS::LibThreadPool *t)
 {
     // 定时管理
     KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
@@ -132,7 +132,7 @@ static void Generator2(KERNEL_NS::LibThread *t)
     {
         auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
         ++g_genTotalMsgCount;
-        ++g_curGenTotalMsgCount;
+        ++g_curGenCount;
         g_Queue->PushBack(newEv);
 
         timerMgr->Drive();
@@ -144,7 +144,7 @@ static void Generator2(KERNEL_NS::LibThread *t)
 }
 
 // mid:3661kqps, average:3655kqps
-static void Consumer2(KERNEL_NS::LibThread *t)
+static void Consumer2(KERNEL_NS::LibThreadPool *t)
 {
     TestMqBlock *newEv = NULL;
     while (!t->IsDestroy())
@@ -161,19 +161,19 @@ static void Consumer2(KERNEL_NS::LibThread *t)
 
 
 // mid:3602kqps, average:3603kqps
-static void Generator3(KERNEL_NS::LibThread *t)
+static void Generator3(KERNEL_NS::LibThreadPool *t)
 {
     while (!t->IsDestroy())
     {
         auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
         ++g_genTotalMsgCount;
-        ++g_curGenTotalMsgCount;
+        ++g_curGenCount;
         g_Queue->PushBack(newEv);
     }
 }
 
 // mid:3432kqps, average:3426kqps
-static void Consumer3(KERNEL_NS::LibThread *t)
+static void Consumer3(KERNEL_NS::LibThreadPool *t)
 {
     TestMqBlock *newEv = NULL;
     while (!t->IsDestroy())
@@ -190,19 +190,19 @@ static void Consumer3(KERNEL_NS::LibThread *t)
 
 
 // mid:5358kqps, average:5364kqps
-static void Generator4(KERNEL_NS::LibThread *t)
+static void Generator4(KERNEL_NS::LibThreadPool *t)
 {
     while (!t->IsDestroy())
     {
         auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
         ++g_genTotalMsgCount;
-        ++g_curGenTotalMsgCount;
+        ++g_curGenCount;
         g_Queue->PushBack(newEv);
     }
 }
 
 // mid:4654kqps, average:4633kqps
-static void Consumer4(KERNEL_NS::LibThread *t)
+static void Consumer4(KERNEL_NS::LibThreadPool *t)
 {
     KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *lis = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList();
     TestMqBlock *newEv = NULL;
@@ -223,7 +223,7 @@ static void Consumer4(KERNEL_NS::LibThread *t)
 
 /// 最优解
 // mid:5278kqps, average:5296kqps
-static void Generator5(KERNEL_NS::LibThread *t)
+static void Generator5(KERNEL_NS::LibThreadPool *t)
 {
     // 定时管理
     KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
@@ -265,7 +265,7 @@ static void Generator5(KERNEL_NS::LibThread *t)
     {
         auto newEv = TestMqBlock::NewThreadLocal_TestMqBlock();
         ++g_genTotalMsgCount;
-        ++g_curGenTotalMsgCount;
+        ++g_curGenCount;
         g_Queue->PushBack(newEv);
 
         timerMgr->Drive();
@@ -277,7 +277,7 @@ static void Generator5(KERNEL_NS::LibThread *t)
 
 /// 最优解
 // mid:4804kqps, average:4796kqps
-static void Consumer5(KERNEL_NS::LibThread *t)
+static void Consumer5(KERNEL_NS::LibThreadPool *t)
 {
     KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *lis = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList();
     TestMqBlock *newEv = NULL;
@@ -298,19 +298,19 @@ static void Consumer5(KERNEL_NS::LibThread *t)
 
 
 // mid:4204kqps, average:4213kqps
-static void Generator6(KERNEL_NS::LibThread *t)
+static void Generator6(KERNEL_NS::LibThreadPool *t)
 {
     while (!t->IsDestroy())
     {
         auto newEv = TestMqBlock::New_TestMqBlock();
         ++g_genTotalMsgCount;
-        ++g_curGenTotalMsgCount;
+        ++g_curGenCount;
         g_Queue->PushBack(newEv);
     }
 }
 
 // mid:4204kqps, average:4213kqps
-static void Consumer6(KERNEL_NS::LibThread *t)
+static void Consumer6(KERNEL_NS::LibThreadPool *t)
 {
     KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *lis = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList();
     TestMqBlock *newEv = NULL;
@@ -329,79 +329,55 @@ static void Consumer6(KERNEL_NS::LibThread *t)
     }
 }
 
-void TestMessageQueue::Run() 
+static void MonitorTask(KERNEL_NS::LibThreadPool *t)
 {
-    KERNEL_NS::SignalHandleUtil::SetSignoIgnore(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO);
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "MonitorTask"));
 
-    g_Queue = KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *>::New_MessageQueue();
-
-    // 初始化
-    std::vector<KERNEL_NS::LibThread *> consumerThreads;
-    consumerThreads.resize(TEST_MQ_CONSUMER_COUNT);
-    std::vector<KERNEL_NS::LibThread *> genThreads;
-    genThreads.resize(TEST_MQ_MAX_CHANNEL);
-
-    for (auto idx = 0; idx < TEST_MQ_CONSUMER_COUNT; ++idx)
-    {
-        consumerThreads[idx] = new KERNEL_NS::LibThread;
-        consumerThreads[idx]->AddTask(&Consumer5);
-    }
-
-    for(UInt64 idx = 0; idx < TEST_MQ_MAX_CHANNEL; ++idx)
-    {
-        // 消息队列绑定消费者
-        genThreads[idx] = new KERNEL_NS::LibThread;
-        genThreads[idx]->AddTask(&Generator5);
-    }
-
-    for(auto &t:consumerThreads)
-        t->Start();
-
-    for(auto &t:genThreads)
-        t->Start();
-
-    // 1min
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "start calclate 1min."));
-    Int64 seconds = 60;
     KERNEL_NS::SmartPtr<KERNEL_NS::IDelegate<void>, KERNEL_NS::AutoDelMethods::Release> memoryMonitorWork = KERNEL_NS::MemoryMonitor::GetInstance()->MakeWorkTask();
-    while (seconds > 0)
+
+    while (!t->IsDestroy())
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        const UInt64 curCount = g_curMsgConsume;
-        const UInt64 curGen = g_curGenTotalMsgCount;
-        g_curMsgConsume -= curCount;
-        g_curGenTotalMsgCount -= curGen;
-        auto backlog = g_Queue->GetAmount();
+        const Int64 genNum = g_curGenCount;
+        const Int64 comsumNum = g_curMsgConsume;
+        g_curGenCount -= genNum;
+        g_curMsgConsume -= comsumNum;
 
-        g_Log->Custom("gen :%llu ps, consume:%llu, backlog:%llu", curGen, curCount, backlog);
-        --seconds;
+        const Int64 backlogNum = static_cast<Int64>(g_Queue->GetAmount());
+        g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
 
         if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO, false))
             memoryMonitorWork->Invoke();
     }
+}
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "will quit."));
-    for(auto &t:genThreads)
-        t->HalfClose();
-    
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "after gen threads half close."));
-    for(auto &t:genThreads)
-        t->FinishClose();
+void TestMessageQueue::Run() 
+{
+  // 忽略内存日志信号(保证收到信号的时候不会退出)
+    KERNEL_NS::SignalHandleUtil::SetSignoIgnore(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO);
+    g_Queue = KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *>::New_MessageQueue();
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "after gen threads finish close."));
-    for(auto &t:consumerThreads)
-        t->HalfClose();
+    KERNEL_NS::LibThreadPool *pool = new KERNEL_NS::LibThreadPool;
+    pool->Init(0, TEST_MQ_CONSUMER_COUNT + TEST_MQ_MAX_CHANNEL + 1);
 
-    for(auto &t:consumerThreads)
-        t->FinishClose();
+    const Int32 count = TEST_MQ_MAX_CHANNEL;
+    for(Int32 idx = 1; idx <= count; ++idx)
+        pool->AddTask(&Generator5);
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "after consumer threads FinishClose."));
-    
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestMessageQueue, "begin calclate midlle and average."));
+    // pool->AddTask2(ComsumerTask2, NULL, false, 0);
+    // pool->AddTask2(ComsumerTask, NULL, false, 0);
+    pool->AddTask(&Consumer5);
+    pool->AddTask(&MonitorTask);
 
-    KERNEL_NS::ContainerUtil::DelContainer(genThreads);
-    KERNEL_NS::ContainerUtil::DelContainer(consumerThreads);
+    pool->Start(true, TEST_MQ_CONSUMER_COUNT + TEST_MQ_MAX_CHANNEL + 1);
+
+    getchar();
+
+    if(pool->HalfClose())
+        pool->FinishClose();
+
     KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *>::Delete_MessageQueue(g_Queue);
     g_Queue = NULL;
-    getchar();
+
+    delete pool;
 }
