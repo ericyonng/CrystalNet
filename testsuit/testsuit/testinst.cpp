@@ -232,14 +232,14 @@ void TestInst::Run(int argc, char const *argv[])
     // TestLog::Run();
     // TestStream::Run();
     // // TestLocker::Run();
-    TestMessageQueue::Run();
+    // TestMessageQueue::Run();
     // TestVariant::Run();
     // TestTimer::Run();
     // // TestCpuInfo::Run();
     // TestBackTrace::Run();
     // //TestDaemon::Run();
     // TestEvent::Run();
-    // TestConcurrentPriorityQueue::Run();
+    TestConcurrentPriorityQueue::Run();
     // CRYSTAL_TRACE("test inst finish.");
     // TestBlackWhiteList::Run();
     // TestECS::Run();

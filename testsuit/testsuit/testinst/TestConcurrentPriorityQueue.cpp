@@ -143,7 +143,7 @@ static std::atomic<Int64> g_consumNum{0};
 static std::atomic<Int64> g_backLogNum{0};
 
 static KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::LibString *> *g_concurrentQueue = NULL;
-static const Int32 g_maxConcurrentLevel = 4;
+static const Int32 g_maxConcurrentLevel = 1;
 
 static void GenTask(KERNEL_NS::LibThreadPool *pool, KERNEL_NS::Variant *var)
 {
