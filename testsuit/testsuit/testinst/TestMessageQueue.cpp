@@ -38,6 +38,9 @@
 static std::atomic<UInt64> g_curMsgConsume{0};
 static std::atomic<UInt64> g_curGenCount{ 0 };
 
+static std::atomic<UInt64> g_TimerDriveTime {0};
+static std::atomic<UInt64> g_TimerDriveCount {0};
+
 static KERNEL_NS::MessageQueue<KERNEL_NS::PollerEvent *> *g_Queue = NULL;
 
 struct TestMqBlock : public KERNEL_NS::PollerEvent
@@ -319,12 +322,18 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         }
     } while (false);
 
+    KERNEL_NS::LibCpuCounter startCounter;
+    KERNEL_NS::LibCpuCounter endCounter;
     while (!t->IsDestroy())
     {
         g_Queue->PushBack(TestMqBlock::New_TestMqBlock());
         ++g_curGenCount;
 
+        startCounter.Update();
         timerMgr->Drive();
+        endCounter.Update();
+        ++g_TimerDriveCount;
+        g_TimerDriveTime += (startCounter - endCounter).GetTotalNanoseconds();
     }
 
     memoryCleaner->WillClose();
@@ -364,8 +373,15 @@ static void MonitorTask(KERNEL_NS::LibThreadPool *t)
         g_curGenCount -= genNum;
         g_curMsgConsume -= comsumNum;
 
+        const UInt64 totalDriveTime = g_TimerDriveTime;
+        const UInt64 totalDriveCount = g_TimerDriveCount;
+        g_TimerDriveTime -= totalDriveTime;
+        g_TimerDriveCount -= totalDriveCount;
+        const UInt64 driveTimeAverage = totalDriveTime/totalDriveCount;
+
         const Int64 backlogNum = static_cast<Int64>(g_Queue->GetAmount());
-        g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld]", genNum, comsumNum, backlogNum);
+        g_Log->Custom("Monitor:[gen:%lld, consum:%lld, backlog:%lld], driveTimeAverage:%llu ns"
+        , genNum, comsumNum, backlogNum, driveTimeAverage);
 
         if(KERNEL_NS::SignalHandleUtil::ExchangeSignoTriggerFlag(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO, false))
             memoryMonitorWork->Invoke();
