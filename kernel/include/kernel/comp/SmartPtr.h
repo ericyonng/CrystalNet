@@ -169,131 +169,37 @@ public:
 
         return *this;
     }
-    
-    SmartPtr<ObjType, delMethod> &operator =(const SmartPtr<ObjType, delMethod> &other)
-    {
-        _CopyFrom(other);
 
-        return *this;
-    }
-
-    SmartPtr<ObjType, delMethod> &operator =(SmartPtr<ObjType, delMethod> &&ptr)
-    {
-        _MoveFrom(ptr);
-
-        return *this;
-    }
-
-    // operator void *()
-    // {
-    //     return _ptr;
-    // }
-
-    // operator const void *() const
-    // {
-    //     return _ptr;
-    // }
-
-    operator ObjType *()
-    {
-        return _ptr;
-    }
-
-    operator const ObjType *() const
-    {
-        return _ptr;
-    }
-
-    ObjType *operator->()
-    {
-        return _ptr;
-    }
-
-    const ObjType *operator->() const
-    {
-        return _ptr;
-    }
-
+    SmartPtr<ObjType, delMethod> &operator =(const SmartPtr<ObjType, delMethod> &other);
+    SmartPtr<ObjType, delMethod> &operator =(SmartPtr<ObjType, delMethod> &&ptr);
+    operator ObjType *();
+    operator const ObjType *() const;
+    ObjType *operator->();
+    const ObjType *operator->() const;
     // no out-range detect
-    ObjType& operator [](Int32 index)    
-    {
-        ObjType *ptr = _ptr;
-        if(ptr)
-            ptr += index;
-
-        return *ptr;
-    }
-
+    ObjType& operator [](Int32 index);
     // no out-range detect
-    const ObjType& operator [](Int32 index) const
-    {
-        const ObjType *ptr = _ptr;
-        if(ptr)
-            ptr += index;
+    const ObjType& operator [](Int32 index) const;
+    ObjType &operator *();
+    const ObjType &operator *() const;
 
-        return *ptr;
-    }   
+    operator bool();
+    ObjType *AsSelf();
 
-    ObjType &operator *()
-    {
-        return *_ptr;
-    }
-
-    const ObjType &operator *() const
-    {
-        return *_ptr;
-    }
-
-    operator bool()
-    {
-        return _ptr != NULL;
-    }
-
-    ObjType *AsSelf()
-    {
-        return _ptr;
-    }
-
-    const ObjType *AsSelf() const
-    {
-        return _ptr;
-    }
+    const ObjType *AsSelf() const;
 
     template<typename SpecifyType>
-    SpecifyType *Cast()
-    {
-        return reinterpret_cast<SpecifyType *>(_ptr);
-    }
+    SpecifyType *Cast();
 
     template<typename SpecifyType>
-    const SpecifyType *Cast() const
-    {
-        return reinterpret_cast<SpecifyType *>(_ptr);
-    }
-    
+    const SpecifyType *Cast() const;
+
     // 利用模版,在调用的地方静态断言删除类型:void func(void *&)
-    template<AutoDelMethods::Way ImplType = AutoDelMethods::CustomDelete>
-    void SetDelegate(IDelegate<void, void *> *delg)
-    {
-        // static_assert(ImplType == delMethod, "ImplType must be delMethod");
-        static_assert(ImplType == AutoDelMethods::CustomDelete, "SmartPtr SetDelegate only for CustomDelete");
-        _del.SetDelegate(delg);
-    }
-
-	// void func(void *)
+    void SetDelegate(IDelegate<void, void *> *delg);
+    // void func(void *)
     template<typename ClosureType, AutoDelMethods::Way ImplType = AutoDelMethods::CustomDelete>
-    void SetClosureDelegate(ClosureType &&closureFun)
-    {
-        // static_assert(ImplType == delMethod, "ImplType must be delMethod");
-        static_assert(ImplType == AutoDelMethods::CustomDelete, "SmartPtr SetDelegate only for CustomDelete");
-        auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(closureFun, void, void *);
-        _del.SetDelegate(delg);
-    }
-
-    Int64 GetRefCount() const
-    {
-        return _ref ? *_ref : 0;
-    }
+    void SetClosureDelegate(ClosureType &&closureFun);
+    Int64  GetRefCount() const;
 
 private:
     void _CopyFrom(const SmartPtr<ObjType, delMethod> &other)
@@ -339,6 +245,138 @@ protected:
     mutable Int64 *_ref;
     mutable AutoDel<delMethod> _del;
 };
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE SmartPtr<ObjType, delMethod> &SmartPtr<ObjType, delMethod>::operator =(const SmartPtr<ObjType, delMethod> &other)
+{
+    _CopyFrom(other);
+
+    return *this;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE SmartPtr<ObjType, delMethod> &SmartPtr<ObjType, delMethod>::operator =(SmartPtr<ObjType, delMethod> &&ptr)
+{
+    _MoveFrom(ptr);
+
+    return *this;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE SmartPtr<ObjType, delMethod>::operator ObjType *()
+{
+    return _ptr;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE SmartPtr<ObjType, delMethod>::operator const ObjType *() const
+{
+    return _ptr;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE ObjType *SmartPtr<ObjType, delMethod>::operator->()
+{
+    return _ptr;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE const ObjType *SmartPtr<ObjType, delMethod>::operator->() const
+{
+    return _ptr;
+}
+
+// no out-range detect
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE ObjType& SmartPtr<ObjType, delMethod>::operator [](Int32 index)    
+{
+    ObjType *ptr = _ptr;
+    if(ptr)
+        ptr += index;
+
+    return *ptr;
+}
+
+// no out-range detect
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE const ObjType& SmartPtr<ObjType, delMethod>::operator [](Int32 index) const
+{
+    const ObjType *ptr = _ptr;
+    if(ptr)
+        ptr += index;
+
+    return *ptr;
+}   
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE ObjType &SmartPtr<ObjType, delMethod>::operator *()
+{
+    return *_ptr;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE const ObjType &SmartPtr<ObjType, delMethod>::operator *() const
+{
+    return *_ptr;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE SmartPtr<ObjType, delMethod>::operator bool()
+{
+    return _ptr != NULL;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE ObjType *SmartPtr<ObjType, delMethod>::AsSelf()
+{
+    return _ptr;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE const ObjType *SmartPtr<ObjType, delMethod>::AsSelf() const
+{
+    return _ptr;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+template<typename SpecifyType>
+ALWAYS_INLINE SpecifyType *SmartPtr<ObjType, delMethod>::Cast()
+{
+    return reinterpret_cast<SpecifyType *>(_ptr);
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+template<typename SpecifyType>
+ALWAYS_INLINE const SpecifyType *SmartPtr<ObjType, delMethod>::Cast() const
+{
+    return reinterpret_cast<SpecifyType *>(_ptr);
+}
+
+// 利用模版,在调用的地方静态断言删除类型:void func(void *&)
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE void SmartPtr<ObjType, delMethod>::SetDelegate(IDelegate<void, void *> *delg)
+{
+    // static_assert(ImplType == delMethod, "ImplType must be delMethod");
+    static_assert(ImplType == AutoDelMethods::CustomDelete, "SmartPtr SetDelegate only for CustomDelete");
+    _del.SetDelegate(delg);
+}
+
+// void func(void *)
+template<typename ObjType, AutoDelMethods::Way delMethod>
+template<typename ClosureType, AutoDelMethods::Way ImplType>
+ALWAYS_INLINE void SmartPtr<ObjType, delMethod>::SetClosureDelegate(ClosureType &&closureFun)
+{
+    // static_assert(ImplType == delMethod, "ImplType must be delMethod");
+    static_assert(ImplType == AutoDelMethods::CustomDelete, "SmartPtr SetDelegate only for CustomDelete");
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(closureFun, void, void *);
+    _del.SetDelegate(delg);
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE Int64  SmartPtr<ObjType, delMethod>::GetRefCount() const
+{
+    return _ref ? *_ref : 0;
+}
 
 
 // 同时只能支持在同一个线程,不可进行多线程并发操作
