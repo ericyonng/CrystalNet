@@ -41,6 +41,41 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(TimerMgr);
 
+ALWAYS_INLINE void TimerMgr::_AfterDrive()
+{
+    if(--_driving > 0)
+        return;
+
+    _driving = 0;
+
+    for(auto iter = _asynDirty.begin(); iter != _asynDirty.end(); )
+    {
+        auto asynData = *iter;
+        auto flag = asynData->_flag;
+
+        if(UNLIKELY(BitUtil::IsSet(flag, AsynOpType::OP_DESTROY)))
+        {// 数据销毁
+            _Destroy(asynData->_data);
+            asynData = NULL;
+        }
+        else
+        {
+            // 先执行移除
+            if(BitUtil::IsSet(flag, AsynOpType::OP_UNREGISTER))
+                _UnRegister(asynData->_data);
+
+            // 最后添加
+            if(BitUtil::IsSet(flag, AsynOpType::OP_REGISTER) && asynData->_data->_owner)
+                _Register(asynData->_data, asynData->_newPeriod, asynData->_newExpiredTime);
+
+            // 重置数据
+            asynData->Reset();
+        }
+        
+        iter = _asynDirty.erase(iter);
+    }
+}
+
 TimerMgr::TimerMgr() 
 :_launchThreadId(0)
 ,_driving(0)
@@ -319,41 +354,6 @@ void TimerMgr::OnTimerDestroy(TimeData *timeData)
     else
     {
         _AsynDestroy(timeData);
-    }
-}
-
-void TimerMgr::_AfterDrive()
-{
-    if(--_driving > 0)
-        return;
-
-    _driving = 0;
-
-    for(auto iter = _asynDirty.begin(); iter != _asynDirty.end(); )
-    {
-        auto asynData = *iter;
-        auto flag = asynData->_flag;
-
-        if(UNLIKELY(BitUtil::IsSet(flag, AsynOpType::OP_DESTROY)))
-        {// 数据销毁
-            _Destroy(asynData->_data);
-            asynData = NULL;
-        }
-        else
-        {
-            // 先执行移除
-            if(BitUtil::IsSet(flag, AsynOpType::OP_UNREGISTER))
-                _UnRegister(asynData->_data);
-
-            // 最后添加
-            if(BitUtil::IsSet(flag, AsynOpType::OP_REGISTER) && asynData->_data->_owner)
-                _Register(asynData->_data, asynData->_newPeriod, asynData->_newExpiredTime);
-
-            // 重置数据
-            asynData->Reset();
-        }
-        
-        iter = _asynDirty.erase(iter);
     }
 }
 

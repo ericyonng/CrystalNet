@@ -363,7 +363,7 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         ++g_curGenCount;
 
         startCounter.Update();
-        timerMgrSelf->Drive();
+        timerMgr->Drive();
         g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
         ++g_TimerDriveCount;
 
