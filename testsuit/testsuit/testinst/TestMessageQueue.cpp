@@ -316,6 +316,8 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
     // 设置
     memoryCleaner->SetTimerMgr(timerMgr.AsSelf());
 
+    auto timerMgrSelf = timerMgr.AsSelf();
+
     // 启动内存清理
     do
     {
@@ -361,7 +363,7 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         ++g_curGenCount;
 
         startCounter.Update();
-        timerMgr->Drive();
+        timerMgrSelf->Drive();
         g_TimerDriveTime += endCounter.Update().ElapseNanoseconds(startCounter);
         ++g_TimerDriveCount;
 
