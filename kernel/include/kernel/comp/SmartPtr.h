@@ -195,6 +195,7 @@ public:
     const SpecifyType *Cast() const;
 
     // 利用模版,在调用的地方静态断言删除类型:void func(void *&)
+    template<AutoDelMethods::Way ImplType = AutoDelMethods::CustomDelete>
     void SetDelegate(IDelegate<void, void *> *delg);
     // void func(void *)
     template<typename ClosureType, AutoDelMethods::Way ImplType = AutoDelMethods::CustomDelete>
@@ -354,6 +355,7 @@ ALWAYS_INLINE const SpecifyType *SmartPtr<ObjType, delMethod>::Cast() const
 
 // 利用模版,在调用的地方静态断言删除类型:void func(void *&)
 template<typename ObjType, AutoDelMethods::Way delMethod>
+template<AutoDelMethods::Way ImplType>
 ALWAYS_INLINE void SmartPtr<ObjType, delMethod>::SetDelegate(IDelegate<void, void *> *delg)
 {
     // static_assert(ImplType == delMethod, "ImplType must be delMethod");
