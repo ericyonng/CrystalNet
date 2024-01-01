@@ -21,21 +21,70 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
+ * Date: 2023-12-31 20:04:11
  * Author: Eric Yonng
- * Date: 2021-03-17 10:32:45
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TIMER_TIMER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TIMER_TIMER_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TIME_WHEEL_TASK_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TIME_WHEEL_TASK_H__
 
 #pragma once
 
-#include <kernel/comp/Timer/TimeData.h>
-#include <kernel/comp/Timer/LibTimer.h>
-#include <kernel/comp/Timer/TimerMgr.h>
-#include <kernel/comp/Timer/TimeWheel.h>
-#include <kernel/comp/Timer/TimeWheelTimer.h>
-#include <kernel/comp/Timer/TimerWheelTask.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/LibString.h>
+
+KERNEL_BEGIN
+
+class TimeWheelTimer;
+
+// 能被TimerWhell销毁的条件:_attachTimer为空
+// 能被attachTimer销毁的条件:_isInTick为false
+class KERNEL_EXPORT TimerWheelTask
+{
+    POOL_CREATE_OBJ_DEFAULT(TimerWheelTask);
+
+public:
+    explicit TimerWheelTask();
+    ~TimerWheelTask(){
+        _head = NULL;
+        _pre = NULL;
+        _next = NULL;
+        _attachTimer = NULL;
+        _isInTicking = false;
+    }
+
+    void UpdateTimerInfo();
+
+    LibString ToString() const;
+    
+public:
+    // 链表头
+    TimerWheelTask **_head;
+    TimerWheelTask *_pre;
+    TimerWheelTask *_next;
+
+    // 当前过期时间 ns
+    Int64 _expiredTime;
+
+    // 定时周期 ns
+    Int64 _period;
+
+    // 是否需要调度
+    bool _isScheduling;
+
+    // 定时器
+    TimeWheelTimer *_attachTimer;
+
+    // 是否正在tick
+    bool _isInTicking;
+
+    // timer 的信息
+    LibString _timerInfo;
+};
+
+KERNEL_END
+
 
 #endif
+

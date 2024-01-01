@@ -21,21 +21,46 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
+ * Date: 2023-12-31 20:05:04
  * Author: Eric Yonng
- * Date: 2021-03-17 10:32:45
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TIMER_TIMER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TIMER_TIMER_H__
-
-#pragma once
-
-#include <kernel/comp/Timer/TimeData.h>
-#include <kernel/comp/Timer/LibTimer.h>
-#include <kernel/comp/Timer/TimerMgr.h>
-#include <kernel/comp/Timer/TimeWheel.h>
-#include <kernel/comp/Timer/TimeWheelTimer.h>
+#include <pch.h>
 #include <kernel/comp/Timer/TimerWheelTask.h>
+#include <kernel/comp/Timer/TimeWheelTimer.h>
 
-#endif
+KERNEL_BEGIN
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(TimerWheelTask);
+
+TimerWheelTask::TimerWheelTask()
+:_head(NULL)
+,_pre(NULL)
+,_next(NULL)
+,_expiredTime(0)
+,_period(0)
+,_isScheduling(false)
+,_attachTimer(NULL)
+,_isInTicking(false)
+{
+
+}
+
+void TimerWheelTask::UpdateTimerInfo()
+{
+    if(LIKELY(_attachTimer))
+        _timerInfo = _attachTimer->ToString();
+}
+
+LibString TimerWheelTask::ToString() const
+{
+    LibString info;
+    const auto &now = LibTime::Now();
+    info.AppendFormat("_expiredTime=[%lld], _period=[%lld], _owner=[%p], _isScheduing=[%d], left time=[%lld](ms), timer info:%s"
+    ,  _expiredTime, _period, _attachTimer, _isScheduling, _expiredTime - now.GetMilliTimestamp(), _timerInfo.c_str());
+
+    return info;
+}
+
+KERNEL_END

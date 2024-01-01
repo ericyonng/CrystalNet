@@ -59,7 +59,7 @@ ALWAYS_INLINE UInt32 CountUtil::Count1InBinary(NumType num)
 {
     auto countArr = _GetCountTable();
     UInt32 countNum = 0;
-    while (num)
+    for (;num;)
     {
         countNum += countArr[num & 0xff];
         num >>= 8;

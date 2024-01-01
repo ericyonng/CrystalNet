@@ -103,7 +103,7 @@ ALWAYS_INLINE void LibTimer::Schedule(const TimeSlice &slice)
 
 ALWAYS_INLINE bool LibTimer::IsScheduling() const
 {
-    return _data->_isScheduing;
+    return _data && _data->_isScheduing;
 }
 
 ALWAYS_INLINE void LibTimer::GiveupTimerData()
@@ -165,7 +165,8 @@ ALWAYS_INLINE void LibTimer::SetCancelHandler(IDelegate<void, LibTimer *> *delg)
 
 ALWAYS_INLINE void LibTimer::OnTimeOut()
 {
-    _timeroutHandler->Invoke(this);
+    if(LIKELY(_timeroutHandler))
+       _timeroutHandler->Invoke(this);
 }
 
 ALWAYS_INLINE TimerMgr *LibTimer::GetMgr()
