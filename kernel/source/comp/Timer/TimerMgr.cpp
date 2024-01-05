@@ -156,7 +156,7 @@ Int64 TimerMgr::Drive()
                 {
                     // 重新被调度
                     if(timeData->_asynData && (!BitUtil::IsSet(timeData->_asynData->_flag, AsynOpType::OP_REGISTER)))
-                        _AsynRegister(timeData, timeData->_period, timeData->_expiredTime + timeData->_period);
+                        _AsynRegister(timeData, timeData->_period, _curTime + timeData->_period);
                 }
             }
         }

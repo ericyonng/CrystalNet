@@ -50,7 +50,7 @@ static ALWAYS_INLINE void RemoveFromTaskList(TimerWheelTask *task)
     if(next)
         next->_pre = pre;
 
-    if(task == *task->_head)
+    if(task->_head && task == *task->_head)
         *task->_head = next;
 
     task->_pre = NULL;
@@ -60,13 +60,11 @@ static ALWAYS_INLINE void RemoveFromTaskList(TimerWheelTask *task)
 
 static ALWAYS_INLINE void AddToTaskList(TimerWheelTask *&head, TimerWheelTask *task)
 {
+    task->_head = &head;
     task->_next = head;
     
     if (LIKELY(head))
-    {
-        task->_head = &head;
         head->_pre = task;
-    }
 
     head = task;
 }
@@ -74,7 +72,7 @@ static ALWAYS_INLINE void AddToTaskList(TimerWheelTask *&head, TimerWheelTask *t
 static ALWAYS_INLINE void InitSlots(TimeWheelLevelSlots *slots, Int32 initPos = 0)
 {
     slots->_pos = initPos;
-    slots->_capacity = TimeWheelLevel::SLOT_BITS;
+    slots->_capacity = 1 << TimeWheelLevel::SLOT_BITS;
     slots->_slots.resize(slots->_capacity);
     for(Int32 idx = 0; idx < slots->_capacity; ++idx)
         slots->_slots[idx] = TaskList::NewThreadLocal_TaskList();
@@ -228,7 +226,7 @@ ALWAYS_INLINE void TimerWheel::_DoAddOneTimerTask(TimerWheelTask *timerTask)
         if(UNLIKELY(levelSlots->_pos >= levelSlots->_capacity))
             continue;
 
-        slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks);
+        slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks) - 1;
         slotIndex = (slotIndex < levelSlots->_pos) ? levelSlots->_pos : slotIndex;
         break;
     }
@@ -283,13 +281,13 @@ Int32 TimerWheel::Init(Int32 maxLevel, Int64 tickIntervalMs)
     _pendingAddTimer = NULL;
 
     _ticking = 0;
-    _startTickMs = 0;
+    _startTickMs = LibTime::NowMilliTimestamp();
     _taskCount = 0;
 
-    _maxTickTime = TimeWheelLevel::SLOTS_TIME_RANGE_BASE_WHEEL_START[_maxLevel];
+    _maxTickTime = TimeWheelLevel::SLOTS_TIME_RANGE_BASE_WHEEL_START[_maxLevel] * _tickIntervalMs;
 
     _levelSlots.resize(_maxLevel + 1);
-    for(Int32 level = TimeWheelLevel::SECOND_LEVEL_SLOTS; level <= _maxLevel; ++level)
+    for(Int32 level = TimeWheelLevel::WORKING_WHELL_LEVEL_SLOTS; level <= _maxLevel; ++level)
     {
         auto newSlots = TimeWheelLevelSlots::NewThreadLocal_TimeWheelLevelSlots(level);
         _levelSlots[level] = newSlots;
@@ -425,7 +423,7 @@ Int64 TimerWheel::Tick()
                     // 不在队列中才需要添加到pending队列
                     if(!curTask->_head)
                     {
-                        head->_expiredTime += head->_period;
+                        curTask->_expiredTime = nowMs + curTask->_period;
                         ++_taskCount;
                         AddToTaskList(pendingAddTimer, curTask);
                     }
@@ -616,7 +614,7 @@ void TimerWheel::_DoReAddPendingTimerTaskList(TimerWheelTask *&timerTask)
             continue;
         }
 
-        // 至少一个tick（保证在下一个tick之后）
+        // 至少一个tick（保证在下一个tick之后） 变负数 TODO:
         auto delayTicks = (head->_expiredTime - _startTickMs - escapeTimeFromStart) / _tickIntervalMs;
         delayTicks = delayTicks > 0 ? delayTicks : 1;
 
@@ -653,8 +651,7 @@ void TimerWheel::_DoReAddPendingTimerTaskList(TimerWheelTask *&timerTask)
             if(UNLIKELY(levelSlots->_pos >= levelSlots->_capacity))
                 continue;
 
-            slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks);
-            slotIndex = (slotIndex < levelSlots->_pos) ? levelSlots->_pos : slotIndex;
+            slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks) + levelSlots->_pos;
             break;
         }
 

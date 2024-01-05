@@ -44,6 +44,8 @@ TimeWheelTimer::TimeWheelTimer(TimerWheel *timerWheel)
 ,_params(Variant::New_Variant())
 ,_timeoutCallback(NULL)
 {
+    _attachTimerTask->_attachTimer = this;
+    
     if(UNLIKELY(!_timeWheel))
     {// 若为空则使用线程本地存储的定时管理器
         auto defObj = TlsUtil::GetDefTls();

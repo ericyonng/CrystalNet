@@ -119,7 +119,7 @@ public:
 
 ALWAYS_INLINE Int32 TimeWheelLevel::GetSlotIndex(Int32 level, UInt64 tickCount)
 {
-    return static_cast<Int32>(((tickCount & SLOT_MASK[level]) >> SLOT_MIN_START_BITS[level]) - 1);
+    return static_cast<Int32>((tickCount & SLOT_MASK[level]) >> SLOT_MIN_START_BITS[level]);
 }
 
 class KERNEL_EXPORT TimeWheelLevelSlots
@@ -173,6 +173,8 @@ public:
     Int64 GetWheelLastTickTime() const;
 
     UInt64 GetTimerLoaded() const;
+
+    Int64 GetTickIntervalMs() const;
 
 private:
     // 当执行完最后一个slot的超时任务后从高级时间轮更更新当前工作轮
@@ -243,6 +245,11 @@ ALWAYS_INLINE void TimerWheel::TakeOverLifeTime(TimeWheelTimer *timer, LambdaTyp
 ALWAYS_INLINE UInt64 TimerWheel::GetTimerLoaded() const
 {
     return _taskCount;
+}
+
+ALWAYS_INLINE Int64 TimerWheel::GetTickIntervalMs() const
+{
+    return _tickIntervalMs;
 }
 
 KERNEL_END
