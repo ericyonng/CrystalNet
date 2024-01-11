@@ -246,6 +246,7 @@ ALWAYS_INLINE void TimerWheel::_DoAddOneTimerTask(TimerWheelTask *timerTask)
 TimerWheel::TimerWheel()
 :_tickIntervalMs(1)
 ,_startTickMs(0)
+,_lastTickMs(0)
 ,_maxLevel(TimeWheelLevel::WORKING_WHELL_LEVEL_SLOTS)
 ,_maxTickTime(0)
 ,_ticking(0)
@@ -282,6 +283,7 @@ Int32 TimerWheel::Init(Int32 maxLevel, Int64 tickIntervalMs)
 
     _ticking = 0;
     _startTickMs = LibTime::NowMilliTimestamp();
+    _lastTickMs = _startTickMs;
     _taskCount = 0;
 
     _maxTickTime = TimeWheelLevel::SLOTS_TIME_RANGE_BASE_WHEEL_START[_maxLevel] * _tickIntervalMs;
@@ -362,14 +364,6 @@ Int64 TimerWheel::Tick()
     ++_ticking;
 
     auto nowMs = LibTime::NowMilliTimestamp();
-    if(UNLIKELY(_startTickMs == 0))
-    {
-        _startTickMs = nowMs;
-
-        --_ticking;
-        return 0;
-    }
-
     // 判断是否有定时任务
     if(_taskCount <= 0)
     {
@@ -378,12 +372,13 @@ Int64 TimerWheel::Tick()
     }
 
     // 计算出过期了多少给slots
-    auto expireSlotsCount = (nowMs - _startTickMs) / _tickIntervalMs;
+    auto expireSlotsCount = (nowMs - _lastTickMs) / _tickIntervalMs;
     if(expireSlotsCount <= 0)
     {
         --_ticking;
         return 0;
     }
+    _lastTickMs = nowMs;
 
     #ifdef ENABLE_PERFORMANCE_RECORD
         TimerWheelTask *timerData = NULL;

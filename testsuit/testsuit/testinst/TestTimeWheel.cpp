@@ -47,7 +47,7 @@ void TestTimeWheel::Run()
             KERNEL_NS::TimeWheelTimer::DeleteThreadLocal_TimeWheelTimer(KERNEL_NS::KernelCastTo<KERNEL_NS::TimeWheelTimer>(p));
         });
 
-        timeWheel->Init(1, 100);
+        timeWheel->Init(2, 10);
 
         timer->SetTimeOutHandler(&Timout1);
         timer->Schedule(3000);

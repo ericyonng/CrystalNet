@@ -196,6 +196,8 @@ private:
     Int64 _tickIntervalMs;
     // 时间轮起始时间, 当时间轮最大级轮转完之后更新
     Int64 _startTickMs;
+    // 最后一次tick的时间
+    Int64 _lastTickMs;
     // 时间轮的最大级数
     Int32 _maxLevel;
     // 最大定时时长
