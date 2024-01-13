@@ -1714,9 +1714,14 @@ void IocpTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHe
 
      if (!iocpSession->HasDataToSend())
          iocpSession->ForbidSend();
+     else
+        dirtyHelper->MaskDirty(session, PollerDirty::WRITE);
+         
      if (!iocpSession->HasDataToRecv())
          iocpSession->ForbidRecv();
-
+     else
+        dirtyHelper->MaskDirty(session, PollerDirty::READ);
+        
      if(_CanClose(iocpSession))
      {
          g_Log->NetDebug(LOGFMT_OBJ_TAG("session close dirty do close session session info:%s, closeReason:%d, %s, stub:%llu")
@@ -1726,8 +1731,11 @@ void IocpTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHe
          return;
      }
 
-     g_Log->NetInfo(LOGFMT_OBJ_TAG("session will still mask close flag and close session in future closeReason:%d,%s, session info:%s.")
-                    , closeReason, CloseSessionInfo::GetCloseReason(closeReason), iocpSession->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetDebug))
+    {
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("session will still mask close flag and close session in future closeReason:%d,%s, session info:%s.")
+                        , closeReason, CloseSessionInfo::GetCloseReason(closeReason), iocpSession->ToString().c_str());
+    }
 }
 
 void IocpTcpPoller::_OnMonitorThread(LibThread *t)

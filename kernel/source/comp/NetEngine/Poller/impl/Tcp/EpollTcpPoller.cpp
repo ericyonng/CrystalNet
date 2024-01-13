@@ -1338,8 +1338,13 @@ void EpollTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyH
 
      if (!epollSession->HasDataToSend())
          epollSession->ForbidSend();
+     else
+        dirtyHelper->MaskDirty(session, PollerDirty::WRITE);
+         
      if (!epollSession->HasDataToRecv())
          epollSession->ForbidRecv();
+     else
+        dirtyHelper->MaskDirty(session, PollerDirty::READ);
 
      if(_CanClose(epollSession))
      {
@@ -1350,8 +1355,11 @@ void EpollTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyH
          return;
      }
 
-     g_Log->NetInfo(LOGFMT_OBJ_TAG("session will still mask close flag and close session in future closeReason:%d,%s, session info:%s.")
-                    , closeReason, CloseSessionInfo::GetCloseReason(closeReason), epollSession->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetDebug))
+    {
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("session will still mask close flag and close session in future closeReason:%d,%s, session info:%s.")
+                        , closeReason, CloseSessionInfo::GetCloseReason(closeReason), epollSession->ToString().c_str());
+    }
 }
 
 void EpollTcpPoller::_DestroyConnect(LibConnectPendingInfo *&connectPendingInfo, bool destroyConnectInfo)
