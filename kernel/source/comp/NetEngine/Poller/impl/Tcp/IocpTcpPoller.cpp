@@ -1714,14 +1714,14 @@ void IocpTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHe
 
      if (!iocpSession->HasDataToSend())
          iocpSession->ForbidSend();
-     else
+     else if(!iocpSession->IsLinker() && iocpSession->CanSend())
         dirtyHelper->MaskDirty(session, PollerDirty::WRITE);
          
      if (!iocpSession->HasDataToRecv())
          iocpSession->ForbidRecv();
-     else
+     else if(!iocpSession->IsLinker() && iocpSession->CanRecv())
         dirtyHelper->MaskDirty(session, PollerDirty::READ);
-        
+
      if(_CanClose(iocpSession))
      {
          g_Log->NetDebug(LOGFMT_OBJ_TAG("session close dirty do close session session info:%s, closeReason:%d, %s, stub:%llu")

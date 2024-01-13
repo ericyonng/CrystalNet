@@ -1338,12 +1338,12 @@ void EpollTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyH
 
      if (!epollSession->HasDataToSend())
          epollSession->ForbidSend();
-     else
+     else if((!epollSession->IsLinker()) && epollSession->CanSend())
         dirtyHelper->MaskDirty(session, PollerDirty::WRITE);
          
      if (!epollSession->HasDataToRecv())
          epollSession->ForbidRecv();
-     else
+     else if((!epollSession->IsLinker()) && epollSession->CanRecv())
         dirtyHelper->MaskDirty(session, PollerDirty::READ);
 
      if(_CanClose(epollSession))
