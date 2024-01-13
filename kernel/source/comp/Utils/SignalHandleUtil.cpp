@@ -53,6 +53,17 @@ extern "C"
 
         KERNEL_NS::SignalHandleUtil::SetSignoTrigger(signalNo);
 
+        // 信号忽略
+        if(KERNEL_NS::SignalHandleUtil::IsIgnoreSigno(signalNo))
+        {
+            if(LIKELY(g_Log))
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "signal:%d, %s, is ignore, process id:%d thread id:%llu, main thread id:%llu")
+                    , signalNo, KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), processId, KERNEL_NS::SystemUtil::GetCurrentThreadId(), mainThreadId);
+            }
+            return;
+        }
+
         // 可恢复栈帧的信号 经常coredump 恢复栈帧的先延后TODO
         // if(KERNEL_NS::SignalHandleUtil::IsSignalRecoverable(signalNo, true))
         // {
@@ -65,17 +76,6 @@ extern "C"
             auto &tasks = KERNEL_NS::SignalHandleUtil::GetTasks(signalNo);
             for (auto delg : tasks)
                 delg->Invoke();
-        }
-
-        // 信号忽略
-        if(KERNEL_NS::SignalHandleUtil::IsIgnoreSigno(signalNo))
-        {
-            if(LIKELY(g_Log))
-            {
-                g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "signal:%d, %s, is ignore, process id:%d thread id:%llu, main thread id:%llu")
-                    , signalNo, KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), processId, KERNEL_NS::SystemUtil::GetCurrentThreadId(), mainThreadId);
-            }
-            return;
         }
 
         // 4.恢复系统默认处理方式
