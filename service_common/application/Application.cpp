@@ -204,6 +204,8 @@ Int32 Application::_OnHostInit()
         }
     }
 
+    KERNEL_NS::SignalHandleUtil::SetSignoIgnore(_memoryLogSigno);
+
     return Status::Success;
 }
 
