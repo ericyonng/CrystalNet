@@ -82,7 +82,7 @@ protected:
     virtual void _OnServiceRegisterComps() final;
     // 服务初始化 配置
     virtual Int32 _OnServiceInit() final;
-        // 优先级组件完成
+    // 优先级组件完成
     virtual Int32 _OnServicePriorityLevelCompsCreated() override;
     // 服务组件创建完成
     virtual Int32 _OnServiceCompsCreated() final;
