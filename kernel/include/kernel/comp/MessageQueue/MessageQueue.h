@@ -78,10 +78,12 @@ public:
 
     // 35ns左右
     void SwapQueue(LibList<Elem, BuildType> *&elems);
+    void PopTo(LibList<Elem, BuildType> *&elems);
     UInt64 GetAmount() const;
 
 private:
     LockType _lck;
+    std::atomic<UInt64> _queueCount;
     LibList<Elem, BuildType> *_queue;
 };
 
@@ -93,7 +95,8 @@ POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(MessageQueue, Elem, BuildType, LockType
 
 template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE MessageQueue<Elem, BuildType, LockType>::MessageQueue()
-:_queue(LibList<Elem, BuildType>::NewByAdapter_LibList(BuildType::V))
+:_queueCount{0}
+,_queue(LibList<Elem, BuildType>::NewByAdapter_LibList(BuildType::V))
 {
 
 }
@@ -107,6 +110,7 @@ ALWAYS_INLINE MessageQueue<Elem, BuildType, LockType>::~MessageQueue()
         LibList<Elem, BuildType>::DeleteByAdapter_LibList(BuildType::V, _queue);
         _queue = NULL;
     }
+    _queueCount.store(0, , std::memory_order_release);
     _lck.Unlock();
 }
 
@@ -115,6 +119,7 @@ ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::Clear()
 {
     _lck.Lock();
     _queue->Clear();
+    _queueCount.store(0, , std::memory_order_release);
     _lck.Unlock();
 }
 
@@ -123,6 +128,7 @@ ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::PushBack(Elem e)
 {
     _lck.Lock();
     _queue->PushBack(e);
+    _queueCount.fetch_add(1, std::memory_order_release);
     _lck.Unlock();
 }
 
@@ -130,6 +136,7 @@ template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::MergeTail(LibList<Elem, BuildType> *elems)
 {
     _lck.Lock();
+    _queueCount.fetch_add(elems->GetAmount(), std::memory_order_release);
     _queue->MergeTail(elems);
     _lck.Unlock();
 }
@@ -143,6 +150,7 @@ ALWAYS_INLINE bool MessageQueue<Elem, BuildType, LockType>::PopFront(Elem &e)
     _lck.Lock();
     e = _queue->Begin()->_data;
     _queue->PopFront();
+    _queueCount.fetch_sub(1, std::memory_order_release);
     _lck.Unlock();
 
     return true;
@@ -156,13 +164,23 @@ ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::SwapQueue(LibList<El
     auto temp = _queue;
     _queue = elems;
     elems = temp;
+    _queueCount.exchange(_queue->GetAmount(), std::memory_order_release);
+    _lck.Unlock();
+}
+
+template<typename Elem, typename BuildType, typename LockType>
+ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::PopTo(LibList<Elem, BuildType> *&elems)
+{
+    _lck.Lock();
+    elems->MergeTail(_queue);
+    _queueCount.store(0, , std::memory_order_release);
     _lck.Unlock();
 }
 
 template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE UInt64 MessageQueue<Elem, BuildType, LockType>::GetAmount() const
 {
-    return _queue->GetAmount();
+    return _queueCount.load(std::memory_order_acquire);
 }
 
 KERNEL_END
