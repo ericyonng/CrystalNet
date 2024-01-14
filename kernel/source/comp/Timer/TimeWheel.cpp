@@ -175,13 +175,6 @@ ALWAYS_INLINE Int64 TimerWheel::_GetWheelLastTickTime() const
 
 ALWAYS_INLINE void TimerWheel::_DoAddOneTimerTask(TimerWheelTask *timerTask)
 {
-    auto escapeTimeFromStart = _GetWheelEscapeTimeFromStart();
-    if(UNLIKELY(escapeTimeFromStart >= _maxTickTime))
-    {// 已经超过了定时范围放到超长定时队列
-        AddToTaskList(_tooLongTimeQueue, timerTask);
-        return;
-    }
-
     // 超长定时放在超长队列
     if(timerTask->_expiredTime > (_startTickMs + _maxTickTime))
     {
@@ -190,7 +183,7 @@ ALWAYS_INLINE void TimerWheel::_DoAddOneTimerTask(TimerWheelTask *timerTask)
     }
 
     // 至少一个tick（保证在下一个tick之后）
-    auto delayTicks = (timerTask->_expiredTime - _startTickMs - escapeTimeFromStart) / _tickIntervalMs;
+    auto delayTicks = (timerTask->_expiredTime - _startTickMs) / _tickIntervalMs;
     delayTicks = delayTicks > 0 ? delayTicks : 1;
 
     Int32 level = 0;
@@ -212,31 +205,19 @@ ALWAYS_INLINE void TimerWheel::_DoAddOneTimerTask(TimerWheelTask *timerTask)
     }
     else
     {
-        level = TimeWheelLevel::FIFTH_LEVEL_SLOTS;
+        AddToTaskList(_tooLongTimeQueue, timerTask);
+        return;
     }
 
-    level = level > _maxLevel ? _maxLevel : level;
-    Int32 slotIndex = -1;
-    TimeWheelLevelSlots *levelSlots = NULL;
-    for(; level <= _maxLevel; ++level)
-    {
-        levelSlots = _levelSlots[level];
-
-        // 满了放到下级
-        if(UNLIKELY(levelSlots->_pos >= levelSlots->_capacity))
-            continue;
-
-        slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks) - 1;
-        slotIndex = (slotIndex < levelSlots->_pos) ? levelSlots->_pos : slotIndex;
-        break;
-    }
-
-    // 都找不到合适的(可能都满了放到超长定时队列
-    if(slotIndex < 0)
+    if(level > _maxLevel)
     {
         AddToTaskList(_tooLongTimeQueue, timerTask);
         return;
     }
+
+    auto levelSlots = _levelSlots[level];
+    auto slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks);
+    slotIndex = slotIndex < levelSlots->_pos ? levelSlots->_pos : slotIndex;
 
     // 放到指定的任务队列中
     AddToTaskList(levelSlots->_slots[slotIndex]->_tasks, timerTask);
@@ -555,7 +536,7 @@ bool TimerWheel::_UpdateSlotsFromHighLevel(TimeWheelLevelSlots *currentSlot, std
     currentSlot->Reset();
 
     const auto currentLevelMask = TimeWheelLevel::SLOT_MASK[currentSlot->_level];
-    const auto rightShiftBits = TimeWheelLevel::SLOT_MASK[currentSlot->_level];
+    const auto rightShiftBits = TimeWheelLevel::SLOT_MIN_START_BITS[currentSlot->_level];
     for(auto head = slots->_tasks; head; head = slots->_tasks)
     {
         RemoveFromTaskList(head);
@@ -586,18 +567,6 @@ void TimerWheel::_ResetWheel()
 
 void TimerWheel::_DoReAddPendingTimerTaskList(TimerWheelTask *&timerTask)
 {
-    auto escapeTimeFromStart = _GetWheelEscapeTimeFromStart();
-    if(UNLIKELY(escapeTimeFromStart >= _maxTickTime))
-    {// 已经超过了定时范围放到超长定时队列
-        for(auto head = timerTask; head; head = timerTask)
-        {
-            RemoveFromTaskList(head);
-            AddToTaskList(_tooLongTimeQueue, head);
-        }
-
-        return;
-    }
-
     for(auto head = timerTask; head; head = timerTask)
     {
         RemoveFromTaskList(head);
@@ -610,7 +579,7 @@ void TimerWheel::_DoReAddPendingTimerTaskList(TimerWheelTask *&timerTask)
         }
 
         // 至少一个tick（保证在下一个tick之后） 变负数 TODO:
-        auto delayTicks = (head->_expiredTime - _startTickMs - escapeTimeFromStart) / _tickIntervalMs;
+        auto delayTicks = (head->_expiredTime - _startTickMs) / _tickIntervalMs;
         delayTicks = delayTicks > 0 ? delayTicks : 1;
 
         Int32 level = 0;
@@ -632,30 +601,19 @@ void TimerWheel::_DoReAddPendingTimerTaskList(TimerWheelTask *&timerTask)
         }
         else
         {
-            level = TimeWheelLevel::FIFTH_LEVEL_SLOTS;
+            AddToTaskList(_tooLongTimeQueue, head);
+            continue;
         }
 
-        level = level > _maxLevel ? _maxLevel : level;
-        Int32 slotIndex = -1;
-        TimeWheelLevelSlots *levelSlots = NULL;
-        for(; level <= _maxLevel; ++level)
-        {
-            levelSlots = _levelSlots[level];
-
-            // 满了放到下级
-            if(UNLIKELY(levelSlots->_pos >= levelSlots->_capacity))
-                continue;
-
-            slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks) + levelSlots->_pos;
-            break;
-        }
-
-        // 都找不到合适的(可能都满了放到超长定时队列
-        if(slotIndex < 0)
+        if(level > _maxLevel)
         {
             AddToTaskList(_tooLongTimeQueue, head);
             continue;
         }
+
+        auto levelSlots = _levelSlots[level];
+        auto slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks);
+        slotIndex = slotIndex < levelSlots->_pos ? levelSlots->_pos : slotIndex;
 
         // 放到指定的任务队列中
         AddToTaskList(levelSlots->_slots[slotIndex]->_tasks, head);
@@ -664,12 +622,6 @@ void TimerWheel::_DoReAddPendingTimerTaskList(TimerWheelTask *&timerTask)
 
 void TimerWheel::_TryReAddTooLongTaskList(TimerWheelTask *&timerTask)
 {
-    auto escapeTimeFromStart = _GetWheelEscapeTimeFromStart();
-    if(UNLIKELY(escapeTimeFromStart >= _maxTickTime))
-    {// 已经超过了定时范围放到超长定时队列
-        return;
-    }
-
     TimerWheelTask *pendingTail = NULL;
     TimerWheelTask *pendingHead = NULL;
     for(auto head = timerTask; head; head = timerTask)
@@ -689,7 +641,7 @@ void TimerWheel::_TryReAddTooLongTaskList(TimerWheelTask *&timerTask)
         }
 
         // 至少一个tick（保证在下一个tick之后）
-        auto delayTicks = (head->_expiredTime - _startTickMs - escapeTimeFromStart) / _tickIntervalMs;
+        auto delayTicks = (head->_expiredTime - _startTickMs) / _tickIntervalMs;
         delayTicks = delayTicks > 0 ? delayTicks : 1;
 
         Int32 level = 0;
@@ -711,27 +663,16 @@ void TimerWheel::_TryReAddTooLongTaskList(TimerWheelTask *&timerTask)
         }
         else
         {
-            level = TimeWheelLevel::FIFTH_LEVEL_SLOTS;
+            if(!pendingTail)
+                pendingTail= head;
+
+            AddToTaskList(pendingHead, head);
+
+            head->_head = &timerTask;
+            continue;
         }
 
-        level = level > _maxLevel ? _maxLevel : level;
-        Int32 slotIndex = -1;
-        TimeWheelLevelSlots *levelSlots = NULL;
-        for(; level <= _maxLevel; ++level)
-        {
-            levelSlots = _levelSlots[level];
-
-            // 满了放到下级
-            if(UNLIKELY(levelSlots->_pos >= levelSlots->_capacity))
-                continue;
-
-            slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks);
-            slotIndex = (slotIndex < levelSlots->_pos) ? levelSlots->_pos : slotIndex;
-            break;
-        }
-
-        // 都找不到合适的(可能都满了放到超长定时队列)
-        if(slotIndex < 0)
+        if(level > _maxLevel)
         {
             if(!pendingTail)
                 pendingTail= head;
@@ -741,6 +682,10 @@ void TimerWheel::_TryReAddTooLongTaskList(TimerWheelTask *&timerTask)
             head->_head = &timerTask;
             continue;
         }
+
+        auto levelSlots = _levelSlots[level];
+        auto slotIndex = TimeWheelLevel::GetSlotIndex(level, delayTicks);
+        slotIndex = slotIndex < levelSlots->_pos ? levelSlots->_pos : slotIndex;
 
         // 放到指定的任务队列中
         AddToTaskList(levelSlots->_slots[slotIndex]->_tasks, head);
