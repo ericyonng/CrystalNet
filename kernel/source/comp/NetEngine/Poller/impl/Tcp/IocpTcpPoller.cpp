@@ -826,6 +826,7 @@ Int32 IocpTcpPoller::_OnHostStart()
 void IocpTcpPoller::_OnHostBeforeCompsWillClose()
 {
     g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller before comps will close."));
+    
     // 先关闭iocp worker线程
     if(_monitor && _monitor->HalfClose())
     {

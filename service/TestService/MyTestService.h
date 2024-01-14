@@ -48,6 +48,7 @@ struct PollerEvent;
 class Poller;
 class LibEvent;
 class LibTimer;
+struct PollerConfig;
 
 KERNEL_END
 
@@ -70,6 +71,7 @@ public:
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) final;
     virtual const KERNEL_NS::IProtocolStack *GetProtocolStack(Int32 prototalStackType) const final;
 
+    virtual const KERNEL_NS::PollerConfig &GetPollerConfig() const override;
 
     // 获取定时器
     KERNEL_NS::TimerMgr *GetTimerMgr() override;
@@ -97,6 +99,8 @@ protected:
     virtual void _OnServiceRegisterComps() final;
     // 服务初始化 配置
     virtual Int32 _OnServiceInit() final;
+    // 优先级组件完成
+    virtual Int32 _OnServicePriorityLevelCompsCreated() override;
     // 服务组件创建完成
     virtual Int32 _OnServiceCompsCreated() final;
     // 服务完全启动

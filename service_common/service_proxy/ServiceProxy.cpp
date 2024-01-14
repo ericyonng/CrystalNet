@@ -40,8 +40,6 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceProxy);
 ServiceProxy::ServiceProxy()
 :_maxServiceId{0}
 ,_closeServiceNum{0}
-,_tcpPollerMgr(NULL)
-,_pollerMgr(NULL)
 ,_serviceFactory(NULL)
 {
 
@@ -106,129 +104,6 @@ KERNEL_NS::IProtocolStack *ServiceProxy::GetProtocolStack(KERNEL_NS::LibSession 
     return service->GetProtocolStack(session);
 }
 
-void ServiceProxy::TcpAddListen(UInt64 fromServiceId, Int32 level, Int32 family, const KERNEL_NS::LibString &ip, UInt16 port, Int32 sessionCount, UInt64 stub, const KERNEL_NS::SessionOption &sessionOption)
-{
-    auto service = _GetService(fromServiceId);
-    if(UNLIKELY(!service))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("tcp add listen fail service not exists serviceId:%llu, ip:%s, port:%hu, stub:%llu"), fromServiceId, ip.c_str(), port, stub);
-        return;
-    }
-
-    auto listenInfo = KERNEL_NS::LibListenInfo::New_LibListenInfo();
-    listenInfo->_ip = ip;
-    listenInfo->_port = port;
-    listenInfo->_family = family;
-    listenInfo->_serviceId = fromServiceId;
-    listenInfo->_stub = stub;
-    listenInfo->_priorityLevel = level;
-    listenInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
-    listenInfo->_sessionCount = sessionCount;
-    listenInfo->_sessionOption = sessionOption;
-    g_Log->Info(LOGFMT_OBJ_TAG("add listen info:%s"), listenInfo->ToString().c_str());
-    _tcpPollerMgr->PostAddlisten(level, listenInfo);
-}
-
-void ServiceProxy::TcpAsynConnect(UInt64 fromServiceId, UInt64 stub, Int32 level, UInt16 family, const KERNEL_NS::LibString &remoteIp, UInt16 remotePort,
-const KERNEL_NS::SessionOption &sessionOption, KERNEL_NS::IProtocolStack *protocolStack, Int32 retryTimes, Int64 periodMs,
-const KERNEL_NS::LibString &localIp, UInt16 localPort)
-{
-    auto service = _GetService(fromServiceId);
-    if(UNLIKELY(!service))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("tcp asyn connect fail service not exists serviceId:%llu, remoteIp:%s, remotePort:%hu, stub:%llu, localIp:%s, localPort:%hu")
-                    , fromServiceId, remoteIp.c_str(), remotePort, stub, localIp.c_str(), localPort);
-        return;
-    }
-
-    auto connectInfo = KERNEL_NS::LibConnectInfo::New_LibConnectInfo();
-    connectInfo->_localIp = localIp;
-    connectInfo->_localPort = localPort;
-    connectInfo->_targetIp = remoteIp;
-    connectInfo->_targetPort = remotePort;
-    connectInfo->_family = family;
-    connectInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
-    connectInfo->_priorityLevel = level;
-    connectInfo->_pollerId = 0;
-    connectInfo->_retryTimes = retryTimes;
-    connectInfo->_periodMs = periodMs;
-    connectInfo->_stub = stub;
-    connectInfo->_fromServiceId = fromServiceId;
-    connectInfo->_stack = protocolStack;
-    connectInfo->_sessionOption = sessionOption;
-    // g_Log->Info(LOGFMT_OBJ_TAG("add connect info:%s"), connectInfo->ToString().c_str());
-    _tcpPollerMgr->PostConnect(connectInfo);
-}
-
-void ServiceProxy::TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, KERNEL_NS::LibPacket *packet)
-{
-    // g_Log->Info(LOGFMT_OBJ_TAG("service send msg session id:%llu, packet:%s"), sessionId, packet->ToString().c_str());
-    _tcpPollerMgr->PostSend(pollerId, level, sessionId, packet);
-    // g_Log->Debug(LOGFMT_OBJ_TAG("send msg packet info:%s"), packet->ToString().c_str());
-}
-
-void ServiceProxy::TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *packets)
-{
-    auto stackLimit = GetApp()->GetKernelConfig()._sessionRecvPacketStackLimit;
-
-    if(LIKELY((stackLimit == 0) || packets->GetAmount() <= stackLimit))
-    {
-        _tcpPollerMgr->PostSend(pollerId, level, sessionId, packets);
-        return;
-    }
-
-    KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *packetList = NULL;
-    for(auto node = packets->Begin(); node;)
-    {
-        if(UNLIKELY(packetList == NULL))
-            packetList = KERNEL_NS::LibList<KERNEL_NS::LibPacket *>::New_LibList();
-
-        packetList->PushBack(node->_data);
-        if(UNLIKELY((stackLimit != 0) && (packetList->GetAmount() >= stackLimit)))
-        {
-            _tcpPollerMgr->PostSend(pollerId, level, sessionId, packetList);
-            packetList = NULL;
-        }
-
-        node = packets->Erase(node);
-    }
-
-    if(LIKELY(packetList))
-        _tcpPollerMgr->PostSend(pollerId, level, sessionId, packetList);
-
-    // g_Log->Debug(LOGFMT_OBJ_TAG("send msg packets count:%llu"), packets->GetAmount());
-}
-
-void ServiceProxy::TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets)
-{
-    KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *packetList = NULL;
-    auto stackLimit = GetApp()->GetKernelConfig()._sessionRecvPacketStackLimit;
-    for(auto packet : packets)
-    {
-        if(UNLIKELY(packetList == NULL))
-            packetList = KERNEL_NS::LibList<KERNEL_NS::LibPacket *>::New_LibList();
-        
-        packetList->PushBack(packet);
-
-        if(UNLIKELY((stackLimit != 0) && (packetList->GetAmount() >= stackLimit)))
-        {
-            _tcpPollerMgr->PostSend(pollerId, level, sessionId, packetList);
-            packetList = NULL;
-        }
-    }
-
-    if(LIKELY(packetList))
-        _tcpPollerMgr->PostSend(pollerId, level, sessionId, packetList);
-
-    // g_Log->Debug(LOGFMT_OBJ_TAG("send msg packets count:%llu"), static_cast<UInt64>(packets.size()));
-}
-
-
-void ServiceProxy::TcpCloseSession(UInt64 pollerId, UInt64 fromeService, Int32 level, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
-{
-    _tcpPollerMgr->PostCloseSession(pollerId, fromeService, level, sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
-    g_Log->Info(LOGFMT_OBJ_TAG("post close session sessionId:%llu"), sessionId);
-}
 
 void ServiceProxy::CloseApp(Int32 err)
 {
@@ -260,102 +135,10 @@ void ServiceProxy::Clear()
     g_Log->Info(LOGFMT_OBJ_TAG("service proxy clear"));
 }
 
-
-void ServiceProxy::AddWhite(const KERNEL_NS::LibString &ip, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    auto newInfo = KERNEL_NS::IpControlInfo::Create();
-    newInfo->_ip = ip;
-    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_WHITE);
-    ControlIpPipline(newList, level);
-}
-
-void ServiceProxy::AddBlack(const KERNEL_NS::LibString &ip, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    auto newInfo = KERNEL_NS::IpControlInfo::Create();
-    newInfo->_ip = ip;
-    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_BLACK);
-    ControlIpPipline(newList, level);
-}
-
-void ServiceProxy::EraseWhite(const KERNEL_NS::LibString &ip, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    auto newInfo = KERNEL_NS::IpControlInfo::Create();
-    newInfo->_ip = ip;
-    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_WHITE);
-    ControlIpPipline(newList, level);
-}
-
-void ServiceProxy::EraseBlack(const KERNEL_NS::LibString &ip, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    auto newInfo = KERNEL_NS::IpControlInfo::Create();
-    newInfo->_ip = ip;
-    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_BLACK);
-    ControlIpPipline(newList, level);
-}
-
-void ServiceProxy::AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    for(auto &ip : ips)
-    {
-        auto newInfo = KERNEL_NS::IpControlInfo::Create();
-        newInfo->_ip = ip;
-        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_WHITE);
-    }
-    ControlIpPipline(newList, level);
-}
-
-void ServiceProxy::AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    for(auto &ip : ips)
-    {
-        auto newInfo = KERNEL_NS::IpControlInfo::Create();
-        newInfo->_ip = ip;
-        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_BLACK);
-    }
-    ControlIpPipline(newList, level);
-}
-
-void ServiceProxy::EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    for(auto &ip : ips)
-    {
-        auto newInfo = KERNEL_NS::IpControlInfo::Create();
-        newInfo->_ip = ip;
-        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_WHITE);
-    }
-    ControlIpPipline(newList, level);
-}
-
-void ServiceProxy::EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
-{
-    std::list<KERNEL_NS::IpControlInfo *> newList;
-    for(auto &ip : ips)
-    {
-        auto newInfo = KERNEL_NS::IpControlInfo::Create();
-        newInfo->_ip = ip;
-        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_BLACK);
-    }
-    ControlIpPipline(newList, level);
-}
-
-void ServiceProxy::ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level)
-{
-    _tcpPollerMgr->PostIpControl(level, controlInfoList);
-}
-
 Int32 ServiceProxy::_OnInit() 
 {
     // 读取服务相关配置创建服务的线程
     auto application = GetOwner()->CastTo<Application>();
-    _pollerMgr = application->GetComp<KERNEL_NS::IPollerMgr>();
-    _tcpPollerMgr = _pollerMgr->GetComp<KERNEL_NS::TcpPollerMgr>();
     _closeServiceNum = 0;
 
     auto ini = application->GetIni();
@@ -547,12 +330,12 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
     service->OnLoopEnd();
     g_Log->Info(LOGFMT_OBJ_TAG("service %s on event loop end..."), service->IntroduceInfo().c_str());
 
-    g_Log->Info(LOGFMT_OBJ_TAG("service %s will close..."), service->IntroduceInfo().c_str());
-    service->WillClose();
-
     // 剔除所有service的会话
     g_Log->Info(LOGFMT_OBJ_TAG("service %s quit all sessions..."), service->IntroduceInfo().c_str());
-    _pollerMgr->QuitAllSessions(service->GetServiceId());
+    service->GetComp<KERNEL_NS::IPollerMgr>()->QuitAllSessions(service->GetServiceId());
+
+    g_Log->Info(LOGFMT_OBJ_TAG("service %s will close..."), service->IntroduceInfo().c_str());
+    service->WillClose();
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s close..."), service->IntroduceInfo().c_str());
 

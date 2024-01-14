@@ -110,7 +110,7 @@ ALWAYS_INLINE MessageQueue<Elem, BuildType, LockType>::~MessageQueue()
         LibList<Elem, BuildType>::DeleteByAdapter_LibList(BuildType::V, _queue);
         _queue = NULL;
     }
-    _queueCount.store(0, , std::memory_order_release);
+    _queueCount.store(0, std::memory_order_release);
     _lck.Unlock();
 }
 

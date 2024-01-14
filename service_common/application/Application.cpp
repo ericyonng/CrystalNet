@@ -90,7 +90,6 @@ void Application::OnRegisterComps()
     // 内存清理
     RegisterComp<KERNEL_NS::TlsMemoryCleanerCompFactory>();
 
-    RegisterComp<KERNEL_NS::PollerMgrFactory>();
     RegisterComp<ServiceProxyFactory>();
 }
 
@@ -219,11 +218,6 @@ Int32 Application::_OnCompsCreated()
     }
 
     _poller->Subscribe(KERNEL_NS::PollerEventType::QuitApplicationEvent, this, &Application::_OnQuitApplicationEvent);
-
-    // poller mgr 的配置
-    auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
-    pollerMgr->SetConfig(_pollerConfig);
-    pollerMgr->SetServiceProxy(GetComp<SERVICE_COMMON_NS::ServiceProxy>());
 
     // 设置关闭监控
     auto killMonitor = GetComp<IKillMonitorMgr>();
@@ -357,7 +351,6 @@ Int32 Application::_ReadBaseConfigs()
         }
 
         _kernelConfig._blackWhiteListMode = static_cast<UInt32>(cache);
-        _pollerConfig._blackWhiteListFlag = static_cast<UInt32>(cache);
     }
     {// 会话数量
         UInt64 cache = 0;
@@ -373,11 +366,9 @@ Int32 Application::_ReadBaseConfigs()
             }
         }
         _kernelConfig._maxSessionQuantity = cache;
-        _pollerConfig._maxSessionQuantity = cache;
     }
 
     // tcp poller 相关配置
-    auto &tcpPollerConfig = _pollerConfig._tcpPollerConfig;
     {
         UInt64 linkInOutPollerAmount = 0;
         if(!_configIni->CheckReadUInt(APPLICATION_KERNEL_CONFIG_SEG, LINK_IN_OUT_POLLER_AMOUNT_KEY, linkInOutPollerAmount))
@@ -682,90 +673,6 @@ Int32 Application::_ReadBaseConfigs()
                 return Status::ConfigError;
             }
         }
-        
-        {// linker相关配置
-            auto iterLinker = _kernelConfig._pollerFeatureStringRefId.find(POLLER_FEATURE_LINKER);
-            const auto linkerPollerFeatureId = iterLinker->second;
-            auto iterPollerFeatureConfig = tcpPollerConfig._pollerFeatureRefConfig.find(linkerPollerFeatureId);
-            KERNEL_NS::TcpPollerFeatureConfig *newPollerFeatureConfig = NULL;
-            if(iterPollerFeatureConfig == tcpPollerConfig._pollerFeatureRefConfig.end())
-            {
-                newPollerFeatureConfig = KERNEL_NS::TcpPollerFeatureConfig::New_TcpPollerFeatureConfig(&tcpPollerConfig, linkerPollerFeatureId);
-                tcpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(linkerPollerFeatureId, newPollerFeatureConfig));
-            }
-            else
-            {
-                newPollerFeatureConfig = iterPollerFeatureConfig->second;
-            }
-
-            if(static_cast<Int32>(newPollerFeatureConfig->_pollerInstConfigs.size()) < _kernelConfig._linkInOutPollerAmount)
-                newPollerFeatureConfig->_pollerInstConfigs.resize(static_cast<size_t>(_kernelConfig._linkInOutPollerAmount));
-
-            // 创建配置
-            auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
-            for(Int32 idx = 0; idx < _kernelConfig._linkInOutPollerAmount; ++idx)
-            {
-                auto newInstConfig = pollerInstConfigs[idx];
-                if(newInstConfig)
-                    continue;
-
-                newInstConfig = KERNEL_NS::TcpPollerInstConfig::New_TcpPollerInstConfig(newPollerFeatureConfig, static_cast<UInt32>(idx + 1));
-                newInstConfig->_handleRecvBytesPerFrameLimit = _kernelConfig._maxRecvBytesPerFrame;
-                newInstConfig->_handleSendBytesPerFrameLimit = _kernelConfig._maxSendBytesPerFrame;
-                newInstConfig->_handleAcceptPerFrameLimit = _kernelConfig._maxAcceptCountPerFrame;
-                newInstConfig->_maxPieceTimeInMicroseconds = _kernelConfig._maxPieceTimeInMicroSecPerFrame;
-                newInstConfig->_maxSleepMilliseconds = _kernelConfig._maxPollerScanMilliseconds;
-                newInstConfig->_maxPriorityLevel = _kernelConfig._maxPollerMsgPriorityLevel;
-                newInstConfig->_pollerInstMonitorPriorityLevel = _kernelConfig._pollerMonitorEventPriorityLevel;
-                newInstConfig->_bufferCapacity = _kernelConfig._sessionBufferCapicity;
-                newInstConfig->_sessionRecvPacketSpeedLimit = _kernelConfig._sessionRecvPacketSpeedLimit;
-                newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = _kernelConfig._sessionRecvPacketSpeedTimeUnitMs;
-                newInstConfig->_sessionRecvPacketStackLimit = _kernelConfig._sessionRecvPacketStackLimit;
-                pollerInstConfigs[idx] = newInstConfig;
-            }
-        }
-       
-        {// transfer相关配置
-            auto iterTransfer = _kernelConfig._pollerFeatureStringRefId.find(POLLER_FEATURE_DATA_TRANSFER);
-            const auto transferPollerFeatureId = iterTransfer->second;
-            auto iterPollerFeatureConfig = tcpPollerConfig._pollerFeatureRefConfig.find(transferPollerFeatureId);
-            KERNEL_NS::TcpPollerFeatureConfig *newPollerFeatureConfig = NULL;
-            if(iterPollerFeatureConfig == tcpPollerConfig._pollerFeatureRefConfig.end())
-            {
-                newPollerFeatureConfig = KERNEL_NS::TcpPollerFeatureConfig::New_TcpPollerFeatureConfig(&tcpPollerConfig, transferPollerFeatureId);
-                tcpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(transferPollerFeatureId, newPollerFeatureConfig));
-            }
-            else
-            {
-                newPollerFeatureConfig = iterPollerFeatureConfig->second;
-            }
-
-            if(static_cast<Int32>(newPollerFeatureConfig->_pollerInstConfigs.size()) < _kernelConfig._dataTransferPollerAmount)
-                newPollerFeatureConfig->_pollerInstConfigs.resize(static_cast<size_t>(_kernelConfig._dataTransferPollerAmount));
-
-            // 创建配置
-            auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
-            for(Int32 idx = 0; idx < _kernelConfig._dataTransferPollerAmount; ++idx)
-            {
-                auto newInstConfig = pollerInstConfigs[idx];
-                if(newInstConfig)
-                    continue;
-
-                newInstConfig = KERNEL_NS::TcpPollerInstConfig::New_TcpPollerInstConfig(newPollerFeatureConfig,  static_cast<UInt32>(idx + 1));
-                newInstConfig->_handleRecvBytesPerFrameLimit = _kernelConfig._maxRecvBytesPerFrame;
-                newInstConfig->_handleSendBytesPerFrameLimit = _kernelConfig._maxSendBytesPerFrame;
-                newInstConfig->_handleAcceptPerFrameLimit = _kernelConfig._maxAcceptCountPerFrame;
-                newInstConfig->_maxPieceTimeInMicroseconds = _kernelConfig._maxPieceTimeInMicroSecPerFrame;
-                newInstConfig->_maxSleepMilliseconds = _kernelConfig._maxPollerScanMilliseconds;
-                newInstConfig->_maxPriorityLevel = _kernelConfig._maxPollerMsgPriorityLevel;
-                newInstConfig->_pollerInstMonitorPriorityLevel = _kernelConfig._pollerMonitorEventPriorityLevel;
-                newInstConfig->_bufferCapacity = _kernelConfig._sessionBufferCapicity;
-                newInstConfig->_sessionRecvPacketSpeedLimit = _kernelConfig._sessionRecvPacketSpeedLimit;
-                newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = _kernelConfig._sessionRecvPacketSpeedTimeUnitMs;
-                newInstConfig->_sessionRecvPacketStackLimit = _kernelConfig._sessionRecvPacketStackLimit;
-                pollerInstConfigs[idx] = newInstConfig;
-            }
-        }
     }
 
     {// gc 中央收集器等配置
@@ -862,9 +769,6 @@ Int32 Application::_ReadBaseConfigs()
         }
     }
 
-    _pollerConfig._pollerFeatureIdRefString = _kernelConfig._pollerFeatureIdRefString;
-    _pollerConfig._pollerFeatureStringRefId = _kernelConfig._pollerFeatureStringRefId;
-    
     KERNEL_NS::g_LinkerPollerName = POLLER_FEATURE_LINKER;
     KERNEL_NS::g_TransferPollerName = POLLER_FEATURE_DATA_TRANSFER;
 
@@ -1072,13 +976,7 @@ void Application::_OnMonitorThreadFrame()
     _statisticsInfoCache = sw;
     _guard.Unlock();
 
-    // 2.获取poller信息
-    auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
     KERNEL_NS::LibString info;
-    if(pollerMgr && pollerMgr->IsStarted())
-    {
-        pollerMgr->OnMonitor(info);
-    }
 
     // 3.获取service信息
     info.AppendFormat("\n");

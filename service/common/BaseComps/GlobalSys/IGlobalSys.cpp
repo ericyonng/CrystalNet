@@ -83,8 +83,9 @@ void IGlobalSys::Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const
 
     auto sessionInfo = session->GetSessionInfo();
     auto service = IGlobalSys::GetCurrentService();
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->TcpSendMsg(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId, packet);
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+
+    tcpPollerMgr->PostSend(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId, packet);
 }
 
 void IGlobalSys::Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) const
@@ -102,8 +103,25 @@ void IGlobalSys::Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> 
     
     auto sessionInfo = session->GetSessionInfo();
     auto service = IGlobalSys::GetCurrentService();
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->TcpSendMsg(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId, packets);
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *packetList = NULL;
+    auto stackLimit = GetApp()->GetKernelConfig()._sessionRecvPacketStackLimit;
+    for(auto packet : packets)
+    {
+        if(UNLIKELY(packetList == NULL))
+            packetList = KERNEL_NS::LibList<KERNEL_NS::LibPacket *>::New_LibList();
+        
+        packetList->PushBack(packet);
+
+        if(UNLIKELY((stackLimit != 0) && (packetList->GetAmount() >= stackLimit)))
+        {
+            tcpPollerMgr->PostSend(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId, packetList);
+            packetList = NULL;
+        }
+    }
+
+    if(LIKELY(packetList))
+        tcpPollerMgr->PostSend(sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionId, packetList);
 }
 
 void IGlobalSys::Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
@@ -156,8 +174,8 @@ void IGlobalSys::CloseSession(UInt64 sessionId, Int64 closeMillisecondTimeDelay,
 
     auto sessionInfo = session->GetSessionInfo();
     auto service = IGlobalSys::GetCurrentService();
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->TcpCloseSession(sessionInfo->_pollerId, GetService()->GetServiceId(), sessionInfo->_priorityLevel, sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostCloseSession(sessionInfo->_pollerId, service->GetServiceId(), sessionInfo->_priorityLevel, sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
 }
 
 void IGlobalSys::AddWhite(const KERNEL_NS::LibString &ip, Int32 level)
@@ -169,8 +187,12 @@ void IGlobalSys::AddWhite(const KERNEL_NS::LibString &ip, Int32 level)
         return;
     }
 
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->AddWhite(ip, level);
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    auto newInfo = KERNEL_NS::IpControlInfo::Create();
+    newInfo->_ip = ip;
+    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_WHITE);
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostIpControl(level, newList);
 }
 
 void IGlobalSys::AddBlack(const KERNEL_NS::LibString &ip, Int32 level)
@@ -182,8 +204,12 @@ void IGlobalSys::AddBlack(const KERNEL_NS::LibString &ip, Int32 level)
         return;
     }
 
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->AddBlack(ip, level);
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    auto newInfo = KERNEL_NS::IpControlInfo::Create();
+    newInfo->_ip = ip;
+    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_BLACK);
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostIpControl(level, newList);
 }
 
 void IGlobalSys::EraseWhite(const KERNEL_NS::LibString &ip, Int32 level)
@@ -195,8 +221,12 @@ void IGlobalSys::EraseWhite(const KERNEL_NS::LibString &ip, Int32 level)
         return;
     }
 
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->EraseWhite(ip, level);
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    auto newInfo = KERNEL_NS::IpControlInfo::Create();
+    newInfo->_ip = ip;
+    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_WHITE);
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostIpControl(level, newList);
 }
 
 void IGlobalSys::EraseBlack(const KERNEL_NS::LibString &ip, Int32 level)
@@ -208,8 +238,12 @@ void IGlobalSys::EraseBlack(const KERNEL_NS::LibString &ip, Int32 level)
         return;
     }
 
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->EraseBlack(ip, level);
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    auto newInfo = KERNEL_NS::IpControlInfo::Create();
+    newInfo->_ip = ip;
+    newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_BLACK);
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostIpControl(level, newList);
 }
 
 void IGlobalSys::AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
@@ -218,8 +252,16 @@ void IGlobalSys::AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 leve
     if(ips.empty())
         return;
 
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->AddWhite(ips, level);
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    for(auto &ip : ips)
+    {
+        auto newInfo = KERNEL_NS::IpControlInfo::Create();
+        newInfo->_ip = ip;
+        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_WHITE);
+    }
+
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostIpControl(level, newList);
 }
 
 void IGlobalSys::AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
@@ -228,8 +270,15 @@ void IGlobalSys::AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 leve
     if(ips.empty())
         return;
 
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->AddBlack(ips, level);
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    for(auto &ip : ips)
+    {
+        auto newInfo = KERNEL_NS::IpControlInfo::Create();
+        newInfo->_ip = ip;
+        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ADD_BLACK);
+    }
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostIpControl(level, newList);
 }
 
 void IGlobalSys::EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
@@ -238,8 +287,15 @@ void IGlobalSys::EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 le
     if(ips.empty())
         return;
 
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->EraseWhite(ips, level);
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    for(auto &ip : ips)
+    {
+        auto newInfo = KERNEL_NS::IpControlInfo::Create();
+        newInfo->_ip = ip;
+        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_WHITE);
+    }
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostIpControl(level, newList);
 }
 
 void IGlobalSys::EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level)
@@ -248,8 +304,16 @@ void IGlobalSys::EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 le
     if (ips.empty())
         return;
 
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->EraseBlack(ips, level);
+    std::list<KERNEL_NS::IpControlInfo *> newList;
+    for(auto &ip : ips)
+    {
+        auto newInfo = KERNEL_NS::IpControlInfo::Create();
+        newInfo->_ip = ip;
+        newInfo->_controlFlow.push_back(KERNEL_NS::IpControlInfo::ERASE_BLACK);
+    }
+
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostIpControl(level, newList);
 }
 
 void IGlobalSys::ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level)
@@ -277,8 +341,8 @@ void IGlobalSys::ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &c
         }
     }
 
-    auto serviceProxy = service->GetServiceProxy();
-    serviceProxy->ControlIpPipline(controlInfoList, level);
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostIpControl(level, controlInfoList);
 }
 
 

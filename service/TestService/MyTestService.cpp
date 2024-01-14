@@ -95,6 +95,11 @@ const KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(Int32 prototalS
     return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 
+const KERNEL_NS::PollerConfig &MyTestService::GetPollerConfig() const
+{
+    return _serviceConfig->_pollerConfig;
+}
+
 Int32 MyTestService::GetSessionTypeByPort(UInt16 port) const
 {
     auto iter = _serviceConfig->_portRefSessionType.find(port);
@@ -299,6 +304,16 @@ Int32 MyTestService::_OnServiceInit()
     return Status::Success;
 }
 
+Int32 MyTestService::_OnServicePriorityLevelCompsCreated()
+{
+    // poller mgr 的配置
+    auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
+    pollerMgr->SetConfig(_serviceConfig->_pollerConfig);
+    pollerMgr->SetServiceProxy(GetApp()->GetComp<SERVICE_COMMON_NS::ServiceProxy>());
+    
+    return Status::Success;
+}
+
 Int32 MyTestService::_OnServiceCompsCreated()
 {
     _timerMgr = _poller->GetTimerMgr();
@@ -306,13 +321,12 @@ Int32 MyTestService::_OnServiceCompsCreated()
     _updateTimer->SetTimeOutHandler(this, &MyTestService::_OnFrameTimer);
 
     // 设置ip rule mgr
-    auto serviceProxy = GetServiceProxy();
-    auto application = serviceProxy->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>();
-    auto &config = application->GetKernelConfig();
+    auto application = GetServiceProxy()->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>();
+    auto &config = GetPollerConfig();
     auto ipRuleMgr = GetComp<KERNEL_NS::IpRuleMgr>();
-    if(!ipRuleMgr->SetBlackWhiteListFlag(config._blackWhiteListMode))
+    if(!ipRuleMgr->SetBlackWhiteListFlag(config._blackWhiteListFlag))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("SetBlackWhiteListFlag fail black white list flag:%u"), config._blackWhiteListMode);
+        g_Log->NetError(LOGFMT_OBJ_TAG("SetBlackWhiteListFlag fail black white list flag:%u"), config._blackWhiteListFlag);
         if(GetOwner())
             GetOwner()->SetErrCode(this, Status::Failed);
         return Status::Failed;

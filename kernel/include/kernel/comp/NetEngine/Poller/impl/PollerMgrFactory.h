@@ -44,6 +44,9 @@ public:
     virtual void Release() override;
 public:
     virtual CompObject *Create() const override;
+
+    // 高优先级创建
+    virtual Int32 GetPriorityLevel() const { return CompPriorityLevel::HIGH; }
 };
 
 KERNEL_END

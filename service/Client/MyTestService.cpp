@@ -90,6 +90,11 @@ const KERNEL_NS::IProtocolStack *MyTestService::GetProtocolStack(Int32 prototalS
     return iter == _stackTypeRefProtocolStack.end() ? NULL : iter->second;
 }
 
+const KERNEL_NS::PollerConfig &MyTestService::GetPollerConfig() const
+{
+    return _serviceConfig->_pollerConfig;
+}
+
 Int32 MyTestService::GetSessionTypeByPort(UInt16 port) const
 {
     auto iter = _serviceConfig->_portRefSessionType.find(port);
@@ -259,6 +264,16 @@ Int32 MyTestService::_OnServiceInit()
     }
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s init suc "), GetObjName().c_str());
+    return Status::Success;
+}
+
+Int32 MyTestService::_OnServicePriorityLevelCompsCreated()
+{
+    // poller mgr 的配置
+    auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
+    pollerMgr->SetConfig(_serviceConfig->_pollerConfig);
+    pollerMgr->SetServiceProxy(GetApp()->GetComp<SERVICE_COMMON_NS::ServiceProxy>());
+    
     return Status::Success;
 }
 

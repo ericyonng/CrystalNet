@@ -33,6 +33,7 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
 #include <unordered_map>
 #include <vector>
 
@@ -115,6 +116,10 @@ struct ServiceConfig
 
     bool Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibIniFile *ini);
 
+private:
+    bool _ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibIniFile *ini);
+
+public:
     std::vector<AddrConfig *> _listenAddrs;
     std::vector<AddrConfig *> _connectAddrGroup;
 
@@ -122,6 +127,8 @@ struct ServiceConfig
     std::unordered_map<UInt16, Int32> _portRefSessionType;  // 端口的会话类型配置 PORT_SESSION_TYPE
     bool _protoStackOpenLog;
     Int64 _encryptKeyExpireTime;
+
+    KERNEL_NS::PollerConfig _pollerConfig;                  // poller配置
 };
 
 SERVICE_END

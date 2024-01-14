@@ -82,25 +82,6 @@ public:
     virtual void PostQuitService(UInt32 priorityLevel = 0) final;
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
 
-    // service => kernel
-    virtual void TcpAddListen(UInt64 fromServiceId, Int32 level, Int32 family, const KERNEL_NS::LibString &ip, UInt16 port, Int32 sessionCount, UInt64 stub, const KERNEL_NS::SessionOption &sessionOption) final;
-    virtual void TcpAsynConnect(UInt64 fromServiceId, UInt64 stub, Int32 level, UInt16 family, const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, const KERNEL_NS::SessionOption &sessionOption, KERNEL_NS::IProtocolStack *protocolStack = NULL, Int32 retryTimes = 3, Int64 periodMs = 5000, const KERNEL_NS::LibString &localIp = "", UInt16 localPort = 0) final;
-    virtual void TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, KERNEL_NS::LibPacket *packet) final;
-    virtual void TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, KERNEL_NS::LibList<KERNEL_NS::LibPacket *> *packets) final;
-    virtual void TcpSendMsg(UInt64 pollerId, Int32 level, UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) final;
-    virtual void TcpCloseSession(UInt64 pollerId, UInt64 fromeService, Int32 level, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite) final;
-
-    // ip
-    void AddWhite(const KERNEL_NS::LibString &ip, Int32 level = 0);
-    void AddBlack(const KERNEL_NS::LibString &ip, Int32 level = 0);
-    void EraseWhite(const KERNEL_NS::LibString &ip, Int32 level = 0);
-    void EraseBlack(const KERNEL_NS::LibString &ip, Int32 level = 0);
-    void AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level = 0);
-    void AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level = 0);
-    void EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level = 0);
-    void EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level = 0);
-    void ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level = 0);
-
     // 设置服务创建工厂 在application init后主动调用
     void SetServiceFactory(IServiceFactory *serviceFactory);
 
@@ -142,8 +123,6 @@ private:
     std::atomic<UInt64> _closeServiceNum;                           // 服务关闭个数
     std::unordered_map<UInt64, std::atomic_bool> _serviceIdRefRejectServiceStatus;  // 拒绝服务标志
 
-    KERNEL_NS::TcpPollerMgr *_tcpPollerMgr;
-    KERNEL_NS::IPollerMgr *_pollerMgr;
     IServiceFactory *_serviceFactory;
 };
 

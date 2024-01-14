@@ -137,7 +137,19 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
         break;
     }
 
-    serviceProxy->TcpAddListen(service->GetServiceId(), priorityLevel, family, ip, port, sessionCount, stub, option);
+    auto listenInfo = KERNEL_NS::LibListenInfo::New_LibListenInfo();
+    listenInfo->_ip = ip;
+    listenInfo->_port = port;
+    listenInfo->_family = family;
+    listenInfo->_serviceId = service->GetServiceId();
+    listenInfo->_stub = stub;
+    listenInfo->_priorityLevel = priorityLevel;
+    listenInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
+    listenInfo->_sessionCount = sessionCount;
+    listenInfo->_sessionOption = option;
+    g_Log->Info(LOGFMT_OBJ_TAG("add listen info:%s"), listenInfo->ToString().c_str());
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostAddlisten(priorityLevel, listenInfo);
 
     // 回调
     if(delg)
@@ -238,7 +250,25 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 r
         break;
     }
 
-    serviceProxy->TcpAsynConnect(service->GetServiceId(), stub, priorityLevel, family, remoteIp, remotePort, option, stack, retryTimes, periodMs, localIp, localPort);
+    auto connectInfo = KERNEL_NS::LibConnectInfo::New_LibConnectInfo();
+    connectInfo->_localIp = localIp;
+    connectInfo->_localPort = localPort;
+    connectInfo->_targetIp = remoteIp;
+    connectInfo->_targetPort = remotePort;
+    connectInfo->_family = family;
+    connectInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
+    connectInfo->_priorityLevel = priorityLevel;
+    connectInfo->_pollerId = 0;
+    connectInfo->_retryTimes = retryTimes;
+    connectInfo->_periodMs = periodMs;
+    connectInfo->_stub = stub;
+    connectInfo->_fromServiceId = service->GetServiceId();
+    connectInfo->_stack = stack;
+    connectInfo->_sessionOption = option;
+    // g_Log->Info(LOGFMT_OBJ_TAG("add connect info:%s"), connectInfo->ToString().c_str());
+    auto tcpPollerMgr = service->GetTcpPollerMgr();
+    tcpPollerMgr->PostConnect(connectInfo);
+
     return Status::Success;
 }
 

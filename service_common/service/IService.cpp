@@ -48,6 +48,8 @@ IService::IService()
 ,_consumePackets{0}
 ,_maxEventType(KERNEL_NS::PollerEventType::EvMax)
 ,_serviceStatus(ServiceStatus::SERVICE_NOT_ACTIVE)
+,_pollerMgr(NULL)
+,_tcpPollerMgr(NULL)
 {
     _SetType(ServiceProxyCompType::COMP_SERVICE);
     
@@ -67,12 +69,15 @@ void IService::Clear()
 
 void IService::OnRegisterComps()
 {
+    // 网络模块
+    RegisterComp<KERNEL_NS::PollerMgrFactory>();
     // 基础组件
     RegisterComp<KERNEL_NS::PollerFactory>();
     // ip规则
     RegisterComp<KERNEL_NS::IpRuleMgrFactory>();
     // 当前service所在线程tls内存定时清理
     RegisterComp<KERNEL_NS::TlsMemoryCleanerCompFactory>();
+
 
     _OnServiceRegisterComps();
 }  
@@ -100,6 +105,13 @@ void IService::InitPollerEventHandler()
 
 void IService::OnMonitor(KERNEL_NS::LibString &info)
 {
+    info.AppendFormat("[service id]:%llu\n", _serviceId);
+
+    // 2.获取poller信息
+    auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
+    if(pollerMgr && pollerMgr->IsStarted())
+        pollerMgr->OnMonitor(info);
+
     const Int64 recvPackets = _recvPackets;
     const Int64 consumePackets = _consumePackets;
     const UInt64 sessionAmount = GetSessionAmount();
@@ -274,6 +286,14 @@ Int32 IService::_OnPriorityLevelCompsCreated()
     defObj->_poller = _poller;
     defObj->_pollerTimerMgr = _poller->GetTimerMgr();
 
+    _pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
+    auto st = _OnServicePriorityLevelCompsCreated();
+    if(st != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("_OnServicePriorityLevelCompsCreated fail st:%d"), st);
+        return st;
+    }
+
     return Status::Success;
 }
 
@@ -296,6 +316,7 @@ Int32 IService::_OnCompsCreated()
 
 Int32 IService::_OnHostWillStart()
 {
+    _tcpPollerMgr = _pollerMgr->GetComp<KERNEL_NS::TcpPollerMgr>();
     SetServiceStatus(ServiceStatus::SERVICE_STARTING);
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s will start suc."), IntroduceInfo().c_str());

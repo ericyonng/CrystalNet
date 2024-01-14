@@ -387,7 +387,7 @@ bool CompHostObject::CheckCircleDepending(const LibString &compName, KERNEL_NS::
 Int32 CompHostObject::_OnHostCreated()
 {
     if(g_Log->IsEnable(LogLevel::Debug))
-        g_Log->Debug(LOGFMT_OBJ_TAG("_OnCompsCreated host comp name:%s"), GetObjName().c_str());
+        g_Log->Debug(LOGFMT_OBJ_TAG("_OnHostCreated host comp name:%s"), GetObjName().c_str());
 
     return Status::Success;
 }

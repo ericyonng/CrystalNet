@@ -51,6 +51,8 @@ class IProtocolStack;
 class TimerMgr;
 class LibPacket;
 class EventManager;
+class IPollerMgr;
+class TcpPollerMgr;
 
 KERNEL_END
 
@@ -133,6 +135,7 @@ public:
     Application *GetApp();
 
     virtual UInt64 GetSessionAmount() const;
+    virtual const KERNEL_NS::PollerConfig &GetPollerConfig() const = 0;
 
     // 事件循环
     bool PrepareLoop();
@@ -194,11 +197,21 @@ public:
     // 获得消息优先级
     Int32 GetMaxPriorityLevel() const;
 
+    // 获取pollermgr
+    KERNEL_NS::IPollerMgr *GetPollerMgr();
+    const KERNEL_NS::IPollerMgr *GetPollerMgr() const;
+
+    // 获取tcppollermgr
+    KERNEL_NS::TcpPollerMgr *GetTcpPollerMgr();
+    const KERNEL_NS::TcpPollerMgr *GetTcpPollerMgr() const;
+
 protected:
     // 在组件初始化前
     virtual Int32 _OnHostInit() final;
     // 带优先级组件创建
     virtual Int32 _OnPriorityLevelCompsCreated() final;
+    // 派生服务执行优先级组件创建完成
+    virtual Int32 _OnServicePriorityLevelCompsCreated() { return Status::Success; }
     // 所有组件创建完成
     virtual Int32 _OnCompsCreated() final;
     // 在组件启动之前
@@ -272,7 +285,8 @@ protected:
     std::set<const KERNEL_NS::CompObject *> _quitEndComps;
     std::set<const KERNEL_NS::CompObject *> _forcusComps;
     Int32 _serviceStatus;
-
+    KERNEL_NS::IPollerMgr *_pollerMgr;
+    KERNEL_NS::TcpPollerMgr *_tcpPollerMgr;
 };
 
 ALWAYS_INLINE void IService::SetServiceId(UInt64 serviceId)
@@ -350,6 +364,28 @@ ALWAYS_INLINE std::set<const KERNEL_NS::CompObject *> &IService::GetALlFocusServ
 ALWAYS_INLINE Int32 IService::GetMaxPriorityLevel() const
 {
     return _maxPriorityLevel;
+}
+
+// 获取pollermgr
+ALWAYS_INLINE KERNEL_NS::IPollerMgr *IService::GetPollerMgr()
+{
+    return _pollerMgr;
+}
+
+ALWAYS_INLINE const KERNEL_NS::IPollerMgr *IService::GetPollerMgr() const
+{
+    return _pollerMgr;
+}
+
+// 获取tcppollermgr
+ALWAYS_INLINE KERNEL_NS::TcpPollerMgr *IService::GetTcpPollerMgr()
+{
+    return _tcpPollerMgr;
+}
+
+ALWAYS_INLINE const KERNEL_NS::TcpPollerMgr *IService::GetTcpPollerMgr() const
+{
+    return _tcpPollerMgr;
 }
 
 ALWAYS_INLINE bool IService::IsServiceWillQuit() const

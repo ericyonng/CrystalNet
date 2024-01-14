@@ -32,6 +32,7 @@
 #include <service/common/PriorityLevelDefine.h>
 #include <service/common/SessionType.h>
 #include <service_common/protocol/protocol.h>
+#include <service_common/common/Configs.h>
 
 SERVICE_BEGIN
 
@@ -405,6 +406,356 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
         ini->CheckReadNumber(seg.c_str(), "EncryptKeyExpireTime", _encryptKeyExpireTime);
     }
 
+    {// poller 配置
+        if(!_ParsePoller(seg, ini))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("_ParsePoller fail"));
+            return false;
+        }
+    }
+
     return true;
 }
+
+bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibIniFile *ini)
+{
+    {// 黑白名单规则
+        UInt64 cache = 0;
+        if(!ini->CheckReadUInt(seg.c_str(), "BlackWhiteListMode", cache))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                        , seg.c_str(), "BlackWhiteListMode");
+            return false;
+        }
+
+        _pollerConfig._blackWhiteListFlag = static_cast<UInt32>(cache);
+    }
+
+    {// 会话数量
+        UInt64 cache = 0;
+        if(!ini->CheckReadUInt(seg.c_str(), "MaxSessionQuantity", cache))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                        , seg.c_str(), "MaxSessionQuantity");
+            return false;
+        }
+        _pollerConfig._maxSessionQuantity = cache;
+    }
+
+    // tcp poller 相关配置
+    auto &tcpPollerConfig = _pollerConfig._tcpPollerConfig;
+    std::unordered_map<KERNEL_NS::LibString, Int32> pollerFeatureStringRefId;
+    std::unordered_map<Int32, std::set<KERNEL_NS::LibString>> pollerFeatureIdRefString;  // poller feature id定义
+    
+    {
+        UInt64 linkInOutPollerAmount = 0;
+        if(!ini->CheckReadUInt(seg.c_str(), "LinkInOutPollerAmount", linkInOutPollerAmount))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("read ini fail seg:%s, key:%s")
+                        , seg.c_str(), "LinkInOutPollerAmount");
+            return false;
+        }
+
+        UInt64 dataTransferPollerAmount = 0;
+        if(!ini->CheckReadUInt(seg.c_str(), "DataTransferPollerAmount", dataTransferPollerAmount))
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                        , seg.c_str(), "DataTransferPollerAmount");
+            return false;
+        }
+
+        UInt64 maxRecvBytesPerFrame = 0;
+        {// 单帧最大接收数据量
+            if(!ini->CheckReadUInt(seg.c_str(), "MaxRecvBytesPerFrame", maxRecvBytesPerFrame))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "MaxRecvBytesPerFrame");
+                return false;
+            }
+        }
+
+        UInt64 maxSendBytesPerFrame = 0;
+        {// 单帧最大发送数据量
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "MaxSendBytesPerFrame", maxSendBytesPerFrame))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "MaxSendBytesPerFrame");
+                return false;
+            }
+        }
+
+        UInt64 maxAcceptCountPerFrame = 0;
+        {// 单帧最大处理连接数
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "MaxAcceptCountPerFrame", maxAcceptCountPerFrame))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "MaxAcceptCountPerFrame");
+                return false;
+            }
+        }
+
+        UInt64 maxPieceTimeInMicroSecPerFrame = 0;
+        {// 最大帧时间片
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "MaxPieceTimeInMicroSecPerFrame", maxPieceTimeInMicroSecPerFrame))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "MaxPieceTimeInMicroSecPerFrame");
+                return false;
+            }
+        }
+
+        UInt64 maxPollerScanMilliseconds = 0;
+        {// 最大poller扫描时间间隔
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "MaxPollerScanMilliseconds", maxPollerScanMilliseconds))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "MaxPollerScanMilliseconds");
+                return false;
+            }
+        }
+
+        Int64 maxPollerMsgPriorityLevel = 0;
+        {// 最大消息优先级等级
+            Int64 cache = 0;
+            if(!ini->CheckReadInt(seg.c_str(), "MaxPollerMsgPriorityLevel", maxPollerMsgPriorityLevel))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "MaxPollerMsgPriorityLevel");
+                return false;
+            }
+        }
+
+        Int64 pollerMonitorEventPriorityLevel = 0;
+        {// 指定poller monitor事件的消息优先级等级
+            Int64 cache = 0;
+            if(!ini->CheckReadInt(seg.c_str(), "PollerMonitorEventPriorityLevel", pollerMonitorEventPriorityLevel))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "PollerMonitorEventPriorityLevel");
+                return false;
+            }
+        }
+
+        UInt64 sessionBufferCapicity = 0;
+        {// session缓冲大小设置
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "SessionBufferCapicity", sessionBufferCapicity))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "SessionBufferCapicity");
+                return false;
+            }
+        }
+
+        UInt64 sessionRecvPacketSpeedLimit = 0;
+        {// session 限速
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "SessionRecvPacketSpeedLimit", sessionRecvPacketSpeedLimit))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "SessionRecvPacketSpeedLimit");
+                return false;
+            }
+        }
+
+        UInt64 sessionRecvPacketSpeedTimeUnitMs = 0;
+        {// session 限速时间单位
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "SessionRecvPacketSpeedTimeUnitMs", sessionRecvPacketSpeedTimeUnitMs))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "SessionRecvPacketSpeedTimeUnitMs");
+                return false;
+            }
+        }
+
+        UInt64 sessionRecvPacketStackLimit = 0;
+        {// session 收包堆叠上限
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "SessionRecvPacketStackLimit", sessionRecvPacketStackLimit))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "SessionRecvPacketStackLimit");
+                return false;
+            }
+        }
+
+        UInt64 sessionRecvPacketContentLimit = 0;
+        {// session 收包单包限制
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "SessionRecvPacketContentLimit", sessionRecvPacketContentLimit))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "SessionRecvPacketContentLimit");
+                return false;
+            }
+        }
+
+        UInt64 sessionSendPacketContentLimit = 0;
+        {// session 发包单包限制
+            UInt64 cache = 0;
+            if(!ini->CheckReadUInt(seg.c_str(), "SessionSendPacketContentLimit", cache))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
+                            , seg.c_str(), "SessionSendPacketContentLimit");
+                return false;
+            }
+        }
+
+
+        {// poller feature定义
+            KERNEL_NS::LibString cache;
+            if(!ini->ReadStr(seg.c_str(), "PollerFeatureType", cache))
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                            , seg.c_str(), "PollerFeatureType");
+                return false;
+            }
+
+            const auto &featurePairParts = cache.Split(',');
+            if(featurePairParts.size() < 2)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("have no poller feature please check seg:%s, key:%s, value:%s")
+                            , seg.c_str(), "PollerFeatureType", cache.c_str());
+                return false;
+            }
+
+            for(auto &part : featurePairParts)
+            {
+                const auto &items = part.Split(':');
+                if(items.size() < 2)
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("feature format error please check seg:%s, key:%s, value:%s, part:%s")
+                            , seg.c_str(), "PollerFeatureType", cache.c_str(), part.c_str());
+                    return false;
+                }
+
+                const auto &featureString = items[0];
+                const auto &featureIdString = items[1];
+                if(!featureIdString.isdigit())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("feature id format error please check seg:%s, key:%s, value:%s, part:%s, featureIdString:%s")
+                            , seg.c_str(), "PollerFeatureType", cache.c_str(), part.c_str(), featureIdString.c_str());
+                    return false;
+                }
+
+                if(pollerFeatureStringRefId.find(featureString) != pollerFeatureStringRefId.end())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("repeate feature please check seg:%s, key:%s, value:%s, part:%s, featureString:%s")
+                            , seg.c_str(), "PollerFeatureType", cache.c_str(), part.c_str(), featureString.c_str());
+                    return false;
+                }
+                
+                auto featureId = KERNEL_NS::StringUtil::StringToInt32(featureIdString.c_str());
+                pollerFeatureStringRefId.insert(std::make_pair(featureString, featureId));
+                
+                auto iterFeatureString = pollerFeatureIdRefString.find(featureId);
+                if(iterFeatureString == pollerFeatureIdRefString.end())
+                    iterFeatureString = pollerFeatureIdRefString.insert(std::make_pair(featureId, std::set<KERNEL_NS::LibString>())).first;
+                iterFeatureString->second.insert(featureString);
+            }
+
+            if(pollerFeatureStringRefId.empty())
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("lack of poller feature config please check seg:%s, key:%s")
+                        , seg.c_str(), "PollerFeatureType");
+                return false;
+            }
+        }
+        
+        {// linker相关配置
+            auto iterLinker = pollerFeatureStringRefId.find("Linker");
+            const auto linkerPollerFeatureId = iterLinker->second;
+            auto iterPollerFeatureConfig = tcpPollerConfig._pollerFeatureRefConfig.find(linkerPollerFeatureId);
+            KERNEL_NS::TcpPollerFeatureConfig *newPollerFeatureConfig = NULL;
+            if(iterPollerFeatureConfig == tcpPollerConfig._pollerFeatureRefConfig.end())
+            {
+                newPollerFeatureConfig = KERNEL_NS::TcpPollerFeatureConfig::New_TcpPollerFeatureConfig(&tcpPollerConfig, linkerPollerFeatureId);
+                tcpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(linkerPollerFeatureId, newPollerFeatureConfig));
+            }
+            else
+            {
+                newPollerFeatureConfig = iterPollerFeatureConfig->second;
+            }
+
+            if(static_cast<Int32>(newPollerFeatureConfig->_pollerInstConfigs.size()) < linkInOutPollerAmount)
+                newPollerFeatureConfig->_pollerInstConfigs.resize(static_cast<size_t>(linkInOutPollerAmount));
+
+            // 创建配置
+            auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
+            for(Int32 idx = 0; idx < linkInOutPollerAmount; ++idx)
+            {
+                auto newInstConfig = pollerInstConfigs[idx];
+                if(newInstConfig)
+                    continue;
+
+                newInstConfig = KERNEL_NS::TcpPollerInstConfig::New_TcpPollerInstConfig(newPollerFeatureConfig, static_cast<UInt32>(idx + 1));
+                newInstConfig->_handleRecvBytesPerFrameLimit = maxRecvBytesPerFrame;
+                newInstConfig->_handleSendBytesPerFrameLimit = maxSendBytesPerFrame;
+                newInstConfig->_handleAcceptPerFrameLimit = maxAcceptCountPerFrame;
+                newInstConfig->_maxPieceTimeInMicroseconds = maxPieceTimeInMicroSecPerFrame;
+                newInstConfig->_maxSleepMilliseconds = maxPollerScanMilliseconds;
+                newInstConfig->_maxPriorityLevel = static_cast<Int32>(maxPollerMsgPriorityLevel);
+                newInstConfig->_pollerInstMonitorPriorityLevel = static_cast<Int32>(pollerMonitorEventPriorityLevel);
+                newInstConfig->_bufferCapacity = sessionBufferCapicity;
+                newInstConfig->_sessionRecvPacketSpeedLimit = sessionRecvPacketSpeedLimit;
+                newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = sessionRecvPacketSpeedTimeUnitMs;
+                newInstConfig->_sessionRecvPacketStackLimit = sessionRecvPacketStackLimit;
+                pollerInstConfigs[idx] = newInstConfig;
+            }
+        }
+       
+        {// transfer相关配置
+            auto iterTransfer = pollerFeatureStringRefId.find("DataTransfer");
+            const auto transferPollerFeatureId = iterTransfer->second;
+            auto iterPollerFeatureConfig = tcpPollerConfig._pollerFeatureRefConfig.find(transferPollerFeatureId);
+            KERNEL_NS::TcpPollerFeatureConfig *newPollerFeatureConfig = NULL;
+            if(iterPollerFeatureConfig == tcpPollerConfig._pollerFeatureRefConfig.end())
+            {
+                newPollerFeatureConfig = KERNEL_NS::TcpPollerFeatureConfig::New_TcpPollerFeatureConfig(&tcpPollerConfig, transferPollerFeatureId);
+                tcpPollerConfig._pollerFeatureRefConfig.insert(std::make_pair(transferPollerFeatureId, newPollerFeatureConfig));
+            }
+            else
+            {
+                newPollerFeatureConfig = iterPollerFeatureConfig->second;
+            }
+
+            if(static_cast<Int32>(newPollerFeatureConfig->_pollerInstConfigs.size()) < dataTransferPollerAmount)
+                newPollerFeatureConfig->_pollerInstConfigs.resize(static_cast<size_t>(dataTransferPollerAmount));
+
+            // 创建配置
+            auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
+            for(Int32 idx = 0; idx < dataTransferPollerAmount; ++idx)
+            {
+                auto newInstConfig = pollerInstConfigs[idx];
+                if(newInstConfig)
+                    continue;
+
+                newInstConfig = KERNEL_NS::TcpPollerInstConfig::New_TcpPollerInstConfig(newPollerFeatureConfig,  static_cast<UInt32>(idx + 1));
+                newInstConfig->_handleRecvBytesPerFrameLimit = maxRecvBytesPerFrame;
+                newInstConfig->_handleSendBytesPerFrameLimit = maxSendBytesPerFrame;
+                newInstConfig->_handleAcceptPerFrameLimit = maxAcceptCountPerFrame;
+                newInstConfig->_maxPieceTimeInMicroseconds = maxPieceTimeInMicroSecPerFrame;
+                newInstConfig->_maxSleepMilliseconds = maxPollerScanMilliseconds;
+                newInstConfig->_maxPriorityLevel = static_cast<Int32>(maxPollerMsgPriorityLevel);
+                newInstConfig->_pollerInstMonitorPriorityLevel = static_cast<Int32>(pollerMonitorEventPriorityLevel);
+                newInstConfig->_bufferCapacity = sessionBufferCapicity;
+                newInstConfig->_sessionRecvPacketSpeedLimit = sessionRecvPacketSpeedLimit;
+                newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = sessionRecvPacketSpeedTimeUnitMs;
+                newInstConfig->_sessionRecvPacketStackLimit = sessionRecvPacketStackLimit;
+                pollerInstConfigs[idx] = newInstConfig;
+            }
+        }
+    }
+
+    _pollerConfig._pollerFeatureIdRefString = pollerFeatureIdRefString;
+    _pollerConfig._pollerFeatureStringRefId = pollerFeatureStringRefId;
+    
+    return true;
+}
+
 SERVICE_END
