@@ -119,7 +119,7 @@ ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::Clear()
 {
     _lck.Lock();
     _queue->Clear();
-    _queueCount.store(0, , std::memory_order_release);
+    _queueCount.store(0, std::memory_order_release);
     _lck.Unlock();
 }
 
@@ -173,7 +173,7 @@ ALWAYS_INLINE void MessageQueue<Elem, BuildType, LockType>::PopTo(LibList<Elem, 
 {
     _lck.Lock();
     elems->MergeTail(_queue);
-    _queueCount.store(0, , std::memory_order_release);
+    _queueCount.store(0, std::memory_order_release);
     _lck.Unlock();
 }
 
