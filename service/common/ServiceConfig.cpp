@@ -476,7 +476,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 maxSendBytesPerFrame = 0;
         {// 单帧最大发送数据量
-            UInt64 cache = 0;
             if(!ini->CheckReadUInt(seg.c_str(), "MaxSendBytesPerFrame", maxSendBytesPerFrame))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -487,7 +486,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 maxAcceptCountPerFrame = 0;
         {// 单帧最大处理连接数
-            UInt64 cache = 0;
             if(!ini->CheckReadUInt(seg.c_str(), "MaxAcceptCountPerFrame", maxAcceptCountPerFrame))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -498,7 +496,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 maxPieceTimeInMicroSecPerFrame = 0;
         {// 最大帧时间片
-            UInt64 cache = 0;
             if(!ini->CheckReadUInt(seg.c_str(), "MaxPieceTimeInMicroSecPerFrame", maxPieceTimeInMicroSecPerFrame))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -509,7 +506,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 maxPollerScanMilliseconds = 0;
         {// 最大poller扫描时间间隔
-            UInt64 cache = 0;
             if(!ini->CheckReadUInt(seg.c_str(), "MaxPollerScanMilliseconds", maxPollerScanMilliseconds))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -520,7 +516,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         Int64 maxPollerMsgPriorityLevel = 0;
         {// 最大消息优先级等级
-            Int64 cache = 0;
             if(!ini->CheckReadInt(seg.c_str(), "MaxPollerMsgPriorityLevel", maxPollerMsgPriorityLevel))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -531,7 +526,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         Int64 pollerMonitorEventPriorityLevel = 0;
         {// 指定poller monitor事件的消息优先级等级
-            Int64 cache = 0;
             if(!ini->CheckReadInt(seg.c_str(), "PollerMonitorEventPriorityLevel", pollerMonitorEventPriorityLevel))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -542,7 +536,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 sessionBufferCapicity = 0;
         {// session缓冲大小设置
-            UInt64 cache = 0;
             if(!ini->CheckReadUInt(seg.c_str(), "SessionBufferCapicity", sessionBufferCapicity))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -553,7 +546,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 sessionRecvPacketSpeedLimit = 0;
         {// session 限速
-            UInt64 cache = 0;
             if(!ini->CheckReadUInt(seg.c_str(), "SessionRecvPacketSpeedLimit", sessionRecvPacketSpeedLimit))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -564,7 +556,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 sessionRecvPacketSpeedTimeUnitMs = 0;
         {// session 限速时间单位
-            UInt64 cache = 0;
             if(!ini->CheckReadUInt(seg.c_str(), "SessionRecvPacketSpeedTimeUnitMs", sessionRecvPacketSpeedTimeUnitMs))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -575,7 +566,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 sessionRecvPacketStackLimit = 0;
         {// session 收包堆叠上限
-            UInt64 cache = 0;
             if(!ini->CheckReadUInt(seg.c_str(), "SessionRecvPacketStackLimit", sessionRecvPacketStackLimit))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -586,7 +576,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 sessionRecvPacketContentLimit = 0;
         {// session 收包单包限制
-            UInt64 cache = 0;
             if(!ini->CheckReadUInt(seg.c_str(), "SessionRecvPacketContentLimit", sessionRecvPacketContentLimit))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
@@ -597,8 +586,7 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
 
         UInt64 sessionSendPacketContentLimit = 0;
         {// session 发包单包限制
-            UInt64 cache = 0;
-            if(!ini->CheckReadUInt(seg.c_str(), "SessionSendPacketContentLimit", cache))
+            if(!ini->CheckReadUInt(seg.c_str(), "SessionSendPacketContentLimit", sessionSendPacketContentLimit))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
                             , seg.c_str(), "SessionSendPacketContentLimit");
@@ -611,7 +599,7 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
             KERNEL_NS::LibString cache;
             if(!ini->ReadStr(seg.c_str(), "PollerFeatureType", cache))
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
+                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
                             , seg.c_str(), "PollerFeatureType");
                 return false;
             }

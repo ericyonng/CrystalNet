@@ -207,10 +207,8 @@ static void Generator4(KERNEL_NS::LibThreadPool *t)
 static void Consumer4(KERNEL_NS::LibThreadPool *t)
 {
     KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *lis = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList();
-    TestMqBlock *newEv = NULL;
     while (!t->IsDestroy())
     {
-        newEv = NULL;
         g_Queue->SwapQueue(lis);
         for(auto iter = lis->Begin(); iter;)
         {
@@ -316,8 +314,6 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
     // 设置
     memoryCleaner->SetTimerMgr(timerMgr.AsSelf());
 
-    auto timerMgrSelf = timerMgr.AsSelf();
-
     // 启动内存清理
     do
     {
@@ -379,14 +375,12 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
 static void Consumer6(KERNEL_NS::LibThreadPool *t)
 {
     KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *lis = KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList();
-    TestMqBlock *newEv = NULL;
 
     KERNEL_NS::LibCpuCounter swapCounterStart;
     KERNEL_NS::LibCpuCounter swapCounterEnd;
 
     while (!t->IsDestroy())
     {
-        newEv = NULL;
         swapCounterStart.Update();
         // 在双核平台上由于冲突严重SwapQueue会达到100ns以上, 导致内存暴涨（消费速度<生产速度）
         g_Queue->SwapQueue(lis);

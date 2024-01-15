@@ -46,7 +46,7 @@ public:
     virtual CompObject *Create() const override;
 
     // 高优先级创建
-    virtual Int32 GetPriorityLevel() const { return CompPriorityLevel::HIGH; }
+    virtual Int32 GetPriorityLevel() const override { return CompPriorityLevel::HIGH; }
 };
 
 KERNEL_END

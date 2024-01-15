@@ -321,7 +321,6 @@ Int32 MyTestService::_OnServiceCompsCreated()
     _updateTimer->SetTimeOutHandler(this, &MyTestService::_OnFrameTimer);
 
     // 设置ip rule mgr
-    auto application = GetServiceProxy()->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>();
     auto &config = GetPollerConfig();
     auto ipRuleMgr = GetComp<KERNEL_NS::IpRuleMgr>();
     if(!ipRuleMgr->SetBlackWhiteListFlag(config._blackWhiteListFlag))
