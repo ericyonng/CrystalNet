@@ -21,5 +21,5 @@ cp -Rf ${SCRIPT_PATH}/linux_run.sh ${SCRIPT_PATH}/output/gmake/
 
 cd ${SCRIPT_PATH}
 rm -f ${SCRIPT_PATH}/output/gmake/${TAR_NAME}.tgz
-cd ${SCRIPT_PATH}/output/gmake && tar -zcvf ${TAR_NAME}.tgz ./client ./Cfgs/* ./ini/* ./libmysqlclient.so ./linux_run.sh ./start.sh ./stop.sh ./tools
+cd ${SCRIPT_PATH}/output/gmake && tar -zcvf ${TAR_NAME}.tgz ./client ./Cfgs/* ./ini/* ./linux_run.sh ./start.sh ./stop.sh ./tools
 
