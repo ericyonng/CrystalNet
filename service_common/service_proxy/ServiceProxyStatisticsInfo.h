@@ -21,18 +21,32 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-12-09 02:04:17
+ * Date: 2024-01-21 18:20:17
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_PROXY_SERVICE_PROXY_INC_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_PROXY_SERVICE_PROXY_INC_H__
+#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_PROXY_SERVICE_PROXY_STATISTICS_INFO_H__
+#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_PROXY_SERVICE_PROXY_STATISTICS_INFO_H__
 
 #pragma once
 
-#include <service_common/service_proxy/ServiceProxyStatisticsInfo.h>
-#include <service_common/service_proxy/ServiceProxy.h>
-#include <service_common/service_proxy/ServiceProxyFactory.h>
+#include <service_common/common/macro.h>
+#include <service_common/service/ServiceStatisticsInfo.h>
+#include <kernel/comp/LibString.h>
+
+SERVICE_COMMON_BEGIN
+
+struct ServiceProxyStatisticsInfo
+{
+    POOL_CREATE_OBJ_DEFAULT(ServiceProxyStatisticsInfo);
+
+    KERNEL_NS::LibString ToString() const;
+    KERNEL_NS::LibString ToSummaryInfo() const;
+
+    std::vector<ServiceStatisticsInfo> _serviceStatistatics;
+};
+
+SERVICE_COMMON_END
 
 #endif

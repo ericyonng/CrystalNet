@@ -144,7 +144,7 @@ void SystemLogGlobal::AddLog(UInt64 libraryId, const KERNEL_NS::LibString &title
 void SystemLogGlobal::_OnSystemLogDataListReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());

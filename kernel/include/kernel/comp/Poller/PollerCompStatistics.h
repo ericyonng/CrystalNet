@@ -21,18 +21,39 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-12-09 02:04:17
+ * Date: 2024-01-17 22:47:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_PROXY_SERVICE_PROXY_INC_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_PROXY_SERVICE_PROXY_INC_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_POLLER_POLLER_COMP_STATISTICS_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_POLLER_POLLER_COMP_STATISTICS_H__
 
 #pragma once
 
-#include <service_common/service_proxy/ServiceProxyStatisticsInfo.h>
-#include <service_common/service_proxy/ServiceProxy.h>
-#include <service_common/service_proxy/ServiceProxyFactory.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+
+KERNEL_BEGIN
+
+struct KERNEL_EXPORT PollerCompStatistics
+{
+    POOL_CREATE_OBJ_DEFAULT(PollerCompStatistics);
+
+    // 负载打分
+    UInt64 _loadedScore = 0;
+    // 产生的消息qps
+    UInt64 _pollerGenQps = 0;
+    // 消费的消息qps
+    UInt64 _pollerConsumeQps = 0;
+    // 未处理的消息
+    UInt64 _pollerBacklog = 0;
+
+    // 是否启用
+    bool _isEnable = false;
+    // pollerid
+    UInt64 _pollerId = 0;
+};
+
+KERNEL_END
 
 #endif

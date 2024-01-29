@@ -38,6 +38,7 @@
 #include <kernel/comp/NetEngine/Poller/Defs/TcpPollerConfig.h>
 #include <kernel/comp/NetEngine/Poller/Defs/UdpDefs.h>
 #include <kernel/comp/NetEngine/Poller/Defs/UdpPollerConfig.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerStatisticsInfo.h>
 
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgrFactory.h>
 #include <kernel/comp/NetEngine/Poller/impl/IpRule/IpRuleMgr.h>

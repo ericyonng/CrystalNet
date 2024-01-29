@@ -200,7 +200,7 @@ ALWAYS_INLINE UInt64 IocpTcpPoller::GetPollerId() const
 
 ALWAYS_INLINE UInt64 IocpTcpPoller::GetSessionAmount() const
 {
-    return _sessionCount;
+    return _sessionCount.load(std::memory_order_acquire);
 }
 
 KERNEL_END

@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <service_common/service/ServiceStatisticsInfo.h>
 #include <service_common/service/ServiceOption.h>
 #include <service_common/service/IService.h>
 #include <service_common/service/IServiceFactory.h>

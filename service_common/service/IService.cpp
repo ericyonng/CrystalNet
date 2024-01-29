@@ -32,6 +32,7 @@
 #include <service_common/service_proxy/ServiceProxyCompType.h>
 #include <service_common/service_proxy/ServiceProxy.h>
 #include <service_common/application/Application.h>
+#include <service_common/service/ServiceStatisticsInfo.h>
 
 SERVICE_COMMON_BEGIN
 
@@ -103,24 +104,19 @@ void IService::InitPollerEventHandler()
     _poller->Subscribe(KERNEL_NS::PollerEventType::QuitServiceEvent, this, &IService::_OnQuitServiceEvent);
 }
 
-void IService::OnMonitor(KERNEL_NS::LibString &info)
+void IService::OnMonitor(ServiceStatisticsInfo &info)
 {
-    info.AppendFormat("[service id]:%llu\n", _serviceId);
+    info._serviceId = _serviceId;
 
     // 2.获取poller信息
     auto pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
     if(pollerMgr && pollerMgr->IsStarted())
-        pollerMgr->OnMonitor(info);
+        pollerMgr->OnMonitor(info._pollerMgrStatisticsInfo);
 
-    const Int64 recvPackets = _recvPackets;
-    const Int64 consumePackets = _consumePackets;
-    const UInt64 sessionAmount = GetSessionAmount();
-
-    _recvPackets -= recvPackets;
-    _consumePackets -= consumePackets;
-
-    info.AppendFormat("[service id:%llu, session count:%llu packets:[recv:%lld, consume:%lld], poller info:%s]\n"
-    , _serviceId, sessionAmount, recvPackets, consumePackets, GetComp<KERNEL_NS::Poller>()->OnMonitor().c_str());
+    info._recvPackets = _recvPackets.exchange(0, std::memory_order_acquire);
+    info._consumePackets = _consumePackets.exchange(0, std::memory_order_acquire);
+    info._sessionAmount = GetSessionAmount();
+    GetComp<KERNEL_NS::Poller>()->OnMonitor(info._servicePollerInfo);
 }
 
 // service模块是否退出

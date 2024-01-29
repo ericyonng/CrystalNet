@@ -220,7 +220,7 @@ ALWAYS_INLINE UInt64 EpollTcpPoller::GetPollerId() const
 
 ALWAYS_INLINE UInt64 EpollTcpPoller::GetSessionAmount() const
 {
-    return _sessionCount;
+    return _sessionCount.load(std::memory_order_acquire);
 }
 
 KERNEL_END

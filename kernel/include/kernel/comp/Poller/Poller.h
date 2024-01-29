@@ -51,6 +51,7 @@ struct PollerEvent;
 
 class TimerMgr;
 class TimeSlice;
+struct PollerCompStatistics;
 
 template<typename KeyType, typename MaskValue>
 class LibDirtyHelper;
@@ -157,7 +158,7 @@ public:
     void QuitLoop();
     bool CanQuit() const;
 
-    LibString OnMonitor();
+    void OnMonitor(PollerCompStatistics &statistics);
 
     // TODO:假release, 不会Delete Poller,暂时性处理当处wait状态,中间收到信号导致Poller在被释放的时候调用条件变量的析构并调用destroy销毁条件变量时导致死锁
     void SetDummyRelease();
@@ -214,26 +215,22 @@ ALWAYS_INLINE UInt64 Poller::GetWorkerThreadId() const
 
 ALWAYS_INLINE Int64 Poller::GetEventAmount() const
 {
-    return _eventAmountLeft;
+    return _eventAmountLeft.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE Int64 Poller::GetAndResetConsumCount()
 {
-    const Int64 consumCount = _consumEventCount;
-    _consumEventCount -= consumCount;
-    return consumCount;
+    return _consumEventCount.exchange(0, std::memory_order_release);
 }
 
 ALWAYS_INLINE Int64 Poller::GetGenEventAmount() const
 {
-    return _genEventAmount;
+    return _genEventAmount.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE Int64 Poller::GetAndResetGenCount()
 {
-    const Int64 count = _genEventAmount;
-    _genEventAmount -= count;
-    return count;
+    return _genEventAmount.exchange(0, std::memory_order_release);
 }
 
 ALWAYS_INLINE LibDirtyHelper<void *, UInt32> *Poller::GetDirtyHelper()

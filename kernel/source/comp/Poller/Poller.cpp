@@ -39,6 +39,8 @@
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Tls/Tls.h>
 
+#include <kernel/comp/Poller/PollerCompStatistics.h>
+
 // static ALWAYS_INLINE bool IsPriorityEvenetsQueueEmpty(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
 // {
 //     if(UNLIKELY(queue.empty()))
@@ -207,7 +209,7 @@ UInt64 Poller::CalcLoadScore() const
 {
     const UInt64 timerLoaded = _timerMgr->GetTimerLoaded();
     const UInt64 dirtyLoaded = _dirtyHelper->GetLoaded();
-    Int64 eventsLoaded = _eventAmountLeft;
+    Int64 eventsLoaded = _eventAmountLeft.load(std::memory_order_acquire);
     eventsLoaded = (eventsLoaded <= 0) ? 0 : eventsLoaded;
 
     return static_cast<UInt64>((timerLoaded * TIMER_LOADED + dirtyLoaded * DIRTY_LOADED + eventsLoaded * EVENTS_LOADED) / ((TIMER_LOADED + DIRTY_LOADED + EVENTS_LOADED) * 1.0 + 1));
@@ -287,7 +289,7 @@ void Poller::EventLoop()
     for(;;)
     {
         // 没有事件且没有脏处理则等待
-        if((_eventAmountLeft == 0) && !_dirtyHelper->HasDirty())
+        if((_eventAmountLeft.load(std::memory_order_acquire) == 0) && !_dirtyHelper->HasDirty())
         {
             // quit仅考虑消息是否处理完,以及脏是否处理完,定时器不需要考虑,否则如果过期时间设置了0则无法退出
             if(UNLIKELY(_isQuitLoop))
@@ -305,7 +307,7 @@ void Poller::EventLoop()
         deadline += _maxPieceTime;
 
         // 队列有消息就合并
-        if(LIKELY(_eventAmountLeft != 0))
+        if(LIKELY(_eventAmountLeft.load(std::memory_order_acquire) != 0))
             mergeNumber += _eventsList->MergeTailAllTo(priorityEvents);
 
         // 处理事件
@@ -330,9 +332,9 @@ void Poller::EventLoop()
 
                 data->Release();
                 listNode->_data->Erase(node);
-                --_eventAmountLeft;
+                _eventAmountLeft.fetch_sub(1, std::memory_order_release);
                 --mergeNumber;
-                ++_consumEventCount;
+                _consumEventCount.fetch_add(1, std::memory_order_release);
 
                 #if ENABLE_POLLER_PERFORMANCE
                  ++curConsumeEventsCount;
@@ -423,18 +425,19 @@ void Poller::OnLoopEnd()
     g_Log->Info(LOGFMT_OBJ_TAG("poller loop end poller info:%s"), ToString().c_str());
 }
 
-LibString Poller::OnMonitor()
+void Poller::OnMonitor(PollerCompStatistics &statistics)
 {
-    LibString pollerInfo;
-    pollerInfo.AppendFormat("[loaded:%llu, gen:%lld, consume:%lld, backlog:%lld]"
-                , CalcLoadScore(), GetAndResetGenCount(), GetAndResetConsumCount(), GetEventAmount());
-
-    return pollerInfo;
+    statistics._loadedScore = CalcLoadScore();
+    statistics._pollerGenQps = GetAndResetGenCount();
+    statistics._pollerConsumeQps = GetAndResetConsumCount();
+    statistics._pollerBacklog = GetEventAmount();
+    statistics._isEnable = IsEnable();
+    statistics._pollerId = GetId();
 }
 
 bool Poller::CanQuit() const
 {
-    if(_eventAmountLeft != 0)
+    if(_eventAmountLeft.load(std::memory_order_acquire) != 0)
         return false;
 
     if(_dirtyHelper && _dirtyHelper->HasDirty())
@@ -462,8 +465,8 @@ void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
     }
 
     const auto amount = static_cast<Int64>(evList->GetAmount());
-    _eventAmountLeft += amount;
-    _genEventAmount += amount;
+    _eventAmountLeft.fetch_add(amount, std::memory_order_release);
+    _genEventAmount.fetch_add(amount, std::memory_order_release);
 
     _eventsList->PushQueue(level, evList);
     LibList<PollerEvent *>::Delete_LibList(evList);
@@ -481,8 +484,8 @@ void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action)
 
     auto ev = ActionPollerEvent::New_ActionPollerEvent(specifyActionType);
     ev->_action = action;
-    ++_eventAmountLeft;
-    ++_genEventAmount;
+    _eventAmountLeft.fetch_add(1, std::memory_order_release);
+    _genEventAmount.fetch_add(1, std::memory_order_release);
     _eventsList->PushQueue(level, ev);
     WakeupEventLoop();
 }
@@ -496,8 +499,8 @@ void Poller::Push(Int32 level, PollerEvent *ev)
         return;
     }
     
-    ++_eventAmountLeft;
-    ++_genEventAmount;
+    _eventAmountLeft.fetch_add(1, std::memory_order_release);
+    _genEventAmount.fetch_add(1, std::memory_order_release);
     _eventsList->PushQueue(level, ev);
     WakeupEventLoop();
 }

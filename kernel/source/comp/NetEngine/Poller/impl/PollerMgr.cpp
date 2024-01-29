@@ -38,6 +38,7 @@
 #include <kernel/comp/Utils/SocketUtil.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Poller/PollerInc.h>
+#include <kernel/comp/NetEngine/Poller/Defs/PollerStatisticsInfo.h>
 
 #include <kernel/comp/NetEngine/Poller/impl/PollerMgr.h>
 
@@ -130,47 +131,47 @@ void PollerMgr::SetConfig(const PollerConfig &cfg)
 
 UInt64 PollerMgr::NewSessionId()
 {
-    return ++_maxSessionId;
+    return _maxSessionId.fetch_add(1, std::memory_order_release) + 1;
 }
 
 void PollerMgr::AddSessionPending(UInt64 num)
 {
-    _sessionQuantityPending += num;
+    _sessionQuantityPending.fetch_add(num, std::memory_order_release);
 }
 
 bool PollerMgr::CheckAddSessionPending(UInt64 num, UInt64 &totalSessionNum) 
 {
-    _sessionQuantityPending += num;
+    _sessionQuantityPending.fetch_add(num, std::memory_order_release);
     if(UNLIKELY(_config->_maxSessionQuantity == 0))
     {
-        totalSessionNum = _sessionQuantityPending + _sessionQuantity;
+        totalSessionNum = _sessionQuantityPending.load(std::memory_order_acquire) + _sessionQuantity.load(std::memory_order_acquire);
         return true;
     }
 
-    if(UNLIKELY(_sessionQuantityPending + _sessionQuantity > _config->_maxSessionQuantity))
+    if(UNLIKELY(_sessionQuantityPending.load(std::memory_order_acquire) + _sessionQuantity.load(std::memory_order_acquire) > _config->_maxSessionQuantity))
     {
-        _sessionQuantityPending -= num;
-        totalSessionNum = _sessionQuantityPending + _sessionQuantity;
+        _sessionQuantityPending.fetch_sub(num, std::memory_order_release);
+        totalSessionNum = _sessionQuantityPending.load(std::memory_order_acquire) + _sessionQuantity.load(std::memory_order_acquire);
         return false;
     }
 
-    totalSessionNum = _sessionQuantityPending + _sessionQuantity;
+    totalSessionNum = _sessionQuantityPending.load(std::memory_order_acquire) + _sessionQuantity.load(std::memory_order_acquire);
     return true;
 }
 
 void PollerMgr::ReduceSessionPending(UInt64 num)
 {
-    _sessionQuantityPending -= num;
+    _sessionQuantityPending.fetch_sub(num, std::memory_order_release);
 }
 
 void PollerMgr::AddSessionQuantity(UInt64 num)
 {
-    _sessionQuantity += num;
+    _sessionQuantity.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::ReduceSessionQuantity(UInt64 num)
 {
-    _sessionQuantity -= num;
+    _sessionQuantity.fetch_sub(num, std::memory_order_release);
 }
 
 UInt64 PollerMgr::GetSessionQuantityLimit() const
@@ -193,30 +194,20 @@ const IServiceProxy *PollerMgr::GetServiceProxy() const
     return _serviceProxy;
 }
 
-void PollerMgr::OnMonitor(LibString &info)
+void PollerMgr::OnMonitor(PollerMgrStatisticsInfo &statistics)
 {
-    info.AppendFormat("\n[- POLLER MGR BEGIN -]\n");
+    statistics._onlineSessionTotalCount += _onlineSessionCount.load(std::memory_order_acquire);
+    statistics._sessionSpeedTotalCount += _sessionCount.load(std::memory_order_acquire);
+    statistics._historySessionTotalCount += _historySessionCount.load(std::memory_order_acquire);
+    statistics._acceptedOnlineSessionTotalCount += _onlineAcceptedSessionCount.load(std::memory_order_acquire);
+    statistics._acceptedHistoryTotalCount += _historyAcceptedSessionCount.load(std::memory_order_acquire);
+    statistics._acceptedSpeedTotalCount += _acceptedSessionCount.load(std::memory_order_acquire);
 
-    UInt64 recvPacketPerFrame = _recvPacketCount.load();
-    UInt64 recvBytesPerFrame = _recvBytes.load();
-    UInt64 sendPacketPerFrame = _sendPacketCount.load();
-    UInt64 sendBytesPerFrame = _sendBytes.load();
-    UInt64 sessionCountPerFrame = _sessionCount.load();
-    UInt64 acceptedSessionCountPerFrame = _acceptedSessionCount.load();
-    UInt64 connectedSessionCountPerFrame = _connectedSessionCount.load();
+    statistics._connectOnlineSessionTotalCount += _onlineConnectedSessionCount.load(std::memory_order_acquire);
+    statistics._connectSpeedTotalCount += _connectedSessionCount.load(std::memory_order_acquire);
+    statistics._connectHistoryTotalCount += _historyConnectedSessionCount.load(std::memory_order_acquire);
+    statistics._listenerSessionTotalCount += _onlineListenerSessionCount.load(std::memory_order_acquire);
 
-    // TODO:监控信息输出
-    info.AppendFormat("session-[online amount:%llu, speed:%llu, history amount:%llu]\n"
-                    , _onlineSessionCount.load(), sessionCountPerFrame, _historySessionCount.load());
-    info.AppendFormat("accepted session-[online amount:%llu, speed:%llu, history amount:%llu]\n"
-                    , _onlineAcceptedSessionCount.load(), acceptedSessionCountPerFrame, _historyAcceptedSessionCount.load());
-    info.AppendFormat("connect to remote session-[online amount:%llu, speed:%llu, history amount:%llu]\n"
-                    , _onlineConnectedSessionCount.load(), connectedSessionCountPerFrame, _historyConnectedSessionCount.load());
-    info.AppendFormat("listener session-[online amount:%llu]\n"
-                    , _onlineListenerSessionCount.load());
-
-
-    LibString pollerInfo;
     {
         auto tcpPollerMgr = GetComp<TcpPollerMgr>();
         auto &allPollers = tcpPollerMgr->GetAllPollers();
@@ -226,25 +217,30 @@ void PollerMgr::OnMonitor(LibString &info)
             auto tcpPoller = iter.second;
             if(tcpPoller->IsStarted())
             {
+                NetPollerCompStatistics netPoller;
                 auto poller = tcpPoller->GetComp<Poller>();
-                pollerInfo.AppendFormat("pollerId:%llu, sessions:%llu, %s\n"
-                        , tcpPoller->GetPollerId(), tcpPoller->GetSessionAmount()
-                        , poller ?(poller->IsEnable() ? poller->OnMonitor().c_str() : "poller disable") : "poller disable");
+                if(poller && poller->IsEnable())
+                    poller->OnMonitor(netPoller._pollerStatistics);
+
+                netPoller._pollerId = tcpPoller->GetPollerId();
+                netPoller._sessionCount = tcpPoller->GetSessionAmount();
+                statistics._netPollerStatistics.push_back(netPoller);
             }
         }
     }
 
-    info.AppendFormat("poller-[total:%llu, linker:%llu, data transfer:%llu]\n[\n%s\n]"
-    , _pollerCounts.load(),  _linkerCount.load(), _dataTransferCount.load(), pollerInfo.c_str());
+    statistics._totalPollerTotalCount += _pollerCounts.load(std::memory_order_acquire);
+    statistics._dataTransferPollerCount += _dataTransferCount.load(std::memory_order_acquire);
+    statistics._linkerPollerTotalCount += _linkerCount.load(std::memory_order_acquire);
 
-    info.AppendFormat("\nrecv-[packet qps:%llu, speed:%s, history packet:%llu, history bytes:%llu]\n"
-                    , recvPacketPerFrame, SocketUtil::ToFmtSpeedPerSec(static_cast<Int64>(recvBytesPerFrame)).c_str()
-                    , _historyRecvPacketCount.load(), _historyRecvBytes.load());
-    info.AppendFormat("send-[packet qps:%llu, speed:%s, history packet:%llu, history bytes:%llu]\n"
-                    , sendPacketPerFrame, SocketUtil::ToFmtSpeedPerSec(static_cast<Int64>(sendBytesPerFrame)).c_str()
-                    , _historySendPacketCount.load(), _historySendBytes.load());
-
-    info.AppendFormat("[- POLLER MGR END -]\n");
+    statistics._totalHistoryRecvBytes += _historyRecvBytes.load(std::memory_order_acquire);
+    statistics._totalHistoryRecvPacket += _historyRecvPacketCount.load(std::memory_order_acquire);
+    statistics._totalHistorySendPacket += _historySendPacketCount.load(std::memory_order_acquire);
+    statistics._totalHistorySendBytes += _historySendBytes.load(std::memory_order_acquire);
+    statistics._packetRecvQps += _recvPacketCount.load(std::memory_order_acquire);
+    statistics._packetRecvBytesSpeed += _recvBytes.load(std::memory_order_acquire);
+    statistics._packetSendQps += _sendPacketCount.load(std::memory_order_acquire);
+    statistics._packetSendBytesSpeed += _sendBytes.load(std::memory_order_acquire);
 
     // 帧清零
     _recvPacketCount = 0;
@@ -266,98 +262,98 @@ void PollerMgr::OnMonitor(LibString &info)
 
 void PollerMgr::AddRecvPacketCount(UInt64 num)
 {
-    _recvPacketCount += num;
-    _historyRecvPacketCount += num;
+    _recvPacketCount.fetch_add(num, std::memory_order_release);
+    _historyRecvPacketCount.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::AddRecvBytes(UInt64 num)
 {
-    _recvBytes += num;
-    _historyRecvBytes += num;
+    _recvBytes.fetch_add(num, std::memory_order_release);
+    _historyRecvBytes.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::AddSendPacketCount(UInt64 num)
 {
-    _sendPacketCount += num;
-    _historySendPacketCount += num;
+    _sendPacketCount.fetch_add(num, std::memory_order_release);
+    _historySendPacketCount.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::AddSendBytes(UInt64 num)
 {
-    _sendBytes += num;
-    _historySendBytes += num;
+    _sendBytes.fetch_add(num, std::memory_order_release);
+    _historySendBytes.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::AddAcceptedSessionCount(UInt64 num)
 {
-    _sessionCount += num;
-    _onlineSessionCount += num;
-    _historySessionCount += num;
+    _sessionCount.fetch_add(num, std::memory_order_release);
+    _onlineSessionCount.fetch_add(num, std::memory_order_release);
+    _historySessionCount.fetch_add(num, std::memory_order_release);
 
-    _acceptedSessionCount += num;
-    _onlineAcceptedSessionCount += num;
-    _historyAcceptedSessionCount += num;
+    _acceptedSessionCount.fetch_add(num, std::memory_order_release);
+    _onlineAcceptedSessionCount.fetch_add(num, std::memory_order_release);
+    _historyAcceptedSessionCount.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::AddConnectedSessionCount(UInt64 num)
 {
-    _sessionCount += num;
-    _onlineSessionCount += num;
-    _historySessionCount += num;
+    _sessionCount.fetch_add(num, std::memory_order_release);
+    _onlineSessionCount.fetch_add(num, std::memory_order_release);
+    _historySessionCount.fetch_add(num, std::memory_order_release);
 
-    _connectedSessionCount += num;
-    _onlineConnectedSessionCount += num;
-    _historyConnectedSessionCount += num;
+    _connectedSessionCount.fetch_add(num, std::memory_order_release);
+    _onlineConnectedSessionCount.fetch_add(num, std::memory_order_release);
+    _historyConnectedSessionCount.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::AddListenerSessionCount(UInt64 num)
 {
-    _sessionCount += num;
-    _onlineSessionCount += num;
-    _historySessionCount += num;
+    _sessionCount.fetch_add(num, std::memory_order_release);
+    _onlineSessionCount.fetch_add(num, std::memory_order_release);
+    _historySessionCount.fetch_add(num, std::memory_order_release);
 
-    _onlineListenerSessionCount += num;
+    _onlineListenerSessionCount.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::ReduceAcceptedSessionCount(UInt64 num)
 {
-    _sessionCount -= num;
-    _onlineSessionCount -= num;
+    _sessionCount.fetch_sub(num, std::memory_order_release);
+    _onlineSessionCount.fetch_sub(num, std::memory_order_release);
 
-    _acceptedSessionCount -= num;
-    _onlineAcceptedSessionCount -= num;
+    _acceptedSessionCount.fetch_sub(num, std::memory_order_release);
+    _onlineAcceptedSessionCount.fetch_sub(num, std::memory_order_release);
 }
 
 void PollerMgr::ReduceConnectedSessionCount(UInt64 num)
 {
-    _sessionCount -= num;
-    _onlineSessionCount -= num;
+    _sessionCount.fetch_sub(num, std::memory_order_release);
+    _onlineSessionCount.fetch_sub(num, std::memory_order_release);
 
-    _connectedSessionCount -= num;
-    _onlineConnectedSessionCount -= num;
+    _connectedSessionCount.fetch_sub(num, std::memory_order_release);
+    _onlineConnectedSessionCount.fetch_sub(num, std::memory_order_release);
 }
 
 void PollerMgr::ReduceListenerSessionCount(UInt64 num)
 {
-    _sessionCount -= num;
-    _onlineSessionCount -= num;
+    _sessionCount.fetch_sub(num, std::memory_order_release);
+    _onlineSessionCount.fetch_sub(num, std::memory_order_release);
 
-    _onlineListenerSessionCount -= num;
+    _onlineListenerSessionCount.fetch_sub(num, std::memory_order_release);
 }
 
 void PollerMgr::AddLinkerPollerCount(UInt64 num)
 {
-    _linkerCount += num;
+    _linkerCount.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::AddDataTransferPollerCount(UInt64 num)
 {
-    _dataTransferCount += num;
+    _dataTransferCount.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::AddPollerCount(UInt64 num)
 {
-    _pollerCounts += num;
+    _pollerCounts.fetch_add(num, std::memory_order_release);
 }
 
 void PollerMgr::QuitAllSessions(UInt64 serviceId)

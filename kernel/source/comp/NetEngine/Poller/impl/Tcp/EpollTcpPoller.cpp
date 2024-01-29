@@ -132,7 +132,7 @@ LibString EpollTcpPoller::ToString() const
 
 UInt64 EpollTcpPoller::CalcLoadScore() const
 {
-    return _poller->CalcLoadScore() + _sessionCount + _sessionPendingCount;
+    return _poller->CalcLoadScore() + _sessionCount.load(std::memory_order_acquire) + _sessionPendingCount.load(std::memory_order_acquire);
 }
 
 void EpollTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibPacket *packet)
@@ -1731,7 +1731,7 @@ EpollTcpSession *EpollTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
         iterIp = _ipRefSessions.insert(std::make_pair(sessionInfo->_remoteAddr._ip, std::set<EpollTcpSession *>())).first;
     iterIp->second.insert(newSession);
 
-    ++_sessionCount;
+    _sessionCount.fetch_add(1, std::memory_order_release);
     if(newSession->IsConnectToRemote())
         _pollerMgr->AddConnectedSessionCount(1);
     else if(newSession->IsLinker())
@@ -1879,7 +1879,7 @@ EpollTcpSession *EpollTcpPoller::_CreateSession(LibListenInfo *listenInfo)
     
     _sessionIdRefSession.insert(std::make_pair(newSession->GetId(), newSession));
 
-    ++_sessionCount;
+    _sessionCount.fetch_add(1, std::memory_order_release);
     _pollerMgr->AddSessionQuantity(1);
 
     // 统计数量
@@ -1928,7 +1928,7 @@ void EpollTcpPoller::_CloseSession(EpollTcpSession *session, Int32 closeReasonEn
 
     session->Close();
     _sessionIdRefSession.erase(session->GetId());
-    --_sessionCount;
+    _sessionCount.fetch_sub(1, std::memory_order_release);
 
     if(session->IsLinker())
         _pollerMgr->ReduceListenerSessionCount(1);

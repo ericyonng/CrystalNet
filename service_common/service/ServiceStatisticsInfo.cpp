@@ -21,18 +21,16 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-12-09 02:04:17
+ * Date: 2024-01-21 17:31:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_SERVICE_PROXY_SERVICE_PROXY_INC_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_SERVICE_PROXY_SERVICE_PROXY_INC_H__
+#include <pch.h>
+#include <service_common/service/ServiceStatisticsInfo.h>
 
-#pragma once
+SERVICE_COMMON_BEGIN
 
-#include <service_common/service_proxy/ServiceProxyStatisticsInfo.h>
-#include <service_common/service_proxy/ServiceProxy.h>
-#include <service_common/service_proxy/ServiceProxyFactory.h>
+POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceStatisticsInfo);
 
-#endif
+SERVICE_COMMON_END

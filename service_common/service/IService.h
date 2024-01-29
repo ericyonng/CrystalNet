@@ -61,6 +61,8 @@ SERVICE_COMMON_BEGIN
 class ServiceProxy;
 class Application;
 
+struct ServiceStatisticsInfo;
+
 // 默认的servicestatus，也可以根据业务需要来设置
 class ServiceStatus
 {
@@ -168,7 +170,7 @@ public:
     void InitPollerEventHandler();
 
     // 监控信息
-    virtual void OnMonitor(KERNEL_NS::LibString &info);
+    virtual void OnMonitor(ServiceStatisticsInfo &info);
 
     // service模块是否退出
     virtual bool CheckServiceModuleQuitEnd(KERNEL_NS::LibString &notEndInfo) const;
@@ -336,12 +338,12 @@ ALWAYS_INLINE const KERNEL_NS::Poller *IService::GetPoller() const
 
 ALWAYS_INLINE void IService::AddRecvPackets(Int64 recvPackets)
 {
-    _recvPackets += recvPackets;
+    _recvPackets.fetch_add(recvPackets, std::memory_order_release);
 }
 
 ALWAYS_INLINE void IService::AddConsumePackets(Int64 recvPackets)
 {
-    _consumePackets += recvPackets;
+    _consumePackets.fetch_add(recvPackets, std::memory_order_release);
 }
 
 template<typename ObjType>

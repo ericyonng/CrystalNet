@@ -258,6 +258,15 @@ IUser *UserMgr::GetUserBySessionId(UInt64 sessionId)
     return iter == _sessionIdRefUser.end() ? NULL : iter->second;
 }
 
+IUser *UserMgr::GetLoginedUserBySessionId(UInt64 sessionId)
+{
+    auto user = GetUserBySessionId(sessionId);
+    if(!user || !user->IsLogined())
+        return NULL;
+
+    return user;
+}
+
 void UserMgr::MaskNumberKeyAddDirty(UInt64 key)
 {
     auto user = GetUser(key);
@@ -1562,7 +1571,7 @@ void UserMgr::_OnLoginFinishReq(KERNEL_NS::LibPacket *&packet)
 void UserMgr::_OnClientLogoutReq(KERNEL_NS::LibPacket *&packet)
 {
     auto sessionId = packet->GetSessionId();
-    auto user = GetUserBySessionId(sessionId);
+    auto user = GetLoginedUserBySessionId(sessionId);
     if(UNLIKELY(!user))
     {
         return;

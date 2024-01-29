@@ -101,7 +101,7 @@ void BookBagGlobal::_Clear()
 
 void BookBagGlobal::_OnBookBagInfoReq(KERNEL_NS::LibPacket *&packet)
 {
-    auto user = GetGlobalSys<IUserMgr>()->GetUserBySessionId(packet->GetSessionId());
+    auto user = GetGlobalSys<IUserMgr>()->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -118,7 +118,7 @@ void BookBagGlobal::_OnBookBagInfoReq(KERNEL_NS::LibPacket *&packet)
 
 void BookBagGlobal::_OnSetBookBagInfoReq(KERNEL_NS::LibPacket *&packet)
 {
-    auto user = GetGlobalSys<IUserMgr>()->GetUserBySessionId(packet->GetSessionId());
+    auto user = GetGlobalSys<IUserMgr>()->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -138,7 +138,7 @@ void BookBagGlobal::_OnSetBookBagInfoReq(KERNEL_NS::LibPacket *&packet)
 void BookBagGlobal::_OnSubmitBookBagBorrowInfoReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());

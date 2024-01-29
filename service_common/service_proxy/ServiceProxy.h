@@ -66,6 +66,7 @@ class IService;
 struct SimpleSessionInfo;
 class IServiceFactory;
 class Application;
+struct ServiceProxyStatisticsInfo;
 
 class ServiceProxy : public KERNEL_NS::IServiceProxy
 {
@@ -91,7 +92,7 @@ public:
     void CloseApp(Int32 err = Status::Success);
 
     // 监控信息
-    void OnMonitor(KERNEL_NS::LibString &info);
+    void OnMonitor(ServiceProxyStatisticsInfo &info);
 
 private:
     virtual Int32 _OnInit() final;

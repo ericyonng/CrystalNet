@@ -101,7 +101,7 @@ Int32 NotifyGlobal::_OnGlobalSysInit()
 void NotifyGlobal::_OnReadNotifyReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -120,7 +120,7 @@ void NotifyGlobal::_OnReadNotifyReq(KERNEL_NS::LibPacket *&packet)
 void NotifyGlobal::_OnOnekeyClearNotifyReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());

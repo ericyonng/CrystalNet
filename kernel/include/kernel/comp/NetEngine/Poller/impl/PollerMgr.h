@@ -65,7 +65,7 @@ public:
     virtual void SetServiceProxy(IServiceProxy *serviceProxy) override;
     virtual IServiceProxy *GetServiceProxy() override;
     virtual const IServiceProxy *GetServiceProxy() const override;
-    virtual void OnMonitor(LibString &info) override;
+    virtual void OnMonitor(PollerMgrStatisticsInfo &statistics) override;
 
     // 统计数据
     virtual void AddRecvPacketCount(UInt64 num) override;

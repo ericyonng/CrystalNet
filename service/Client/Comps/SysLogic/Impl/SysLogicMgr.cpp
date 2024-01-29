@@ -83,7 +83,6 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
         return Status::Repeat;
     }
 
-    auto serviceProxy = service->GetServiceProxy();
     KERNEL_NS::SessionOption option;
 
     // 发送和接收缓冲区使用默认值

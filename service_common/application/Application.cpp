@@ -976,14 +976,19 @@ void Application::_OnMonitorThreadFrame()
     _statisticsInfoCache = sw;
     _guard.Unlock();
 
-    KERNEL_NS::LibString info;
-
     // 3.获取service信息
-    info.AppendFormat("\n");
     auto serviceProxy = GetComp<ServiceProxy>();
+    ServiceProxyStatisticsInfo serviceProxyInfo;
     if(serviceProxy && serviceProxy->IsStarted())
-        serviceProxy->OnMonitor(info);
+        serviceProxy->OnMonitor(serviceProxyInfo);
     
+    KERNEL_NS::LibString info;
+    info.AppendFormat("\n%s\n", serviceProxyInfo.ToString().c_str());
+
+    info.AppendFormat("[SUMMARY INFO BEGIN]\n");
+    info.AppendFormat("%s\n", serviceProxyInfo.ToSummaryInfo().c_str());
+    info.AppendFormat("[SUMMARY INFO END]\n");
+
     Double average = 0;
     if(_statisticsInfoCache->_resCount > 0)
     {
@@ -992,8 +997,8 @@ void Application::_OnMonitorThreadFrame()
 
     if(!_appConfig._disableConsoleMonitorInfo)
     {
-        g_Log->Monitor("%s[- RESPONSE INFO BEGIN -]\nSampleNumber:%llu. Min:%lf(ms). Average:%lf(ms). Max:%lf(ms).\n[- RESPONSE INFO END -]\n"
-                    , info.c_str(), _statisticsInfoCache->_resCount, static_cast<Double>(_statisticsInfoCache->_minResNs) / 1000000, average, static_cast<Double>(_statisticsInfoCache->_maxResNs) / 1000000);
+        g_Log->Monitor("%s\n[- RESPONSE INFO BEGIN -]\nSampleNumber:%llu. Min:%lf(ms). Average:%lf(ms). Max:%lf(ms).\n[- RESPONSE INFO END -]\n"
+                    ,info.c_str(), _statisticsInfoCache->_resCount, static_cast<Double>(_statisticsInfoCache->_minResNs) / 1000000, average, static_cast<Double>(_statisticsInfoCache->_maxResNs) / 1000000);
     }
 
     _statisticsInfoCache->_minResNs = 0;

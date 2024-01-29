@@ -32,6 +32,7 @@
 #include <service_common/service/service.h>
 #include <service_common/application/Application.h>
 #include <service_common/service_proxy/ServiceProxyFactory.h>
+#include <service_common/service_proxy/ServiceProxyStatisticsInfo.h>
 
 SERVICE_COMMON_BEGIN
 
@@ -110,7 +111,7 @@ void ServiceProxy::CloseApp(Int32 err)
     GetOwner()->CastTo<Application>()->SinalFinish(err);
 }
 
-void ServiceProxy::OnMonitor(KERNEL_NS::LibString &info)
+void ServiceProxy::OnMonitor(ServiceProxyStatisticsInfo &info)
 {
     for(auto iter : _idRefService)
     {
@@ -123,7 +124,11 @@ void ServiceProxy::OnMonitor(KERNEL_NS::LibString &info)
             isReject = iterStatus->second;
 
         if(!isReject)
-            iter.second->OnMonitor(info);
+        {
+            ServiceStatisticsInfo serviceInfo;
+            iter.second->OnMonitor(serviceInfo);
+            info._serviceStatistatics.push_back(serviceInfo);
+        }
 
         _guard.Unlock();
     }

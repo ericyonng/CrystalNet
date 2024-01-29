@@ -67,6 +67,7 @@ public:
     virtual const IUser *GetUser(const KERNEL_NS::LibString &accountName) const override;
     virtual const IUser *GetUserBySessionId(UInt64 sessionId) const override;
     virtual IUser *GetUserBySessionId(UInt64 sessionId) override;
+    virtual IUser *GetLoginedUserBySessionId(UInt64 sessionId) override;
 
     virtual void MaskNumberKeyAddDirty(UInt64 key) override;
 

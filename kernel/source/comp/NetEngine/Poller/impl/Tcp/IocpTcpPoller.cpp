@@ -138,7 +138,7 @@ LibString IocpTcpPoller::ToString() const
 
 UInt64 IocpTcpPoller::CalcLoadScore() const
 {
-    return _poller->CalcLoadScore() + _sessionCount + _sessionPendingCount;
+    return _poller->CalcLoadScore() + _sessionCount.load(std::memory_order_acquire) + _sessionPendingCount.load(std::memory_order_acquire);
 }
 
 void IocpTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibPacket *packet)
@@ -370,7 +370,7 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
     iterIp->second.insert(newSession);
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by build session info suc session info:%s"), newSession->ToString().c_str());
-    ++_sessionCount;
+    _sessionCount.fetch_add(1, std::memory_order_release);
     if(newSession->IsLinker())
         _pollerMgr->AddListenerSessionCount(1);
     else if(newSession->IsConnectToRemote())
@@ -534,7 +534,7 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(LibListenInfo *listenInfo)
     _pollerMgr->AddSessionQuantity(1);
     _sessionIdRefSession.insert(std::make_pair(newSession->GetId(), newSession));
 
-    ++_sessionCount;
+    _sessionCount.fetch_add(1, std::memory_order_release);
     _pollerMgr->AddListenerSessionCount(1);
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by listen info suc session info:%s"), newSession->ToString().c_str());
@@ -576,7 +576,7 @@ void IocpTcpPoller::_CloseSession(IocpTcpSession *session, Int32 closeReasonEnum
     session->Close();
     _sessionIdRefSession.erase(session->GetId());
 
-    --_sessionCount;
+    _sessionCount.fetch_sub(1, std::memory_order_release);
     if(session->IsLinker())
         _pollerMgr->ReduceListenerSessionCount(1);
     else if(session->IsConnectToRemote())

@@ -523,7 +523,7 @@ void LibraryGlobal::_OnGlobalSysClose()
 
 void LibraryGlobal::_OnGetLibraryInfoReq(KERNEL_NS::LibPacket *&packet)
 {
-    auto user = GetGlobalSys<IUserMgr>()->GetUserBySessionId(packet->GetSessionId());
+    auto user = GetGlobalSys<IUserMgr>()->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -554,7 +554,7 @@ void LibraryGlobal::_OnGetLibraryInfoReq(KERNEL_NS::LibPacket *&packet)
 
 void LibraryGlobal::_OnGetLibraryListReq(KERNEL_NS::LibPacket *&packet)
 {
-    auto user = GetGlobalSys<IUserMgr>()->GetUserBySessionId(packet->GetSessionId());
+    auto user = GetGlobalSys<IUserMgr>()->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -574,7 +574,7 @@ void LibraryGlobal::_OnGetLibraryListReq(KERNEL_NS::LibPacket *&packet)
 
 void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
 {
-    auto user = GetGlobalSys<IUserMgr>()->GetUserBySessionId(packet->GetSessionId());
+    auto user = GetGlobalSys<IUserMgr>()->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -755,7 +755,7 @@ void LibraryGlobal::_OnCreateLibraryReq(KERNEL_NS::LibPacket *&packet)
 
 void LibraryGlobal::_OnJoinLibraryReq(KERNEL_NS::LibPacket *&packet)
 {
-    auto user = GetGlobalSys<IUserMgr>()->GetUserBySessionId(packet->GetSessionId());
+    auto user = GetGlobalSys<IUserMgr>()->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -838,7 +838,7 @@ void LibraryGlobal::_OnJoinLibraryReq(KERNEL_NS::LibPacket *&packet)
 
 void LibraryGlobal::_OnQuitLibraryReq(KERNEL_NS::LibPacket *&packet)
 {
-    auto user = GetGlobalSys<IUserMgr>()->GetUserBySessionId(packet->GetSessionId());
+    auto user = GetGlobalSys<IUserMgr>()->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -912,7 +912,7 @@ void LibraryGlobal::_OnQuitLibraryReq(KERNEL_NS::LibPacket *&packet)
 
 void LibraryGlobal::_OnTransferLibraianReq(KERNEL_NS::LibPacket *&packet)
 {
-    auto user = GetGlobalSys<IUserMgr>()->GetUserBySessionId(packet->GetSessionId());
+    auto user = GetGlobalSys<IUserMgr>()->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -1020,7 +1020,7 @@ void LibraryGlobal::_OnTransferLibraianReq(KERNEL_NS::LibPacket *&packet)
 void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -1232,7 +1232,7 @@ void LibraryGlobal::_OnModifyMemberInfoReq(KERNEL_NS::LibPacket *&packet)
 void LibraryGlobal::_OnGetLibraryMemberSimpleInfoReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -1355,7 +1355,7 @@ void LibraryGlobal::_OnGetLibraryMemberSimpleInfoReq(KERNEL_NS::LibPacket *&pack
 void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -1734,7 +1734,7 @@ void LibraryGlobal::_OnAddLibraryBookReq(KERNEL_NS::LibPacket *&packet)
 void LibraryGlobal::_OnGetBookInfoReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -1782,7 +1782,7 @@ void LibraryGlobal::_OnGetBookInfoReq(KERNEL_NS::LibPacket *&packet)
 void LibraryGlobal::_OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -1828,7 +1828,7 @@ void LibraryGlobal::_OnGetBookByBookNameReq(KERNEL_NS::LibPacket *&packet)
 void LibraryGlobal::_OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -1879,7 +1879,7 @@ void LibraryGlobal::_OnGetBookInfoListReq(KERNEL_NS::LibPacket *&packet)
 void LibraryGlobal::_OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -1903,7 +1903,7 @@ void LibraryGlobal::_OnGetBookOrderDetailInfoReq(KERNEL_NS::LibPacket *&packet)
 void LibraryGlobal::_OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -2072,7 +2072,7 @@ void LibraryGlobal::_OnOutStoreOrderReq(KERNEL_NS::LibPacket *&packet)
 void LibraryGlobal::_OnManagerScanOrderForUserGettingBooksReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -2177,7 +2177,7 @@ void LibraryGlobal::_OnManagerScanOrderForUserGettingBooksReq(KERNEL_NS::LibPack
 void LibraryGlobal::_OnUserGetBooksOrderConfirmReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -2300,7 +2300,7 @@ void LibraryGlobal::_OnUserGetBooksOrderConfirmReq(KERNEL_NS::LibPacket *&packet
 void LibraryGlobal::_OnCancelOrderReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());
@@ -2581,7 +2581,7 @@ void LibraryGlobal::_OnCancelOrderReq(KERNEL_NS::LibPacket *&packet)
 void LibraryGlobal::_OnReturnBackReq(KERNEL_NS::LibPacket *&packet)
 {
     auto userMgr = GetGlobalSys<IUserMgr>();
-    auto user = userMgr->GetUserBySessionId(packet->GetSessionId());
+    auto user = userMgr->GetLoginedUserBySessionId(packet->GetSessionId());
     if(UNLIKELY(!user))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("user not online packet:%s"), packet->ToString().c_str());

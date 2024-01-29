@@ -38,6 +38,8 @@ KERNEL_BEGIN
 struct PollerConfig;
 class IServiceProxy;
 
+struct PollerMgrStatisticsInfo;
+
 class KERNEL_EXPORT IPollerMgr : public CompHostObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IPollerMgr);
@@ -61,7 +63,7 @@ public:
     virtual void SetServiceProxy(IServiceProxy *serviceProxy) = 0;
     virtual IServiceProxy *GetServiceProxy() = 0;
     virtual const IServiceProxy *GetServiceProxy() const = 0;
-    virtual void OnMonitor(LibString &info) = 0;
+    virtual void OnMonitor(PollerMgrStatisticsInfo &statistics) = 0;
 
     // 收发统计
     virtual void AddRecvPacketCount(UInt64 num) = 0;
