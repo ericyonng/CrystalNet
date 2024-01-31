@@ -133,7 +133,7 @@ void MemoryMonitor::_DoWork()
 
     // linux 进程信息
     #if CRYSTAL_TARGET_PLATFORM_LINUX
-        g_Log->MemMonitor("Proc %d Info:\n[FDSize:%llu, Peak Memory Occupied:%llu KB, Current Occupied:%llu KB]\n"
+        g_Log->MemMonitor("Proc Info:\n[FDSize:%llu, Peak Memory Occupied:%llu KB, Current Occupied:%llu KB]\n"
                         "[Peak Malloc Phisic Mem:%llu KB, Current Used Physic Mem:%llu KB]\n"
                         "[Data Segment:%llu KB, Stack Segment::%llu KB, Exe Code:%llu KB]\n"
                         "[Libarary:%llu KB, Swap::%llu KB, PageTable:%llu KB]\n"
