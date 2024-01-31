@@ -78,7 +78,6 @@ public:
     static bool SetCurrentThreadName(const LibString &threadName, LibString &err);
     static bool GetCurrentThreadName(LibString &threadName, LibString &err);
 
-
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     // 获取可用的内存大小
     static UInt64 GetAvailPhysMemSize();
@@ -116,6 +115,9 @@ public:
     static UInt64 GetTotalMem(const std::map<LibString, LibString> &memInfo);
     // 读取内存信息字典 key:内存信息名, value对应meminfo中的值（tripUnitOfValue:去除值的数量单位）
     static bool ReadMemInfoDict(std::map<LibString, LibString> &memInfo, bool tripUnitOfValue = true);
+
+    // 进程信息    
+    static void GetLinuxProcessProcInfo(LinuxProcInfo &info);
     #endif
     
     /* 控制台 */

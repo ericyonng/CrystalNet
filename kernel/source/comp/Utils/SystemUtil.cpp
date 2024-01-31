@@ -29,6 +29,7 @@
 #include <pch.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Utils/Defs/FindFileInfo.h>
+#include <kernel/comp/SmartPtr.h>
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
     #include <unistd.h>
@@ -941,6 +942,86 @@ bool SystemUtil::ReadMemInfoDict(std::map<LibString, LibString> &memInfo, bool t
     FileUtil::CloseFile(*fp);
 
     return true;
+}
+
+
+void SystemUtil::GetLinuxProcessProcInfo(LinuxProcInfo &info)
+{
+    ::memset(&info, 0, sizeof(info));
+
+    auto pid = GetCurProcessId();
+    const auto &path = KERNEL_NS::LibString().AppendFormat("/proc/%d/status", pid);
+    KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = FileUtil::OpenFile(path.c_str(), false, "r");
+    if(!fp)
+    {
+        CRYSTAL_TRACE("open %s fail %s", path.c_str(), GetErrString(GetErrNo()).c_str());
+        return;
+    }
+    fp.SetClosureDelegate([](void *p){
+        KERNEL_NS::FileUtil::CloseFile(*KERNEL_NS::KernelCastTo<FILE>(p));
+    });
+
+    // 逐行读取
+    LibString line;
+    while(FileUtil::ReadOneLine(*fp, line))
+    {
+        // 分离key value
+        line.strip();
+        auto arr = line.Split(':');
+
+        // value处理
+        auto &key = arr[0];
+        auto &value = arr[1];
+        value.strip();
+        key.strip();
+
+        if(key == "FDSize")
+        {
+            info._fdSize = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }
+        else if(key == "VmPeak")
+        {
+            info._vmPeak = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }
+        else if(key == "VmSize")
+        {
+            info._vmSize = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }
+        else if(key == "VmHWM")
+        {
+            info._vmHwm = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }
+        else if(key == "VmRSS")
+        {
+            info._vmRss = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }
+        else if(key == "VmData")
+        {
+            info._vmData = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }        
+        else if(key == "VmStk")
+        {
+            info._vmStk = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }    
+        else if(key == "VmExe")
+        {
+            info._vmExe = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }    
+        else if(key == "VmLib")
+        {
+            info._vmLib = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }   
+        else if(key == "VmSwap")
+        {
+            info._vmSwap = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }  
+        else if(key == "VmPTE")
+        {
+            info._vmPTE = KERNEL_NS::StringUtil::StringToUInt64(value.c_str());
+        }  
+
+        line.clear();
+    }
 }
 #endif
 

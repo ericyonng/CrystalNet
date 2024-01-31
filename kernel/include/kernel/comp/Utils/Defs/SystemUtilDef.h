@@ -113,6 +113,33 @@ struct KERNEL_EXPORT ProcessMemInfo
     size_t _processAllocMemoryUsage;        // 进程运行过程中申请的内存大小
 };
 
+// linux的进程信息 /proc/pid/status
+struct KERNEL_EXPORT LinuxProcInfo
+{
+    // 文件描述符的最大数量
+    UInt64 _fdSize;
+    // 占用内存峰值 kB
+    UInt64 _vmPeak;
+    // 进程现在正在占用的内存
+    UInt64 _vmSize;
+    // 程序得到分配到物理内存的峰值
+    UInt64 _vmHwm;
+    // 程序现在使用的物理内存
+    UInt64 _vmRss;
+    // 数据段大小
+    UInt64 _vmData;
+    // 进程堆栈段大小
+    UInt64 _vmStk;
+    // 进程代码
+    UInt64 _vmExe;
+    // 进程所使用Lib库大小
+    UInt64 _vmLib;
+    // 进程占用Swap大小
+    UInt64 _vmSwap;
+    // 占用的页表的大小.
+    UInt64 _vmPTE;
+};
+
 // 见man setrlimit
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
 

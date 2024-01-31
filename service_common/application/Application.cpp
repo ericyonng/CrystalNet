@@ -985,9 +985,10 @@ void Application::_OnMonitorThreadFrame()
     KERNEL_NS::LibString info;
     info.AppendFormat("\n%s\n", serviceProxyInfo.ToString().c_str());
 
-    info.AppendFormat("[SUMMARY INFO BEGIN]\n");
+    auto pid = GetProcessId();
+    info.AppendFormat("[PROC:%d SUMMARY INFO BEGIN]\n", pid);
     info.AppendFormat("%s\n", serviceProxyInfo.ToSummaryInfo().c_str());
-    info.AppendFormat("[SUMMARY INFO END]\n");
+    info.AppendFormat("[PROC:%d SUMMARY INFO END]\n", pid);
 
     Double average = 0;
     if(_statisticsInfoCache->_resCount > 0)
