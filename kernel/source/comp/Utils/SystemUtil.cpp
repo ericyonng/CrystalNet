@@ -950,7 +950,8 @@ void SystemUtil::GetLinuxProcessProcInfo(LinuxProcInfo &info)
     ::memset(&info, 0, sizeof(info));
 
     auto pid = GetCurProcessId();
-    const auto &path = KERNEL_NS::LibString().AppendFormat("/proc/%d/status", pid);
+    KERNEL_NS::LibString path;
+    path.AppendFormat("/proc/%d/status", pid);
     KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = FileUtil::OpenFile(path.c_str(), false, "r");
     if(!fp)
     {
