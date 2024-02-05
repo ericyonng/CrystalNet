@@ -167,7 +167,7 @@ ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks()
     _mergeBufferList = _mergeBufferListSwap;
     _mergeBufferListSwap = toSwap;
     _needMerge = false;
-    _bufferToMergeCount = 0;
+    _bufferToMergeCount.store(0, std::memory_order_release);
     _toMergeLck.Unlock();
 
     // 遍历并吧内存归并 为了避免频繁归并内存, 跨线程的时候请使用跨线程版本的分配内存, 生命周期只在单线程的, 使用线程本地版本的分配内存
@@ -360,13 +360,13 @@ LibString MemoryAlloctor::UsingInfo() const
 
     str << "alloctor init thread id:" << _threadId << ";\n"
         << "alloctor address:" << this <<  ";\n"
-        << "block size:" << _blockSizeAfterAlign << ", create source:" << _createSource << "create memory buffer num when init:" << _initMemoryBufferNum <<  ";\n"
+        << "block size:" << _blockSizeAfterAlign << ", create source:" << _createSource << ", create memory buffer num when init:" << _initMemoryBufferNum <<  ";\n"
         << "current alloctor buffer total bytes:" << _totalBytes << ", current all using bytes:" << _bytesInUsed << ";\n"
         << "total block amount:" << _totalBlockAmount << ", using block:" << _blockCountInUsed << ";\n"
         << "current block count per buffer for next time:" << _curBlockCntPerBuffer << ", max block count limit per buffer:" << _bufferBlockNumLimit << ";\n"
         << "active buffer num:" << _curActiveBufferNum << ";\n"
         << "trigger new buffer when alloc block num:" << _trigerNewBufferWhenAlloc << ";\n"
-        << "need to merge buffer count:" << _bufferToMergeCount.load() << ";\n"
+        << "need to merge buffer count:" << _bufferToMergeCount.load(std::memory_order_acquire) << ";\n"
         << "is thread local create alloctor:" << _isThreadLocalCreate << ";\n"
         ;
         
@@ -434,7 +434,7 @@ void MemoryAlloctor::PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferI
 {
     _toMergeLck.Lock();
     _needMerge = true;
-    _bufferToMergeCount += memoryBuffMergeNum;
+    _bufferToMergeCount.fetch_add(memoryBuffMergeNum, std::memory_order_release);
 
     // 合并链表
     tail->_next = _mergeBufferListSwap;
