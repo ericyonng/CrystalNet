@@ -102,6 +102,7 @@ LibString TimeData::ToString() const
 
 void TimeData::UpdateTimerInfo()
 {
+    // TODO:性能瓶颈, 每次注册定时器的时候都会ToString, 在压测的时候，火焰图显示当前接口高频
     if(LIKELY(_owner))
         _timerInfo = _owner->ToString();
 }
