@@ -152,7 +152,7 @@ void TestMgr::_OnTestOpcodeRes(KERNEL_NS::LibPacket *&packet)
     auto iter = _sessionIdRefAnalyzeInfo.find(sessionId);
     if(UNLIKELY(iter == _sessionIdRefAnalyzeInfo.end()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("session is not exists sessionId:%llu"), sessionId);
+        // g_Log->Warn(LOGFMT_OBJ_TAG("session is not exists sessionId:%llu"), sessionId);
         return;
     }
 
@@ -160,7 +160,7 @@ void TestMgr::_OnTestOpcodeRes(KERNEL_NS::LibPacket *&packet)
     auto iterPacketAnalyzeInfo = analyzeInfo->_packetIdRefAnalyzeInfo.find(packet->GetPacketId());
     if(UNLIKELY(iterPacketAnalyzeInfo == analyzeInfo->_packetIdRefAnalyzeInfo.end()))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("session pacekt analyze info not exists sessionId:%llu, packetId:%lld"), sessionId, packet->GetPacketId());
+        // g_Log->Warn(LOGFMT_OBJ_TAG("session pacekt analyze info not exists sessionId:%llu, packetId:%lld"), sessionId, packet->GetPacketId());
         return;
     }
 
@@ -264,7 +264,10 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
        
                     }while(false);
 
-                    g_Log->Debug(LOGFMT_OBJ_TAG("time out sessionId:%llu, packetId:%lld"), sessionId, packetId);
+                    // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+                    // {
+                    //     g_Log->Debug(LOGFMT_OBJ_TAG("time out sessionId:%llu, packetId:%lld"), sessionId, packetId);
+                    // }
                     
                     if(_testSendMode != 1)
                         KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
