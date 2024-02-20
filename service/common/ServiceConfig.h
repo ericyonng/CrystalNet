@@ -55,7 +55,7 @@ struct AddrConfig
 
     }
 
-    bool Parse(const KERNEL_NS::LibString &configContent, const std::unordered_map<UInt16, Int32> &portRefSessinType, bool isStreamSock = true);
+    bool Parse(const KERNEL_NS::LibString &configContent, bool isStreamSock = true);
 
     static AddrConfig *Create()
     {
@@ -124,7 +124,6 @@ public:
     std::vector<AddrConfig *> _connectAddrGroup;
 
     AddrConfig *_centerAddr;    // 控制中心
-    std::unordered_map<UInt16, Int32> _portRefSessionType;  // 端口的会话类型配置 PORT_SESSION_TYPE
     bool _protoStackOpenLog;
     Int64 _encryptKeyExpireTime;
 

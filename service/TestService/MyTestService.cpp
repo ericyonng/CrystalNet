@@ -100,12 +100,6 @@ const KERNEL_NS::PollerConfig &MyTestService::GetPollerConfig() const
     return _serviceConfig->_pollerConfig;
 }
 
-Int32 MyTestService::GetSessionTypeByPort(UInt16 port) const
-{
-    auto iter = _serviceConfig->_portRefSessionType.find(port);
-    return iter == _serviceConfig->_portRefSessionType.end() ? SessionType::UNKNOWN : iter->second;
-}
-
  const ServiceConfig *MyTestService::GetServiceConfig() const
  {
     return _serviceConfig;

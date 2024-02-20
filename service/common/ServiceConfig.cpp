@@ -38,7 +38,7 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(AddrConfig);
 
-bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::unordered_map<UInt16, Int32> &portRefSessinType, bool isStreamSock)
+bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, bool isStreamSock)
 {
     // Local,127.0.0.1,3901-Remote,127.0.0.1,3901/INNER
     const KERNEL_NS::LibString inclineSep = "@";
@@ -48,6 +48,8 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
     const KERNEL_NS::LibString remoteSign = "remote";
     const KERNEL_NS::LibString hostNameSep = "'";
     const KERNEL_NS::LibString ipv6Flag = "ipv6";
+    const KERNEL_NS::LibString portSep = ":";
+
     
     UInt32 priorityLevel = PriorityLevelDefine::INNER;
 
@@ -72,10 +74,12 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
     // 识别Local/remote地址
     KERNEL_NS::LibString localIp;
     UInt16 localPort = 0;
+    Int32 localPortSessionType = SessionType::INNER;
     Int32 localStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
     KERNEL_NS::LibString remoteIp;
     Int32 listenSessionCount = 1;
     UInt16 remotePort = 0;
+    Int32 remotePortSessionType = SessionType::INNER;
     Int32 remoteStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
     for(auto &endianInfo : sepLocalAndRemote)
     {
@@ -121,13 +125,32 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
             // 端口
             if(!endianPartGroup[2].empty())
             {
-                if(!endianPartGroup[2].isdigit())
+                const auto &portParts = endianPartGroup[2].Split(portSep);
+                if(portParts.empty())
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("port invalid configContent:%s, port config str:%s"), configContent.c_str(), endianPartGroup[2].c_str());
+                    return false;
+                }
+
+                if(!portParts[0].isdigit())
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("port not digit, configContent:%s, port:%s"), configContent.c_str(), endianPartGroup[2].c_str());
                     return false;
                 }
 
-                localPort = KERNEL_NS::StringUtil::StringToUInt16(endianPartGroup[2].c_str());
+                localPort = KERNEL_NS::StringUtil::StringToUInt16(portParts[0].c_str());
+
+                if(portParts.size() >= 2)
+                {
+                    auto sessionType = SessionType::SessionStringToSessionType(portParts[1]);
+                    if(sessionType == SessionType::UNKNOWN)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("port session type invalid, configContent:%s, port str:%s"), configContent.c_str(), endianPartGroup[2].c_str());
+                        return false;
+                    }
+
+                    localPortSessionType = sessionType;
+                }
             }
 
             // 监听同一个端口会话数量
@@ -196,13 +219,32 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
             // 端口
             if(!endianPartGroup[2].empty())
             {
-                if(!endianPartGroup[2].isdigit())
+                const auto &portParts = endianPartGroup[2].Split(portSep);
+                if(portParts.empty())
+                {
+                    g_Log->Warn(LOGFMT_OBJ_TAG("port invalid configContent:%s, port config str:%s"), configContent.c_str(), endianPartGroup[2].c_str());
+                    return false;
+                }
+
+                if(!portParts[0].isdigit())
                 {
                     g_Log->Warn(LOGFMT_OBJ_TAG("port not digit, configContent:%s, port:%s"), configContent.c_str(), endianPartGroup[2].c_str());
                     return false;
                 }
 
-                remotePort = KERNEL_NS::StringUtil::StringToUInt16(endianPartGroup[2].c_str());
+                remotePort = KERNEL_NS::StringUtil::StringToUInt16(portParts[0].c_str());
+
+                if(portParts.size() >= 2)
+                {
+                    auto sessionType = SessionType::SessionStringToSessionType(portParts[1]);
+                    if(sessionType == SessionType::UNKNOWN)
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("port session type invalid, configContent:%s, port str:%s"), configContent.c_str(), endianPartGroup[2].c_str());
+                        return false;
+                    }
+
+                    remotePortSessionType = sessionType;
+                }
             }
 
             if(endianPartGroup.size() >= 4)
@@ -221,6 +263,7 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
                     remoteStack = stackType;
                 }
             }
+
             continue;
         }
         
@@ -248,12 +291,7 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
         _af = KERNEL_NS::SocketUtil::IsIpv4(localIp) ? AF_INET : AF_INET6;
 
         // 有远端地址，优先选择远端的端口作为sessionType的判断依据
-        _sessionType = SessionType::INNER;
-
-        auto iter = portRefSessinType.find(_remotePort);
-        if(iter != portRefSessinType.end())
-            _sessionType = iter->second;
-
+        _sessionType = remotePortSessionType;
         _priorityLevel = priorityLevel;
         return true;
     }
@@ -267,10 +305,7 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
         _localProtocolStackType = localStack;
         
         _af = KERNEL_NS::SocketUtil::IsIpv4(localIp) ? AF_INET : AF_INET6;
-        _sessionType = SessionType::INNER;
-        auto iter = portRefSessinType.find(_localPort);
-        if(iter != portRefSessinType.end())
-            _sessionType = iter->second;
+        _sessionType = localPortSessionType;
 
         _priorityLevel = priorityLevel;
         return true;
@@ -282,11 +317,7 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, const std::uno
     _remoteProtocolStackType = remoteStack;
 
     _af = KERNEL_NS::SocketUtil::IsIpv4(remoteIp) ? AF_INET : AF_INET6;
-    _sessionType = SessionType::INNER;
-    auto iter = portRefSessinType.find(_remotePort);
-    if(iter != portRefSessinType.end())
-        _sessionType = iter->second;
-
+    _sessionType = remotePortSessionType;
     _priorityLevel = priorityLevel;
 
     return true;
@@ -296,37 +327,6 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceConfig);
 
 bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibIniFile *ini)
 {
-    {// 端口的会话类型配置
-        KERNEL_NS::LibString portSessionTypes;
-        const KERNEL_NS::LibString seps = "|";
-        const KERNEL_NS::LibString sepPair = ",";
-        if(ini->ReadStr(seg.c_str(), "PORT_SESSION_TYPE", portSessionTypes))
-        {
-            const auto &group = portSessionTypes.Split(seps);
-            for(auto &portInfo : group)
-            {
-                const auto &portInfoPair = portInfo.Split(sepPair);
-                if(portInfoPair.size() != 2)
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("bad port session config portInfo:%s, portSessionTypes:%s")
-                                    , portInfo.c_str(), portSessionTypes.c_str());
-                    continue;
-                }
-
-                UInt16 port = KERNEL_NS::StringUtil::StringToUInt16(portInfoPair[0].c_str());
-                Int32 sessionType = SessionType::SessionStringToSessionType(portInfoPair[1]);
-                if(sessionType == SessionType::UNKNOWN)
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("bad port session type config:unknown session type decription, portInfo:%s, portSessionTypes:%s ")
-                    , portInfo.c_str(), portSessionTypes.c_str());
-                    continue;
-                }
-
-                _portRefSessionType.insert(std::make_pair(port, sessionType));
-            }
-        }
-    }
-
     {// 监听地址配置
         KERNEL_NS::LibString listenAddrs;
         const KERNEL_NS::LibString sepAddrs = "|";
@@ -338,7 +338,7 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
                 for(auto &addrInfo : addrGroup)
                 {
                     auto addrConfig = AddrConfig::New_AddrConfig();
-                    if(!addrConfig->Parse(addrInfo, _portRefSessionType))
+                    if(!addrConfig->Parse(addrInfo))
                     {
                         g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail addrInfo:%s, listenAddrs:%s"), addrInfo.c_str(), listenAddrs.c_str());
                         addrConfig->Release();
@@ -356,7 +356,7 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
         if(ini->ReadStr(seg.c_str(), "CenterTcpAddr", centerAddr))
         {
             _centerAddr = AddrConfig::New_AddrConfig();
-            if(!_centerAddr->Parse(centerAddr, _portRefSessionType, true))
+            if(!_centerAddr->Parse(centerAddr, true))
             {
                 g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail centerAddr:%s"), centerAddr.c_str());
                 _centerAddr->Release();
@@ -378,7 +378,7 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
                 for(auto &addrInfo : addrGroup)
                 {
                     auto addrConfig = AddrConfig::New_AddrConfig();
-                    if(!addrConfig->Parse(addrInfo, _portRefSessionType, true))
+                    if(!addrConfig->Parse(addrInfo, true))
                     {
                         g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail addrInfo:%s, connectAddrs:%s"), addrInfo.c_str(), connectAddrs.c_str());
                         addrConfig->Release();

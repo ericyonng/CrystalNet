@@ -96,12 +96,6 @@ const KERNEL_NS::PollerConfig &GateService::GetPollerConfig() const
     return _serviceConfig->_pollerConfig;
 }
 
-Int32 GateService::GetSessionTypeByPort(UInt16 port) const
-{
-    auto iter = _serviceConfig->_portRefSessionType.find(port);
-    return iter == _serviceConfig->_portRefSessionType.end() ? SessionType::UNKNOWN : iter->second;
-}
-
  const ServiceConfig *GateService::GetServiceConfig() const
  {
     return _serviceConfig;

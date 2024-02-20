@@ -292,7 +292,7 @@ Int32 ClientUserMgr::_OnGlobalSysInit()
         }
         cache.strip();
         
-        if(!_targetAddrConfig->Parse(cache, GetService()->CastTo<MyTestService>()->GetServiceConfig()->_portRefSessionType))
+        if(!_targetAddrConfig->Parse(cache))
         {
             g_Log->Error(LOGFMT_OBJ_TAG("check parse TestTargetAddr config fail service name:%s, value:%s")
                     , GetService()->GetServiceName().c_str(), cache.c_str());

@@ -68,9 +68,6 @@ public:
     KERNEL_NS::EventManager *GetEventMgr() override;
     const KERNEL_NS::EventManager *GetEventMgr() const override;
 
-    // 获取会话类型
-    Int32 GetSessionTypeByPort(UInt16 port) const;
-
     // 获取配置
     const ServiceConfig *GetServiceConfig() const;
 

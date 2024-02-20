@@ -95,16 +95,10 @@ const KERNEL_NS::PollerConfig &CenterService::GetPollerConfig() const
     return _serviceConfig->_pollerConfig;
 }
 
-Int32 CenterService::GetSessionTypeByPort(UInt16 port) const
+const ServiceConfig *CenterService::GetServiceConfig() const
 {
-    auto iter = _serviceConfig->_portRefSessionType.find(port);
-    return iter == _serviceConfig->_portRefSessionType.end() ? SessionType::UNKNOWN : iter->second;
-}
-
- const ServiceConfig *CenterService::GetServiceConfig() const
- {
     return _serviceConfig;
- }
+}
 
 UInt64 CenterService::GetSessionAmount() const
 {
