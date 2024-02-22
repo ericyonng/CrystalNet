@@ -980,17 +980,18 @@ KERNEL_NS::LibString User::ToString() const
     , static_cast<UInt64>(_userBaseInfo->userid()), _userBaseInfo->accountname().c_str(), 
     nickname.c_str(), _status, _curMaxPacketId);
 
-    info.AppendFormat(", session infos:");
+    info.AppendFormat(", session infos:[ ");
     auto sessionMgr = _userMgr->GetService()->GetComp<ISessionMgr>();
     auto session = sessionMgr->GetSession(_activedSessionId);
     if(session)
     {
         auto sessionInfo = session->GetSessionInfo();
-        info.AppendFormat("[ session id:%llu, session type:%d, remote addr:%s:%hu ], "
+        info.AppendFormat("session id:%llu, session type:%d, remote addr:%s:%hu"
             , _activedSessionId, sessionInfo->_sessionType
             ,  sessionInfo->_remoteAddr._ip.c_str()
             , sessionInfo->_remoteAddr._port);
     }
+    info.AppendFormat(" ]");
 
     return info;
 }
