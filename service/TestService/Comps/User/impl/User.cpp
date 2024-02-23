@@ -871,6 +871,7 @@ void User::BindSession(UInt64 sessionId)
     }
 
     _activedSessionId = sessionId;
+    SetUserStatus(UserStatus::BINDED_SESSION);
 
     _userMgr->AddUserBySessionId(sessionId, this);
 }

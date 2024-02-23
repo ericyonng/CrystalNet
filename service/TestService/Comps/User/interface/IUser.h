@@ -62,15 +62,17 @@ class UserStatus
 public:
     enum ENUMS
     {
-        USER_PENDING = 0,
-        USER_ONLOADING,
-        USER_ONLOADED,
+        USER_PENDING = -1,
+        USER_CREATED = 0,
 
-        USER_CREATED,
         USER_INITING,
         USER_INITED,
         USER_STARTING,
         USER_STARTED,
+        USER_ONLOADING,
+        USER_ONLOADED,
+        
+        BINDED_SESSION,
 
         // 当用户状态切换到 USER_LOGINING 之后的状态才可以发送消息
         USER_LOGINING,

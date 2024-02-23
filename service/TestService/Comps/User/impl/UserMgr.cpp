@@ -1127,25 +1127,33 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
             // baseInfo->set_lastloginip()
             // baseInfo->set_createip()
 
+            u->SetUserStatus(UserStatus::USER_INITING);
             err = u->Init();
             if(err != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("user init fail err:%d, pending info:%s"), err, pendingUser->ToString().c_str());
                 break;
             }
+            u->SetUserStatus(UserStatus::USER_INITED);
+
+            u->SetUserStatus(UserStatus::USER_STARTING);
             err = u->Start();
             if(err != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("user init fail err:%d, pending info:%s"), err, pendingUser->ToString().c_str());
                 break;
             }
+            u->SetUserStatus(UserStatus::USER_STARTED);
 
             _AddUser(u.AsSelf());
             user = u.pop();
             MaskNumberKeyAddDirty(user->GetUserId());
 
+            u->SetUserStatus(UserStatus::USER_ONLOADING);
             auto dbMgr = GetGlobalSys<IMysqlMgr>();
             dbMgr->PurgeAndWaitComplete(this);
+
+            u->SetUserStatus(UserStatus::USER_ONLOADED);
         }
         else
         {
@@ -1163,28 +1171,35 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 
             u->SetStorageOperatorId(pendingUser->_dbOperatorId);
 
+            u->SetUserStatus(UserStatus::USER_INITING);
             err = u->Init();
             if(err != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("user init fail err:%d, pending info:%s"), err, pendingUser->ToString().c_str());
                 break;
             }
+            u->SetUserStatus(UserStatus::USER_INITED);
+
+            u->SetUserStatus(UserStatus::USER_STARTING);
             err = u->Start();
             if(err != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("user init fail err:%d, pending info:%s"), err, pendingUser->ToString().c_str());
                 break;
             }
+            u->SetUserStatus(UserStatus::USER_STARTED);
 
             auto &record = res->_datas[0];
             auto userId = record->GetPrimaryKey()->GetUInt64();
 
+            u->SetUserStatus(UserStatus::USER_ONLOADING);
             err =  u->OnLoaded(userId, record->GetFieldDatas());
             if(err != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("user onloaded fail err:%d, pending info:%s, userId:%llu"), err, pendingUser->ToString().c_str(), userId);
                 break;
             }
+            u->SetUserStatus(UserStatus::USER_ONLOADED);
 
             _AddUser(u.AsSelf());
             user = u.pop();
