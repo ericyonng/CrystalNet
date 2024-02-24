@@ -93,6 +93,7 @@
 #include <testsuit/testinst/TestUrlCoder.h>
 #include <testsuit/testinst/TestOrm.h>
 #include <testsuit/testinst/TestTimeWheel.h>
+#include <testsuit/testinst/TestCheckAdapter.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -248,7 +249,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
-    TestService::Run(argc, argv);
+    // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     // TestList::Run();
     // TestDirectoryUtil::Run();
@@ -271,6 +272,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestUrlCoder::Run();
     // TestOrm::Run();
     // TestTimeWheel::Run();
+    TestCheckAdapter::Run();
     
     // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();
     // pool->Init(0, 4);

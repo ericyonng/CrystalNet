@@ -35,6 +35,7 @@
 #include <kernel/common/compile.h>
 #include <kernel/common/macro.h>
 
+#include <kernel/common/CheckAdapter/CheckAdapter.h>
 #include <kernel/common/BasicDataTrait.h>
 #include <kernel/common/Buffer.h>
 #include <kernel/common/CopyAdapter.h>
