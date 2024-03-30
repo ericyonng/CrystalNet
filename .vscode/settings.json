@@ -180,7 +180,10 @@
         "*.inc": "cpp",
         "cstdarg": "cpp",
         "variant": "cpp",
-        "simple_api.h": "c"
+        "simple_api.h": "c",
+        "future": "cpp",
+        "condition_variable": "cpp",
+        "resumable": "cpp"
     },
     "editor.tabCompletion": "on",
     "diffEditor.codeLens": true

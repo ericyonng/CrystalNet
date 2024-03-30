@@ -1411,7 +1411,7 @@ template<typename BuildType>
 template<typename ObjType>
 ALWAYS_INLINE bool LibStream<BuildType>::_WriteObj(const ObjType &obj, ...)
 {
-    static_assert(std::is_pod<ObjType>::value, "LibStream::_WriteObj not pod type:");
+    CRYSTAL_CHECK_POD(ObjType);
     const Int64 bytes = static_cast<Int64>(sizeof(ObjType));
     if(LIKELY(_MatchBuffToWriteBy(bytes)))
     {
@@ -1426,7 +1426,8 @@ template<typename BuildType>
 template<typename ObjType>
 ALWAYS_INLINE bool LibStream<BuildType>::_ReadObj(ObjType &obj, ...)
 {
-    static_assert(std::is_pod<ObjType>::value, "_ReadObj obj is not pod type");
+    CRYSTAL_CHECK_POD(ObjType);
+    
     // 计算要读取数据的字节长度
     UInt64 objSize = sizeof(ObjType);
 

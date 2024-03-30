@@ -293,8 +293,9 @@ project "CrystalKernel"
     language "c++"
     kind "StaticLib"
 
+    -- 支持c++20
+    cppdialect "c++20"
 
-	
     -- symbols
 	debugdir(DEBUG_DIR)
     symbols "On"
@@ -325,7 +326,7 @@ project "CrystalKernel"
 		--"../../3rd/tiny-utf8/lib/*.cpp",
     }
 
-	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+	defines { "CRYSTAL_NET_CPP20", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
     libdirs { 
         ROOT_DIR .. "3rd/openssL/staticlib/$(Configuration)/lib/",
 		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
@@ -468,6 +469,9 @@ project "testsuit"
     language "c++"
     kind "ConsoleApp"
 	
+    -- 支持c++20
+    cppdialect "c++20"
+
     -- symbols
 	debugdir(DEBUG_DIR)
     symbols "On"
@@ -478,7 +482,7 @@ project "testsuit"
     }
 
     -- 导入内核接口 宏定义
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
+	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "testsuit/testsuit_pch/pch.cpp")
 
