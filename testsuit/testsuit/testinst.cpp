@@ -94,7 +94,7 @@
 #include <testsuit/testinst/TestOrm.h>
 #include <testsuit/testinst/TestTimeWheel.h>
 #include <testsuit/testinst/TestCheckAdapter.h>
-#include <testsuit/testinst/TestCoroutine.h>
+// #include <testsuit/testinst/TestCoroutine.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -275,7 +275,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestOrm::Run();
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
-    TestCoroutine::Run();
+    // TestCoroutine::Run();
 
     // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();
     // pool->Init(0, 4);
