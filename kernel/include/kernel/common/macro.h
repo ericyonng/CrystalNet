@@ -258,7 +258,7 @@ private:                                                                        
 #undef ASSERT
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     #ifdef _DEBUG
-        #define ASSERT(x) (x)?true:(POP_BOX(#x))
+        #define ASSERT(x) POP_BOX(#x)
     #else
         #define ASSERT(x)
     #endif
@@ -557,6 +557,19 @@ Int32 _againstLazy = 0
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
  
+#endif
+
+// CRYSTAL_CHECK_POD
+// cpp20 std::is_pod<>被废弃is_trivially_copyable替代
+#undef CRYSTAL_CHECK_POD
+#if CRYSTAL_NET_CPP20
+ #define CRYSTAL_CHECK_POD(T)       \
+        static_assert(std::is_trivially_copyable<T>::value, "not pod type")
+
+#else
+ #define CRYSTAL_CHECK_POD(T)       \
+        static_assert(std::is_pod<T>::value, "not pod type")
+        
 #endif
 
 #endif

@@ -55,21 +55,24 @@ public:
 template<typename T>
 ALWAYS_INLINE void MemUtil::Memset(T *ptr, Int32 value, UInt64 bytes)
 {
-    static_assert(std::is_pod<T>::value, "not pod type:");
+    CRYSTAL_CHECK_POD(T);
+
     ::memset(ptr, value, bytes);
 }
 
 template<typename T>
 ALWAYS_INLINE void MemUtil::Zeroset(T &podData)
 {
-    static_assert(std::is_pod<T>::value, "not pod type");
+    CRYSTAL_CHECK_POD(T);
+
     ::memset(&podData, 0, sizeof(podData));
 }
 
 template<typename T>
 ALWAYS_INLINE void MemUtil::Memcpy(T *dest, void *src, UInt64 bytes)
 {
-    static_assert(std::is_pod<T>::value, "not pod type");
+    CRYSTAL_CHECK_POD(T);
+    
     ::memcpy(dest, src, bytes);
 }
 
