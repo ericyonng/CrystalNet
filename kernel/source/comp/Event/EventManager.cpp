@@ -139,7 +139,7 @@ int EventManager::RemoveListener(int id)
     if(IsFiring())
     {
         _delayedOps.push_back(op);
-        return Status::Error;
+        return Status::Success;
     }
 
     return ProcessEventOperation(op);
@@ -155,7 +155,7 @@ int EventManager::RemoveListener(const ListenerStub &stub)
     if(IsFiring())
     {
         _delayedOps.push_back(op);
-        return Status::Error;
+        return Status::Success;
     }
 
     return ProcessEventOperation(op);
