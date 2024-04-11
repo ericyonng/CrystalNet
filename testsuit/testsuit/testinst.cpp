@@ -94,6 +94,7 @@
 #include <testsuit/testinst/TestOrm.h>
 #include <testsuit/testinst/TestTimeWheel.h>
 #include <testsuit/testinst/TestCheckAdapter.h>
+#include <testsuit/testinst/TestCoroutine.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -185,8 +186,9 @@ void TestInst::Run(int argc, char const *argv[])
     KERNEL_NS::KernelUtil::Start();
 
     // // TODO:analyze argv参数 使用lua分析
-
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "test started. nihao:你好.shabi " u8" 🌍 olleH"));
+    KERNEL_NS::LibString testInstInfo;
+    testInstInfo.AppendFormat("test started. nihao:你好.shabi %s", " 🌍 olleH");
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, testInstInfo.c_str()));
 
 // 
 //     KERNEL_NS::AllocUtil::GetStaticTemplateObjNoFree<Int32>([]()->Int32 * {
@@ -272,8 +274,9 @@ void TestInst::Run(int argc, char const *argv[])
     // TestUrlCoder::Run();
     // TestOrm::Run();
     // TestTimeWheel::Run();
-    TestCheckAdapter::Run();
-    
+    // TestCheckAdapter::Run();
+    TestCoroutine::Run();
+
     // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();
     // pool->Init(0, 4);
     // pool->AddTask(&TestPool, false);
