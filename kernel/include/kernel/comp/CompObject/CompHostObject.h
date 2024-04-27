@@ -350,6 +350,12 @@ ALWAYS_INLINE CompObject *CompHostObject::GetCompByTypeId(UInt64 typeId)
     if(iter == _compTypeIdRefComps.end() || iter->second.empty())
         return NULL;
 
+    // 解决冲突
+    if(UNLIKELY(iter->second.size() > 1))
+    {
+        // TODO:
+    }
+
     return iter->second[0];
 }
 
