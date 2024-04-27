@@ -765,6 +765,24 @@ async<std::string> fun() {
 //     co_return co_await GetIdFrom();
 // }
 
+// 可等待体
+class TaskAwaitable
+{
+
+};
+
+// Task返回值
+class TaskFuture
+{
+
+};
+
+// Task的Promis
+class TaskPromise
+{
+
+};
+
 void TestCoroutine::Run()
 {
     std::cout<< "Before TestCoroutine pass TestCoInt" << std::endl;

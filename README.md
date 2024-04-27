@@ -35,6 +35,11 @@
 | YAML | 3 | 65 | 19 | 16 | 100 |
 
 
+
+# 要求
+
+要求具备C++11以上基础，以及一些C++20特性（concept/requires, 了解c++20协程的一些基本关键字）
+
 # 构建状态
 
 **Linux**: [![Build](https://app.travis-ci.com/ericyonng/CrystalNet.svg?branch=main)](http://travis-ci.com)
