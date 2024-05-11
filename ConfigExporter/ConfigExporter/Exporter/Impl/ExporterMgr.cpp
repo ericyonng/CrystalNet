@@ -80,7 +80,7 @@ void ExporterMgr::_ExportConfigs()
 
     // 1.解析程序参数
     std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> kv;
-    SERVICE_COMMON_NS::ParamsHandler::GetParams(args, [&kv](const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)->bool{
+    KERNEL_NS::ParamsHandler::GetParams(args, [&kv](const KERNEL_NS::LibString &key, const KERNEL_NS::LibString &value)->bool{
 
         auto iter = kv.find(key);
         if(iter != kv.end())

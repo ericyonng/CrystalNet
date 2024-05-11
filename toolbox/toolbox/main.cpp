@@ -22,13 +22,15 @@
  * SOFTWARE.
  *  
  * 
- * Date: 2022-10-08 12:57:29
+ * Date: 2024-05-11 14:51:29
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <CenterServer/CenterServer.h>
+#include <toolbox/ToolboxIni.h>
+
+#include <toolbox/scan_reason/ScanReason.h>
 
 class LibTestLog : public KERNEL_NS::LibLog
 {
@@ -50,32 +52,29 @@ int main(int argc, char const *argv[])
 {
     // 1.初始化内核
     printf("/*********************************************/!\n");
-    printf("/*           Hello Crystal Net CenterServer!  */\n");
+    printf("/*           Hello Crystal Net Toolbox!      */\n");
     printf("/*********************************************/!\n\n");
-
-    KERNEL_NS::ParamsInfo params;
-    KERNEL_NS::LibString errParamsInfo;
-    KERNEL_NS::LibString sucParamsInfo;
-    Int32 paramNum = KERNEL_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
 
     LogFactory logFactory;
     KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
     KERNEL_NS::LibString logIniPath;
     logIniPath = programPath + "/ini/";
     KERNEL_NS::SystemUtil::GetProgramPath(true, programPath);
-    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", logIniPath.c_str(), KERNEL_NS::LibString(), KERNEL_NS::LibString(), true, params._fileSoftLimit, params._fileHardLimit);
+    Int32 err = KERNEL_NS::KernelUtil::Init(&logFactory, "LogCfg.ini", NULL, s_logIniContent, s_consoleIniContent);
     if(err != Status::Success)
     {
         CRYSTAL_TRACE("kernel init fail err:%d", err);
-        return 0;
+        return err;
     }
 
     KERNEL_NS::KernelUtil::Start();
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started paramNum:%d. \nsucParamsInfo:\n%s, errParamsInfo:\n%s."), paramNum, sucParamsInfo.c_str(), errParamsInfo.c_str());
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started."));
 
-    CenterServer::Run(argc, argv);
+    ScanReason::Run(argc, argv);
+
+    getchar();
 
     KERNEL_NS::KernelUtil::Destroy();
 
-    return 0;
+    return err;
 }

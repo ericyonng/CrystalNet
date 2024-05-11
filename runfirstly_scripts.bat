@@ -21,6 +21,9 @@ if not exist %CUR_PATH%output\%VER%\ini (
 del /q %CUR_PATH%output\%VER%\libmysql.dll
 xcopy /s /y %CUR_PATH%\3rd\mysql\win\lib\libmysql.dll %CUR_PATH%\output\%VER%\
 
+::脚本拷贝
+xcopy /s /y %CUR_PATH%\toolbox\scripts\* %CUR_PATH%\output\%VER%\
+
 :: ------------------------------------ 结束杂项链接 -----------------------------------------
 echo Done!
 ping -n 1 -w 1618 11.11.11.11 > nul

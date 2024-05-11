@@ -40,7 +40,7 @@ Int32 CloseProcess::Run(int argc, char const *argv[])
     bool isLikely = true;
     bool isMatchPath = false;
     bool isWaitingClose = false;
-    SERVICE_COMMON_NS::ParamsHandler::GetStandardParams(argc, argv, [&killProcessName, &isLikely, &isMatchPath, &isWaitingClose, &count](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam) ->bool{
+    KERNEL_NS::ParamsHandler::GetStandardParams(argc, argv, [&killProcessName, &isLikely, &isMatchPath, &isWaitingClose, &count](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam) ->bool{
         
         bool ret = true;
         do

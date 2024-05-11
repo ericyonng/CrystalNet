@@ -26,8 +26,8 @@
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_PARAMS_PARAMS_HANDLER_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_PARAMS_PARAMS_HANDLER_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PARAMS_PARAMS_HANDLER_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PARAMS_PARAMS_HANDLER_H__
 
 #pragma once
 
@@ -35,13 +35,12 @@
 #include <vector>
 #include <type_traits>
 #include <kernel/comp/LibString.h>
-#include <service_common/common/macro.h>
 
-SERVICE_COMMON_BEGIN
+KERNEL_BEGIN
 
 struct ParamsInfo;
 
-class ParamsHandler
+class KERNEL_EXPORT ParamsHandler
 {
 public:
     // return 返回解析出来的参数数量
@@ -94,6 +93,6 @@ ALWAYS_INLINE Int32 ParamsHandler::GetStandardParams(int argc, char const *argv[
     return GetStandardParams(args, std::forward<decltype(cb)>(cb));
 }
 
-SERVICE_COMMON_END
+KERNEL_END
 
 #endif

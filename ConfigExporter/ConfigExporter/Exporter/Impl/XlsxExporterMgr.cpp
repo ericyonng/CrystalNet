@@ -1958,14 +1958,14 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
 
             const auto &memberName = _MakeConfigMemberName(fieldInfo->_fieldName);
             fileContent.AppendFormat("    {// %s\n", memberName.c_str());
-            fileContent.AppendFormat("        auto pos = lineData.GetRaw().find_first_of(\"column_\", startPos);\n");
+            fileContent.AppendFormat("        auto pos = lineData.GetRaw().find(\"column_\", startPos);\n");
             fileContent.AppendFormat("        if(pos == std::string::npos)\n");
             fileContent.AppendFormat("        {\n");
             fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s, data format error: have no column_ prefix, lineData:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
             fileContent.AppendFormat("            return false;\n");
             fileContent.AppendFormat("        }\n");
             fileContent.AppendFormat("\n");
-            fileContent.AppendFormat("       auto headerTailPos = lineData.GetRaw().find_first_of(\":\", pos);\n");
+            fileContent.AppendFormat("       auto headerTailPos = lineData.GetRaw().find(\":\", pos);\n");
             fileContent.AppendFormat("       if(headerTailPos == std::string::npos)\n");
             fileContent.AppendFormat("       {\n");
             fileContent.AppendFormat("            g_Log->Error(LOGFMT_OBJ_TAG(\"parse field:%s, bad line data not find : symbol after column_ line data:%%s, startPos:%%d, countFieldNum:%%d\"), lineData.c_str(), startPos, countFieldNum);\n", fieldInfo->_fieldName.c_str());
@@ -2513,7 +2513,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("        readBytes += bytesOnce;\n");
         fileContent.AppendFormat("        if(content.Contain(\":\"))\n");
         fileContent.AppendFormat("        {\n");
-        fileContent.AppendFormat("            const auto symbolPos = content.GetRaw().find_first_of(\":\", 0);\n");
+        fileContent.AppendFormat("            const auto symbolPos = content.GetRaw().find(\":\", 0);\n");
         fileContent.AppendFormat("            const KERNEL_NS::LibString fieldHeader = content.GetRaw().substr(0, symbolPos);\n");
         fileContent.AppendFormat("            const auto &headerCache = fieldHeader.strip();\n");
         fileContent.AppendFormat("            const auto &headerParts = headerCache.Split(\'_\');\n");

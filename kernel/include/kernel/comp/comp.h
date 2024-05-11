@@ -75,6 +75,7 @@
 #include <kernel/comp/Archive/archive.h>
 #include <kernel/comp/xml/xml.h>
 #include <kernel/comp/xlsx/xlsx.h>
+#include <kernel/comp/params/params.h>
 
 // 复杂组件
 #include <kernel/comp/Utils/Utils.h>

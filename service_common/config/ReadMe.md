@@ -135,14 +135,14 @@
       Int32 startPos = 0;
 
       {// 第一个字段
-          auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+          auto pos = lineData.GetRaw().find("column_", startPos);
           if(pos == std::string::npos)
           {
               g_Log->Error(LOGFMT_OBJ_TAG("%s data not found lineData:%s"), lineData.c_str());
               return false;
           }
             
-          auto headerTailPos = lineData.GetRaw().find_first_of(":");
+          auto headerTailPos = lineData.GetRaw().find(":");
           if(headerTailPos == std::string::npos)
           {
             g_Log->Error(LOGFMT_OBJ_TAG("bad line data not find : symbol after column_ line data:%s"), lineData.c_str());
@@ -427,7 +427,7 @@
           readBytes += bytesOnce;
           if(content.Contain(":"))
           {
-             const auto symbolPos = content.GetRaw().find_first_of(":", 0);
+             const auto symbolPos = content.GetRaw().find(":", 0);
              const KERNEL_NS::LibString fieldHeader = content.GetRaw().substr(0, symbolPos);
              const auto &headerCache = fieldHeader.strip();
              const auto &headerParts = headerCache.Split('_');

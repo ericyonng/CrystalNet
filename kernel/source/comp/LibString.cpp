@@ -644,7 +644,7 @@ LibString LibString::DragBefore(const LibString &start) const
 
 LibString LibString::lsub(const LibString &flagStr) const
 {
-	auto pos = _raw.find_first_of(flagStr.GetRaw(), 0);
+	auto pos = _raw.find(flagStr.GetRaw(), 0);
 	if(pos == std::string::npos)
 		return LibString();
 

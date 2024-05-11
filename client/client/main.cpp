@@ -53,10 +53,10 @@ int main(int argc, char const *argv[])
     printf("/*           Hello Crystal Net Client!        */\n");
     printf("/*********************************************/!\n\n");
 
-    SERVICE_COMMON_NS::ParamsInfo params;
+    KERNEL_NS::ParamsInfo params;
     KERNEL_NS::LibString errParamsInfo;
     KERNEL_NS::LibString sucParamsInfo;
-    Int32 paramNum = SERVICE_COMMON_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
+    Int32 paramNum = KERNEL_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
 
     LogFactory logFactory;
     KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();

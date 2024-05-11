@@ -40,7 +40,6 @@
 #include <service_common/application/ApplicationHelper.h>
 #include <service_common/KillMonitor/KillMonitor.h>
 #include <service_common/DB/db.h>
-#include <service_common/params/params.h>
 #include <service_common/config/config.h>
 
 #endif

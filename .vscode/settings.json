@@ -183,7 +183,8 @@
         "simple_api.h": "c",
         "future": "cpp",
         "condition_variable": "cpp",
-        "resumable": "cpp"
+        "resumable": "cpp",
+        "coroutine": "cpp"
     },
     "editor.tabCompletion": "on",
     "diffEditor.codeLens": true

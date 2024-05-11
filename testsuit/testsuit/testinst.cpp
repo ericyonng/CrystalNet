@@ -160,10 +160,10 @@ void TestInst::Run(int argc, char const *argv[])
     printf("/*********************************************/!\n\n");
 
     {
-        SERVICE_COMMON_NS::ParamsInfo params;
+        KERNEL_NS::ParamsInfo params;
         KERNEL_NS::LibString errParamsInfo;
         KERNEL_NS::LibString sucParamsInfo;
-        Int32 paramNum = SERVICE_COMMON_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
+        Int32 paramNum = KERNEL_NS::ParamsHandler::GetParams(argc, argv, params, sucParamsInfo, errParamsInfo);
 
         SERVICE_NS::LibServiceLogFactory serviceLogFactory;
         KERNEL_NS::LibString programPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();

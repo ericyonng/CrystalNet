@@ -25,22 +25,12 @@
  * Author: Eric Yonng
  * Description: 
 */
-
-#ifndef __CRYSTAL_NET_SERVICE_COMMON_PARAMS_PARAMS_INFO_H__
-#define __CRYSTAL_NET_SERVICE_COMMON_PARAMS_PARAMS_INFO_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PARAMS_PARAMS_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_PARAMS_PARAMS_H__
 
 #pragma once
 
-#include <service_common/common/macro.h>
-
-SERVICE_COMMON_BEGIN
-
-struct ParamsInfo
-{
-    Int64 _fileSoftLimit = -1;      // 进程能够打开的文件描述的最大符数量软限制
-    Int64 _fileHardLimit = -1;      // 进程能够打开的文件描述的最大符数量硬限制
-};
-
-SERVICE_COMMON_END
+#include <kernel/comp/params/params_info.h>
+#include <kernel/comp/params/params_handler.h>
 
 #endif

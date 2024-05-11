@@ -25,12 +25,14 @@
  * Author: Eric Yonng
  * Description: 
 */
+
 #include <pch.h>
-#include <service_common/params/params_info.h>
-#include <service_common/params/params_handler.h>
+#include <kernel/comp/params/params_info.h>
+#include <kernel/comp/params/params_handler.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 
-SERVICE_COMMON_BEGIN
+KERNEL_BEGIN
 
 Int32 ParamsHandler::GetParams(int argc, char const *argv[], ParamsInfo &paramInfo, KERNEL_NS::LibString &susParamsInfo, KERNEL_NS::LibString &warnParamsInfo)
 {
@@ -141,4 +143,4 @@ Int32 ParamsHandler::GetStandardParams(const std::vector<KERNEL_NS::LibString> &
 }
 
 
-SERVICE_COMMON_END
+KERNEL_END
