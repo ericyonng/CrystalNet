@@ -539,199 +539,199 @@
 
 
 
-template<typename T>
-using promise_cb_t = std::function<void(std::function<void(T&& v)>&& resolve_cb)>;
+// template<typename T>
+// using promise_cb_t = std::function<void(std::function<void(T&& v)>&& resolve_cb)>;
 
-template<typename T>
-auto promise(promise_cb_t<T>&& cb) {
-struct awaitable {
-    bool await_ready() { return false; }
-    void await_suspend(std::coroutine_handle<> resolve) {
-    cb([this, resolve](T&& v) {
-        ::new (&value) T(std::forward<T>(v));
-        value_inited = true;
-        resolve.resume();
-        });
-    }
-    T&& await_resume() {
-    return std::move(*(reinterpret_cast<T*>(&value)));
-    }
-    awaitable(promise_cb_t<T>&& cb) noexcept : cb(std::move(cb)), value_inited(false) {}
-    ~awaitable() noexcept {
-    if (std::exchange(value_inited, false)) {
-        reinterpret_cast<T*>(&value)->~T();
-    }
-    }
-    awaitable(const awaitable&) = delete;
-    awaitable& operator=(const awaitable&) = delete;
-private:
-    alignas(T) std::byte value[sizeof(T)];
-    promise_cb_t<T> cb;
-    bool value_inited;
-};
-return awaitable(std::move(cb));
-}
+// template<typename T>
+// auto promise(promise_cb_t<T>&& cb) {
+// struct awaitable {
+//     bool await_ready() { return false; }
+//     void await_suspend(std::coroutine_handle<> resolve) {
+//     cb([this, resolve](T&& v) {
+//         ::new (&value) T(std::forward<T>(v));
+//         value_inited = true;
+//         resolve.resume();
+//         });
+//     }
+//     T&& await_resume() {
+//     return std::move(*(reinterpret_cast<T*>(&value)));
+//     }
+//     awaitable(promise_cb_t<T>&& cb) noexcept : cb(std::move(cb)), value_inited(false) {}
+//     ~awaitable() noexcept {
+//     if (std::exchange(value_inited, false)) {
+//         reinterpret_cast<T*>(&value)->~T();
+//     }
+//     }
+//     awaitable(const awaitable&) = delete;
+//     awaitable& operator=(const awaitable&) = delete;
+// private:
+//     alignas(T) std::byte value[sizeof(T)];
+//     promise_cb_t<T> cb;
+//     bool value_inited;
+// };
+// return awaitable(std::move(cb));
+// }
 
-template<typename T>
-struct async {
-struct awaitable_final;
+// template<typename T>
+// struct async {
+// struct awaitable_final;
 
-struct promise_type {
-    async<T>* a;
-    std::coroutine_handle<> prev_handle;
-    std::coroutine_handle<> handle;
-    bool done;
-    bool final_ready;
+// struct promise_type {
+//     async<T>* a;
+//     std::coroutine_handle<> prev_handle;
+//     std::coroutine_handle<> handle;
+//     bool done;
+//     bool final_ready;
 
-    enum class value_type { empty, value, exception };
-    value_type type = value_type::empty;
-    union {
-    T value;
-    std::exception_ptr exception;
-    };
-    async get_return_object() { 
-    handle = std::coroutine_handle<promise_type>::from_promise(*this);
-    return async(this); 
-    }
-    std::suspend_never initial_suspend() { return {}; }
-    awaitable_final final_suspend() noexcept { return awaitable_final(*this); }
-    template<std::convertible_to<T> From>
-    void return_value(From&& from) {
-    ::new (static_cast<void*>(std::addressof(value)))
-        T(std::forward<From>(from));
-    type = value_type::value;
-    }
-    void unhandled_exception() noexcept {
-    ::new (static_cast<void*>(std::addressof(exception)))
-        std::exception_ptr(std::current_exception());
-    type = value_type::exception;
-    }
-    void destroy() {
-    if (handle) {
-        handle.destroy();
-        handle = nullptr;
-    }
-    }
-    promise_type() noexcept : a(nullptr), done(false), final_ready(false) {}
-    ~promise_type() noexcept {
-    if (type == value_type::value) {
-        value.~T();
-    }
-    else if (type == value_type::exception) {
-        exception.~exception_ptr();
-    }
-    if (a) a->promise = nullptr;
-    }
+//     enum class value_type { empty, value, exception };
+//     value_type type = value_type::empty;
+//     union {
+//     T value;
+//     std::exception_ptr exception;
+//     };
+//     async get_return_object() { 
+//     handle = std::coroutine_handle<promise_type>::from_promise(*this);
+//     return async(this); 
+//     }
+//     std::suspend_never initial_suspend() { return {}; }
+//     awaitable_final final_suspend() noexcept { return awaitable_final(*this); }
+//     template<std::convertible_to<T> From>
+//     void return_value(From&& from) {
+//     ::new (static_cast<void*>(std::addressof(value)))
+//         T(std::forward<From>(from));
+//     type = value_type::value;
+//     }
+//     void unhandled_exception() noexcept {
+//     ::new (static_cast<void*>(std::addressof(exception)))
+//         std::exception_ptr(std::current_exception());
+//     type = value_type::exception;
+//     }
+//     void destroy() {
+//     if (handle) {
+//         handle.destroy();
+//         handle = nullptr;
+//     }
+//     }
+//     promise_type() noexcept : a(nullptr), done(false), final_ready(false) {}
+//     ~promise_type() noexcept {
+//     if (type == value_type::value) {
+//         value.~T();
+//     }
+//     else if (type == value_type::exception) {
+//         exception.~exception_ptr();
+//     }
+//     if (a) a->promise = nullptr;
+//     }
 
-    promise_type(const promise_type&) = delete;
-    promise_type& operator=(const promise_type&) = delete;
-};
+//     promise_type(const promise_type&) = delete;
+//     promise_type& operator=(const promise_type&) = delete;
+// };
 
-promise_type* promise;
+// promise_type* promise;
 
-struct awaitable_value {
-    async<T>* a;
-    bool await_ready() { return false; }
-    void await_suspend(std::coroutine_handle<> prev_handle) {
-    if (!a->promise->done) {
-        a->promise->prev_handle = prev_handle;
-    }
-    else {
-        prev_handle.resume();
-    }
-    }
-    T await_resume() {
-    auto r = std::move(a->result());
-    a->destroy();
-    return r;
-    }
-    explicit awaitable_value(async<T>* a) noexcept : a(a) {}
-    awaitable_value(const awaitable_value&) = delete;
-    awaitable_value& operator=(const awaitable_value&) = delete;
-};
+// struct awaitable_value {
+//     async<T>* a;
+//     bool await_ready() { return false; }
+//     void await_suspend(std::coroutine_handle<> prev_handle) {
+//     if (!a->promise->done) {
+//         a->promise->prev_handle = prev_handle;
+//     }
+//     else {
+//         prev_handle.resume();
+//     }
+//     }
+//     T await_resume() {
+//     auto r = std::move(a->result());
+//     a->destroy();
+//     return r;
+//     }
+//     explicit awaitable_value(async<T>* a) noexcept : a(a) {}
+//     awaitable_value(const awaitable_value&) = delete;
+//     awaitable_value& operator=(const awaitable_value&) = delete;
+// };
 
-struct awaitable_final {
-    promise_type& promise;
-    bool await_ready() const noexcept {
-    return promise.final_ready; 
-    }
-    void await_suspend(std::coroutine_handle<> h) noexcept {
-    promise.done = true;
-    if (promise.prev_handle) {
-        promise.prev_handle.resume();
-    }
-    }
-    void await_resume() noexcept {}
-    explicit awaitable_final(promise_type& promise) noexcept : promise(promise) {}
-    awaitable_final(const awaitable_final&) = delete;
-    awaitable_final& operator=(const awaitable_final&) = delete;
-};
+// struct awaitable_final {
+//     promise_type& promise;
+//     bool await_ready() const noexcept {
+//     return promise.final_ready; 
+//     }
+//     void await_suspend(std::coroutine_handle<> h) noexcept {
+//     promise.done = true;
+//     if (promise.prev_handle) {
+//         promise.prev_handle.resume();
+//     }
+//     }
+//     void await_resume() noexcept {}
+//     explicit awaitable_final(promise_type& promise) noexcept : promise(promise) {}
+//     awaitable_final(const awaitable_final&) = delete;
+//     awaitable_final& operator=(const awaitable_final&) = delete;
+// };
 
-auto operator co_await() {
-    return awaitable_value(this);
-}
+// auto operator co_await() {
+//     return awaitable_value(this);
+// }
 
-T await(std::function<bool()> update) {
-    while (!promise->done && update());
-    auto r = std::move(result());
-    destroy();
-    return r;
-}
+// T await(std::function<bool()> update) {
+//     while (!promise->done && update());
+//     auto r = std::move(result());
+//     destroy();
+//     return r;
+// }
 
-explicit async(promise_type* promise) noexcept : promise(promise) {
-    promise->a = this;
-}
-~async() {
-    if (promise) {
-    promise->final_ready = true;
-    }
-}
-async(const async&) = delete;
-async& operator=(const async&) = delete;
+// explicit async(promise_type* promise) noexcept : promise(promise) {
+//     promise->a = this;
+// }
+// ~async() {
+//     if (promise) {
+//     promise->final_ready = true;
+//     }
+// }
+// async(const async&) = delete;
+// async& operator=(const async&) = delete;
 
-T get_result()
-{
-    return result();
-}
+// T get_result()
+// {
+//     return result();
+// }
 
-void destroy() {
-    if (promise) {
-    promise->destroy();
-    }
-}
+// void destroy() {
+//     if (promise) {
+//     promise->destroy();
+//     }
+// }
 
-private:
-T& result() {
-    if (promise->type == promise_type::value_type::value) {
-    return promise->value;
-    }
-    else if (promise->type == promise_type::value_type::exception) {
-    auto e = std::move(promise->exception);
-    destroy();
-    std::rethrow_exception(e);
-    }
-    else {
-    destroy();
-    throw std::exception("co::async return value is empty!");
-    }
-}
+// private:
+// T& result() {
+//     if (promise->type == promise_type::value_type::value) {
+//     return promise->value;
+//     }
+//     else if (promise->type == promise_type::value_type::exception) {
+//     auto e = std::move(promise->exception);
+//     destroy();
+//     std::rethrow_exception(e);
+//     }
+//     else {
+//     destroy();
+//     throw std::exception("co::async return value is empty!");
+//     }
+// }
 
-};
+// };
 
-std::function<void(int)> resolve_cb;
+// std::function<void(int)> resolve_cb;
 
-async<int> get_id() {
-  // 等待一个承若协程
-  int r = co_await promise<int>([](auto resolve_cb) {
-    ::resolve_cb = std::move(resolve_cb);
-    });
-  co_return r;
-}
+// async<int> get_id() {
+//   // 等待一个承若协程
+//   int r = co_await promise<int>([](auto resolve_cb) {
+//     ::resolve_cb = std::move(resolve_cb);
+//     });
+//   co_return r;
+// }
 
-async<std::string> fun() {
-  int id = co_await get_id();
-  co_return std::to_string(id);
-}
+// async<std::string> fun() {
+//   int id = co_await get_id();
+//   co_return std::to_string(id);
+// }
 
 // struct NonCopyable {
 // protected:
@@ -765,57 +765,57 @@ async<std::string> fun() {
 //     co_return co_await GetIdFrom();
 // }
 
-// 可等待体
-class TaskAwaitable
-{
+// // 可等待体
+// class TaskAwaitable
+// {
 
-};
+// };
 
-// Task返回值
-class TaskFuture
-{
+// // Task返回值
+// class TaskFuture
+// {
 
-};
+// };
 
-// Task的Promis
-class TaskPromise
-{
+// // Task的Promis
+// class TaskPromise
+// {
 
-};
+// };
 
 void TestCoroutine::Run()
 {
-    std::cout<< "Before TestCoroutine pass TestCoInt" << std::endl;
+//     std::cout<< "Before TestCoroutine pass TestCoInt" << std::endl;
 
-//   auto result = fun().await([]() {
+// //   auto result = fun().await([]() {
 
-//     // 当所有协程被挂起后，会执行该update函数，该函数在主线程中执行
-//     // 当该update返回false，则会强制结束await等待，有可能抛出异常
-//     // 在这里可以做恢复协程操作
+// //     // 当所有协程被挂起后，会执行该update函数，该函数在主线程中执行
+// //     // 当该update返回false，则会强制结束await等待，有可能抛出异常
+// //     // 在这里可以做恢复协程操作
 
-//     resolve_cb(1); // 恢复协程, id值为1
+// //     resolve_cb(1); // 恢复协程, id值为1
 
-//     return true;
+// //     return true;
 
-//     });
+// //     });
 
-    auto result = fun();
+//     auto result = fun();
     
-    resolve_cb(1);
+//     resolve_cb(1);
 
-    while (!result.promise->done);
+//     while (!result.promise->done);
 
-    auto &&r = result.get_result();
-    result.destroy();
-    std::cout << r << std::endl;
-    // TestCoInt();
+//     auto &&r = result.get_result();
+//     result.destroy();
+//     std::cout << r << std::endl;
+//     // TestCoInt();
 
-    // auto r = GetFutureValue();
+//     // auto r = GetFutureValue();
 
-    // auto flag = r._coroutine.done();
-    // r._coroutine();
+//     // auto flag = r._coroutine.done();
+//     // r._coroutine();
     
-    // s_scheduler.update();
+//     // s_scheduler.update();
 
-    std::cout<< "After TestCoroutine schedule finish" << std::endl;
+//     std::cout<< "After TestCoroutine schedule finish" << std::endl;
 }
