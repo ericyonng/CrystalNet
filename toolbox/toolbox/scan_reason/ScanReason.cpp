@@ -133,6 +133,7 @@ std::map<UInt64, std::map<KERNEL_NS::LibString, Int32>> g_ThreadCache;
 KERNEL_NS::SpinLock g_lck;
 
 KERNEL_NS::LibString keyContent;
+std::atomic<Int32> g_workingThread{0};
 
 // mid:4204kqps, average:4213kqps
 static void ReadReason(KERNEL_NS::LibThreadPool *t)
@@ -152,6 +153,8 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
     auto key = keyContent;
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "thread in %llu"), threadId);
+
+    ++g_workingThread;
 
     do
     {
@@ -196,6 +199,7 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
         } 
     }while (!t->IsDestroy());
 
+    --g_workingThread;
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "thread out %llu"), threadId);
 }
 
@@ -253,6 +257,7 @@ void ScanReason::Run(int argc, char const *argv[])
 
     g_file->seekg(0, std::ios::beg);
 
+    auto startTime = KERNEL_NS::LibTime::Now();
     {
         KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool, KERNEL_NS::AutoDelMethods::CustomDelete> pool = new KERNEL_NS::LibThreadPool();
         pool.SetClosureDelegate([](void *p){
@@ -269,6 +274,7 @@ void ScanReason::Run(int argc, char const *argv[])
 
         pool->Start(true, threadNum + 1);
     }
+    auto endTime = KERNEL_NS::LibTime::Now();
 
 
     std::map<KERNEL_NS::LibString, Int32> reasonNumCount;
@@ -289,5 +295,6 @@ void ScanReason::Run(int argc, char const *argv[])
         reasonRefNumStr.AppendFormat("reason:%s-%d, ", iter.first.c_str(), iter.second);
 
     g_file->close();
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "%s"), reasonRefNumStr.c_str());
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "%s, cost time:%d(seconds)")
+    , reasonRefNumStr.c_str(), (endTime - startTime).GetTotalSeconds());
 }
