@@ -60,10 +60,10 @@ void TestCheckAdapter::Run()
     auto checkSerializableInt32Ptr = KERNEL_NS::CheckSerializable<Int32 *>::value;
     auto checkSerializableInt32Arr = KERNEL_NS::CheckSerializable<Int32 []>::value;
 
-    auto isMultiCheckSerializable = KERNEL_NS::CheckAdapterRule::GetAndResult(KERNEL_NS::CheckSerializable<Int32>::value, KERNEL_NS::CheckSerializable<Int32 *>::value);
-    isMultiCheckSerializable = KERNEL_NS::CheckAdapterRule::GetAndResult(KERNEL_NS::CheckSerializable<Int32>::value, KERNEL_NS::CheckSerializable<Int32 []>::value);
-    isMultiCheckSerializable = KERNEL_NS::CheckAdapterRule::GetOrResult(KERNEL_NS::CheckSerializable<Int32>::value, KERNEL_NS::CheckSerializable<Int32>::value);
-    isMultiCheckSerializable = KERNEL_NS::CheckAdapterRule::GetOrResult(KERNEL_NS::CheckSerializable<TestCheckAdapter>::value, KERNEL_NS::CheckSerializable<Int32[]>::value);
+    auto isMultiCheckSerializable = KERNEL_NS::CheckAdapterRule::GetAndResult((bool)(KERNEL_NS::CheckSerializable<Int32>::value), (bool)(KERNEL_NS::CheckSerializable<Int32 *>::value));
+    isMultiCheckSerializable = KERNEL_NS::CheckAdapterRule::GetAndResult((bool)(KERNEL_NS::CheckSerializable<Int32>::value), (bool)(KERNEL_NS::CheckSerializable<Int32 []>::value));
+    isMultiCheckSerializable = KERNEL_NS::CheckAdapterRule::GetOrResult((bool)(KERNEL_NS::CheckSerializable<Int32>::value), (bool)(KERNEL_NS::CheckSerializable<Int32>::value));
+    isMultiCheckSerializable = KERNEL_NS::CheckAdapterRule::GetOrResult((bool)(KERNEL_NS::CheckSerializable<TestCheckAdapter>::value), (bool)(KERNEL_NS::CheckSerializable<Int32[]>::value));
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCheckAdapter, "checkMtLibStream:%d, checkTlLibStream:%d")
     , checkMtLibStream, checkTlLibStream);
