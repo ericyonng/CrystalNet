@@ -127,9 +127,10 @@ static UInt64 ReadUtf8OneLine(std::ifstream &fp, KERNEL_NS::LibString &outBuffer
 }
 
 
-std::ifstream *g_file = NULL;
 std::atomic<Int64> g_fileSize{0};
 std::atomic<Int64> g_CurrentReadBytes{0};
+
+FILE *g_fp = NULL;
 
 std::map<UInt64, std::map<KERNEL_NS::LibString, Int32>> g_ThreadCache;
 KERNEL_NS::Locker g_lck;
@@ -167,14 +168,13 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
         {
             KERNEL_NS::LibString lineStr;
             g_lck.Lock();
-            if(g_file->eof())
+            g_CurrentReadBytes += static_cast<Int64>(KERNEL_NS::FileUtil::ReadUtf8OneLine(*g_fp, lineStr, NULL));
+            if(lineStr.empty() && !KERNEL_NS::FileUtil::IsEnd(*g_fp))
             {
                 g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "thread %llu file eof"), threadId);
                 g_lck.Unlock();
                 break;
             }
-
-            g_CurrentReadBytes += static_cast<Int64>(ReadUtf8OneLine(*g_file, lineStr, NULL));
             g_lck.Unlock();
 
             KERNEL_NS::LibString buffer = lineStr;
@@ -250,18 +250,19 @@ void ScanReason::Run(int argc, char const *argv[])
     keyContent = key;
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "scan file:%s, keyContent:%s"), file.c_str(), keyContent.c_str());
 
-    g_file = new std::ifstream(file.c_str(), std::ios::binary);
-    if(!g_file->is_open())
+    KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(file.c_str());
+    if(!fp)
     {
         g_Log->Error(LOGFMT_NON_OBJ_TAG(ScanReason, "open file fail file name:%s"), file.c_str());
         return;
     }
+    fp.SetClosureDelegate([](void *p){
+        auto ptr = KERNEL_NS::KernelCastTo<FILE>(p);
+        KERNEL_NS::FileUtil::CloseFile(*ptr);
+    });
+    g_fp = fp.AsSelf();
 
-    g_file->seekg(0, std::ios::end);
-    std::streamoff endPos = g_file->tellg();
-    g_fileSize = static_cast<Int64>(endPos);
-
-    g_file->seekg(0, std::ios::beg);
+    g_fileSize = KERNEL_NS::FileUtil::GetFileSize(*fp);
 
     auto startTime = KERNEL_NS::LibTime::Now();
     {
@@ -330,7 +331,6 @@ void ScanReason::Run(int argc, char const *argv[])
     for(auto iter : reasonNumCount)
         reasonRefNumStr.AppendFormat("reason:%s-%d, ", iter.first.c_str(), iter.second);
 
-    g_file->close();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "%s, cost time:%d(seconds)")
     , reasonRefNumStr.c_str(), (endTime - startTime).GetTotalSeconds());
 }
