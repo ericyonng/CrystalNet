@@ -108,9 +108,9 @@ public:
      * @return TimeSlice - timeslice value.
      */
     TimeSlice GetIntervalTo(const TimeSlice &slice) const;    // slice是当天的时刻如：10:10:10.100000的微妙数
-    TimeSlice GetIntervalTo(int hour, int minute, int second, int milliSecond = 0, int microSecond = 0, int nanoSecond = 0) const;
+    TimeSlice GetIntervalTo(Int64 hour, Int64 minute, Int64 second, Int64 milliSecond = 0, Int64 microSecond = 0, Int64 nanoSecond = 0) const;
     static TimeSlice GetIntervalTo(const LibTime &from, const TimeSlice &slice);
-    static TimeSlice GetIntervalTo(const LibTime &from, int hour, int minute, int second, int milliSecond = 0, int microSecond = 0, int nanoSecond = 0);
+    static TimeSlice GetIntervalTo(const LibTime &from, Int64 hour, Int64 minute, Int64 second, Int64 milliSecond = 0, Int64 microSecond = 0, Int64 nanoSecond = 0);
 
     /**
      * Time slice operations.

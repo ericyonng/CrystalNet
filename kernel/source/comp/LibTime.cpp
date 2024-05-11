@@ -244,7 +244,7 @@ TimeSlice LibTime::GetIntervalTo(const TimeSlice &slice) const
     return TimeSlice(sliceVal);
 }
 
-TimeSlice LibTime::GetIntervalTo(int hour, int minute, int second, int milliSecond /*= 0*/, int microSecond /*= 0*/, int nanoSecond /*= 0*/) const
+TimeSlice LibTime::GetIntervalTo(Int64 hour, Int64 minute, Int64 second, Int64 milliSecond /*= 0*/, Int64 microSecond /*= 0*/, Int64 nanoSecond /*= 0*/) const
 {
     return GetIntervalTo(TimeSlice(0, hour, minute, second, milliSecond, microSecond, nanoSecond));
 }
@@ -254,7 +254,7 @@ TimeSlice LibTime::GetIntervalTo(const LibTime &from, const TimeSlice &slice)
     return from.GetIntervalTo(slice);
 }
 
-TimeSlice LibTime::GetIntervalTo(const LibTime &from, int hour, int minute, int second, int milliSecond /*= 0*/, int microSecond /*= 0*/, int nanoSecond /*= 0*/)
+TimeSlice LibTime::GetIntervalTo(const LibTime &from, Int64 hour, Int64 minute, Int64 second, Int64 milliSecond /*= 0*/, Int64 microSecond /*= 0*/, Int64 nanoSecond /*= 0*/)
 {
     return from.GetIntervalTo(hour, minute, second, milliSecond, microSecond, nanoSecond);
 }

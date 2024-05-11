@@ -75,7 +75,7 @@ public:
      * @param[in] milliSeconds - the milli-seconds part, default is 0.
      * @param[in] microSeconds - the micro-seconds part, default is 0.
      */
-    TimeSlice(int days, int hours, int minutes, Int64 seconds, Int64 milliSeconds = 0, Int64 microSeconds = 0, Int64 nanoSeconds = 0);
+    TimeSlice(Int64 days, Int64 hours, Int64 minutes, Int64 seconds, Int64 milliSeconds = 0, Int64 microSeconds = 0, Int64 nanoSeconds = 0);
 
     /**
      * Destructor.
@@ -86,18 +86,18 @@ public:
      * Get days/hours/minutes/seconds/milli-seconds/micro-seconds.
      * @return int - the time slice parts value. slice 的一部分
      */
-    int GetDays() const;
-    int GetHours() const;
-    int GetMinutes() const;
-    int GetSeconds() const;
-    int GetMilliSeconds() const;
-    int GetMicroSeconds() const;
-    int GetNanoSeconds() const;
+    Int64 GetDays() const;
+    Int64 GetHours() const;
+    Int64 GetMinutes() const;
+    Int64 GetSeconds() const;
+    Int64 GetMilliSeconds() const;
+    Int64 GetMicroSeconds() const;
+    Int64 GetNanoSeconds() const;
 
-    int GetTotalDays() const;
-    int GetTotalHours() const;
-    int GetTotalMinutes() const;
-    int GetTotalSeconds() const;
+    Int64 GetTotalDays() const;
+    Int64 GetTotalHours() const;
+    Int64 GetTotalMinutes() const;
+    Int64 GetTotalSeconds() const;
     Int64 GetTotalMilliSeconds() const;
     const Int64 GetTotalMicroSeconds() const;
     const Int64 &GetTotalNanoSeconds() const;

@@ -272,13 +272,15 @@ void ScanReason::Run(int argc, char const *argv[])
             if(ptr->HalfClose())
             {
                 auto tickTime = KERNEL_NS::LibTime::Now();
+                auto startTime2 = tickTime;
                 auto intervalTime = KERNEL_NS::TimeSlice::FromSeconds(1);
                 Int64 lastProgress = 0;
                 auto fileSize = g_fileSize.load();
                 const auto &fileSizeStr = KERNEL_NS::MathUtil::ToFmtDataSize(fileSize);
 
-                ptr->FinishClose([&tickTime, &intervalTime, &lastProgress, &fileSizeStr, fileSize, &ptr](){
+                ptr->FinishClose([&tickTime, &intervalTime, &lastProgress, &fileSizeStr, fileSize, &ptr, &startTime2](){
                     auto nowTime = KERNEL_NS::LibTime::Now();
+                    const auto &costTime = nowTime - startTime2;
 
                     auto diff = nowTime - tickTime;
                     if(diff < intervalTime)
@@ -296,8 +298,8 @@ void ScanReason::Run(int argc, char const *argv[])
                     const auto &newHandleStr = KERNEL_NS::MathUtil::ToFmtDataSize(newHandle);
                     const auto &speedStr = KERNEL_NS::MathUtil::ToFmtDataSize(diffBytes);
 
-                    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "scan process: working thread num:%d, file size:%s, processing:%lf%%, handling bytes:%s, speed:%s/s")
-                    , ptr->GetWorkThreadNum(), fileSizeStr.c_str(), (double)(newHandle)/fileSize * 100, newHandleStr.c_str(), speedStr.c_str());
+                    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "scan process: working thread num:%d, file size:%s, processing:%lf%%, handling bytes:%s, speed:%s/s, costTime:%lld(seconds)")
+                    , ptr->GetWorkThreadNum(), fileSizeStr.c_str(), (double)(newHandle)/fileSize * 100, newHandleStr.c_str(), speedStr.c_str(), costTime.GetTotalSeconds());
                 });
             }
 
@@ -331,6 +333,6 @@ void ScanReason::Run(int argc, char const *argv[])
     for(auto iter : reasonNumCount)
         reasonRefNumStr.AppendFormat("reason:%s-%d, ", iter.first.c_str(), iter.second);
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "%s, cost time:%d(seconds)")
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "%s, cost time:%lld(seconds)")
     , reasonRefNumStr.c_str(), (endTime - startTime).GetTotalSeconds());
 }
