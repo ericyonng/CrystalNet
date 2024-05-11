@@ -189,7 +189,12 @@ void TestInst::Run(int argc, char const *argv[])
     // // TODO:analyze argv参数 使用lua分析
     KERNEL_NS::LibString testInstInfo;
     testInstInfo.AppendFormat("test started. nihao:你好.shabi %s", " 🌍 olleH");
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, testInstInfo.c_str()));
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, testInstInfo.c_str()));
+
+    #else
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestInst, "test started. nihao:你好.shabi %s"), " 🌍 olleH");
+    #endif
 
 // 
 //     KERNEL_NS::AllocUtil::GetStaticTemplateObjNoFree<Int32>([]()->Int32 * {
