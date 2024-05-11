@@ -50,6 +50,20 @@
  #include <io.h>          // access func 遍历目录
 #endif
 
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    #undef LIB_FSEEK
+    #define LIB_FSEEK _fseeki64
+    
+    #undef LIB_FTELL
+    #define LIB_FTELL _ftelli64  
+#else
+    #undef LIB_FSEEK
+    #define LIB_FSEEK fseeko
+
+    #undef LIB_FTELL
+    #define LIB_FTELL ftello
+#endif
+
 KERNEL_BEGIN
 
 
@@ -148,7 +162,7 @@ bool FileUtil::CopyFile(const Byte8 *srcFile, const Byte8 *destFile)
     char count = 0, wrCount = 0;
     bool isDirty = false;
 
-    while(!feof(srcFp))
+    do
     {
         get_c = 0;
         count = char(fread(&get_c, 1, 1, srcFp));
@@ -165,7 +179,7 @@ bool FileUtil::CopyFile(const Byte8 *srcFile, const Byte8 *destFile)
         }
 
         isDirty = true;
-    }
+    }while(!feof(srcFp));
 
     if(isDirty)
         FlushFile(*destFp);
@@ -182,7 +196,7 @@ bool FileUtil::CopyFile(FILE &src, FILE &dest)
     unsigned char get_c = 0;
     char count = 0, wrCount = 0;
     bool isDirty = false;
-    while(!feof(&src))
+    do
     {
         get_c = 0;
         count = char(fread(&get_c, 1, 1, &src));
@@ -194,7 +208,7 @@ bool FileUtil::CopyFile(FILE &src, FILE &dest)
             break;
 
         isDirty = true;
-    }
+    }while(!feof(&src));
 
     if(isDirty)
         FlushFile(dest);
@@ -211,7 +225,7 @@ UInt64 FileUtil::ReadFile(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
     UInt64 readCnt = 0;
     U8 *bufferTmp = reinterpret_cast<U8 *>(buffer);
     U8 get_c = 0;
-    while(!feof(&fp))
+    do
     {
         get_c = 0;
         if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
@@ -227,7 +241,7 @@ UInt64 FileUtil::ReadFile(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
         {
             break;
         }
-    }
+    }while(!feof(&fp));
 
     return readCnt;
 }
@@ -237,7 +251,7 @@ UInt64 FileUtil::ReadFile(FILE &fp, LibString &outString, Int64 sizeLimit)
     clearerr(&fp);
     UInt64 readCnt = 0;
     U8 get_c = 0;
-    while(!feof(&fp))
+    do
     {
         get_c = 0;
         if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
@@ -254,6 +268,7 @@ UInt64 FileUtil::ReadFile(FILE &fp, LibString &outString, Int64 sizeLimit)
             break;
         }
     }
+    while(!feof(&fp));
 
     return readCnt;
 }
@@ -278,16 +293,16 @@ Int64 FileUtil::WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToWrite)
     return dataLenToWrite;
 }
 
-Long FileUtil::GetFileSize(FILE &fp)
+Int64 FileUtil::GetFileSize(FILE &fp)
 {
-    auto curPos = ftell(&fp);
+    auto curPos = LIB_FTELL(&fp);
     if(UNLIKELY(curPos < 0))
         return -1;
 
     if(UNLIKELY(!SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_END, 0L)))
         return -1;
 
-    auto fileSize = ftell(&fp);
+    auto fileSize = LIB_FTELL(&fp);
     if(UNLIKELY(fileSize < 0))
     {
         SetFileCursor(fp, FileCursorOffsetType::FILE_CURSOR_POS_SET, curPos);
@@ -327,7 +342,7 @@ UInt64 FileUtil::ReadOneLine(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
 
     clearerr(&fp);
     UInt64 cnt = 0;
-    while(!feof(&fp))
+    do
     {
         get_c = 0;
         if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
@@ -372,7 +387,7 @@ UInt64 FileUtil::ReadOneLine(FILE &fp, UInt64 bufferSize, Byte8 *&buffer)
         {
             break;
         }
-    }
+    }while(!feof(&fp));
 
     return cnt;
 }
@@ -382,7 +397,7 @@ UInt64 FileUtil::ReadOneLine(FILE &fp, LibString &outBuffer)
     clearerr(&fp);
     unsigned char get_c = 0;
     UInt64 cnt = 0;
-    while(!feof(&fp))
+    do
     {
         get_c = 0;
         if(fread(&get_c, sizeof(get_c), 1, &fp) == 1)
@@ -417,7 +432,7 @@ UInt64 FileUtil::ReadOneLine(FILE &fp, LibString &outBuffer)
         {
             break;
         }
-    }
+    }while(!feof(&fp));
 
     return cnt;
 }
@@ -428,7 +443,7 @@ UInt64 FileUtil::ReadUtf8OneLine(FILE &fp, LibString &outBuffer, UInt64 *utf8Cha
     clearerr(&fp);
     U8 get_c = 0;
     UInt64 cnt = 0;
-    while(!feof(&fp))
+    do
     {
         get_c = 0;
         auto bytes = fread(&get_c, sizeof(get_c), 1, &fp);
@@ -509,7 +524,7 @@ UInt64 FileUtil::ReadUtf8OneLine(FILE &fp, LibString &outBuffer, UInt64 *utf8Cha
             // 文件结束
             break;
         }
-    }
+    }while(!feof(&fp));
 
     return cnt;
 }
@@ -517,7 +532,7 @@ UInt64 FileUtil::ReadUtf8OneLine(FILE &fp, LibString &outBuffer, UInt64 *utf8Cha
 Int64 FileUtil::ReadUtf8File(FILE &fp, std::vector<KERNEL_NS::LibString> &lines, Int64 lineLimit)
 {
     Int64 line = 0;
-    while(!::feof(&fp))
+    do
     {
         if(lineLimit > 0 && line >= lineLimit)
             break;
@@ -526,7 +541,7 @@ Int64 FileUtil::ReadUtf8File(FILE &fp, std::vector<KERNEL_NS::LibString> &lines,
         ReadUtf8OneLine(fp, content);
         lines.push_back(content);
         ++line;
-    }
+    }while(!::feof(&fp));
 
     return line;
 }
@@ -800,14 +815,18 @@ Int32 FileUtil::GetFileNo(FILE *fp)
 }
 
 
-Int32 FileUtil::GetFileCusorPos(FILE &fp)
+Int64 FileUtil::GetFileCusorPos(FILE &fp)
 {
-    return ftell(&fp);
+    return LIB_FTELL(&fp);
 }
 
-bool FileUtil::SetFileCursor(FILE &fp, Int32 enumPos, Long offset)
+bool FileUtil::SetFileCursor(FILE &fp, Int32 enumPos, Int64 offset)
 {
-    return fseek(&fp, offset, enumPos) == 0;
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+        return LIB_FSEEK(&fp, offset, enumPos) == 0;
+    #else
+        return LIB_FSEEK(&fp, (off_t)(offset), enumPos) == 0;
+    #endif
 }
 
 void FileUtil::ResetFileCursor(FILE &fp)
@@ -818,7 +837,7 @@ void FileUtil::ResetFileCursor(FILE &fp)
 
 bool FileUtil::FlushFile(FILE &fp)
 {
-    return fflush(&fp) == 0;
+    return ::fflush(&fp) == 0;
 }
 
 Int32 FileUtil::Rename(const LibString &oldPathFile, const LibString &newPathFile)

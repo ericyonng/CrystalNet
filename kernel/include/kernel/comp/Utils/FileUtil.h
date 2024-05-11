@@ -58,15 +58,16 @@ public:
     static Int64 ReadUtf8File(FILE &fp, std::vector<KERNEL_NS::LibString> &lines, Int64 lineLimit = -1);
     static Int64 WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToWrite);
     static Int64 WriteFile(FILE &fp, const LibString &bitData);
+    // 需要在io函数fread调用后调用
     static bool IsEnd(FILE &fp);
     static bool CloseFile(FILE &fp);
     static bool IsFileExist(const Byte8 *fileName);
-    static Int32 GetFileCusorPos(FILE &fp);
+    static Int64 GetFileCusorPos(FILE &fp);
     // enum pos:FileCursorOffsetType::FILE_CURSOR_POS
-    static bool SetFileCursor(FILE &fp, Int32 enumPos, Long offset);
+    static bool SetFileCursor(FILE &fp, Int32 enumPos, Int64 offset);
     static void ResetFileCursor(FILE &fp);
     static bool FlushFile(FILE &fp);
-    static Long GetFileSize(FILE &fp);
+    static Int64 GetFileSize(FILE &fp);
     static Int64 GetFileSizeEx(const Byte8 *filepath);
     static void InsertFileTime(const LibString &extensionName, const LibTime &timestamp, LibString &fileName);
     static void InsertFileTail(const LibString &extensionName, const Byte8 *tail, LibString &fileName);

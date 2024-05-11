@@ -133,7 +133,7 @@ bool LibFile::Open(const Byte8 *fileWholeName, bool *isFileExist, bool isCreate 
         _openMode = openMode;
     }
 
-    _fileSize = static_cast<Int64>(FileUtil::GetFileSize(*_fp));
+    _fileSize = FileUtil::GetFileSize(*_fp);
     ASSERT(_fileSize >= 0);
 
     return _fp != NULL;

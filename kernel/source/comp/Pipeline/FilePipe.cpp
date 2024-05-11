@@ -109,7 +109,7 @@ Int32 FilePipe::Open()
 
 bool FilePipe::Write(const Byte8 *buffer, Int64 &sz)
 {
-    if(!FileUtil::SetFileCursor(*_fp, FileCursorOffsetType::FILE_CURSOR_POS_SET, static_cast<Long>(_writePos)))
+    if(!FileUtil::SetFileCursor(*_fp, FileCursorOffsetType::FILE_CURSOR_POS_SET, _writePos))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("set file cusour fail write pos:%lld, file:%s"), _writePos, _file.c_str());
         return false;
@@ -123,7 +123,7 @@ bool FilePipe::Write(const Byte8 *buffer, Int64 &sz)
 
 bool FilePipe::Read(Byte8 *buffer, Int64 &count)
 {
-    if(!FileUtil::SetFileCursor(*_fp, FileCursorOffsetType::FILE_CURSOR_POS_SET, static_cast<Long>(_readPos)))
+    if(!FileUtil::SetFileCursor(*_fp, FileCursorOffsetType::FILE_CURSOR_POS_SET, _readPos))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("set file cusour fail read pos:%lld, file:%s"), _readPos, _file.c_str());
         return false;

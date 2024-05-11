@@ -95,6 +95,7 @@
 #include <testsuit/testinst/TestTimeWheel.h>
 #include <testsuit/testinst/TestCheckAdapter.h>
 // #include <testsuit/testinst/TestCoroutine.h>
+#include <testsuit/testinst/TestLargeFile.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -276,6 +277,35 @@ void TestInst::Run(int argc, char const *argv[])
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
     // TestCoroutine::Run();
+
+    // write a large file
+    do
+    {
+        {
+            KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile("./largetfile.txt", true, "wb+");
+            if(!fp)
+            {
+                break;
+            }
+
+            fp.SetClosureDelegate([](void *p){
+                auto ptr = KERNEL_NS::KernelCastTo<FILE>(p);
+                KERNEL_NS::FileUtil::CloseFile(*ptr);
+            });
+
+            const Int64 writeBytes = 4LL * 1024LL * 1024LL * 1024LL;
+            KERNEL_NS::LibString lineData = "kldajfskdjfasdfj-x\n";
+            for(Int64 idx = 0; idx < writeBytes; idx += static_cast<Int64>(lineData.size()))
+                KERNEL_NS::FileUtil::WriteFile(*fp, lineData);
+
+            // 最后一条
+            KERNEL_NS::FileUtil::WriteFile(*fp, "dalfkajsdf------------/adskfjaslk------------\n");
+            KERNEL_NS::FileUtil::FlushFile(*fp);
+        }
+
+        TestLargeFile::Run(argc, argv);
+
+    }while(false);
 
     // KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool> pool = new KERNEL_NS::LibThreadPool();
     // pool->Init(0, 4);
