@@ -48,18 +48,6 @@
 #define IS_VALID_SOCKET_IDD(x)  (((x)!=INVALID_SOCKET_IDD)&&((x)!=0))   // 是否有效的socketIDD
 #endif
 
-#ifndef __LIB_DATA_1KB__
-#define __LIB_DATA_1KB__     1024 
-#endif
-
-#ifndef __LIB_DATA_1MB__
-#define __LIB_DATA_1MB__     1048576
-#endif
-
-#ifndef __LIB_DATA_1GB__
-#define __LIB_DATA_1GB__     1073741824
-#endif
-
 #undef __LIB_TCP_SOCKTYPE__
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 #define __LIB_TCP_SOCKTYPE__  SOCK_STREAM

@@ -128,9 +128,11 @@ static UInt64 ReadUtf8OneLine(std::ifstream &fp, KERNEL_NS::LibString &outBuffer
 
 
 std::ifstream *g_file = NULL;
+std::atomic<Int64> g_fileSize{0};
+std::atomic<Int64> g_CurrentReadBytes{0};
 
 std::map<UInt64, std::map<KERNEL_NS::LibString, Int32>> g_ThreadCache;
-KERNEL_NS::SpinLock g_lck;
+KERNEL_NS::Locker g_lck;
 
 KERNEL_NS::LibString keyContent;
 std::atomic<Int32> g_workingThread{0};
@@ -172,7 +174,7 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
                 break;
             }
 
-            ReadUtf8OneLine(*g_file, lineStr, NULL);
+            g_CurrentReadBytes += static_cast<Int64>(ReadUtf8OneLine(*g_file, lineStr, NULL));
             g_lck.Unlock();
 
             KERNEL_NS::LibString buffer = lineStr;
@@ -255,6 +257,10 @@ void ScanReason::Run(int argc, char const *argv[])
         return;
     }
 
+    g_file->seekg(0, std::ios::end);
+    std::streamoff endPos = g_file->tellg();
+    g_fileSize = static_cast<Int64>(endPos);
+
     g_file->seekg(0, std::ios::beg);
 
     auto startTime = KERNEL_NS::LibTime::Now();
@@ -263,7 +269,37 @@ void ScanReason::Run(int argc, char const *argv[])
         pool.SetClosureDelegate([](void *p){
             auto ptr = KERNEL_NS::KernelCastTo<KERNEL_NS::LibThreadPool>(p);
             if(ptr->HalfClose())
-                ptr->FinishClose();
+            {
+                auto tickTime = KERNEL_NS::LibTime::Now();
+                auto intervalTime = KERNEL_NS::TimeSlice::FromSeconds(1);
+                Int64 lastProgress = 0;
+                auto fileSize = g_fileSize.load();
+                const auto &fileSizeStr = KERNEL_NS::MathUtil::ToFmtDataSize(fileSize);
+
+                ptr->FinishClose([&tickTime, &intervalTime, &lastProgress, &fileSizeStr, fileSize, &ptr](){
+                    auto nowTime = KERNEL_NS::LibTime::Now();
+
+                    auto diff = nowTime - tickTime;
+                    if(diff < intervalTime)
+                    {
+                        return;
+                    }
+                    tickTime = nowTime;
+
+                    auto newHandle = g_CurrentReadBytes.load();
+                    if(lastProgress == 0)
+                        lastProgress = newHandle;
+                    auto diffBytes = newHandle - lastProgress;
+                    lastProgress = newHandle;
+
+                    const auto &newHandleStr = KERNEL_NS::MathUtil::ToFmtDataSize(newHandle);
+                    const auto &speedStr = KERNEL_NS::MathUtil::ToFmtDataSize(diffBytes);
+
+                    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "scan process: working thread num:%d, file size:%s, processing:%lf%%, handling bytes:%s, speed:%s/s")
+                    , ptr->GetWorkThreadNum(), fileSizeStr.c_str(), (double)(newHandle)/fileSize * 100, newHandleStr.c_str(), speedStr.c_str());
+                });
+            }
+
         });
 
         threadNum = threadNum > 1 ? threadNum : 1;

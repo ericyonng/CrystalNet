@@ -34,6 +34,7 @@
 #include <kernel/kernel_export.h>
 #include <kernel/common/BaseType.h>
 #include <kernel/common/BaseMacro.h>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 
@@ -47,6 +48,8 @@ public:
     static Int64 GetGcd(Int64 a, Int64 b);
     // 最小公倍数
     static Int64 GetLcm(Int64 a, Int64 b);
+    // 数据大小转换
+    static LibString ToFmtDataSize(Int64 bytes);
 };
 
 ALWAYS_INLINE UInt64 MathUtil::log(UInt64 base, UInt64 trueNum)

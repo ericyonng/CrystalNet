@@ -41,6 +41,7 @@
 #include <kernel/comp/Utils/Defs/Socket.h>
 #include <kernel/comp/Utils/Defs/TlsDefs.h>
 #include <kernel/comp/Utils/Defs/FindFileInfo.h>
+#include <kernel/comp/Utils/Defs/Math.h>
 
 #include <kernel/comp/Utils/AllocUtil.h>
 #include <kernel/comp/Utils/BackTraceUtil.h>

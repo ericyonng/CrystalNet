@@ -89,6 +89,7 @@ public:
     static bool IsFile(const FindFileInfo &fileAttr);
     // 是否目录
     static bool IsDir(const FindFileInfo &fileAttr);
+
 };
 
 ALWAYS_INLINE Int64 FileUtil::WriteFile(FILE &fp, const LibString &bitData)

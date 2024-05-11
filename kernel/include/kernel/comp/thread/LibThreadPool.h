@@ -80,6 +80,8 @@ public:
     // 半关闭 返回值用于判断是否可执行FinishClose
     bool HalfClose();
     void FinishClose();
+    template<typename CbType>
+    void FinishClose(CbType &&cb);
     // 设置是否添加任务
     void SetEnableTask(bool enable);
     // 线程池工作状态
@@ -111,6 +113,8 @@ public:
     template<typename ObjType>
     bool AddTask2(ObjType *obj, void (ObjType::*callback)(LibThreadPool *, Variant *), Variant *params, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
     
+    Int32 GetWorkThreadNum() const;
+
     // // 线程执行函数
 protected:
     static void _LibThreadHandlerLogic(void *param);
@@ -184,6 +188,28 @@ ALWAYS_INLINE void LibThreadPool::FinishClose()
     }
 
     CRYSTAL_TRACE("LibThreadPool FinishClose");
+}
+
+template<typename CbType>
+ALWAYS_INLINE void LibThreadPool::FinishClose(CbType &&cb)
+{
+    // 线程数为0为止
+    while ( _curTotalNum.load() > 0)
+    {
+        // 唤醒
+        _wakeupAndWait.Sinal();
+
+        // 等待
+        _quitLck.Lock();
+        _quitLck.TimeWait(THREAD_POOL_WAIT_FOR_COMPLETED_TIME);
+        _quitLck.Unlock();
+
+        cb();
+    }
+
+    CRYSTAL_TRACE("LibThreadPool FinishClose");
+
+    cb();
 }
 
 ALWAYS_INLINE void LibThreadPool::SetEnableTask(bool enable)
@@ -264,6 +290,11 @@ ALWAYS_INLINE bool LibThreadPool::AddTask2(ObjType *obj, void (ObjType::*callbac
     }
 
     return true;
+}
+
+ALWAYS_INLINE Int32 LibThreadPool::GetWorkThreadNum() const
+{
+    return _curTotalNum.load();
 }
 
 KERNEL_END

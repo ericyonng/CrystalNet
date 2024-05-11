@@ -42,6 +42,7 @@
 #include <kernel/comp/Utils/Defs/LibGuidDefs.h>
 #include <kernel/common/statics.h>
 #include <kernel/common/status.h>
+#include <kernel/comp/Utils/Defs/Math.h>
 
 // extern "C"
 // {
