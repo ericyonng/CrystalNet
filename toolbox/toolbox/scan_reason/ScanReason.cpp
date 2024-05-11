@@ -169,7 +169,7 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
             KERNEL_NS::LibString lineStr;
             g_lck.Lock();
             g_CurrentReadBytes += static_cast<Int64>(KERNEL_NS::FileUtil::ReadUtf8OneLine(*g_fp, lineStr, NULL));
-            if(lineStr.empty() && !KERNEL_NS::FileUtil::IsEnd(*g_fp))
+            if(lineStr.empty() && KERNEL_NS::FileUtil::IsEnd(*g_fp))
             {
                 g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "thread %llu file eof"), threadId);
                 g_lck.Unlock();
