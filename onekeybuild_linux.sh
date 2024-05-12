@@ -40,6 +40,7 @@ fi
 
 # 开始时间戳
 START_TIMESTAMP=$(date +%s)
+echo "Start build time:$START_TIMESTAMP"
 
 # run firstly
 echo "run first scripts"
