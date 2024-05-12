@@ -35,14 +35,14 @@ bool InviteCodeConfig::Parse(const KERNEL_NS::LibString &lineData)
     Int32 startPos = 0;
 
     {// _id
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -100,14 +100,14 @@ bool InviteCodeConfig::Parse(const KERNEL_NS::LibString &lineData)
     }// _id
 
     {// _inviteCode
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:InviteCode, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:InviteCode, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -443,7 +443,7 @@ Int64 InviteCodeConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &confi
         readBytes += bytesOnce;
         if(content.Contain(":"))
         {
-            const auto symbolPos = content.GetRaw().find_first_of(":", 0);
+            const auto symbolPos = content.GetRaw().find(":", 0);
             const KERNEL_NS::LibString fieldHeader = content.GetRaw().substr(0, symbolPos);
             const auto &headerCache = fieldHeader.strip();
             const auto &headerParts = headerCache.Split('_');

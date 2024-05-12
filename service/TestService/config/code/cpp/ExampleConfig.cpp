@@ -38,14 +38,14 @@ bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     Int32 startPos = 0;
 
     {// _id
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Id, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -103,14 +103,14 @@ bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     }// _id
 
     {// _type
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Type, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Type, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -168,14 +168,14 @@ bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     }// _type
 
     {// _title
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:title, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:title, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -233,14 +233,14 @@ bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     }// _title
 
     {// _goal
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Goal, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Goal, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -298,14 +298,14 @@ bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     }// _goal
 
     {// _testDict
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:TestDict, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:TestDict, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -363,14 +363,14 @@ bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     }// _testDict
 
     {// _roleBuff
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:RoleBuff, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:RoleBuff, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -428,14 +428,14 @@ bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     }// _roleBuff
 
     {// _isLucky
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:IsLucky, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:IsLucky, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -493,14 +493,14 @@ bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     }// _isLucky
 
     {// _awards
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Awards, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Awards, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -558,14 +558,14 @@ bool ExampleConfig::Parse(const KERNEL_NS::LibString &lineData)
     }// _awards
 
     {// _achieve
-        auto pos = lineData.GetRaw().find_first_of("column_", startPos);
+        auto pos = lineData.GetRaw().find("column_", startPos);
         if(pos == std::string::npos)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Achieve, data format error: have no column_ prefix, lineData:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
             return false;
         }
 
-       auto headerTailPos = lineData.GetRaw().find_first_of(":", pos);
+       auto headerTailPos = lineData.GetRaw().find(":", pos);
        if(headerTailPos == std::string::npos)
        {
             g_Log->Error(LOGFMT_OBJ_TAG("parse field:Achieve, bad line data not find : symbol after column_ line data:%s, startPos:%d, countFieldNum:%d"), lineData.c_str(), startPos, countFieldNum);
@@ -943,7 +943,7 @@ Int64 ExampleConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDa
         readBytes += bytesOnce;
         if(content.Contain(":"))
         {
-            const auto symbolPos = content.GetRaw().find_first_of(":", 0);
+            const auto symbolPos = content.GetRaw().find(":", 0);
             const KERNEL_NS::LibString fieldHeader = content.GetRaw().substr(0, symbolPos);
             const auto &headerCache = fieldHeader.strip();
             const auto &headerParts = headerCache.Split('_');
