@@ -1,4 +1,3 @@
-# @author EricYonng<120453674@qq.com>
 # @brief one key build
 #!/usr/bin/env bash
 
@@ -39,6 +38,9 @@ fi
 # give scripts right
 # sudo chmod 777 $SCRIPT_PATH/*.sh
 
+# 开始时间戳
+START_TIMESTAMP=$(date +%s)
+
 # run firstly
 echo "run first scripts"
 sh $SCRIPT_PATH/runfirstly_scripts.sh
@@ -76,5 +78,9 @@ fi
 echo "installing..."
 sudo sh $SCRIPT_PATH/install.sh $VER
 
-echo "Done!"
+# 结束时间戳
+END_TIMESTAMP=$(date +%s)
+COST_TIME=$((START_TIMESTAMP - END_TIMESTAMP))
+
+echo "Done COST_TIME:$COST_TIME!"
 
