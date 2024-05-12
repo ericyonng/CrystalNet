@@ -30,7 +30,6 @@
 #include <ConfigExporter/Exporter/Impl/ExporterMgr.h>
 #include <ConfigExporter/Exporter/Impl/ExporterMgrFactory.h>
 #include <ConfigExporter/Exporter/Interface/IXlsxExporterMgr.h>
-#include <service_common/params/params.h>
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IExporterMgr);
 
