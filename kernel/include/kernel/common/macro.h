@@ -225,6 +225,19 @@ private:                                                                        
         x(const x&);                                                                \
         x& operator =(const x&);                                              
 
+#undef MOVABLE_OBJ
+#define MOVABLE_OBJ(x)      \
+public:                  \
+    x(x&&) = default;       \
+    x& operator=(x&&) = default
+
+#undef NO_MOVE
+#define NO_MOVE(x)          \
+private:                    \
+    x(x&&) = default;       \
+    x& operator=(x&&) = default
+
+
 #undef TIME_WHEEL_RESOLUTION_DEF
 #define TIME_WHEEL_RESOLUTION_DEF 1LL     // 时间轮盘默认精度(毫秒)
 

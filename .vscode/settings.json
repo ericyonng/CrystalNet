@@ -184,7 +184,8 @@
         "future": "cpp",
         "condition_variable": "cpp",
         "resumable": "cpp",
-        "coroutine": "cpp"
+        "coroutine": "cpp",
+        "source_location": "cpp"
     },
     "editor.tabCompletion": "on",
     "diffEditor.codeLens": true

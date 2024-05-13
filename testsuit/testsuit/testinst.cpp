@@ -94,7 +94,7 @@
 #include <testsuit/testinst/TestOrm.h>
 #include <testsuit/testinst/TestTimeWheel.h>
 #include <testsuit/testinst/TestCheckAdapter.h>
-// #include <testsuit/testinst/TestCoroutine.h>
+#include <testsuit/testinst/TestCoroutine.h>
 #include <testsuit/testinst/TestLargeFile.h>
 
 // void *operator new(size_t bytes)
@@ -257,7 +257,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
-    TestService::Run(argc, argv);
+    // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
     // TestList::Run();
     // TestDirectoryUtil::Run();
@@ -281,7 +281,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestOrm::Run();
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
-    // TestCoroutine::Run();
+    TestCoroutine::Run();
 
     // write a large file
     // do
