@@ -169,9 +169,14 @@ public:
     LibString Format(const Byte8 *outFmt = NULL) const;
     static LibString Format(time_t timestamp, const Byte8 *outFmt);
 
+    // 格林威治时间
     LibString FormatAsGmt(const char *outFmt = NULL) const;
     static LibString FormatAsGmt(time_t timestamp, const char *outFmt);
-    
+
+    // UTC时间(和格林威治时间指同一个东西都是0时区时间)
+    LibString FormatAsUtc(const char *outFmt = NULL) const;
+    static LibString FormatAsUtc(time_t timestamp, const char *outFmt);
+
     /**
      * Get the time object string representation.
      * @return FS_String - the object string representation.

@@ -51,6 +51,7 @@
 #include <kernel/comp/TimeSlice.h>
 #include <kernel/comp/memory/GarbageThread.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
+#include <curl/curl.h>
 
 KERNEL_NS::LibCpuInfo *g_cpu = NULL;
 // KERNEL_NS::CpuFeature *g_cpuFeature = NULL;
@@ -259,6 +260,14 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     }
 // #endif
 
+    // 初始化curl全局
+    auto curlCode = ::curl_global_init(CURL_GLOBAL_DEFAULT);
+    if(curlCode != CURLE_OK)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "curl init fail(%d):%s"), (Int32)curlCode, curl_easy_strerror(curlCode));
+        return Status::Failed;
+    }
+
     auto nowTimeBySystem = KERNEL_NS::TimeUtil::GetNanoTimestamp();
     auto nowFastTime = KERNEL_NS::TimeUtil::GetFastNanoTimestamp();
     const auto &slice = KERNEL_NS::TimeSlice::FromNanoSeconds(std::abs(nowFastTime - nowTimeBySystem));
@@ -312,6 +321,9 @@ void KernelUtil::Destroy()
     // , g_Log, g_Log && g_Log->IsStart(), g_MemoryPool,  g_MemoryPool ? g_MemoryMonitor->GetStatistics() : NULL);
 
     SocketUtil::ClearSocketEnv();
+
+    // 清理curl资源
+    curl_global_cleanup();
 
     // if(LIKELY(g_Log))
     //     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "comp will destroy."));

@@ -218,6 +218,16 @@ ALWAYS_INLINE LibString LibTime::FormatAsGmt(time_t timestamp, const char *outFm
     return FromSeconds(timestamp).FormatAsGmt(outFmt);
 }
 
+ALWAYS_INLINE LibString LibTime::FormatAsUtc(const char *outFmt) const
+{
+    return FormatAsGmt(outFmt);
+}
+
+ALWAYS_INLINE LibString LibTime::FormatAsUtc(time_t timestamp, const char *outFmt)
+{
+    return FromSeconds(timestamp).FormatAsGmt(outFmt);
+}
+
 KERNEL_END
 
 #endif

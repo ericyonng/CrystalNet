@@ -117,6 +117,7 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "/3rd/miniz/include/",
 		ROOT_DIR .. "/3rd/uuid/include/",
 		ROOT_DIR .. "/3rd/json/include/",
+		ROOT_DIR .. "/3rd/curl/include/",
     }
 
 	libdirs { 
@@ -126,7 +127,11 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "/3rd/protobuf/lib/",
 		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
 		ROOT_DIR .. "3rd/uuid/libs",
+		ROOT_DIR .. "3rd/curl/lib/$(Configuration)/",
 	}
+
+    -- 使用curl静态库
+	defines { "CURL_STATICLIB" }
 
     -- files
     -- files {
@@ -197,6 +202,19 @@ function include_libfs(do_post_build, add_protobuflib)
         links {
             "crypto:static",
             "ssl:static",
+        }
+    filter {}
+
+    -- curl
+    filter { "system:linux"}
+        links {
+            "curl:static",
+        }
+    filter {}
+    filter { "system:windows"}
+        links {
+            -- "ws2_32",
+            "libcurl"
         }
     filter {}
 
@@ -314,6 +332,7 @@ project "CrystalKernel"
         ROOT_DIR .. "/3rd/uuid/include/",
 		ROOT_DIR .. "/3rd/miniz/include/",
 		ROOT_DIR .. "/3rd/json/include/",
+		ROOT_DIR .. "/3rd/curl/include/",
      }
 	 
     -- files
@@ -326,11 +345,14 @@ project "CrystalKernel"
 		--"../../3rd/tiny-utf8/lib/*.cpp",
     }
 
+    -- 使用curl静态库
+	defines { "CURL_STATICLIB" }
 	defines { "CRYSTAL_NET_CPP20", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
     libdirs { 
         ROOT_DIR .. "3rd/openssL/staticlib/$(Configuration)/lib/",
 		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
         ROOT_DIR .. "3rd/",
+		ROOT_DIR .. "3rd/curl/lib/$(Configuration)/",
     }
 
     -- openssl
@@ -344,6 +366,7 @@ project "CrystalKernel"
             "ssl:static",
             "uuid_debug:static",
             "miniz:static",
+            "curl:static",
         }
     filter {}
     filter { "system:linux", "configurations:release*"}
@@ -356,6 +379,7 @@ project "CrystalKernel"
             "ssl:static",
             "uuid:static",
             "miniz:static",
+            "curl:static",
         }
     filter {}
 	
@@ -391,6 +415,7 @@ project "CrystalKernel"
             "libssl",
             "shlwapi",
             "Iphlpapi",
+            "libcurl"
         }
 
     filter { "system:macosx" }

@@ -57,6 +57,8 @@ public:
     void Schedule(Int64 milliSec);
     void Schedule(const TimeSlice &slice);
     void Schedule(Int64 startTime, Int64 milliSecPeriod);
+    void ScheduleMicro(Int64 startTime, Int64 microSecPeriod);
+    void ScheduleNano(Int64 startTime, Int64 nanoSecPeriod);
     bool IsScheduling() const;
     void GiveupTimerData();
 
@@ -93,12 +95,22 @@ private:
 
 ALWAYS_INLINE void LibTimer::Schedule(Int64 milliSec)
 {
-    Schedule(TimeUtil::GetFastNanoTimestamp(), milliSec);
+    ScheduleNano(TimeUtil::GetFastNanoTimestamp(), milliSec * TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
 }
 
 ALWAYS_INLINE void LibTimer::Schedule(const TimeSlice &slice)
 {
-    Schedule(slice.GetTotalMilliSeconds());
+    ScheduleNano(TimeUtil::GetFastNanoTimestamp(), slice.GetTotalNanoSeconds());
+}
+
+ALWAYS_INLINE void LibTimer::Schedule(Int64 startTime, Int64 milliSecPeriod)
+{
+    ScheduleNano(startTime, milliSecPeriod * TimeDefs::NANO_SECOND_PER_MILLI_SECOND);
+}
+
+ALWAYS_INLINE void LibTimer::ScheduleMicro(Int64 startTime, Int64 microSecPeriod)
+{
+    ScheduleNano(startTime, microSecPeriod * TimeDefs::NANO_SECOND_PER_MICRO_SECOND);
 }
 
 ALWAYS_INLINE bool LibTimer::IsScheduling() const

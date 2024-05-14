@@ -82,13 +82,28 @@ void LibTimer::Cancel()
     }
 }
 
-void LibTimer::Schedule(Int64 startTime, Int64 milliSecPeriod)
-{
-    Int64 newPeriod = milliSecPeriod * TimeDefs::NANO_SECOND_PER_MILLI_SECOND;
+// void LibTimer::Schedule(Int64 startTime, Int64 milliSecPeriod)
+// {
+//     Int64 newPeriod = milliSecPeriod * TimeDefs::NANO_SECOND_PER_MILLI_SECOND;
 
+//     // 保证过期时间不小于当前时间
+//     const auto curTime = TimeUtil::GetFastNanoTimestamp();
+//     Int64 expiredTime = (startTime + newPeriod);
+//     expiredTime = expiredTime < curTime ? curTime : expiredTime;
+
+//     // 在定时中先取消定时
+//     if(_data->_isScheduing)
+//         Cancel();
+
+//     // 重新加入定时
+//     _mgr->Register(_data, expiredTime, newPeriod);
+// }
+
+void LibTimer::ScheduleNano(Int64 startTime, Int64 nanoSecPeriod)
+{
     // 保证过期时间不小于当前时间
     const auto curTime = TimeUtil::GetFastNanoTimestamp();
-    Int64 expiredTime = (startTime + newPeriod);
+    Int64 expiredTime = startTime + nanoSecPeriod;
     expiredTime = expiredTime < curTime ? curTime : expiredTime;
 
     // 在定时中先取消定时
@@ -96,7 +111,7 @@ void LibTimer::Schedule(Int64 startTime, Int64 milliSecPeriod)
         Cancel();
 
     // 重新加入定时
-    _mgr->Register(_data, expiredTime, newPeriod);
+    _mgr->Register(_data, expiredTime, nanoSecPeriod);
 }
 
 LibString LibTimer::ToString() const
