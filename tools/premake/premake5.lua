@@ -118,6 +118,7 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "/3rd/uuid/include/",
 		ROOT_DIR .. "/3rd/json/include/",
 		ROOT_DIR .. "/3rd/curl/include/",
+		ROOT_DIR .. "/3rd/idn2/include/",
     }
 
 	libdirs { 
@@ -145,6 +146,7 @@ function include_libfs(do_post_build, add_protobuflib)
 		}
         libdirs {
             ROOT_DIR .. "/usr/lib64/",
+		    ROOT_DIR .. "/3rd/idn2/lib/",
         }
 		links {
 		    "rt",
@@ -362,6 +364,7 @@ project "CrystalKernel"
 		ROOT_DIR .. "/3rd/miniz/include/",
 		ROOT_DIR .. "/3rd/json/include/",
 		ROOT_DIR .. "/3rd/curl/include/",
+		ROOT_DIR .. "/3rd/idn2/include/",
      }
 	 
     -- files
@@ -391,12 +394,14 @@ project "CrystalKernel"
             ROOT_DIR .. "3rd/uuid/libs/",
 		    ROOT_DIR .. "3rd/miniz/libs/debug/",
     		ROOT_DIR .. "3rd/curl/lib/debug/",
+    		ROOT_DIR .. "3rd/idn2/lib/",
         }
         links {
             "crypto:static",
             "ssl:static",
             "uuid_debug:static",
             "miniz:static",
+            "idn2:static",
             "curl:static",
         }
     filter {}
@@ -406,12 +411,14 @@ project "CrystalKernel"
             ROOT_DIR .. "3rd/uuid/libs/",
 		    ROOT_DIR .. "3rd/miniz/libs/release/",
     		ROOT_DIR .. "3rd/curl/lib/release/",
+    		ROOT_DIR .. "3rd/idn2/lib/",
         }
         links {
             "crypto:static",
             "ssl:static",
             "uuid:static",
             "miniz:static",
+            "idn2:static",
             "curl:static",
         }
     filter {}
