@@ -31,6 +31,6 @@
 class TestCurl
 {
 public:
-    static void Run();
+    static void Run(int argc, char const *argv[]);
 };
 

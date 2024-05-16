@@ -223,6 +223,62 @@ public:
         _GiveUp();
     }
 
+    void GiveUpNode(ListNode<ObjType> *node)
+    {
+        auto pre = node->_pre;
+        auto next = node->_next;
+
+        // pre 的next => next
+        if(pre)
+            pre->_next = next;
+        if(next)
+            next->_pre = pre;
+
+        --_nodeAmount;
+
+        if(UNLIKELY(_head == node))
+            _head = next;
+        if(UNLIKELY(_tail == node))
+            _tail = pre;
+        
+        node->_pre = NULL;
+        node->_next = NULL;
+    }
+
+    void LinkNodeEnd(ListNode<ObjType> *newNode)
+    {
+        if(LIKELY(_tail))
+        {
+            _tail->_next = newNode;
+            newNode->_pre = _tail;
+            _tail = newNode;
+        }
+        else
+        {
+            _head = newNode;
+            _tail = newNode;
+        }
+
+        ++_nodeAmount;
+    }
+
+    void LinkNodeFront(ListNode<ObjType> *newNode)
+    {
+        if(LIKELY(_head))
+        {
+            _head->_pre = newNode;
+            newNode->_next = _head;
+            _head = newNode;
+        }
+        else
+        {
+            _head = newNode;
+            _tail = newNode;
+        }
+
+        ++_nodeAmount;
+    }
+
     // 插入
     void InsertBefore(ObjType obj, ListNode<ObjType> *node)
     {

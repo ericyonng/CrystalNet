@@ -183,7 +183,7 @@ void TestInst::Run(int argc, char const *argv[])
     }
 
     // 安装loghook
-    g_Log->InstallBeforeLogHookFunc(KERNEL_NS::LogLevel::Debug, &DebugLogHookBefore);
+    // g_Log->InstallBeforeLogHookFunc(KERNEL_NS::LogLevel::Debug, &DebugLogHookBefore);
 
     KERNEL_NS::KernelUtil::Start();
 
@@ -283,7 +283,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
     // TestCoroutine::Run();
-    TestCurl::Run();
+    TestCurl::Run(argc, argv);
     
     // write a large file
     // do

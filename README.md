@@ -67,7 +67,7 @@
   * 构建：winsolution_build.bat （选择vs2019, vs2022生成solution），请使用指定版本vs编译
   * 编译可以使用自动化脚本编译:winms_onekey_build.bat(需要输入参数)/MsIncreaceBuildDebug.bat/MsIncreaceBuildRelease.bat/MsRebuildDebug.bat/MsRebuildRelease.bat, 需要脚本中指定MsBuild.exe的路径, 以及需要编译的vs版本
   * start.bat/stop.bat 运行或者关闭
-
+  * export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH 若提示mysqlclient找不到
 * 导表工具
 
   * update_configs.bat/update_configs.sh

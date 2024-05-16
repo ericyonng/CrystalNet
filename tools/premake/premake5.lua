@@ -25,7 +25,7 @@ ENABLE_PERFORMANCE_RECORD = 0
 
 ENABLE_POLLER_PERFORMANCE = 0
 
-ENABLE_TEST_SERVICE = 1
+ENABLE_TEST_SERVICE = 0
 
 -----------------------------------------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ function set_common_options(optOption)
         -- -Winvalid-pch是禁用pch加速, 需要移除
         buildoptions {
             --"-std=c++11 -DLINUX -Wall -rdynamic -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
-            "-std=c++11 -DLINUX -Wall -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
+            "-DLINUX -Wall -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
         }
     filter {}
 	filter { "configurations:debug*", "language:c++", "system:not windows" }
@@ -185,14 +185,42 @@ function include_libfs(do_post_build, add_protobuflib)
         }
     filter {}
 
+    -- curl 必须在openssl库, libz.so之前 linux连接是严格顺序的
+    filter { "system:linux", "configurations:debug*"}
+        libdirs { 
+		    ROOT_DIR .. "3rd/curl/lib/debug/",
+
+        }
+        links {
+            "curl:static",
+        }
+    filter {}
+    filter { "system:linux", "configurations:release*"}
+        libdirs { 
+		    ROOT_DIR .. "3rd/curl/lib/release/",
+        }
+        links {
+            "curl:static",
+        }
+    filter {}
+
+    filter { "system:linux"}
+        libdirs { 
+            ROOT_DIR .. "/usr/lib64/",
+        }
+        links {
+            "z",
+        }
+    filter {}
+
     -- openssl crystalkernel静态库依赖openssl 必须把crystalkernel放在crypto, ssl之前连接
     filter { "system:linux", "configurations:debug*"}
         libdirs { 
             ROOT_DIR .. "/3rd/openssl/linux/lib/debug/",
         }
         links {
-            "crypto:static",
             "ssl:static",
+            "crypto:static",
         }
     filter {}
     filter { "system:linux", "configurations:release*"}
@@ -200,17 +228,11 @@ function include_libfs(do_post_build, add_protobuflib)
             ROOT_DIR .. "/3rd/openssl/linux/lib/release/",
         }
         links {
-            "crypto:static",
             "ssl:static",
+            "crypto:static",
         }
     filter {}
 
-    -- curl
-    filter { "system:linux"}
-        links {
-            "curl:static",
-        }
-    filter {}
     filter { "system:windows"}
         links {
             -- "ws2_32",
@@ -233,12 +255,18 @@ function include_libfs(do_post_build, add_protobuflib)
         filter {}
 
         filter { "system:not windows", "configurations:debug*" }
+        libdirs { 
+            ROOT_DIR .. "3rd/miniz/libs/debug/",
+        }
         links {
             "protobufd:static",
             "miniz:static",
         }
         filter {}
         filter { "system:not windows", "configurations:release*" }
+            libdirs { 
+                ROOT_DIR .. "3rd/miniz/libs/release/",
+            }
             links {
                 "protobuf:static",
                 "miniz:static",
@@ -345,7 +373,7 @@ project "CrystalKernel"
 		--"../../3rd/tiny-utf8/lib/*.cpp",
     }
 
-    -- 使用curl静态库
+    -- 使用curl静态库 linux 下没有$(Configuration)替换, 只有windows才有
 	defines { "CURL_STATICLIB" }
 	defines { "CRYSTAL_NET_CPP20", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
     libdirs { 
@@ -360,6 +388,8 @@ project "CrystalKernel"
         libdirs { 
             ROOT_DIR .. "/3rd/openssl/linux/lib/debug/",
             ROOT_DIR .. "3rd/uuid/libs/",
+		    ROOT_DIR .. "3rd/miniz/libs/debug/",
+    		ROOT_DIR .. "3rd/curl/lib/debug/",
         }
         links {
             "crypto:static",
@@ -373,6 +403,8 @@ project "CrystalKernel"
         libdirs { 
             ROOT_DIR .. "/3rd/openssl/linux/lib/release/",
             ROOT_DIR .. "3rd/uuid/libs/",
+		    ROOT_DIR .. "3rd/miniz/libs/release/",
+    		ROOT_DIR .. "3rd/curl/lib/release/",
         }
         links {
             "crypto:static",
@@ -554,27 +586,45 @@ project "testsuit"
 
 	-- 设置通用选项
     set_common_options()
-	
-    -- files
-    files {
-		-- "../../3rd/protobuf/include/**.h",
-		-- "../../3rd/protobuf/include/**.cc",
-		"../../protocols/**.h",
-		"../../protocols/**.cc",
-		"../../protocols/**.cpp",
-		"../../service/common/**.h",
-		"../../service/common/**.cpp",
-        "../../service/TestService/**.h",
-        "../../service/TestService/**.cpp",
-		"../../service_common/**.h",
-        "../../service_common/**.cpp",
-        "../../testsuit/**.h",
-        "../../testsuit/**.cpp",
-        "../../service/TestService/config/code/**.h",
-        "../../service/TestService/config/code/**.cpp",
-        "../../OptionComponent/OptionComp/**.h",
-        "../../OptionComponent/OptionComp/**.cpp",
-    }
+
+
+    if ENABLE_TEST_SERVICE ~= 0 then
+        -- files
+        files {
+            -- "../../3rd/protobuf/include/**.h",
+            -- "../../3rd/protobuf/include/**.cc",
+            "../../protocols/**.h",
+            "../../protocols/**.cc",
+            "../../protocols/**.cpp",
+            "../../service/common/**.h",
+            "../../service/common/**.cpp",
+            "../../service/TestService/**.h",
+            "../../service/TestService/**.cpp",
+            "../../service_common/**.h",
+            "../../service_common/**.cpp",
+            "../../testsuit/**.h",
+            "../../testsuit/**.cpp",
+            "../../service/TestService/config/code/**.h",
+            "../../service/TestService/config/code/**.cpp",
+            "../../OptionComponent/OptionComp/**.h",
+            "../../OptionComponent/OptionComp/**.cpp",
+        }
+    else
+        -- files
+        files {
+            -- "../../3rd/protobuf/include/**.h",
+            -- "../../3rd/protobuf/include/**.cc",
+            "../../protocols/**.h",
+            "../../protocols/**.cc",
+            "../../protocols/**.cpp",
+            "../../service_common/**.h",
+            "../../service_common/**.cpp",
+            "../../testsuit/**.h",
+            "../../testsuit/**.cpp",
+            "../../OptionComponent/OptionComp/**.h",
+            "../../OptionComponent/OptionComp/**.cpp",
+        }       
+    end
 
     filter{ "system:windows"}		
         libdirs { 

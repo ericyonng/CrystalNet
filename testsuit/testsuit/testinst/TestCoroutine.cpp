@@ -777,6 +777,25 @@
 //     co_return co_await GetIdFrom();
 // }
 
+class ResultIsUnsetException : public std::exception
+{
+public:
+    virtual char const* what() const noexcept override
+    {
+        return "result is unset";
+    }
+};
+
+class SelfCoroInvalidException : public std::exception
+{
+public:
+    virtual char const *what() const noexcept override
+    {
+        return "self coro invalid";
+    }
+};
+
+
 // 结果
 template<typename T>
 struct Result 
@@ -818,7 +837,7 @@ struct Result
             return *res;
         }
 
-        throw std::exception("result is unset");
+        throw ResultIsUnsetException();
     }
     constexpr T GetResult() && 
     {
@@ -829,7 +848,7 @@ struct Result
             return std::move(*res);
         }
 
-        throw std::exception("result is unset");
+        throw ResultIsUnsetException();
     }
 
     // 必须的接口处理异常
@@ -1036,7 +1055,7 @@ struct LibTask
             {
                 if (UNLIKELY(!AwaiterBase::_selfCoro))
                 { 
-                    throw std::exception("self coro invalid");
+                    throw SelfCoroInvalidException();
                 }
 
                 return AwaiterBase::_selfCoro.promise().GetResult();
