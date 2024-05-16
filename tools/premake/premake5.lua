@@ -150,6 +150,7 @@ function include_libfs(do_post_build, add_protobuflib)
 		    "rt",
 			"pthread",
             "dl",
+            "idn2:static"
         }
     filter {}
 
