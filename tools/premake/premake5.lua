@@ -146,13 +146,11 @@ function include_libfs(do_post_build, add_protobuflib)
 		}
         libdirs {
             ROOT_DIR .. "/usr/lib64/",
-		    ROOT_DIR .. "/3rd/idn2/lib/",
         }
 		links {
 		    "rt",
 			"pthread",
             "dl",
-            "idn2:static"
         }
     filter {}
 
@@ -207,12 +205,15 @@ function include_libfs(do_post_build, add_protobuflib)
         }
     filter {}
 
+    -- 需要放在libcurl之后连接
     filter { "system:linux"}
         libdirs { 
             ROOT_DIR .. "/usr/lib64/",
+		    ROOT_DIR .. "/3rd/idn2/lib/",
         }
         links {
             "z",
+            "idn2:static"
         }
     filter {}
 
