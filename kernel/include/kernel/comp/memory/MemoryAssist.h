@@ -288,9 +288,6 @@ struct MemoryAssistInfoByType
 template<typename BuildType>
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(MemoryAssistInfoByType, BuildType);
 
-template<typename BuildType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(MemoryAssistInfoByType, BuildType);
-
 template<typename ObjType, typename BuildType, LockParticleType::ENUMS ParticleType = LockParticleType::Light>
 class MemoryAssist
 {

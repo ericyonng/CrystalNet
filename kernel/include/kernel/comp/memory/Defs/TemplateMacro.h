@@ -60,49 +60,52 @@ public:                                                                         
         template<typename... Args>                                                                                  \
         static ALWAYS_INLINE ObjTypeNoTempArgs< __VA_ARGS__ > *New_##ObjTypeNoTempArgs(Args &&... args)             \
         {                                                                                                           \
-            return _static##ObjTypeNoTempArgs##Alloctor->New(std::forward<Args>(args)...);                                   \
+            return GetStaticAllocter_##ObjTypeNoTempArgs()->New(std::forward<Args>(args)...);                                   \
         }                                                                                                           \
                                                                                                                     \
         static ALWAYS_INLINE ObjTypeNoTempArgs< __VA_ARGS__ > *New_##ObjTypeNoTempArgs##NoConstruct()               \
         {                                                                                                           \
-            return _static##ObjTypeNoTempArgs##Alloctor->NewNoConstruct();                                                   \
+            return GetStaticAllocter_##ObjTypeNoTempArgs()->NewNoConstruct();                                                   \
         }                                                                                                           \
                                                                                                                     \
         template<typename... Args>                                                                                  \
         static ALWAYS_INLINE ObjTypeNoTempArgs< __VA_ARGS__ > *New_##ObjTypeNoTempArgs##ByPtr(void *ptr, Args &&... args)         \
         {                                                                                                           \
-            return _static##ObjTypeNoTempArgs##Alloctor->NewByPtr(ptr, std::forward<Args>(args)...);                         \
+            return GetStaticAllocter_##ObjTypeNoTempArgs()->NewByPtr(ptr, std::forward<Args>(args)...);                         \
         }                                                                                                           \
                                                                                                                     \
         static ALWAYS_INLINE void Delete_##ObjTypeNoTempArgs(ObjTypeNoTempArgs< __VA_ARGS__ > *ptr)                 \
         {                                                                                                           \
-            _static##ObjTypeNoTempArgs##Alloctor->Delete(ptr);                                                               \
+            GetStaticAllocter_##ObjTypeNoTempArgs()->Delete(ptr);                                                               \
         }                                                                                                           \
                                                                                                                     \
         static ALWAYS_INLINE void Delete_##ObjTypeNoTempArgs##NoDestructor(ObjTypeNoTempArgs< __VA_ARGS__ > *ptr)   \
         {                                                                                                           \
-            _static##ObjTypeNoTempArgs##Alloctor->DeleteNoDestructor(ptr);                                                   \
+            GetStaticAllocter_##ObjTypeNoTempArgs()->DeleteNoDestructor(ptr);                                                   \
         }                                                                                                           \
                                                                                                                     \
         ALWAYS_INLINE void AddRef_##ObjTypeNoTempArgs()                                                             \
         {                                                                                                           \
-            _static##ObjTypeNoTempArgs##Alloctor->AddRef(this);                                                              \
+            GetStaticAllocter_##ObjTypeNoTempArgs()->AddRef(this);                                                              \
         }                                                                                                           \
                                                                                                                     \
         static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> &GetAlloctor_##_objAlloctor() \
         {                                                                                                           \
-            return *_static##ObjTypeNoTempArgs##Alloctor;                                                           \
+            return *GetStaticAllocter_##ObjTypeNoTempArgs();                                                           \
         }                                                                                                           \
+        static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *GetStaticAllocter_##ObjTypeNoTempArgs()             \
+        {                                                                                                                           \
+            static KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *s_alloctor = new KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>(false, initBlockNumPerBuffer                      \
+            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit));                   \
+            return s_alloctor;                                                                                                      \
+        }                                                                                                                           \
                                                                                                                     \
         static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> &GetThreadLocalAlloctor_##_objAlloctor()    \
         {                                                                                                           \
-            if(UNLIKELY(!_staticThreadLocal##ObjTypeNoTempArgs##Alloctor))                                          \
-            {                                                                                                       \
-                _staticThreadLocal##ObjTypeNoTempArgs##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New< KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>> >()->GetPool(initBlockNumPerBuffer    \
+            DEF_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *staticThreadLocal##ObjTypeNoTempArgs##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New< KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>> >()->GetPool(initBlockNumPerBuffer    \
             , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit));  \
-            }                                                                                                       \
                                                                                                                     \
-            return *_staticThreadLocal##ObjTypeNoTempArgs##Alloctor;                                                \
+            return *staticThreadLocal##ObjTypeNoTempArgs##Alloctor;                                                \
         }                                                                                                           \
                                                                                                                     \
                                                                                                                     \
@@ -141,33 +144,33 @@ public:                                                                         
         template<typename... Args>                                                                                  \
         static ALWAYS_INLINE ObjTypeNoTempArgs< __VA_ARGS__ > *NewByAdapter_##ObjTypeNoTempArgs(KERNEL_NS::_Build::MT::Type, Args &&... args) \
         {                                                                                                           \
-            return _static##ObjTypeNoTempArgs##Alloctor->New(std::forward<Args>(args)...);                          \
+            return GetStaticAllocter_##ObjTypeNoTempArgs()->New(std::forward<Args>(args)...);                          \
         }                                                                                                           \
                                                                                                                     \
         static ALWAYS_INLINE ObjTypeNoTempArgs< __VA_ARGS__ > *NewByAdapter_##ObjTypeNoTempArgs##NoConstruct(KERNEL_NS::_Build::MT::Type)    \
         {                                                                                                           \
-            return _static##ObjTypeNoTempArgs##Alloctor->NewNoConstruct();                                          \
+            return GetStaticAllocter_##ObjTypeNoTempArgs()->NewNoConstruct();                                          \
         }                                                                                                           \
                                                                                                                     \
         template<typename... Args>                                                                                  \
         static ALWAYS_INLINE ObjTypeNoTempArgs< __VA_ARGS__ > *NewByAdapter_##ObjTypeNoTempArgs##ByPtr(KERNEL_NS::_Build::MT::Type, void *ptr, Args &&... args)    \
         {                                                                                                           \
-            return _static##ObjTypeNoTempArgs##Alloctor->NewByPtr(ptr, std::forward<Args>(args)...);                \
+            return GetStaticAllocter_##ObjTypeNoTempArgs()->NewByPtr(ptr, std::forward<Args>(args)...);                \
         }                                                                                                           \
                                                                                                                     \
         static ALWAYS_INLINE void DeleteByAdapter_##ObjTypeNoTempArgs(KERNEL_NS::_Build::MT::Type, ObjTypeNoTempArgs< __VA_ARGS__ > *ptr)    \
         {                                                                                                           \
-            _static##ObjTypeNoTempArgs##Alloctor->Delete(ptr);                                                      \
+            GetStaticAllocter_##ObjTypeNoTempArgs()->Delete(ptr);                                                      \
         }                                                                                                           \
                                                                                                                     \
         static ALWAYS_INLINE void DeleteByAdapter_##ObjTypeNoTempArgs##NoDestructor(KERNEL_NS::_Build::MT::Type, ObjTypeNoTempArgs< __VA_ARGS__ > *ptr)      \
         {                                                                                                           \
-            _static##ObjTypeNoTempArgs##Alloctor->DeleteNoDestructor(ptr);                                          \
+            GetStaticAllocter_##ObjTypeNoTempArgs()->DeleteNoDestructor(ptr);                                          \
         }                                                                                                           \
                                                                                                                     \
         ALWAYS_INLINE void AddRefByAdapter_##ObjTypeNoTempArgs(KERNEL_NS::_Build::MT::Type)                         \
         {                                                                                                           \
-            _static##ObjTypeNoTempArgs##Alloctor->AddRef(this);                                                     \
+            GetStaticAllocter_##ObjTypeNoTempArgs()->AddRef(this);                                                     \
         }                                                                                                           \
                                                                                                                     \
                                                                                                                     \
@@ -204,16 +207,11 @@ public:                                                                         
         }                                                                                                           \
         private:                                                                                                    \
         static KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *_static##ObjTypeNoTempArgs##Alloctor;      \
-        DEF_STATIC_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *_staticThreadLocal##ObjTypeNoTempArgs##Alloctor;  \
 
 #undef __OBJ_POOL_CREATE_TEMPLATE_IMPL
 #define __OBJ_POOL_CREATE_TEMPLATE_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjTypeNoTempArgs, ...)                                                                            \
-KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *ObjTypeNoTempArgs< __VA_ARGS__ >::_static##ObjTypeNoTempArgs##Alloctor = new KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>(false, initBlockNumPerBuffer                      \
-            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit))
+KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *ObjTypeNoTempArgs< __VA_ARGS__ >::_static##ObjTypeNoTempArgs##Alloctor = GetStaticAllocter_##ObjTypeNoTempArgs()
 
-#undef __OBJ_POOL_CREATE_TEMPLATE_TL_IMPL
-#define __OBJ_POOL_CREATE_TEMPLATE_TL_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjTypeNoTempArgs, ...)     \
-DEF_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *ObjTypeNoTempArgs< __VA_ARGS__ >::_staticThreadLocal##ObjTypeNoTempArgs##Alloctor = NULL
 
 // 禁止直接使用 OBJ_POOL_CREATE_IMPL 直接使用会大概率出现内存非法写入到其他对象内存区 ！！！！！！！！！！！！！！
 

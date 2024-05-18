@@ -25,7 +25,7 @@ ENABLE_PERFORMANCE_RECORD = 0
 
 ENABLE_POLLER_PERFORMANCE = 0
 
-ENABLE_TEST_SERVICE = 0
+ENABLE_TEST_SERVICE = 1
 
 -----------------------------------------------------------------------------------------------------------
 

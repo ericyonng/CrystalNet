@@ -61,9 +61,6 @@ template<typename ObjType>
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(DelegateTask, ObjType);
 
 template<typename ObjType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(DelegateTask, ObjType);
-
-template<typename ObjType>
 inline DelegateTask<ObjType>::DelegateTask(ObjType *obj, IDelegate<void, ObjType *> *callback)
     :_obj(obj)
     ,_callback(callback)

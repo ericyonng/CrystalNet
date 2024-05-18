@@ -67,51 +67,48 @@ public:                                                                         
         template<typename... Args>                                                                                                  \
         static ALWAYS_INLINE ObjType *New_##ObjType(Args &&... args)                                                                \
         {                                                                                                                           \
-            return _static##ObjType##Alloctor->New(std::forward<Args>(args)...);                                                    \
+            return GetStaticAllocter_##ObjType()->New(std::forward<Args>(args)...);                                                 \
         }                                                                                                                           \
                                                                                                                                     \
         static ALWAYS_INLINE ObjType *New_##ObjType##NoConstruct()                                                                                \
         {                                                                                                                           \
-            return _static##ObjType##Alloctor->NewNoConstruct();                                                                   \
+            return GetStaticAllocter_##ObjType()->NewNoConstruct();                                                                 \
         }                                                                                                                           \
                                                                                                                                     \
         template<typename... Args>                                                                                                  \
         static ALWAYS_INLINE ObjType *New_##ObjType##ByPtr(void *ptr, Args &&... args)                                                            \
         {                                                                                                                           \
-            return _static##ObjType##Alloctor->NewByPtr(ptr, std::forward<Args>(args)...);                                         \
+            return GetStaticAllocter_##ObjType()->NewByPtr(ptr, std::forward<Args>(args)...);                                         \
         }                                                                                                                           \
                                                                                                                                     \
         static ALWAYS_INLINE void Delete_##ObjType(ObjType *ptr)                                                                                  \
         {                                                                                                                           \
-            _static##ObjType##Alloctor->Delete(ptr);                                                                               \
+            GetStaticAllocter_##ObjType()->Delete(ptr);                                                                               \
         }                                                                                                                           \
                                                                                                                                     \
         static ALWAYS_INLINE void Delete_##ObjType##NoDestructor(ObjType *ptr)                                                                    \
         {                                                                                                                           \
-            _static##ObjType##Alloctor->DeleteNoDestructor(ptr);                                                                   \
+            GetStaticAllocter_##ObjType()->DeleteNoDestructor(ptr);                                                                   \
         }                                                                                                                           \
                                                                                                                                     \
         ALWAYS_INLINE void AddRef_##ObjType()                                                                                                     \
         {                                                                                                                           \
-            _static##ObjType##Alloctor->AddRef(this);                                                                              \
+            GetStaticAllocter_##ObjType()->AddRef(this);                                                                              \
         }                                                                                                                           \
                                                                                                                                     \
         static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjType> &GetAlloctor_##_objAlloctor()                                          \
         {                                                                                                                           \
-            return *_static##ObjType##Alloctor;                                                                                     \
+            return *GetStaticAllocter_##ObjType();                                                                                  \
         }                                                                                                                           \
         static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjType> &GetThreadLocalAlloctor_##_objAlloctor()                               \
         {                                                                                                                           \
-            if(UNLIKELY(!_staticThreadLocal##ObjType##Alloctor))                                                                    \
-            {                                                                                                                       \
-                _staticThreadLocal##ObjType##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New<KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjType>> >()->GetPool(initBlockNumPerBuffer          \
+            DEF_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjType> *staticThreadLocal##ObjType##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New<KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjType>> >()->GetPool(initBlockNumPerBuffer          \
             , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));                                           \
-            }                                                                                                                       \
                                                                                                                                     \
-            return *_staticThreadLocal##ObjType##Alloctor;                                                                          \
+            return *staticThreadLocal##ObjType##Alloctor;                                                                           \
         }                                                                                                                           \
         template<typename... Args>                                                                                                  \
-        static ALWAYS_INLINE ObjType *NewThreadLocal_##ObjType(Args &&... args)                                                                   \
+        static ALWAYS_INLINE ObjType *NewThreadLocal_##ObjType(Args &&... args)                                                     \
         {                                                                                                                           \
             return GetThreadLocalAlloctor_##_objAlloctor().NewThreadLocal(std::forward<Args>(args)...);                              \
         }                                                                                                                           \
@@ -146,33 +143,33 @@ public:                                                                         
         template<typename... Args>                                                                                                  \
         static ALWAYS_INLINE ObjType *NewByAdapter_##ObjType(KERNEL_NS::_Build::MT::Type,  Args &&... args)                         \
         {                                                                                                                           \
-            return _static##ObjType##Alloctor->New(std::forward<Args>(args)...);                                                   \
+            return GetStaticAllocter_##ObjType()->New(std::forward<Args>(args)...);                                                   \
         }                                                                                                                           \
                                                                                                                                     \
         static ALWAYS_INLINE ObjType *NewByAdapter_##ObjType##NoConstruct(KERNEL_NS::_Build::MT::Type)                              \
         {                                                                                                                           \
-            return _static##ObjType##Alloctor->NewNoConstruct();                                                                   \
+            return GetStaticAllocter_##ObjType()->NewNoConstruct();                                                                   \
         }                                                                                                                           \
                                                                                                                                     \
         template<typename... Args>                                                                                                  \
         static ALWAYS_INLINE ObjType *NewByAdapter_##ObjType##ByPtr(KERNEL_NS::_Build::MT::Type, void *ptr, Args &&... args)        \
         {                                                                                                                           \
-            return _static##ObjType##Alloctor->NewByPtr(ptr, std::forward<Args>(args)...);                                         \
+            return GetStaticAllocter_##ObjType()->NewByPtr(ptr, std::forward<Args>(args)...);                                         \
         }                                                                                                                           \
                                                                                                                                     \
         static ALWAYS_INLINE void DeleteByAdapter_##ObjType(KERNEL_NS::_Build::MT::Type, ObjType *ptr)                              \
         {                                                                                                                           \
-            _static##ObjType##Alloctor->Delete(ptr);                                                                               \
+            GetStaticAllocter_##ObjType()->Delete(ptr);                                                                               \
         }                                                                                                                           \
                                                                                                                                     \
         static ALWAYS_INLINE void DeleteByAdapter_##ObjType##NoDestructor(KERNEL_NS::_Build::MT::Type, ObjType *ptr)                \
         {                                                                                                                           \
-            _static##ObjType##Alloctor->DeleteNoDestructor(ptr);                                                                   \
+            GetStaticAllocter_##ObjType()->DeleteNoDestructor(ptr);                                                                   \
         }                                                                                                                           \
                                                                                                                                     \
         ALWAYS_INLINE void AddRefByAdapter_##ObjType(KERNEL_NS::_Build::MT::Type)                                                   \
         {                                                                                                                           \
-            _static##ObjType##Alloctor->AddRef(this);                                                                              \
+            GetStaticAllocter_##ObjType()->AddRef(this);                                                                              \
         }                                                                                                                           \
                                                                                                                                     \
                                                                                                                                     \
@@ -207,16 +204,19 @@ public:                                                                         
         {                                                                                                                           \
             GetThreadLocalAlloctor_##_objAlloctor().AddRefThreadLocal(this);                                                        \
         }                                                                                                                           \
+        static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjType> *GetStaticAllocter_##ObjType()                                                \
+        {                                                                                                                           \
+            static KERNEL_NS::ObjAlloctor<ObjType> *s_alloctor = new KERNEL_NS::ObjAlloctor<ObjType>(false, initBlockNumPerBuffer   \
+            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));                                           \
+            return s_alloctor;                                                                                                      \
+        }                                                                                                                           \
         private:                                                                                                                    \
         static KERNEL_NS::ObjAlloctor<ObjType> *_static##ObjType##Alloctor;                                                         \
-        DEF_STATIC_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjType> *_staticThreadLocal##ObjType##Alloctor;                     \
 
 
 #undef __OBJ_POOL_CREATE_IMPL
 #define __OBJ_POOL_CREATE_IMPL(ObjType, createBufferNumWhenInit, initBlockNumPerBuffer)                                             \
-KERNEL_NS::ObjAlloctor<ObjType> *ObjType::_static##ObjType##Alloctor = new KERNEL_NS::ObjAlloctor<ObjType>(false, initBlockNumPerBuffer    \
-            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjType), createBufferNumWhenInit));                                           \
-DEF_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjType> *ObjType::_staticThreadLocal##ObjType##Alloctor = NULL
+KERNEL_NS::ObjAlloctor<ObjType> *ObjType::_static##ObjType##Alloctor = GetStaticAllocter_##ObjType()
 
 // 禁止直接使用 OBJ_POOL_CREATE_IMPL 直接使用会大概率出现内存非法写入到其他对象内存区 ！！！！！！！！！！！！！！
 

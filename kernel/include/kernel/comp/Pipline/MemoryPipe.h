@@ -76,9 +76,6 @@ template<typename BuildType>
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(MemoryPipe, BuildType);
 
 template<typename BuildType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(MemoryPipe, BuildType);
-
-template<typename BuildType>
 ALWAYS_INLINE MemoryPipe<BuildType>::MemoryPipe()
 :IPipe(PipeType::MEMORY)
 ,_release(NULL)

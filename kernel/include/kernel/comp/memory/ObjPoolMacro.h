@@ -166,17 +166,9 @@ __OBJ_POOL_CREATE_THREAD_LOCAL_TEMPLATE_END()
 #define POOL_CREATE_TEMPLATE_OBJ_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjType, ...) \
 __OBJ_POOL_CREATE_TEMPLATE_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjType, ##__VA_ARGS__)
 
-#undef POOL_CREATE_TEMPLATE_OBJ_TL_IMPL
-#define POOL_CREATE_TEMPLATE_OBJ_TL_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjType, ...) \
-__OBJ_POOL_CREATE_TEMPLATE_TL_IMPL(createBufferNumWhenInit, initBlockNumPerBuffer, ObjType, ##__VA_ARGS__)
-
 #undef POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL
 #define POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(ObjType, ...)     \
 POOL_CREATE_TEMPLATE_OBJ_IMPL(0, MEMORY_BUFFER_BLOCK_INIT, ObjType, ##__VA_ARGS__)
-
-#undef POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL
-#define POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(ObjType, ...)     \
-POOL_CREATE_TEMPLATE_OBJ_TL_IMPL(0, MEMORY_BUFFER_BLOCK_INIT, ObjType, ##__VA_ARGS__)
 
 // 单继承
 // param(ObjType):泛型类型,

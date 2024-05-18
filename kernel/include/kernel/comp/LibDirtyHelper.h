@@ -149,8 +149,6 @@ struct DirtyMask
 template<typename KeyType, typename MaskValue>
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(DirtyMask, KeyType, MaskValue);
 
-template<typename KeyType, typename MaskValue>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(DirtyMask, KeyType, MaskValue);
 
 template<typename KeyType, typename MaskValue>
 struct DirtyHelperDelayOp
@@ -178,9 +176,6 @@ struct DirtyHelperDelayOp
 
 template<typename KeyType, typename MaskValue>
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(DirtyHelperDelayOp, KeyType, MaskValue);
-
-template<typename KeyType, typename MaskValue>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(DirtyHelperDelayOp, KeyType, MaskValue);
 
 
 template<typename KeyType, typename MaskValue>
@@ -232,9 +227,6 @@ private:
 
 template<typename KeyType, typename MaskValue>
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(LibDirtyHelper, KeyType, MaskValue);
-
-template<typename KeyType, typename MaskValue>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(LibDirtyHelper, KeyType, MaskValue);
 
 
 template<typename KeyType, typename MaskValue>

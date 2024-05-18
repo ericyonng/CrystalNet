@@ -116,9 +116,6 @@ public:
 template<typename ObjType>
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(ListNode, ObjType);
 
-template<typename ObjType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(ListNode, ObjType);
-
 template<typename ObjType, typename BuildType = _Build::MT>
 class LibList
 {
@@ -476,9 +473,6 @@ private:
 
 template<typename ObjType, typename BuildType>
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(LibList, ObjType, BuildType);
-
-template<typename ObjType, typename BuildType>
-POOL_CREATE_TEMPLATE_OBJ_DEFAULT_TL_IMPL(LibList, ObjType, BuildType);
 
 KERNEL_END
 

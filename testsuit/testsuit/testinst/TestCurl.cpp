@@ -363,7 +363,7 @@ size_t HttpRequest::WriteData(
 }
 
 KERNEL_NS::SpinLock s_lck;
-KERNEL_NS::LibList<HttpRequest *> *s_reqQueue = NULL;
+KERNEL_NS::LibList<HttpRequest *> *s_reqQueue = KERNEL_NS::LibList<HttpRequest *>::New_LibList();
 
 // 单次批量执行请求数量
 Int32 batchLimit = 200;
@@ -720,8 +720,6 @@ void TestCurl::Run(int argc, char const *argv[])
 
     KERNEL_NS::LibString ip;
     KERNEL_NS::IPUtil::GetIpByHostName("www.baidu.com", ip, 0, false);
-
-    s_reqQueue = KERNEL_NS::LibList<HttpRequest *>::New_LibList();
 
     // 构造数据
     nlohmann::json serviceParams;
