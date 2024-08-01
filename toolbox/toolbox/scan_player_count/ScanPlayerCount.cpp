@@ -22,22 +22,21 @@
  * SOFTWARE.
  *  
  * 
- * Date: 2024-05-11 14:51:29
+ * Date: 2024-06-02 12:07:29
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <toolbox/scan_reason/ScanReason.h>
-#include <fstream>
-#include <iostream>
+#include <toolbox/scan_player_count/ScanPlayerCount.h>
+
 
 static std::atomic<Int64> g_fileSize{0};
 static std::atomic<Int64> g_CurrentReadBytes{0};
 
 static FILE *g_fp = NULL;
 
-static std::map<UInt64, std::map<KERNEL_NS::LibString, Int32>> g_ThreadCache;
+static std::map<UInt64, std::set<Int64>> g_ThreadCache;
 static KERNEL_NS::Locker g_lck;
 
 static KERNEL_NS::LibString keyContent;
@@ -53,14 +52,14 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
     g_lck.Lock();
     auto iter = g_ThreadCache.find(threadId);
     if(iter == g_ThreadCache.end())
-        iter = g_ThreadCache.insert(std::make_pair(threadId, std::map<KERNEL_NS::LibString, Int32>())).first;
+        iter = g_ThreadCache.insert(std::make_pair(threadId, std::set<Int64>())).first;
 
     g_lck.Unlock();
 
-    std::map<KERNEL_NS::LibString, Int32> &reasonRefNum = iter->second;
+    auto &playerIds = iter->second;
     auto key = keyContent;
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "thread in %llu"), threadId);
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanPlayerCount, "thread in %llu"), threadId);
 
     ++g_workingThread;
 
@@ -76,7 +75,7 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
             g_CurrentReadBytes += static_cast<Int64>(KERNEL_NS::FileUtil::ReadUtf8OneLine(*g_fp, lineStr, NULL));
             if(lineStr.empty() && KERNEL_NS::FileUtil::IsEnd(*g_fp))
             {
-                g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "thread %llu file eof"), threadId);
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanPlayerCount, "thread %llu file eof"), threadId);
                 g_lck.Unlock();
                 break;
             }
@@ -88,36 +87,50 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
 
             if(KERNEL_NS::StringUtil::IsMatch(buffer, patten))
             {
-                auto pos = buffer.GetRaw().find(key.GetRaw());
-                if(pos != std::string::npos)
+                const auto &parts = buffer.Split(' ');
+                if(parts.empty() || (static_cast<Int32>(parts.size()) < 2))
+                    continue;
+
+                const auto partsCount = static_cast<Int32>(parts.size());
+                for(Int32 idx = 0; idx < partsCount; ++idx)
                 {
-                    auto &&reasonStr = buffer.lsub(key);
-                    auto endPos = reasonStr.GetRaw().find(" ");
-                    if(endPos != std::string::npos)
-                        reasonStr = reasonStr.GetRaw().substr(0, endPos);
+                    if(parts[idx] == "ExploreTreasureBox")
+                    {
+                        auto &part = parts[idx - 1];
+                        auto pos = part.GetRaw().rfind("]");
+                        if(pos == std::string::npos)
+                        {
+                            continue;
+                        }
 
-                    auto iter = reasonRefNum.find(reasonStr);
-                    if(iter == reasonRefNum.end())
-                        iter = reasonRefNum.insert(std::make_pair(reasonStr, 0)).first;
+                        KERNEL_NS::LibString finalPart = part.GetRaw().substr(pos);
+                        finalPart.strip();
 
-                    ++iter->second;
+                        if(!finalPart.isdigit())
+                            continue;
+
+                        auto playerId = KERNEL_NS::StringUtil::StringToInt64(finalPart.c_str());
+                        playerIds.insert(playerId);
+                        break;
+                    }
                 }
+
+
             }
         } 
     }while (!t->IsDestroy());
 
     --g_workingThread;
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "thread out %llu"), threadId);
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanPlayerCount, "thread out %llu"), threadId);
 }
 
-void ScanReason::Run(int argc, char const *argv[])
+void ScanPlayerCount::Run(int argc, char const *argv[])
 {
     std::vector<KERNEL_NS::LibString> params;
     KERNEL_NS::LibString file;
     Int32 threadNum = 1;
     Int32 count = 0;
-    KERNEL_NS::LibString key;
-    KERNEL_NS::ParamsHandler::GetStandardParams(argc, argv, [&file, &count, &threadNum, &key](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam){
+    KERNEL_NS::ParamsHandler::GetStandardParams(argc, argv, [&file, &count, &threadNum](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam){
         if(count == 0)
         {
             ++count;
@@ -136,10 +149,6 @@ void ScanReason::Run(int argc, char const *argv[])
                 threadNum = KERNEL_NS::StringUtil::StringToInt32(value.c_str());
             }
         }
-        else if(count == 3)
-        {
-            key = param.strip();
-        }
 
         ++count;
 
@@ -148,17 +157,17 @@ void ScanReason::Run(int argc, char const *argv[])
 
     if(file.empty())
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(ScanReason, "have no file name"));
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(ScanPlayerCount, "have no file name"));
         return;
     }
 
-    keyContent = key;
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "scan file:%s, keyContent:%s"), file.c_str(), keyContent.c_str());
+    keyContent = "ExploreTreasureBox UseFail";
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanPlayerCount, "scan file:%s, keyContent:%s"), file.c_str(), keyContent.c_str());
 
     KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(file.c_str());
     if(!fp)
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(ScanReason, "open file fail file name:%s"), file.c_str());
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(ScanPlayerCount, "open file fail file name:%s"), file.c_str());
         return;
     }
     fp.SetClosureDelegate([](void *p){
@@ -203,7 +212,7 @@ void ScanReason::Run(int argc, char const *argv[])
                     const auto &newHandleStr = KERNEL_NS::MathUtil::ToFmtDataSize(newHandle);
                     const auto &speedStr = KERNEL_NS::MathUtil::ToFmtDataSize(diffBytes);
 
-                    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "scan process: working thread num:%d, file size:%s, processing:%lf%%, handling bytes:%s, speed:%s/s, costTime:%lld(seconds)")
+                    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanPlayerCount, "scan process: working thread num:%d, file size:%s, processing:%lf%%, handling bytes:%s, speed:%s/s, costTime:%lld(seconds)")
                     , ptr->GetWorkThreadNum(), fileSizeStr.c_str(), (double)(newHandle)/fileSize * 100, newHandleStr.c_str(), speedStr.c_str(), costTime.GetTotalSeconds());
                 });
             }
@@ -220,24 +229,16 @@ void ScanReason::Run(int argc, char const *argv[])
     }
     auto endTime = KERNEL_NS::LibTime::Now();
 
-
-    std::map<KERNEL_NS::LibString, Int32> reasonNumCount;
-    KERNEL_NS::LibString reasonRefNumStr;
+    std::set<Int64> allPlayerIds;
     for(auto iter : g_ThreadCache)
     {
-        for(auto itt : iter.second)
-        {
-            auto iterrr = reasonNumCount.find(itt.first);
-            if(iterrr == reasonNumCount.end())
-                iterrr = reasonNumCount.insert(std::make_pair(itt.first, 0)).first;
-
-            iterrr->second += itt.second;
-        }
+        for(auto playerId : iter.second)
+            allPlayerIds.insert(playerId);
     }
 
-    for(auto iter : reasonNumCount)
-        reasonRefNumStr.AppendFormat("reason:%s-%d, ", iter.first.c_str(), iter.second);
+    for(auto playerId : allPlayerIds)
+        g_Log->Custom("[PlayerId]:%lld", playerId);
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanReason, "%s, cost time:%lld(seconds)")
-    , reasonRefNumStr.c_str(), (endTime - startTime).GetTotalSeconds());
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanPlayerCount, "key:%s, cost time:%lld(seconds) all player count:%lld")
+    , keyContent.c_str(), (endTime - startTime).GetTotalSeconds(), static_cast<Int64>(allPlayerIds.size()));
 }

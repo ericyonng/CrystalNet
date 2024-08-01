@@ -27,6 +27,9 @@ ENABLE_POLLER_PERFORMANCE = 0
 
 ENABLE_TEST_SERVICE = 1
 
+-- 预编译
+ENABLE_PRECOMPILE_HEADER = 1
+
 -----------------------------------------------------------------------------------------------------------
 
 -- Common functional functions define
@@ -41,13 +44,19 @@ end
 -- 启用预编译头文件机制
 function enable_precompileheader(header_file, source_file)
     filter { "system:windows" }
-        pchsource(source_file or "pch.cpp")
-        pchheader(header_file or "pch.h")
-        buildoptions { "/Zm1000" }
+        if ENABLE_PRECOMPILE_HEADER ~= 0 then
+            pchsource(source_file or "pch.cpp")
+            pchheader(header_file or "pch.h")
+            buildoptions { "/Zm1000" }
+        end
+
     filter {}
 
     filter { "system:not windows" }
-        pchheader(header_file or "pch.h")
+        if ENABLE_PRECOMPILE_HEADER ~= 0 then
+            pchheader(header_file or "pch.h")
+        end
+
     filter {}
 end
 
@@ -612,6 +621,7 @@ project "testsuit"
             "../../service_common/**.h",
             "../../service_common/**.cpp",
             "../../testsuit/**.h",
+            "../../testsuit/**.ixx",
             "../../testsuit/**.cpp",
             "../../service/TestService/config/code/**.h",
             "../../service/TestService/config/code/**.cpp",

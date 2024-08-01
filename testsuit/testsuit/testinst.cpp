@@ -97,6 +97,9 @@
 #include <testsuit/testinst/TestCoroutine.h>
 #include <testsuit/testinst/TestLargeFile.h>
 #include <testsuit/testinst/TestCurl.h>
+#include <testsuit/testinst/TestModule/TestModule.h>
+#include <testsuit/testinst/TestConcepts/TestConcepts.h>
+#include <testsuit/testinst/TestConceptModules/TestConceptModules.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -283,7 +286,10 @@ void TestInst::Run(int argc, char const *argv[])
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
     // TestCoroutine::Run();
-    TestCurl::Run(argc, argv);
+    // TestCurl::Run(argc, argv);
+    // TestModule::Run();
+    // TestConcepts::Run();
+    TestConceptModules::Run();
     
     // write a large file
     // do

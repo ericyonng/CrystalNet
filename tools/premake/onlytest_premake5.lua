@@ -37,13 +37,13 @@ end
 -- 启用预编译头文件机制
 function enable_precompileheader(header_file, source_file)
     filter { "system:windows" }
-        pchsource(source_file or "pch.cpp")
-        pchheader(header_file or "pch.h")
+        -- pchsource(source_file or "pch.cpp")
+        -- pchheader(header_file or "pch.h")
         buildoptions { "/Zm1000" }
     filter {}
 
     filter { "system:not windows" }
-        pchheader(header_file or "pch.h")
+        -- pchheader(header_file or "pch.h")
     filter {}
 end
 
