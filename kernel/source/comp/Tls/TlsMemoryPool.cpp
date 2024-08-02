@@ -41,10 +41,10 @@ TlsMemoryPool::TlsMemoryPool()
 
 TlsMemoryPool::~TlsMemoryPool()
 {
-    Destoy();
+    OnDestroy();
 }
 
-void TlsMemoryPool::Destoy()
+void TlsMemoryPool::OnDestroy()
 {
     if(UNLIKELY(!_pool))
     {
@@ -56,7 +56,6 @@ void TlsMemoryPool::Destoy()
     if(LIKELY(_deductor))
         _deductor->Invoke();
     CRYSTAL_RELEASE_SAFE(_deductor);
-    ITlsObj::Destoy();
 }
 
 KERNEL_END

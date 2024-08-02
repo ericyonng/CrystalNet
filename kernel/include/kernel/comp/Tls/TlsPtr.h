@@ -43,9 +43,10 @@ class KERNEL_EXPORT TlsPtr : public ITlsObj
 public:
     TlsPtr();
     ~TlsPtr(){}
+    virtual void OnDestroy() override {}
 
 public:
-    virtual const char *GetObjTypeName(){ return _objTypeName.c_str(); }
+    virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
 
     template<typename T>
     T *&CastTo()

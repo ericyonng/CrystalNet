@@ -53,7 +53,8 @@ public:
     ~TlsDefaultObj();
 
 public:
-    virtual const char *GetObjTypeName(){ return _objTypeName.c_str(); }
+    virtual const char *GetObjTypeName() const override{ return _objTypeName.c_str(); }
+    virtual void OnDestroy() override;
 
 public:
     const std::string _objTypeName;

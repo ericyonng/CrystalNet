@@ -52,7 +52,9 @@ public:
         ITlsObj::Destoy();
     }
 
-    virtual void Destoy();
+    virtual void Destoy() final;
+    virtual void OnDestroy() = 0;
+
 
     // 设置参数 idx, 释放对象的方法（线程安全与线程不安全释放）
     template<typename TlsStackType>
@@ -66,7 +68,7 @@ public:
     // 是否释放过内存
     bool IsFree();
     // 获取类型名
-    virtual const char *GetObjTypeName() = 0;
+    virtual const char *GetObjTypeName() const = 0;
     // 主动调用析构
     // virtual void InvokeDestruct() = 0;
     void *GetTlsStack();
@@ -87,6 +89,9 @@ inline void ITlsObj::Destoy()
         return;
 
     _isFree = true;
+
+    OnDestroy();
+
     _tlsStack = NULL;
     _tlsIdx = 0;
     CRYSTAL_DELETE_SAFE(_free);

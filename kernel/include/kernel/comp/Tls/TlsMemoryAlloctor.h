@@ -43,9 +43,10 @@ class KERNEL_EXPORT TlsMemoryAlloctor : public ITlsObj
 public:
     TlsMemoryAlloctor();
     ~TlsMemoryAlloctor();
+    virtual void OnDestroy() override;
 
 public:
-    virtual const char *GetObjTypeName(){ return _objTypeName.c_str(); }
+    virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
 
     template<typename MemAllocType, typename MemAllocCfgType>
     MemAllocType *GetMemoryAlloctorAndCreate(UInt64 allocUnitBytes, UInt64 initBlockNumPerBuffer, const std::string &source)
@@ -73,7 +74,6 @@ public:
         return iter == _sizeRefMemoryAlloc.end() ? NULL : iter->second;
     }
 
-    virtual void Destoy();
     UInt64 MemMonitor(LibString &info);
 
 private:

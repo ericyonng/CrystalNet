@@ -49,21 +49,10 @@ public:
     }
     ~TlsObjectPool()
     {
-        Destoy();
+        OnDestroy();
     }
 
-public:
-    virtual const char *GetObjTypeName(){ return _objTypeName.c_str(); }
-    template<typename MemoryAllocCfg>
-    ObjPoolType *GetPool(UInt64 initBlockNumPerBuffer, const MemoryAllocCfg &alloctorCfg)
-    {
-        if(UNLIKELY(!_pool))
-            _pool = new ObjPoolType(true, initBlockNumPerBuffer, alloctorCfg);
-
-        return _pool;
-    }
-
-    virtual void Destoy()
+    virtual void OnDestroy() override
     {
         if(UNLIKELY(!_pool))
         {
@@ -73,7 +62,17 @@ public:
         
         // CRYSTAL_TRACE("destroy a %s %p, %s, ", _objTypeName.c_str(), _pool, _pool->ToString().c_str());
         CRYSTAL_DELETE_SAFE(_pool);
-        ITlsObj::Destoy();
+    }
+
+public:
+    virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
+    template<typename MemoryAllocCfg>
+    ObjPoolType *GetPool(UInt64 initBlockNumPerBuffer, const MemoryAllocCfg &alloctorCfg)
+    {
+        if(UNLIKELY(!_pool))
+            _pool = new ObjPoolType(true, initBlockNumPerBuffer, alloctorCfg);
+
+        return _pool;
     }
 
 public:

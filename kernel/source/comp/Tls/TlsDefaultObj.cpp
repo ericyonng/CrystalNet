@@ -55,9 +55,15 @@ TlsDefaultObj::TlsDefaultObj()
 
 TlsDefaultObj::~TlsDefaultObj()
 {
+    OnDestroy();
+}
+
+void TlsDefaultObj::OnDestroy()
+{
     CRYSTAL_DELETE_SAFE(_durtyList);
     CRYSTAL_DELETE_SAFE(_durtyListSwap);
     CRYSTAL_DELETE_SAFE(_lck);
 }
+
 
 KERNEL_END

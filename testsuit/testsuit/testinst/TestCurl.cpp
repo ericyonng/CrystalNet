@@ -58,12 +58,12 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
 
 class SnowflakeInfoWrap : public KERNEL_NS::ITlsObj
 {
-    virtual void Destoy() override
+    virtual void OnDestroy() override
     {
 
     }
 
-    virtual const char *GetObjTypeName()
+    virtual const char *GetObjTypeName() const override
     {
         return "SnowflakeInfoWrap";
     }

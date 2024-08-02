@@ -42,9 +42,10 @@ class KERNEL_EXPORT TlsMemoryPool : public ITlsObj
 public:
     TlsMemoryPool();
     ~TlsMemoryPool();
+    virtual void OnDestroy() override;
 
 public:
-    virtual const char *GetObjTypeName(){ return _objTypeName.c_str(); }
+    virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
 
     template<typename MemoryPoolType, typename InitMemoryPoolInfoType>
     MemoryPoolType *GetPoolAndCreate(const std::string &source)
@@ -96,9 +97,6 @@ public:
     {
         return reinterpret_cast<MemoryPoolType *>(_pool);
     }
-
-    virtual void Destoy();
-
 
 private:
     const std::string _objTypeName;

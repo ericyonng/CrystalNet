@@ -47,10 +47,10 @@ TlsMemoryAlloctor::TlsMemoryAlloctor()
 
 TlsMemoryAlloctor::~TlsMemoryAlloctor()
 {
-    Destoy();
+    OnDestroy();
 }
 
-void TlsMemoryAlloctor::Destoy()
+void TlsMemoryAlloctor::OnDestroy()
 {
     _lck->Lock();
     if(UNLIKELY(!_allocAddrRefDestructor.empty()))
@@ -84,8 +84,6 @@ void TlsMemoryAlloctor::Destoy()
     _lck->Unlock();
 
     CRYSTAL_DELETE_SAFE(_lck);
-
-    ITlsObj::Destoy();
 }
 
 UInt64 TlsMemoryAlloctor::MemMonitor(LibString &info)
