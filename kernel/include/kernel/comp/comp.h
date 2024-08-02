@@ -48,6 +48,7 @@
 #include <kernel/comp/BitWidth.h>
 #include <kernel/comp/Endian/LibEndian.h>
 #include <kernel/comp/PerformanceRecord.h>
+#include <kernel/comp/BigNum.h>
 
 // 简单组件
 #include <kernel/comp/Delegate/LibDelegate.h>

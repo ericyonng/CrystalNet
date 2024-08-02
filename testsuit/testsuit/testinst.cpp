@@ -100,6 +100,7 @@
 #include <testsuit/testinst/TestModule/TestModule.h>
 #include <testsuit/testinst/TestConcepts/TestConcepts.h>
 #include <testsuit/testinst/TestConceptModules/TestConceptModules.h>
+#include <testsuit/testinst/TestBigNum/TestBigNum.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -289,8 +290,9 @@ void TestInst::Run(int argc, char const *argv[])
     // TestCurl::Run(argc, argv);
     // TestModule::Run();
     // TestConcepts::Run();
-    TestConceptModules::Run();
-    
+    // TestConceptModules::Run();
+    TestBigNum::Run();
+
     // write a large file
     // do
     // {
