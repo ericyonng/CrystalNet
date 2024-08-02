@@ -55,7 +55,7 @@ class BigNum;
 
 // 匹配基本数值类型
 template<typename T>
-concept NumericTypeTraits = LibTraitsDataType<T>::value == KERNEL_NS::LibDataType::BRIEF_DATA_TYPE;
+concept NumericTypeTraits = IsLibBriefDataType<T>::value;
 
 struct KERNEL_EXPORT BigNumRaw
 {

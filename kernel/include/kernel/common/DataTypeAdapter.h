@@ -151,6 +151,13 @@ class LibTraitsDataType
                         , std::is_pointer<RemoveReferenceType<_Ty>>::value>
 {};
 
+template<typename T>
+class IsLibBriefDataType
+{
+public:
+    static constexpr bool value = LibTraitsDataType<T>::value == LibDataType::BRIEF_DATA_TYPE;
+};
+
 KERNEL_END
 
 #endif
