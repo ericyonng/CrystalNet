@@ -47,7 +47,6 @@
 #include <kernel/common/BaseType.h>
 #include <kernel/common/DataTypeAdapter.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
-#include <type_traits>
 #include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
@@ -57,12 +56,6 @@ class BigNum;
 // 匹配基本数值类型
 template<typename T>
 concept NumericTypeTraits = LibTraitsDataType<T>::value == KERNEL_NS::LibDataType::BRIEF_DATA_TYPE;
-
-template<typename T>
-concept BigNumericTypeTraits = std::same_as<T, BigNum>::value;
-
-template<typename T>
-concept NotBigNumericTypeTraits = !std::same_as<T, BigNum>::value;
 
 struct KERNEL_EXPORT BigNumRaw
 {
