@@ -45,6 +45,7 @@
 #include <kernel/kernel_export.h>
 #include <kernel/common/BaseMacro.h>
 #include <kernel/common/BaseType.h>
+#include <kernel/common/DataTypeAdapter.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <type_traits>
 #include <kernel/comp/LibString.h>
