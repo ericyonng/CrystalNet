@@ -53,7 +53,6 @@ KERNEL_BEGIN
 
 class BigNum;
 
-// 匹配基本数值类型
 template<typename T>
 concept NumericTypeTraits = IsLibBriefDataType<T>::value;
 
@@ -87,16 +86,14 @@ public:
 
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum(T number)
     :_raw{0, (UInt64)number}
     {
         
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum operator +(T other) const
     {
         // TODO:可以使用SIMD指令来加速运算
@@ -129,8 +126,7 @@ public:
         return BigNum(newRaw);
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum &operator +=(T other)
     {
         // TODO:可以使用SIMD指令来加速运算
@@ -204,8 +200,7 @@ public:
         return *this;
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum operator -(T other) const
     {
         // TODO:可以使用SIMD指令来加速运算
@@ -235,8 +230,7 @@ public:
         return BigNum(newRaw);
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum &operator -=(T other)
     {
         // TODO:可以使用SIMD指令来加速运算
@@ -309,8 +303,7 @@ public:
         return *this;
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum operator &(T number) const
     {
         return BigNum(0, _raw._low & (UInt64)number);
@@ -322,8 +315,7 @@ public:
         return BigNum(_raw._high & otherRaw._high, _raw._low & otherRaw._low);
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum &operator &=(T number)
     {
         _raw._low &= (UInt64)number;
@@ -395,8 +387,7 @@ public:
         return *this;
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum operator |(T number) const
     {
         return BigNum(_raw._high, _raw._low | (UInt64)number);
@@ -410,9 +401,7 @@ public:
     }
 
     
-
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum &operator |=(T number)
     {
         _raw._low |= (UInt64)number;
@@ -430,9 +419,7 @@ public:
         return *this;
     }
 
-///////////////////////////
- template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum operator ^(T number) const
     {
         return BigNum(_raw._high ^ 0, _raw._low ^ (UInt64)number);
@@ -445,8 +432,7 @@ public:
         return BigNum(_raw._high ^ otherRaw._high, _raw._low ^ otherRaw._low);
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum &operator ^=(T number)
     {
         _raw._low ^= (UInt64)number;
@@ -464,7 +450,6 @@ public:
         return *this;
     }
 
-    ///////////////
     ALWAYS_INLINE BigNum operator ~() const
     {
         return BigNum(~_raw._high, ~_raw._low);
@@ -510,8 +495,7 @@ public:
         return !operator<(number);
     }
 
-    template<typename T>
-    requires NumericTypeTraits<T>
+    template<NumericTypeTraits T>
     ALWAYS_INLINE BigNum &operator =(T number)
     {
         _raw._low = (UInt64)number;
@@ -581,57 +565,49 @@ ALWAYS_INLINE LibString BigNum::ToHexString() const
 
 KERNEL_END
 
-template<typename T>
-requires KERNEL_NS::NumericTypeTraits<T>
+template<KERNEL_NS::NumericTypeTraits T>
 extern ALWAYS_INLINE bool operator && (T number, const KERNEL_NS::BigNum &other)
 {
     return number && other.IsNotZero();
 }
 
-template<typename T>
-requires KERNEL_NS::NumericTypeTraits<T>
+template<KERNEL_NS::NumericTypeTraits T>
 extern ALWAYS_INLINE bool operator || (T number, const KERNEL_NS::BigNum &other)
 {
     return number || other.IsNotZero();
 }
 
-template<typename T>
-requires KERNEL_NS::NumericTypeTraits<T>
+template<KERNEL_NS::NumericTypeTraits T>
 extern ALWAYS_INLINE bool operator == (T number, const KERNEL_NS::BigNum &other)
 {
     return other == number;
 }
 
-template<typename T>
-requires KERNEL_NS::NumericTypeTraits<T>
+template<KERNEL_NS::NumericTypeTraits T>
 extern ALWAYS_INLINE bool operator != (T number, const KERNEL_NS::BigNum &other)
 {
     return other != number;
 }
 
-template<typename T>
-requires KERNEL_NS::NumericTypeTraits<T>
+template<KERNEL_NS::NumericTypeTraits T>
 extern ALWAYS_INLINE bool operator < (T number, const KERNEL_NS::BigNum &other)
 {
     return other >= number;
 }
 
-template<typename T>
-requires KERNEL_NS::NumericTypeTraits<T>
+template<KERNEL_NS::NumericTypeTraits T>
 extern ALWAYS_INLINE bool operator <= (T number, const KERNEL_NS::BigNum &other)
 {
     return other > number;
 }
 
-template<typename T>
-requires KERNEL_NS::NumericTypeTraits<T>
+template<KERNEL_NS::NumericTypeTraits T>
 extern ALWAYS_INLINE bool operator > (T number, const KERNEL_NS::BigNum &other)
 {
     return other <= number;
 }
 
-template<typename T>
-requires KERNEL_NS::NumericTypeTraits<T>
+template<KERNEL_NS::NumericTypeTraits T>
 extern ALWAYS_INLINE bool operator >= (T number, const KERNEL_NS::BigNum &other)
 {
     return other < number;
