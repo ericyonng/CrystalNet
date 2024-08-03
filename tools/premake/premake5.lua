@@ -345,6 +345,11 @@ workspace ("CrystalNet_" .. _ACTION)
         disablewarnings { "4091", "4819" }
     filter {}
 
+    -- 支持c++20
+    cppdialect "c++20"
+    defines { "CRYSTAL_NET_CPP20" }
+
+
 -- ****************************************************************************
 -- FS core library compile setting
 project "CrystalKernel"
@@ -353,7 +358,7 @@ project "CrystalKernel"
     kind "StaticLib"
 
     -- 支持c++20
-    cppdialect "c++20"
+    -- cppdialect "c++20"
 
     -- symbols
 	debugdir(DEBUG_DIR)
@@ -545,7 +550,7 @@ project "testsuit"
     kind "ConsoleApp"
 	
     -- 支持c++20
-    cppdialect "c++20"
+    -- cppdialect "c++20"
 
     -- symbols
 	debugdir(DEBUG_DIR)
@@ -1534,7 +1539,7 @@ project "toolbox"
     kind "ConsoleApp"
 	
     -- 支持c++20
-    cppdialect "c++20"
+    -- cppdialect "c++20"
 
     -- symbols
 	debugdir(DEBUG_DIR)
