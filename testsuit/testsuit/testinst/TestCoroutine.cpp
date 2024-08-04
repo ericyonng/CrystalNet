@@ -1262,6 +1262,88 @@
 //     co_return 100;
 // }
 
+// concept约束
+
+// ============= Promise的Concept定义 ===================
+// PromiseType是Promise的类型，ValueType是协程中待计算的值的类型
+template<typename PromiseType, typename ValueType>
+concept Promise = requires(PromiseType promise) {
+  { promise.get_return_object() } -> Coroutine<PromiseType>;
+  { promise.initial_suspend() } -> Awaiter;
+  { promise.final_suspend() } -> Awaiter;
+  
+  requires (requires(ValueType value) { promise.return_value(value); } || { promise.return_void(); })
+  { promise.unhandled_exception() };
+};
+
+// ============= Awaiter的Concept定义 ===================
+// AwaitSuspendResult约束了await_suspend的返回值类型
+// AwaiterType是Awaiter的类型，Promise是协程的Promise类型，下同
+template <typename ResultType, typename Promise>
+concept AwaitSuspendResult = std::same_as<ResultType, void> ||
+  std::same_as<ResultType, bool> ||
+  std::same_as<ResultType, std::coroutine_handle<Promise>>;
+
+// Awaiter约束定义，Awaiter类型必须满足requires中的所有接口约定
+template <typename AwaiterType, typename Promise>
+concept Awaiter = requires(AwaiterType awaiter, std::coroutine_handle<Promise> h) {
+    awaiter.await_resume();
+    { awaiter.await_ready() } -> std::same_as<bool>;
+    { awaiter.await_suspend(h) } -> AwaitSuspendResult<Promise>;
+};
+
+// ============= Awaitable的Concept定义 ===================
+// ValidCoAwait约束用于判断对于AwaitableType是否存在正确的co_await操作符重载
+// co_await可以重载为成员函数或者非成员函数，约束中都需要判断
+// AwaitableType是Awaitable的类型，Promise是协程的Promise类型，下同
+template <typename AwaitableType, typename Promise>
+concept ValidCoAwait = requires(AwaitableType awaitable) {
+    { awaitable.operator co_await() } -> Awaiter<Promise>;
+} || requires(AwaitableType awaitable) {
+    { operator co_await(static_cast<AwaitableType&&>(awaitable)) } -> Awaiter<Promise>;
+};
+
+// Awaitable约束定义
+// Awaitable必须存在正确的co_await操作符重载，或者自身是一个Awaiter
+template <typename AwaitableType, typename Promise>
+concept Awaitable = ValidCoAwait<AwaitableType, Promise> ||
+  Awaiter<AwaitableType, Promise>;
+
+// promise定义
+template<typename T>
+struct promise;
+
+template<typename T>
+struct Generator : std::coroutine_handle<promise<T>> {
+  using promise_type = promise<T>;
+};
+
+template<typename T>
+struct promise {
+  T _value; // 待计算的值
+  std::exception_ptr _exception; // 待抛出的异常
+
+  template<typename Ty>
+  promise(Ty&& lambdaObj, T value) : _value(value) {}
+  promise(T value) : _value(value) {}
+  promise() {}
+
+  Generator<T> get_return_object() { return { Generator<T>::from_promise(*this) }; }
+  std::suspend_always initial_suspend() noexcept { return {}; }
+  std::suspend_always final_suspend() noexcept { return {}; }
+  // optional，但co_yield需要这一函数实现
+  std::suspend_always yield_value(T value) {
+      _value = value;
+      return {};
+  }
+  // optional，但co_return需要这一函数实现或return_void
+  std::suspend_always return_value(T value) {
+      _value = value;
+      return {};
+  }
+  void return_void() {}
+  void unhandled_exception() { _exception = std::current_exception(); }
+};
 
 void TestCoroutine::Run()
 {
