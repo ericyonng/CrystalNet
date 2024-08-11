@@ -36,6 +36,7 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <coroutine>
 #include <functional>
+#include <exception>
 
 KERNEL_BEGIN
 
@@ -49,6 +50,7 @@ struct KERNEL_EXPORT Coroutine
     {
         //std::function<void()> _doneHook;
         //bool _doneHookExecuted = false;
+        std::exception_ptr _exception; // 待抛出的异常
 
         Coroutine get_return_object() { 
             return {
@@ -58,7 +60,9 @@ struct KERNEL_EXPORT Coroutine
         std::suspend_never initial_suspend() { return {}; }
         std::suspend_never final_suspend() noexcept { return {}; }
         void return_void() {}
-        void unhandled_exception() {}
+        void unhandled_exception() {
+            _exception = std::current_exception();
+        }
     };
 
     // 协程的句柄，可用于构建Coroutine类，并在业务代码中调用接口进行相关操作
@@ -124,7 +128,7 @@ using AsyncTaskSuspender = std::function<void(
 template <typename ResultType>
 struct Awaitable
 {
-    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(Awaitable);
+    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(Awaitable, ResultType);
 
     // co_await时需要执行的任务，开发者可以在suspend实现中调用该函数执行用户期望的任务
     std::function<ResultType()> _taskHandler;

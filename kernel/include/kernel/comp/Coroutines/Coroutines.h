@@ -31,5 +31,10 @@
 
 #pragma once
 
+#include <kernel/comp/Coroutines/Asyncify.h>
+#include <kernel/comp/Coroutines/AsyncTaskLoop.h>
+#include <kernel/comp/Coroutines/AsyncTaskQueue.h>
+#include <kernel/comp/Coroutines/Coroutine.h>
+#include <kernel/comp/Coroutines/Invocable.h>
 
 #endif

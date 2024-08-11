@@ -28,12 +28,20 @@
 
 #include <pch.h>
 #include <kernel/comp/Coroutines/AsyncTaskQueue.h>
+#include <kernel/comp/Utils/ContainerUtil.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(AsyncTask);
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(AsyncTaskQueue);
+
+AsyncTaskQueue::~AsyncTaskQueue()
+{
+    ContainerUtil::DelContainer(_queue, [](AsyncTask *task){
+        AsyncTask::DeleteThreadLocal_AsyncTask(task);
+    });
+}
 
 
 KERNEL_END

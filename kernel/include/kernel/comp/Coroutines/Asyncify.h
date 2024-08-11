@@ -35,13 +35,15 @@
 #include <kernel/common/macro.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Coroutines/Invocable.h>
+#include <kernel/comp/Coroutines/Coroutine.h>
+#include <kernel/comp/Coroutines/AsyncTaskQueue.h>
 
 KERNEL_BEGIN
 
 
 // 默认的AsyncTaskSuspender（当任务函数返回类型不为void时）
 template <typename ResultType>
-void defaultAsyncAwaitableSuspend(
+ALWAYS_INLINE void defaultAsyncAwaitableSuspend(
     Awaitable<ResultType>* awaitable,
     AsyncTaskResumer resumer,
     CoroutineHandle& h
@@ -95,7 +97,7 @@ void defaultAsyncAwaitableSuspend(
 
 // 默认的AsyncTaskSuspender（当任务函数返回类型为void时）
 template <>
-void defaultAsyncAwaitableSuspend<void>(
+ALWAYS_INLINE void defaultAsyncAwaitableSuspend<void>(
     Awaitable<void>* awaitable,
     AsyncTaskResumer resumer,
     CoroutineHandle& h
@@ -110,8 +112,8 @@ void defaultAsyncAwaitableSuspend<void>(
 }
 
 // 异步化工具函数，支持将普通函数f异步化
-export template <Invocable T>
-auto asyncify(
+template <Invocable T>
+ALWAYS_INLINE auto asyncify(
     T taskHandler, 
     AsyncTaskSuspender<std::invoke_result_t<T>> suspender = 
         defaultAsyncAwaitableSuspend<std::invoke_result_t<T>>

@@ -36,6 +36,8 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <coroutine>
 #include <functional>
+#include <kernel/comp/Lock/Lock.h>
+#include <kernel/comp/Utils/TlsUtil.h>
 
 KERNEL_BEGIN
 
@@ -56,25 +58,34 @@ class KERNEL_EXPORT AsyncTaskQueue
     POOL_CREATE_OBJ_DEFAULT(AsyncTaskQueue);
 
 public:
+    AsyncTaskQueue() {}
+    ~AsyncTaskQueue();
+
     static AsyncTaskQueue& getInstance();
 
-    ALWAYS_INLINE void enqueue(const AsyncTask& item) 
-    {
-        std::lock_guard<std::mutex> guard(_queueMutex);
-
+    ALWAYS_INLINE void enqueue(AsyncTask* item) 
+    {        
+        auto defs = KERNEL_NS::TlsUtil::GetDefTls();
+        // TODO:添加到poller队列中
+        if(LIKELY(defs->_poller != NULL && defs->_poller->IsEnable()))
+        {
+            // defs->_poller->Push(defs->_poller->GetMaxPriorityLevel(), )
+            return;
+        }
         _queue.push_back(item);
     }
 
-    ALWAYS_INLINE bool dequeue(AsyncTask* item) 
+    ALWAYS_INLINE bool dequeue(AsyncTask *&item) 
     {
-        std::lock_guard<std::mutex> guard(_queueMutex);
-
+        _queueMutex.Lock();
         if (_queue.size() == 0) {
+            _queueMutex.Unlock();
             return false;
         }
 
-        *item = _queue.back();
+        item = _queue.back();
         _queue.pop_back();
+        _queueMutex.Unlock();
 
         return true;
     }
@@ -93,15 +104,13 @@ private:
     AsyncTaskQueue& operator=(const AsyncTaskQueue&) = delete;
 
     // 异步任务队列
-    std::vector<AsyncTask> _queue;
-    // 异步任务队列互斥锁，用于实现线程同步，确保队列操作的线程安全
-    std::mutex _queueMutex;
+    std::vector<AsyncTask *> _queue;
 };
 
-ALWAYS_INLINE AsyncTaskQueue& AsyncTaskQueue::getInstance() {
-    static AsyncTaskQueue queue;
-
-    return queue;
+ALWAYS_INLINE AsyncTaskQueue& AsyncTaskQueue::getInstance() 
+{
+    auto tlsStack = KERNEL_NS::TlsUtil::GetDefTls();
+    return *tlsStack->_taskQueue;
 }
 
 KERNEL_END

@@ -286,12 +286,12 @@ void TestInst::Run(int argc, char const *argv[])
     // TestOrm::Run();
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
-    // TestCoroutine::Run();
+    TestCoroutine::Run();
     // TestCurl::Run(argc, argv);
     // TestModule::Run();
     // TestConcepts::Run();
     // TestConceptModules::Run();
-    TestBigNum::Run();
+    // TestBigNum::Run();
 
     // write a large file
     // do

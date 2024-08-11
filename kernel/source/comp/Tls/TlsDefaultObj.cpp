@@ -30,6 +30,7 @@
 #include <kernel/comp/Tls/TlsDefaultObj.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/Lock/Impl/SpinLock.h>
+#include <kernel/comp/Coroutines/AsyncTaskQueue.h>
 
 KERNEL_BEGIN
 
@@ -49,6 +50,7 @@ TlsDefaultObj::TlsDefaultObj()
     ,_durtyListSwap(new std::set<MemoryAlloctor *>)
     ,_isForceFreeIdleBuffer(false)
     ,_alloctorTotalBytes(0)
+    ,_taskQueue(new AsyncTaskQueue)
 {
 
 }
@@ -63,6 +65,7 @@ void TlsDefaultObj::OnDestroy()
     CRYSTAL_DELETE_SAFE(_durtyList);
     CRYSTAL_DELETE_SAFE(_durtyListSwap);
     CRYSTAL_DELETE_SAFE(_lck);
+    CRYSTAL_DELETE_SAFE(_taskQueue);
 }
 
 

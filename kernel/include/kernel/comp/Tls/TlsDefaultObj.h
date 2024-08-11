@@ -78,6 +78,9 @@ public:
     TimerWheel *_timerWheel;
     // poller
     Poller *_poller;
+    // 异步协程队列
+    AsyncTaskQueue *_taskQueue;
+    
     // 雪花算法信息 TODO:tlsutil给一个接口方便获取uid
     // SnowflakeInfo _snowFlakeInfo;
 
