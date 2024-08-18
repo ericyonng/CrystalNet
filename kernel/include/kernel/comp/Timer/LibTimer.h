@@ -88,7 +88,7 @@ public:
 
 private:
     /// TODO:通过获取线程的poller获取timer mgr
-    // TimerMgr *_mgr;
+    TimerMgr *_mgr;
     TimeData *_data;
     IDelegate<void, LibTimer *> *_timeroutHandler;
     IDelegate<void, LibTimer *> *_cancelHandler;

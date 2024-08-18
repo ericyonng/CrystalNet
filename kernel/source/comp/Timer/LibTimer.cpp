@@ -48,14 +48,14 @@ LibTimer::LibTimer()
 {
     auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
     auto poller = tlsDef->_tlsComps->GetPoller();
-    auto mgr = poller->GetTimerMgr();
+    _mgr = poller->GetTimerMgr();
 
-    if(UNLIKELY(!mgr))
+    if(UNLIKELY(!_mgr))
     {// 若为空则使用线程本地存储的定时管理器
         g_Log->Error(LOGFMT_OBJ_TAG("poller timer mgr is null please check poller:%s"), poller->ToString().c_str());
     }
 
-    _data = mgr->NewTimeData(this);
+    _data = _mgr->NewTimeData(this);
 }
 
 LibTimer::~LibTimer()
