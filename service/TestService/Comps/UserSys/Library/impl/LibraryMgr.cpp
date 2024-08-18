@@ -196,4 +196,6 @@ void LibraryMgr::_OnJoinLibraryMember(KERNEL_NS::LibEvent *ev)
     _OnJoinLibrary(libraryId);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(LibraryMgr)
+
 SERVICE_END

@@ -597,6 +597,8 @@ void TestMgr::_MakeNewTestData()
     g_Log->Info(LOGFMT_OBJ_TAG("make new test data max id:%llu"), _maxId);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(TestMgr)
+
 SERVICE_END
 
 

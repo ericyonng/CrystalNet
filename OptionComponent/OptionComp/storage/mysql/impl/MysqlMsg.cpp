@@ -136,7 +136,7 @@ LibString MysqlRequest::Dump() const
         multiSql.push_back(b->Dump());
 
     info.AppendFormat("db name:%s, _dbOperatorId:%d,  seqId:%llu, stub:%llu, msg type:%d,%s, call back owner:%s, callback:%s, ", _dbName.c_str(), _dbOperatorId, _seqId, _stub, _msgType, MysqlMsgType::ToString(_msgType)
-        , _handler ? _handler->GetOwnerRtti() : "",  _handler ? _handler->GetCallbackRtti() : "");
+        , _handler ? _handler->GetOwnerRtti().c_str() : "",  _handler ? _handler->GetCallbackRtti().c_str() : "");
 
     info.AppendFormat("\nsql:").AppendData(KERNEL_NS::StringUtil::ToString(multiSql, ";\n"));
 

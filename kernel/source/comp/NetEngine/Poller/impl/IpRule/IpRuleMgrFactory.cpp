@@ -49,4 +49,6 @@ CompObject *IpRuleMgrFactory::Create() const
     return IpRuleMgr::NewByAdapter_IpRuleMgr(_buildType.V);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(IpRuleMgrFactory);
+
 KERNEL_END

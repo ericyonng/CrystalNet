@@ -365,4 +365,6 @@ void BookBagMgr::_OnJoinLibrary(KERNEL_NS::LibEvent *ev)
     SendBookBagInfoNty();
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(BookBagMgr)
+
 SERVICE_END

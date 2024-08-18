@@ -48,4 +48,11 @@ KERNEL_NS::CompObject *ConfigLoaderFactory::Create() const
     return comp;
 }
 
+UInt64 ConfigLoaderFactory::GetObjTypeId() const
+{
+    return KERNEL_NS::RttiUtil::GetTypeId<ConfigLoaderFactory>();
+}
+
+OBJ_GET_OBJ_TYPEID_IMPL(ConfigLoaderFactory)
+
 SERVICE_END

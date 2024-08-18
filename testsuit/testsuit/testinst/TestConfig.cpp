@@ -53,7 +53,13 @@ public:
     {
         MyTestConfigLoader::Delete_MyTestConfigLoader(this);
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(MyTestConfigLoader)
+
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(MyTestConfigLoader);
 

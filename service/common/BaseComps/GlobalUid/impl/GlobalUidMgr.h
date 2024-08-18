@@ -65,6 +65,8 @@ public:
 
     virtual KERNEL_NS::LibString ToString() const override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 protected:
     Int32 _OnGlobalSysInit() override;
     void _OnGlobalSysClose() override;

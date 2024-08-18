@@ -45,6 +45,7 @@
 #include <OptionComp/storage/mysql/mysqlcomp.h>
 
 SERVICE_BEGIN
+OBJ_GET_OBJ_TYPEID_IMPL(SystemLogGlobal)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ISystemLogGlobal);
 POOL_CREATE_OBJ_DEFAULT_IMPL(SystemLogGlobal);

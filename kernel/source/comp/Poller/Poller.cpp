@@ -38,6 +38,7 @@
 #include <kernel/comp/TimeSlice.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Tls/Tls.h>
+#include <kernel/comp/Poller/PollerEventInternalType.h>
 
 #include <kernel/comp/Poller/PollerCompStatistics.h>
 
@@ -147,6 +148,9 @@ Int32 Poller::_OnInit()
     _workThreadId = 0;
     _eventsList->Init();
 
+    // AsyncTask消息
+    Subscribe(PollerEventInternalType::AsyncTaskType, this, &Poller::_OnAsyncTaskEvent);
+
     g_Log->Debug(LOGFMT_OBJ_TAG("poller inited %s"), ToString().c_str());
     return Status::Success;
 }
@@ -180,6 +184,13 @@ void Poller::_OnClose()
     g_Log->Debug(LOGFMT_OBJ_TAG("poller close %s"), ToString().c_str());
     // _Clear();
     CompObject::_OnClose();
+}
+
+void Poller::_OnAsyncTaskEvent(PollerEvent *ev)
+{
+    auto asyncTask = ev->CastTo<AsyncTaskPollerEvent>();
+
+    // TODO:执行异步
 }
 
 void Poller::Clear()
@@ -222,7 +233,7 @@ void Poller::Subscribe(Int32 eventType, KERNEL_NS::IDelegate<void, KERNEL_NS::Po
     {
         auto cb = iter->second;
         g_Log->Warn(LOGFMT_OBJ_TAG("repeat eventType:%d callback, old callback owner:%s, callback:%s , and will replace with new one: owner:%s, callback:%s")
-        ,eventType, cb->GetOwnerRtti(), cb->GetCallbackRtti(), deleg->GetOwnerRtti(), deleg->GetCallbackRtti());
+        ,eventType, cb->GetOwnerRtti().c_str(), cb->GetCallbackRtti().c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
         cb->Release();
 
         iter->second = deleg;
@@ -473,7 +484,7 @@ void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
     WakeupEventLoop();
 }
 
-void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action)
+void Poller::Push(Int32 level, IDelegate<void> *action)
 {
     if(UNLIKELY(!_isEnable))
     {
@@ -482,7 +493,7 @@ void Poller::Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action)
         return;
     }
 
-    auto ev = ActionPollerEvent::New_ActionPollerEvent(specifyActionType);
+    auto ev = ActionPollerEvent::New_ActionPollerEvent();
     ev->_action = action;
     _eventAmountLeft.fetch_add(1, std::memory_order_release);
     _genEventAmount.fetch_add(1, std::memory_order_release);
@@ -520,11 +531,6 @@ void Poller::_Clear()
     _isEnable = false;
     _isQuitLoop = false;
 
-    // 清理设置的tls资源
-    auto defObj = TlsUtil::GetDefTls();
-    defObj->_poller = NULL;
-    defObj->_pollerTimerMgr = NULL;
-    
     if(LIKELY(_timerMgr))
     {
         TimerMgr::Delete_TimerMgr(_timerMgr);
@@ -587,5 +593,6 @@ void Poller::_Clear()
     g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(Poller)
 
 KERNEL_END

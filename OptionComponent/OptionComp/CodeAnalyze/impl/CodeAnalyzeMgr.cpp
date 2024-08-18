@@ -406,4 +406,6 @@ void CodeAnalyzeMgr::_GetValidRangeOfLineData(KERNEL_NS::LibString &lineData, si
     endPos = lineData.length() - 1;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(CodeAnalyzeMgr)
+
 KERNEL_END

@@ -44,6 +44,8 @@ public:
 
     virtual bool RegisterStorages() override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
 
 SERVICE_END

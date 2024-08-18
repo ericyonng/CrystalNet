@@ -54,6 +54,8 @@ public:
 
     const KERNEL_NS::LibString &GetAppName() const;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 private:
     KERNEL_NS::LibString _appName;
 };

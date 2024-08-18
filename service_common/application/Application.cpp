@@ -1114,4 +1114,6 @@ void Application::_OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer)
     }
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(Application)
+
 SERVICE_COMMON_END

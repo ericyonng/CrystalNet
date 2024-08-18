@@ -107,6 +107,9 @@ void ThreadTlsMemoryCleanerGroup::_Clear()
     _isTimerAttach = false;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(ThreadTlsMemoryCleanerGroup)
+
+
 KERNEL_NS::CompFactory *ThreadTlsMemoryCleanerGroupFactory::FactoryCreate()
 {
     return KERNEL_NS::ObjPoolWrap<ThreadTlsMemoryCleanerGroupFactory>::NewByAdapter(_buildType.V);
@@ -131,5 +134,8 @@ ThreadTlsMemoryCleanerGroup *ThreadTlsMemoryCleanerGroupFactory::StaticCreateAs(
 {
     return ThreadTlsMemoryCleanerGroup::NewByAdapter_ThreadTlsMemoryCleanerGroup(_buildType.V);
 }
+
+
+OBJ_GET_OBJ_TYPEID_IMPL(ThreadTlsMemoryCleanerGroupFactory)
 
 KERNEL_END

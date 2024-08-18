@@ -459,5 +459,6 @@ void PollerMgr::_Clear()
     }
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(PollerMgr)
 
 KERNEL_END

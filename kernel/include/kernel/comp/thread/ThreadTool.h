@@ -45,8 +45,8 @@ class KERNEL_EXPORT ThreadTool
 {
 public:
     static void OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId, UInt64 threadGlobalId, const Byte8 *tlsMemPoolReason);
+    static Int32 OnStart();
     static void OnDestroy();
-    static void Destroy(TlsStack<TlsStackSize::SIZE_1MB> *tlsTask);
 };
 
 KERNEL_END

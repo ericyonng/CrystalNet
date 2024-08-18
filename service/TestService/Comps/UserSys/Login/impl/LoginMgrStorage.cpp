@@ -69,5 +69,7 @@ bool LoginMgrStorage::RegisterStorages()
     return true;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(LoginMgrStorage)
+
 
 SERVICE_END

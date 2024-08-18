@@ -41,6 +41,8 @@ SERVICE_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(INotifyMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(NotifyMgr);
 
+OBJ_GET_OBJ_TYPEID_IMPL(NotifyMgr)
+
 NotifyMgr::NotifyMgr()
 :_notifyData(new UserNotifyData)
 {

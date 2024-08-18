@@ -53,8 +53,8 @@ public:
     virtual bool IsBelongTo(void *obj) const override { return reinterpret_cast<void *>(_obj) == obj; }
     virtual const void *GetOwner() const override { return _obj; }
     virtual void *GetOwner() override { return _obj; }
-    virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_obj); }
-    virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(&_f); }
+    virtual LibString GetOwnerRtti() override { return RttiUtil::GetByObj(_obj); }
+    virtual LibString GetCallbackRtti() override { return RttiUtil::GetByObj(&_f); }
 
 private:
     mutable ObjType *_obj;
@@ -78,8 +78,8 @@ public:
     virtual bool IsBelongTo(void *obj) const override { return reinterpret_cast<void *>(_obj) == obj; }
     virtual const void *GetOwner() const override { return _obj; }
     virtual void *GetOwner() override { return _obj; }
-    virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_obj); }
-    virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(&_f); }
+    virtual LibString GetOwnerRtti() override { return RttiUtil::GetByObj(_obj); }
+    virtual LibString GetCallbackRtti() override { return RttiUtil::GetByObj(&_f); }
 
     // 禁用拷贝与赋值，以及创建副本
 private:
@@ -109,8 +109,8 @@ public:
     virtual bool IsBelongTo(void *f) const override { return f == reinterpret_cast<void *>(_f); }
     virtual const void *GetOwner() const override { return reinterpret_cast<const void *>(_f); }
     virtual void *GetOwner() override { return reinterpret_cast<void *>(_f); }
-    virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(_f); }
-    virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(_f); }
+    virtual LibString GetOwnerRtti() override { return RttiUtil::GetByObj(_f); }
+    virtual LibString GetCallbackRtti() override { return RttiUtil::GetByObj(_f); }
 
 private:
     mutable Rtn(*_f)(Args...);
@@ -131,8 +131,8 @@ public:
     virtual Rtn Invoke(Args... args) override;
     virtual Rtn Invoke(Args... args) const override;
     virtual IDelegate<Rtn, Args...> *CreateNewCopy() const override;
-    virtual const Byte8 * GetOwnerRtti() override { return RttiUtil::GetByObj(&_closureFun); }
-    virtual const Byte8 * GetCallbackRtti() override { return RttiUtil::GetByObj(&_closureFun); }
+    virtual LibString GetOwnerRtti() override { return RttiUtil::GetByObj(&_closureFun); }
+    virtual LibString GetCallbackRtti() override { return RttiUtil::GetByObj(&_closureFun); }
 
 private:
     mutable RemoveReferenceType<ClosureFuncType> _closureFun;

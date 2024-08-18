@@ -109,7 +109,7 @@ LibString TimeWheelTimer::ToString() const
 {
     LibString info;
     info.AppendFormat("time wheel[%p], _attachTimerTask[%s], _timeroutHandler:[%p, owner:%s, callback:%s]"
-    , _timeWheel, _attachTimerTask ? _attachTimerTask->ToString().c_str() : "", _timeoutCallback, _timeoutCallback ? _timeoutCallback->GetOwnerRtti() : "", _timeoutCallback ? _timeoutCallback->GetCallbackRtti() : "");
+    , _timeWheel, _attachTimerTask ? _attachTimerTask->ToString().c_str() : "", _timeoutCallback, _timeoutCallback ? _timeoutCallback->GetOwnerRtti().c_str() : "", _timeoutCallback ? _timeoutCallback->GetCallbackRtti().c_str() : "");
 
     return info;
 }

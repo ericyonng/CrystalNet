@@ -56,6 +56,8 @@ public:
 
     virtual void AddUsedNickname(const KERNEL_NS::LibString &nickname) override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 protected:
     void _AddName(UInt64 id, const KERNEL_NS::LibString &name);
     bool _IsExists(const KERNEL_NS::LibString &name) const;

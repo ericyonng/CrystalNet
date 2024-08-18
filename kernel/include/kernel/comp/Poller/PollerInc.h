@@ -31,6 +31,7 @@
 
 #pragma once
 
+#include <kernel/comp/Poller/PollerEventInternalType.h>
 #include <kernel/comp/Poller/PollerCompStatistics.h>
 #include <kernel/comp/Poller/PollerEvent.h>
 #include <kernel/comp/Poller/Poller.h>

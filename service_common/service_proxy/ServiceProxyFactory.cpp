@@ -48,4 +48,8 @@ KERNEL_NS::CompObject *ServiceProxyFactory::Create() const
     CREATE_CRYSTAL_COMP_INS(comp, ServiceProxy, KERNEL_NS);
     return comp;
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(ServiceProxyFactory)
+
+
 SERVICE_COMMON_END

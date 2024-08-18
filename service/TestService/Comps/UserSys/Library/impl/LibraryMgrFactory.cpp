@@ -48,4 +48,7 @@ KERNEL_NS::CompObject *LibraryMgrFactory::Create() const
     return comp;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(LibraryMgrFactory)
+
+
 SERVICE_END

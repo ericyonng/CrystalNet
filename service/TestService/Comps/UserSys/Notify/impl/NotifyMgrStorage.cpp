@@ -34,6 +34,8 @@
 
 SERVICE_BEGIN
 
+OBJ_GET_OBJ_TYPEID_IMPL(NotifyMgrStorage)
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(NotifyMgrStorage);
 
 NotifyMgrStorage::NotifyMgrStorage()

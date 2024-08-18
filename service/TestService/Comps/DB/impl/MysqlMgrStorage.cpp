@@ -115,4 +115,6 @@ bool MysqlMgrStorage::RegisterStorages()
     return true;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(MysqlMgrStorage)
+
 SERVICE_END

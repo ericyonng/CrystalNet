@@ -145,10 +145,18 @@ public:
     // 投递事件
     void Push(Int32 level, PollerEvent *ev);
     void Push(Int32 level, LibList<PollerEvent *> *evList);
-    void Push(Int32 level, Int32 specifyActionType, IDelegate<void> *action);
+    void Push(Int32 level, IDelegate<void> *action);
 
     template<typename LamvadaType>
-    void Push(Int32 level, Int32 specifyActionType, LamvadaType &&lambdaType);
+    requires requires (LamvadaType lam) 
+    {
+        {lam()} -> std::convertible_to<void>;
+    }
+    ALWAYS_INLINE void Push(Int32 level, LamvadaType &&lambdaType)
+    {
+        IDelegate<void> *delg = KERNEL_NS::DelegateFactory::Create<decltype(lambdaType), void>(lambdaType);
+        Push(level, delg);
+    }
 
     // 事件循环接口
     bool PrepareLoop();
@@ -163,11 +171,17 @@ public:
     // TODO:假release, 不会Delete Poller,暂时性处理当处wait状态,中间收到信号导致Poller在被释放的时候调用条件变量的析构并调用destroy销毁条件变量时导致死锁
     void SetDummyRelease();
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 protected:
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;
     virtual void _OnWillClose() override;
     virtual void _OnClose() override;
+
+protected:
+    // 协程处理
+    void _OnAsyncTaskEvent(PollerEvent *ev);
 
 private:
     void _Clear();
@@ -330,12 +344,12 @@ ALWAYS_INLINE const TimerMgr *Poller::GetTimerMgr() const
     return _timerMgr;
 }
 
-template<typename LamvadaType>
-ALWAYS_INLINE void Poller::Push(Int32 level, Int32 specifyActionType, LamvadaType &&lambdaType)
-{
-    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lambdaType, void);
-    Push(level, specifyActionType, delg);
-}
+// template<typename LamvadaType>
+// ALWAYS_INLINE void Poller::Push(Int32 level, LamvadaType &&lambdaType)
+// {
+//     IDelegate<void> *delg = KERNEL_NS::DelegateFactory::Create<decltype(lambdaType), void>(lambdaType);
+//     PushAction(level, delg);
+// }
 
 ALWAYS_INLINE void Poller::WakeupEventLoop()
 {

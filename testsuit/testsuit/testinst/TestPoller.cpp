@@ -53,26 +53,18 @@ public:
 
     virtual void OnRegisterComps() override
     {
-        RegisterComp<KERNEL_NS::PollerFactory>();
+        // RegisterComp<KERNEL_NS::PollerFactory>();
     }
 
     void OnWork()
     {
-        auto poller = GetComp<KERNEL_NS::Poller>();
+        auto poller = KERNEL_NS::TlsUtil::GetDefTls()->_tlsComps->GetPoller();
         if(!poller->PrepareLoop())
         {
             SetErrCode(poller, Status::PreparePollerFail);
             g_Log->Error(LOGFMT_OBJ_TAG("prepare loop fail."));
             return;
         }
-
-        auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
-        if(UNLIKELY(defObj->_poller))
-            g_Log->Warn(LOGFMT_OBJ_TAG("poller already existes int current thread please check:%p, will assign new poller:%p, thread id:%llu")
-            , defObj->_poller, poller, defObj->_threadId);
-
-        defObj->_poller = poller;
-        defObj->_pollerTimerMgr = poller->GetTimerMgr();
 
         MaskReady(true);
 
@@ -93,6 +85,8 @@ public:
 
         g_Log->Info(LOGFMT_OBJ_TAG("on working end..."));
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
     // 组件接口资源
 protected:
@@ -183,17 +177,13 @@ protected:
             g_Log->Warn(LOGFMT_OBJ_TAG("%s not ready."), notReady->GetObjName().c_str());
         }
 
-        auto poller = GetComp<KERNEL_NS::Poller>();
+        auto poller = KERNEL_NS::TlsUtil::GetDefTls()->_tlsComps->GetPoller();
         if(!poller->PrepareLoop())
         {
             SetErrCode(poller, Status::PreparePollerFail);
             g_Log->Error(LOGFMT_OBJ_TAG("prepare loop fail."));
             return;
         }
-
-        auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
-        defObj->_poller = poller;
-        defObj->_pollerTimerMgr = poller->GetTimerMgr();
 
         MaskReady(true);
 
@@ -234,6 +224,8 @@ private:
 
 private:
 };
+OBJ_GET_OBJ_TYPEID_IMPL(HostObj)
+
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(HostObj);
 
@@ -253,7 +245,12 @@ public:
     {
         return HostObj::New_HostObj();
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(HostObjFactory)
 
 struct  HelloWorldReq : public KERNEL_NS::PollerEvent
 {
@@ -378,15 +375,11 @@ POOL_CREATE_OBJ_IMPL(1, 1024, AcEvent);
 
 static void _OnPoller(KERNEL_NS::LibThread *t)
 {
-    auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
-    defObj->_poller = s_Poller;
-    defObj->_pollerTimerMgr = s_Poller->GetTimerMgr();
-
     // std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> priorityEvents;
     // const Int64 priorityQueueSize = static_cast<Int64>(g_concurrentQueue->GetMaxLevel() + 1);
     // for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
     //     priorityEvents.push_back(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList());
-
+    // TODO:
     if(!s_Poller->PrepareLoop())
     {
         g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "prepare loop fail."));

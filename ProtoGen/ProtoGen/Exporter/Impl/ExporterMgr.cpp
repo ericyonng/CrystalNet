@@ -93,6 +93,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IExporterMgr);
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ExporterMgr);
 
+OBJ_GET_OBJ_TYPEID_IMPL(ExporterMgr)
+
 ExporterMgr::ExporterMgr()
 :
 _forceGenAll(false)
@@ -1092,7 +1094,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("    KERNEL_NS::LibString data;");
         addLines.push_back("    if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())");
         addLines.push_back("    {");
-        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"Turn JsonString fail:%s\"), KERNEL_NS::RttiUtil::GetByObj(this));");
+        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"Turn JsonString fail:%s\"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());");
         addLines.push_back("        return \"\";");
         addLines.push_back("    }");
         addLines.push_back("");
@@ -1105,7 +1107,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("virtual bool ToJsonString(std::string *data) const override {");
         addLines.push_back("    if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())");
         addLines.push_back("    {");
-        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"Turn JsonString fail:%s\"), KERNEL_NS::RttiUtil::GetByObj(this));");
+        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"Turn JsonString fail:%s\"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());");
         addLines.push_back("        return false;");
         addLines.push_back("    }");
         addLines.push_back("");
@@ -1119,7 +1121,7 @@ void ExporterMgr::_CollectCppClassAdds(const KERNEL_NS::LibString &className, st
         addLines.push_back("    auto &&jsonString = ::google::protobuf::StringPiece(data, len);");
         addLines.push_back("    if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())");
         addLines.push_back("    {");
-        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s\"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));");
+        addLines.push_back("        g_Log->Warn(LOGFMT_OBJ_TAG(\"SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s\"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());");
         addLines.push_back("        return false;");
         addLines.push_back("    }");
         addLines.push_back("");

@@ -45,4 +45,7 @@ KERNEL_NS::CompObject *ServiceRegisterMgrFactory::Create() const
     CREATE_CRYSTAL_COMP(comp, ServiceRegisterMgr);
     return comp;
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(ServiceRegisterMgrFactory)
+
 SERVICE_END

@@ -179,5 +179,7 @@ void GlobalUidMgr::_InitGuid()
     _curAllocUid = _maxUid;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(GlobalUidMgr)
+
 
 SERVICE_END

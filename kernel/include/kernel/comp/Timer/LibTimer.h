@@ -41,6 +41,7 @@ KERNEL_BEGIN
 
 class TimerMgr;
 
+// TODO:改变了timermgr
 class KERNEL_EXPORT LibTimer
 {
     POOL_CREATE_OBJ_DEFAULT(LibTimer);
@@ -49,7 +50,7 @@ class KERNEL_EXPORT LibTimer
 
 public:
     // 若mgr不设置则，默认从tlsstack上拿pollerTimerMgr，前提是本线程已经初始化了TimerMgr并设置到TlsStack上，且注意时序
-    LibTimer(TimerMgr *mgr = NULL);
+    LibTimer();
     virtual ~LibTimer();
 
 public:
@@ -86,8 +87,8 @@ public:
     const TimeData *GetData() const;
 
 private:
-    
-    TimerMgr *_mgr;
+    /// TODO:通过获取线程的poller获取timer mgr
+    // TimerMgr *_mgr;
     TimeData *_data;
     IDelegate<void, LibTimer *> *_timeroutHandler;
     IDelegate<void, LibTimer *> *_cancelHandler;

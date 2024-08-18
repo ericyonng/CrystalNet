@@ -61,6 +61,7 @@ public:
     virtual void AddUserBySessionId(UInt64 sessionId, IClientUser *user) override;
     virtual void RemoveUserBySessionId(UInt64 sessionId) override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 protected:
     virtual Int32 _OnGlobalSysInit() override;

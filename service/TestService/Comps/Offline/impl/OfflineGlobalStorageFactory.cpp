@@ -47,5 +47,8 @@ KERNEL_NS::CompObject *OfflineGlobalStorageFactory::Create() const
 {
     return OfflineGlobalStorage::NewByAdapter_OfflineGlobalStorage(_buildType.V);
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(OfflineGlobalStorageFactory)
+
 SERVICE_END
 

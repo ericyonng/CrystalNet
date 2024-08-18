@@ -102,6 +102,7 @@ public:
     }
 };
 
+// TODO:改变poller
 class IService : public KERNEL_NS::CompHostObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IService);

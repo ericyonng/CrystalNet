@@ -493,6 +493,8 @@ Int32 TestMgr::_ReadTestConfigs()
     return Status::Success;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(TestMgr)
+
 
 SERVICE_END
 

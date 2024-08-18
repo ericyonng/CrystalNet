@@ -28,12 +28,14 @@
 #include <pch.h>
 #include <kernel/comp/Poller/PollerEvent.h>
 #include <kernel/comp/Utils/RttiUtil.h>
+#include <kernel/comp/Poller/PollerEventInternalType.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(PollerEvent);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ActionPollerEvent);
 POOL_CREATE_OBJ_DEFAULT_IMPL(EmptyPollerEvent);
+POOL_CREATE_OBJ_DEFAULT_IMPL(AsyncTaskPollerEvent);
 
 PollerEvent::PollerEvent(Int32 type)
     :_type(type)
@@ -48,7 +50,14 @@ PollerEvent::~PollerEvent()
 
 LibString PollerEvent::ToString() const
 {
-    return LibString().AppendFormat("poller event type:%d, obj name:%s", _type, RttiUtil::GetByObj(this));
+    return LibString().AppendFormat("poller event type:%d, obj name:%s", _type, RttiUtil::GetByObj(this).c_str());
+}
+
+ActionPollerEvent::ActionPollerEvent()
+:PollerEvent(PollerEventInternalType::ActionPollerEventType)
+,_action(NULL)
+{
+
 }
 
 ActionPollerEvent::~ActionPollerEvent()
@@ -71,5 +80,28 @@ LibString ActionPollerEvent::ToString() const
 
     return info;
 }
+
+EmptyPollerEvent::EmptyPollerEvent()
+:PollerEvent(PollerEventInternalType::EmptyPollerEventType)
+{
+
+}
+
+AsyncTaskPollerEvent::AsyncTaskPollerEvent()
+:PollerEvent(PollerEventInternalType::AsyncTaskType)
+{
+
+}
+
+AsyncTaskPollerEvent::~AsyncTaskPollerEvent()
+{
+
+}
+
+void AsyncTaskPollerEvent::Release()
+{
+    AsyncTaskPollerEvent::Delete_AsyncTaskPollerEvent(this);
+}
+
 
 KERNEL_END

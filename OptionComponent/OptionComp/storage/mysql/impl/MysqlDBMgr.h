@@ -107,6 +107,8 @@ public:
     const MysqlConfig &GetConfig(const LibString &dbName) const;
     bool HasPendings() const;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 protected:
     virtual Int32 _OnHostInit() override;
     virtual Int32 _OnCompsCreated() override;
@@ -251,6 +253,8 @@ ALWAYS_INLINE bool MysqlDBMgr::HasPendings() const
 {
     return !_pendingSeqs.empty();
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(MysqlDBMgr)
 
 KERNEL_END
 

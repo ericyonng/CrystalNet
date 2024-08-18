@@ -48,4 +48,6 @@ CompObject *TcpPollerMgrFactory::Create() const
     return TcpPollerMgr::NewByAdapter_TcpPollerMgr(_buildType.V);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(TcpPollerMgrFactory)
+
 KERNEL_END

@@ -49,6 +49,7 @@ public:
     Int32 OnSave(UInt64 key, KERNEL_NS::LibStream<KERNEL_NS::_Build::TL> &db) const override;
     
     virtual bool AddOfflineData(Int32 offlineType, UInt64 userId, const KERNEL_NS::LibString &offlineData) override;
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 private:
     virtual Int32 _OnGlobalSysInit() override;

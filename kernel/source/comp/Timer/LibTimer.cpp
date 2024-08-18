@@ -34,29 +34,28 @@
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Tls/Tls.h>
+#include <kernel/comp/Poller/Poller.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibTimer);
 
 
-LibTimer::LibTimer(TimerMgr *mgr)
-    :_mgr(mgr)
-    ,_data(NULL)
+LibTimer::LibTimer()
+    :_data(NULL)
     ,_timeroutHandler(NULL)
     ,_cancelHandler(NULL)
 {
-    if(UNLIKELY(!_mgr))
-    {// 若为空则使用线程本地存储的定时管理器
-        auto defObj = TlsUtil::GetDefTls();
-        if(LIKELY(defObj))
-            _mgr = defObj->_pollerTimerMgr;
+    auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
+    auto poller = tlsDef->_tlsComps->GetPoller();
+    auto mgr = poller->GetTimerMgr();
 
-        if(UNLIKELY(!_mgr))
-            g_Log->Error(LOGFMT_OBJ_TAG("timer mgr is null please check"));
+    if(UNLIKELY(!mgr))
+    {// 若为空则使用线程本地存储的定时管理器
+        g_Log->Error(LOGFMT_OBJ_TAG("poller timer mgr is null please check poller:%s"), poller->ToString().c_str());
     }
 
-    _data = _mgr->NewTimeData(this);
+    _data = mgr->NewTimeData(this);
 }
 
 LibTimer::~LibTimer()
@@ -118,7 +117,7 @@ LibString LibTimer::ToString() const
 {
     LibString info;
     info.AppendFormat("_mgr[%p], _data[%s], _timeroutHandler:[%p, owner:%s, callback:%s], _cancelHandler[%p]"
-    , _mgr, _data ? _data->ToString().c_str() : "", _timeroutHandler, _timeroutHandler ? _timeroutHandler->GetOwnerRtti() : "", _timeroutHandler ? _timeroutHandler->GetCallbackRtti() : "",  _cancelHandler);
+    , _mgr, _data ? _data->ToString().c_str() : "", _timeroutHandler, _timeroutHandler ? _timeroutHandler->GetOwnerRtti().c_str() : "", _timeroutHandler ? _timeroutHandler->GetCallbackRtti().c_str() : "",  _cancelHandler);
 
     return info;
 }

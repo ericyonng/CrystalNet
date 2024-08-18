@@ -213,6 +213,7 @@ void StubHandleMgr::_OnAsynConnectResEvent(KERNEL_NS::LibEvent *ev)
     KERNEL_NS::Variant::DeleteThreadLocal_Variant(var);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(StubHandleMgr)
 
 
 SERVICE_END

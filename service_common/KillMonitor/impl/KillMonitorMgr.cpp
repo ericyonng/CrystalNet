@@ -134,4 +134,6 @@ void KillMonitorMgr::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
     }
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(KillMonitorMgr)
+
 SERVICE_COMMON_END

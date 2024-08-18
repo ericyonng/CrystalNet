@@ -608,4 +608,6 @@ void ClientUserMgr::_Clear()
     _targetAddrConfig = NULL;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(ClientUserMgr)
+
 SERVICE_END

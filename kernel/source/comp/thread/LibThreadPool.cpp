@@ -290,6 +290,8 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
     const auto threadGlobalId = LibThreadGlobalId::GenId();
     ThreadTool::OnInit(NULL, pool, threadId, threadGlobalId,  "thread pool tls memory pool");
 
+    ThreadTool::OnStart();
+
     bool isEmpty = false;
     while(isWorking.load() || !isEmpty)
     {

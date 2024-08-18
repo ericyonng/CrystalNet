@@ -49,4 +49,7 @@ KERNEL_NS::CompObject *PassTimeGlobalFactory::Create() const
     return comp;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(PassTimeGlobalFactory)
+
+
 SERVICE_END

@@ -39,6 +39,8 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(TlsMemoryCleanerComp);
 
+OBJ_GET_OBJ_TYPEID_IMPL(TlsMemoryCleanerComp)
+
 TlsMemoryCleanerComp::TlsMemoryCleanerComp()
 :_timerMgr(NULL)
 ,_intervalMs(60 * 1000) // 默认1分钟清理一次
@@ -203,5 +205,7 @@ KERNEL_NS::CompObject *TlsMemoryCleanerCompFactory::StaticCreate()
 {
     return TlsMemoryCleanerComp::NewByAdapter_TlsMemoryCleanerComp(_buildType.V);
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(TlsMemoryCleanerCompFactory)
 
 KERNEL_END

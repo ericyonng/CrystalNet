@@ -21,34 +21,58 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-07-23 20:54:00
+ * Date: 2024-08-17 11:55:14
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/kernel.h>
-#include <service/TestService/Comps/DB/impl/MysqlMgrStorageFactory.h>
-#include <service/TestService/Comps/DB/impl/MysqlMgrStorage.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_COMPS_OWNER_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_COMPS_OWNER_H__
 
-SERVICE_BEGIN
+#pragma once
 
-KERNEL_NS::CompFactory *MysqlMgrStorageFactory::FactoryCreate()
+#include <kernel/comp/Tls/ITlsObj.h>
+#include <kernel/comp/Tls/Defs.h>
+#include <kernel/comp/CompObject/CompHostObject.h>
+
+KERNEL_BEGIN
+
+class Poller;
+
+class KERNEL_EXPORT TlsCompsOwner : public CompHostObject
 {
-    return KERNEL_NS::ObjPoolWrap<MysqlMgrStorageFactory>::NewByAdapter(_buildType.V);
+    POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, TlsCompsOwner);
+
+public:
+    TlsCompsOwner();
+    ~TlsCompsOwner();
+
+    virtual void Release() override;
+
+    virtual void OnRegisterComps() override;
+    virtual Int32 _OnCompsCreated() override;
+
+    virtual void _OnAttachedComp(CompObject *oldComp, CompObject *newComp) override;
+
+    Poller *GetPoller();    
+    const Poller *GetPoller() const;   
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
+private:
+    Poller *_poller;
+};
+
+ALWAYS_INLINE Poller *TlsCompsOwner::GetPoller()
+{
+    return _poller;
 }
 
-void MysqlMgrStorageFactory::Release()
+ALWAYS_INLINE const Poller *TlsCompsOwner::GetPoller() const
 {
-    KERNEL_NS::ObjPoolWrap<MysqlMgrStorageFactory>::DeleteByAdapter(_buildType.V, this);
-}
-    
-KERNEL_NS::CompObject *MysqlMgrStorageFactory::Create() const
-{
-    return MysqlMgrStorage::NewByAdapter_MysqlMgrStorage(_buildType.V);
-}
+    return _poller;
+}   
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlMgrStorageFactory)
+KERNEL_END
 
-
-SERVICE_END
+#endif

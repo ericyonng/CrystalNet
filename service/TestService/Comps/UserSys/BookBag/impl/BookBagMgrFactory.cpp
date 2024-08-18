@@ -48,4 +48,6 @@ KERNEL_NS::CompObject *BookBagMgrFactory::Create() const
     return comp;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(BookBagMgrFactory)
+
 SERVICE_END

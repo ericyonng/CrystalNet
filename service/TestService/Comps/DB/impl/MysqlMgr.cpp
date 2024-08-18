@@ -5532,4 +5532,7 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
     return true;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(MysqlMgr)
+
+
 SERVICE_END

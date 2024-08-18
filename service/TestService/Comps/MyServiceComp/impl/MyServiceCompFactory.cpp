@@ -48,4 +48,7 @@ KERNEL_NS::CompObject *MyServiceCompFactory::Create() const
     return MyServiceComp::NewByAdapter_MyServiceComp(_buildType.V);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(MyServiceCompFactory)
+
+
 SERVICE_END

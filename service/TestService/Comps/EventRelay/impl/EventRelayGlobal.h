@@ -53,6 +53,8 @@ public:
     void Release() override;
     void OnRegisterComps() override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 
 private:
     virtual Int32 _OnGlobalSysInit() override;

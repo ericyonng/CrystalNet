@@ -178,6 +178,16 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
     // 主线程初始化
     const auto mainThreadId = SystemUtil::GetCurrentThreadId();
+
+        // cpu frequancy
+    LibCpuFrequency::InitFrequancy();
+
+    // 初始化系统高性能时间
+    TimeUtil::InitFastTime();
+
+    // sock error init
+    SockErrorMsgUtil::Init();
+
     ThreadTool::OnInit(NULL, NULL, mainThreadId, threadGlobalId, "main thread tls memory pool");
 
     // cpu信息
@@ -191,15 +201,6 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     // cpu特性
 //     g_cpuFeature = KERNEL_NS::CpuFeature::GetInstance();
 //     g_cpuFeature->Init();
-
-    // cpu frequancy
-    LibCpuFrequency::InitFrequancy();
-
-    // 初始化系统高性能时间
-    TimeUtil::InitFastTime();
-
-    // sock error init
-    SockErrorMsgUtil::Init();
 
     // 日志初始化与启动
     g_Log = logFactory->Create();
@@ -221,6 +222,9 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
         return err;
     }
     destroyDelg.pop();
+
+    // 正式启动
+    ThreadTool::OnStart();
 
     // 内存监控
     g_MemoryMonitor = KERNEL_NS::MemoryMonitor::GetInstance();

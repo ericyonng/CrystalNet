@@ -52,6 +52,7 @@ public:
 
     virtual Int32 CheckLogin(const PendingUser *pendingUser) const override;
     virtual const UserLoginInfo *GetLoginInfo() const override;
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 protected:
     virtual Int32 _OnUserSysInit() override;

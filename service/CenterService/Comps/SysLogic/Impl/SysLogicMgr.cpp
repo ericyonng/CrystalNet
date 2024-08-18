@@ -518,4 +518,6 @@ void SysLogicMgr::_Clear()
     }
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(SysLogicMgr)
+
 SERVICE_END

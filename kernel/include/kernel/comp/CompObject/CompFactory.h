@@ -73,6 +73,9 @@ public:
     CompFactory() {}
     virtual ~CompFactory() {  }
 
+    // 必须要重写该接口(通过RttiUtil::GetByType<ObjType>()拿最终类型的唯一id)
+    virtual UInt64 GetObjTypeId() const = 0;
+
     virtual void Release() = 0;
 
     virtual CompObject *Create() const = 0;

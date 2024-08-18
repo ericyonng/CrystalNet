@@ -63,6 +63,8 @@ public:
     // 设置检测时间间隔, 没有设置默认10秒
     virtual void SetDetectionTimeInterval(Int64 seconds) override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 protected:
     virtual Int32 _OnInit() override;
     virtual void _OnClose() override;

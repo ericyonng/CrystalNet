@@ -121,6 +121,4 @@ Int32 IConfigLoader::_ReloadConfigMgr(IConfigMgr *configMgr, bool &isChanged)
     return Status::Success;
 }
 
-
-
 SERVICE_COMMON_END

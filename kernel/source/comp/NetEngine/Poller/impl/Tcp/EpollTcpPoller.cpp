@@ -64,6 +64,9 @@
 #include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
 #include <kernel/comp/TlsMemoryCleanerComp.h>
 #include <kernel/comp/NetEngine/Defs/ProtocolType.h>
+#include <kernel/comp/Tls/TlsDefaultObj.h>
+#include <kernel/comp/Tls/TlsCompsOwner.h>
+#include <kernel/comp/Utils/TlsUtil.h>
 
 KERNEL_BEGIN
 
@@ -178,6 +181,13 @@ void EpollTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibList<LibPacket *
 
 void EpollTcpPoller::PostNewSession(Int32 level, BuildSessionInfo *buildSessionInfo)
 {
+    if(UNLIKELY(!_poller->IsEnable()))
+    {
+        g_Log->LogWarn(LOGFMT_NON_OBJ_TAG("poller disable build session:%s"),  buildSessionInfo->ToString().c_str());
+        BuildSessionInfo::Delete_BuildSessionInfo(buildSessionInfo);
+        return;
+    }
+
     // TODO: accept/connect suc
     auto newSessionEv = NewSessionEvent::New_NewSessionEvent();
     newSessionEv->_buildInfo = buildSessionInfo;
@@ -186,6 +196,13 @@ void EpollTcpPoller::PostNewSession(Int32 level, BuildSessionInfo *buildSessionI
 
 void EpollTcpPoller::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
 {
+    if(UNLIKELY(!_poller->IsEnable()))
+    {
+        g_Log->LogWarn(LOGFMT_NON_OBJ_TAG("poller disable listenInfo:%s"),  listenInfo->ToString().c_str());
+        LibListenInfo::Delete_LibListenInfo(listenInfo);
+        return;
+    }
+
     auto ev = AddListenEvent::New_AddListenEvent();
     ev->_addListenInfoList.push_back(listenInfo);
     _poller->Push(level, ev);
@@ -193,6 +210,25 @@ void EpollTcpPoller::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
 
 void EpollTcpPoller::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList)
 {
+    if(UNLIKELY(!_poller->IsEnable()))
+    {
+        const Int32 listSize = static_cast<Int32>(listenInfoList.size());
+        LibString info;
+        info.AppendFormat("AddListenEvent: listen info array amount:%d, array:[", listSize);
+
+        for(Int32 idx = 0; idx < listSize; ++idx)
+            info.AppendFormat("[%d]=%s\n", idx, listenInfoList[idx]->ToString().c_str());
+
+        info.AppendFormat("]");
+        g_Log->LogWarn(LOGFMT_NON_OBJ_TAG("poller disable listen info list:%s"), info.c_str());
+
+        ContainerUtil::DelContainer(listenInfoList, [](LibListenInfo *&listenInfo){
+            LibListenInfo::Delete_LibListenInfo(listenInfo);
+            listenInfo = NULL;
+        });
+        return;
+    }
+
     auto ev = AddListenEvent::New_AddListenEvent();
     ev->_addListenInfoList.swap(listenInfoList);
 
@@ -1440,13 +1476,11 @@ void EpollTcpPoller::_OnMonitorThread(LibThread *t)
 
 void EpollTcpPoller::_OnPollEventLoop(LibThread *t)
 {
-    auto defObj = TlsUtil::GetDefTls();
-    if(UNLIKELY(defObj->_poller))
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller already existes int current thread please check:%p, will assign new poller:%p, thread id:%llu")
-        , defObj->_poller, _poller, defObj->_threadId);
-
-    defObj->_poller = _poller;
-    defObj->_pollerTimerMgr = _poller->GetTimerMgr();
+    if(! _OnThreadStart())
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("_OnThreadStart fail."));
+        return;
+    }
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop start."));
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop prepare loop..."));
@@ -1464,6 +1498,21 @@ void EpollTcpPoller::_OnPollEventLoop(LibThread *t)
     _poller->OnLoopEnd();
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop finish."));
     MaskReady(false);
+}
+
+bool EpollTcpPoller::_OnThreadStart()
+{
+    // 用 EpollTcpPoller 的poller 替换当前线程的poller组件
+    auto defObj = TlsUtil::GetDefTls();
+    if(!defObj->_tlsComps->AttachComp(_poller))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("AttachComp fail comp:%s, current epoll tcp poller:%s."), _poller->ToString().c_str(), ToString().c_str());
+        return false;
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("thread started thread id:%llu."), SystemUtil::GetCurrentThreadId());
+
+    return true;
 }
 
 Int32 EpollTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, bool &giveup)
@@ -2041,6 +2090,9 @@ void EpollTcpPoller::_ControlCloseSession(EpollTcpSession *session, Int32 closeR
 
     _TryCloseSession(session, closeReason, stub);
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(EpollTcpPoller)
+
 
 KERNEL_END
 

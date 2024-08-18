@@ -49,4 +49,6 @@ CompObject *PollerMgrFactory::Create() const
     return comp;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(PollerMgrFactory)
+
 KERNEL_END

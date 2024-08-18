@@ -49,4 +49,7 @@ KERNEL_NS::CompObject *SessionMgrFactory::Create() const
     return comp;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(SessionMgrFactory)
+
+
 SERVICE_END

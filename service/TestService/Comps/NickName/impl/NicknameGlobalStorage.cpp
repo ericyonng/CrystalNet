@@ -39,6 +39,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(NicknameGlobalStorage);
 const KERNEL_NS::LibString NicknameGlobalStorage::ID = "Id";
 const KERNEL_NS::LibString NicknameGlobalStorage::NICK_NAME = "Nickname";
 
+OBJ_GET_OBJ_TYPEID_IMPL(NicknameGlobalStorage)
 
 NicknameGlobalStorage::NicknameGlobalStorage()
 :IStorageInfo(KERNEL_NS::RttiUtil::GetByType<NicknameGlobal>())

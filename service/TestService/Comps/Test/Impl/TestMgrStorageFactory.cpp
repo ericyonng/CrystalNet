@@ -49,4 +49,6 @@ KERNEL_NS::CompObject *TestMgrStorageFactory::Create() const
     return TestMgrStorage::NewByAdapter_TestMgrStorage(_buildType.V);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(TestMgrStorageFactory)
+
 SERVICE_END

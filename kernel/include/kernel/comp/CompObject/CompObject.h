@@ -53,6 +53,10 @@ public:
     virtual LibString ToString() const override;
     virtual void Clear() override;
     virtual void OnUpdate() override;
+    // 从宿主中被弹出
+    virtual void OnPop(CompObject *oldOwner) {}
+    // 更换了宿主
+    virtual void OnBindNewHost(CompObject *oldOwner) {}
 
     // 组件接口资源
 protected:

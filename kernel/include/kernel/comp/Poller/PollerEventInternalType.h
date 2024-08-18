@@ -21,34 +21,41 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-07-23 20:54:00
+ * Date: 2024-08-12 09:55:00
  * Author: Eric Yonng
- * Description: 
+ * Description: poller内部类型, 外部以PollerEventInternalType::MAX_INTERNAL_TYPE开始
 */
 
-#include <pch.h>
-#include <kernel/kernel.h>
-#include <service/TestService/Comps/DB/impl/MysqlMgrStorageFactory.h>
-#include <service/TestService/Comps/DB/impl/MysqlMgrStorage.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_POLLER_POLLER_EVENT_INTERNAL_TYPE_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_POLLER_POLLER_EVENT_INTERNAL_TYPE_H__
 
-SERVICE_BEGIN
+#pragma once
 
-KERNEL_NS::CompFactory *MysqlMgrStorageFactory::FactoryCreate()
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+
+KERNEL_BEGIN
+
+// 内部的PollerEvent类型
+class KERNEL_EXPORT PollerEventInternalType
 {
-    return KERNEL_NS::ObjPoolWrap<MysqlMgrStorageFactory>::NewByAdapter(_buildType.V);
-}
+public:
+    enum InternalType
+    {
+        UNKOWN_TYPE = 0,
+        // 协程任务事件
+        AsyncTaskType = 1,
 
-void MysqlMgrStorageFactory::Release()
-{
-    KERNEL_NS::ObjPoolWrap<MysqlMgrStorageFactory>::DeleteByAdapter(_buildType.V, this);
-}
-    
-KERNEL_NS::CompObject *MysqlMgrStorageFactory::Create() const
-{
-    return MysqlMgrStorage::NewByAdapter_MysqlMgrStorage(_buildType.V);
-}
+        // 执行action事件
+        ActionPollerEventType = 2,
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlMgrStorageFactory)
+        // 空事件
+        EmptyPollerEventType = 3,
 
+        MAX_INTERNAL_TYPE,
+    };
+};
 
-SERVICE_END
+KERNEL_END
+
+#endif

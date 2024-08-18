@@ -358,4 +358,6 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
     // }
  }
 
+OBJ_GET_OBJ_TYPEID_IMPL(ServiceProxy)
+
 SERVICE_COMMON_END

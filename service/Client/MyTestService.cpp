@@ -114,7 +114,7 @@ void MyTestService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_
         KERNEL_NS::LibString opcodeInfo;
         _GetOpcodeInfo(opcodeId, opcodeInfo);
         g_Log->Warn(LOGFMT_OBJ_TAG("repeate msg handler opcodeInfo:%s, old owner:%s, old callback:%s, new owner:%s, new callback:%s")
-                , opcodeInfo.c_str(), msgHandler->GetOwnerRtti(), msgHandler->GetCallbackRtti(), deleg->GetOwnerRtti(), deleg->GetCallbackRtti());
+                , opcodeInfo.c_str(), msgHandler->GetOwnerRtti().c_str(), msgHandler->GetCallbackRtti().c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
         
         msgHandler->Release();
         _opcodeRefHandler.erase(opcodeId);
@@ -125,7 +125,7 @@ void MyTestService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_
         KERNEL_NS::LibString opcodeInfo;
         _GetOpcodeInfo(opcodeId, opcodeInfo);
 
-        g_Log->Warn(LOGFMT_OBJ_TAG("subscribe a disable opcode opcode info:%s, new owner:%s, new callback:%s"), opcodeInfo.c_str(), deleg->GetOwnerRtti(), deleg->GetCallbackRtti());
+        g_Log->Warn(LOGFMT_OBJ_TAG("subscribe a disable opcode opcode info:%s, new owner:%s, new callback:%s"), opcodeInfo.c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
         deleg->Release();
         return;
     }
@@ -626,6 +626,8 @@ void MyTestService::_OnEventLoopStart()
     ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_STARTUP);
     GetEventMgr()->FireEvent(ev);
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(MyTestService)
 
 
 SERVICE_END

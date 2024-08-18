@@ -32,6 +32,7 @@
 #include <service/Client/ServiceFactory.h>
 
 SERVICE_BEGIN
+OBJ_GET_OBJ_TYPEID_IMPL(MyServiceComp)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(MyServiceComp);
 

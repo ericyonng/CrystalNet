@@ -93,6 +93,8 @@ public:
 
     virtual void DefaultMaskReady(bool isReady) override {}
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 public:
     void PostConnect(LibConnectInfo *connectInfo);
     void PostAddlisten(Int32 level, LibListenInfo *listenInfo);

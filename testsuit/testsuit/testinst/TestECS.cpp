@@ -65,7 +65,7 @@ public:
 
     virtual void OnUpdate() override
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("%s on update"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Info(LOGFMT_OBJ_TAG("%s on update"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
     }
 
     // 组件接口资源
@@ -147,7 +147,7 @@ public:
 
     virtual void OnUpdate() override
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("%s on update"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Info(LOGFMT_OBJ_TAG("%s on update"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
     }
 
     // 组件接口资源
@@ -227,7 +227,7 @@ public:
 
     virtual void OnUpdate() override
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("%s on update"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Info(LOGFMT_OBJ_TAG("%s on update"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
     }
 
     // 组件接口资源
@@ -293,6 +293,8 @@ public:
     {
         HostA::Delete_HostA(this);
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
     // // api
 public:
@@ -391,6 +393,8 @@ private:
     KERNEL_NS::LibString _name = "HostA name field";
 };
 
+OBJ_GET_OBJ_TYPEID_IMPL(HostA)
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(HostA);
 
 
@@ -429,6 +433,7 @@ public:
     }
     
     virtual void OnRegisterComps() override;
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
     // 组件接口资源
 protected:
@@ -512,6 +517,8 @@ private:
     KERNEL_NS::LibString _name = "HostB name field";
 };
 
+OBJ_GET_OBJ_TYPEID_IMPL(HostB)
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(HostB);
 
 class ICompC : public KERNEL_NS::CompObject
@@ -529,6 +536,7 @@ public:
     }
 
 };
+
 
 // 简化版 组件C
 class CompC : public ICompC
@@ -551,6 +559,7 @@ public:
     {
         CompC::Delete_CompC(this);
     }
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 protected:
     virtual Int32 _OnInit() override
@@ -569,6 +578,9 @@ private:
     KERNEL_NS::LibString _name = "CompC name field";
     
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(CompC)
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(ICompC);
 POOL_CREATE_OBJ_DEFAULT_IMPL(CompC);
 
@@ -595,6 +607,8 @@ public:
     }
     
     virtual void OnRegisterComps() override;
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
     // 组件接口资源
 protected:
@@ -629,6 +643,8 @@ private:
     KERNEL_NS::LibString _name = "HostC name field";
 };
 
+OBJ_GET_OBJ_TYPEID_IMPL(HostC)
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(HostC);
 
 
@@ -653,7 +669,13 @@ public:
     {
         return CompA::NewByAdapter_CompA(_buildType.V);
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(CompAFactory)
+
 
 class CompBFactory : public KERNEL_NS::CompFactory
 {
@@ -674,7 +696,12 @@ public:
     {
         return CompB::NewByAdapter_CompB(_buildType.V);
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(CompBFactory)
 
 class CompFaultFactory : public KERNEL_NS::CompFactory
 {
@@ -693,7 +720,13 @@ public:
     {
         return CompFault::NewByAdapter_CompFault(_buildType.V);
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(CompFaultFactory)
+
 
 class CompCFactory : public KERNEL_NS::CompFactory
 {
@@ -714,7 +747,12 @@ public:
         CREATE_CRYSTAL_COMP(comp, CompC);
         return comp;
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(CompCFactory)
 
 class HostAFactory : public KERNEL_NS::CompFactory
 {
@@ -732,7 +770,12 @@ public:
     {
         return HostA::NewByAdapter_HostA(_buildType.V);
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(HostAFactory)
 
 class HostBFactory : public KERNEL_NS::CompFactory
 {
@@ -750,7 +793,12 @@ public:
     {
         return HostB::NewByAdapter_HostB(_buildType.V);
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(HostBFactory)
 
 class HostCFactory : public KERNEL_NS::CompFactory
 {
@@ -768,7 +816,13 @@ public:
     {
         return HostC::NewByAdapter_HostC(_buildType.V);
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(HostCFactory)
+
 
 void HostA::OnRegisterComps()
 {

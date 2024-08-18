@@ -196,6 +196,7 @@ ALWAYS_INLINE void IApplication::SetMaxSleepMilliseconds(UInt64 maxSleepMillisec
     _maxSleepMilliseconds = maxSleepMilliseconds;
 }
 
+
 KERNEL_END
 
 KERNEL_EXPORT extern KERNEL_NS::IApplication *g_Application;

@@ -99,6 +99,8 @@ public:
     void PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList);
     void PostQuitServiceSessionsEvent(UInt64 serviceId, Int32 level = 0);
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 private:
     IocpTcpSession *_GetSession(UInt64 sessionId);
     std::set<IocpTcpSession *> *_GetSessionsByIp(const LibString &ip);
@@ -159,6 +161,8 @@ private:
     void _OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params);
 
     void _OnMonitorThread(LibThread *t);
+
+    bool _OnThreadStart();
 
     // 事件循环线程
     void _OnPollEventLoop(LibThread *t);

@@ -62,6 +62,8 @@ public:
     // 时钟驱动
     void Drive();
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 protected:
     virtual Int32 _OnHostInit() override;
 
@@ -108,6 +110,8 @@ public:
 
     virtual void Release() override;
     
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 public:
     virtual KERNEL_NS::CompObject *Create() const override;
     static KERNEL_NS::CompObject *StaticCreate();

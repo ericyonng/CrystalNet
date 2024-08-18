@@ -45,3 +45,7 @@ KERNEL_NS::CompObject *XlsxExporterMgrFactory::Create() const
     CREATE_CRYSTAL_COMP(comp, XlsxExporterMgr);
     return comp;
 }
+
+// 定义
+OBJ_GET_OBJ_TYPEID_IMPL(XlsxExporterMgrFactory)
+

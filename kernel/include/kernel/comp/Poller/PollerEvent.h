@@ -68,13 +68,7 @@ struct KERNEL_EXPORT ActionPollerEvent : public PollerEvent
 {
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, ActionPollerEvent);
 
-    ActionPollerEvent(Int32 type)
-    :PollerEvent(type)
-    ,_action(NULL)
-    {
-
-    }
-
+    ActionPollerEvent();
     ~ActionPollerEvent();
 
     virtual void Release() override;
@@ -88,12 +82,7 @@ struct KERNEL_EXPORT EmptyPollerEvent : public PollerEvent
 {
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, EmptyPollerEvent);
 
-    EmptyPollerEvent(Int32 type)
-    :PollerEvent(type)
-    {
-
-    }
-
+    EmptyPollerEvent();
     ~EmptyPollerEvent()
     {
     }
@@ -103,6 +92,18 @@ struct KERNEL_EXPORT EmptyPollerEvent : public PollerEvent
         EmptyPollerEvent::Delete_EmptyPollerEvent(this);
     }
 };
+
+// TODO:协程事件
+struct KERNEL_EXPORT AsyncTaskPollerEvent : public PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AsyncTaskPollerEvent);
+
+    AsyncTaskPollerEvent();
+    ~AsyncTaskPollerEvent();
+
+    virtual void Release() override;
+};
+
 
 KERNEL_END
 

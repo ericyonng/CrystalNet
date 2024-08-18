@@ -81,7 +81,7 @@ ListenerStub EventManager::AddListener(int id, IDelegate<void, LibEvent *> *list
     auto owner = listener->GetOwner();
     if(UNLIKELY(owner && IsListening(id, owner)))
     {// 重复监听就告警下
-        const LibString ownerRtti = listener->GetOwnerRtti();
+        const LibString &ownerRtti = listener->GetOwnerRtti();
         g_Log->Warn(LOGFMT_OBJ_TAG("repeat add listen for owner, ev id:%d, obj:%p, %s stack back trace:\n%s"), id, owner, ownerRtti.c_str(), BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
     }
 

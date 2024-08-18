@@ -72,13 +72,12 @@ void IService::OnRegisterComps()
 {
     // 网络模块
     RegisterComp<KERNEL_NS::PollerMgrFactory>();
-    // 基础组件
-    RegisterComp<KERNEL_NS::PollerFactory>();
+    // 基础组件 使用当前线程的poller
+    // RegisterComp<KERNEL_NS::PollerFactory>();
     // ip规则
     RegisterComp<KERNEL_NS::IpRuleMgrFactory>();
     // 当前service所在线程tls内存定时清理
     RegisterComp<KERNEL_NS::TlsMemoryCleanerCompFactory>();
-
 
     _OnServiceRegisterComps();
 }  
@@ -262,7 +261,8 @@ Int32 IService::_OnHostInit()
 
 Int32 IService::_OnPriorityLevelCompsCreated()
 {
-    _poller = GetComp<KERNEL_NS::Poller>();
+    // todo:
+    _poller = KERNEL_NS::TlsUtil::GetDefTls()->_tlsComps->GetPoller();
 
     InitPollerEventHandler();
 
@@ -273,14 +273,6 @@ Int32 IService::_OnPriorityLevelCompsCreated()
     _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
     _poller->SetPepareEventWorkerHandler(this, &IService::_OnPollerPrepare);
     _poller->SetEventWorkerCloseHandler(this, &IService::_OnPollerWillDestroy);
-
-    auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
-    if(UNLIKELY(defObj->_poller))
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller already existes int current thread please check:%p, will assign new poller:%p, thread id:%llu")
-        , defObj->_poller, _poller, defObj->_threadId);
-
-    defObj->_poller = _poller;
-    defObj->_pollerTimerMgr = _poller->GetTimerMgr();
 
     _pollerMgr = GetComp<KERNEL_NS::IPollerMgr>();
     auto st = _OnServicePriorityLevelCompsCreated();

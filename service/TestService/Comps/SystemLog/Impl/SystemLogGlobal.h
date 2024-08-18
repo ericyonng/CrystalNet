@@ -57,6 +57,8 @@ public:
 
     void _OnSystemLogDataListReq(KERNEL_NS::LibPacket *&packet);
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 private:
     mutable std::map<UInt64, SystemLogData *> _idRefSystemLogData;
 };

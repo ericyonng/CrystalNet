@@ -43,6 +43,7 @@ public:
 
     virtual void Release() override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 public:
     virtual KERNEL_NS::CompObject *Create() const override;
 };

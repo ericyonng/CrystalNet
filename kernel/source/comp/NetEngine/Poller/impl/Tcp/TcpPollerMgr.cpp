@@ -540,5 +540,6 @@ void TcpPollerMgr::QuitAllSessions(UInt64 serviceId)
         iter.second->PostQuitServiceSessionsEvent(serviceId);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(TcpPollerMgr)
 
 KERNEL_END

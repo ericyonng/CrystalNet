@@ -54,11 +54,12 @@ CompHostObject::~CompHostObject()
 
 Int32 CompHostObject::_OnCreated()
 {
-    const LibString objName = RttiUtil::GetByObj(this);
+    const LibString &objName = RttiUtil::GetByObj(this);
     LibString dependingShip = objName + " ";
     if(!CheckCircleDepending(objName, dependingShip))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("circle depending... %s, owner::%s, dependingShip:%s"), objName.c_str(), GetOwner()->GetObjName().c_str(), dependingShip.c_str());
+        auto owner = GetOwner();
+        g_Log->Warn(LOGFMT_OBJ_TAG("circle depending... %s, owner::%s, dependingShip:%s"), objName.c_str(), owner ? owner->GetObjName().c_str() : "", dependingShip.c_str());
         return Status::Repeat;
     }
 
@@ -228,7 +229,7 @@ Int32 CompHostObject::RegisterComp(CompFactory *factory)
         {
             if(iterRegComp._factory == factory)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory));
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
                 return Status::Repeat;
             }
         }
@@ -239,7 +240,7 @@ Int32 CompHostObject::RegisterComp(CompFactory *factory)
     {
         if(iter->_factory == factory)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory));
+            g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
             return Status::Repeat;
         }
     }
@@ -278,7 +279,7 @@ Int32 CompHostObject::RegisterComp(const std::vector<CompFactory *> &factorys)
             if(iter->_factory == factory)
             {
                 isRegister = true;
-                g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory));
+                g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
                 break;
             }
         }
@@ -295,7 +296,7 @@ Int32 CompHostObject::RegisterComp(const std::vector<CompFactory *> &factorys)
                 if(iterRegComp._factory == factory)
                 {
                     isRegister = true;
-                    g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory));
+                    g_Log->Warn(LOGFMT_OBJ_TAG("repeat factory:%s, already register in will reg comps queue."), RttiUtil::GetByObj(factory).c_str());
                     break;
                 }
             }
@@ -345,17 +346,18 @@ Int32 CompHostObject::RegisterComp(CompObject *comp)
     {
         if(iter->_comp == comp)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in will reg comps queue."), RttiUtil::GetByObj(comp));
+            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in will reg comps queue."), RttiUtil::GetByObj(comp).c_str());
             return Status::Repeat;
         }
     }
 
+    
     // 是否被注册过
     for(auto iter = _comps.begin(); iter != _comps.end(); ++iter)
     {
         if(*iter == comp)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in comps queue."), RttiUtil::GetByObj(comp));
+            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in comps queue."), RttiUtil::GetByObj(comp).c_str());
             return Status::Repeat;
         }
     }
@@ -363,6 +365,66 @@ Int32 CompHostObject::RegisterComp(CompObject *comp)
     _willRegComps.push_back(_WillRegComp(comp));
     return Status::Success;
 }
+
+bool CompHostObject::AttachComp(CompObject *comp)
+{
+    // 替换已有组件 TODO:找到组件, 存在的要对组件执行Close以及移除操作
+    const auto typeId = RttiUtil::GetTypeIdByObj(comp);
+    auto oldComp = GetCompByTypeId(typeId);
+    if(oldComp == comp)
+        return true;
+
+    if(UNLIKELY(!oldComp))
+    {// 旧的组件不存在, 那么执行的是新增
+
+        //是否存在循环依赖
+        LibString info;
+        if(UNLIKELY(!CheckCircleDepending(comp->GetObjName(), info)))
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("exists circle :%s, comp:%s, current host:%s"), info.c_str(), comp->GetObjName().c_str(), GetObjName().c_str());
+            return false;
+        }
+
+        _AddComp(comp, true);
+
+        _OnAttachedComp(NULL, comp);
+
+        g_Log->Info(LOGFMT_OBJ_TAG("host:%s, attach comp:%s"), GetObjName().c_str(), comp->GetObjName().c_str());
+
+        return true;
+    }
+
+    // 替换的必须comp是已启动的, 因为执行Start/等的不确定性
+    if(UNLIKELY(!comp->IsStarted()))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("comp not started, comp:%s, current host:%s"), comp->GetObjName().c_str(), GetObjName().c_str());
+        return false;
+    }
+
+    _attachedComps.insert(comp);
+
+    // 替换
+    _ReplaceComp(oldComp, comp);
+
+    g_Log->Info(LOGFMT_OBJ_TAG("host:%s, attatch oldcomp:%s => new comp:%s"), ToString().c_str(), oldComp->ToString().c_str(), comp->ToString().c_str());
+
+    _OnAttachedComp(oldComp, comp);
+
+    if(LIKELY(!IsAttached(oldComp)))
+    {
+        g_Log->Info(LOGFMT_OBJ_TAG("attch comp:%s, remove old comp:%s, host:%s")
+        , comp->ToString().c_str(), oldComp->ToString().c_str(), ToString().c_str());
+
+        oldComp->WillClose();
+        oldComp->Close();
+        oldComp->Release();
+    }
+
+    _attachedComps.erase(oldComp);
+
+    return true;
+}
+
 
 bool CompHostObject::CheckCircleDepending(const LibString &compName, KERNEL_NS::LibString &dependingShip) const
 {
@@ -381,6 +443,256 @@ bool CompHostObject::CheckCircleDepending(const LibString &compName, KERNEL_NS::
         return owner->CastTo<CompHostObject>()->CheckCircleDepending(compName, dependingShip);
     }
 
+    return true;
+}
+
+
+bool CompHostObject::AddComp(CompObject *comp)
+{
+    if(UNLIKELY(!comp))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("comp is nil please check"));
+        return false;
+    }
+
+    // 是否被注册过
+    for(auto iter = _willRegComps.begin(); iter != _willRegComps.end(); ++iter)
+    {
+        if(iter->_comp == comp)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in will reg comps queue."), RttiUtil::GetByObj(comp).c_str());
+            return false;
+        }
+    }
+
+    // 是否被注册过
+    for(auto iter = _comps.begin(); iter != _comps.end(); ++iter)
+    {
+        if(*iter == comp)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("repeat comp:%s, already register in comps queue."), RttiUtil::GetByObj(comp).c_str());
+            return false;
+        }
+    }
+
+    //是否存在循环依赖
+    LibString info;
+    if(UNLIKELY(!CheckCircleDepending(comp->GetObjName(), info)))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("exists circle :%s, comp:%s, current host:%s"), info.c_str(), comp->GetObjName().c_str(), GetObjName().c_str());
+        return false;
+    }
+
+    auto oldOwner = comp->GetOwner();
+    comp->BindOwner(this);
+
+    auto st = comp->OnCreated();
+    if(st != Status::Success)
+    {
+        comp->BindOwner(oldOwner);
+        g_Log->Warn(LOGFMT_OBJ_TAG("oncreate fail comp:%s, st:%d"), comp->GetObjName().c_str(), st);
+        return false;
+    }
+
+    _AddComp(comp);
+    _MaskIfFocus(comp);
+
+    st = _OnDynamicAddCompCreated(comp);
+    if(st != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompCreated fail comp:%s, st:%d")
+        , comp->GetObjName().c_str(), st);
+        PopComp(comp);
+        comp->BindOwner(oldOwner);
+
+        return false;
+    }
+
+    if(!comp->IsInited())
+    {
+        st = comp->Init();
+        if(st != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("Init fail comp:%s st:%d")
+            , comp->GetObjName().c_str(), st);
+            PopComp(comp);
+            comp->BindOwner(oldOwner);
+            return false;
+        }
+
+        st = _OnDynamicAddCompInited(comp);
+        if(st != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompInited fail comp:%s st:%d")
+            , comp->GetObjName().c_str(), st);
+            PopComp(comp);
+            comp->BindOwner(oldOwner);
+            return false;
+        }
+    }
+
+    if(!comp->IsStarted())
+    {
+        st = comp->Start();
+        if(st != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("Start fail comp:%s st:%d")
+            , comp->GetObjName().c_str(), st);
+            PopComp(comp);
+            comp->BindOwner(oldOwner);
+            return false;
+        }
+
+        st = _OnDynamicAddCompStarted(comp);
+        if(st != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompStarted fail comp:%s st:%d")
+            , comp->GetObjName().c_str(), st);
+            PopComp(comp);
+            comp->BindOwner(oldOwner);
+            return false;
+        }
+    }
+
+    st = _OnAfterDynamicAddComp(comp);
+    if(st != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("_OnAfterDynamicAddComp fail comp:%s st:%d")
+        , comp->GetObjName().c_str(), st);
+        PopComp(comp);
+        comp->BindOwner(oldOwner);
+        return false;
+    }
+
+    comp->OnBindNewHost(this);
+
+    return true;
+}
+
+bool CompHostObject::PopComp(CompObject *comp)
+{
+    _OnWillDynamicPopComp(comp);
+
+    // TODO:
+    {// 容器中替代
+        const Int32 compAmount = static_cast<Int32>(_comps.size());
+        for(Int32 idx = 0; idx < compAmount; ++idx)
+        {
+            if(_comps[idx] == comp)
+            {
+                _comps.erase(_comps.begin() + idx);
+                break;
+            }
+        }
+
+        _compIdRefComp.erase(comp->GetId());
+    }
+
+    {// 类型名映射
+        const auto &objName = comp->GetObjName();
+        auto iterComps = _compObjNameRefComps.find(objName);
+        if(iterComps != _compObjNameRefComps.end())
+        {
+            auto &comps = iterComps->second;
+            {
+                const Int32 compAmount = static_cast<Int32>(comps.size());
+                for(Int32 idx = 0; idx < compAmount; ++idx)
+                {
+                    if(comps[idx] == comp)
+                    {
+                        comps.erase(comps.begin() + idx);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // 类型映射
+    {
+        const auto typeId = KERNEL_NS::RttiUtil::GetTypeIdByObj(comp);
+        auto iterComps = _compTypeIdRefComps.find(typeId);
+        if(iterComps == _compTypeIdRefComps.end())
+        {
+            auto &comps = iterComps->second;
+            {
+                const Int32 compAmount = static_cast<Int32>(comps.size());
+                for(Int32 idx = 0; idx < compAmount; ++idx)
+                {
+                    if(comps[idx] == comp)
+                    {
+                        comps.erase(comps.begin() + idx);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    const Int32 maxFocusEnum = GetMaxFocusEnd();
+    for(Int32 idx = ObjFocusInterfaceFlag::BEGIN; idx < maxFocusEnum; ++idx)
+    {
+        auto &focusComps = _focusTypeRefComps[idx];
+        const auto cn = static_cast<Int32>(focusComps.size());
+        for(Int32 compIdx = 0; compIdx < cn; ++compIdx)
+        {
+            auto item = focusComps[compIdx];
+            if(item == comp)
+            {
+                focusComps.erase(focusComps.begin() + compIdx);
+                break;
+            }
+        }
+    }
+
+    // 旧的接口类型id移除
+    bool isInterfaceReplace = false;
+    const auto oldInterfaceTypeId = comp->GetInterfaceTypeId();
+    if(oldInterfaceTypeId)
+    {
+        auto iterOldComps = _compTypeIdRefComps.find(oldInterfaceTypeId);
+        if(iterOldComps != _compTypeIdRefComps.end())
+        {
+            auto &comps = iterOldComps->second;
+            {
+                const Int32 compAmount = static_cast<Int32>(comps.size());
+                for(Int32 idx = 0; idx < compAmount; ++idx)
+                {
+                    if(comps[idx] == comp)
+                    {
+                        comps.erase(comps.begin() + idx);
+                        isInterfaceReplace = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    // 类型映射
+    if(comp->GetType())
+    {
+        auto iterTypeComps = _compTypeRefComps.find(comp->GetType());
+        if(iterTypeComps != _compTypeRefComps.end())
+        {
+            auto &typeComps = iterTypeComps->second;
+            const Int32 compAmount = static_cast<Int32>(typeComps.size());
+            for(Int32 idx = 0; idx < compAmount; ++idx)
+            {
+                if(typeComps[idx] == comp)
+                {
+                    typeComps.erase(typeComps.begin() + idx);
+                    break;
+                }
+            }
+        }
+    }
+
+    comp->OnPop(this);
+
+    _OnDynamicPopCompFinish(comp);
+
+    _attachedComps.erase(comp);
     return true;
 }
 
@@ -437,7 +749,7 @@ Int32 CompHostObject::_InitComps()
             Int32 ret = newComp->OnCreated();
             if(ret != Status::Success)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("comp created fail ret:%d, comp name:%s, host comp name:%s"), ret, RttiUtil::GetByObj(newComp), GetObjName().c_str());
+                g_Log->Error(LOGFMT_OBJ_TAG("comp created fail ret:%d, comp name:%s, host comp name:%s"), ret, RttiUtil::GetByObj(newComp).c_str(), GetObjName().c_str());
                 
                 initSuccess = false;
                 newComp->WillClose();
@@ -502,7 +814,7 @@ Int32 CompHostObject::_InitComps()
         Int32 ret = newComp->OnCreated();
         if(ret != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("comp created fail ret:%d, comp name:%s, host comp name:%s"), ret, RttiUtil::GetByObj(newComp), GetObjName().c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("comp created fail ret:%d, comp name:%s, host comp name:%s"), ret, RttiUtil::GetByObj(newComp).c_str(), GetObjName().c_str());
             
             initSuccess = false;
             newComp->WillClose();
@@ -602,6 +914,9 @@ void CompHostObject::_OnWillCloseComps()
     for(auto iter = _comps.rbegin(); iter != _comps.rend(); ++iter)
     {
         auto comp = *iter;
+        if(UNLIKELY(IsAttached(comp)))
+            continue;
+
         if(!comp->IsStarted())
             continue;
         
@@ -622,6 +937,9 @@ void CompHostObject::_CloseComps()
     for(auto iter = _comps.rbegin(); iter != _comps.rend(); ++iter)
     {
         auto comp = *iter;
+        if(UNLIKELY(IsAttached(comp)))
+            continue;
+
         if(!comp->IsStarted())
             continue;
 
@@ -665,7 +983,10 @@ void CompHostObject::_DestroyWillRegComps()
 
 void CompHostObject::_DestroyComps()
 {
-    ContainerUtil::DelContainer(_comps, [](CompObject *comp){
+    ContainerUtil::DelContainer(_comps, [this](CompObject *comp){
+        if(UNLIKELY(IsAttached(comp)))
+            return;
+
         const auto compName = comp->GetObjName();
         comp->Release();
     });
@@ -673,12 +994,13 @@ void CompHostObject::_DestroyComps()
     _compTypeIdRefComps.clear();
     _compIdRefComp.clear();
     _compObjNameRefComps.clear();
+    _compTypeRefComps.clear();
 
     if(g_Log->IsEnable(LogLevel::Info)) 
        g_Log->Info(LOGFMT_OBJ_TAG("destroyed comps over of host:%s"), _objName.c_str());
 }
 
-void CompHostObject::_AddComp(CompObject *comp)
+void CompHostObject::_AddComp(CompObject *comp, bool isAttach)
 {
     _comps.push_back(comp);
     _compIdRefComp.insert(std::make_pair(comp->GetId(), comp));
@@ -722,24 +1044,15 @@ void CompHostObject::_AddComp(CompObject *comp)
 
         iterComps->second.push_back(comp);
     }
+
+    if(isAttach)
+        _attachedComps.insert(comp);
 }
 
-bool CompHostObject::_ReplaceComp(CompObject *oldComp, CompObject *comp)
+void CompHostObject::_ReplaceComp(CompObject *oldComp, CompObject *comp)
 {
-    comp->BindOwner(this);
-    if(UNLIKELY(!oldComp))
-    {// 旧的组件不存在, 那么执行的是新增
-        LibString dependingShip;
-        if(!CheckCircleDepending(comp->GetObjName(), dependingShip))
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("circle depending when old comp is not found and will add new comp ... %s, owner::%s, dependingShip:%s")
-                    , comp->GetObjName().c_str(), comp->GetOwner()->GetObjName().c_str(), dependingShip.c_str());
-            return false;
-        }
-
-        _AddComp(comp);
-        return true;
-    }
+    if(LIKELY(!IsAttached(comp)))
+        comp->BindOwner(this);
 
     // TODO:
     {// 容器中替代
@@ -853,8 +1166,109 @@ bool CompHostObject::_ReplaceComp(CompObject *oldComp, CompObject *comp)
         }
     }
 
-    return true;
+    // 关注的接口
+    const Int32 maxFocusEnum = GetMaxFocusEnd();
+    for(Int32 idx = ObjFocusInterfaceFlag::BEGIN; idx < maxFocusEnum; ++idx)
+    {
+        auto &focusComps = _focusTypeRefComps[idx];
+        auto replaceComp = comp->IsFocus(idx) ? comp : NULL;
+        if(UNLIKELY(IsAttached(comp)))
+            replaceComp = NULL;
+
+        if(oldComp->IsFocus(idx))
+        {
+            const Int32 cn = static_cast<Int32>(focusComps.size());
+            bool isReplaceSuc = false;
+            for(Int32 compIdx = 0; compIdx < cn; ++compIdx)
+            {
+                auto item = focusComps[compIdx];
+                if(item == oldComp)
+                {
+                    if(replaceComp)
+                       focusComps[compIdx] = replaceComp;
+                    else
+                        focusComps.erase(focusComps.begin() + compIdx);
+
+                    isReplaceSuc = true;
+                    break;
+                }
+            }
+
+            // 没替换成功, 则新增到focus中
+            if(!isReplaceSuc)
+            {
+                if(replaceComp)
+                    focusComps.push_back(replaceComp);
+            }
+        }
+        else
+        {
+            if(replaceComp)
+                focusComps.push_back(replaceComp);
+        }
+    }
 }
+
+Int32 CompHostObject::_MakeCompStarted(CompObject *comp)
+{
+    auto st = comp->OnCreated();
+    if(st != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("OnCreated fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+        return st;
+    }
+
+    st = _OnDynamicAddCompCreated(comp);
+    if(st != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompCreated fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+        return st;
+    }
+
+    if(!comp->IsInited())
+    {
+        st = comp->Init();
+        if(st != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("Init fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+            return st;
+        }
+
+        st = _OnDynamicAddCompInited(comp);
+        if(st != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompInited fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+            return st;
+        }
+    }
+
+    if(!comp->IsStarted())
+    {
+        st = comp->Start();
+        if(st != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("Start fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+            return st;
+        }
+
+        st = _OnDynamicAddCompStarted(comp);
+        if(st != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnDynamicAddCompStarted fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+            return st;
+        }
+    }
+
+    st = _OnAfterDynamicAddComp(comp);
+    if(st != Status::Success)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("_OnAfterDynamicAddComp fail comp:%s, st:%d"), comp->ToString().c_str(), st);
+        return st;
+    }
+
+    return Status::Success;
+}
+
 
 void CompHostObject::_RemoveComp(CompObject *comp)
 {
@@ -868,6 +1282,32 @@ void CompHostObject::_RemoveComp(CompObject *comp)
 
             _willRegComps.erase(_willRegComps.begin() + idx);
         }
+    }
+
+    {// priority level dict
+        for(auto iter = _priorityLevelRefWillRegComp.begin(); iter != _priorityLevelRefWillRegComp.end();)
+        {
+            auto &regs = iter->second;
+            const Int32 cn = static_cast<Int32>(regs.size());
+            for(Int32 idx = cn -1; idx >= 0; --idx)
+            {
+                auto &reg = regs[idx];
+                if(reg._comp == comp)
+                    continue;
+
+                regs.erase(regs.begin() + idx);
+            }
+
+            if(regs.empty())
+            {
+                iter = _priorityLevelRefWillRegComp.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+        }
+        
     }
 
     {
@@ -965,13 +1405,43 @@ void CompHostObject::_RemoveComp(CompObject *comp)
         }
     }
 
-    comp->WillClose();
-    comp->Close();
-    comp->Release();
+    {// focus
+        const Int32 cn = static_cast<Int32>(_focusTypeRefComps.size());
+
+        for(Int32 idx = cn - 1; idx >= 0; --idx)
+        {
+            auto &item = _focusTypeRefComps[idx];
+            const Int32 cnItem = static_cast<Int32>(item.size());
+            for(Int32 idxItem = cnItem - 1; idxItem >= 0; --idxItem)
+            {
+                auto o = item[idxItem];
+                if(!o)
+                    continue;
+
+                if(o == comp)
+                {
+                    item.erase(item.begin() + idxItem);
+                }
+            }
+        }
+    }
+
+    if(!IsAttached(comp))
+    {
+        comp->WillClose();
+        comp->Close();
+        comp->Release();
+    }
+
+    _attachedComps.erase(comp);
 }
 
 void CompHostObject::_MaskIfFocus(CompObject *comp)
 {
+    // attach 的组件不进行生命周期管理, 由comp的owner进行管理
+    if(UNLIKELY(IsAttached(comp)))
+        return;
+
     const Int32 maxFocusEnum = GetMaxFocusEnd();
     for(Int32 idx = ObjFocusInterfaceFlag::BEGIN; idx < maxFocusEnum; ++idx)
     {
@@ -994,6 +1464,7 @@ void CompHostObject::_Clear()
     _DestroyWillRegComps();
 
     _focusTypeRefComps.clear();
+    _attachedComps.clear();
 
     if(g_Log->IsEnable(LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("_Clear CompHostObject host:%s over"), _objName.c_str());

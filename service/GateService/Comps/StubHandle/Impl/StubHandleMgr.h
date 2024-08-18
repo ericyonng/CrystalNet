@@ -57,6 +57,8 @@ public:
     // 调用回调
     virtual void InvokeHandle(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params) override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 protected:
     Int32 _OnGlobalSysInit() override;
     void _OnGlobalSysClose() override;

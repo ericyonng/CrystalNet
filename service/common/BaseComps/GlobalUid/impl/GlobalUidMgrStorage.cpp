@@ -97,4 +97,7 @@ bool GlobalUidMgrStorage::RegisterStorages()
     return true;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(GlobalUidMgrStorage)
+
+
 SERVICE_END

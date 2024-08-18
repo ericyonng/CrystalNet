@@ -1435,7 +1435,7 @@ ALWAYS_INLINE bool LibStream<BuildType>::_ReadObj(ObjType &obj, ...)
         return true;
     }
 
-    CRYSTAL_TRACE("error, Cant Read. struct name[%s].", RttiUtil::GetByType<ObjType>());
+    CRYSTAL_TRACE("error, Cant Read. struct name[%s].", RttiUtil::GetByType<ObjType>().c_str());
     return false;
 }
 

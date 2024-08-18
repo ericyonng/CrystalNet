@@ -135,12 +135,11 @@ void IApplication::Clear()
 void IApplication::_Clear()
 {
     // TODO:
+    _poller = NULL;
 }
 
 void IApplication::OnRegisterComps()
 {
-    // 基础组件
-    RegisterComp<KERNEL_NS::PollerFactory>();
 }
 
 Int32 IApplication::_OnHostInit()
@@ -177,7 +176,8 @@ Int32 IApplication::_OnHostInit()
 
 Int32 IApplication::_OnPriorityLevelCompsCreated()
 {
-    _poller = GetComp<Poller>();
+    // 设置poller参数
+    _poller = KERNEL_NS::TlsUtil::GetDefTls()->_tlsComps->GetPoller();
 
     // poller 设置
     KERNEL_NS::TimeSlice span(0, 0, _maxPieceTimeInMicroseconds);
@@ -187,21 +187,12 @@ Int32 IApplication::_OnPriorityLevelCompsCreated()
     // _poller->SetPepareEventWorkerHandler(this, &IApplication::_OnPollerPrepare);
     // _poller->SetEventWorkerCloseHandler(this, &IApplication::_OnPollerWillDestroy);
 
-    auto defObj = KERNEL_NS::TlsUtil::GetDefTls();
-    if(UNLIKELY(defObj->_poller))
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller already existes int current thread please check:%p, will assign new poller:%p, thread id:%llu")
-        , defObj->_poller, _poller, defObj->_threadId);
-
-    defObj->_poller = _poller;
-    defObj->_pollerTimerMgr = _poller->GetTimerMgr();
-
     return Status::Success;
 }
 
 // 所有组件创建完成
 Int32 IApplication::_OnCompsCreated()
 {
-
     g_Log->Info(LOGFMT_OBJ_TAG("app %s comps created."), _appName.c_str());
     return Status::Success;
 }

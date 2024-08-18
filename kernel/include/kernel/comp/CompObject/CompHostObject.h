@@ -41,6 +41,7 @@
 #include <unordered_map>
 #include <vector>
 #include <map>
+#include <unordered_set>
 
 #include <kernel/common/status.h>
 #include <kernel/comp/CompObject/CompFactory.h>
@@ -91,6 +92,17 @@ protected:
     // 在组件更新之后
     virtual void _OnHostUpdate() {}
 
+    // 动态添加组件Created
+    virtual Int32 _OnDynamicAddCompCreated(CompObject *newComp) { return Status::Success;}
+    virtual Int32 _OnDynamicAddCompInited(CompObject *newComp) {return Status::Success;}
+    virtual Int32 _OnDynamicAddCompStarted(CompObject *newComp) {return Status::Success;}
+    virtual Int32 _OnAfterDynamicAddComp(CompObject *newComp) {return Status::Success;}
+    
+    virtual void _OnWillDynamicPopComp(CompObject *comp) {}
+    virtual void _OnDynamicPopCompFinish(CompObject *comp) {}
+
+    // attach
+    virtual void _OnAttachedComp(CompObject *oldComp, CompObject *newComp) {}
 
 public:
     virtual void Clear() override;
@@ -101,7 +113,7 @@ public:
 
     bool IsAllCompsReady(CompObject *&notReadyComp) const;
     bool IsAllCompsDown(CompObject *&notDownComp) const;
-
+    bool IsAttached(CompObject *comp) const;
 
 // // 功能api
 public:
@@ -200,30 +212,47 @@ public:
     template<typename ObjType>
     bool ReplaceComp(ObjType *comp)
     {
+        // 必须没有owner
+        if(UNLIKELY(comp->GetOwner()))
+            return false;
+
         // 替换已有组件 TODO:找到组件, 存在的要对组件执行Close以及移除操作
         const auto typeId = RttiUtil::GetTypeIdByObj(comp);
         auto oldComp = GetCompByTypeId(typeId);
         if(oldComp == comp)
             return true;
 
-        if(LIKELY(oldComp))
+        if(UNLIKELY(!oldComp))
+        {// 旧的组件不存在, 那么执行的是新增
+            if(!AddComp(comp))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        // 替换的必须comp是已启动的, 因为执行Start/等的不确定性
+        if(UNLIKELY(!comp->IsStarted()))
+            return false;
+
+        // 替换
+        _ReplaceComp(oldComp, comp);
+
+        if(LIKELY(!IsAttached(oldComp)))
         {
             oldComp->WillClose();
             oldComp->Close();
-        }
-
-        if(!_ReplaceComp(oldComp, comp))
-        {
-            return false;
-        }
-
-        if(LIKELY(oldComp))
-        {
             oldComp->Release();
         }
 
+        comp->OnBindNewHost(this);
+
         return true;
     }
+
+    // 借用对象, 不会bindowner,它的owner仍然是原来的, 只是做了dict的映射, 也不会调用生命周期函数和它关forcus的接口, 避免和原owner冲突
+    bool AttachComp(CompObject *comp);
 
     // 批量替换相同类型组件 TODO:找到组件, 存在的要对组件进行Close和移除操作
     // TODO:批量替换多个同类型组件
@@ -241,6 +270,15 @@ public:
     // 检查host 类型组件避免循环依赖 dependingShip:依赖关系
     bool CheckCircleDepending(const LibString &compName, KERNEL_NS::LibString &dependingShip) const;
 
+    // 添加组件
+    bool AddComp(CompObject *comp);
+
+    // 弹出组件
+    template<typename ObjType>
+    CompObject *PopComp();
+
+    bool PopComp(CompObject *comp);    
+
 private:
     // 在MaxFocusEnum变化时需要调用该方法
     void _ResizeFocusDict();
@@ -250,11 +288,13 @@ private:
     void _CloseComps();
     void _DestroyWillRegComps();
     void _DestroyComps();
-    void _AddComp(CompObject *comp);
-    bool _ReplaceComp(CompObject *oldComp, CompObject *comp);
+    void _AddComp(CompObject *comp, bool isAttach = false);
+    void _ReplaceComp(CompObject *oldComp, CompObject *comp);
+    Int32 _MakeCompStarted(CompObject *comp);
     void _RemoveComp(CompObject *comp);
 
     void _MaskIfFocus(CompObject *comp);
+    void _RemoveFromFocus(CompObject *comp);
     void _Clear();
 
     void _OnUpdateComps();
@@ -288,7 +328,15 @@ private:
 
     // 关注的接口
     std::vector<std::vector<CompObject *>> _focusTypeRefComps;
+
+    // 被当前宿主借用的组件, 不进行生命周期管理,只能在当前宿主started之后, 且还没close才能借用, 且只做映射, 不执行forcus等接口调用, owner也不替换成当前Host
+    std::unordered_set<CompObject *> _attachedComps;
 };
+
+ALWAYS_INLINE bool CompHostObject::IsAttached(CompObject *comp) const
+{
+    return _attachedComps.find(comp) != _attachedComps.end();
+}
 
 template<typename CompFactoryType>
 ALWAYS_INLINE Int32 CompHostObject::RegisterComp()
@@ -349,12 +397,6 @@ ALWAYS_INLINE CompObject *CompHostObject::GetCompByTypeId(UInt64 typeId)
     auto iter = _compTypeIdRefComps.find(typeId);
     if(iter == _compTypeIdRefComps.end() || iter->second.empty())
         return NULL;
-
-    // 解决冲突
-    if(UNLIKELY(iter->second.size() > 1))
-    {
-        // TODO:
-    }
 
     return iter->second[0];
 }

@@ -109,6 +109,8 @@ public:
    virtual void OnPassYear(const KERNEL_NS::LibTime &nowTime) override;
    virtual void OnPassTimeEnd(const KERNEL_NS::LibTime &nowTime) override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 private:
     virtual Int32 _OnGlobalSysInit() override;
     virtual Int32 _OnGlobalSysCompsCreated() override;

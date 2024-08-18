@@ -65,5 +65,6 @@ bool BookBagMgrStorage::RegisterStorages()
     return true;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(BookBagMgrStorage)
 
 SERVICE_END

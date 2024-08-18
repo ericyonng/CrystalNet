@@ -81,7 +81,7 @@ public:
         if(!jsonArray.is_array())
         {
             errInfo.AppendFormat("parse json fail, assign std::vector<%s> value fail dataInfo:%s\n"
-                                , KERNEL_NS::RttiUtil::GetByType<ArrayElemType>(), dataInfo.c_str());
+                                , KERNEL_NS::RttiUtil::GetByType<ArrayElemType>().c_str(), dataInfo.c_str());
             return false;
         }
 
@@ -92,7 +92,7 @@ public:
             if(!Assign(elem, itemDump, errInfo))
             {
                 errInfo.AppendFormat("assign array element fail, element type:%s, jsonArray:%s"
-                    , KERNEL_NS::RttiUtil::GetByType<ArrayElemType>(), dataInfo.c_str());
+                    , KERNEL_NS::RttiUtil::GetByType<ArrayElemType>().c_str(), dataInfo.c_str());
                 return false;
             }
 
@@ -109,7 +109,7 @@ public:
         if(!jsonObject.is_object())
         {
             errInfo.AppendFormat("parse json fail, assign std::unordered_map<%s, %s> value fail dataInfo:%s\n"
-                                , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>(), dataInfo.c_str());
+                                , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), KERNEL_NS::RttiUtil::GetByType<DictValue>().c_str(), dataInfo.c_str());
             return false;
         }
 
@@ -121,8 +121,8 @@ public:
             if(!Assign(keyField, keyJson, errInfo))
             {
                 errInfo.AppendFormat("assign key field fail, std::unordered_map<%s, %s> key type:%s, keyJson:%s"
-                    , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
-                    , KERNEL_NS::RttiUtil::GetByType<DictKey>(), keyJson.c_str());
+                    , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), KERNEL_NS::RttiUtil::GetByType<DictValue>().c_str()
+                    , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), keyJson.c_str());
                 return false;
             }
 
@@ -131,15 +131,15 @@ public:
             if(!Assign(valueField, valueJson, errInfo))
             {
                 errInfo.AppendFormat("assign value field fail, std::unordered_map<%s, %s> value type:%s, valueJson:%s"
-                            , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
-                            , KERNEL_NS::RttiUtil::GetByType<DictKey>(), keyJson.c_str());
+                            , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), KERNEL_NS::RttiUtil::GetByType<DictValue>().c_str()
+                            , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), keyJson.c_str());
                 return false;
             }
 
             if(field.find(keyField) != field.end())
             {
                 errInfo.AppendFormat("duplicate key, std::unordered_map<%s, %s> key:%s, value json:%s"
-                            , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
+                            , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), KERNEL_NS::RttiUtil::GetByType<DictValue>().c_str()
                             , keyJson.c_str(), valueJson.c_str());
                 return false;
             }
@@ -157,7 +157,7 @@ public:
         if(!jsonObject.is_object())
         {
             errInfo.AppendFormat("parse json fail, assign std::map<%s, %s> value fail dataInfo:%s\n"
-                                , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>(), dataInfo.c_str());
+                                , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), KERNEL_NS::RttiUtil::GetByType<DictValue>().c_str(), dataInfo.c_str());
             return false;
         }
 
@@ -169,8 +169,8 @@ public:
             if(!Assign(keyField, keyJson, errInfo))
             {
                 errInfo.AppendFormat("assign key field fail, std::map<%s, %s> key type:%s, keyJson:%s"
-                    , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
-                    , KERNEL_NS::RttiUtil::GetByType<DictKey>(), keyJson.c_str());
+                    , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), KERNEL_NS::RttiUtil::GetByType<DictValue>().c_str()
+                    , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), keyJson.c_str());
                 return false;
             }
 
@@ -179,15 +179,15 @@ public:
             if(!Assign(valueField, valueJson, errInfo))
             {
                 errInfo.AppendFormat("assign value field fail, std::map<%s, %s> value type:%s, valueJson:%s"
-                            , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
-                            , KERNEL_NS::RttiUtil::GetByType<DictValue>(), valueJson.c_str());
+                            , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), KERNEL_NS::RttiUtil::GetByType<DictValue>().c_str()
+                            , KERNEL_NS::RttiUtil::GetByType<DictValue>().c_str(), valueJson.c_str());
                 return false;
             }
 
             if(field.find(keyField) != field.end())
             {
                 errInfo.AppendFormat("duplicate key, std::map<%s, %s> key:%s, value json:%s"
-                            , KERNEL_NS::RttiUtil::GetByType<DictKey>(), KERNEL_NS::RttiUtil::GetByType<DictValue>()
+                            , KERNEL_NS::RttiUtil::GetByType<DictKey>().c_str(), KERNEL_NS::RttiUtil::GetByType<DictValue>().c_str()
                             , keyJson.c_str(), valueJson.c_str());
                 return false;
             }

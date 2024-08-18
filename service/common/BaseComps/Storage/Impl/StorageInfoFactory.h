@@ -51,6 +51,8 @@ public:
 
     virtual IStorageInfo *Create() const = 0;
 
+    virtual UInt64 GetObjTypeId() const = 0;
+
     // 派生类无需要重写以下静态接口任意一个
     // static SERVICE_NS::StorageFactory *FactoryCreate();
     // static std::vector<SERVICE_NS::StorageFactory *> FactoryCreate();

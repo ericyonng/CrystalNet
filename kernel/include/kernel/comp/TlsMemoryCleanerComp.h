@@ -62,6 +62,8 @@ public:
     Int32 ManualStart();
     void ManualClose();
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 protected:
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;
@@ -105,6 +107,8 @@ public:
 
     virtual void Release() override;
     
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 public:
     virtual KERNEL_NS::CompObject *Create() const override;
     static KERNEL_NS::CompObject *StaticCreate();

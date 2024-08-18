@@ -1644,6 +1644,7 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("    ~%s();\n", mgrClassName.c_str());
         fileContent.AppendFormat("\n");
         fileContent.AppendFormat("    virtual void Release() override;\n");
+        fileContent.AppendFormat("    virtual void GetObjTypeId() const override;\n");
         fileContent.AppendFormat("    virtual void Clear() override;\n");
         fileContent.AppendFormat("    virtual KERNEL_NS::LibString ToString() const override;\n");
         fileContent.AppendFormat("    virtual Int32 Load() override;\n");
@@ -1845,6 +1846,12 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("    {\n");
         fileContent.AppendFormat("        return %s::NewByAdapter_%s(_buildType.V);\n", mgrClassName.c_str(), mgrClassName.c_str());
         fileContent.AppendFormat("    }\n");
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("    virtual UInt64 GetObjTypeId() const override\n");
+        fileContent.AppendFormat("    {\n");
+        fileContent.AppendFormat("        return KERNEL_NS::RttiUtil::GetTypeId<%s>();\n", mgrFactoryClassName.c_str());
+        fileContent.AppendFormat("    }\n");
+        fileContent.AppendFormat("\n");
         fileContent.AppendFormat("};\n");
         fileContent.AppendFormat("\n");
     }
@@ -2016,7 +2023,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
             fileContent.AppendFormat("      KERNEL_NS::LibString errInfo;\n");
             fileContent.AppendFormat("      if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(%s, dataPart, errInfo))\n", memberName.c_str());
             fileContent.AppendFormat("      {\n");
-            fileContent.AppendFormat("          g_Log->Error(LOGFMT_OBJ_TAG(\"%%s, assign fail field name:%s, data part:%%s, errInfo:%%s  line data:%%s, pos:%%d, headerTailPos:%%d, dataEndPos:%%d\"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));\n", memberName.c_str());
+            fileContent.AppendFormat("          g_Log->Error(LOGFMT_OBJ_TAG(\"%%s, assign fail field name:%s, data part:%%s, errInfo:%%s  line data:%%s, pos:%%d, headerTailPos:%%d, dataEndPos:%%d\"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));\n", memberName.c_str());
             fileContent.AppendFormat("          return false;\n");
             fileContent.AppendFormat("      }\n");
             fileContent.AppendFormat("\n");
@@ -2572,6 +2579,15 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("    return -1;\n");
 
         fileContent.AppendFormat("}\n");
+    }
+
+    {// GetObjTypeId
+        fileContent.AppendFormat("\n");
+        fileContent.AppendFormat("Int64 %s::GetObjTypeId() const\n", mgrClassName.c_str());
+        fileContent.AppendFormat("{\n");
+        fileContent.AppendFormat("    return KERNEL_NS::RttiUtil::GetTypeId<%s>();\n", mgrClassName.c_str());
+        fileContent.AppendFormat("}\n");
+        fileContent.AppendFormat("\n");
     }
 
     fileContent.AppendFormat("\n");

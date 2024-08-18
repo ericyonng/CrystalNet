@@ -57,6 +57,8 @@ public:
     const KERNEL_NS::LibString &GetAppName() const;
     const KERNEL_NS::LibString &GetAppPath() const;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 private:
     KERNEL_NS::LibString _appName;
     KERNEL_NS::LibString _path;

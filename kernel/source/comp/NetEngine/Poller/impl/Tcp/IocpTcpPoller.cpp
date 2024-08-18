@@ -1777,15 +1777,28 @@ void IocpTcpPoller::_OnMonitorThread(LibThread *t)
     g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller epoll monitor monitor thread finish thread id = %llu"), SystemUtil::GetCurrentThreadId());
 }
 
+bool IocpTcpPoller::_OnThreadStart()
+{
+    // 用 EpollTcpPoller 的poller 替换当前线程的poller组件
+    auto defObj = TlsUtil::GetDefTls();
+    if(!defObj->_tlsComps->AttachComp(_poller))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("AttachComp fail comp:%s, current epoll tcp poller:%s."), _poller->ToString().c_str(), ToString().c_str());
+        return false;
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("thread started thread id:%llu."), SystemUtil::GetCurrentThreadId());
+
+    return true;
+}
+
 void IocpTcpPoller::_OnPollEventLoop(LibThread *t)
 {
-    auto defObj = TlsUtil::GetDefTls();
-    if(UNLIKELY(defObj->_poller))
-        g_Log->Warn(LOGFMT_OBJ_TAG("poller already existes int current thread please check:%p, will assign new poller:%p, thread id:%llu")
-        , defObj->_poller, _poller, defObj->_threadId);
-        
-    defObj->_poller = _poller;
-    defObj->_pollerTimerMgr = _poller->GetTimerMgr();
+    if(! _OnThreadStart())
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("_OnThreadStart fail."));
+        return;
+    }
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller event loop start."));
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop prepare loop..."));
@@ -2014,6 +2027,9 @@ LibConnectPendingInfo *IocpTcpPoller::_CreateNewConectPendingInfo(LibConnectInfo
 
     return connectPendingInfo;
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(IocpTcpPoller)
+
 
 KERNEL_END
 

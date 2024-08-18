@@ -67,7 +67,7 @@ KERNEL_NS::LibString PendingUser::ToString() const
     , _loginInfo ? _loginInfo->logintoken().c_str() : ""
     , _loginInfo ? _loginInfo->loginphoneimei().c_str() : "", _loginInfo ? _loginInfo->appid().c_str() : "", static_cast<UInt64>(_loginInfo ? _loginInfo->versionid() : 0)
     , _dbOperatorId, _byAccountName.c_str()
-    , _byUserId, _sessionId, _cb ? _cb->GetOwnerRtti() : "NONE", _cb ? _cb->GetCallbackRtti() : "NONE");
+    , _byUserId, _sessionId, _cb ? _cb->GetOwnerRtti().c_str() : "NONE", _cb ? _cb->GetCallbackRtti().c_str() : "NONE");
 
     return info;
 }
@@ -1176,5 +1176,6 @@ void User::_SendClientUserInfo() const
     Send(Opcodes::OpcodeConst::OPCODE_UserClientInfoNty, nty);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(User)
 
 SERVICE_END

@@ -49,4 +49,7 @@ KERNEL_NS::CompObject *LibraryGlobalFactory::Create() const
     return comp;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(LibraryGlobalFactory)
+
+
 SERVICE_END

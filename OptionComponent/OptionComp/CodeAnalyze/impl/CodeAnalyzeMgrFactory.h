@@ -45,6 +45,8 @@ public:
     virtual void Release() override;
 
     CompObject* Create() const override;
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 };
 
 KERNEL_END

@@ -144,7 +144,7 @@ ALWAYS_INLINE ObjAlloctor<ObjType>::ObjAlloctor(bool isThreadLocal, UInt64 initB
     ,_objPoolPrintDelg(NULL)
     ,_isThreadLocal(isThreadLocal)
 {
-    _alloctor.Init(_isThreadLocal, initBlockNumPerBuffer, RttiUtil::GetByType<ObjType>());
+    _alloctor.Init(_isThreadLocal, initBlockNumPerBuffer, RttiUtil::GetByType<ObjType>().GetRaw());
 
     auto staticstics = MemoryMonitor::GetStatistics();
     _objPoolPrintDelg = DelegateFactory::Create<ObjAlloctor<ObjType>, UInt64, LibString &>(this, &ObjAlloctor<ObjType>::ToMonitor);

@@ -49,6 +49,17 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/common/status.h>
 
+#undef OBJ_GET_OBJ_TYPEID_DECLARE
+#define OBJ_GET_OBJ_TYPEID_DECLARE()    \
+    virtual UInt64 GetObjTypeId() const override
+
+#undef OBJ_GET_OBJ_TYPEID_IMPL
+#define OBJ_GET_OBJ_TYPEID_IMPL(T) \
+UInt64 T::GetObjTypeId() const                      \
+{                                                   \
+    return KERNEL_NS::RttiUtil::GetTypeId<T>();     \
+}
+
 KERNEL_BEGIN
 
 // 组件关注的接口 外部可以调用SetFocus扩展,关注的接口可以不仅限于框架提供的接口
@@ -117,6 +128,9 @@ public:
     void SetInterfaceTypeId(UInt64 id);
     UInt64 GetInterfaceTypeId() const;
 
+    // 必须要重写该接口(通过RttiUtil::GetByType<ObjType>()拿最终类型的唯一id)
+    virtual UInt64 GetObjTypeId() const = 0;
+
     // 设置参数
     void SetArgs(int argc, char const *argv[]);
     const std::vector<KERNEL_NS::LibString> &GetArgs() const;
@@ -157,6 +171,8 @@ public:
     bool IsReady() const;
     bool IsInited() const;
     bool IsStarted() const;
+    bool IsWillClose() const;
+    bool IsClose() const;
 
     virtual void MaskReady(bool isReady) final;
     // 默认在start/WillClose调用,若觉得这个时候不合适则请重写成空函数(一般组件内部有线程的都需要重写该接口,因为此时组件还没准备好只有线程也准备好了才是准备好的状态)
@@ -282,6 +298,16 @@ ALWAYS_INLINE bool IObject::IsInited() const
 ALWAYS_INLINE bool IObject::IsStarted() const
 {
     return _isStarted;
+}
+
+ALWAYS_INLINE bool IObject::IsWillClose() const
+{
+    return _isWillClose;
+}
+
+ALWAYS_INLINE bool IObject::IsClose() const
+{
+    return _isClose;
 }
 
 ALWAYS_INLINE IObject *IObject::GetOwner()

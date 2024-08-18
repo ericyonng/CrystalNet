@@ -32,6 +32,7 @@
 #pragma once
 
 #include <kernel/common/BaseMacro.h>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 
@@ -54,8 +55,8 @@ public:
     virtual bool IsBelongTo(void *obj) const { return false; }
     virtual const void *GetOwner() const { return NULL; }
     virtual void *GetOwner() { return NULL; }
-    virtual const Byte8 * GetOwnerRtti() { return ""; }
-    virtual const Byte8 * GetCallbackRtti() { return ""; }
+    virtual LibString GetOwnerRtti() { return ""; }
+    virtual LibString GetCallbackRtti() { return ""; }
 };
 
 KERNEL_END

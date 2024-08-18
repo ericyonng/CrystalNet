@@ -56,6 +56,8 @@ public:
     void EraseBlack(const LibString &ip);
     void Lock();
     void Unlock();
+    
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 protected:
     Int32 _OnInit() override;

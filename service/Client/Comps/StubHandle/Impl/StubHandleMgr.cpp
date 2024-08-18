@@ -209,5 +209,6 @@ void StubHandleMgr::_OnAsynConnectResEvent(KERNEL_NS::LibEvent *ev)
 }
 
 
+OBJ_GET_OBJ_TYPEID_IMPL(StubHandleMgr)
 
 SERVICE_END

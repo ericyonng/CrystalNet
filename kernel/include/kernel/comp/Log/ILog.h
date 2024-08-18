@@ -60,10 +60,10 @@
 
 // 类实例获取tag
 #undef LOG_OBJ_TAG
-#define LOG_OBJ_TAG() KERNEL_NS::RttiUtil::GetByType<decltype(*this)>()
+#define LOG_OBJ_TAG() KERNEL_NS::RttiUtil::GetByType<decltype(*this)>().c_str()
 // 非类实例获取tag
 #undef LOG_NON_OBJ_TAG
-#define LOG_NON_OBJ_TAG(classType) KERNEL_NS::RttiUtil::GetByType<classType>()
+#define LOG_NON_OBJ_TAG(classType) KERNEL_NS::RttiUtil::GetByType<classType>().c_str()
 
 
 // 带修饰的log宏

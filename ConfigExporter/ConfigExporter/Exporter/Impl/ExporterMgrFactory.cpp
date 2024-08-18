@@ -45,3 +45,5 @@ KERNEL_NS::CompObject *ExporterMgrFactory::Create() const
     CREATE_CRYSTAL_COMP(comp, ExporterMgr);
     return comp;
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(ExporterMgrFactory)

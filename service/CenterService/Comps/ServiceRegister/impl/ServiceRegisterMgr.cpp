@@ -85,5 +85,6 @@ void ServiceRegisterMgr::_Clear()
 
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(ServiceRegisterMgr)
 
 SERVICE_END

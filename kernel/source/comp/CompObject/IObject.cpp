@@ -286,7 +286,7 @@ void IObject::_Clear()
 //     // 校验对象名提醒并设置成类型名
 //     if(GetObjName().empty())
 //     {
-//         const LibString objName = RttiUtil::GetByObj(this);
+//         const LibString &objName = RttiUtil::GetByObj(this);
 //         g_Log->Warn(LOGFMT_OBJ_TAG("have no obj name and will set comp type name as obj name :%s")
 //             , objName.c_str());
 //         _SetObjName(objName);

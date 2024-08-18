@@ -58,22 +58,13 @@ void ConfigLoader::OnRegisterComps()
 
 Int32 ConfigLoader::_OnHostInit()
 {
-    auto owner = GetOwner()->CastTo<SERVICE_COMMON_NS::IService>();
-    auto ini = owner->GetApp()->GetIni();
-    KERNEL_NS::LibString basePath;
-    if(UNLIKELY(!ini->ReadStr(owner->GetServiceName().c_str(), "ConfigDataPath", basePath)))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("have no ConfigDataPath please check service:%s"), owner->GetServiceName().c_str());
-        return Status::ConfigError;
-    }
-
+    auto &basePath = GetBasePath();
     if(UNLIKELY(basePath.empty()))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("ConfigDataPath is empty please check service:%s"), owner->GetServiceName().c_str());
+        auto owner = GetOwner();
+        g_Log->Error(LOGFMT_OBJ_TAG("ConfigDataPath is empty please check owner:%s"), owner ? owner->GetObjName().c_str():"");
         return Status::ConfigError;
     }
-
-    SetBasePath(basePath);
 
     return Status::Success;
 }
@@ -87,5 +78,7 @@ void ConfigLoader::_OnHostClose()
 {
 
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(ConfigLoader)
 
 SERVICE_END

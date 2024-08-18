@@ -31,6 +31,7 @@
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/Tls/Tls.h>
 #include <kernel/comp/Utils/TlsUtil.h>
+#include <kernel/comp/LibString.h>
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     // linux下类型识别接口相关
@@ -72,7 +73,7 @@ KERNEL_BEGIN
 
 #endif
 
-const Byte8 *RttiUtil::GetByTypeName(const char *rawTypeName)
+LibString RttiUtil::GetByTypeName(const char *rawTypeName)
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     auto tlsStack = TlsUtil::GetTlsStack();
@@ -126,6 +127,39 @@ const Byte8 *RttiUtil::GetCxxDemangle(const char *name)
     return defTls->rtti;
 }
 #endif
+
+static std::unordered_map<KERNEL_NS::LibString, UInt64> &GetRttiTypeDict()
+{
+    // 泄漏不要紧, 很小, 不会每次调用递增
+    DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<KERNEL_NS::LibString, UInt64> *s_dict = NULL;
+
+    if(UNLIKELY(!s_dict))
+        s_dict = new std::unordered_map<KERNEL_NS::LibString, UInt64>();
+
+    return *s_dict;
+}
+UInt64 RttiUtil::_GenTypeId()
+{
+    static std::atomic<UInt64> s_inc = {0};
+    return ++s_inc;
+}
+
+UInt64 RttiUtil::GetTypIdBy(const LibString &objName)
+{
+    auto &dict = GetRttiTypeDict();
+    auto iter = dict.find(objName);
+    return iter == dict.end() ? 0 : iter->second;
+}
+
+void RttiUtil::MakeTypeIdDict(const LibString &objName, UInt64 id)
+{
+    auto &dict = GetRttiTypeDict();
+    auto iter = dict.find(objName);
+    if(UNLIKELY(iter != dict.end()))
+        return;
+
+    dict.insert(std::make_pair(objName, id));
+}
 
 KERNEL_END
 

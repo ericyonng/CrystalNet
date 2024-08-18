@@ -38,6 +38,7 @@
 #include <protocols/protocols.h>
 #include <service/TestService/ServiceFactory.h>
 #include <service/TestService/MyTestService.h>
+#include <service/
 
 SERVICE_BEGIN
 
@@ -119,7 +120,7 @@ void MyTestService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_
         KERNEL_NS::LibString opcodeInfo;
         _GetOpcodeInfo(opcodeId, opcodeInfo);
         g_Log->Warn(LOGFMT_OBJ_TAG("repeate msg handler opcodeInfo:%s, old owner:%s, old callback:%s, new owner:%s, new callback:%s")
-                , opcodeInfo.c_str(), msgHandler->GetOwnerRtti(), msgHandler->GetCallbackRtti(), deleg->GetOwnerRtti(), deleg->GetCallbackRtti());
+                , opcodeInfo.c_str(), msgHandler->GetOwnerRtti().c_str(), msgHandler->GetCallbackRtti().c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
         
         msgHandler->Release();
         _opcodeRefHandler.erase(opcodeId);
@@ -130,7 +131,7 @@ void MyTestService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_
         KERNEL_NS::LibString opcodeInfo;
         _GetOpcodeInfo(opcodeId, opcodeInfo);
 
-        g_Log->Warn(LOGFMT_OBJ_TAG("subscribe a disable opcode opcode info:%s, new owner:%s, new callback:%s"), opcodeInfo.c_str(), deleg->GetOwnerRtti(), deleg->GetCallbackRtti());
+        g_Log->Warn(LOGFMT_OBJ_TAG("subscribe a disable opcode opcode info:%s, new owner:%s, new callback:%s"), opcodeInfo.c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
         deleg->Release();
         return;
     }
@@ -313,6 +314,22 @@ Int32 MyTestService::_OnServiceCompsCreated()
     _timerMgr = _poller->GetTimerMgr();
     _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(_timerMgr);
     _updateTimer->SetTimeOutHandler(this, &MyTestService::_OnFrameTimer);
+
+    // 配置路径设置
+    auto configLoader = GetComp<SERVICE_COMMON_NS::IConfigLoader>();
+    auto ini = GetApp()->GetIni();
+    KERNEL_NS::LibString basePath;
+    if(UNLIKELY(!ini->ReadStr(GetServiceName().c_str(), "ConfigDataPath", basePath)))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("have no ConfigDataPath please check service:%s"), GetServiceName().c_str());
+        return Status::ConfigError;
+    }
+    if(UNLIKELY(basePath.empty()))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("ConfigDataPath is empty please check service:%s"), GetServiceName().c_str());
+        return Status::ConfigError;
+    }
+    configLoader->SetBasePath(basePath);
 
     // 设置ip rule mgr
     auto &config = GetPollerConfig();
@@ -718,5 +735,7 @@ void MyTestService::_OnFrameTick()
     auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SERVICE_FRAME_TICK);
     GetEventMgr()->FireEvent(ev);
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(MyTestService)
 
 SERVICE_END

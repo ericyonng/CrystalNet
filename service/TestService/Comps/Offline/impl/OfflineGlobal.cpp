@@ -39,6 +39,7 @@
 #include <Comps/User/User.h>
 
 SERVICE_BEGIN
+OBJ_GET_OBJ_TYPEID_IMPL(OfflineGlobal)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IOfflineGlobal);
 POOL_CREATE_OBJ_DEFAULT_IMPL(OfflineGlobal);

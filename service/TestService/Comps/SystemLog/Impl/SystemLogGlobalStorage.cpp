@@ -34,6 +34,7 @@
 #include <Comps/SystemLog/Impl/SystemLogGlobal.h>
 
 SERVICE_BEGIN
+OBJ_GET_OBJ_TYPEID_IMPL(SystemLogGlobalStorage)
 
 const KERNEL_NS::LibString SystemLogGlobalStorage::ID = "Id";
 const KERNEL_NS::LibString SystemLogGlobalStorage::LIBRARY_ID_NAME = "LibraryId";

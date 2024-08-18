@@ -44,6 +44,7 @@
 SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(UserSessionMgr);
+OBJ_GET_OBJ_TYPEID_IMPL(UserSessionMgr)
 
 UserSessionMgr::UserSessionMgr()
 :_eventMgr(NULL)

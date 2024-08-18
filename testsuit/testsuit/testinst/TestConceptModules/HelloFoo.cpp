@@ -43,5 +43,5 @@ Int32 HelloFooSun::Start()
 
 void HelloFooSun::Print()
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("this type:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+    g_Log->Info(LOGFMT_OBJ_TAG("this type:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
 }

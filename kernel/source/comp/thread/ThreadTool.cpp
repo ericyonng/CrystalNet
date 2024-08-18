@@ -33,6 +33,8 @@
 #include <kernel/comp/Tls/Tls.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/memory/CenterMemoryCollector.h>
+#include <kernel/comp/Utils/SystemUtil.h>
+#include <kernel/comp/Poller/Poller.h>
 
 KERNEL_BEGIN
 
@@ -59,8 +61,41 @@ void ThreadTool::OnInit(LibThread *thread, LibThreadPool *pool, UInt64 threadId,
         g_Log->Sys(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread init suc thread id:[%llu], tlsMemPoolReason:%s."), threadId, tlsMemPoolReason ? tlsMemPoolReason : "None");
 }
 
+Int32 ThreadTool::OnStart()
+{
+    auto threadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
+    auto tlsStack = TlsUtil::GetTlsStack();
+    auto defTls = tlsStack->GetDef();
+    auto st = defTls->_tlsComps->Init();
+    if(st != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread tls comps init fail st:%d, threadId:[%llu]"), st, threadId);
+        return st;
+    }
+
+    st = defTls->_tlsComps->Start();
+    if(st != Status::Success)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread tls comps start fail st:%d, threadId:[%llu]"), st, threadId);
+        return st;
+    }
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(ThreadTool, "thread start success threadId:[%llu]"), threadId);
+    return Status::Success;
+}
+
 void ThreadTool::OnDestroy()
 {
+    // 需要释放tls owner
+    auto tlsStack = TlsUtil::GetTlsStack();
+    auto defTls = tlsStack->GetDef();
+    if(LIKELY(defTls && defTls->_tlsComps))
+    {
+        defTls->_tlsComps->WillClose();
+        defTls->_tlsComps->Close();
+        CRYSTAL_RELEASE_SAFE(defTls->_tlsComps);
+    }
+
     const auto currentThreadId = SystemUtil::GetCurrentThreadId();
     // 得等收集器关闭
     auto centerMemroyCollector = CenterMemoryCollector::GetInstance();
@@ -74,15 +109,6 @@ void ThreadTool::OnDestroy()
     // 释放线程局部存储资源
     if(centerMemroyCollector->GetWorkerThreadId() == currentThreadId)
         TlsUtil::DestroyTlsStack();
-}
-
-void ThreadTool::Destroy(TlsStack<TlsStackSize::SIZE_1MB> *tlsTask)
-{
-    // tls 资源清理
-    TlsUtil::ClearTlsResource();
-
-    // 释放线程局部存储资源
-    TlsUtil::DestroyTlsStack();
 }
 
 KERNEL_END

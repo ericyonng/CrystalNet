@@ -52,6 +52,8 @@ public:
     // 使用过邀请码
     virtual void AddUsedInviteCode(const KERNEL_NS::LibString &inviteCode) override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 protected:
     void _AddInviteCode(UInt64 id, const KERNEL_NS::LibString &inviteCode);
     

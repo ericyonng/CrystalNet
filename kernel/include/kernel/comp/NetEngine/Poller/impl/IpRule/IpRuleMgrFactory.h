@@ -43,6 +43,8 @@ public:
     static CompFactory *FactoryCreate();
     void Release() override;
     
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+    
 public:
     virtual CompObject *Create() const override;
 };

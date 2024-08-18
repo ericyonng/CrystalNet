@@ -63,29 +63,26 @@ public:
 
     static AsyncTaskQueue& getInstance();
 
-    ALWAYS_INLINE void enqueue(AsyncTask* item) 
+    ALWAYS_INLINE void enqueue(const AsyncTask& item) 
     {        
-        auto defs = KERNEL_NS::TlsUtil::GetDefTls();
-        // TODO:添加到poller队列中
-        if(LIKELY(defs->_poller != NULL && defs->_poller->IsEnable()))
-        {
-            // defs->_poller->Push(defs->_poller->GetMaxPriorityLevel(), )
-            return;
-        }
-        _queue.push_back(item);
+        // auto defs = KERNEL_NS::TlsUtil::GetDefTls();
+        // // TODO:添加到poller队列中
+        // if(LIKELY(defs->_poller != NULL && defs->_poller->IsEnable()))
+        // {
+        //     // defs->_poller->Push(defs->_poller->GetMaxPriorityLevel(), )
+        //     return;
+        // }
+        // _queue.push_back(item);
     }
 
     ALWAYS_INLINE bool dequeue(AsyncTask *&item) 
     {
-        _queueMutex.Lock();
         if (_queue.size() == 0) {
-            _queueMutex.Unlock();
             return false;
         }
 
         item = _queue.back();
         _queue.pop_back();
-        _queueMutex.Unlock();
 
         return true;
     }
@@ -96,12 +93,6 @@ public:
     }
 
 private:
-    // 支持单例模式，通过default修饰符说明构造函数使用默认版本
-    AsyncTaskQueue() = default;
-    // 支持单例模式，通过delete修饰符说明拷贝构造函数不可调用
-    AsyncTaskQueue(const AsyncTaskQueue&) = delete;
-    // 支持单例模式，通过delete修饰符说明赋值操作符不可调用
-    AsyncTaskQueue& operator=(const AsyncTaskQueue&) = delete;
 
     // 异步任务队列
     std::vector<AsyncTask *> _queue;
@@ -109,8 +100,10 @@ private:
 
 ALWAYS_INLINE AsyncTaskQueue& AsyncTaskQueue::getInstance() 
 {
-    auto tlsStack = KERNEL_NS::TlsUtil::GetDefTls();
-    return *tlsStack->_taskQueue;
+    static AsyncTaskQueue queue;
+    return queue;
+    // auto tlsStack = KERNEL_NS::TlsUtil::GetDefTls();
+    // return *tlsStack->_taskQueue;
 }
 
 KERNEL_END

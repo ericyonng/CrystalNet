@@ -180,4 +180,7 @@ void PassTimeGlobal::_Clear()
     }
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(PassTimeGlobal)
+
+
 SERVICE_END

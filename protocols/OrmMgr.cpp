@@ -98,4 +98,6 @@ void OrmMgr::_Clear()
     KERNEL_NS::ContainerUtil::DelContainer2(_ormIdRefOrmFactory);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(OrmMgr)
+
 SERVICE_COMMON_END

@@ -63,19 +63,19 @@ private:
         while (true) 
         {
             loopExecution();
-            std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
+            // std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_MS));
         }
     }
 
     void loopExecution() 
     {
-        AsyncTask asyncEvent;
-        if (!AsyncTaskQueue::getInstance().dequeue(&asyncEvent)) 
-        {
-            return;
-        }
+        // AsyncTask asyncEvent;
+        // if (!AsyncTaskQueue::getInstance().dequeue(&asyncEvent)) 
+        // {
+        //     return;
+        // }
 
-        asyncEvent.handler();
+        // asyncEvent.handler();
     }
 };
 

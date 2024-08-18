@@ -452,4 +452,6 @@ void ClientUser::_OnLoginConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS:
     _userMgr->AddUserBySessionId(_activedSessionId, this);
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(ClientUser)
+
 SERVICE_END

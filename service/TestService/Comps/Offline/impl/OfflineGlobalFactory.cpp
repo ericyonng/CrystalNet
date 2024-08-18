@@ -48,4 +48,7 @@ KERNEL_NS::CompObject *OfflineGlobalFactory::Create() const
     return comp;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(OfflineGlobalFactory)
+
+
 SERVICE_END

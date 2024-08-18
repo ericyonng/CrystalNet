@@ -50,4 +50,7 @@ KERNEL_NS::CompObject *BookBagGlobalFactory::Create() const
     return comp;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(BookBagGlobalFactory)
+
+
 SERVICE_END

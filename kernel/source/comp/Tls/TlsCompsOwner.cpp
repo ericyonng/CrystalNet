@@ -21,34 +21,67 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-07-23 20:54:00
+ * Date: 2024-08-17 11:55:14
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <kernel/kernel.h>
-#include <service/TestService/Comps/DB/impl/MysqlMgrStorageFactory.h>
-#include <service/TestService/Comps/DB/impl/MysqlMgrStorage.h>
+#include <kernel/comp/Tls/TlsCompsOwner.h>
+#include <kernel/comp/Log/log.h>
+#include <kernel/comp/Poller/Poller.h>
+#include <kernel/comp/Poller/PollerFactory.h>
 
-SERVICE_BEGIN
+KERNEL_BEGIN
 
-KERNEL_NS::CompFactory *MysqlMgrStorageFactory::FactoryCreate()
+POOL_CREATE_OBJ_DEFAULT_IMPL(TlsCompsOwner);
+
+TlsCompsOwner::TlsCompsOwner()
+:_poller(NULL)
 {
-    return KERNEL_NS::ObjPoolWrap<MysqlMgrStorageFactory>::NewByAdapter(_buildType.V);
+
 }
 
-void MysqlMgrStorageFactory::Release()
+TlsCompsOwner::~TlsCompsOwner()
 {
-    KERNEL_NS::ObjPoolWrap<MysqlMgrStorageFactory>::DeleteByAdapter(_buildType.V, this);
-}
-    
-KERNEL_NS::CompObject *MysqlMgrStorageFactory::Create() const
-{
-    return MysqlMgrStorage::NewByAdapter_MysqlMgrStorage(_buildType.V);
+    _poller = NULL;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlMgrStorageFactory)
+void TlsCompsOwner::Release()
+{
+    CRYSTAL_DELETE(this);
+}
+
+void TlsCompsOwner::OnRegisterComps()
+{
+    RegisterComp<PollerFactory>();
+}
+
+Int32 TlsCompsOwner::_OnCompsCreated()
+{
+    auto &comps = GetAllComps();
+    for(auto &comp : comps)
+        g_Log->Info(LOGFMT_OBJ_TAG("tls comps:%s"), comp->ToString().c_str());
+
+    _poller = GetComp<Poller>();
+    return Status::Success;
+}
+
+void TlsCompsOwner::_OnAttachedComp(CompObject *oldComp, CompObject *newComp)
+{
+    // 替换poller
+    {
+        const auto typeId = KERNEL_NS::RttiUtil::GetTypeId<Poller>();
+        if(newComp && (newComp->GetObjTypeId() == typeId))
+        {
+            _poller = newComp->CastTo<Poller>();
+            g_Log->Info(LOGFMT_OBJ_TAG("attach poller:%s, typeId:%llu"), _poller->ToString().c_str(), typeId);
+        }
+    }
+}
 
 
-SERVICE_END
+OBJ_GET_OBJ_TYPEID_IMPL(TlsCompsOwner)
+
+
+KERNEL_END

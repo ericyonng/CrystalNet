@@ -48,4 +48,7 @@ KERNEL_NS::CompObject *InviteCodeGlobalFactory::Create() const
     return comp;
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(InviteCodeGlobalFactory)
+
+
 SERVICE_END

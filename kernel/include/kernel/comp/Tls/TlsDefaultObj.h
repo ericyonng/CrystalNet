@@ -45,6 +45,7 @@ class Poller;
 class MemoryAlloctor;
 class SpinLock;
 class TimerWheel;
+class TlsCompsOwner;
 
 class KERNEL_EXPORT TlsDefaultObj : public ITlsObj
 {
@@ -72,14 +73,11 @@ public:
     LibThread *_thread;
     // 线程池
     LibThreadPool *_threadPool;
-    // 定时器管理
-    TimerMgr *_pollerTimerMgr;
+    // 定时器管理 TODO:_tlsComps中通过获取poller获取timermgr
+    // TimerMgr *_pollerTimerMgr;
     // 时间轮定时器
     TimerWheel *_timerWheel;
-    // poller
-    Poller *_poller;
-    // 异步协程队列
-    AsyncTaskQueue *_taskQueue;
+    TlsCompsOwner *_tlsComps;
     
     // 雪花算法信息 TODO:tlsutil给一个接口方便获取uid
     // SnowflakeInfo _snowFlakeInfo;

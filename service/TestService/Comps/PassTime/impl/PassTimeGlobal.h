@@ -51,6 +51,8 @@ public:
     
     virtual void CheckPassTime() override;
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
 private:
     void _OnZeroTimeOut(KERNEL_NS::LibTimer *t);
     void _DoCheckPassTime(const KERNEL_NS::LibTime &nowTime);

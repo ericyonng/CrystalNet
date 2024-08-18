@@ -1606,4 +1606,6 @@ void UserMgr::_Clear()
     _lru.clear();
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(UserMgr)
+
 SERVICE_END
