@@ -45,27 +45,16 @@ static std::vector<TestCenterMemroyAlloc *> g_Ptrs;
 
 static void TestMultiThreadAlloc(KERNEL_NS::LibThread *t)
 {
-    KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
-    timerMgr.SetClosureDelegate([](void *p){
-        auto ptr = reinterpret_cast<KERNEL_NS::TimerMgr *>(p);
-        KERNEL_NS::TimerMgr::Delete_TimerMgr(ptr);
-    });
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    auto timeMgr = poller->GetTimerMgr();
 
-    KERNEL_NS::SmartPtr<KERNEL_NS::TlsMemoryCleanerComp, KERNEL_NS::AutoDelMethods::CustomDelete> memoryCleaner = KERNEL_NS::TlsMemoryCleanerCompFactory::StaticCreate()->CastTo<KERNEL_NS::TlsMemoryCleanerComp>();
-    memoryCleaner.SetClosureDelegate([](void *p){
-        auto ptr = reinterpret_cast<KERNEL_NS::TlsMemoryCleanerComp *>(p);
-        ptr->Release();
-    });
-
+    auto tlsOwner = KERNEL_NS::TlsUtil::GetTlsCompsOwner();
+    auto memoryCleaner = tlsOwner->GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
     memoryCleaner->SetIntervalMs(5000);
-    memoryCleaner->SetTimerMgr(timerMgr);
-
-    memoryCleaner->Init();
-    memoryCleaner->Start();
 
     while (!t->IsDestroy())
     {
-        timerMgr->Drive();
+        timeMgr->Drive();
         KERNEL_NS::SystemUtil::ThreadSleep(100);
         auto ptr = TestCenterMemroyAlloc::New_TestCenterMemroyAlloc();
 
@@ -73,34 +62,20 @@ static void TestMultiThreadAlloc(KERNEL_NS::LibThread *t)
         g_Ptrs.push_back(ptr);
         g_TestCenterMemCollectorGuard.Unlock();
     }
-
-    memoryCleaner->WillClose();
-    memoryCleaner->Close();
 }
 
 static void TestMultiThreadAlloc2(KERNEL_NS::LibThread *t)
 {
-    KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
-    timerMgr.SetClosureDelegate([](void *p){
-        auto ptr = reinterpret_cast<KERNEL_NS::TimerMgr *>(p);
-        KERNEL_NS::TimerMgr::Delete_TimerMgr(ptr);
-    });
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    auto timeMgr = poller->GetTimerMgr();
 
-    KERNEL_NS::SmartPtr<KERNEL_NS::TlsMemoryCleanerComp, KERNEL_NS::AutoDelMethods::CustomDelete> memoryCleaner = KERNEL_NS::TlsMemoryCleanerCompFactory::StaticCreate()->CastTo<KERNEL_NS::TlsMemoryCleanerComp>();
-    memoryCleaner.SetClosureDelegate([](void *p){
-        auto ptr = reinterpret_cast<KERNEL_NS::TlsMemoryCleanerComp *>(p);
-        ptr->Release();
-    });
-
+    auto tlsOwner = KERNEL_NS::TlsUtil::GetTlsCompsOwner();
+    auto memoryCleaner = tlsOwner->GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
     memoryCleaner->SetIntervalMs(5000);
-    memoryCleaner->SetTimerMgr(timerMgr);
-
-    memoryCleaner->Init();
-    memoryCleaner->Start();
 
     while (!t->IsDestroy())
     {
-        timerMgr->Drive();
+        timeMgr->Drive();
         KERNEL_NS::SystemUtil::ThreadSleep(100);
         auto ptr = TestCenterMemroyAlloc::NewThreadLocal_TestCenterMemroyAlloc();
 
@@ -108,9 +83,6 @@ static void TestMultiThreadAlloc2(KERNEL_NS::LibThread *t)
         g_Ptrs.push_back(ptr);
         g_TestCenterMemCollectorGuard.Unlock();
     }
-
-    memoryCleaner->WillClose();
-    memoryCleaner->Close();
 }
 
 // 内存日志监控

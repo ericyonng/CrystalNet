@@ -1,7 +1,7 @@
 // Generate by ConfigExporter, Dont modify it!!!
 // file path:../../service/TestService/config/xlsx/example.xlsx
 // file path:../../service/TestService/config/xlsx/example.xlsx
-// sheet name:示例part1|Example;示例part2|Example
+// sheet name:示例part2|Example;示例part1|Example
 
 #ifndef __CONFIG_EXAMPLE_CONFIG_H__
 #define __CONFIG_EXAMPLE_CONFIG_H__
@@ -70,6 +70,7 @@ public:
     ~ExampleConfigMgr();
 
     virtual void Release() override;
+    virtual UInt64 GetObjTypeId() const override;
     virtual void Clear() override;
     virtual KERNEL_NS::LibString ToString() const override;
     virtual Int32 Load() override;
@@ -147,6 +148,12 @@ public:
     {
         return ExampleConfigMgr::NewByAdapter_ExampleConfigMgr(_buildType.V);
     }
+
+    virtual UInt64 GetObjTypeId() const override
+    {
+        return KERNEL_NS::RttiUtil::GetTypeId<ExampleConfigMgrFactory>();
+    }
+
 };
 
 SERVICE_END

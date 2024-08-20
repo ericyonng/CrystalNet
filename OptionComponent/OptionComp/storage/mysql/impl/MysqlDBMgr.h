@@ -254,8 +254,6 @@ ALWAYS_INLINE bool MysqlDBMgr::HasPendings() const
     return !_pendingSeqs.empty();
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlDBMgr)
-
 KERNEL_END
 
 #endif

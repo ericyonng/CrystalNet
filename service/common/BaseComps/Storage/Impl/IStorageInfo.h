@@ -412,6 +412,8 @@ public:
 
     virtual bool RegisterStorages() { return true; }
     virtual void Release() override;
+    
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
     template<typename CallbackType>
     ALWAYS_INLINE void SetRelease(CallbackType &&cb)

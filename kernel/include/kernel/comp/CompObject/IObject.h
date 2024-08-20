@@ -49,16 +49,7 @@
 #include <kernel/comp/LibString.h>
 #include <kernel/common/status.h>
 
-#undef OBJ_GET_OBJ_TYPEID_DECLARE
-#define OBJ_GET_OBJ_TYPEID_DECLARE()    \
-    virtual UInt64 GetObjTypeId() const override
-
-#undef OBJ_GET_OBJ_TYPEID_IMPL
-#define OBJ_GET_OBJ_TYPEID_IMPL(T) \
-UInt64 T::GetObjTypeId() const                      \
-{                                                   \
-    return KERNEL_NS::RttiUtil::GetTypeId<T>();     \
-}
+#include <kernel/comp/CompObject/Defs.h>
 
 KERNEL_BEGIN
 

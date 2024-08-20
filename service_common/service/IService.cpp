@@ -76,8 +76,6 @@ void IService::OnRegisterComps()
     // RegisterComp<KERNEL_NS::PollerFactory>();
     // ip规则
     RegisterComp<KERNEL_NS::IpRuleMgrFactory>();
-    // 当前service所在线程tls内存定时清理
-    RegisterComp<KERNEL_NS::TlsMemoryCleanerCompFactory>();
 
     _OnServiceRegisterComps();
 }  
@@ -287,9 +285,6 @@ Int32 IService::_OnPriorityLevelCompsCreated()
 
 Int32 IService::_OnCompsCreated()
 {
-    auto memoryCleaner = GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
-    memoryCleaner->SetTimerMgr(_poller->GetTimerMgr());
-
     Int32 errCode = _OnServiceCompsCreated();
     if(errCode != Status::Success)
     {

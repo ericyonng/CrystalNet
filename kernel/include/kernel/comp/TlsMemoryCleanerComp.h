@@ -87,11 +87,6 @@ ALWAYS_INLINE void TlsMemoryCleanerComp::SetTimerMgr(TimerMgr *timerMgr)
     _timerMgr = timerMgr;
 }
 
-ALWAYS_INLINE void TlsMemoryCleanerComp::SetIntervalMs(Int64 intervalMs)
-{
-    _intervalMs = intervalMs; 
-}
-
 ALWAYS_INLINE void TlsMemoryCleanerComp::SetManualStart(bool isManualStart)
 {
     _isManualStart = isManualStart;

@@ -37,10 +37,15 @@
 #include <kernel/common/macro.h>
 #include <typeinfo>
 #include <kernel/comp/LibString.h>
+#include <type_traits>
 
 KERNEL_BEGIN
 
 class LibString;
+
+// 描述lambda对象
+template<typename ObjType>
+concept NotClassConcept = !std::is_class<RemoveReferenceType<ObjType>>::value || is_basic_data<RemoveReferenceType<ObjType>>::value || std::is_array<RemoveReferenceType<ObjType>>::value || std::is_union<RemoveReferenceType<ObjType>>::value || std::is_function<RemoveReferenceType<ObjType>>::value || std::is_pointer<RemoveReferenceType<ObjType>>::value ||std::is_invocable_v<ObjType>;
 
 class KERNEL_EXPORT RttiUtil
 {
@@ -49,6 +54,9 @@ public:
     static LibString GetByType();
 
     // 必须有GetObjTypeId方法
+    template<typename ObjType>
+    static LibString GetByObj(ObjType *obj);
+
     template<typename ObjType>
     requires requires(ObjType o)
     {
@@ -59,6 +67,9 @@ public:
     template<typename ObjType>
     static UInt64 GetTypeId();
 
+    template<typename ObjType>
+    static UInt64 GetTypeIdByObj(ObjType *obj);
+    
     template<typename ObjType>
     requires requires(ObjType o)
     {
@@ -99,6 +110,20 @@ ALWAYS_INLINE LibString RttiUtil::GetByType()
 }
 
 template<typename ObjType>
+ALWAYS_INLINE LibString RttiUtil::GetByObj(ObjType *obj)
+{
+    auto &&name = GetByTypeName(typeid(*obj).name());
+    UInt64 id = _GetTypeId<ObjType>();
+    if(UNLIKELY(id == 0))
+    {
+        throw new std::logic_error(KERNEL_NS::LibString().AppendFormat("get obj type id fail objtype:%s", name.c_str()).GetRaw());
+    }
+    MakeTypeIdDict(name, id);
+
+    return name;
+}
+
+template<typename ObjType>
 requires requires(ObjType o)
 {
     { o.GetObjTypeId() } -> std::convertible_to<UInt64>;
@@ -131,6 +156,20 @@ ALWAYS_INLINE UInt64 RttiUtil::GetTypeId()
 {
     auto id = _GetTypeId<ObjType>();
     auto name = GetByTypeName(typeid(ObjType).name());
+    MakeTypeIdDict(name, id);
+
+    return id;
+}
+
+template<typename ObjType>
+ALWAYS_INLINE UInt64 RttiUtil::GetTypeIdByObj(ObjType *obj)
+{
+    UInt64 id = _GetTypeId<ObjType>();
+    auto &&name = GetByTypeName(typeid(*obj).name());
+    if(UNLIKELY(id == 0))
+    {
+        throw new std::logic_error(KERNEL_NS::LibString().AppendFormat("get obj type id fail objtype:%s", name.c_str()).GetRaw());
+    }
     MakeTypeIdDict(name, id);
 
     return id;

@@ -21,33 +21,25 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2023-08-06 19:42:39
+ * Date: 2024-08-20 :12:36
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <Comps/config/impl/ConfigLoaderFactory.h>
-#include <Comps/config/impl/ConfigLoader.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COMP_OBJECT_DEFS_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COMP_OBJECT_DEFS_H__
 
-SERVICE_BEGIN
+#pragma once
 
-KERNEL_NS::CompFactory *ConfigLoaderFactory::FactoryCreate()
-{
-    return KERNEL_NS::ObjPoolWrap<ConfigLoaderFactory>::NewByAdapter(_buildType.V);
+#undef OBJ_GET_OBJ_TYPEID_DECLARE
+#define OBJ_GET_OBJ_TYPEID_DECLARE()    \
+    virtual UInt64 GetObjTypeId() const override
+
+#undef OBJ_GET_OBJ_TYPEID_IMPL
+#define OBJ_GET_OBJ_TYPEID_IMPL(T) \
+UInt64 T::GetObjTypeId() const                      \
+{                                                   \
+    return KERNEL_NS::RttiUtil::GetTypeId<T>();     \
 }
 
-void ConfigLoaderFactory::Release()
-{
-    KERNEL_NS::ObjPoolWrap<ConfigLoaderFactory>::DeleteByAdapter(_buildType.V, this);
-}
-
-KERNEL_NS::CompObject *ConfigLoaderFactory::Create() const
-{
-    CREATE_CRYSTAL_COMP_INS(comp, ConfigLoader, SERVICE_COMMON_NS);
-    return comp;
-}
-
-OBJ_GET_OBJ_TYPEID_IMPL(ConfigLoaderFactory)
-
-SERVICE_END
+#endif

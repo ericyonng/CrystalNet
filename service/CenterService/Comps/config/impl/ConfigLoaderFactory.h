@@ -41,8 +41,6 @@ public:
 
     virtual void Release() override;
     
-    virtual UInt64 GetObjTypeId() const override;
-
     OBJ_GET_OBJ_TYPEID_DECLARE();
 
 public:

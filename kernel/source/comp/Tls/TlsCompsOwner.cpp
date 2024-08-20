@@ -31,6 +31,7 @@
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Poller/Poller.h>
 #include <kernel/comp/Poller/PollerFactory.h>
+#include <kernel/comp/TlsMemoryCleanerComp.h>
 
 KERNEL_BEGIN
 
@@ -54,7 +55,11 @@ void TlsCompsOwner::Release()
 
 void TlsCompsOwner::OnRegisterComps()
 {
+    // poller事件循环
     RegisterComp<PollerFactory>();
+
+    // 内存清理
+    RegisterComp<TlsMemoryCleanerCompFactory>();
 }
 
 Int32 TlsCompsOwner::_OnCompsCreated()

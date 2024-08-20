@@ -79,7 +79,6 @@ _pollerId(pollerId)
 ,_pollerMgr(NULL)
 ,_serviceProxy(NULL)
 ,_poller(NULL)
-,_memoryCleaner(NULL)
 ,_cfg(cfg)
 ,_sessionCount{0}
 ,_sessionPendingCount{0}
@@ -108,7 +107,6 @@ void EpollTcpPoller::OnRegisterComps()
     // 注册poller组件
     RegisterComp<PollerFactory>();
     RegisterComp<IpRuleMgrFactory>();
-    RegisterComp<TlsMemoryCleanerCompFactory>();
 }
 
 void EpollTcpPoller::Clear()
@@ -364,8 +362,6 @@ Int32 EpollTcpPoller::_OnPriorityLevelCompsCreated()
 
 Int32 EpollTcpPoller::_OnCompsCreated()
 {
-    _memoryCleaner = GetComp<TlsMemoryCleanerComp>();
-
     // ip rule mgr 设置
     auto ipRuleMgr = GetComp<IpRuleMgr>();
     auto config = _pollerMgr->GetConfig();
@@ -376,14 +372,6 @@ Int32 EpollTcpPoller::_OnCompsCreated()
             GetOwner()->SetErrCode(this, Status::Failed);
         return Status::Failed;
     }
-
-    #if _DEBUG
-        _memoryCleaner->SetIntervalMs(1000);
-    #endif
-
-    // 手动启动
-    _memoryCleaner->SetTimerMgr(_poller->GetTimerMgr());
-    _memoryCleaner->SetManualStart();
     
     g_Log->NetInfo(LOGFMT_OBJ_TAG("comps created suc %s."), ToString().c_str());
     return Status::Success;
@@ -469,17 +457,12 @@ void EpollTcpPoller::_Clear()
 bool EpollTcpPoller::_OnPollerPrepare(Poller *poller)
 {
     const auto workerThreadId = poller->GetWorkerThreadId();
-    Int32 err = _memoryCleaner->ManualStart();
-    if(err != Status::Success)
-    {
-        g_Log->NetError(LOGFMT_OBJ_TAG("fail memory cleaner ManualStart, err = [%d], poller worker threadId = [%llu]")
-                        , err, workerThreadId);
+    #if _DEBUG
+        auto memoryCleaner = KERNEL_NS::TlsUtil::GetTlsCompsOwner()->GetComp<TlsMemoryCleanerComp>();
+        memoryCleaner->SetIntervalMs(1000);
+    #endif
 
-        SetErrCode(poller, err);
-        return false;
-    }
-
-    err = _epoll->Create();
+    Int32 err = _epoll->Create();
     if(err != Status::Success)
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("fail create epoll. err = [%d], poller worker threadId = [%llu]")
@@ -545,8 +528,6 @@ void EpollTcpPoller::_OnPollerWillDestroy(Poller *poller)
         pendingInfo = NULL;
         --_sessionPendingCount;
     });
-
-    _memoryCleaner->ManualClose();
 }
 
 void EpollTcpPoller::_OnWrite(PollerEvent *ev)

@@ -92,7 +92,7 @@ bool ItemConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_id, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_id, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_id, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -157,7 +157,7 @@ bool ItemConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_type, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_type, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_type, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -493,5 +493,11 @@ Int64 ItemConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configData,
 
     return -1;
 }
+
+UInt64 ItemConfigMgr::GetObjTypeId() const
+{
+    return KERNEL_NS::RttiUtil::GetTypeId<ItemConfigMgr>();
+}
+
 
 SERVICE_END

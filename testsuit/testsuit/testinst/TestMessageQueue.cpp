@@ -298,40 +298,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TestMqBlock);
 static void Generator6(KERNEL_NS::LibThreadPool *t)
 {
  // 定时管理
-    KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
-    timerMgr.SetClosureDelegate([](void *p){
-        auto ptr = reinterpret_cast<KERNEL_NS::TimerMgr *>(p);
-        KERNEL_NS::TimerMgr::Delete_TimerMgr(ptr);
-    });
-    timerMgr->Launch(NULL);
 
-    // 内存定时清理
-    KERNEL_NS::SmartPtr<KERNEL_NS::TlsMemoryCleanerComp, KERNEL_NS::AutoDelMethods::CustomDelete> memoryCleaner = KERNEL_NS::TlsMemoryCleanerCompFactory::StaticCreate()->CastTo<KERNEL_NS::TlsMemoryCleanerComp>();
-    memoryCleaner.SetClosureDelegate([](void *p){
-        auto ptr = reinterpret_cast<KERNEL_NS::TlsMemoryCleanerComp *>(p);
-        ptr->Release();
-    });
-
-    // 设置
-    memoryCleaner->SetTimerMgr(timerMgr.AsSelf());
-
-    // 启动内存清理
-    do
-    {
-        auto err = memoryCleaner->Init();
-        if(err != Status::Success)
-        {
-            CRYSTAL_TRACE("memory cleaner init fail err:%d", err);
-            break;
-        }
-
-        err = memoryCleaner->Start();
-        if(err != Status::Success)
-        {
-            CRYSTAL_TRACE("memory cleaner start fail err:%d", err);
-            break;
-        }
-    } while (false);
+    auto timerMgr = KERNEL_NS::TlsUtil::GetPoller()->GetTimerMgr();
 
     KERNEL_NS::LibCpuCounter startCounter;
     KERNEL_NS::LibCpuCounter startFrame;
@@ -367,9 +335,6 @@ static void Generator6(KERNEL_NS::LibThreadPool *t)
         // g_FrameTime += endFrame.Update().ElapseNanoseconds(startFrame);
         // ++g_FrameCount;
     }
-
-    memoryCleaner->WillClose();
-    memoryCleaner->Close();
 }
 
 // mid:4204kqps, average:4213kqps

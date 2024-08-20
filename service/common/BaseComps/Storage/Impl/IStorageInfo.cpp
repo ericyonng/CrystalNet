@@ -765,4 +765,6 @@ void IStorageInfo::_UpadteCapacityAndMysqlDataType()
     }
 }
 
+OBJ_GET_OBJ_TYPEID_IMPL(IStorageInfo)
+
 SERVICE_END

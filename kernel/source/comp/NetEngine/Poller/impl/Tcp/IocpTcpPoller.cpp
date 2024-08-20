@@ -68,7 +68,7 @@
 #include <kernel/comp/Tls/Tls.h>
 
 #include <kernel/comp/TlsMemoryCleanerComp.h>
-
+#include <kernel/comp/Utils/TlsUtil.h>
 
 KERNEL_BEGIN
 
@@ -80,7 +80,6 @@ IocpTcpPoller::IocpTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const Tcp
 ,_pollerMgr(NULL)
 ,_serviceProxy(NULL)
 ,_poller(NULL)
-,_memoryCleaner(NULL)
 ,_cfg(cfg)
 ,_sessionCount{0}
 ,_sessionPendingCount{0}
@@ -110,8 +109,6 @@ void IocpTcpPoller::OnRegisterComps()
     RegisterComp<IpRuleMgrFactory>();
     // 注册poller组件
     RegisterComp<PollerFactory>();
-    // 注册定时清理内存
-    RegisterComp<TlsMemoryCleanerCompFactory>();
 }
 
 void IocpTcpPoller::Clear()
@@ -783,9 +780,6 @@ Int32 IocpTcpPoller::_OnPriorityLevelCompsCreated()
 
 Int32 IocpTcpPoller::_OnCompsCreated()
 {
-    _memoryCleaner = GetComp<TlsMemoryCleanerComp>();
-
-
     // ip rule mgr 设置
     auto ipRuleMgr = GetComp<IpRuleMgr>();
     auto config = _pollerMgr->GetConfig();
@@ -796,14 +790,6 @@ Int32 IocpTcpPoller::_OnCompsCreated()
             GetOwner()->SetErrCode(this, Status::Failed);
         return Status::Failed;
     }
-
-    #if _DEBUG
-        _memoryCleaner->SetIntervalMs(1000);
-    #endif
-
-    // 手动启动
-    _memoryCleaner->SetTimerMgr(_poller->GetTimerMgr());
-    _memoryCleaner->SetManualStart();
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp comps created suc %s."), ToString().c_str());
     return Status::Success;
@@ -865,18 +851,12 @@ void IocpTcpPoller::_Clear()
 bool IocpTcpPoller::_OnPollerPrepare(Poller *poller)
 {
     const auto workerThreadId = poller->GetWorkerThreadId();
+    #if _DEBUG
+        auto memoryCleaner = KERNEL_NS::TlsUtil::GetTlsCompsOwner()->GetComp<TlsMemoryCleanerComp>();
+        memoryCleaner->SetIntervalMs(1000);
+    #endif
 
-    Int32 err = _memoryCleaner->ManualStart();
-    if(err != Status::Success)
-    {
-        g_Log->NetError(LOGFMT_OBJ_TAG("fail memory cleaner ManualStart, err = [%d], poller worker threadId = [%llu]")
-                        , err, workerThreadId);
-
-        SetErrCode(poller, err);
-        return false;
-    }
-
-    err = _iocp->Create();
+    Int32 err = _iocp->Create();
     if(err != Status::Success)
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("fail create iocp. err = [%d], poller worker threadId = [%llu]")
@@ -929,8 +909,6 @@ void IocpTcpPoller::_OnPollerWillDestroy(Poller *poller)
         pendingInfo = NULL;
         --_sessionPendingCount;
     });
-
-    _memoryCleaner->ManualClose();
 }
 
 void IocpTcpPoller::_OnWrite(PollerEvent *ev)

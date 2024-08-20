@@ -259,32 +259,12 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
 {
     auto workerBalance = var->AsPtr<DBBalanceInfo>();
 
-    // 线程内存整理
-    SmartPtr<ThreadTlsMemoryCleanerGroup, AutoDelMethods::CustomDelete> cleanerGroup = ThreadTlsMemoryCleanerGroupFactory::StaticCreateAs();
-    cleanerGroup.SetClosureDelegate([](void *p){
-        auto ptr = reinterpret_cast<ThreadTlsMemoryCleanerGroup *>(p);
-        ptr->Release();
-    });
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    auto timerMgr = poller->GetTimerMgr();
 
     do
     {
-        auto ret = cleanerGroup->Init();
-        if(ret != Status::Success)
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("memory cleaner init fail ret:%d worker balance:%s, cleanerGroup:%s")
-                        , ret, workerBalance->ToString().c_str(), cleanerGroup->ToString().c_str());
-            break;
-        }
-
-        ret = cleanerGroup->Start();
-        if(ret != Status::Success)
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("memory cleaner start fail ret:%d worker balance:%s,cleanerGroup:%s")
-                    , ret, workerBalance->ToString().c_str(), cleanerGroup->ToString().c_str());
-            break;
-        }
-
-        ret = workerBalance->_conn->Init();
+        Int32 ret = workerBalance->_conn->Init();
         if(ret != Status::Success)
         {
             g_Log->Warn(LOGFMT_OBJ_TAG("mysql connect init fail ret:%d workerBalance:%s,"), ret, workerBalance->ToString().c_str());
@@ -359,16 +339,13 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
                 node = eventList->Erase(node);
             }
 
-            cleanerGroup->Drive();
+            timerMgr->Drive();
         }
 
     } while (false);
     
     workerBalance->_conn->Close();
     workerBalance->_msgQueue->Destroy();
-
-    cleanerGroup->WillClose();
-    cleanerGroup->Close();
 
     g_Log->Info(LOGFMT_OBJ_TAG("db is stop config:%s, workerBalance:%s"), _cfg.ToString().c_str(), workerBalance->ToString().c_str());
 

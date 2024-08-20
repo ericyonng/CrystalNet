@@ -51,6 +51,9 @@ class TlsMemoryPool;
 template<typename ObjPoolType>
 class TlsObjectPool;
 
+class Poller;
+class TlsCompsOwner;
+
 class KERNEL_EXPORT TlsUtil
 {
 public:
@@ -62,6 +65,8 @@ public:
     // 创建tlsstack 默认只使用1MB空间
     static TlsStack<TlsStackSize::SIZE_1MB> *GetTlsStack(bool forceCreate = true); 
     static TlsDefaultObj *GetDefTls();
+    static Poller *GetPoller();
+    static TlsCompsOwner *GetTlsCompsOwner();
     static void DestroyTlsStack();
     static void DestroyTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsTask);
     static void SetTlsValueNull();
@@ -99,6 +104,11 @@ ALWAYS_INLINE TlsDefaultObj *TlsUtil::GetDefTls()
 {
     auto tlsStack = GetTlsStack();
     return tlsStack->GetDef();
+}
+
+ALWAYS_INLINE TlsCompsOwner *TlsUtil::GetTlsCompsOwner()
+{
+    return GetDefTls()->_tlsComps;
 }
 
 ALWAYS_INLINE void TlsUtil::DestroyTlsStack()

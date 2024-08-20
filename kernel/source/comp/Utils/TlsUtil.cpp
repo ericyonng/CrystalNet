@@ -32,6 +32,8 @@
 #include <kernel/comp/memory/MemoryPool.h>
 #include <kernel/comp/Tls/TlsMemoryPool.h>
 #include <kernel/comp/Utils/AllocUtil.h>
+#include <kernel/comp/Tls/TlsCompsOwner.h>
+#include <kernel/comp/Poller/Poller.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
  #include <processthreadsapi.h>
@@ -161,6 +163,12 @@ TlsMemoryPool **TlsUtil::GetTlsMemoryPoolHostThreadLocalAddr()
     }
 
     return &tlsPool;
+}
+
+Poller *TlsUtil::GetPoller()
+{
+    auto defTls = GetDefTls();
+    return defTls->_tlsComps->GetComp<Poller>();
 }
 
 KERNEL_END

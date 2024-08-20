@@ -377,7 +377,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -387,7 +387,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -398,7 +398,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -686,7 +686,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -696,7 +696,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -707,7 +707,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -991,7 +991,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -1001,7 +1001,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1012,7 +1012,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1389,7 +1389,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -1399,7 +1399,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1410,7 +1410,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1719,7 +1719,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -1729,7 +1729,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -1740,7 +1740,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2030,7 +2030,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -2040,7 +2040,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2051,7 +2051,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2339,7 +2339,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -2349,7 +2349,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2360,7 +2360,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2660,7 +2660,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -2670,7 +2670,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -2681,7 +2681,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3065,7 +3065,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -3075,7 +3075,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3086,7 +3086,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3486,7 +3486,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -3496,7 +3496,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3507,7 +3507,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3881,7 +3881,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -3891,7 +3891,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -3902,7 +3902,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4184,7 +4184,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -4194,7 +4194,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4205,7 +4205,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4558,7 +4558,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -4568,7 +4568,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -4579,7 +4579,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5014,7 +5014,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -5024,7 +5024,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5035,7 +5035,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5319,7 +5319,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -5329,7 +5329,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5340,7 +5340,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5667,7 +5667,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -5677,7 +5677,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5688,7 +5688,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -5987,7 +5987,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -5997,7 +5997,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -6008,7 +6008,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -6307,7 +6307,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
     KERNEL_NS::LibString data;
     if(!::google::protobuf::util::MessageToJsonString(*this, &data.GetRaw()).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return "";
     }
 
@@ -6317,7 +6317,7 @@ virtual KERNEL_NS::LibString ToJsonString() const override {
 virtual bool ToJsonString(std::string *data) const override {
     if(!::google::protobuf::util::MessageToJsonString(*this, data).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("Turn JsonString fail:%s"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 
@@ -6328,7 +6328,7 @@ virtual bool FromJsonString(const Byte8 *data, size_t len) override {
     auto &&jsonString = ::google::protobuf::StringPiece(data, len);
     if(!::google::protobuf::util::JsonStringToMessage(jsonString, this).ok())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this));
+        g_Log->Warn(LOGFMT_OBJ_TAG("SimpleInfo field JsonStringToMessage fail jsonString:%s, message name:%s"), jsonString.as_string().c_str(), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
         return false;
     }
 

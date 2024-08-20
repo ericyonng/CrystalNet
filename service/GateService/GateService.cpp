@@ -250,7 +250,7 @@ Int32 GateService::_OnServicePriorityLevelCompsCreated()
 Int32 GateService::_OnServiceCompsCreated()
 {
     _timerMgr = _poller->GetTimerMgr();
-    _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(_timerMgr);
+    _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _updateTimer->SetTimeOutHandler(this, &GateService::_OnFrameTimer);
 
     // 配置路径设置

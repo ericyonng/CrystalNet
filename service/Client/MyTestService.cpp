@@ -274,7 +274,7 @@ Int32 MyTestService::_OnServicePriorityLevelCompsCreated()
 Int32 MyTestService::_OnServiceCompsCreated()
 {
     _timerMgr = _poller->GetTimerMgr();
-    _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(_timerMgr);
+    _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _updateTimer->SetTimeOutHandler(this, &MyTestService::_OnFrameTimer);
 
     // 设置ip rule mgr

@@ -34,6 +34,7 @@
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Lock/Impl/SpinLock.h>
 #include <kernel/comp/memory/ObjPoolWrap.h>
+#include <kernel/comp/Poller/Poller.h>
 
 KERNEL_BEGIN
 
@@ -48,7 +49,8 @@ TlsMemoryCleanerComp::TlsMemoryCleanerComp()
 ,_tlsDefaultObj(NULL)
 ,_isManualStart(false)
 {
-
+    // 默认使用poller的timermgr
+    _timerMgr = KERNEL_NS::TlsUtil::GetPoller()->GetTimerMgr();
 }
 
 TlsMemoryCleanerComp::~TlsMemoryCleanerComp()
@@ -90,6 +92,14 @@ void TlsMemoryCleanerComp::ManualClose()
     _Clear();
 
     g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner comp will ManualClose success thread id:%llu."), SystemUtil::GetCurrentThreadId());
+}
+
+void TlsMemoryCleanerComp::SetIntervalMs(Int64 intervalMs)
+{
+    _intervalMs = intervalMs; 
+
+    if(_timer)
+        _timer->Schedule(_intervalMs);
 }
 
 Int32 TlsMemoryCleanerComp::_OnInit()

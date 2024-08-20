@@ -87,8 +87,6 @@ void Application::OnRegisterComps()
 
     // 监控程序结束
     RegisterComp<KillMonitorMgrFactory>();
-    // 内存清理
-    RegisterComp<KERNEL_NS::TlsMemoryCleanerCompFactory>();
 
     RegisterComp<ServiceProxyFactory>();
 }
@@ -229,8 +227,8 @@ Int32 Application::_OnCompsCreated()
     _killMonitorTimer->Schedule(2000);
 
     // 内存清理设置
-    auto memoryCleaner = GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
-    memoryCleaner->SetTimerMgr(_poller->GetTimerMgr());
+    auto tlsComps = KERNEL_NS::TlsUtil::GetTlsCompsOwner();
+    auto memoryCleaner = tlsComps->GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
     memoryCleaner->SetIntervalMs(_kernelConfig._mergeTlsMemoryBlockIntervalMs);
 
     return Status::Success;

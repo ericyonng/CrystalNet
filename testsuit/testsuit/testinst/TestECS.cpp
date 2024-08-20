@@ -68,6 +68,8 @@ public:
         g_Log->Info(LOGFMT_OBJ_TAG("%s on update"), KERNEL_NS::RttiUtil::GetByObj(this).c_str());
     }
 
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
     // 组件接口资源
 protected:
     virtual Int32 _OnCreated() override
@@ -110,6 +112,8 @@ private:
     KERNEL_NS::LibString _name = "CompA name field";
 };
 
+OBJ_GET_OBJ_TYPEID_IMPL(CompA)
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(CompA);
 
 
@@ -118,6 +122,8 @@ class CompB : public KERNEL_NS::CompObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, CompB);
 public:
+    OBJ_GET_OBJ_TYPEID_DECLARE();
+
     CompB()
     {
         g_Log->Info(LOGFMT_OBJ_TAG("CompB constructor."));
@@ -191,6 +197,8 @@ private:
     KERNEL_NS::LibString _name = "CompB name field";
 };
 
+OBJ_GET_OBJ_TYPEID_IMPL(CompB)
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(CompB);
 
 // 故障组件3
@@ -211,6 +219,8 @@ public:
     {
         CompFault::Delete_CompFault(this);
     }
+
+    OBJ_GET_OBJ_TYPEID_DECLARE();
 
     // // api
 public:
@@ -272,6 +282,8 @@ private:
 private:
     KERNEL_NS::LibString _name = "CompFault name field";
 };
+
+OBJ_GET_OBJ_TYPEID_IMPL(CompFault)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(CompFault);
 

@@ -35,6 +35,7 @@
 #include <kernel/common/BaseMacro.h>
 #include <kernel/common/BaseType.h>
 #include <kernel/common/LibObject.h>
+#include <kernel/comp/CompObject/Defs.h>
 
 KERNEL_BEGIN
 

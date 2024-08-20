@@ -93,7 +93,7 @@ bool GoalConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_id, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_id, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_id, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -158,7 +158,7 @@ bool GoalConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_type, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_type, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_type, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -223,7 +223,7 @@ bool GoalConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_title, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_title, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_title, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -288,7 +288,7 @@ bool GoalConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_goal, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_goal, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_goal, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -353,7 +353,7 @@ bool GoalConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_roleBuff, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_roleBuff, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_roleBuff, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -418,7 +418,7 @@ bool GoalConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_isLucky, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_isLucky, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_isLucky, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -483,7 +483,7 @@ bool GoalConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_awards, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_awards, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_awards, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -548,7 +548,7 @@ bool GoalConfig::Parse(const KERNEL_NS::LibString &lineData)
       KERNEL_NS::LibString errInfo;
       if(!SERVICE_COMMON_NS::DataTypeHelper::Assign(_achieve, dataPart, errInfo))
       {
-          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_achieve, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
+          g_Log->Error(LOGFMT_OBJ_TAG("%s, assign fail field name:_achieve, data part:%s, errInfo:%s  line data:%s, pos:%d, headerTailPos:%d, dataEndPos:%d"), KERNEL_NS::RttiUtil::GetByObj(this).c_str(), dataPart.c_str(), errInfo.c_str(), lineData.c_str(), static_cast<Int32>(pos), static_cast<Int32>(headerTailPos), static_cast<Int32>(dataEndPos));
           return false;
       }
 
@@ -926,5 +926,11 @@ Int64 GoalConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configData,
 
     return -1;
 }
+
+UInt64 GoalConfigMgr::GetObjTypeId() const
+{
+    return KERNEL_NS::RttiUtil::GetTypeId<GoalConfigMgr>();
+}
+
 
 SERVICE_END

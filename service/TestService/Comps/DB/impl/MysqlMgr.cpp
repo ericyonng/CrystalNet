@@ -925,7 +925,7 @@ Int32 MysqlMgr::OnLoaded(const KERNEL_NS::LibString &key, const std::map<KERNEL_
 Int32 MysqlMgr::_OnGlobalSysInit()
 {
     _disableAutoDrop = 1;
-    _poller = GetService()->GetComp<KERNEL_NS::Poller>();
+    _poller = KERNEL_NS::TlsUtil::GetPoller();
     _closeServiceStub = GetEventMgr()->AddListener(EventEnums::QUIT_SERVICE_EVENT, this, &MysqlMgr::_CloseServiceEvent);
     _onServiceFrameTickStub = GetEventMgr()->AddListener(EventEnums::SERVICE_FRAME_TICK, this, &MysqlMgr::_OnServiceFrameTick);
 

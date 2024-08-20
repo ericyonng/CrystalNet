@@ -38,7 +38,6 @@
 #include <protocols/protocols.h>
 #include <service/TestService/ServiceFactory.h>
 #include <service/TestService/MyTestService.h>
-#include <service/
 
 SERVICE_BEGIN
 
@@ -312,7 +311,7 @@ Int32 MyTestService::_OnServicePriorityLevelCompsCreated()
 Int32 MyTestService::_OnServiceCompsCreated()
 {
     _timerMgr = _poller->GetTimerMgr();
-    _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(_timerMgr);
+    _updateTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     _updateTimer->SetTimeOutHandler(this, &MyTestService::_OnFrameTimer);
 
     // 配置路径设置

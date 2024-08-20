@@ -129,3 +129,5 @@ void ExporterMgr::_ExportConfigs()
 void ExporterMgr::_Clear()
 {
 }
+
+OBJ_GET_OBJ_TYPEID_IMPL(ExporterMgr)

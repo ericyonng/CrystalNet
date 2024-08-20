@@ -41,18 +41,22 @@ KERNEL_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibTimer);
 
 
-LibTimer::LibTimer()
+LibTimer::LibTimer(TimerMgr *mgr)
     :_data(NULL)
     ,_timeroutHandler(NULL)
     ,_cancelHandler(NULL)
 {
-    auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
-    auto poller = tlsDef->_tlsComps->GetPoller();
-    _mgr = poller->GetTimerMgr();
+    _mgr = mgr;
+    if(!_mgr)
+    {
+        auto tlsDef = KERNEL_NS::TlsUtil::GetDefTls();
+        auto poller = tlsDef->_tlsComps->GetPoller();
+        _mgr = poller->GetTimerMgr();
 
-    if(UNLIKELY(!_mgr))
-    {// 若为空则使用线程本地存储的定时管理器
-        g_Log->Error(LOGFMT_OBJ_TAG("poller timer mgr is null please check poller:%s"), poller->ToString().c_str());
+        if(UNLIKELY(!_mgr))
+        {// 若为空则使用线程本地存储的定时管理器
+            g_Log->Error(LOGFMT_OBJ_TAG("poller timer mgr is null please check poller:%s"), poller->ToString().c_str());
+        }
     }
 
     _data = _mgr->NewTimeData(this);
