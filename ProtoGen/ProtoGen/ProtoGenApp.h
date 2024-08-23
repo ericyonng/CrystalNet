@@ -36,6 +36,7 @@ class ProtoGenApp : public KERNEL_NS::CompHostObject
 
 public:
     ProtoGenApp()
+    :KERNEL_NS::CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<ProtoGenApp>())
     {
 
     }
@@ -56,8 +57,6 @@ public:
 
     const KERNEL_NS::LibString &GetAppName() const;
     const KERNEL_NS::LibString &GetAppPath() const;
-
-    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 private:
     KERNEL_NS::LibString _appName;

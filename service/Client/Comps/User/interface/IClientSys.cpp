@@ -34,8 +34,9 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IClientSys);
 
-IClientSys::IClientSys()
-:_userOwner(NULL)
+IClientSys::IClientSys(UInt64 objTypeId)
+:ILogicSys(objTypeId)
+,_userOwner(NULL)
 ,_userMgr(NULL)
 {
     _SetType(ServiceCompType::USER_SYS_COMP);

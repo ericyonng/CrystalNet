@@ -48,8 +48,6 @@ public:
 
     // poller属于高优先级创建
     virtual Int32 GetPriorityLevel() const override { return CompPriorityLevel::HIGH; }
-
-    OBJ_GET_OBJ_TYPEID_DECLARE();
 };
 
 KERNEL_END

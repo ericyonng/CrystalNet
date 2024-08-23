@@ -86,8 +86,6 @@ public:
 
     virtual void QuitAllSessions(UInt64 serviceId) override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
     // 在组件初始化前
     virtual Int32 _OnHostInit() override;

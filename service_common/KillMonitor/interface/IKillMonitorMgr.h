@@ -48,6 +48,8 @@ class IKillMonitorMgr : public KERNEL_NS::CompObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IKillMonitorMgr);
 
 public:
+    IKillMonitorMgr(UInt64 objTypeId) : KERNEL_NS::CompObject(objTypeId) {}
+    
     virtual bool IsReadyToDie() const = 0;
 
     // 存在该文件说明是关闭程序的操作, 这个检测是每隔10秒检测一次， detectionFile需要带绝对路径

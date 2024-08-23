@@ -36,6 +36,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IExporterMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ExporterMgr);
 
 ExporterMgr::ExporterMgr()
+:IExporterMgr(KERNEL_NS::RttiUtil::GetTypeId<ExporterMgr>())
 {
 
 }
@@ -130,4 +131,3 @@ void ExporterMgr::_Clear()
 {
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ExporterMgr)

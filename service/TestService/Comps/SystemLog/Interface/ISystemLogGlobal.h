@@ -43,6 +43,8 @@ class ISystemLogGlobal : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ISystemLogGlobal);
 
 public:
+    ISystemLogGlobal(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+    
     virtual void AddLog(UInt64 libraryId, const KERNEL_NS::LibString &titleWordId, const std::vector<VariantParam> &titleParams, const KERNEL_NS::LibString &contentWordId, const std::vector<VariantParam> &contentParams) = 0;
 };
 

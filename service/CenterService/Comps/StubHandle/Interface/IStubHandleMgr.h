@@ -37,6 +37,8 @@ class IStubHandleMgr : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IStubHandleMgr);
 
 public:
+    IStubHandleMgr(UInt64 objTypeId) : IGlobalSys(objTypeId){}
+    
     // 新存根
     virtual UInt64 NewStub() = 0;
     // 存根是否存在

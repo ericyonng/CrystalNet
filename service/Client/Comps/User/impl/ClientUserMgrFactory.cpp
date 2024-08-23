@@ -47,6 +47,5 @@ KERNEL_NS::CompObject *ClientUserMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ClientUserMgrFactory)
 
 SERVICE_END

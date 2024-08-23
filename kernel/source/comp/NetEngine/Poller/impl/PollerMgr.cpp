@@ -49,7 +49,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IPollerMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(PollerMgr);
 
 PollerMgr::PollerMgr()
-:_config(NULL)
+:IPollerMgr(KERNEL_NS::RttiUtil::GetTypeId<PollerMgr>())
+,_config(NULL)
 ,_maxSessionId{0}
 ,_serviceProxy(NULL)
 ,_sessionQuantity{0}
@@ -459,6 +460,5 @@ void PollerMgr::_Clear()
     }
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(PollerMgr)
 
 KERNEL_END

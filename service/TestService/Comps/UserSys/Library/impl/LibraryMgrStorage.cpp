@@ -36,7 +36,7 @@ SERVICE_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryMgrStorage);
 
 LibraryMgrStorage::LibraryMgrStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<LibraryMgr>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LibraryMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<LibraryMgr>())
 {
 
 }
@@ -65,6 +65,5 @@ bool LibraryMgrStorage::RegisterStorages()
     return true;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(LibraryMgrStorage)
 
 SERVICE_END

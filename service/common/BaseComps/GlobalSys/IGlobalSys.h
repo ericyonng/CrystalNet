@@ -54,7 +54,7 @@ class IGlobalSys : public ILogicSys
     POOL_CREATE_OBJ_DEFAULT_P1(ILogicSys, IGlobalSys);
 
 public:
-    IGlobalSys();
+    IGlobalSys(UInt64 objTypeId);
     ~IGlobalSys();
 
    void Release() = 0;

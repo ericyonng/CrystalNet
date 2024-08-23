@@ -37,7 +37,7 @@ class IServiceRegisterMgr : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IServiceRegisterMgr);
 
 public:
-    
+    IServiceRegisterMgr(UInt64 objTypeId):IGlobalSys(objTypeId){}
 };
 
 SERVICE_END

@@ -37,7 +37,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IStubHandleMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(StubHandleMgr);
 
 StubHandleMgr::StubHandleMgr()
-:_maxStub(0)
+:SERVICE_NS::IStubHandleMgr(KERNEL_NS::RttiUtil::GetTypeId<StubHandleMgr>())
+,_maxStub(0)
 ,_addListenResEvStub(INVALID_LISTENER_STUB)
 ,_asynConnectResEvStub(INVALID_LISTENER_STUB)
 {
@@ -209,6 +210,5 @@ void StubHandleMgr::_OnAsynConnectResEvent(KERNEL_NS::LibEvent *ev)
 }
 
 
-OBJ_GET_OBJ_TYPEID_IMPL(StubHandleMgr)
 
 SERVICE_END

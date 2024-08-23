@@ -205,6 +205,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ItemConfigMgr);
 const std::vector<ItemConfig *> ItemConfigMgr::s_empty;
 
 ItemConfigMgr::ItemConfigMgr()
+:SERVICE_COMMON_NS::IConfigMgr(KERNEL_NS::RttiUtil::GetTypeId<ItemConfigMgr>())
 {
 }
 
@@ -493,11 +494,5 @@ Int64 ItemConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configData,
 
     return -1;
 }
-
-UInt64 ItemConfigMgr::GetObjTypeId() const
-{
-    return KERNEL_NS::RttiUtil::GetTypeId<ItemConfigMgr>();
-}
-
 
 SERVICE_END

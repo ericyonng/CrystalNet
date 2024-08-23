@@ -56,8 +56,6 @@ public:
     virtual Int64 NewPacketId(UInt64 sessionId) override;
     virtual UInt64 GetSessionAmount() const override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
     Int32 _OnGlobalSysInit() override;
     void _OnGlobalSysClose() override;

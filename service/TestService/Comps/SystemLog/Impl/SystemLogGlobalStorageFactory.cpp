@@ -49,6 +49,5 @@ KERNEL_NS::CompObject *SystemLogGlobalStorageFactory::Create() const
     return SystemLogGlobalStorage::NewByAdapter_SystemLogGlobalStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(SystemLogGlobalStorageFactory)
 
 SERVICE_END

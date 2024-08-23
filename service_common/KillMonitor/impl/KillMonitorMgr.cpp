@@ -36,7 +36,8 @@ SERVICE_COMMON_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(KillMonitorMgr);
 
 KillMonitorMgr::KillMonitorMgr()
-:_isReadyToDie(false)
+:IKillMonitorMgr(KERNEL_NS::RttiUtil::GetTypeId<KillMonitorMgr>())
+,_isReadyToDie(false)
 ,_enableDetection(false)
 ,_detectionInterval(10)
 ,_timerMgr(NULL)
@@ -134,6 +135,5 @@ void KillMonitorMgr::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
     }
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(KillMonitorMgr)
 
 SERVICE_COMMON_END

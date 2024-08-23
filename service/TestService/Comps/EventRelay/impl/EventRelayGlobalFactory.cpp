@@ -48,7 +48,6 @@ KERNEL_NS::CompObject *EventRelayGlobalFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(EventRelayGlobalFactory)
 
 
 SERVICE_END

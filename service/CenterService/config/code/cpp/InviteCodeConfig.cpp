@@ -204,6 +204,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(InviteCodeConfigMgr);
 const std::vector<InviteCodeConfig *> InviteCodeConfigMgr::s_empty;
 
 InviteCodeConfigMgr::InviteCodeConfigMgr()
+:SERVICE_COMMON_NS::IConfigMgr(KERNEL_NS::RttiUtil::GetTypeId<InviteCodeConfigMgr>())
 {
 }
 
@@ -499,11 +500,5 @@ Int64 InviteCodeConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &confi
 
     return -1;
 }
-
-UInt64 InviteCodeConfigMgr::GetObjTypeId() const
-{
-    return KERNEL_NS::RttiUtil::GetTypeId<InviteCodeConfigMgr>();
-}
-
 
 SERVICE_END

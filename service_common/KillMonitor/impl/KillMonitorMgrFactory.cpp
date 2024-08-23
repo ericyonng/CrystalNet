@@ -48,7 +48,5 @@ KERNEL_NS::CompObject *KillMonitorMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(KillMonitorMgrFactory)
-
 
 SERVICE_COMMON_END

@@ -638,6 +638,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(GoalConfigMgr);
 const std::vector<GoalConfig *> GoalConfigMgr::s_empty;
 
 GoalConfigMgr::GoalConfigMgr()
+:SERVICE_COMMON_NS::IConfigMgr(KERNEL_NS::RttiUtil::GetTypeId<GoalConfigMgr>())
 {
 }
 
@@ -926,11 +927,5 @@ Int64 GoalConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configData,
 
     return -1;
 }
-
-UInt64 GoalConfigMgr::GetObjTypeId() const
-{
-    return KERNEL_NS::RttiUtil::GetTypeId<GoalConfigMgr>();
-}
-
 
 SERVICE_END

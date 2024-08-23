@@ -35,6 +35,7 @@ class HostObj : public KERNEL_NS::CompHostObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, HostObj);
 public:
     HostObj()
+    :KERNEL_NS::CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<HostObj>())
     {
 
     }
@@ -85,8 +86,6 @@ public:
 
         g_Log->Info(LOGFMT_OBJ_TAG("on working end..."));
     }
-
-    OBJ_GET_OBJ_TYPEID_DECLARE();
 
     // 组件接口资源
 protected:
@@ -224,8 +223,6 @@ private:
 
 private:
 };
-OBJ_GET_OBJ_TYPEID_IMPL(HostObj)
-
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(HostObj);
 
@@ -246,11 +243,9 @@ public:
         return HostObj::New_HostObj();
     }
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 };
 
-OBJ_GET_OBJ_TYPEID_IMPL(HostObjFactory)
 
 struct  HelloWorldReq : public KERNEL_NS::PollerEvent
 {

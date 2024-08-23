@@ -50,7 +50,8 @@ static const UInt64 s_defaultFrameUpdateTimeMs = 50;      // 默认帧更新时�
 POOL_CREATE_OBJ_DEFAULT_IMPL(MyTestService);
 
 MyTestService::MyTestService()
-:_timerMgr(NULL)
+:SERVICE_COMMON_NS::IService(KERNEL_NS::RttiUtil::GetTypeId<MyTestService>())
+,_timerMgr(NULL)
 ,_updateTimer(NULL)
 ,_frameUpdateTimeMs(0)
 ,_eventMgr(NULL)
@@ -735,6 +736,5 @@ void MyTestService::_OnFrameTick()
     GetEventMgr()->FireEvent(ev);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(MyTestService)
 
 SERVICE_END

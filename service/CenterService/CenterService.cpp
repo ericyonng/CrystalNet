@@ -46,7 +46,8 @@ static const UInt64 s_defaultFrameUpdateTimeMs = 50;      // 默认帧更新时�
 POOL_CREATE_OBJ_DEFAULT_IMPL(CenterService);
 
 CenterService::CenterService()
-:_timerMgr(NULL)
+:SERVICE_COMMON_NS::IService(KERNEL_NS::RttiUtil::GetTypeId<CenterService>())
+,_timerMgr(NULL)
 ,_updateTimer(NULL)
 ,_frameUpdateTimeMs(0)
 ,_eventMgr(NULL)
@@ -600,6 +601,5 @@ bool CenterService::_CheckOpcodeEnable(Int32 opcode)
     return Opcodes::CheckOpcode(opcode);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(CenterService)
 
 SERVICE_END

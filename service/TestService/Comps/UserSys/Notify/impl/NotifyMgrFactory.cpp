@@ -49,7 +49,6 @@ KERNEL_NS::CompObject *NotifyMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(NotifyMgrFactory)
 
 
 SERVICE_END

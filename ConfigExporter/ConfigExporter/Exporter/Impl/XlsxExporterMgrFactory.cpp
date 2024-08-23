@@ -47,5 +47,4 @@ KERNEL_NS::CompObject *XlsxExporterMgrFactory::Create() const
 }
 
 // 定义
-OBJ_GET_OBJ_TYPEID_IMPL(XlsxExporterMgrFactory)
 

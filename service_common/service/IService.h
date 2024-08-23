@@ -108,7 +108,7 @@ class IService : public KERNEL_NS::CompHostObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IService);
 
 public:
-    IService();
+    IService(UInt64 objTypeId);
     virtual ~IService();
     // 有多线程所以这个时候不能直接ready
     void DefaultMaskReady(bool isReady) override {}

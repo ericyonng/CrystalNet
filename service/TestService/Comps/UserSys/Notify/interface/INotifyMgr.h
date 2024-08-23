@@ -41,6 +41,7 @@ class INotifyMgr : public IUserSys
     POOL_CREATE_OBJ_DEFAULT_P1(IUserSys, INotifyMgr);
 
 public:
+    INotifyMgr(UInt64 objTypeId) : IUserSys(objTypeId) {}
     virtual void AddNotify(const UserNotifyDataItem &item) = 0;
     
     virtual Int32 ReadNotify(UInt64 notifyId) = 0;

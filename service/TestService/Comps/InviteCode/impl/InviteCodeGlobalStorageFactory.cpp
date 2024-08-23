@@ -47,6 +47,5 @@ KERNEL_NS::CompObject *InviteCodeGlobalStorageFactory::Create() const
     return InviteCodeGlobalStorage::NewByAdapter_InviteCodeGlobalStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(InviteCodeGlobalStorageFactory)
 
 SERVICE_END

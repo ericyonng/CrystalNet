@@ -46,7 +46,6 @@ public:
 
     CompObject* Create() const override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
 };
 
 KERNEL_END

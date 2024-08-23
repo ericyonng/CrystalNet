@@ -1,7 +1,7 @@
 // Generate by ConfigExporter, Dont modify it!!!
 // file path:../../service/TestService/config/xlsx/example.xlsx
 // file path:../../service/TestService/config/xlsx/example.xlsx
-// sheet name:示例part2|Example;示例part1|Example
+// sheet name:示例part1|Example;示例part2|Example
 
 #include <pch.h>
 #include <kernel/kernel.h>
@@ -711,6 +711,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ExampleConfigMgr);
 const std::vector<ExampleConfig *> ExampleConfigMgr::s_empty;
 
 ExampleConfigMgr::ExampleConfigMgr()
+:SERVICE_COMMON_NS::IConfigMgr(KERNEL_NS::RttiUtil::GetTypeId<ExampleConfigMgr>())
 {
 }
 
@@ -999,11 +1000,5 @@ Int64 ExampleConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDa
 
     return -1;
 }
-
-UInt64 ExampleConfigMgr::GetObjTypeId() const
-{
-    return KERNEL_NS::RttiUtil::GetTypeId<ExampleConfigMgr>();
-}
-
 
 SERVICE_END

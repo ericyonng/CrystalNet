@@ -59,8 +59,9 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IGlobalSys);
 
-IGlobalSys::IGlobalSys()
-:_onServiceWillStartupStub(INVALID_LISTENER_STUB)
+IGlobalSys::IGlobalSys(UInt64 objTypeId)
+:ILogicSys(objTypeId)
+,_onServiceWillStartupStub(INVALID_LISTENER_STUB)
 ,_onServiceStartupStub(INVALID_LISTENER_STUB)
 {
 }

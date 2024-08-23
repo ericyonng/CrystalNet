@@ -37,6 +37,7 @@ SERVICE_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(ConfigLoader);
 
 ConfigLoader::ConfigLoader()
+:SERVICE_COMMON_NS::IConfigLoader(KERNEL_NS::RttiUtil::GetTypeId<ConfigLoader>())
 {
 
 }
@@ -79,6 +80,5 @@ void ConfigLoader::_OnHostClose()
 
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ConfigLoader)
 
 SERVICE_END

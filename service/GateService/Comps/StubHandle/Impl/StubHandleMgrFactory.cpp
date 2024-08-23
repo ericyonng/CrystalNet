@@ -48,7 +48,6 @@ KERNEL_NS::CompObject *StubHandleMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(StubHandleMgrFactory)
 
 
 SERVICE_END

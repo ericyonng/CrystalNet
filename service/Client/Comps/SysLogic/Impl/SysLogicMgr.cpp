@@ -40,7 +40,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ISysLogicMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(SysLogicMgr);
 
 SysLogicMgr::SysLogicMgr()
-:_detectLink(NULL)
+:ISysLogicMgr(KERNEL_NS::RttiUtil::GetTypeId<SysLogicMgr>())
+,_detectLink(NULL)
 ,_closeServiceStub(INVALID_LISTENER_STUB)
 {
 
@@ -520,7 +521,6 @@ void SysLogicMgr::_Clear()
     }
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(SysLogicMgr)
 
 
 SERVICE_END

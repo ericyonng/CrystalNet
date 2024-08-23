@@ -37,6 +37,8 @@ if %errorlevel% equ 0 (
 :: CenterServer
 ConfigExporter.exe --config=xlsx --lang=S:cpp@C:csharp,lua  --source_dir=../../service/CenterService/config/xlsx --target_dir=../../service/CenterService/config/code --data=../../service/CenterService/config/data --meta=../../service/CenterService/config/meta
 
+pause
+
 if %errorlevel% equ 0 (
 	echo Sussess generate CenterService configs!
 ) else (

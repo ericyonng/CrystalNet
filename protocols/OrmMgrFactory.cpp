@@ -50,6 +50,5 @@ KERNEL_NS::CompObject *OrmMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(OrmMgrFactory)
 
 SERVICE_COMMON_END

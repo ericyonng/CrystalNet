@@ -41,7 +41,7 @@ class IUserSys : public ILogicSys
     POOL_CREATE_OBJ_DEFAULT_P1(ILogicSys, IUserSys);
 
 public:
-    IUserSys();
+    IUserSys(UInt64 objTypeId);
     ~IUserSys();
 
     IUser *GetUser();

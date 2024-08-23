@@ -48,7 +48,6 @@ KERNEL_NS::CompObject *MysqlMgrStorageFactory::Create() const
     return MysqlMgrStorage::NewByAdapter_MysqlMgrStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlMgrStorageFactory)
 
 
 SERVICE_END

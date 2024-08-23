@@ -40,6 +40,7 @@ class IBookBagMgr : public IUserSys
     POOL_CREATE_OBJ_DEFAULT_P1(IUserSys, IBookBagMgr);
 
 public:
+    IBookBagMgr(UInt64 objTypeId) : IUserSys(objTypeId) {}
     virtual void SendBookBagInfoNty() const = 0;
     virtual Int32 SetBookBagInfo(const BookInfoItem &item) = 0;
     virtual Int32 Submit(const KERNEL_NS::LibString &remark) = 0;

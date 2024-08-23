@@ -45,7 +45,7 @@ class IConfigLoader : public KERNEL_NS::CompHostObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IConfigLoader);
 
 public:
-    IConfigLoader();
+    IConfigLoader(UInt64 objTypeId);
     virtual ~IConfigLoader();
 
     virtual KERNEL_NS::LibString ToString() const override;

@@ -39,6 +39,8 @@ class IGlobalUidMgr : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IGlobalUidMgr);
 
 public:
+    IGlobalUidMgr(UInt64 objTypeId) : IGlobalSys(objTypeId){}
+    
     // 全球唯一id
     virtual UInt64 NewGuid() = 0;
 

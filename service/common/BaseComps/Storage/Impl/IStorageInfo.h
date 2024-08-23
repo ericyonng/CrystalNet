@@ -405,16 +405,13 @@ class IStorageInfo : public KERNEL_NS::CompObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IStorageInfo);
 
 public:
-    IStorageInfo(const KERNEL_NS::LibString &systemName);
-    IStorageInfo(Byte8 const * const &systemName);
+    IStorageInfo(UInt64 objTypeId, const KERNEL_NS::LibString &systemName);
     
     virtual ~IStorageInfo();
 
     virtual bool RegisterStorages() { return true; }
     virtual void Release() override;
     
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
     template<typename CallbackType>
     ALWAYS_INLINE void SetRelease(CallbackType &&cb)
     {

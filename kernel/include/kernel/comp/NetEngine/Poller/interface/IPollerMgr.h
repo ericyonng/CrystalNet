@@ -45,7 +45,7 @@ class KERNEL_EXPORT IPollerMgr : public CompHostObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IPollerMgr);
 
 public:
-    IPollerMgr(){}
+    IPollerMgr(UInt64 objTypeId):CompHostObject(objTypeId){}
     virtual ~IPollerMgr(){}
 
     virtual const PollerConfig *GetConfig() const = 0;

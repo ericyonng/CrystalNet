@@ -43,7 +43,8 @@ SERVICE_COMMON_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(Application);
 
 Application::Application()
-:_configIni(NULL)
+:IApplication(KERNEL_NS::RttiUtil::GetTypeId<Application>())
+,_configIni(NULL)
 ,_monitor(NULL)
 ,_killMonitorTimer(NULL)
 ,_statisticsInfo(StatisticsInfo::New_StatisticsInfo())
@@ -1046,19 +1047,17 @@ void Application::_OnMonitor(KERNEL_NS::LibThread *t)
     if(!t->IsDestroy())
         MaskReady(true);
 
-    KERNEL_NS::SmartPtr<KERNEL_NS::TimerMgr, KERNEL_NS::AutoDelMethods::CustomDelete> timerMgr = KERNEL_NS::TimerMgr::New_TimerMgr();
-    timerMgr.SetClosureDelegate([](void *p){
-        auto timerMgr = reinterpret_cast<KERNEL_NS::TimerMgr *>(p);
-        KERNEL_NS::TimerMgr::Delete_TimerMgr(timerMgr);
-    });
-    timerMgr->Launch(NULL);
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    poller->PrepareLoop();
+
+    auto timerMgr = poller->GetTimerMgr();
 
     if(LIKELY(GetErrCode() == Status::Success))
     {
         g_Log->Info(LOGFMT_OBJ_TAG("all comps are ready system info:%s."), ToString().c_str());
 
         // 性能监控 1秒一次
-        KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> monitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(timerMgr.AsSelf());
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> monitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
         monitorTimer.SetClosureDelegate([](void *p){
             auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
             KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
@@ -1069,7 +1068,7 @@ void Application::_OnMonitor(KERNEL_NS::LibThread *t)
         monitorTimer->Schedule(1000);
 
         // 内存监控 60秒一次
-        KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> memoryMonitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer(timerMgr.AsSelf());
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> memoryMonitorTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
         memoryMonitorTimer.SetClosureDelegate([](void *p){
             auto timer = reinterpret_cast<KERNEL_NS::LibTimer *>(p);
             KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(timer);
@@ -1098,6 +1097,8 @@ void Application::_OnMonitor(KERNEL_NS::LibThread *t)
         SinalFinish(GetErrCode());
     }
 
+    poller->OnLoopEnd();
+
     g_Log->Info(LOGFMT_OBJ_TAG("monitor quik thread id:%llu."), KERNEL_NS::SystemUtil::GetCurrentThreadId());
 }
 
@@ -1112,6 +1113,5 @@ void Application::_OnKillMonitorTimeOut(KERNEL_NS::LibTimer *timer)
     }
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(Application)
 
 SERVICE_COMMON_END

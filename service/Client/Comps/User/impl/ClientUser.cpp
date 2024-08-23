@@ -38,7 +38,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IClientUser);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ClientUser);
 
 ClientUser::ClientUser(IClientUserMgr *userMgr)
-:_userMgr(userMgr)
+:IClientUser(KERNEL_NS::RttiUtil::GetTypeId<ClientUser>())
+,_userMgr(userMgr)
 ,_clientInfo(CRYSTAL_NEW(ClientUserInfo))
 ,_activedSessionId(0)
 ,_serverTime(KERNEL_NS::LibTime::NowMilliTimestamp())
@@ -452,6 +453,5 @@ void ClientUser::_OnLoginConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS:
     _userMgr->AddUserBySessionId(_activedSessionId, this);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ClientUser)
 
 SERVICE_END

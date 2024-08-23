@@ -47,6 +47,5 @@ KERNEL_NS::CompObject *BookBagMgrStorageFactory::Create() const
     return BookBagMgrStorage::NewByAdapter_BookBagMgrStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(BookBagMgrStorageFactory)
 
 SERVICE_END

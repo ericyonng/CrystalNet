@@ -94,7 +94,6 @@ public:
     // 监控信息
     void OnMonitor(ServiceProxyStatisticsInfo &info);
     
-    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 private:
     virtual Int32 _OnInit() final;

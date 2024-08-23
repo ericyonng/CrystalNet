@@ -36,6 +36,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IServiceRegisterMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceRegisterMgr);
 
 ServiceRegisterMgr::ServiceRegisterMgr()
+:IServiceRegisterMgr(KERNEL_NS::RttiUtil::GetTypeId<ServiceRegisterMgr>())
 {
 
 }
@@ -85,6 +86,5 @@ void ServiceRegisterMgr::_Clear()
 
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ServiceRegisterMgr)
 
 SERVICE_END

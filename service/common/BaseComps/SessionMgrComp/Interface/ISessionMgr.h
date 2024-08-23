@@ -45,6 +45,7 @@ class ISessionMgr : public IGlobalSys
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ISessionMgr);
 public:
+    ISessionMgr(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
     virtual ServiceSession *GetSession(UInt64 sessionId) = 0;
     virtual const ServiceSession *GetSession(UInt64 sessionId) const = 0;
     virtual Int64 NewPacketId(UInt64 sessionId) = 0;

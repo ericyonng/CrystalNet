@@ -47,6 +47,5 @@ CompObject *MysqlDBMgrFactory::Create() const
     return MysqlDBMgr::NewByAdapter_MysqlDBMgr(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlDBMgrFactory)
 
 KERNEL_END

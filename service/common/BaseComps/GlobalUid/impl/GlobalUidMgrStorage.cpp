@@ -39,7 +39,7 @@ const KERNEL_NS::LibString GlobalUidMgrStorage::LAST_UID = "LastUid";
 POOL_CREATE_OBJ_DEFAULT_IMPL(GlobalUidMgrStorage);
 
 GlobalUidMgrStorage::GlobalUidMgrStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<GlobalUidMgr>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<GlobalUidMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<GlobalUidMgr>())
 {
 
 }
@@ -62,7 +62,7 @@ bool GlobalUidMgrStorage::RegisterStorages()
     StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG
     );
 
-    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(GlobalUidMgrStorage::MACHINE_ID);
+    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, GlobalUidMgrStorage::MACHINE_ID);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });
@@ -77,7 +77,7 @@ bool GlobalUidMgrStorage::RegisterStorages()
         return false;
     }
 
-    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(GlobalUidMgrStorage::LAST_UID);
+    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, GlobalUidMgrStorage::LAST_UID);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });
@@ -97,7 +97,6 @@ bool GlobalUidMgrStorage::RegisterStorages()
     return true;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(GlobalUidMgrStorage)
 
 
 SERVICE_END

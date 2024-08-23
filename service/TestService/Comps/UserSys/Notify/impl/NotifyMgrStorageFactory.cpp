@@ -48,6 +48,5 @@ KERNEL_NS::CompObject *NotifyMgrStorageFactory::Create() const
     return NotifyMgrStorage::NewByAdapter_NotifyMgrStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(NotifyMgrStorageFactory)
 
 SERVICE_END

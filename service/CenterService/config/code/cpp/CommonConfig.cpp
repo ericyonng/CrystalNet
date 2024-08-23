@@ -350,6 +350,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(CommonConfigMgr);
 const std::vector<CommonConfig *> CommonConfigMgr::s_empty;
 
 CommonConfigMgr::CommonConfigMgr()
+:SERVICE_COMMON_NS::IConfigMgr(KERNEL_NS::RttiUtil::GetTypeId<CommonConfigMgr>())
 {
 }
 
@@ -627,11 +628,5 @@ Int64 CommonConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDat
 
     return -1;
 }
-
-UInt64 CommonConfigMgr::GetObjTypeId() const
-{
-    return KERNEL_NS::RttiUtil::GetTypeId<CommonConfigMgr>();
-}
-
 
 SERVICE_END

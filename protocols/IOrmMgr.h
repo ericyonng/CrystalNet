@@ -44,6 +44,8 @@ class IOrmMgr : public KERNEL_NS::CompObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IOrmMgr);
 
 public:
+    IOrmMgr(UInt64 objTypeId) :KERNEL_NS::CompObject(objTypeId) {}
+    
     // 获取所有ORM工厂
     virtual const std::unordered_map<Int64, IOrmDataFactory *> &GetAllOrmFactorys() const = 0;
 

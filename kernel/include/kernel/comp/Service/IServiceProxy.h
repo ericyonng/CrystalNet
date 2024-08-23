@@ -49,7 +49,7 @@ class KERNEL_EXPORT IServiceProxy : public CompObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IServiceProxy);
 
 public:
-    IServiceProxy() {}
+    IServiceProxy(UInt64 objTypeId):CompObject(objTypeId) {}
     ~IServiceProxy() {}
     
     virtual void PostMsg(UInt64 serviceId, UInt32 priorityLevel, PollerEvent *msg, Int64 packetsCount = 0) = 0;

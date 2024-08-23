@@ -31,13 +31,14 @@
 #include <kernel/common/statics.h>
 
 #include <kernel/comp/CompObject/CompObject.h>
+#include <kernel/comp/Utils/BackTraceUtil.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(CompObject);
 
-CompObject::CompObject()
-:IObject()
+CompObject::CompObject(UInt64 objTypeId)
+:IObject(objTypeId)
 {
     SetKernelObjType(KernelObjectType::COMP);
 }
@@ -45,6 +46,15 @@ CompObject::CompObject()
 CompObject::~CompObject()
 {
     _Clear();
+}
+
+void IObject::ChangeObjTypeId(UInt64 objTypeId)
+{
+    // 不轻易改变对象的类型id,需要打堆栈出来追溯
+    auto oldId = _objTypeId;
+    _objTypeId = objTypeId;
+    g_Log->Info(LOGFMT_OBJ_TAG("change obj type, old id:%llu, new id:%llu, backtrace:%s")
+    , oldId, _objTypeId, KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
 }
 
 Int32 CompObject::_OnCreated()

@@ -99,7 +99,8 @@ KERNEL_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(Poller);
 
 Poller::Poller()
-:_maxPieceTime(LibCpuSlice::FromMilliseconds(8))  // 经验值8ms
+:CompObject(KERNEL_NS::RttiUtil::GetTypeId<Poller>())
+,_maxPieceTime(LibCpuSlice::FromMilliseconds(8))  // 经验值8ms
 ,_workThreadId{0}
 ,_isEnable{true}
 ,_isQuitLoop{false}
@@ -593,6 +594,5 @@ void Poller::_Clear()
     g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(Poller)
 
 KERNEL_END

@@ -36,6 +36,7 @@ class MyTestConfigLoader : public SERVICE_COMMON_NS::IConfigLoader
     POOL_CREATE_OBJ_DEFAULT_P1(IConfigLoader, MyTestConfigLoader);
 public:
     MyTestConfigLoader()
+    :SERVICE_COMMON_NS::IConfigLoader(KERNEL_NS::RttiUtil::GetTypeId<MyTestConfigLoader>())
     {
         
     }
@@ -54,11 +55,8 @@ public:
         MyTestConfigLoader::Delete_MyTestConfigLoader(this);
     }
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 };
 
-OBJ_GET_OBJ_TYPEID_IMPL(MyTestConfigLoader)
 
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(MyTestConfigLoader);

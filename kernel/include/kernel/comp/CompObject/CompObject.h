@@ -40,12 +40,14 @@
 
 KERNEL_BEGIN
 
+// 类型id:KERNEL_NS::RttiUtil::GetTypeId<XXX>()
 class KERNEL_EXPORT CompObject : public IObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IObject, CompObject);
 
 public:
-    CompObject();
+    // 类型id:KERNEL_NS::RttiUtil::GetTypeId<XXX>()
+    CompObject(UInt64 objTypeId);
     virtual ~CompObject();
 
     // // api

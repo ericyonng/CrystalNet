@@ -44,7 +44,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IBookBagMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagMgr);
 
 BookBagMgr::BookBagMgr()
-:_bookBagInfo(SERVICE_COMMON_NS::BookBagInfoOrmData::NewThreadLocal_BookBagInfoOrmData())
+:IBookBagMgr(KERNEL_NS::RttiUtil::GetTypeId<BookBagMgr>())
+,_bookBagInfo(SERVICE_COMMON_NS::BookBagInfoOrmData::NewThreadLocal_BookBagInfoOrmData())
 ,_quitLibraryStub(INVALID_LISTENER_STUB)
 ,_joinLibraryStub(INVALID_LISTENER_STUB)
 {
@@ -365,6 +366,5 @@ void BookBagMgr::_OnJoinLibrary(KERNEL_NS::LibEvent *ev)
     SendBookBagInfoNty();
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(BookBagMgr)
 
 SERVICE_END

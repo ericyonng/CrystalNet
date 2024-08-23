@@ -57,8 +57,6 @@ public:
     Poller *GetPoller();    
     const Poller *GetPoller() const;   
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 private:
     Poller *_poller;
 };

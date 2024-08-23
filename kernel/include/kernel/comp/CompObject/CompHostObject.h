@@ -49,6 +49,7 @@
 
 KERNEL_BEGIN
 
+// 类型id:KERNEL_NS::RttiUtil::GetTypeId<XXX>()
 class KERNEL_EXPORT CompHostObject : public CompObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, CompHostObject);
@@ -57,7 +58,9 @@ public:
     static std::vector<CompObject *> _emptyComps;
 
 public:
-    CompHostObject();
+
+    // 类型id:KERNEL_NS::RttiUtil::GetTypeId<XXX>()
+    CompHostObject(UInt64 objTypeId);
     virtual ~CompHostObject();
 
 // // 基本api
@@ -145,7 +148,7 @@ public:
                 if(!regComp._comp)
                     continue;
                 
-                const auto willRegTypeId = RttiUtil::GetTypeIdByObj(regComp._comp);
+                const auto willRegTypeId = regComp._comp->GetObjTypeId();
                 const auto iWillRegTypeId = regComp._comp->GetInterfaceTypeId();
                 if((typeId != willRegTypeId) && (typeId != iWillRegTypeId))
                     continue;
@@ -171,7 +174,7 @@ public:
     template<typename CompFactoryType>
     void RemoveCompFactory()
     {
-        const auto typeId = RttiUtil::GetTypeId<CompFactoryType>();
+        const auto &typeName = RttiUtil::GetByType<CompFactoryType>();
         const Int32 count = static_cast<Int32>(_willRegComps.size());
         for(Int32 idx = count -1; idx >= 0; --idx)
         {
@@ -179,8 +182,8 @@ public:
             if(!regInfo._factory)
                 continue;
 
-            const auto factoryTypeId = RttiUtil::GetTypeIdByObj(regInfo._factory);
-            if(typeId != factoryTypeId)
+            const auto &factoryTypeName = RttiUtil::GetByObj(regInfo._factory);
+            if(typeName != factoryTypeName)
                 continue;
 
             regInfo._factory->Release();
@@ -216,8 +219,12 @@ public:
         if(UNLIKELY(comp->GetOwner()))
             return false;
 
+        // 必须没有错误
+        if(UNLIKELY(comp->GetErrCode() != Status::Success))
+            return false;
+
         // 替换已有组件 TODO:找到组件, 存在的要对组件执行Close以及移除操作
-        const auto typeId = RttiUtil::GetTypeIdByObj(comp);
+        const auto typeId = comp->GetObjTypeId();
         auto oldComp = GetCompByTypeId(typeId);
         if(oldComp == comp)
             return true;
@@ -231,10 +238,6 @@ public:
 
             return true;
         }
-
-        // 替换的必须comp是已启动的, 因为执行Start/等的不确定性
-        if(UNLIKELY(!comp->IsStarted()))
-            return false;
 
         // 替换
         _ReplaceComp(oldComp, comp);
@@ -275,7 +278,7 @@ public:
 
     // 弹出组件
     template<typename ObjType>
-    CompObject *PopComp();
+    ObjType *PopComp();
 
     bool PopComp(CompObject *comp);    
 
@@ -484,6 +487,18 @@ ALWAYS_INLINE std::vector<CompObject *> &CompHostObject::GetAllComps()
 ALWAYS_INLINE const std::vector<CompObject *> &CompHostObject::GetAllComps() const
 {
     return _comps;
+}
+
+template<typename ObjType>
+ALWAYS_INLINE ObjType *CompHostObject::PopComp()
+{
+    auto comp = GetComp<ObjType>();
+
+    if(UNLIKELY(!comp))
+        return NULL;
+
+    PopComp(comp);
+    return comp;
 }
 
 ALWAYS_INLINE void CompHostObject::_ResizeFocusDict()

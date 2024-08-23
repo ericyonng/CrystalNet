@@ -47,7 +47,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IMysqlMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlMgr);
 
 MysqlMgr::MysqlMgr()
-:_closeServiceStub(INVALID_LISTENER_STUB)
+:IMysqlMgr(KERNEL_NS::RttiUtil::GetTypeId<MysqlMgr>())
+,_closeServiceStub(INVALID_LISTENER_STUB)
 ,_onServiceFrameTickStub(INVALID_LISTENER_STUB)
 ,_purgeTimer(NULL)
 ,_poller(NULL)
@@ -4904,7 +4905,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         if(!storageInfo->GetPrimaryKeyStorage())
         {
             // STRING key
-            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::STRING_KEY);
+            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, StorageCommonDefine::STRING_KEY);
             newStorageInfo->SetRelease([newStorageInfo](){
                 IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
             });
@@ -4919,7 +4920,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         if(!storageInfo->GetKvModeValueStorageInfo())
         {
             // BINARY
-            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::SYSTEM_DATA);
+            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, StorageCommonDefine::SYSTEM_DATA);
             newStorageInfo->SetRelease([newStorageInfo](){
                 IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
             });
@@ -4938,7 +4939,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         if(!storageInfo->GetPrimaryKeyStorage())
         {
             // BIGINT key
-            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::NUMBER_KEY);
+            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, StorageCommonDefine::NUMBER_KEY);
             newStorageInfo->SetRelease([newStorageInfo](){
                 IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
             });
@@ -4953,7 +4954,7 @@ bool MysqlMgr::_FillKvSystemStorageInfo(IStorageInfo *storageInfo)
         if(!storageInfo->GetKvModeValueStorageInfo())
         {
             // BINARY
-            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(StorageCommonDefine::SYSTEM_DATA);
+            auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, StorageCommonDefine::SYSTEM_DATA);
             newStorageInfo->SetRelease([newStorageInfo](){
                 IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
             });
@@ -5532,7 +5533,6 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
     return true;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlMgr)
 
 
 SERVICE_END

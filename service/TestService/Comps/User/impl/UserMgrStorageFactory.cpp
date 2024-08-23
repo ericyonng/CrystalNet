@@ -49,7 +49,6 @@ KERNEL_NS::CompObject *UserMgrStorageFactory::Create() const
     return UserMgrStorage::NewByAdapter_UserMgrStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(UserMgrStorageFactory)
 
 
 SERVICE_END

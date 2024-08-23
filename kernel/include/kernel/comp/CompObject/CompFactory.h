@@ -39,7 +39,7 @@
 
 KERNEL_BEGIN
 
-class CompObject;
+class CompObject; 
 
 #undef CREATE_CRYSTAL_COMP
 // 创建组件并设置接口类id, 前提是有接口类才能使用否则, 接口类id在IObject中默认是0
@@ -73,9 +73,6 @@ public:
 public:
     CompFactory() {}
     virtual ~CompFactory() {  }
-
-    // 必须要重写该接口(通过RttiUtil::GetByType<ObjType>()拿最终类型的唯一id)
-    virtual UInt64 GetObjTypeId() const = 0;
 
     virtual void Release() = 0;
 

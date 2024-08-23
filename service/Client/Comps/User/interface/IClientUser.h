@@ -39,6 +39,7 @@ class IClientUser : public ILogicSys
 {
     POOL_CREATE_OBJ_DEFAULT_P1(ILogicSys, IClientUser);
 public:
+    IClientUser(UInt64 objTypeId) : ILogicSys(objTypeId) {}
     virtual Int64 GetNowServerTime() const = 0;
     virtual void SetServerTime(Int64 serverTime) = 0;
 

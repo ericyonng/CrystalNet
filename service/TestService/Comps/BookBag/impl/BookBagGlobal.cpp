@@ -45,6 +45,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IBookBagGlobal);
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagGlobal);
 
 BookBagGlobal::BookBagGlobal()
+:IBookBagGlobal(KERNEL_NS::RttiUtil::GetTypeId<BookBagGlobal>())
 {
 
 }
@@ -155,7 +156,6 @@ void BookBagGlobal::_OnSubmitBookBagBorrowInfoReq(KERNEL_NS::LibPacket *&packet)
     user->Send(Opcodes::OpcodeConst::OPCODE_SubmitBookBagBorrowInfoRes, res, packet->GetPacketId());
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(BookBagGlobal)
 
 SERVICE_END
 

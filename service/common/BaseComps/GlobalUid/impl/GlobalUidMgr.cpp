@@ -40,7 +40,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IGlobalUidMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(GlobalUidMgr);
 
 GlobalUidMgr::GlobalUidMgr()
-:_curAllocUid(0)
+:IGlobalUidMgr(KERNEL_NS::RttiUtil::GetTypeId<GlobalUidMgr>())
+,_curAllocUid(0)
 ,_maxUid(0)
 ,_aheadCount(1000)
 ,_machineId(0)
@@ -179,7 +180,6 @@ void GlobalUidMgr::_InitGuid()
     _curAllocUid = _maxUid;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(GlobalUidMgr)
 
 
 SERVICE_END

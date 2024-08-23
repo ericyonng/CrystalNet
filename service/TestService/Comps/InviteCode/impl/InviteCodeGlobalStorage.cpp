@@ -39,10 +39,9 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(InviteCodeGlobalStorage);
 const KERNEL_NS::LibString InviteCodeGlobalStorage::ID = "Id";
 const KERNEL_NS::LibString InviteCodeGlobalStorage::INVITE_CODE = "InviteCode";
 
-OBJ_GET_OBJ_TYPEID_IMPL(InviteCodeGlobalStorage)
 
 InviteCodeGlobalStorage::InviteCodeGlobalStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<InviteCodeGlobal>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<InviteCodeGlobalStorage>(), KERNEL_NS::RttiUtil::GetByType<InviteCodeGlobal>())
 {
 
 }
@@ -65,7 +64,7 @@ bool InviteCodeGlobalStorage::RegisterStorages()
     StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG
     );
 
-    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(InviteCodeGlobalStorage::ID);
+    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, InviteCodeGlobalStorage::ID);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });
@@ -80,7 +79,7 @@ bool InviteCodeGlobalStorage::RegisterStorages()
         return false;
     }
 
-    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(InviteCodeGlobalStorage::INVITE_CODE);
+    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, InviteCodeGlobalStorage::INVITE_CODE);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });

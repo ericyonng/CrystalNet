@@ -262,6 +262,7 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     auto timerMgr = poller->GetTimerMgr();
 
+    poller->PrepareLoop();
     do
     {
         Int32 ret = workerBalance->_conn->Init();
@@ -346,6 +347,8 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
     
     workerBalance->_conn->Close();
     workerBalance->_msgQueue->Destroy();
+
+    poller->OnLoopEnd();
 
     g_Log->Info(LOGFMT_OBJ_TAG("db is stop config:%s, workerBalance:%s"), _cfg.ToString().c_str(), workerBalance->ToString().c_str());
 

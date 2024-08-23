@@ -49,7 +49,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ITestMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestMgr);
 
 TestMgr::TestMgr()
-:_sessionConnected(INVALID_LISTENER_STUB)
+:ITestMgr(KERNEL_NS::RttiUtil::GetTypeId<TestMgr>())
+,_sessionConnected(INVALID_LISTENER_STUB)
 ,_sessionWillDestroy(INVALID_LISTENER_STUB)
 ,_commonSessionReady(INVALID_LISTENER_STUB)
 ,_quiteService(INVALID_LISTENER_STUB)
@@ -597,7 +598,6 @@ void TestMgr::_MakeNewTestData()
     g_Log->Info(LOGFMT_OBJ_TAG("make new test data max id:%llu"), _maxId);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(TestMgr)
 
 SERVICE_END
 

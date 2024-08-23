@@ -57,8 +57,6 @@ public:
     void Lock();
     void Unlock();
     
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
     Int32 _OnInit() override;
     Int32 _OnStart() override;

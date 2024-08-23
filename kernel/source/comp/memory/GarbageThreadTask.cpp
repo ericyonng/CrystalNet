@@ -33,6 +33,8 @@
 #include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Log/log.h>
+#include <kernel/comp/Utils/TlsUtil.h>
+#include <kernel/comp/Poller/Poller.h>
 
 KERNEL_BEGIN
 
@@ -56,6 +58,9 @@ void GarbageThreadTask::Run()
 {
     g_Log->Sys(LOGFMT_OBJ_TAG("start garbage thread task thread id[%llu]"), SystemUtil::GetCurrentThreadId());
 
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    poller->PrepareLoop();
+
     for(;;)
     {
         if ( UNLIKELY(_thead->IsDestroy()) )
@@ -71,6 +76,8 @@ void GarbageThreadTask::Run()
         _lck.TimeWait(_workIntervalMsTime);
         _lck.Unlock();        
     }   
+
+    poller->OnLoopEnd();
 }
 
 void GarbageThreadTask::Release()

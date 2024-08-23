@@ -48,7 +48,6 @@ KERNEL_NS::CompObject *NicknameGlobalStorageFactory::Create() const
     return NicknameGlobalStorage::NewByAdapter_NicknameGlobalStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(NicknameGlobalStorageFactory)
 
 
 SERVICE_END

@@ -58,6 +58,16 @@ struct TestRttiStruct
 
 void TestRttiUtil::Run() 
 {
+    TestRttiObj obj;
+    const auto &typeName = KERNEL_NS::RttiUtil::GetByType<TestRttiObj>();
+    const auto typeId = KERNEL_NS::RttiUtil::GetTypeId<TestRttiObj>();
+    const auto typeId2 = KERNEL_NS::RttiUtil::GetTypeId<TestRttiObj>();
+    const auto typeId3 = KERNEL_NS::RttiUtil::GetTypeId<Int32>();
+    const auto typeId4 = KERNEL_NS::RttiUtil::GetTypeId<TestRttiObj>();
+    const auto &typeName2 = KERNEL_NS::RttiUtil::GetByObj(&obj);
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestRttiUtil, "typeName:%s, typeName2:%s, typeId:%llu, typeId2:%llu, typeId3:%llu, typeId4:%llu")
+    , typeName.c_str(), typeName2.c_str(), typeId, typeId2, typeId3, typeId4);
+    
     std::cout << "TestRttiObj class name = " << KERNEL_NS::RttiUtil::GetByType<TestRttiObj>() << std::endl;
     std::cout << "TestRttiObj2 class name = " << KERNEL_NS::RttiUtil::GetByType<TestRttiObj2>() << std::endl;
     std::cout << "TestRttiStruct class name = " << KERNEL_NS::RttiUtil::GetByType<TestRttiStruct>() << std::endl;

@@ -91,7 +91,7 @@ class ILogicSys : public KERNEL_NS::CompHostObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, ILogicSys);
 
 public:
-    ILogicSys();
+    ILogicSys(UInt64 objTypeId);
     ~ILogicSys();
 
     static SERVICE_COMMON_NS::IService *&GetCurrentService();

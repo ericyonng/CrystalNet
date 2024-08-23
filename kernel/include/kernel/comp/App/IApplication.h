@@ -59,7 +59,7 @@ class KERNEL_EXPORT IApplication : public CompHostObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IApplication);
 public:
-    IApplication();
+    IApplication(UInt64 objTypeId);
     virtual ~IApplication();
     // 多线程组件需要重写该接口
     virtual void DefaultMaskReady(bool isReady) override {}

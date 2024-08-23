@@ -50,7 +50,8 @@ KERNEL_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(TcpPollerMgr);
 
 TcpPollerMgr::TcpPollerMgr()
-:_config(NULL)
+:CompObject(KERNEL_NS::RttiUtil::GetTypeId<TcpPollerMgr>())
+,_config(NULL)
 ,_maxPollerId(0)
 ,_serviceProxy(NULL)
 ,_trasferFeatureId(0)
@@ -540,6 +541,5 @@ void TcpPollerMgr::QuitAllSessions(UInt64 serviceId)
         iter.second->PostQuitServiceSessionsEvent(serviceId);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(TcpPollerMgr)
 
 KERNEL_END

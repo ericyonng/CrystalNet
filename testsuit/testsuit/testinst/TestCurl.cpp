@@ -75,6 +75,8 @@ public:
 // 同步方式, 性能太低了
 static void CurlTask(KERNEL_NS::LibThread *pool)
 {
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    poller->PrepareLoop();
     DEF_STATIC_THREAD_LOCAL_DECLEAR SnowflakeInfoWrap *snowFlakeInfo = NULL;
     if(!snowFlakeInfo)
     {
@@ -139,10 +141,11 @@ static void CurlTask(KERNEL_NS::LibThread *pool)
 
 static void GenerateTask(KERNEL_NS::LibThreadPool *pool)
 {
-    KERNEL_NS::TimerMgr timerMgr;
-    timerMgr.Launch(NULL);
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    poller->PrepareLoop();
+    auto timerMgr = poller->GetTimerMgr();
 
-    KERNEL_NS::LibTimer *timer = KERNEL_NS::LibTimer::New_LibTimer(&timerMgr);
+    KERNEL_NS::LibTimer *timer = KERNEL_NS::LibTimer::New_LibTimer(timerMgr);
     timer->SetTimeOutHandler([pool](KERNEL_NS::LibTimer *t)
     {
         s_rrTask = ++s_rrTask % s_threads.size();
@@ -155,11 +158,13 @@ static void GenerateTask(KERNEL_NS::LibThreadPool *pool)
     timer->Schedule(s_genCurlInterval);
     while(!pool->IsDestroy())
     {
-        timerMgr.Drive();
+        timerMgr->Drive();
     }
 
     KERNEL_NS::LibTimer::Delete_LibTimer(timer);
-    timerMgr.Close();
+    timerMgr->Close();
+
+    poller->OnLoopEnd();
 }
 
 #pragma region // async mode

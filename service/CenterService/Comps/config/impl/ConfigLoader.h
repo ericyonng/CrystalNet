@@ -44,8 +44,6 @@ public:
 
     virtual void OnRegisterComps() override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
     virtual Int32 _OnHostInit() override;
     virtual Int32 _OnHostStart() override;

@@ -34,7 +34,6 @@
 #include <Comps/SystemLog/Impl/SystemLogGlobal.h>
 
 SERVICE_BEGIN
-OBJ_GET_OBJ_TYPEID_IMPL(SystemLogGlobalStorage)
 
 const KERNEL_NS::LibString SystemLogGlobalStorage::ID = "Id";
 const KERNEL_NS::LibString SystemLogGlobalStorage::LIBRARY_ID_NAME = "LibraryId";
@@ -43,7 +42,7 @@ const KERNEL_NS::LibString SystemLogGlobalStorage::LOG_DATA_NAME = "LogData";
 POOL_CREATE_OBJ_DEFAULT_IMPL(SystemLogGlobalStorage);
 
 SystemLogGlobalStorage::SystemLogGlobalStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<SystemLogGlobal>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<SystemLogGlobalStorage>(), KERNEL_NS::RttiUtil::GetByType<SystemLogGlobal>())
 {
 
 }
@@ -66,7 +65,7 @@ bool SystemLogGlobalStorage::RegisterStorages()
     StorageFlagType::DISABLE_LOAD_DATA_ON_STARTUP_FLAG
     );
 
-    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(SystemLogGlobalStorage::ID);
+    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, SystemLogGlobalStorage::ID);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });
@@ -80,7 +79,7 @@ bool SystemLogGlobalStorage::RegisterStorages()
         return false;
     }
 
-    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(SystemLogGlobalStorage::LIBRARY_ID_NAME);
+    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, SystemLogGlobalStorage::LIBRARY_ID_NAME);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });
@@ -94,7 +93,7 @@ bool SystemLogGlobalStorage::RegisterStorages()
         return false;
     }
 
-    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(SystemLogGlobalStorage::LOG_DATA_NAME);
+    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, SystemLogGlobalStorage::LOG_DATA_NAME);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });

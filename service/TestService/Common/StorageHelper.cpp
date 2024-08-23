@@ -38,7 +38,7 @@ bool StorageHelper::AddMysqlStorageInfoWithPb(IStorageInfo *ownerStorageInfo, co
     {
         auto field = descriptor->field(idx);
 
-        auto p = IStorageInfo::NewThreadLocal_IStorageInfo(field->name());
+        auto p = IStorageInfo::NewThreadLocal_IStorageInfo(0, field->name());
         KERNEL_NS::SmartPtr<IStorageInfo, KERNEL_NS::AutoDelMethods::Release> newStorageInfo = p;
         newStorageInfo->SetRelease([p](){
             p->WillClose();

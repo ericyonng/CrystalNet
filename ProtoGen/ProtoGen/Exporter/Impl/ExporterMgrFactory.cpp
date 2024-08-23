@@ -47,4 +47,3 @@ KERNEL_NS::CompObject *ExporterMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ExporterMgrFactory)

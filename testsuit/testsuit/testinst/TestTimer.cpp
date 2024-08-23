@@ -129,5 +129,31 @@ void TestTimer::Run()
     }
 
     timerMgr.Close();
+
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+
+    // 测试poller的timermgr
+    {
+        auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+        timer->SetTimeOutHandler([](KERNEL_NS::LibTimer *t){
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestTimer, "hello time out"));
+
+            auto value = t->GetParams().AsInt32();
+            t->GetParams() = --value;
+            if(value <= 0)
+            {
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestTimer, "hello and stop timer"));
+                KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+            }
+        });
+        timer->GetParams() = 5;
+        timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(5));
+
+        poller->PrepareLoop();
+
+        poller->EventLoop();
+
+        poller->OnLoopEnd();
+    }
     
 }

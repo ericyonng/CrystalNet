@@ -44,10 +44,10 @@
 SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(UserSessionMgr);
-OBJ_GET_OBJ_TYPEID_IMPL(UserSessionMgr)
 
 UserSessionMgr::UserSessionMgr()
-:_eventMgr(NULL)
+:KERNEL_NS::CompObject(KERNEL_NS::RttiUtil::GetTypeId<UserSessionMgr>())
+,_eventMgr(NULL)
 ,_userMgr(NULL)
 ,_heartbeatTimer(NULL)
 ,_heartbeatExpireTime(30)

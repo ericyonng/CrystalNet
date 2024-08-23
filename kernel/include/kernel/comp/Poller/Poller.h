@@ -171,8 +171,6 @@ public:
     // TODO:假release, 不会Delete Poller,暂时性处理当处wait状态,中间收到信号导致Poller在被释放的时候调用条件变量的析构并调用destroy销毁条件变量时导致死锁
     void SetDummyRelease();
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;

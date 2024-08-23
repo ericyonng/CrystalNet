@@ -38,13 +38,13 @@
 
 SERVICE_BEGIN
 
-OBJ_GET_OBJ_TYPEID_IMPL(EventRelayGlobal)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IEventRelayGlobal);
 POOL_CREATE_OBJ_DEFAULT_IMPL(EventRelayGlobal);
 
 EventRelayGlobal::EventRelayGlobal()
-:_removeLibraryMemberStub(INVALID_LISTENER_STUB)
+:IEventRelayGlobal(KERNEL_NS::RttiUtil::GetTypeId<EventRelayGlobal>())
+,_removeLibraryMemberStub(INVALID_LISTENER_STUB)
 ,_joinLibraryMemberStub(INVALID_LISTENER_STUB)
 ,_userObjCreatedStub(INVALID_LISTENER_STUB)
 ,_userObjWillRemoveStub(INVALID_LISTENER_STUB)

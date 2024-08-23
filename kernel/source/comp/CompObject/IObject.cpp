@@ -33,14 +33,18 @@
 #include <kernel/comp/CompObject/IObject.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Utils/BitUtil.h>
+#include <kernel/comp/Tls/TlsCompsOwner.h>
+#include <kernel/comp/Tls/TlsTypeSystem.h>
+#include <kernel/comp/Utils/TlsUtil.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IObject);
 
-IObject::IObject()
+IObject::IObject(UInt64 objTypeId)
     :_id(IObject::NewId())
     ,_entityId(0)
+    ,_objTypeId(objTypeId)
     ,_type(0)
     ,_kernelObjType(KernelObjectType::UNKNOWN)
     ,_isCreated{false}
@@ -54,6 +58,10 @@ IObject::IObject()
     ,_errCode{Status::Success}
     ,_interfaceTypeId(0)
 {
+    if(UNLIKELY(_objTypeId == 0))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("bad obj type id:"));
+    }
 }
 
 IObject::~IObject()
@@ -79,6 +87,28 @@ Int32 IObject::OnCreated()
     {
         g_Log->Error(LOGFMT_OBJ_TAG("created fail st:%d"), st);
         return st;
+    }
+
+    // 如果是自己则不需要检测
+    auto tlsOwner = TlsUtil::GetTlsCompsOwner();
+    if(UNLIKELY(tlsOwner == this->CastTo<TlsCompsOwner>()))
+    {
+        return Status::Success;
+    }
+
+    // 如果是TlsTypeSystem此时还没添加到TlsOwner中, 所以也不用检测
+    if(UNLIKELY(RttiUtil::GetByType<TlsTypeSystem>() == _objName))
+    {
+        return Status::Success;
+    }
+
+    auto tlsTypeSystem = tlsOwner->GetComp<TlsTypeSystem>();
+    if(!tlsTypeSystem->CheckAddTypeInfo(this))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("CheckAddTypeInfo fail."));
+
+        SetErrCode(this, Status::CheckAddTypeInfo);
+        return Status::Failed;
     }
 
     return Status::Success;

@@ -49,7 +49,6 @@ KERNEL_NS::CompObject *TestMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(TestMgrFactory)
 
 
 SERVICE_END

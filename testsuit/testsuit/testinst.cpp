@@ -239,7 +239,7 @@ void TestInst::Run(int argc, char const *argv[])
     // //TestStatic::Run();
     // //TestCountUtil::Run();
     // // TestTls::Run();
-    // //TestRttiUtil::Run();
+    // TestRttiUtil::Run();
     // //TestContainerUtil::Run();
     // // TestSystemUtil::Run();
     // TestEncrypt::Run(argc, argv);
@@ -257,7 +257,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestConcurrentPriorityQueue::Run();
     // CRYSTAL_TRACE("test inst finish.");
     // TestBlackWhiteList::Run();
-    // TestECS::Run();
+    TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
     // TestPoller::Run();
@@ -286,7 +286,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestOrm::Run();
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
-    TestCoroutine::Run();
+    // TestCoroutine::Run();
     // TestCurl::Run(argc, argv);
     // TestModule::Run();
     // TestConcepts::Run();

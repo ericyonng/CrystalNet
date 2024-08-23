@@ -48,6 +48,8 @@ class IMysqlMgr : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IMysqlMgr);
 
 public:
+    IMysqlMgr(UInt64 objTypeId) : IGlobalSys(objTypeId){}
+    
     // 外部依赖注册
     virtual void RegisterDependence(ILogicSys *obj) = 0;
     virtual void UnRegisterDependence(const ILogicSys *obj) = 0;

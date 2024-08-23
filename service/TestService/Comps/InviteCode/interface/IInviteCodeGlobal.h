@@ -40,6 +40,8 @@ class IInviteCodeGlobal : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IInviteCodeGlobal);
 
 public:
+    IInviteCodeGlobal(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+    
     // 邀请码是否使用过
     virtual bool IsUsed(const KERNEL_NS::LibString &inviteCode) const = 0;
     // 是否有效邀请码

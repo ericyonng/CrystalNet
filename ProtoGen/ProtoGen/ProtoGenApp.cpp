@@ -82,5 +82,4 @@ const KERNEL_NS::LibString &ProtoGenApp::GetAppPath() const
     return _path;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ProtoGenApp)
 

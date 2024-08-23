@@ -45,6 +45,8 @@ class ILibraryGlobal : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ILibraryGlobal);
 
 public:
+    ILibraryGlobal(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+    
     // 获取图书馆信息
     virtual const LibraryInfo *GetLibraryInfo(UInt64 libraryId) const = 0;
 

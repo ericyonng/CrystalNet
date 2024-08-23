@@ -33,5 +33,8 @@
 class IExporterMgr : public KERNEL_NS::CompObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IExporterMgr);
+
+public:
+    IExporterMgr(UInt64 objTypeId) : KERNEL_NS::CompObject(objTypeId){}
 };
 

@@ -98,8 +98,6 @@ public:
     void PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList);
     void PostQuitServiceSessionsEvent(UInt64 serviceId, Int32 level = 0);
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 private:
     IocpTcpSession *_GetSession(UInt64 sessionId);
     std::set<IocpTcpSession *> *_GetSessionsByIp(const LibString &ip);

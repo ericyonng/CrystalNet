@@ -51,7 +51,6 @@ KERNEL_NS::CompObject *SystemLogGlobalFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(SystemLogGlobalFactory)
 
 
 

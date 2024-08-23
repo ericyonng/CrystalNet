@@ -49,7 +49,6 @@ KERNEL_NS::CompObject *MysqlMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlMgrFactory)
 
 
 SERVICE_END

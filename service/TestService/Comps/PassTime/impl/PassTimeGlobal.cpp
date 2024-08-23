@@ -43,7 +43,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IPassTimeGlobal);
 POOL_CREATE_OBJ_DEFAULT_IMPL(PassTimeGlobal);
 
 PassTimeGlobal::PassTimeGlobal()
-:_key(0)
+:IPassTimeGlobal(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobal>())
+,_key(0)
 ,_passTimeData(new PassTimeData)
 ,_timer(KERNEL_NS::LibTimer::NewThreadLocal_LibTimer())
 {
@@ -180,7 +181,6 @@ void PassTimeGlobal::_Clear()
     }
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(PassTimeGlobal)
 
 
 SERVICE_END

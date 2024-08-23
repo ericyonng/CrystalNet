@@ -38,6 +38,8 @@ class IPassTimeGlobal : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IPassTimeGlobal);
 
 public:
+    IPassTimeGlobal(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+    
     // 跨时间
     virtual void CheckPassTime() = 0;
 };

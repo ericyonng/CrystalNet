@@ -48,6 +48,5 @@ KERNEL_NS::CompObject *LibraryGlobalStorageFactory::Create() const
     return LibraryGlobalStorage::NewByAdapter_LibraryGlobalStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(LibraryGlobalStorageFactory)
 
 SERVICE_END

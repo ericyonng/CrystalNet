@@ -73,7 +73,7 @@ KERNEL_BEGIN
 
 #endif
 
-LibString RttiUtil::GetByTypeName(const char *rawTypeName)
+const Byte8 *RttiUtil::GetByTypeName(const char *rawTypeName)
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     auto tlsStack = TlsUtil::GetTlsStack();
@@ -144,22 +144,22 @@ UInt64 RttiUtil::_GenTypeId()
     return ++s_inc;
 }
 
-UInt64 RttiUtil::GetTypIdBy(const LibString &objName)
-{
-    auto &dict = GetRttiTypeDict();
-    auto iter = dict.find(objName);
-    return iter == dict.end() ? 0 : iter->second;
-}
+// UInt64 RttiUtil::GetTypIdBy(const LibString &objName)
+// {
+//     auto &dict = GetRttiTypeDict();
+//     auto iter = dict.find(objName);
+//     return iter == dict.end() ? 0 : iter->second;
+// }
 
-void RttiUtil::MakeTypeIdDict(const LibString &objName, UInt64 id)
-{
-    auto &dict = GetRttiTypeDict();
-    auto iter = dict.find(objName);
-    if(UNLIKELY(iter != dict.end()))
-        return;
+// void RttiUtil::MakeTypeIdDict(const LibString &objName, UInt64 id)
+// {
+//     auto &dict = GetRttiTypeDict();
+//     auto iter = dict.find(objName);
+//     if(LIKELY(iter != dict.end()))
+//         return;
 
-    dict.insert(std::make_pair(objName, id));
-}
+//     dict.insert(std::make_pair(objName, id));
+// }
 
 KERNEL_END
 

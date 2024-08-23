@@ -41,6 +41,8 @@ class ICodeAnalyzeMgr : public CompHostObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, ICodeAnalyzeMgr);
 public:
+    ICodeAnalyzeMgr(UInt64 objTypeId):CompHostObject(objTypeId){}
+    
     // 单行注释标记
     virtual void SetCommentFlag(const LibString &commentFlag) = 0;
     // 多行注释

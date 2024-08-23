@@ -39,6 +39,8 @@ class INicknameGlobal : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, INicknameGlobal);
 
 public:
+    INicknameGlobal(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+    
     // 检查昵称: 唯一性, 昵称规则
     virtual bool CheckNickname(const KERNEL_NS::LibString &nickname) const = 0;
     // 随机生成昵称:nick + 唯一id

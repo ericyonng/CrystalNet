@@ -203,6 +203,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(WordIdConfigMgr);
 const std::vector<WordIdConfig *> WordIdConfigMgr::s_empty;
 
 WordIdConfigMgr::WordIdConfigMgr()
+:SERVICE_COMMON_NS::IConfigMgr(KERNEL_NS::RttiUtil::GetTypeId<WordIdConfigMgr>())
 {
 }
 
@@ -480,11 +481,5 @@ Int64 WordIdConfigMgr::_ReadConfigData(FILE &fp, KERNEL_NS::LibString &configDat
 
     return -1;
 }
-
-UInt64 WordIdConfigMgr::GetObjTypeId() const
-{
-    return KERNEL_NS::RttiUtil::GetTypeId<WordIdConfigMgr>();
-}
-
 
 SERVICE_END

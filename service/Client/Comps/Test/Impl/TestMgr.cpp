@@ -42,7 +42,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ITestMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestMgr);
 
 TestMgr::TestMgr()
-:_sessionConnected(INVALID_LISTENER_STUB)
+:ITestMgr(KERNEL_NS::RttiUtil::GetTypeId<TestMgr>())
+,_sessionConnected(INVALID_LISTENER_STUB)
 ,_sessionWillDestroy(INVALID_LISTENER_STUB)
 ,_commonSessionReady(INVALID_LISTENER_STUB)
 ,_quiteService(INVALID_LISTENER_STUB)
@@ -493,7 +494,6 @@ Int32 TestMgr::_ReadTestConfigs()
     return Status::Success;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(TestMgr)
 
 
 SERVICE_END

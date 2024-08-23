@@ -492,6 +492,7 @@ void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
     // 定时管理
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     auto timerMgr = poller->GetTimerMgr();
+    poller->PrepareLoop();
 
     while (true)
     {
@@ -526,6 +527,8 @@ void LibLog::_OnLogThreadFlush(LibThread *t, Variant *params)
         timerMgr->Drive();
         // CRYSTAL_TRACE("log file name thread wake up file thread relation id:[%d]", idx);
     }
+
+    poller->OnLoopEnd();
 
     // CRYSTAL_TRACE("log thread close relation id = [%d], thread id=[%llu] file list name:%s", idx, SystemUtil::GetCurrentThreadId(), logNameList.c_str());
 }

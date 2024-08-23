@@ -48,6 +48,5 @@ KERNEL_NS::CompObject *ConfigLoaderFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ConfigLoaderFactory)
 
 SERVICE_END

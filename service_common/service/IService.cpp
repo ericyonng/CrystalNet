@@ -38,8 +38,9 @@ SERVICE_COMMON_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IService);
 
-IService::IService()
-:_serviceId(0)
+IService::IService(UInt64 objTypeId)
+:KERNEL_NS::CompHostObject(objTypeId)
+,_serviceId(0)
 ,_poller(NULL)
 ,_serviceProxy(NULL)
 ,_maxPieceTimeInMicroseconds(0)
@@ -260,7 +261,7 @@ Int32 IService::_OnHostInit()
 Int32 IService::_OnPriorityLevelCompsCreated()
 {
     // todo:
-    _poller = KERNEL_NS::TlsUtil::GetDefTls()->_tlsComps->GetPoller();
+    _poller = KERNEL_NS::TlsUtil::GetPoller();
 
     InitPollerEventHandler();
 

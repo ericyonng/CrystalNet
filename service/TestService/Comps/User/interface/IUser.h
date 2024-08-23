@@ -110,6 +110,7 @@ class IUser : public ILogicSys
     POOL_CREATE_OBJ_DEFAULT_P1(ILogicSys, IUser);
 
 public:
+    IUser(UInt64 objTypeId) : ILogicSys(objTypeId) {}
     virtual IUserMgr *GetUserMgr() = 0;
     virtual const IUserMgr *GetUserMgr() const = 0;
 

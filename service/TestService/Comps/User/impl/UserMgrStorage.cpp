@@ -39,12 +39,11 @@
 
 SERVICE_BEGIN
 
-OBJ_GET_OBJ_TYPEID_IMPL(UserMgrStorage)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(UserMgrStorage);
 
 UserMgrStorage::UserMgrStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<UserMgr>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<UserMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<UserMgr>())
 {
 
 }

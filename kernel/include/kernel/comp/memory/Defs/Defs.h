@@ -62,7 +62,7 @@
 // 禁止直接使用 __OBJ_POOL_CREATE 直接使用会大概率出现内存非法写入到其他对象内存区 ！！！！！！！！！！！！！！！！！！！！！
 // WarningSeriously Dont Use objpoolcreate derectly!!!!!!!!!!
 #undef  __OBJ_POOL_CREATE
-#define __OBJ_POOL_CREATE(createBufferNumWhenInit, initBlockNumPerBuffer, ObjType, _objAlloctor)                                                             \
+#define __OBJ_POOL_CREATE(createBufferNumWhenInit, initBlockNumPerBuffer, ObjType, _objAlloctor)                        \
 public:                                                                                                                             \
         template<typename... Args>                                                                                                  \
         static ALWAYS_INLINE ObjType *New_##ObjType(Args &&... args)                                                                \

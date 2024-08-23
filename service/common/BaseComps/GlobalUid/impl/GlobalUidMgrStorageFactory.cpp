@@ -47,7 +47,6 @@ KERNEL_NS::CompObject *GlobalUidMgrStorageFactory::Create() const
     return GlobalUidMgrStorage::NewByAdapter_GlobalUidMgrStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(GlobalUidMgrStorageFactory)
 
 
 SERVICE_END

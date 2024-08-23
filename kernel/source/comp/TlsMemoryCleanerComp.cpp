@@ -40,10 +40,10 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(TlsMemoryCleanerComp);
 
-OBJ_GET_OBJ_TYPEID_IMPL(TlsMemoryCleanerComp)
 
 TlsMemoryCleanerComp::TlsMemoryCleanerComp()
-:_timerMgr(NULL)
+:CompObject(KERNEL_NS::RttiUtil::GetTypeId<TlsMemoryCleanerComp>())
+,_timerMgr(NULL)
 ,_intervalMs(60 * 1000) // 默认1分钟清理一次
 ,_timer(NULL)
 ,_tlsDefaultObj(NULL)
@@ -92,6 +92,18 @@ void TlsMemoryCleanerComp::ManualClose()
     _Clear();
 
     g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner comp will ManualClose success thread id:%llu."), SystemUtil::GetCurrentThreadId());
+}
+
+void TlsMemoryCleanerComp::OnTimerMgrChange(TimerMgr *timerMgr)
+{
+    _timerMgr = timerMgr;
+
+    if(_timer)
+        LibTimer::DeleteThreadLocal_LibTimer(_timer);
+
+    _timer = LibTimer::NewThreadLocal_LibTimer(_timerMgr);
+    _timer->SetTimeOutHandler(this, &TlsMemoryCleanerComp::_OnCleanTimer);
+    _timer->Schedule(_intervalMs);
 }
 
 void TlsMemoryCleanerComp::SetIntervalMs(Int64 intervalMs)
@@ -216,6 +228,5 @@ KERNEL_NS::CompObject *TlsMemoryCleanerCompFactory::StaticCreate()
     return TlsMemoryCleanerComp::NewByAdapter_TlsMemoryCleanerComp(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(TlsMemoryCleanerCompFactory)
 
 KERNEL_END

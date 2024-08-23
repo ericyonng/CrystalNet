@@ -43,6 +43,8 @@ class INotifyGlobal : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, INotifyGlobal);
 
 public:
+    INotifyGlobal(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+    
     // 通知用户
     virtual void SendNotify(UInt64 userId, const KERNEL_NS::LibString &titleId
     , const std::vector<VariantParam> &titleParams

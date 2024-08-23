@@ -75,7 +75,8 @@ KERNEL_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(IocpTcpPoller);
 
 IocpTcpPoller::IocpTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const TcpPollerInstConfig* cfg)
-:_pollerId(pollerId)
+:CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<IocpTcpPoller>())
+,_pollerId(pollerId)
 ,_tcpPollerMgr(pollerMgr)
 ,_pollerMgr(NULL)
 ,_serviceProxy(NULL)
@@ -1734,6 +1735,9 @@ void IocpTcpPoller::_OnMonitorThread(LibThread *t)
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller epoll monitor start threadid = [%llu]"), SystemUtil::GetCurrentThreadId());
 
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    poller->PrepareLoop();
+
     IoEvent io;
     Int32 errCode = Status::Success;
     while(!t->IsDestroy())
@@ -1752,6 +1756,7 @@ void IocpTcpPoller::_OnMonitorThread(LibThread *t)
         _poller->Push(_pollerInstMonitorPriorityLevel, ev);
     }
 
+    poller->OnLoopEnd();
     g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller epoll monitor monitor thread finish thread id = %llu"), SystemUtil::GetCurrentThreadId());
 }
 
@@ -2006,7 +2011,6 @@ LibConnectPendingInfo *IocpTcpPoller::_CreateNewConectPendingInfo(LibConnectInfo
     return connectPendingInfo;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(IocpTcpPoller)
 
 
 KERNEL_END

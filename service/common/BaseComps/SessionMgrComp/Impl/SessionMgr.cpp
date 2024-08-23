@@ -37,14 +37,14 @@
 
 SERVICE_BEGIN
 
-OBJ_GET_OBJ_TYPEID_IMPL(SessionMgr)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ISessionMgr);
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(SessionMgr);
 
 SessionMgr::SessionMgr()
-:_sessionAmount{0}
+:ISessionMgr(KERNEL_NS::RttiUtil::GetTypeId<SessionMgr>())
+,_sessionAmount{0}
 ,_sessionWillCreatedStub(0)
 ,_sessionDestroyStub(0)
 

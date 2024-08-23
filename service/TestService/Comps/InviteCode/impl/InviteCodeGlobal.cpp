@@ -39,12 +39,12 @@
 
 SERVICE_BEGIN
 
-OBJ_GET_OBJ_TYPEID_IMPL(InviteCodeGlobal)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IInviteCodeGlobal);
 POOL_CREATE_OBJ_DEFAULT_IMPL(InviteCodeGlobal);
 
 InviteCodeGlobal::InviteCodeGlobal()
+:IInviteCodeGlobal(KERNEL_NS::RttiUtil::GetTypeId<InviteCodeGlobal>())
 {
 
 }

@@ -40,5 +40,6 @@
 #include <kernel/comp/Tls/TlsMemoryPool.h>
 #include <kernel/comp/Tls/TlsPtr.h>
 #include <kernel/comp/Tls/TlsCompsOwner.h>
+#include <kernel/comp/Tls/TlsTypeSystem.h>
 
 #endif

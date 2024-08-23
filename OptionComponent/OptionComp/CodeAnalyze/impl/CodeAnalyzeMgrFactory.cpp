@@ -47,7 +47,6 @@ KERNEL_NS::CompObject *CodeAnalyzeMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(CodeAnalyzeMgrFactory)
 
 KERNEL_END
 

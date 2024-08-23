@@ -50,7 +50,6 @@ KERNEL_NS::CompObject *NotifyGlobalFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(NotifyGlobalFactory)
 
 
 SERVICE_END

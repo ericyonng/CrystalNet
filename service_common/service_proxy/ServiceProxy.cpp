@@ -39,7 +39,8 @@ SERVICE_COMMON_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceProxy);
 
 ServiceProxy::ServiceProxy()
-:_maxServiceId{0}
+:IServiceProxy(KERNEL_NS::RttiUtil::GetTypeId<ServiceProxy>())
+,_maxServiceId{0}
 ,_closeServiceNum{0}
 ,_serviceFactory(NULL)
 {
@@ -358,6 +359,5 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
     // }
  }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ServiceProxy)
 
 SERVICE_COMMON_END

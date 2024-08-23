@@ -56,8 +56,6 @@ public:
 
     virtual void OnekeyClearNotify(Int32 clearType) override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
     virtual Int32 _OnUserSysInit() override;
     virtual Int32 _OnHostStart() override;

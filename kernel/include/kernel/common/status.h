@@ -72,6 +72,7 @@ namespace Status
         LibraryError = 28,                                      // 来自库的报错
         ToJsonFail = 29,                                        // 转json失败
         FromJsonFail = 30,                                      // 从json反序列化失败
+        CheckAddTypeInfo = 31,                                  // 对象类型异常
         
 
         // SOCKET[500, 599]

@@ -46,6 +46,5 @@ KERNEL_NS::CompObject *ServiceRegisterMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ServiceRegisterMgrFactory)
 
 SERVICE_END

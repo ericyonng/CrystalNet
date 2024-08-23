@@ -46,12 +46,12 @@
 
 SERVICE_BEGIN
 
-OBJ_GET_OBJ_TYPEID_IMPL(LibraryGlobal)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ILibraryGlobal);
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryGlobal);
 
 LibraryGlobal::LibraryGlobal()
+:ILibraryGlobal(KERNEL_NS::RttiUtil::GetTypeId<LibraryGlobal>())
 {
 
 }

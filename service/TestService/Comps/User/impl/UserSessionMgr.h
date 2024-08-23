@@ -69,8 +69,6 @@ public:
     ~UserSessionMgr();
     void Release() override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;

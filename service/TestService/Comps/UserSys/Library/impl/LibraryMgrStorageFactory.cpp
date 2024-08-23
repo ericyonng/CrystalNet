@@ -46,6 +46,5 @@ KERNEL_NS::CompObject *LibraryMgrStorageFactory::Create() const
     return LibraryMgrStorage::NewByAdapter_LibraryMgrStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(LibraryMgrStorageFactory)
 
 SERVICE_END

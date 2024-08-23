@@ -41,8 +41,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(CompHostObject);
 
 std::vector<CompObject *> CompHostObject::_emptyComps;
 
-CompHostObject::CompHostObject()
-:CompObject()
+CompHostObject::CompHostObject(UInt64 objTypeId)
+:CompObject(objTypeId)
 {
     SetKernelObjType(KernelObjectType::HOST_COMP);
 }
@@ -368,8 +368,21 @@ Int32 CompHostObject::RegisterComp(CompObject *comp)
 
 bool CompHostObject::AttachComp(CompObject *comp)
 {
+    if(UNLIKELY(!comp))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("comp is zero current:%s"), GetObjName().c_str());
+        return false;
+    }
+
+    // 必须没有错误
+    if(UNLIKELY(comp->GetErrCode() != Status::Success))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("comp has error, comp:%s current:%s"), comp->ToString().c_str(), GetObjName().c_str());
+        return false;
+    }
+
     // 替换已有组件 TODO:找到组件, 存在的要对组件执行Close以及移除操作
-    const auto typeId = RttiUtil::GetTypeIdByObj(comp);
+    const auto typeId = comp->GetObjTypeId();
     auto oldComp = GetCompByTypeId(typeId);
     if(oldComp == comp)
         return true;
@@ -452,6 +465,12 @@ bool CompHostObject::AddComp(CompObject *comp)
     if(UNLIKELY(!comp))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("comp is nil please check"));
+        return false;
+    }
+
+    if(UNLIKELY(comp->GetErrCode() != Status::Success))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("comp has error, comp:%s, current:%s"), comp->ToString().c_str(), GetObjName().c_str());
         return false;
     }
 
@@ -571,6 +590,9 @@ bool CompHostObject::AddComp(CompObject *comp)
 
 bool CompHostObject::PopComp(CompObject *comp)
 {
+    if(UNLIKELY(!comp))
+        return true;
+
     _OnWillDynamicPopComp(comp);
 
     // TODO:
@@ -604,15 +626,18 @@ bool CompHostObject::PopComp(CompObject *comp)
                         break;
                     }
                 }
+
+                if(comps.empty())
+                    _compObjNameRefComps.erase(iterComps);
             }
         }
     }
 
     // 类型映射
     {
-        const auto typeId = KERNEL_NS::RttiUtil::GetTypeIdByObj(comp);
+        const auto typeId = comp->GetObjTypeId();
         auto iterComps = _compTypeIdRefComps.find(typeId);
-        if(iterComps == _compTypeIdRefComps.end())
+        if(iterComps != _compTypeIdRefComps.end())
         {
             auto &comps = iterComps->second;
             {
@@ -625,6 +650,9 @@ bool CompHostObject::PopComp(CompObject *comp)
                         break;
                     }
                 }
+
+                if(comps.empty())
+                    _compTypeIdRefComps.erase(iterComps);
             }
         }
     }
@@ -665,6 +693,9 @@ bool CompHostObject::PopComp(CompObject *comp)
                         break;
                     }
                 }
+
+                if(comps.empty())
+                    _compTypeIdRefComps.erase(iterOldComps);
             }
         }
     }
@@ -685,6 +716,9 @@ bool CompHostObject::PopComp(CompObject *comp)
                     break;
                 }
             }
+
+            if(typeComps.empty())
+                _compTypeRefComps.erase(iterTypeComps);
         }
     }
 
@@ -1007,7 +1041,7 @@ void CompHostObject::_AddComp(CompObject *comp, bool isAttach)
 
     // 类型id映射
     {
-        const auto typeId = KERNEL_NS::RttiUtil::GetTypeIdByObj(comp);
+        const auto typeId = comp->GetObjTypeId();
         auto iterComps = _compTypeIdRefComps.find(typeId);
         if(iterComps == _compTypeIdRefComps.end())
             iterComps = _compTypeIdRefComps.insert(std::make_pair(typeId, std::vector<CompObject *>())).first;
@@ -1092,7 +1126,7 @@ void CompHostObject::_ReplaceComp(CompObject *oldComp, CompObject *comp)
 
     // 类型映射
     {
-        const auto typeId = KERNEL_NS::RttiUtil::GetTypeIdByObj(comp);
+        const auto typeId = comp->GetObjTypeId();
         auto iterComps = _compTypeIdRefComps.find(typeId);
         if(iterComps == _compTypeIdRefComps.end())
             iterComps = _compTypeIdRefComps.insert(std::make_pair(typeId, std::vector<CompObject *>())).first;
@@ -1323,7 +1357,7 @@ void CompHostObject::_RemoveComp(CompObject *comp)
         _compIdRefComp.erase(comp->GetId());
 
         // 组件名容器中移除
-        const auto typeId = KERNEL_NS::RttiUtil::GetTypeIdByObj(comp);
+        const auto typeId = comp->GetObjTypeId();
         {
             auto iterComps = _compTypeIdRefComps.find(typeId);
             if(iterComps != _compTypeIdRefComps.end())

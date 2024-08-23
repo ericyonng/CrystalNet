@@ -58,8 +58,6 @@ public:
 
     virtual void OnRegisterComps() override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
    Int32 _OnGlobalSysInit() override;
    Int32 _OnHostStart() override;

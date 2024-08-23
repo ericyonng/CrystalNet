@@ -107,8 +107,6 @@ public:
     const MysqlConfig &GetConfig(const LibString &dbName) const;
     bool HasPendings() const;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
     virtual Int32 _OnHostInit() override;
     virtual Int32 _OnCompsCreated() override;

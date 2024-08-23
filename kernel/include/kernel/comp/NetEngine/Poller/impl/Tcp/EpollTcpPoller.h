@@ -101,8 +101,6 @@ public:
     void PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList);
     void PostQuitServiceSessionsEvent(UInt64 serviceId, Int32 level = 0);
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 private:
     EpollTcpSession *_GetSession(UInt64 sessionId);
     std::set<EpollTcpSession *> *_GetSessionsByIp(const LibString &ip);

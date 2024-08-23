@@ -35,9 +35,9 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IpRuleMgr);
 
-OBJ_GET_OBJ_TYPEID_IMPL(IpRuleMgr)
 
 IpRuleMgr::IpRuleMgr()
+:CompObject(KERNEL_NS::RttiUtil::GetTypeId<IpRuleMgr>())
 {
 
 }

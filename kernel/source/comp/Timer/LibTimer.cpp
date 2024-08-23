@@ -67,6 +67,7 @@ LibTimer::~LibTimer()
     if(LIKELY(_data))
         _mgr->OnTimerDestroy(_data);
     _data = NULL;
+    _mgr = NULL;
 
     CRYSTAL_DELETE_SAFE(_cancelHandler);
     CRYSTAL_DELETE_SAFE(_timeroutHandler);

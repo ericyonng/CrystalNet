@@ -49,8 +49,6 @@ public:
     , const KERNEL_NS::LibString &contentId
     , const std::vector<VariantParam> &contentParams) override;
     
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 private:
     virtual Int32 _OnGlobalSysInit() override;
 

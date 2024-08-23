@@ -51,7 +51,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IClientUserMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ClientUserMgr);
 
 ClientUserMgr::ClientUserMgr()
-:_heartbeatRemoveUserTimer(NULL)
+:IClientUserMgr(KERNEL_NS::RttiUtil::GetTypeId<ClientUserMgr>())
+,_heartbeatRemoveUserTimer(NULL)
 ,_targetAddrConfig(AddrConfig::NewThreadLocal_AddrConfig())
 {
 
@@ -608,6 +609,5 @@ void ClientUserMgr::_Clear()
     _targetAddrConfig = NULL;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ClientUserMgr)
 
 SERVICE_END

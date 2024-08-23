@@ -39,10 +39,9 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(NicknameGlobalStorage);
 const KERNEL_NS::LibString NicknameGlobalStorage::ID = "Id";
 const KERNEL_NS::LibString NicknameGlobalStorage::NICK_NAME = "Nickname";
 
-OBJ_GET_OBJ_TYPEID_IMPL(NicknameGlobalStorage)
 
 NicknameGlobalStorage::NicknameGlobalStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<NicknameGlobal>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<NicknameGlobalStorage>(), KERNEL_NS::RttiUtil::GetByType<NicknameGlobal>())
 {
 
 }
@@ -65,7 +64,7 @@ bool NicknameGlobalStorage::RegisterStorages()
     StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG
     );
 
-    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(NicknameGlobalStorage::ID);
+    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, NicknameGlobalStorage::ID);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });
@@ -80,7 +79,7 @@ bool NicknameGlobalStorage::RegisterStorages()
         return false;
     }
 
-    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(NicknameGlobalStorage::NICK_NAME);
+    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, NicknameGlobalStorage::NICK_NAME);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });

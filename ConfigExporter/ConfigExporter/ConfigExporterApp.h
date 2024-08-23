@@ -36,6 +36,7 @@ class ConfigExporterApp : public KERNEL_NS::CompHostObject
 
 public:
     ConfigExporterApp()
+    :KERNEL_NS::CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<ConfigExporterApp>())
     {
 
     }
@@ -53,8 +54,6 @@ public:
     virtual void OnRegisterComps() override;
 
     const KERNEL_NS::LibString &GetAppName() const;
-
-    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 private:
     KERNEL_NS::LibString _appName;

@@ -33,12 +33,11 @@
 
 SERVICE_BEGIN
 
-OBJ_GET_OBJ_TYPEID_IMPL(LibraryGlobalStorage)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryGlobalStorage);
 
 LibraryGlobalStorage::LibraryGlobalStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<LibraryGlobal>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LibraryGlobalStorage>(), KERNEL_NS::RttiUtil::GetByType<LibraryGlobal>())
 {
 
 }

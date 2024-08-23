@@ -48,6 +48,4 @@ KERNEL_NS::CompObject *LoginMgrStorageFactory::Create() const
     return LoginMgrStorage::NewByAdapter_LoginMgrStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(LoginMgrStorageFactory)
-
 SERVICE_END

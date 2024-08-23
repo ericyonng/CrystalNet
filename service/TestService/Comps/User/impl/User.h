@@ -136,8 +136,6 @@ public:
 
     virtual bool HasBindPhone() const override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 private:
     virtual Int32 _OnSysInit() final;
     virtual Int32 _OnSysCompsCreated() override;

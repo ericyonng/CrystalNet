@@ -40,8 +40,9 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ILogicSys);
 
-ILogicSys::ILogicSys()
-:_service(NULL)
+ILogicSys::ILogicSys(UInt64 objTypeId)
+:KERNEL_NS::CompHostObject(objTypeId)
+,_service(NULL)
 ,_serviceProxy(NULL)
 ,_app(NULL)
 ,_timerMgr(NULL)

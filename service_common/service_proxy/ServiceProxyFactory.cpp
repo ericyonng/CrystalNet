@@ -49,7 +49,5 @@ KERNEL_NS::CompObject *ServiceProxyFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ServiceProxyFactory)
-
 
 SERVICE_COMMON_END

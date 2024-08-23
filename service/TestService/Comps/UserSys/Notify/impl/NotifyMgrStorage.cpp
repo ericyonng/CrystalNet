@@ -34,12 +34,11 @@
 
 SERVICE_BEGIN
 
-OBJ_GET_OBJ_TYPEID_IMPL(NotifyMgrStorage)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(NotifyMgrStorage);
 
 NotifyMgrStorage::NotifyMgrStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<NotifyMgr>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<NotifyMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<NotifyMgr>())
 {
 
 }

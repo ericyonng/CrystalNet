@@ -43,9 +43,9 @@ SERVICE_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(INotifyGlobal);
 POOL_CREATE_OBJ_DEFAULT_IMPL(NotifyGlobal);
 
-OBJ_GET_OBJ_TYPEID_IMPL(NotifyGlobal)
 
 NotifyGlobal::NotifyGlobal()
+:INotifyGlobal(KERNEL_NS::RttiUtil::GetTypeId<NotifyGlobal>())
 {
 
 }

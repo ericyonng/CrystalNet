@@ -36,7 +36,7 @@ SERVICE_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(BookBagMgrStorage);
 
 BookBagMgrStorage::BookBagMgrStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<BookBagMgr>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<BookBagMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<BookBagMgr>())
 {
 
 }
@@ -65,6 +65,5 @@ bool BookBagMgrStorage::RegisterStorages()
     return true;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(BookBagMgrStorage)
 
 SERVICE_END

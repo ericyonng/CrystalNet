@@ -39,6 +39,8 @@
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/common/statics.h>
+#include <kernel/comp/Utils/TlsUtil.h>
+#include <kernel/comp/Poller/Poller.h>
 
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/memory/CenterMemoryCollector.h>
@@ -243,6 +245,9 @@ LibString CenterMemoryCollector::ToString() const
 
 void CenterMemoryCollector::_OnWorker(LibThread *thread)
 {
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    poller->PrepareLoop();
+
     _isWorking = true;
     while(!thread->IsDestroy())
     {
@@ -254,6 +259,8 @@ void CenterMemoryCollector::_OnWorker(LibThread *thread)
     }
 
     _DoWorker();
+
+    poller->OnLoopEnd();
 
     _OnThreadDown();
 

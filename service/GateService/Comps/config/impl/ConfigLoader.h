@@ -43,7 +43,6 @@ public:
     void Release() override;
 
     virtual void OnRegisterComps() override;
-    OBJ_GET_OBJ_TYPEID_DECLARE();
 
 protected:
     virtual Int32 _OnHostInit() override;

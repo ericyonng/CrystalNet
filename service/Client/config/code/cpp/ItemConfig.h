@@ -55,7 +55,6 @@ public:
     ~ItemConfigMgr();
 
     virtual void Release() override;
-    virtual UInt64 GetObjTypeId() const override;
     virtual void Clear() override;
     virtual KERNEL_NS::LibString ToString() const override;
     virtual Int32 Load() override;
@@ -132,11 +131,6 @@ public:
     virtual KERNEL_NS::CompObject *Create() const override
     {
         return ItemConfigMgr::NewByAdapter_ItemConfigMgr(_buildType.V);
-    }
-
-    virtual UInt64 GetObjTypeId() const override
-    {
-        return KERNEL_NS::RttiUtil::GetTypeId<ItemConfigMgrFactory>();
     }
 
 };

@@ -47,8 +47,9 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IApplication);
 
-IApplication::IApplication()
-    :_processId(0)
+IApplication::IApplication(UInt64 objTypeId)
+    :CompHostObject(objTypeId)
+    ,_processId(0)
     ,_threadId(0)
     ,_runErr{Status::Success}
     ,_cpuCoreAmount(0)

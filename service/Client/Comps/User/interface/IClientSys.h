@@ -40,7 +40,7 @@ class IClientSys : public ILogicSys
     POOL_CREATE_OBJ_DEFAULT_P1(ILogicSys, IClientSys);
 
 public:
-    IClientSys();
+    IClientSys(UInt64 objTypeId);
     ~IClientSys();
 
     IClientUser *GetUser();

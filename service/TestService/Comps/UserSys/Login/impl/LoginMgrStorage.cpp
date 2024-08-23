@@ -37,7 +37,7 @@ SERVICE_BEGIN
 POOL_CREATE_OBJ_DEFAULT_IMPL(LoginMgrStorage);
 
 LoginMgrStorage::LoginMgrStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<LoginMgr>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<LoginMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<LoginMgr>())
 {
 
 }
@@ -68,8 +68,6 @@ bool LoginMgrStorage::RegisterStorages()
 
     return true;
 }
-
-OBJ_GET_OBJ_TYPEID_IMPL(LoginMgrStorage)
 
 
 SERVICE_END

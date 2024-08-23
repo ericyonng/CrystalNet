@@ -46,7 +46,8 @@ static const UInt64 s_defaultFrameUpdateTimeMs = 50;      // 默认帧更新时�
 POOL_CREATE_OBJ_DEFAULT_IMPL(GateService);
 
 GateService::GateService()
-:_timerMgr(NULL)
+:SERVICE_COMMON_NS::IService(KERNEL_NS::RttiUtil::GetTypeId<GateService>())
+,_timerMgr(NULL)
 ,_updateTimer(NULL)
 ,_frameUpdateTimeMs(0)
 ,_eventMgr(NULL)
@@ -602,6 +603,5 @@ bool GateService::_CheckOpcodeEnable(Int32 opcode)
     return Opcodes::CheckOpcode(opcode);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(GateService)
 
 SERVICE_END

@@ -70,8 +70,6 @@ public:
 
     virtual bool IsManager(UInt64 libraryId, UInt64 userId) const override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 protected:
     virtual Int32 _OnGlobalSysInit() override;
 

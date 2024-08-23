@@ -42,7 +42,7 @@ const KERNEL_NS::LibString MysqlMgrStorage::COUNT = "Count";
     
 
 MysqlMgrStorage::MysqlMgrStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<MysqlMgr>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<MysqlMgrStorage>(), KERNEL_NS::RttiUtil::GetByType<MysqlMgr>())
 {
 
 }
@@ -69,7 +69,7 @@ bool MysqlMgrStorage::RegisterStorages()
     SetComment("mysql global system table manager");
 
     // TableName string field 主键
-    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(TABLE_NAME);
+    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, TABLE_NAME);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });
@@ -86,7 +86,7 @@ bool MysqlMgrStorage::RegisterStorages()
     }
 
     // simple info
-    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(SIMPLE_INFO);
+    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, SIMPLE_INFO);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });
@@ -115,6 +115,5 @@ bool MysqlMgrStorage::RegisterStorages()
     return true;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlMgrStorage)
 
 SERVICE_END

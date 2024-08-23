@@ -43,7 +43,7 @@ class IConfigMgr : public KERNEL_NS::CompObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IConfigMgr);
 
 public:
-    IConfigMgr();
+    IConfigMgr(UInt64 objTypeId);
     ~IConfigMgr();
 
     // virtual KERNEL_NS::LibString ToString() const override;

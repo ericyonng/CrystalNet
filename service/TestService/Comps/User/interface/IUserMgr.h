@@ -55,6 +55,8 @@ class IUserMgr : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IUserMgr);
 
 public:
+    IUserMgr(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+    
     virtual IUser *GetUser(UInt64 userId) = 0;
     virtual const IUser *GetUser(UInt64 userId) const = 0;
     virtual IUser *GetUser(const KERNEL_NS::LibString &accountName) = 0;

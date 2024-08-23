@@ -77,7 +77,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IUser);
 POOL_CREATE_OBJ_DEFAULT_IMPL(User);
 
 User::User(IUserMgr *userMgr)
-:_userMgr(userMgr)
+:IUser(KERNEL_NS::RttiUtil::GetTypeId<User>())
+,_userMgr(userMgr)
 ,_status(UserStatus::USER_CREATED)
 ,_userBaseInfo(CRYSTAL_NEW(UserBaseInfo))
 ,_activedSessionId(0)
@@ -1176,6 +1177,5 @@ void User::_SendClientUserInfo() const
     Send(Opcodes::OpcodeConst::OPCODE_UserClientInfoNty, nty);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(User)
 
 SERVICE_END

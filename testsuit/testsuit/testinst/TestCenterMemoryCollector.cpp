@@ -48,6 +48,8 @@ static void TestMultiThreadAlloc(KERNEL_NS::LibThread *t)
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     auto timeMgr = poller->GetTimerMgr();
 
+    poller->PrepareLoop();
+
     auto tlsOwner = KERNEL_NS::TlsUtil::GetTlsCompsOwner();
     auto memoryCleaner = tlsOwner->GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
     memoryCleaner->SetIntervalMs(5000);
@@ -62,12 +64,15 @@ static void TestMultiThreadAlloc(KERNEL_NS::LibThread *t)
         g_Ptrs.push_back(ptr);
         g_TestCenterMemCollectorGuard.Unlock();
     }
+
+    poller->OnLoopEnd();
 }
 
 static void TestMultiThreadAlloc2(KERNEL_NS::LibThread *t)
 {
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     auto timeMgr = poller->GetTimerMgr();
+    poller->PrepareLoop();
 
     auto tlsOwner = KERNEL_NS::TlsUtil::GetTlsCompsOwner();
     auto memoryCleaner = tlsOwner->GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
@@ -83,6 +88,8 @@ static void TestMultiThreadAlloc2(KERNEL_NS::LibThread *t)
         g_Ptrs.push_back(ptr);
         g_TestCenterMemCollectorGuard.Unlock();
     }
+
+    poller->OnLoopEnd();
 }
 
 // 内存日志监控

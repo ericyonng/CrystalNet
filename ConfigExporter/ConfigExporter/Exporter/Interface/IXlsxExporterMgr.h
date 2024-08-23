@@ -37,5 +37,7 @@ class IXlsxExporterMgr : public KERNEL_NS::CompObject
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IXlsxExporterMgr);
 
 public:
+    IXlsxExporterMgr(UInt64 objTypeId) : KERNEL_NS::CompObject(objTypeId){}
+
     virtual Int32 ExportConfigs(const std::map<KERNEL_NS::LibString, KERNEL_NS::LibString> &params) = 0;
 };

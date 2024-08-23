@@ -88,12 +88,14 @@ public:
     };
 };
 
+// 类型id:KERNEL_NS::RttiUtil::GetTypeId<XXX>()
 class KERNEL_EXPORT IObject
 {
     POOL_CREATE_OBJ_DEFAULT(IObject);
 
 public:
-    IObject();
+    // 类型id:KERNEL_NS::RttiUtil::GetTypeId<XXX>()
+    IObject(UInt64 objTypeId);
     virtual ~IObject();
     // 必须重写
     virtual void Release() = 0;
@@ -120,7 +122,8 @@ public:
     UInt64 GetInterfaceTypeId() const;
 
     // 必须要重写该接口(通过RttiUtil::GetByType<ObjType>()拿最终类型的唯一id)
-    virtual UInt64 GetObjTypeId() const = 0;
+    UInt64 GetObjTypeId() const;
+    void ChangeObjTypeId(UInt64 objTypeId);
 
     // 设置参数
     void SetArgs(int argc, char const *argv[]);
@@ -196,6 +199,7 @@ private:
     const UInt64 _id;
     UInt64 _entityId;
     LibString _objName;
+    UInt64 _objTypeId;
     Int32 _type;
     Int32 _kernelObjType;
     std::atomic_bool _isCreated;
@@ -230,6 +234,12 @@ ALWAYS_INLINE UInt64 IObject::GetInterfaceTypeId() const
 {
     return _interfaceTypeId;
 }
+
+ALWAYS_INLINE UInt64 IObject::GetObjTypeId() const
+{
+    return _objTypeId;
+}
+
 
 ALWAYS_INLINE UInt64 IObject::GetId() const
 {

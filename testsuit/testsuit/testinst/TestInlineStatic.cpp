@@ -37,6 +37,7 @@ class TestStaticInlineHostC : public KERNEL_NS::CompHostObject
 
 public:
     TestStaticInlineHostC()
+    :KERNEL_NS::CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<TestStaticInlineHostC>())
     {
 
     }
@@ -52,7 +53,6 @@ public:
     }
     
     virtual void OnRegisterComps() override;
-    OBJ_GET_OBJ_TYPEID_DECLARE();
 
     // 组件接口资源
 protected:
@@ -86,8 +86,6 @@ private:
 private:
     KERNEL_NS::LibString _name = "HostC name field";
 };
-
-OBJ_GET_OBJ_TYPEID_IMPL(TestStaticInlineHostC)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestStaticInlineHostC);
 

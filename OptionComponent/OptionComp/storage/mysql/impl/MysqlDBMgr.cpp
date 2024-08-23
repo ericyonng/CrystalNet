@@ -37,10 +37,10 @@ KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(MysqlDBMgr);
 
-OBJ_GET_OBJ_TYPEID_IMPL(MysqlDBMgr)
 
 MysqlDBMgr::MysqlDBMgr()
-:_ini(NULL)
+:CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<MysqlDBMgr>())
+,_ini(NULL)
 ,_maxSeqId(0)
 ,_msgBackpoller(NULL)
 ,_msgLevel(0)

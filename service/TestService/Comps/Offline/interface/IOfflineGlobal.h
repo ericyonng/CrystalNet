@@ -44,6 +44,8 @@ class IOfflineGlobal : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IOfflineGlobal);
 
 public:
+    IOfflineGlobal(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+    
     virtual bool AddOfflineData(Int32 offlineType, UInt64 userId, const KERNEL_NS::LibString &offlineData) = 0;
     template<typename PbMsgType>
     bool AddOfflineData(Int32 offlineType, UInt64 userId, const PbMsgType &offlineData);

@@ -49,5 +49,4 @@ KERNEL_NS::CompObject *SysLogicMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(SysLogicMgrFactory)
 SERVICE_END

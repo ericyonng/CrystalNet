@@ -38,6 +38,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IXlsxExporterMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(XlsxExporterMgr);
 
 XlsxExporterMgr::XlsxExporterMgr()
+:IXlsxExporterMgr(KERNEL_NS::RttiUtil::GetTypeId<XlsxExporterMgr>())
 {
 
 }
@@ -1644,7 +1645,6 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("    ~%s();\n", mgrClassName.c_str());
         fileContent.AppendFormat("\n");
         fileContent.AppendFormat("    virtual void Release() override;\n");
-        fileContent.AppendFormat("    virtual UInt64 GetObjTypeId() const override;\n");
         fileContent.AppendFormat("    virtual void Clear() override;\n");
         fileContent.AppendFormat("    virtual KERNEL_NS::LibString ToString() const override;\n");
         fileContent.AppendFormat("    virtual Int32 Load() override;\n");
@@ -1845,11 +1845,6 @@ bool XlsxExporterMgr::_ExportCppCodeHeader(const XlsxConfigTableInfo *configInfo
         fileContent.AppendFormat("    virtual KERNEL_NS::CompObject *Create() const override\n");
         fileContent.AppendFormat("    {\n");
         fileContent.AppendFormat("        return %s::NewByAdapter_%s(_buildType.V);\n", mgrClassName.c_str(), mgrClassName.c_str());
-        fileContent.AppendFormat("    }\n");
-        fileContent.AppendFormat("\n");
-        fileContent.AppendFormat("    virtual UInt64 GetObjTypeId() const override\n");
-        fileContent.AppendFormat("    {\n");
-        fileContent.AppendFormat("        return KERNEL_NS::RttiUtil::GetTypeId<%s>();\n", mgrFactoryClassName.c_str());
         fileContent.AppendFormat("    }\n");
         fileContent.AppendFormat("\n");
         fileContent.AppendFormat("};\n");
@@ -2087,6 +2082,7 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("const std::vector<%s *> %s::s_empty;\n", className.c_str(), mgrClassName.c_str());
         fileContent.AppendFormat("\n");
         fileContent.AppendFormat("%s::%s()\n", mgrClassName.c_str(), mgrClassName.c_str());
+        fileContent.AppendFormat(":SERVICE_COMMON_NS::IConfigMgr(KERNEL_NS::RttiUtil::GetTypeId<%s>())\n", mgrClassName.c_str());
         fileContent.AppendFormat("{\n");
         fileContent.AppendFormat("}\n");
 
@@ -2581,15 +2577,6 @@ bool XlsxExporterMgr::_ExportCppCodeImpl(const XlsxConfigTableInfo *configInfo, 
         fileContent.AppendFormat("}\n");
     }
 
-    {// GetObjTypeId
-        fileContent.AppendFormat("\n");
-        fileContent.AppendFormat("UInt64 %s::GetObjTypeId() const\n", mgrClassName.c_str());
-        fileContent.AppendFormat("{\n");
-        fileContent.AppendFormat("    return KERNEL_NS::RttiUtil::GetTypeId<%s>();\n", mgrClassName.c_str());
-        fileContent.AppendFormat("}\n");
-        fileContent.AppendFormat("\n");
-    }
-
     fileContent.AppendFormat("\n");
     fileContent.AppendFormat("SERVICE_END\n");
 
@@ -2993,4 +2980,3 @@ void XlsxExporterMgr::_Clear()
     });
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(XlsxExporterMgr)

@@ -51,7 +51,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IUserMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(UserMgr);
 
 UserMgr::UserMgr()
-:_lruCapacityLimit(1000)
+:IUserMgr(KERNEL_NS::RttiUtil::GetTypeId<UserMgr>())
+,_lruCapacityLimit(1000)
 {
 
 }
@@ -1606,6 +1607,5 @@ void UserMgr::_Clear()
     _lru.clear();
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(UserMgr)
 
 SERVICE_END

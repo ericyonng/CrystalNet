@@ -39,6 +39,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IOrmMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(OrmMgr);
 
 OrmMgr::OrmMgr()
+:IOrmMgr(KERNEL_NS::RttiUtil::GetTypeId<OrmMgr>())
 {
 
 }
@@ -98,6 +99,5 @@ void OrmMgr::_Clear()
     KERNEL_NS::ContainerUtil::DelContainer2(_ormIdRefOrmFactory);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(OrmMgr)
 
 SERVICE_COMMON_END

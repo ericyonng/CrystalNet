@@ -38,6 +38,8 @@ class ILibraryMgr : public IUserSys
     POOL_CREATE_OBJ_DEFAULT_P1(IUserSys, ILibraryMgr);
 
 public:
+    ILibraryMgr(UInt64 objTypeId) : IUserSys(objTypeId) {}
+    
     // 获取我加入的图书馆
     virtual UInt64 GetMyLibraryId() const = 0;
 };

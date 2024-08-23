@@ -52,8 +52,6 @@ public:
     // OnUpdate默认不会调度到,必须在_OnCreated/构造函数两个地方设置SetFocus才可以调度到
     virtual void OnUpdate() override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
     // 组件接口资源
 protected:
     virtual Int32 _OnCreated() override;

@@ -48,6 +48,5 @@ KERNEL_NS::CompObject *PassTimeGlobalStorageFactory::Create() const
     return PassTimeGlobalStorage::NewByAdapter_PassTimeGlobalStorage(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(PassTimeGlobalStorageFactory)
 
 SERVICE_END

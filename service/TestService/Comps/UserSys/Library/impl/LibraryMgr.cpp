@@ -40,7 +40,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(ILibraryMgr);
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibraryMgr);
 
 LibraryMgr::LibraryMgr()
-:_libraryInfo(new UserLibraryInfo)
+:ILibraryMgr(KERNEL_NS::RttiUtil::GetTypeId<LibraryMgr>())
+,_libraryInfo(new UserLibraryInfo)
 ,_removeLibraryMemberStub(INVALID_LISTENER_STUB)
 ,_joinLibraryMemberStub(INVALID_LISTENER_STUB)
 {
@@ -196,6 +197,5 @@ void LibraryMgr::_OnJoinLibraryMember(KERNEL_NS::LibEvent *ev)
     _OnJoinLibrary(libraryId);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(LibraryMgr)
 
 SERVICE_END

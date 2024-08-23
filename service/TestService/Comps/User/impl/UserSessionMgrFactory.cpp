@@ -48,6 +48,5 @@ KERNEL_NS::CompObject *UserSessionMgrFactory::Create() const
     return UserSessionMgr::NewByAdapter_UserSessionMgr(_buildType.V);
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(UserSessionMgrFactory)
 
 SERVICE_END

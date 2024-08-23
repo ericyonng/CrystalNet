@@ -465,26 +465,9 @@ bool StorageFlagType::CheckCanSupportMysqlDataType(const KERNEL_NS::LibString &d
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IStorageInfo);
 
-IStorageInfo::IStorageInfo(const KERNEL_NS::LibString &systemName)
-:_systemName(systemName)
-,_flags(0)
-,_primaryKeyStorage(NULL)
-,_kvModeValueStorage(NULL)
-,_capacitySize(0)
-,_inputMysqlDataType(0)
-,_outputMysqlDataType(0)
-,_releaseCb(NULL)
-,_dataCountLimit(-1)
-{
-    _SetType(ServiceCompType::STORAGE_COMP);
-
-    // 兼容windows/linux 表名使用小写
-    _tableName = KERNEL_NS::StringUtil::RemoveNameSpace(_systemName).tolower();
-    _fieldName = KERNEL_NS::StringUtil::RemoveNameSpace(_systemName);
-}
-
-IStorageInfo::IStorageInfo(Byte8 const * const &systemName)
-:_systemName(systemName)
+IStorageInfo::IStorageInfo(UInt64 objTypeId,const KERNEL_NS::LibString &systemName)
+:KERNEL_NS::CompObject(objTypeId == 0 ? KERNEL_NS::RttiUtil::GetTypeId<IStorageInfo>() : objTypeId)
+,_systemName(systemName)
 ,_flags(0)
 ,_primaryKeyStorage(NULL)
 ,_kvModeValueStorage(NULL)
@@ -765,6 +748,5 @@ void IStorageInfo::_UpadteCapacityAndMysqlDataType()
     }
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(IStorageInfo)
 
 SERVICE_END

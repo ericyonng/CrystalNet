@@ -93,11 +93,10 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(IExporterMgr);
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ExporterMgr);
 
-OBJ_GET_OBJ_TYPEID_IMPL(ExporterMgr)
 
 ExporterMgr::ExporterMgr()
-:
-_forceGenAll(false)
+:IExporterMgr(KERNEL_NS::RttiUtil::GetTypeId<ExporterMgr>())
+,_forceGenAll(false)
 ,_maxOpcode(0)
 ,_pbCacheContent(NULL)
 ,_maxOrmId(0)

@@ -95,8 +95,6 @@ public:
 
     virtual Int64 NewPacketId() const override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
 private:
     virtual Int32 _OnSysInit() override;
     virtual Int32 _OnSysCompsCreated() override;

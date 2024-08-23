@@ -41,8 +41,6 @@ public:
 
     virtual void Release() override;
     
-    virtual UInt64 GetObjTypeId() const override;
-
 public:
     virtual KERNEL_NS::CompObject *Create() const override;
 };

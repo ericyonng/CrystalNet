@@ -49,7 +49,6 @@ KERNEL_NS::CompObject *NicknameGlobalFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(NicknameGlobalFactory)
 
 
 SERVICE_END

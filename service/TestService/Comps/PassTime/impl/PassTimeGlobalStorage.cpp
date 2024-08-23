@@ -34,7 +34,6 @@
 
 
 SERVICE_BEGIN
-OBJ_GET_OBJ_TYPEID_IMPL(PassTimeGlobalStorage)
 
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(PassTimeGlobalStorage);
@@ -44,7 +43,7 @@ const KERNEL_NS::LibString PassTimeGlobalStorage::DATA = "PassTime";
 
 
 PassTimeGlobalStorage::PassTimeGlobalStorage()
-:IStorageInfo(KERNEL_NS::RttiUtil::GetByType<PassTimeGlobal>())
+:IStorageInfo(KERNEL_NS::RttiUtil::GetTypeId<PassTimeGlobalStorage>(), KERNEL_NS::RttiUtil::GetByType<PassTimeGlobal>())
 {
 
 }
@@ -67,7 +66,7 @@ bool PassTimeGlobalStorage::RegisterStorages()
     StorageFlagType::LOAD_DATA_ON_STARTUP_FLAG
     );
 
-    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(PassTimeGlobalStorage::ID);
+    auto newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, PassTimeGlobalStorage::ID);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });
@@ -82,7 +81,7 @@ bool PassTimeGlobalStorage::RegisterStorages()
         return false;
     }
 
-    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(PassTimeGlobalStorage::DATA);
+    newStorageInfo = IStorageInfo::NewThreadLocal_IStorageInfo(0, PassTimeGlobalStorage::DATA);
     newStorageInfo->SetRelease([newStorageInfo](){
         IStorageInfo::DeleteThreadLocal_IStorageInfo(newStorageInfo);
     });

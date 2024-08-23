@@ -59,4 +59,3 @@ const KERNEL_NS::LibString &ConfigExporterApp::GetAppName() const
     return _appName;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(ConfigExporterApp)

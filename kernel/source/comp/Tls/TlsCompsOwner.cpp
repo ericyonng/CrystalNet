@@ -32,13 +32,15 @@
 #include <kernel/comp/Poller/Poller.h>
 #include <kernel/comp/Poller/PollerFactory.h>
 #include <kernel/comp/TlsMemoryCleanerComp.h>
+#include <kernel/comp/Tls/TlsTypeSystem.h>
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(TlsCompsOwner);
 
 TlsCompsOwner::TlsCompsOwner()
-:_poller(NULL)
+:CompHostObject(KERNEL_NS::RttiUtil::GetTypeId<TlsCompsOwner>())
+,_poller(NULL)
 {
 
 }
@@ -55,6 +57,9 @@ void TlsCompsOwner::Release()
 
 void TlsCompsOwner::OnRegisterComps()
 {
+    // 类型系统
+    RegisterComp<TlsTypeSystemFactory>();
+
     // poller事件循环
     RegisterComp<PollerFactory>();
 
@@ -80,13 +85,16 @@ void TlsCompsOwner::_OnAttachedComp(CompObject *oldComp, CompObject *newComp)
         if(newComp && (newComp->GetObjTypeId() == typeId))
         {
             _poller = newComp->CastTo<Poller>();
+
+            auto memoryCleaner = GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
+            memoryCleaner->OnTimerMgrChange(_poller->GetTimerMgr());
+            
             g_Log->Info(LOGFMT_OBJ_TAG("attach poller:%s, typeId:%llu"), _poller->ToString().c_str(), typeId);
         }
     }
 }
 
 
-OBJ_GET_OBJ_TYPEID_IMPL(TlsCompsOwner)
 
 
 KERNEL_END

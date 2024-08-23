@@ -71,8 +71,6 @@ public:
 
     UInt64 GetSessionAmount() const override;
 
-    OBJ_GET_OBJ_TYPEID_DECLARE();
-
     // 派生接口
 protected:
     // 清理数据

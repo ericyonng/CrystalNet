@@ -122,6 +122,7 @@ ALWAYS_INLINE bool LibTimer::IsScheduling() const
 ALWAYS_INLINE void LibTimer::GiveupTimerData()
 {
     _data = NULL;
+    _mgr = NULL;
 }
 
 template<typename ObjType>

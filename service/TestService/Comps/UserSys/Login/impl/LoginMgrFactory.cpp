@@ -49,7 +49,5 @@ KERNEL_NS::CompObject *LoginMgrFactory::Create() const
     return comp;
 }
 
-OBJ_GET_OBJ_TYPEID_IMPL(LoginMgrFactory)
-
 
 SERVICE_END

@@ -37,6 +37,8 @@ class ISysLogicMgr : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, ISysLogicMgr);
 
 public:
+  ISysLogicMgr(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
+
   /*
   * 连接远程
   */

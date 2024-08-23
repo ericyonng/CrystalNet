@@ -38,11 +38,11 @@
 
 SERVICE_BEGIN
 
-OBJ_GET_OBJ_TYPEID_IMPL(MyServiceComp)
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(MyServiceComp);
 
 MyServiceComp::MyServiceComp()
+:KERNEL_NS::CompObject(KERNEL_NS::RttiUtil::GetTypeId<MyServiceComp>())
 {
     g_Log->Debug(LOGFMT_OBJ_TAG("%s constructor."), GetObjName().c_str());
 }
