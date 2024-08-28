@@ -319,13 +319,6 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
                 packetAnalyzeInfo->_counter.Update();
                 auto packetId = NewPacketId(analyzeInfo->_sessionId);
                 Send(analyzeInfo->_sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req, packetId);
-                if(UNLIKELY(packetId < 0))
-                {
-                    packetAnalyzeInfo->Release();
-                    g_Log->Warn(LOGFMT_OBJ_TAG("send fail sessionId:%llu"), analyzeInfo->_sessionId);
-                    continue;
-                }
-
                 auto packetExpire = [this, sessionId, packetId](KERNEL_NS::LibTimer *t) mutable
                 {
                     do
@@ -349,11 +342,6 @@ void TestMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
                             packetAnalyzeInfo->_counter.Update();
                             packetId = NewPacketId(sessionId);
                             Send(sessionId, Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, req, packetId);
-                            if(UNLIKELY(packetId < 0))
-                            {
-                                packetAnalyzeInfo->Release();
-                                g_Log->Warn(LOGFMT_OBJ_TAG("send fail sessionId:%llu"), sessionId);
-                            }
                         }
                         else
                         {
@@ -447,7 +435,7 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
         ,  _targetAddrConfig->_priorityLevel
         ,  _targetAddrConfig->_sessionType
         , _targetAddrConfig->_af
-        , _targetAddrConfig->_remoteProtocolStackType);
+        , _targetAddrConfig->_protocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig->ToString().c_str());

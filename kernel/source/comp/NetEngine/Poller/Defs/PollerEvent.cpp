@@ -41,6 +41,7 @@
 
 #include <kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerEvent.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
 
@@ -350,6 +351,8 @@ LibString SessionCreatedEvent::ToString() const
         .AppendFormat("_isFromConnect:%s, \n", _isFromConnect ? "true" : "false")
         .AppendFormat("_isLinker:%s, \n", _isLinker ? "true" : "false")
         .AppendFormat("_protocolStackType:%d, \n", _protocolStackType)
+        .AppendFormat("_targetConfig:%s, \n", _targetConfig.ToString().c_str())
+        .AppendFormat("_failureIps:%s, \n", KERNEL_NS::StringUtil::ToString(_failureIps, ',').c_str())
         ;
 
     return info;
@@ -392,6 +395,8 @@ LibString AsynConnectResEvent::ToString() const
         .AppendFormat("_fromServiceId:%llu, \n", _fromServiceId)
         .AppendFormat("_stub:%llu, \n", _stub)
         .AppendFormat("_sessionId:%llu, \n", _sessionId)
+        .AppendFormat("target addr config:%s, \n", _targetAddr.ToString().c_str())
+        .AppendFormat("failure ips:%s, \n", KERNEL_NS::StringUtil::ToString(_failureIps, ',').c_str())
         ;
 
     return info; 

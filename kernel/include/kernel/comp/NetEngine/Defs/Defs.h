@@ -43,5 +43,6 @@
 #include <kernel/comp/NetEngine/Defs/NetDefs.h>
 #include <kernel/comp/NetEngine/Defs/ProtocolType.h>
 #include <kernel/comp/NetEngine/Defs/sockaddr_in.h>
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 
 #endif

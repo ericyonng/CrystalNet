@@ -114,7 +114,7 @@ void IService::OnMonitor(ServiceStatisticsInfo &info)
     info._recvPackets = _recvPackets.exchange(0, std::memory_order_acquire);
     info._consumePackets = _consumePackets.exchange(0, std::memory_order_acquire);
     info._sessionAmount = GetSessionAmount();
-    GetComp<KERNEL_NS::Poller>()->OnMonitor(info._servicePollerInfo);
+    _poller->OnMonitor(info._servicePollerInfo);
 }
 
 // service模块是否退出

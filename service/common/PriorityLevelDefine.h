@@ -55,22 +55,6 @@ public:
         DB_TYPE,            // 数据库类型
         OUTER_TYPE,         // 面向外部类型
     };
-
-    static UInt32 StringToPriorityLevel(const KERNEL_NS::LibString &levelStr)
-    {
-        if(levelStr == "INNER")
-            return PriorityLevelDefine::INNER;
-        if(levelStr == "DB")
-            return PriorityLevelDefine::DB;
-        if(levelStr == "OUTER1")
-            return PriorityLevelDefine::OUTER1;
-        if(levelStr == "OUTER2")
-            return PriorityLevelDefine::OUTER2;
-        if(levelStr == "OUTER3")
-            return PriorityLevelDefine::OUTER3;
-        
-        return PriorityLevelDefine::OUTER1;
-    }
 };
 
 SERVICE_END

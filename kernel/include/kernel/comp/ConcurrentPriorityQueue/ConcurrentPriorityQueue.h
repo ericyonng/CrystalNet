@@ -249,10 +249,30 @@ ALWAYS_INLINE ConcurrentPriorityQueue<Elem, BuildType, LockType>::~ConcurrentPri
 template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE bool ConcurrentPriorityQueue<Elem, BuildType, LockType>::SetMaxLevel(Int32 level)
 {
-    if(_isInit)
-        return false;
-
+    auto oldLevel = _maxLevel;
     _maxLevel = level;
+
+    if(LIKELY(oldLevel != _maxLevel))
+    {
+        _elemAmount = 0;
+        _guards.resize(_maxLevel + 1);
+        for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+        {
+            if(_guards[idx])
+                continue;
+
+            _guards[idx] = CRYSTAL_NEW(LockType);
+        }
+
+        _levelQueue.resize(_maxLevel + 1);
+        for(Int32 idx = 0; idx <= _maxLevel; ++idx)
+        {
+            if(_levelQueue[idx])
+                continue;
+
+            _levelQueue[idx] = LibList<Elem, BuildType>::NewByAdapter_LibList(BuildType::V);
+        }
+    }
 
     return true;
 }

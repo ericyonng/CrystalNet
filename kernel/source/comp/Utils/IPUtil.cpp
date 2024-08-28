@@ -37,6 +37,7 @@ Int32 IPUtil::GetIPByDomain(
     const char *domain                          // 域名或主机名
     , const char *service                       // 端口号“80”等、服务名 如"ftp", "http"等
     , LibString &ipAddrString                   // 输出ip
+    , const std::set<LibString> &filter         // ip过滤
     , Int32 netCardNo                           // 网卡序号若获取的是本地的地址，为选择网址列表的某一个网址
     , Int32 eFlags                              // IPUtilDef::AI_FLAGS_TYPE 各个位的组合
                                                 // 默认AI_PASSIVE 即用于bind绑定 不设置则用于connect
@@ -89,13 +90,21 @@ Int32 IPUtil::GetIPByDomain(
             SocketUtil::GetAddrInfoFromNetInfo(*addr, BUFFER_LEN256, ipPtr, port);
         }
 
-        if(netCardNo != cnt)
+        // TODO:需要测试 netCardNo!=cnt => netCardNo > cnt
+        if(netCardNo > cnt)
         {
             ++cnt;
             continue;
         }
 
         ipAddrString = ipcache;
+        ipAddrString.strip();
+        if(filter.find(ipAddrString) != filter.end())
+        {
+            ipAddrString.clear();
+            continue;
+        }
+
         freeaddrinfo(netCardRes);
         return Status::Success;
     }

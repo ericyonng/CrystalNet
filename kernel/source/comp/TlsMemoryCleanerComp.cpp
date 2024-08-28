@@ -96,10 +96,10 @@ void TlsMemoryCleanerComp::ManualClose()
 
 void TlsMemoryCleanerComp::OnTimerMgrChange(TimerMgr *timerMgr)
 {
-    _timerMgr = timerMgr;
-
     if(_timer)
         LibTimer::DeleteThreadLocal_LibTimer(_timer);
+
+    _timerMgr = timerMgr;
 
     _timer = LibTimer::NewThreadLocal_LibTimer(_timerMgr);
     _timer->SetTimeOutHandler(this, &TlsMemoryCleanerComp::_OnCleanTimer);

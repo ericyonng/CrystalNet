@@ -107,7 +107,7 @@ private:
 
     void _RegisterEvents();
 
-    void _OnLoginConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params);
+    void _OnLoginConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &doRemove);
 
 private:
     IClientUserMgr *_userMgr;

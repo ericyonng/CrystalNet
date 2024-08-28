@@ -64,6 +64,7 @@ public:
         const Byte8 *domain,                                                    // 域名或主机名
     const Byte8 *service,                                                       // 端口号“80”等、服务名 如"ftp", "http"等
     LibString &ipOut,                                                           // 输出ip
+    const std::set<LibString> &filter,                                          // ip过滤
     Int32 netCardNo = 0,                                                        // 网卡序号若获取的是本地的地址，为选择网址列表的某一个网址
     Int32 eFlags = IPUtilDef::AI_FLAGS_TYPE_AI_PASSIVE,                         // IPUtilDef::AI_FLAGS_TYPE 各个位的组合 默认AI_PASSIVE 即用于bind绑定 不设置则用于connect
     IPUtilDef::SOCK_TYPE eSockType = IPUtilDef::SOCK_TYPE_SOCK_STREAM,	        // 默认流数据
@@ -75,6 +76,7 @@ public:
 
     // netCardNo是用于选择域名返回的ip列表，用于dns负载均衡，可以从多个ip总选择一个
     static Int32 GetIpByHostName(const LibString &hostName, LibString &ip, Int32 netCardNo = 0, bool isToBind = true, bool isStreamSock = true, bool isIpv4 = true);
+    static Int32 GetIpByHostName(const LibString &hostName, LibString &ip, const std::set<LibString> &filter, Int32 netCardNo = 0, bool isToBind = true, bool isStreamSock = true, bool isIpv4 = true);
 };
 
 ALWAYS_INLINE Int32 IPUtil::GetLocalIP(LibString &ip, Int32 netCardNo, bool isToBind, bool isStreamSock, bool isIpv4)
@@ -88,6 +90,7 @@ ALWAYS_INLINE Int32 IPUtil::GetLocalIP(LibString &ip, Int32 netCardNo, bool isTo
     auto ret = GetIPByDomain(hostname
                              , NULL
                              , ip
+                             , {}
                              , netCardNo
                              , isToBind ? IPUtilDef::AI_FLAGS_TYPE_AI_PASSIVE : IPUtilDef::AI_FLAGS_TYPE_NONE
                              , isStreamSock ? IPUtilDef::SOCK_TYPE_SOCK_STREAM : IPUtilDef::SOCK_TYPE_SOCK_DGRAM
@@ -142,6 +145,7 @@ ALWAYS_INLINE Int32 IPUtil::GetIpByHostName(const LibString &hostName, LibString
     auto ret = GetIPByDomain(hostName.c_str()
                              , NULL
                              , ip
+                             ,{}
                              , netCardNo
                              , isToBind ? IPUtilDef::AI_FLAGS_TYPE_AI_PASSIVE : IPUtilDef::AI_FLAGS_TYPE_NONE
                              , isStreamSock ? IPUtilDef::SOCK_TYPE_SOCK_STREAM : IPUtilDef::SOCK_TYPE_SOCK_DGRAM
@@ -154,6 +158,27 @@ ALWAYS_INLINE Int32 IPUtil::GetIpByHostName(const LibString &hostName, LibString
 
     return Status::Success;
 }
+
+ALWAYS_INLINE Int32 IPUtil::GetIpByHostName(const LibString &hostName, LibString &ip, const std::set<LibString> &filter, Int32 netCardNo, bool isToBind, bool isStreamSock, bool isIpv4)
+{
+    //获取ip
+    auto ret = GetIPByDomain(hostName.c_str()
+                             , NULL
+                             , ip
+                             ,filter
+                             , netCardNo
+                             , isToBind ? IPUtilDef::AI_FLAGS_TYPE_AI_PASSIVE : IPUtilDef::AI_FLAGS_TYPE_NONE
+                             , isStreamSock ? IPUtilDef::SOCK_TYPE_SOCK_STREAM : IPUtilDef::SOCK_TYPE_SOCK_DGRAM
+                             , isIpv4 ? IPUtilDef::FAMILY_TYPE_AF_INET : IPUtilDef::FAMILY_TYPE_AF_INET6
+                             , IPUtilDef::PROTOCOL_TYPE_IPPROTO_IP
+    );
+
+    if(ret != Status::Success)
+        return ret;
+
+    return Status::Success;
+}
+
 
 KERNEL_END
 

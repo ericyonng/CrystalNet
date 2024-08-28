@@ -34,6 +34,7 @@
 #include <kernel/kernel_export.h>
 #include <kernel/common/BaseMacro.h>
 #include <kernel/common/BaseType.h>
+#include <kernel/comp/Poller/PollerEventInternalType.h>
 
 KERNEL_BEGIN
 
@@ -42,27 +43,27 @@ class KERNEL_EXPORT PollerEventType
 public:
     enum Type
     {
-        EvNone = 0,                 // 无效
-        Write = 1,                  // 发数据 框架层监听的事件
-        AsynConnect = 2,            // 连接 框架层监听的事件
-        NewSession = 3,             // connect/accept suc 框架层监听的事件
-        Monitor = 4,                // 监听器事件 框架层监听的事件
-        CloseSession = 5,           // 关闭 框架层监听的事件
-        AddListen = 6,              // 监听事件 框架层监听的事件
+        EvNone = PollerEventInternalType::MAX_INTERNAL_TYPE,  // 无效
+        Write,                  // 发数据 框架层监听的事件
+        AsynConnect,            // 连接 框架层监听的事件
+        NewSession,             // connect/accept suc 框架层监听的事件
+        Monitor,                // 监听器事件 框架层监听的事件
+        CloseSession,           // 关闭 框架层监听的事件
+        AddListen,              // 监听事件 框架层监听的事件
 
 
-        SessionCreated = 7,         // 会话创建（连入,连出） 业务层监听的事件
-        AsynConnectRes = 8,         // 连接回执 业务层监听的事件
-        AddListenRes = 9,           // 监听回执 业务层监听的事件
-        SessionDestroy = 10,        // 会话销毁 业务层监听事件
-        RecvMsg = 11,               // 收到网络消息 业务层监听事件
+        SessionCreated,         // 会话创建（连入,连出） 业务层监听的事件
+        AsynConnectRes,         // 连接回执 业务层监听的事件
+        AddListenRes,           // 监听回执 业务层监听的事件
+        SessionDestroy,        // 会话销毁 业务层监听事件
+        RecvMsg,               // 收到网络消息 业务层监听事件
 
-        IpRuleControl = 12,         // ip规则控制
-        QuitServiceSessionsEvent = 13,  // 退出所有session
-        QuitServiceEvent = 14,  // 退出service
-        RealDoQuitServiceSessionEvent = 15, // 真正的踢session
+        IpRuleControl,         // ip规则控制
+        QuitServiceSessionsEvent,  // 退出所有session
+        QuitServiceEvent,  // 退出service
+        RealDoQuitServiceSessionEvent, // 真正的踢session
 
-        QuitApplicationEvent = 16, // 退出app事件
+        QuitApplicationEvent, // 退出app事件
         EvMax,                      // 枚举
     };
 

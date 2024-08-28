@@ -57,18 +57,18 @@ void SysLogicMgr::Release()
     SysLogicMgr::DeleteByAdapter_SysLogicMgr(SysLogicMgrFactory::_buildType.V, this);
 }
 
-Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
-, UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg
+Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
+, UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
 , Int32 sessionCount
 , UInt32 priorityLevel, Int32 sessionType, Int32 family
 , Int32 protocolStackType) const
 {
     // 1.校验ip
-    if(!ip.empty())
+    if(!ip._ip.empty())
     {
-        if(!KERNEL_NS::SocketUtil::IsIp(ip))
+        if(!KERNEL_NS::SocketUtil::IsIp(ip._ip))
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("illegal ip:%s"), ip.c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("illegal ip:%s"), ip.ToString().c_str());
             return Status::SockError_IllegalIp;
         }
     }
@@ -79,7 +79,7 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
     if(stubHandleMgr->HasStub(stub))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("stub callback is already existes please check stub:%llu, ip:%s, port:%hu, priorityLevel:%u, sessionType:%d, family:%d")
-                    , stub, ip.c_str(), port, priorityLevel, sessionType, family);
+                    , stub, ip.ToString().c_str(), port, priorityLevel, sessionType, family);
 
         return Status::Repeat;
     }
@@ -139,7 +139,7 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
     }
 
     auto listenInfo = KERNEL_NS::LibListenInfo::New_LibListenInfo();
-    listenInfo->_ip = ip;
+    listenInfo->_ip = ip._ip;
     listenInfo->_port = port;
     listenInfo->_family = family;
     listenInfo->_serviceId = service->GetServiceId();
@@ -157,15 +157,15 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
         stubHandleMgr->NewHandle(stub, delg);
 
     g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, priorityLevel:%u, sessionType:%d, family:%d, stub:%llu")
-                , ip.c_str(), port, priorityLevel, sessionType, family, stub);
+                , ip.ToString().c_str(), port, priorityLevel, sessionType, family, stub);
 
 
     return Status::Success;
 }
 
-Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *callback
-, const KERNEL_NS::LibString &localIp
+Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *callback
+, const KERNEL_NS::AddrIpConfig &localIp
 , UInt16 localPort
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes    /* 超时重试次数 */
@@ -177,15 +177,15 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 r
 ) const
 {
     // 1.校验参数
-    if(!remoteIp.empty() && !KERNEL_NS::SocketUtil::IsIp(remoteIp))
+    if(remoteIp._ip.empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("invalid remote ip:%s"), remoteIp.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("invalid remote ip:%s"), remoteIp.ToString().c_str());
         return Status::SockError_IllegalIp;
     }
 
-    if(!localIp.empty() && !KERNEL_NS::SocketUtil::IsIp(localIp))
+    if(!localIp._ip.empty() && !KERNEL_NS::SocketUtil::IsIp(localIp._ip))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("invalid local ip:%s"), localIp.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("invalid local ip:%s"), localIp.ToString().c_str());
         return Status::SockError_IllegalIp;
     }
 
@@ -194,7 +194,8 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 r
     auto st = stubHandlMgr->NewHandle(callback, stub);
     if(st != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("create new stub handler fail st:%d, remote ip:%s, port:%hu"), st, remoteIp.c_str(), remotePort);
+        g_Log->Error(LOGFMT_OBJ_TAG("create new stub handler fail st:%d, remote ip:%s, port:%hu")
+                , st, remoteIp.ToString().c_str(), remotePort);
         return Status::CreateNewStubFail;
     }
 
@@ -304,7 +305,7 @@ Int32 SysLogicMgr::_OnHostStart()
                                 , addrInfo->_priorityLevel
                                 , addrInfo->_sessionType
                                 , addrInfo->_af
-                                , addrInfo->_localProtocolStackType);
+                                , addrInfo->_protocolStackType);
 
         if(st != Status::Success)
         {
@@ -312,12 +313,12 @@ Int32 SysLogicMgr::_OnHostStart()
             return st;
         }
 
-        _unhandledListenAddr.insert(std::make_pair(stub, addrInfo));
+        _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, addrInfo->_listenSessionCount)));
     }
 
     // 2.连接中心服
     auto centerAddr = serviceConfig->_centerAddr;
-    if(centerAddr && !centerAddr->_remoteIp.empty())
+    if(centerAddr && !centerAddr->_remoteIp._ip.empty())
     {
         UInt64 stub = 0;
         auto st = ISysLogicMgr::AsynTcpConnect(centerAddr->_remoteIp
@@ -332,8 +333,8 @@ Int32 SysLogicMgr::_OnHostStart()
         , 12000
         ,  PriorityLevelDefine::INNER
         ,  SessionType::INNER
-        , KERNEL_NS::SocketUtil::IsIpv4(centerAddr->_remoteIp) ? AF_INET : AF_INET6
-        , centerAddr->_remoteProtocolStackType
+        , centerAddr->_remoteIp.GetAf()
+        , centerAddr->_protocolStackType
         );
         if(st != Status::Success)
         {
@@ -349,7 +350,7 @@ Int32 SysLogicMgr::_OnHostStart()
     for(Int32 idx = 0; idx < leftTargetCount; ++idx)
     {
         auto addr = serviceConfig->_connectAddrGroup[idx];
-        if(!addr || addr->_remoteIp.empty())
+        if(!addr || addr->_remoteIp._ip.empty())
             continue;
 
         UInt64 stub = 0;
@@ -365,8 +366,8 @@ Int32 SysLogicMgr::_OnHostStart()
         , 0
         ,  addr->_priorityLevel
         ,  addr->_sessionType
-        , KERNEL_NS::SocketUtil::IsIpv4(addr->_remoteIp) ? AF_INET : AF_INET6
-        , addr->_remoteProtocolStackType);
+        , addr->_remoteIp.GetAf()
+        , addr->_protocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, centerAddr->ToString().c_str());
@@ -396,10 +397,16 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
 {
     // 1.检测监听是否成功
     for(auto iter : _unhandledListenAddr)
-        g_Log->Warn(LOGFMT_OBJ_TAG("listen addr %s, not success..."), iter.second->ToString().c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("listen addr %s, not success..."), iter.second.first->ToString().c_str());
 
     for(auto iter : _unhandledContectAddr)
-        g_Log->Warn(LOGFMT_OBJ_TAG("connect to %s..."), iter.second->ToString().c_str());
+    {
+        auto addrConfig = iter.second;
+        auto toIpv4 = addrConfig->_remoteIp._isHostName ? (addrConfig->_remoteIp._toIpv4 ? "to ipv4" : "to ipv6") : "None";
+        g_Log->Warn(LOGFMT_OBJ_TAG("connect [%s:%hu => %s:%hu(%s)]...")
+        , addrConfig->_localIp._ip, addrConfig->_localPort
+        , addrConfig->_remoteIp._ip, addrConfig->_remotePort, toIpv4);
+    }
 
     if(_unhandledListenAddr.empty() && _unhandledContectAddr.empty())
     {
@@ -411,7 +418,7 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
     }
 }
 
-void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params)
+void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &doRemove)
 {
     if(errCode != Status::Success)
     {
@@ -434,27 +441,53 @@ void SysLogicMgr::_OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::V
         return;
     }
 
-    auto addrInfo = iter->second;
-    g_Log->Info(LOGFMT_OBJ_TAG("add listen suc:%s"), addrInfo->ToString().c_str());
+    auto &addrInfo = iter->second;
+    --addrInfo.second;
+    g_Log->Warn(LOGFMT_OBJ_TAG("[ADD LISTEN SUCCESS]:%s, LeftCount:%d"), addrInfo.first->ToString().c_str(), addrInfo.second);
 
-    _unhandledListenAddr.erase(iter);
+    if(addrInfo.second <= 0)
+    {
+        doRemove = true;
+        _unhandledListenAddr.erase(iter);
+    }
+    else
+    {
+        doRemove = false;
+    }
 }
 
-void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params)
+void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &doRemove)
 {
+    auto failureIps = (*params)[Params::TARGET_ADDR_FAILURE_IP_SET].AsPtr<std::set<KERNEL_NS::LibString>>();
+    auto targetAddrConfig = (*params)[Params::TARGET_ADDR_IP_CONFIG].AsPtr<KERNEL_NS::AddrIpConfig>();
+    auto remoteAddr = (*params)[Params::REMOTE_ADDR].AsPtr<KERNEL_NS::BriefAddrInfo>();
+    auto localAddr = (*params)[Params::LOCAL_ADDR].AsPtr<KERNEL_NS::BriefAddrInfo>();
+    auto sessionId = (*params)[Params::SESSION_ID].AsUInt64();
+
     if(errCode != Status::Success)
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("connect fail stub:%llu, errCode:%d"), stub, errCode);
+        g_Log->Info(LOGFMT_OBJ_TAG("[connect res]fail, [%s:%hu => %s:%hu] fail stub:%llu, sessionId:%llu, errCode:%d, failure ip:%s")
+        , localAddr->_ip.c_str(), localAddr->_port, targetAddrConfig->_ip.c_str(), remoteAddr->_port,  stub, sessionId, errCode
+        , KERNEL_NS::StringUtil::ToString(*failureIps, ',').c_str());
 
         auto iter = _unhandledContectAddr.find(stub);
         if(iter == _unhandledContectAddr.end())
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("unhandled connect callback not exists stub:%llu"), stub);
+            g_Log->Warn(LOGFMT_OBJ_TAG("[connect res]unhandled connect callback not exists stub:%llu"), stub);
             return;
         }
 
         // 失败要重新连接
+        Int32 af = AF_INET;
         auto addr = iter->second;
+        if(addr->_remoteIp._isHostName)
+        {
+            af = addr->_remoteIp._toIpv4 ? AF_INET : AF_INET6;
+        }
+        else
+        {
+            af = KERNEL_NS::SocketUtil::IsIpv4(addr->_remoteIp._ip) ? AF_INET : AF_INET6;
+        }
         stub = 0;
         auto st = ISysLogicMgr::AsynTcpConnect(addr->_remoteIp
         , addr->_remotePort
@@ -468,24 +501,26 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
         , 0
         ,  PriorityLevelDefine::INNER
         ,  SessionType::INNER
-        , KERNEL_NS::SocketUtil::IsIpv4(addr->_remoteIp) ? AF_INET : AF_INET6
-        , addr->_remoteProtocolStackType);
+        , af
+        , addr->_protocolStackType);
         if(st != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, addr->ToString().c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("[connect res]asyn connect fail st:%d, center addr:%s"), st, addr->ToString().c_str());
             return;
         }
 
         if(stub == 0)
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("asyn tcp connect stub fail addr:%s"), addr->ToString().c_str());
+            g_Log->Warn(LOGFMT_OBJ_TAG("[connect res]asyn tcp connect stub fail addr:%s"), addr->ToString().c_str());
             return;
         }
 
         _unhandledContectAddr.erase(iter);
         _unhandledContectAddr.insert(std::make_pair(stub, addr));
 
-        g_Log->Info(LOGFMT_OBJ_TAG("reconnect addr:%s"), addr->ToString().c_str());
+        auto toIpv4 = addr->_remoteIp._isHostName ? (addr->_remoteIp._toIpv4 ? "to ipv4" : "to ipv6") : "None";
+        g_Log->Info(LOGFMT_OBJ_TAG("[connect res]try reconnect [%s:%hu => %s:%hu(%s)]... \n addr:%s")
+        , addr->_localIp._ip.c_str(), addr->_localPort, addr->_remoteIp._ip, addr->_remotePort, toIpv4, addr->ToString().c_str());
 
         return;
     }
@@ -493,12 +528,15 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
     auto iter = _unhandledContectAddr.find(stub);
     if(iter == _unhandledContectAddr.end())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("connect suc but have no callback stub:%llu"), stub);
+        g_Log->Warn(LOGFMT_OBJ_TAG("[connect res]suc but have no callback stub:%llu"), stub);
         return;
     }
 
     auto addrInfo = iter->second;
-    g_Log->Info(LOGFMT_OBJ_TAG("connect suc:%s"), addrInfo->ToString().c_str());
+    g_Log->Info(LOGFMT_OBJ_TAG("[connect res]success, stub:%llu, sessionId:%llu [%s:%hu => %s(%s):%hu]\naddr info:%s ")
+    , stub, sessionId, localAddr->_ip.c_str(), localAddr->_port
+    , addrInfo->_remoteIp._ip.c_str(), remoteAddr->_ip.c_str(), remoteAddr->_port
+    , addrInfo->ToString().c_str());
 
     _unhandledContectAddr.erase(iter);
 }

@@ -275,7 +275,15 @@ Int32 ClientUser::Login(Int32 stackType)
     // 创建session并
     auto sysMgr = _userMgr->GetGlobalSys<ISysLogicMgr>();
     UInt64 stub = 0;
-    auto err = sysMgr->AsynTcpConnect(_loginInfo.targetip(), _loginInfo.port(), stub, this, &ClientUser::_OnLoginConnectRes,  "127.0.0.1", 0, NULL, 3, 30,  PriorityLevelDefine::OUTER1, SessionType::OUTER
+    
+    KERNEL_NS::AddrIpConfig remoteIp;
+    remoteIp._isHostName = false;
+    remoteIp._ip = _loginInfo.targetip();
+    KERNEL_NS::AddrIpConfig localIp;
+    localIp._isHostName = false;
+    localIp._ip = "127.0.0.1";
+
+    auto err = sysMgr->AsynTcpConnect(remoteIp, _loginInfo.port(), stub, this, &ClientUser::_OnLoginConnectRes, localIp, 0, NULL, 3, 30,  PriorityLevelDefine::OUTER1, SessionType::OUTER
     , KERNEL_NS::SocketUtil::IsIpv4(_loginInfo.targetip()) ? AF_INET : AF_INET6, stackType);
 
     if(err != Status::Success)
@@ -423,7 +431,7 @@ void ClientUser::_RegisterEvents()
 
 }
 
-void ClientUser::_OnLoginConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params)
+void ClientUser::_OnLoginConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &doRemove)
 {
     if(errCode != Status::Success)
     {

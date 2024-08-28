@@ -21,57 +21,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-08-17 11:55:14
  * Author: Eric Yonng
+ * Date: 2024-08-24 22:00:54
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_COMPS_OWNER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_COMPS_OWNER_H__
-
-#pragma once
-
-#include <kernel/comp/Tls/ITlsObj.h>
-#include <kernel/comp/Tls/Defs.h>
-#include <kernel/comp/CompObject/CompHostObject.h>
+#include <pch.h>
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
+#include <kernel/comp/Utils/SocketUtil.h>
 
 KERNEL_BEGIN
 
-class Poller;
+POOL_CREATE_OBJ_DEFAULT_IMPL(AddrIpConfig);
 
-class KERNEL_EXPORT TlsCompsOwner : public CompHostObject
+KERNEL_NS::LibString AddrIpConfig::ToString() const
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, TlsCompsOwner);
-
-public:
-    TlsCompsOwner();
-    ~TlsCompsOwner();
-
-    virtual void Release() override;
-
-    virtual void OnRegisterComps() override;
-    virtual Int32 _OnCompsCreated() override;
-    virtual Int32 _OnHostWillStart() override;
-
-    virtual void _OnAttachedComp(CompObject *oldComp, CompObject *newComp) override;
-
-    Poller *GetPoller();    
-    const Poller *GetPoller() const;   
-
-private:
-    Poller *_poller;
-};
-
-ALWAYS_INLINE Poller *TlsCompsOwner::GetPoller()
-{
-    return _poller;
+    return KERNEL_NS::LibString().AppendFormat("%s, toipv4:%s", _ip.c_str(), _toIpv4?"true":"false");
 }
 
-ALWAYS_INLINE const Poller *TlsCompsOwner::GetPoller() const
+Int32 AddrIpConfig::GetAf() const
 {
-    return _poller;
-}   
+    if(_isHostName)
+        return _toIpv4 ? AF_INET : AF_INET6;
+
+    return KERNEL_NS::SocketUtil::IsIpv4(_ip) ? AF_INET : AF_INET6;
+}
 
 KERNEL_END
-
-#endif

@@ -354,7 +354,7 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
         ,  _targetAddrConfig->_priorityLevel
         ,  _targetAddrConfig->_sessionType
         , _targetAddrConfig->_af
-        , _targetAddrConfig->_remoteProtocolStackType);
+        , _targetAddrConfig->_protocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig->ToString().c_str());

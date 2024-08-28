@@ -87,10 +87,22 @@ void ClientUserMgr::OnStartup()
         accountName.AppendFormat("bot_user_%lld", random.Gen(0, 127));
     else
         accountName = _testLoginAccountName;
+
+    KERNEL_NS::LibString ip = _targetAddrConfig->_remoteIp._ip;
+    if(_targetAddrConfig->_remoteIp._isHostName)
+    {
+        auto err = KERNEL_NS::IPUtil::GetIpByHostName(_targetAddrConfig->_remoteIp._ip, ip, {}, 0, false, true, _targetAddrConfig->_remoteIp._toIpv4);
+        if(err != Status::Success)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("GetIpByHostName fail remote ip%s"), _targetAddrConfig->_remoteIp.ToString());
+            return;
+        }
+    }
+
     LoginInfo loginInfo;
     loginInfo.set_loginmode(LoginMode::REGISTER);
     loginInfo.set_accountname(accountName.GetRaw());
-    loginInfo.set_targetip(_targetAddrConfig->_remoteIp.GetRaw());
+    loginInfo.set_targetip(ip.GetRaw());
     loginInfo.set_port(_targetAddrConfig->_remotePort);
 
     KERNEL_NS::LibString pwd;
@@ -109,7 +121,7 @@ void ClientUserMgr::OnStartup()
     registerInfo->set_accountname(accountName.GetRaw());
     registerInfo->set_pwd(loginInfo.pwd());
     registerInfo->set_createphoneimei("123456");
-    auto err = Login(loginInfo, _targetAddrConfig->_remoteProtocolStackType);
+    auto err = Login(loginInfo, _targetAddrConfig->_protocolStackType);
     if(err != Status::Success)
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("login fail err:%d, account name:%s")
@@ -341,7 +353,7 @@ void ClientUserMgr::_OnLoginRes(KERNEL_NS::LibPacket *&packet)
             auto &loginInfo = user->GetLoginInfo();
             g_Log->Warn(LOGFMT_OBJ_TAG("account exists turn login directerly account:%s"), loginInfo.accountname().c_str());
             loginInfo.set_loginmode(LoginMode::PASSWORD);
-            auto errCode = user->Login(_targetAddrConfig->_remoteProtocolStackType);
+            auto errCode = user->Login(_targetAddrConfig->_protocolStackType);
             if(errCode != Status::Success)
             {
                 g_Log->Warn(LOGFMT_OBJ_TAG("login fail errCode:%d, account:%s"), errCode, loginInfo.accountname().c_str());

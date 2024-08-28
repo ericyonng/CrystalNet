@@ -21,56 +21,38 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-08-17 11:55:14
  * Author: Eric Yonng
+ * Date: 2024-08-24 22:00:54
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_COMPS_OWNER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_COMPS_OWNER_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_DEFS_ADDR_IP_CONFIG_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_NET_ENGINE_DEFS_ADDR_IP_CONFIG_H__
 
 #pragma once
 
-#include <kernel/comp/Tls/ITlsObj.h>
-#include <kernel/comp/Tls/Defs.h>
-#include <kernel/comp/CompObject/CompHostObject.h>
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/LibString.h>
 
 KERNEL_BEGIN
 
-class Poller;
-
-class KERNEL_EXPORT TlsCompsOwner : public CompHostObject
+struct KERNEL_EXPORT AddrIpConfig
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, TlsCompsOwner);
+    POOL_CREATE_OBJ_DEFAULT(AddrIpConfig);
 
-public:
-    TlsCompsOwner();
-    ~TlsCompsOwner();
+    // ip或者域名(因为域名对应的ip可能不同时间不一样, 此时必须实时的解析ip,不能预解析)
+    KERNEL_NS::LibString _ip;
+    
+    // 是否域名
+    bool _isHostName = false;
 
-    virtual void Release() override;
+    // 如果是域名是否转成ipv4
+    bool _toIpv4 = false;
 
-    virtual void OnRegisterComps() override;
-    virtual Int32 _OnCompsCreated() override;
-    virtual Int32 _OnHostWillStart() override;
+    KERNEL_NS::LibString ToString() const;
 
-    virtual void _OnAttachedComp(CompObject *oldComp, CompObject *newComp) override;
-
-    Poller *GetPoller();    
-    const Poller *GetPoller() const;   
-
-private:
-    Poller *_poller;
+    Int32 GetAf() const;
 };
-
-ALWAYS_INLINE Poller *TlsCompsOwner::GetPoller()
-{
-    return _poller;
-}
-
-ALWAYS_INLINE const Poller *TlsCompsOwner::GetPoller() const
-{
-    return _poller;
-}   
 
 KERNEL_END
 

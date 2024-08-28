@@ -366,6 +366,8 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
         ev->SetParam(Params::STUB, sessionCreatedEv->_stub);
         ev->SetParam(Params::IS_FROM_CONNECT, sessionCreatedEv->_isFromConnect);
         ev->SetParam(Params::IS_FROM_LINKER, sessionCreatedEv->_isLinker);
+        ev->SetParam(Params::TARGET_ADDR_IP_CONFIG, &sessionCreatedEv->_targetConfig);
+        ev->SetParam(Params::TARGET_ADDR_FAILURE_IP_SET, &sessionCreatedEv->_failureIps);
         _eventMgr->FireEvent(ev);
     }
 
@@ -383,6 +385,8 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
     ev->SetParam(Params::STUB, sessionCreatedEv->_stub);
     ev->SetParam(Params::IS_FROM_CONNECT, sessionCreatedEv->_isFromConnect);
     ev->SetParam(Params::IS_FROM_LINKER, sessionCreatedEv->_isLinker);
+    ev->SetParam(Params::TARGET_ADDR_IP_CONFIG, &sessionCreatedEv->_targetConfig);
+    ev->SetParam(Params::TARGET_ADDR_FAILURE_IP_SET, &sessionCreatedEv->_failureIps);
     _eventMgr->FireEvent(ev);
 }
 

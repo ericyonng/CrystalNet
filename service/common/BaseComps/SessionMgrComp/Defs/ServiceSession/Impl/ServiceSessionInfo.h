@@ -31,6 +31,7 @@
 #include <service/common/macro.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 
 KERNEL_BEGIN
 
@@ -67,8 +68,8 @@ struct ServiceSessionInfo
     KERNEL_NS::LibString ToString() const
     {
         KERNEL_NS::LibString info;
-        info.AppendFormat("service id:%llu, sessionId:%llu, pollerId:%llu, priorityLevel:%u, sessionType:%d, localAddr:%s, remoteAddr:%s"
-                        , _serviceId, _sessionId, _pollerId, _priorityLevel, _sessionType, _localAddr.ToString().c_str(), _remoteAddr.ToString().c_str());
+        info.AppendFormat("service id:%llu, sessionId:%llu, pollerId:%llu, priorityLevel:%u, sessionType:%d, localAddr:%s, remoteAddr:%s,origin:%s"
+                        , _serviceId, _sessionId, _pollerId, _priorityLevel, _sessionType, _localAddr.ToString().c_str(), _remoteAddr.ToString().c_str(), _remoteOriginAddr.ToString().c_str());
 
         return info;
     }
@@ -83,6 +84,9 @@ struct ServiceSessionInfo
 
     KERNEL_NS::BriefSockAddr _localAddr;    // 本地地址
     KERNEL_NS::BriefSockAddr _remoteAddr;   // 远程地址
+
+    // 远程的原始地址信息
+    KERNEL_NS::AddrIpConfig _remoteOriginAddr;
 
     KERNEL_NS::IProtocolStack *_protocolStack;
 };

@@ -304,7 +304,7 @@ Int32 SysLogicMgr::_OnHostStart()
                                 , addrInfo->_priorityLevel
                                 , addrInfo->_sessionType
                                 , addrInfo->_af
-                                ,addrInfo->_localProtocolStackType
+                                ,addrInfo->_protocolStackType
                                 );
 
         if(st != Status::Success)
@@ -334,7 +334,7 @@ Int32 SysLogicMgr::_OnHostStart()
         ,  PriorityLevelDefine::INNER
         ,  SessionType::INNER
         , KERNEL_NS::SocketUtil::IsIpv4(centerAddr->_remoteIp) ? AF_INET : AF_INET6
-        , centerAddr->_remoteProtocolStackType);
+        , centerAddr->_protocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, centerAddr->ToString().c_str());
@@ -366,7 +366,7 @@ Int32 SysLogicMgr::_OnHostStart()
         ,  addr->_priorityLevel
         ,  addr->_sessionType
         , KERNEL_NS::SocketUtil::IsIpv4(addr->_remoteIp) ? AF_INET : AF_INET6
-        , addr->_remoteProtocolStackType);
+        , addr->_protocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, centerAddr->ToString().c_str());
@@ -468,7 +468,7 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
         ,  PriorityLevelDefine::INNER
         ,  SessionType::INNER
         , KERNEL_NS::SocketUtil::IsIpv4(addr->_remoteIp) ? AF_INET : AF_INET6
-        , addr->_remoteProtocolStackType);
+        , addr->_protocolStackType);
         if(st != Status::Success)
         {
             g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, center addr:%s"), st, addr->ToString().c_str());

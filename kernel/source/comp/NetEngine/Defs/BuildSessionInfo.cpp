@@ -29,6 +29,7 @@
 
 #include <pch.h>
 #include <kernel/comp/NetEngine/Defs/BuildSessionInfo.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
 
@@ -70,6 +71,8 @@ LibString BuildSessionInfo::ToString() const
         .AppendFormat("_isLinker:%d, ", _isLinker)
         .AppendFormat("_isWinSockNonBlock:%d, ", _isWinSockNonBlock)
         .AppendFormat("_sessionOption:%s, ", _sessionOption.ToString().c_str())
+        .AppendFormat("_remoteOriginIpConfig:%s, ", _remoteOriginIpConfig.ToString().c_str())
+        .AppendFormat("_failureIps:%s, ", KERNEL_NS::StringUtil::ToString(_failureIps, ',').c_str())
         ;
 
     return info;

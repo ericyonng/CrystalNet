@@ -379,13 +379,17 @@ void TcpPollerMgr::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
         if(UNLIKELY(!poller))
         {
             g_Log->NetError(LOGFMT_OBJ_TAG("have no linker poller cluster listen info:%s"), listenInfo->ToString().c_str());
-            LibListenInfo::Delete_LibListenInfo(listenInfo);
-            return;
+            break;
         }
 
+        // 多个session负载均衡需要做拷贝
+        auto newListenInfo = LibListenInfo::New_LibListenInfo();
+        *newListenInfo = *listenInfo;
         excludes.insert(poller);
-        poller->PostAddlisten(level, listenInfo);
+        poller->PostAddlisten(level, newListenInfo);
     }
+
+    LibListenInfo::Delete_LibListenInfo(listenInfo);
 }
 
 void TcpPollerMgr::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList)

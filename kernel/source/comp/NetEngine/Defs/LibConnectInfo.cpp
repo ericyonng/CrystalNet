@@ -31,6 +31,7 @@
 #include <kernel/comp/LibTime.h>
 #include <kernel/comp/Timer/Timer.h>
 #include <kernel/comp/NetEngine/Defs/ProtocolType.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
 
@@ -55,9 +56,10 @@ LibConnectInfo::LibConnectInfo()
 LibString LibConnectInfo::ToString() const
 {
     LibString info;
-    info.AppendFormat("protocol type:[%d,%s] family:[%hu,%s], from local ip:[%s:%hu], to target ip:[%s:%hu]\n"
+    info.AppendFormat("protocol type:[%d,%s] family:[%hu,%s], from local ip:[%s:%hu], to target ip:[%s:%hu] success ip:%s\n failure ips:%s,"
                       "message priority level[%d] poller id:[%llu], retry times[%d], period ms:[%lld], stub:[%llu], from service id:[%llu], _sessionOption:%s"
-    , _protocolType, ProtocolType::ToString(_protocolType), _family, FamilyType::ToString(_family), _localIp.c_str(), _localPort, _targetIp.c_str(), _targetPort
+    , _protocolType, ProtocolType::ToString(_protocolType), _family, FamilyType::ToString(_family), _localIp._ip.c_str(), _localPort, _targetIp._ip.c_str(), _targetPort
+    , _successIp.c_str(), KERNEL_NS::StringUtil::ToString(_failureIps, ',').c_str()
     , _priorityLevel, _pollerId, _retryTimes, _periodMs, _stub, _fromServiceId, _sessionOption.ToString().c_str());
 
     return info;
@@ -81,11 +83,12 @@ LibConnectPendingInfo::LibConnectPendingInfo()
 LibString LibConnectPendingInfo::ToString() const
 {
     LibString info;
+
     info.AppendFormat("connect info:%s, ", _connectInfo->ToString().c_str())
     .AppendFormat("reconnect timer:%s", _reconnectTimer ? _reconnectTimer->ToString().c_str() : "no retry timer")
-    .AppendFormat("left retry times:%d, new sock:%d, sessionId:%llu, local addr:%s, remote addr:%s, final local ip:[%s:%hu]"
+    .AppendFormat("left retry times:%d, new sock:%d, sessionId:%llu, local addr:%s, remote addr:%s, final local ip:[%s:%hu], current target ip:%s"
     , _leftRetryTimes, _newSock, _sessionId, _localAddr.ToString().c_str()
-    , _remoteAddr.ToString().c_str(), _finalLocalIp.c_str(), _finalLocalPort);
+    , _remoteAddr.ToString().c_str(), _finalLocalIp.c_str(), _finalLocalPort, _currentTargetIp.c_str());
 
     return info;
 }

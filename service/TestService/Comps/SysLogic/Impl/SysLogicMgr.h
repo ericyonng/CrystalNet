@@ -56,34 +56,33 @@ public:
   * @param(family): AF_INET:ipv4, AF_INET6 :ipv6
   */
   template<typename ObjType>
-  Int32 AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
+  Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
                     , UInt64 &stub, ObjType *obj
-                    , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params)
+                    , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &)
                     , Int32 sessionCount = 1
                     , UInt32 priorityLevel = PriorityLevelDefine::OUTER1
                     , Int32 sessionType = SessionType::OUTER
                     , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
-  Int32 AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
-  , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg
+  Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
+  , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
   , Int32 sessionCount = 1
   , UInt32 priorityLevel = PriorityLevelDefine::OUTER1
   , Int32 sessionType = SessionType::OUTER
   , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
-  Int32 AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port, UInt64 &stub
+  Int32 AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub
   , Int32 sessionCount = 1
   , UInt32 priorityLevel = PriorityLevelDefine::OUTER1
   , Int32 sessionType = SessionType::OUTER
   , Int32 family = AF_INET, Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL) const;
 
   /*
-  * 连接远程
+  * 连接远程 bool &:是否移除stub对应的响应回调
   */
-
-  Int32 AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-  , KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *callback
-  , const KERNEL_NS::LibString &localIp = ""
+  Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+  , KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *callback
+  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
   , UInt16 localPort = 0
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
@@ -103,14 +102,15 @@ protected:
 
     void _OnDetectLinkTimer(KERNEL_NS::LibTimer *timer);
 
-    void _OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params);
-    void _OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params);
+    void _OnAddListenRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &doRemove);
+    void _OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &doRemove);
     void _CloseServiceEvent(KERNEL_NS::LibEvent *ev);
 private:
     void _Clear();
 
 private:
-    std::unordered_map<UInt64, AddrConfig *> _unhandledListenAddr;
+    // 可能多个session负载均衡
+    std::unordered_map<UInt64, std::pair<AddrConfig *, Int32>> _unhandledListenAddr;
     std::unordered_map<UInt64, AddrConfig *> _unhandledContectAddr;
     KERNEL_NS::LibTimer *_detectLink;
 
@@ -118,9 +118,9 @@ private:
 };
 
 template<typename ObjType>
-ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port
+ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
                 , UInt64 &stub, ObjType *obj
-                , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params)
+                , void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &)
                 , Int32 sessionCount
                 , UInt32 priorityLevel
                 , Int32 sessionType
@@ -130,7 +130,7 @@ ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UI
     auto st = AddTcpListen(ip, port, stub, delg, sessionCount, priorityLevel, sessionType, family, protocolStackType);
     if(st != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail st:%d, ip:%s, port:%hu, sessionType:%d, family:%d"), st, ip.c_str(), port, sessionType, family);
+        g_Log->Error(LOGFMT_OBJ_TAG("add tcp listen fail st:%d, ip:%s, port:%hu, sessionType:%d, family:%d"), st, ip.ToString().c_str(), port, sessionType, family);
         delg->Release();
         return st;
     }
@@ -138,7 +138,7 @@ ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UI
     return st;
 }
 
-ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::LibString &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, UInt32 priorityLevel, Int32 sessionType, Int32 family, Int32 protocolStackType) const
+ALWAYS_INLINE Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port, UInt64 &stub, Int32 sessionCount, UInt32 priorityLevel, Int32 sessionType, Int32 family, Int32 protocolStackType) const
 {
     return AddTcpListen(ip, port, stub, NULL, sessionCount, priorityLevel, sessionType, family, protocolStackType);
 }

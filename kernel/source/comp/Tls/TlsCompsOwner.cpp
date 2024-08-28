@@ -33,6 +33,7 @@
 #include <kernel/comp/Poller/PollerFactory.h>
 #include <kernel/comp/TlsMemoryCleanerComp.h>
 #include <kernel/comp/Tls/TlsTypeSystem.h>
+#include <kernel/comp/Timer/TimerMgr.h>
 
 KERNEL_BEGIN
 
@@ -77,6 +78,12 @@ Int32 TlsCompsOwner::_OnCompsCreated()
     return Status::Success;
 }
 
+Int32 TlsCompsOwner::_OnHostWillStart()
+{
+    _poller->GetTimerMgr()->Launch(NULL);
+    return Status::Success;
+}
+
 void TlsCompsOwner::_OnAttachedComp(CompObject *oldComp, CompObject *newComp)
 {
     // 替换poller
@@ -88,7 +95,7 @@ void TlsCompsOwner::_OnAttachedComp(CompObject *oldComp, CompObject *newComp)
 
             auto memoryCleaner = GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
             memoryCleaner->OnTimerMgrChange(_poller->GetTimerMgr());
-            
+
             g_Log->Info(LOGFMT_OBJ_TAG("attach poller:%s, typeId:%llu"), _poller->ToString().c_str(), typeId);
         }
     }

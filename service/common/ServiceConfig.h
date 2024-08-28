@@ -34,6 +34,7 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <kernel/comp/NetEngine/Poller/Defs/PollerConfig.h>
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 #include <unordered_map>
 #include <vector>
 
@@ -55,7 +56,7 @@ struct AddrConfig
 
     }
 
-    bool Parse(const KERNEL_NS::LibString &configContent, bool isStreamSock = true);
+    bool Parse(const KERNEL_NS::LibString &configContent);
 
     static AddrConfig *Create()
     {
@@ -71,25 +72,31 @@ struct AddrConfig
     { 
         KERNEL_NS::LibString info;
         info.AppendFormat("local addr:%s:%hu, remote addr:%s:%hu, af:%d, session type:%d, priority level:%u"
-                            ,_localIp.c_str(), _localPort
-                            ,  _remoteIp.c_str(), _remotePort
+                            ,_localIp._ip.c_str(), _localPort
+                            ,  _remoteIp._ip.c_str(), _remotePort
                             , _af, _sessionType, _priorityLevel);
 
         return info;
     }
 
-    KERNEL_NS::LibString _localIp;
+private:
+    bool ParseIpInfo(const KERNEL_NS::LibString &addrInfo, KERNEL_NS::AddrIpConfig &ipConfig, UInt16 &port);
+
+public:
+    KERNEL_NS::AddrIpConfig _localIp;
     UInt16 _localPort = 0;
-    Int32 _listenSessionCount = 1;
-    Int32 _localProtocolStackType = 0;   // 协议栈类型
 
-    KERNEL_NS::LibString _remoteIp;
+    KERNEL_NS::AddrIpConfig _remoteIp;
     UInt16 _remotePort = 0;
-    Int32 _remoteProtocolStackType = 0;   // 协议栈类型
 
-    Int32 _af = AF_INET;         // ipv4/ipv6
-    Int32 _sessionType = 0;      // 配置的会话类型
-    UInt32 _priorityLevel = 0;   // 消息优先级
+    // KERNEL_NS::LibString _localIp;
+    // KERNEL_NS::LibString _remoteIp;
+
+    Int32 _af = AF_INET;            // ipv4/ipv6
+    Int32 _sessionType = 0;         // 配置的会话类型
+    UInt32 _priorityLevel = 0;      // 消息优先级
+    Int32 _protocolStackType = 0;   // 通信使用的协议栈类型
+    Int32 _listenSessionCount = 1;
 };
 
 struct ServiceConfig

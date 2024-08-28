@@ -38,290 +38,313 @@ SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(AddrConfig);
 
-bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent, bool isStreamSock)
+
+bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent)
 {
-    // Local,127.0.0.1,3901-Remote,127.0.0.1,3901/INNER
-    const KERNEL_NS::LibString inclineSep = "@";
-    const KERNEL_NS::LibString horizontalSep = "-";
-    const KERNEL_NS::LibString elemSep = ",";
-    const KERNEL_NS::LibString localSign = "local";
-    const KERNEL_NS::LibString remoteSign = "remote";
-    const KERNEL_NS::LibString hostNameSep = "'";
-    const KERNEL_NS::LibString ipv6Flag = "ipv6";
-    const KERNEL_NS::LibString portSep = ":";
+   // Local,127.0.0.1,3901-Remote,127.0.0.1,3901/INNER
+    // ip:端口/ipv4 [=> ip:端口/ipv4]|会啊哈类型,消息优先级,会话数量,协议栈类型
+    const KERNEL_NS::LibString sessionSep = "!Attr:";
+    const KERNEL_NS::LibString linkSep = "=>";
 
-    
-    UInt32 priorityLevel = PriorityLevelDefine::INNER;
+    auto &&linkSessionParts = configContent.Split(sessionSep);
 
-    const auto &addrAndPriority = configContent.Split(inclineSep);
-    if(addrAndPriority.empty())
+    // 没有任何信息
+    if(linkSessionParts.empty())
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("addr parse fail have no / sign configContent:%s"), configContent.c_str());
-        return false;
-    }
-        
-    if(addrAndPriority.size() == 2)
-        priorityLevel = PriorityLevelDefine::StringToPriorityLevel(addrAndPriority[1]);
-
-    auto &addrInfo = addrAndPriority[0];
-    const auto &sepLocalAndRemote = addrInfo.Split(horizontalSep);
-    if(sepLocalAndRemote.empty())
-    {
-        g_Log->Warn(LOGFMT_OBJ_TAG("addr parse fail configContent:%s, addrInfo:%s"), configContent.c_str(), addrInfo.c_str());
+        g_Log->Error(LOGFMT_OBJ_TAG("addr config error:%s"), configContent.c_str());
         return false;
     }
 
-    // 识别Local/remote地址
-    KERNEL_NS::LibString localIp;
-    UInt16 localPort = 0;
-    Int32 localPortSessionType = SessionType::INNER;
-    Int32 localStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
-    KERNEL_NS::LibString remoteIp;
-    Int32 listenSessionCount = 1;
-    UInt16 remotePort = 0;
-    Int32 remotePortSessionType = SessionType::INNER;
-    Int32 remoteStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
-    for(auto &endianInfo : sepLocalAndRemote)
+    // 默认认为只有连接地址, 没有会话信息
+    KERNEL_NS::LibString linkContent;
+    KERNEL_NS::LibString sessionConfigContent;
+    if(linkSessionParts.size() == 1LLU)
     {
-        const auto &endianPartGroup = endianInfo.Split(elemSep);
-        if(endianPartGroup.size() < 3)
+        linkContent = linkSessionParts[0];
+    }
+    // 指定了连接地址和会话信息
+    else if(linkSessionParts.size() >= 2LLU)
+    {
+        linkContent = linkSessionParts[0];
+        sessionConfigContent = linkSessionParts[1];
+    }
+
+    linkContent.strip();
+    sessionConfigContent.strip();
+
+    // 解析会话信息
+    {
+        _sessionType = SessionType::INNER;
+        _priorityLevel = PriorityLevelDefine::INNER;
+        _protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
+        _listenSessionCount = 1;
+
+        do
         {
-            g_Log->Warn(LOGFMT_OBJ_TAG("addr parse error: endian part group not match endian format, configContent:%s, endianInfo:%s"), configContent.c_str(), endianInfo.c_str());
+            if(sessionConfigContent.empty())
+                break;
+
+            auto &&sessionParts = sessionConfigContent.Split(',');
+            // 协议栈类型
+            if(sessionParts.size() >= 1LLU)
+            {
+                const auto &stackTypeStr = sessionParts[0].strip();
+                if(!stackTypeStr.empty())
+                {
+                    // 大小写无感全部转化成大写
+                    auto stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(stackTypeStr.toupper());
+                    if(stackType == SERVICE_COMMON_NS::CrystalProtocolStackType::UNKNOWN)
+                    {
+                        g_Log->Error(LOGFMT_OBJ_TAG("unknown protocol stack configContent:%s, stack type:%s,sessionConfigContent:%s")
+                        , configContent.c_str(), stackTypeStr.c_str(), sessionConfigContent.c_str());
+                        return false;
+                    }
+
+                    _protocolStackType = stackType;
+                }
+            }
+
+            // 会话类型
+            if(sessionParts.size() >= 2LLU)
+            {
+                const auto &part = sessionParts[1].strip();
+                if(!part.empty())
+                {
+                    // 大小写无感全部转化成大写
+                    const auto sessionType = SessionType::SessionStringToSessionType(part.toupper());
+                    if(sessionType == SessionType::UNKNOWN)
+                    {
+                        g_Log->Error(LOGFMT_OBJ_TAG("bad session type:%s, sessionConfigContent:%s, configContent:%s")
+                        , part.c_str(), sessionConfigContent.c_str(), configContent.c_str());
+                        return false;
+                    }
+
+                    _sessionType = sessionType;
+                }
+            }
+
+            // 消息优先级
+            if(sessionParts.size() >= 3LLU)
+            {
+                const auto &part = sessionParts[2].strip();
+                if(!part.empty())
+                {
+                    if(!part.isdigit())
+                    {
+                        g_Log->Error(LOGFMT_OBJ_TAG("bad priority level:%s, sessionConfigContent:%s, configContent:%s")
+                            , part.c_str(), sessionConfigContent.c_str(), configContent.c_str());
+                        return false;
+                    }
+
+                    _priorityLevel = KERNEL_NS::StringUtil::StringToUInt32(part.c_str());
+                }
+            }
+
+            // 监听会话数量
+            if(sessionParts.size() >= 4LLU)
+            {
+                const auto &part = sessionParts[3].strip();
+
+                // 监听同一个端口会话数量
+                if(!part.empty())
+                {
+                    if(!part.isdigit())
+                    {
+                        g_Log->Error(LOGFMT_OBJ_TAG("listen session count not digit, configContent:%s, listen session count:%s, sessionConfigContent:%s")
+                        , configContent.c_str(), part.c_str(), sessionConfigContent.c_str());
+                        return false;
+                    }
+
+                    _listenSessionCount = KERNEL_NS::StringUtil::StringToInt32(part.c_str());
+                }   
+            }
+            
+        } while (false);
+    }
+
+    // 解析连接信息
+    {
+        auto &&linkParts = linkContent.Split("=>");
+        if(linkParts.empty())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("bad link config, configContent:%s, linkContent:%s")
+            , configContent.c_str(), linkContent.c_str());
+
             return false;
         }
 
-        if(endianPartGroup[0].tolower() == localSign)
-        {// 本地地址
-            // ip
-            if(!endianPartGroup[1].empty())
+        // 至少有监听地址信息
+        if(linkParts.size() >= 1LLU)
+        {
+            auto &&localAddrInfo = linkParts[0].strip();
+            if(!localAddrInfo.empty())
             {
-                if(!KERNEL_NS::SocketUtil::IsIp(endianPartGroup[1]))
+                if(!ParseIpInfo(localAddrInfo, _localIp, _localPort))
                 {
-                    bool toIpv4 = true;
-                    auto hostNameParts = endianPartGroup[1].Split(hostNameSep);
-                    if((hostNameParts.size() > 1) && !hostNameParts[1].empty())
-                    {
-                        auto flagPart = hostNameParts[1].strip().tolower();
-                        if(flagPart == ipv6Flag)
-                            toIpv4 = false;
-                    }
-
-                    // 看是不是域名
-                    auto err = KERNEL_NS::IPUtil::GetIpByHostName(hostNameParts[0].strip(), localIp, 0, true, isStreamSock, toIpv4);
-                    if(err != Status::Success)
-                    {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("invalid ip: configContent:%s, ip:%s"), configContent.c_str(), endianPartGroup[1].c_str());
-                        return false;
-                    }
-
-                    localIp.strip();
-                }
-                else
-                {
-                    localIp = endianPartGroup[1].strip();
-                }
-            }
-
-            // 端口
-            if(!endianPartGroup[2].empty())
-            {
-                const auto &portParts = endianPartGroup[2].Split(portSep);
-                if(portParts.empty())
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("port invalid configContent:%s, port config str:%s"), configContent.c_str(), endianPartGroup[2].c_str());
+                    g_Log->Error(LOGFMT_OBJ_TAG("bad local addr, configContent:%s, linkContent:%s, localAddrInfo:%s")
+                    , configContent.c_str(), linkContent.c_str(), localAddrInfo.c_str());
                     return false;
                 }
 
-                if(!portParts[0].isdigit())
+                // 被绑定的地址只能是ip
+                if(!KERNEL_NS::SocketUtil::IsIp(_localIp._ip))
                 {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("port not digit, configContent:%s, port:%s"), configContent.c_str(), endianPartGroup[2].c_str());
+                    g_Log->Error(LOGFMT_OBJ_TAG("local addr:%s, not a ip addr, configContent:%s, linkContent:%s, localAddrInfo:%s")
+                    , _localIp._ip.c_str(), configContent.c_str(), linkContent.c_str(), localAddrInfo.c_str());
                     return false;
                 }
-
-                localPort = KERNEL_NS::StringUtil::StringToUInt16(portParts[0].c_str());
-
-                if(portParts.size() >= 2)
-                {
-                    auto sessionType = SessionType::SessionStringToSessionType(portParts[1]);
-                    if(sessionType == SessionType::UNKNOWN)
-                    {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("port session type invalid, configContent:%s, port str:%s"), configContent.c_str(), endianPartGroup[2].c_str());
-                        return false;
-                    }
-
-                    localPortSessionType = sessionType;
-                }
             }
-
-            // 监听同一个端口会话数量
-            if(!endianPartGroup[3].empty())
-            {
-                if(!endianPartGroup[3].isdigit())
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("listen session count not digit, configContent:%s, listen session count:%s")
-                    , configContent.c_str(), endianPartGroup[3].c_str());
-                    return false;
-                }
-
-                listenSessionCount = KERNEL_NS::StringUtil::StringToInt32(endianPartGroup[3].c_str());
-            }
-
-            if(endianPartGroup.size() >= 5)
-            {
-                localStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
-                if(!endianPartGroup[4].empty())
-                {
-                    auto stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(endianPartGroup[4]);
-                    if(stackType == SERVICE_COMMON_NS::CrystalProtocolStackType::UNKNOWN)
-                    {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("unknown local protocol stack configContent:%s, stack type:%s")
-                        , configContent.c_str(), endianPartGroup[4].c_str());
-                        return false;
-                    }
-
-                    localStack = stackType;
-                }
-            }
-            continue;
         }
 
-        if(endianPartGroup[0].tolower() == remoteSign)
-        {// 远程地址
-            // ip
-            if(!endianPartGroup[1].empty())
+        // 至少有远程地址信息
+        if(linkParts.size() >= 2LLU)
+        {
+            auto &&remoteAddrInfo = linkParts[1].strip();
+            if(!remoteAddrInfo.empty())
             {
-                if(!KERNEL_NS::SocketUtil::IsIp(endianPartGroup[1]))
+                if(!ParseIpInfo(remoteAddrInfo, _remoteIp, _remotePort))
                 {
-                    bool toIpv4 = true;
-                    auto hostNameParts = endianPartGroup[1].Split(hostNameSep);
-                    if((hostNameParts.size() > 1) && !hostNameParts[1].empty())
-                    {
-                        auto flagPart = hostNameParts[1].strip().tolower();
-                        if(flagPart == ipv6Flag)
-                            toIpv4 = false;
-                    }
-
-                    auto err = KERNEL_NS::IPUtil::GetIpByHostName(hostNameParts[0].strip(), remoteIp, 0, true, isStreamSock, toIpv4);
-                    if(err != Status::Success)
-                    {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("invalid ip: configContent:%s, ip:%s"), configContent.c_str(), endianPartGroup[1].c_str());
-                        return false;
-                    }
-
-                    remoteIp.strip();
-                }
-                else
-                {
-                    remoteIp = endianPartGroup[1].strip();
-                }
-            }
-
-            // 端口
-            if(!endianPartGroup[2].empty())
-            {
-                const auto &portParts = endianPartGroup[2].Split(portSep);
-                if(portParts.empty())
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("port invalid configContent:%s, port config str:%s"), configContent.c_str(), endianPartGroup[2].c_str());
+                    g_Log->Error(LOGFMT_OBJ_TAG("bad remote addr, configContent:%s, linkContent:%s, remoteAddrInfo:%s")
+                    , configContent.c_str(), linkContent.c_str(), remoteAddrInfo.c_str());
                     return false;
                 }
-
-                if(!portParts[0].isdigit())
-                {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("port not digit, configContent:%s, port:%s"), configContent.c_str(), endianPartGroup[2].c_str());
-                    return false;
-                }
-
-                remotePort = KERNEL_NS::StringUtil::StringToUInt16(portParts[0].c_str());
-
-                if(portParts.size() >= 2)
-                {
-                    auto sessionType = SessionType::SessionStringToSessionType(portParts[1]);
-                    if(sessionType == SessionType::UNKNOWN)
-                    {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("port session type invalid, configContent:%s, port str:%s"), configContent.c_str(), endianPartGroup[2].c_str());
-                        return false;
-                    }
-
-                    remotePortSessionType = sessionType;
-                }
             }
-
-            if(endianPartGroup.size() >= 4)
-            {
-                remoteStack = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
-                if(!endianPartGroup[3].empty())
-                {
-                    auto stackType = SERVICE_COMMON_NS::CrystalProtocolStackType::TurnFromString(endianPartGroup[3]);
-                    if(stackType == SERVICE_COMMON_NS::CrystalProtocolStackType::UNKNOWN)
-                    {
-                        g_Log->Warn(LOGFMT_OBJ_TAG("unknown remote protocol stack configContent:%s, stack type:%s")
-                        , configContent.c_str(), endianPartGroup[3].c_str());
-                        return false;
-                    }
-
-                    remoteStack = stackType;
-                }
-            }
-
-            continue;
         }
-        
-        g_Log->Warn(LOGFMT_OBJ_TAG("addr parse fail :have no local/remote sign configContent:%s, endianInfo:%s"), configContent.c_str(), endianInfo.c_str());
-    }
 
-    // 1.本地远程都有的情况 不支持两者不同的AF类型，要么同是ipv4,要么同是ipv6
-    if(!localIp.empty() && !remoteIp.empty())
-    {
-        if( (KERNEL_NS::SocketUtil::IsIpv4(localIp) && !KERNEL_NS::SocketUtil::IsIpv4(remoteIp)) || 
-            (!KERNEL_NS::SocketUtil::IsIpv4(localIp) &&  KERNEL_NS::SocketUtil::IsIpv4(remoteIp)) )
+        // 校验同时没有监听地址信息, 也没有远程地址信息, 报错
+        if(_localIp._ip.empty() && _remoteIp._ip.empty())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("have no local or remote addr info configContent:%s, linkContent:%s"), configContent.c_str(), linkContent.c_str());
+            return false;
+        }
+
+        // 是连接的由远程ip决定, ip是ipv4还是, ipv6，亦或者如果是域名, 它如果要转成ipv4的则af是ipv4, 如果是ipv6的则af是ipv6
+        if(!_remoteIp._ip.empty())
+        {
+            if(!_remoteIp._isHostName)
             {
-                g_Log->Warn(LOGFMT_OBJ_TAG("cant support diffrent af between local and remote ip local ip:%s, remote ip:%s"), localIp.c_str(), remoteIp.c_str());
-                return false;
+                _af = KERNEL_NS::SocketUtil::IsIpv4(_remoteIp._ip) ? AF_INET : AF_INET6;
             }
+            else
+            {
+                _af = _remoteIp._toIpv4 ? AF_INET : AF_INET6;
+            }
+        }
+        else
+        {
+            _af = KERNEL_NS::SocketUtil::IsIpv4(_localIp._ip) ? AF_INET : AF_INET6;
+        }
 
-        _localIp = localIp;
-        _localPort = localPort;
-        _remoteIp = remoteIp;
-        _remotePort = remotePort;
-        _listenSessionCount = listenSessionCount;
-        _localProtocolStackType = localStack;
-        _remoteProtocolStackType = remoteStack;
+        // local / remote ip必须是同一个性质, 要么同是ipv4, 要么同是ipv6, 如果远程的是域名, 那么得判断_toIpv4
+        if(!_remoteIp._ip.empty())
+        {
+            // 如果是ip需要判断两种同是ipv4或者ipv6
+            if(!_remoteIp._isHostName)
+            {
+                if(KERNEL_NS::SocketUtil::IsIpv4(_localIp._ip) && KERNEL_NS::SocketUtil::IsIpv6(_remoteIp._ip))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("local ip:%s is ipv4, remote ip:%s is ipv6, invalid pair configContent:%s, linkContent:%s")
+                    , _localIp._ip.c_str(), _remoteIp._ip.c_str(), configContent.c_str(), linkContent.c_str());
+                    return false;
+                }
 
-        _af = KERNEL_NS::SocketUtil::IsIpv4(localIp) ? AF_INET : AF_INET6;
+                if(KERNEL_NS::SocketUtil::IsIpv6(_localIp._ip) && KERNEL_NS::SocketUtil::IsIpv4(_remoteIp._ip))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("local ip:%s is ipv6, remote ip:%s is ipv4, invalid pair configContent:%s, linkContent:%s")
+                    , _localIp._ip.c_str(), _remoteIp._ip.c_str(), configContent.c_str(), linkContent.c_str());
+                    return false;
+                }
+            }
+            else
+            {
+                if(KERNEL_NS::SocketUtil::IsIpv4(_localIp._ip) && !_remoteIp._toIpv4)
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("local ip:%s is ipv4, remote ip:%s will turn ipv6, invalid pair configContent:%s, linkContent:%s")
+                    , _localIp._ip.c_str(), _remoteIp._ip.c_str(), configContent.c_str(), linkContent.c_str());
+                    return false;
+                }
 
-        // 有远端地址，优先选择远端的端口作为sessionType的判断依据
-        _sessionType = remotePortSessionType;
-        _priorityLevel = priorityLevel;
-        return true;
+                if(KERNEL_NS::SocketUtil::IsIpv6(_localIp._ip) && _remoteIp._toIpv4)
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("local ip:%s is ipv6, remote ip:%s will turn ipv4, invalid pair configContent:%s, linkContent:%s")
+                    , _localIp._ip.c_str(), _remoteIp._ip.c_str(), configContent.c_str(), linkContent.c_str());
+                    return false;
+                }
+            }
+        }
     }
-
-    // 2.本地有,远程没有
-    if(!localIp.empty())
-    {
-        _localIp = localIp;
-        _localPort = localPort;
-        _listenSessionCount = listenSessionCount;
-        _localProtocolStackType = localStack;
-        
-        _af = KERNEL_NS::SocketUtil::IsIpv4(localIp) ? AF_INET : AF_INET6;
-        _sessionType = localPortSessionType;
-
-        _priorityLevel = priorityLevel;
-        return true;
-    }
-
-    // 3.本地没有,远程有
-    _remoteIp = remoteIp;
-    _remotePort = remotePort;
-    _remoteProtocolStackType = remoteStack;
-
-    _af = KERNEL_NS::SocketUtil::IsIpv4(remoteIp) ? AF_INET : AF_INET6;
-    _sessionType = remotePortSessionType;
-    _priorityLevel = priorityLevel;
 
     return true;
 }
+
+bool AddrConfig::ParseIpInfo(const KERNEL_NS::LibString &addrInfo, KERNEL_NS::AddrIpConfig &ipConfig, UInt16 &port)
+{
+    if(addrInfo.empty())
+        return false;
+
+    // 域名的转化类型
+    auto &&addrTurnTypeParts = addrInfo.Split("/");
+    if(addrTurnTypeParts.empty())
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("bad addrInfo:%s"), addrInfo.c_str());
+        return false;
+    }
+
+    // 只有是域名的时候才用的上
+    ipConfig._toIpv4 = true;
+
+    // 至少有地址信息
+    if(addrTurnTypeParts.size() >= 1LLU)
+    {
+        auto &&addrPartStr = addrTurnTypeParts[0].strip();
+        
+        // 拆分成端口
+        if(!addrPartStr.empty())
+        {
+            auto &&ip2PortParts = addrPartStr.Split('$');
+            if(ip2PortParts.size() < 2LLU)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("bad addrInfo:%s, addrPartStr:%s"), addrInfo.c_str(), addrPartStr.c_str());
+                return false;
+            }
+
+            ipConfig._ip = ip2PortParts[0].strip();
+            ipConfig._isHostName = !KERNEL_NS::SocketUtil::IsIp(ipConfig._ip);
+
+            port = 0;
+            auto &portPart = ip2PortParts[1];
+            if(!portPart.empty())
+            {
+                portPart.strip();
+                if(!portPart.isdigit())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("bad addr port:%s, addrInfo:%s, addrPartStr:%s"), portPart.c_str(), addrInfo.c_str(), addrPartStr.c_str());
+                    return false;
+                }
+
+                port = KERNEL_NS::StringUtil::StringToUInt16(portPart.c_str());
+            }
+        }
+    }
+
+    // 还有域名转化ip地址信息
+    if(addrTurnTypeParts.size() >= 2LLU)
+    {
+        // 大小写不敏感全部转成小写
+        auto &&turnIpType = addrTurnTypeParts[1].strip().tolower();
+        if(turnIpType == "ipv6")
+        {
+            ipConfig._toIpv4 = false;
+        }
+        else
+        {
+            ipConfig._toIpv4 = true;
+        }
+    }
+
+    return true;
+}
+
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ServiceConfig);
 
@@ -335,12 +358,17 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
             const auto &addrGroup = listenAddrs.Split(sepAddrs);
             if(!addrGroup.empty())
             {
-                for(auto &addrInfo : addrGroup)
+                const Int32 count = static_cast<Int32>(addrGroup.size());
+                for(Int32 idx = 0; idx < count; ++idx)
                 {
+                    auto &&addrInfo = addrGroup[idx].strip();
+                    if(addrInfo.empty())
+                        continue;
+
                     auto addrConfig = AddrConfig::New_AddrConfig();
                     if(!addrConfig->Parse(addrInfo))
                     {
-                        g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail addrInfo:%s, listenAddrs:%s"), addrInfo.c_str(), listenAddrs.c_str());
+                        g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail addrInfo:%s, idx:%d listenAddrs:%s"), addrInfo.c_str(), idx, listenAddrs.c_str());
                         addrConfig->Release();
                         return false;
                     }
@@ -355,13 +383,17 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
         KERNEL_NS::LibString centerAddr;
         if(ini->ReadStr(seg.c_str(), "CenterTcpAddr", centerAddr))
         {
-            _centerAddr = AddrConfig::New_AddrConfig();
-            if(!_centerAddr->Parse(centerAddr, true))
+            centerAddr.strip();
+            if(!centerAddr.empty())
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail centerAddr:%s"), centerAddr.c_str());
-                _centerAddr->Release();
-                _centerAddr = NULL;
-                return false;
+                _centerAddr = AddrConfig::New_AddrConfig();
+                if(!_centerAddr->Parse(centerAddr))
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail centerAddr:%s"), centerAddr.c_str());
+                    _centerAddr->Release();
+                    _centerAddr = NULL;
+                    return false;
+                }
             }
         }
     }
@@ -375,10 +407,15 @@ bool ServiceConfig::Parse(const KERNEL_NS::LibString &seg, const KERNEL_NS::LibI
             const auto &addrGroup = connectAddrs.Split(sepAddrs);
             if(!addrGroup.empty())
             {
-                for(auto &addrInfo : addrGroup)
+                const Int32 count = static_cast<Int32>(addrGroup.size());
+                for(Int32 idx = 0; idx < count; ++idx)
                 {
+                    auto &&addrInfo = addrGroup[idx].strip();
+                    if(addrInfo.empty())
+                        continue;
+
                     auto addrConfig = AddrConfig::New_AddrConfig();
-                    if(!addrConfig->Parse(addrInfo, true))
+                    if(!addrConfig->Parse(addrInfo))
                     {
                         g_Log->Error(LOGFMT_OBJ_TAG("addr parse fail addrInfo:%s, connectAddrs:%s"), addrInfo.c_str(), connectAddrs.c_str());
                         addrConfig->Release();

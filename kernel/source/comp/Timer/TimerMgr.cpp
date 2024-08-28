@@ -104,7 +104,7 @@ void TimerMgr::Launch(IDelegate<void> *wakeupThreadCb)
 {
     if(UNLIKELY(_launchThreadId))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("already Launch before _launchThreadId = [%llu], current thread id = [%llu]"), _launchThreadId, SystemUtil::GetCurrentThreadId());
+        g_Log->Warn(LOGFMT_OBJ_TAG("already Launch before _launchThreadId = [%llu], current thread id = [%llu]"), _launchThreadId, SystemUtil::GetCurrentThreadId());
         CRYSTAL_DELETE_SAFE(wakeupThreadCb);
         return;
     }

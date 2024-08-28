@@ -66,6 +66,7 @@
 #include <kernel/comp/NetEngine/Poller/Defs/PollerInnerEvent.h>
 #include <kernel/comp/NetEngine/Defs/ProtocolType.h>
 #include <kernel/comp/Tls/Tls.h>
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 
 #include <kernel/comp/TlsMemoryCleanerComp.h>
 #include <kernel/comp/Utils/TlsUtil.h>
@@ -182,6 +183,14 @@ void IocpTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibList<LibPacket *>
 
 void IocpTcpPoller::PostNewSession(Int32 level, BuildSessionInfo *buildSessionInfo)
 {
+    if(UNLIKELY(!_poller->IsEnable()))
+    {
+        if(g_Log->IsEnable(LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("poller disable build session:%s"),  buildSessionInfo->ToString().c_str());
+        BuildSessionInfo::Delete_BuildSessionInfo(buildSessionInfo);
+        return;
+    }
+
     auto newSessionEv = NewSessionEvent::New_NewSessionEvent();
     newSessionEv->_buildInfo = buildSessionInfo;
     _poller->Push(level, newSessionEv);
@@ -189,6 +198,14 @@ void IocpTcpPoller::PostNewSession(Int32 level, BuildSessionInfo *buildSessionIn
 
 void IocpTcpPoller::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
 {
+    if(UNLIKELY(!_poller->IsEnable()))
+    {
+        if(g_Log->IsEnable(LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("poller disable listenInfo:%s"),  listenInfo->ToString().c_str());
+        LibListenInfo::Delete_LibListenInfo(listenInfo);
+        return;
+    }
+
     auto ev = AddListenEvent::New_AddListenEvent();
     ev->_addListenInfoList.push_back(listenInfo);
     _poller->Push(level, ev);
@@ -196,6 +213,28 @@ void IocpTcpPoller::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
 
 void IocpTcpPoller::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList)
 {
+    if(UNLIKELY(!_poller->IsEnable()))
+    {
+        if(g_Log->IsEnable(LogLevel::Warn))
+        {
+            const Int32 listSize = static_cast<Int32>(listenInfoList.size());
+            LibString info;
+            info.AppendFormat("AddListenEvent: listen info array amount:%d, array:[", listSize);
+
+            for(Int32 idx = 0; idx < listSize; ++idx)
+                info.AppendFormat("[%d]=%s\n", idx, listenInfoList[idx]->ToString().c_str());
+
+            info.AppendFormat("]");
+            g_Log->Warn(LOGFMT_OBJ_TAG("poller disable listen info list:%s"), info.c_str());
+        }
+
+        ContainerUtil::DelContainer(listenInfoList, [](LibListenInfo *&listenInfo){
+            LibListenInfo::Delete_LibListenInfo(listenInfo);
+            listenInfo = NULL;
+        });
+        return;
+    }
+
     auto ev = AddListenEvent::New_AddListenEvent();
     ev->_addListenInfoList.swap(listenInfoList);
 
@@ -962,13 +1001,24 @@ void IocpTcpPoller::_OnAsynConnect(PollerEvent *ev)
         auto connectInfo = KernelCastTo<LibConnectInfo>(ptr);
         LibConnectInfo::Delete_LibConnectInfo(connectInfo);
     });
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("recv a connect event: :%s"), connectEv->ToString().c_str());
+    
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("recv a connect event: :%s"), connectEv->ToString().c_str());
 
     Int32 errCode = Status::Success;
-    auto newPending = _CreateNewConectPendingInfo(connectInfo, connectInfo->_retryTimes);
+    KERNEL_NS::LibString currentIp;
+    if(!_TryGetNewTargetIp(connectInfo->_targetIp, connectInfo->_failureIps, currentIp))
+    {
+        g_Log->NetError(LOGFMT_OBJ_TAG("_TryGetNewTargetIp fail connect info:%s"), connectInfo->ToString().c_str());
+        _OnConnectFailure(connectInfo.pop(), NULL, Status::Error);
+        return;
+    }
+
+    auto newPending = _CreateNewConectPendingInfo(connectInfo, currentIp, connectInfo->_retryTimes);
     if(!newPending)
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("_CreateNewConectPendingInfo fail connect info:%s"), connectInfo->ToString().c_str());
+        g_Log->NetError(LOGFMT_OBJ_TAG("_CreateNewConectPendingInfo fail connect info:%s, currentIp:%s")
+        , connectInfo->ToString().c_str(), currentIp.c_str());
         _OnConnectFailure(connectInfo.pop(), NULL, Status::Error);
         return;
     }
@@ -984,38 +1034,62 @@ void IocpTcpPoller::_OnAsynConnect(PollerEvent *ev)
     }
 
     {// 定时重连
-        auto connectInfoCache = connectInfo.pop();
         
-        if(newPending->_leftRetryTimes > 0)
         {
+            auto connectInfoCache = connectInfo.pop();
             newPending->_reconnectTimer = LibTimer::NewThreadLocal_LibTimer(_poller->GetTimerMgr());
             auto __tryAgainTimeOut = [connectInfoCache, this](LibTimer *timer) mutable -> void 
             {
                 // pending
                 auto newPending = timer->GetParams()[1].AsPtr<LibConnectPendingInfo>();
+                auto connectInfo = newPending->_connectInfo;
+                // 记录失败的ip
+                connectInfo->_failureIps.insert(newPending->_currentTargetIp);
+                KERNEL_NS::LibString newTargetIp;
+                newTargetIp = newPending->_currentTargetIp;
 
-                // 次数不够
-                if(newPending->_leftRetryTimes <= 0)
-                {// 没次数
-                    g_Log->NetError(LOGFMT_OBJ_TAG("%s try connect fail by trying many times!"), newPending->ToString().c_str());
-                    _OnConnectFailure(connectInfoCache, newPending, Status::Socket_ConnectTimeOut);
-                    return;
-                }
+                do
+                {
+                    // 次数不够
+                    if(newPending->_leftRetryTimes <= 0)
+                    {// 没次数
 
+                        // TODO: 切换ip
+                        if(_TryGetNewTargetIp(newPending->_connectInfo->_targetIp, newPending->_connectInfo->_failureIps, newTargetIp))
+                        {
+                            if(g_Log->IsEnable(LogLevel::NetInfo))
+                                g_Log->NetInfo(LOGFMT_OBJ_TAG("connect to %s[%s]:%hu fail, will try connect new ip:%s[%s]:%hu...\n connect info:%s")
+                            , connectInfo->_targetIp._ip.c_str(), newPending->_currentTargetIp.c_str(), connectInfo->_targetPort
+                            , connectInfo->_targetIp._ip.c_str(), newTargetIp.c_str()
+                            , connectInfo->_targetPort, connectInfo->ToString().c_str());
+                            break;
+                        }
+                        
+                        if(g_Log->IsEnable(LogLevel::NetError))
+                            g_Log->NetError(LOGFMT_OBJ_TAG("%s try connect fail by trying many times!"), newPending->ToString().c_str());
+
+                        _OnConnectFailure(connectInfoCache, newPending, Status::Socket_ConnectTimeOut);
+                        return;
+                    }
+                    /* code */
+                } while (false);
+                
                 // 移除上一次pending
                 const auto leftRetryTimes = --newPending->_leftRetryTimes;
-                auto connectInfo = newPending->_connectInfo;
                 newPending->_reconnectTimer = NULL;
                 _DestroyConnect(newPending, false);
 
-                newPending = _CreateNewConectPendingInfo(connectInfo, leftRetryTimes);
+                // TODO: _CreateNewConectPendingInfo 需要决定要不要切ip
+                newPending = _CreateNewConectPendingInfo(connectInfo, newTargetIp, leftRetryTimes);
                 if(!newPending)
                 {
-                    g_Log->NetError(LOGFMT_OBJ_TAG("try again time out _CreateNewConectPendingInfo fail connect info:%s"), connectInfo->ToString().c_str());
+                    g_Log->NetError(LOGFMT_OBJ_TAG("try again time out _CreateNewConectPendingInfo fail current ip:%s[%s], \nconnect info:%s")
+                    , connectInfo->_targetIp._ip.c_str(), newTargetIp.c_str(), connectInfo->ToString().c_str());
                     _OnConnectFailure(connectInfoCache, NULL, Status::Error);
                     LibTimer::DeleteThreadLocal_LibTimer(timer);
                     return;
                 }
+
                 timer->GetParams().BecomeDict()[1] = newPending;
 
                 // 连接
@@ -1031,16 +1105,25 @@ void IocpTcpPoller::_OnAsynConnect(PollerEvent *ev)
                 }
 
                 // 重新定时
-                g_Log->NetWarn(LOGFMT_OBJ_TAG("try again time out try connect again connect pending info:%s"), newPending->ToString().c_str());
+                g_Log->NetWarn(LOGFMT_OBJ_TAG("connect to:%s[%s]:%hu timeout, will try again\n pending info:%s")
+                , connectInfo->_targetIp._ip.c_str(), newPending->_currentTargetIp.c_str(), connectInfo->_targetPort
+                , newPending->ToString().c_str());
             };
 
             auto delg = DelegateFactory::Create<decltype(__tryAgainTimeOut), void, LibTimer *>(__tryAgainTimeOut);
             newPending->_reconnectTimer->GetParams().BecomeDict()[1] = newPending;
             newPending->_reconnectTimer->SetTimeOutHandler(delg);
-            newPending->_reconnectTimer->Schedule(connectInfoCache->_periodMs);
+
+            // 没配置定时时长默认30s
+            if(connectInfoCache->_periodMs != 0)
+                newPending->_reconnectTimer->Schedule(connectInfoCache->_periodMs);
+            else
+                newPending->_reconnectTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(30));
+
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("%s[%s]:%llu waiting for connecting success...\npending info:%s")
+            , connectInfoCache->_targetIp._ip, newPending->_currentTargetIp.c_str(), connectInfoCache->_targetPort
+            , newPending->ToString().c_str());
         }
-        
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("%s waiting for connecting success..."), newPending->ToString().c_str());
     }
 }
 
@@ -1073,6 +1156,9 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
                 connectRes->_sessionPollerId = GetPollerId();
                 connectRes->_fromServiceId = buildSessionInfo->_serviceId;
                 connectRes->_stub = buildSessionInfo->_stub;
+                connectRes->_sessionId = buildSessionInfo->_sessionId;
+                connectRes->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
+                connectRes->_failureIps = buildSessionInfo->_failureIps;
                 _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes->_priorityLevel, connectRes);
             }
             else if(buildSessionInfo->_isLinker)
@@ -1085,6 +1171,7 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
                 listenRes->_stub = buildSessionInfo->_stub;
                 listenRes->_priorityLevel = buildSessionInfo->_priorityLevel;
                 listenRes->_protocolType = buildSessionInfo->_protocolType;
+                listenRes->_sessionId = buildSessionInfo->_sessionId;
                 _serviceProxy->PostMsg(listenRes->_serviceId, listenRes->_priorityLevel, listenRes);
             }
         }
@@ -1108,6 +1195,8 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
     sessionCreatedEv->_isFromConnect = buildSessionInfo->_isFromConnect;
     sessionCreatedEv->_isLinker = buildSessionInfo->_isLinker;
     sessionCreatedEv->_protocolStackType = buildSessionInfo->_sessionOption._protocolStackType;
+    sessionCreatedEv->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
+    sessionCreatedEv->_failureIps = buildSessionInfo->_failureIps;
 
     _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv->_priorityLevel, sessionCreatedEv);
 
@@ -1127,6 +1216,8 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
             connectRes->_fromServiceId = buildSessionInfo->_serviceId;
             connectRes->_stub = buildSessionInfo->_stub;
             connectRes->_sessionId = buildSessionInfo->_sessionId;
+            connectRes->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
+            connectRes->_failureIps = buildSessionInfo->_failureIps;
             _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes->_priorityLevel, connectRes);
         }
         else if(buildSessionInfo->_isLinker)
@@ -1455,7 +1546,9 @@ void IocpTcpPoller::_OnRealDoQuitServiceSessionEvent(PollerEvent *ev)
 
 void IocpTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
 {
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("connect suc pending info:%s"), connectPendingInfo->ToString().c_str());
+    g_Log->NetDebug(LOGFMT_OBJ_TAG("connect to:%s[%s]:%hu success.\npending info:%s")
+    , connectPendingInfo->_connectInfo->_targetIp._ip.c_str(), connectPendingInfo->_currentTargetIp.c_str()
+    , connectPendingInfo->_connectInfo->_targetPort, connectPendingInfo->ToString().c_str());
 
     SocketUtil::UpdateConnectContext(connectPendingInfo->_newSock);
 
@@ -1476,6 +1569,8 @@ void IocpTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
     newBuildSessionInfo->_isFromConnect = true;
     newBuildSessionInfo->_protocolStack = connectInfo->_stack;
     newBuildSessionInfo->_sessionOption = connectInfo->_sessionOption;
+    newBuildSessionInfo->_remoteOriginIpConfig = connectInfo->_targetIp;
+    newBuildSessionInfo->_failureIps = connectInfo->_failureIps;
 
     _sessionIdRefAsynConnectPendingInfo.erase(connectPendingInfo->_sessionId);
     --_sessionPendingCount;
@@ -1505,13 +1600,16 @@ void IocpTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPen
         res->_stub = connectInfo->_stub;
 
         auto &localAddr = res->_localAddr;
-        localAddr._ip = connectInfo->_localIp;
+        localAddr._ip = connectInfo->_localIp._ip;
         localAddr._port = connectInfo->_localPort;
         localAddr._ipAndPort.AppendFormat("%s:%hu", localAddr._ip.c_str(), localAddr._port);
         auto &targetAddr = res->_targetAddr;
-        targetAddr._ip = connectInfo->_targetIp;
+        targetAddr._ip = connectPending->_currentTargetIp;
         targetAddr._port = connectInfo->_targetPort;
         targetAddr._ipAndPort.AppendFormat("%s:%hu", targetAddr._ip.c_str(), targetAddr._port);
+        res->_targetConfig = connectInfo->_targetIp;
+        res->_failureIps = connectInfo->_failureIps;
+
         _serviceProxy->PostMsg(res->_fromServiceId, res->_priorityLevel, res);
     }
 
@@ -1848,19 +1946,19 @@ Int32 IocpTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, b
     g_Log->NetDebug(LOGFMT_OBJ_TAG("check connect :%s"), connectInfo->ToString().c_str());
 
     // ip合法性
-    if(!SocketUtil::IsIp(connectInfo->_targetIp))
+    if(!SocketUtil::IsIp(connectPendingInfo->_currentTargetIp))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("illegal target ip:%s, stub:%llu, LibConnectInfo:%s")
-            , connectInfo->_targetIp.c_str(), connectInfo->_stub, connectInfo->ToString().c_str());
+            , connectPendingInfo->_currentTargetIp.c_str(), connectInfo->_stub, connectInfo->ToString().c_str());
         giveup = true;
         return Status::SockError_IllegalIp;
     }
 
     // 本地ip
-    if(!connectInfo->_localIp.empty() && !SocketUtil::IsIp(connectInfo->_localIp))
+    if(!connectInfo->_localIp._ip.empty() && !SocketUtil::IsIp(connectInfo->_localIp._ip))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("illegal local ip:%s, stub:%llu, LibConnectInfo:%s")
-                    , connectInfo->_targetIp.c_str(), connectInfo->_stub, connectInfo->ToString().c_str());
+                    , connectInfo->_localIp._ip.c_str(), connectInfo->_stub, connectInfo->ToString().c_str());
         
         giveup = true;
         return Status::SockError_IllegalIp;
@@ -1868,14 +1966,15 @@ Int32 IocpTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, b
 
     // 黑白名单
     auto ipRuleMgr = GetComp<IpRuleMgr>();
-    if(!ipRuleMgr->Check(connectInfo->_targetIp))
+    if(!ipRuleMgr->Check(connectPendingInfo->_currentTargetIp))
     {
-        g_Log->NetError(LOGFMT_OBJ_TAG("refuse connecting by black white list remote =%s!"), connectInfo->_targetIp.c_str());
+        g_Log->NetError(LOGFMT_OBJ_TAG("refuse connecting by black white list remote =%s, connect info:%s!")
+        , connectPendingInfo->_currentTargetIp.c_str(), connectInfo->ToString().c_str());
         giveup = true;
         return Status::BlackWhiteCheckFail;
     }
 
-    bool doBind = !connectInfo->_localIp.empty() || (connectInfo->_localPort != 0);
+    bool doBind = !connectInfo->_localIp._ip.empty() || (connectInfo->_localPort != 0);
     
     // 连接数限制
     Int32 errCode = Status::Success;
@@ -1954,11 +2053,11 @@ Int32 IocpTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, b
     // 绑定本地ip的话可以通过多网卡来实现消息的负载均衡(内网可以流转的更快)
     if(doBind)
     {
-        errCode = SocketUtil::Bind(connectPendingInfo->_newSock, connectInfo->_localIp, connectInfo->_localPort, connectInfo->_family);
+        errCode = SocketUtil::Bind(connectPendingInfo->_newSock, connectInfo->_localIp._ip, connectInfo->_localPort, connectInfo->_family);
         if(errCode != Status::Success)
         {
             g_Log->NetError(LOGFMT_OBJ_TAG("bind to ip[%s:%hu] sock[%d] fail when check connect!")
-                                        , connectInfo->_localIp.c_str(), connectInfo->_localPort, connectPendingInfo->_newSock);
+                                        , connectInfo->_localIp._ip.c_str(), connectInfo->_localPort, connectPendingInfo->_newSock);
             return errCode;
         }
     }
@@ -1967,7 +2066,7 @@ Int32 IocpTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, b
     newIoData->_sessionId = connectPendingInfo->_sessionId;
     newIoData->_sock = connectPendingInfo->_newSock;
     newIoData->_ioType = IoEventType::IO_CONNECT;
-    errCode = SocketUtil::PostConnect(newIoData, connectInfo->_family, connectInfo->_targetIp, connectInfo->_targetPort);
+    errCode = SocketUtil::PostConnect(newIoData, connectInfo->_family, connectPendingInfo->_currentTargetIp, connectInfo->_targetPort);
     if(errCode != Status::Success && errCode != Status::SockError_Pending)
     {
         IoData::DeleteThreadLocal_IoData(newIoData);
@@ -1981,15 +2080,15 @@ Int32 IocpTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, b
     return errCode;
 }
 
-LibConnectPendingInfo *IocpTcpPoller::_CreateNewConectPendingInfo(LibConnectInfo *connectInfo, Int32 leftTimes)
+LibConnectPendingInfo *IocpTcpPoller::_CreateNewConectPendingInfo(LibConnectInfo *connectInfo, const KERNEL_NS::LibString &currentTargetIp, Int32 leftTimes)
 {
     auto connectPendingInfo = LibConnectPendingInfo::NewThreadLocal_LibConnectPendingInfo();
-    if(SocketUtil::IsIpv4(connectInfo->_targetIp))
+    if(SocketUtil::IsIpv4(currentTargetIp))
     {
         connectPendingInfo->_remoteAddr._addr._isIpv4 = true;
-        if (!SocketUtil::FillTcpAddrInfo(connectInfo->_targetIp.c_str(), connectInfo->_targetPort, connectInfo->_family, connectPendingInfo->_remoteAddr._addr._data._sinV4))
+        if (!SocketUtil::FillTcpAddrInfo(currentTargetIp.c_str(), connectInfo->_targetPort, connectInfo->_family, connectPendingInfo->_remoteAddr._addr._data._sinV4))
         {
-            g_Log->NetError(LOGFMT_OBJ_TAG("FillTcpAddrInfo ipv4 fail ip[%s] port[%hu]"), connectInfo->_targetIp.c_str(), connectInfo->_targetPort);
+            g_Log->NetError(LOGFMT_OBJ_TAG("FillTcpAddrInfo ipv4 fail _targetIp:%s, currentTargetIp:%s, port[%hu]"), connectInfo->_targetIp.ToString().c_str(), currentTargetIp.c_str(), connectInfo->_targetPort);
             
             return NULL;
         }  
@@ -1997,9 +2096,9 @@ LibConnectPendingInfo *IocpTcpPoller::_CreateNewConectPendingInfo(LibConnectInfo
     else
     {
         connectPendingInfo->_remoteAddr._addr._isIpv4 = false;
-        if (!SocketUtil::FillTcpAddrInfo(connectInfo->_targetIp.c_str(), connectInfo->_targetPort, connectInfo->_family, connectPendingInfo->_remoteAddr._addr._data._sinV6))
+        if (!SocketUtil::FillTcpAddrInfo(currentTargetIp.c_str(), connectInfo->_targetPort, connectInfo->_family, connectPendingInfo->_remoteAddr._addr._data._sinV6))
         {
-            g_Log->NetError(LOGFMT_OBJ_TAG("FillTcpAddrInfo ipv6 fail ip[%s] port[%hu]"), connectInfo->_targetIp.c_str(), connectInfo->_targetPort);
+            g_Log->NetError(LOGFMT_OBJ_TAG("FillTcpAddrInfo ipv6 fail targetIp info:%s, ip[%s] port[%hu]"), connectInfo->_targetIp.ToString().c_str(), currentTargetIp.c_str(), connectInfo->_targetPort);
             
             return NULL;
         }  
@@ -2007,11 +2106,33 @@ LibConnectPendingInfo *IocpTcpPoller::_CreateNewConectPendingInfo(LibConnectInfo
 
     connectPendingInfo->_connectInfo = connectInfo;
     connectPendingInfo->_leftRetryTimes = leftTimes;
+    connectPendingInfo->_currentTargetIp = currentTargetIp;
 
     return connectPendingInfo;
 }
 
+bool IocpTcpPoller::_TryGetNewTargetIp(const KERNEL_NS::AddrIpConfig &targetIp, std::set<KERNEL_NS::LibString> &filter, KERNEL_NS::LibString &currentIp)
+{
+    if(targetIp._isHostName)
+    {
+        // 初始创建使用第一个ip
+        auto err = KERNEL_NS::IPUtil::GetIpByHostName(targetIp._ip, currentIp, filter, 0, false, true, targetIp._toIpv4);
+        if(err != Status::Success)
+        {
+            g_Log->NetError(LOGFMT_OBJ_TAG("GetIpByHostName fail targetIp:%s, filter:[%s]"), targetIp.ToString().c_str(), KERNEL_NS::StringUtil::ToString(filter, ',').c_str());
+            return false;
+        }
 
+        return true;
+    }
+
+    if(filter.find(targetIp._ip) != filter.end())
+        return false;
+
+    currentIp = targetIp._ip;
+
+    return true;
+}
 
 KERNEL_END
 

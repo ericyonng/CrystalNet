@@ -37,6 +37,8 @@
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
 #include <kernel/comp/NetEngine/Defs/NetDefs.h>
 #include <kernel/comp/NetEngine/Poller/impl/Session/SessionOption.h>
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
+#include <set>
 
 KERNEL_BEGIN
 
@@ -53,9 +55,9 @@ struct KERNEL_EXPORT LibConnectInfo
 
     LibString ToString() const;
 
-    LibString _localIp;     // 本地ip: 指定本地ip 内部数据传输尽量和客户端网卡区分,以便于内部大数据快速流转,可以不指定
+    AddrIpConfig _localIp;     // 本地ip: 指定本地ip 内部数据传输尽量和客户端网卡区分,以便于内部大数据快速流转,可以不指定
     UInt16 _localPort;      // 本地端口: 指定本地端口号 可以不指定,不知道则自动分配端口,建议不指定
-    LibString _targetIp;    // 目标ip
+    AddrIpConfig _targetIp;    // 目标ip
     UInt16 _targetPort;     // 目标端口
     UInt16 _family;         // 协议族 AF_INET/AF_INET6
     Int32 _protocolType;    // 协议类型（udp/tcp/quic等）ProtocolType
@@ -70,6 +72,9 @@ struct KERNEL_EXPORT LibConnectInfo
     IProtocolStack *_stack; // 连接时候必须指定协议栈,否则取的是 _serviceType 指定service默认的协议栈或者根据配置取协议栈
 
     SessionOption _sessionOption;   // 会话选项
+
+    KERNEL_NS::LibString _successIp;    // 成功的ip
+    std::set<LibString> _failureIps;    // 失败的ip
 };
 
 struct KERNEL_EXPORT LibConnectPendingInfo
@@ -91,6 +96,8 @@ struct KERNEL_EXPORT LibConnectPendingInfo
     BriefSockAddr _remoteAddr;  // 远程地址
     LibString _finalLocalIp;    // 最终本地分配的ip
     UInt16 _finalLocalPort;     // 最终本地分配的端口
+
+    KERNEL_NS::LibString _currentTargetIp;  // 当前尝试连接的ip
 };
 
 KERNEL_END

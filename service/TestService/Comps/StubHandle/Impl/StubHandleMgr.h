@@ -52,9 +52,9 @@ public:
     virtual bool HasStub(UInt64 stub) const override;
 
     // 新存根
-    Int32 NewHandle(UInt64 stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg) override;
+    Int32 NewHandle(UInt64 stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg) override;
     // 新存根回调
-    Int32 NewHandle(KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg, UInt64 &stub) override;
+    Int32 NewHandle(KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg, UInt64 &stub) override;
     
     // 调用回调
     virtual void InvokeHandle(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params) override;
@@ -74,7 +74,7 @@ private:
 
 private:
     UInt64 _maxStub;
-    std::map<UInt64, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *> _stubRefCallback;
+    std::map<UInt64, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *> _stubRefCallback;
 
     /* 事件 */
     KERNEL_NS::ListenerStub _addListenResEvStub;

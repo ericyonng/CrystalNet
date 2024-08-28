@@ -44,9 +44,9 @@ public:
     // 存根是否存在
     virtual bool HasStub(UInt64 stub) const = 0;
     // 新存根回调
-    virtual Int32 NewHandle(UInt64 stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg) = 0;
+    virtual Int32 NewHandle(UInt64 stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg) = 0;
     // 新存根回调
-    virtual Int32 NewHandle(KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg, UInt64 &stub) = 0;
+    virtual Int32 NewHandle(KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg, UInt64 &stub) = 0;
     // 调用回调
     virtual void InvokeHandle(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params) = 0;
 };

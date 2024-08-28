@@ -43,9 +43,9 @@ public:
   * 连接远程
   */
  template<typename ObjType>
-  Int32 AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-  , ObjType *obj, void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params) /* 连接成功回调 */
-  , const KERNEL_NS::LibString &localIp = ""
+  Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+  , ObjType *obj, void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &) /* 连接成功回调 */
+  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
   , UInt16 localPort = 0
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
@@ -56,9 +56,9 @@ public:
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const;
 
-  virtual Int32 AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-  , KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *callback
-  , const KERNEL_NS::LibString &localIp = ""
+  virtual Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+  , KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *callback
+  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
   , UInt16 localPort = 0
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
@@ -69,8 +69,8 @@ public:
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
   ) const = 0;
 
-  virtual Int32 AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-  , const KERNEL_NS::LibString &localIp = ""
+  virtual Int32 AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+  , const KERNEL_NS::AddrIpConfig &localIp = KERNEL_NS::AddrIpConfig()
   , UInt16 localPort = 0
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
@@ -83,9 +83,9 @@ public:
 };
 
  template<typename ObjType>
-ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-, ObjType *obj, void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params) /* 连接成功回调 */
-, const KERNEL_NS::LibString &localIp
+ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+, ObjType *obj, void(ObjType::*handler)(UInt64 stub, Int32 errCode, const KERNEL_NS::Variant *params, bool &) /* 连接成功回调 */
+, const KERNEL_NS::AddrIpConfig &localIp
 , UInt16 localPort
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes   /* 超时重试次数 */
@@ -100,7 +100,7 @@ ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &rem
     auto st = AsynTcpConnect(remoteIp, remotePort, stub, deleg, localIp, localPort, stack, retryTimes, periodMs, priorityLevel, sessionType, family, protocolStackType);
     if(st != Status::Success)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("connect fail remote ip:%s, remote port:%hu"), remoteIp.c_str(), remotePort);
+        g_Log->Error(LOGFMT_OBJ_TAG("connect fail remote ip:%s, remote port:%hu"), remoteIp.ToString().c_str(), remotePort);
         deleg->Release();
         return st;
     }
@@ -108,8 +108,8 @@ ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &rem
     return Status::Success;
 }
 
-ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::LibString &remoteIp, UInt16 remotePort, UInt64 &stub
-, const KERNEL_NS::LibString &localIp
+ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt16 remotePort, UInt64 &stub
+, const KERNEL_NS::AddrIpConfig &localIp
 , UInt16 localPort
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes    /* 超时重试次数 */

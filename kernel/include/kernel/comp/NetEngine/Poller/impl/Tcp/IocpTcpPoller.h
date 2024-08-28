@@ -63,6 +63,7 @@ class IServiceProxy;
 struct IpControlInfo;
 class Variant;
 struct IoEvent;
+struct AddrIpConfig;
 
 template<typename KeyType, typename MaskValue>
 class LibDirtyHelper;
@@ -167,7 +168,8 @@ private:
 private:
     void _DestroyConnect(LibConnectPendingInfo *&connectPendingInfo, bool destroyConnectInfo);
     Int32 _CheckConnect(LibConnectPendingInfo *&connectPendingInfo, bool &giveup);
-    LibConnectPendingInfo *_CreateNewConectPendingInfo(LibConnectInfo *connectInfo, Int32 leftTimes);
+    LibConnectPendingInfo *_CreateNewConectPendingInfo(LibConnectInfo *connectInfo, const KERNEL_NS::LibString &currentTargetIp, Int32 leftTimes);
+    bool _TryGetNewTargetIp(const KERNEL_NS::AddrIpConfig &targetIp, std::set<KERNEL_NS::LibString> &filter, KERNEL_NS::LibString &currentIp);
 
 private:
     const UInt64 _pollerId;

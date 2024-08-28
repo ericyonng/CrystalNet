@@ -144,6 +144,7 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
     auto protocolStackType = ev->GetParam(Params::PROTOCOL_STACK).AsInt32();
     auto sesionPollerId = ev->GetParam(Params::SESSION_POLLER_ID).AsUInt64();
     auto serviceId = ev->GetParam(Params::SERVICE_ID).AsUInt64();
+    auto remoteOriginAddr = ev->GetParam(Params::TARGET_ADDR_IP_CONFIG).AsPtr<KERNEL_NS::AddrIpConfig>();
     auto protocolStack = GetService()->GetProtocolStack(protocolStackType);
 
     // g_Log->Info(LOGFMT_OBJ_TAG("session will created sessionid:%llu, localAddr:%s, remoteAddr:%s, protocolType:%d, priorityLevel:%u, pollerId:%llu, "
@@ -169,6 +170,7 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
     sessionInfo._localAddr = *localAddr;
     sessionInfo._remoteAddr = *remoteAddr;
     sessionInfo._protocolStack = protocolStack;
+    sessionInfo._remoteOriginAddr = *remoteOriginAddr;
 
     // 消息发送限速
     switch (sessionInfo._sessionType)
@@ -219,7 +221,15 @@ ServiceSession *SessionMgr::_CreateSession(const ServiceSessionInfo &sessionInfo
     newSession->SetSessionInfo(sessionInfo);
 
     _MakeSessionDict(newSession);
-    ++_sessionAmount;
+    UInt64 currentAmount = ++_sessionAmount;
+
+    g_Log->Info(LOGFMT_OBJ_TAG("create new session sessionAmount:%llu session id:%llu [%s:%hu => %s(%s):%hu] service id:%llu, poller id:%llu, msg priority level:%u, session type:%d, send bytes limit:%llu, recv bytes limit:%llu")
+    , currentAmount
+    , sessionInfo._sessionId
+    , sessionInfo._localAddr._ip.c_str(), sessionInfo._localAddr._port
+    , sessionInfo._remoteOriginAddr._ip.c_str(), sessionInfo._remoteAddr._ip.c_str(), sessionInfo._remoteAddr._port
+    , sessionInfo._serviceId,  sessionInfo._pollerId, sessionInfo._priorityLevel, sessionInfo._sessionType
+    , sessionInfo._sessionSendBytesLimit, sessionInfo._sessionRecvBytesLimit);
 
     // g_Log->Info(LOGFMT_OBJ_TAG("created new session:%s"), newSession->ToString().c_str());
     return newSession;
@@ -228,9 +238,17 @@ ServiceSession *SessionMgr::_CreateSession(const ServiceSessionInfo &sessionInfo
 void SessionMgr::_DestroySession(ServiceSession *session)
 {
     // g_Log->Info(LOGFMT_OBJ_TAG("destroy session :%s"), session->ToString().c_str());
-
-    --_sessionAmount;
+    auto sessionInfo = session->GetSessionInfo();
+    UInt64 currentAmount = --_sessionAmount;
     _sessionIdRefSession.erase(session->GetSessionId());
+
+    g_Log->Info(LOGFMT_OBJ_TAG("destroy session sessionAmount:%llu session id:%llu [%s:%hu => %s(%s):%hu] service id:%llu, poller id:%llu, msg priority level:%u, session type:%d, send bytes limit:%llu, recv bytes limit:%llu")
+    , currentAmount
+    , sessionInfo->_sessionId
+    , sessionInfo->_localAddr._ip.c_str(), sessionInfo->_localAddr._port
+    , sessionInfo->_remoteOriginAddr._ip.c_str(), sessionInfo->_remoteAddr._ip.c_str(), sessionInfo->_remoteAddr._port
+    , sessionInfo->_serviceId,  sessionInfo->_pollerId, sessionInfo->_priorityLevel, sessionInfo->_sessionType
+    , sessionInfo->_sessionSendBytesLimit, sessionInfo->_sessionRecvBytesLimit);
 
     session->Release();
 }

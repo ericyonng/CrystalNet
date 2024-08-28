@@ -49,6 +49,8 @@
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
 
 #include <kernel/comp/NetEngine/Poller/Defs/PollerEventType.h>
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
+#include <set>
 
 #include <vector>
 
@@ -97,6 +99,8 @@ struct KERNEL_EXPORT SessionCreatedEvent : public PollerEvent
     bool _isFromConnect;        // 是否主动连接远程而创建的会话
     bool _isLinker;             // 是否监听者
     Int32 _protocolStackType;   // 协议栈类型
+    AddrIpConfig _targetConfig; // 连接远程的ip信息
+    std::set<LibString> _failureIps;    // 连接失败的ip集合
 };
 
 // 连接回包
@@ -119,6 +123,9 @@ struct KERNEL_EXPORT AsynConnectResEvent : public PollerEvent
     UInt64 _fromServiceId;      // 发起连接的serviceid
     UInt64 _stub;               // 回传的存根
     UInt64 _sessionId;          // 会话id
+
+    AddrIpConfig _targetConfig; // 连接远程的ip信息
+    std::set<LibString> _failureIps;    // 连接远程失败的ip合集
 };
 
 // 监听回包

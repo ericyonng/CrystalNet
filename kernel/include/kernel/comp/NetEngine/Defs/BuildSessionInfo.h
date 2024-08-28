@@ -37,6 +37,8 @@
 #include <kernel/comp/NetEngine/BriefSockAddr.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/NetEngine/Poller/impl/Session/SessionOption.h>
+#include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
+#include <set>
 
 KERNEL_BEGIN
 
@@ -65,6 +67,8 @@ struct KERNEL_EXPORT BuildSessionInfo
     bool _isWinSockNonBlock;        // windows下指定是否非阻塞
 
     SessionOption _sessionOption;
+    AddrIpConfig _remoteOriginIpConfig; // 如果是连接, 则这里表示的是原始的目标ip
+    std::set<LibString> _failureIps;
 };
 
 KERNEL_END

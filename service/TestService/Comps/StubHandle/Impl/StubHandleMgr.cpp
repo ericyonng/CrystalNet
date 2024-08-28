@@ -76,7 +76,7 @@ bool StubHandleMgr::HasStub(UInt64 stub) const
     return iter != _stubRefCallback.end();
 }
 
-Int32 StubHandleMgr::NewHandle(UInt64 stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg)
+Int32 StubHandleMgr::NewHandle(UInt64 stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg)
 {
     if(_stubRefCallback.find(stub) != _stubRefCallback.end())
     {
@@ -90,7 +90,7 @@ Int32 StubHandleMgr::NewHandle(UInt64 stub, KERNEL_NS::IDelegate<void, UInt64, I
     return Status::Success;
 }
 
-Int32 StubHandleMgr::NewHandle(KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *delg, UInt64 &stub)
+Int32 StubHandleMgr::NewHandle(KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg, UInt64 &stub)
 {
     auto newStub = NewStub();
     auto st = NewHandle(newStub, delg);
@@ -113,13 +113,17 @@ void StubHandleMgr::InvokeHandle(UInt64 stub, Int32 errCode, const KERNEL_NS::Va
         return;
     }
 
+    bool doRemove = true;
     if(LIKELY(iter->second))
     {
-        iter->second->Invoke(stub, errCode, params);
-        iter->second->Release();
+        iter->second->Invoke(stub, errCode, params, doRemove);
+
+        if(LIKELY(doRemove))
+           iter->second->Release();
     }
 
-    _stubRefCallback.erase(iter);
+    if(LIKELY(doRemove))
+        _stubRefCallback.erase(iter);
 }
 
 Int32 StubHandleMgr::_OnGlobalSysInit() 
@@ -137,7 +141,7 @@ void StubHandleMgr::_Clear()
 {
     _UnRegisterEvents();
 
-    KERNEL_NS::ContainerUtil::DelContainer(_stubRefCallback, [](KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *> *ptr){
+    KERNEL_NS::ContainerUtil::DelContainer(_stubRefCallback, [](KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *ptr){
         if(LIKELY(ptr))
         {
             ptr->Release();
@@ -206,6 +210,8 @@ void StubHandleMgr::_OnAsynConnectResEvent(KERNEL_NS::LibEvent *ev)
     (*var)[Params::SERVICE_ID] = ev->GetParam(Params::SERVICE_ID).AsUInt64();
     (*var)[Params::STUB] = ev->GetParam(Params::STUB).AsUInt64();
     (*var)[Params::SESSION_ID] = ev->GetParam(Params::SESSION_ID).AsUInt64();
+    (*var)[Params::TARGET_ADDR_IP_CONFIG] = ev->GetParam(Params::TARGET_ADDR_IP_CONFIG).AsPtr<KERNEL_NS::AddrIpConfig>();
+    (*var)[Params::TARGET_ADDR_FAILURE_IP_SET] = ev->GetParam(Params::TARGET_ADDR_FAILURE_IP_SET).AsPtr<std::set<KERNEL_NS::LibString>>();
     
     InvokeHandle(ev->GetParam(Params::STUB).AsUInt64()
                 , ev->GetParam(Params::ERROR_CODE).AsInt32()
