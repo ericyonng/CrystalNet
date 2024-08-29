@@ -327,6 +327,24 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
     _enableStartLink = true;
     g_Log->Info(LOGFMT_OBJ_TAG("common ready start test."));
 
+    UInt64 stub = 0;
+    auto st = this->GetGlobalSys<ISysLogicMgr>()->AsynTcpConnect(_targetAddrConfig->_remoteIp
+    , _targetAddrConfig->_remotePort
+    , stub
+    , _targetAddrConfig->_localIp
+    , _targetAddrConfig->_localPort
+    , NULL
+    , 0
+    , 0
+    ,  _targetAddrConfig->_priorityLevel
+    ,  _targetAddrConfig->_sessionType
+    , _targetAddrConfig->_af
+    , _targetAddrConfig->_protocolStackType);
+    if(st != Status::Success)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("asyn connect fail st:%d, _targetAddrConfig:%s"), st, _targetAddrConfig->ToString().c_str());
+    }
+
     // 一直连接直到连接数足够
     auto linkTimerOut = [this](KERNEL_NS::LibTimer *t) mutable -> void 
     {

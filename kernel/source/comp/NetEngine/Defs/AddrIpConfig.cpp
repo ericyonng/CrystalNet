@@ -36,7 +36,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(AddrIpConfig);
 
 KERNEL_NS::LibString AddrIpConfig::ToString() const
 {
-    return KERNEL_NS::LibString().AppendFormat("%s, toipv4:%s", _ip.c_str(), _toIpv4?"true":"false");
+    return KERNEL_NS::LibString().AppendFormat("%s, toipv4:%s,most switch ip count:%d", _ip.c_str(), _toIpv4?"true":"false", _mostSwitchIpCount);
 }
 
 Int32 AddrIpConfig::GetAf() const

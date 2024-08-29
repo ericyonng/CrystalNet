@@ -146,6 +146,12 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     listenInfo->_stub = stub;
     listenInfo->_priorityLevel = priorityLevel;
     listenInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
+
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    if(listenInfo->_port != 0)
+        sessionCount = 1;
+    #endif
+    
     listenInfo->_sessionCount = sessionCount;
     listenInfo->_sessionOption = option;
     g_Log->Info(LOGFMT_OBJ_TAG("add listen info:%s"), listenInfo->ToString().c_str());
@@ -313,7 +319,19 @@ Int32 SysLogicMgr::_OnHostStart()
             return st;
         }
 
-        _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, addrInfo->_listenSessionCount)));
+        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+            if(addrInfo->_localPort != 0)
+            {
+                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, 1)));
+            }
+            else
+            {
+                _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, addrInfo->_listenSessionCount)));
+            }
+
+        #else
+            _unhandledListenAddr.insert(std::make_pair(stub, std::make_pair(addrInfo, addrInfo->_listenSessionCount)));
+        #endif
     }
 
     // 2.连接中心服

@@ -372,6 +372,12 @@ void TcpPollerMgr::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
         return;
     }
 
+    // windows 下不能绑定同一个端口
+    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    if(listenInfo->_port != 0)
+        listenInfo->_sessionCount = 1;
+    #endif
+
     std::set<TcpPollerMgr::TcpPoller *> excludes;
     for(Int32 idx = 0; idx < listenInfo->_sessionCount; ++idx)
     {

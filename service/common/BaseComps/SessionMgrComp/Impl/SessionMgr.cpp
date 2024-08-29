@@ -223,7 +223,8 @@ ServiceSession *SessionMgr::_CreateSession(const ServiceSessionInfo &sessionInfo
     _MakeSessionDict(newSession);
     UInt64 currentAmount = ++_sessionAmount;
 
-    g_Log->Info(LOGFMT_OBJ_TAG("create new session sessionAmount:%llu session id:%llu [%s:%hu => %s(%s):%hu] service id:%llu, poller id:%llu, msg priority level:%u, session type:%d, send bytes limit:%llu, recv bytes limit:%llu")
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("create new session sessionAmount:%llu session id:%llu [%s:%hu => %s(%s):%hu] service id:%llu, poller id:%llu, msg priority level:%u, session type:%d, send bytes limit:%llu, recv bytes limit:%llu")
     , currentAmount
     , sessionInfo._sessionId
     , sessionInfo._localAddr._ip.c_str(), sessionInfo._localAddr._port
@@ -242,7 +243,8 @@ void SessionMgr::_DestroySession(ServiceSession *session)
     UInt64 currentAmount = --_sessionAmount;
     _sessionIdRefSession.erase(session->GetSessionId());
 
-    g_Log->Info(LOGFMT_OBJ_TAG("destroy session sessionAmount:%llu session id:%llu [%s:%hu => %s(%s):%hu] service id:%llu, poller id:%llu, msg priority level:%u, session type:%d, send bytes limit:%llu, recv bytes limit:%llu")
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("destroy session sessionAmount:%llu session id:%llu [%s:%hu => %s(%s):%hu] service id:%llu, poller id:%llu, msg priority level:%u, session type:%d, send bytes limit:%llu, recv bytes limit:%llu")
     , currentAmount
     , sessionInfo->_sessionId
     , sessionInfo->_localAddr._ip.c_str(), sessionInfo->_localAddr._port

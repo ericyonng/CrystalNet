@@ -75,6 +75,8 @@ struct KERNEL_EXPORT LibConnectInfo
 
     KERNEL_NS::LibString _successIp;    // 成功的ip
     std::set<LibString> _failureIps;    // 失败的ip
+
+    Int32 _currentSwitchTargetIpLeft;   // target如果是域名，当前剩余可切换ip,次数
 };
 
 struct KERNEL_EXPORT LibConnectPendingInfo

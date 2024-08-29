@@ -1007,6 +1007,7 @@ void IocpTcpPoller::_OnAsynConnect(PollerEvent *ev)
 
     Int32 errCode = Status::Success;
     KERNEL_NS::LibString currentIp;
+    connectInfo->_currentSwitchTargetIpLeft = connectInfo->_targetIp._mostSwitchIpCount;
     if(!_TryGetNewTargetIp(connectInfo->_targetIp, connectInfo->_failureIps, currentIp))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("_TryGetNewTargetIp fail connect info:%s"), connectInfo->ToString().c_str());
@@ -1054,15 +1055,19 @@ void IocpTcpPoller::_OnAsynConnect(PollerEvent *ev)
                     if(newPending->_leftRetryTimes <= 0)
                     {// 没次数
 
-                        // TODO: 切换ip
-                        if(_TryGetNewTargetIp(newPending->_connectInfo->_targetIp, newPending->_connectInfo->_failureIps, newTargetIp))
+                        // 有剩余尝试切换次数
+                        if((newPending->_connectInfo->_currentSwitchTargetIpLeft--) > 0)
                         {
-                            if(g_Log->IsEnable(LogLevel::NetInfo))
-                                g_Log->NetInfo(LOGFMT_OBJ_TAG("connect to %s[%s]:%hu fail, will try connect new ip:%s[%s]:%hu...\n connect info:%s")
-                            , connectInfo->_targetIp._ip.c_str(), newPending->_currentTargetIp.c_str(), connectInfo->_targetPort
-                            , connectInfo->_targetIp._ip.c_str(), newTargetIp.c_str()
-                            , connectInfo->_targetPort, connectInfo->ToString().c_str());
-                            break;
+                            // TODO: 切换ip
+                            if(_TryGetNewTargetIp(newPending->_connectInfo->_targetIp, newPending->_connectInfo->_failureIps, newTargetIp))
+                            {
+                                if(g_Log->IsEnable(LogLevel::NetInfo))
+                                    g_Log->NetInfo(LOGFMT_OBJ_TAG("connect to %s[%s]:%hu fail, will try connect new ip:%s[%s]:%hu...\n connect info:%s")
+                                , connectInfo->_targetIp._ip.c_str(), newPending->_currentTargetIp.c_str(), connectInfo->_targetPort
+                                , connectInfo->_targetIp._ip.c_str(), newTargetIp.c_str()
+                                , connectInfo->_targetPort, connectInfo->ToString().c_str());
+                                break;
+                            }
                         }
                         
                         if(g_Log->IsEnable(LogLevel::NetError))

@@ -186,6 +186,12 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent)
                     return false;
                 }
 
+                // windows下同一个端口只能一个session
+                #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+                if(_localPort != 0)
+                    _listenSessionCount = 1;
+                #endif
+
                 // 被绑定的地址只能是ip
                 if(!KERNEL_NS::SocketUtil::IsIp(_localIp._ip))
                 {
@@ -331,14 +337,41 @@ bool AddrConfig::ParseIpInfo(const KERNEL_NS::LibString &addrInfo, KERNEL_NS::Ad
     if(addrTurnTypeParts.size() >= 2LLU)
     {
         // 大小写不敏感全部转成小写
-        auto &&turnIpType = addrTurnTypeParts[1].strip().tolower();
-        if(turnIpType == "ipv6")
+        auto &&remoteAttr = addrTurnTypeParts[1].strip();
+        auto &&remoteAttrParts = remoteAttr.Split(',');
+
+        if(remoteAttrParts.empty())
         {
-            ipConfig._toIpv4 = false;
+            g_Log->Error(LOGFMT_OBJ_TAG("remote addr attr empty addrInfo:%s, remoteAttr:%s"), addrInfo.c_str(), remoteAttr.c_str());
+            return false;
         }
-        else
+
+        if(remoteAttrParts.size() >= 1LLU)
         {
-            ipConfig._toIpv4 = true;
+            auto &&turnIpType = remoteAttrParts[0].strip().tolower();
+            if(turnIpType == "ipv6")
+            {
+                ipConfig._toIpv4 = false;
+            }
+            else
+            {
+                ipConfig._toIpv4 = true;
+            }
+        }
+
+        if(remoteAttrParts.size() >= 2LLU)
+        {
+            auto &&maxSwitchIpCountStr = remoteAttrParts[1].strip();
+            if(!maxSwitchIpCountStr.empty())
+            {
+                if(!maxSwitchIpCountStr.isdigit())
+                {
+                    g_Log->Error(LOGFMT_OBJ_TAG("maxSwitchIpCountStr:%s not digit, addrInfo:%s, remoteAttr:%s"), maxSwitchIpCountStr.c_str(), addrInfo.c_str(), remoteAttr.c_str());
+                    return false;
+                }
+
+                ipConfig._mostSwitchIpCount = KERNEL_NS::StringUtil::StringToInt32(maxSwitchIpCountStr.c_str());
+            }
         }
     }
 
