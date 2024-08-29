@@ -29,6 +29,9 @@
 #pragma once
 
 #include <service/CenterService/ServiceCompHeader.h>
+#include <service/common/BaseComps/GlobalSys/GlobalSys.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
+#include <kernel/comp/Variant/variant_inc.h>
 
 SERVICE_BEGIN
 
@@ -37,7 +40,7 @@ class IStubHandleMgr : public IGlobalSys
     POOL_CREATE_OBJ_DEFAULT_P1(IGlobalSys, IStubHandleMgr);
 
 public:
-    IStubHandleMgr(UInt64 objTypeId) : IGlobalSys(objTypeId){}
+    IStubHandleMgr(UInt64 objTypeId) : IGlobalSys(objTypeId) {}
     
     // 新存根
     virtual UInt64 NewStub() = 0;
