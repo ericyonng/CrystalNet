@@ -708,7 +708,7 @@ void EpollTcpPoller::_OnAsynConnect(PollerEvent *ev)
         }
         
         g_Log->NetInfo(LOGFMT_OBJ_TAG("%s[%s]:%llu waiting for connecting success...\npending info:%s")
-            , connectInfoCache->_targetIp._ip, newPending->_currentTargetIp.c_str(), connectInfoCache->_targetPort
+            , connectInfoCache->_targetIp._ip.c_str(), newPending->_currentTargetIp.c_str(), connectInfoCache->_targetPort
             , newPending->ToString().c_str());
     }
 }
@@ -1584,7 +1584,7 @@ Int32 EpollTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, 
     }
 
     // 本地ip
-    if(!connectInfo->_localIp._ip.empty() && !SocketUtil::IsIp(connectInfo->_localIp._ip)
+    if(!connectInfo->_localIp._ip.empty() && !SocketUtil::IsIp(connectInfo->_localIp._ip))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("illegal local ip:%s, stub:%llu, LibConnectInfo:%s")
                     , connectInfo->_localIp._ip.c_str(), connectInfo->_stub, connectInfo->ToString().c_str());
@@ -1597,7 +1597,7 @@ Int32 EpollTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, 
     auto ipRuleMgr = GetComp<IpRuleMgr>();
     if(!ipRuleMgr->Check(connectPendingInfo->_currentTargetIp))
     {
-        g_Log->NetWarn(LOGFMT_OBJ_TAG("refuse connecting by black white list remote =%s!"), connectInfo->_targetIp.c_str());
+        g_Log->NetWarn(LOGFMT_OBJ_TAG("refuse connecting by black white list remote =%s!"), connectInfo->_targetIp.ToString().c_str());
         giveup = true;
         return Status::BlackWhiteCheckFail;
     }
@@ -1714,7 +1714,7 @@ LibConnectPendingInfo *EpollTcpPoller::_CreateNewConectPendingInfo(LibConnectInf
         connectPendingInfo->_remoteAddr._addr._isIpv4 = true;
         if (!SocketUtil::FillTcpAddrInfo(currentTargetIp.c_str(), connectInfo->_targetPort, connectInfo->_family, connectPendingInfo->_remoteAddr._addr._data._sinV4))
         {
-            g_Log->NetError(LOGFMT_OBJ_TAG("FillTcpAddrInfo ipv4 fail ip[%s] port[%hu]"), connectInfo->_targetIp.c_str(), connectInfo->_targetPort);
+            g_Log->NetError(LOGFMT_OBJ_TAG("FillTcpAddrInfo ipv4 fail ip[%s] port[%hu]"), connectInfo->_targetIp.ToString().c_str(), connectInfo->_targetPort);
             
             return NULL;
         }  
@@ -1724,7 +1724,7 @@ LibConnectPendingInfo *EpollTcpPoller::_CreateNewConectPendingInfo(LibConnectInf
         connectPendingInfo->_remoteAddr._addr._isIpv4 = false;
         if (!SocketUtil::FillTcpAddrInfo(currentTargetIp.c_str(), connectInfo->_targetPort, connectInfo->_family, connectPendingInfo->_remoteAddr._addr._data._sinV6))
         {
-            g_Log->NetError(LOGFMT_OBJ_TAG("FillTcpAddrInfo ipv6 fail ip[%s] port[%hu]"), connectInfo->_targetIp.c_str(), connectInfo->_targetPort);
+            g_Log->NetError(LOGFMT_OBJ_TAG("FillTcpAddrInfo ipv6 fail ip[%s] port[%hu]"), connectInfo->_targetIp.ToString().c_str(), connectInfo->_targetPort);
             
             return NULL;
         }  
