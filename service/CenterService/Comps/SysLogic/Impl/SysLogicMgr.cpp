@@ -416,8 +416,8 @@ void SysLogicMgr::_OnDetectLinkTimer(KERNEL_NS::LibTimer *timer)
         auto addrConfig = iter.second;
         auto toIpv4 = addrConfig->_remoteIp._isHostName ? (addrConfig->_remoteIp._toIpv4 ? "to ipv4" : "to ipv6") : "None";
         g_Log->Warn(LOGFMT_OBJ_TAG("connect [%s:%hu => %s:%hu(%s)]...")
-        , addrConfig->_localIp._ip, addrConfig->_localPort
-        , addrConfig->_remoteIp._ip, addrConfig->_remotePort, toIpv4);
+        , addrConfig->_localIp._ip.c_str(), addrConfig->_localPort
+        , addrConfig->_remoteIp._ip.c_str(), addrConfig->_remotePort, toIpv4);
     }
 
     if(_unhandledListenAddr.empty() && _unhandledContectAddr.empty())
@@ -531,7 +531,7 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
 
         auto toIpv4 = addr->_remoteIp._isHostName ? (addr->_remoteIp._toIpv4 ? "to ipv4" : "to ipv6") : "None";
         g_Log->Info(LOGFMT_OBJ_TAG("[connect res]try reconnect [%s:%hu => %s:%hu(%s)]... \n addr:%s")
-        , addr->_localIp._ip.c_str(), addr->_localPort, addr->_remoteIp._ip, addr->_remotePort, toIpv4, addr->ToString().c_str());
+        , addr->_localIp._ip.c_str(), addr->_localPort, addr->_remoteIp._ip.c_str(), addr->_remotePort, toIpv4, addr->ToString().c_str());
 
         return;
     }
