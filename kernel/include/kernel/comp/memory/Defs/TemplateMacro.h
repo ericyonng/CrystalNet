@@ -102,8 +102,12 @@ public:                                                                         
                                                                                                                     \
         static ALWAYS_INLINE KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> &GetThreadLocalAlloctor_##_objAlloctor()    \
         {                                                                                                           \
-            DEF_STATIC_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *staticThreadLocal##ObjTypeNoTempArgs##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New< KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>> >()->GetPool(initBlockNumPerBuffer    \
-            , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit));  \
+            DEF_STATIC_THREAD_LOCAL_DECLEAR KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >> *staticThreadLocal##ObjTypeNoTempArgs##Alloctor = NULL;                                                                        \
+            if(UNLIKELY(!staticThreadLocal##ObjTypeNoTempArgs##Alloctor))                                                                                                                                                           \
+            {                                                                                                                                                                                                                       \
+                staticThreadLocal##ObjTypeNoTempArgs##Alloctor = KERNEL_NS::TlsUtil::GetTlsStack()->New< KERNEL_NS::TlsObjectPool<KERNEL_NS::ObjAlloctor<ObjTypeNoTempArgs< __VA_ARGS__ >>> >()->GetPool(initBlockNumPerBuffer      \
+                , KERNEL_NS::MemoryAlloctorConfig(sizeof(ObjTypeNoTempArgs< __VA_ARGS__ >), createBufferNumWhenInit));                                                                                                              \
+            }                                                                                                                                                                                                                       \
                                                                                                                     \
             return *staticThreadLocal##ObjTypeNoTempArgs##Alloctor;                                                \
         }                                                                                                           \
