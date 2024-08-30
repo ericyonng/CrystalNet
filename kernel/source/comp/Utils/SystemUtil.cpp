@@ -1282,7 +1282,7 @@ void SystemUtil::ThreadSleep(UInt64 milliSec, UInt64 microSec)
 
 UInt64 SystemUtil::GetCurrentThreadId()
 {
-    thread_local UInt64 s_currentThreadId = 0;
+    DEF_STATIC_THREAD_LOCAL_DECLEAR UInt64 s_currentThreadId = 0;
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
 	// pthread_self是获取的是pthread_create创建的tcb块的首地址，基本一样,不是真正的线程id,应该使用gettid()

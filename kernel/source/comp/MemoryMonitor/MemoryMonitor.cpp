@@ -106,7 +106,7 @@ IDelegate<void> *MemoryMonitor::MakeWorkTask()
 
 void MemoryMonitor::_DoWork()
 {
-    static thread_local UInt64 batchNum = 0;
+    DEF_STATIC_THREAD_LOCAL_DECLEAR UInt64 batchNum = 0;
     auto statics = GetStatistics();
     LibCpuCounter cpuCounter, startCounter;
     startCounter.Update();

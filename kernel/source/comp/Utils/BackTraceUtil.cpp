@@ -279,7 +279,7 @@ LibString BackTraceUtil::CrystalCaptureStackBackTrace(size_t skipFrames, size_t 
         captureFrames = std::min<size_t>(captureFrames, SYMBOL_MAX_CAPTURE_FRAMES);
 
     // 初始化堆栈结构
-    static thread_local void *stackArray[SYMBOL_MAX_CAPTURE_FRAMES] = {NULL};
+    DEF_STATIC_THREAD_LOCAL_DECLEAR void *stackArray[SYMBOL_MAX_CAPTURE_FRAMES] = {NULL};
     ::memset(stackArray, 0, SYMBOL_MAX_CAPTURE_FRAMES * sizeof(void *));
     void **stack = stackArray;    
 
@@ -327,7 +327,7 @@ LibString BackTraceUtil::CrystalCaptureStackBackTrace(size_t skipFrames, size_t 
         delete[]win32Symboal;
 #else // Non-Win32
     LibString backTrace;
-    static thread_local char rtti[TlsDefs::LIB_RTTI_BUF_SIZE] = {};
+    DEF_STATIC_THREAD_LOCAL_DECLEAR char rtti[TlsDefs::LIB_RTTI_BUF_SIZE] = {};
     ::memset(rtti, 0, TlsDefs::LIB_RTTI_BUF_SIZE);
 
     const int frames = ::backtrace(stack, captureFrames + skipFrames);
