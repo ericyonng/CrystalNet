@@ -301,7 +301,6 @@ public:
     template<typename ObjBuildType>
     ObjType *WrapNew(ObjType *obj, const Byte8 *fileName, Int32 line)
     {
-        const LibString &buildTypeStr = RttiUtil::GetByType<ObjBuildType>();
         const LibString objPosStr = LibString(fileName).AppendFormat(":%d", line);
 
         // 总数统计
@@ -343,8 +342,6 @@ public:
     template<typename ObjBuildType>
     void WrapDelete(ObjType *obj)
     {
-        const LibString &buildTypeStr = RttiUtil::GetByType<ObjBuildType>();
-
         ++_maInfo._totalDeleteCount;
         --_maInfo._activeObjCount;
 

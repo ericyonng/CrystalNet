@@ -128,16 +128,16 @@ const Byte8 *RttiUtil::GetCxxDemangle(const char *name)
 }
 #endif
 
-static std::unordered_map<KERNEL_NS::LibString, UInt64> &GetRttiTypeDict()
-{
-    // 泄漏不要紧, 很小, 不会每次调用递增
-    DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<KERNEL_NS::LibString, UInt64> *s_dict = NULL;
+// static std::unordered_map<KERNEL_NS::LibString, UInt64> &GetRttiTypeDict()
+// {
+//     // 泄漏不要紧, 很小, 不会每次调用递增
+//     DEF_STATIC_THREAD_LOCAL_DECLEAR std::unordered_map<KERNEL_NS::LibString, UInt64> *s_dict = NULL;
 
-    if(UNLIKELY(!s_dict))
-        s_dict = new std::unordered_map<KERNEL_NS::LibString, UInt64>();
+//     if(UNLIKELY(!s_dict))
+//         s_dict = new std::unordered_map<KERNEL_NS::LibString, UInt64>();
 
-    return *s_dict;
-}
+//     return *s_dict;
+// }
 UInt64 RttiUtil::_GenTypeId()
 {
     static std::atomic<UInt64> s_inc = {0};

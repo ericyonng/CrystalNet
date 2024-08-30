@@ -43,12 +43,12 @@ TlsDefaultObj::TlsDefaultObj()
     ,_thread(NULL)
     ,_threadPool(NULL)
     ,_timerWheel(NULL)
+    , _tlsComps(new TlsCompsOwner())
     ,_lck(new SpinLock)
     ,_durtyList(new std::set<MemoryAlloctor *>)
     ,_durtyListSwap(new std::set<MemoryAlloctor *>)
     ,_isForceFreeIdleBuffer(false)
     ,_alloctorTotalBytes(0)
-    , _tlsComps(new TlsCompsOwner())
 {
 
 }
