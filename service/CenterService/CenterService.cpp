@@ -274,7 +274,6 @@ Int32 CenterService::_OnServiceCompsCreated()
 
     // 设置ip rule mgr
     auto serviceProxy = GetServiceProxy();
-    auto application = serviceProxy->GetOwner()->CastTo<SERVICE_COMMON_NS::Application>();
     auto &config = GetPollerConfig();
     auto ipRuleMgr = GetComp<KERNEL_NS::IpRuleMgr>();
     if(!ipRuleMgr->SetBlackWhiteListFlag(config._blackWhiteListFlag))
