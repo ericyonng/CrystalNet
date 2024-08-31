@@ -33,7 +33,6 @@ module;
 
 export module HelloFoo;
 
-
 // 接口玩别的基类
 template<typename T>
 concept BaseClassInterface = requires(T target)
@@ -87,7 +86,6 @@ public:
     Int32 A;
 
 };
-
 
 Int32 HelloFooSun::Init()
 {

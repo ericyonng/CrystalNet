@@ -33,5 +33,7 @@ import HelloModule;
 
 void TestModule::Run()
 {
+    ModuleClassA<int> a;
+    a.a = 10;
     HelloModuleSpace::PrintSelf();
 }

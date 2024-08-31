@@ -30,11 +30,21 @@ module;
 #include <pch.h>
 #include <stdio.h>
 
-module HelloModule;
+export module HelloModule;
+
+export template<typename T>
+class ModuleClassA
+{
+public:
+    ModuleClassA(){}
+    ~ModuleClassA(){}
+
+    T a = {};
+};
 
 namespace HelloModuleSpace
 {
-    void PrintSelf()
+    export void PrintSelf()
     {
         printf("Hello Module\n");
     }

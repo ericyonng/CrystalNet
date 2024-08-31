@@ -358,6 +358,9 @@ workspace ("CrystalNet_" .. _ACTION)
     filter { "files:**.cppm" }
     compileas "Module"
 
+    -- ixx 是模块接口, 用于导出接口给外部使用
+    -- filter { "files:**.ixx" }
+    -- compileas "ModulePartition"
 
 -- ****************************************************************************
 -- FS core library compile setting
@@ -561,8 +564,6 @@ project "testsuit"
     -- 支持c++20
     -- cppdialect "c++20"
 
-    enablemodules("On")
-
     -- symbols
 	debugdir(DEBUG_DIR)
     symbols "On"
@@ -637,8 +638,8 @@ project "testsuit"
             "../../service_common/**.h",
             "../../service_common/**.cpp",
             "../../testsuit/**.h",
-            "../../testsuit/**.ixx",
-            "../../testsuit/**.modulemap",
+            -- "../../testsuit/**.ixx",
+            "../../testsuit/**.cppm",
             "../../testsuit/**.cpp",
             "../../service/TestService/config/code/**.h",
             "../../service/TestService/config/code/**.cpp",
