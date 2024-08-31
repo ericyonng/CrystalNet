@@ -674,7 +674,6 @@ bool CompHostObject::PopComp(CompObject *comp)
     }
 
     // 旧的接口类型id移除
-    bool isInterfaceReplace = false;
     const auto oldInterfaceTypeId = comp->GetInterfaceTypeId();
     if(oldInterfaceTypeId)
     {
@@ -689,7 +688,6 @@ bool CompHostObject::PopComp(CompObject *comp)
                     if(comps[idx] == comp)
                     {
                         comps.erase(comps.begin() + idx);
-                        isInterfaceReplace = true;
                         break;
                     }
                 }

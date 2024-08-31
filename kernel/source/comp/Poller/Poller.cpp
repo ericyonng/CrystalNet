@@ -189,7 +189,7 @@ void Poller::_OnClose()
 
 void Poller::_OnAsyncTaskEvent(PollerEvent *ev)
 {
-    auto asyncTask = ev->CastTo<AsyncTaskPollerEvent>();
+    // auto asyncTask = ev->CastTo<AsyncTaskPollerEvent>();
 
     // TODO:执行异步
 }

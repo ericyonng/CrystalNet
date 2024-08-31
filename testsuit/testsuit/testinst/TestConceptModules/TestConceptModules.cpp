@@ -29,10 +29,11 @@
 #include <pch.h>
 #include "TestConceptModules.h"
 
-import HelloFoo;
+// TODO:premake5暂时不支持生成.pcm导致无法import
+// import HelloFoo;
 
 void TestConceptModules::Run()
 {
-    HelloFooSun a;
-    a.Print();
+    // HelloFooSun a;
+    // a.Print();
 }
