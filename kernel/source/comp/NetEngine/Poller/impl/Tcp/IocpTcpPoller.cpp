@@ -1126,7 +1126,7 @@ void IocpTcpPoller::_OnAsynConnect(PollerEvent *ev)
                 newPending->_reconnectTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(30));
 
             g_Log->NetInfo(LOGFMT_OBJ_TAG("%s[%s]:%llu waiting for connecting success...\npending info:%s")
-            , connectInfoCache->_targetIp._ip, newPending->_currentTargetIp.c_str(), connectInfoCache->_targetPort
+            , connectInfoCache->_targetIp._ip.c_str(), newPending->_currentTargetIp.c_str(), connectInfoCache->_targetPort
             , newPending->ToString().c_str());
         }
     }

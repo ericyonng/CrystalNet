@@ -68,6 +68,7 @@
 #include <kernel/comp/Tls/TlsCompsOwner.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
+#include <kernel/comp/Utils/IPUtil.h>
 
 KERNEL_BEGIN
 
@@ -1736,6 +1737,30 @@ LibConnectPendingInfo *EpollTcpPoller::_CreateNewConectPendingInfo(LibConnectInf
 
     return connectPendingInfo;
 }
+
+bool EpollTcpPoller::_TryGetNewTargetIp(const KERNEL_NS::AddrIpConfig &targetIp, std::set<KERNEL_NS::LibString> &filter, KERNEL_NS::LibString &currentIp)
+{
+    if(targetIp._isHostName)
+    {
+        // 初始创建使用第一个ip
+        auto err = KERNEL_NS::IPUtil::GetIpByHostName(targetIp._ip, currentIp, filter, 0, false, true, targetIp._toIpv4);
+        if(err != Status::Success)
+        {
+            g_Log->NetError(LOGFMT_OBJ_TAG("GetIpByHostName fail targetIp:%s, filter:[%s]"), targetIp.ToString().c_str(), KERNEL_NS::StringUtil::ToString(filter, ',').c_str());
+            return false;
+        }
+
+        return true;
+    }
+
+    if(filter.find(targetIp._ip) != filter.end())
+        return false;
+
+    currentIp = targetIp._ip;
+
+    return true;
+}
+
 
 EpollTcpSession *EpollTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
 {
