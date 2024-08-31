@@ -17,6 +17,8 @@ sudo rm -rf ${OUTPUT_DIR}/ini
 sudo ln -sv $SCRIPT_PATH/service/TestService/config/data/cpp ${OUTPUT_DIR}/Cfgs
 sudo ln -sv $SCRIPT_PATH/doc/ini ${OUTPUT_DIR}/ini
 
+ln -sv ${OUTPUT_DIR}/libmysqlclient.so /usr/lib64/libmysqlclient.so.21
+
 # 动态库连接
 if [ -n "$1" ]
 then
