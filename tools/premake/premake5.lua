@@ -627,6 +627,7 @@ project "testsuit"
             "../../service_common/**.cpp",
             "../../testsuit/**.h",
             "../../testsuit/**.ixx",
+            "../../testsuit/**.modulemap",
             "../../testsuit/**.cpp",
             "../../service/TestService/config/code/**.h",
             "../../service/TestService/config/code/**.cpp",
