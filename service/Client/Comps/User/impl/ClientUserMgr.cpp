@@ -94,7 +94,7 @@ void ClientUserMgr::OnStartup()
         auto err = KERNEL_NS::IPUtil::GetIpByHostName(_targetAddrConfig->_remoteIp._ip, ip, {}, 0, false, true, _targetAddrConfig->_remoteIp._toIpv4);
         if(err != Status::Success)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("GetIpByHostName fail remote ip%s"), _targetAddrConfig->_remoteIp.ToString());
+            g_Log->Error(LOGFMT_OBJ_TAG("GetIpByHostName fail remote ip%s"), _targetAddrConfig->_remoteIp.ToString().c_str());
             return;
         }
     }
