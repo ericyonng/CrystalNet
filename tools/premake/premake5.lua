@@ -319,12 +319,17 @@ workspace ("CrystalNet_" .. _ACTION)
             "DEBUG",
 			"_DEBUG",
         }
+
+        -- 开启module
+        enablemodules("On")
     filter {}
 	
     filter { "configurations:release*" }
         defines {
             "NDEBUG"
         }
+        -- 开启module
+        enablemodules("On")
     filter {}
 	
     -- control symbols
@@ -348,6 +353,10 @@ workspace ("CrystalNet_" .. _ACTION)
     -- 支持c++20
     cppdialect "c++20"
     defines { "CRYSTAL_NET_CPP20" }
+
+    -- cppm会被当初c++ module进行编译
+    filter { "files:**.cppm" }
+    compileas "Module"
 
 
 -- ****************************************************************************
@@ -551,6 +560,8 @@ project "testsuit"
 	
     -- 支持c++20
     -- cppdialect "c++20"
+
+    enablemodules("On")
 
     -- symbols
 	debugdir(DEBUG_DIR)
