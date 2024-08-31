@@ -69,6 +69,7 @@
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/NetEngine/Defs/AddrIpConfig.h>
 #include <kernel/comp/Utils/IPUtil.h>
+#include <kernel/comp/Utils/StringUtil.h>
 
 KERNEL_BEGIN
 
