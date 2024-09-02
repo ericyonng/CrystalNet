@@ -1205,7 +1205,7 @@ void EpollTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPe
         localAddr._port = connectInfo->_localPort;
         localAddr._ipAndPort.AppendFormat("%s:%hu", localAddr._ip.c_str(), localAddr._port);
         auto &targetAddr = res->_targetAddr;
-        targetAddr._ip = connectPending->_currentTargetIp;
+        targetAddr._ip = connectPending ? connectPending->_currentTargetIp : connectInfo->_targetIp._ip;
         targetAddr._port = connectInfo->_targetPort;
         targetAddr._ipAndPort.AppendFormat("%s:%hu", targetAddr._ip.c_str(), targetAddr._port);
         res->_targetConfig = connectInfo->_targetIp;
