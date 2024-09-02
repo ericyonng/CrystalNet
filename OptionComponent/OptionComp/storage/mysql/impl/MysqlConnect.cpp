@@ -534,6 +534,8 @@ bool MysqlConnect::_SelectDB()
 
 bool MysqlConnect::_Ping(const LibString &content)
 {
+    g_Log->Info(LOGFMT_OBJ_TAG("will ping content:%s, _mysql:%p, connection:%s"), content.c_str(), _mysql, ToString().c_str());
+
     const auto &counter = LibCpuCounter::Current();
     auto ret = mysql_ping(_mysql);
     _lastPingMs = LibCpuCounter::Current().ElapseMilliseconds(counter);
