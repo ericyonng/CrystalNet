@@ -80,15 +80,15 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     s_KernelDestroy = false;
 
     // 设置主线程名
-    const auto &processName = KERNEL_NS::SystemUtil::GetCurProgramNameWithoutExt();
-    {
-        KERNEL_NS::LibString err;
-        if(!KERNEL_NS::SystemUtil::SetCurrentThreadName(KERNEL_NS::LibString().AppendFormat("Main%s", processName.c_str()), err))
-        {
-            CRYSTAL_TRACE("kernel set main thread name SetCurrentThreadName fail err:%s"
-            , err.c_str());
-        }
-    }
+    // const auto &processName = KERNEL_NS::SystemUtil::GetCurProgramNameWithoutExt();
+    // {
+    //     KERNEL_NS::LibString err;
+    //     if(!KERNEL_NS::SystemUtil::SetCurrentThreadName(KERNEL_NS::LibString().AppendFormat("Main%s", processName.c_str()), err))
+    //     {
+    //         CRYSTAL_TRACE("kernel set main thread name SetCurrentThreadName fail err:%s"
+    //         , err.c_str());
+    //     }
+    // }
 
     // 转入后台
     KERNEL_NS::LibString rootDir = KERNEL_NS::SystemUtil::GetCurProgRootPath();
