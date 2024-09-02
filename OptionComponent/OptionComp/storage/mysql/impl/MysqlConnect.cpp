@@ -58,6 +58,8 @@ MysqlConnect::~MysqlConnect()
 
 void MysqlConnect::Close()
 {
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql connect will close success:%s"), ToString().c_str());
+
     if(_mysql)
     {
         mysql_close(_mysql);
@@ -491,6 +493,8 @@ bool MysqlConnect::_Connect()
     }
 
     _isConnected = true;
+
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql connect success:%s"), ToString().c_str());
 
     return true;
 }

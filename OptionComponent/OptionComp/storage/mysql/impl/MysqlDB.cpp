@@ -139,6 +139,7 @@ Int32 MysqlDB::Init()
     if(_targetPoller == NULL)
         g_Log->Warn(LOGFMT_OBJ_TAG("have no target poller and cant send db msg back"));
 
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql db init success:%s"), ToString().c_str());
     return Status::Success;
 }
 
@@ -156,11 +157,15 @@ Int32 MysqlDB::Start()
         balance->_thread->Start();
     }
 
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql db start success:%s"), ToString().c_str());
+
     return Status::Success;
 }
 
 void MysqlDB::WillClose()
 {
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql db will close:%s"), ToString().c_str());
+
     if(UNLIKELY(_workerBalance.empty()))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("mysql not init before _threadNum:%d"), _cfg._dbThreadNum);
@@ -173,6 +178,8 @@ void MysqlDB::WillClose()
 
 void MysqlDB::Close()
 {
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql db close:%s"), ToString().c_str());
+
     for(auto balance : _workerBalance)
         balance->_thread->FinishClose();
 
@@ -909,6 +916,8 @@ void MysqlDB::_Clear()
     ContainerUtil::DelContainer(_workerBalance, [](DBBalanceInfo *ptr){
         DBBalanceInfo::Delete_DBBalanceInfo(ptr);
     });
+
+    g_Log->Info(LOGFMT_OBJ_TAG("mysql db remove balance config:%s"), _cfg.ToString().c_str());
 }
 
 KERNEL_END
