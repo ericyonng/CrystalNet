@@ -46,9 +46,8 @@ extern "C"
         // 1.打印堆栈
         if(LIKELY(g_Log))
         {
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "catch signal:%d, %s, process id:%d thread id:%llu, main thread id:%llu stack backtrace:%s")
-                , signalNo, KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), processId, KERNEL_NS::SystemUtil::GetCurrentThreadId(), mainThreadId,
-                 KERNEL_NS::BackTraceUtil::CrystalCaptureStackBackTrace().c_str());
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SignalHandleUtil, "catch signal:%d, %s, process id:%d thread id:%llu, main thread id:%llu")
+                , signalNo, KERNEL_NS::SignalHandleUtil::SignalToString(signalNo).c_str(), processId, KERNEL_NS::SystemUtil::GetCurrentThreadId(), mainThreadId);
         }
 
         if(signalNo > 0)
