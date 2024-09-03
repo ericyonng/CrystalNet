@@ -36,9 +36,14 @@ IS_START=0
 
 echo "wait ${GREP_FLAG} start"
 
+# 等待5秒
+sleep 5
+
 while [ $IS_START -eq 0 ]
 do
-  PID_LIST=$(ps -e | grep ${GREP_FLAG} | awk '{print $1}')
+  PID_LIST="$(ps -aux |grep ${GREP_FLAG} | sed '/grep/d' | sed '/linux_run/d' | sed '/start/d' | sed '/stop/d' | sed 's/^[^ ]* //' | sed 's/^ *//' | sed 's/ .*$//')"
+
+  # PID_LIST=$(ps -e | grep ${GREP_FLAG} | awk '{print $1}')
   if [ -n "${PID_LIST}" ]
   then
       IS_START=1
