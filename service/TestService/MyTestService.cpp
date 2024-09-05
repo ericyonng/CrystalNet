@@ -412,6 +412,9 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
 {
     auto sessionCreatedEv = msg->CastTo<KERNEL_NS::SessionCreatedEvent>();
 
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("sessionCreatedEv :%s"), sessionCreatedEv->ToString().c_str());
+
     // 预创建
     {
         auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::SESSION_WILL_CREATED);
