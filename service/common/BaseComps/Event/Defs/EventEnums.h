@@ -56,7 +56,7 @@ namespace EventEnums
                                                       * @param(SERVICE_ID):UInt64 serviceId
                                                       * @param(STUB):UInt64 stub 存根
                                                       * @param(IS_FROM_CONNECT):bool 是否来自connect连接
-                                                      * @param(IS_FROM_LINKER):bool 是否来自listen连入
+                                                      * @param(IS_LINKER):bool 是否来自listen连入
                                                       */
 
         SESSION_CREATED,        // 会话创建
@@ -72,7 +72,7 @@ namespace EventEnums
                                 * @param(SERVICE_ID):UInt64 serviceId
                                 * @param(STUB):UInt64 stub 存根
                                 * @param(IS_FROM_CONNECT):bool 是否来自connect连接
-                                * @param(IS_FROM_LINKER):bool 是否来自listen连入
+                                * @param(IS_LINKER):bool 是否来自listen连入
                                 */
 
         SESSION_WILL_DESTROY,   // 会话销毁

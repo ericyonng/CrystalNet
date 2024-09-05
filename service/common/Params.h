@@ -47,7 +47,7 @@ namespace Params
         SERVICE_ID,         // 所属服务id UInt64
         STUB,               // 存根 UInt64
         IS_FROM_CONNECT,    // 是否来自connect操作 bool
-        IS_FROM_LINKER,    // 是否来自listen监听 bool
+        IS_LINKER,    // 是否来自listen监听 bool
         SESSION_CLOSE_REASON,    // 关闭原因, Int32
         SESSION_TYPE,    // 会话类型 SessionType Int32
         PROTOCOL_STACK, // 协议栈类型

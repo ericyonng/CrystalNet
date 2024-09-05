@@ -146,7 +146,7 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
     auto serviceId = ev->GetParam(Params::SERVICE_ID).AsUInt64();
     auto remoteOriginAddr = ev->GetParam(Params::TARGET_ADDR_IP_CONFIG).AsPtr<KERNEL_NS::AddrIpConfig>();
     auto protocolStack = GetService()->GetProtocolStack(protocolStackType);
-    auto isFromLinker = ev->GetParam(Params::IS_FROM_LINKER).AsBool();
+    auto isFromConnect = ev->GetParam(Params::IS_FROM_CONNECT).AsBool();
     // g_Log->Info(LOGFMT_OBJ_TAG("session will created sessionid:%llu, localAddr:%s, remoteAddr:%s, protocolType:%d, priorityLevel:%u, pollerId:%llu, "
     //                         "serviceId:%llu, stub:%llu, isFromConnect:%d, isFromLinker:%d")
     //                         , sessionId
@@ -171,7 +171,7 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
     sessionInfo._remoteAddr = *remoteAddr;
     sessionInfo._protocolStack = protocolStack;
     sessionInfo._remoteOriginAddr = *remoteOriginAddr;
-    sessionInfo._isFromLinker = isFromLinker;
+    sessionInfo._isFromLinker = !isFromConnect;
 
 
     // 消息发送限速

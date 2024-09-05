@@ -163,7 +163,7 @@ void UserSessionMgr::_OnSessionCreated(KERNEL_NS::LibEvent *ev)
 {
     auto sessionId = ev->GetParam(Params::SESSION_ID).AsUInt64();
     auto sessionType = ev->GetParam(Params::SESSION_TYPE).AsInt32();
-    auto isLinker = ev->GetParam(Params::IS_FROM_LINKER).AsBool();
+    auto isLinker = ev->GetParam(Params::IS_LINKER).AsBool();
     auto isFromConnect = ev->GetParam(Params::IS_FROM_CONNECT).AsBool();
 
     if(isLinker || isFromConnect)
