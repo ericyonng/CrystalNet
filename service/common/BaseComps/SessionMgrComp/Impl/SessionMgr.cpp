@@ -147,19 +147,19 @@ void SessionMgr::_OnSessionWillCreated(KERNEL_NS::LibEvent *ev)
     auto remoteOriginAddr = ev->GetParam(Params::TARGET_ADDR_IP_CONFIG).AsPtr<KERNEL_NS::AddrIpConfig>();
     auto protocolStack = GetService()->GetProtocolStack(protocolStackType);
     auto isFromConnect = ev->GetParam(Params::IS_FROM_CONNECT).AsBool();
-    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-    {
-        g_Log->Info(LOGFMT_OBJ_TAG("session will created sessionid:%llu, localAddr:%s, remoteAddr:%s, priorityLevel:%u, pollerId:%llu, "
-                                "serviceId:%llu, isFromConnect:%s")
-                                , sessionId
-                                , localAddr->ToString().c_str()
-                                , remoteAddr->ToString().c_str()
-                                , priorityLevel
-                                , sesionPollerId
-                                , serviceId
-                                , isFromConnect ? "true" :"false"
-                                );
-    }
+    // if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+    // {
+    //     g_Log->Info(LOGFMT_OBJ_TAG("session will created sessionid:%llu, localAddr:%s, remoteAddr:%s, priorityLevel:%u, pollerId:%llu, "
+    //                             "serviceId:%llu, isFromConnect:%s")
+    //                             , sessionId
+    //                             , localAddr->ToString().c_str()
+    //                             , remoteAddr->ToString().c_str()
+    //                             , priorityLevel
+    //                             , sesionPollerId
+    //                             , serviceId
+    //                             , isFromConnect ? "true" :"false"
+    //                             );
+    // }
 
 
     ServiceSessionInfo sessionInfo;
