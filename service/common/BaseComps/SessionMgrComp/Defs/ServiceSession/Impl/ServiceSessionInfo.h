@@ -56,6 +56,7 @@ struct ServiceSessionInfo
     ,_localAddr(true)
     ,_remoteAddr(true)
     ,_protocolStack(NULL)
+    ,_isFromLinker(true)
     {
 
     }
@@ -68,8 +69,9 @@ struct ServiceSessionInfo
     KERNEL_NS::LibString ToString() const
     {
         KERNEL_NS::LibString info;
-        info.AppendFormat("service id:%llu, sessionId:%llu, pollerId:%llu, priorityLevel:%u, sessionType:%d, localAddr:%s, remoteAddr:%s,origin:%s"
-                        , _serviceId, _sessionId, _pollerId, _priorityLevel, _sessionType, _localAddr.ToString().c_str(), _remoteAddr.ToString().c_str(), _remoteOriginAddr.ToString().c_str());
+        info.AppendFormat("service id:%llu, sessionId:%llu, pollerId:%llu, priorityLevel:%u, sessionType:%d, localAddr:%s, remoteAddr:%s,origin:%s, from linker:%s"
+                        , _serviceId, _sessionId, _pollerId, _priorityLevel, _sessionType, _localAddr.ToString().c_str(), _remoteAddr.ToString().c_str()
+                        , _remoteOriginAddr.ToString().c_str(), _isFromLinker ? "true" : "false");
 
         return info;
     }
@@ -89,6 +91,8 @@ struct ServiceSessionInfo
     KERNEL_NS::AddrIpConfig _remoteOriginAddr;
 
     KERNEL_NS::IProtocolStack *_protocolStack;
+
+    bool _isFromLinker;
 };
 
 SERVICE_END
