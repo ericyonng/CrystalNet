@@ -41,6 +41,7 @@
 #include <kernel/comp/LibList.h>
 #include <kernel/comp/ConcurrentPriorityQueue/ConcurrentPriorityQueue.h>
 #include <kernel/comp/Cpu/LibCpuCounter.h>
+#include <kernel/comp/LibList.h>
 
 #include <unordered_map>
 #include <atomic>
@@ -52,6 +53,8 @@ struct PollerEvent;
 class TimerMgr;
 class TimeSlice;
 struct PollerCompStatistics;
+
+struct AsyncTask;
 
 template<typename KeyType, typename MaskValue>
 class LibDirtyHelper;
@@ -168,9 +171,6 @@ public:
 
     void OnMonitor(PollerCompStatistics &statistics);
 
-    // TODO:假release, 不会Delete Poller,暂时性处理当处wait状态,中间收到信号导致Poller在被释放的时候调用条件变量的析构并调用destroy销毁条件变量时导致死锁
-    void SetDummyRelease();
-
 protected:
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;
@@ -207,7 +207,8 @@ private:
   // poller event handler
   std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *> *> _pollerEventHandler;
 
-  std::atomic_bool _isDummyRelease;
+  // 协程
+  LibList<AsyncTask *> *_asyncTasks;
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -359,12 +360,6 @@ ALWAYS_INLINE void Poller::QuitLoop()
     _isQuitLoop = true;
     WakeupEventLoop();
 }
-
-ALWAYS_INLINE void Poller::SetDummyRelease()
-{
-    _isDummyRelease = true;
-}
-
 
 KERNEL_END
 

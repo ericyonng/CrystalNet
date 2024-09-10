@@ -41,16 +41,6 @@
 
 KERNEL_BEGIN
 
-struct KERNEL_EXPORT AsyncTask 
-{
-    POOL_CREATE_OBJ_DEFAULT(AsyncTask);
-
-    // 异步任务处理函数类型
-    using Handler = std::function<void()>;
-
-    // 异步任务处理函数
-    Handler handler;
-};
 
 // TODO:需要对整个调度全面的理解, 才能把调度整合到Poller中
 class KERNEL_EXPORT AsyncTaskQueue 

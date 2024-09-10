@@ -21,26 +21,16 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-08-04 17:23:04
+ * Date: 2024-09-07 22:47:27
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <kernel/comp/Coroutines/AsyncTaskQueue.h>
-#include <kernel/comp/Utils/ContainerUtil.h>
+#include <kernel/comp/Coroutines/AsyncTask.h>
 
 KERNEL_BEGIN
 
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(AsyncTaskQueue);
-
-AsyncTaskQueue::~AsyncTaskQueue()
-{
-    ContainerUtil::DelContainer(_queue, [](AsyncTask *task){
-        AsyncTask::DeleteThreadLocal_AsyncTask(task);
-    });
-}
-
+POOL_CREATE_OBJ_DEFAULT_IMPL(AsyncTask);
 
 KERNEL_END

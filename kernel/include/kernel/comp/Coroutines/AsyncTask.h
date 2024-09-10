@@ -21,26 +21,32 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-08-04 17:23:04
+ * Date: 2024-09-07 22:44:21
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Coroutines/AsyncTaskQueue.h>
-#include <kernel/comp/Utils/ContainerUtil.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_ASYNC_TASK_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_ASYNC_TASK_H__
+
+#pragma once
+
+#include <kernel/comp/memory/ObjPoolMacro.h>
+#include <functional>
 
 KERNEL_BEGIN
 
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(AsyncTaskQueue);
-
-AsyncTaskQueue::~AsyncTaskQueue()
+struct KERNEL_EXPORT AsyncTask 
 {
-    ContainerUtil::DelContainer(_queue, [](AsyncTask *task){
-        AsyncTask::DeleteThreadLocal_AsyncTask(task);
-    });
-}
+    POOL_CREATE_OBJ_DEFAULT(AsyncTask);
 
+    // 异步任务处理函数类型
+    using Handler = std::function<void()>;
+
+    // 异步任务处理函数
+    Handler _handler;
+};
 
 KERNEL_END
+
+#endif

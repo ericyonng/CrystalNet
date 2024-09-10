@@ -41,6 +41,7 @@
 #include <kernel/comp/Poller/PollerEventInternalType.h>
 
 #include <kernel/comp/Poller/PollerCompStatistics.h>
+#include <kernel/comp/Coroutines/AsyncTask.h>
 
 // static ALWAYS_INLINE bool IsPriorityEvenetsQueueEmpty(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
 // {
@@ -115,7 +116,7 @@ Poller::Poller()
 ,_genEventAmount{0}
 ,_consumEventCount{0}
 ,_onTick(NULL)
-,_isDummyRelease{false}
+,_asyncTasks(LibList<AsyncTask *>::New_LibList())
 {
     // auto defObj = TlsUtil::GetDefTls();
     // if(UNLIKELY(defObj->_poller))
@@ -132,8 +133,7 @@ Poller::~Poller()
 
 void Poller::Release()
 {
-    if(LIKELY(!_isDummyRelease))
-        Poller::Delete_Poller(this);
+    Poller::Delete_Poller(this);
 }
 
 Int32 Poller::_OnInit()
@@ -390,7 +390,30 @@ void Poller::EventLoop()
         #else
         _timerMgr->Drive();
         #endif
-        
+
+        // 处理协程
+        Int32 detectTimeoutLoopCount = _loopDetectTimeout;
+        deadline.Update();
+        deadline += _maxPieceTime;
+
+        for(auto coNode = _asyncTasks->Begin(); coNode != _asyncTasks->End();)
+        {
+            auto data = coNode->_data;
+            if(LIKELY(data))
+                data->_handler();
+                
+            // 片超时
+            if(UNLIKELY(--detectTimeoutLoopCount <= 0))
+            {
+                detectTimeoutLoopCount = _loopDetectTimeout;
+
+                if(UNLIKELY(nowCounter.Update() >=  deadline))
+                    break;
+            }
+
+            coNode = _asyncTasks->Erase(coNode);
+        }
+
         if(_onTick)
             _onTick->Invoke();
 
@@ -424,6 +447,15 @@ void Poller::EventLoop()
 
 void Poller::OnLoopEnd()
 {
+    // 释放还未结束的协程任务
+    if(_asyncTasks)
+    {
+        ContainerUtil::DelContainer(*_asyncTasks, [](AsyncTask *t){
+            AsyncTask::DeleteThreadLocal_AsyncTask(t);
+        });
+        LibList<AsyncTask *>::Delete_LibList(_asyncTasks);
+    }
+    _asyncTasks = NULL;
     // worker 线程关闭
     if(LIKELY(_onEventWorkerCloseHandler))
         _onEventWorkerCloseHandler->Invoke(this);
@@ -531,6 +563,15 @@ void Poller::_Clear()
 {
     _isEnable = false;
     _isQuitLoop = false;
+
+    if(_asyncTasks)
+    {
+        ContainerUtil::DelContainer(*_asyncTasks, [](AsyncTask *t){
+            AsyncTask::DeleteThreadLocal_AsyncTask(t);
+        });
+        LibList<AsyncTask *>::Delete_LibList(_asyncTasks);
+    }
+    _asyncTasks = NULL;
 
     if(LIKELY(_timerMgr))
     {
