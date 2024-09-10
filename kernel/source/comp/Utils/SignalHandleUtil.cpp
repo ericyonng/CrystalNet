@@ -293,6 +293,8 @@ void SignalHandleUtil::SetSignoIgnore(Int32 signo)
     for(UInt64 setValue = exp | (1LLU << UInt64(signo));
         !_ignoreSignoList.compare_exchange_weak(exp, setValue);)
         setValue = exp | (1LLU << UInt64(signo));
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(SignalHandleUtil, "SetSignoIgnore signo:%d"), signo);
 }
 
 Int32 SignalHandleUtil::Init()

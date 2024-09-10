@@ -86,17 +86,20 @@ Int32 ThreadTool::OnStart()
 
 void ThreadTool::OnDestroy()
 {
-    // 需要释放tls owner
-    auto tlsStack = TlsUtil::GetTlsStack();
-    auto defTls = tlsStack->GetDef();
-    if(LIKELY(defTls && defTls->_tlsComps))
+    const auto currentThreadId = SystemUtil::GetCurrentThreadId();
+    if(currentThreadId != SystemUtil::GetCurProcessMainThreadId())
     {
-        defTls->_tlsComps->WillClose();
-        defTls->_tlsComps->Close();
-        CRYSTAL_RELEASE_SAFE(defTls->_tlsComps);
+        // 需要释放tls owner
+        auto tlsStack = TlsUtil::GetTlsStack();
+        auto defTls = tlsStack->GetDef();
+        if(LIKELY(defTls && defTls->_tlsComps))
+        {
+            defTls->_tlsComps->WillClose();
+            defTls->_tlsComps->Close();
+            CRYSTAL_RELEASE_SAFE(defTls->_tlsComps);
+        }
     }
 
-    const auto currentThreadId = SystemUtil::GetCurrentThreadId();
     // 得等收集器关闭
     auto centerMemroyCollector = CenterMemoryCollector::GetInstance();
     if(centerMemroyCollector->GetWorkerThreadId() != currentThreadId)
