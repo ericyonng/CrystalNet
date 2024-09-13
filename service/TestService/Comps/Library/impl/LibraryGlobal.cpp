@@ -479,7 +479,8 @@ Int32 LibraryGlobal::CreateBorrowOrder(UInt64 libraryId, const IUser *user, cons
     }
     sysLog->AddLog(libraryId, "CREATE_BORROW_ORDER_TITLE", {}, "CREATE_BORROW_ORDER_CONTENT", params);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("create order success, library id:%llu, borrow user:%llu, order info:%s"), libraryId, user->GetUserId(), newOrderInfo->ToJsonString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("create order success, library id:%llu, borrow user:%llu, order info:%s"), libraryId, user->GetUserId(), newOrderInfo->ToJsonString().c_str());
 
     return Status::Success;
 }
@@ -2167,8 +2168,9 @@ void LibraryGlobal::_OnManagerScanOrderForUserGettingBooksReq(KERNEL_NS::LibPack
         auto confirmTimeConfig = GetGlobalSys<ConfigLoader>()->GetComp<CommonConfigMgr>()->GetConfigById(CommonConfigIdEnums::CONFIRM_CODE_TIME);
         newTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(confirmTimeConfig->_int64Value * KERNEL_NS::TimeDefs::SECOND_PER_MINUTE));
         
-        g_Log->Info(LOGFMT_OBJ_TAG("gen confirm code:%llu, order info:%s, library id:%llu, operate user:%s, order user:%s")
-        , confirmId, orderInfo->ToJsonString().c_str(), static_cast<UInt64>(libraryInfo->id()), user->ToString().c_str(), orderUser->ToString().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("gen confirm code:%llu, order info:%s, library id:%llu, operate user:%s, order user:%s")
+            , confirmId, orderInfo->ToJsonString().c_str(), static_cast<UInt64>(libraryInfo->id()), user->ToString().c_str(), orderUser->ToString().c_str());
     } while (false);
 
     ManagerScanOrderForUserGettingBooksRes res;
@@ -2251,7 +2253,8 @@ void LibraryGlobal::_OnUserGetBooksOrderConfirmReq(KERNEL_NS::LibPacket *&packet
         }
         MaskNumberKeyModifyDirty(libraryInfo->id());
 
-        g_Log->Info(LOGFMT_OBJ_TAG("get book confirm user:%s, order info:%s"), user->ToString().c_str(), orderInfo->ToJsonString().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("get book confirm user:%s, order info:%s"), user->ToString().c_str(), orderInfo->ToJsonString().c_str());
 
         _SendLibraryInfoNty(user);
         _SendOrderDetailInfoNty(user);
@@ -2418,8 +2421,9 @@ void LibraryGlobal::_OnCancelOrderReq(KERNEL_NS::LibPacket *&packet)
         _SendLibraryInfoNty(user);
         _SendOrderDetailInfoNty(user);
 
-        g_Log->Info(LOGFMT_OBJ_TAG("cancel order library id:%llu, operate user:%s, memberInfo:%s, order info:%s, order reason:%s")
-        ,  libraryId, user->ToString().c_str(), memberInfo->ToJsonString().c_str(), orderInfo->ToJsonString().c_str(), decodedContent.c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("cancel order library id:%llu, operate user:%s, memberInfo:%s, order info:%s, order reason:%s")
+            ,  libraryId, user->ToString().c_str(), memberInfo->ToJsonString().c_str(), orderInfo->ToJsonString().c_str(), decodedContent.c_str());
 
         // 取消订单需要通知管理员(所有包括馆长)订单取消
         auto notifyGlobal = GetGlobalSys<INotifyGlobal>();
@@ -2752,9 +2756,10 @@ void LibraryGlobal::_OnReturnBackReq(KERNEL_NS::LibPacket *&packet)
         _SendOrderDetailInfoNty(user);
 
         auto targetMemberInfo = GetMemberInfo(libraryId, orderInfo->userid());
-        g_Log->Info(LOGFMT_OBJ_TAG("return back books library id:%llu, operate user:%s, target user member info:%s, order info:%s")
-        ,  libraryId, user->ToString().c_str(), targetMemberInfo ? targetMemberInfo->ToJsonString().c_str() : KERNEL_NS::StringUtil::Num2Str(orderInfo->userid()).c_str()
-        , orderInfo->ToJsonString().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("return back books library id:%llu, operate user:%s, target user member info:%s, order info:%s")
+            ,  libraryId, user->ToString().c_str(), targetMemberInfo ? targetMemberInfo->ToJsonString().c_str() : KERNEL_NS::StringUtil::Num2Str(orderInfo->userid()).c_str()
+            , orderInfo->ToJsonString().c_str());
 
         // 取消订单需要通知管理员(所有包括馆长)订单取消
         auto notifyGlobal = GetGlobalSys<INotifyGlobal>();
@@ -3069,7 +3074,8 @@ Int32 LibraryGlobal::_ContinueModifyMember(LibraryInfo *libraryInfo, UInt64 reqU
     }
     sysLog->AddLog(libraryInfo->id(), "MODIFY_MEMBER_LOG_TITLE", {}, "MODIFY_MEMBER_LOG_CONTENT", params);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("target member info is modified by user id:%llu, new target member:%s"), reqUserId, _MemberToString(targetMember).c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("target member info is modified by user id:%llu, new target member:%s"), reqUserId, _MemberToString(targetMember).c_str());
 
     return Status::Success;
 }
@@ -3146,7 +3152,8 @@ LibraryInfo *LibraryGlobal::_CreateLibrary(IUser *user, const KERNEL_NS::LibStri
 
     // TODO:系统日志
     
-    g_Log->Info(LOGFMT_OBJ_TAG("create new library, create user:%s, new library:%s"), user->ToString().c_str(), newLibrary->ToJsonString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("create new library, create user:%s, new library:%s"), user->ToString().c_str(), newLibrary->ToJsonString().c_str());
     return newLibrary;
 }
 
@@ -3179,11 +3186,12 @@ void LibraryGlobal::_JoinMember(LibraryInfo *libraryInfo, IUser *user, Int32 rol
     MaskNumberKeyModifyDirty(libraryInfo->id());
 
     // TODO:系统日志
-    g_Log->Info(LOGFMT_OBJ_TAG("join new member user:%s, roleType:%d,%s library:%s")
-    , user->ToString().c_str()
-    , roleType
-    , RoleType::ENUMS_Name(roleType).c_str()
-    , LibraryToString(libraryInfo).c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("join new member user:%s, roleType:%d,%s library:%s")
+        , user->ToString().c_str()
+        , roleType
+        , RoleType::ENUMS_Name(roleType).c_str()
+        , LibraryToString(libraryInfo).c_str());
 }
 
 bool LibraryGlobal::_IsReturnBackAllBook(const MemberInfo *memberInfo) const
@@ -3274,7 +3282,9 @@ bool LibraryGlobal::_RemoveMember(LibraryInfo *libraryInfo, UInt64 userId)
             if(libraryInfo->memberlist(idx).userid() == userId)
             {
                 nickName = libraryInfo->memberlist(idx).nickname();
-                g_Log->Info(LOGFMT_OBJ_TAG("library will remove member library info:%s, member info:%s"), LibraryToString(libraryInfo).c_str(), libraryInfo->memberlist(idx).ToJsonString().c_str());
+
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("library will remove member library info:%s, member info:%s"), LibraryToString(libraryInfo).c_str(), libraryInfo->memberlist(idx).ToJsonString().c_str());
                 libraryInfo->mutable_memberlist()->DeleteSubrange(idx, 1);
                 break;
             }
@@ -3426,8 +3436,11 @@ void LibraryGlobal::_TransferMember(LibraryInfo *libraryInfo, MemberInfo *member
 
     MaskNumberKeyModifyDirty(libraryInfo->id());
 
-    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), static_cast<UInt64>(memberInfo->userid()), role, targetRole);
-    g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), static_cast<UInt64>(targetMember->userid()), targetRole, role);
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+    {
+        g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), static_cast<UInt64>(memberInfo->userid()), role, targetRole);
+        g_Log->Info(LOGFMT_OBJ_TAG("library:%s, member user id:%llu transfer %d => %d"), LibraryToString(libraryInfo).c_str(), static_cast<UInt64>(targetMember->userid()), targetRole, role);
+    }
 
     // TODO:系统日志 原图书馆馆长:【{0}】,用户id:{1}, 将图书馆转让给用户:【{2}】,用户id:{3}
     auto sysLog = GetGlobalSys<ISystemLogGlobal>();

@@ -210,7 +210,8 @@ Int32 MysqlDB::Dump(const LibString &dumpFilePath)
         return Status::Failed;
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("begin dump mysql config:%s dump file:%s"), _cfg.ToString().c_str(), dumpFilePath.c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("begin dump mysql config:%s dump file:%s"), _cfg.ToString().c_str(), dumpFilePath.c_str());
 
     auto dbDumpCmd = LibString().AppendFormat(
         "mysqldump --single-transaction --set-gtid-purged=OFF -h\"%s\" -P%hu -u\"%s\" -p\"%s\" \"%s\" > \"%s\"",
@@ -223,7 +224,8 @@ Int32 MysqlDB::Dump(const LibString &dumpFilePath)
         return Status::Failed;
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("Dump database %s finished"), _cfg._dbName.c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("Dump database %s finished"), _cfg._dbName.c_str());
     return Status::Success;
 }
 
@@ -319,21 +321,24 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
                 {
                     if(req->_msgType >= static_cast<Int32>(_msgHandler.size()))
                     {
-                        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("bad mysql request :"), req->Dump());
+                        if(g_Log->IsEnable(KERNEL_NS::LogLevel::FailSql))
+                            g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("bad mysql request :"), req->Dump());
                         break;
                     }
 
                     auto handler = _msgHandler[req->_msgType];
                     if(!handler)
                     {
-                        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("have no mysql msg handler request :"), req->Dump());
+                        if(g_Log->IsEnable(KERNEL_NS::LogLevel::FailSql))
+                            g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString("have no mysql msg handler request :"), req->Dump());
                         break;
                     }
 
                     #ifdef ENABLE_PERFORMANCE_RECORD
                         auto outputLogFunc = [&req](UInt64 costMs)
                         {
-                            g_Log->DumpSql(LOGFMT_NON_OBJ_TAG_NO_FMT(MysqlDB), KERNEL_NS::LibString().AppendFormat("seq id:%llu, cost %llu ms", req->_seqId, costMs));
+                            if(g_Log->IsEnable(KERNEL_NS::LogLevel::DumpSql))
+                                g_Log->DumpSql(LOGFMT_NON_OBJ_TAG_NO_FMT(MysqlDB), KERNEL_NS::LibString().AppendFormat("seq id:%llu, cost %llu ms", req->_seqId, costMs));
                         };
                         
                         // TODO:性能监控日志输出优化
@@ -435,7 +440,8 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
                 break;
             }
 
-            g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
             KERNEL_NS::SystemUtil::ThreadSleep(1000);
         }
     }
@@ -464,7 +470,8 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
                             break;
                         }
 
-                        g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
+                        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                            g_Log->Info(LOGFMT_OBJ_TAG("ExecuteSqlUsingStmt fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
                         KERNEL_NS::SystemUtil::ThreadSleep(1000);
                     }
                     
@@ -522,7 +529,8 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSqlUsingStmt fail of mysql disconnected req:"), req->Dump());
     }
 
-    g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::DumpSql))
+        g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
                     , res->_seqId, res->_dbName.c_str(), res->_affectedRows, res->_maxInsertId, res->_isRequestSendToMysql, res->_errCode, res->_mysqlErrno));
 
     // 有失败, 则打印剩余失败的sql
@@ -546,7 +554,9 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
         {
             res->_errCode = Status::Failed;
         }
-        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql db:%s connection:%s errCode:%d, mysqlerrno:%u, finalErrCode:%d, mysqlDbErr:%u request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno, finalErrCode, mysqlDbErr)
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::FailSql))
+            g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql db:%s connection:%s errCode:%d, mysqlerrno:%u, finalErrCode:%d, mysqlDbErr:%u request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno, finalErrCode, mysqlDbErr)
                     , req->Dump(), LibString().AppendFormat("\nfail sqls:\n"), failBuilder);
     }
 
@@ -731,7 +741,8 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail of mysql disconnected req:"), req->Dump());
     }
 
-    g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::DumpSql))
+        g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
                     , res->_seqId, res->_dbName.c_str(), res->_affectedRows, res->_maxInsertId, res->_isRequestSendToMysql, res->_errCode, res->_mysqlErrno));
 
     // 有失败, 则打印剩余失败的sql
@@ -756,7 +767,8 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
             res->_errCode = Status::Failed;
         }
 
-        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql:%s connection:%s errCode:%d, mysqlerrno:%u, finalErrCode:%d, mysqlDbErr:%u request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno, finalErrCode, mysqlDbErr)
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::FailSql))
+            g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql:%s connection:%s errCode:%d, mysqlerrno:%u, finalErrCode:%d, mysqlDbErr:%u request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno, finalErrCode, mysqlDbErr)
                     , req->Dump(), LibString().AppendFormat("\nfail sqls:\n"), failBuilder);
     }
 
@@ -845,7 +857,8 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
                 break;
             }
 
-            g_Log->Info(LOGFMT_OBJ_TAG("_SqlWithTransActionSqlHandler fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("_SqlWithTransActionSqlHandler fail try reconnect seq id:%llu, mysql connection:%s"), req->_seqId, ToString().c_str());
             KERNEL_NS::SystemUtil::ThreadSleep(1000);
         }
     }
@@ -866,7 +879,8 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
 
         if(!curConn->ExecuteSqlUsingTransAction(builders, req->_seqId, cb))
         {
-            g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error  mysql:%s, connection:%s request dump:\n", ToString().c_str(), curConn->ToString().c_str())
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::FailSql))
+                g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error  mysql:%s, connection:%s request dump:\n", ToString().c_str(), curConn->ToString().c_str())
                         , req->Dump());
 
             g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("ExecuteSql fail req:"), req->Dump());
@@ -875,7 +889,8 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
 
     } while (false);
 
-    g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::DumpSql))
+        g_Log->DumpSql(LOGFMT_OBJ_TAG_NO_FMT(),  KERNEL_NS::LibString().AppendFormat("seq id:%llu db name:%s affected rows:%lld, final insert id:%lld, is req send to mysql:%d, errCode:%d, mysql err:%u"
                     , res->_seqId, res->_dbName.c_str(), res->_affectedRows, res->_maxInsertId, res->_isRequestSendToMysql, res->_errCode, res->_mysqlErrno));
 
     // 有失败, 则打印剩余失败的sql
@@ -889,7 +904,8 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
             failBuilder.AppendData(builderInfo->Dump()).AppendFormat("\n");
         }
 
-        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql db:%s connection:%s errCode:%d, mysqlerrno:%u, request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno)
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::FailSql))
+            g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error seq id:%llu mysql db:%s connection:%s errCode:%d, mysqlerrno:%u, request dump:\n",  res->_seqId, ToString().c_str(), curConn->ToString().c_str(), res->_errCode, res->_mysqlErrno)
                     , req->Dump(), LibString().AppendFormat("\nfail sqls:\n"), failBuilder);
     }
 

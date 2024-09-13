@@ -310,10 +310,13 @@ bool EpollTcpPoller::_TryHandleConnecting(UInt64 sessionId, Int32 events)
     
     if(UNLIKELY(!connected))
     {
-        // 连接成功 
-        g_Log->NetTrace(LOGFMT_OBJ_TAG("epoll poller info:%s _TryHandleConnecting fail connect and will _ReleaseConnect info:%s")
+        // 连接成功
+        if(g_Log->IsEnable(LogLevel::NetTrace))
+            g_Log->NetTrace(LOGFMT_OBJ_TAG("epoll poller info:%s _TryHandleConnecting fail connect and will _ReleaseConnect info:%s")
                                     , ToString().c_str(), connectPendingInfo->ToString().c_str());   
-        g_Log->NetDebug(LOGFMT_OBJ_TAG("epoll poller info:%s _TryHandleConnecting fail connect and will _ReleaseConnect info:%s")
+
+        if(g_Log->IsEnable(LogLevel::NetDebug))
+            g_Log->NetDebug(LOGFMT_OBJ_TAG("epoll poller info:%s _TryHandleConnecting fail connect and will _ReleaseConnect info:%s")
                                     , ToString().c_str(), connectPendingInfo->ToString().c_str());   
 
         // 没定时器重试
@@ -323,7 +326,8 @@ bool EpollTcpPoller::_TryHandleConnecting(UInt64 sessionId, Int32 events)
     }
         
     // 连接成功 
-    g_Log->NetTrace(LOGFMT_OBJ_TAG("epoll poller info:%s _TryHandleConnecting suc connect info:%s")
+    if(g_Log->IsEnable(LogLevel::NetTrace))
+        g_Log->NetTrace(LOGFMT_OBJ_TAG("epoll poller info:%s _TryHandleConnecting suc connect info:%s")
                                 , ToString().c_str(), connectPendingInfo->ToString().c_str());   
 
     _OnConnectSuc(connectPendingInfo);
@@ -576,7 +580,9 @@ void EpollTcpPoller::_OnAsynConnect(PollerEvent *ev)
         auto connectInfo = KernelCastTo<LibConnectInfo>(ptr);
         LibConnectInfo::Delete_LibConnectInfo(connectInfo);
     });
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("recv a connect event: :%s"), connectEv->ToString().c_str());
+
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("recv a connect event: :%s"), connectEv->ToString().c_str());
 
     Int32 errCode = Status::Success;
     KERNEL_NS::LibString currentIp;
@@ -709,7 +715,8 @@ void EpollTcpPoller::_OnAsynConnect(PollerEvent *ev)
                 newPending->_reconnectTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(30));
         }
         
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("%s[%s]:%hu waiting for connecting success...\npending info:%s")
+        if(g_Log->IsEnable(LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("%s[%s]:%hu waiting for connecting success...\npending info:%s")
             , connectInfoCache->_targetIp._ip.c_str(), newPending->_currentTargetIp.c_str(), connectInfoCache->_targetPort
             , newPending->ToString().c_str());
     }
@@ -828,9 +835,8 @@ void EpollTcpPoller::_OnNewSession(PollerEvent *ev)
         }
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("new session created suc poller id:%llu, session amount:%llu, session info:%s")
-                    , _pollerId, static_cast<UInt64>(_sessionIdRefSession.size()), newSession->ToString().c_str());
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("new session created suc poller id:%llu, session amount:%llu, session info:%s")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("new session created suc poller id:%llu, session amount:%llu, session info:%s")
                     , _pollerId, static_cast<UInt64>(_sessionIdRefSession.size()), newSession->ToString().c_str());
 }
 
@@ -1014,7 +1020,8 @@ void EpollTcpPoller::_OnAddListen(PollerEvent *ev)
             _serviceProxy->PostMsg(listenRes->_serviceId, listenRes->_priorityLevel, listenRes);
         }
 
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("add listen :%s, session info:%s")
+        if(g_Log->IsEnable(LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("add listen :%s, session info:%s")
                     , listenInfo->ToString().c_str(), newSession->ToString().c_str());
     }
 
@@ -1033,7 +1040,8 @@ void EpollTcpPoller::_OnIpRuleControl(PollerEvent *ev)
         return;
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("ip rule control:%s"), ipCtrlEv->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("ip rule control:%s"), ipCtrlEv->ToString().c_str());
     
     auto ipRuleMgr = GetComp<IpRuleMgr>();
     auto &ctrlList = ipCtrlEv->_ipControlList;
@@ -1089,7 +1097,8 @@ void EpollTcpPoller::_OnQuitServiceSessionsEvent(PollerEvent *ev)
         }
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("will quit service session service id:%llu priorityLevel count:%llu, current poller id:%llu")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("will quit service session service id:%llu priorityLevel count:%llu, current poller id:%llu")
             , quiteSessionEv->_fromServiceId, static_cast<UInt64>(sessions.size()), GetPollerId());
 
     for(auto iter : sessions)
@@ -1127,7 +1136,8 @@ void EpollTcpPoller::_OnRealDoQuitServiceSessionEvent(PollerEvent *ev)
         node = quitSessionEv->_quitSessionInfo->Erase(node);
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("real do quit service session service id:%llu, session count:%llu, current poller id:%llu")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("real do quit service session service id:%llu, session count:%llu, current poller id:%llu")
             , quitSessionEv->_fromServiceId, static_cast<UInt64>(sessions.size()), GetPollerId());
 
     for(auto session : sessions)
@@ -1136,9 +1146,10 @@ void EpollTcpPoller::_OnRealDoQuitServiceSessionEvent(PollerEvent *ev)
 
 void EpollTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
 {
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("connect to:%s[%s]:%hu success.\npending info:%s")
-    , connectPendingInfo->_connectInfo->_targetIp._ip.c_str(), connectPendingInfo->_currentTargetIp.c_str()
-    , connectPendingInfo->_connectInfo->_targetPort, connectPendingInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetDebug))
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("connect to:%s[%s]:%hu success.\npending info:%s")
+        , connectPendingInfo->_connectInfo->_targetIp._ip.c_str(), connectPendingInfo->_currentTargetIp.c_str()
+        , connectPendingInfo->_connectInfo->_targetPort, connectPendingInfo->ToString().c_str());
 
     // 从本poller中监听中移除
     _epoll->DelEvent(connectPendingInfo->_newSock, connectPendingInfo->_sessionId, EPOLLOUT | EPOLLET);
@@ -1180,8 +1191,8 @@ void EpollTcpPoller::_OnConnectPending(LibConnectPendingInfo *&connectPendingInf
     _epoll->AddEvent(connectPendingInfo->_newSock, connectPendingInfo->_sessionId, EPOLLOUT | EPOLLET);
     ++_sessionPendingCount;
     _sessionIdRefAsynConnectPendingInfo.insert(std::make_pair(connectPendingInfo->_sessionId, connectPendingInfo));
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("connect pending add connect pending info event, pending info:%s"), connectPendingInfo->ToString().c_str());
-    g_Log->NetTrace(LOGFMT_OBJ_TAG("connect pending add connect pending info event, pending info:%s"), connectPendingInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetDebug))
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("connect pending add connect pending info event, pending info:%s"), connectPendingInfo->ToString().c_str());
 }
 
 void EpollTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPendingInfo *connectPending, Int32 errCode)
@@ -1247,7 +1258,8 @@ void EpollTcpPoller::_OnAccept(EpollTcpSession *session)
         // 单帧accpet循环次数限制,避免其他session饥饿
         if(++curFrameAcceptCount >= frameCountLimit)
         {
-            g_Log->NetDebug(LOGFMT_OBJ_TAG("accept count over limit will continue in future accept session:%s."), session->ToString().c_str());
+            if(g_Log->IsEnable(LogLevel::NetDebug))
+                g_Log->NetDebug(LOGFMT_OBJ_TAG("accept count over limit will continue in future accept session:%s."), session->ToString().c_str());
             session->ResetFrameAcceptHandleCount();
             dirtyHelper->MaskDirty(session, PollerDirty::ACCEPT);
             break;
@@ -1268,12 +1280,14 @@ void EpollTcpPoller::_OnAccept(EpollTcpSession *session)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
             {// 可以退出循环
+            if(g_Log->IsEnable(LogLevel::NetDebug))
                 g_Log->NetDebug(LOGFMT_OBJ_TAG("EAGAIN or EWOULDBLOCK coming when accept in a dead loop accept session:%s"), session->ToString().c_str());
                 break;
             }
             else if (errno == EINTR)
             {
-                g_Log->NetDebug(LOGFMT_OBJ_TAG("sinal inerrupt when accept accept session:%s"), session->ToString().c_str());
+                if(g_Log->IsEnable(LogLevel::NetDebug))
+                    g_Log->NetDebug(LOGFMT_OBJ_TAG("sinal inerrupt when accept accept session:%s"), session->ToString().c_str());
             }
             else
             {
@@ -1286,7 +1300,8 @@ void EpollTcpPoller::_OnAccept(EpollTcpSession *session)
 
 Int32 EpollTcpPoller::_OnAcceptedNew(SOCKET sock, EpollTcpSession *session)
 {
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("accept new socket sock:%d, accept session info:%s"), sock, session->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("accept new socket sock:%d, accept session info:%s"), sock, session->ToString().c_str());
     
     // 校验ip
     auto acceptSock = session->GetSock();
@@ -1378,7 +1393,8 @@ Int32 EpollTcpPoller::_OnAcceptedNew(SOCKET sock, EpollTcpSession *session)
     newBuildSessionInfo->_sessionOption._forbidRecv = false;
     _tcpPollerMgr->OnAcceptedSuc(newBuildSessionInfo);
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("accepted new session suc newBuildSessionInfo:%s, from accept session:%s.")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("accepted new session suc newBuildSessionInfo:%s, from accept session:%s.")
                     , newBuildSessionInfo->ToString().c_str(), session->ToString().c_str());
 
     return Status::Success;
@@ -1387,7 +1403,9 @@ Int32 EpollTcpPoller::_OnAcceptedNew(SOCKET sock, EpollTcpSession *session)
 void EpollTcpPoller::_OnDirtySessionAccept(LibDirtyHelper<void *, UInt32> *dirtyHelper, void *&session, Variant *params)
 {
     auto acceptSession = KernelCastTo<EpollTcpSession>(session);
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("session accept dirty coming session%s"), acceptSession->ToString().c_str());
+
+    if(g_Log->IsEnable(LogLevel::NetDebug))
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("session accept dirty coming session%s"), acceptSession->ToString().c_str());
 
     _OnAccept(acceptSession);
 }
@@ -1427,7 +1445,8 @@ void EpollTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyH
 
      if(_CanClose(epollSession))
      {
-         g_Log->NetDebug(LOGFMT_OBJ_TAG("session close dirty do close session session info:%s, closeReason:%d, %s, stub:%llu")
+        if(g_Log->IsEnable(LogLevel::NetDebug))
+            g_Log->NetDebug(LOGFMT_OBJ_TAG("session close dirty do close session session info:%s, closeReason:%d, %s, stub:%llu")
                         , epollSession->ToString().c_str(), closeReason, CloseSessionInfo::GetCloseReason(closeReason), stub);
          dirtyHelper->Clear(session, PollerDirty::CLOSE);
          _CloseSession(epollSession, closeReason, stub);
@@ -1443,7 +1462,8 @@ void EpollTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyH
 
 void EpollTcpPoller::_DestroyConnect(LibConnectPendingInfo *&connectPendingInfo, bool destroyConnectInfo)
 {
-    g_Log->NetTrace(LOGFMT_OBJ_TAG("destroy connect pending %s"), connectPendingInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetTrace))
+        g_Log->NetTrace(LOGFMT_OBJ_TAG("destroy connect pending %s"), connectPendingInfo->ToString().c_str());
     if(connectPendingInfo->_sessionId)
     {
         _pollerMgr->ReduceSessionPending(1);
@@ -1493,7 +1513,8 @@ void EpollTcpPoller::_OnMonitorThread(LibThread *t)
         }
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller epoll monitor start threadid = [%llu]"), SystemUtil::GetCurrentThreadId());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller epoll monitor start threadid = [%llu]"), SystemUtil::GetCurrentThreadId());
 
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     poller->PrepareLoop();
@@ -1504,7 +1525,8 @@ void EpollTcpPoller::_OnMonitorThread(LibThread *t)
         Int32 ret = _epoll->Wait();
         if(ret <= 0)
         {
-            g_Log->NetTrace(LOGFMT_OBJ_TAG("epoll wait ret = [%d], poller id:%llu"), ret, _pollerId);
+            if(g_Log->IsEnable(LogLevel::NetTrace))
+                g_Log->NetTrace(LOGFMT_OBJ_TAG("epoll wait ret = [%d], poller id:%llu"), ret, _pollerId);
             continue;
         }
 
@@ -1519,7 +1541,8 @@ void EpollTcpPoller::_OnMonitorThread(LibThread *t)
 
     poller->OnLoopEnd();
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller epoll monitor monitor thread finish thread id = %llu"), SystemUtil::GetCurrentThreadId());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller epoll monitor monitor thread finish thread id = %llu"), SystemUtil::GetCurrentThreadId());
 }
 
 void EpollTcpPoller::_OnPollEventLoop(LibThread *t)
@@ -1530,7 +1553,6 @@ void EpollTcpPoller::_OnPollEventLoop(LibThread *t)
         return;
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop start."));
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop prepare loop..."));
     if(!_poller->PrepareLoop())
     {
@@ -1574,7 +1596,8 @@ Int32 EpollTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, 
     }
 
     auto connectInfo = connectPendingInfo->_connectInfo;
-    g_Log->NetTrace(LOGFMT_OBJ_TAG("check connect :%s"), connectInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetTrace))
+        g_Log->NetTrace(LOGFMT_OBJ_TAG("check connect :%s"), connectInfo->ToString().c_str());
 
     // ip合法性
     if(!SocketUtil::IsIp(connectPendingInfo->_currentTargetIp))
@@ -1688,12 +1711,14 @@ Int32 EpollTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, 
     errCode = SocketUtil::Connect(connectPendingInfo->_newSock, &connectPendingInfo->_remoteAddr._addr);
     if(errCode == Status::Success)
     {
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("check connect suc pending info:%s"), connectPendingInfo->ToString().c_str());
+        if(g_Log->IsEnable(LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("check connect suc pending info:%s"), connectPendingInfo->ToString().c_str());
         return Status::Success;
     }
     else if(errCode == Status::SockError_EWOULDBLOCK)
     {
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("sock ewould block pending info:%s"), connectPendingInfo->ToString().c_str());
+        if(g_Log->IsEnable(LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("sock ewould block pending info:%s"), connectPendingInfo->ToString().c_str());
         return Status::SockError_Pending;
     }
     else
@@ -1861,13 +1886,15 @@ EpollTcpSession *EpollTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
     else
         _pollerMgr->AddAcceptedSessionCount(1);
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by build session info suc session info:%s"), newSession->ToString().c_str());
+   if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by build session info suc session info:%s"), newSession->ToString().c_str());
     return newSession;
 }
 
 EpollTcpSession *EpollTcpPoller::_CreateSession(LibListenInfo *listenInfo)
 {
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("will create session by listen info:%s"), listenInfo->ToString().c_str());
+   if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("will create session by listen info:%s"), listenInfo->ToString().c_str());
    if(UNLIKELY(listenInfo->_serviceId == 0))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("must specify a belong service id： listenInfo:%s"), listenInfo->ToString().c_str());
@@ -2007,13 +2034,15 @@ EpollTcpSession *EpollTcpPoller::_CreateSession(LibListenInfo *listenInfo)
     // 统计数量
     _pollerMgr->AddListenerSessionCount(1);
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by listen info suc session info:%s"), newSession->ToString().c_str());
+   if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by listen info suc session info:%s"), newSession->ToString().c_str());
     return newSession;
 }
 
 void EpollTcpPoller::_CloseSession(EpollTcpSession *session, Int32 closeReasonEnum, UInt64 stub)
 {
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("poller id:%llu, closeReasonEnum:%d,%s, stub:%llu, close session :%s")
+   if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("poller id:%llu, closeReasonEnum:%d,%s, stub:%llu, close session :%s")
                 , GetPollerId(), closeReasonEnum, CloseSessionInfo::GetCloseReason(closeReasonEnum), stub, session->ToString().c_str());
     
     // 解除epoll监听
@@ -2077,13 +2106,16 @@ void EpollTcpPoller::_TryCloseSession(EpollTcpSession *session, Int32 closeReaso
     if(UNLIKELY(session->IsLinker()))
     {
         session->MaskClose(closeReasonEnum);
-        g_Log->NetDebug(LOGFMT_OBJ_TAG("try close a linker session close reason:%d,%s, stub:%llu")
+
+        if(g_Log->IsEnable(LogLevel::NetDebug))
+            g_Log->NetDebug(LOGFMT_OBJ_TAG("try close a linker session close reason:%d,%s, stub:%llu")
                     , closeReasonEnum, CloseSessionInfo::GetCloseReason(closeReasonEnum), stub);
         _CloseSession(session, closeReasonEnum, stub);
         return;
     }
 
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("try close session close reason:%d,%s, stub:%llu")
+   if(g_Log->IsEnable(LogLevel::NetDebug))
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("try close session close reason:%d,%s, stub:%llu")
                 , closeReasonEnum, CloseSessionInfo::GetCloseReason(closeReasonEnum), stub);
     if(session->CanRecv() || session->CanSend())
     {
@@ -2092,7 +2124,9 @@ void EpollTcpPoller::_TryCloseSession(EpollTcpSession *session, Int32 closeReaso
         auto &varDict = var->BecomeDict();
         varDict[1] = closeReasonEnum;
         varDict[2] = stub;
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("session mask close dirty flag, and will close session later poller id:%llu, session info:%s."), GetPollerId(), session->ToString().c_str());
+
+        if(g_Log->IsEnable(LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("session mask close dirty flag, and will close session later poller id:%llu, session info:%s."), GetPollerId(), session->ToString().c_str());
         return;
     }
 
@@ -2110,7 +2144,9 @@ void EpollTcpPoller::_ControlCloseSession(EpollTcpSession *session, Int32 closeR
     }
 
     const auto opCloseTime = LibTime::NowMilliTimestamp();
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("will local force close session:%s, opCloseTime:%lld")
+
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("will local force close session:%s, opCloseTime:%lld")
                 , session->ToString().c_str(), opCloseTime);
 
      if(forbidRead)
@@ -2142,7 +2178,8 @@ void EpollTcpPoller::_ControlCloseSession(EpollTcpSession *session, Int32 closeR
                     break;
                 }
 
-                g_Log->NetInfo(LOGFMT_OBJ_TAG("session%s delay close timeout, opCloseTime:%lld, realCloseTime:%lld")
+                if(g_Log->IsEnable(LogLevel::NetInfo))
+                    g_Log->NetInfo(LOGFMT_OBJ_TAG("session%s delay close timeout, opCloseTime:%lld, realCloseTime:%lld")
                                 , session->ToString().c_str(), opCloseTime, LibTime::NowMilliTimestamp());
 
                 _TryCloseSession(session, closeReason, stub);
@@ -2157,7 +2194,8 @@ void EpollTcpPoller::_ControlCloseSession(EpollTcpSession *session, Int32 closeR
         const Int64 delayMilliseconds = (opCloseTime > closeMillisecondTime) ? 0 : (closeMillisecondTime - opCloseTime);
         newTimer->Schedule(delayMilliseconds);
 
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("will close a session delay milliseconds:%lld, sessionId:%llu"), delayMilliseconds, sessionId);
+        if(g_Log->IsEnable(LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("will close a session delay milliseconds:%lld, sessionId:%llu"), delayMilliseconds, sessionId);
         return;
     }
 

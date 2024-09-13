@@ -98,8 +98,8 @@ Int32 LibAddr::UpdateLocalAddr()
     _prepareLocalPort = _localAddr._port;
     _prepareLocalIpAndPort = _localAddr._ipAndPort;
 
-    g_Log->NetTrace(LOGFMT_OBJ_TAG("sock[%d] _family[%d] local addr info[%s]")
-    ,_sock->GetSock(), family, _localAddr.ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetTrace))
+        g_Log->NetTrace(LOGFMT_OBJ_TAG("sock[%d] _family[%d] local addr info[%s]"),_sock->GetSock(), family, _localAddr.ToString().c_str());
     return Status::Success;
 }
 

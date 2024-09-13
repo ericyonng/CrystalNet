@@ -129,7 +129,8 @@ bool PrepareStmt::OnMysqlReconnect()
 
     auto ret = Init();
 
-    g_Log->Info(LOGFMT_OBJ_TAG("stmt reconnect ret:%d, stmt info:%s"), ret, ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("stmt reconnect ret:%d, stmt info:%s"), ret, ToString().c_str());
 
     return ret;
 }

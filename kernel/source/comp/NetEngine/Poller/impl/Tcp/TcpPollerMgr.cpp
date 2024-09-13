@@ -512,7 +512,8 @@ void TcpPollerMgr::OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo)
         return;
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("connect remote suc new session info:%s"), newSessionInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("connect remote suc new session info:%s"), newSessionInfo->ToString().c_str());
     
     poller->PostNewSession(newSessionInfo->_priorityLevel, newSessionInfo);
 }
@@ -541,7 +542,8 @@ void TcpPollerMgr::OnAcceptedSuc(BuildSessionInfo *newSessionInfo)
         return;
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("accepted new link in suc new session info:%s"), newSessionInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("accepted new link in suc new session info:%s"), newSessionInfo->ToString().c_str());
     poller->PostNewSession(newSessionInfo->_priorityLevel, newSessionInfo);
 }
 

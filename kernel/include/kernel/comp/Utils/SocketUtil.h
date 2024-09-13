@@ -277,7 +277,8 @@ ALWAYS_INLINE Int32 SocketUtil::Write<NetIoModule::EPOLL_LT>(SOCKET sock, const 
     err = errno;
     if(ret <= 0)
     {
-        g_Log->Trace(LOGFMT_NON_OBJ_TAG(SocketUtil, "send ret -1 sock = [%d], buffer = [%p], bufferSize = [%llu] err = [%d]")                           , sock, buffer, bufferSize, err);    
+        if(g_Log->IsEnable(LogLevel::Trace))
+            g_Log->Trace(LOGFMT_NON_OBJ_TAG(SocketUtil, "send ret -1 sock = [%d], buffer = [%p], bufferSize = [%llu] err = [%d]"), sock, buffer, bufferSize, err);    
         return Status::SockInterrupt;  
     }
 
@@ -296,7 +297,8 @@ ALWAYS_INLINE Int32 SocketUtil::Write<NetIoModule::EPOLL_ET>(SOCKET sock, const 
     if(ret == -1)
     {
         err = errno;
-        g_Log->Trace(LOGFMT_NON_OBJ_TAG(SocketUtil, "send ret -1 sock = [%d], buffer = [%p], bufferSize = [%llu] err = [%d]")
+        if(g_Log->IsEnable(LogLevel::Trace))
+            g_Log->Trace(LOGFMT_NON_OBJ_TAG(SocketUtil, "send ret -1 sock = [%d], buffer = [%p], bufferSize = [%llu] err = [%d]")
                                 , sock, buffer, bufferSize, err);
 
         // TODO:外部需要处理EWOULDBLOCK,EAGAIN,若非前两者错误,则视为sock错误需要断开
@@ -313,7 +315,8 @@ ALWAYS_INLINE Int32 SocketUtil::Read<NetIoModule::EPOLL_LT>(SOCKET sock, Byte8 *
     if(ret <= 0)
     {
         err = errno;
-        g_Log->Trace(LOGFMT_NON_OBJ_TAG(SocketUtil, "recv fail sock = [%d], buffer = [%p], bufferSize = [%llu], errno = [%d]"), sock, buffer, bufferSize, err);
+        if(g_Log->IsEnable(LogLevel::Trace))
+            g_Log->Trace(LOGFMT_NON_OBJ_TAG(SocketUtil, "recv fail sock = [%d], buffer = [%p], bufferSize = [%llu], errno = [%d]"), sock, buffer, bufferSize, err);
         return Status::SockInterrupt;
     }
 
@@ -332,7 +335,8 @@ ALWAYS_INLINE Int32 SocketUtil::Read<NetIoModule::EPOLL_ET>(SOCKET sock, Byte8 *
     {
         err = errno;
         // TODO:外部需要处理EWOULDBLOCK, EAGAIN,等
-        g_Log->Trace(LOGFMT_NON_OBJ_TAG(SocketUtil, "recv fail sock = [%d], buffer = [%p], bufferSize = [%llu], errno = [%d]"), sock, buffer, bufferSize, err);
+        if(g_Log->IsEnable(LogLevel::Trace))
+            g_Log->Trace(LOGFMT_NON_OBJ_TAG(SocketUtil, "recv fail sock = [%d], buffer = [%p], bufferSize = [%llu], errno = [%d]"), sock, buffer, bufferSize, err);
 
         return Status::SockInterrupt;
     }

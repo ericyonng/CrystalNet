@@ -198,7 +198,8 @@ Int32 UserMgr::OnLoaded(UInt64 key, const std::map<KERNEL_NS::LibString, KERNEL_
     _AddUser(user.AsSelf());
     _pendingLoginEventOnStartup.push_back(user->GetUserId());
 
-    g_Log->Info(LOGFMT_OBJ_TAG("[user loaded]: %s"), user->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("[user loaded]: %s"), user->ToString().c_str());
 
     user.pop();
     return Status::Success;
@@ -314,7 +315,8 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
     {// 相同会话都在login拒绝掉
         if(_loginPendingSessions.find(sessionId) != _loginPendingSessions.end())
         {
-            g_Log->Info(LOGFMT_OBJ_TAG("repeate login in same session and pending info:%s"), pendingInfo->ToString().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("repeate login in same session and pending info:%s"), pendingInfo->ToString().c_str());
             if(LIKELY(cb))
                 cb->Invoke(Status::RepeateLogin, pendingInfo, NULL, var);
             return Status::RepeateLogin;
@@ -325,7 +327,8 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
         auto user = GetUserBySessionId(sessionId);
         if(UNLIKELY(user))
         {
-            g_Log->Info(LOGFMT_OBJ_TAG("login in same session and will logout exists account pending info:%s, user:%s"), pendingInfo->ToString().c_str(), user->ToString().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("login in same session and will logout exists account pending info:%s, user:%s"), pendingInfo->ToString().c_str(), user->ToString().c_str());
             user->Logout(LogoutReason::LOG_IN_OTHER_ACCOUNT, false, sessionId);
         }
     }
@@ -390,7 +393,8 @@ Int32 UserMgr::Login(UInt64 sessionId, KERNEL_NS::SmartPtr<LoginInfo, KERNEL_NS:
     // if(LIKELY(cb))
     //     cb->Invoke(Status::Success, pendingInfo, user, var);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("user already online user :%s, pending:%s"), user->ToString().c_str(), pendingInfo->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("user already online user :%s, pending:%s"), user->ToString().c_str(), pendingInfo->ToString().c_str());
 
     return Status::Success;
 }
@@ -895,7 +899,8 @@ void UserMgr::_LruPopUser()
 
 void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("mysql res:%s"), res->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("mysql res:%s"), res->ToString().c_str());
     const auto &curTime = KERNEL_NS::LibTime::Now(); 
 
     // 可能之前有load过user导致pengding 一起处理
@@ -928,7 +933,8 @@ void UserMgr::_OnDbUserLoaded(KERNEL_NS::MysqlResponse *res)
     // user已经被提前load回来
     if(user)
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("user is already exists user:%s, pendingUser:%s"), user->ToString().c_str(), pendingUser->ToString().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("user is already exists user:%s, pendingUser:%s"), user->ToString().c_str(), pendingUser->ToString().c_str());
         
         _RemoveFromLru(user);
         user->UpdateLrtTime();
@@ -1575,7 +1581,8 @@ void UserMgr::_OnLoginFinishReq(KERNEL_NS::LibPacket *&packet)
         ev->SetParam(Params::USER_OBJ, user);
         user->FireEvent(ev);
 
-        g_Log->Info(LOGFMT_OBJ_TAG("client user login finished user:%s"), user->ToString().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("client user login finished user:%s"), user->ToString().c_str());
         
     } while (false);
     

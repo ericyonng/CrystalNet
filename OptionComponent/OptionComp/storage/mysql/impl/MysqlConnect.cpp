@@ -382,7 +382,9 @@ bool MysqlConnect::_ExcuteSql(UInt64 seqId, const LibString &sql) const
     if(ret != 0)
     {
         _UpdateLastMysqlErrno();
-        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("connection info:%s, excute sql fail err:%s, seqId:%llu sql size:%llu sql:", ToString().c_str(), mysql_error(_mysql), seqId, static_cast<UInt64>(sql.size())), sql);
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::FailSql))
+            g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), LibString().AppendFormat("connection info:%s, excute sql fail err:%s, seqId:%llu sql size:%llu sql:", ToString().c_str(), mysql_error(_mysql), seqId, static_cast<UInt64>(sql.size())), sql);
         return false;
     }
 
@@ -538,7 +540,8 @@ bool MysqlConnect::_SelectDB()
 
 bool MysqlConnect::_Ping(const LibString &content)
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("will ping content:%s, _mysql:%p, connection:%s"), content.c_str(), _mysql, ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("will ping content:%s, _mysql:%p, connection:%s"), content.c_str(), _mysql, ToString().c_str());
 
     const auto &counter = LibCpuCounter::Current();
     auto ret = mysql_ping(_mysql);

@@ -422,7 +422,8 @@ void Poller::EventLoop()
             const auto &elapseTime = nowCounter.Update() - performaceStart;
             if(UNLIKELY(elapseTime >= _maxPieceTime))
             {
-                g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu, time out handled count:%lld, dirty handled count:%lld")
+                if(g_Log->IsEnable(LogLevel::NetInfo))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu, time out handled count:%lld, dirty handled count:%lld")
                 , pollerId, curThreadId, elapseTime.GetTotalMilliseconds(), _maxPieceTime.GetTotalMilliseconds(), curConsumeEventsCount, handled, dirtyHandled);
             }
         #endif

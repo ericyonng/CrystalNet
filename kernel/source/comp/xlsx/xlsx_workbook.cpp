@@ -176,7 +176,9 @@ bool XlsxWorkbook::_ParseAllSharedStrings(const ArchiveFile &achive, std::vector
     while(shareStringBegin)
     {
         auto currentValue = shareStringBegin->FirstChildElement("t")->GetText();
-        g_Log->Debug(LOGFMT_OBJ_TAG("current value:%s"), currentValue ? currentValue : "NULL");
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_OBJ_TAG("current value:%s"), currentValue ? currentValue : "NULL");
         if(currentValue)
         {
             LibString value(currentValue);

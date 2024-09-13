@@ -164,7 +164,9 @@ Int32 LibIocp::WaitForCompletion(IoEvent &ioEvent, Int32 &errorCode, ULong milli
         if (WAIT_TIMEOUT == error)
         {
             errorCode = Status::IOCP_WaitTimeOut;
-            g_Log->NetDebug(LOGFMT_OBJ_TAG(LOGFMT_OBJ_TAG("wait timeout from completion io event:%s")), ioEvent.ToString().c_str());
+
+            if(g_Log->IsEnable(LogLevel::NetDebug))
+                g_Log->NetDebug(LOGFMT_OBJ_TAG(LOGFMT_OBJ_TAG("wait timeout from completion io event:%s")), ioEvent.ToString().c_str());
             return Status::Ignore;
         }
 

@@ -297,7 +297,8 @@ std::set<IocpTcpSession *> *IocpTcpPoller::_GetSessionsByIp(const LibString &ip)
 
 IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
 {
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("will create session by build session info:%s"), sessionInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+       g_Log->NetInfo(LOGFMT_OBJ_TAG("will create session by build session info:%s"), sessionInfo->ToString().c_str());
     if(UNLIKELY(sessionInfo->_serviceId == 0))
     {
         g_Log->NetError(LOGFMT_OBJ_TAG("must specify a belong service id: connect remote service id from LibConnectInfo, others from accept session service id sessionInfo:%s"), sessionInfo->ToString().c_str());
@@ -406,7 +407,8 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
         iterIp = _ipRefSessions.insert(std::make_pair(sessionInfo->_remoteAddr._ip, std::set<IocpTcpSession *>())).first;
     iterIp->second.insert(newSession);
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by build session info suc session info:%s"), newSession->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by build session info suc session info:%s"), newSession->ToString().c_str());
     _sessionCount.fetch_add(1, std::memory_order_release);
     if(newSession->IsLinker())
         _pollerMgr->AddListenerSessionCount(1);
@@ -420,7 +422,8 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
 
 IocpTcpSession *IocpTcpPoller::_CreateSession(LibListenInfo *listenInfo)
 {
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("will create session by listen info:%s"), listenInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("will create session by listen info:%s"), listenInfo->ToString().c_str());
 
    if(UNLIKELY(listenInfo->_serviceId == 0))
     {
@@ -574,13 +577,15 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(LibListenInfo *listenInfo)
     _sessionCount.fetch_add(1, std::memory_order_release);
     _pollerMgr->AddListenerSessionCount(1);
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by listen info suc session info:%s"), newSession->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("create session by listen info suc session info:%s"), newSession->ToString().c_str());
     return newSession;
 }
 
 void IocpTcpPoller::_CloseSession(IocpTcpSession *session, Int32 closeReasonEnum, UInt64 stub)
 {
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("poller id:%llu, closeReasonEnum:%d,%s, stub:%llu, close session :%s")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("poller id:%llu, closeReasonEnum:%d,%s, stub:%llu, close session :%s")
                 , GetPollerId(), closeReasonEnum, CloseSessionInfo::GetCloseReason(closeReasonEnum), stub, session->ToString().c_str());
     
     _poller->GetDirtyHelper()->Clear(session);
@@ -639,13 +644,16 @@ void IocpTcpPoller::_TryCloseSession(IocpTcpSession *session, Int32 closeReasonE
     if(UNLIKELY(session->IsLinker()))
     {
         session->MaskClose(closeReasonEnum);
-        g_Log->NetDebug(LOGFMT_OBJ_TAG("try close a linker session close reason:%d,%s, stub:%llu")
+
+        if(g_Log->IsEnable(LogLevel::NetDebug))
+            g_Log->NetDebug(LOGFMT_OBJ_TAG("try close a linker session close reason:%d,%s, stub:%llu")
                     , closeReasonEnum, CloseSessionInfo::GetCloseReason(closeReasonEnum), stub);
         _CloseSession(session, closeReasonEnum, stub);
         return;
     }
 
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("try close session close reason:%d,%s, stub:%llu")
+    if(g_Log->IsEnable(LogLevel::NetDebug))
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("try close session close reason:%d,%s, stub:%llu")
                 , closeReasonEnum, CloseSessionInfo::GetCloseReason(closeReasonEnum), stub);
     if(session->CanRecv() || session->CanSend())
     {
@@ -654,7 +662,9 @@ void IocpTcpPoller::_TryCloseSession(IocpTcpSession *session, Int32 closeReasonE
         auto &varDict = var->BecomeDict();
         varDict[1] = closeReasonEnum;
         varDict[2] = stub;
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("session mask close dirty flag, and will close session later poller id:%llu, session info:%s."), GetPollerId(), session->ToString().c_str());
+
+        if(g_Log->IsEnable(LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("session mask close dirty flag, and will close session later poller id:%llu, session info:%s."), GetPollerId(), session->ToString().c_str());
         return;
     }
 
@@ -672,7 +682,8 @@ void IocpTcpPoller::_ControlCloseSession(IocpTcpSession *session, Int32 closeRea
     }
 
     const auto opCloseTime = LibTime::NowMilliTimestamp();
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("will local force close session:%s, opCloseTime:%lld")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("will local force close session:%s, opCloseTime:%lld")
                 , session->ToString().c_str(), opCloseTime);
 
     if(forbidRead)
@@ -704,7 +715,8 @@ void IocpTcpPoller::_ControlCloseSession(IocpTcpSession *session, Int32 closeRea
                     break;
                 }
 
-                g_Log->NetInfo(LOGFMT_OBJ_TAG("session%s delay close timeout, opCloseTime:%lld, realCloseTime:%lld")
+                if(g_Log->IsEnable(LogLevel::NetInfo))
+                    g_Log->NetInfo(LOGFMT_OBJ_TAG("session%s delay close timeout, opCloseTime:%lld, realCloseTime:%lld")
                                 , session->ToString().c_str(), opCloseTime, LibTime::NowMilliTimestamp());
 
                 _TryCloseSession(session, closeReason, stub);
@@ -719,7 +731,8 @@ void IocpTcpPoller::_ControlCloseSession(IocpTcpSession *session, Int32 closeRea
         const Int64 delayMilliseconds = (opCloseTime > closeMillisecondTime) ? 0 : (closeMillisecondTime - opCloseTime);
         newTimer->Schedule(delayMilliseconds);
 
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("will close a session delay milliseconds:%lld, sessionId:%llu"), delayMilliseconds, sessionId);
+        if(g_Log->IsEnable(LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("will close a session delay milliseconds:%lld, sessionId:%llu"), delayMilliseconds, sessionId);
         return;
     }
 
@@ -776,7 +789,8 @@ Int32 IocpTcpPoller::_OnHostInit()
 
     _pollerInstMonitorPriorityLevel = _cfg->_pollerInstMonitorPriorityLevel < 0 ? _cfg->_maxPriorityLevel : _cfg->_pollerInstMonitorPriorityLevel;
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller inited."));
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller inited."));
 
     return Status::Success;
 }
@@ -1125,7 +1139,8 @@ void IocpTcpPoller::_OnAsynConnect(PollerEvent *ev)
             else
                 newPending->_reconnectTimer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(30));
 
-            g_Log->NetInfo(LOGFMT_OBJ_TAG("%s[%s]:%llu waiting for connecting success...\npending info:%s")
+            if(g_Log->IsEnable(LogLevel::NetInfo))
+                g_Log->NetInfo(LOGFMT_OBJ_TAG("%s[%s]:%llu waiting for connecting success...\npending info:%s")
             , connectInfoCache->_targetIp._ip.c_str(), newPending->_currentTargetIp.c_str(), connectInfoCache->_targetPort
             , newPending->ToString().c_str());
         }
@@ -1240,7 +1255,8 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
         }
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("new session created suc poller id:%llu, session amount:%llu, session info:%s")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("new session created suc poller id:%llu, session amount:%llu, session info:%s")
                     , _pollerId, _sessionIdRefSession.size(), newSession->ToString().c_str());
     // g_Log->NetDebug(LOGFMT_OBJ_TAG("new session created suc poller id:%llu, session amount:%llu, session info:%s")
     //                 , _pollerId, _sessionIdRefSession.size(), newSession->ToString().c_str());
@@ -1429,7 +1445,8 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
             _serviceProxy->PostMsg(listenRes->_serviceId, listenRes->_priorityLevel, listenRes);
         }
 
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("add listen :%s, session info:%s")
+        if(g_Log->IsEnable(LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_OBJ_TAG("add listen :%s, session info:%s")
                     , listenInfo->ToString().c_str(), newSession->ToString().c_str());
     }
 
@@ -1448,7 +1465,8 @@ void IocpTcpPoller::_OnIpRuleControl(PollerEvent *ev)
         return;
     }
 
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("ip rule control:%s"), ipCtrlEv->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetDebug))
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("ip rule control:%s"), ipCtrlEv->ToString().c_str());
 
     auto ipRuleMgr = GetComp<IpRuleMgr>();
     auto &ctrlList = ipCtrlEv->_ipControlList;
@@ -1504,7 +1522,8 @@ void IocpTcpPoller::_OnQuitServiceSessionsEvent(PollerEvent *ev)
         }
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("will quit service session service id:%llu priorityLevel count:%llu, current poller id:%llu")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("will quit service session service id:%llu priorityLevel count:%llu, current poller id:%llu")
             , quiteSessionEv->_fromServiceId, static_cast<UInt64>(sessions.size()), GetPollerId());
 
     for(auto iter : sessions)
@@ -1542,7 +1561,8 @@ void IocpTcpPoller::_OnRealDoQuitServiceSessionEvent(PollerEvent *ev)
         node = quitSessionEv->_quitSessionInfo->Erase(node);
     }
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("real do quit service session service id:%llu, session count:%llu, current poller id:%llu")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("real do quit service session service id:%llu, session count:%llu, current poller id:%llu")
             , quitSessionEv->_fromServiceId, static_cast<UInt64>(sessions.size()), GetPollerId());
 
     for(auto session : sessions)
@@ -1551,7 +1571,8 @@ void IocpTcpPoller::_OnRealDoQuitServiceSessionEvent(PollerEvent *ev)
 
 void IocpTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
 {
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("connect to:%s[%s]:%hu success.\npending info:%s")
+    if(g_Log->IsEnable(LogLevel::NetDebug))
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("connect to:%s[%s]:%hu success.\npending info:%s")
     , connectPendingInfo->_connectInfo->_targetIp._ip.c_str(), connectPendingInfo->_currentTargetIp.c_str()
     , connectPendingInfo->_connectInfo->_targetPort, connectPendingInfo->ToString().c_str());
 
@@ -1757,7 +1778,8 @@ void IocpTcpPoller::_OnAccept(IocpTcpSession *session, IoEvent &io)
     newBuildSessionInfo->_sessionOption._forbidRecv = false;
     _tcpPollerMgr->OnAcceptedSuc(newBuildSessionInfo);
 
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("accepted new session suc newBuildSessionInfo:%s, from accept session:%s.")
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("accepted new session suc newBuildSessionInfo:%s, from accept session:%s.")
                     , newBuildSessionInfo->ToString().c_str(), session->ToString().c_str());
 
     // Post new async-accept request.
@@ -1807,7 +1829,8 @@ void IocpTcpPoller::_OnDirtySessionClose(LibDirtyHelper<void *, UInt32> *dirtyHe
 
      if(_CanClose(iocpSession))
      {
-         g_Log->NetDebug(LOGFMT_OBJ_TAG("session close dirty do close session session info:%s, closeReason:%d, %s, stub:%llu")
+        if(g_Log->IsEnable(LogLevel::NetDebug))
+            g_Log->NetDebug(LOGFMT_OBJ_TAG("session close dirty do close session session info:%s, closeReason:%d, %s, stub:%llu")
                         , iocpSession->ToString().c_str(), closeReason, CloseSessionInfo::GetCloseReason(closeReason), stub);
          dirtyHelper->Clear(session, PollerDirty::CLOSE);
          _CloseSession(iocpSession, closeReason, stub);
@@ -1905,7 +1928,8 @@ void IocpTcpPoller::_OnPollEventLoop(LibThread *t)
 
 void IocpTcpPoller::_DestroyConnect(LibConnectPendingInfo *&connectPendingInfo, bool destroyConnectInfo)
 {
-    g_Log->NetTrace(LOGFMT_OBJ_TAG("destroy connect pending %s"), connectPendingInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetTrace))
+        g_Log->NetTrace(LOGFMT_OBJ_TAG("destroy connect pending %s"), connectPendingInfo->ToString().c_str());
     if(connectPendingInfo->_sessionId)
     {
         _pollerMgr->ReduceSessionPending(1);
@@ -1948,7 +1972,8 @@ Int32 IocpTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, b
     }
 
     auto connectInfo = connectPendingInfo->_connectInfo;
-    g_Log->NetDebug(LOGFMT_OBJ_TAG("check connect :%s"), connectInfo->ToString().c_str());
+    if(g_Log->IsEnable(LogLevel::NetDebug))
+        g_Log->NetDebug(LOGFMT_OBJ_TAG("check connect :%s"), connectInfo->ToString().c_str());
 
     // ip合法性
     if(!SocketUtil::IsIp(connectPendingInfo->_currentTargetIp))
@@ -2081,7 +2106,9 @@ Int32 IocpTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, b
 
     ++_sessionPendingCount;
     _sessionIdRefAsynConnectPendingInfo.insert(std::make_pair(connectPendingInfo->_sessionId, connectPendingInfo));
-    g_Log->NetInfo(LOGFMT_OBJ_TAG("suc add connect pending info and wait for iocp connect suc back pending info:%s"), connectPendingInfo->ToString().c_str());
+
+    if(g_Log->IsEnable(LogLevel::NetInfo))
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("suc add connect pending info and wait for iocp connect suc back pending info:%s"), connectPendingInfo->ToString().c_str());
     return errCode;
 }
 

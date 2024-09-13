@@ -583,7 +583,8 @@ void TestMgr::_MakeNewTestData()
     _datas.insert(std::make_pair(_maxId, newData));
     MaskNumberKeyAddDirty(_maxId);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("make new test data max id:%llu"), _maxId);
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("make new test data max id:%llu"), _maxId);
 }
 
 

@@ -295,9 +295,11 @@ Int32 CrystalProtocolStack::ParsingPacket(KERNEL_NS::LibSession *session
                 auto &remoteAddr = addr->GetRemoteBriefAddr();
                 std::string jsonString;
                 coder->ToJsonString(&jsonString);
-               g_Log->NetInfo(LOGFMT_OBJ_TAG("[RECV: session id:%llu, local:%s:%hu <= remote:%s:%hu, header:%s]\n[coder data]:\n%s")
-               , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
-               , header.ToString().c_str(), jsonString.c_str()); 
+
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetInfo))
+                   g_Log->NetInfo(LOGFMT_OBJ_TAG("[RECV: session id:%llu, local:%s:%hu <= remote:%s:%hu, header:%s]\n[coder data]:\n%s")
+                   , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
+                   , header.ToString().c_str(), jsonString.c_str()); 
             }
 
             if(LIKELY(option._sessionRecvPacketStackLimit != 0))
@@ -514,9 +516,10 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
             std::string jsonString;
             coder->ToJsonString(&jsonString);
 
-            g_Log->NetInfo(LOGFMT_OBJ_TAG("[SEND: session id:%llu, local:%s:%hu => remote:%s:%hu, header:%s]\n[coder data]:\n%s")
-            , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
-            , header.ToString().c_str(), jsonString.c_str()); 
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetInfo))
+                g_Log->NetInfo(LOGFMT_OBJ_TAG("[SEND: session id:%llu, local:%s:%hu => remote:%s:%hu, header:%s]\n[coder data]:\n%s")
+                , session->GetId(), localAddr._ip.c_str(), localAddr._port, remoteAddr._ip.c_str(), remoteAddr._port
+                , header.ToString().c_str(), jsonString.c_str()); 
         }
 
         handledBytes += static_cast<UInt64>(header._len);

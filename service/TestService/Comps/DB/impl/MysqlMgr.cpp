@@ -328,7 +328,9 @@ void MysqlMgr::MaskLogicNumberKeyModifyDirty(const ILogicSys *logic, UInt64 key,
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
         nowCounter.Update();
-        g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
 
         if(!dirtyHelper->HasDirty())
             _dirtyLogics.erase(logic);
@@ -377,7 +379,9 @@ void MysqlMgr::MaskLogicNumberKeyDeleteDirty(const ILogicSys *logic, UInt64 key,
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
         nowCounter.Update();
-        g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
 
         if(!dirtyHelper->HasDirty())
             _dirtyLogics.erase(logic);
@@ -430,7 +434,9 @@ void MysqlMgr::MaskLogicStringKeyAddDirty(const ILogicSys *logic, const KERNEL_N
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
         nowCounter.Update();
-        g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
 
         if(!dirtyHelper->HasDirty())
             _dirtyLogics.erase(logic);
@@ -493,7 +499,9 @@ void MysqlMgr::MaskLogicStringKeyModifyDirty(const ILogicSys *logic, const KERNE
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
         nowCounter.Update();
-        g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
 
         if(!dirtyHelper->HasDirty())
             _dirtyLogics.erase(logic);
@@ -543,7 +551,9 @@ void MysqlMgr::MaskLogicStringKeyDeleteDirty(const ILogicSys *logic, const KERNE
             g_Log->Warn(LOGFMT_OBJ_TAG("purge right now err:%s, logic:%s"), err.c_str(), logic->GetObjName().c_str());
             
         nowCounter.Update();
-        g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
+
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("logic:%s purge cost time %llu (ms)"), logic->GetObjName().c_str(), (nowCounter - startCounter).GetTotalMilliseconds());
 
         if(!dirtyHelper->HasDirty())
             _dirtyLogics.erase(logic);
@@ -989,7 +999,8 @@ Int32 MysqlMgr::_OnGlobalSysInit()
     // 设置操作id
     SetStorageOperatorId(_systemOperatorUid);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("mysql mgr state: _disableAutoDrop:%d, db version:%lld, _disableSystemTableAutoDrop:%d, _purgeIntervalMs:%lld")
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("mysql mgr state: _disableAutoDrop:%d, db version:%lld, _disableSystemTableAutoDrop:%d, _purgeIntervalMs:%lld")
         , _disableAutoDrop, _curVersionNo, _disableSystemTableAutoDrop, _purgeIntervalMs);
 
     return Status::Success;
@@ -1302,7 +1313,8 @@ void MysqlMgr::_OnSystemTableBack(KERNEL_NS::MysqlResponse *res)
         moduleNames.push_back(tableName);
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("load system table success db name:%s module count:%llu,\nmoduleNames:[%s] ")
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("load system table success db name:%s module count:%llu,\nmoduleNames:[%s] ")
                 , res->_dbName.c_str(), static_cast<UInt64>(moduleNames.size()), KERNEL_NS::StringUtil::ToString(moduleNames, ",").c_str());
 
     // 查询库中所有表和字段: 需要校准:tbl_system_data, 1.表校准, 2.表字段校准
@@ -1326,13 +1338,15 @@ void MysqlMgr::_OnSystemTableBack(KERNEL_NS::MysqlResponse *res)
         return;
     }
     
-    g_Log->Info(LOGFMT_OBJ_TAG("load information_schema columns success stub:%llu"), stub);
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("load information_schema columns success stub:%llu"), stub);
 }
 
 void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
 {
     // 查询库中所有表和字段: 需要校准:tbl_system_data, 1.表校准, 2.表字段校准
-    g_Log->Info(LOGFMT_OBJ_TAG("mysql res:%s"), res->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("mysql res:%s"), res->ToString().c_str());
 
     if(res->_errCode != Status::Success)
     {
@@ -1457,7 +1471,10 @@ void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
 
         auto storageInfo = logic->GetStorageInfo();
         if(_GetModifyTableInfo(storageInfo, iter.second, builders))
-            g_Log->Info(LOGFMT_OBJ_TAG("storage info changed storageInfo:%s"), storageInfo->ToString().c_str());
+        {
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("storage info changed storageInfo:%s"), storageInfo->ToString().c_str());
+        }
         else
         {
             g_Log->Error(LOGFMT_OBJ_TAG("_GetModifyTableInfo fail storageInfo:%s"), storageInfo->ToString().c_str());
@@ -1489,7 +1506,8 @@ void MysqlMgr::_OnLoadDbTableColumns(KERNEL_NS::MysqlResponse *res)
         newBuilder->_builder = createBuilder;
         builders.push_back(newBuilder);
         logics.push_back(logic);
-        g_Log->Info(LOGFMT_OBJ_TAG("will add new table info storage info:%s"), storageInfo->ToString().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("will add new table info storage info:%s"), storageInfo->ToString().c_str());
     }
 
     if(builders.empty())
@@ -1517,7 +1535,8 @@ void MysqlMgr::_OnAddNewTableBack(KERNEL_NS::MysqlResponse *res)
 {
     auto &logicSeq = res->_var->AsSequence();
     const Int64 originAddNewTableCount = static_cast<Int64>(logicSeq.size());
-    g_Log->Info(LOGFMT_OBJ_TAG("add  table back:%s, originAddNewCount:%lld"), res->ToString().c_str(), originAddNewTableCount);
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("add  table back:%s, originAddNewCount:%lld"), res->ToString().c_str(), originAddNewTableCount);
 
     std::vector<KERNEL_NS::LibString> tables;
     for(auto &logicVar : logicSeq)
@@ -1536,7 +1555,8 @@ void MysqlMgr::_OnAddNewTableBack(KERNEL_NS::MysqlResponse *res)
         return;
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("add new table info success db name:%s, tables:%s affected rows:%lld"), res->_dbName.c_str(), KERNEL_NS::StringUtil::ToString(tables, ",").c_str(), res->_affectedRows);
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("add new table info success db name:%s, tables:%s affected rows:%lld"), res->_dbName.c_str(), KERNEL_NS::StringUtil::ToString(tables, ",").c_str(), res->_affectedRows);
 
     // 加载数据
     _LoadAllPublicData();
@@ -1673,32 +1693,37 @@ void MysqlMgr::_LoadAllPublicData()
     timer->SetTimeOutHandler([this, logics](KERNEL_NS::LibTimer *t){
         if(_loadPublicDataPending.empty())
         {
-            g_Log->Info(LOGFMT_OBJ_TAG("All public data load finish."));
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("All public data load finish."));
             _PurgeDirty(this);
 
             // 抛加载结束事件
             auto ev = KERNEL_NS::LibEvent::NewThreadLocal_LibEvent(EventEnums::DB_LOADED_FINISH_ON_STARTUP);
             GetEventMgr()->FireEvent(ev);
 
-            g_Log->Info(LOGFMT_OBJ_TAG("fire db loaded finish event."));
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("fire db loaded finish event."));
 
             KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
 
             return;
         }
 
-        g_Log->Info(LOGFMT_OBJ_TAG("public data load left count:%llu, left system name:[%s]")
-        , static_cast<UInt64>(logics.size()), KERNEL_NS::StringUtil::ToString(logics, ",").c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("public data load left count:%llu, left system name:[%s]")
+            , static_cast<UInt64>(logics.size()), KERNEL_NS::StringUtil::ToString(logics, ",").c_str());
     });
 
     timer->Schedule(3000);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("will load all public data count:%llu, list:[%s]"), static_cast<UInt64>(logics.size()), KERNEL_NS::StringUtil::ToString(logics, ",").c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("will load all public data count:%llu, list:[%s]"), static_cast<UInt64>(logics.size()), KERNEL_NS::StringUtil::ToString(logics, ",").c_str());
 }
 
 void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("mysql res:%s"), res->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("mysql res:%s"), res->ToString().c_str());
 
     auto var = res->_var;
     auto logic = var->AsPtr<ILogicSys>();
@@ -1741,7 +1766,8 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                 }
             }
 
-            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
         }
         else
         {
@@ -1766,7 +1792,8 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                 }
             }
 
-            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
         }
     }
     else if(storageInfo->IsAsField())
@@ -1789,7 +1816,8 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
             }            
         }
 
-        g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
     }
     else
     {
@@ -1812,7 +1840,8 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                 }
             }
 
-            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
         }
         else
         {
@@ -1833,7 +1862,8 @@ void MysqlMgr::_OnLoadPublicData(KERNEL_NS::MysqlResponse *res)
                 }
             }
 
-            g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("%s data loaded."), logic->GetObjName().c_str());
         }
     }
 
@@ -4135,7 +4165,9 @@ void MysqlMgr::_OnStringModifyDirtyHandler(KERNEL_NS::LibDirtyHelper<KERNEL_NS::
             
             hasModify = true;
             alterModifyColumn->Modify(fieldName, newDescribe);
-            g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: add dirty modify field, will modify column => new field describe:%s table name:%s, field name:%s, system name:%s")
+
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: add dirty modify field, will modify column => new field describe:%s table name:%s, field name:%s, system name:%s")
                         , newDescribe.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
         }
 
@@ -5032,7 +5064,8 @@ bool MysqlMgr::_GetModifyTableInfo(IStorageInfo *storageInfo, std::map<KERNEL_NS
 
             hasDrop = true;
 
-            g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: db has field to drop when system have no this field:%s, table name:%s, storage system name:%s")
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: db has field to drop when system have no this field:%s, table name:%s, storage system name:%s")
                         , fieldName.c_str(), storageInfo->GetTableName().c_str(), storageInfo->GetSystemName().c_str());
 
             continue;
@@ -5238,7 +5271,8 @@ bool MysqlMgr::_ModifyDbNumberDataType(IStorageInfo *storageInfo, IStorageInfo *
                 }
                 
                 alterModifyColumn->Modify(fieldName, newDescribe);
-                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: number field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: number field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
                             , oldFieldType.c_str(), newDescribe.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                 hasModify = true;
@@ -5251,8 +5285,9 @@ bool MysqlMgr::_ModifyDbNumberDataType(IStorageInfo *storageInfo, IStorageInfo *
         {// 代码定义的比数据表的小, 则更新代码的定义
             if(dataType != oldFieldType)
             {
-                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: number field sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: number field sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
+                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                 if(!StorageFlagType::UpdateNumberStorageInfo(subStorageInfo, oldFieldType))
                 {
@@ -5261,8 +5296,9 @@ bool MysqlMgr::_ModifyDbNumberDataType(IStorageInfo *storageInfo, IStorageInfo *
                     return false;
                 }
 
-                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: number field sub storage info final change to %s success. data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: number field sub storage info final change to %s success. data base old field type:%s table name:%s, field name:%s, system name:%s")
+                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
             }
 
             return true;
@@ -5322,7 +5358,9 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
                     }
                     
                     alterModifyColumn->Modify(fieldName, newDescribe);
-                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: string field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
+
+                    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                        g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: string field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
                                 , oldFieldType.c_str(), newDescribe.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                     hasModify = true;
@@ -5332,8 +5370,9 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
             {// 代码定义的比数据表的小, 则更新代码的定义
                 if(oldCapacitySize != subStorageInfo->GetCapacitySize())
                 {
-                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: string field sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
-                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
+                    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                        g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: string field sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
+                        , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
 
                     if(!StorageFlagType::UpdateNormalStringStorageInfo(subStorageInfo, oldCapacitySize))
                     {
@@ -5342,8 +5381,9 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
                         return false;
                     }
 
-                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: string field sub storage info final change to %s, oldCapacitySize:%llu success. data base old field type:%s table name:%s, field name:%s, system name:%s")
-                    , subStorageInfo->ToString().c_str(), oldCapacitySize, oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
+                    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                        g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: string field sub storage info final change to %s, oldCapacitySize:%llu success. data base old field type:%s table name:%s, field name:%s, system name:%s")
+                        , subStorageInfo->ToString().c_str(), oldCapacitySize, oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
                 }
             }
 
@@ -5363,7 +5403,9 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
                 }
                 
                 alterModifyColumn->Modify(fieldName, newDescribe);
-                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: text string field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
+
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: text string field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
                             , oldFieldType.c_str(), newDescribe.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                 hasModify = true;
@@ -5373,8 +5415,9 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
         {// 代码定义的比数据表的小, 则更新代码的定义
             if(dataType != oldFieldType)
             {
-                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: text string sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: text string sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
+                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                 if(!StorageFlagType::UpdateTextStringStorageInfo(subStorageInfo, oldFieldType))
                 {
@@ -5383,8 +5426,9 @@ bool MysqlMgr::_ModifyDbStringDataType(IStorageInfo *storageInfo, IStorageInfo *
                     return false;
                 }
 
-                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: text string sub storage info final change to %s success. data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: text string sub storage info final change to %s success. data base old field type:%s table name:%s, field name:%s, system name:%s")
+                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
             }
         }
 
@@ -5445,7 +5489,9 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
                     }
                     
                     alterModifyColumn->Modify(fieldName, newDescribe);
-                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: var binary field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
+
+                    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                        g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: var binary field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
                                 , oldFieldType.c_str(), newDescribe.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                     hasModify = true;
@@ -5455,8 +5501,9 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
             {// 代码定义的比数据表的小, 则更新代码的定义
                 if(oldCapacitySize != subStorageInfo->GetCapacitySize())
                 {
-                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: var binary sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
-                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
+                    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                        g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: var binary sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
+                        , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                     if(!StorageFlagType::UpdateNormalBinaryStorageInfo(subStorageInfo, oldCapacitySize))
                     {
@@ -5465,8 +5512,9 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
                         return false;
                     }
 
-                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: var binary sub storage info final change to %s, oldCapacitySize:%llu success. data base old field type:%s table name:%s, field name:%s, system name:%s")
-                    , subStorageInfo->ToString().c_str(), oldCapacitySize, oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
+                    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                        g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: var binary sub storage info final change to %s, oldCapacitySize:%llu success. data base old field type:%s table name:%s, field name:%s, system name:%s")
+                        , subStorageInfo->ToString().c_str(), oldCapacitySize, oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
                 }
             }
 
@@ -5486,7 +5534,9 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
                 }
                 
                 alterModifyColumn->Modify(fieldName, newDescribe);
-                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: blob type field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
+
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: blob type field, db field not same with system field, will modify column old column type:%s => new field describe:%s table name:%s, field name:%s, system name:%s")
                             , oldFieldType.c_str(), newDescribe.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                 hasModify = true;
@@ -5496,8 +5546,9 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
         {// 代码定义的比数据表的小, 则更新代码的定义
             if(dataType != oldFieldType)
             {
-                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: blob type field sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: blob type field sub storage info will change from %s, to data base old field type:%s table name:%s, field name:%s, system name:%s")
+                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), fieldName.c_str(), storageInfo->GetSystemName().c_str());
 
                 if(!StorageFlagType::UpdateBlobTypeBinaryStorageInfo(subStorageInfo, oldFieldType))
                 {
@@ -5506,8 +5557,9 @@ bool MysqlMgr::_ModifyDbBinaryDataType(IStorageInfo *storageInfo, IStorageInfo *
                     return false;
                 }
 
-                g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: blob type field sub storage info final change to %s success. data base old field type:%s table name:%s, field name:%s, system name:%s")
-                , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
+                if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[MYSQL MGR ALTER TABLE]: blob type field sub storage info final change to %s success. data base old field type:%s table name:%s, field name:%s, system name:%s")
+                    , subStorageInfo->ToString().c_str(), oldFieldType.c_str(), storageInfo->GetTableName().c_str(), subStorageInfo->GetFieldName().c_str(), storageInfo->GetSystemName().c_str());
             }
         }
 

@@ -462,7 +462,8 @@ bool SystemUtil::GetProcessIdList(const LibString &processName, std::map<UInt64,
             if(!KERNEL_NS::FileUtil::IsDir(fileInfo))
                 return true;
 
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(SystemUtil, "traval dir:%s, file:%s"), fileInfo._rootPath.c_str(), fileInfo._fileName.c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(SystemUtil, "traval dir:%s, file:%s"), fileInfo._rootPath.c_str(), fileInfo._fileName.c_str());
             if(fileInfo._rootPath != "/proc")
                 return true;
 
@@ -553,7 +554,8 @@ bool SystemUtil::IsProcessExist(const LibString &processName)
             if(!KERNEL_NS::FileUtil::IsDir(fileInfo))
                 return true;
 
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(SystemUtil, "traval dir:%s, file:%s"), fileInfo._rootPath.c_str(), fileInfo._fileName.c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(SystemUtil, "traval dir:%s, file:%s"), fileInfo._rootPath.c_str(), fileInfo._fileName.c_str());
             if(fileInfo._rootPath != "/proc")
                 return true;
 
@@ -614,7 +616,8 @@ bool SystemUtil::IsProcessExist(UInt64 processId)
             if(!KERNEL_NS::FileUtil::IsDir(fileInfo))
                 return true;
 
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(SystemUtil, "traval dir:%s, file:%s"), fileInfo._rootPath.c_str(), fileInfo._fileName.c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(SystemUtil, "traval dir:%s, file:%s"), fileInfo._rootPath.c_str(), fileInfo._fileName.c_str());
             if(fileInfo._rootPath != "/proc")
                 return true;
 

@@ -62,7 +62,8 @@ void ServiceProxy::PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::Po
     auto iter = _serviceIdRefRejectServiceStatus.find(serviceId);
     if(UNLIKELY(iter->second))
     {
-        g_Log->Debug(LOGFMT_OBJ_TAG("reject post msg serviceId:%llu, msg:%s"), serviceId, msg->ToString().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_OBJ_TAG("reject post msg serviceId:%llu, msg:%s"), serviceId, msg->ToString().c_str());
         msg->Release();
         return;
     }
@@ -138,7 +139,9 @@ void ServiceProxy::OnMonitor(ServiceProxyStatisticsInfo &info)
 void ServiceProxy::Clear()
 {
     _Clear();
-    g_Log->Info(LOGFMT_OBJ_TAG("service proxy clear"));
+
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("service proxy clear"));
 }
 
 Int32 ServiceProxy::_OnInit() 

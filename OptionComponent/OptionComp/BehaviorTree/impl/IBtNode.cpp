@@ -80,7 +80,8 @@ Int32 IBtNode::Init()
     _isInited = true;
     SetState(BtNodeState::INITED);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("bt node inited:%s"), ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("bt node inited:%s"), ToString().c_str());
     return Status::Success;
 }
 
@@ -104,7 +105,8 @@ void IBtNode::Close()
     _isClosed = true;
     _isInited = false;
 
-    g_Log->Info(LOGFMT_OBJ_TAG("bt node closed:%s"), ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("bt node closed:%s"), ToString().c_str());
 }
 
 void IBtNode::Tick(const KERNEL_NS::LibTime &nowTime)

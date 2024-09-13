@@ -67,7 +67,7 @@ Int32 TlsMemoryCleanerComp::ManualStart()
 {
     if(!_isManualStart)
     {
-        if(g_Log->IsEnable(LogLevel::Warn))
+        if(g_Log->IsEnable(LogLevel::Info))
             g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner not in manual mode please check."));
 
         return Status::Failed;
@@ -80,7 +80,7 @@ void TlsMemoryCleanerComp::ManualClose()
 {
     if(!_isManualStart)
     {
-        if(g_Log->IsEnable(LogLevel::Warn))
+        if(g_Log->IsEnable(LogLevel::Info))
             g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner not in manual mode please check."));
 
         return;
@@ -119,7 +119,7 @@ Int32 TlsMemoryCleanerComp::_OnInit()
     if(_isManualStart)
     {
         if(g_Log->IsEnable(LogLevel::Warn))
-            g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner switch manual mode start."));
+            g_Log->Warn(LOGFMT_OBJ_TAG("tls memory cleaner switch manual mode start."));
 
         return Status::Success;
     }
@@ -132,7 +132,7 @@ Int32 TlsMemoryCleanerComp::_OnStart()
     if(_isManualStart)
     {
         if(g_Log->IsEnable(LogLevel::Warn))
-            g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner switch manual mode start."));
+            g_Log->Warn(LOGFMT_OBJ_TAG("tls memory cleaner switch manual mode start."));
 
         return Status::Success;
     }
@@ -145,7 +145,7 @@ void TlsMemoryCleanerComp::_OnWillClose()
     if(_isManualStart)
     {
         if(g_Log->IsEnable(LogLevel::Warn))
-            g_Log->Info(LOGFMT_OBJ_TAG("tls memory cleaner switch manual mode and will do manual close please check."));
+            g_Log->Warn(LOGFMT_OBJ_TAG("tls memory cleaner switch manual mode and will do manual close please check."));
 
         return;
     }

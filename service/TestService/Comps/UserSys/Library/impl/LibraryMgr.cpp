@@ -164,7 +164,8 @@ void LibraryMgr::_SendUserLibraryInfo() const
 
 void LibraryMgr::_OnQuitLibrary()
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("user quit library user:%s, library id:%llu"), GetUser()->ToString().c_str(), static_cast<UInt64>(_libraryInfo->libraryid()));
+   if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("user quit library user:%s, library id:%llu"), GetUser()->ToString().c_str(), static_cast<UInt64>(_libraryInfo->libraryid()));
     _libraryInfo->set_libraryid(0);
     MaskDirty();
     _SendUserLibraryInfo();
@@ -183,7 +184,8 @@ void LibraryMgr::_OnJoinLibrary(UInt64 libraryId)
     MaskDirty();
     _SendUserLibraryInfo();
 
-    g_Log->Info(LOGFMT_OBJ_TAG("user join library user:%s, library id:%llu"), GetUser()->ToString().c_str(), libraryId);
+   if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("user join library user:%s, library id:%llu"), GetUser()->ToString().c_str(), libraryId);
 }
 
 void LibraryMgr::_OnRemoveLibraryMember(KERNEL_NS::LibEvent *ev)

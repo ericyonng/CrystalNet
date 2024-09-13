@@ -130,7 +130,8 @@ void MysqlDBMgr::CloseMysqlAll(bool forceQuit)
         for(auto obj : _dependence)
             dependenceNames.push_back(obj->GetObjName());
 
-        g_Log->Info(LOGFMT_OBJ_TAG("waiting all dependence:[%s] quit and request complete(request count:%lld) ...")
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("waiting all dependence:[%s] quit and request complete(request count:%lld) ...")
                 , StringUtil::ToString(dependenceNames, ",").c_str(), pendingCount);
 
         // 是否可以退出
@@ -355,7 +356,9 @@ void MysqlDBMgr::_OnDbEvent(PollerEvent *dbEvent)
 {
     auto ev = dbEvent->CastTo<DbEvent>();
     auto res = ev->_res;
-    g_Log->Debug(LOGFMT_OBJ_TAG("db event res:%s"), res->ToString().c_str());
+
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("db event res:%s"), res->ToString().c_str());
 
     if(LIKELY(res->_handler))
     {

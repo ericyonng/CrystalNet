@@ -68,10 +68,12 @@ Int32 IConfigLoader::Load()
             return err;
         }
         
-        g_Log->Info(LOGFMT_OBJ_TAG("Load %s config success."), comp->GetObjName().c_str());
+       if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("Load %s config success."), comp->GetObjName().c_str());
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("config loader loaded configs success config mgr number:%llu."), static_cast<UInt64>(GetAllComps().size()));
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("config loader loaded configs success config mgr number:%llu."), static_cast<UInt64>(GetAllComps().size()));
     return Status::Success;
 }
 
@@ -99,7 +101,8 @@ Int32 IConfigLoader::Reload(std::vector<const IConfigMgr *> &changes)
             changes.push_back(configMgr);
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("config loader reload configs success config mgr number:%llu, changes number:%llu.")
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("config loader reload configs success config mgr number:%llu, changes number:%llu.")
                 , static_cast<UInt64>(GetAllComps().size()), static_cast<UInt64>(changes.size()));
     return Status::Success;
 }

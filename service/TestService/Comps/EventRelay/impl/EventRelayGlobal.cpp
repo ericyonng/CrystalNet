@@ -123,7 +123,8 @@ void EventRelayGlobal::_OnRemoveLibraryMember(KERNEL_NS::LibEvent *ev)
     auto user = GetGlobalSys<IUserMgr>()->GetUser(userId);
     if(UNLIKELY(!user))
     {
-        g_Log->Debug(LOGFMT_OBJ_TAG("user not online event user id:%llu"), userId);
+       if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_OBJ_TAG("user not online event user id:%llu"), userId);
         return;
     }
 
@@ -131,8 +132,9 @@ void EventRelayGlobal::_OnRemoveLibraryMember(KERNEL_NS::LibEvent *ev)
     const auto eventId = ev->GetId();
     if(_IsEventInCircleHandling(user->GetUserId(), ev->GetId()))
     {
-        g_Log->Debug(LOGFMT_OBJ_TAG("skip remove library member event in circle handle user id:%llu, eventid:%d")
-        , userId, ev->GetId());
+       if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_OBJ_TAG("skip remove library member event in circle handle user id:%llu, eventid:%d")
+            , userId, ev->GetId());
         return;
     }
 
@@ -160,15 +162,17 @@ void EventRelayGlobal::_OnJoinLibraryMember(KERNEL_NS::LibEvent *ev)
     auto user = GetGlobalSys<IUserMgr>()->GetUser(userId);
     if(UNLIKELY(!user))
     {
-        g_Log->Debug(LOGFMT_OBJ_TAG("user not online event user id:%llu"), userId);
+       if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_OBJ_TAG("user not online event user id:%llu"), userId);
         return;
     }
 
     const auto eventId = ev->GetId();
     if(_IsEventInCircleHandling(user->GetUserId(), eventId))
     {
-        g_Log->Debug(LOGFMT_OBJ_TAG("skip join library member event in circle handle user id:%llu, eventid:%d")
-        , userId, ev->GetId());
+       if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+            g_Log->Debug(LOGFMT_OBJ_TAG("skip join library member event in circle handle user id:%llu, eventid:%d")
+            , userId, ev->GetId());
         return;
     }
 
@@ -191,7 +195,8 @@ void EventRelayGlobal::_OnUserObjLoaded(KERNEL_NS::LibEvent *ev)
     auto iter = _fromUserToGlobalStub.find(user->GetUserId());
     if(iter == _fromUserToGlobalStub.end())
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("user created and will add relay from user to global user:%s"), user->ToString().c_str());
+       if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("user created and will add relay from user to global user:%s"), user->ToString().c_str());
 
         auto stub = user->AddListener(0, this, &EventRelayGlobal::_EventFromUserToGlobal);
         _fromUserToGlobalStub.insert(std::make_pair(user->GetUserId(), stub));
@@ -230,7 +235,8 @@ void EventRelayGlobal::_EventFromUserToGlobal(KERNEL_NS::LibEvent *ev)
         return;
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("recieve event from user userId:%llu, evId:%d"), userId, ev->GetId());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("recieve event from user userId:%llu, evId:%d"), userId, ev->GetId());
 
     _DisableFromRelayToUser(userId, ev->GetId());
 

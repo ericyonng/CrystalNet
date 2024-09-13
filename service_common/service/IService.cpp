@@ -203,7 +203,9 @@ void IService::SetServiceStatus(Int32 serviceStatus)
     }
 
     _serviceStatus = serviceStatus;
-    g_Log->Info(LOGFMT_OBJ_TAG("service status changed [%d,%s] => [%d,%s].")
+
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("service status changed [%d,%s] => [%d,%s].")
                 , oldServiceStatus, ServiceStatusToString(oldServiceStatus).c_str(), _serviceStatus, ServiceStatusToString(_serviceStatus).c_str());
 }
 
@@ -379,24 +381,28 @@ void IService::_OnSessionDestroy(KERNEL_NS::PollerEvent *msg)
 
 void IService::_OnAsynConnectRes(KERNEL_NS::PollerEvent *msg)
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("asyn connect response:%s"), msg->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("asyn connect response:%s"), msg->ToString().c_str());
 }
 
 void IService::_OnAddListenRes(KERNEL_NS::PollerEvent *msg) 
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("add listen response:%s"), msg->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("add listen response:%s"), msg->ToString().c_str());
 }
 
 void IService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg) 
 {
-    g_Log->Info(LOGFMT_OBJ_TAG("recieve message from net:%s"), msg->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("recieve message from net:%s"), msg->ToString().c_str());
 }
 
 void IService::_OnQuitServiceEvent(KERNEL_NS::PollerEvent *msg)
 {
     SetServiceStatus(ServiceStatus::SERVICE_WILL_QUIT);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("will quit service [%s] msg:%s"), IntroduceInfo().c_str(),  msg->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("will quit service [%s] msg:%s"), IntroduceInfo().c_str(),  msg->ToString().c_str());
     _OnQuitingService(msg);
 
     // 启动定时器检测service的所有模块是否已经完全退出

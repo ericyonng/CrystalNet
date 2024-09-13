@@ -488,7 +488,8 @@ ALWAYS_INLINE bool MysqlConnect::_ExcuteSqlUsingTransAction(const LibString &sql
                     auto ret = _UpdateLastMysqlErrno();
                     if(ret != 0)
                     {
-                        g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error:%u,%s connection:%s sqls:\n", ret, _lastErrString.c_str(), ToString().c_str())
+                        if(g_Log->IsEnable(KERNEL_NS::LogLevel::FailSql))
+                            g_Log->FailSql(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("\nmysql sql excute error:%u,%s connection:%s sqls:\n", ret, _lastErrString.c_str(), ToString().c_str())
                                     , sqls);
                     }
 

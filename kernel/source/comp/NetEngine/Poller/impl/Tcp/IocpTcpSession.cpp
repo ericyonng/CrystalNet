@@ -397,7 +397,8 @@ void IocpTcpSession::ContinueRecv()
                     errString = SystemUtil::GetErrString(err);
                 }
                 
-                g_Log->NetInfo(LOGFMT_OBJ_TAG("socket close by peer, err:%d,%s session info = %s, and will close after parsing packets"), err, errString.c_str(), ToString().c_str());
+                if(g_Log->IsEnable(LogLevel::NetInfo))
+                    g_Log->NetInfo(LOGFMT_OBJ_TAG("socket close by peer, err:%d,%s session info = %s, and will close after parsing packets"), err, errString.c_str(), ToString().c_str());
                 ForbidRecv();
                 _MaskClose(CloseSessionInfo::REMOTE_DISONNECT);
 

@@ -156,7 +156,10 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     #endif
     listenInfo->_sessionCount = sessionCount;
     listenInfo->_sessionOption = option;
-    g_Log->Info(LOGFMT_OBJ_TAG("add listen info:%s"), listenInfo->ToString().c_str());
+
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("add listen info:%s"), listenInfo->ToString().c_str());
+
     auto tcpPollerMgr = service->GetTcpPollerMgr();
     tcpPollerMgr->PostAddlisten(priorityLevel, listenInfo);
 
@@ -164,9 +167,9 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     if(delg)
         stubHandleMgr->NewHandle(stub, delg);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, priorityLevel:%u, sessionType:%d, family:%d, stub:%llu")
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, priorityLevel:%u, sessionType:%d, family:%d, stub:%llu")
                 , ip.ToString().c_str(), port, priorityLevel, sessionType, family, stub);
-
 
     return Status::Success;
 }
@@ -484,9 +487,10 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
 
     if(errCode != Status::Success)
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("[connect res]fail, [%s:%hu => %s:%hu] fail stub:%llu, sessionId:%llu, errCode:%d, failure ip:%s")
-        , localAddr->_ip.c_str(), localAddr->_port, targetAddrConfig->_ip.c_str(), remoteAddr->_port,  stub, sessionId, errCode
-        , KERNEL_NS::StringUtil::ToString(*failureIps, ',').c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("[connect res]fail, [%s:%hu => %s:%hu] fail stub:%llu, sessionId:%llu, errCode:%d, failure ip:%s")
+            , localAddr->_ip.c_str(), localAddr->_port, targetAddrConfig->_ip.c_str(), remoteAddr->_port,  stub, sessionId, errCode
+            , KERNEL_NS::StringUtil::ToString(*failureIps, ',').c_str());
 
         auto iter = _unhandledContectAddr.find(stub);
         if(iter == _unhandledContectAddr.end())
@@ -536,9 +540,12 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
         _unhandledContectAddr.erase(iter);
         _unhandledContectAddr.insert(std::make_pair(stub, addr));
 
-        auto toIpv4 = addr->_remoteIp._isHostName ? (addr->_remoteIp._toIpv4 ? "to ipv4" : "to ipv6") : "None";
-        g_Log->Info(LOGFMT_OBJ_TAG("[connect res]try reconnect [%s:%hu => %s:%hu(%s)]... \n addr:%s")
-        , addr->_localIp._ip.c_str(), addr->_localPort, addr->_remoteIp._ip.c_str(), addr->_remotePort, toIpv4, addr->ToString().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        {
+            auto toIpv4 = addr->_remoteIp._isHostName ? (addr->_remoteIp._toIpv4 ? "to ipv4" : "to ipv6") : "None";
+            g_Log->Info(LOGFMT_OBJ_TAG("[connect res]try reconnect [%s:%hu => %s:%hu(%s)]... \n addr:%s")
+            , addr->_localIp._ip.c_str(), addr->_localPort, addr->_remoteIp._ip.c_str(), addr->_remotePort, toIpv4, addr->ToString().c_str());
+        }
 
         return;
     }
@@ -550,11 +557,14 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
         return;
     }
 
-    auto addrInfo = iter->second;
-    g_Log->Info(LOGFMT_OBJ_TAG("[connect res]success, stub:%llu, sessionId:%llu [%s:%hu => %s(%s):%hu]\naddr info:%s ")
-    , stub, sessionId, localAddr->_ip.c_str(), localAddr->_port
-    , addrInfo->_remoteIp._ip.c_str(), remoteAddr->_ip.c_str(), remoteAddr->_port
-    , addrInfo->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+    {
+        auto addrInfo = iter->second;
+        g_Log->Info(LOGFMT_OBJ_TAG("[connect res]success, stub:%llu, sessionId:%llu [%s:%hu => %s(%s):%hu]\naddr info:%s ")
+        , stub, sessionId, localAddr->_ip.c_str(), localAddr->_port
+        , addrInfo->_remoteIp._ip.c_str(), remoteAddr->_ip.c_str(), remoteAddr->_port
+        , addrInfo->ToString().c_str());
+    }
 
     _unhandledContectAddr.erase(iter);
 }

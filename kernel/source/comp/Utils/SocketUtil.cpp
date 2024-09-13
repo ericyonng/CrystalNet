@@ -361,7 +361,8 @@ Int32 SocketUtil::DestroySocket(SOCKET &sock)
     if(LIKELY(sock != INVALID_SOCKET))
         ret = ::close(sock);
 #endif
-    g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "close ret = [%d], sock=[%d]"), ret, sock);
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetDebug))
+        g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "close ret = [%d], sock=[%d]"), ret, sock);
     sock = INVALID_SOCKET;
     if(UNLIKELY(ret < 0))
         g_Log->NetWarn(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "close sock fail ret[%d, %s]."), ret, SockErrorMsgUtil::GetString(ret).c_str());
@@ -1077,7 +1078,8 @@ Int32 SocketUtil::Bind(SOCKET sock, const LibString &ip, UInt16 port, Int32 prot
     if(localAddr)
         *localAddr = sin;
 
-    g_Log->NetTrace(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "bind suc sock = [%d], ip[%s:%hu] protoFamily[%d, %s]."), sock, ip.c_str(), port, protoFamily, FamilyType::ToString(protoFamily));
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetTrace))
+        g_Log->NetTrace(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "bind suc sock = [%d], ip[%s:%hu] protoFamily[%d, %s]."), sock, ip.c_str(), port, protoFamily, FamilyType::ToString(protoFamily));
 
     return Status::Success;
 }
@@ -1371,7 +1373,9 @@ Int32 SocketUtil::Connect(SOCKET sock, const KernelSockAddrIn *sin)
                 err = Status::Socket_Error;
 
             Int32 lastErr = errno;
-            g_Log->NetTrace(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "connect perhaps fail lastErr = [%d, %s], err = [%d], sock = [%d]")
+
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetTrace))
+                g_Log->NetTrace(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "connect perhaps fail lastErr = [%d, %s], err = [%d], sock = [%d]")
                                         , lastErr, SystemUtil::GetErrString(lastErr).c_str(), err, sock);
         }
     #endif
@@ -1386,7 +1390,8 @@ Int32 SocketUtil::Connect(SOCKET sock, const KernelSockAddrIn *sin)
             else
                 err = Status::Socket_Error;
 
-            g_Log->NetTrace(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "connect perhaps fail lastErr = [%d, %s], err = [%d], sock = [%d]")
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetTrace))
+                g_Log->NetTrace(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "connect perhaps fail lastErr = [%d, %s], err = [%d], sock = [%d]")
                                         , lastErr, SystemUtil::GetErrString(lastErr).c_str(), err, sock);
         }
     #endif
@@ -1422,7 +1427,8 @@ Int32 SocketUtil::SyncSend(SOCKET handle, const void *buf, Int64 len, int flags,
             return Status::SockError_EAGAIN_OR_EWOULDBLOCK;
         }
 
-        g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "do send unknown error errno = [%d, %s]"), errno, SystemUtil::GetErrString(errno).c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetDebug))
+            g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "do send unknown error errno = [%d, %s]"), errno, SystemUtil::GetErrString(errno).c_str());
         return Status::SockError_UnknownError;
     }
 
@@ -1434,7 +1440,8 @@ Int32 SocketUtil::SyncSend(SOCKET handle, const void *buf, Int64 len, int flags,
         Int32 lastErr = ::WSAGetLastError();
         if (::WSAGetLastError() == WSAEWOULDBLOCK)
         {
-            g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "sync send SockError_EAGAIN_OR_EWOULDBLOCK error"));
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetDebug))
+                g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "sync send SockError_EAGAIN_OR_EWOULDBLOCK error"));
             return Status::SockError_EAGAIN_OR_EWOULDBLOCK;
         }
 
@@ -1469,7 +1476,8 @@ Int32 SocketUtil::PostAccept(UInt16 family, IoData *ioData)
         const auto &errStr = SockErrorMsgUtil::GetString(netLastError);
         if(netLastError == ERROR_IO_PENDING)
         {
-            g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "accept pending io will complete in future sock:%d."), ioData->_sock);
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetDebug))
+                g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "accept pending io will complete in future sock:%d."), ioData->_sock);
             return Status::SockError_Pending;
         }
 
@@ -1548,7 +1556,8 @@ Int32 SocketUtil::PostSend(IoData *ioData)
         const auto &errStr = SockErrorMsgUtil::GetString(netLastError);
         if (netLastError == WSA_IO_PENDING) // 异步等待完成通知
         {// pending 不是失败,而是io需要异步处理,未完成，此时内存将被锁定，如果锁定过多将造成资源枯竭,系统将无法继续投递io请求，并返回WSAENOBUFS
-            g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "windows io pending when post send sock:%d, sessionId:%llu"), ioData->_sock, ioData->_sessionId);
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetDebug))
+                g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "windows io pending when post send sock:%d, sessionId:%llu"), ioData->_sock, ioData->_sessionId);
             return Status::SockError_Pending;
         }
 
@@ -1574,7 +1583,8 @@ Int32 SocketUtil::PostSend(IoData *ioData)
         //             , ioData->_sock, ioData->_sessionId, netLastError, Status::IOCP_RemoteForciblyClosed, errStr.c_str());
         // }
 
-        g_Log->NetInfo(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "other netLastError:%d from net and should close socket:%d, sessionId:%llu, system error info:%s")
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetInfo))
+            g_Log->NetInfo(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "other netLastError:%d from net and should close socket:%d, sessionId:%llu, system error info:%s")
                         , netLastError, ioData->_sock, ioData->_sessionId, errStr.c_str());
 
         return Status::SockError_FatalError;
@@ -1615,7 +1625,8 @@ Int32 SocketUtil::PostConnect(IoData *ioData, UInt16 family, const LibString &ip
 
         if (netLastError == WSA_IO_PENDING)
         {// 异步完成
-            g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "connect pending io will complete in future sock:%d, sessionId:%llu, family:%hu, targetIp:%s, targetPort:%hu.")
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::NetDebug))
+                g_Log->NetDebug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::SocketUtil, "connect pending io will complete in future sock:%d, sessionId:%llu, family:%hu, targetIp:%s, targetPort:%hu.")
                             , ioData->_sock, ioData->_sessionId, family, ip.c_str(), port);
             return Status::SockError_Pending;
         }

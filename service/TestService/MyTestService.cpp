@@ -504,7 +504,8 @@ void MyTestService::_OnAsynConnectRes(KERNEL_NS::PollerEvent *msg)
 
 void MyTestService::_OnAddListenRes(KERNEL_NS::PollerEvent *msg)
 {
-    g_Log->Debug(LOGFMT_OBJ_TAG("add listen res:%s"), msg->ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("add listen res:%s"), msg->ToString().c_str());
 
     KERNEL_NS::AddListenResEvent *addListenEv = msg->CastTo<KERNEL_NS::AddListenResEvent>();
     

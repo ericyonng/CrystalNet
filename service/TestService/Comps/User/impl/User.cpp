@@ -729,7 +729,8 @@ void User::OnLogin()
     SetUserStatus(UserStatus::USER_LOGINING);
 
     // TODO:
-    g_Log->Info(LOGFMT_OBJ_TAG("login user:%s"), ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("login user:%s"), ToString().c_str());
 }
 
 void User::OnLoginFinish()
@@ -742,8 +743,8 @@ void User::OnLoginFinish()
 
     _SendClientUserInfo();
 
-
-    g_Log->Info(LOGFMT_OBJ_TAG("OnLoginFinish user:%s"), ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("OnLoginFinish user:%s"), ToString().c_str());
 }
 
 void User::OnClientLoginFinish()
@@ -759,7 +760,8 @@ void User::OnLogout()
     for(auto userSys : userSyss)
         userSys->CastTo<IUserSys>()->OnLogout();
 
-    g_Log->Info(LOGFMT_OBJ_TAG("OnLogout user:%s"), ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("OnLogout user:%s"), ToString().c_str());
 }
 
 void User::OnUserCreated()
@@ -768,7 +770,8 @@ void User::OnUserCreated()
     for(auto userSys : userSyss)
         userSys->CastTo<IUserSys>()->OnUserCreated();
 
-    g_Log->Info(LOGFMT_OBJ_TAG("OnUserCreated user:%s"), ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("OnUserCreated user:%s"), ToString().c_str());
 }
 
 void User::OnOfflineHandle(const OfflineData &data)
@@ -891,7 +894,8 @@ void User::Logout(Int32 logoutReason, bool disconnect, UInt64 willLoginSessionId
         return;
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("user will logout disconnect:%d user:%s"), disconnect, ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("user will logout disconnect:%d user:%s"), disconnect, ToString().c_str());
 
     // 设置状态
     SetUserStatus(UserStatus::USER_LOGOUTING);
@@ -907,7 +911,8 @@ void User::Logout(Int32 logoutReason, bool disconnect, UInt64 willLoginSessionId
     // 会话踢下线
     if(_activedSessionId)
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
+        if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+            g_Log->Info(LOGFMT_OBJ_TAG("user offline %s"), ToString().c_str());
         
         auto willLoginSession = _userMgr->GetGlobalSys<ISessionMgr>()->GetSession(willLoginSessionId);
         LogoutNty nty;
@@ -918,7 +923,8 @@ void User::Logout(Int32 logoutReason, bool disconnect, UInt64 willLoginSessionId
         // 5秒后关闭
         if(disconnect)
         {
-            g_Log->Info(LOGFMT_OBJ_TAG("user close session %s"), ToString().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("user close session %s"), ToString().c_str());
             _userMgr->CloseSession(_activedSessionId, 5000, true, true);
         }
         
@@ -936,7 +942,9 @@ void User::Logout(Int32 logoutReason, bool disconnect, UInt64 willLoginSessionId
 
     // 清空包id
     _curMaxPacketId = 0;
-    g_Log->Info(LOGFMT_OBJ_TAG("user logouted disconnect:%d user:%s"), disconnect, ToString().c_str());
+
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("user logouted disconnect:%d user:%s"), disconnect, ToString().c_str());
 }
 
 bool User::IsLogined() const

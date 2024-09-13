@@ -297,7 +297,8 @@ void LoginMgr::_Update(bool isNty)
 
     MaskDirty();
 
-    g_Log->Info(LOGFMT_OBJ_TAG("update token user:%s, token:%s"), GetUser()->ToString().c_str(), _loginInfo->ToJsonString().c_str());
+   if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("update token user:%s, token:%s"), GetUser()->ToString().c_str(), _loginInfo->ToJsonString().c_str());
 
     if(isNty)
         _SendInfo();

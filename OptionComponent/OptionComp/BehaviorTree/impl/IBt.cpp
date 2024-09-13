@@ -80,7 +80,8 @@ Int32 IBt::Init()
         err = _root->Init();
         if(err != Status::Success)
         {
-            g_Log->Info(LOGFMT_OBJ_TAG("root init fail root:%s, init bt fail:%s"), _root->ToString().c_str(), ToString().c_str());
+            if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+                g_Log->Info(LOGFMT_OBJ_TAG("root init fail root:%s, init bt fail:%s"), _root->ToString().c_str(), ToString().c_str());
             return err;
         }
     }
@@ -92,7 +93,9 @@ Int32 IBt::Init()
     SetState(BtState::INITED);
 
     _timer->Schedule(_interval);
-    g_Log->Info(LOGFMT_OBJ_TAG("init bt success:%s"), ToString().c_str());
+    
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("init bt success:%s"), ToString().c_str());
     return Status::Success;
 }
 
@@ -110,7 +113,8 @@ void IBt::Close()
         return;
     }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("bt will close"));
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("bt will close"));
 
     _BeforeClose();
 
@@ -122,7 +126,8 @@ void IBt::Close()
     _isClosed = true;
     _isInited = false;
 
-    g_Log->Info(LOGFMT_OBJ_TAG("bt closed:%s"), ToString().c_str());
+    if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("bt closed:%s"), ToString().c_str());
 }
 
 void IBt::SetRootNode(IBtNode *root)
