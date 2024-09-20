@@ -189,9 +189,10 @@ void Poller::_OnClose()
 
 void Poller::_OnAsyncTaskEvent(PollerEvent *ev)
 {
-    // auto asyncTask = ev->CastTo<AsyncTaskPollerEvent>();
+    auto asyncTaskEv = ev->CastTo<AsyncTaskPollerEvent>();
 
-    // TODO:执行异步
+    if(asyncTaskEv->_asyncTask && asyncTaskEv->_asyncTask->_handler)
+        asyncTaskEv->_asyncTask->_handler->Invoke();
 }
 
 void Poller::Clear()
@@ -392,7 +393,7 @@ void Poller::EventLoop()
         #endif
 
         // 处理协程
-        Int32 detectTimeoutLoopCount = _loopDetectTimeout;
+        detectTimeoutLoopCount = _loopDetectTimeout;
         deadline.Update();
         deadline += _maxPieceTime;
 
@@ -400,7 +401,10 @@ void Poller::EventLoop()
         {
             auto data = coNode->_data;
             if(LIKELY(data))
-                data->_handler();
+            {
+                data->_handler->Invoke();
+                data->Release();
+            }
                 
             // 片超时
             if(UNLIKELY(--detectTimeoutLoopCount <= 0))
@@ -452,7 +456,7 @@ void Poller::OnLoopEnd()
     if(_asyncTasks)
     {
         ContainerUtil::DelContainer(*_asyncTasks, [](AsyncTask *t){
-            AsyncTask::DeleteThreadLocal_AsyncTask(t);
+            t->Release();
         });
         LibList<AsyncTask *>::Delete_LibList(_asyncTasks);
     }
@@ -568,7 +572,7 @@ void Poller::_Clear()
     if(_asyncTasks)
     {
         ContainerUtil::DelContainer(*_asyncTasks, [](AsyncTask *t){
-            AsyncTask::DeleteThreadLocal_AsyncTask(t);
+            t->Release();
         });
         LibList<AsyncTask *>::Delete_LibList(_asyncTasks);
     }

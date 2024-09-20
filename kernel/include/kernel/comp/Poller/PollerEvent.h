@@ -39,6 +39,8 @@ KERNEL_BEGIN
 template <typename Rtn, typename... Args>
 class IDelegate;
 
+struct AsyncTask;
+
 struct KERNEL_EXPORT PollerEvent
 {
     POOL_CREATE_OBJ_DEFAULT(PollerEvent);
@@ -102,6 +104,8 @@ struct KERNEL_EXPORT AsyncTaskPollerEvent : public PollerEvent
     ~AsyncTaskPollerEvent();
 
     virtual void Release() override;
+
+    AsyncTask *_asyncTask;
 };
 
 

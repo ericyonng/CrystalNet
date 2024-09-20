@@ -36,25 +36,34 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/Coroutines/Invocable.h>
 #include <kernel/comp/Coroutines/Coroutine.h>
-#include <kernel/comp/Coroutines/AsyncTaskQueue.h>
+#include <kernel/comp/Utils/TlsUtil.h>
+#include <kernel/comp/Poller/PollerEvent.h>
+#include <kernel/comp/Poller/Poller.h>
+#include <kernel/comp/Coroutines/AsyncTask.h>
 
 KERNEL_BEGIN
 
 
 // 默认的AsyncTaskSuspender（当任务函数返回类型不为void时）
 template <typename ResultType>
-ALWAYS_INLINE void defaultAsyncAwaitableSuspend(
+ALWAYS_INLINE void DefaultAsyncAwaitableSuspend(
     Awaitable<ResultType>* awaitable,
     AsyncTaskResumer resumer,
     CoroutineHandle& h
 ) {
-    auto& asyncTaskQueue = AsyncTaskQueue::getInstance();
-    asyncTaskQueue.enqueue({
-        .handler = [resumer, awaitable] {
+    // handler将在poller中执行
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    auto ev = KERNEL_NS::AsyncTaskPollerEvent::New_AsyncTaskPollerEvent();
+    auto task = AsyncTask::NewThreadLocal_AsyncTask();
+    ev->_asyncTask = task;
+    auto &&handler = [resumer, awaitable] {
             awaitable->_taskResult = awaitable->_taskHandler();
+
+            // 恢复后 awaitable 会被最终销毁
             resumer();
-        }
-    });
+        };
+    task->_handler = KERNEL_CREATE_CLOSURE_DELEGATE(handler, void);
+    poller->Push(0, ev);
 }
 
 //template <typename ResultType>
@@ -97,29 +106,32 @@ ALWAYS_INLINE void defaultAsyncAwaitableSuspend(
 
 // 默认的AsyncTaskSuspender（当任务函数返回类型为void时）
 template <>
-ALWAYS_INLINE void defaultAsyncAwaitableSuspend<void>(
+ALWAYS_INLINE void DefaultAsyncAwaitableSuspend<void>(
     Awaitable<void>* awaitable,
     AsyncTaskResumer resumer,
     CoroutineHandle& h
 ) {
-    auto& asyncTaskQueue = AsyncTaskQueue::getInstance();
-    asyncTaskQueue.enqueue({
-        .handler = [resumer, awaitable] {
+    // handler将在poller中执行
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    auto ev = KERNEL_NS::AsyncTaskPollerEvent::New_AsyncTaskPollerEvent();
+    auto task = AsyncTask::NewThreadLocal_AsyncTask();
+    ev->_asyncTask = task;
+    auto &&handler = [resumer, awaitable] {
             awaitable->_taskHandler();
+
+            // 恢复后 awaitable 会被最终销毁
             resumer();
-        }
-    });
+        };
+    task->_handler = KERNEL_CREATE_CLOSURE_DELEGATE(handler, void);
+    poller->Push(0, ev);
 }
 
 // 异步化工具函数，支持将普通函数f异步化
-template <Invocable T>
-ALWAYS_INLINE auto asyncify(
-    T taskHandler, 
-    AsyncTaskSuspender<std::invoke_result_t<T>> suspender = 
-        defaultAsyncAwaitableSuspend<std::invoke_result_t<T>>
-) {
-    return Awaitable<std::invoke_result_t<T>>{
-        ._taskHandler = taskHandler,
+template<Invocable TaskType>
+ALWAYS_INLINE auto AsyncTaskRun(TaskType task, AsyncTaskSuspender<std::invoke_result_t<TaskType>> suspender = DefaultAsyncAwaitableSuspend<std::invoke_result_t<TaskType>>)
+{
+    return  Awaitable<std::invoke_result_t<TaskType>>{
+        ._taskHandler = task,
             ._suspender = suspender
     };
 }

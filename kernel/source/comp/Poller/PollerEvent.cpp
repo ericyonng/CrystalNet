@@ -29,6 +29,7 @@
 #include <kernel/comp/Poller/PollerEvent.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/Poller/PollerEventInternalType.h>
+#include <kernel/comp/Coroutines/AsyncTask.h>
 
 KERNEL_BEGIN
 
@@ -95,7 +96,7 @@ AsyncTaskPollerEvent::AsyncTaskPollerEvent()
 
 AsyncTaskPollerEvent::~AsyncTaskPollerEvent()
 {
-
+    CRYSTAL_RELEASE_SAFE(_asyncTask);
 }
 
 void AsyncTaskPollerEvent::Release()

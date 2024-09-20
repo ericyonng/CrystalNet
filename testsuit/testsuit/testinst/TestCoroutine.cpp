@@ -1350,7 +1350,7 @@ void hello() {
 }
 
 auto asyncHello() {
-    return KERNEL_NS::asyncify(hello);
+    return KERNEL_NS::AsyncTaskRun(hello);
 }
 
 KERNEL_NS::Coroutine testVoid() 
@@ -1361,10 +1361,22 @@ KERNEL_NS::Coroutine testVoid()
 
 void TestCoroutine::Run()
 {
-    testVoid();
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+
+    poller->PrepareLoop();
+
+    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer->SetTimeOutHandler([](KERNEL_NS::LibTimer *t){
+        testVoid();
+    });
+    timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
+
+    poller->EventLoop();
+
+    poller->OnLoopEnd();
 
     // 启动主线程任务循环（一定要最后调用，这里会阻塞）
-    KERNEL_NS::AsyncTaskLoop::start();
+    // KERNEL_NS::AsyncTaskLoop::start();
 
 
     // // 跑任务,任务挂起要返回调度器执行或者

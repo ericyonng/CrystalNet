@@ -32,7 +32,7 @@
 #pragma once
 
 #include <kernel/comp/memory/ObjPoolMacro.h>
-#include <functional>
+#include <kernel/comp/Delegate/IDelegate.h>
 
 KERNEL_BEGIN
 
@@ -40,11 +40,19 @@ struct KERNEL_EXPORT AsyncTask
 {
     POOL_CREATE_OBJ_DEFAULT(AsyncTask);
 
-    // 异步任务处理函数类型
-    using Handler = std::function<void()>;
+    AsyncTask(){}
+    ~AsyncTask()
+    {
+        CRYSTAL_RELEASE_SAFE(_handler);
+    }
+
+    void Release()
+    {
+        AsyncTask::DeleteThreadLocal_AsyncTask(this);
+    }
 
     // 异步任务处理函数
-    Handler _handler;
+    IDelegate<void> *_handler;
 };
 
 KERNEL_END
