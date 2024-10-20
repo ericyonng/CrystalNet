@@ -34,5 +34,6 @@
 #include <kernel/comp/Coroutines/Asyncify.h>
 #include <kernel/comp/Coroutines/Coroutine.h>
 #include <kernel/comp/Coroutines/Invocable.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 #endif

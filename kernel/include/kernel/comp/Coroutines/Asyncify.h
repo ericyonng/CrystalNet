@@ -127,13 +127,27 @@ ALWAYS_INLINE void DefaultAsyncAwaitableSuspend<void>(
 }
 
 // 异步化工具函数，支持将普通函数f异步化
-template<Invocable TaskType>
-ALWAYS_INLINE auto AsyncTaskRun(TaskType task, AsyncTaskSuspender<std::invoke_result_t<TaskType>> suspender = DefaultAsyncAwaitableSuspend<std::invoke_result_t<TaskType>>)
+template<typename TaskType, typename... Args>
+ALWAYS_INLINE auto AsyncTaskRun(TaskType task, Args... args, AsyncTaskSuspender<std::invoke_result_t<TaskType>> suspender = DefaultAsyncAwaitableSuspend<std::invoke_result_t<TaskType>>)
 {
-    return  Awaitable<std::invoke_result_t<TaskType>>{
-        ._taskHandler = task,
-            ._suspender = suspender
-    };
+    if constexpr(std::is_void_v<std::invoke_result_t<TaskType>>)
+    {
+        return  Awaitable<std::invoke_result_t<TaskType>>{
+            ._taskHandler = [=](){
+                task(std::forward<Args>(args)...);
+            },
+                ._suspender = suspender
+        };
+    }
+    else
+    {
+        return  Awaitable<std::invoke_result_t<TaskType>>{
+            ._taskHandler = [=](){
+                return task(std::forward<Args>(args)...);
+            },
+                ._suspender = suspender
+        };
+    }
 }
 
 KERNEL_END
