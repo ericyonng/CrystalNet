@@ -41,18 +41,29 @@
 KERNEL_BEGIN
 
 // 协程类
+template<typename ResultType>
 struct KERNEL_EXPORT Coroutine
 {
-    POOL_CREATE_OBJ_DEFAULT(Coroutine);
+    POOL_CREATE_TEMPLATE_OBJ_DEFAULT(Coroutine, ResultType);
 
-    // 协程Promise定义
+    bool await_ready() { return false; }
+    void await_suspend(std::coroutine_handle<Coroutine<ResultType>::promise_type> h)
+    {
+        _suspender(this, [h] { h.resume(); }, h);
+    }
+
+    ResultType await_resume() {
+        return _taskResult;
+    }
+
+    // 协程Promise定义, 编译器会先创建PromiseType对象并根据get_return_object来创建协程对象
     struct promise_type
     {
         //std::function<void()> _doneHook;
         //bool _doneHookExecuted = false;
         std::exception_ptr _exception; // 待抛出的异常
 
-        Coroutine get_return_object() { 
+        Coroutine<ResultType> get_return_object() { 
             return {
                 ._handle = std::coroutine_handle<promise_type>::from_promise(*this) 
             }; 
@@ -68,6 +79,15 @@ struct KERNEL_EXPORT Coroutine
     // 协程的句柄，可用于构建Coroutine类，并在业务代码中调用接口进行相关操作
     std::coroutine_handle<promise_type> _handle;
 
+    // co_await时需要执行的任务，开发者可以在suspend实现中调用该函数执行用户期望的任务
+    std::function<ResultType()> _taskHandler;
+
+    // 存储任务执行的结果，会在await_resume中作为co_await表达式的值返回。
+    ResultType _taskResult;
+
+    // 存储开发者自定义的await_suspend实现，会在await_suspend中调用
+    AsyncTaskSuspender<ResultType> _suspender;
+    
     //bool done() const {
     //    return _handle.done();
     //}
@@ -106,6 +126,8 @@ struct KERNEL_EXPORT Coroutine
     //}
 };
 
+template <typename ResultType>
+POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(Coroutine, ResultType);
 
 // AsyncTaskSuspender类型声明
 template <typename ResultType>
@@ -115,12 +137,13 @@ struct Awaitable;
 using AsyncTaskResumer = std::function<void()>;
 
 // 定义协程句柄
-using CoroutineHandle = std::coroutine_handle<Coroutine::promise_type>;
+template<typename ResultType>
+using CoroutineHandle = std::coroutine_handle<Coroutine<ResultType>::promise_type>;
 
 // 协程挂起
 template <typename ResultType>
 using AsyncTaskSuspender = std::function<void(
-    Awaitable<ResultType>*, AsyncTaskResumer, CoroutineHandle&
+    Awaitable<ResultType>*, AsyncTaskResumer, CoroutineHandle<ResultType>&
 )>;
 
 

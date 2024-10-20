@@ -1359,6 +1359,16 @@ KERNEL_NS::Coroutine testVoid()
     co_await asyncHello();
 }
 
+KERNEL_NS::Coroutine GetFileContent(const KERNEL_NS::LibString &file)
+{
+    auto content = co_await KERNEL_NS::AsyncTaskRun([file]()->KERNEL_NS::LibString {
+        return KERNEL_NS::LibString().AppendFormat("%s:hello world", file.c_str());
+    });
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "content:%s"), content.c_str());
+}
+
+
 void TestCoroutine::Run()
 {
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
@@ -1367,7 +1377,7 @@ void TestCoroutine::Run()
 
     auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
     timer->SetTimeOutHandler([](KERNEL_NS::LibTimer *t){
-        testVoid();
+        GetFileContent("./hello_world.txt");
     });
     timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
 
