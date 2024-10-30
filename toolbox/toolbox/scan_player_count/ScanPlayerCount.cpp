@@ -66,7 +66,7 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
     do
     {
         // 逐行扫描文件
-        KERNEL_NS::LibString patten = KERNEL_NS::LibString().AppendFormat(".*%s.*", key.c_str());
+        KERNEL_NS::LibString patten = KERNEL_NS::LibString().AppendFormat(".*Random,.*");
         
         while(true)
         {
@@ -87,35 +87,23 @@ static void ReadReason(KERNEL_NS::LibThreadPool *t)
 
             if(KERNEL_NS::StringUtil::IsMatch(buffer, patten))
             {
-                const auto &parts = buffer.Split(' ');
-                if(parts.empty() || (static_cast<Int32>(parts.size()) < 2))
+                auto &&parts = buffer.Split("Random,");
+                if(parts.empty())
                     continue;
 
-                const auto partsCount = static_cast<Int32>(parts.size());
-                for(Int32 idx = 0; idx < partsCount; ++idx)
-                {
-                    if(parts[idx] == "ExploreTreasureBox")
-                    {
-                        auto &part = parts[idx - 1];
-                        auto pos = part.GetRaw().rfind("]");
-                        if(pos == std::string::npos)
-                        {
-                            continue;
-                        }
+                auto &&pidStrLine = parts[0].strip();
+                auto rPos = pidStrLine.GetRaw().rfind("]");
+                auto leftPos = pidStrLine.GetRaw().rfind("[");
+                if(rPos == std::string::npos || leftPos == std::string::npos)
+                    continue;
 
-                        KERNEL_NS::LibString finalPart = part.GetRaw().substr(pos);
-                        finalPart.strip();
+                KERNEL_NS::LibString pidStr = pidStrLine.GetRaw().substr(leftPos + 1, rPos - leftPos - 1);
+                pidStr.strip();
+                if(pidStr.empty())
+                    continue;
 
-                        if(!finalPart.isdigit())
-                            continue;
-
-                        auto playerId = KERNEL_NS::StringUtil::StringToInt64(finalPart.c_str());
-                        playerIds.insert(playerId);
-                        break;
-                    }
-                }
-
-
+                auto playerId = KERNEL_NS::StringUtil::StringToInt64(pidStr.c_str());
+                playerIds.insert(playerId);
             }
         } 
     }while (!t->IsDestroy());
@@ -161,7 +149,7 @@ void ScanPlayerCount::Run(int argc, char const *argv[])
         return;
     }
 
-    keyContent = "ExploreTreasureBox UseFail";
+    keyContent = "SPlayerId:";
     g_Log->Info(LOGFMT_NON_OBJ_TAG(ScanPlayerCount, "scan file:%s, keyContent:%s"), file.c_str(), keyContent.c_str());
 
     KERNEL_NS::SmartPtr<FILE, KERNEL_NS::AutoDelMethods::CustomDelete> fp = KERNEL_NS::FileUtil::OpenFile(file.c_str());
@@ -219,7 +207,7 @@ void ScanPlayerCount::Run(int argc, char const *argv[])
 
         });
 
-        threadNum = threadNum > 1 ? threadNum : 1;
+        threadNum = 10;
         pool->Init(1, threadNum);
 
         for(Int32 idx = 0; idx < threadNum; ++idx)

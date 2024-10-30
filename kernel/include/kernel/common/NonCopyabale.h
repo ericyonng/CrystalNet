@@ -22,35 +22,32 @@
  * SOFTWARE.
  *  
  * 
- * Date: 2020-10-06 18:53:13
+ * Date: 2024-10-21 11:06:13
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_COMMON_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_COMMON_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_NONCOPYABLE_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMMON_NONCOPYABLE_H__
 
 #pragma once
 
-#include <kernel/common/compile.h>
 #include <kernel/common/macro.h>
+#include <kernel/kernel_export.h>
 
-#include <kernel/common/CheckAdapter/CheckAdapter.h>
-#include <kernel/common/BasicDataTrait.h>
-#include <kernel/common/Buffer.h>
-#include <kernel/common/CopyAdapter.h>
-#include <kernel/common/DataTypeAdapter.h>
-#include <kernel/common/Destructor.h>
-#include <kernel/common/func.h>
-#include <kernel/common/Int128.h>
-#include <kernel/common/LibObject.h>
-#include <kernel/common/LibSockLen.h>
-#include <kernel/common/RemoveCV.h>
-#include <kernel/common/RemoveReference.h>
-#include <kernel/common/RemoveCVRef.h>
-#include <kernel/common/statics.h>
-#include <kernel/common/status.h>
-#include <kernel/common/timedefs.h>
-#include <kernel/common/NonCopyabale.h>
+KERNEL_BEGIN
+
+struct KERNEL_EXPORT NonCopyable 
+{
+protected:
+    NonCopyable() = default;
+    ~NonCopyable() = default;
+    NonCopyable(NonCopyable&&) = default;
+    NonCopyable& operator=(NonCopyable&&) = default;
+    NonCopyable(const NonCopyable&) = delete;
+    NonCopyable& operator=(const NonCopyable&) = delete;
+};
+
+KERNEL_END
 
 #endif

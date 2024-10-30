@@ -45,9 +45,15 @@
 
 KERNEL_BEGIN
 
-template<typename ResultType>
-struct CoTask
+struct NoWaitAtInitialSuspend {};
+inline constexpr NoWaitAtInitialSuspend no_wait_at_initial_suspend;
+
+template<typename R = void>
+struct CoTask : private NonCopyable
 {
+    struct promise_type;
+    using coro_handle = std::coroutine_handle<promise_type>;
+    
     // 协程Promise定义
     struct promise_type
     {
