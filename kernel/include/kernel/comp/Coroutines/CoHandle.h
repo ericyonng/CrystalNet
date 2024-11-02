@@ -53,7 +53,7 @@ struct KERNEL_EXPORT KernelHandle
 
     KernelHandle() noexcept : _handleId(_GetMaxHandleId().fetch_add(1, std::memory_order_release) + 1) {}
 
-    virtual void Run() = 0;
+    virtual void Run(KernelHandle::State changeState) = 0;
 
     void SetState(State state) { _state = state; }
 
@@ -61,6 +61,12 @@ struct KERNEL_EXPORT KernelHandle
     HandleId GetHandleId() const { return _handleId; }
 
     virtual ~KernelHandle() = default;
+
+    bool CanSelfDestroy() const { return _canSelfDestroy; }
+    void SetSelfDestory(bool canSelfDestroy)
+    {
+        _canSelfDestroy = canSelfDestroy;
+    }
 
 private:
     static std::atomic<HandleId> &_GetMaxHandleId()
@@ -73,6 +79,7 @@ private:
 
 protected:
     State _state {KernelHandle::UNSCHEDULED};
+    bool _canSelfDestroy = false;
 };
 
 // handle maybe destroyed, using the increasing id to track the lifetime of handle.
@@ -92,7 +99,9 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
         return KERNEL_NS::LibString().AppendFormat("%s at %s:%s", frame_info.function_name(), frame_info.file_name(), frame_info.line());
     }
 
-    virtual void DumpBacktrace(size_t depth = 0) const {};
+    virtual void DumpBacktrace(size_t depth = 0, KERNEL_NS::LibString &&content = "") const;
+    virtual void DumpBacktrace(size_t depth, KERNEL_NS::LibString &content) const;
+    virtual void DumpBacktraceFinish(const KERNEL_NS::LibString &content) const;
 
     void Schedule();
 
@@ -100,7 +109,7 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
 
 private:
     virtual const std::source_location& _GetFrameInfo() const;
-
+    
 };
 
 KERNEL_END

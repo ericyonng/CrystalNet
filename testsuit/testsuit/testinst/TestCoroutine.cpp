@@ -1345,33 +1345,62 @@
 //   void unhandled_exception() { _exception = std::current_exception(); }
 // };
 
-void hello() {
-    std::cout << "<HELLO>" << std::endl;
+// void hello() {
+//     std::cout << "<HELLO>" << std::endl;
+// }
+
+// auto asyncHello() {
+//     return KERNEL_NS::AsyncTaskRun(hello);
+// }
+
+// KERNEL_NS::Coroutine testVoid() 
+// {
+//     // void函数封装示例
+//     co_await asyncHello();
+// }
+
+// auto getContent(const KERNEL_NS::LibString &content) {
+//     return KERNEL_NS::CoTask<KERNEL_NS::LibString>::Run([](const KERNEL_NS::LibString &file){
+
+//         return file;
+//     }, content);
+// }
+
+// KERNEL_NS::CoTask<void> testContent() 
+// {
+//     // void函数封装示例
+//     auto content = co_await getContent("hello file");
+
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "content:%s"), content.c_str());
+// }
+
+KERNEL_NS::CoTask<std::string> hello() {
+    co_return "hello";
 }
 
-auto asyncHello() {
-    return KERNEL_NS::AsyncTaskRun(hello);
+KERNEL_NS::CoTask<std::string> world() {
+    co_return "world";
 }
 
-KERNEL_NS::Coroutine testVoid() 
+KERNEL_NS::CoTask<KERNEL_NS::LibString> hello_world() {
+    co_return KERNEL_NS::LibString().AppendFormat("%s %s", (co_await hello()).c_str(), (co_await world()).c_str());
+}
+
+KERNEL_NS::CoTask<KERNEL_NS::LibString> test_hello_world() 
 {
-    // void函数封装示例
-    co_await asyncHello();
+    co_return KERNEL_NS::LibString().AppendFormat("hello world");
 }
 
-auto getContent(const KERNEL_NS::LibString &content) {
-    return KERNEL_NS::CoTask<KERNEL_NS::LibString>::Run([](const KERNEL_NS::LibString &file){
-
-        return file;
-    }, content);
-}
-
-KERNEL_NS::CoTask<void> testContent() 
+KERNEL_NS::CoTask<KERNEL_NS::LibString> GetContent() 
 {
-    // void函数封装示例
-    auto content = co_await getContent("hello file");
+    co_return KERNEL_NS::LibString().AppendFormat("hello world");
+}
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "content:%s"), content.c_str());
+KERNEL_NS::CoTask<> test_hello_world2() 
+{
+    auto content = co_await GetContent();
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent: %s"), content.c_str());
 }
 
 void TestCoroutine::Run()
@@ -1380,11 +1409,17 @@ void TestCoroutine::Run()
 
     poller->PrepareLoop();
 
-    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-    timer->SetTimeOutHandler([](KERNEL_NS::LibTimer *t){
-        testContent();
+    // auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    // timer->SetTimeOutHandler([](KERNEL_NS::LibTimer *t){
+    //     testContent();
+    // });
+    // timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
+
+    // 调用 hello_world 的时候, 会返回一个协程, 并抛给调度器去继续执行
+    KERNEL_NS::PostCaller([]() -> KERNEL_NS::CoTask<> 
+    {
+        co_await test_hello_world2();
     });
-    timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
 
     poller->EventLoop();
 

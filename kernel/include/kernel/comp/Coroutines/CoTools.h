@@ -21,16 +21,38 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-08-04 16:58:42
+ * Date: 2024-11-02 21:29:10
  * Author: Eric Yonng
  * Description: 
 */
 
-#include <pch.h>
-#include <kernel/comp/Coroutines/Coroutine.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_COTOOLS_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_COTOOLS_H__
+
+#pragma once
+
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+
+#include <kernel/comp/Poller/PollerInc.h>
+#include <kernel/comp/Utils/TlsUtil.h>
+#include <kernel/comp/Coroutines/AsyncTask.h>
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(Coroutine);
+// AsyncTask事件
+template<typename CallerType>
+ALWAYS_INLINE void PostAsyncTask(CallerType &&cb, Int32 level = 0)
+{
+    // handler将在poller中执行
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    auto ev = KERNEL_NS::AsyncTaskPollerEvent::New_AsyncTaskPollerEvent();
+    auto task = AsyncTask::NewThreadLocal_AsyncTask();
+    ev->_asyncTask = task;
+    task->_handler = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void);
+    poller->Push(level, ev);
+}
 
 KERNEL_END
+
+#endif

@@ -28,6 +28,8 @@
 
 #include <pch.h>
 #include <kernel/comp/Coroutines/CoHandle.h>
+#include <kernel/comp/Log/log.h>
+#include <kernel/comp/Coroutines/CoTools.h>
 
 KERNEL_BEGIN
 
@@ -42,7 +44,11 @@ void CoHandle::Schedule()
     if (_state == KERNEL_NS::KernelHandle::UNSCHEDULED)
     {
         // TODO: 注册
-        get_event_loop().call_soon(*this);
+        SetState(KernelHandle::SCHEDULED);
+
+        PostAsyncTask([this](){
+            Run(KernelHandle::UNSCHEDULED);
+        });
     }
 }
 
@@ -50,9 +56,24 @@ void CoHandle::Cancel()
 {
     if (_state != KERNEL_NS::KernelHandle::UNSCHEDULED)
     {
-        // TODO:取消调度
-        get_event_loop().cancel_handle(*this);
+        // 即使此时已经在Poller的队列中, 在Run的时候也会判断状态
+        SetState(KernelHandle::UNSCHEDULED);
     }
+}
+
+void CoHandle::DumpBacktrace(size_t depth, KERNEL_NS::LibString &&content) const
+{
+    content.AppendFormat("#%d %s\n", depth, FrameName().c_str());
+}
+
+void CoHandle::DumpBacktrace(size_t depth, KERNEL_NS::LibString &content) const
+{
+    content.AppendFormat("#%d %s\n", depth, FrameName().c_str());
+}
+
+void CoHandle::DumpBacktraceFinish(const KERNEL_NS::LibString &content) const
+{
+    g_Log->Error(LOGFMT_OBJ_TAG("CoTask Backtrace:\n%s"), content.c_str());
 }
 
 KERNEL_END

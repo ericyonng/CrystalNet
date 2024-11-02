@@ -51,14 +51,14 @@ struct CoResult
     template<typename R>
     constexpr void SetValue(R&& value) noexcept 
     {
-        _result.template emplace<T>(std::forward<R>(value));
+        _result.emplace<T>(std::forward<R>(value));
     }
 
     // promise_type 的接口
-    template<typename R> // for promise_type
+    template<typename R>
     constexpr void return_value(R&& value) noexcept 
     {
-        return SetValue(std::forward<R>(value));
+        SetValue(std::forward<T>(value));
     }
 
     // 外部需要考虑异常的情况
@@ -98,9 +98,9 @@ struct CoResult
         throw NoResultError{};
     }
 
-    void set_exception(std::exception_ptr exception) noexcept { result_ = exception; }
+    void set_exception(std::exception_ptr exception) noexcept { _result = exception; }
 
-    void unhandled_exception() noexcept { result_ = std::current_exception(); }
+    void unhandled_exception() noexcept { _result = std::current_exception(); }
 
 private:
     // variant有三个类型的可能值:monostate, T, std::exception_ptr, 使用std::get按照类型获取值, variant 内部实际上是union

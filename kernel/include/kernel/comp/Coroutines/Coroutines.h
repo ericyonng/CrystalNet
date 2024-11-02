@@ -31,9 +31,21 @@
 
 #pragma once
 
-#include <kernel/comp/Coroutines/Asyncify.h>
-#include <kernel/comp/Coroutines/Coroutine.h>
+#include <kernel/comp/Coroutines/CoTools.h>
 #include <kernel/comp/Coroutines/Invocable.h>
 #include <kernel/comp/Coroutines/CoTask.h>
+#include <kernel/comp/Coroutines/Concept/Awaitable.h>
+#include <kernel/comp/Coroutines/Concept/Future.h>
+#include <kernel/comp/Coroutines/Concept/Promise.h>
+#include <kernel/comp/Coroutines/AsyncTask.h>
+#include <kernel/comp/Coroutines/CallStack.h>
+#include <kernel/comp/Coroutines/CoDelay.h>
+#include <kernel/comp/Coroutines/CoHandle.h>
+#include <kernel/comp/Coroutines/CoResult.h>
+#include <kernel/comp/Coroutines/Exceptions.h>
+#include <kernel/comp/Coroutines/Gather.h>
+#include <kernel/comp/Coroutines/Runner.h>
+#include <kernel/comp/Coroutines/ScheduledTask.h>
+#include <kernel/comp/Coroutines/VoldValue.h>
 
 #endif

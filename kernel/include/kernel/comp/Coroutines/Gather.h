@@ -65,7 +65,7 @@ public:
         if (auto res = std::get_if<ResultTypes>(&_result)) 
             return *res;
 
-        throw std::runtime_error(KERNEL_NS::LibString().AppendFormat("result is unset ResultTypes:%s", typeid(ResultTypes).name()));
+        throw std::runtime_error(KERNEL_NS::LibString().AppendFormat("result is unset ResultTypes:%s", typeid(ResultTypes).name()).GetRaw());
     }
 
     template<typename Promise>
@@ -84,7 +84,7 @@ public:
 private:
     template<Awaitable... Futs, size_t ...Is>
     explicit GatherAwaiter(std::index_sequence<Is...>, Futs&&... futs)
-            : tasks_{ std::make_tuple(_CollectResult<Is>(no_wait_at_initial_suspend, std::forward<Futs>(futs))...) }
+            : _tasks{ std::make_tuple(_CollectResult<Is>(no_wait_at_initial_suspend, std::forward<Futs>(futs))...) }
             { }
 
     template<size_t Idx, Awaitable Fut>
@@ -113,7 +113,10 @@ private:
         if (_IsFinished()) 
         {
             // TODO:调度
-            get_event_loop().call_soon(*_continuation);
+            _continuation->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
+            KERNEL_NS::PostAsyncTask([this](){
+                _continuation->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
+            });
         }
     }
 private:
@@ -125,7 +128,7 @@ private:
 
 private:
     std::variant<ResultTypes, std::exception_ptr> _result;
-    std::tuple<Task<std::void_t<Rs>>...> _tasks;
+    std::tuple<CoTask<std::void_t<Rs>>...> _tasks;
     CoHandle* _continuation{};
     Int64 _count{0};
 };

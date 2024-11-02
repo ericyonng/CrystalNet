@@ -26,57 +26,72 @@
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_RUNNER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_RUNNER_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_SCHEDULEDTASK_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_SCHEDULEDTASK_H__
 
 #pragma once
 
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
 #include <kernel/comp/Coroutines/Concept/Future.h>
-
+#include <kernel/common/NonCopyabale.h>
+#include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Poller/PollerInc.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Coroutines/CoHandle.h>
-#include <kernel/comp/Coroutines/CoTask.h>
-#include <kernel/comp/Coroutines/CoTools.h>
 
 KERNEL_BEGIN
 
-// 异步运行任务, 不会立刻运行
-template<Future Fut>
-ALWAYS_INLINE void PostRun(Fut&& task) 
+template<Future Task>
+struct ScheduledTask: private NonCopyable 
 {
-    if (task.Valid() && ! task.Done()) 
+    template<Future Fut>
+    explicit ScheduledTask(Fut&& fut): _task(std::forward<Fut>(fut)) 
     {
-        task.GetHandle().promise().SetState(KERNEL_NS::KernelHandle::SCHEDULED);
-
-        // handler将在poller中执行(lambda 绑定移动语义)
-        auto moveTask = new Fut(std::move(task));
-        PostAsyncTask([moveTask] ()
+        if (_task.Valid() && ! _task.Done()) 
         {
-            if(moveTask->Valid() && !moveTask->Done())
-            {
-                moveTask->GetHandle().promise().Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
-            }
-
-            delete moveTask;
-        });
+            _task._handle.promise().Schedule();
+        }
     }
-}
 
-template<typename T>
-ALWAYS_INLINE void PostCaller(T &&t)
-{
-    auto &&lamb = [t]()->CoTask<> 
+    void Cancel() { _task.Destroy(); }
+
+    decltype(auto) operator co_await() const & noexcept 
     {
-        // 切出
-        co_await CoTask<>::CoYield();
-        
-        // 切出后会在调度器中执行moveT
-        co_await t();
-    };
-    PostRun(lamb());
+        return _task.operator co_await();
+    }
+
+    auto operator co_await() const && noexcept 
+    {
+        return _task.operator co_await();
+    }
+
+    decltype(auto) GetResult() & 
+    {
+        return _task.GetResult();
+    }
+
+    decltype(auto) GetResult() && 
+    {
+        return std::move(_task).GetResult();
+    }
+
+    bool Valid() const { return _task.Valid(); }
+    bool Done() const { return _task.Done(); }
+
+private:
+    Task _task;
+};
+
+template<Future Fut>
+ScheduledTask(Fut&&) -> ScheduledTask<Fut>;
+
+template<Future Fut>
+[[nodiscard("discard(detached) a task will not schedule to run")]]
+ScheduledTask<Fut> *schedule_task(Fut&& fut) 
+{
+    
+    return new ScheduledTask { std::forward<Fut>(fut) };
 }
 
 KERNEL_END
