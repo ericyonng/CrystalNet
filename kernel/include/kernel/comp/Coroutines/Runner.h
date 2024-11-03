@@ -50,10 +50,11 @@ ALWAYS_INLINE void PostRun(Fut&& task)
     if (task.Valid() && ! task.Done()) 
     {
         task.GetHandle().promise().SetState(KERNEL_NS::KernelHandle::SCHEDULED);
+        task.SetDisableSuspend(true);
 
         // handler将在poller中执行(lambda 绑定移动语义)
-        auto moveTask = new Fut(std::move(task));
-        PostAsyncTask([moveTask] ()
+        auto moveTask = new Fut(std::forward<Fut>(task));
+        PostAsyncTask([moveTask] () mutable -> void
         {
             if(moveTask->Valid() && !moveTask->Done())
             {
@@ -69,12 +70,9 @@ template<typename T>
 ALWAYS_INLINE void PostCaller(T &&t)
 {
     auto &&lamb = [t]()->CoTask<> 
-    {
-        // 切出
-        co_await CoTask<>::CoYield();
-        
-        // 切出后会在调度器中执行moveT
-        co_await t();
+    {        
+        // 此处不挂起
+        co_await t().SetDisableSuspend(true);
     };
     PostRun(lamb());
 }

@@ -123,9 +123,9 @@ template <typename ClosureFuncType, typename Rtn, typename... Args>
 class DelegateClosureFunc : public IDelegate<Rtn, Args...>
 {
 public:
-    //DelegateClosureFunc(ClosureFuncType &&closureFunc);
+    DelegateClosureFunc(RemoveReferenceType<ClosureFuncType> &&closureFunc);
     // DelegateClosureFunc(ClosureFuncType const&closureFunc);
-    DelegateClosureFunc(const ClosureFuncType &closureFunc);
+    DelegateClosureFunc(const RemoveReferenceType<ClosureFuncType> &closureFunc);
     virtual ~DelegateClosureFunc();
 
     virtual Rtn Invoke(Args... args) override;

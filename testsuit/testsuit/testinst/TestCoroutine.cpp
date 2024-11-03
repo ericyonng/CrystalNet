@@ -65,12 +65,19 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> test_hello_world()
 
 KERNEL_NS::CoTask<KERNEL_NS::LibString> GetContent() 
 {
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 1"));
+    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10));
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 2"));
+    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10));
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 3"));
+
+    throw std::exception("GetContent error");
     co_return KERNEL_NS::LibString().AppendFormat("hello world");
 }
 
 KERNEL_NS::CoTask<> test_hello_world2() 
 {
-    auto content = co_await GetContent();
+    auto content = co_await GetContent().SetDisableSuspend(true);
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent: %s"), content.c_str());
 }
@@ -90,7 +97,7 @@ void TestCoroutine::Run()
     // 调用 hello_world 的时候, 会返回一个协程, 并抛给调度器去继续执行
     KERNEL_NS::PostCaller([]() -> KERNEL_NS::CoTask<> 
     {
-        co_await test_hello_world2();
+        co_await test_hello_world2().SetDisableSuspend(true);
     });
 
     poller->EventLoop();

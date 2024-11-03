@@ -150,7 +150,13 @@ ALWAYS_INLINE IDelegate<Rtn, Args...> *DelegateFunction<Rtn, Args...>::CreateNew
 // 
 
 template <typename ClosureFuncType, typename Rtn, typename... Args>
-ALWAYS_INLINE DelegateClosureFunc<ClosureFuncType, Rtn, Args...>::DelegateClosureFunc(const ClosureFuncType &closureFunc)
+ALWAYS_INLINE DelegateClosureFunc<ClosureFuncType, Rtn, Args...>::DelegateClosureFunc(RemoveReferenceType<ClosureFuncType> &&closureFunc)
+    :_closureFun(closureFunc)
+{
+}
+
+template <typename ClosureFuncType, typename Rtn, typename... Args>
+ALWAYS_INLINE DelegateClosureFunc<ClosureFuncType, Rtn, Args...>::DelegateClosureFunc(const RemoveReferenceType<ClosureFuncType> &closureFunc)
     :_closureFun(closureFunc)
 {
 }

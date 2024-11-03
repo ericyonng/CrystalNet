@@ -53,18 +53,29 @@ struct KERNEL_EXPORT NoWaitAtInitialSuspend {};
 ALWAYS_INLINE constexpr NoWaitAtInitialSuspend no_wait_at_initial_suspend;
 
 template<typename R = void>
-struct CoTask: private NonCopyable 
+struct CoTask : NonCopyable
 {
+public:
     struct promise_type;
     using coro_handle = std::coroutine_handle<promise_type>;
 
-    explicit CoTask(coro_handle h) noexcept: _handle(h) {}
+    explicit CoTask(coro_handle h) noexcept: _handle(h),_disableSuspend(false) {}
 
     CoTask(CoTask&& t) noexcept
         : _handle(std::exchange(t._handle, {}))
+        ,_disableSuspend(std::exchange(t._disableSuspend, false))
         {
 
         }
+
+    CoTask& operator=(CoTask&& other)
+    {
+        Destroy();
+        _handle = std::exchange(other._handle, {});
+        _disableSuspend = std::exchange(other._disableSuspend, false);
+        return *this;
+    }
+
 
     ~CoTask() { Destroy(); }
 
@@ -93,13 +104,22 @@ struct CoTask: private NonCopyable
         {
             ASSERT(! _selfCoro.promise()._continuation);
 
+            // resumer为co_await CoTask时候创建的子协程句柄
             resumer.promise().SetState(KernelHandle::SUSPEND);
             _selfCoro.promise()._continuation = &resumer.promise();
+
+            if(_disableSuspend)
+            {
+                _selfCoro.promise().SetState(KernelHandle::SCHEDULED);
+                _selfCoro.promise().Run(KernelHandle::UNSCHEDULED);
+                return;
+            }
 
             _selfCoro.promise().Schedule();
         }
 
         coro_handle _selfCoro {};
+        bool _disableSuspend = false;
     };
     
     auto operator co_await() const & noexcept 
@@ -115,7 +135,7 @@ struct CoTask: private NonCopyable
             }
         };
 
-        return Awaiter {_handle};
+        return Awaiter {_handle, _disableSuspend};
     }
 
     auto operator co_await() const && noexcept 
@@ -131,7 +151,7 @@ struct CoTask: private NonCopyable
             }
         };
 
-        return Awaiter {_handle};
+        return Awaiter {_handle, _disableSuspend};
     }
 
     struct promise_type: CoHandle, CoResult<R> 
@@ -146,7 +166,8 @@ struct CoTask: private NonCopyable
 
         auto initial_suspend() noexcept 
         {
-            struct InitialSuspendAwaiter {
+            struct InitialSuspendAwaiter 
+            {
                 constexpr bool await_ready() const noexcept { return !_wait_at_initial_suspend; }
                 constexpr void await_suspend(std::coroutine_handle<>) const noexcept {}
                 constexpr void await_resume() const noexcept {}
@@ -183,6 +204,22 @@ struct CoTask: private NonCopyable
         {
             // 扣接构造函数, 省去了传递模板参数, 编译期推导
             return CoTask{coro_handle::from_promise(*this)};
+        }
+
+        template<Awaitable A>
+        decltype(auto) await_transform(A&& awaiter, // for save source_location info
+                                       std::source_location loc = std::source_location::current()) 
+        {
+            _frameInfo = loc;
+            return std::forward<A>(awaiter);
+        }
+
+        virtual void unhandled_exception() noexcept override
+        { 
+            CoResult<R>::unhandled_exception();
+
+            // 打印堆栈出来
+            DumpBacktrace();
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -283,6 +320,15 @@ struct CoTask: private NonCopyable
         return _handle;
     }
 
+    CoTask &SetDisableSuspend(bool disableSuspend) const
+    {
+        _disableSuspend = disableSuspend;
+
+        return *const_cast<CoTask *>(this);
+    }
+
+    bool IsDisableSuspend() const { return _disableSuspend; }
+
 private:
     void Destroy() 
     {
@@ -301,6 +347,7 @@ private:
 private:
     // 为了能在PostRun 中使用，破例用mutable
     mutable coro_handle _handle;
+    mutable bool _disableSuspend = false;
 };
 
 static_assert(Promise<CoTask<>::promise_type>);

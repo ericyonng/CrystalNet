@@ -96,7 +96,7 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
     KERNEL_NS::LibString FrameName() const 
     {
         const auto& frame_info = _GetFrameInfo();
-        return KERNEL_NS::LibString().AppendFormat("%s at %s:%s", frame_info.function_name(), frame_info.file_name(), frame_info.line());
+        return KERNEL_NS::LibString().AppendFormat("%s at %s:%d", frame_info.function_name(), frame_info.file_name(), frame_info.line());
     }
 
     virtual void DumpBacktrace(size_t depth = 0, KERNEL_NS::LibString &&content = "") const;
@@ -107,7 +107,7 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
 
     void Cancel();
 
-private:
+protected:
     virtual const std::source_location& _GetFrameInfo() const;
     
 };

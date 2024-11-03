@@ -40,7 +40,7 @@ struct KERNEL_EXPORT AsyncTask
 {
     POOL_CREATE_OBJ_DEFAULT(AsyncTask);
 
-    AsyncTask(){}
+    AsyncTask():_handler(NULL){}
     ~AsyncTask()
     {
         CRYSTAL_RELEASE_SAFE(_handler);

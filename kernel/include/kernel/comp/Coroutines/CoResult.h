@@ -100,9 +100,9 @@ struct CoResult
 
     void set_exception(std::exception_ptr exception) noexcept { _result = exception; }
 
-    void unhandled_exception() noexcept { _result = std::current_exception(); }
+    virtual void unhandled_exception() noexcept { _result = std::current_exception(); }
 
-private:
+protected:
     // variant有三个类型的可能值:monostate, T, std::exception_ptr, 使用std::get按照类型获取值, variant 内部实际上是union
     std::variant<std::monostate, T, std::exception_ptr> _result;
 };
@@ -130,7 +130,7 @@ struct KERNEL_EXPORT CoResult<void>
 
     // for: promise_type
     void set_exception(std::exception_ptr exception) noexcept { _result = exception; }
-    void unhandled_exception() noexcept { _result = std::current_exception(); }
+    virtual void unhandled_exception() noexcept { _result = std::current_exception(); }
 
 private:
     std::optional<std::exception_ptr> _result;

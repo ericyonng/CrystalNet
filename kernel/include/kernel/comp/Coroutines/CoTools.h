@@ -49,7 +49,8 @@ ALWAYS_INLINE void PostAsyncTask(CallerType &&cb, Int32 level = 0)
     auto ev = KERNEL_NS::AsyncTaskPollerEvent::New_AsyncTaskPollerEvent();
     auto task = AsyncTask::NewThreadLocal_AsyncTask();
     ev->_asyncTask = task;
-    task->_handler = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void);
+    auto delg = KERNEL_NS::DelegateFactory::Create<decltype(cb), void>(std::forward<CallerType>(cb));
+    task->_handler = delg;
     poller->Push(level, ev);
 }
 
