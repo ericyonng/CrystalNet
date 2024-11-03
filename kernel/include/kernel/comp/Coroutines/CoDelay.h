@@ -74,14 +74,14 @@ private:
     KERNEL_NS::TimeSlice _delay;
 };
 
-ALWAYS_INLINE KERNEL_EXPORT CoTask<> CoDelay(NoWaitAtInitialSuspend, const KERNEL_NS::TimeSlice &delay) 
-{
-    co_await CoDelayAwaiter {delay};
-}
+// ALWAYS_INLINE KERNEL_EXPORT CoTask<> CoDelay(NoWaitAtInitialSuspend, const KERNEL_NS::TimeSlice &delay) 
+// {
+//     co_await CoDelayAwaiter {delay};
+// }
 
 ALWAYS_INLINE KERNEL_EXPORT CoTask<> CoDelay(const KERNEL_NS::TimeSlice &delay) 
 {
-    return CoDelay(no_wait_at_initial_suspend, delay);
+    co_await CoDelayAwaiter {delay};
 }
 
 KERNEL_END

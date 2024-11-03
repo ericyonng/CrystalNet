@@ -66,7 +66,7 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> test_hello_world()
 KERNEL_NS::CoTask<KERNEL_NS::LibString> GetContent() 
 {
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 1"));
-    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10));
+    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10)).SetDisableSuspend();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 2"));
     co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10));
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 3"));

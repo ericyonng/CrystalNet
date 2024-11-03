@@ -214,12 +214,46 @@ public:
             return std::forward<A>(awaiter);
         }
 
-        virtual void unhandled_exception() noexcept override
+        virtual void unhandled_exception() override
         { 
             CoResult<R>::unhandled_exception();
 
             // 打印堆栈出来
             DumpBacktrace();
+
+            if(UNLIKELY(CoResult<R>::HasError()))
+                ThrowErrorIfExists();
+        }
+
+        virtual CoHandle *GetContinuation() { return _continuation; }
+
+        virtual void DestroyHandle() override
+        {
+            Cancel();
+            coro_handle::from_promise(*this).destroy();
+        }
+
+        virtual void ThrowErrorIfExists() override 
+        {
+            // 有异常重新抛出
+            auto &&exception = CoResult<R>::GetException();
+
+            // 先销毁协程
+            auto coPre = this->_continuation;
+            coro_handle::from_promise(*this).destroy();
+            do
+            {
+                if(!coPre)
+                    break;
+                
+                auto nextCo = coPre->GetContinuation();
+                coPre->DestroyHandle();
+                coPre = nextCo;
+                /* code */
+            } while (coPre);
+
+            // 再抛异常
+            std::rethrow_exception(exception);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -320,7 +354,7 @@ public:
         return _handle;
     }
 
-    CoTask &SetDisableSuspend(bool disableSuspend) const
+    CoTask &SetDisableSuspend(bool disableSuspend = true) const
     {
         _disableSuspend = disableSuspend;
 

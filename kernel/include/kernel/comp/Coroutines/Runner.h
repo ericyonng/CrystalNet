@@ -53,15 +53,13 @@ ALWAYS_INLINE void PostRun(Fut&& task)
         task.SetDisableSuspend(true);
 
         // handler将在poller中执行(lambda 绑定移动语义)
-        auto moveTask = new Fut(std::forward<Fut>(task));
+        KERNEL_NS::SmartPtr<Fut> moveTask(new Fut(std::forward<Fut>(task)));
         PostAsyncTask([moveTask] () mutable -> void
         {
             if(moveTask->Valid() && !moveTask->Done())
             {
                 moveTask->GetHandle().promise().Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
             }
-
-            delete moveTask;
         });
     }
 }

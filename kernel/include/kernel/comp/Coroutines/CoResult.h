@@ -61,6 +61,33 @@ struct CoResult
         SetValue(std::forward<T>(value));
     }
 
+    // 有没有异常
+    bool HasError() const
+    {
+        if(std::get_if<std::exception_ptr>(&_result))
+            return true;
+
+        return false;
+    }
+
+    void RethrowException()
+    {
+        if (auto exception = std::get_if<std::exception_ptr>(&_result)) 
+        {
+            std::rethrow_exception(*exception);
+        }
+    }
+    
+    std::exception_ptr GetException()
+    {
+        if (auto exception = std::get_if<std::exception_ptr>(&_result)) 
+        {
+            return *exception;
+        }
+
+        return std::exception_ptr();
+    }
+
     // 外部需要考虑异常的情况
     constexpr T GetResult() & 
     {
@@ -100,7 +127,7 @@ struct CoResult
 
     void set_exception(std::exception_ptr exception) noexcept { _result = exception; }
 
-    virtual void unhandled_exception() noexcept { _result = std::current_exception(); }
+    virtual void unhandled_exception() { _result = std::current_exception(); }
 
 protected:
     // variant有三个类型的可能值:monostate, T, std::exception_ptr, 使用std::get按照类型获取值, variant 内部实际上是union
@@ -128,9 +155,32 @@ struct KERNEL_EXPORT CoResult<void>
             std::rethrow_exception(*_result);
     }
 
+    // 有没有异常
+    bool HasError() const
+    {
+        if (_result.has_value() && *_result != nullptr)
+            return true;
+
+        return false;
+    }
+
+    void RethrowException()
+    {
+        if (_result.has_value() && *_result != nullptr)
+            std::rethrow_exception(*_result);
+    }
+
+    std::exception_ptr GetException()
+    {
+        if (_result.has_value() && *_result != nullptr)
+            return *_result;
+
+        return std::exception_ptr();
+    }
+
     // for: promise_type
     void set_exception(std::exception_ptr exception) noexcept { _result = exception; }
-    virtual void unhandled_exception() noexcept { _result = std::current_exception(); }
+    virtual void unhandled_exception() { _result = std::current_exception(); }
 
 private:
     std::optional<std::exception_ptr> _result;

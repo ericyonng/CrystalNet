@@ -107,6 +107,12 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
 
     void Cancel();
 
+    virtual void DestroyHandle() {}
+
+    virtual CoHandle *GetContinuation() { return NULL; }
+
+    virtual void ThrowErrorIfExists() {}
+
 protected:
     virtual const std::source_location& _GetFrameInfo() const;
     
