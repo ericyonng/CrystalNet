@@ -21,60 +21,16 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-10-26 20:27:13
+ * Date: 2024-11-04 12:43:13
  * Author: Eric Yonng
  * Description: 
 */
 
 #include <pch.h>
-#include <kernel/comp/Coroutines/CoHandle.h>
-#include <kernel/comp/Log/log.h>
-#include <kernel/comp/Coroutines/CoTools.h>
+#include <kernel/comp/Coroutines/CoTaskParam.h>
 
 KERNEL_BEGIN
 
-const std::source_location& CoHandle::_GetFrameInfo() const 
-{
-    static const std::source_location frame_info = std::source_location::current();
-    return frame_info;
-}
-
-void CoHandle::Schedule() 
-{
-    if (_state == KERNEL_NS::KernelHandle::UNSCHEDULED)
-    {
-        // TODO: 注册
-        SetState(KernelHandle::SCHEDULED);
-
-        PostAsyncTask([this](){
-            Run(KernelHandle::UNSCHEDULED);
-        });
-    }
-}
-
-void CoHandle::Cancel() 
-{
-    if (_state != KERNEL_NS::KernelHandle::UNSCHEDULED)
-    {
-        // 即使此时已经在Poller的队列中, 在Run的时候也会判断状态
-        SetState(KernelHandle::UNSCHEDULED);
-    }
-}
-
-void CoHandle::DumpBacktrace(Int32 depth) const
-{
-    KERNEL_NS::LibString content;
-    DumpBacktrace(depth, content);
-}
-
-void CoHandle::DumpBacktrace(Int32 depth, KERNEL_NS::LibString &content) const
-{
-    content.AppendFormat("#%d %s\n", depth, FrameName().c_str());
-}
-
-void CoHandle::DumpBacktraceFinish(const KERNEL_NS::LibString &content) const
-{
-    g_Log->Error(LOGFMT_OBJ_TAG("CoTask Backtrace:\n%s"), content.c_str());
-}
+POOL_CREATE_OBJ_DEFAULT_IMPL(CoTaskParam);
 
 KERNEL_END
