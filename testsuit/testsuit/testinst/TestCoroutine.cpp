@@ -71,7 +71,7 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> GetContent()
     co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10));
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 3"));
 
-    throw std::exception("GetContent error");
+    throw std::runtime_error("GetContent error");
     co_return KERNEL_NS::LibString().AppendFormat("hello world");
 }
 
