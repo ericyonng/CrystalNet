@@ -37,6 +37,7 @@
 #include <variant>
 #include <optional>
 #include <kernel/comp/Coroutines/CoTaskParam.h>
+#include <kernel/comp/SmartPtr.h>
 
 KERNEL_BEGIN
 
