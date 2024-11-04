@@ -86,7 +86,7 @@ static void CurlTask(KERNEL_NS::LibThread *pool)
         KERNEL_NS::GuidUtil::InitSnowFlake(snowFlakeInfo->_snowFlakeInfo, threadId, KERNEL_NS::LibTime::Now().GetSecTimestamp());
     }
 
-    auto &snowflakeRaw = snowFlakeInfo->_snowFlakeInfo;
+    // auto &snowflakeRaw = snowFlakeInfo->_snowFlakeInfo;
 
     CURL *curl;  
     CURLcode res;  
@@ -139,33 +139,33 @@ static void CurlTask(KERNEL_NS::LibThread *pool)
     }
 }
 
-static void GenerateTask(KERNEL_NS::LibThreadPool *pool)
-{
-    auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    poller->PrepareLoop();
-    auto timerMgr = poller->GetTimerMgr();
+// static void GenerateTask(KERNEL_NS::LibThreadPool *pool)
+// {
+//     auto poller = KERNEL_NS::TlsUtil::GetPoller();
+//     poller->PrepareLoop();
+//     auto timerMgr = poller->GetTimerMgr();
 
-    KERNEL_NS::LibTimer *timer = KERNEL_NS::LibTimer::New_LibTimer(timerMgr);
-    timer->SetTimeOutHandler([pool](KERNEL_NS::LibTimer *t)
-    {
-        s_rrTask = ++s_rrTask % s_threads.size();
-        auto idx = s_rrTask.load();
-        auto thread = s_threads[idx];
+//     KERNEL_NS::LibTimer *timer = KERNEL_NS::LibTimer::New_LibTimer(timerMgr);
+//     timer->SetTimeOutHandler([](KERNEL_NS::LibTimer *t)
+//     {
+//         s_rrTask = ++s_rrTask % s_threads.size();
+//         auto idx = s_rrTask.load();
+//         auto thread = s_threads[idx];
 
-        thread->AddTask(&CurlTask);
-        ++s_curlTask;
-    });
-    timer->Schedule(s_genCurlInterval);
-    while(!pool->IsDestroy())
-    {
-        timerMgr->Drive();
-    }
+//         thread->AddTask(&CurlTask);
+//         ++s_curlTask;
+//     });
+//     timer->Schedule(s_genCurlInterval);
+//     while(!pool->IsDestroy())
+//     {
+//         timerMgr->Drive();
+//     }
 
-    KERNEL_NS::LibTimer::Delete_LibTimer(timer);
-    timerMgr->Close();
+//     KERNEL_NS::LibTimer::Delete_LibTimer(timer);
+//     timerMgr->Close();
 
-    poller->OnLoopEnd();
-}
+//     poller->OnLoopEnd();
+// }
 
 #pragma region // async mode
 
@@ -338,12 +338,13 @@ void HttpRequest::AddMultiHandle(CURLM* multi_handle) {
 }
 
 // 释放资源
-void HttpRequest::Clear(CURLM* multi_handle) {
+void HttpRequest::Clear(CURLM* multi_handle) 
+{
     if(chunk_)
       curl_slist_free_all(chunk_);
   
-  if ((multi_handle != nullptr) && (handle_ != NULL)) 
-    curl_multi_remove_handle(multi_handle, handle_);
+    if ((multi_handle != nullptr) && (handle_ != NULL)) 
+        curl_multi_remove_handle(multi_handle, handle_);
 
     if(handle_)
         curl_easy_cleanup(handle_);
@@ -392,7 +393,7 @@ static void DoCurlMultiTask(UInt64 threadId)
         snowFlakeInfo = tlsStack->New<SnowflakeInfoWrap>();
         KERNEL_NS::GuidUtil::InitSnowFlake(snowFlakeInfo->_snowFlakeInfo, threadId, KERNEL_NS::LibTime::Now().GetSecTimestamp());
     }
-    auto &snowflakeRaw = snowFlakeInfo->_snowFlakeInfo;
+    // auto &snowflakeRaw = snowFlakeInfo->_snowFlakeInfo;
 
     const auto &startTime = KERNEL_NS::LibTime::Now();
 
@@ -513,8 +514,6 @@ static void DoCurlMultiTask(UInt64 threadId)
     {
         if(msg->msg == CURLMSG_DONE) 
         {
-
-            CURL *easy_handle = msg->easy_handle;  
             char *url;
             curl_easy_getinfo(msg->easy_handle, CURLINFO_EFFECTIVE_URL, &url);
 
@@ -586,11 +585,11 @@ static void DoCurlMultiTask(UInt64 threadId)
         , s_workingNum.load(), batchLimit, totalCost.GetTotalMilliSeconds(), sendCost.GetTotalMilliSeconds(), costSingle, sendCostSingle);
 }
 
-// 一次请求大概30ms
-const Int64 requestMs = 30;
+// 一次请求大概30ms 
+// const Int64 requestMs = 30;
 
 // 1秒限制10000个令牌
-const Int32 tokenNumLimit = 10000;
+// const Int32 tokenNumLimit = 10000;
 
 // 
 static void CurlAlwaysTask(KERNEL_NS::LibThreadPool *pool)
@@ -603,7 +602,7 @@ static void CurlAlwaysTask(KERNEL_NS::LibThreadPool *pool)
 
     Int32 timeLoopIndex = 0;
     KERNEL_NS::LibTimer *timer = KERNEL_NS::LibTimer::New_LibTimer(&timerMgr);
-    timer->SetTimeOutHandler([pool, threadId, &timeLoopIndex](KERNEL_NS::LibTimer *t)
+    timer->SetTimeOutHandler([threadId, &timeLoopIndex](KERNEL_NS::LibTimer *t)
     {
         if(++timeLoopIndex == threadId)
         {
@@ -640,29 +639,29 @@ static void CurlMultiTask(KERNEL_NS::LibThreadPool *pool)
 }
 
 
-static void HttpRequestGenTask(KERNEL_NS::LibThreadPool *pool)
-{
-    KERNEL_NS::TimerMgr timerMgr;
-    timerMgr.Launch(NULL);
+// static void HttpRequestGenTask(KERNEL_NS::LibThreadPool *pool)
+// {
+//     KERNEL_NS::TimerMgr timerMgr;
+//     timerMgr.Launch(NULL);
 
-    KERNEL_NS::LibTimer *timer = KERNEL_NS::LibTimer::New_LibTimer(&timerMgr);
-    timer->SetTimeOutHandler([pool](KERNEL_NS::LibTimer *t)
-    {
-        ++s_curlTask;
+//     KERNEL_NS::LibTimer *timer = KERNEL_NS::LibTimer::New_LibTimer(&timerMgr);
+//     timer->SetTimeOutHandler([pool](KERNEL_NS::LibTimer *t)
+//     {
+//         ++s_curlTask;
 
-        pool->AddTask(&CurlMultiTask);
-    });
-    timer->Schedule(s_genCurlInterval);
-    while(!pool->IsDestroy())
-    {
-        timerMgr.Drive();
-    }
+//         pool->AddTask(&CurlMultiTask);
+//     });
+//     timer->Schedule(s_genCurlInterval);
+//     while(!pool->IsDestroy())
+//     {
+//         timerMgr.Drive();
+//     }
 
-    KERNEL_NS::LibTimer::Delete_LibTimer(timer);
-    timerMgr.Close();
+//     KERNEL_NS::LibTimer::Delete_LibTimer(timer);
+//     timerMgr.Close();
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCurl, "QUIT HttpRequestGenTask"));
-}
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCurl, "QUIT HttpRequestGenTask"));
+// }
 
 
 #pragma endregion
@@ -675,7 +674,7 @@ void TestCurl::Run(int argc, char const *argv[])
     Int64 batchIntervalMicroSeconds = 0;
     Int32 disableWait = 0;
     Int32 upperLimit = 0;
-    KERNEL_NS::ParamsHandler::GetStandardParams(argc, argv, [&count, &threadNum, &genTickIntervalMicroSeconds, &batchIntervalMicroSeconds, &disableWait, &upperLimit](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam){
+    KERNEL_NS::ParamsHandler::GetStandardParams(argc, argv, [&count, &threadNum, &batchIntervalMicroSeconds, &disableWait, &upperLimit](const KERNEL_NS::LibString &param, std::vector<KERNEL_NS::LibString> &leftParam){
         if(count == 1)
         {
             threadNum = KERNEL_NS::StringUtil::StringToInt32(param.strip().c_str());

@@ -101,36 +101,36 @@ void TestBigNum::Run()
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestBigNum, "big7:%s, big8:%s"), bigNum15.ToString().c_str(), big8.ToString().c_str());
     }
 
-    auto ret = jk < bigNum14;
-    auto ret2 = jk > bigNum14;
-    auto ret3 = jk == bigNum14;
-    auto ret4 = jk <= bigNum14;
-    auto ret5 = jk >= bigNum14;
-    auto ret6 = jk != bigNum14;
+    // auto ret = jk < bigNum14;
+    // auto ret2 = jk > bigNum14;
+    // auto ret3 = jk == bigNum14;
+    /// auto ret4 = jk <= bigNum14;
+    // auto ret5 = jk >= bigNum14;
+    // auto ret6 = jk != bigNum14;
 
-    auto bigNum30 = KERNEL_NS::BigNum(0xFFFF, 0xFF000000FF00FF00);
-    auto bigNumCopy = bigNum30;
-    auto bigNum31 = bigNum30 >> 8;
-    auto bigNum33 = bigNum30 >> 32;
-    auto bigNum34 = bigNum30 >> 72;
-    auto bigNum35 = bigNum30 << 8; 
-    auto bigNum36 = bigNum30 << 40; 
-    auto bigNum37 = bigNum30 << 56; 
-    auto bigNum38 = bigNum30 << 72; 
+    // auto bigNum30 = KERNEL_NS::BigNum(0xFFFF, 0xFF000000FF00FF00);
+    // auto bigNumCopy = bigNum30;
+    // auto bigNum31 = bigNum30 >> 8;
+    // auto bigNum33 = bigNum30 >> 32;
+    // auto bigNum34 = bigNum30 >> 72;
+    // auto bigNum35 = bigNum30 << 8; 
+    // auto bigNum36 = bigNum30 << 40; 
+    // auto bigNum37 = bigNum30 << 56; 
+    // auto bigNum38 = bigNum30 << 72; 
 
-    bigNum30 >>= 8;
-    auto ret41 = bigNum30 == bigNum31;
-    bigNum30 >>= 24;
-    auto ret42 = bigNum30 == bigNum33;
-    bigNum30 >>= 40;
-    auto ret43 = bigNum30 == bigNum34;
-    bigNumCopy <<= 8;
-    auto ret44 = bigNumCopy == bigNum35;
-    bigNumCopy <<= 32;
-    auto ret45 = bigNumCopy == bigNum36;
-    bigNumCopy <<= 16;
-    auto ret46 = bigNumCopy == bigNum37;
-    bigNumCopy <<= 16;
-    auto ret47 = bigNumCopy == bigNum38;
+    // bigNum30 >>= 8;
+    // auto ret41 = bigNum30 == bigNum31;
+    // bigNum30 >>= 24;
+    // auto ret42 = bigNum30 == bigNum33;
+    // bigNum30 >>= 40;
+    // auto ret43 = bigNum30 == bigNum34;
+    // bigNumCopy <<= 8;
+    // auto ret44 = bigNumCopy == bigNum35;
+    // bigNumCopy <<= 32;
+    // auto ret45 = bigNumCopy == bigNum36;
+    // bigNumCopy <<= 16;
+    // auto ret46 = bigNumCopy == bigNum37;
+    // bigNumCopy <<= 16;
+    // auto ret47 = bigNumCopy == bigNum38;
 
 }

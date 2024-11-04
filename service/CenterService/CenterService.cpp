@@ -273,7 +273,6 @@ Int32 CenterService::_OnServiceCompsCreated()
     configLoader->SetBasePath(basePath);
 
     // 设置ip rule mgr
-    auto serviceProxy = GetServiceProxy();
     auto &config = GetPollerConfig();
     auto ipRuleMgr = GetComp<KERNEL_NS::IpRuleMgr>();
     if(!ipRuleMgr->SetBlackWhiteListFlag(config._blackWhiteListFlag))

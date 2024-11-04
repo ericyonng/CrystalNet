@@ -120,10 +120,10 @@
 //     return ::malloc(bytes);
 // }
 
-static inline void DebugLogHookBefore(KERNEL_NS::LogData *logData)
-{
-    logData->_logInfo.AppendFormat("\nDebugLogHookBefore .");
-}
+// static inline void DebugLogHookBefore(KERNEL_NS::LogData *logData)
+// {
+//     logData->_logInfo.AppendFormat("\nDebugLogHookBefore .");
+// }
 
 class LibTestLog : public KERNEL_NS::LibLog
 {
