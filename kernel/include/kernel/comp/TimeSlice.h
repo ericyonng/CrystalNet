@@ -118,6 +118,8 @@ public:
     TimeSlice &operator =(const TimeSlice &slice);
     TimeSlice &operator =(Int64 nanoSecSlice);
 
+    operator bool() const;
+
     LibString ToString() const;
 
     // From接口

@@ -35,15 +35,19 @@
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
+#include <kernel/comp/LibTime.h>
 
 KERNEL_BEGIN
 
 struct KERNEL_EXPORT CoTaskParam
 {
     POOL_CREATE_OBJ_DEFAULT(CoTaskParam);
-    
+
     // 错误码
-    Int32 _errCode;
+    Int32 _errCode = 0;
+
+    // 超时时长
+    LibTime _endTime;
 };
 
 KERNEL_END

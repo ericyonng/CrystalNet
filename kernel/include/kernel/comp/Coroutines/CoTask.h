@@ -50,6 +50,7 @@
 #include <kernel/comp/Coroutines/CoTools.h>
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Coroutines/CoTaskParam.h>
+#include <kernel/comp/TimeSlice.h>
 
 KERNEL_BEGIN
 
@@ -439,6 +440,20 @@ public:
 
         param = _params;
         return *this;
+    }
+
+    CoTask& SetTimeout(const TimeSlice &slice) const
+    {
+        if(UNLIKELY(!_params))
+        {
+            _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+            _params.SetClosureDelegate([](void *ptr)
+            {
+                CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
+            });
+        }
+
+        _params->_endTime = KERNEL_NS::LibTime::Now() + slice;
     }
 
 private:

@@ -191,6 +191,11 @@ ALWAYS_INLINE TimeSlice &TimeSlice::operator =(Int64 nanoSecSlice)
     return *this;
 }
 
+ALWAYS_INLINE TimeSlice::operator bool() const
+{
+    return _slice != 0;
+}
+
 ALWAYS_INLINE LibString TimeSlice::ToString() const
 {
     auto days = GetDays();

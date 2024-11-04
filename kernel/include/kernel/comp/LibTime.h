@@ -183,6 +183,8 @@ public:
      */
     LibString ToString() const;
     LibString ToStringOfMillSecondPrecision() const;
+
+    operator bool () const;
     
 private:
     explicit LibTime(Int64 microSecTimestamp);

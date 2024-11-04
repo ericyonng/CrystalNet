@@ -228,6 +228,11 @@ ALWAYS_INLINE LibString LibTime::FormatAsUtc(time_t timestamp, const char *outFm
     return FromSeconds(timestamp).FormatAsGmt(outFmt);
 }
 
+ALWAYS_INLINE LibTime::operator bool () const
+{
+    return _rawTime != 0;
+}
+
 KERNEL_END
 
 #endif
