@@ -74,7 +74,7 @@ public:
     {
         Destroy();
 
-        #if CRYSTAL_PLATFORM_WINDOWS
+        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
         _handle = std::exchange(other._handle, NULL);
         #else
         _handle = std::exchange(other._handle, std::nullptr_t);
@@ -374,7 +374,7 @@ private:
     void Destroy() 
     {
         // 协程必须真正结束才能销毁
-        #if CRYSTAL_PLATFORM_WINDOWS
+        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
         if (auto handle = std::exchange(_handle, NULL))
         #else
         if (auto handle = std::exchange(_handle, std::nullptr_t))
