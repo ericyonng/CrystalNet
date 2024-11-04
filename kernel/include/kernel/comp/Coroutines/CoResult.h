@@ -36,6 +36,7 @@
 #include <kernel/comp/Coroutines/Exceptions.h>
 #include <variant>
 #include <optional>
+#include <kernel/comp/Coroutines/CoTaskParam.h>
 
 KERNEL_BEGIN
 
