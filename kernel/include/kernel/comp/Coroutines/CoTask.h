@@ -38,6 +38,8 @@
 #include <coroutine>
 #include <functional>
 #include <exception>
+#include <utility>
+
 #include <kernel/common/NonCopyabale.h>
 #include <kernel/comp/Coroutines/Exceptions.h>
 #include <kernel/comp/Coroutines/CoHandle.h>
@@ -50,7 +52,7 @@
 KERNEL_BEGIN
 
 struct KERNEL_EXPORT NoWaitAtInitialSuspend {};
-ALWAYS_INLINE constexpr NoWaitAtInitialSuspend no_wait_at_initial_suspend;
+constexpr NoWaitAtInitialSuspend no_wait_at_initial_suspend;
 
 template<typename R = void>
 struct CoTask : NonCopyable
@@ -225,7 +227,7 @@ public:
                 ThrowErrorIfExists();
         }
 
-        virtual CoHandle *GetContinuation() { return _continuation; }
+        virtual CoHandle *GetContinuation() override { return _continuation; }
 
         virtual void DestroyHandle() override
         {
@@ -273,7 +275,7 @@ public:
 
         const std::source_location& _GetFrameInfo() const override final { return _frameInfo; }
 
-        void DumpBacktrace(size_t depth = 0, KERNEL_NS::LibString &&content = "") const override final 
+        void DumpBacktrace(Int32 depth = 0, KERNEL_NS::LibString &&content = "") const override final 
         {
             CoHandle::DumpBacktrace(depth, content);
 
@@ -283,7 +285,7 @@ public:
                 DumpBacktraceFinish(content);
         }
 
-        void DumpBacktrace(size_t depth, KERNEL_NS::LibString &content) const override final 
+        void DumpBacktrace(Int32 depth, KERNEL_NS::LibString &content) const override final 
         {
             CoHandle::DumpBacktrace(depth, content);
 

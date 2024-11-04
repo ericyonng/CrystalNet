@@ -79,10 +79,7 @@ private:
 //     co_await CoDelayAwaiter {delay};
 // }
 
-ALWAYS_INLINE KERNEL_EXPORT CoTask<> CoDelay(const KERNEL_NS::TimeSlice &delay) 
-{
-    co_await CoDelayAwaiter {delay};
-}
+KERNEL_EXPORT CoTask<> CoDelay(const KERNEL_NS::TimeSlice &delay);
 
 KERNEL_END
 

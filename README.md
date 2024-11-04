@@ -52,6 +52,8 @@
 
 # 快速构建
 
+* 编译器要求：GCC11以上(推荐GCC13以上)/Clang15以上/vs2022以上
+
 * Linux
 
   * 支持Clang构建，且linux下默认使用clang构建，clang具有编译快生成的体积小且代码检查严格等特点
@@ -70,6 +72,7 @@
   * 编译可以使用自动化脚本编译:winms_onekey_build.bat(需要输入参数)/MsIncreaceBuildDebug.bat/MsIncreaceBuildRelease.bat/MsRebuildDebug.bat/MsRebuildRelease.bat, 需要脚本中指定MsBuild.exe的路径, 以及需要编译的vs版本
   * start.bat/stop.bat 运行或者关闭
   * export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH 若提示mysqlclient找不到
+  
 * 导表工具
 
   * update_configs.bat/update_configs.sh
@@ -105,6 +108,7 @@
 - 强大的日志系统
 - 丰富的组件支持
 - 支持Mysql 8.0存储, 不需要自行建表建库,支持自动建库建表， 支持标脏持久化, 自动存库，数据类型与大小自适应
+- 支持C++20 协程
 
 # 性能(见doc/压测/)
 

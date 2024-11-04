@@ -99,8 +99,8 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
         return KERNEL_NS::LibString().AppendFormat("%s at %s:%d", frame_info.function_name(), frame_info.file_name(), frame_info.line());
     }
 
-    virtual void DumpBacktrace(size_t depth = 0, KERNEL_NS::LibString &&content = "") const;
-    virtual void DumpBacktrace(size_t depth, KERNEL_NS::LibString &content) const;
+    virtual void DumpBacktrace(Int32 depth = 0, KERNEL_NS::LibString &&content = "") const;
+    virtual void DumpBacktrace(Int32 depth, KERNEL_NS::LibString &content) const;
     virtual void DumpBacktraceFinish(const KERNEL_NS::LibString &content) const;
 
     void Schedule();

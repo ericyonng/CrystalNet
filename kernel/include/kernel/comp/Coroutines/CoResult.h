@@ -51,7 +51,11 @@ struct CoResult
     template<typename R>
     constexpr void SetValue(R&& value) noexcept 
     {
-        _result.emplace<T>(std::forward<R>(value));
+        #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+         _result.emplace<T>(std::forward<R>(value));
+        #else
+         _result.template emplace<T>(std::forward<R>(value));
+        #endif
     }
 
     // promise_type 的接口
