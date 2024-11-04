@@ -1280,8 +1280,9 @@ void EpollTcpPoller::_OnAccept(EpollTcpSession *session)
         {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
             {// 可以退出循环
-            if(g_Log->IsEnable(LogLevel::NetDebug))
-                g_Log->NetDebug(LOGFMT_OBJ_TAG("EAGAIN or EWOULDBLOCK coming when accept in a dead loop accept session:%s"), session->ToString().c_str());
+                if(g_Log->IsEnable(LogLevel::NetDebug))
+                    g_Log->NetDebug(LOGFMT_OBJ_TAG("EAGAIN or EWOULDBLOCK coming when accept in a dead loop accept session:%s"), session->ToString().c_str());
+                    
                 break;
             }
             else if (errno == EINTR)
