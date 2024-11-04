@@ -417,17 +417,17 @@ public:
         return _handle;
     }
 
-    CoTask &SetDisableSuspend(bool disableSuspend = true) const
+    CoTask &SetDisableSuspend(bool disableSuspend = true)
     {
         _disableSuspend = disableSuspend;
 
-        return *const_cast<CoTask *>(this);
+        return *this;
     }
 
     bool IsDisableSuspend() const { return _disableSuspend; }
 
     // 外部获取协程的一些状态
-    CoTask &GetParam(SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> &param) const
+    CoTask &GetParam(SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> &param)
     {
         if(UNLIKELY(!_params))
         {
@@ -439,10 +439,11 @@ public:
         }
 
         param = _params;
+
         return *this;
     }
 
-    CoTask& SetTimeout(const TimeSlice &slice) const
+    CoTask& SetTimeout(const TimeSlice &slice)
     {
         if(UNLIKELY(!_params))
         {
@@ -454,6 +455,8 @@ public:
         }
 
         _params->_endTime = KERNEL_NS::LibTime::Now() + slice;
+
+        return *this;
     }
 
 private:
