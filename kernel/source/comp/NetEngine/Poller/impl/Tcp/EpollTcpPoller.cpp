@@ -1564,7 +1564,8 @@ void EpollTcpPoller::_OnPollEventLoop(LibThread *t)
     MaskReady(true);
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop start loop."));
-    _poller->EventLoop();
+    // 保证网络层的高效使用quickly
+    _poller->QuicklyLoop();
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop on loop end."));
     _poller->OnLoopEnd();
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop finish."));

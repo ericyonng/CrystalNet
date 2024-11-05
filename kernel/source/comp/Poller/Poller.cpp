@@ -116,7 +116,6 @@ Poller::Poller()
 ,_genEventAmount{0}
 ,_consumEventCount{0}
 ,_onTick(NULL)
-,_asyncTasks(LibList<AsyncTask *>::New_LibList())
 {
     // auto defObj = TlsUtil::GetDefTls();
     // if(UNLIKELY(defObj->_poller))
@@ -274,9 +273,160 @@ bool Poller::PrepareLoop()
     return true;
 }
 
-void Poller::EventLoop()
+void Poller::QuicklyLoop()
 {
     LibList<LibList<PollerEvent *, _Build::MT> *> *priorityEvents = LibList<LibList<PollerEvent *, _Build::MT> *>::New_LibList();
+    const Int64 priorityQueueSize = static_cast<Int64>(_eventsList->GetMaxLevel() + 1);
+    for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
+        priorityEvents->PushBack(LibList<PollerEvent *, _Build::MT>::New_LibList());
+
+    // 部分数据准备
+    LibString errLog;
+
+    g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
+
+    LibCpuCounter deadline;
+    LibCpuCounter nowCounter;
+    LibCpuCounter performaceStart;
+
+    const UInt64 pollerId = GetId();
+    
+    #if ENABLE_POLLER_PERFORMANCE
+    const UInt64 curThreadId = _workThreadId.load();
+    #endif
+
+    const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
+    Int64 mergeNumber = 0;
+
+    for(;;)
+    {
+        // 没有事件且没有脏处理则等待
+        if((_eventAmountLeft.load(std::memory_order_acquire) == 0) && !_dirtyHelper->HasDirty())
+        {
+            // quit仅考虑消息是否处理完,以及脏是否处理完,定时器不需要考虑,否则如果过期时间设置了0则无法退出
+            if(UNLIKELY(_isQuitLoop))
+                break;
+
+            if(!_timerMgr->HasExpired())
+            {
+                _eventGuard.Lock();
+                _eventGuard.TimeWait(maxSleepMilliseconds);
+                _eventGuard.Unlock();
+            }
+        }
+
+        performaceStart = deadline.Update();
+        deadline += _maxPieceTime;
+
+        // 队列有消息就合并
+        if(LIKELY(_eventAmountLeft.load(std::memory_order_acquire) != 0))
+            mergeNumber += static_cast<Int64>(_eventsList->MergeTailAllTo(priorityEvents));
+
+        // 处理事件
+        #if ENABLE_POLLER_PERFORMANCE
+        UInt64 curConsumeEventsCount = 0;
+        #endif
+
+        Int32 detectTimeoutLoopCount = _loopDetectTimeout;
+
+        for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber > 0);)
+        {
+            // 切换不同优先级消息队列
+            auto node = listNode->_data->Begin();
+            if(LIKELY(node))
+            {
+                auto data = node->_data;
+                listNode->_data->Erase(node);
+
+                --mergeNumber;
+                _eventAmountLeft.fetch_sub(1, std::memory_order_release);
+                _consumEventCount.fetch_add(1, std::memory_order_release);
+
+                #if ENABLE_POLLER_PERFORMANCE
+                ++curConsumeEventsCount;
+                #endif
+
+                // 事件处理
+                auto iter = _pollerEventHandler.find(data->_type);
+                if(LIKELY(iter != _pollerEventHandler.end()))
+                    iter->second->Invoke(data);
+
+                data->Release();
+            }
+
+            listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
+            
+            // 片超时
+            if(UNLIKELY(--detectTimeoutLoopCount <= 0))
+            {
+                detectTimeoutLoopCount = _loopDetectTimeout;
+
+                if(UNLIKELY(nowCounter.Update() >=  deadline))
+                    break;
+            }
+        }
+
+        // 脏处理
+        #if ENABLE_POLLER_PERFORMANCE
+        Int64 dirtyHandled = 0;
+        #endif
+
+        if(UNLIKELY(_dirtyHelper->HasDirty()))
+        {
+            #if ENABLE_POLLER_PERFORMANCE
+            dirtyHandled = _dirtyHelper->Purge(&errLog);
+            #else
+            _dirtyHelper->Purge(&errLog);
+            #endif
+            if(UNLIKELY(!errLog.empty()))
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
+                errLog.clear();
+            }
+        }
+
+        // 处理定时器
+        #if ENABLE_POLLER_PERFORMANCE
+        auto handled = _timerMgr->Drive();
+        #else
+        _timerMgr->Drive();
+        #endif
+
+        if(_onTick)
+            _onTick->Invoke();
+        
+        // 当前帧性能信息记录
+        #ifdef ENABLE_POLLER_PERFORMANCE
+            const auto &elapseTime = nowCounter.Update() - performaceStart;
+            if(UNLIKELY(elapseTime >= _maxPieceTime))
+            {
+                if(g_Log->IsEnable(LogLevel::NetInfo))
+                    g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu, time out handled count:%lld, dirty handled count:%lld")
+                , pollerId, curThreadId, elapseTime.GetTotalMilliseconds(), _maxPieceTime.GetTotalMilliseconds(), curConsumeEventsCount, handled, dirtyHandled);
+            }
+        #endif
+    }
+
+    const auto leftElemCount = GetPriorityEvenetsQueueElemCount(*priorityEvents);
+    if(leftElemCount != 0)
+        g_Log->Warn(LOGFMT_OBJ_TAG("has unhandled events left:%llu, poller info:%s"), leftElemCount, ToString().c_str());
+    
+    ContainerUtil::DelContainer(*priorityEvents, [](LibList<PollerEvent *, _Build::MT> *evList){
+        ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
+            g_Log->Warn(LOGFMT_NON_OBJ_TAG(Poller, "event type:%d, not handled when poller will closed."), ev->_type);
+            ev->Release();
+        });
+        LibList<PollerEvent *, _Build::MT>::Delete_LibList(evList);
+    });
+    LibList<LibList<PollerEvent *, _Build::MT> *>::Delete_LibList(priorityEvents);
+    priorityEvents = NULL;
+
+    g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
+}
+
+void Poller::SafeEventLoop()
+{
+  LibList<LibList<PollerEvent *, _Build::MT> *> *priorityEvents = LibList<LibList<PollerEvent *, _Build::MT> *>::New_LibList();
     const Int64 priorityQueueSize = static_cast<Int64>(_eventsList->GetMaxLevel() + 1);
     for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
         priorityEvents->PushBack(LibList<PollerEvent *, _Build::MT>::New_LibList());
@@ -344,6 +494,7 @@ void Poller::EventLoop()
                 if(LIKELY(node))
                 {
                     auto data = node->_data;
+                    listNode->_data->Erase(node);
 
                     --mergeNumber;
                     _eventAmountLeft.fetch_sub(1, std::memory_order_release);
@@ -354,12 +505,24 @@ void Poller::EventLoop()
                     #endif
 
                     // 事件处理
-                    auto iter = _pollerEventHandler.find(data->_type);
-                    if(LIKELY(iter != _pollerEventHandler.end()))
-                        iter->second->Invoke(data);
+                    try
+                    {
+                        auto iter = _pollerEventHandler.find(data->_type);
+                        if(LIKELY(iter != _pollerEventHandler.end()))
+                            iter->second->Invoke(data);
+                    }
+                    catch(const std::exception& e)
+                    {
+                        if(g_Log->IsEnable(LogLevel::Error))
+                            g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), data->ToString().c_str(), ToString().c_str());
+                    }
+                    catch(...)
+                    {
+                        if(g_Log->IsEnable(LogLevel::Error))
+                            g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), data->ToString().c_str(), ToString().c_str());
+                    }
 
                     data->Release();
-                    listNode->_data->Erase(node);
                 }
 
                 listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
@@ -381,54 +544,54 @@ void Poller::EventLoop()
 
             if(UNLIKELY(_dirtyHelper->HasDirty()))
             {
-                #if ENABLE_POLLER_PERFORMANCE
-                dirtyHandled = _dirtyHelper->Purge(&errLog);
-                #else
-                _dirtyHelper->Purge(&errLog);
-                #endif
-                if(UNLIKELY(!errLog.empty()))
+                try
                 {
-                    g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
-                    errLog.clear();
+                    #if ENABLE_POLLER_PERFORMANCE
+                    dirtyHandled = _dirtyHelper->Purge(&errLog);
+                    #else
+                    _dirtyHelper->Purge(&errLog);
+                    #endif
+                    if(UNLIKELY(!errLog.empty()))
+                    {
+                        g_Log->Warn(LOGFMT_OBJ_TAG("poller dirty helper has err:%s, poller id:%llu"), errLog.c_str(), pollerId);      
+                        errLog.clear();
+                    }
+                }
+                catch(const std::exception& e)
+                {
+                    if(LIKELY(g_Log->IsEnable(LogLevel::Error)))
+                       g_Log->Error(LOGFMT_OBJ_TAG("Poller Dirty Purge error:%s, poller:%s"), e.what(), ToString().c_str());
+                }
+                catch(...)
+                {
+                    if(LIKELY(g_Log->IsEnable(LogLevel::Error)))
+                       g_Log->Error(LOGFMT_OBJ_TAG("Poller Dirty Purge error:%s, poller:%s"), ToString().c_str());
                 }
             }
 
-            // 处理定时器
-            #if ENABLE_POLLER_PERFORMANCE
-            auto handled = _timerMgr->Drive();
-            #else
-            _timerMgr->Drive();
-            #endif
-
-            // 处理协程
-            detectTimeoutLoopCount = _loopDetectTimeout;
-            deadline.Update();
-            deadline += _maxPieceTime;
-
-            for(auto coNode = _asyncTasks->Begin(); coNode != _asyncTasks->End();)
+            try
             {
-                auto data = coNode->_data;
-                if(LIKELY(data))
-                {
-                    data->_handler->Invoke();
-                    data->Release();
-                }
-                    
-                // 片超时
-                if(UNLIKELY(--detectTimeoutLoopCount <= 0))
-                {
-                    detectTimeoutLoopCount = _loopDetectTimeout;
+                // 处理定时器
+                #if ENABLE_POLLER_PERFORMANCE
+                auto handled = _timerMgr->Drive();
+                #else
+                _timerMgr->Drive();
+                #endif
 
-                    if(UNLIKELY(nowCounter.Update() >=  deadline))
-                        break;
-                }
-
-                coNode = _asyncTasks->Erase(coNode);
+                if(_onTick)
+                    _onTick->Invoke();
             }
-
-            if(_onTick)
-                _onTick->Invoke();
-
+            catch(const std::exception& e)
+            {
+                if(LIKELY(g_Log->IsEnable(LogLevel::Error)))
+                    g_Log->Error(LOGFMT_OBJ_TAG("Poller timer or tick error:%s, poller:%s"), e.what(), ToString().c_str());
+            }
+            catch(...)
+            {
+                if(LIKELY(g_Log->IsEnable(LogLevel::Error)))
+                    g_Log->Error(LOGFMT_OBJ_TAG("Poller timer or tick unknown error poller:%s"), ToString().c_str());
+            }
+            
             // 当前帧性能信息记录
             #ifdef ENABLE_POLLER_PERFORMANCE
                 const auto &elapseTime = nowCounter.Update() - performaceStart;
@@ -441,7 +604,7 @@ void Poller::EventLoop()
             #endif
         }
 
-    // #ifndef _DEBUG
+        // #ifndef _DEBUG
     }
     catch(const std::exception& e)
     {
@@ -474,15 +637,6 @@ void Poller::EventLoop()
 
 void Poller::OnLoopEnd()
 {
-    // 释放还未结束的协程任务
-    if(_asyncTasks)
-    {
-        ContainerUtil::DelContainer(*_asyncTasks, [](AsyncTask *t){
-            t->Release();
-        });
-        LibList<AsyncTask *>::Delete_LibList(_asyncTasks);
-    }
-    _asyncTasks = NULL;
     // worker 线程关闭
     if(LIKELY(_onEventWorkerCloseHandler))
         _onEventWorkerCloseHandler->Invoke(this);
@@ -590,15 +744,6 @@ void Poller::_Clear()
 {
     _isEnable = false;
     _isQuitLoop = false;
-
-    if(_asyncTasks)
-    {
-        ContainerUtil::DelContainer(*_asyncTasks, [](AsyncTask *t){
-            t->Release();
-        });
-        LibList<AsyncTask *>::Delete_LibList(_asyncTasks);
-    }
-    _asyncTasks = NULL;
 
     if(LIKELY(_timerMgr))
     {

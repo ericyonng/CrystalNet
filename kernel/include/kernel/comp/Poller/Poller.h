@@ -163,7 +163,12 @@ public:
 
     // 事件循环接口
     bool PrepareLoop();
+    // Debug下是QuicklyLoop, 不使用try/catch让问题充分暴露, release下是SafeEventLoop, 保证稳定性
     void EventLoop();
+    // 不适用try/catch 应对高效的简单的场景
+    void QuicklyLoop();
+    // 使用try/catch保证稳定性
+    void SafeEventLoop();
     void OnLoopEnd();
     void WakeupEventLoop();
     void QuitLoop();
@@ -206,9 +211,6 @@ private:
 
   // poller event handler
   std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *> *> _pollerEventHandler;
-
-  // 协程
-  LibList<AsyncTask *> *_asyncTasks;
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -342,6 +344,23 @@ ALWAYS_INLINE const TimerMgr *Poller::GetTimerMgr() const
 {
     return _timerMgr;
 }
+
+#ifdef _DEBUG
+
+// Debug情况下不使用try{}catch(){}让问题充分暴露
+ALWAYS_INLINE void Poller::EventLoop()
+{
+  QuicklyLoop();
+}
+
+#else
+
+ALWAYS_INLINE void Poller::EventLoop()
+{
+  SafeEventLoop();
+}
+
+#endif
 
 // template<typename LamvadaType>
 // ALWAYS_INLINE void Poller::Push(Int32 level, LamvadaType &&lambdaType)

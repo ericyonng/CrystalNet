@@ -100,7 +100,7 @@ void TestCoroutine::Run()
         co_await test_hello_world2().SetDisableSuspend(true);
     });
 
-    poller->EventLoop();
+    poller->SafeEventLoop();
 
     poller->OnLoopEnd();
 }
