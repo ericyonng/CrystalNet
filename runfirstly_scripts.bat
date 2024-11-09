@@ -38,6 +38,7 @@ if exist %2 (
 mklink /d %2 %1
 goto EOF
 
+
 :: relink文件函数定义
 :relink_file
 if exist %2 (
