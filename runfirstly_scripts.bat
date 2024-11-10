@@ -21,6 +21,13 @@ if not exist %CUR_PATH%output\%VER%\ini (
 del /q %CUR_PATH%output\%VER%\libmysql.dll
 xcopy /s /y %CUR_PATH%\3rd\mysql\win\lib\libmysql.dll %CUR_PATH%\output\%VER%\
 
+:: ssl拷贝
+del /q %CUR_PATH%output\%VER%\libssl-1_1-x64.dll
+xcopy /s /y %CUR_PATH%\3rd\openssl\staticlib\dlls\libssl-1_1-x64.dll %CUR_PATH%\output\%VER%\
+
+del /q %CUR_PATH%output\%VER%\libcrypto-1_1-x64.dll
+xcopy /s /y %CUR_PATH%\3rd\openssl\staticlib\dlls\libcrypto-1_1-x64.dll %CUR_PATH%\output\%VER%\
+
 ::脚本拷贝
 xcopy /s /y %CUR_PATH%\toolbox\scripts\* %CUR_PATH%\output\%VER%\
 
