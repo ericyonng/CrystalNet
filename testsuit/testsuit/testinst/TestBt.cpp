@@ -75,17 +75,17 @@ public:
 
     }
 
-    ~KillNode()
+    ~KillNode() override
     {
 
     }
 
-    virtual void Release()
+    void Release() override
     {
         KillNode::DeleteThreadLocal_KillNode(this);
     }
 
-    virtual void _OnTick(const KERNEL_NS::LibTime &nowTime)
+    void _OnTick(const KERNEL_NS::LibTime &nowTime) override
     {
         ++_killCount;
 
@@ -93,7 +93,7 @@ public:
             SetState(KERNEL_NS::BtNodeState::SUCCESS);
     }
 
-    virtual void _OnSuccess()
+    void _OnSuccess() override
     {
         g_Log->Info(LOGFMT_OBJ_TAG("kill node success _killCount:%d, _targetCount:%d node:%s.")
         , _killCount, _targetCount, ToString().c_str());
@@ -178,13 +178,13 @@ void TestBt::Run()
         return;
     }
 
-    Int32 loopd = 0;
+    Int32 looped = 0;
     while (true)
     {
         KERNEL_NS::SystemUtil::ThreadSleep(1000);
         timerMgr->Drive();
 
-        if(++loopd > 60)
+        if(++looped > 60)
             break;
     }
 
