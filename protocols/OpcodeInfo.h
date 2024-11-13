@@ -1052,3 +1052,25 @@
         _allOpcodeInfo.push_back(info);
         _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, SystemLogDataListResFactory::CreateFactory()));
     }
+
+    {// TestRpcReq
+        auto info = OpcodeInfo();
+        info._opcode = 116;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "TestRpcReq";
+        info._protoFile = "test_opcode.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, TestRpcReqFactory::CreateFactory()));
+    }
+
+    {// TestRpcRes
+        auto info = OpcodeInfo();
+        info._opcode = 117;
+        info._noLog = false;
+        info._enableStorage = false;
+        info._opcodeName = "TestRpcRes";
+        info._protoFile = "test_opcode.proto";
+        _allOpcodeInfo.push_back(info);
+        _opcodeRefCoderFactory.insert(std::make_pair(info._opcode, TestRpcResFactory::CreateFactory()));
+    }

@@ -49,6 +49,8 @@ class KERNEL_EXPORT LibPacket
 public:
     LibPacket();
     virtual ~LibPacket();
+    // 默认对象池回收
+    virtual void Release();
     virtual void ReleaseUsingPool();
 
     // 包所属的会话

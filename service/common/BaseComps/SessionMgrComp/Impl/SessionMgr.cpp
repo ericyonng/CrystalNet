@@ -94,6 +94,11 @@ UInt64 SessionMgr::GetSessionAmount() const
     return _sessionAmount;
 }
 
+const std::map<UInt64, ServiceSession *> &SessionMgr::GetSessions()
+{
+    return _sessionIdRefSession;
+}
+
 Int32 SessionMgr::_OnGlobalSysInit()
 {
     // 事件

@@ -134,6 +134,31 @@ void MyTestService::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_
     _opcodeRefHandler.insert(std::make_pair(opcodeId, deleg));
 }
 
+void MyTestService::SubscribePacket(Int64 packetId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg)
+{
+    auto msgHandler = _GetPacketMsgHandler(packetId);
+    if(UNLIKELY(msgHandler))
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("repeate msg handler packetId:%lld, old owner:%s, old callback:%s, new owner:%s, new callback:%s")
+                , packetId, msgHandler->GetOwnerRtti().c_str(), msgHandler->GetCallbackRtti().c_str(), deleg->GetOwnerRtti().c_str(), deleg->GetCallbackRtti().c_str());
+        
+        msgHandler->Release();
+        _packetIdRefHandler.erase(packetId);
+    }
+
+    _packetIdRefHandler.insert(std::make_pair(packetId, deleg));
+}
+
+void MyTestService::UnSubscribePacket(Int64 packetId)
+{
+    auto iter = _packetIdRefHandler.find(packetId);
+    if(UNLIKELY(iter == _packetIdRefHandler.end()))
+        return;
+
+    iter->second->Release();
+    _packetIdRefHandler.erase(iter);
+}
+
 void MyTestService::_OnServiceClear()
 {
     g_Log->Info(LOGFMT_OBJ_TAG("service %s service clear "), GetObjName().c_str());
@@ -480,6 +505,21 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
             continue;
         }
 
+        const auto packetId = packet->GetPacketId();
+        auto packetHandler = _PopPacketMsgHandler(packetId);
+        if(UNLIKELY(packetHandler))
+        {
+            packetHandler->Invoke(packet);
+            if(packet)
+                packet->ReleaseUsingPool();
+
+            packetHandler->Release();
+
+            // 消费消息数量统计
+            AddConsumePackets(1);
+            continue;
+        }
+
         const auto opcode = packet->GetOpcode();
         auto handler = _GetMsgHandler(opcode);
         if(UNLIKELY(!handler))
@@ -535,6 +575,7 @@ void MyTestService::_Clear()
 {
     KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IProtocolStack *, KERNEL_NS::AutoDelMethods::Release>(_stackTypeRefProtocolStack);
     KERNEL_NS::ContainerUtil::DelContainer<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *, KERNEL_NS::AutoDelMethods::Release>(_opcodeRefHandler);
+    KERNEL_NS::ContainerUtil::DelContainer<Int64, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *, KERNEL_NS::AutoDelMethods::Release>(_packetIdRefHandler);
 
     if(LIKELY(_eventMgr))
     {

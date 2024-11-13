@@ -47,5 +47,6 @@
 #include <kernel/comp/Coroutines/Runner.h>
 #include <kernel/comp/Coroutines/ScheduledTask.h>
 #include <kernel/comp/Coroutines/VoldValue.h>
+#include <kernel/comp/Coroutines/CoWaiter.h>
 
 #endif

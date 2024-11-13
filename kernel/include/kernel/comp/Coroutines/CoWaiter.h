@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,41 +21,46 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-10-21 01:31:10
+ * Date: 2024-11-12 17:02:10
  * Author: Eric Yonng
  * Description: 
 */
 
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_CO_WAITER_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_CO_WAITER_H__
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_COTASK_PARAM_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_COTASK_PARAM_H__
-
-#pragma once
 
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
-#include <kernel/comp/memory/ObjPoolMacro.h>
-#include <kernel/comp/LibTime.h>
+
+#include <kernel/common/NonCopyabale.h>
+#include <kernel/comp/Coroutines/CoTask.h>
 
 KERNEL_BEGIN
 
-struct  CoHandle;
-
-struct KERNEL_EXPORT CoTaskParam
+struct KERNEL_EXPORT CoWaiter: private NonCopyable 
 {
-    POOL_CREATE_OBJ_DEFAULT(CoTaskParam);
+ explicit CoWaiter(){}
 
-    // 错误码
-    Int32 _errCode = 0;
+ constexpr bool await_ready() noexcept { return false; }
+ constexpr void await_resume() const noexcept {}
 
-    // 超时时长
-    LibTime _endTime;
+ template<typename Promise>
+ void await_suspend(std::coroutine_handle<Promise> caller) const noexcept 
+ {
+  auto promise = &caller.promise();
 
-    // 等待, 由外部手动唤醒
-    bool _waitFor = false;
-    // 协程句柄
-    CoHandle *_handle = NULL;
+  // 设置被调度, 后面协程由外部唤醒
+  promise->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
+ }
 };
+
+// ALWAYS_INLINE KERNEL_EXPORT CoTask<> CoDelay(NoWaitAtInitialSuspend, const KERNEL_NS::TimeSlice &delay) 
+// {
+//     co_await CoDelayAwaiter {delay};
+// }
+
+KERNEL_EXPORT CoTask<> Waiting();
 
 KERNEL_END
 

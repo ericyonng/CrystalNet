@@ -35,3 +35,15 @@ message TestOpcode2Res
 	optional int32 id_info = 1;
     optional TestOpcodeInfo testInfo = 2;
 }
+
+/// Opcode:,NoLog:false
+message TestRpcReq
+{
+    string Content = 1;
+}
+
+/// Opcode:,NoLog:false
+message TestRpcRes
+{
+    string Content = 1;
+}

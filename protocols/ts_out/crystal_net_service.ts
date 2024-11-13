@@ -1578,6 +1578,20 @@ export namespace crystal_net_service
 
 
     }
+    /// Opcode:,NoLog:false
+    // test_opcode.proto
+    export class TestRpcReq {
+        Content:string = "";
+
+
+    }
+    /// Opcode:,NoLog:false
+    // test_opcode.proto
+    export class TestRpcRes {
+        Content:string = "";
+
+
+    }
     // com_title.proto
     export class TitleInfo {
         titleCfgId:number = 0;

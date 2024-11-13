@@ -1237,6 +1237,32 @@ export namespace ts_pbinfo{
     }
 
 
+    // test_opcode.proto 
+    export class TestRpcReq {
+      getOpcode():number {return TestRpcReq.OPCODE; }
+      getIsXorEncrypt():boolean {return TestRpcReq.XorEncrypt; }
+      getIsKeyBase64():boolean {return TestRpcReq.KeyBase64; }
+      getOpcodeName():string {return TestRpcReq.OPCODE_NAME; }
+      static OPCODE:number = 116;
+      static OPCODE_NAME:string = "TestRpcReq";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
+    // test_opcode.proto 
+    export class TestRpcRes {
+      getOpcode():number {return TestRpcRes.OPCODE; }
+      getIsXorEncrypt():boolean {return TestRpcRes.XorEncrypt; }
+      getIsKeyBase64():boolean {return TestRpcRes.KeyBase64; }
+      getOpcodeName():string {return TestRpcRes.OPCODE_NAME; }
+      static OPCODE:number = 117;
+      static OPCODE_NAME:string = "TestRpcRes";
+      static XorEncrypt:boolean = false;
+      static KeyBase64:boolean = false;
+    }
+
+
     export class TsPbDict {
       static pb_dict = {
           [LoginReq.OPCODE]: new LoginReq(),
@@ -1423,7 +1449,11 @@ export namespace ts_pbinfo{
 
           [SystemLogDataListReq.OPCODE]: new SystemLogDataListReq(),
 
-          [SystemLogDataListRes.OPCODE]: new SystemLogDataListRes()
+          [SystemLogDataListRes.OPCODE]: new SystemLogDataListRes(),
+
+          [TestRpcReq.OPCODE]: new TestRpcReq(),
+
+          [TestRpcRes.OPCODE]: new TestRpcRes()
 
 
       }

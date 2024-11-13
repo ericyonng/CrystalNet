@@ -678,6 +678,16 @@ export namespace crystal_net_service_parser
             })
 
 
+            this.add("TestRpcReq", (jsonData:any):any =>{
+                return this.TestRpcReqParser(jsonData);
+            })
+
+
+            this.add("TestRpcRes", (jsonData:any):any =>{
+                return this.TestRpcResParser(jsonData);
+            })
+
+
             this.add("TitleInfo", (jsonData:any):any =>{
                 return this.TitleInfoParser(jsonData);
             })
@@ -3548,6 +3558,30 @@ export namespace crystal_net_service_parser
                     {
                         console.log("field TestOneOfCustom have no TestCustomData parser");
                     }
+                }
+
+                 return newInfo;
+            }
+
+
+            private TestRpcReqParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.TestRpcReq()
+
+                if(jsonData.Content != undefined)
+                {
+                    newInfo.Content = jsonData.Content;
+                }
+
+                 return newInfo;
+            }
+
+
+            private TestRpcResParser(jsonData:any):any{
+                var newInfo = new crystal_net_service.TestRpcRes()
+
+                if(jsonData.Content != undefined)
+                {
+                    newInfo.Content = jsonData.Content;
                 }
 
                  return newInfo;

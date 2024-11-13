@@ -8,6 +8,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TestOpcodeResFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestOpcode2ReqFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestOpcodeInfoFactory);
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestOpcode2ResFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(TestRpcReqFactory);
+POOL_CREATE_OBJ_DEFAULT_IMPL(TestRpcResFactory);
 
 #include <algorithm>
 
@@ -101,9 +103,35 @@ struct TestOpcode2ResDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TestOpcode2ResDefaultTypeInternal _TestOpcode2Res_default_instance_;
+PROTOBUF_CONSTEXPR TestRpcReq::TestRpcReq(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.content_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct TestRpcReqDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR TestRpcReqDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~TestRpcReqDefaultTypeInternal() {}
+  union {
+    TestRpcReq _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TestRpcReqDefaultTypeInternal _TestRpcReq_default_instance_;
+PROTOBUF_CONSTEXPR TestRpcRes::TestRpcRes(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.content_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
+struct TestRpcResDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR TestRpcResDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
+  ~TestRpcResDefaultTypeInternal() {}
+  union {
+    TestRpcRes _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TestRpcResDefaultTypeInternal _TestRpcRes_default_instance_;
 }  // namespace service
 }  // namespace CRYSTAL_NET
-static ::_pb::Metadata file_level_metadata_test_5fopcode_2eproto[5];
+static ::_pb::Metadata file_level_metadata_test_5fopcode_2eproto[7];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_test_5fopcode_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_test_5fopcode_2eproto = nullptr;
 
@@ -154,6 +182,20 @@ const uint32_t TableStruct_test_5fopcode_2eproto::offsets[] PROTOBUF_SECTION_VAR
   PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestOpcode2Res, _impl_.testinfo_),
   1,
   0,
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestRpcReq, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestRpcReq, _impl_.content_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestRpcRes, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::CRYSTAL_NET::service::TestRpcRes, _impl_.content_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::CRYSTAL_NET::service::TestOpcodeReq)},
@@ -161,6 +203,8 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 16, 24, -1, sizeof(::CRYSTAL_NET::service::TestOpcode2Req)},
   { 26, 34, -1, sizeof(::CRYSTAL_NET::service::TestOpcodeInfo)},
   { 36, 44, -1, sizeof(::CRYSTAL_NET::service::TestOpcode2Res)},
+  { 46, -1, -1, sizeof(::CRYSTAL_NET::service::TestRpcReq)},
+  { 53, -1, -1, sizeof(::CRYSTAL_NET::service::TestRpcRes)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -169,6 +213,8 @@ static const ::_pb::Message* const file_default_instances[] = {
   &::CRYSTAL_NET::service::_TestOpcode2Req_default_instance_._instance,
   &::CRYSTAL_NET::service::_TestOpcodeInfo_default_instance_._instance,
   &::CRYSTAL_NET::service::_TestOpcode2Res_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TestRpcReq_default_instance_._instance,
+  &::CRYSTAL_NET::service::_TestRpcRes_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_test_5fopcode_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -182,13 +228,15 @@ const char descriptor_table_protodef_test_5fopcode_2eproto[] PROTOBUF_SECTION_VA
   "\010_errCodeB\t\n\007_errMsg\"{\n\016TestOpcode2Res\022\024"
   "\n\007id_info\030\001 \001(\005H\000\210\001\001\022:\n\010testInfo\030\002 \001(\0132#"
   ".CRYSTAL_NET.service.TestOpcodeInfoH\001\210\001\001"
-  "B\n\n\010_id_infoB\013\n\t_testInfob\006proto3"
+  "B\n\n\010_id_infoB\013\n\t_testInfo\"\035\n\nTestRpcReq\022"
+  "\017\n\007Content\030\001 \001(\t\"\035\n\nTestRpcRes\022\017\n\007Conten"
+  "t\030\001 \001(\tb\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_test_5fopcode_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_test_5fopcode_2eproto = {
-    false, false, 433, descriptor_table_protodef_test_5fopcode_2eproto,
+    false, false, 495, descriptor_table_protodef_test_5fopcode_2eproto,
     "test_opcode.proto",
-    &descriptor_table_test_5fopcode_2eproto_once, nullptr, 0, 5,
+    &descriptor_table_test_5fopcode_2eproto_once, nullptr, 0, 7,
     schemas, file_default_instances, TableStruct_test_5fopcode_2eproto::offsets,
     file_level_metadata_test_5fopcode_2eproto, file_level_enum_descriptors_test_5fopcode_2eproto,
     file_level_service_descriptors_test_5fopcode_2eproto,
@@ -1416,6 +1464,412 @@ void TestOpcode2Res::InternalSwap(TestOpcode2Res* other) {
       file_level_metadata_test_5fopcode_2eproto[4]);
 }
 
+// ===================================================================
+
+class TestRpcReq::_Internal {
+ public:
+};
+
+TestRpcReq::TestRpcReq(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TestRpcReq)
+}
+TestRpcReq::TestRpcReq(const TestRpcReq& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  TestRpcReq* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.content_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.content_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.content_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_content().empty()) {
+    _this->_impl_.content_.Set(from._internal_content(), 
+      _this->GetArenaForAllocation());
+  }
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TestRpcReq)
+}
+
+inline void TestRpcReq::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.content_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.content_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.content_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+TestRpcReq::~TestRpcReq() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.TestRpcReq)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void TestRpcReq::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.content_.Destroy();
+}
+
+void TestRpcReq::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void TestRpcReq::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.TestRpcReq)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.content_.ClearToEmpty();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* TestRpcReq::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // string Content = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_content();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.TestRpcReq.Content"));
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* TestRpcReq::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.TestRpcReq)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string Content = 1;
+  if (!this->_internal_content().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_content().data(), static_cast<int>(this->_internal_content().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.TestRpcReq.Content");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_content(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.TestRpcReq)
+  return target;
+}
+
+size_t TestRpcReq::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.TestRpcReq)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string Content = 1;
+  if (!this->_internal_content().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_content());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestRpcReq::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    TestRpcReq::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestRpcReq::GetClassData() const { return &_class_data_; }
+
+
+void TestRpcReq::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<TestRpcReq*>(&to_msg);
+  auto& from = static_cast<const TestRpcReq&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.TestRpcReq)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_content().empty()) {
+    _this->_internal_set_content(from._internal_content());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void TestRpcReq::CopyFrom(const TestRpcReq& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.TestRpcReq)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool TestRpcReq::IsInitialized() const {
+  return true;
+}
+
+void TestRpcReq::InternalSwap(TestRpcReq* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.content_, lhs_arena,
+      &other->_impl_.content_, rhs_arena
+  );
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata TestRpcReq::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_test_5fopcode_2eproto_getter, &descriptor_table_test_5fopcode_2eproto_once,
+      file_level_metadata_test_5fopcode_2eproto[5]);
+}
+
+// ===================================================================
+
+class TestRpcRes::_Internal {
+ public:
+};
+
+TestRpcRes::TestRpcRes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  // @@protoc_insertion_point(arena_constructor:CRYSTAL_NET.service.TestRpcRes)
+}
+TestRpcRes::TestRpcRes(const TestRpcRes& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  TestRpcRes* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.content_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _impl_.content_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.content_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_content().empty()) {
+    _this->_impl_.content_.Set(from._internal_content(), 
+      _this->GetArenaForAllocation());
+  }
+  // @@protoc_insertion_point(copy_constructor:CRYSTAL_NET.service.TestRpcRes)
+}
+
+inline void TestRpcRes::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.content_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.content_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.content_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+}
+
+TestRpcRes::~TestRpcRes() {
+  // @@protoc_insertion_point(destructor:CRYSTAL_NET.service.TestRpcRes)
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
+  SharedDtor();
+}
+
+inline void TestRpcRes::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  _impl_.content_.Destroy();
+}
+
+void TestRpcRes::SetCachedSize(int size) const {
+  _impl_._cached_size_.Set(size);
+}
+
+void TestRpcRes::Clear() {
+// @@protoc_insertion_point(message_clear_start:CRYSTAL_NET.service.TestRpcRes)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.content_.ClearToEmpty();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* TestRpcRes::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // string Content = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          auto str = _internal_mutable_content();
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "CRYSTAL_NET.service.TestRpcRes.Content"));
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* TestRpcRes::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:CRYSTAL_NET.service.TestRpcRes)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string Content = 1;
+  if (!this->_internal_content().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_content().data(), static_cast<int>(this->_internal_content().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "CRYSTAL_NET.service.TestRpcRes.Content");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_content(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:CRYSTAL_NET.service.TestRpcRes)
+  return target;
+}
+
+size_t TestRpcRes::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:CRYSTAL_NET.service.TestRpcRes)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string Content = 1;
+  if (!this->_internal_content().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_content());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestRpcRes::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
+    TestRpcRes::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestRpcRes::GetClassData() const { return &_class_data_; }
+
+
+void TestRpcRes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<TestRpcRes*>(&to_msg);
+  auto& from = static_cast<const TestRpcRes&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CRYSTAL_NET.service.TestRpcRes)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_content().empty()) {
+    _this->_internal_set_content(from._internal_content());
+  }
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void TestRpcRes::CopyFrom(const TestRpcRes& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CRYSTAL_NET.service.TestRpcRes)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool TestRpcRes::IsInitialized() const {
+  return true;
+}
+
+void TestRpcRes::InternalSwap(TestRpcRes* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &_impl_.content_, lhs_arena,
+      &other->_impl_.content_, rhs_arena
+  );
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata TestRpcRes::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_test_5fopcode_2eproto_getter, &descriptor_table_test_5fopcode_2eproto_once,
+      file_level_metadata_test_5fopcode_2eproto[6]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace service
 }  // namespace CRYSTAL_NET
@@ -1439,6 +1893,14 @@ Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestOpcodeInfo >(Arena* arena
 template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TestOpcode2Res*
 Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestOpcode2Res >(Arena* arena) {
   return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TestOpcode2Res >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TestRpcReq*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestRpcReq >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TestRpcReq >(arena);
+}
+template<> PROTOBUF_NOINLINE ::CRYSTAL_NET::service::TestRpcRes*
+Arena::CreateMaybeMessage< ::CRYSTAL_NET::service::TestRpcRes >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::CRYSTAL_NET::service::TestRpcRes >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

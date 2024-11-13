@@ -8,7 +8,7 @@
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcode2Res,Opcode:6,NoLog:true,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcodeReq,Opcode:3,NoLog:true,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestOpcodeRes,Opcode:4,NoLog:true,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
-/// ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,Md5:fGV6knL8SURU2qDwCtDhrA==,ModifyTime:1703406580,
+/// ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,Md5:xxGXoyKfCfTe4dVpR+kZ+Q==,ModifyTime:1731307066,
 
 
 [ProtoName:player.proto,ProtoPath:../../protocols/proto/player.proto,MessageName:PlayerDataReq,Opcode:7,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
@@ -213,3 +213,5 @@
 [ProtoName:user.proto,ProtoPath:../../protocols/proto/user.proto,MessageName:ModifyPwdInfo,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,MessageName:TestCustomData,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
 [ProtoName:com_user.proto,ProtoPath:../../protocols/proto/com_user.proto,MessageName:TestOrm,Opcode:0,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:true,]
+[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestRpcReq,Opcode:116,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]
+[ProtoName:test_opcode.proto,ProtoPath:../../protocols/proto/test_opcode.proto,MessageName:TestRpcRes,Opcode:117,NoLog:false,XorEncrypt:false,KeyBase64:false,EnableStorage:false,]

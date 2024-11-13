@@ -44,6 +44,9 @@
 #include <variant>
 #include <optional>
 
+#include "Comps/Test/Impl/TestMgr.h"
+#include "service/common/macro.h"
+
 #pragma endregion
 
 KERNEL_NS::CoTask<std::string> hello() {

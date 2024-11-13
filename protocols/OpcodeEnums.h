@@ -123,5 +123,7 @@ public:
     static constexpr Int32 OPCODE_ReturnBackRes = 113;    // library.proto
     static constexpr Int32 OPCODE_SystemLogDataListReq = 114;    // syslog.proto
     static constexpr Int32 OPCODE_SystemLogDataListRes = 115;    // syslog.proto
-    static constexpr Int32 OPCODE_MAX = 115;
+    static constexpr Int32 OPCODE_TestRpcReq = 116;    // test_opcode.proto
+    static constexpr Int32 OPCODE_TestRpcRes = 117;    // test_opcode.proto
+    static constexpr Int32 OPCODE_MAX = 117;
 };

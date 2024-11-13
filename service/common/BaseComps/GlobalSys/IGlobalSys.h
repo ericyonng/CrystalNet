@@ -49,6 +49,9 @@ KERNEL_END
 
 SERVICE_BEGIN
 
+template<typename T>
+concept VoidAdapter = std::is_void_v<T>;
+
 class IGlobalSys : public ILogicSys
 {
     POOL_CREATE_OBJ_DEFAULT_P1(ILogicSys, IGlobalSys);
@@ -88,6 +91,70 @@ public:
     void Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const;
     void Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) const;
     void Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const;
+    template<typename  NeedResponse = void>
+    requires VoidAdapter<NeedResponse>
+    CRYSTAL_NET::kernel::CoTask<> Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const
+    {
+        Send(sessionId, opcode, coder, packetId);
+        // TODO:
+        // 1.发送数据包
+        // 2.
+        co_return;
+    }
+
+    // 使用协程发送和接收返回消息, 由于会动态订阅Response消息, 那么之前已经订阅了Response消息的则会失效, 必须设置packetId用于回调
+    template<typename  NeedResponse = void>
+    KERNEL_NS::CoTask<KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket, KERNEL_NS::AutoDelMethods::Release>> Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
+    {
+        // TODO:
+        // 1.发送数据包
+        Send(sessionId, opcode, coder, packetId);
+
+        // 2.关联response消息回调
+        KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket *,  KERNEL_NS::AutoDelMethods::CustomDelete> ptr(KERNEL_NS::KernelCastTo<KERNEL_NS::LibPacket*>(
+            kernel::KernelAllocMemory<KERNEL_NS::_Build::TL>(sizeof(KERNEL_NS::LibPacket **))));
+        ptr.SetClosureDelegate([](void *p)
+        {
+            // 释放packet
+            auto castP = KERNEL_NS::KernelCastTo<KERNEL_NS::LibPacket*>(p);
+            if(*castP)
+                (*castP)->Release();
+
+            KERNEL_NS::KernelFreeMemory<KERNEL_NS::_Build::TL>(castP);
+        });
+
+        // TODO:通过创建一个CoTask Waiter将CoParam传到lambda中
+        KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::CustomDelete> params = KERNEL_NS::CoTaskParam::NewThreadLocal_CoTaskParam();
+        params.SetClosureDelegate([](void *p)
+        {
+            KERNEL_NS::CoTaskParam::Delete_CoTaskParam(KERNEL_NS::KernelCastTo<KERNEL_NS::CoTaskParam>(p));
+        });
+        
+        SubscribePacket(packetId, [ptr, packetId, params](KERNEL_NS::LibPacket *&packet) mutable 
+        {
+            if(packet->GetPacketId() != packetId)
+                return;
+            
+            // 将结果带出去
+            *ptr = packet;
+            
+            // 后续协程释放packet
+            packet = NULL;
+
+            // 唤醒Waiter
+            if(params && params->_handle)
+                params->_handle->ForceAwake();
+        });
+
+        // TODO:等待Waiter
+        co_await KERNEL_NS::Waiting().SetCustomParam(params);
+        
+        // 3.将消息回调中的Packet引用设置成空
+        auto packet = *ptr;
+        *ptr = NULL;
+        co_return KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket,  KERNEL_NS::AutoDelMethods::Release>(packet);
+    }
+
     Int64 NewPacketId(UInt64 sessionId) const;
     
     /*
@@ -111,7 +178,11 @@ public:
     template<typename ObjType>
     void Subscribe(Int32 opcodeId, ObjType *obj, void (ObjType::*Handler)(KERNEL_NS::LibPacket *&));
     void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg);
-
+    template<typename LambadaType>
+    void Subscribe(Int32 opcodeId, LambadaType &&lamb);
+    // 监听packet回包
+    template<typename LambadaType>
+    void SubscribePacket(Int64 packetId, LambadaType &&lamb);
 
     // 组件接口资源
 protected:
@@ -165,9 +236,23 @@ ALWAYS_INLINE void IGlobalSys::Subscribe(Int32 opcodeId, ObjType *obj, void (Obj
     Subscribe(opcodeId, delg);
 }
 
+template<typename LambadaType>
+ALWAYS_INLINE void IGlobalSys::Subscribe(Int32 opcodeId, LambadaType &&lamb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, KERNEL_NS::LibPacket *&);
+    Subscribe(opcodeId, delg);
+}
+
 ALWAYS_INLINE void IGlobalSys::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg)
 {
     GetService()->Subscribe(opcodeId, deleg);
+}
+
+template<typename LambadaType>
+ALWAYS_INLINE void IGlobalSys::SubscribePacket(Int64 packetId, LambadaType &&lamb)
+{
+    auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, KERNEL_NS::LibPacket *&);
+    GetService()->SubscribePacket(packetId, deleg);
 }
 
 SERVICE_END

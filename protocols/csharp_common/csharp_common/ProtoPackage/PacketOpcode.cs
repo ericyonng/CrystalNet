@@ -98,6 +98,8 @@ public static class PacketOpcode
         ReturnBackRes = 113,    // library.proto
         SystemLogDataListReq = 114,    // syslog.proto
         SystemLogDataListRes = 115,    // syslog.proto
-        OpcodeMax = 115,
+        TestRpcReq = 116,    // test_opcode.proto
+        TestRpcRes = 117,    // test_opcode.proto
+        OpcodeMax = 117,
     }
 }

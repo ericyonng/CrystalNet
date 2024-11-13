@@ -324,7 +324,22 @@ public:
 
             // 唤醒
             SetState(changeState);
-            coro_handle::from_promise(*this).resume();
+
+            // wait for说明外部要手动唤醒
+            if(LIKELY(!_params->_waitFor))
+                coro_handle::from_promise(*this).resume();
+        }
+        
+        virtual void ForceAwake() final
+        {
+            // 被cancel了, 不恢复协程
+            if(_state != KERNEL_NS::KernelHandle::UNSCHEDULED)
+                SetState(KERNEL_NS::KernelHandle::UNSCHEDULED);
+
+            // 唤醒
+            auto handle = coro_handle::from_promise(*this);
+            if(!handle.done())
+                handle.resume();
         }
 
         const std::source_location& _GetFrameInfo() const override final { return _frameInfo; }
@@ -418,7 +433,7 @@ public:
         return _handle;
     }
 
-    CoTask &SetDisableSuspend(bool disableSuspend = true)
+    CoTask<R> &SetDisableSuspend(bool disableSuspend = true)
     {
         _disableSuspend = disableSuspend;
 
@@ -428,7 +443,7 @@ public:
     bool IsDisableSuspend() const { return _disableSuspend; }
 
     // 外部获取协程的一些状态
-    CoTask &GetParam(SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> &param)
+    CoTask<R> &GetParam(SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> &param)
     {
         if(UNLIKELY(!_params))
         {
@@ -444,7 +459,14 @@ public:
         return *this;
     }
 
-    CoTask& SetTimeout(const TimeSlice &slice)
+    // 使用外部参数覆盖，让外部可以触及到协程控制
+    CoTask<R>& SetCustomParam(SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> &param)
+    {
+        _params = param;
+        return *this;
+    }
+
+    CoTask<R>& SetTimeout(const TimeSlice &slice)
     {
         if(UNLIKELY(!_params))
         {
@@ -457,6 +479,22 @@ public:
 
         _params->_endTime = KERNEL_NS::LibTime::Now() + slice;
 
+        return *this;
+    }
+
+    CoTask<R> &Wait()
+    {
+        if(UNLIKELY(!_params))
+        {
+            _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+            _params.SetClosureDelegate([](void *ptr)
+            {
+                CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
+            });
+        }
+
+        _params->_waitFor = true;
+        
         return *this;
     }
 

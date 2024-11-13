@@ -55,6 +55,7 @@ public:
     virtual const ServiceSession *GetSession(UInt64 sessionId) const override;
     virtual Int64 NewPacketId(UInt64 sessionId) override;
     virtual UInt64 GetSessionAmount() const override;
+    virtual const std::map<UInt64, ServiceSession *> &GetSessions() override;
 
 protected:
     Int32 _OnGlobalSysInit() override;

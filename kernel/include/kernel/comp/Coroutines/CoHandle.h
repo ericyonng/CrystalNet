@@ -54,6 +54,7 @@ struct KERNEL_EXPORT KernelHandle
     KernelHandle() noexcept : _handleId(_GetMaxHandleId().fetch_add(1, std::memory_order_release) + 1) {}
 
     virtual void Run(KernelHandle::State changeState) = 0;
+    virtual void ForceAwake() = 0;
 
     void SetState(State state) { _state = state; }
 

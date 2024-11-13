@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,42 +21,19 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-10-21 01:31:10
+ * Date: 2024-11-12 17:00:13
  * Author: Eric Yonng
  * Description: 
 */
 
-
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_COTASK_PARAM_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_COTASK_PARAM_H__
-
-#pragma once
-
-#include <kernel/kernel_export.h>
-#include <kernel/common/macro.h>
-#include <kernel/comp/memory/ObjPoolMacro.h>
-#include <kernel/comp/LibTime.h>
+#include <pch.h>
+#include <kernel/comp/Coroutines/CoWaiter.h>
 
 KERNEL_BEGIN
 
-struct  CoHandle;
-
-struct KERNEL_EXPORT CoTaskParam
+KERNEL_EXPORT CoTask<> Waiting()
 {
-    POOL_CREATE_OBJ_DEFAULT(CoTaskParam);
-
-    // 错误码
-    Int32 _errCode = 0;
-
-    // 超时时长
-    LibTime _endTime;
-
-    // 等待, 由外部手动唤醒
-    bool _waitFor = false;
-    // 协程句柄
-    CoHandle *_handle = NULL;
-};
+  co_await CoWaiter();
+}
 
 KERNEL_END
-
-#endif

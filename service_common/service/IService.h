@@ -163,6 +163,9 @@ public:
     template<typename ObjType>
     void Subscribe(Int32 opcodeId, ObjType *obj, void (ObjType::*Handler)(KERNEL_NS::LibPacket *&));
     virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) = 0;
+    // 用于监听指定包id的消息, 如果有了packetId的消息映射, 则不会走普通的消息映射避免packet双重回收
+    virtual void SubscribePacket(Int64 packetId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg){}
+    virtual void UnSubscribePacket(Int64 packetId) {}
 
     virtual KERNEL_NS::EventManager *GetEventMgr() = 0;
     virtual const KERNEL_NS::EventManager *GetEventMgr() const = 0;

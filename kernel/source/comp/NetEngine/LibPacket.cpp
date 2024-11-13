@@ -54,6 +54,11 @@ LibPacket::~LibPacket()
     _coder = NULL;
 }
 
+void LibPacket::Release()
+{
+    LibPacket::Delete_LibPacket(this);
+}
+
 void LibPacket::ReleaseUsingPool()
 {
     LibPacket::Delete_LibPacket(this);

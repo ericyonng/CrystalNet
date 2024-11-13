@@ -62,6 +62,9 @@ private:
     void _OnCommonSessionReady(KERNEL_NS::LibEvent *ev);
     void _OnQuitService(KERNEL_NS::LibEvent *ev);
 
+    // 测试rpc
+    KERNEL_NS::CoTask<> _TestRpc();
+
     Int32 _ReadTestConfigs();
 
     KERNEL_NS::ListenerStub _sessionConnected;

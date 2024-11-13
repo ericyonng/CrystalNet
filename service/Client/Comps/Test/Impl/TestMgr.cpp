@@ -99,6 +99,12 @@ Int32 TestMgr::_OnGlobalSysInit()
             content->at(idx) = 1;
     }
 
+    // 测试rpc
+    KERNEL_NS::PostCaller([this
+        ]()->KERNEL_NS::CoTask<>
+    {
+       co_await  _TestRpc();
+    });
     return Status::Success;
 }
 
@@ -407,6 +413,23 @@ void TestMgr::_OnQuitService(KERNEL_NS::LibEvent *ev)
     // });
 
     // timer->Schedule(1000);
+}
+
+KERNEL_NS::CoTask<> TestMgr::_TestRpc()
+{
+    auto sessionMgr = GetGlobalSys<ISessionMgr>();
+    auto &sessions = sessionMgr->GetSessions();
+    if(sessions.empty())
+        co_return;
+    
+    auto session = sessions.begin()->second;
+    SERVICE_NS::TestRpcReq req;
+    req.set_content("hello rpc");
+
+    // 协程参数
+    KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::CustomDelete> param;
+    co_await Send<>(session->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestRpcReq, req).GetParam(param);
+    
 }
 
 Int32 TestMgr::_ReadTestConfigs()
