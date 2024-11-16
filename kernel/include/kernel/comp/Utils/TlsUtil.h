@@ -41,6 +41,7 @@
 #include <kernel/comp/Tls/TlsStack.h>
 #include <kernel/comp/Tls/TlsMemoryAlloctor.h>
 #include <kernel/comp/memory/MemoryDefs.h>
+#include <kernel/comp/Tls/TlsCoDict.h>
 
 KERNEL_BEGIN
 
@@ -85,6 +86,9 @@ public:
 
     template<typename ObjType>
     static TlsObjectPool<ObjType> *GetObjPool();
+
+    // 当前线程所有协程管理
+    static TlsCoDict *GetTlsCoDict();
 
 private:
     static TlsMemoryAlloctor *GetTlsMemoryAlloctorHost();
@@ -159,12 +163,22 @@ ALWAYS_INLINE TlsObjectPool<ObjType> *TlsUtil::GetObjPool()
     return pool;
 }
 
+ALWAYS_INLINE TlsCoDict *TlsUtil::GetTlsCoDict()
+{
+    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsCoDict *tlsCoDict = NULL;
+
+    if(UNLIKELY(!tlsCoDict))
+        tlsCoDict = TlsUtil::GetTlsStack()->New<TlsCoDict>();
+
+    return tlsCoDict;
+}
+
 ALWAYS_INLINE TlsMemoryAlloctor *TlsUtil::GetTlsMemoryAlloctorHost()
 {
     DEF_STATIC_THREAD_LOCAL_DECLEAR TlsMemoryAlloctor *tlsAlloctor = NULL;
     if(UNLIKELY(!tlsAlloctor))
     {
-        tlsAlloctor = TlsUtil::GetTlsStack()->New<TlsMemoryAlloctor>();;
+        tlsAlloctor = TlsUtil::GetTlsStack()->New<TlsMemoryAlloctor>();
     }
 
     return tlsAlloctor;

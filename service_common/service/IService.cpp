@@ -451,8 +451,53 @@ void IService::_OnPollerWillDestroy(KERNEL_NS::Poller *poller)
     g_Log->Info(LOGFMT_OBJ_TAG("service will destroy."));
 }
 
+void IService::RegisterPacketMsg(UInt64 sessionId, Int64 packetId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *delg)
+{
+    auto iter = _sessionIdRefPacketIdRefHandler.find(sessionId);
+    if(iter == _sessionIdRefPacketIdRefHandler.end())
+        iter = _sessionIdRefPacketIdRefHandler.insert(std::make_pair(sessionId, std::map<Int64, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *>())).first;
+
+    auto &packetRefDelg = iter->second;
+    auto iterDelg = packetRefDelg.find(packetId);
+    if(iterDelg != packetRefDelg.end())
+    {
+        auto &oldDelg = iterDelg->second;
+        g_Log->Warn(LOGFMT_OBJ_TAG("RegisterPacketMsg repeat sessionId:%llu packet:%lld, old cb: owner:%s, cb:%s")
+            , sessionId, packetId, oldDelg->GetOwnerRtti().c_str(), oldDelg->GetCallbackRtti().c_str());
+
+        oldDelg->Release();
+        packetRefDelg.erase(iterDelg);
+    }
+
+    packetRefDelg.insert(std::make_pair(packetId, delg));
+}
+
+void IService::UnRegisterPacketMsg(UInt64 sessionId, Int64 packetId)
+{
+    auto iterSession = _sessionIdRefPacketIdRefHandler.find(sessionId);
+    if(iterSession == _sessionIdRefPacketIdRefHandler.end())
+        return;
+
+    iterSession->second.erase(packetId);
+}
+
 void IService::_Clear()
 {
+    for(auto iterSession = _sessionIdRefPacketIdRefHandler.begin();
+        iterSession != _sessionIdRefPacketIdRefHandler.end();)
+    {
+        for(auto iter : iterSession->second)
+        {
+            auto packetId = iter.first;
+            auto delg = iter.second;
+            g_Log->Warn(LOGFMT_OBJ_TAG("packet delg unhandled, session id:%llu, packet id:%lld, delg owner:%s, callback:%s")
+                , iterSession->first, packetId, delg->GetOwnerRtti().c_str(), delg->GetCallbackRtti().c_str());
+
+            delg->Release();
+        }
+        iterSession = _sessionIdRefPacketIdRefHandler.erase(iterSession);
+    }
+    
     g_Log->Info(LOGFMT_OBJ_TAG("service will clear."));
 }
 

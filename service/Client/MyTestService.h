@@ -64,8 +64,6 @@ public:
 
     // 协议订阅 已经存在的订阅会被新的覆盖并报warn
     virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) override;
-    virtual void SubscribePacket(Int64 packetId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) override;
-    virtual void UnSubscribePacket(Int64 packetId) override;
 
     KERNEL_NS::EventManager *GetEventMgr() override;
     const KERNEL_NS::EventManager *GetEventMgr() const override;
@@ -116,8 +114,6 @@ protected:
     // 获取消息处理器
     KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode);
     const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetMsgHandler(Int32 opcode) const;
-    KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_GetPacketMsgHandler(Int64 packetId);
-    KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *_PopPacketMsgHandler(Int64 packetId);
 
     virtual void _OnEventLoopStart() override;
 
@@ -145,7 +141,6 @@ private:
 
     // 协议消息处理器
     std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *> _opcodeRefHandler;
-    std::map<Int64, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *> _packetIdRefHandler;
 
     KERNEL_NS::LibString _rsaPubKey;
     KERNEL_NS::LibString _rsaPrivKey;
@@ -181,23 +176,6 @@ ALWAYS_INLINE const KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *MyTestS
 {
     auto iter = _opcodeRefHandler.find(opcode);
     return iter == _opcodeRefHandler.end() ? NULL : iter->second;
-}
-
-ALWAYS_INLINE KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *MyTestService::_GetPacketMsgHandler(Int64 packetId)
-{
-    auto iter = _packetIdRefHandler.find(packetId);
-    return iter == _packetIdRefHandler.end() ? NULL : iter->second;
-}
-
-ALWAYS_INLINE KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *MyTestService::_PopPacketMsgHandler(Int64 packetId)
-{
-    auto iter = _packetIdRefHandler.find(packetId);
-    if(iter == _packetIdRefHandler.end())
-        return NULL;
-
-    auto delg = iter->second;
-    _packetIdRefHandler.erase(iter);
-    return delg;
 }
 
 SERVICE_END

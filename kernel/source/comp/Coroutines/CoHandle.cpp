@@ -30,8 +30,20 @@
 #include <kernel/comp/Coroutines/CoHandle.h>
 #include <kernel/comp/Log/log.h>
 #include <kernel/comp/Coroutines/CoTools.h>
+#include <kernel/comp/Utils/TlsUtil.h>
 
 KERNEL_BEGIN
+
+KernelHandle::KernelHandle() noexcept
+:_handleId(_GetMaxHandleId().fetch_add(1, std::memory_order_release) + 1)
+{
+    KERNEL_NS::TlsUtil::GetTlsCoDict()->AddCo(_handleId, this);
+}
+
+KernelHandle::~KernelHandle()
+{
+    KERNEL_NS::TlsUtil::GetTlsCoDict()->RemoveCo(_handleId);
+}
 
 const std::source_location& CoHandle::_GetFrameInfo() const 
 {
@@ -67,9 +79,15 @@ void CoHandle::DumpBacktrace(Int32 depth) const
     DumpBacktrace(depth, content);
 }
 
+void CoHandle::GetBacktrace(KERNEL_NS::LibString &content, Int32 depth) const
+{
+    content.AppendFormat("#%d CoHandleId:%llu, %s\n", depth, GetHandleId(), FrameName().c_str());
+}
+
+
 void CoHandle::DumpBacktrace(Int32 depth, KERNEL_NS::LibString &content) const
 {
-    content.AppendFormat("#%d %s\n", depth, FrameName().c_str());
+    content.AppendFormat("#%d CoHandleId:%llu, %s\n", depth, GetHandleId(), FrameName().c_str());
 }
 
 void CoHandle::DumpBacktraceFinish(const KERNEL_NS::LibString &content) const

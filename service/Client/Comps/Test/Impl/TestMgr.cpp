@@ -100,11 +100,13 @@ Int32 TestMgr::_OnGlobalSysInit()
     }
 
     // 测试rpc
-    KERNEL_NS::PostCaller([this
-        ]()->KERNEL_NS::CoTask<>
+    auto testMgr = this;
+    KERNEL_NS::PostCaller([](TestMgr *testMgr)->KERNEL_NS::CoTask<>
     {
-       co_await  _TestRpc();
-    });
+        g_Log->Info(LOGFMT_OBJ_TAG("test mgr:%s"), testMgr->ToString().c_str());
+        
+       co_await testMgr->_TestRpc();
+    }, testMgr);
     return Status::Success;
 }
 
@@ -417,19 +419,34 @@ void TestMgr::_OnQuitService(KERNEL_NS::LibEvent *ev)
 
 KERNEL_NS::CoTask<> TestMgr::_TestRpc()
 {
-    auto sessionMgr = GetGlobalSys<ISessionMgr>();
-    auto &sessions = sessionMgr->GetSessions();
-    if(sessions.empty())
-        co_return;
+    g_Log->Info(LOGFMT_OBJ_TAG("_TestRpc :%s"), ToString().c_str());
     
+    auto sessionMgr = GetService()->GetComp<ISessionMgr>();
+
+    do
+    {
+        // 没有连接连入则等待连入
+        if(sessionMgr->GetSessions().empty())
+        {
+            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+            continue;
+        }
+
+        break;
+    }
+    while (true);
+
+    auto &sessions = sessionMgr->GetSessions();
     auto session = sessions.begin()->second;
     SERVICE_NS::TestRpcReq req;
     req.set_content("hello rpc");
 
     // 协程参数
-    KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::CustomDelete> param;
-    co_await Send<>(session->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestRpcReq, req).GetParam(param);
-    
+    KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
+    auto packet = co_await SendCo<true>(session->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestRpcReq, req, NewPacketId(session->GetSessionId())).SetDisableSuspend().GetParam(param);
+    auto res = packet->GetCoder<TestRpcRes>();
+
+    g_Log->Info(LOGFMT_OBJ_TAG("test rpc res:%s"), res->ToJsonString().c_str());
 }
 
 Int32 TestMgr::_ReadTestConfigs()

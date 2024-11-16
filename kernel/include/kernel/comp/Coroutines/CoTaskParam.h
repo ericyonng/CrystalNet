@@ -36,14 +36,18 @@
 #include <kernel/common/macro.h>
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibTime.h>
+#include <kernel/comp/SmartPtr.h>
 
 KERNEL_BEGIN
 
 struct  CoHandle;
 
+// 只要在co_await 时候设置参数,参数都会生效
 struct KERNEL_EXPORT CoTaskParam
 {
     POOL_CREATE_OBJ_DEFAULT(CoTaskParam);
+
+    void Release();
 
     // 错误码
     Int32 _errCode = 0;
@@ -51,10 +55,17 @@ struct KERNEL_EXPORT CoTaskParam
     // 超时时长
     LibTime _endTime;
 
-    // 等待, 由外部手动唤醒
-    bool _waitFor = false;
     // 协程句柄
     CoHandle *_handle = NULL;
+};
+
+struct KERNEL_EXPORT TaskParamRefWrapper
+{
+    POOL_CREATE_OBJ_DEFAULT(TaskParamRefWrapper);
+
+    void Release();
+
+    SmartPtr<CoTaskParam, AutoDelMethods::Release> _params;
 };
 
 KERNEL_END

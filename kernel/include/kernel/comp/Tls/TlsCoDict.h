@@ -21,26 +21,50 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-11-04 12:43:13
+ * Date: 2024-11-16 19:18:38
  * Author: Eric Yonng
- * Description: 
+ * Description: 当前线程所有协程管理
 */
 
-#include <pch.h>
-#include <kernel/comp/Coroutines/CoTaskParam.h>
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_CODICT_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_CODICT_H__
+
+#pragma once
+
+#include <kernel/comp/Tls/ITlsObj.h>
+#include <kernel/comp/LibString.h>
+#include <map>
 
 KERNEL_BEGIN
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(CoTaskParam);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TaskParamRefWrapper);
+struct KernelHandle;
 
-void CoTaskParam::Release()
+class KERNEL_EXPORT TlsCoDict : public ITlsObj
 {
-  CoTaskParam::DeleteThreadLocal_CoTaskParam(this);
+public:
+   TlsCoDict();
+   ~TlsCoDict();
+   virtual void OnDestroy() override;
+   virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
+
+    void AddCo(UInt64 id, KernelHandle *handle);
+    void RemoveCo(UInt64 id);
+ 
+private:
+ const std::string _objTypeName;
+ std::map<UInt64, KernelHandle *> _idRefHandle;
+};
+
+ALWAYS_INLINE void TlsCoDict::AddCo(UInt64 id, KernelHandle *handle)
+{
+   _idRefHandle.insert(std::make_pair(id, handle));
 }
 
-void TaskParamRefWrapper::Release()
+ALWAYS_INLINE void TlsCoDict::RemoveCo(UInt64 id)
 {
-    TaskParamRefWrapper::DeleteThreadLocal_TaskParamRefWrapper(this);
+    _idRefHandle.erase(id);
 }
+
 KERNEL_END
+
+#endif

@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,26 +21,47 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2024-11-04 12:43:13
+ * Date: 2024-11-16 19:18:38
  * Author: Eric Yonng
- * Description: 
+ * Description: 当前线程所有协程管理
 */
-
 #include <pch.h>
-#include <kernel/comp/Coroutines/CoTaskParam.h>
+#include <kernel/comp/Tls/TlsCoDict.h>
+#include <kernel/comp/Coroutines/CoHandle.h>
+
+#include "kernel/comp/Log/ILog.h"
 
 KERNEL_BEGIN
-
-POOL_CREATE_OBJ_DEFAULT_IMPL(CoTaskParam);
-POOL_CREATE_OBJ_DEFAULT_IMPL(TaskParamRefWrapper);
-
-void CoTaskParam::Release()
+TlsCoDict::TlsCoDict()
+:_objTypeName("TlsCoDict")
 {
-  CoTaskParam::DeleteThreadLocal_CoTaskParam(this);
+ 
 }
 
-void TaskParamRefWrapper::Release()
+TlsCoDict::~TlsCoDict()
 {
-    TaskParamRefWrapper::DeleteThreadLocal_TaskParamRefWrapper(this);
+    OnDestroy();
 }
+
+void TlsCoDict::OnDestroy()
+{
+  if(!_idRefHandle.empty())
+  {
+      // 打印还没销毁的协程
+      for(auto iter : _idRefHandle)
+      {
+          auto handleId = iter.first;
+          auto coHandle = iter.second;
+
+          KERNEL_NS::LibString content;
+          coHandle->GetBacktrace(content);
+          g_Log->Warn(LOGFMT_OBJ_TAG("co not destroy when thread destroy co handle id:%llu, backtrace:\n%s")
+              , handleId, content.c_str());
+      }
+
+      _idRefHandle.clear();
+  }
+}
+
+
 KERNEL_END

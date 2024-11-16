@@ -100,7 +100,11 @@ void TestCoroutine::Run()
     // 调用 hello_world 的时候, 会返回一个协程, 并抛给调度器去继续执行
     KERNEL_NS::PostCaller([]() -> KERNEL_NS::CoTask<> 
     {
-        co_await test_hello_world2().SetDisableSuspend(true);
+        // co_await test_hello_world2().SetDisableSuspend(true);
+
+        KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
+        co_await KERNEL_NS::Waiting().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10)).GetParam(params);
+        g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestCoroutine, "co time out errCode:%d"), params->_params->_errCode);
     });
 
     poller->SafeEventLoop();

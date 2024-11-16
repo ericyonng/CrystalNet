@@ -95,7 +95,7 @@ struct KERNEL_EXPORT EmptyPollerEvent : public PollerEvent
     }
 };
 
-// TODO:协程事件
+// 异步任务
 struct KERNEL_EXPORT AsyncTaskPollerEvent : public PollerEvent
 {
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, AsyncTaskPollerEvent);

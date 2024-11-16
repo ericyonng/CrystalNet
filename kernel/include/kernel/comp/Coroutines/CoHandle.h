@@ -37,6 +37,8 @@
 #include <source_location>
 #include <atomic>
 #include <kernel/comp/LibString.h>
+#include <map>
+#include <coroutine>
 
 KERNEL_BEGIN
 
@@ -51,8 +53,10 @@ struct KERNEL_EXPORT KernelHandle
         SCHEDULED,
     };
 
-    KernelHandle() noexcept : _handleId(_GetMaxHandleId().fetch_add(1, std::memory_order_release) + 1) {}
+    KernelHandle() noexcept;
 
+    // 获取堆栈
+    virtual void GetBacktrace(KERNEL_NS::LibString &content, Int32 depth = 0) const = 0;
     virtual void Run(KernelHandle::State changeState) = 0;
     virtual void ForceAwake() = 0;
 
@@ -61,7 +65,7 @@ struct KERNEL_EXPORT KernelHandle
     // co id
     HandleId GetHandleId() const { return _handleId; }
 
-    virtual ~KernelHandle() = default;
+    virtual ~KernelHandle();
 
     bool CanSelfDestroy() const { return _canSelfDestroy; }
     void SetSelfDestory(bool canSelfDestroy)
@@ -100,6 +104,7 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
         return KERNEL_NS::LibString().AppendFormat("%s at %s:%d", frame_info.function_name(), frame_info.file_name(), frame_info.line());
     }
 
+    virtual void GetBacktrace(KERNEL_NS::LibString &content, Int32 depth = 0) const;
     virtual void DumpBacktrace(Int32 depth = 0) const;
     virtual void DumpBacktrace(Int32 depth, KERNEL_NS::LibString &content) const;
     virtual void DumpBacktraceFinish(const KERNEL_NS::LibString &content) const;
@@ -113,6 +118,8 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
     virtual CoHandle *GetContinuation() { return NULL; }
 
     virtual void ThrowErrorIfExists() {}
+
+    virtual std::coroutine_handle<> GetCoHandle() = 0;
 
 protected:
     virtual const std::source_location& _GetFrameInfo() const;

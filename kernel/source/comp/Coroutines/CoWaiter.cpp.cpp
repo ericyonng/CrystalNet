@@ -31,9 +31,12 @@
 
 KERNEL_BEGIN
 
-KERNEL_EXPORT CoTask<> Waiting()
+CoTask<> Waiting(const KERNEL_NS::TimeSlice &slice)
 {
-  co_await CoWaiter();
+ CoWaiter waiter;
+ if(slice)
+  waiter.SetTimeout(slice);
+ co_await waiter;
 }
 
 KERNEL_END

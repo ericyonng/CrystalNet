@@ -69,6 +69,7 @@ private:
 
     void _OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet);
     void _OnTestOpcodeRes(KERNEL_NS::LibPacket *&packet);
+    void _OnTestRpcReq(KERNEL_NS::LibPacket *&packet);
 
     void _OnSessionCreated(KERNEL_NS::LibEvent *ev);
     void _OnWillSessionDestroy(KERNEL_NS::LibEvent *ev);

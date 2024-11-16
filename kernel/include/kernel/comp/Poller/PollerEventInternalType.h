@@ -43,7 +43,7 @@ public:
     enum InternalType
     {
         UNKOWN_TYPE = 0,
-        // 协程任务事件
+        // 异步任务
         AsyncTaskType = 1,
 
         // 执行action事件

@@ -30,29 +30,74 @@
 #define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_COROUTINES_CO_WAITER_H__
 
 
+#include <coroutine>
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
+#include <kernel/common/status.h>
 
 #include <kernel/common/NonCopyabale.h>
+
+#include <kernel/comp/Coroutines/CoHandle.h>
+#include "kernel/comp/SmartPtr.h"
 #include <kernel/comp/Coroutines/CoTask.h>
+#include <kernel/comp/Timer/LibTimer.h>
+#include <kernel/comp/Log/log.h>
 
 KERNEL_BEGIN
 
 struct KERNEL_EXPORT CoWaiter: private NonCopyable 
 {
- explicit CoWaiter(){}
+    explicit CoWaiter(){}
 
- constexpr bool await_ready() noexcept { return false; }
- constexpr void await_resume() const noexcept {}
+    constexpr bool await_ready() noexcept { return false; }
+    constexpr void await_resume() const noexcept {}
 
- template<typename Promise>
- void await_suspend(std::coroutine_handle<Promise> caller) const noexcept 
- {
-  auto promise = &caller.promise();
+    template<typename Promise>
+    void await_suspend(std::coroutine_handle<Promise> caller) const noexcept 
+    {
+        auto promise = &caller.promise();
+        auto promiseParam = promise->GetParam();
 
-  // 设置被调度, 后面协程由外部唤醒
-  promise->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
- }
+        promise->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
+
+        // 有过期时间限制, 没有过期时间则一直等待下去
+        if(_param && _param->_endTime)
+        {
+            KERNEL_NS::PostAsyncTask([endTime = this->_param->_endTime, caller]()
+            {
+                auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+                timer->SetTimeOutHandler([caller](KERNEL_NS::LibTimer *t)
+                {
+                    do
+                    {
+                        if(caller.done())
+                            break;
+
+                        // 超时
+                        caller.promise().GetParam()->_errCode = Status::CoTaskTimeout;
+                        KERNEL_NS::LibString content;
+                        caller.promise().GetBacktrace(content);
+                        g_Log->Warn(LOGFMT_NON_OBJ_TAG(CoWaiter, "co time out, backtrace:%s"), content.c_str());
+                        caller.promise().Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
+                    }
+                    while (false);
+
+                    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+                });
+                timer->Schedule(endTime - KERNEL_NS::LibTime::Now());
+            });
+        }
+    }
+    
+    void SetTimeout(const KERNEL_NS::TimeSlice &slice)
+    {
+        if(!_param)
+            _param = KERNEL_NS::CoTaskParam::NewThreadLocal_CoTaskParam();
+
+        _param->_endTime = KERNEL_NS::LibTime::Now() + slice;
+    }
+    
+    SmartPtr<CoTaskParam, AutoDelMethods::Release> _param; 
 };
 
 // ALWAYS_INLINE KERNEL_EXPORT CoTask<> CoDelay(NoWaitAtInitialSuspend, const KERNEL_NS::TimeSlice &delay) 
@@ -60,7 +105,7 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
 //     co_await CoDelayAwaiter {delay};
 // }
 
-KERNEL_EXPORT CoTask<> Waiting();
+CoTask<> Waiting(const KERNEL_NS::TimeSlice &slice = KERNEL_NS::TimeSlice::ZeroSlice());
 
 KERNEL_END
 

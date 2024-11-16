@@ -40,7 +40,7 @@
 
 KERNEL_BEGIN
 
-// AsyncTask事件：需要对cb执行时对协程进行有效性检查(做一个字典, 检查id是否存在) TODO:
+// AsyncTask事件
 template<typename CallerType>
 ALWAYS_INLINE void PostAsyncTask(CallerType &&cb, Int32 level = 0)
 {

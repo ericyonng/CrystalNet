@@ -128,6 +128,12 @@ public:
     static TimeSlice FromMicroSeconds(Int64 microseconds);
     static TimeSlice FromNanoSeconds(Int64 nanoseconds);
 
+    static const TimeSlice &ZeroSlice()
+    {
+       static TimeSlice s_zero;
+       return s_zero;
+    }
+
 private:
     friend class LibTime;
 

@@ -183,7 +183,7 @@ protected:
     virtual void _OnClose() override;
 
 protected:
-    // 协程处理
+    // 异步任务
     void _OnAsyncTaskEvent(PollerEvent *ev);
 
 private:

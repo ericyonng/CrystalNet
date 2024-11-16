@@ -41,5 +41,6 @@
 #include <kernel/comp/Tls/TlsPtr.h>
 #include <kernel/comp/Tls/TlsCompsOwner.h>
 #include <kernel/comp/Tls/TlsTypeSystem.h>
+#include <kernel/comp/Tls/TlsCoDict.h>
 
 #endif

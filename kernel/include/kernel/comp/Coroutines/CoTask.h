@@ -51,6 +51,8 @@
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Coroutines/CoTaskParam.h>
 #include <kernel/comp/TimeSlice.h>
+#include <kernel/comp/Timer/LibTimer.h>
+#include <kernel/comp/LibTime.h>
 
 KERNEL_BEGIN
 
@@ -69,13 +71,9 @@ public:
     ,_disableSuspend(false) 
     ,_params(CoTaskParam::NewThreadLocal_CoTaskParam())
     {
-        _params.SetClosureDelegate([](void *ptr)
-        {
-            CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
-        });
     }
 
-    CoTask(coro_handle h, SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> &param) noexcept
+    CoTask(coro_handle h, SmartPtr<CoTaskParam, AutoDelMethods::Release> &param) noexcept
     : _handle(h)
     ,_disableSuspend(false) 
     ,_params(param)
@@ -124,27 +122,46 @@ public:
         }
 
         template<typename Promise>
-        void await_suspend(std::coroutine_handle<Promise> resumer) const noexcept 
+        void await_suspend(std::coroutine_handle<Promise> caller) const noexcept 
         {
             ASSERT(! _selfCoro.promise()._continuation);
 
             // resumer为co_await CoTask时候创建的子协程句柄
-            resumer.promise().SetState(KernelHandle::SUSPEND);
-            _selfCoro.promise()._continuation = &resumer.promise();
+            caller.promise().SetState(KernelHandle::SUSPEND);
+            _selfCoro.promise()._continuation = &caller.promise();
 
+            // 超时唤醒并销毁协程
+            auto selfParam = _selfCoro.promise().GetParam();
+            if(selfParam->_endTime)
+            {
+                auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+                timer->SetTimeOutHandler([selfParam, selfCo = _selfCoro](KERNEL_NS::LibTimer *t) mutable 
+                {
+                    // 超时还没完成, 强制唤醒
+                    if(!selfCo.done())
+                    {
+                        selfParam->_errCode = Status::CoTaskTimeout;
+                        selfCo.resume();
+                    }
+                    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+                });
+                auto &&now = KERNEL_NS::LibTime::Now();
+                timer->Schedule(now > selfParam->_endTime ? KERNEL_NS::TimeSlice::FromSeconds(0) : (selfParam->_endTime - now));
+            }
+            
             if(_disableSuspend)
             {
                 _selfCoro.promise().SetState(KernelHandle::SCHEDULED);
                 _selfCoro.promise().Run(KernelHandle::UNSCHEDULED);
                 return;
             }
-
+            
             _selfCoro.promise().Schedule();
         }
 
         coro_handle _selfCoro {};
         bool _disableSuspend = false;
-        SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> _params;
+        SmartPtr<CoTaskParam, AutoDelMethods::Release> _params;
     };
     
     auto operator co_await() const & noexcept 
@@ -184,30 +201,21 @@ public:
         promise_type()
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
-            _params.SetClosureDelegate([](void *ptr)
-            {
-                CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
-            });
+            _params->_handle = this;
         }
 
         template<typename... Args> // from free function
         promise_type(NoWaitAtInitialSuspend, Args&&...): _wait_at_initial_suspend{false} 
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
-            _params.SetClosureDelegate([](void *ptr)
-            {
-                CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
-            });
+            _params->_handle = this;
         }
 
         template<typename Obj, typename... Args> // from member function
         promise_type(Obj&&, NoWaitAtInitialSuspend, Args&&...): _wait_at_initial_suspend{false} 
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
-            _params.SetClosureDelegate([](void *ptr)
-            {
-                CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
-            });
+            _params->_handle = this;
         }
 
         auto initial_suspend() noexcept 
@@ -234,10 +242,22 @@ public:
                 {
                     // TODO:cout资源释放的问题需要考虑
                     cont->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
-                    KERNEL_NS::PostAsyncTask([cont]()
+                    KERNEL_NS::PostAsyncTask([cont]()mutable 
                     {
                         cont->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
                     });
+                }
+                else
+                {
+                    // co task已经销毁了, 但是协程句柄没销毁,异步销毁
+                    if(h.done() && h.promise().CanSelfDestroy())
+                    {
+                        KERNEL_NS::PostAsyncTask([h]()
+                        {
+                            if(h.done())
+                                h.destroy();
+                        });
+                    }
                 }
             }
             constexpr void await_resume() const noexcept {}
@@ -253,10 +273,6 @@ public:
             if(UNLIKELY(!_params))
             {
                 _params = KERNEL_NS::CoTaskParam::NewThreadLocal_CoTaskParam();
-                _params.SetClosureDelegate([](void *ptr)
-                {
-                    CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
-                });
             }
 
             return CoTask{coro_handle::from_promise(*this), _params};
@@ -312,6 +328,11 @@ public:
             std::rethrow_exception(exception);
         }
 
+        virtual std::coroutine_handle<> GetCoHandle() final
+        {
+            return coro_handle::from_promise(*this);
+        }
+        
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         void Run(KERNEL_NS::KernelHandle::State changeState) final 
         {
@@ -325,9 +346,8 @@ public:
             // 唤醒
             SetState(changeState);
 
-            // wait for说明外部要手动唤醒
-            if(LIKELY(!_params->_waitFor))
-                coro_handle::from_promise(*this).resume();
+            // 说明外部要手动唤醒
+            coro_handle::from_promise(*this).resume();
         }
         
         virtual void ForceAwake() final
@@ -342,8 +362,16 @@ public:
                 handle.resume();
         }
 
-        const std::source_location& _GetFrameInfo() const override final { return _frameInfo; }
+        const std::source_location& _GetFrameInfo() const final { return _frameInfo; }
 
+        void GetBacktrace(KERNEL_NS::LibString &content, Int32 depth = 0) const override final 
+        {
+            CoHandle::GetBacktrace(content, depth);
+
+            if (_continuation) 
+                _continuation->GetBacktrace(content, depth + 1);
+        }
+        
         void DumpBacktrace(Int32 depth = 0) const override final 
         {
             KERNEL_NS::LibString content;
@@ -365,7 +393,7 @@ public:
                 DumpBacktraceFinish(content);
         }
 
-        SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> &GetParam() override
+        SmartPtr<CoTaskParam, AutoDelMethods::Release> &GetParam() override
         {
             return _params;
         }
@@ -373,9 +401,10 @@ public:
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         const bool _wait_at_initial_suspend {true};
+        // 上一级的协程
         CoHandle* _continuation {};
         std::source_location _frameInfo{};
-        SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> _params;
+        SmartPtr<CoTaskParam, AutoDelMethods::Release> _params;
     };
 
     bool Valid() const { return _handle != NULL; }
@@ -433,6 +462,7 @@ public:
         return _handle;
     }
 
+    // 当前的CoTask不挂起直接进入协程体执行
     CoTask<R> &SetDisableSuspend(bool disableSuspend = true)
     {
         _disableSuspend = disableSuspend;
@@ -443,15 +473,11 @@ public:
     bool IsDisableSuspend() const { return _disableSuspend; }
 
     // 外部获取协程的一些状态
-    CoTask<R> &GetParam(SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> &param)
+    CoTask<R> &GetParam(SmartPtr<CoTaskParam, AutoDelMethods::Release> &param)
     {
         if(UNLIKELY(!_params))
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
-            _params.SetClosureDelegate([](void *ptr)
-            {
-                CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
-            });
         }
 
         param = _params;
@@ -459,42 +485,25 @@ public:
         return *this;
     }
 
-    // 使用外部参数覆盖，让外部可以触及到协程控制
-    CoTask<R>& SetCustomParam(SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> &param)
+    CoTask<R> &GetParam(KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> &paramRef)
     {
-        _params = param;
+        if(UNLIKELY(!_params))
+        {
+            _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+        }
+
+        paramRef->_params = _params;
+
         return *this;
     }
 
     CoTask<R>& SetTimeout(const TimeSlice &slice)
     {
         if(UNLIKELY(!_params))
-        {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
-            _params.SetClosureDelegate([](void *ptr)
-            {
-                CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
-            });
-        }
 
         _params->_endTime = KERNEL_NS::LibTime::Now() + slice;
 
-        return *this;
-    }
-
-    CoTask<R> &Wait()
-    {
-        if(UNLIKELY(!_params))
-        {
-            _params = CoTaskParam::NewThreadLocal_CoTaskParam();
-            _params.SetClosureDelegate([](void *ptr)
-            {
-                CoTaskParam::DeleteThreadLocal_CoTaskParam(KERNEL_NS::KernelCastTo<CoTaskParam>(ptr));
-            });
-        }
-
-        _params->_waitFor = true;
-        
         return *this;
     }
 
@@ -517,7 +526,7 @@ private:
     // 为了能在PostRun 中使用，破例用mutable
     mutable coro_handle _handle;
     mutable bool _disableSuspend = false;
-    mutable SmartPtr<CoTaskParam, AutoDelMethods::CustomDelete> _params;
+    mutable SmartPtr<CoTaskParam, AutoDelMethods::Release> _params;
 };
 
 static_assert(Promise<CoTask<>::promise_type>);

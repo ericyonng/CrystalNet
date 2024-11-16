@@ -163,10 +163,13 @@ public:
     template<typename ObjType>
     void Subscribe(Int32 opcodeId, ObjType *obj, void (ObjType::*Handler)(KERNEL_NS::LibPacket *&));
     virtual void Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg) = 0;
-    // 用于监听指定包id的消息, 如果有了packetId的消息映射, 则不会走普通的消息映射避免packet双重回收
-    virtual void SubscribePacket(Int64 packetId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *deleg){}
-    virtual void UnSubscribePacket(Int64 packetId) {}
-
+    // 订阅包消息回调, 注意packetId会覆盖旧的, 但是正常来说新创建的绘画sessionId总会是新的
+    void RegisterPacketMsg(UInt64 sessionId, Int64 packetId, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *delg);
+    // 取消订阅包消息回调
+    void UnRegisterPacketMsg(UInt64 sessionId, Int64 packetId);
+    // 弹出回调
+    KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *PopPacketMsgDelg(UInt64 sessionId, Int64 packetId);
+    
     virtual KERNEL_NS::EventManager *GetEventMgr() = 0;
     virtual const KERNEL_NS::EventManager *GetEventMgr() const = 0;
 
@@ -270,6 +273,7 @@ protected:
     // 销毁相关
     virtual void _OnPollerWillDestroy(KERNEL_NS::Poller *poller);
 
+
 private:
     void _Clear();
 
@@ -293,6 +297,8 @@ protected:
     Int32 _serviceStatus;
     KERNEL_NS::IPollerMgr *_pollerMgr;
     KERNEL_NS::TcpPollerMgr *_tcpPollerMgr;
+
+    std::map<UInt64, std::map<Int64, KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *>> _sessionIdRefPacketIdRefHandler;
 };
 
 ALWAYS_INLINE void IService::SetServiceId(UInt64 serviceId)
@@ -402,6 +408,25 @@ ALWAYS_INLINE bool IService::IsServiceWillQuit() const
 ALWAYS_INLINE Int32 IService::GetServiceStatus() const
 {
     return _serviceStatus;
+}
+
+ALWAYS_INLINE KERNEL_NS::IDelegate<void, KERNEL_NS::LibPacket *&> *IService::PopPacketMsgDelg(UInt64 sessionId, Int64 packetId)
+{
+    auto iterSession = _sessionIdRefPacketIdRefHandler.find(sessionId);
+    if(iterSession == _sessionIdRefPacketIdRefHandler.end())
+        return NULL;
+
+    auto &packetRefDelg = iterSession->second;
+    auto iterPacket = packetRefDelg.find(packetId);
+    if(iterPacket == packetRefDelg.end())
+        return NULL;
+
+    auto delg = iterPacket->second;
+    packetRefDelg.erase(iterPacket);
+    if(packetRefDelg.empty())
+        _sessionIdRefPacketIdRefHandler.erase(iterSession);
+
+    return delg;
 }
 
 SERVICE_COMMON_END

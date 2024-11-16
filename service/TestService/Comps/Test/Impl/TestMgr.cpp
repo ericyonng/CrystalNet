@@ -163,7 +163,8 @@ Int32 TestMgr::_OnGlobalSysInit()
     // 注册协议
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_TestOpcodeReq, this, &TestMgr::_OnTestOpcodeReq);
     GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_TestOpcodeRes, this, &TestMgr::_OnTestOpcodeRes);
-
+    GetService()->Subscribe(Opcodes::OpcodeConst::OPCODE_TestRpcReq, this, &TestMgr::_OnTestRpcReq);
+    
     // 注册事件
     _sessionConnected = GetEventMgr()->AddListener(EventEnums::SESSION_CREATED, this, &TestMgr::_OnSessionCreated);
     _sessionWillDestroy = GetEventMgr()->AddListener(EventEnums::SESSION_WILL_DESTROY, this, &TestMgr::_OnWillSessionDestroy);
@@ -230,6 +231,17 @@ void TestMgr::_OnTestOpcodeReq(KERNEL_NS::LibPacket *&packet)
     res.set_content(req->content());
     res.set_testid(req->testid());
     Send(packet->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestOpcodeRes, res, packet->GetPacketId());
+}
+
+void TestMgr::_OnTestRpcReq(KERNEL_NS::LibPacket *&packet)
+{
+    auto req = packet->GetCoder<TestRpcReq>();
+
+    g_Log->Info(LOGFMT_OBJ_TAG("_OnTestRpcReq req:%s"), req->ToJsonString().c_str());
+
+    TestRpcRes res;
+    res.set_content(req->content());
+    Send(packet->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestRpcRes, res, packet->GetPacketId());
 }
 
 void TestMgr::_OnTestOpcodeRes(KERNEL_NS::LibPacket *&packet)

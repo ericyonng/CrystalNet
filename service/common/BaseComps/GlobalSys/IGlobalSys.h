@@ -49,8 +49,8 @@ KERNEL_END
 
 SERVICE_BEGIN
 
-template<typename T>
-concept VoidAdapter = std::is_void_v<T>;
+template<bool T>
+concept NeedReponseAdapter = std::bool_constant<T>::value;
 
 class IGlobalSys : public ILogicSys
 {
@@ -91,9 +91,8 @@ public:
     void Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const;
     void Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) const;
     void Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const;
-    template<typename  NeedResponse = void>
-    requires VoidAdapter<NeedResponse>
-    CRYSTAL_NET::kernel::CoTask<> Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const
+    template<bool NeedResponse = false>
+    CRYSTAL_NET::kernel::CoTask<> SendCo(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const
     {
         Send(sessionId, opcode, coder, packetId);
         // TODO:
@@ -103,8 +102,9 @@ public:
     }
 
     // 使用协程发送和接收返回消息, 由于会动态订阅Response消息, 那么之前已经订阅了Response消息的则会失效, 必须设置packetId用于回调
-    template<typename  NeedResponse = void>
-    KERNEL_NS::CoTask<KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket, KERNEL_NS::AutoDelMethods::Release>> Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId) const
+    template<bool NeedResponse = false>
+    requires NeedReponseAdapter<NeedResponse>
+    CRYSTAL_NET::kernel::CoTask<KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket, KERNEL_NS::AutoDelMethods::Release>> SendCo(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId)
     {
         // TODO:
         // 1.发送数据包
@@ -124,17 +124,9 @@ public:
         });
 
         // TODO:通过创建一个CoTask Waiter将CoParam传到lambda中
-        KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::CustomDelete> params = KERNEL_NS::CoTaskParam::NewThreadLocal_CoTaskParam();
-        params.SetClosureDelegate([](void *p)
+        KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
+        SubscribePacket(sessionId, packetId, [ptr, params](KERNEL_NS::LibPacket *&packet) mutable 
         {
-            KERNEL_NS::CoTaskParam::Delete_CoTaskParam(KERNEL_NS::KernelCastTo<KERNEL_NS::CoTaskParam>(p));
-        });
-        
-        SubscribePacket(packetId, [ptr, packetId, params](KERNEL_NS::LibPacket *&packet) mutable 
-        {
-            if(packet->GetPacketId() != packetId)
-                return;
-            
             // 将结果带出去
             *ptr = packet;
             
@@ -142,12 +134,13 @@ public:
             packet = NULL;
 
             // 唤醒Waiter
-            if(params && params->_handle)
-                params->_handle->ForceAwake();
+            auto &coParam = params->_params;
+            if(coParam && coParam->_handle)
+                coParam->_handle->ForceAwake();
         });
 
         // TODO:等待Waiter
-        co_await KERNEL_NS::Waiting().SetCustomParam(params);
+        co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params);
         
         // 3.将消息回调中的Packet引用设置成空
         auto packet = *ptr;
@@ -182,7 +175,7 @@ public:
     void Subscribe(Int32 opcodeId, LambadaType &&lamb);
     // 监听packet回包
     template<typename LambadaType>
-    void SubscribePacket(Int64 packetId, LambadaType &&lamb);
+    void SubscribePacket(UInt64 sessionId, Int64 packetId, LambadaType &&lamb);
 
     // 组件接口资源
 protected:
@@ -249,10 +242,10 @@ ALWAYS_INLINE void IGlobalSys::Subscribe(Int32 opcodeId, KERNEL_NS::IDelegate<vo
 }
 
 template<typename LambadaType>
-ALWAYS_INLINE void IGlobalSys::SubscribePacket(Int64 packetId, LambadaType &&lamb)
+ALWAYS_INLINE void IGlobalSys::SubscribePacket(UInt64 sessionId, Int64 packetId, LambadaType &&lamb)
 {
     auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, KERNEL_NS::LibPacket *&);
-    GetService()->SubscribePacket(packetId, deleg);
+    GetService()->RegisterPacketMsg(sessionId, packetId, deleg);
 }
 
 SERVICE_END

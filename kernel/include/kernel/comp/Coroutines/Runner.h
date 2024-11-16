@@ -64,15 +64,16 @@ ALWAYS_INLINE void PostRun(Fut&& task)
     }
 }
 
-template<typename T>
-ALWAYS_INLINE void PostCaller(T &&t)
+// t 是lambda注意, lambda捕获的成员将在被调用中无法使用, 所以如果需要参数不应该捕获外部参数而应该在Caller的时候传递参数，因为会被作为协程参数被保存在协程堆中
+template<typename T, typename... Args>
+ALWAYS_INLINE void PostCaller(T &&t, Args... args)
 {
-    auto &&lamb = [t]()->CoTask<> 
+    auto &&lamb = [t](Args... argsLamb)->CoTask<> 
     {        
         // 此处不挂起
-        co_await t().SetDisableSuspend(true);
+        co_await t(argsLamb...).SetDisableSuspend(true);
     };
-    PostRun(lamb());
+    PostRun(lamb(args...));
 }
 
 KERNEL_END
