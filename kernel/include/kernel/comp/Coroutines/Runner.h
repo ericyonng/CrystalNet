@@ -68,12 +68,13 @@ ALWAYS_INLINE void PostRun(Fut&& task)
 template<typename T, typename... Args>
 ALWAYS_INLINE void PostCaller(T &&t, Args... args)
 {
-    auto &&lamb = [t](Args... argsLamb)->CoTask<> 
+    // T必须作为参数被拷贝到协程上下文中, 因为, lamb是临时的lambda所以会被释放, 这样会导致T中捕获的变量都不可用
+    auto &&lamb = [](T targetLambda, Args... argsLamb)->CoTask<> 
     {        
-        // 此处不挂起
-        co_await t(argsLamb...).SetDisableSuspend(true);
+        // 此处不进入到Poller去异步调度, 保证与当前栈帧同步
+        co_await targetLambda(argsLamb...).SetDisableSuspend(true);
     };
-    PostRun(lamb(args...));
+    PostRun(lamb(t, args...));
 }
 
 KERNEL_END

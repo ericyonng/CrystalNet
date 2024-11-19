@@ -100,13 +100,12 @@ Int32 TestMgr::_OnGlobalSysInit()
     }
 
     // 测试rpc
-    auto testMgr = this;
-    KERNEL_NS::PostCaller([](TestMgr *testMgr)->KERNEL_NS::CoTask<>
+    KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
     {
-        g_Log->Info(LOGFMT_OBJ_TAG("test mgr:%s"), testMgr->ToString().c_str());
+        g_Log->Info(LOGFMT_OBJ_TAG("test mgr:%s"), ToString().c_str());
         
-       co_await testMgr->_TestRpc();
-    }, testMgr);
+       co_await _TestRpc();
+    });
     return Status::Success;
 }
 
