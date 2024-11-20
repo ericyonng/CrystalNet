@@ -362,6 +362,13 @@ public:
                 handle.resume();
         }
 
+        virtual void ForceDestroyCo() final
+        {
+            auto handle = coro_handle::from_promise(*this);
+            if(!handle.done())
+                handle.destroy();
+        }
+
         const std::source_location& _GetFrameInfo() const final { return _frameInfo; }
 
         void GetBacktrace(KERNEL_NS::LibString &content, Int32 depth = 0) const override final 
