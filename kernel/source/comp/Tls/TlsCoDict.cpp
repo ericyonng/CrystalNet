@@ -57,8 +57,6 @@ void TlsCoDict::OnDestroy()
           coHandle->GetBacktrace(content);
           g_Log->Warn(LOGFMT_OBJ_TAG("co not destroy when thread destroy co handle id:%llu, backtrace:\n%s")
               , handleId, content.c_str());
-
-          coHandle->ForceDestroyCo();
       }
 
       _idRefHandle.clear();
