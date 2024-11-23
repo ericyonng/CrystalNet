@@ -478,7 +478,14 @@ void IService::UnRegisterPacketMsg(UInt64 sessionId, Int64 packetId)
     if(iterSession == _sessionIdRefPacketIdRefHandler.end())
         return;
 
-    iterSession->second.erase(packetId);
+    auto iterDelg = iterSession->second.find(packetId);
+    if(iterDelg == iterSession->second.end())
+        return;
+
+    iterDelg->second->Release();
+    iterSession->second.erase(iterDelg);
+    if(iterSession->second.empty())
+        _sessionIdRefPacketIdRefHandler.erase(iterSession);
 }
 
 void IService::_Clear()

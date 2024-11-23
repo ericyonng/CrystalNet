@@ -80,6 +80,8 @@ public:
     */
     virtual void OnStartup() {}
 
+    static const KERNEL_NS::LibString OpcodeToString(Int32 opcode);
+
    /*
    * 网络相关
    */
@@ -90,25 +92,15 @@ public:
     */
     void Send(UInt64 sessionId, KERNEL_NS::LibPacket *packet) const;
     void Send(UInt64 sessionId, const std::list<KERNEL_NS::LibPacket *> &packets) const;
-    void Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const;
-    template<bool NeedResponse = false>
-    CRYSTAL_NET::kernel::CoTask<> SendCo(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = -1) const
-    {
-        Send(sessionId, opcode, coder, packetId);
-        // TODO:
-        // 1.发送数据包
-        // 2.
-        co_return;
-    }
+    // packetId 为0表示无效, 其他都是有效的
+    void Send(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId = 0) const;
 
     // 使用协程发送和接收返回消息, 由于会动态订阅Response消息, 那么之前已经订阅了Response消息的则会失效, 必须设置packetId用于回调
-    template<bool NeedResponse = false>
-    requires NeedReponseAdapter<NeedResponse>
-    CRYSTAL_NET::kernel::CoTask<KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket, KERNEL_NS::AutoDelMethods::Release>> SendCo(UInt64 sessionId, Int32 opcode, const KERNEL_NS::ICoder &coder, Int64 packetId)
+    template<typename CoderType>
+    CRYSTAL_NET::kernel::CoTask<KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket, KERNEL_NS::AutoDelMethods::Release>> SendCo(UInt64 sessionId, Int32 opcode, KERNEL_NS::SmartPtr<CoderType, KERNEL_NS::AutoDelMethods::Release> coder, Int64 packetId)
     {
-        // TODO:
         // 1.发送数据包
-        Send(sessionId, opcode, coder, packetId);
+        Send(sessionId, opcode, *coder, packetId);
 
         // 2.关联response消息回调
         KERNEL_NS::SmartPtr<KERNEL_NS::LibPacket *,  KERNEL_NS::AutoDelMethods::CustomDelete> ptr(KERNEL_NS::KernelCastTo<KERNEL_NS::LibPacket*>(
@@ -122,6 +114,7 @@ public:
 
             KERNEL_NS::KernelFreeMemory<KERNEL_NS::_Build::TL>(castP);
         });
+        *ptr = NULL;
 
         // TODO:通过创建一个CoTask Waiter将CoParam传到lambda中
         KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
@@ -139,8 +132,23 @@ public:
                 coParam->_handle->ForceAwake();
         });
 
-        // TODO:等待Waiter
+        // 等待Waiter
         co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params);
+
+        if(params->_params)
+        {
+            auto &pa = params->_params; 
+            if(pa->_errCode != Status::Success)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("waiting err:%d, session id:%llu, opcode:%d,%s, data:%s, packetId:%lld")
+                    , pa->_errCode, sessionId, opcode, OpcodeToString(opcode).c_str(), coder->ToJsonString().c_str(), packetId);
+                UnSubscribePacket(sessionId, packetId);
+            }
+
+            // 销毁waiting协程
+            if(pa->_handle)
+                pa->_handle->ForceDestroyCo();
+        }
         
         // 3.将消息回调中的Packet引用设置成空
         auto packet = *ptr;
@@ -176,6 +184,7 @@ public:
     // 监听packet回包
     template<typename LambadaType>
     void SubscribePacket(UInt64 sessionId, Int64 packetId, LambadaType &&lamb);
+    void UnSubscribePacket(UInt64 sessionId, Int64 packetId);
 
     // 组件接口资源
 protected:
@@ -247,5 +256,11 @@ ALWAYS_INLINE void IGlobalSys::SubscribePacket(UInt64 sessionId, Int64 packetId,
     auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, KERNEL_NS::LibPacket *&);
     GetService()->RegisterPacketMsg(sessionId, packetId, deleg);
 }
+
+ALWAYS_INLINE void IGlobalSys::UnSubscribePacket(UInt64 sessionId, Int64 packetId)
+{
+    GetService()->UnRegisterPacketMsg(sessionId, packetId);
+}
+
 
 SERVICE_END

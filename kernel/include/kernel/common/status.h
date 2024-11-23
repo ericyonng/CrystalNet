@@ -75,6 +75,7 @@ namespace Status
         CheckAddTypeInfo = 31,                                  // 对象类型异常
         CoTaskTimeout = 32,                                     // 协程超时
         CoTaskError = 33,                                       // 协程触发异常
+        CoTaskException = 34,                                   // 协程抛异常
         
 
         // SOCKET[500, 599]

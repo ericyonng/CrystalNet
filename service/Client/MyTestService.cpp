@@ -507,8 +507,6 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
         }
 
         #ifdef ENABLE_PERFORMANCE_RECORD
-            const auto sessionId = packet->GetSessionId();
-            const auto packetId = packet->GetPacketId();
             auto &&outputLogFunc = [sessionId, packetId, opcode](UInt64 costMs){
                 const auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
                 g_Log->Warn(LOGFMT_NON_OBJ_TAG(MyTestService, "sessionId:%llu, packetid:%lld, opcode:%d,[%s], costMs:%llu ms ")

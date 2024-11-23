@@ -29,11 +29,21 @@
 #include <pch.h>
 #include <kernel/comp/Coroutines/CoTaskParam.h>
 
+#include "kernel/comp/Timer/LibTimer.h"
+
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(CoTaskParam);
 POOL_CREATE_OBJ_DEFAULT_IMPL(TaskParamRefWrapper);
 
+CoTaskParam::~CoTaskParam()
+{
+    if(_timeout)
+    {
+        LibTimer::DeleteThreadLocal_LibTimer(_timeout);
+        _timeout = NULL;
+    }
+}
 void CoTaskParam::Release()
 {
   CoTaskParam::DeleteThreadLocal_CoTaskParam(this);

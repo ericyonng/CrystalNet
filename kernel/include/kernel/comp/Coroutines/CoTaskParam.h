@@ -42,11 +42,15 @@ KERNEL_BEGIN
 
 struct  CoHandle;
 
+class LibTimer;
+
 // 只要在co_await 时候设置参数,参数都会生效
 struct KERNEL_EXPORT CoTaskParam
 {
     POOL_CREATE_OBJ_DEFAULT(CoTaskParam);
 
+    ~CoTaskParam();
+    
     void Release();
 
     // 错误码
@@ -54,6 +58,9 @@ struct KERNEL_EXPORT CoTaskParam
 
     // 超时时长
     LibTime _endTime;
+
+    // 超时定时器
+    LibTimer *_timeout = NULL;
 
     // 协程句柄
     CoHandle *_handle = NULL;

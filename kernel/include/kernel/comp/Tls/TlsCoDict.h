@@ -49,6 +49,8 @@ public:
 
     void AddCo(UInt64 id, KernelHandle *handle);
     void RemoveCo(UInt64 id);
+    KernelHandle *GetHandle(UInt64 id);
+    const KernelHandle *GetHandle(UInt64 id) const;
  
 private:
  const std::string _objTypeName;
@@ -63,6 +65,18 @@ ALWAYS_INLINE void TlsCoDict::AddCo(UInt64 id, KernelHandle *handle)
 ALWAYS_INLINE void TlsCoDict::RemoveCo(UInt64 id)
 {
     _idRefHandle.erase(id);
+}
+
+ALWAYS_INLINE KernelHandle *TlsCoDict::GetHandle(UInt64 id)
+{
+    auto iter = _idRefHandle.find(id);
+    return iter == _idRefHandle.end() ? NULL : iter->second;
+}
+
+ALWAYS_INLINE const KernelHandle *TlsCoDict::GetHandle(UInt64 id) const
+{
+    auto iter = _idRefHandle.find(id);
+    return iter == _idRefHandle.end() ? NULL : iter->second;
 }
 
 KERNEL_END

@@ -23,7 +23,8 @@
  * 
  * Date: 2024-10-21 01:31:10
  * Author: Eric Yonng
- * Description: 
+ * Description:
+ * 注意parent如果提前唤醒, 一定要注意child协程的释放
 */
 
 
@@ -124,29 +125,47 @@ public:
         template<typename Promise>
         void await_suspend(std::coroutine_handle<Promise> caller) const noexcept 
         {
-            ASSERT(! _selfCoro.promise()._continuation);
+            ASSERT(! _selfCoro.promise()._parent);
 
             // resumer为co_await CoTask时候创建的子协程句柄
             caller.promise().SetState(KernelHandle::SUSPEND);
-            _selfCoro.promise()._continuation = &caller.promise();
+            _selfCoro.promise()._parent = &caller.promise();
+            caller.promise()._child = &_selfCoro.promise();
+
+            auto callerId = caller.promise().GetHandleId();
+            auto selfCoHandleId = _selfCoro.promise().GetHandleId();
 
             // 超时唤醒并销毁协程
             auto selfParam = _selfCoro.promise().GetParam();
             if(selfParam->_endTime)
             {
                 auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-                timer->SetTimeOutHandler([selfParam, selfCo = _selfCoro](KERNEL_NS::LibTimer *t) mutable 
+                timer->SetTimeOutHandler([callerId, selfCoHandleId](KERNEL_NS::LibTimer *t) mutable 
                 {
-                    // 超时还没完成, 强制唤醒
-                    if(!selfCo.done())
+                    t->Cancel();
+
+                    // 给子协程设置错误码
+                    auto selfHandle = reinterpret_cast<CoHandle *>(KERNEL_NS::TlsUtil::GetTlsCoDict()->GetHandle(selfCoHandleId));
+                    if(UNLIKELY(!selfHandle))
+                        return;
+                    
+                    auto child = selfHandle->GetChild();
+                    if(child && child->GetErrCode() == Status::Success)
                     {
-                        selfParam->_errCode = Status::CoTaskTimeout;
-                        selfCo.resume();
+                        child->SetErrCode(Status::CoTaskTimeout);
                     }
-                    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+
+                    // 超时还没完成, 强制唤醒
+                    if(!selfHandle->IsDone())
+                    {
+                        selfHandle->GetParam()->_errCode = Status::CoTaskTimeout;
+                        selfHandle->DumpBacktrace();
+                        selfHandle->ForceAwake();
+                    }
                 });
                 auto &&now = KERNEL_NS::LibTime::Now();
                 timer->Schedule(now > selfParam->_endTime ? KERNEL_NS::TimeSlice::FromSeconds(0) : (selfParam->_endTime - now));
+                selfParam->_timeout = timer;
             }
             
             if(_disableSuspend)
@@ -218,6 +237,14 @@ public:
             _params->_handle = this;
         }
 
+        ~promise_type()
+        {
+            Cancel();
+
+            if(LIKELY(_params))
+                _params->_handle = NULL;
+        }
+
         auto initial_suspend() noexcept 
         {
             struct InitialSuspendAwaiter 
@@ -236,15 +263,21 @@ public:
             constexpr bool await_ready() const noexcept { return false; }
             template<typename Promise>
             constexpr void await_suspend(std::coroutine_handle<Promise> h) const noexcept 
-            {
+            {                
                 // 当前h结束了, 那么接着下一个(其实就是包裹着h的那个协程)
-                if (auto cont = h.promise()._continuation) 
+                if (auto cont = h.promise()._parent) 
                 {
+                    cont->PopChild();
                     // TODO:cout资源释放的问题需要考虑
                     cont->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
-                    KERNEL_NS::PostAsyncTask([cont]()mutable 
+                    auto handleId = cont->GetHandleId();
+                    KERNEL_NS::PostAsyncTask([handleId]()mutable 
                     {
-                        cont->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
+                        auto handle = KERNEL_NS::TlsUtil::GetTlsCoDict()->GetHandle(handleId);
+                        if(UNLIKELY(!handle))
+                            return;
+                        
+                        handle->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
                     });
                 }
                 else
@@ -287,9 +320,11 @@ public:
         }
 
         virtual void unhandled_exception() override
-        { 
+        {
+            _params->_errCode = Status::CoTaskException;
+            
             CoResult<R>::unhandled_exception();
-
+            
             // 打印堆栈出来
             DumpBacktrace();
 
@@ -297,12 +332,30 @@ public:
                 ThrowErrorIfExists();
         }
 
-        virtual CoHandle *GetContinuation() override { return _continuation; }
+        virtual CoHandle *GetParent() override { return _parent; }
+        virtual CoHandle *GetChild() override { return _child; }
 
         virtual void DestroyHandle() override
         {
+            // 有子协程, 子协程也需要释放
+            if(_child)
+            {
+                _child->DestroyHandle();
+                PopChild();
+            }
+            
             Cancel();
             coro_handle::from_promise(*this).destroy();
+        }
+
+        virtual void OnGetResult() override
+        {
+            if(_params->_timeout)
+                _params->_timeout->Cancel();
+        }
+        virtual void PopChild() override
+        {
+            _child = NULL;
         }
 
         virtual void ThrowErrorIfExists() override 
@@ -311,16 +364,16 @@ public:
             auto &&exception = CoResult<R>::GetException();
 
             // 先销毁协程
-            auto coPre = this->_continuation;
+            auto coPre = this->_parent;
             coro_handle::from_promise(*this).destroy();
             do
             {
                 if(!coPre)
                     break;
                 
-                auto nextCo = coPre->GetContinuation();
+                auto parent = coPre->GetParent();
                 coPre->DestroyHandle();
-                coPre = nextCo;
+                coPre = parent;
                 /* code */
             } while (coPre);
 
@@ -362,8 +415,26 @@ public:
                 handle.resume();
         }
 
+        virtual bool IsDone() const override
+        {
+            auto handle = coro_handle::from_promise(*const_cast<promise_type *>(this));
+            return handle.done();
+        }
+
         virtual void ForceDestroyCo() final
         {
+            // 与parent断开
+            if(_parent)
+                _parent->PopChild();
+            _parent = NULL;
+            
+            // 有子协程, 子协程也要释放
+            if(_child)
+            {
+                _child->ForceDestroyCo();
+                PopChild();
+            }
+            
             auto handle = coro_handle::from_promise(*this);
             if(!handle.done())
                 handle.destroy();
@@ -375,17 +446,20 @@ public:
         {
             CoHandle::GetBacktrace(content, depth);
 
-            if (_continuation) 
-                _continuation->GetBacktrace(content, depth + 1);
+            if (_parent) 
+                _parent->GetBacktrace(content, depth + 1);
         }
         
         void DumpBacktrace(Int32 depth = 0) const override final 
         {
             KERNEL_NS::LibString content;
+            if(_params)
+                content.AppendFormat("CoTask ErrCode:%d\n", _params->_errCode);
+            
             CoHandle::DumpBacktrace(depth, content);
 
-            if (_continuation) 
-                _continuation->DumpBacktrace(depth + 1, content);
+            if (_parent) 
+                _parent->DumpBacktrace(depth + 1, content);
             else
                 DumpBacktraceFinish(content);
         }
@@ -394,8 +468,8 @@ public:
         {
             CoHandle::DumpBacktrace(depth, content);
 
-            if (_continuation) 
-                _continuation->DumpBacktrace(depth + 1, content);
+            if (_parent) 
+                _parent->DumpBacktrace(depth + 1, content);
             else
                 DumpBacktraceFinish(content);
         }
@@ -405,11 +479,18 @@ public:
             return _params;
         }
 
+        const SmartPtr<CoTaskParam, AutoDelMethods::Release> &GetParam() const override
+        {
+            return _params;
+        }
+
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         const bool _wait_at_initial_suspend {true};
         // 上一级的协程
-        CoHandle* _continuation {};
+        CoHandle* _parent {};
+        // 子级协程
+        CoHandle *_child {};
         std::source_location _frameInfo{};
         SmartPtr<CoTaskParam, AutoDelMethods::Release> _params;
     };
@@ -424,9 +505,14 @@ public:
         template<typename Promise>
         void await_suspend(std::coroutine_handle<Promise> resumer) const noexcept 
         {
-            KERNEL_NS::PostAsyncTask([res = std::move(resumer)]() 
+            auto handleId = resumer.promise().GetHandleId();
+            KERNEL_NS::PostAsyncTask([handleId]() 
             {
-                res.resume();
+                auto handle = KERNEL_NS::TlsUtil::GetTlsCoDict()->GetHandle(handleId);
+                if(UNLIKELY(!handle))
+                    return;
+
+                handle->ForceAwake();
             });
         }
 

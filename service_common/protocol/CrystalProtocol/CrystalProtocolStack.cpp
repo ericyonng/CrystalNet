@@ -523,7 +523,7 @@ Int32 CrystalProtocolStack::PacketsToBin(KERNEL_NS::LibSession *session
         }
 
         handledBytes += static_cast<UInt64>(header._len);
-    } while (0);
+    } while (false);
 
     // g_Log->NetInfo(LOGFMT_OBJ_TAG("packet to bin end errCode:%d, handledBytes:%llu session:%s"), errCode, handledBytes, session->ToString().c_str());
     return errCode;

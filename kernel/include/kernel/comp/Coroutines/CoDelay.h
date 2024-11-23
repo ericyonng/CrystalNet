@@ -56,13 +56,21 @@ struct KERNEL_EXPORT CoDelayAwaiter: private NonCopyable
 
         // 先设置可调度
         promise->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
-        KERNEL_NS::PostAsyncTask([caller, copySlice = slice]()
+        auto handleId = promise->GetHandleId();
+        KERNEL_NS::PostAsyncTask([handleId, copySlice = slice]()
         {
             auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-            timer->SetTimeOutHandler([caller](KERNEL_NS::LibTimer *t)
+            timer->SetTimeOutHandler([handleId](KERNEL_NS::LibTimer *t)
             {
                 // 恢复协程
-                caller.promise().Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
+                auto handle = KERNEL_NS::TlsUtil::GetTlsCoDict()->GetHandle(handleId);
+                if(UNLIKELY(!handle))
+                {
+                    KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
+                    return;
+                }
+                
+                handle->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
 
                 KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(t);
             });

@@ -94,9 +94,13 @@ struct CoResult
         return std::exception_ptr();
     }
 
+    virtual void OnGetResult() {}
+
     // 外部需要考虑异常的情况
     constexpr T GetResult() & 
     {
+        OnGetResult();
+        
         // 如果有异常, 则抛异常
         if (auto exception = std::get_if<std::exception_ptr>(&_result)) 
         {
@@ -115,6 +119,8 @@ struct CoResult
     // 外部需要考虑异常的情况
     constexpr T GetResult() && 
     {
+        OnGetResult();
+
         // 有异常
         if (auto exception = std::get_if<std::exception_ptr>(&_result)) 
         {
@@ -135,8 +141,6 @@ struct CoResult
 
     virtual void unhandled_exception() { _result = std::current_exception(); }
 
-    virtual SmartPtr<CoTaskParam, AutoDelMethods::Release> &GetParam() = 0;
-
 protected:
     // variant有三个类型的可能值:monostate, T, std::exception_ptr, 使用std::get按照类型获取值, variant 内部实际上是union
     std::variant<std::monostate, T, std::exception_ptr> _result;
@@ -156,8 +160,12 @@ struct KERNEL_EXPORT CoResult<void>
         _result.emplace(nullptr);
     }
 
+    virtual void OnGetResult() {}
+
     void GetResult() 
     {
+        OnGetResult();
+
         // 有异常则抛异常
         if (_result.has_value() && *_result != nullptr)
             std::rethrow_exception(*_result);
@@ -189,7 +197,6 @@ struct KERNEL_EXPORT CoResult<void>
     // for: promise_type
     void set_exception(std::exception_ptr exception) noexcept { _result = exception; }
     virtual void unhandled_exception() { _result = std::current_exception(); }
-    virtual SmartPtr<CoTaskParam, AutoDelMethods::Release> &GetParam() = 0;
 
 private:
     std::optional<std::exception_ptr> _result;

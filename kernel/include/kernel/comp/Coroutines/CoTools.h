@@ -42,7 +42,7 @@ KERNEL_BEGIN
 
 // AsyncTask事件
 template<typename CallerType>
-ALWAYS_INLINE void PostAsyncTask(CallerType &&cb, Int32 level = 0)
+ALWAYS_INLINE void PostAsyncTask(CallerType &&cb)
 {
     // handler将在poller中执行
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
@@ -51,7 +51,7 @@ ALWAYS_INLINE void PostAsyncTask(CallerType &&cb, Int32 level = 0)
     ev->_asyncTask = task;
     auto delg = KERNEL_NS::DelegateFactory::Create<decltype(cb), void>(std::forward<CallerType>(cb));
     task->_handler = delg;
-    poller->Push(level, ev);
+    poller->Push(poller->GetMaxPriorityLevel(), ev);
 }
 
 KERNEL_END

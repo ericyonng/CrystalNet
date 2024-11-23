@@ -57,28 +57,33 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
     {
         auto promise = &caller.promise();
         auto promiseParam = promise->GetParam();
+        auto callerHandleId = promise->GetHandleId();
 
         promise->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
 
         // 有过期时间限制, 没有过期时间则一直等待下去
         if(_param && _param->_endTime)
         {
-            KERNEL_NS::PostAsyncTask([endTime = this->_param->_endTime, caller]()
+            KERNEL_NS::PostAsyncTask([endTime = this->_param->_endTime, callerHandleId]()
             {
                 auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-                timer->SetTimeOutHandler([caller](KERNEL_NS::LibTimer *t)
+                timer->SetTimeOutHandler([callerHandleId](KERNEL_NS::LibTimer *t)
                 {
                     do
                     {
-                        if(caller.done())
+                        auto callerHandle = reinterpret_cast<CoHandle *>(KERNEL_NS::TlsUtil::GetTlsCoDict()->GetHandle(callerHandleId));
+                        if(UNLIKELY(!callerHandle))
+                            break;
+                        
+                        if(callerHandle->IsDone())
                             break;
 
                         // 超时
-                        caller.promise().GetParam()->_errCode = Status::CoTaskTimeout;
+                        callerHandle->GetParam()->_errCode = Status::CoTaskTimeout;
                         KERNEL_NS::LibString content;
-                        caller.promise().GetBacktrace(content);
+                        callerHandle->GetBacktrace(content);
                         g_Log->Warn(LOGFMT_NON_OBJ_TAG(CoWaiter, "co time out, backtrace:%s"), content.c_str());
-                        caller.promise().Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
+                        callerHandle->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
                     }
                     while (false);
 
@@ -105,6 +110,7 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
 //     co_await CoDelayAwaiter {delay};
 // }
 
+// 超时唤醒需要外部手动销毁Waiting产生的协程, 通过GetParam可以获取协程handle
 CoTask<> Waiting(const KERNEL_NS::TimeSlice &slice = KERNEL_NS::TimeSlice::ZeroSlice());
 
 KERNEL_END

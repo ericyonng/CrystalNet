@@ -114,8 +114,13 @@ private:
         {
             // TODO:调度
             _continuation->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
-            KERNEL_NS::PostAsyncTask([this](){
-                _continuation->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
+            auto handleId = _continuation->GetHandleId();
+            KERNEL_NS::PostAsyncTask([handleId](){
+                auto handle = KERNEL_NS::TlsUtil::GetTlsCoDict()->GetHandle(handleId);
+                if(UNLIKELY(!handle))
+                    return;
+                
+                handle->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
             });
         }
     }

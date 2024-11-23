@@ -105,7 +105,7 @@ Int64 ClientUser::Send(KERNEL_NS::LibPacket *packet) const
         return -1;
     }
 
-    if(packet->GetPacketId() < 0)
+    if(packet->GetPacketId() == 0)
         packet->SetPacketId(NewPacketId());
 
     _userMgr->Send(_activedSessionId, packet);
@@ -352,7 +352,7 @@ void ClientUser::UpdateHeartbeatExpireTime()
 
 Int64 ClientUser::NewPacketId() const
 {
-    return ++_maxPacketId;
+    return --_maxPacketId;
 }
 
 KERNEL_NS::LibString ClientUser::ToString() const

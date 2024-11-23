@@ -38,26 +38,28 @@
     #include <protocols/protocols.h>
 #endif
 
-static const KERNEL_NS::LibString OpcodeToString(Int32 opcode)
-{
-    #if DISABLE_OPCODES
-        return "DISABLE OPCODES";
-
-    #else
-        auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
-        if(UNLIKELY(!opcodeInfo))
-        {
-            return "UNKNOWN OPCODE";
-        }
-
-        return opcodeInfo->_opcodeName;
-    #endif
-
-}
 
 SERVICE_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(IGlobalSys);
+
+
+const KERNEL_NS::LibString IGlobalSys::OpcodeToString(Int32 opcode)
+{
+#if DISABLE_OPCODES
+    return "DISABLE OPCODES";
+
+#else
+    auto opcodeInfo = Opcodes::GetOpcodeInfo(opcode);
+    if(UNLIKELY(!opcodeInfo))
+    {
+        return "UNKNOWN OPCODE";
+    }
+
+    return opcodeInfo->_opcodeName;
+#endif
+
+}
 
 IGlobalSys::IGlobalSys(UInt64 objTypeId)
 :ILogicSys(objTypeId)

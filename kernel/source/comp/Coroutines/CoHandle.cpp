@@ -58,8 +58,13 @@ void CoHandle::Schedule()
         // TODO: 注册
         SetState(KernelHandle::SCHEDULED);
 
-        PostAsyncTask([this](){
-            Run(KernelHandle::UNSCHEDULED);
+        auto handleId = GetHandleId();
+        PostAsyncTask([handleId](){
+            auto handle = KERNEL_NS::TlsUtil::GetTlsCoDict()->GetHandle(handleId);
+            if(UNLIKELY(!handle))
+                return;
+            
+            handle->Run(KernelHandle::UNSCHEDULED);
         });
     }
 }

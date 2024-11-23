@@ -89,7 +89,7 @@ struct CrystalMsgHeader
     UInt32 _len;            // 包长度
     UInt64 _protocolVersion;    // 协议版本号
     UInt32 _flags;          // 包特性位标记
-    UInt32 _opcodeId;       // 操作码
+    Int32 _opcodeId;       // 操作码
     Int64 _packetId;        // 最高位为0 
     UInt32 _keyLen;         // key的长度
 };

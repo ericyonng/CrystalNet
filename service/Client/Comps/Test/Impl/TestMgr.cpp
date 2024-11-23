@@ -437,15 +437,22 @@ KERNEL_NS::CoTask<> TestMgr::_TestRpc()
 
     auto &sessions = sessionMgr->GetSessions();
     auto session = sessions.begin()->second;
-    SERVICE_NS::TestRpcReq req;
-    req.set_content("hello rpc");
+    KERNEL_NS::SmartPtr<SERVICE_NS::TestRpcReq, KERNEL_NS::AutoDelMethods::Release> req = new SERVICE_NS::TestRpcReq();
+    req->set_content("hello rpc");
 
     // 协程参数
     KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
-    auto packet = co_await SendCo<true>(session->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestRpcReq, req, NewPacketId(session->GetSessionId())).SetDisableSuspend().GetParam(param);
-    auto res = packet->GetCoder<TestRpcRes>();
+    auto packet = co_await SendCo(session->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestRpcReq, req, -1 * NewPacketId(session->GetSessionId())).SetDisableSuspend().GetParam(param).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10));
 
-    g_Log->Info(LOGFMT_OBJ_TAG("test rpc res:%s"), res->ToJsonString().c_str());
+    if(param->_errCode == Status::Success)
+    {
+        auto res = packet->GetCoder<TestRpcRes>();
+        g_Log->Info(LOGFMT_OBJ_TAG("test rpc res:%s, co param err:%d")
+                    , res->ToJsonString().c_str(), param->_errCode);
+        co_return;
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG(" co param err:%d"), param->_errCode);
 }
 
 Int32 TestMgr::_ReadTestConfigs()

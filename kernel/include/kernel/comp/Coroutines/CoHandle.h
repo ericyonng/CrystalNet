@@ -40,9 +40,11 @@
 #include <map>
 #include <coroutine>
 
-KERNEL_BEGIN
+#include "kernel/comp/SmartPtr.h"
+#include <kernel/comp/Coroutines/CoTaskParam.h>
 
-using HandleId = UInt64;
+KERNEL_BEGIN
+    using HandleId = UInt64;
 
 struct KERNEL_EXPORT KernelHandle
 {
@@ -60,6 +62,7 @@ struct KERNEL_EXPORT KernelHandle
     virtual void Run(KernelHandle::State changeState) = 0;
     virtual void ForceAwake() = 0;
     virtual void ForceDestroyCo() = 0;
+    virtual bool IsDone() const = 0;
 
     void SetState(State state) { _state = state; }
 
@@ -109,6 +112,17 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
     virtual void DumpBacktrace(Int32 depth = 0) const;
     virtual void DumpBacktrace(Int32 depth, KERNEL_NS::LibString &content) const;
     virtual void DumpBacktraceFinish(const KERNEL_NS::LibString &content) const;
+    virtual SmartPtr<CoTaskParam, AutoDelMethods::Release> &GetParam() = 0;
+    virtual const SmartPtr<CoTaskParam, AutoDelMethods::Release> &GetParam() const = 0;
+    virtual void PopChild() {}
+    virtual void SetErrCode(Int32 errorCode)
+    {
+        GetParam()->_errCode = errorCode;
+    }
+    virtual Int32 GetErrCode() const
+    {
+        return GetParam()->_errCode;
+    }
 
     void Schedule();
 
@@ -116,7 +130,8 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
 
     virtual void DestroyHandle() {}
 
-    virtual CoHandle *GetContinuation() { return NULL; }
+    virtual CoHandle *GetParent() { return NULL; }
+    virtual CoHandle *GetChild() { return NULL; }
 
     virtual void ThrowErrorIfExists() {}
 
