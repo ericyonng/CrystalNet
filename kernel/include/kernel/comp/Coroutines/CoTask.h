@@ -140,7 +140,7 @@ public:
             if(selfParam->_endTime)
             {
                 auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
-                timer->SetTimeOutHandler([callerId, selfCoHandleId](KERNEL_NS::LibTimer *t) mutable 
+                timer->SetTimeOutHandler([selfCoHandleId](KERNEL_NS::LibTimer *t) mutable 
                 {
                     t->Cancel();
 

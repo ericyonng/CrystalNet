@@ -565,7 +565,7 @@ void Poller::SafeEventLoop()
                 catch(...)
                 {
                     if(LIKELY(g_Log->IsEnable(LogLevel::Error)))
-                       g_Log->Error(LOGFMT_OBJ_TAG("Poller Dirty Purge error:%s, poller:%s"), ToString().c_str());
+                       g_Log->Error(LOGFMT_OBJ_TAG("Poller Dirty Purge unknown error, poller:%s"), ToString().c_str());
                 }
             }
 
