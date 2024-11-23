@@ -132,7 +132,6 @@ public:
             _selfCoro.promise()._parent = &caller.promise();
             caller.promise()._child = &_selfCoro.promise();
 
-            auto callerId = caller.promise().GetHandleId();
             auto selfCoHandleId = _selfCoro.promise().GetHandleId();
 
             // 超时唤醒并销毁协程
