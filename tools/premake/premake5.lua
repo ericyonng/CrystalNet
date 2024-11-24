@@ -127,7 +127,7 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "/3rd/uuid/include/",
 		ROOT_DIR .. "/3rd/json/include/",
 		ROOT_DIR .. "/3rd/curl/include/",
-		ROOT_DIR .. "/3rd/idn2/include/",
+		ROOT_DIR .. "3rd/lua/include/",
     }
 
 	libdirs { 
@@ -138,6 +138,8 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
 		ROOT_DIR .. "3rd/uuid/libs",
 		ROOT_DIR .. "3rd/curl/lib/$(Configuration)/",
+		ROOT_DIR .. "3rd/curl/lib/$(Configuration)/",
+		ROOT_DIR .. "3rd/lua/",
 	}
 
     -- 使用curl静态库
@@ -168,6 +170,7 @@ function include_libfs(do_post_build, add_protobuflib)
         links {
             "CrystalKernel_debug:static",
             "uuid_debug:static",
+            "lua:static",
         }
     filter {}
     filter { "system:not windows", "configurations:release*" }
@@ -183,7 +186,8 @@ function include_libfs(do_post_build, add_protobuflib)
         }
         links {
             -- "ws2_32",
-            "libCrystalKernel_debug"
+            "libCrystalKernel_debug",
+            "lua5.4.7-static"
         }
     filter {}
     filter { "system:windows", "configurations:release*" }
@@ -191,7 +195,8 @@ function include_libfs(do_post_build, add_protobuflib)
         }
         links {
             -- "ws2_32",
-            "libCrystalKernel"
+            "libCrystalKernel",
+            "lua5.4.7-static"
         }
     filter {}
 
@@ -392,6 +397,7 @@ project "CrystalKernel"
 		ROOT_DIR .. "/3rd/json/include/",
 		ROOT_DIR .. "/3rd/curl/include/",
 		ROOT_DIR .. "/3rd/idn2/include/",
+		ROOT_DIR .. "3rd/lua/include/",
      }
 	 
     -- files
@@ -412,6 +418,7 @@ project "CrystalKernel"
 		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
         ROOT_DIR .. "3rd/",
 		ROOT_DIR .. "3rd/curl/lib/$(Configuration)/",
+		ROOT_DIR .. "3rd/lua/",
     }
 
     -- openssl
@@ -430,6 +437,7 @@ project "CrystalKernel"
             "miniz:static",
             "idn2:static",
             "curl:static",
+            "lua:static",
         }
     filter {}
     filter { "system:linux", "configurations:release*"}
@@ -447,6 +455,7 @@ project "CrystalKernel"
             "miniz:static",
             "idn2:static",
             "curl:static",
+            "lua:static",
         }
     filter {}
 	
@@ -482,7 +491,8 @@ project "CrystalKernel"
             "libssl",
             "shlwapi",
             "Iphlpapi",
-            "libcurl"
+            "libcurl",
+            "lua5.4.7-static"
         }
 
     filter { "system:macosx" }

@@ -102,6 +102,8 @@
 #include <testsuit/testinst/TestConceptModules/TestConceptModules.h>
 #include <testsuit/testinst/TestBigNum/TestBigNum.h>
 
+#include "testinst/TestLua/TestLua.h"
+
 // void *operator new(size_t bytes)
 // {
 //     g_TotalBytes.fetch_add(bytes);
@@ -286,12 +288,13 @@ void TestInst::Run(int argc, char const *argv[])
     // TestOrm::Run();
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
-    TestCoroutine::Run();
+    // TestCoroutine::Run();
     // TestCurl::Run(argc, argv);
     // TestModule::Run();
     // TestConcepts::Run();
     // TestConceptModules::Run();
     // TestBigNum::Run();
+    TestLua::Run();
 
     // write a large file
     // do
