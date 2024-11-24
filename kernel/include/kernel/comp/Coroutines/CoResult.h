@@ -94,12 +94,19 @@ struct CoResult
         return std::exception_ptr();
     }
 
-    virtual void OnGetResult() {}
+    virtual KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> OnGetResult() { return {}; }
 
     // 外部需要考虑异常的情况
     constexpr T GetResult() & 
     {
-        OnGetResult();
+        auto param = OnGetResult();
+
+        // 有错误, 设置默认值, 不然得抛异常了
+        if(param->_errCode != Status::Success)
+        {
+            if(!HasValue())
+                SetValue(std::forward<T>({}));
+        }
         
         // 如果有异常, 则抛异常
         if (auto exception = std::get_if<std::exception_ptr>(&_result)) 
@@ -119,8 +126,15 @@ struct CoResult
     // 外部需要考虑异常的情况
     constexpr T GetResult() && 
     {
-        OnGetResult();
+        auto param = OnGetResult();
 
+        // 有错误, 设置默认值, 不然得抛异常了
+        if(param->_errCode != Status::Success)
+        {
+            if(!HasValue())
+                SetValue(std::forward<T>({}));
+        }
+        
         // 有异常
         if (auto exception = std::get_if<std::exception_ptr>(&_result)) 
         {
@@ -160,11 +174,17 @@ struct KERNEL_EXPORT CoResult<void>
         _result.emplace(nullptr);
     }
 
-    virtual void OnGetResult() {}
+    virtual KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> OnGetResult() { return {};}
 
     void GetResult() 
     {
-        OnGetResult();
+        auto param = OnGetResult();
+
+        // 有错误, 设置默认值, 不然得抛异常了
+        if(param->_errCode != Status::Success)
+        {
+            return;
+        }
 
         // 有异常则抛异常
         if (_result.has_value() && *_result != nullptr)

@@ -85,6 +85,56 @@ KERNEL_NS::CoTask<> test_hello_world2()
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent: %s"), content.c_str());
 }
 
+KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent3() 
+{
+    co_await KERNEL_NS::Waiting().SetDisableSuspend(true);
+    auto content = co_await GetContent().SetDisableSuspend(true);
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "TestCursionGetContent3: %s"), content.c_str());
+
+    co_return content;
+}
+
+KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent2() 
+{
+    KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
+    auto content = co_await TestCursionGetContent3().SetDisableSuspend(true).GetParam(param);
+
+    if(param->_errCode != Status::Success)
+    {
+        if(param->_handle)
+        {
+            param->_handle->DestroyHandle(param->_errCode);
+        }
+    }
+    
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "TestCursionGetContent2: %s"), content.c_str());
+
+    co_return content;
+}
+
+KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent() 
+{
+    KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
+    auto content = co_await TestCursionGetContent2().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10)).GetParam(param);
+
+    if(param->_errCode == Status::Success)
+    {
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "TestCursionGetContent: %s"), content.c_str());
+        co_return content;
+    }
+
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "TestCursionGetContent fail"));
+
+    co_return "";
+}
+
+KERNEL_NS::CoTask<> TestCursionTask()
+{
+    co_await TestCursionGetContent().SetDisableSuspend(true);
+}
+
 void TestCoroutine::Run()
 {
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
@@ -100,11 +150,12 @@ void TestCoroutine::Run()
     // 调用 hello_world 的时候, 会返回一个协程, 并抛给调度器去继续执行
     KERNEL_NS::PostCaller([]() -> KERNEL_NS::CoTask<> 
     {
+        co_await TestCursionTask().SetDisableSuspend(true);
         // co_await test_hello_world2().SetDisableSuspend(true);
 
-        KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
-        co_await KERNEL_NS::Waiting().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10)).GetParam(params);
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestCoroutine, "co time out errCode:%d"), params->_params->_errCode);
+        // KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
+        // co_await KERNEL_NS::Waiting().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10)).GetParam(params);
+        // g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestCoroutine, "co time out errCode:%d"), params->_params->_errCode);
     });
 
     poller->SafeEventLoop();

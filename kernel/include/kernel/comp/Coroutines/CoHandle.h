@@ -61,7 +61,8 @@ struct KERNEL_EXPORT KernelHandle
     virtual void GetBacktrace(KERNEL_NS::LibString &content, Int32 depth = 0) const = 0;
     virtual void Run(KernelHandle::State changeState) = 0;
     virtual void ForceAwake() = 0;
-    virtual void ForceDestroyCo() = 0;
+    virtual void DestroyHandle(Int32 errCode) {}
+
     virtual bool IsDone() const = 0;
 
     void SetState(State state) { _state = state; }
@@ -128,7 +129,6 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
 
     void Cancel();
 
-    virtual void DestroyHandle() {}
 
     virtual CoHandle *GetParent() { return NULL; }
     virtual CoHandle *GetChild() { return NULL; }

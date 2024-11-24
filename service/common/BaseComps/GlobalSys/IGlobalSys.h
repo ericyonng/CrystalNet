@@ -147,7 +147,7 @@ public:
 
             // 销毁waiting协程
             if(pa->_handle)
-                pa->_handle->ForceDestroyCo();
+                pa->_handle->DestroyHandle(pa->_errCode);
         }
         
         // 3.将消息回调中的Packet引用设置成空

@@ -238,6 +238,9 @@ public:
 
         ~promise_type()
         {
+            if(_parent)
+                _parent->PopChild();
+            
             Cancel();
 
             if(LIKELY(_params))
@@ -334,23 +337,35 @@ public:
         virtual CoHandle *GetParent() override { return _parent; }
         virtual CoHandle *GetChild() override { return _child; }
 
-        virtual void DestroyHandle() override
+        virtual void DestroyHandle(Int32 errCode) override
         {
+            // 先从父级弹出
+            if(_parent)
+                _parent->PopChild();
+            _parent = NULL;
+            
+            if(_params->_errCode == Status::Success)
+                _params->_errCode = errCode;
+            
             // 有子协程, 子协程也需要释放
             if(_child)
             {
-                _child->DestroyHandle();
+                _child->DestroyHandle(errCode);
                 PopChild();
             }
             
             Cancel();
-            coro_handle::from_promise(*this).destroy();
+            auto handle = coro_handle::from_promise(*this);
+            if(!handle.done())
+                handle.destroy();
         }
 
-        virtual void OnGetResult() override
+        virtual SmartPtr<CoTaskParam, AutoDelMethods::Release> OnGetResult() override
         {
             if(_params->_timeout)
                 _params->_timeout->Cancel();
+
+            return _params;
         }
         virtual void PopChild() override
         {
@@ -362,16 +377,20 @@ public:
             // 有异常重新抛出
             auto &&exception = CoResult<R>::GetException();
 
-            // 先销毁协程
+            // 父级
             auto coPre = this->_parent;
-            coro_handle::from_promise(*this).destroy();
+            coPre->PopChild();
+
+            // 销毁自己
+            DestroyHandle(Status::CoTaskException);
+            
             do
             {
                 if(!coPre)
                     break;
                 
                 auto parent = coPre->GetParent();
-                coPre->DestroyHandle();
+                coPre->DestroyHandle(Status::CoTaskException);
                 coPre = parent;
                 /* code */
             } while (coPre);
@@ -418,25 +437,6 @@ public:
         {
             auto handle = coro_handle::from_promise(*const_cast<promise_type *>(this));
             return handle.done();
-        }
-
-        virtual void ForceDestroyCo() final
-        {
-            // 与parent断开
-            if(_parent)
-                _parent->PopChild();
-            _parent = NULL;
-            
-            // 有子协程, 子协程也要释放
-            if(_child)
-            {
-                _child->ForceDestroyCo();
-                PopChild();
-            }
-            
-            auto handle = coro_handle::from_promise(*this);
-            if(!handle.done())
-                handle.destroy();
         }
 
         const std::source_location& _GetFrameInfo() const final { return _frameInfo; }
