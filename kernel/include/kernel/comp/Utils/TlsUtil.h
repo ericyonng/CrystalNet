@@ -42,6 +42,7 @@
 #include <kernel/comp/Tls/TlsMemoryAlloctor.h>
 #include <kernel/comp/memory/MemoryDefs.h>
 #include <kernel/comp/Tls/TlsCoDict.h>
+#include <kernel/comp/Tls/TlsSmartPtr.h>
 
 KERNEL_BEGIN
 
@@ -89,6 +90,9 @@ public:
 
     // 当前线程所有协程管理
     static TlsCoDict *GetTlsCoDict();
+
+    template<typename ObjType, AutoDelMethods::Way delMethod = AutoDelMethods::Delete>
+    static TlsSmartPtr<ObjType, delMethod> *GetOrCreateSmartPtr();
 
 private:
     static TlsMemoryAlloctor *GetTlsMemoryAlloctorHost();
@@ -171,6 +175,17 @@ ALWAYS_INLINE TlsCoDict *TlsUtil::GetTlsCoDict()
         tlsCoDict = TlsUtil::GetTlsStack()->New<TlsCoDict>();
 
     return tlsCoDict;
+}
+
+template<typename ObjType, AutoDelMethods::Way delMethod>
+ALWAYS_INLINE TlsSmartPtr<ObjType, delMethod> *TlsUtil::GetOrCreateSmartPtr()
+{
+    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsSmartPtr<ObjType, delMethod> *s_ptr = NULL;
+
+    if(UNLIKELY(!s_ptr))
+        s_ptr = TlsUtil::GetTlsStack()->New<TlsSmartPtr<ObjType, delMethod>>();
+
+    return s_ptr;
 }
 
 ALWAYS_INLINE TlsMemoryAlloctor *TlsUtil::GetTlsMemoryAlloctorHost()

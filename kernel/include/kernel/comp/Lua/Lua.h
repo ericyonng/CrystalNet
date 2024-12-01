@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,27 +21,16 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-01-10 23:42:14
+ * Date: 2024-11-26 02:11:00
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_LUA_LUA_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_LUA_LUA_H__
 
 #pragma once
 
-#include <kernel/comp/Tls/Defs.h>
-#include <kernel/comp/Tls/ITlsObj.h>
-#include <kernel/comp/Tls/TlsDefaultObj.h>
-#include <kernel/comp/Tls/TlsStack.h>
-#include <kernel/comp/Tls/TlsObjectPool.h>
-#include <kernel/comp/Tls/TlsMemoryAlloctor.h>
-#include <kernel/comp/Tls/TlsMemoryPool.h>
-#include <kernel/comp/Tls/TlsPtr.h>
-#include <kernel/comp/Tls/TlsCompsOwner.h>
-#include <kernel/comp/Tls/TlsTypeSystem.h>
-#include <kernel/comp/Tls/TlsCoDict.h>
-#include <kernel/comp/Tls/TlsSmartPtr.h>
+#include <kernel/comp/Lua/LuaType.h>
 
 #endif

@@ -21,27 +21,59 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-01-10 23:42:14
+ * Date: 2024-11-30 21:42:40
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_SMART_PTR_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_TLS_TLS_SMART_PTR_H__
 
 #pragma once
 
-#include <kernel/comp/Tls/Defs.h>
 #include <kernel/comp/Tls/ITlsObj.h>
-#include <kernel/comp/Tls/TlsDefaultObj.h>
-#include <kernel/comp/Tls/TlsStack.h>
-#include <kernel/comp/Tls/TlsObjectPool.h>
-#include <kernel/comp/Tls/TlsMemoryAlloctor.h>
-#include <kernel/comp/Tls/TlsMemoryPool.h>
-#include <kernel/comp/Tls/TlsPtr.h>
-#include <kernel/comp/Tls/TlsCompsOwner.h>
-#include <kernel/comp/Tls/TlsTypeSystem.h>
-#include <kernel/comp/Tls/TlsCoDict.h>
-#include <kernel/comp/Tls/TlsSmartPtr.h>
+#include <kernel/comp/Tls/Defs.h>
+#include <kernel/comp/SmartPtr.h>
+#include <kernel/comp/Utils/RttiUtil.h>
+
+KERNEL_BEGIN
+
+template<typename ObjType, AutoDelMethods::Way delMethod = AutoDelMethods::Delete>
+class TlsSmartPtr : public ITlsObj
+{
+public:
+    TlsSmartPtr()
+    :_objTypeName(KERNEL_NS::RttiUtil::GetByType<ObjType>())
+    {
+
+    }
+    ~TlsSmartPtr()
+    {
+        OnDestroy();
+    }
+
+    virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
+
+    virtual void OnDestroy() override 
+    {
+        _ptr.Release();
+    }
+
+    KERNEL_NS::SmartPtr<ObjType, delMethod> &GetPtr()
+    {
+        return _ptr;
+    }
+
+    const KERNEL_NS::SmartPtr<ObjType, delMethod> &GetPtr() const
+    {
+        return _ptr;
+    }
+    
+private:
+    const KERNEL_NS::LibString _objTypeName;
+    KERNEL_NS::SmartPtr<ObjType, delMethod> _ptr;
+};
+
+KERNEL_END
 
 #endif

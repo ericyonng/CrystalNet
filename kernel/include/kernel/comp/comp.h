@@ -86,5 +86,6 @@
 #include <kernel/comp/Service/Service.h>
 #include <kernel/comp/App/app.h>
 #include <kernel/comp/TlsMemoryCleanerComp.h>
+#include <kernel/comp/Lua/Lua.h>
 
 #endif
