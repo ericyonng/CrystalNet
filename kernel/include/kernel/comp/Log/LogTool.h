@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,19 +21,32 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2021-02-09 22:56:34
+ * Date: 2024-12-04 23:57:51
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_LOG_LOG_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_LOG_LOG_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_LOG_LOG_TOOL_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_LOG_LOG_TOOL_H__
 
 #pragma once
 
-#include <kernel/comp/Log/ILogFactory.h>
-#include <kernel/comp/Log/ILog.h>
-#include <kernel/comp/Log/LibLog.h>
-#include <kernel/comp/Log/LogTool.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/macro.h>
+#include <kernel/comp/Log/LogMacro.h>
+
+KERNEL_BEGIN
+
+class KERNEL_EXPORT LogTool
+{
+public:
+    static bool IsEnable(Int32 level);
+    static void Debug(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(5, 6);
+    static void Info(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(5, 6);
+    static void Warn(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(5, 6);
+    static void Error(const Byte8 *tag, const char *fileName, const char *funcName, Int32 codeLine, const char *fmt, ...) LIB_KERNEL_FORMAT_CHECK(5, 6);
+};
+
+KERNEL_END
 
 #endif

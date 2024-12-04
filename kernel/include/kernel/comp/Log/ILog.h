@@ -51,52 +51,14 @@
 #include <kernel/comp/Delegate/LibDelegate.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/Utils/SystemUtil.h>
-
-// 函数与行号便利宏
-#undef _FUNC_LINE_ARGS_
-#define _FUNC_LINE_ARGS_ __FILE__, __FUNCTION__, __LINE__
-
-// // 获取tag
-
-// 类实例获取tag
-#undef LOG_OBJ_TAG
-#define LOG_OBJ_TAG() KERNEL_NS::RttiUtil::GetByType<decltype(*this)>().c_str()
-// 非类实例获取tag
-#undef LOG_NON_OBJ_TAG
-#define LOG_NON_OBJ_TAG(classType) KERNEL_NS::RttiUtil::GetByType<classType>().c_str()
-
-
-// 带修饰的log宏
-#undef LOGFMT_DETAIL
-#define LOGFMT_DETAIL(tag, x) tag, _FUNC_LINE_ARGS_, x
-
-// NO FMT
-#undef LOGFMT_DETAIL_NO_FMT
-#define LOGFMT_DETAIL_NO_FMT(tag) tag, _FUNC_LINE_ARGS_
-
-
-// // 带tag宏,除了Net接口特殊外都可用
-
-// 类实例tag
-#undef LOGFMT_OBJ_TAG
-#define LOGFMT_OBJ_TAG(x) LOGFMT_DETAIL(LOG_OBJ_TAG(), x)
-
-// no fmt
-#undef LOGFMT_OBJ_TAG_NO_FMT
-#define LOGFMT_OBJ_TAG_NO_FMT() LOGFMT_DETAIL_NO_FMT(LOG_OBJ_TAG())
-
-// 非类实例tag
-#undef LOGFMT_NON_OBJ_TAG
-#define LOGFMT_NON_OBJ_TAG(classType, x) LOGFMT_DETAIL(LOG_NON_OBJ_TAG(classType), x)
-
-// no fmt
-#undef LOGFMT_NON_OBJ_TAG_NO_FMT
-#define LOGFMT_NON_OBJ_TAG_NO_FMT(classType) LOGFMT_DETAIL_NO_FMT(LOG_NON_OBJ_TAG(classType))
+#include <kernel/comp/Log/LogMacro.h>
 
 KERNEL_BEGIN
 
 class KERNEL_EXPORT ILog
 {
+    friend class LogTool;
+    
 public:
     ILog(){}
     virtual ~ILog(){}
