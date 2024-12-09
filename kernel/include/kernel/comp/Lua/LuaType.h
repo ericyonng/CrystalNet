@@ -52,7 +52,9 @@
 
 KERNEL_BEGIN
 
-#define INHERIT_TABLE "inherit_table"
+#ifndef INHERIT_TABLE
+ #define INHERIT_TABLE "inherit_table"
+#endif
 
 struct KERNEL_EXPORT CppVoidT {};
 
