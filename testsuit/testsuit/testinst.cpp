@@ -101,6 +101,7 @@
 #include <testsuit/testinst/TestConcepts/TestConcepts.h>
 #include <testsuit/testinst/TestConceptModules/TestConceptModules.h>
 #include <testsuit/testinst/TestBigNum/TestBigNum.h>
+#include <testsuit/testinst/TestJson.h>
 
 #include "testinst/TestLua/TestLua.h"
 
@@ -294,7 +295,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestConcepts::Run();
     // TestConceptModules::Run();
     // TestBigNum::Run();
-    TestLua::Run();
+    // TestLua::Run();
+    TestJson::Run();
 
     // write a large file
     // do
