@@ -40,8 +40,16 @@ IS_START=0
 
 echo "wait ${GREP_FLAG} start"
 
-# 等待5秒
-sleep 5
+if [ -n "$3" ]
+then
+  echo "wait ($3)seconds ${GREP_FLAG} start"
+  sleep $3
+else
+  echo "wait (5)seconds ${GREP_FLAG} start"
+
+  # 默认等待5秒
+  sleep 5
+fi
 
 while [ $IS_START -eq 0 ]
 do
