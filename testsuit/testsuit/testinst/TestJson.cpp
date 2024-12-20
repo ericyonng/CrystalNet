@@ -44,6 +44,8 @@ void TestJson::Run()
     // 序列化
     std::string &&dumpData = jsonObject.dump();
 
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestJson, "dumpData:%s"), dumpData.c_str());
+
     // 设置数值
     jsonObject["key1"] = 500;
     // 设置字符串
