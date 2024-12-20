@@ -28,6 +28,10 @@ VER="$1"
 
 		# 拷贝mysqlclient.so到运行目录
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
+		rm -f ${OUTPUT_DIR}/libmysqlclient.so.21
+		ln -sv ${OUTPUT_DIR}/libmysqlclient.so ${OUTPUT_DIR}/libmysqlclient.so.21
+
+		sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/miniz/libs/debug/libminiz.a ${OUTPUT_DIR}/
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/protobuf/lib/libprotobufd.a ${OUTPUT_DIR}/
 		# sudo cp -rf  ${SCRIPT_PATH}/3rd/protobuf/lib/libprotobuf-lited.a ${OUTPUT_DIR}/
@@ -49,6 +53,9 @@ VER="$1"
 
 		# 拷贝mysqlclient.so到运行目录
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
+		rm -f ${OUTPUT_DIR}/libmysqlclient.so.21
+		ln -sv ${OUTPUT_DIR}/libmysqlclient.so ${OUTPUT_DIR}/libmysqlclient.so.21
+
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/miniz/libs/release/libminiz.a ${OUTPUT_DIR}/
 		sudo cp -rf  ${SCRIPT_PATH}/3rd/protobuf/lib/libprotobuf.a ${OUTPUT_DIR}/
 		# sudo cp -rf  ${SCRIPT_PATH}/3rd/protobuf/lib/libprotobuf-lite.a ${OUTPUT_DIR}/
