@@ -5,9 +5,9 @@
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 RUN_PATH=${SCRIPT_PATH}/output/gmake
 
-# 设置环境变量以便启动时能够识别当前目录下的so
-export PATH="${RUN_PATH}:${PATH}"
-echo "PATH:${PATH}"
+# 设置环境变量LD_LIBRARY_PATH以便启动时能够识别当前目录下的so
+export LD_LIBRARY_PATH=${RUN_PATH}:${LD_LIBRARY_PATH}
+echo "LD_LIBRARY_PATH:${LD_LIBRARY_PATH}"
 
 if [ $# -lt 1 ]
 then
