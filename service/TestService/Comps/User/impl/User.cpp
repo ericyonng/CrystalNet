@@ -617,7 +617,16 @@ void User::OnUserObjCreated()
     }
 
     const auto &lastPassDayTime = KERNEL_NS::LibTime::FromMilliSeconds(_userBaseInfo->lastpassdaytime());
-    if(nowTime.GetLocalDay() != lastPassDayTime.GetLocalDay())
+    auto localYear = nowTime.GetLocalYear();
+    auto localMonth = nowTime.GetLocalMonth();
+    auto localDay = nowTime.GetLocalDay();
+    auto lastLocalYear = lastPassDayTime.GetLocalYear();
+    auto lastLocalMonth = lastPassDayTime.GetLocalMonth();
+    auto lastLocalDay = lastPassDayTime.GetLocalDay();
+
+    if((lastLocalYear != localYear) || 
+    (lastLocalMonth != localMonth) || 
+    (lastLocalDay != localDay))
     {
         _userBaseInfo->set_lastpassdaytime(nowTime.GetMilliTimestamp());
         MaskDirty();
@@ -631,11 +640,12 @@ void User::OnUserObjCreated()
             _DoPassWeek(nowTime);
 
         // 跨月
-        if(nowTime.GetLocalMonth() != lastPassDayTime.GetLocalMonth())
+        if((lastLocalYear != localYear) || 
+            (lastLocalMonth != localMonth))
             _DoPassMonth(nowTime);
 
         // 跨年
-        if(nowTime.GetLocalYear() != lastPassDayTime.GetLocalYear())
+        if(lastLocalYear != localYear)
             _DoPassYear(nowTime);
 
         _DoPassEnd(nowTime);

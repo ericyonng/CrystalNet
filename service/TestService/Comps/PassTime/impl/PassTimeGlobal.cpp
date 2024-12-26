@@ -133,7 +133,15 @@ void PassTimeGlobal::_DoCheckPassTime(const KERNEL_NS::LibTime &nowTime)
     auto &allLogicComps = GetService()->GetCompsByType(ServiceCompType::LOGIC_SYS);
     
     // 跨天
-    if(nowTime.GetLocalDay() != lastPassDayTime.GetLocalDay())
+    auto localYear = nowTime.GetLocalYear();
+    auto localMonth = nowTime.GetLocalMonth();
+    auto localDay = nowTime.GetLocalDay();
+    auto lastLocalYear = lastPassDayTime.GetLocalYear();
+    auto lastLocalMonth = lastPassDayTime.GetLocalMonth();
+    auto lastLocalDay = lastPassDayTime.GetLocalDay();
+    if((lastLocalYear != localYear) || 
+    (lastLocalMonth != localMonth) || 
+    (lastLocalDay != localDay))
     {
         for(auto &comp : allLogicComps)
             comp->CastTo<ILogicSys>()->OnPassDay(nowTime);
@@ -147,14 +155,15 @@ void PassTimeGlobal::_DoCheckPassTime(const KERNEL_NS::LibTime &nowTime)
         }
 
         // 跨月
-        if(nowTime.GetLocalMonth() != lastPassDayTime.GetLocalMonth())
+        if((lastLocalYear != localYear) || 
+            (lastLocalMonth != localMonth))
         {
             for(auto &comp : allLogicComps)
                 comp->CastTo<ILogicSys>()->OnPassMonth(nowTime);
         }
 
         // 跨年
-        if(nowTime.GetLocalYear() != lastPassDayTime.GetLocalYear())
+        if(lastLocalYear != localYear)
         {
             for(auto &comp : allLogicComps)
                 comp->CastTo<ILogicSys>()->OnPassYear(nowTime);
