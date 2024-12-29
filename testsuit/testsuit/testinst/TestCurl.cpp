@@ -581,7 +581,7 @@ static void DoCurlMultiTask(UInt64 threadId)
     s_sendTimeMs.exchange(sendCostSingle);
     s_totalCostTimeMs.exchange(costSingle);
     if(g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
-        g_Log->Debug(LOGFMT_NON_OBJ_TAG(TestCurl, "working threadnum:%d, batch num:%d, total cost:%lld(ms), send cost:%lld(ms), single total cost:%lld(ms), single send cost:%lld(ms)")
+        g_Log->Debug(LOGFMT_NON_OBJ_TAG(TestCurl, "working threadnum:%lld, batch num:%d, total cost:%lld(ms), send cost:%lld(ms), single total cost:%lld(ms), single send cost:%lld(ms)")
         , s_workingNum.load(), batchLimit, totalCost.GetTotalMilliSeconds(), sendCost.GetTotalMilliSeconds(), costSingle, sendCostSingle);
 }
 
@@ -716,8 +716,8 @@ void TestCurl::Run(int argc, char const *argv[])
     if(disableWait > 0)
         s_disableWait = disableWait;
 
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCurl, "thread num:%d, gen micro seconds:%lld, batchLimit:%d, batch interval:%lld(microseconds), s_disableWait:%d,")
-    , s_threadNum, s_genCurlInterval.GetTotalMicroSeconds(), batchLimit, s_batchInterval.GetTotalMicroSeconds(), s_disableWait);
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCurl, "thread num:%d, gen micro seconds:%lld, batchLimit:%d, batch interval:%lld(microseconds), s_disableWait:%d, CurlTask:%p, CurlMultiTask:%p")
+    , s_threadNum, s_genCurlInterval.GetTotalMicroSeconds(), batchLimit, s_batchInterval.GetTotalMicroSeconds(), s_disableWait, &CurlTask, &CurlMultiTask);
 
     // 构造数据
     nlohmann::json jsonObject;

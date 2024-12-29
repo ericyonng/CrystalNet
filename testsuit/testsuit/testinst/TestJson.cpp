@@ -60,23 +60,33 @@ void TestJson::Run()
     // 获取值
     std::string &&key2Value = jsonObject["key2"].get<std::string>();
     Int32 key1Value = jsonObject["key1"].get<Int32>();
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestJson, "key1Value:%d"), key1Value);
 
     // 设置一个str，用Int32拿
     jsonObject["strKey"] = "test set str get int";
     jsonObject["strKey2"] = 1000;
     auto &&tempJson = jsonObject["strKey"];
     if(tempJson.is_number())
+    {
         Int32 num = jsonObject["strKey"].get<Int32>();
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestJson, "NUM:%d"), num);
+    }
     auto &&numJson = jsonObject["strKey2"];
     if(numJson.is_number())
+    {
         Int32 num = numJson.get<Int32>();
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestJson, "NUM:%d"), num);
+    }
 
     // 遍历数组
     auto &&arr = jsonObject["key3"];
     assert(arr.is_array());
     Int32 count = static_cast<Int32>(arr.size());
     for(Int32 idx = 0; idx < count; ++idx)
+    {
         auto elem = arr[idx].get<Int32>();
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestJson, "elem:%d"), elem);
+    }
 
     // 获取对象
     auto &&key4Object = jsonObject["key4"];

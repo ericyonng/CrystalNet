@@ -32,6 +32,7 @@
 void TestBigNum::Run()
 {
     KERNEL_NS::BigNum bigNum = KERNEL_NS::BigNum::ZeroBigNum;
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestBigNum, "bigNum:%s"), bigNum.ToString().c_str());
     KERNEL_NS::BigNum bigNum2 = 555555LLU;
     KERNEL_NS::BigNum bigNum3 = KERNEL_NS::BigNum(555, 10000);
     
@@ -41,9 +42,12 @@ void TestBigNum::Run()
     
     // 位运算
     KERNEL_NS::BigNum big6 = bigNum5 & bigNum4;
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestBigNum, "big6:%s"), big6.ToString().c_str());
+
     KERNEL_NS::BigNum &&big7 = bigNum5 | bigNum4;
     KERNEL_NS::BigNum big8 = ~bigNum5;
     KERNEL_NS::BigNum big9 = bigNum5 ^ bigNum4;
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestBigNum, "big9:%s"), big9.ToString().c_str());
 
     bigNum4 += bigNum5;
     bigNum4 -= bigNum5;

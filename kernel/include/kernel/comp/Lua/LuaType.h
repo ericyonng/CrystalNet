@@ -1289,10 +1289,10 @@ struct LuaOp<std::set<T> >
     	lua_pushnil(ls);
     	int real_pos = pos;
 
-    	if (pos < 0)
+    	if(pos < 0)
     		real_pos = real_pos - 1;
-
-		while (lua_next(ls, real_pos) != 0)
+    	
+		while(lua_next(ls, real_pos) != 0)
 		{
 			T val = InitValueTraits<T>::Value();
 			if (LuaOp<T>::GetRetValue(ls, -1, val) < 0)
@@ -1311,13 +1311,13 @@ struct LuaOp<std::set<T> >
 
 		lua_pushnil(ls);
     	int real_pos = pos;
-    	if (pos < 0)
+    	if(pos < 0)
     		real_pos = real_pos - 1;
     	
-		while (lua_next(ls, real_pos) != 0)
+		while(lua_next(ls, real_pos) != 0)
 		{
 			T val = InitValueTraits<T>::Value();
-			if (LuaOp<T>::LuaToValue(ls, -1, val) < 0)
+			if(LuaOp<T>::LuaToValue(ls, -1, val) < 0)
 				luaL_argerror(ls, (pos>0) ? pos : -pos, "convert to vector failed");
 			
 			param.insert(val);
@@ -1351,15 +1351,15 @@ struct LuaOp<std::map<K, V> >
     	lua_pushnil(ls);
     	int real_pos = pos;
 
-    	if (pos < 0)
+    	if(pos < 0)
     		real_pos = real_pos - 1;
 
-		while (lua_next(ls, real_pos) != 0)
+    	while(lua_next(ls, real_pos) != 0)
 		{
 			K key = InitValueTraits<K>::Value();
 			V val = InitValueTraits<V>::Value();
 
-			if ((LuaOp<K>::GetRetValue(ls, -2, key) < 0) ||
+			if((LuaOp<K>::GetRetValue(ls, -2, key) < 0) ||
 				(LuaOp<V>::GetRetValue(ls, -1, val) < 0))
 				return -1;
 			
@@ -1377,15 +1377,15 @@ struct LuaOp<std::map<K, V> >
 
 		lua_pushnil(ls);
     	int real_pos = pos;
-    	if (pos < 0)
+    	if(pos < 0)
     		real_pos = real_pos - 1;
 
-    	while (lua_next(ls, real_pos) != 0)
+    	while(lua_next(ls, real_pos) != 0)
 		{
 			K key = InitValueTraits<K>::Value();
 			V val = InitValueTraits<V>::Value();
     		
-			if ((LuaOp<K>::LuaToValue(ls, -2, key) < 0) ||
+			if((LuaOp<K>::LuaToValue(ls, -2, key) < 0) ||
 				(LuaOp<V>::LuaToValue(ls, -1, val) < 0))
 				luaL_argerror(ls, pos>0 ? pos:-pos, "convert to vector failed");
     		
