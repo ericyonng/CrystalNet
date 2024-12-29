@@ -32,5 +32,7 @@
 #pragma once
 
 #include <kernel/comp/Lua/LuaType.h>
+#include <kernel/comp/Lua/LuaRegister.h>
+#include <kernel/comp/Lua/KernelLua.h>
 
 #endif

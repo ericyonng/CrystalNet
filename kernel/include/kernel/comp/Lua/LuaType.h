@@ -58,6 +58,12 @@ KERNEL_BEGIN
 
 struct KERNEL_EXPORT CppVoidT {};
 
+struct KERNEL_EXPORT LuaStringTool
+{
+	inline static const char* c_str(const std::string& s) { return s.c_str(); }
+	inline static const char* c_str(const char* s)   { return s; }
+};
+
 class KERNEL_EXPORT LuaException: public std::exception
 {
 public:
@@ -71,6 +77,11 @@ public:
     :_err(err)
 	{
 	}
+
+	explicit LuaException(const LibString & err)
+	:_err(err.GetRaw())
+    {
+    }
 
     ~LuaException() throw () override
     {
@@ -654,10 +665,10 @@ struct KERNEL_EXPORT LuaOp<Int64>
 
 template<> struct KERNEL_EXPORT LuaOp<UInt64>
 {
-    static void PushStack(lua_State* ls_, UInt64 arg)
+    static void PushStack(lua_State* ls, UInt64 arg)
     {
     	const auto &ss = KERNEL_NS::StringUtil::Num2Str(arg);
-		lua_pushlstring(ls_, ss.c_str(), ss.length());
+		lua_pushlstring(ls, ss.c_str(), ss.length());
     }
 
     static int GetRetValue(lua_State* ls, int pos, UInt64& param)
