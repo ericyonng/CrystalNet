@@ -1290,7 +1290,9 @@ struct LuaOp<std::set<T> >
     	int real_pos = pos;
 
     	if(pos < 0)
+    	{
     		real_pos = real_pos - 1;
+    	}
     	
 		while(lua_next(ls, real_pos) != 0)
 		{
@@ -1312,7 +1314,9 @@ struct LuaOp<std::set<T> >
 		lua_pushnil(ls);
     	int real_pos = pos;
     	if(pos < 0)
+    	{
     		real_pos = real_pos - 1;
+    	}
     	
 		while(lua_next(ls, real_pos) != 0)
 		{
@@ -1352,7 +1356,9 @@ struct LuaOp<std::map<K, V> >
     	int real_pos = pos;
 
     	if(pos < 0)
+    	{
     		real_pos = real_pos - 1;
+    	}
 
     	while(lua_next(ls, real_pos) != 0)
 		{
@@ -1378,7 +1384,9 @@ struct LuaOp<std::map<K, V> >
 		lua_pushnil(ls);
     	int real_pos = pos;
     	if(pos < 0)
+    	{
     		real_pos = real_pos - 1;
+    	}
 
     	while(lua_next(ls, real_pos) != 0)
 		{
