@@ -245,7 +245,7 @@ struct MetaTableRegisterImpl
 	static int GetPointer(lua_State* ls)
 	{
 		CLASS_TYPE** obj_ptr = UserDataToObjectPtrAddress(ls);
-		Int64 addr = static_cast<Int64>(*obj_ptr);
+		Int64 addr = (Int64)(reinterpret_cast<void *>(*obj_ptr));
 		LuaOp<Int64>::PushStack(ls, addr);
 		return 1;
 	}
@@ -307,7 +307,7 @@ public:
 	LuaRegister& DefClassFunc(FUNC_TYPE func, const std::string& func_name)
 	{
 		LuaFunction class_function = &LuaClassFunctionTraits<FUNC_TYPE>::LuaFunction;
-		typedef typename LuaClassFunctionTraits<FUNC_TYPE>::UserdataForFunctionInfo UserdataForFunction;
+		typedef typename LuaClassFunctionTraits<FUNC_TYPE>::UserDataForFunctionInfo UserdataForFunction;
 		void* user_data_ptr = lua_newuserdata(_ls, sizeof(UserdataForFunction));
 		new(user_data_ptr) UserdataForFunction(func);
 		lua_pushcclosure(_ls, class_function, 1);

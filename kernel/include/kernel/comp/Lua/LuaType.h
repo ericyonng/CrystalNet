@@ -1076,7 +1076,7 @@ struct LuaOp<T*>
         	lua_pop(ls, 2);
         }
     	
-        T* ret_ptr = (KERNEL_NS::KernelCastTo<UserDataForObject<T> *>(arg_data))->_obj;
+        T* ret_ptr = KERNEL_NS::KernelCastTo<UserDataForObject<T>>(arg_data)->_obj;
         if (NULL == ret_ptr)
         {
             return -1;
@@ -1121,7 +1121,7 @@ struct LuaOp<T*>
 			lua_pop(ls, 2);
 		}
 
-        T* ret_ptr = (KERNEL_NS::KernelCastTo<UserDataForObject<T> *>(arg_data))->_obj;
+        T* ret_ptr = (KERNEL_NS::KernelCastTo<UserDataForObject<T>>(arg_data)->_obj);
         if (NULL == ret_ptr)
         {
         	KERNEL_NS::LibString info;

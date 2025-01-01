@@ -15,6 +15,10 @@ SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 OUTPUT_DIR=${SCRIPT_PATH}/output/gmake/
 # sudo ln -sv $SCRIPT_PATH/Service/Cfgs ${OUTPUT_DIR}/Cfgs
 
+# lua脚本路径
+rm -f ${OUTPUT_DIR}/TestServiceLuaScript
+ln -sv ${OUTPUT_DIR}/TestServiceLuaScript ${SCRIPT_PATH}/service/TestService/TestServiceLuaScript
+
 if [ -n "$1" ]
 then
 VER="$1"

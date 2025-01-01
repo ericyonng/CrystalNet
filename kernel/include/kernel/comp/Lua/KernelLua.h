@@ -51,14 +51,19 @@ struct LuaVoidIgnore<void>
     typedef CppVoidT ValueType;
 };
 
-#define  LUA_RET_V typename LuaVoidIgnore<RET>::ValueType
+#ifndef LUA_RET_V
+ #define  LUA_RET_V typename LuaVoidIgnore<RET>::ValueType
+#endif
 
 class KERNEL_EXPORT KernelLua
 {
-    enum STACK_MIN_NUM_e
+    enum STACK_MIN_NUM_TYPE
     {
         STACK_MIN_NUM = 20
     };
+    
+    POOL_CREATE_OBJ_DEFAULT(KernelLua);
+    
 public:
     KernelLua(bool b = false)
     :_ls(NULL),
@@ -163,6 +168,10 @@ public:
     }
 
     template<typename T>
+    requires requires(T func, lua_State *ls)
+    {
+        func(ls);
+    }
     void  Reg(T a);
 
     void Call(const char* funcName) 
@@ -308,8 +317,12 @@ ALWAYS_INLINE int  KernelLua::SetGlobalVariable(const char* fieldName, const T& 
     lua_setglobal(_ls, fieldName);
     return 0;
 }
-
+// T 必须是: void func(lua_State *)
 template<typename T>
+requires requires(T func, lua_State *ls)
+{
+    func(ls);
+}
 ALWAYS_INLINE void  KernelLua::Reg(T a)
 {
     a(this->GetLuaState());

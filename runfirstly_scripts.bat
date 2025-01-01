@@ -31,6 +31,12 @@ xcopy /s /y %CUR_PATH%\3rd\openssl\staticlib\dlls\libcrypto-1_1-x64.dll %CUR_PAT
 ::脚本拷贝
 xcopy /s /y %CUR_PATH%\toolbox\scripts\* %CUR_PATH%\output\%VER%\
 
+:: lua脚本
+if not exist %CUR_PATH%output\%VER%\TestServiceLuaScript (
+    mklink /d %CUR_PATH%output\%VER%\TestServiceLuaScript %CUR_PATH%service\TestService\TestServiceLuaScript
+	
+)
+
 :: ------------------------------------ 结束杂项链接 -----------------------------------------
 echo Done!
 ping -n 1 -w 1618 11.11.11.11 > nul

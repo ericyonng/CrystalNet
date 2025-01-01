@@ -149,17 +149,24 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
     HMODULE hModule = NULL;
     HANDLE hProc = NULL;
 
+    Int32 err = Status::Success;
     do
     {
         if(UNLIKELY(!isCurrentProcess && !pid))
-            return Status::ParamError;
+        {
+            err = Status::ParamError;
+            break;
+        }
 
         // 若是当前进程
         Byte8  pathName[MAX_PATH] = {0};
         if(isCurrentProcess)
         {
             if(UNLIKELY(!GetModuleFileNameA(NULL, pathName, MAX_PATH)))
-                return Status::SystemUtil_GetModuleFileNameFailed;
+            {
+                err = Status::SystemUtil_GetModuleFileNameFailed;
+                break;
+            }
 
             processPath.AppendData(pathName, MAX_PATH);
             processPath.RemoveZeroTail();
@@ -168,18 +175,27 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
 
         hProc = OpenProcess(PROCESS_QUERY_INFORMATION, false, static_cast<DWORD>(pid));
         if(UNLIKELY(!hProc))
-            return Status::SystemUtil_OpenProcessQueryInfomationFailed;
+        {
+            err = Status::SystemUtil_OpenProcessQueryInfomationFailed;
+            break;
+        }
 
         hModule = LoadLibrary(TEXT("Kernel32.dll"));
         if(UNLIKELY(!hModule))
-            return Status::SystemUtil_LoadKernel32LibraryFailed;
+        {
+            err = Status::SystemUtil_LoadKernel32LibraryFailed;
+            break;
+        }
 
         // 获取QueryFullProcessImageNameA函数
         if(GetProcAddress(hModule, "QueryFullProcessImageNameA"))
         {
             DWORD dwProcPathLen = MAX_PATH / sizeof(Byte8);
             if(!QueryFullProcessImageNameA(hProc, 0, pathName, &dwProcPathLen))
-                return Status::SystemUtil_QueryFullProcessImageNameFailed;
+            {
+                err = Status::SystemUtil_QueryFullProcessImageNameFailed;
+                break;
+            }
 
             processPath.AppendData(pathName, MAX_PATH);
             processPath.RemoveZeroTail();
@@ -188,13 +204,18 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
 
         // 获取进程带驱动器名的路径（驱动器名：\\Device\\HardwareVolume1）
         if(!::GetProcessImageFileNameA(hProc, pathName, MAX_PATH))
-            return Status::SystemUtil_GetProcessImageFileNameFailed;
+        {
+            err = Status::SystemUtil_GetProcessImageFileNameFailed;
+            break;
+        }
 
         // 遍历确认驱动器名对应的盘符名
         Byte8   volNameDev[MAX_PATH] = {0};
         Byte8   volName[MAX_PATH] = {0};
         strcat_s(volName, MAX_PATH, "A:");
         bool isFound = false;
+        
+        Int32 subErr = Status::Success;
         for(; *volName <= 'Z'; (*volName)++)
         {
             // 获取盘符
@@ -204,7 +225,8 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
                 if(lastError == 2)
                     continue;
 
-                return Status::SystemUtil_QueryDosDeviceError;
+                subErr = Status::SystemUtil_QueryDosDeviceError;
+                break;
             }
 
             // 确认是否驱动器名一样
@@ -215,14 +237,23 @@ Int32 SystemUtil::GetProgramPath(bool isCurrentProcess, LibString &processPath, 
             }
         }
 
+        if(subErr != Status::Success)
+        {
+            err = subErr;
+            break;
+        }
+
         if(!isFound)
-            return Status::SystemUtil_GetDriveError;
+        {
+            err = Status::SystemUtil_GetDriveError;
+            break;
+        }
 
         processPath.AppendData(volName, ::strlen(volName));
         processPath.RemoveZeroTail();
         processPath.AppendData(pathName + ::strlen(volNameDev), ::strlen(pathName) - ::strlen(volNameDev));
         processPath.RemoveZeroTail();
-    } while(0);
+    } while(false);
 
     if(hModule)
         FreeLibrary(hModule);

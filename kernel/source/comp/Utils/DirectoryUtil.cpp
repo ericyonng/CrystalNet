@@ -242,7 +242,7 @@ bool DirectoryUtil::_TraverseDirRecursively(const LibString &dir
         findFile._rootPath = dir;
 
         findFile._fullName = dir;
-        if(findFile._fullName.length() > 0)
+        if(!findFile._fullName.empty())
         {
             const auto &lastSymbol = findFile._fullName[findFile._fullName.length() - 1];
             if(lastSymbol != '/' && lastSymbol != '\\')
