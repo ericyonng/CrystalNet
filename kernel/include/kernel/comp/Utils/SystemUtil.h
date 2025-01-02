@@ -157,6 +157,10 @@ public:
     static Int32 GetProcessFileDescriptLimit(Int32 resourceId, Int64 &softLimit, Int64 &hardLimit, LibString &errInfo);
     #endif
 
+    // 获取环境变量
+    static const Byte8 *GetEnv(const Byte8 *key);
+    static const Byte8 *GetEnv(const LibString &key);
+
 private:
 };
 

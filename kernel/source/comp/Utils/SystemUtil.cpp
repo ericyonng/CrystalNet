@@ -30,6 +30,7 @@
 #include <kernel/comp/Utils/SystemUtil.h>
 #include <kernel/comp/Utils/Defs/FindFileInfo.h>
 #include <kernel/comp/SmartPtr.h>
+#include <stdlib.h>
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX
     #include <unistd.h>
@@ -1404,6 +1405,16 @@ void SystemUtil::RelaxCpu()
 #else // WINDOWS platform
     YieldProcessor();
 #endif // Non-WINDOWS platform
+}
+
+const Byte8 *SystemUtil::GetEnv(const Byte8 *key)
+{
+    return ::getenv(key);
+}
+
+const Byte8 *SystemUtil::GetEnv(const LibString &key)
+{
+    return ::getenv(key.c_str());
 }
 
 KERNEL_END

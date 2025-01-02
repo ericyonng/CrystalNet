@@ -103,4 +103,7 @@ void TestSystemUtil::Run()
     std::cout << "GetCurProcessId = " << KERNEL_NS::SystemUtil::GetCurProcessId() << std::endl;
     std::cout << "LocalMachineEndianType = " << KERNEL_NS::LibEndianType::ToString(KERNEL_NS::LibEndian::GetLocalMachineEndianType()) << std::endl;
     std::cout << "GetErrString = " << KERNEL_NS::SystemUtil::GetErrString(11) << std::endl;
+
+    // 测试环境变量
+    std::cout << KERNEL_NS::SystemUtil::GetEnv("TestEnv") << std::endl;
 }
