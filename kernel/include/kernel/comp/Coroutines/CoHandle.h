@@ -44,7 +44,8 @@
 #include <kernel/comp/Coroutines/CoTaskParam.h>
 
 KERNEL_BEGIN
-    using HandleId = UInt64;
+
+using HandleId = UInt64;
 
 struct KERNEL_EXPORT KernelHandle
 {
@@ -62,6 +63,7 @@ struct KERNEL_EXPORT KernelHandle
     virtual void Run(KernelHandle::State changeState) = 0;
     virtual void ForceAwake() = 0;
     virtual void DestroyHandle(Int32 errCode) {}
+    virtual std::coroutine_handle<> GetCoHandle() = 0;
 
     virtual bool IsDone() const = 0;
 
@@ -134,9 +136,7 @@ struct KERNEL_EXPORT CoHandle : KernelHandle
     virtual CoHandle *GetChild() { return NULL; }
 
     virtual void ThrowErrorIfExists() {}
-
-    virtual std::coroutine_handle<> GetCoHandle() = 0;
-
+    
 protected:
     virtual const std::source_location& _GetFrameInfo() const;
     

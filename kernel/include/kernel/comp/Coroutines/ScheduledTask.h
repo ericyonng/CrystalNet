@@ -41,58 +41,58 @@
 #include <kernel/comp/Coroutines/CoHandle.h>
 
 KERNEL_BEGIN
-
-template<Future Task>
-struct ScheduledTask: private NonCopyable 
-{
-    template<Future Fut>
-    explicit ScheduledTask(Fut&& fut): _task(std::forward<Fut>(fut)) 
-    {
-        if (_task.Valid() && ! _task.Done()) 
-        {
-            _task._handle.promise().Schedule();
-        }
-    }
-
-    void Cancel() { _task.Destroy(); }
-
-    decltype(auto) operator co_await() const & noexcept 
-    {
-        return _task.operator co_await();
-    }
-
-    auto operator co_await() const && noexcept 
-    {
-        return _task.operator co_await();
-    }
-
-    decltype(auto) GetResult() & 
-    {
-        return _task.GetResult();
-    }
-
-    decltype(auto) GetResult() && 
-    {
-        return std::move(_task).GetResult();
-    }
-
-    bool Valid() const { return _task.Valid(); }
-    bool Done() const { return _task.Done(); }
-
-private:
-    Task _task;
-};
-
-template<Future Fut>
-ScheduledTask(Fut&&) -> ScheduledTask<Fut>;
-
-template<Future Fut>
-[[nodiscard("discard(detached) a task will not schedule to run")]]
-ScheduledTask<Fut> *schedule_task(Fut&& fut) 
-{
-    
-    return new ScheduledTask { std::forward<Fut>(fut) };
-}
+//
+// template<Future Task>
+// struct ScheduledTask: private NonCopyable 
+// {
+//     template<Future Fut>
+//     explicit ScheduledTask(Fut&& fut): _task(std::forward<Fut>(fut)) 
+//     {
+//         if (_task.Valid() && ! _task.Done()) 
+//         {
+//             _task._handle.promise().Schedule();
+//         }
+//     }
+//
+//     void Cancel() { _task.Destroy(); }
+//
+//     decltype(auto) operator co_await() const & noexcept 
+//     {
+//         return _task.operator co_await();
+//     }
+//
+//     auto operator co_await() const && noexcept 
+//     {
+//         return _task.operator co_await();
+//     }
+//
+//     decltype(auto) GetResult() & 
+//     {
+//         return _task.GetResult();
+//     }
+//
+//     decltype(auto) GetResult() && 
+//     {
+//         return std::move(_task).GetResult();
+//     }
+//
+//     bool Valid() const { return _task.Valid(); }
+//     bool Done() const { return _task.Done(); }
+//
+// private:
+//     Task _task;
+// };
+//
+// template<Future Fut>
+// ScheduledTask(Fut&&) -> ScheduledTask<Fut>;
+//
+// template<Future Fut>
+// [[nodiscard("discard(detached) a task will not schedule to run")]]
+// ScheduledTask<Fut> *schedule_task(Fut&& fut) 
+// {
+//     
+//     return new ScheduledTask { std::forward<Fut>(fut) };
+// }
 
 KERNEL_END
 

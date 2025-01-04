@@ -30,10 +30,13 @@
 #include <kernel/comp/Coroutines/CoTaskParam.h>
 
 #include "kernel/comp/Timer/LibTimer.h"
+#include "kernel/comp/Utils/TlsUtil.h"
+#include "kernel/comp/LibTraceId.h"
 
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(CoTaskParam);
+POOL_CREATE_OBJ_DEFAULT_IMPL(CoCurrentTaskParam);
 POOL_CREATE_OBJ_DEFAULT_IMPL(TaskParamRefWrapper);
 
 CoTaskParam::~CoTaskParam()
@@ -43,14 +46,43 @@ CoTaskParam::~CoTaskParam()
         LibTimer::DeleteThreadLocal_LibTimer(_timeout);
         _timeout = NULL;
     }
+
+    _handle = NULL;
+
+    // 如果当前协程参数是自己, 则设置空,协程销毁的时候置空
+    auto currentCoPtr = TlsUtil::GetOrCreateTargetPtr<CoCurrentTaskParam>();
+    if(currentCoPtr->Get()->_coParam == this)
+        CoTaskParam::SetCurrentCoParam(NULL);
+
+    if(_trace)
+    {
+        LibTraceId::DeleteThreadLocal_LibTraceId(_trace);
+        _trace = NULL;
+    }
 }
+
 void CoTaskParam::Release()
 {
   CoTaskParam::DeleteThreadLocal_CoTaskParam(this);
+}
+
+CoTaskParam *CoTaskParam::GetCurrentCoParam()
+{
+    auto currentCoPtr = TlsUtil::GetOrCreateTargetPtr<CoCurrentTaskParam>();
+    return currentCoPtr->Get()->_coParam;
+}
+
+void CoTaskParam::SetCurrentCoParam(CoTaskParam *param)
+{
+    auto currentCoPtr = TlsUtil::GetOrCreateTargetPtr<CoCurrentTaskParam>();
+    currentCoPtr->Get()->_coParam = param;
 }
 
 void TaskParamRefWrapper::Release()
 {
     TaskParamRefWrapper::DeleteThreadLocal_TaskParamRefWrapper(this);
 }
+
+
+
 KERNEL_END

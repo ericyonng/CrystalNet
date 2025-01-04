@@ -43,10 +43,10 @@
 #include <kernel/comp/memory/MemoryDefs.h>
 #include <kernel/comp/Tls/TlsCoDict.h>
 #include <kernel/comp/Tls/TlsSmartPtr.h>
+#include "kernel/comp/Tls/TlsPtr.h"
 
 KERNEL_BEGIN
-
-class MemoryPool;
+    class MemoryPool;
 
 class TlsMemoryPool;
 
@@ -93,6 +93,9 @@ public:
 
     template<typename ObjType, AutoDelMethods::Way delMethod = AutoDelMethods::Delete>
     static TlsSmartPtr<ObjType, delMethod> *GetOrCreateSmartPtr();
+
+    template<typename T>
+    static TlsTargetPtr<T> *GetOrCreateTargetPtr();
 
 private:
     static TlsMemoryAlloctor *GetTlsMemoryAlloctorHost();
@@ -184,6 +187,18 @@ ALWAYS_INLINE TlsSmartPtr<ObjType, delMethod> *TlsUtil::GetOrCreateSmartPtr()
 
     if(UNLIKELY(!s_ptr))
         s_ptr = TlsUtil::GetTlsStack()->New<TlsSmartPtr<ObjType, delMethod>>();
+
+    return s_ptr;
+}
+
+template<typename T>
+ALWAYS_INLINE TlsTargetPtr<T> *TlsUtil::GetOrCreateTargetPtr()
+{
+    DEF_STATIC_THREAD_LOCAL_DECLEAR TlsTargetPtr<T> *s_ptr = NULL;
+    if(UNLIKELY(!s_ptr))
+    {
+        s_ptr = TlsUtil::GetTlsStack()->New<TlsTargetPtr<T>>();
+    }
 
     return s_ptr;
 }

@@ -289,13 +289,13 @@ void TestInst::Run(int argc, char const *argv[])
     // TestOrm::Run();
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
-    // TestCoroutine::Run();
+    TestCoroutine::Run();
     // TestCurl::Run(argc, argv);
     // TestModule::Run();
     // TestConcepts::Run();
     // TestConceptModules::Run();
     // TestBigNum::Run();
-    TestLua::Run();
+    // TestLua::Run();
     // TestJson::Run();
 
     // write a large file

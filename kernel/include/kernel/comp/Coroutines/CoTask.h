@@ -25,6 +25,7 @@
  * Author: Eric Yonng
  * Description:
  * 注意parent如果提前唤醒, 一定要注意child协程的释放
+ * 当前协程CoParam需要考虑协程销毁, 协程结束的时候, 如果有父协程则设置父协程的CoParam
 */
 
 
@@ -55,9 +56,10 @@
 #include <kernel/comp/Timer/LibTimer.h>
 #include <kernel/comp/LibTime.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/LibTraceId.h"
 
-struct KERNEL_EXPORT NoWaitAtInitialSuspend {};
+KERNEL_BEGIN
+    struct KERNEL_EXPORT NoWaitAtInitialSuspend {};
 constexpr NoWaitAtInitialSuspend no_wait_at_initial_suspend;
 
 template<typename R = void>
@@ -116,8 +118,25 @@ public:
     {
         constexpr bool await_ready() 
         {
-            if ( LIKELY(_selfCoro))
-                return _selfCoro.done();
+            if (LIKELY(_selfCoro))
+            {
+                if(_selfCoro.done())
+                {
+                    // 当前h结束了, 那么接着下一个(其实就是包裹着h的那个协程)
+                    if (auto cont = _selfCoro.promise()._parent) 
+                    {
+                        KERNEL_NS::CoTaskParam::SetCurrentCoParam(cont->GetParam().AsSelf());
+                    }
+                    else
+                    {
+                        KERNEL_NS::CoTaskParam::SetCurrentCoParam(NULL);
+                    }
+                    
+                    return true;
+                }
+
+                return false;
+            }
 
             return true;
         }
@@ -127,10 +146,18 @@ public:
         {
             ASSERT(! _selfCoro.promise()._parent);
 
+            // 协程挂起了
+            CoTaskParam::SetCurrentCoParam(NULL);
+
+            auto &selfPromise = _selfCoro.promise();
+            auto &callerPromise = caller.promise();
             // resumer为co_await CoTask时候创建的子协程句柄
-            caller.promise().SetState(KernelHandle::SUSPEND);
-            _selfCoro.promise()._parent = &caller.promise();
-            caller.promise()._child = &_selfCoro.promise();
+            callerPromise.SetState(KernelHandle::SUSPEND);
+            selfPromise._parent = &caller.promise();
+            callerPromise._child = &selfPromise;
+
+            // trace继承
+            *selfPromise.GetParam()->_trace = *(callerPromise._params->_trace);
 
             auto selfCoHandleId = _selfCoro.promise().GetHandleId();
 
@@ -157,6 +184,8 @@ public:
                     // 超时还没完成, 强制唤醒
                     if(!selfHandle->IsDone())
                     {
+                        CoTaskParam::SetCurrentCoParam(selfHandle->GetParam());
+                        
                         selfHandle->GetParam()->_errCode = Status::CoTaskTimeout;
                         selfHandle->DumpBacktrace();
                         selfHandle->ForceAwake();
@@ -191,7 +220,9 @@ public:
                 if (UNLIKELY(!AwaiterBase::_selfCoro)) 
                     throw InvalidFuture{};
 
-                return AwaiterBase::_selfCoro.promise().GetResult();
+                // 切换当前协程
+                auto &promise = AwaiterBase::_selfCoro.promise();
+                return promise.GetResult();
             }
         };
 
@@ -207,7 +238,9 @@ public:
                 if (UNLIKELY(! AwaiterBase::_selfCoro))
                     throw InvalidFuture{};
 
-                return std::move(AwaiterBase::_selfCoro.promise()).GetResult();
+                // 切换协程
+                auto &promise = AwaiterBase::_selfCoro.promise();
+                return std::move(promise).GetResult();
             }
         };
 
@@ -220,6 +253,7 @@ public:
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
             _params->_handle = this;
+            _params->_trace = LibTraceId::NewThreadLocal_LibTraceId();
         }
 
         template<typename... Args> // from free function
@@ -227,6 +261,7 @@ public:
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
             _params->_handle = this;
+            _params->_trace = LibTraceId::NewThreadLocal_LibTraceId();
         }
 
         template<typename Obj, typename... Args> // from member function
@@ -234,6 +269,7 @@ public:
         {
             _params = CoTaskParam::NewThreadLocal_CoTaskParam();
             _params->_handle = this;
+            _params->_trace = LibTraceId::NewThreadLocal_LibTraceId();
         }
 
         ~promise_type()
@@ -244,7 +280,14 @@ public:
             Cancel();
 
             if(LIKELY(_params))
+            {
+                if(_params.AsSelf() == CoTaskParam::GetCurrentCoParam())
+                {
+                    CoTaskParam::SetCurrentCoParam(NULL);
+                }
+
                 _params->_handle = NULL;
+            }
         }
 
         auto initial_suspend() noexcept 
@@ -252,12 +295,19 @@ public:
             struct InitialSuspendAwaiter 
             {
                 constexpr bool await_ready() const noexcept { return !_wait_at_initial_suspend; }
-                constexpr void await_suspend(std::coroutine_handle<>) const noexcept {}
-                constexpr void await_resume() const noexcept {}
+                constexpr void await_suspend(std::coroutine_handle<>) const noexcept
+                {
+                    CoTaskParam::SetCurrentCoParam(NULL);
+                }
+                
+                constexpr void await_resume() const noexcept
+                {
+                }
 
                 const bool _wait_at_initial_suspend{true};
+                coro_handle _handle;
             };
-            return InitialSuspendAwaiter{_wait_at_initial_suspend};
+            return InitialSuspendAwaiter{_wait_at_initial_suspend, coro_handle::from_promise(*this)};
         }
 
         struct FinalAwaiter 
@@ -265,7 +315,10 @@ public:
             constexpr bool await_ready() const noexcept { return false; }
             template<typename Promise>
             constexpr void await_suspend(std::coroutine_handle<Promise> h) const noexcept 
-            {                
+            {
+                // 当前协程结束了
+                CoTaskParam::SetCurrentCoParam(NULL);
+                
                 // 当前h结束了, 那么接着下一个(其实就是包裹着h的那个协程)
                 if (auto cont = h.promise()._parent) 
                 {
@@ -375,7 +428,7 @@ public:
         virtual void ThrowErrorIfExists() override 
         {
             // 有异常重新抛出
-            auto &&exception = CoResult<R>::GetException();
+            auto &&exception = CoResult<R>::GetException();                                                     
 
             // 父级
             auto coPre = this->_parent;
@@ -411,6 +464,7 @@ public:
             if(_state == KERNEL_NS::KernelHandle::UNSCHEDULED)
             {
                 SetState(changeState);
+                CoTaskParam::SetCurrentCoParam(NULL);
                 return;
             }
 
@@ -418,6 +472,8 @@ public:
             SetState(changeState);
 
             // 说明外部要手动唤醒
+            // 设置当前协程
+            CoTaskParam::SetCurrentCoParam(GetParam().AsSelf());
             coro_handle::from_promise(*this).resume();
         }
         
@@ -430,7 +486,14 @@ public:
             // 唤醒
             auto handle = coro_handle::from_promise(*this);
             if(!handle.done())
+            {
+                CoTaskParam::SetCurrentCoParam(GetParam().AsSelf());
                 handle.resume();
+            }
+            else
+            {
+                CoTaskParam::SetCurrentCoParam(NULL);
+            }
         }
 
         virtual bool IsDone() const override
@@ -504,6 +567,7 @@ public:
         template<typename Promise>
         void await_suspend(std::coroutine_handle<Promise> resumer) const noexcept 
         {
+            CoTaskParam::SetCurrentCoParam(NULL);
             auto handleId = resumer.promise().GetHandleId();
             KERNEL_NS::PostAsyncTask([handleId]() 
             {
@@ -515,14 +579,19 @@ public:
             });
         }
 
-        void await_resume() const {}
+        void await_resume() const
+        {
+            
+        }
 
         struct AwaiterYieldFinalAwaiter 
         {
             constexpr bool await_ready() const noexcept { return false; }
             template<typename Promise>
             constexpr void await_suspend(std::coroutine_handle<Promise> h) const noexcept 
-            {   
+            {
+                CoTaskParam::SetCurrentCoParam(NULL);
+
                 // 协程结束了
                 if(h.done() && h.promise().CanSelfDestroy())
                 {

@@ -123,6 +123,7 @@ void TestLua::Run()
         curPath.findreplace("\\", "\\\\");
     kernelLua.AddPackagePath(curPath.GetRaw());
 
+    // 便利目录并load lua文件
     KERNEL_NS::DirectoryUtil::TraverseDirRecursively(curPath, [&kernelLua](const KERNEL_NS::FindFileInfo &findFileInfo, bool &isParentDirContinue) -> bool
     {
         if(KERNEL_NS::FileUtil::IsDir(findFileInfo))

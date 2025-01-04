@@ -68,14 +68,16 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> test_hello_world()
 
 KERNEL_NS::CoTask<KERNEL_NS::LibString> GetContent() 
 {
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 1"));
-    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10)).SetDisableSuspend();
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 2"));
-    co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10));
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 3"));
-
-    throw std::runtime_error("GetContent error");
     co_return KERNEL_NS::LibString().AppendFormat("hello world");
+
+    // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 1"));
+    // co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10)).SetDisableSuspend();
+    // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 2"));
+    // co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(10));
+    // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent start 3"));
+    //
+    // throw std::runtime_error("GetContent error");
+    // co_return KERNEL_NS::LibString().AppendFormat("hello world");
 }
 
 KERNEL_NS::CoTask<> test_hello_world2() 
@@ -87,7 +89,7 @@ KERNEL_NS::CoTask<> test_hello_world2()
 
 KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent3() 
 {
-    co_await KERNEL_NS::Waiting().SetDisableSuspend(true);
+    // co_await KERNEL_NS::Waiting().SetDisableSuspend(true);
     auto content = co_await GetContent().SetDisableSuspend(true);
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "TestCursionGetContent3: %s"), content.c_str());
@@ -115,9 +117,15 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent2()
 
 KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent() 
 {
+    auto currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
+    
     KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
     auto content = co_await TestCursionGetContent2().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10)).GetParam(param);
 
+    currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
+    
     if(param->_errCode == Status::Success)
     {
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "TestCursionGetContent: %s"), content.c_str());
@@ -132,7 +140,11 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent()
 
 KERNEL_NS::CoTask<> TestCursionTask()
 {
+    auto currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
     co_await TestCursionGetContent().SetDisableSuspend(true);
+    currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
 }
 
 void TestCoroutine::Run()
@@ -150,7 +162,16 @@ void TestCoroutine::Run()
     // 调用 hello_world 的时候, 会返回一个协程, 并抛给调度器去继续执行
     KERNEL_NS::PostCaller([]() -> KERNEL_NS::CoTask<> 
     {
+        auto currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
+
         co_await TestCursionTask().SetDisableSuspend(true);
+        currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
+        co_await KERNEL_NS::Waiting(KERNEL_NS::TimeSlice::FromSeconds(10));
+        currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
+  
         // co_await test_hello_world2().SetDisableSuspend(true);
 
         // KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();

@@ -51,6 +51,8 @@ struct KERNEL_EXPORT CoDelayAwaiter: private NonCopyable
     template<typename Promise>
     void await_suspend(std::coroutine_handle<Promise> caller) const noexcept 
     {
+        CoTaskParam::SetCurrentCoParam(NULL);
+
         auto promise = &caller.promise();
         auto &slice = _delay;
 

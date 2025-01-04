@@ -29,9 +29,10 @@
 #include <pch.h>
 #include <kernel/comp/Log/ILog.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/LibTraceId.h"
 
-// ILog *ILog::GetDefaultInstance()
+KERNEL_BEGIN
+    // ILog *ILog::GetDefaultInstance()
 // {
 //     static SmartPtr<LibLog, _Build::MT> s_log = new LibLog;
 //     // CRYSTAL_TRACE("ENTRY LOG create new log");
@@ -247,19 +248,21 @@ void ILog::_Common1(const Byte8 *tag, Int32 levelId, const char *fileName, const
     if(UNLIKELY(!levelCfg->_enable))
         return;
 
+    const KERNEL_NS::LibString &traceInfo = _BuildTraceInfo();
     const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     // 构建日志数据
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][%s][%s][line:%d][tid:%llu]: "
+    logInfo.AppendFormat("%s<%s>[%s][%s][%s][line:%d][tid:%llu][%s]: "
                                    , newLogData->_logTime.ToString().c_str()
                                    , levelCfg->_levelName.c_str()
                                    , (tag ? tag : "")
                                    , fileName
                                    , funcName
                                    , codeLine
-                                   , tid);
+                                   , tid
+                                   , traceInfo.c_str());
 
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
@@ -285,15 +288,17 @@ void ILog::_Common2(const Byte8 *tag, Int32 levelId, const char *fmt, va_list va
         return;
 
     // 构建日志数据
+    const KERNEL_NS::LibString &traceInfo = _BuildTraceInfo();
     const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][tid:%llu]: "
+    logInfo.AppendFormat("%s<%s>[%s][tid:%llu][%s]: "
                         , newLogData->_logTime.ToString().c_str()
                         , levelCfg->_levelName.c_str()
                         , (tag ? tag : "")
-                        , tid);
+                        , tid
+                        , traceInfo.c_str());
 
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
@@ -318,12 +323,13 @@ void ILog::_Common3(Int32 levelId, const char *fmt, va_list va, UInt64 formatFin
         return;
 
     // 构建日志数据
+    const KERNEL_NS::LibString &traceInfo = _BuildTraceInfo();
     const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
 
-    logInfo.AppendFormat("[tid:%llu] ", tid);
+    logInfo.AppendFormat("[tid:%llu][%s] ", tid, traceInfo.c_str());
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
 
@@ -347,15 +353,17 @@ void ILog::_Common4(Int32 levelId, const char *fmt, va_list va, UInt64 formatFin
         return;
 
     // 构建日志数据
+    const KERNEL_NS::LibString &traceInfo = _BuildTraceInfo();
     const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
 
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[tid:%llu]: "
+    logInfo.AppendFormat("%s<%s>[tid:%llu][%s]: "
                         , newLogData->_logTime.ToString().c_str()
                         , levelCfg->_levelName.c_str()
-                        , tid);
+                        , tid
+                        , traceInfo.c_str());
 
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
@@ -380,21 +388,29 @@ void ILog::_Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char 
         return;
 
     // 构建日志数据
+    const KERNEL_NS::LibString &traceInfo = _BuildTraceInfo();
     const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
     LogData *newLogData = LogData::New_LogData();
     newLogData->_logTime.UpdateTime();
     auto &logInfo = newLogData->_logInfo;
-    logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu]: "
+    logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu][%s]: "
                         , newLogData->_logTime.ToString().c_str()
                         , levelCfg->_levelName.c_str()
                         , (tag ? tag : "")
                         , codeLine
-                        , tid);
+                        , tid
+                        , traceInfo.c_str());
 
     logInfo.AppendFormatWithVaList(formatFinalSize, fmt, va)
             .AppendEnd();
 
     _WriteLog(levelCfg, newLogData);
+}
+
+LibString ILog::_BuildTraceInfo()
+{
+    auto trace = LibTraceId::GetCurrentTrace();
+    return trace ? trace->ToString() : "";
 }
 
 KERNEL_END

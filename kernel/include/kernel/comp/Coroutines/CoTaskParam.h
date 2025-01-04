@@ -23,7 +23,7 @@
  * 
  * Date: 2024-10-21 01:31:10
  * Author: Eric Yonng
- * Description: 
+ * Description: 需要考虑继承父协程的LibTraceId
 */
 
 
@@ -43,6 +43,8 @@ KERNEL_BEGIN
 struct  CoHandle;
 
 class LibTimer;
+
+struct LibTraceId;
 
 // 只要在co_await 时候设置参数,参数都会生效
 struct KERNEL_EXPORT CoTaskParam
@@ -64,6 +66,26 @@ struct KERNEL_EXPORT CoTaskParam
 
     // 协程句柄
     CoHandle *_handle = NULL;
+
+    // 链路追踪
+    LibTraceId *_trace = NULL;
+
+    // 获取当前协程, 如果在协程中使用注意CoTaskParam的生命周期
+    static CoTaskParam *GetCurrentCoParam();
+    // 挂起的时候先设置空, 恢复的时候设置当前
+    static void SetCurrentCoParam(CoTaskParam *param);
+};
+
+struct KERNEL_EXPORT CoCurrentTaskParam
+{
+    POOL_CREATE_OBJ_DEFAULT(CoCurrentTaskParam);
+
+    CoCurrentTaskParam()
+    {
+        
+    }
+    
+    CoTaskParam *_coParam = NULL;
 };
 
 struct KERNEL_EXPORT TaskParamRefWrapper

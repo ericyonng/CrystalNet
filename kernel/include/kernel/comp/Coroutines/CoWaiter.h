@@ -50,11 +50,16 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
     explicit CoWaiter(){}
 
     constexpr bool await_ready() noexcept { return false; }
-    constexpr void await_resume() const noexcept {}
+    constexpr void await_resume() const noexcept
+    {
+        
+    }
 
     template<typename Promise>
     void await_suspend(std::coroutine_handle<Promise> caller) const noexcept 
     {
+        CoTaskParam::SetCurrentCoParam(NULL);
+
         auto promise = &caller.promise();
         auto promiseParam = promise->GetParam();
         auto callerHandleId = promise->GetHandleId();
@@ -77,6 +82,9 @@ struct KERNEL_EXPORT CoWaiter: private NonCopyable
                         
                         if(callerHandle->IsDone())
                             break;
+
+                        // 设置当前协程
+                        CoTaskParam::SetCurrentCoParam(callerHandle->GetParam());
 
                         // 超时
                         callerHandle->GetParam()->_errCode = Status::CoTaskTimeout;

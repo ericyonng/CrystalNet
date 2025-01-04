@@ -38,22 +38,22 @@
 
 KERNEL_BEGIN
 
-struct KERNEL_EXPORT CallStackAwaiter 
-{
-    constexpr bool await_ready() noexcept { return false; }
-    constexpr void await_resume() const noexcept {}
-
-    template<typename Promise>
-    bool await_suspend(std::coroutine_handle<Promise> caller) const noexcept 
-    {
-        // 打印堆栈
-        caller.promise().DumpBacktrace();
-        return false;
-    }
-};
-
-// 打印调用栈 nodiscard 返回值不应被忽略或者丢弃, 如果没有被使用编译器会抛警告
-KERNEL_EXPORT CallStackAwaiter DumpCallStack();
+// struct KERNEL_EXPORT CallStackAwaiter 
+// {
+//     constexpr bool await_ready() noexcept { return false; }
+//     constexpr void await_resume() const noexcept {}
+//
+//     template<typename Promise>
+//     bool await_suspend(std::coroutine_handle<Promise> caller) const noexcept 
+//     {
+//         // 打印堆栈
+//         caller.promise().DumpBacktrace();
+//         return false;
+//     }
+// };
+//
+// // 打印调用栈 nodiscard 返回值不应被忽略或者丢弃, 如果没有被使用编译器会抛警告
+// KERNEL_EXPORT CallStackAwaiter DumpCallStack();
 
 KERNEL_END
 

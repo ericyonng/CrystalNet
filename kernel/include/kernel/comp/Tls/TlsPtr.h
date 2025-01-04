@@ -43,7 +43,10 @@ class KERNEL_EXPORT TlsPtr : public ITlsObj
 public:
     TlsPtr();
     ~TlsPtr(){}
-    virtual void OnDestroy() override {}
+    virtual void OnDestroy() override
+    {
+        _ptr = NULL;
+    }
 
 public:
     virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
@@ -55,8 +58,40 @@ public:
     }
     
 public:
-    const std::string _objTypeName;
+    std::string _objTypeName;
     void *_ptr;
+};
+
+// t需要有默认构造
+template<typename T>
+class TlsTargetPtr : public ITlsObj
+{
+public:
+    TlsTargetPtr()
+        :_objTypeName(std::string("TlsTargetPtr<") + std::string(typeid(T).name()) + ">")
+    {
+        _ptr = CRYSTAL_NEW(T);
+    }
+    ~TlsTargetPtr() override
+    {
+        TlsTargetPtr::OnDestroy();
+    }
+
+    virtual void OnDestroy() override
+    {
+        CRYSTAL_DELETE_SAFE(_ptr);
+    }
+
+    T *Get()
+    {
+        return _ptr;
+    }
+
+    virtual const char *GetObjTypeName() const override { return _objTypeName.c_str(); }
+
+public:
+    const std::string _objTypeName;
+    T *_ptr;
 };
 
 KERNEL_END

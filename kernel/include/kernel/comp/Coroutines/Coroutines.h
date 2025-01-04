@@ -48,5 +48,6 @@
 #include <kernel/comp/Coroutines/ScheduledTask.h>
 #include <kernel/comp/Coroutines/VoldValue.h>
 #include <kernel/comp/Coroutines/CoWaiter.h>
+#include <kernel/comp/Coroutines/CoTaskParam.h>
 
 #endif

@@ -153,6 +153,8 @@ protected:
     void _Common4(Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize);
 
     void _Common5(const Byte8 *tag, Int32 codeLine, Int32 levelId, const char *fmt, va_list va, UInt64 formatFinalSize);
+    static LibString _BuildTraceInfo();
+    
     template<typename... Args>
     void _Common6(const Byte8 *tag, Int32 codeLine, Int32 levelId, Args&&... args)
     {
@@ -171,11 +173,12 @@ protected:
             return;
 
         // 构建日志数据
+        const auto &traceInfo = _BuildTraceInfo();
         const auto tid = KERNEL_NS::SystemUtil::GetCurrentThreadId();
         LogData *newLogData = LogData::New_LogData();
         newLogData->_logTime.UpdateTime();
         auto &logInfo = newLogData->_logInfo;
-        logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu]: ", newLogData->_logTime.ToString().c_str(), levelCfg->_levelName.c_str(), (tag ? tag : ""), codeLine, tid);
+        logInfo.AppendFormat("%s<%s>[%s][line:%d][tid:%llu][%s]: ", newLogData->_logTime.ToString().c_str(), levelCfg->_levelName.c_str(), (tag ? tag : ""), codeLine, tid, traceInfo.c_str());
         logInfo.Append(std::forward<Args>(args)...);
         logInfo.AppendEnd();
 
