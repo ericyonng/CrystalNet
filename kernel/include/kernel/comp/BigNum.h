@@ -73,387 +73,75 @@ public:
     // 0
     static constexpr BigNumRaw ZeroBigNum = {0, 0};
 
+#pragma region constructor
 public:
-    ALWAYS_INLINE BigNum(UInt64 high, UInt64 low)
-    {
-        _raw._high = high;
-        _raw._low = low;
-    }
+    BigNum(UInt64 high, UInt64 low);
+    BigNum(const BigNumRaw &other);
+    template<NumericTypeTraits T>
+    BigNum(T number);
 
-    ALWAYS_INLINE BigNum(const BigNumRaw &other)
-    :_raw(other)
-    {
+#pragma endregion
 
-    }
+#pragma region operator methods
+    template<NumericTypeTraits T>
+    BigNum operator +(T other) const;
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum(T number)
-    :_raw{0, (UInt64)number}
-    {
-        
-    }
+    BigNum &operator +=(T other);
+
+    BigNum operator +(const BigNum &bigNum) const;
+
+    BigNum &operator +=(const BigNum &bigNum);
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum operator +(T other) const
-    {
-        // TODO:可以使用SIMD指令来加速运算
-        // 大数运算规则, 将UInt64拆分成两个32位整数运算
-        // UInt64 num = (UInt64)high1 << 32 + (UInt64)low1;
-        // UInt64 num2 = (UInt64)high2 << 32 + (UInt64)low2;
-        UInt64 turn64 = (UInt64)other;
-        
-        // 判断是否会溢出
-        BigNumRaw newRaw = {_raw._high, 0};
-        if(UNLIKELY(MAX64_NUM - _raw._low < turn64))
-        {
-            // low + turn64 = MAX_NUM + 1 + x
-            // x = low - MAX_NUM - 1 + turn64
-            newRaw._low = _raw._low - MAX64_NUM - 1 + turn64;
-
-            // 进位, 两个最大max64最多也就进1位置 max64 + max64 = 2 * (max64+1-1) = 2 * (max64 + 1) - 2 < 2 * (max64 + 1)
-            // max64 + 1相当于进位1，2 * (max64 + 1)相当于进2位，但是有 - 2所以不可能进两位
-            // 只管低位进位, 不管高位溢出
-            newRaw._high += 1;
-        }
-
-        // 没有溢出
-        else
-        {
-            newRaw._low = _raw._low + turn64;
-        }
-        
-        // 编译器会进行优化
-        return BigNum(newRaw);
-    }
+    BigNum operator -(T other) const;
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum &operator +=(T other)
-    {
-        // TODO:可以使用SIMD指令来加速运算
-        // 大数运算规则, 将UInt64拆分成两个32位整数运算
-        // UInt64 num = (UInt64)high1 << 32 + (UInt64)low1;
-        // UInt64 num2 = (UInt64)high2 << 32 + (UInt64)low2;
-        UInt64 turn64 = (UInt64)other;
-        
-        // 判断是否会溢出
-        if(UNLIKELY(MAX64_NUM - _raw._low < turn64))
-        {
-            _raw._low += (turn64 - MAX64_NUM - 1);
+    BigNum &operator -=(T other);
 
-            // 进位, 两个最大max64最多也就进1位置 max64 + max64 = 2 * (max64+1-1) = 2 * (max64 + 1) - 2 < 2 * (max64 + 1)
-            // max64 + 1相当于进位1，2 * (max64 + 1)相当于进2位，但是有 - 2所以不可能进两位
-            // 只管低位进位, 不管高位溢出
-            _raw._high += 1;
-        }
+    BigNum operator -(const BigNum &bigNum) const;
 
-        // 没有溢出
-        else
-        {
-            _raw._low += turn64;
-        }
-        
-        return *this;
-    }
-
-    ALWAYS_INLINE BigNum operator +(const BigNum &bigNum) const
-    {
-        // 先求低位, 再求高位
-        BigNumRaw newRaw = {_raw._high, _raw._low};
-
-        // 低位溢出进位
-        auto &otherRaw = bigNum._raw;
-        if(UNLIKELY(MAX64_NUM - _raw._low < otherRaw._low))
-        {
-            newRaw._low += (otherRaw._low - MAX64_NUM - 1);
-
-            newRaw._high += 1;
-        }
-        else
-        {
-            newRaw._low += otherRaw._low;
-        }
-
-        // 不管溢出
-        newRaw._high += (_raw._high + otherRaw._high);
-
-        return BigNum(newRaw);
-    }
-
-    ALWAYS_INLINE BigNum &operator +=(const BigNum &bigNum)
-    {
-        // 低位溢出进位
-        auto &otherRaw = bigNum._raw;
-        if(UNLIKELY(MAX64_NUM - _raw._low < otherRaw._low))
-        {
-            _raw._low += ((otherRaw._low - MAX64_NUM - 1));
-
-            _raw._high += 1;
-        }
-        else
-        {
-            _raw._low += otherRaw._low;
-        }
-
-        // 不管溢出
-        _raw._high += otherRaw._high;
-
-        return *this;
-    }
+    BigNum &operator -=(const BigNum &bigNum);
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum operator -(T other) const
-    {
-        // TODO:可以使用SIMD指令来加速运算
-        // 大数运算规则, 将UInt64拆分成两个32位整数运算
-        // UInt64 num = (UInt64)high1 << 32 + (UInt64)low1;
-        // UInt64 num2 = (UInt64)high2 << 32 + (UInt64)low2;
-        UInt64 turn64 = (UInt64)other;
-        
-        // 判断是否会溢出
-        BigNumRaw newRaw = {_raw._high, _raw._low};
-        if(_raw._low < turn64)
-        {
-            // 高位借位
-            newRaw._low += (MAX64_NUM - turn64 + 1);
+    BigNum operator &(T number) const;
 
-            // 不管高位溢出
-            newRaw._high -= 1;
-        }
-
-        // 没有溢出
-        else
-        {
-            newRaw._low -= turn64;
-        }
-        
-        // 编译器会进行优化
-        return BigNum(newRaw);
-    }
+    BigNum operator &(const BigNum &number) const;
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum &operator -=(T other)
-    {
-        // TODO:可以使用SIMD指令来加速运算
-        // 大数运算规则, 将UInt64拆分成两个32位整数运算
-        // UInt64 num = (UInt64)high1 << 32 + (UInt64)low1;
-        // UInt64 num2 = (UInt64)high2 << 32 + (UInt64)low2;
-        UInt64 turn64 = (UInt64)other;
-        
-        // 判断是否会溢出
-        if(_raw._low < turn64)
-        {
-            // 高位借位
-            _raw._low += (MAX64_NUM - turn64 + 1);
+    BigNum &operator &=(T number);
 
-            // 不管高位溢出
-            _raw._high -= 1;
-        }
+    BigNum &operator &=(const BigNum &number);
 
-        // 没有溢出
-        else
-        {
-            _raw._low -= turn64;
-        }
-        
-        return *this;
-    }
+    BigNum operator <<(Int32 number) const;
 
-    ALWAYS_INLINE BigNum operator -(const BigNum &bigNum) const
-    {
-        // 先求低位, 再求高位
-        BigNumRaw newRaw = {_raw._high, _raw._low};
+    BigNum operator >>(Int32 number) const;
 
-        // 低位溢出借位
-        auto &otherRaw = bigNum._raw;
-        if(_raw._low < otherRaw._low)
-        {
-            newRaw._low += (MAX64_NUM - otherRaw._low + 1);
+    BigNum &operator <<=(Int32 number);
 
-            newRaw._high -= 1;
-        }
-        else
-        {
-            newRaw._low -= otherRaw._low;
-        }
-
-        // 不管溢出
-        newRaw._high -= otherRaw._high;
-
-        return BigNum(newRaw);
-    }
-
-    ALWAYS_INLINE BigNum &operator -=(const BigNum &bigNum)
-    {
-        // 低位溢出进位
-        auto &otherRaw = bigNum._raw;
-        if(UNLIKELY((MAX64_NUM - _raw._low) < otherRaw._low))
-        {
-            _raw._low += (MAX64_NUM - otherRaw._low + 1);
-
-            _raw._high -= 1;
-        }
-        else
-        {
-            _raw._low -= otherRaw._low;
-        }
-
-        // 不管溢出
-        _raw._high -= otherRaw._high;
-
-        return *this;
-    }
+    BigNum &operator >>=(Int32 number);
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum operator &(T number) const
-    {
-        return BigNum(0, _raw._low & (UInt64)number);
-    }
+    BigNum operator |(T number) const;
 
-    ALWAYS_INLINE BigNum operator &(const BigNum &number) const
-    {
-        auto &otherRaw = number._raw;
-        return BigNum(_raw._high & otherRaw._high, _raw._low & otherRaw._low);
-    }
+    BigNum operator |(const BigNum &number) const;
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum &operator &=(T number)
-    {
-        _raw._low &= (UInt64)number;
-        _raw._high = 0;
+    BigNum &operator |=(T number);
 
-        return *this; 
-    }
-
-    ALWAYS_INLINE BigNum &operator &=(const BigNum &number)
-    {
-        auto &otherRaw = number._raw;
-        _raw._low &= otherRaw._low;
-        _raw._high &= otherRaw._high;
-
-        return *this;
-    }
-
-//////////////////////
-
-    ALWAYS_INLINE BigNum operator <<(Int32 number) const
-    {
-        if(number >= 64)
-        {
-            return BigNum(_raw._low << (number - 64), 0);
-        }
-
-        return BigNum((_raw._high << number) | (_raw._low >> (64 - number)), _raw._low << number);
-    }
-
-    ALWAYS_INLINE BigNum operator >>(Int32 number) const
-    {
-        if(number >= 64)
-        {
-            return BigNum(0, _raw._high >> (number - 64));
-        }
-        // 低位:高位先通过保留低number位,并左移到64 - number位 | 低位 >> number即结果所得
-        return BigNum((_raw._high >> number), ((_raw._high & ~(1LLU << number)) << (64 - number)) | _raw._low >> number);
-    }
-
-    ALWAYS_INLINE BigNum &operator <<=(Int32 number)
-    {
-        if(number >= 64)
-        {
-            _raw._high = _raw._low << (number - 64);
-            _raw._low = 0;
-
-            return *this;
-        }
-
-        _raw._high = (_raw._high << number) | (_raw._low >> (64 - number));
-        _raw._low = _raw._low << number;
-
-        return *this;
-    }
-
-    ALWAYS_INLINE BigNum &operator >>=(Int32 number)
-    {
-        if(number >= 64)
-        {
-            _raw._low = _raw._high >> (number - 64);
-            _raw._high = 0;
-            return *this;
-        }
-
-        // 低位:高位先通过保留低number位,并左移到64 - number位 | 低位 >> number即结果所得
-        auto newHigh = _raw._high >> number;
-        _raw._low = ((_raw._high & ~(1LLU << number)) << (64 - number)) | _raw._low >> number;
-        _raw._high = newHigh;
-        return *this;
-    }
+    BigNum &operator |=(const BigNum &number);
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum operator |(T number) const
-    {
-        return BigNum(_raw._high, _raw._low | (UInt64)number);
-    }
+    BigNum operator ^(T number) const;
 
-    ALWAYS_INLINE BigNum operator |(const BigNum &number) const
-    {
-        auto &otherRaw = number._raw;
-
-        return BigNum(_raw._high | otherRaw._high, _raw._low | otherRaw._low);
-    }
-
-    
-    template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum &operator |=(T number)
-    {
-        _raw._low |= (UInt64)number;
-
-        return *this; 
-    }
-
-    ALWAYS_INLINE BigNum &operator |=(const BigNum &number)
-    {
-        auto &otherRaw = number._raw;
-
-        _raw._low |= otherRaw._low;
-        _raw._high |= otherRaw._high;
-
-        return *this;
-    }
+    BigNum operator ^(const BigNum &number) const;
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum operator ^(T number) const
-    {
-        return BigNum(_raw._high ^ 0, _raw._low ^ (UInt64)number);
-    }
+    BigNum &operator ^=(T number);
 
-    ALWAYS_INLINE BigNum operator ^(const BigNum &number) const
-    {
-        auto &otherRaw = number._raw;
+    BigNum &operator ^=(const BigNum &number);
 
-        return BigNum(_raw._high ^ otherRaw._high, _raw._low ^ otherRaw._low);
-    }
-
-    template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum &operator ^=(T number)
-    {
-        _raw._low ^= (UInt64)number;
-
-        return *this; 
-    }
-
-    ALWAYS_INLINE BigNum &operator ^=(const BigNum &number)
-    {
-        auto &otherRaw = number._raw;
-
-        _raw._low ^= otherRaw._low;
-        _raw._high ^= otherRaw._high;
-
-        return *this;
-    }
-
-    ALWAYS_INLINE BigNum operator ~() const
-    {
-        return BigNum(~_raw._high, ~_raw._low);
-    }
+    BigNum operator ~() const;
 
     // 有operator bool 可以不重载逻辑运算符, 因为会隐式转换成bool
     // ALWAYS_INLINE operator bool() const
@@ -461,97 +149,514 @@ public:
     //     return _raw._low != 0 || _raw._high != 0;
     // }
 
-    ALWAYS_INLINE bool operator ==(const BigNum &number) const
-    {
-        auto &otherRaw = number._raw;
+    bool operator ==(const BigNum &number) const;
 
-        return (_raw._low == otherRaw._low) && (_raw._high == otherRaw._high);
-    }
+    bool operator !=(const BigNum &number) const;
 
-    ALWAYS_INLINE bool operator !=(const BigNum &number) const
-    {
-        return !operator==(number);
-    }
+    bool operator <(const BigNum &number) const;
 
-    ALWAYS_INLINE bool operator <(const BigNum &number) const
-    {
-        auto &otherRaw = number._raw;
+    bool operator <=(const BigNum &number) const;
 
-        return (_raw._high < otherRaw._high) || ((_raw._high == otherRaw._high) && (_raw._low < otherRaw._low)); 
-    }
+    bool operator >(const BigNum &number) const;
 
-    ALWAYS_INLINE bool operator <=(const BigNum &number) const
-    {
-        return operator==(number) || operator<(number);
-    }
-
-    ALWAYS_INLINE bool operator >(const BigNum &number) const
-    {
-        return !operator<=(number);
-    }
-
-    ALWAYS_INLINE bool operator >=(const BigNum &number) const
-    {
-        return !operator<(number);
-    }
+    bool operator >=(const BigNum &number) const;
 
     template<NumericTypeTraits T>
-    ALWAYS_INLINE BigNum &operator =(T number)
-    {
-        _raw._low = (UInt64)number;
-        _raw._high = 0;
-        return *this;
-    }
+    BigNum &operator =(T number);
+
+    template<typename T>
+    bool operator && (const T &other) const;
+
+    bool operator && (const BigNum &other) const;
+    template<typename T>
+    bool operator || (const T &other) const;
+
+    bool operator || (const BigNum &other) const;
+
+    bool operator! () const;
+#pragma endregion
+
 
     LibString ToString() const;
-
     LibString ToHexString() const;
 
-    ALWAYS_INLINE const BigNumRaw &GetRaw() const
-    {
-        return _raw;
-    }
+    const BigNumRaw &GetRaw() const;
+    const UInt64 &GetLow() const;
+    UInt64 &GetLow();
+    const UInt64 &GetHigh() const;
+    UInt64 &GetHigh();
 
-    template<typename T>
-    ALWAYS_INLINE bool operator && (const T &other) const
-    {
-        return IsNotZero() && other;
-    }
-
-    ALWAYS_INLINE bool operator && (const BigNum &other) const
-    {
-        return IsNotZero() && other.IsNotZero();
-    }
-    
-    template<typename T>
-    ALWAYS_INLINE bool operator || (const T &other) const
-    {
-        return IsNotZero() || other;
-    }
-
-    ALWAYS_INLINE bool operator || (const BigNum &other) const
-    {
-        return IsNotZero() || other.IsNotZero();
-    }
-
-    ALWAYS_INLINE bool operator! () const
-    {
-        return IsNotZero();
-    }
-
-    ALWAYS_INLINE bool IsZero() const
-    {
-        return (_raw._low == 0) && (_raw._high == 0);
-    }
-
-    ALWAYS_INLINE bool IsNotZero() const
-    {
-        return (_raw._low != 0) || (_raw._high != 0);
-    }
+    bool IsZero() const;
+    bool IsNotZero() const;
 
 private:
     BigNumRaw _raw;
 };
+
+ALWAYS_INLINE BigNum::BigNum(UInt64 high, UInt64 low)
+{
+    _raw._high = high;
+    _raw._low = low;
+}
+
+ALWAYS_INLINE BigNum::BigNum(const BigNumRaw &other)
+:_raw(other)
+{
+
+}
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum::BigNum(T number)
+:_raw{0, (UInt64)number}
+{
+
+}
+
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum BigNum::operator +(T other) const
+{
+    // TODO:可以使用SIMD指令来加速运算
+    // 大数运算规则, 将UInt64拆分成两个32位整数运算
+    // UInt64 num = (UInt64)high1 << 32 + (UInt64)low1;
+    // UInt64 num2 = (UInt64)high2 << 32 + (UInt64)low2;
+    UInt64 turn64 = (UInt64)other;
+    
+    // 判断是否会溢出
+    BigNumRaw newRaw = {_raw._high, 0};
+    if(UNLIKELY(MAX64_NUM - _raw._low < turn64))
+    {
+        // low + turn64 = MAX_NUM + 1 + x
+        // x = low - MAX_NUM - 1 + turn64
+        newRaw._low = _raw._low - MAX64_NUM - 1 + turn64;
+
+        // 进位, 两个最大max64最多也就进1位置 max64 + max64 = 2 * (max64+1-1) = 2 * (max64 + 1) - 2 < 2 * (max64 + 1)
+        // max64 + 1相当于进位1，2 * (max64 + 1)相当于进2位，但是有 - 2所以不可能进两位
+        // 只管低位进位, 不管高位溢出
+        newRaw._high += 1;
+    }
+
+    // 没有溢出
+    else
+    {
+        newRaw._low = _raw._low + turn64;
+    }
+    
+    // 编译器会进行优化
+    return BigNum(newRaw);
+}
+
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum &BigNum::operator +=(T other)
+{
+    // TODO:可以使用SIMD指令来加速运算
+    // 大数运算规则, 将UInt64拆分成两个32位整数运算
+    // UInt64 num = (UInt64)high1 << 32 + (UInt64)low1;
+    // UInt64 num2 = (UInt64)high2 << 32 + (UInt64)low2;
+    UInt64 turn64 = (UInt64)other;
+    
+    // 判断是否会溢出
+    if(UNLIKELY(MAX64_NUM - _raw._low < turn64))
+    {
+        _raw._low += (turn64 - MAX64_NUM - 1);
+
+        // 进位, 两个最大max64最多也就进1位置 max64 + max64 = 2 * (max64+1-1) = 2 * (max64 + 1) - 2 < 2 * (max64 + 1)
+        // max64 + 1相当于进位1，2 * (max64 + 1)相当于进2位，但是有 - 2所以不可能进两位
+        // 只管低位进位, 不管高位溢出
+        _raw._high += 1;
+    }
+
+    // 没有溢出
+    else
+    {
+        _raw._low += turn64;
+    }
+    
+    return *this;
+}
+
+
+
+ALWAYS_INLINE BigNum BigNum::operator +(const BigNum &bigNum) const
+{
+    // 先求低位, 再求高位
+    BigNumRaw newRaw = {_raw._high, _raw._low};
+
+    // 低位溢出进位
+    auto &otherRaw = bigNum._raw;
+    if(UNLIKELY(MAX64_NUM - _raw._low < otherRaw._low))
+    {
+        newRaw._low += (otherRaw._low - MAX64_NUM - 1);
+
+        newRaw._high += 1;
+    }
+    else
+    {
+        newRaw._low += otherRaw._low;
+    }
+
+    // 不管溢出
+    newRaw._high += (_raw._high + otherRaw._high);
+
+    return BigNum(newRaw);
+}
+
+
+ALWAYS_INLINE BigNum &BigNum::operator +=(const BigNum &bigNum)
+{
+    // 低位溢出进位
+    auto &otherRaw = bigNum._raw;
+    if(UNLIKELY(MAX64_NUM - _raw._low < otherRaw._low))
+    {
+        _raw._low += ((otherRaw._low - MAX64_NUM - 1));
+
+        _raw._high += 1;
+    }
+    else
+    {
+        _raw._low += otherRaw._low;
+    }
+
+    // 不管溢出
+    _raw._high += otherRaw._high;
+
+    return *this;
+}
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum BigNum::operator -(T other) const
+{
+    // TODO:可以使用SIMD指令来加速运算
+    // 大数运算规则, 将UInt64拆分成两个32位整数运算
+    // UInt64 num = (UInt64)high1 << 32 + (UInt64)low1;
+    // UInt64 num2 = (UInt64)high2 << 32 + (UInt64)low2;
+    UInt64 turn64 = (UInt64)other;
+    
+    // 判断是否会溢出
+    BigNumRaw newRaw = {_raw._high, _raw._low};
+    if(_raw._low < turn64)
+    {
+        // 高位借位
+        newRaw._low += (MAX64_NUM - turn64 + 1);
+
+        // 不管高位溢出
+        newRaw._high -= 1;
+    }
+
+    // 没有溢出
+    else
+    {
+        newRaw._low -= turn64;
+    }
+    
+    // 编译器会进行优化
+    return BigNum(newRaw);
+}
+
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum &BigNum::operator -=(T other)
+{
+    // TODO:可以使用SIMD指令来加速运算
+    // 大数运算规则, 将UInt64拆分成两个32位整数运算
+    // UInt64 num = (UInt64)high1 << 32 + (UInt64)low1;
+    // UInt64 num2 = (UInt64)high2 << 32 + (UInt64)low2;
+    UInt64 turn64 = (UInt64)other;
+    
+    // 判断是否会溢出
+    if(_raw._low < turn64)
+    {
+        // 高位借位
+        _raw._low += (MAX64_NUM - turn64 + 1);
+
+        // 不管高位溢出
+        _raw._high -= 1;
+    }
+
+    // 没有溢出
+    else
+    {
+        _raw._low -= turn64;
+    }
+    
+    return *this;
+}
+
+
+
+ALWAYS_INLINE BigNum BigNum::operator -(const BigNum &bigNum) const
+{
+    // 先求低位, 再求高位
+    BigNumRaw newRaw = {_raw._high, _raw._low};
+
+    // 低位溢出借位
+    auto &otherRaw = bigNum._raw;
+    if(_raw._low < otherRaw._low)
+    {
+        newRaw._low += (MAX64_NUM - otherRaw._low + 1);
+
+        newRaw._high -= 1;
+    }
+    else
+    {
+        newRaw._low -= otherRaw._low;
+    }
+
+    // 不管溢出
+    newRaw._high -= otherRaw._high;
+
+    return BigNum(newRaw);
+}
+
+ALWAYS_INLINE BigNum &BigNum::operator -=(const BigNum &bigNum)
+{
+    // 低位溢出进位
+    auto &otherRaw = bigNum._raw;
+    if(UNLIKELY((MAX64_NUM - _raw._low) < otherRaw._low))
+    {
+        _raw._low += (MAX64_NUM - otherRaw._low + 1);
+
+        _raw._high -= 1;
+    }
+    else
+    {
+        _raw._low -= otherRaw._low;
+    }
+
+    // 不管溢出
+    _raw._high -= otherRaw._high;
+
+    return *this;
+}
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum BigNum::operator &(T number) const
+{
+    return BigNum(0, _raw._low & (UInt64)number);
+}
+
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum &BigNum::operator &=(T number)
+{
+    _raw._low &= (UInt64)number;
+    _raw._high = 0;
+
+    return *this; 
+}
+
+ALWAYS_INLINE BigNum BigNum::operator &(const BigNum &number) const
+{
+    auto &otherRaw = number._raw;
+    return BigNum(_raw._high & otherRaw._high, _raw._low & otherRaw._low);
+}
+
+ALWAYS_INLINE BigNum &BigNum::operator &=(const BigNum &number)
+{
+    auto &otherRaw = number._raw;
+    _raw._low &= otherRaw._low;
+    _raw._high &= otherRaw._high;
+
+    return *this;
+}
+
+ALWAYS_INLINE BigNum BigNum::operator <<(Int32 number) const
+{
+    if(number >= 64)
+    {
+        return BigNum(_raw._low << (number - 64), 0);
+    }
+
+    return BigNum((_raw._high << number) | (_raw._low >> (64 - number)), _raw._low << number);
+}
+
+ALWAYS_INLINE BigNum BigNum::operator >>(Int32 number) const
+{
+    if(number >= 64)
+    {
+        return BigNum(0, _raw._high >> (number - 64));
+    }
+    // 低位:高位先通过保留低number位,并左移到64 - number位 | 低位 >> number即结果所得
+    return BigNum((_raw._high >> number), ((_raw._high & ~(1LLU << number)) << (64 - number)) | _raw._low >> number);
+}
+
+
+ALWAYS_INLINE BigNum &BigNum::operator <<=(Int32 number)
+{
+    if(number >= 64)
+    {
+        _raw._high = _raw._low << (number - 64);
+        _raw._low = 0;
+
+        return *this;
+    }
+
+    _raw._high = (_raw._high << number) | (_raw._low >> (64 - number));
+    _raw._low = _raw._low << number;
+
+    return *this;
+}
+
+
+ALWAYS_INLINE BigNum &BigNum::operator >>=(Int32 number)
+{
+    if(number >= 64)
+    {
+        _raw._low = _raw._high >> (number - 64);
+        _raw._high = 0;
+        return *this;
+    }
+
+    // 低位:高位先通过保留低number位,并左移到64 - number位 | 低位 >> number即结果所得
+    auto newHigh = _raw._high >> number;
+    _raw._low = ((_raw._high & ~(1LLU << number)) << (64 - number)) | _raw._low >> number;
+    _raw._high = newHigh;
+    return *this;
+}
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum BigNum::operator |(T number) const
+{
+    return BigNum(_raw._high, _raw._low | (UInt64)number);
+}
+
+ALWAYS_INLINE BigNum BigNum::operator |(const BigNum &number) const
+{
+    auto &otherRaw = number._raw;
+
+    return BigNum(_raw._high | otherRaw._high, _raw._low | otherRaw._low);
+}
+
+    
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum &BigNum::operator |=(T number)
+{
+    _raw._low |= (UInt64)number;
+
+    return *this; 
+}
+
+
+ALWAYS_INLINE BigNum &BigNum::operator |=(const BigNum &number)
+{
+    auto &otherRaw = number._raw;
+
+    _raw._low |= otherRaw._low;
+    _raw._high |= otherRaw._high;
+
+    return *this;
+}
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum BigNum::operator ^(T number) const
+{
+    return BigNum(_raw._high ^ 0, _raw._low ^ (UInt64)number);
+}
+
+ALWAYS_INLINE BigNum BigNum::operator ^(const BigNum &number) const
+{
+    auto &otherRaw = number._raw;
+
+    return BigNum(_raw._high ^ otherRaw._high, _raw._low ^ otherRaw._low);
+}
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum &BigNum::operator ^=(T number)
+{
+    _raw._low ^= (UInt64)number;
+
+    return *this; 
+}
+
+
+ALWAYS_INLINE BigNum &BigNum::operator ^=(const BigNum &number)
+{
+    auto &otherRaw = number._raw;
+
+    _raw._low ^= otherRaw._low;
+    _raw._high ^= otherRaw._high;
+
+    return *this;
+}
+
+
+ALWAYS_INLINE BigNum BigNum::operator ~() const
+{
+    return BigNum(~_raw._high, ~_raw._low);
+}
+
+ALWAYS_INLINE bool BigNum::operator ==(const BigNum &number) const
+{
+    auto &otherRaw = number._raw;
+
+    return (_raw._low == otherRaw._low) && (_raw._high == otherRaw._high);
+}
+
+
+
+ALWAYS_INLINE bool BigNum::operator !=(const BigNum &number) const
+{
+    return !operator==(number);
+}
+
+
+ALWAYS_INLINE bool BigNum::operator <(const BigNum &number) const
+{
+    auto &otherRaw = number._raw;
+
+    return (_raw._high < otherRaw._high) || ((_raw._high == otherRaw._high) && (_raw._low < otherRaw._low)); 
+}
+
+ALWAYS_INLINE bool BigNum::operator <=(const BigNum &number) const
+{
+    return operator==(number) || operator<(number);
+}
+
+ALWAYS_INLINE bool BigNum::operator >(const BigNum &number) const
+{
+    return !operator<=(number);
+}
+
+ALWAYS_INLINE bool BigNum::operator >=(const BigNum &number) const
+{
+    return !operator<(number);
+}
+
+template<NumericTypeTraits T>
+ALWAYS_INLINE BigNum &BigNum::operator =(T number)
+{
+    _raw._low = (UInt64)number;
+    _raw._high = 0;
+    return *this;
+}
+
+template<typename T>
+ALWAYS_INLINE bool BigNum::operator && (const T &other) const
+{
+    return IsNotZero() && other;
+}
+
+ALWAYS_INLINE bool BigNum::operator && (const BigNum &other) const
+{
+    return IsNotZero() && other.IsNotZero();
+}
+
+template<typename T>
+ALWAYS_INLINE bool BigNum::operator || (const T &other) const
+{
+    return IsNotZero() || other;
+}
+
+ALWAYS_INLINE bool BigNum::operator || (const BigNum &other) const
+{
+    return IsNotZero() || other.IsNotZero();
+}
+
+ALWAYS_INLINE bool BigNum::operator! () const
+{
+    return IsNotZero();
+}
 
 ALWAYS_INLINE LibString BigNum::ToString() const
 {
@@ -561,6 +666,42 @@ ALWAYS_INLINE LibString BigNum::ToString() const
 ALWAYS_INLINE LibString BigNum::ToHexString() const
 {
     return LibString().AppendFormat("%llx%llx", _raw._high, _raw._low);
+}
+
+
+ALWAYS_INLINE const BigNumRaw &BigNum::GetRaw() const
+{
+    return _raw;
+}
+
+ALWAYS_INLINE const UInt64 &BigNum::GetLow() const
+{
+    return _raw._low;
+}
+
+ALWAYS_INLINE UInt64 &BigNum::GetLow()
+{
+    return _raw._low;
+}
+
+ALWAYS_INLINE const UInt64 &BigNum::GetHigh() const
+{
+    return _raw._low;
+}
+
+ALWAYS_INLINE UInt64 &BigNum::GetHigh()
+{
+    return _raw._low;
+}
+
+ALWAYS_INLINE bool BigNum::IsZero() const
+{
+    return (_raw._low == 0) && (_raw._high == 0);
+}
+
+ALWAYS_INLINE bool BigNum::IsNotZero() const
+{
+    return (_raw._low != 0) || (_raw._high != 0);
 }
 
 KERNEL_END

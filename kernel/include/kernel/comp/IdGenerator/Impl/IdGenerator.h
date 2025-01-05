@@ -33,15 +33,28 @@
 
 #include <kernel/comp/CompObject/CompObject.h>
 #include <kernel/comp/Delegate/IDelegate.h>
+#include <concepts>
 
 KERNEL_BEGIN
 
+struct KERNEL_EXPORT IdGeneratorEception : std::exception 
+{
+    // id占位异常
+    [[nodiscard]] const char* what() const noexcept override 
+    {
+        return "IdGeneratorEception";
+    }
+};
 
-// id 结构 = [1bit符号位 = 0] + [44bit号段位] + [19bit 自增序列号位]
-// 原理: 移除machine id位, 放开对节点数量的限制, 采用提前占用号段位的方式来保证提前占用的号段一定是唯一的,17bit序列号用完则向远程申请一个单位的号段
-// 基础保障: 需要远程id号段分配节点是高可用的不允许服务时间内全部节点不可用
-// 理论性能: 如果考虑占位网络传输50ms, 那么可以达到, 10485760 qps, 如果不考虑网络因素, 最高 524288000 qps
-// id可使用: 500年
+// 首先UInt64 服务全球100亿人口不现实, 即使是国内15亿人, 64bit按照每人50qps那么也将在7年后耗尽, 所以不现实
+// 按照2w一个节点, 分布式id能服务的人数其实仅限于, machine id的位数, 如果要同时服务3亿人需要14bit, 即16,384个节点
+// 需要machine id 因为其实machine id是为了控制节点的并发消耗id的速度,如果没有machine id那么每启动一个就要占用一个号段, 如果并发几万个进程, 一下子就消耗光了，machine id是为了控制消耗速度,应该给machine id划分10bit
+// id 结构 = [1bit符号位 = 0] + [35bit 号段位] + [10bit 机器id位] + [18bit 自增序列号位]
+// 原理:采用提前占用号段位的方式来保证提前占用的号段一定是唯一的,序列号用完则向远程申请一个单位的号段, 使用machine id是因为避免启动很多个进程又关闭很多个进程后, id段被过快消耗掉
+// 基础保障: 需要远程id号段分配节点是高可用的不允许服务时间内全部节点不可用 
+// 单个节点理论消耗id 段个数: 按照网络来回50ms, 那么1秒内最多消耗20个id段
+// 理论性能: 5,242,880 qps
+// id可使用: 可以使用 54 年
 class KERNEL_EXPORT IdGenerator : public CompObject
 {
     POOL_CREATE_OBJ_DEFAULT_P1(CompObject, IdGenerator);
@@ -56,11 +69,15 @@ public:
         // 序列号起始位置
         SEQUANCE_ID_PART_START_POS = 0,
         // 序列号宽度
-        SEQUANCE_ID_PART_WIDTH = 19,
+        SEQUANCE_ID_PART_WIDTH = 18,
+        // 机器位起始
+        MACHINE_ID_PART_START_POS = SEQUANCE_ID_PART_START_POS + SEQUANCE_ID_PART_WIDTH,
+        // 机器位宽度
+        MACHINE_ID_PART_WIDTH = 10,
         // 号段起始位置
-        NUMBER_SEGMENT_PART_START_POS = SEQUANCE_ID_PART_START_POS + SEQUANCE_ID_PART_WIDTH,
+        NUMBER_SEGMENT_PART_START_POS = MACHINE_ID_PART_START_POS + MACHINE_ID_PART_WIDTH,
         // 号段宽度
-        NUMBER_SEGMENT_PART_WIDTH = ID_VALID_MAX_BITS - SEQUANCE_ID_PART_WIDTH,
+        NUMBER_SEGMENT_PART_WIDTH = ID_VALID_MAX_BITS - SEQUANCE_ID_PART_WIDTH - MACHINE_ID_PART_WIDTH,
         // 符号位起始位置
         SIGNAL_FLAG_START_POS = NUMBER_SEGMENT_PART_START_POS + NUMBER_SEGMENT_PART_WIDTH,
         SIGNAL_FLAG_WIDTH = 1,
@@ -68,6 +85,14 @@ public:
 
     // 最大序列id
     static constexpr UInt64 MAX_SEQUANCE_ID = (1LLU << SEQUANCE_ID_PART_WIDTH) - 1;
+    // 最大机器id
+    static constexpr UInt64 MAX_MACHINE_ID = (1LLU << MACHINE_ID_PART_WIDTH) - 1;
+
+    #pragma region bignum
+    static constexpr UInt64 BIG_NUM_MAX_SEQUANCE_ID = (1LLU << 32) - 1;
+    static constexpr Int32 BIG_NUM_MACHINE_ID_POS = 32;
+
+    #pragma endregion
     
 public:
     IdGenerator();
@@ -75,17 +100,21 @@ public:
 
     virtual void Release() override;
     LibString ToString() const override;
-    virtual void DefaultMaskReady(bool isReady) override {}
 
-    // id 结构 = [1bit符号位 = 0] + [44bit号段位] + [19bit 自增序列号位]
-    // 原理: 移除machine id位, 放开对节点数量的限制, 采用提前占用号段位的方式来保证提前占用的号段一定是唯一的,17bit序列号用完则向远程申请一个单位的号段
-    // 基础保障: 需要远程id号段分配节点是高可用的不允许服务时间内全部节点不可用
-    // 理论性能: 如果考虑占位网络传输50ms, 那么可以达到, 10485760 qps, 如果不考虑网络因素, 最高 524288000 qps
-    // id可使用: 500年
+    // id 结构 = [1bit符号位 = 0] + [35bit 号段位] + [10bit 机器id位] + [18bit 自增序列号位]
+    // 原理:采用提前占id段的方式保证, id段范围内一定是唯一的,使用machine id是避免机器不断重启导致id段过快消耗
+    // 基础保障: 需要远程id号段分配节点是高可用的不允许服务时间内全部节点不可用 
+    // 每秒消耗id段: 按照网络来回50ms, 那么1秒内最多消耗20个id段
+    // 理论性能: 5,242,880 qps
+    // id可使用: 可以使用54年
     UInt64 NewId();
 
     // 占用号段回调, 如果没有设置的话, 那么会使用_DefaultOccupancyNumberSegmentMethod, 且生成的id符号位为1, 以便与正式的区别
-    void SetOccupancyNumberSegmentDelegate(IDelegate<UInt64> *delg);
+    // @param UInt64&: 符号位
+    // @param UInt64&: 号段
+    // @param UInt64&: 机器id
+    // @return bool: 是否成功 
+    void SetOccupancyNumberSegmentDelegate(IDelegate<bool, UInt64&, UInt64 &, UInt64 &> *delg);
 
     // 更新号段
     void UpdateOccupancyNumberSegment();
@@ -98,18 +127,24 @@ protected:
     void _OnClose() override;
 
     // 默认占用id段的方法, 如果没有调用SetOccupancyNumberSegmentDelegate设置占用号段的回调,那么会使用默认的
-    static UInt64 _DefaultOccupancyNumberSegmentMethod();
+    static bool _DefaultOccupancyNumberSegmentMethod(UInt64 &signalFlag, UInt64 &segment, UInt64 &machineId);
     
 protected:
     // 序列号位
     UInt64 _lastSequanceId;
     // 号段位
     UInt64 _lastNumberSegment;
+    // 机器id段
+    UInt64 _machineId;
     // 符号位
     UInt64 _signalFlag;
 
     // 提前占用号段回调
-    IDelegate<UInt64> *_occupancyNumberSegmentDelegate;
+    // @param UInt64&: 符号位
+    // @param UInt64&: 号段
+    // @param UInt64&: 机器id
+    // @return bool: 是否成功 
+    IDelegate<bool, UInt64&, UInt64 &, UInt64 &> *_occupancyNumberSegmentDelegate;
 };
 
 ALWAYS_INLINE UInt64 IdGenerator::NewId()
@@ -121,10 +156,10 @@ ALWAYS_INLINE UInt64 IdGenerator::NewId()
         _lastSequanceId = 0;
     }
 
-    return _signalFlag | (_lastNumberSegment << NUMBER_SEGMENT_PART_START_POS) | (++_lastSequanceId);
+    return _signalFlag | (_lastNumberSegment << NUMBER_SEGMENT_PART_START_POS) | (_machineId << MACHINE_ID_PART_START_POS) | (++_lastSequanceId);
 }
 
-ALWAYS_INLINE void IdGenerator::SetOccupancyNumberSegmentDelegate(IDelegate<UInt64> *delg)
+ALWAYS_INLINE void IdGenerator::SetOccupancyNumberSegmentDelegate(IDelegate<bool, UInt64&, UInt64 &, UInt64 &> *delg)
 {
     if(_occupancyNumberSegmentDelegate)
         _occupancyNumberSegmentDelegate->Release();
@@ -134,9 +169,10 @@ ALWAYS_INLINE void IdGenerator::SetOccupancyNumberSegmentDelegate(IDelegate<UInt
 
 ALWAYS_INLINE void IdGenerator::UpdateOccupancyNumberSegment()
 {
-    _lastNumberSegment = _occupancyNumberSegmentDelegate->Invoke();
-    _signalFlag = (1LLU << SIGNAL_FLAG_START_POS) & _lastNumberSegment;
-    _lastNumberSegment &= ~(1LLU << SIGNAL_FLAG_START_POS);
+    if(UNLIKELY(!_occupancyNumberSegmentDelegate->Invoke(_signalFlag, _lastNumberSegment, _machineId)))
+    {
+        throw IdGeneratorEception();
+    }
 }
 
 

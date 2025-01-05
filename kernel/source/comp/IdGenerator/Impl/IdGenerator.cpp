@@ -31,6 +31,7 @@
 #include <kernel/comp/IdGenerator/Impl/IdGeneratorFactory.h>
 #include <kernel/comp/Utils/RttiUtil.h>
 
+#include "kernel/comp/LibTraceId.h"
 #include "kernel/comp/Log/ILog.h"
 
 KERNEL_BEGIN
@@ -82,6 +83,11 @@ Int32 IdGenerator::_OnStart()
 {
     // 初始化占用一个id段
     UpdateOccupancyNumberSegment();
+
+    // 当前trace, 更新
+    auto trace  = LibTraceId::GetCurrentTrace();
+    trace->UpdateMain();
+    trace->UpdateSub();
     return Status::Success;
 }
 
@@ -95,13 +101,23 @@ void IdGenerator::_OnClose()
     
 }
 
-UInt64 IdGenerator::_DefaultOccupancyNumberSegmentMethod()
+bool IdGenerator::_DefaultOccupancyNumberSegmentMethod(UInt64 &signalFlag, UInt64 &segment, UInt64 &machineId)
 {
     static std::atomic<UInt64> s_maxNumberSegment {0};
+    static std::atomic<UInt64> s_machineId {0};
 
-    UInt64 maxNumberSegment = ++s_maxNumberSegment;
-    maxNumberSegment |= (1LLU << SIGNAL_FLAG_START_POS);
-    return maxNumberSegment;
+    // 机器id
+    auto origin = s_machineId.load();
+    machineId = origin % MAX_MACHINE_ID + 1;
+    while (!s_machineId.compare_exchange_weak(origin, machineId))
+        machineId = origin % MAX_MACHINE_ID + 1;
+    
+    // id段
+    segment = ++s_maxNumberSegment;
+
+    // 符号位
+    signalFlag = (1LLU << SIGNAL_FLAG_START_POS);
+    return true;
 }
 
 KERNEL_END
