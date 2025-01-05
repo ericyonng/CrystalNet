@@ -102,8 +102,8 @@
 #include <testsuit/testinst/TestConceptModules/TestConceptModules.h>
 #include <testsuit/testinst/TestBigNum/TestBigNum.h>
 #include <testsuit/testinst/TestJson.h>
-
 #include "testinst/TestLua/TestLua.h"
+#include "testsuit/testinst/TestIdGenerator.h"
 
 // void *operator new(size_t bytes)
 // {
@@ -289,7 +289,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestOrm::Run();
     // TestTimeWheel::Run();
     // TestCheckAdapter::Run();
-    TestCoroutine::Run();
+    // TestCoroutine::Run();
     // TestCurl::Run(argc, argv);
     // TestModule::Run();
     // TestConcepts::Run();
@@ -297,7 +297,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestBigNum::Run();
     // TestLua::Run();
     // TestJson::Run();
-
+    TestIdGenerator::Run();
+    
     // write a large file
     // do
     // {

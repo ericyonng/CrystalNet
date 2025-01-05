@@ -46,7 +46,8 @@
 #include "kernel/comp/Tls/TlsPtr.h"
 
 KERNEL_BEGIN
-    class MemoryPool;
+
+class MemoryPool;
 
 class TlsMemoryPool;
 
@@ -55,6 +56,7 @@ class TlsObjectPool;
 
 class Poller;
 class TlsCompsOwner;
+class IdGenerator;
 
 class KERNEL_EXPORT TlsUtil
 {
@@ -68,6 +70,7 @@ public:
     static TlsStack<TlsStackSize::SIZE_1MB> *GetTlsStack(bool forceCreate = true); 
     static TlsDefaultObj *GetDefTls();
     static Poller *GetPoller();
+    static IdGenerator *GetIdGenerator();
     static TlsCompsOwner *GetTlsCompsOwner();
     static void DestroyTlsStack();
     static void DestroyTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsTask);
@@ -104,6 +107,8 @@ private:
     // 指定tlshandle
     static TlsHandle CreateTlsHandle();
     static void DestroyTlsHandle(TlsHandle &tlsHandle);
+    static IdGenerator *_GetIdGenerator();
+
 };
 
 ALWAYS_INLINE void TlsUtil::DestroyUtilTlsHandle()
@@ -217,6 +222,17 @@ ALWAYS_INLINE TlsMemoryAlloctor *TlsUtil::GetTlsMemoryAlloctorHost()
 ALWAYS_INLINE TlsMemoryPool *TlsUtil::GetTlsMemoryPoolHost()
 {
     return *GetTlsMemoryPoolHostThreadLocalAddr();
+}
+
+ALWAYS_INLINE IdGenerator *TlsUtil::GetIdGenerator()
+{
+    DEF_STATIC_THREAD_LOCAL_DECLEAR IdGenerator *s_IdGen = NULL;
+    if(LIKELY(s_IdGen))
+        return s_IdGen;
+
+    s_IdGen = _GetIdGenerator();
+
+    return s_IdGen;
 }
 
 KERNEL_END

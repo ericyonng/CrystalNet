@@ -40,7 +40,9 @@
 #include "NetEngine/BriefSockAddr.h"
 
 KERNEL_BEGIN
-    struct KERNEL_EXPORT LibTraceId
+
+// IdGenerator不可用的时候trace id为负数
+struct KERNEL_EXPORT LibTraceId
 {
   POOL_CREATE_OBJ_DEFAULT(LibTraceId);
 
@@ -53,6 +55,8 @@ KERNEL_BEGIN
     void UpdateSub();
 
     static LibTraceId *GetCurrentTrace();
+
+    // 只有在idgenerator还没初始化的时候使用
     static std::atomic<UInt64> &GetAtomicMaxId();
 
   UInt64 _mainTraceId;
@@ -66,7 +70,6 @@ ALWAYS_INLINE LibString LibTraceId::ToString() const
     LibString info;
     return  info.AppendFormat("MainTrace:%llu,SubTrace:%llu,Desc:%s", _mainTraceId, _subTraceId, _desc.c_str());
 }
-
 
 struct KERNEL_EXPORT TlsLibTrace
 {

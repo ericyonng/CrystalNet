@@ -34,6 +34,7 @@
 #include <kernel/comp/Utils/AllocUtil.h>
 #include <kernel/comp/Tls/TlsCompsOwner.h>
 #include <kernel/comp/Poller/Poller.h>
+#include <kernel/comp/IdGenerator/IdGenerator.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
  #include <processthreadsapi.h>
@@ -170,5 +171,12 @@ Poller *TlsUtil::GetPoller()
     auto defTls = GetDefTls();
     return defTls->_tlsComps->GetComp<Poller>();
 }
+
+IdGenerator *TlsUtil::_GetIdGenerator()
+{
+    auto defTls = GetDefTls();
+    return defTls->_tlsComps->GetComp<IdGenerator>();
+}
+
 
 KERNEL_END

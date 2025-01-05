@@ -263,61 +263,97 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
     g_Log->Info(LOGFMT_OBJ_TAG("service %s serviceId:%llu thread will start thread id:%llu.")
                     , serviceName.c_str(), serviceId, t->GetTheadId());
     KERNEL_NS::SmartPtr<IService, KERNEL_NS::AutoDelMethods::ReleaseSafe> service = _serviceFactory->Create(serviceName);
+
+    bool cleanWithClose = false;
+    Int32 errCode = Status::Success;
+    bool hasAbnormal = false;
     
-    // 设置参数
-    service->SetServiceProxy(this);
-    service->SetServiceId(serviceId);
-    service->SetServiceName(serviceName);
-
-    _guard.Lock();
-    _idRefService.insert(std::make_pair(serviceId, service));
-    _guard.Unlock();
-
-    // 1.获取配置,创建激活的服务t中需要带本服务线程所需要的相关服务信息，且本线程必须是某个服务独占的
-    g_Log->Info(LOGFMT_OBJ_TAG("service %s init..."), service->IntroduceInfo().c_str());
-    auto errCode = service->Init();
-    if(errCode != Status::Success)
+    KERNEL_FINALLY_BEGIN(cleaner)
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("service %s init fail errCode:%d "), service->IntroduceInfo().c_str(), errCode);
-        SetErrCode(NULL, errCode);
-        _guard.Lock();
-        _idRefService.erase(serviceId);
-        _guard.Unlock();
-        ++_closeServiceNum;
-        return;
+        if(!hasAbnormal && errCode == Status::Success)
+            return;
+
+        // 必须不能再抛异常了
+        try
+        {
+            if(cleanWithClose)
+                service->WillClose();
+
+            _guard.Lock();
+            _idRefService.erase(serviceId);
+            _guard.Unlock();
+            ++_closeServiceNum;
+
+            if(cleanWithClose)
+                service->Close();
+        }
+        catch (std::exception &e)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("abnormal:%s, when clean service: %s"), e.what(), service->IntroduceInfo().c_str());
+        }
+        catch (...)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("unknown abnormal when clean service: %s"), service->IntroduceInfo().c_str());
+        }
     }
+    KERNEL_FINALLY_END();
 
-    // 2.启动服务
-    g_Log->Info(LOGFMT_OBJ_TAG("service %s start..."), service->IntroduceInfo().c_str());
-    errCode = service->Start();
-    if(errCode != Status::Success)
+    // 服务启动需要管控异常
+    try
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("service %s start fail errCode:%d"), service->IntroduceInfo().c_str(), errCode);
-        SetErrCode(NULL, errCode);
-        _guard.Lock();
-        _idRefService.erase(serviceId);
-        _guard.Unlock();
-        ++_closeServiceNum;
-
-        return;
-    }
-
-    g_Log->Info(LOGFMT_OBJ_TAG("service %s prepare loop..."), service->IntroduceInfo().c_str());
-    if(!service->PrepareLoop())
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("service %s prepare loop fail"), service->IntroduceInfo().c_str());
-        SetErrCode(NULL, Status::Failed);
-        service->WillClose();
+        // 设置参数
+        service->SetServiceProxy(this);
+        service->SetServiceId(serviceId);
+        service->SetServiceName(serviceName);
 
         _guard.Lock();
-        _idRefService.erase(serviceId);
+        _idRefService.insert(std::make_pair(serviceId, service));
         _guard.Unlock();
-        ++_closeServiceNum;
 
-        service->Close();
-        return;
+        // 1.获取配置,创建激活的服务t中需要带本服务线程所需要的相关服务信息，且本线程必须是某个服务独占的
+        g_Log->Info(LOGFMT_OBJ_TAG("service %s init..."), service->IntroduceInfo().c_str());
+        errCode = service->Init();
+        if(errCode != Status::Success)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("service %s init fail errCode:%d "), service->IntroduceInfo().c_str(), errCode);
+            SetErrCode(NULL, errCode);
+            return;
+        }
+
+        // 2.启动服务
+        g_Log->Info(LOGFMT_OBJ_TAG("service %s start..."), service->IntroduceInfo().c_str());
+        errCode = service->Start();
+        if(errCode != Status::Success)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("service %s start fail errCode:%d"), service->IntroduceInfo().c_str(), errCode);
+            SetErrCode(NULL, errCode);
+
+            return;
+        }
+
+        cleanWithClose = true;
+        g_Log->Info(LOGFMT_OBJ_TAG("service %s prepare loop..."), service->IntroduceInfo().c_str());
+        if(!service->PrepareLoop())
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("service %s prepare loop fail"), service->IntroduceInfo().c_str());
+            SetErrCode(NULL, Status::Failed);
+            return;
+        }
     }
-
+    catch (std::exception &e)
+    {
+        hasAbnormal = true;
+        errCode = Status::Failed;
+        g_Log->Error(LOGFMT_OBJ_TAG("service exception service:%s, exception:%s"), service->IntroduceInfo().c_str(), e.what());
+    }
+    catch (...)
+    {
+        hasAbnormal = true;
+        errCode = Status::Failed;
+        g_Log->Error(LOGFMT_OBJ_TAG("service unknown exception service:%s"), service->IntroduceInfo().c_str());
+        throw;
+    }
+    
     // 判断所有服务是否启动完成
     _guard.Lock();
     if(_idRefService.size() >= _serviceThreads.size())
@@ -343,12 +379,34 @@ void ServiceProxy::_OnPrepareServiceThread(UInt64 serviceId, const KERNEL_NS::Li
     g_Log->Info(LOGFMT_OBJ_TAG("service %s quit all sessions..."), service->IntroduceInfo().c_str());
     service->GetComp<KERNEL_NS::IPollerMgr>()->QuitAllSessions(service->GetServiceId());
 
-    g_Log->Info(LOGFMT_OBJ_TAG("service %s will close..."), service->IntroduceInfo().c_str());
-    service->WillClose();
+    try
+    {
+        g_Log->Info(LOGFMT_OBJ_TAG("service %s will close..."), service->IntroduceInfo().c_str());
+        service->WillClose();
+    }
+    catch (std::exception &e)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("abnormal:%s, when will close service: %s"), e.what(), service->IntroduceInfo().c_str());
+    }
+    catch (...)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("unknown abnormal when will close service: %s"), service->IntroduceInfo().c_str());
+    }
 
-    g_Log->Info(LOGFMT_OBJ_TAG("service %s close..."), service->IntroduceInfo().c_str());
+    try
+    {
+        g_Log->Info(LOGFMT_OBJ_TAG("service %s close..."), service->IntroduceInfo().c_str());
+        service->Close();
+    }
+    catch (std::exception &e)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("abnormal:%s, when close service: %s"), e.what(), service->IntroduceInfo().c_str());
+    }
+    catch (...)
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("unknown abnormal when close service: %s"), service->IntroduceInfo().c_str());
+    }
 
-    service->Close();
     ++_closeServiceNum;
 
     g_Log->Info(LOGFMT_OBJ_TAG("service %s close finish"), service->IntroduceInfo().c_str());

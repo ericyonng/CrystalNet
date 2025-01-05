@@ -34,6 +34,7 @@
 #include <kernel/comp/TlsMemoryCleanerComp.h>
 #include <kernel/comp/Tls/TlsTypeSystem.h>
 #include <kernel/comp/Timer/TimerMgr.h>
+#include <kernel/comp/IdGenerator/IdGenerator.h>
 
 KERNEL_BEGIN
 
@@ -66,6 +67,9 @@ void TlsCompsOwner::OnRegisterComps()
 
     // 内存清理
     RegisterComp<TlsMemoryCleanerCompFactory>();
+
+    // 分布式id生成器
+    RegisterComp<IdGeneratorFactory>();
 }
 
 Int32 TlsCompsOwner::_OnCompsCreated()

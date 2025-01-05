@@ -31,6 +31,8 @@
 #include <kernel/comp/Coroutines/CoTaskParam.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 
+#include "kernel/comp/IdGenerator/Impl/IdGenerator.h"
+
 KERNEL_BEGIN
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibTraceId);
@@ -44,14 +46,40 @@ LibTraceId::LibTraceId()
 
 void LibTraceId::UpdateMain()
 {
-    // TODO 全球唯一id
-    _mainTraceId = ++GetAtomicMaxId();
+    DEF_STATIC_THREAD_LOCAL_DECLEAR IdGenerator *s_IdGen = NULL;
+    if(LIKELY(s_IdGen))
+    {
+        _mainTraceId = s_IdGen->NewId();
+        return;
+    }
+
+    s_IdGen = TlsUtil::GetIdGenerator();
+    if(LIKELY(s_IdGen))
+    {
+        _mainTraceId = s_IdGen->NewId();
+        return;
+    }
+
+    _mainTraceId = (1LLU << 63) | ++GetAtomicMaxId();
 }
 
 void LibTraceId::UpdateSub()
 {
-    // 全球唯一id
-    _subTraceId = ++GetAtomicMaxId();
+    DEF_STATIC_THREAD_LOCAL_DECLEAR IdGenerator *s_IdGen = NULL;
+    if(LIKELY(s_IdGen))
+    {
+        _subTraceId = s_IdGen->NewId();
+        return;
+    }
+
+    s_IdGen = TlsUtil::GetIdGenerator();
+    if(LIKELY(s_IdGen))
+    {
+        _subTraceId = s_IdGen->NewId();
+        return;
+    }
+
+    _subTraceId = (1LLU << 63) | ++GetAtomicMaxId();
 }
 
 std::atomic<UInt64> &LibTraceId::GetAtomicMaxId()
@@ -66,19 +94,15 @@ LibTraceId *LibTraceId::GetCurrentTrace()
         return currentCo->_trace;
 
   auto tlsTrace = TlsUtil::GetOrCreateTargetPtr<TlsLibTrace>();
-  if(!tlsTrace->_ptr->_trace)
-      tlsTrace->_ptr->_trace = LibTraceId::NewThreadLocal_LibTraceId();
+  if(UNLIKELY(!tlsTrace->_ptr->_trace))
+      tlsTrace->_ptr->_trace = CRYSTAL_NEW(LibTraceId);
 
   return tlsTrace->_ptr->_trace;
 }
 
 TlsLibTrace::~TlsLibTrace()
 {
-    if(_trace)
-    {
-        LibTraceId::DeleteThreadLocal_LibTraceId(_trace);
-        _trace = NULL;
-    }
+   CRYSTAL_DELETE_SAFE(_trace);
 }
 
 
