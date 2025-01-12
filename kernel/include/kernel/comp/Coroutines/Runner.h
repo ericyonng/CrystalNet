@@ -64,6 +64,18 @@ ALWAYS_INLINE void PostRun(Fut&& task)
     }
 }
 
+template<Future Fut>
+ALWAYS_INLINE void _RunRightNow(Fut&& task) 
+{
+    if (task.Valid() && !task.Done()) 
+    {
+        auto &promise = task.GetHandle().promise();
+        promise.SetState(KERNEL_NS::KernelHandle::SCHEDULED);
+        task.SetDisableSuspend(true);
+        promise.Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
+    }
+}
+
 // t 是lambda注意, lambda捕获的成员将在被调用中无法使用, 所以如果需要参数不应该捕获外部参数而应该在Caller的时候传递参数，因为会被作为协程参数被保存在协程堆中
 template<typename T, typename... Args>
 ALWAYS_INLINE void PostCaller(T &&t, Args... args)
@@ -75,6 +87,19 @@ ALWAYS_INLINE void PostCaller(T &&t, Args... args)
         co_await targetLambda(argsLamb...).SetDisableSuspend(true);
     };
     PostRun(lamb(t, args...));
+}
+
+// 立即执行
+template<typename T, typename... Args>
+ALWAYS_INLINE void RunRightNow(T &&t, Args... args)
+{
+    // T必须作为参数被拷贝到协程上下文中, 因为, lamb是临时的lambda所以会被释放, 这样会导致T中捕获的变量都不可用
+    auto &&lamb = [](T targetLambda, Args... argsLamb)->CoTask<> 
+    {        
+        // 此处不进入到Poller去异步调度, 保证与当前栈帧同步
+        co_await targetLambda(argsLamb...).SetDisableSuspend(true);
+    };
+    _RunRightNow(lamb(t, args...));
 }
 
 KERNEL_END

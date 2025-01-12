@@ -119,6 +119,10 @@ public:
 
     LibTime operator +(const TimeSlice &slice) const;
     LibTime operator -(const TimeSlice &slice) const;
+
+    LibTime &operator +=(const TimeSlice &slice);
+    LibTime &operator -=(const TimeSlice &slice);
+
      
     /**
      * Add specified time parts values.

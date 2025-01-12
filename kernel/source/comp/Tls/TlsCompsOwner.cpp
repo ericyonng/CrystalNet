@@ -35,6 +35,7 @@
 #include <kernel/comp/Tls/TlsTypeSystem.h>
 #include <kernel/comp/Timer/TimerMgr.h>
 #include <kernel/comp/IdGenerator/IdGenerator.h>
+#include "kernel/comp/Timing/Timing.h"
 
 KERNEL_BEGIN
 
@@ -64,6 +65,9 @@ void TlsCompsOwner::OnRegisterComps()
 
     // poller事件循环
     RegisterComp<PollerFactory>();
+
+    // 不依赖系统授时
+    RegisterComp<TimingFactory>();
 
     // 内存清理
     RegisterComp<TlsMemoryCleanerCompFactory>();

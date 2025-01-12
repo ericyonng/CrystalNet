@@ -46,7 +46,7 @@ class KERNEL_EXPORT TimeSlice
     
 public:
     TimeSlice();
-
+    
     /**
      * Construct by slice, in seconds.
      * @param[in] seconds      - the slice seconds part.
@@ -132,6 +132,11 @@ public:
     {
        static TimeSlice s_zero;
        return s_zero;
+    }
+
+    bool IsZero() const
+    {
+        return _slice == 0;
     }
 
 private:

@@ -274,6 +274,18 @@ LibTime LibTime::operator -(const TimeSlice &slice) const
     return LibTime(_rawTime - slice.GetTotalNanoSeconds());
 }
 
+LibTime &LibTime::operator +=(const TimeSlice &slice)
+{
+    _rawTime += slice.GetTotalNanoSeconds();
+    return *this;
+}
+
+LibTime &LibTime::operator -=(const TimeSlice &slice)
+{
+    _rawTime -= slice.GetTotalNanoSeconds();
+    return *this;
+}
+
 LibTime LibTime::AddYears(int years) const
 {
     if(years == 0)

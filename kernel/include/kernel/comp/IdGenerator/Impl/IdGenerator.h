@@ -23,7 +23,11 @@
  * 
  * Date: 2025-01-05 15:41:13
  * Author: Eric Yonng
- * Description: 
+ * Description:
+ * 分布式id构成：
+ * [号段位] + [机器id] + [序列号]
+ * 号段位: 当序列号位满时进一位
+ * 机器id: 向中心注册机器id, 然后本地化生成, 为保证
 */
 
 #ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_IDGENERATOR_IMPL_IDGENERATOR_H__
