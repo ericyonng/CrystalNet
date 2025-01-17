@@ -42,7 +42,6 @@ IdGenerator::IdGenerator()
  :CompObject(RttiUtil::GetTypeId<IdGenerator>())
 ,_lastSequanceId(0)
 ,_lastNumberSegment(0)
-,_signalFlag(0)
 ,_occupancyNumberSegmentDelegate(NULL)
 {
     _occupancyNumberSegmentDelegate = DelegateFactory::Create(&IdGenerator::_DefaultOccupancyNumberSegmentMethod);
@@ -101,7 +100,7 @@ void IdGenerator::_OnClose()
     
 }
 
-bool IdGenerator::_DefaultOccupancyNumberSegmentMethod(UInt64 &signalFlag, UInt64 &segment, UInt64 &machineId)
+bool IdGenerator::_DefaultOccupancyNumberSegmentMethod(UInt64 &segment, UInt64 &machineId)
 {
     static std::atomic<UInt64> s_maxNumberSegment {0};
     static std::atomic<UInt64> s_machineId {0};
@@ -115,8 +114,6 @@ bool IdGenerator::_DefaultOccupancyNumberSegmentMethod(UInt64 &signalFlag, UInt6
     // id段
     segment = ++s_maxNumberSegment;
 
-    // 符号位
-    signalFlag = (1LLU << SIGNAL_FLAG_START_POS);
     return true;
 }
 

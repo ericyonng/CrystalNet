@@ -295,9 +295,9 @@ void TestInst::Run(int argc, char const *argv[])
     // TestConcepts::Run();
     // TestConceptModules::Run();
     // TestBigNum::Run();
-    // TestLua::Run();
+    TestLua::Run();
     // TestJson::Run();
-    TestIdGenerator::Run();
+    // TestIdGenerator::Run();
     
     // write a large file
     // do
