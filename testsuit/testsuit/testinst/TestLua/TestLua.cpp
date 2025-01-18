@@ -39,6 +39,11 @@ public:
         
     }
 
+    ~TestLuaBase()
+    {
+        g_Log->Info(LOGFMT_OBJ_TAG("destruct value:%d"), _value);
+    }
+
     void Dump()
     {
         g_Log->Info(LOGFMT_OBJ_TAG("value:%d"), _value);
@@ -136,6 +141,64 @@ void TestLua::Run()
         
         return true;
     });
+
+    Int32 testGlobal = 0;
+    kernelLua.GetGlobalVariable("TestGlobal", testGlobal);
+    kernelLua.SetGlobalVariable("TestGlobal", ++testGlobal);
+    Int32 testGlobalCopy = 0;
+    kernelLua.GetGlobalVariable("TestGlobal", testGlobalCopy);
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "TestGlobal:%d"), testGlobal);
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "testGlobalCopy:%d"), testGlobalCopy);
+
+    // 执行及时脚本
+    kernelLua.RunString("print(\"hello dynamic script...\")");
+
+    // 执行lua函数
+    auto err = kernelLua.Call<Int32>("DoHelloLua", 1, 2.0, (double)3.0, "4");
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "err:%d"), err);
+
+    auto retBool = kernelLua.Call<bool>("TestTable:funcTest1", 1, "hello test");
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "retBool:%d"), retBool);
+    retBool = kernelLua.Call<bool>("TestTable.funcTest2", 2, "hello test");
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "retBool:%d"), retBool);
+
+    {
+        std::vector<Int32> vec;
+        vec.push_back(100);
+        std::vector<float> lt;
+        lt.push_back(14.4);
+        std::set<std::string> st;
+        st.insert("OhNIce");
+        std::map<std::string, Int32> dict;
+        dict["key"] = 200;
+        auto result = kernelLua.Call<std::string>("test_stl", vec, lt, st, dict);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "result:%s"), result.c_str());
+    }
+
+    {
+        //! 调用lua 函数返回 talbe，自动转换为stl结构
+        auto vec = kernelLua.Call<std::vector<int> >("test_return_stl_vector");
+        auto lt  = kernelLua.Call<std::list<float> >("test_return_stl_list");
+        auto st  = kernelLua.Call<std::set<std::string> >("test_return_stl_set");
+        auto mp  = kernelLua.Call<std::map<std::string, int> >("test_return_stl_map");
+
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "vec:%s"), KERNEL_NS::StringUtil::ToString(vec, ",").c_str());
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "lt:%s"), KERNEL_NS::StringUtil::ToString(lt, ",").c_str());
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "st:%s"), KERNEL_NS::StringUtil::ToString(st, ",").c_str());
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "mp:%s"), KERNEL_NS::StringUtil::ToString(mp, ",").c_str());
+    }
+
+    // 调用lua函数, c++对象作为参数
+    {
+        auto foo = new TestFoo(100);
+        kernelLua.Call<void>("test_object", foo);
+
+        // foo作为返回值
+        auto foo_tmp = kernelLua.Call<TestFoo *>("test_ret_object", foo);
+        auto base_ptr = kernelLua.Call<TestLuaBase *>("test_ret_base_object", foo_tmp);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "foo_tmp:%p, base_ptr:%p"), foo_tmp, base_ptr);
+    }
 
     // Reg 添加了require约束, 以下示范会失败
     // kernelLua.Reg(RetLuaFail);

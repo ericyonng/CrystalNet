@@ -40,6 +40,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <vector>
+#include <map>
+#include <unordered_map>
 
 KERNEL_BEGIN
 
@@ -110,7 +112,13 @@ public:
 	static LibString ToString(const std::set<T *> &contents, const LibString &sep);
 	template<typename T>
 	static LibString ToString(const std::set<const T *> &contents, const LibString &sep);
-
+	template<typename K, typename V>
+	static LibString ToString(const std::map<K, V> &contents, const LibString &sep);
+	template<typename K, typename V>
+	static LibString ToString(const std::unordered_map<K, V> &contents, const LibString &sep);
+	template<typename V>
+	static LibString ToString(const std::list<V> &contents, const LibString &sep);
+	
 	// 校验标准名字:英文, 数字, 下划线, 且首字母非数字, name 长度为0也是非法
 	static bool CheckGeneralName(const LibString &name);
 
@@ -408,6 +416,36 @@ ALWAYS_INLINE LibString StringUtil::ToString(const std::set<const T *> &contents
 	std::vector<LibString> strs;
 	for(auto &elem : contents)
 		strs.push_back(KERNEL_NS::LibString() << *elem);
+	
+	return StringUtil::ToString(strs, sep);
+}
+
+template<typename K, typename V>
+ALWAYS_INLINE LibString StringUtil::ToString(const std::map<K, V> &contents, const LibString &sep)
+{
+	std::vector<LibString> strs;
+	for(auto &it : contents)
+		strs.push_back(KERNEL_NS::LibString() << it.first << ":" << it.second);
+	
+	return StringUtil::ToString(strs, sep);
+}
+
+template<typename K, typename V>
+ALWAYS_INLINE LibString StringUtil::ToString(const std::unordered_map<K, V> &contents, const LibString &sep)
+{
+	std::vector<LibString> strs;
+	for(auto &it : contents)
+		strs.push_back(KERNEL_NS::LibString() << it.first << ":" << it.second);
+	
+	return StringUtil::ToString(strs, sep);
+}
+
+template<typename V>
+ALWAYS_INLINE LibString StringUtil::ToString(const std::list<V> &contents, const LibString &sep)
+{
+	std::vector<LibString> strs;
+	for(auto &it : contents)
+		strs.push_back(KERNEL_NS::LibString() << it);
 	
 	return StringUtil::ToString(strs, sep);
 }
