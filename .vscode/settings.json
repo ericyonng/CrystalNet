@@ -77,7 +77,7 @@
         "headDesignName": "mitLicence",
         "headDesign": true
     },
-    "window.zoomLevel": 0,
+    "window.zoomLevel": 1,
     "files.associations": {
         "iosfwd": "cpp",
         "fstream": "cpp",

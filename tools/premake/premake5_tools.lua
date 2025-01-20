@@ -5,9 +5,6 @@
 -- python tool define
 IS_WINDOWS = string.match(_ACTION, 'vs') ~= nil
 ISUSE_CLANG = _ARGS[1] and (_ARGS[1] == 'clang')
--- 使用动态链接
-USE_KERNEL_SO = _ARGS[2] and (_ARGS[2] == 'use_kernel_so')
-
 print('_ARGS:', _ARGS[1], _ARGS[2], _ARGS[3], ', ISUSE_CLANG:', ISUSE_CLANG)
 
 -- header directory
@@ -18,8 +15,9 @@ OUTPUT_DIR = "../../output/" .. _ACTION
 ROOT_DIR = "../../"
 WIN_ROOT_DIR = ".\\..\\..\\"
 -- build directory
-BUILD_DIR = "../../build/"
--- 脚本路径
+BUILD_DIR = "../../build_tools/"
+
+-- script path
 SCRIPT_PATH = ROOT_DIR .. "scripts/build_tools/"
 if IS_WINDOWS then
     SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\build_tools\\"
@@ -116,9 +114,9 @@ function set_common_options(optOption)
     if ENABLE_TEST_SERVICE ~= 0 then
         defines("ENABLE_TEST_SERVICE")
     end
-    filter { "system:windows" }
-	    defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
-    filter {}
+
+    -- 工具的kernel使用静态库
+	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
 
 	filter {"language:c++", "system:windows" }
         defines("_WINSOCK_DEPRECATED_NO_WARNINGS")
@@ -153,7 +151,7 @@ function include_libfs(do_post_build, add_protobuflib)
 	}
 
     -- 使用curl静态库
-	defines { "CURL_STATICLIB" }
+	defines { "CURL_STATICLIB"}
 
     -- files
     -- files {
@@ -178,14 +176,14 @@ function include_libfs(do_post_build, add_protobuflib)
     -- links(not windows)
     filter { "system:not windows", "configurations:debug*" }
         links {
-            "CrystalKernel_debug",
+            "CrystalKernel_debug:static",
             "uuid_debug:static",
             "lua:static",
         }
     filter {}
     filter { "system:not windows", "configurations:release*" }
         links {
-            "CrystalKernel",
+            "CrystalKernel:static",
             "uuid:static",
         }
     filter {}
@@ -383,15 +381,8 @@ project "CrystalKernel"
     -- language, kind
     language "c++"
 
-    -- windows 下静态库
-    filter { "system:windows" }
-        kind "StaticLib"
-    filter{}
-
-    -- linux 下动态库, 为了热更
-    filter { "system:linux"}
-        kind "SharedLib"
-    filter{}
+    -- 工具的kernel使用静态库
+    kind "StaticLib"
 
     -- 支持c++20
     -- cppdialect "c++20"
@@ -585,259 +576,8 @@ project "CrystalKernel"
 -- ****************************************************************************
 
 
--- ****************************************************************************
--- FS core library compile setting
-project "TestServicePlugin"
-    -- language, kind
-    language "c++"
-    if IS_WINDOWS then
-        kind "StaticLib"
-    else
-        kind "SharedLib"
-    end
-
-    -- 支持c++20
-    -- cppdialect "c++20"
-
-    -- symbols
-	debugdir(DEBUG_DIR)
-    symbols "On"
-    
-    -- dependents
-    dependson {
-        "CrystalKernel",
-    }
-
-	enable_precompileheader("pch.h", ROOT_DIR .. "TestServicePlugin/TestServicePlugin_pch/pch.cpp")
-
-    -- 导入内核接口 宏定义
-	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
-
-	-- 设置通用选项
-    set_common_options()
-	
-	includedirs {
-	    "../../",
-		"../../kernel/include/",
-        "../../3rd/mysql/win/include/",
-		"../../OptionComponent/",
-		"../../protocols/cplusplus/",
-		"../../TestServicePlugin/",
-		"../../TestServicePlugin/TestServicePlugin_pch/",
-    }
-	 
-    -- files
-    files {
-        -- "../../3rd/protobuf/include/**.h",
-        -- "../../3rd/protobuf/include/**.cc",
-        "../../TestServicePlugin/**.h",
-		"../../TestServicePlugin/**.c",
-		"../../TestServicePlugin/**.cpp",
-		"../../TestServicePlugin/**.lua",
-    }
-
-    filter{ "system:windows"}		
-        libdirs { 
-            ROOT_DIR .. "3rd/"
-        }
-    filter{}
-
-    filter { "system:windows" }
-        links {
-            "ws2_32",
-            "Mswsock",
-            "DbgHelp",
-        }
-    filter{}
-
-	-- links
-    libdirs { OUTPUT_DIR }	
-	include_libfs(true, true)
-
-    -- debug target suffix define
-    filter { "configurations:debug*" }
-        targetsuffix "_debug"
-    filter {}
-
-    -- enable multithread compile
-    -- enable_multithread_comp("C++14")
-	enable_multithread_comp()
-    
-    -- target prefix 前缀
-    targetprefix "lib"
-
-    -- warnings
-    filter { "system:not windows" }
-        disablewarnings {
-            "invalid-source-encoding",
-        }
-    filter {}
-
-    -- optimize
-    set_optimize_opts()
-	
-	-- set post build commands.
-    filter { "system:windows" }
-        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
-    filter {}
-
--- ****************************************************************************
-
 -- core library testsuite compile setting
-project "testsuit"
-    -- language, kind
-    language "c++"
-    kind "ConsoleApp"
-	
-    -- 支持c++20
-    -- cppdialect "c++20"
-
-    -- symbols
-	debugdir(DEBUG_DIR)
-    symbols "On"
-
-    -- dependents
-    dependson {
-        "CrystalKernel",
-    }
-
-    -- 导入内核接口 宏定义
-	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
-
-	enable_precompileheader("pch.h", ROOT_DIR .. "testsuit/testsuit_pch/pch.cpp")
-
-	includedirs {
-	    "../../",
-		"../../kernel/include/",
-		"../../testsuit/",
-		"../../testsuit/testsuit_pch/",
-        "../../service/TestService/config/code/",
-		"../../3rd/mysql/win/include/",
-		"../../OptionComponent/",
-		"../../protocols/cplusplus/",
-		"../../service/TestService/",
-    }
-
-    -- mysql
-    filter { "system:windows"}
-        includedirs {
-            "../../3rd/mysql/win/include/"
-        }
-
-        libdirs { 
-            ROOT_DIR .. "3rd/mysql/win/lib/",
-        }
-
-        links {
-            "libmysql",
-        }
-    filter {}
-    -- mysql
-    filter { "system:not windows"}
-        includedirs {
-            "../../3rd/mysql/linux/include/"
-        }
-
-        libdirs { 
-            ROOT_DIR .. "3rd/mysql/linux/lib/",
-        }
-
-        links {
-            "mysqlclient",
-        }
-    filter {}
-
-	-- 设置通用选项
-    set_common_options()
-
-
-    if ENABLE_TEST_SERVICE ~= 0 then
-        -- files
-        files {
-            -- "../../3rd/protobuf/include/**.h",
-            -- "../../3rd/protobuf/include/**.cc",
-            "../../protocols/**.h",
-            "../../protocols/**.cc",
-            "../../protocols/**.cpp",
-            "../../service/common/**.h",
-            "../../service/common/**.cpp",
-            "../../service/TestService/**.h",
-            "../../service/TestService/**.cpp",
-            "../../service/TestService/**.lua",
-            "../../service_common/**.h",
-            "../../service_common/**.cpp",
-            "../../testsuit/**.h",
-            -- "../../testsuit/**.ixx",
-            "../../testsuit/**.cppm",
-            "../../testsuit/**.cpp",
-            "../../testsuit/**.lua",
-            "../../service/TestService/config/code/**.h",
-            "../../service/TestService/config/code/**.cpp",
-            "../../OptionComponent/OptionComp/**.h",
-            "../../OptionComponent/OptionComp/**.cpp",
-        }
-    else
-        -- files
-        files {
-            -- "../../3rd/protobuf/include/**.h",
-            -- "../../3rd/protobuf/include/**.cc",
-            "../../protocols/**.h",
-            "../../protocols/**.cc",
-            "../../protocols/**.cpp",
-            "../../service_common/**.h",
-            "../../service_common/**.cpp",
-            "../../testsuit/**.h",
-            "../../testsuit/**.cpp",
-            "../../OptionComponent/OptionComp/**.h",
-            "../../OptionComponent/OptionComp/**.cpp",
-        }       
-    end
-
-    filter{ "system:windows"}		
-        libdirs { 
-            ROOT_DIR .. "3rd/"
-        }
-    filter{}
-
-    filter { "system:windows" }
-        links {
-            "ws2_32",
-            "Mswsock",
-            "DbgHelp",
-        }
-    filter{}
-
-	-- links
-    libdirs { OUTPUT_DIR }	
-	include_libfs(true, true)
-
-    -- debug target suffix define
-    filter { "configurations:debug*" }
-        targetsuffix "_debug"
-    filter {}
-
-    -- enable multithread compile
-    -- enable_multithread_comp("C++14")
-	enable_multithread_comp()
-
-    -- warnings
-    filter { "system:not windows" }
-        disablewarnings {
-            "invalid-source-encoding",
-        }
-    filter {}
-
-    -- optimize
-    set_optimize_opts()
-	
-	-- set post build commands.
-    filter { "system:windows" }
-        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
-    filter {}
-	
-
--- core library testsuite compile setting
-project "client"
+project "protogentool"
     -- language, kind
     language "c++"
     kind "ConsoleApp"
@@ -854,37 +594,30 @@ project "client"
     -- 导入内核接口
 	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB"}
 
-	enable_precompileheader("pch.h", ROOT_DIR .. "client/client_pch/pch.cpp")
+	enable_precompileheader("pch.h", ROOT_DIR .. "ProtoGen/protogen_pch/pch.cpp")
 
 	includedirs {
 	    "../../",
 		"../../kernel/include/",
-		"../../client/",
-		"../../client/client_pch/",
-		"../../service/Client/",
-		"../../protocols/cplusplus/",
+		"../../ProtoGen/",
+		"../../ProtoGen/protogen_pch/",
+		"../../OptionComponent/",
     }
 	
 	-- 设置通用选项
-    set_common_options()
+    set_common_options("Size")
 	
+    defines("DISABLE_OPCODES")
+    
     -- files
     files {
-        -- "../../3rd/protobuf/include/**.h",
-		-- "../../3rd/protobuf/include/**.cc",
-		"../../protocols/**.h",
-		"../../protocols/**.cc",
-		"../../protocols/**.cpp",
-		"../../service/common/**.h",
-		"../../service/common/**.cpp",
-        "../../service/Client/**.h",
-        "../../service/Client/**.cpp",
-		"../../service_common/**.h",
-        "../../service_common/**.cpp",
-        "../../client/**.h",
-        "../../client/**.cpp",
+        "../../ProtoGen/**.h",
+        "../../ProtoGen/**.cpp",
+		"../../OptionComponent/OptionComp/CodeAnalyze/**.h",
+		"../../OptionComponent/OptionComp/CodeAnalyze/**.cpp",
     }
 
+    -- 工具不需要动态库连接
     filter{ "system:windows"}		
         libdirs { 
             ROOT_DIR .. "3rd/"
@@ -901,7 +634,7 @@ project "client"
 
 	-- links
     libdirs { OUTPUT_DIR }	
-	include_libfs(true, true)
+	include_libfs(true)
 
     -- debug target suffix define
     filter { "configurations:debug*" }
@@ -922,15 +655,103 @@ project "client"
     -- optimize
     set_optimize_opts()
 	
-	
 	-- set post build commands.
     filter { "system:windows" }
         postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
     filter {}
 
+    
+-- core library testsuite compile setting
+project "filetool"
+    -- language, kind
+    language "c++"
+    kind "ConsoleApp"
+
+    -- symbols
+    debugdir(DEBUG_DIR)
+    symbols "On"
+
+    -- dependents
+    dependson {
+        "CrystalKernel",
+    }
+    
+    -- 导入内核接口
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
+    enable_precompileheader("pch.h", ROOT_DIR .. "file_tool/file_tool_pch/pch.cpp")
+
+    includedirs {
+        "../../",
+        "../../kernel/include/",
+        "../../file_tool/",
+        "../../file_tool/file_tool_pch/",
+    }
+
+    -- 设置通用选项
+    set_common_options("Size")
+
+    defines("DISABLE_OPCODES")
+
+    -- files
+    files {
+        "../../file_tool/**.h",
+        "../../file_tool/**.cpp",
+    }
+
+    -- 工具不需要动态库连接
+    defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
+    filter{ "system:windows"}		
+        libdirs { 
+            ROOT_DIR .. "3rd/"
+        }
+    filter{}
+
+    filter { "system:windows" }
+        links {
+            "ws2_32",
+            "Mswsock",
+            "DbgHelp",
+        }
+    filter{}
+
+    -- links
+    libdirs { OUTPUT_DIR }	
+    include_libfs(true)
+
+    -- debug target suffix define
+    filter { "configurations:debug*" }
+        targetsuffix "_debug"
+    filter {}
+
+    -- enable multithread compile
+    -- enable_multithread_comp("C++14")
+    enable_multithread_comp()
+
+    -- warnings
+    filter { "system:not windows" }
+        disablewarnings {
+            "invalid-source-encoding",
+        }
+    filter {}
+
+    -- optimize
+    set_optimize_opts()
+
+    -- set post build commands.
+    filter { "system:windows" }
+        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
+    filter {}
+
+if IS_WINDOWS == false then
+	print("builddir = " .. BUILD_DIR)
+end
+
+
 
 -- core library testsuite compile setting
-project "Gateway"
+project "ConfigExporter"
     -- language, kind
     language "c++"
     kind "ConsoleApp"
@@ -944,42 +765,37 @@ project "Gateway"
         "CrystalKernel",
     }
 
-    -- 导入内核接口 宏定义
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB"}
+    -- 导入内核接口
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "DISABLE_OPCODES"}
 
-	enable_precompileheader("pch.h", ROOT_DIR .. "Gateway/Gateway_pch/pch.cpp")
+	enable_precompileheader("pch.h", ROOT_DIR .. "ConfigExporter/ConfigExporter_pch/pch.cpp")
 
 	includedirs {
 	    "../../",
 		"../../kernel/include/",
-		"../../Gateway/",
-		"../../Gateway/Gateway_pch/",
-        "../../service/GateService/config/code/",
-		"../../service/GateService/",
+		"../../ConfigExporter/",
+		"../../ConfigExporter/ConfigExporter_pch/",
 		"../../protocols/cplusplus/",
+		ROOT_DIR .. "/3rd/miniz/include/",
     }
-
+	
 	-- 设置通用选项
-    set_common_options()
+    set_common_options("Size")
 	
     -- files
     files {
-		-- "../../3rd/protobuf/include/**.h",
-		-- "../../3rd/protobuf/include/**.cc",
-		"../../protocols/**.h",
-		"../../protocols/**.cc",
-		"../../protocols/**.cpp",
-		"../../service/common/**.h",
-		"../../service/common/**.cpp",
-        "../../service/GateService/**.h",
-        "../../service/GateService/**.cpp",
-		"../../service_common/**.h",
-        "../../service_common/**.cpp",
-        "../../Gateway/**.h",
-        "../../Gateway/**.cpp",
-        "../../service/GateService/config/code/**.h",
-        "../../service/GateService/config/code/**.cpp",
+		"../../service_common/common/**.h",
+		"../../service_common/common/**.cpp",
+		"../../service_common/params/**.h",
+		"../../service_common/params/**.cpp",
+        "../../service_common/config/DataTypeHelper.h",
+        "../../service_common/config/DataTypeHelper.cpp",
+        "../../ConfigExporter/**.h",
+        "../../ConfigExporter/**.cpp",
     }
+
+    -- 工具不需要动态库连接
+	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
 
     filter{ "system:windows"}		
         libdirs { 
@@ -997,7 +813,22 @@ project "Gateway"
 
 	-- links
     libdirs { OUTPUT_DIR }	
-	include_libfs(true, true)
+	include_libfs(true, false)
+
+    libdirs { 
+		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
+    }
+
+    filter { "system:linux", "configurations:debug*"}
+        links {
+            "miniz:static",
+        }
+    filter {}
+    filter { "system:linux", "configurations:release*"}
+        links {
+            "miniz:static",
+        }
+    filter {}
 
     -- debug target suffix define
     filter { "configurations:debug*" }
@@ -1022,17 +853,280 @@ project "Gateway"
     filter { "system:windows" }
         postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
     filter {}
+
+   
+-- core library testsuite compile setting
+project "md5tool"
+    -- language, kind
+    language "c++"
+    kind "ConsoleApp"
+
+    -- symbols
+    debugdir(DEBUG_DIR)
+    symbols "On"
+
+    -- dependents
+    dependson {
+        "CrystalKernel",
+    }
+
+    -- 导入内核接口
+    defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "DISABLE_OPCODES" }
+
+    enable_precompileheader("pch.h", ROOT_DIR .. "md5tool/md5tool_pch/pch.cpp")
+
+    includedirs {
+        "../../",
+        "../../kernel/include/",
+        "../../md5tool/",
+        "../../md5tool/md5tool_pch/",
+    }
+
+    -- 设置通用选项
+    set_common_options("Size")
+
+    -- files
+    files {
+		"../../service_common/common/**.h",
+		"../../service_common/common/**.cpp",
+		"../../service_common/params/**.h",
+		"../../service_common/params/**.cpp",
+        "../../md5tool/**.h",
+        "../../md5tool/**.cpp",
+    }
+
+    -- 工具不需要动态库连接
+    defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
+    filter{ "system:windows"}		
+        libdirs { 
+            ROOT_DIR .. "3rd/"
+        }
+    filter{}
+
+    filter { "system:windows" }
+        links {
+            "ws2_32",
+            "Mswsock",
+            "DbgHelp",
+        }
+    filter{}
+
+    -- links
+    libdirs { OUTPUT_DIR }	
+    include_libfs(true, true)
+
+    -- debug target suffix define
+    filter { "configurations:debug*" }
+        targetsuffix "_debug"
+    filter {}
+
+    -- enable multithread compile
+    -- enable_multithread_comp("C++14")
+    enable_multithread_comp()
+
+    -- warnings
+    filter { "system:not windows" }
+        disablewarnings {
+            "invalid-source-encoding",
+        }
+    filter {}
+
+    -- optimize
+    set_optimize_opts()
+
+    -- set post build commands.
+    filter { "system:windows" }
+        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
+    filter {}
+
+
+
+
+-- close windows process
+project "CloseProcess"
+    -- language, kind
+    language "c++"
+    kind "ConsoleApp"
 	
+    -- symbols
+	debugdir(DEBUG_DIR)
+    symbols "On"
+
+    -- dependents
+    dependson {
+        "CrystalKernel",
+    }
+
+    -- 导入内核接口
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
+	enable_precompileheader("pch.h", ROOT_DIR .. "CloseProcess/CloseProcess_pch/pch.cpp")
+
+	includedirs {
+	    "../../",
+		"../../kernel/include/",
+		"../../CloseProcess/",
+		"../../CloseProcess/CloseProcess_pch/",
+    }
+	
+	-- 设置通用选项
+    set_common_options("Size")
+	
+    -- files
+    files {
+		"../../service_common/common/**.h",
+		"../../service_common/common/**.cpp",
+		"../../service_common/params/**.h",
+		"../../service_common/params/**.cpp",
+        "../../CloseProcess/**.h",
+        "../../CloseProcess/**.cpp",
+    }
+
+    -- 工具不需要动态库连接
+	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+    defines("DISABLE_OPCODES")
+
+    filter{ "system:windows"}		
+        libdirs { 
+            ROOT_DIR .. "3rd/"
+        }
+    filter{}
+
+    filter { "system:windows" }
+        links {
+            "ws2_32",
+            "Mswsock",
+            "DbgHelp",
+        }
+    filter{}
+
+	-- links
+    libdirs { OUTPUT_DIR }	
+	include_libfs(true, false)
+
+    -- debug target suffix define
+    filter { "configurations:debug*" }
+        targetsuffix "_debug"
+    filter {}
+
+    -- enable multithread compile
+    -- enable_multithread_comp("C++14")
+	enable_multithread_comp()
+
+    -- warnings
+    filter { "system:not windows" }
+        disablewarnings {
+            "invalid-source-encoding",
+        }
+    filter {}
+
+    -- optimize
+    set_optimize_opts()
+	
+	-- set post build commands.
+    filter { "system:windows" }
+        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
+    filter {}
+
+
+-- ****************************************************************************
+
+-- RsaGen
+project "RsaGen"
+    -- language, kind
+    language "c++"
+    kind "ConsoleApp"
+	
+    -- symbols
+	debugdir(DEBUG_DIR)
+    symbols "On"
+
+    -- dependents
+    dependson {
+        "CrystalKernel",
+    }
+
+    -- 导入内核接口
+	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+
+	enable_precompileheader("pch.h", ROOT_DIR .. "RsaGen/RsaGen_pch/pch.cpp")
+
+	includedirs {
+	    "../../",
+		"../../kernel/include/",
+		"../../RsaGen/",
+		"../../RsaGen/RsaGen_pch/",
+    }
+	
+	-- 设置通用选项
+    set_common_options("Size")
+	
+    -- files
+    files {
+        "../../RsaGen/**.h",
+        "../../RsaGen/**.cpp",
+    }
+
+    -- 工具不需要动态库连接
+	defines { "CRYSTAL_NET_STATIC_KERNEL_LIB" }
+    defines("DISABLE_OPCODES")
+
+    filter{ "system:windows"}		
+        libdirs { 
+            ROOT_DIR .. "3rd/"
+        }
+    filter{}
+
+    filter { "system:windows" }
+        links {
+            "ws2_32",
+            "Mswsock",
+            "DbgHelp",
+        }
+    filter{}
+
+	-- links
+    libdirs { OUTPUT_DIR }	
+	include_libfs(true, false)
+
+    -- debug target suffix define
+    filter { "configurations:debug*" }
+        targetsuffix "_debug"
+    filter {}
+
+    -- enable multithread compile
+    -- enable_multithread_comp("C++14")
+	enable_multithread_comp()
+
+    -- warnings
+    filter { "system:not windows" }
+        disablewarnings {
+            "invalid-source-encoding",
+        }
+    filter {}
+
+    -- optimize
+    set_optimize_opts()
+	
+	-- set post build commands.
+    filter { "system:windows" }
+        postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
+    filter {}
+
+
 -- ****************************************************************************
 
 
-
 -- core library testsuite compile setting
-project "CenterServer"
+project "toolbox"
     -- language, kind
     language "c++"
     kind "ConsoleApp"
 	
+    -- 支持c++20
+    -- cppdialect "c++20"
+
     -- symbols
 	debugdir(DEBUG_DIR)
     symbols "On"
@@ -1043,17 +1137,16 @@ project "CenterServer"
     }
 
     -- 导入内核接口 宏定义
-	defines { "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB"}
+	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "CRYSTAL_NET_STATIC_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB"}
 
-	enable_precompileheader("pch.h", ROOT_DIR .. "CenterServer/CenterServer_pch/pch.cpp")
+	enable_precompileheader("pch.h", ROOT_DIR .. "toolbox/toolbox_pch/pch.cpp")
 
 	includedirs {
 	    "../../",
 		"../../kernel/include/",
-		"../../CenterServer/",
-		"../../CenterServer/CenterServer_pch/",
-        "../../service/CenterService/config/code/",
-		"../../service/CenterService/",
+		"../../toolbox/",
+		"../../toolbox/toolbox_pch/",
+		"../../OptionComponent/",
 		"../../protocols/cplusplus/",
     }
 
@@ -1067,16 +1160,12 @@ project "CenterServer"
 		"../../protocols/**.h",
 		"../../protocols/**.cc",
 		"../../protocols/**.cpp",
-		"../../service/common/**.h",
-		"../../service/common/**.cpp",
-        "../../service/CenterService/**.h",
-        "../../service/CenterService/**.cpp",
-		"../../service_common/**.h",
+        "../../toolbox/**.h",
+        "../../toolbox/**.cpp",
+        "../../service_common/**.h",
         "../../service_common/**.cpp",
-        "../../CenterServer/**.h",
-        "../../CenterServer/**.cpp",
-        "../../service/CenterService/config/code/**.h",
-        "../../service/CenterService/config/code/**.cpp",
+        "../../OptionComponent/OptionComp/BehaviorTree/**.h",
+        "../../OptionComponent/OptionComp/CodeAnalyze/**.cpp",
     }
 
     filter{ "system:windows"}		

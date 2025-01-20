@@ -10,7 +10,7 @@ install:
     - cmd: >-
         git submodule update --init --recursive
         
-        echo vs2022 | call winsolution_build.bat 0
+        echo vs2022 | call .\scripts\builds\winsolution_build.bat 0
         
 image: Visual Studio 2022
 configuration: 

@@ -9,16 +9,17 @@ DEBUG_LIBS=("libCrystalKernel_debug.so")
 RELEASE_LIBS=("libCrystalKernel.so")
 OPEN_COREDUMP="opencoredump"
 COREDUMPFLAG="$2"
-OUTPUT_DIR=${SCRIPT_PATH}/output/gmake/
+ROOT_PATH=${SCRIPT_PATH}/../..
+OUTPUT_DIR=${ROOT_PATH}/output/gmake/
 
 # 连接配置与ini
 sudo rm -rf ${OUTPUT_DIR}/Cfgs
 sudo rm -rf ${OUTPUT_DIR}/ini
-sudo ln -sv $SCRIPT_PATH/service/TestService/config/data/cpp ${OUTPUT_DIR}/Cfgs
-sudo ln -sv $SCRIPT_PATH/doc/ini ${OUTPUT_DIR}/ini
+sudo ln -sv ${ROOT_PATH}/service/TestService/config/data/cpp ${OUTPUT_DIR}/Cfgs
+sudo ln -sv ${ROOT_PATH}/doc/ini ${OUTPUT_DIR}/ini
 
 # 拷贝mysqlclient.so到运行目录
-sudo cp -rf  ${SCRIPT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
+sudo cp -rf  ${ROOT_PATH}/3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT_DIR}/
 rm -f ${OUTPUT_DIR}/libmysqlclient.so.21
 ln -sv ${OUTPUT_DIR}/libmysqlclient.so ${OUTPUT_DIR}/libmysqlclient.so.21
 

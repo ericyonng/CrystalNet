@@ -3,6 +3,7 @@
 
 BUILD_PATH="build/gmake/"
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
+ROOT_PATH=${SCRIPT_PATH}/../..
 
 # ver:default debug
 VER="debug"
@@ -51,7 +52,7 @@ echo "run linuxmakefile_build"
 sh $SCRIPT_PATH/linuxmakefile_build.sh
 
 # build
-cd $SCRIPT_PATH/$BUILD_PATH
+cd $ROOT_PATH/$BUILD_PATH
 if [ $NEED_CLEAN = 1 ]
 then
     echo -e "clean $VER..."

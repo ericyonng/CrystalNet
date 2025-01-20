@@ -44,3 +44,6 @@ github:https://github.com/premake/premake-core
     ```
 
     
+
+* 注意CrystaKernel库用在工具时不需要生成动态链接库，只需要静态库
+* 只有需要热更的地方才需要动态链接库
