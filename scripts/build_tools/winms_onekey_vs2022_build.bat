@@ -36,7 +36,7 @@ echo MSBuild Path: %MSBUILD_EXE_PATH%
 set PATH=%MSBUILD_PATH%;%PATH%
 
 :: 验证 PATH 是否已更新
-echo Updated PATH: %PATH%
+:: echo Updated PATH: %PATH%
 
 :: 选择vs版本
 echo Visual Studio solution and project files generate tool.

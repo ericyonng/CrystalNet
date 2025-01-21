@@ -1,6 +1,7 @@
 @echo off
 
 Rem Generate visual studio project files
+setlocal
 
 SET CUR_PATH=%~dp0
 SET ROOT_PATH="%CUR_PATH%..\.."
@@ -32,6 +33,12 @@ if not exist "%MSBUILD_EXE_PATH%" (
 
 :: 输出 MSBuild 路径
 echo MSBuild Path: %MSBUILD_EXE_PATH%
+
+:: 将路径添加到 PATH 环境变量
+set PATH=%MSBUILD_PATH%;%PATH%
+
+:: 验证 PATH 是否已更新
+:: echo Updated PATH: %PATH%
 
 :: 选择vs版本
 echo Visual Studio solution and project files generate tool.
@@ -68,7 +75,7 @@ if not exist %SLN_PATH% (
 )
 
 :: 执行
-cd %MSBUILD_PATH% && MSBuild.exe %SLN_PATH%  /t:%FINAL_BUILD% /p:Configuration=%FINAL_VER%
+MSBuild.exe %SLN_PATH%  /t:%FINAL_BUILD% /p:Configuration=%FINAL_VER%
 
 if errorlevel 1 (
     echo Build Failed...
@@ -76,3 +83,5 @@ if errorlevel 1 (
 ) else (
     echo Build Succcess!
 )
+
+endlocal
