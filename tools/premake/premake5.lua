@@ -158,7 +158,6 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
 		ROOT_DIR .. "3rd/uuid/libs",
 		ROOT_DIR .. "3rd/curl/lib/$(Configuration)/",
-		ROOT_DIR .. "3rd/curl/lib/$(Configuration)/",
 		ROOT_DIR .. "3rd/lua/",
 	}
 
@@ -172,17 +171,7 @@ function include_libfs(do_post_build, add_protobuflib)
 
     -- libdirs(linux) linux 下的库需要指明静态库或者动态库
     filter { "system:linux"}
-		includedirs {
-        "/usr/include/",
-		}
-        libdirs {
-            ROOT_DIR .. "/usr/lib64/",
-        }
-		links {
-		    "rt",
-			"pthread",
-            "dl",
-        }
+
     filter {}
 
     -- links(not windows)
@@ -242,7 +231,6 @@ function include_libfs(do_post_build, add_protobuflib)
     -- 需要放在libcurl之后连接
     filter { "system:linux"}
         libdirs { 
-            ROOT_DIR .. "/usr/lib64/",
 		    ROOT_DIR .. "/3rd/idn2/lib/",
         }
         links {
@@ -311,6 +299,20 @@ function include_libfs(do_post_build, add_protobuflib)
             }
         filter {}
     end
+
+    filter { "system:linux"}
+        includedirs {
+        "/usr/include/",
+		}
+        libdirs { 
+            ROOT_DIR .. "/usr/lib64/",
+        }
+        links {
+		    "rt",
+			"pthread",
+            "dl",
+        }
+    filter {}
     
 end
 
