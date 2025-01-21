@@ -79,7 +79,7 @@ public:
 };
 
 //! lua talbe 可以自动转换为stl 对象
-static  void Dumy(std::map<std::string, std::string> ret, std::vector<int> a, std::list<std::string> b, std::set<int64_t> c)
+static  void Dumy(std::map<std::string, std::string> ret, std::vector<int> a, std::list<std::string> b, std::set<Int64> c)
 {
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLua, "dummy start ------------"));
     
