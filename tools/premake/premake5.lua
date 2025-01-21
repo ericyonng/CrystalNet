@@ -463,12 +463,12 @@ project "CrystalKernel"
     		ROOT_DIR .. "3rd/idn2/lib/",
         }
         links {
+            "curl:static",
             "ssl:static",
             "crypto:static",
             "uuid_debug:static",
             "miniz:static",
             "idn2:static",
-            "curl:static",
             "lua:static",
         }
     filter {}
@@ -481,12 +481,12 @@ project "CrystalKernel"
     		ROOT_DIR .. "3rd/idn2/lib/",
         }
         links {
+            "curl:static",
             "ssl:static",
             "crypto:static",
             "uuid:static",
             "miniz:static",
             "idn2:static",
-            "curl:static",
             "lua:static",
         }
     filter {}
@@ -519,8 +519,8 @@ project "CrystalKernel"
             "DbgHelp",
             "miniz",
             "Crypt32",
-            "libcrypto",
             "libssl",
+            "libcrypto",
             "shlwapi",
             "Iphlpapi",
             "libcurl",
