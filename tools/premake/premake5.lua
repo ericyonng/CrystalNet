@@ -78,6 +78,7 @@ function set_common_options(optOption, use_dynamic)
         toolset("clang")
     end
 
+    
     -- rdynamic coredump符号 通知连接器所有符号添加到动态符号表中
     filter { "language:c++", "system:not windows" }
         -- buildoptions {
@@ -86,12 +87,13 @@ function set_common_options(optOption, use_dynamic)
         -- -Winvalid-pch是禁用pch加速, 需要移除,rdynamic是动态库必须的, 可以获取符号
         buildoptions {
             --"-std=c++11 -DLINUX -Wall -rdynamic -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
-            "-DLINUX -Wall -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
+            "-v -DLINUX -Wall -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
         }
     filter {}
+    -- rdynamic是链接器选项
     if use_dynamic then
         filter { "language:c++", "system:not windows" }
-        buildoptions {
+        linkoptions {
             "-rdynamic",
         }
         filter {}
