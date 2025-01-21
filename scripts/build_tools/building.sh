@@ -1,4 +1,4 @@
-# @file building.sh
+
 # @author EricYonng<120453674@qq.com>
 # @brief 3rd scripts
 #!/usr/bin/env bash

@@ -81,6 +81,7 @@
 #include <kernel/comp/params/params.h>
 #include <kernel/comp/Coroutines/Coroutines.h>
 #include <kernel/comp/Timing/Timing.h>
+#include <kernel/comp/ShareLibraryLoader/ShareLibraryLoader.h>
 
 // 复杂组件
 #include <kernel/comp/Utils/Utils.h>

@@ -23,7 +23,7 @@ BUILD_DIR = "../../build/"
 -- 脚本路径
 SCRIPT_PATH = ROOT_DIR .. "scripts/builds/"
 if IS_WINDOWS then
-    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\builds\\"
+    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\\\builds\\\\"
 end
 
 -- debug dir
