@@ -228,17 +228,6 @@ function include_libfs(do_post_build, add_protobuflib)
         }
     filter {}
 
-    -- 需要放在libcurl之后连接
-    filter { "system:linux"}
-        libdirs { 
-		    ROOT_DIR .. "/3rd/idn2/lib/",
-        }
-        links {
-            "z",
-            "idn2:static"
-        }
-    filter {}
-
     -- openssl crystalkernel静态库依赖openssl 必须把crystalkernel放在crypto, ssl之前连接
     filter { "system:linux", "configurations:debug*"}
         libdirs { 
@@ -256,6 +245,17 @@ function include_libfs(do_post_build, add_protobuflib)
         links {
             "ssl:static",
             "crypto:static",
+        }
+    filter {}
+
+    -- 需要放在ssl, crypto, libcurl之后连接
+    filter { "system:linux"}
+        libdirs { 
+		    ROOT_DIR .. "/3rd/idn2/lib/",
+        }
+        links {
+            "z",
+            "idn2:static"
         }
     filter {}
 
@@ -463,8 +463,8 @@ project "CrystalKernel"
     		ROOT_DIR .. "3rd/idn2/lib/",
         }
         links {
-            "crypto:static",
             "ssl:static",
+            "crypto:static",
             "uuid_debug:static",
             "miniz:static",
             "idn2:static",
@@ -481,8 +481,8 @@ project "CrystalKernel"
     		ROOT_DIR .. "3rd/idn2/lib/",
         }
         links {
-            "crypto:static",
             "ssl:static",
+            "crypto:static",
             "uuid:static",
             "miniz:static",
             "idn2:static",
