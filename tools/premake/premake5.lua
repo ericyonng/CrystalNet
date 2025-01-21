@@ -20,9 +20,9 @@ WIN_ROOT_DIR = ".\\..\\..\\"
 -- build directory
 BUILD_DIR = "../../build/"
 -- 脚本路径
-SCRIPT_PATH = ROOT_DIR .. "scripts/build_tools/"
+SCRIPT_PATH = ROOT_DIR .. "scripts/build/"
 if IS_WINDOWS then
-    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\build_tools\\"
+    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\build\\"
 end
 
 -- debug dir
