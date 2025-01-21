@@ -46,4 +46,14 @@ github:https://github.com/premake/premake-core
     
 
 * 注意CrystaKernel库用在工具时不需要生成动态链接库，只需要静态库
+
 * 只有需要热更的地方才需要动态链接库
+
+# 关于premake分区
+
+* 这里抽象了common.lua和kernel_premake5.lua
+
+* common.lua是提取了公共的方法, 便于统一维护
+
+* kernel_premake统一了kernel的编译规则
+* 其他如果需要用到common, kernel的可以dofile来引入

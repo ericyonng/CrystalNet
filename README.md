@@ -71,6 +71,8 @@
   * 编译可以使用自动化脚本编译:winms_onekey_build.bat 默认选择vs2022构建, 如果没安装vs2022需要安装
   * start.bat/stop.bat 运行或者关闭
   * export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH 若提示mysqlclient找不到
+  * **一键build**(脚本默认使用**vs2022,** 并**自动查询**vs2022安装路径的MSBuild.exe), :scripts/builds/winms_onekey_vs2022_build.bat
+  * 关于其他版本vs的一键build，可以模仿当前一键build很小的改动即可(不同的vs有不同的版本号来识别)
   
 * 导表工具
 

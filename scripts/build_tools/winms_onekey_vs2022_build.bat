@@ -41,20 +41,19 @@ echo Updated PATH: %PATH%
 :: 选择vs版本
 echo Visual Studio solution and project files generate tool.
 echo For now supported Visual Studio versions:
-echo    vs2015
-echo    vs2017
-echo    vs2019
-echo    vs2022
-set /p choose=Please input:
+set choose=vs2022
 echo choose:%choose%
 
-:: 编译版本
-echo choose Debug/Release:
-set /p Ver=Please input:
-echo Ver:%Ver%
+:: 选择编译版本
+echo choose Release?(y for release, others for debug) y?:
+set /p VsBuildVer=Please input:
+
+SET FINAL_VER=Debug
+if '%VsBuildVer%' == 'y' SET FINAL_VER=Release
+echo FINAL_VER:%FINAL_VER%
 
 :: 重编或者增量编译
-echo choose Rebuild y/n:
+echo choose Rebuild (y for rebuild, others for increament build)y?:
 set /p VsBuildType=Please input:
 
 SET FINAL_BUILD=build
@@ -74,7 +73,7 @@ if not exist %SLN_PATH% (
 )
 
 :: 执行
-MSBuild.exe %SLN_PATH%  /t:%FINAL_BUILD% /p:Configuration=%Ver%
+MSBuild.exe %SLN_PATH%  /t:%FINAL_BUILD% /p:Configuration=%FINAL_VER%
 
 if errorlevel 1 (
     echo Build Failed...
