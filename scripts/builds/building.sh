@@ -18,7 +18,7 @@ OUTPUT_DIR=${ROOT_PATH}/output/gmake/
 
 # lua脚本路径
 rm -f ${OUTPUT_DIR}/TestServiceLuaScript
-ln -sv ${OUTPUT_DIR}/TestServiceLuaScript ${ROOT_PATH}/service/TestService/TestServiceLuaScript
+ln -sv ${ROOT_PATH}/service/TestService/TestServiceLuaScript ${OUTPUT_DIR}/TestServiceLuaScript
 
 if [ -n "$1" ]
 then
