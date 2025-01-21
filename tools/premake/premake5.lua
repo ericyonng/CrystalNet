@@ -20,9 +20,9 @@ WIN_ROOT_DIR = ".\\..\\..\\"
 -- build directory
 BUILD_DIR = "../../build/"
 -- 脚本路径
-SCRIPT_PATH = ROOT_DIR .. "scripts/build/"
+SCRIPT_PATH = ROOT_DIR .. "scripts/builds/"
 if IS_WINDOWS then
-    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\build\\"
+    SCRIPT_PATH = ".\\\\..\\\\..\\\\" .. "scripts\\builds\\"
 end
 
 -- debug dir
@@ -73,7 +73,7 @@ function set_optimize_opts()
 end
 
 -- set common options
-function set_common_options(optOption)
+function set_common_options(optOption, use_dynamic)
     if ISUSE_CLANG then
         toolset("clang")
     end
@@ -86,9 +86,17 @@ function set_common_options(optOption)
         -- -Winvalid-pch是禁用pch加速, 需要移除,rdynamic是动态库必须的, 可以获取符号
         buildoptions {
             --"-std=c++11 -DLINUX -Wall -rdynamic -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
-            "-DLINUX -Wall -rdynamic -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
+            "-DLINUX -Wall -fPIC -D_FILE_OFFSET_BITS=64 -D_GLIBCXX_USE_CXX11_ABI=1",
         }
     filter {}
+    if use_dynamic then
+        filter { "language:c++", "system:not windows" }
+        buildoptions {
+            "-rdynamic",
+        }
+        filter {}
+    end
+
 	filter { "configurations:debug*", "language:c++", "system:not windows" }
         buildoptions {
             "-ggdb -g",
@@ -614,7 +622,7 @@ project "TestServicePlugin"
 	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
 
 	-- 设置通用选项
-    set_common_options()
+    set_common_options(nil, true)
 	
 	includedirs {
 	    "../../",
@@ -748,7 +756,7 @@ project "testsuit"
     filter {}
 
 	-- 设置通用选项
-    set_common_options()
+    set_common_options(nil, true)
 
 
     if ENABLE_TEST_SERVICE ~= 0 then
@@ -866,7 +874,7 @@ project "client"
     }
 	
 	-- 设置通用选项
-    set_common_options()
+    set_common_options(nil, true)
 	
     -- files
     files {
@@ -960,7 +968,7 @@ project "Gateway"
     }
 
 	-- 设置通用选项
-    set_common_options()
+    set_common_options(nil, true)
 	
     -- files
     files {
@@ -1058,7 +1066,7 @@ project "CenterServer"
     }
 
 	-- 设置通用选项
-    set_common_options()
+    set_common_options(nil, true)
 	
     -- files
     files {
