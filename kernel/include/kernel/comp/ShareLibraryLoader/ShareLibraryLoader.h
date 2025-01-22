@@ -44,6 +44,12 @@ public:
 
     Int32 Load(const LibString &libraryPath);
     void SetLibraryPath(const LibString &libraryPath);
+    const LibString &GetLibraryPath() const;
+    bool IsLoaded() const;
+
+    // 加载符号
+    template<typename SymType>
+    SymType LoadSym(const LibString &symName);
     
 private:
     Int32 _OnInit() override;
@@ -51,11 +57,29 @@ private:
     void _OnClose() override;
     void _ClearRes();
     void _CloseLib();
+    void *_LoadSym(const LibString &symName);
     
 private:
     LibString _libPath;
     void *_library;
 };
+
+template<typename SymType>
+ALWAYS_INLINE SymType ShareLibraryLoader::LoadSym(const LibString &symName)
+{
+    auto ptr = _LoadSym(symName);
+    return SymType(ptr);
+}
+
+ALWAYS_INLINE const LibString &ShareLibraryLoader::GetLibraryPath() const
+{
+    return _libPath;
+}
+
+ALWAYS_INLINE bool ShareLibraryLoader::IsLoaded() const
+{
+    return !_library;
+}
 
 KERNEL_END
 

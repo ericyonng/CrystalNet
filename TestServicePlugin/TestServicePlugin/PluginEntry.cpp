@@ -33,7 +33,7 @@ extern "C"
     {
         
     };
-
+    
     // 初始化插件集
     Int32 InitPlugin()
     {

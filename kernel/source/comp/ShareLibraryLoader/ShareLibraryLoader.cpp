@@ -145,5 +145,34 @@ void ShareLibraryLoader::_CloseLib()
     _library = NULL;
 }
 
+void *ShareLibraryLoader::_LoadSym(const LibString &symName)
+{
+    if(UNLIKELY(!_library))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("share library not loaded before, lib path:%s, symName:%s")
+            , _libPath.c_str(), symName.c_str());
+        
+        return NULL;
+    }
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+    auto symPtr = dlsym(_library, symName.c_str());
+    if(UNLIKELY(!symPtr))
+    {
+        auto errStr = dlerror();
+        g_Log->Error(LOGFMT_OBJ_TAG("dlsym fail err:%s, library:%s,%p, symName:%s")
+            ,errStr, _libPath.c_str(), _library, symName.c_str());
+        return NULL;
+    }
+
+    g_Log->Info(LOGFMT_OBJ_TAG("share library:%s,%p, load sym :%s, success."), _libPath.c_str(), _library, symName.c_str());
+    return symPtr;
+#else
+
+    g_Log->Info(LOGFMT_OBJ_TAG("share library:%s,%p, windows cant load sym :%s"), _libPath.c_str(), _library, symName.c_str());
+
+    return NULL;
+#endif
+}
 
 KERNEL_END

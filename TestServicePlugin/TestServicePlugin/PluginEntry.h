@@ -33,6 +33,12 @@
 
 extern "C"
 {
+    // 入口方法
+    typedef Int32 (*InitPluginPtr)();
+    typedef Int32 (*StartPluginPtr)();
+    typedef void (*WillClosePluginPtr)();
+    typedef void (*ClosePluginPtr)();
+    
     // 初始化插件集
     extern TEST_PLUGIN_EXPORT Int32 InitPlugin();
 
