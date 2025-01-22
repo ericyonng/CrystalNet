@@ -40,16 +40,6 @@ void TestLoadShareLibrary::Run()
     // Windows下
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     auto ret = InitPlugin();
-
-    auto initPtr = loader->LoadSym<InitPluginPtr>(KERNEL_NS::LibString("InitPlugin"));
-    auto startPtr = loader->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
-    auto willClosePtr = loader->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
-    auto closePtr = loader->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
-    if((!initPtr) || (!startPtr) || (!willClosePtr) || (!closePtr))
-    {
-        g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "load sym fail"));
-        return;
-    }
     
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "init plugin ret:%d"), ret);
 
@@ -66,6 +56,17 @@ void TestLoadShareLibrary::Run()
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "close plugin."));
 
 #else
+
+    auto initPtr = loader->LoadSym<InitPluginPtr>(KERNEL_NS::LibString("InitPlugin"));
+    auto startPtr = loader->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
+    auto willClosePtr = loader->LoadSym<WillClosePluginPtr>(KERNEL_NS::LibString("WillClosePlugin"));
+    auto closePtr = loader->LoadSym<ClosePluginPtr>(KERNEL_NS::LibString("ClosePlugin"));
+    if((!initPtr) || (!startPtr) || (!willClosePtr) || (!closePtr))
+    {
+        g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "load sym fail"));
+        return;
+    }
+    
     auto pluginRet = (*initPtr)();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "init plugin:%d"), pluginRet);
     pluginRet = (*startPtr)();
