@@ -20,43 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-01-22 01:01:36
+// Date: 2025-01-22 13:10:36
 // Author: Eric Yonng
-// Description: 动态库加载器
+// Description:
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_SHARE_LIBRARY_LOADER_SHARE_LIBRARY_LOADER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_SHARE_LIBRARY_LOADER_SHARE_LIBRARY_LOADER_H__
-
-#pragma once
-
-#include <kernel/comp/CompObject/CompObject.h>
+#include <pch.h>
+#include <kernel/comp/ShareLibraryLoader/ShareLibraryLoader.h>
+#include <kernel/comp/ShareLibraryLoader/ShareLibraryLoaderFactory.h>
+#include "kernel/comp/memory/ObjPoolWrap.h"
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT ShareLibraryLoader : public CompObject
+CompFactory *ShareLibraryLoaderFactory::FactoryCreate()
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(CompObject, ShareLibraryLoader);
-    
-public:
-    ShareLibraryLoader();
-    ~ShareLibraryLoader() override;
-    void Release() override;
+    return ObjPoolWrap<ShareLibraryLoaderFactory>::NewByAdapter(ShareLibraryLoaderFactory::_buildType.V);
+}
 
-    Int32 Load(const LibString &libraryPath);
-    void SetLibraryPath(const LibString &libraryPath);
-    
-private:
-    Int32 _OnInit() override;
-    Int32 _OnStart() override;
-    void _OnClose() override;
-    void _ClearRes();
-    void _CloseLib();
-    
-private:
-    LibString _libPath;
-    void *_library;
-};
+void ShareLibraryLoaderFactory::Release()
+{
+    ObjPoolWrap<ShareLibraryLoaderFactory>::DeleteByAdapter(ShareLibraryLoaderFactory::_buildType.V, this);
+}
+
+CompObject *ShareLibraryLoaderFactory::Create() const
+{
+    return ShareLibraryLoader::NewByAdapter_ShareLibraryLoader(ShareLibraryLoaderFactory::_buildType.V);
+}
 
 KERNEL_END
-
-#endif

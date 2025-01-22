@@ -20,41 +20,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-01-22 01:01:36
+// Date: 2025-01-22 13:07:36
 // Author: Eric Yonng
-// Description: 动态库加载器
+// Description:
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_SHARE_LIBRARY_LOADER_SHARE_LIBRARY_LOADER_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_SHARE_LIBRARY_LOADER_SHARE_LIBRARY_LOADER_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_SHARE_LIBRARY_LOADER_SHARE_LIBRARY_LOADER_FACTORY_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_SHARE_LIBRARY_LOADER_SHARE_LIBRARY_LOADER_FACTORY_H__
 
 #pragma once
 
-#include <kernel/comp/CompObject/CompObject.h>
+#include <kernel/comp/CompObject/CompFactory.h>
 
 KERNEL_BEGIN
 
-class KERNEL_EXPORT ShareLibraryLoader : public CompObject
+// 不依赖系统时间变化的授时组件
+class KERNEL_EXPORT ShareLibraryLoaderFactory : public CompFactory
 {
-    POOL_CREATE_OBJ_DEFAULT_P1(CompObject, ShareLibraryLoader);
-    
 public:
-    ShareLibraryLoader();
-    ~ShareLibraryLoader() override;
-    void Release() override;
-
-    Int32 Load(const LibString &libraryPath);
-    void SetLibraryPath(const LibString &libraryPath);
+    static constexpr _Build::MT _buildType{};
     
-private:
-    Int32 _OnInit() override;
-    Int32 _OnStart() override;
-    void _OnClose() override;
-    void _ClearRes();
-    void _CloseLib();
+    static CompFactory *FactoryCreate();
+    virtual void Release() override;
     
-private:
-    LibString _libPath;
-    void *_library;
+    virtual CompObject *Create() const override;
 };
 
 KERNEL_END

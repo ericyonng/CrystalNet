@@ -76,7 +76,7 @@ namespace Status
         CoTaskTimeout = 32,                                     // 协程超时
         CoTaskError = 33,                                       // 协程触发异常
         CoTaskException = 34,                                   // 协程抛异常
-        
+        LoadShareLibraryFail = 35,                              // 加载动态库失败
 
         // SOCKET[500, 599]
         Socket_CreateFailure = 500,                             // 套接字创建失败
