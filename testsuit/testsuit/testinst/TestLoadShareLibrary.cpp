@@ -36,6 +36,9 @@ void TestLoadShareLibrary::Run()
 
     auto libraryPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
     libraryPath.AppendFormat("/libTestServicePlugin_debug.so");
+
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLoadShareLibrary, "libraryPath:%s"), libraryPath.c_str());
+
     loader->SetLibraryPath(libraryPath);
     loader->Init();
     loader->Start();

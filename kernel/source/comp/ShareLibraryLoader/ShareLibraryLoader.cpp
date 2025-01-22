@@ -59,7 +59,7 @@ void ShareLibraryLoader::Release()
 Int32 ShareLibraryLoader::Load(const LibString &libraryPath)
 {
     // 文件是否存在
-    if(KERNEL_NS::FileUtil::IsFileExist(libraryPath.c_str()))
+    if(!KERNEL_NS::FileUtil::IsFileExist(libraryPath.c_str()))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("library path:%s, not exists."), libraryPath.c_str());
         return Status::NotFound;
