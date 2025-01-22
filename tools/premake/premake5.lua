@@ -151,6 +151,11 @@ project "TestServicePlugin"
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "TestServicePlugin/TestServicePlugin_pch/pch.cpp")
 
+    -- windows下是静态库, linux下是动态库
+    if IS_WINDOWS then
+        defines{"TEST_PLUGIN_STATIC_LIB"}
+    end
+
     -- 导入内核接口 宏定义
 	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
 
@@ -242,6 +247,12 @@ project "testsuit"
         "CrystalKernel",
     }
 
+    filter {"system:windows"}
+        dependson {
+            "TestServicePlugin",
+        }
+    filter{}
+
     -- 导入内核接口 宏定义
 	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
 
@@ -257,6 +268,7 @@ project "testsuit"
 		"../../OptionComponent/",
 		"../../protocols/cplusplus/",
 		"../../service/TestService/",
+		"../../TestServicePlugin/",
     }
 
     -- mysql
@@ -285,6 +297,18 @@ project "testsuit"
 
         links {
             "mysqlclient",
+        }
+    filter {}
+
+    -- windows 下连接plugin静态库
+    filter { "configurations:debug*", "language:c++", "system:windows" }
+        links {
+            "libTestServicePlugin_debug",
+        }
+    filter {}
+    filter { "configurations:release*", "language:c++", "system:windows" }
+        links {
+            "libTestServicePlugin",
         }
     filter {}
 

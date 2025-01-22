@@ -104,6 +104,7 @@
 #include <testsuit/testinst/TestJson.h>
 #include "testinst/TestLua/TestLua.h"
 #include "testsuit/testinst/TestIdGenerator.h"
+#include <testsuit/testinst/TestLoadShareLibrary.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -295,9 +296,10 @@ void TestInst::Run(int argc, char const *argv[])
     // TestConcepts::Run();
     // TestConceptModules::Run();
     // TestBigNum::Run();
-    TestLua::Run();
+    // TestLua::Run();
     // TestJson::Run();
     // TestIdGenerator::Run();
+    TestLoadShareLibrary::Run();
     
     // write a large file
     // do
