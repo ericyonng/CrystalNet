@@ -33,7 +33,10 @@
 void TestLoadShareLibrary::Run()
 {
     KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> loader = KERNEL_NS::ShareLibraryLoaderFactory().Create()->CastTo<KERNEL_NS::ShareLibraryLoader>();
-    loader->SetLibraryPath("./libTestServicePlugin_debug.so");
+
+    auto libraryPath = KERNEL_NS::SystemUtil::GetCurProgRootPath();
+    libraryPath.AppendFormat("/libTestServicePlugin_debug.so");
+    loader->SetLibraryPath(libraryPath);
     loader->Init();
     loader->Start();
 
