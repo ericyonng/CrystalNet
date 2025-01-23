@@ -36,16 +36,70 @@
 
 #ifdef ENABLE_TEST_SERVICE
  #include <service/TestService/service.h>
+
+class TestServiceApplication : public SERVICE_COMMON_NS::Application
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(Application, TestServiceApplication);
+
+public:
+    TestServiceApplication()
+    {
+        
+    }
+    
+    ~TestServiceApplication() override
+    {
+        
+    }
+
+    void OnRegisterComps() override;
+    {
+        SERVICE_COMMON_NS::Application::OnRegisterComps();
+
+        // 注册热更监控
+        RegisterComp<SERVICE_COMMON_NS::LibraryHotfixMonitorFactory>();
+    }
+
+    virtual Int32 _OnCompsCreated() override
+    {
+        auto err = SERVICE_COMMON_NS::Application::_OnCompsCreated();
+        if(err != Status::Success)
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("comps created fail err:%d"), err);
+            return err;
+        }
+
+        auto hotfixMonitor = GetComp<SERVICE_COMMON_NS::ILibraryHotfixMonitor>();
+        // 设置检测文件
+        hotfixMonitor->SetDetectionFile(_path + KERNEL_NS::LibString().AppendFormat(".TestPlugin.hotfix_%d", _processId));
+        // 设置路径
+        hotfixMonitor->SetRootPath(KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetAppPath()).strip());
+        // 设置插件集热更回调 TODO:必须为每个监听者添加一个callback, 并设置监听的key
+        hotfixMonitor->SetHotFixCallback([this](std::vector<SERVICE_COMMON_NS::HotFixContainerElemType> &hotfixs)
+        {
+            // TODO:有问题, 这里如果遍历service那么需要每个service一个copy, 每个动态库在每个service的地址不需不能是copy，而是重新加载的
+            GetComp<SERVICE_COMMON_NS::ServiceProxy>()->pos
+        });
+    }
+
+    void Release() override
+    {
+        TestServiceApplication::Delete_TestServiceApplication(this);
+    }
+};
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(TestServiceApplication);
+
 #endif
 
 void TestService::Run(int argc, char const *argv[])
 {
 #ifdef ENABLE_TEST_SERVICE
-    KERNEL_NS::SmartPtr<SERVICE_COMMON_NS::Application, KERNEL_NS::AutoDelMethods::CustomDelete> app = SERVICE_COMMON_NS::Application::New_Application();
+    KERNEL_NS::SmartPtr<TestServiceApplication, KERNEL_NS::AutoDelMethods::CustomDelete> app = TestServiceApplication::New_TestServiceApplication();
     app.SetClosureDelegate([](void *ptr)
     {
-        auto p = KERNEL_NS::KernelCastTo<SERVICE_COMMON_NS::Application>(ptr);
-        SERVICE_COMMON_NS::Application::Delete_Application(p);
+        auto p = KERNEL_NS::KernelCastTo<TestServiceApplication>(ptr);
+        TestServiceApplication::Delete_TestServiceApplication(p);
         ptr = NULL;
     });
 

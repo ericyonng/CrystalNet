@@ -175,4 +175,9 @@ void *ShareLibraryLoader::_LoadSym(const LibString &symName)
 #endif
 }
 
+LibString ShareLibraryLoader::ToString() const
+{
+    return LibString().AppendFormat("lib path:%s, library address:%p", _libPath.c_str(), _library);
+}
+
 KERNEL_END

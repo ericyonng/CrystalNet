@@ -43,6 +43,8 @@
 #include <map>
 #include <unordered_map>
 #include <list>
+#include <concepts>
+#include <ranges>
 
 KERNEL_BEGIN
 
@@ -119,6 +121,22 @@ public:
 	static LibString ToString(const std::unordered_map<K, V> &contents, const LibString &sep);
 	template<typename V>
 	static LibString ToString(const std::list<V> &contents, const LibString &sep);
+
+	// T具有范围, 且嵌套value_type类型, CallbackType形参得是value_type, 返回值LibString
+	template<typename T, typename CallbackType>
+	// T具有范围
+	requires std::ranges::range<T> 
+	// T必须有 value_type 类型
+	&& requires
+	{
+		typename T::value_type;
+	}
+	// callback 是一个形参是 T::value_type, 返回值是LibString
+	&& requires(typename T::value_type value,  CallbackType cb)
+	{
+		{ cb(value)	} -> std::same_as<KERNEL_NS::LibString>; 
+	}
+	static LibString ToStringBy(const T &contentsContainer, const LibString &sep, CallbackType &&cb);
 	
 	// 校验标准名字:英文, 数字, 下划线, 且首字母非数字, name 长度为0也是非法
 	static bool CheckGeneralName(const LibString &name);
@@ -450,6 +468,29 @@ ALWAYS_INLINE LibString StringUtil::ToString(const std::list<V> &contents, const
 	
 	return StringUtil::ToString(strs, sep);
 }
+
+template<typename T, typename CallbackType>
+// T具有范围
+requires std::ranges::range<T> 
+// T必须有 value_type 类型
+&& requires
+{
+	typename T::value_type;
+}
+// callback 是一个形参是 T::value_type, 返回值是LibString
+&& requires(typename T::value_type value,  CallbackType cb)
+{
+	{ cb(value)	} -> std::same_as<KERNEL_NS::LibString>; 
+}
+ALWAYS_INLINE LibString StringUtil::ToStringBy(const T &contentsContainer, const LibString &sep, CallbackType &&cb)
+{
+	std::vector<LibString> strs;
+	for(auto &elem : contentsContainer)
+		strs.emplace_back(cb(elem));
+
+	return StringUtil::ToString(strs, sep);
+}
+	
 
 KERNEL_END
 

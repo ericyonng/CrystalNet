@@ -59,7 +59,7 @@ class Application : public KERNEL_NS::IApplication
 
 public:
     Application();
-    ~Application();
+    ~Application() override;
     void Release() override;
 
 public:

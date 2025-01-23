@@ -50,6 +50,8 @@ public:
     // 加载符号
     template<typename SymType>
     SymType LoadSym(const LibString &symName);
+
+    LibString ToString() const override;
     
 private:
     Int32 _OnInit() override;
