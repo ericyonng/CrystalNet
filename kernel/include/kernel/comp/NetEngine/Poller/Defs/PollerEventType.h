@@ -64,6 +64,7 @@ public:
         RealDoQuitServiceSessionEvent, // 真正的踢session
 
         QuitApplicationEvent, // 退出app事件
+        HotfixShareLibrary,     // 热更共享库
         EvMax,                      // 枚举
     };
 
@@ -88,6 +89,7 @@ public:
         case PollerEventType::RecvMsg: return "RecvMsg";  // 收到网络消息 业务层监听事件
         case PollerEventType::QuitServiceEvent: return "QuitServiceEvent";  // 退出服务 业务层监听事件
         case PollerEventType::QuitApplicationEvent: return "QuitApplicationEvent";  // 退出app
+        case PollerEventType::HotfixShareLibrary: return "HotfixShareLibrary";  // 热更事件
         default:
             break;
         };

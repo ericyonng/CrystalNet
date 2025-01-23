@@ -137,6 +137,14 @@ public:
 		{ cb(value)	} -> std::same_as<KERNEL_NS::LibString>; 
 	}
 	static LibString ToStringBy(const T &contentsContainer, const LibString &sep, CallbackType &&cb);
+
+    // callback 需要传key,value进去, 返回string
+    template<typename K, typename V, typename CallbackType>
+    requires requires(K key, V value,  CallbackType cb)
+    {
+        { cb(key, value) } -> std::same_as<KERNEL_NS::LibString>; 
+    }
+    static LibString ToStringBy(const std::map<K, V> &dict, const LibString &sep, CallbackType &&cb);
 	
 	// 校验标准名字:英文, 数字, 下划线, 且首字母非数字, name 长度为0也是非法
 	static bool CheckGeneralName(const LibString &name);
@@ -490,7 +498,21 @@ ALWAYS_INLINE LibString StringUtil::ToStringBy(const T &contentsContainer, const
 
 	return StringUtil::ToString(strs, sep);
 }
-	
+
+// callback 需要传key,value进去, 返回string
+template<typename K, typename V, typename CallbackType>
+requires requires(K key, V value,  CallbackType cb)
+{
+    { cb(key, value) } -> std::same_as<KERNEL_NS::LibString>; 
+}
+ALWAYS_INLINE LibString StringUtil::ToStringBy(const std::map<K, V> &dict, const LibString &sep, CallbackType &&cb)
+{
+    std::vector<LibString> strs;
+    for(auto &iter : dict)
+        strs.emplace_back(cb(iter.first, iter.second));
+
+    return StringUtil::ToString(strs, sep);
+}
 
 KERNEL_END
 

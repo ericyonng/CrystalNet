@@ -53,6 +53,16 @@ SERVICE_COMMON_BEGIN
     KERNEL_NS::LibString _hotfixKey;
  };
 
+// 热更文件中参数名
+// FilePath:...
+// HotfixKey:...
+ class HotfixParamName
+ {
+ public:
+     static const KERNEL_NS::LibString FILE_PATH;
+     static const KERNEL_NS::LibString HOTFIX_KEY;
+ };
+
 // 热更参数
 using HotFixContainerElemType = KERNEL_NS::SmartPtr<SERVICE_COMMON_NS::HotFixCommonParam, KERNEL_NS::AutoDelMethods::CustomDelete>;
 

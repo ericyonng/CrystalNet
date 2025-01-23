@@ -83,6 +83,17 @@ public:
     virtual void PostQuitService(UInt32 priorityLevel = 0) final;
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
 
+    template<typename CallbackType>
+    requires requires(CallbackType cb)
+    {
+        {cb()} ->std::same_as<KERNEL_NS::PollerEvent *>;
+    }
+    void BroadcastMsg(CallbackType &&cb);
+
+    const std::unordered_map<UInt64, IService *> &GetServiceDict() const;
+    const std::unordered_map<UInt64, std::atomic_bool> &GetServiceRejectStatus() const;
+    const IService *GetService(UInt64 serviceId) const;
+
     // 设置服务创建工厂 在application init后主动调用
     void SetServiceFactory(IServiceFactory *serviceFactory);
 
@@ -141,6 +152,51 @@ ALWAYS_INLINE Application *ServiceProxy::GetApp()
 ALWAYS_INLINE const Application *ServiceProxy::GetApp() const
 {
     return GetOwner()->CastTo<Application>();
+}
+
+template<typename CallbackType>
+requires requires(CallbackType cb)
+{
+    {cb()} ->std::same_as<KERNEL_NS::PollerEvent *>;
+}
+ALWAYS_INLINE void ServiceProxy::BroadcastMsg(CallbackType &&cb)
+{
+    for(auto iter :_serviceIdRefRejectServiceStatus)
+    {
+        if(UNLIKELY(iter.second))
+            continue;
+        
+        auto service = _GetService(iter.first);
+        if(UNLIKELY(!service))
+            continue;
+        
+        auto maxLevel = service->GetMaxPriorityLevel();
+        PostMsg(iter.first, maxLevel, cb(), 1);
+    }
+}
+
+ALWAYS_INLINE const std::unordered_map<UInt64, IService *> &ServiceProxy::GetServiceDict() const
+{
+    return _idRefService;
+}
+
+ALWAYS_INLINE const std::unordered_map<UInt64, std::atomic_bool> &ServiceProxy::GetServiceRejectStatus() const
+{
+    return _serviceIdRefRejectServiceStatus;
+}
+
+ALWAYS_INLINE const IService *ServiceProxy::GetService(UInt64 serviceId) const
+{
+    // service还没创建
+    auto iter = _serviceIdRefRejectServiceStatus.find(serviceId);
+    if(iter == _serviceIdRefRejectServiceStatus.end())
+        return NULL;
+
+    // 服务结束
+    if(iter->second)
+        return NULL;
+
+    return _GetService(iter->first);
 }
 
 ALWAYS_INLINE void ServiceProxy::_RejectService(UInt64 serviceId)

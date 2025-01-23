@@ -54,9 +54,10 @@
 
 #include <vector>
 
-KERNEL_BEGIN
+#include "kernel/comp/ShareLibraryLoader/ShareLibraryLoader.h"
 
-struct LibConnectInfo;
+KERNEL_BEGIN
+    struct LibConnectInfo;
 template<typename T>
 class LibStream;
 class LibPacket;
@@ -226,6 +227,22 @@ struct KERNEL_EXPORT QuitApplicationEvent : public PollerEvent
     virtual void Release() override;
 
     LibString ToString() const override;
+};
+
+// 热更共享库
+struct KERNEL_EXPORT HotfixShareLibraryEvent : public PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, HotfixShareLibraryEvent);
+
+    HotfixShareLibraryEvent();
+    ~HotfixShareLibraryEvent();
+
+    virtual void Release() override;
+
+    LibString ToString() const override;
+
+    KERNEL_NS::SmartPtr<KERNEL_NS::ShareLibraryLoader, KERNEL_NS::AutoDelMethods::Release> _shareLib;
+    KERNEL_NS::LibString _hotfixKey;
 };
 
 KERNEL_END

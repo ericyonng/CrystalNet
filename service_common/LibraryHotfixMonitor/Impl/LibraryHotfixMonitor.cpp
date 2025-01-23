@@ -225,11 +225,14 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
     // 2.删除文件
     _DelDetectionFile();
 
-    // 3.分析参数并执行热更, 热更要么全热更, 要么一个都不热更, TODO:需要先尝试热更所有, 然后才真正的热更
+    // 3.分析参数并执行热更, 热更要么全热更, 要么一个都不热更
     const Int32 count = static_cast<Int32>(params.size());
-    std::vector<HotFixContainerElemType> hotfixCommonParams;
-    std::set<KERNEL_NS::LibString> completeHotfixKeys;
-    for(Int32 idx = 0; idx <count; ++idx)
+
+    // hotfixkey => 加载的热更初步结果
+    std::map<KERNEL_NS::LibString, std::vector<HotFixContainerElemType>> hotfixKeyRefHotfixCaches;
+
+    // 便利生成可热更的初步结果
+    for(Int32 idx = 0; idx < count; ++idx)
     {
         auto &hotfixParam = params[idx];
         if(hotfixParam._params.empty())
@@ -242,37 +245,85 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
         }
         
         // FilePath
-        auto filePath = hotfixParam._params[0];
-        // 相对路径需要构建出一个绝对路径
-        if(filePath.IsStartsWith("./") || filePath.IsStartsWith("../") || filePath.IsStartsWith(".\\") || filePath.IsStartsWith("..\\"))
+        const Int32 paramCount = static_cast<Int32>(hotfixParam._params.size());
+        bool isSuc = true;
+        KERNEL_NS::LibString filePath;
+        KERNEL_NS::LibString hotfixKey;
+        for(Int32 idx = 0; idx < paramCount; ++idx)
         {
-            filePath = _currentRootPath + filePath;
+            auto &param = hotfixParam._params[idx];
+            auto pos = param.GetRaw().find_first_of(":");
+            if(pos == std::string::npos)
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("not found : hotfix params:%s"), KERNEL_NS::StringUtil::ToString(hotfixParam._params, ",").c_str());
+                isSuc = false;
+                break;
+            }
+            
+            KERNEL_NS::LibString key = param.GetRaw().substr(0, pos);
+            KERNEL_NS::LibString value = param.GetRaw().substr(pos + 1);
+            key.strip();
+            value.strip();
+
+            if(key == HotfixParamName::FILE_PATH)
+            {
+                filePath = value;
+                // 相对路径需要构建出一个绝对路径
+                if(filePath.IsStartsWith("./") || filePath.IsStartsWith("../") || filePath.IsStartsWith(".\\") || filePath.IsStartsWith("..\\"))
+                {
+                    filePath = _currentRootPath + filePath;
+                }
+            }
+            else if(key == HotfixParamName::HOTFIX_KEY)
+            {
+                hotfixKey = value;
+            }
+        }
+        if(!isSuc)
+        {
+            g_Log->Error(LOGFMT_OBJ_TAG("resoleve hotfix param fail params:%s"), KERNEL_NS::StringUtil::ToString(hotfixParam._params, ",").c_str());
+            continue;
         }
         
-        // hotfixKey
-        auto hotfixKey = hotfixParam._params[1];
-
         // 文件是否存在
         if(!KERNEL_NS::FileUtil::IsFileExist(filePath.c_str()))
         {
-            const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(hotfixCommonParams, ","
-                , [](const HotFixContainerElemType &elem) -> KERNEL_NS::LibString
+            const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(hotfixKeyRefHotfixCaches, ","
+                , [](const KERNEL_NS::LibString &hotfixKeyStr, const std::vector<HotFixContainerElemType> &elems) -> KERNEL_NS::LibString
             {
-                    return elem ? elem->ToString() : "";
+                    const auto &elemStr = KERNEL_NS::StringUtil::ToStringBy(elems, ","
+                        , [](const HotFixContainerElemType &elem) -> KERNEL_NS::LibString
+                    {
+                            return elem ? elem->ToString() : "";
+                    });
+
+                    return KERNEL_NS::LibString().AppendFormat("hotfix key:%s:[%s]", hotfixKeyStr.c_str(), elemStr.c_str());
             });
-            g_Log->Error(LOGFMT_OBJ_TAG("file path:%s, not exists, handled hotfix will release:%s"), filePath.c_str(), handledInfo.c_str());
+            
+            g_Log->Error(LOGFMT_OBJ_TAG("file path:%s, not exists, handled hotfix will release:%s, hotfix file contents:%s")
+                , filePath.c_str(), handledInfo.c_str(), KERNEL_NS::StringUtil::ToString(lines, ",").c_str());
+            
             return;
         }
 
         // owner检查
         if(hotfixKey.empty())
         {
-            const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(hotfixCommonParams, ","
-                , [](const HotFixContainerElemType &elem) -> KERNEL_NS::LibString
+            const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(hotfixKeyRefHotfixCaches, ","
+                , [](const KERNEL_NS::LibString &hotfixKeyStr, const std::vector<HotFixContainerElemType> &elems) -> KERNEL_NS::LibString
             {
-                    return elem ? elem->ToString() : "";
+                    const auto &elemStr = KERNEL_NS::StringUtil::ToStringBy(elems, ","
+                        , [](const HotFixContainerElemType &elem) -> KERNEL_NS::LibString
+                    {
+                            return elem ? elem->ToString() : "";
+                    });
+
+                    return KERNEL_NS::LibString().AppendFormat("hotfix key:%s:[%s]", hotfixKeyStr.c_str(), elemStr.c_str());
             });
-            g_Log->Error(LOGFMT_OBJ_TAG("owner is empty, file path:%s, not exists, handled hotfix will release:%s"), filePath.c_str(), handledInfo.c_str());
+            
+            g_Log->Error(LOGFMT_OBJ_TAG("owner is empty, file path:%s, not exists, handled hotfix will release:%s, hotfix file contents:%s")
+                , filePath.c_str(), handledInfo.c_str(), KERNEL_NS::StringUtil::ToString(lines, ",").c_str());
+            
             return;
         }
 
@@ -283,6 +334,14 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
 
         auto &listeners = iter->second;
         const Int32 totalCount = static_cast<Int32>(listeners.size());
+        auto iterCaches = hotfixKeyRefHotfixCaches.find(hotfixKey);
+        if(iterCaches ==  hotfixKeyRefHotfixCaches.end())
+            iterCaches = hotfixKeyRefHotfixCaches.insert(std::make_pair(hotfixKey, std::vector<HotFixContainerElemType>())).first;
+        
+        auto &caches = iterCaches->second;
+        if(caches.size() < static_cast<size_t>(totalCount))
+            caches.resize(static_cast<size_t>(totalCount));
+        
         for(Int32 offsetIdx = 0; offsetIdx < totalCount; ++offsetIdx)
         {
             auto cb = listeners[offsetIdx];
@@ -304,49 +363,102 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
             auto err = shareLib->Init();
             if(err != Status::Success)
             {
-                const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(hotfixCommonParams, ","
-                    , [](const HotFixContainerElemType &elem) -> KERNEL_NS::LibString
+                const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(hotfixKeyRefHotfixCaches, ","
+                    , [](const KERNEL_NS::LibString &hotfixKeyStr, const std::vector<HotFixContainerElemType> &elems) -> KERNEL_NS::LibString
                 {
-                        return elem ? elem->ToString() : "";
+                        const auto &elemStr = KERNEL_NS::StringUtil::ToStringBy(elems, ","
+                            , [](const HotFixContainerElemType &elem) -> KERNEL_NS::LibString
+                        {
+                                return elem ? elem->ToString() : "";
+                        });
+
+                        return KERNEL_NS::LibString().AppendFormat("hotfix key:%s:[%s]", hotfixKeyStr.c_str(), elemStr.c_str());
                 });
-                g_Log->Error(LOGFMT_OBJ_TAG("share library init fail err:%d, share library:%s, hot fix elem:%s, handled hotfix will release:%s")
-                    , err, shareLib->ToString().c_str(), hotfixElem->ToString().c_str(), handledInfo.c_str());
+                
+                g_Log->Error(LOGFMT_OBJ_TAG("share library init fail err:%d, share library:%s, hot fix elem:%s, handled hotfix will release:%s, hotfix file contents:%s")
+                    , err, shareLib->ToString().c_str(), hotfixElem->ToString().c_str(), handledInfo.c_str(), KERNEL_NS::StringUtil::ToString(lines, ",").c_str());
+                
                 return;
             }
 
             err = shareLib->Start();
             if(err != Status::Success)
             {
-                const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(hotfixCommonParams, ","
+                const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(hotfixKeyRefHotfixCaches, ","
+                    , [](const KERNEL_NS::LibString &hotfixKeyStr, const std::vector<HotFixContainerElemType> &elems) -> KERNEL_NS::LibString
+                {
+                        const auto &elemStr = KERNEL_NS::StringUtil::ToStringBy(elems, ","
+                            , [](const HotFixContainerElemType &elem) -> KERNEL_NS::LibString
+                        {
+                                return elem ? elem->ToString() : "";
+                        });
+
+                        return KERNEL_NS::LibString().AppendFormat("hotfix key:%s:[%s]", hotfixKeyStr.c_str(), elemStr.c_str());
+                });
+                
+                g_Log->Error(LOGFMT_OBJ_TAG("share library start fail err:%d, share library:%s, hot fix elem:%s, handled hotfix will release:%s, hotfix file contents:%s")
+                    , err, shareLib->ToString().c_str(), hotfixElem->ToString().c_str(), handledInfo.c_str(), KERNEL_NS::StringUtil::ToString(lines, ",").c_str());
+
+                return;
+            }
+
+            caches[offsetIdx] = hotfixElem;
+        }
+    }
+
+    // 便利成功的缓存, 并回调
+    std::set<KERNEL_NS::LibString> completeHotfixKeys;
+    for(auto &iter : hotfixKeyRefHotfixCaches)
+    {
+        auto &caches = iter.second;
+        auto &hotfixKey = iter.first;
+        auto iterCb = _hotfixKeyRefHotfixDeleg.find(hotfixKey);
+        if(iterCb == _hotfixKeyRefHotfixDeleg.end())
+            continue;
+
+        // 完成的热更键
+        completeHotfixKeys.insert(hotfixKey);
+
+        auto &listeners = iterCb->second;
+        const Int32 totalCount = static_cast<Int32>(listeners.size());
+        for(Int32 offsetIdx = 0; offsetIdx < totalCount; ++offsetIdx)
+        {
+            auto cb = listeners[offsetIdx];
+            if(UNLIKELY(!cb))
+            {
+                const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(caches, ","
                     , [](const HotFixContainerElemType &elem) -> KERNEL_NS::LibString
                 {
                         return elem ? elem->ToString() : "";
                 });
-                g_Log->Error(LOGFMT_OBJ_TAG("share library start fail err:%d, share library:%s, hot fix elem:%s, handled hotfix will release:%s")
-                    , err, shareLib->ToString().c_str(), hotfixElem->ToString().c_str(), handledInfo.c_str());
-                return;
+                
+                g_Log->Warn(LOGFMT_OBJ_TAG("register a nil callback hot key:%s, handledInfo:%s"), hotfixKey.c_str(), handledInfo.c_str());
+                continue;
             }
 
-            cb->Invoke(hotfixElem);
-            completeHotfixKeys.insert(hotfixKey);
+            auto &cache = caches[offsetIdx];
+            g_Log->Info(LOGFMT_OBJ_TAG("hotfix library is loaded, and will callback to hotfix, hotfix key:%s, hotfix info:%s"), hotfixKey.c_str(), cache->ToString().c_str());
+            cb->Invoke(cache);
         }
     }
-
-    // 4.热更回调
-    if(!hotfixCommonParams.empty())
-    {
-        const auto &handledInfo = KERNEL_NS::StringUtil::ToStringBy(hotfixCommonParams, ","
-            , [](const HotFixContainerElemType &elem) -> KERNEL_NS::LibString
-        {
-                return elem ? elem->ToString() : "";
-        });
-        g_Log->Info(LOGFMT_OBJ_TAG("hotfix library is loaded, and will callback to hotfix, all hotfix info:%s"), handledInfo.c_str());
-        
-        _hotfixCallback->Invoke(hotfixCommonParams);
-    }
-    else
+    
+    // 4.空告警
+    if(hotfixKeyRefHotfixCaches.empty())
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("have no any valid hotfix info, hotfix contents:%s"), KERNEL_NS::StringUtil::ToString(lines, ",").c_str());
+    }
+
+    {
+        const Int32 completeCount = static_cast<Int32>(_hotfixCompleteCallback.size());
+        for(Int32 idx = 0; idx < completeCount; ++idx)
+        {
+            auto completeCb = _hotfixCompleteCallback[idx];
+            if(UNLIKELY(!completeCb))
+                continue;
+
+            completeCb->Invoke(completeHotfixKeys);
+            g_Log->Info(LOGFMT_OBJ_TAG("hotfix complete hotfix keys:%s"), KERNEL_NS::StringUtil::ToString(completeHotfixKeys, ",").c_str());
+        }
     }
 }
 

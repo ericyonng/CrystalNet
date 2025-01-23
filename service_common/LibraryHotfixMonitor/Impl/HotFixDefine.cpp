@@ -39,4 +39,7 @@ KERNEL_NS::LibString HotFixCommonParam::ToString() const
       , _shareLib.AsSelf(), (_shareLib ? _shareLib->ToString().c_str() : ""), _hotfixKey.c_str());
 }
 
+const KERNEL_NS::LibString HotfixParamName::FILE_PATH = "FilePath";
+const KERNEL_NS::LibString HotfixParamName::HOTFIX_KEY = "HotfixKey";
+
 SERVICE_COMMON_END

@@ -655,4 +655,30 @@ LibString QuitApplicationEvent::ToString() const
     return info;
 }
 
+POOL_CREATE_OBJ_DEFAULT_IMPL(HotfixShareLibraryEvent);
+
+HotfixShareLibraryEvent::HotfixShareLibraryEvent()
+:PollerEvent(PollerEventType::HotfixShareLibrary)
+{
+    
+}
+
+HotfixShareLibraryEvent::~HotfixShareLibraryEvent()
+{
+    
+}
+
+void HotfixShareLibraryEvent::Release()
+{
+    HotfixShareLibraryEvent::Delete_HotfixShareLibraryEvent(this);
+}
+
+LibString HotfixShareLibraryEvent::ToString() const
+{                               
+    LibString info;
+    info.AppendFormat("%s\nshare lib:%s, hotfix key:%s", PollerEvent::ToString().c_str(), _shareLib ? _shareLib->ToString().c_str() : "", _hotfixKey.c_str());
+
+    return info;
+}
+
 KERNEL_END

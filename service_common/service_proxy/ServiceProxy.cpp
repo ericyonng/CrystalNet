@@ -107,7 +107,6 @@ KERNEL_NS::IProtocolStack *ServiceProxy::GetProtocolStack(KERNEL_NS::LibSession 
     return service->GetProtocolStack(session);
 }
 
-
 void ServiceProxy::CloseApp(Int32 err)
 {
     GetOwner()->CastTo<Application>()->SinalFinish(err);

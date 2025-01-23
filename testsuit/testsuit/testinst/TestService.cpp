@@ -52,7 +52,7 @@ public:
         
     }
 
-    void OnRegisterComps() override;
+    void OnRegisterComps() override
     {
         SERVICE_COMMON_NS::Application::OnRegisterComps();
 
@@ -74,12 +74,44 @@ public:
         hotfixMonitor->SetDetectionFile(_path + KERNEL_NS::LibString().AppendFormat(".TestPlugin.hotfix_%d", _processId));
         // 设置路径
         hotfixMonitor->SetRootPath(KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetAppPath()).strip());
-        // 设置插件集热更回调 TODO:必须为每个监听者添加一个callback, 并设置监听的key
-        hotfixMonitor->SetHotFixCallback([this](std::vector<SERVICE_COMMON_NS::HotFixContainerElemType> &hotfixs)
+
+        return Status::Success;
+    }
+    
+    virtual Int32 _OnHostWillStart() override
+    {
+        auto err = SERVICE_COMMON_NS::Application::_OnHostWillStart();
+        if(err != Status::Success)
         {
-            // TODO:有问题, 这里如果遍历service那么需要每个service一个copy, 每个动态库在每个service的地址不需不能是copy，而是重新加载的
-            GetComp<SERVICE_COMMON_NS::ServiceProxy>()->pos
-        });
+            g_Log->Warn(LOGFMT_OBJ_TAG("_OnHostWillStart err:%d"), err);
+            return err;
+        }
+
+        // 设置插件集热更回调
+        auto hotfixMonitor = GetComp<SERVICE_COMMON_NS::ILibraryHotfixMonitor>();
+        auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
+        auto &serviceRejectStatus = serviceProxy->GetServiceRejectStatus();
+        for(auto &iter :serviceRejectStatus)
+        {
+            auto serviceId = iter.first;
+
+            // 监听 TestPlugin 热更
+            hotfixMonitor->AddHotFixListener("TestPlugin",  [this, serviceId](SERVICE_COMMON_NS::HotFixContainerElemType &hotfix)
+            {
+                auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
+                auto service = serviceProxy->GetService(serviceId);
+                if(UNLIKELY(!service))
+                    return;
+                
+                auto serviceMaxLevel = service->GetMaxPriorityLevel();
+                auto msg = KERNEL_NS::HotfixShareLibraryEvent::New_HotfixShareLibraryEvent();
+                msg->_shareLib = std::move(hotfix->_shareLib);
+                msg->_hotfixKey = hotfix->_hotfixKey;
+                serviceProxy->PostMsg(serviceId, serviceMaxLevel, msg, 1);
+            });
+        }
+        
+        return Status::Success;
     }
 
     void Release() override
