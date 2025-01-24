@@ -245,6 +245,21 @@ struct KERNEL_EXPORT HotfixShareLibraryEvent : public PollerEvent
     KERNEL_NS::LibString _hotfixKey;
 };
 
+struct  KERNEL_EXPORT HotfixShareLibraryCompleteEvent : public  PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, HotfixShareLibraryCompleteEvent);
+
+    HotfixShareLibraryCompleteEvent();
+    ~HotfixShareLibraryCompleteEvent();
+
+    virtual void Release() override;
+
+    LibString ToString() const override;
+
+    // 热更的相关key信息
+    std::set<KERNEL_NS::LibString> _hotfixKeys;
+};
+
 KERNEL_END
 
 #endif

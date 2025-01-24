@@ -65,6 +65,7 @@ public:
 
         QuitApplicationEvent, // 退出app事件
         HotfixShareLibrary,     // 热更共享库
+        HotfixShareLibraryComplete,     // 热更共享库完成
         EvMax,                      // 枚举
     };
 

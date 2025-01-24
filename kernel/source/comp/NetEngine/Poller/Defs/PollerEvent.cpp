@@ -681,4 +681,31 @@ LibString HotfixShareLibraryEvent::ToString() const
     return info;
 }
 
+POOL_CREATE_OBJ_DEFAULT_IMPL(HotfixShareLibraryCompleteEvent);
+
+HotfixShareLibraryCompleteEvent::HotfixShareLibraryCompleteEvent()
+:PollerEvent(PollerEventType::HotfixShareLibraryComplete)
+{
+    
+}
+
+HotfixShareLibraryCompleteEvent::~HotfixShareLibraryCompleteEvent()
+{
+    
+}
+
+void HotfixShareLibraryCompleteEvent::Release()
+{
+    HotfixShareLibraryCompleteEvent::Delete_HotfixShareLibraryCompleteEvent(this);
+}
+
+LibString HotfixShareLibraryCompleteEvent::ToString() const
+{
+    LibString info;
+    info.AppendFormat("%s\nshotfix complete hotkeys:%s", PollerEvent::ToString().c_str(), StringUtil::ToString(_hotfixKeys, ",").c_str());
+
+    return info;
+}
+
+
 KERNEL_END

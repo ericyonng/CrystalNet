@@ -83,7 +83,7 @@ void LibraryHotfixMonitor::SetDetectionTimeInterval(Int64 seconds)
 void LibraryHotfixMonitor::SetRootPath(const KERNEL_NS::LibString &rootPath)
 {
     _currentRootPath = rootPath;
-    if((!_currentRootPath.IsEndsWith("/")) && (_currentRootPath.IsEndsWith("\\")))
+    if((!_currentRootPath.IsEndsWith("/")) && (!_currentRootPath.IsEndsWith("\\")))
         _currentRootPath.AppendFormat("/");
 }
 
@@ -122,7 +122,6 @@ Int32 LibraryHotfixMonitor::_OnInit()
     if(!_detectionFileNameWithoutDir.empty() && _detectionInterval)
     {
         _enableDetection = true;
-        _DelDetectionFile();
         _tick->Schedule(_detectionInterval);
     }
 
@@ -168,6 +167,8 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
     // 文件检测到说明需要热更, 那么先读取文件内容再删除文件, 然后再执行热更
     if(!KERNEL_NS::FileUtil::IsFileExist(_deadthDetectionFile.c_str()))
         return;
+
+    g_Log->Info(LOGFMT_OBJ_TAG("will scan hotfix file:%s"), _deadthDetectionFile.c_str());
 
     // 1.热更参数粗筛
     std::vector<HotFixParams> params;
@@ -252,10 +253,20 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
         for(Int32 idx = 0; idx < paramCount; ++idx)
         {
             auto &param = hotfixParam._params[idx];
+            if(param.empty())
+            {
+                g_Log->Error(LOGFMT_OBJ_TAG("param is empty, hotfix params:%s, lines:%s")
+                , KERNEL_NS::StringUtil::ToString(hotfixParam._params, ",").c_str()
+                , KERNEL_NS::StringUtil::ToString(lines, ",").c_str());
+                isSuc = false;
+                break;
+            }
             auto pos = param.GetRaw().find_first_of(":");
             if(pos == std::string::npos)
             {
-                g_Log->Error(LOGFMT_OBJ_TAG("not found : hotfix params:%s"), KERNEL_NS::StringUtil::ToString(hotfixParam._params, ",").c_str());
+                g_Log->Error(LOGFMT_OBJ_TAG("not found : hotfix params:%s, lines:%s")
+                , KERNEL_NS::StringUtil::ToString(hotfixParam._params, ",").c_str()
+                , KERNEL_NS::StringUtil::ToString(lines, ",").c_str());
                 isSuc = false;
                 break;
             }
@@ -281,7 +292,9 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
         }
         if(!isSuc)
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("resoleve hotfix param fail params:%s"), KERNEL_NS::StringUtil::ToString(hotfixParam._params, ",").c_str());
+            g_Log->Error(LOGFMT_OBJ_TAG("resoleve hotfix param fail params:%s, lines:%s")
+            , KERNEL_NS::StringUtil::ToString(hotfixParam._params, ",").c_str()
+            , KERNEL_NS::StringUtil::ToString(lines, ",").c_str());
             continue;
         }
         
@@ -457,7 +470,7 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
                 continue;
 
             completeCb->Invoke(completeHotfixKeys);
-            g_Log->Info(LOGFMT_OBJ_TAG("hotfix complete hotfix keys:%s"), KERNEL_NS::StringUtil::ToString(completeHotfixKeys, ",").c_str());
+            g_Log->Info(LOGFMT_OBJ_TAG("hotfix complete file:%s hotfix keys:%s"), _deadthDetectionFile.c_str(), KERNEL_NS::StringUtil::ToString(completeHotfixKeys, ",").c_str());
         }
     }
 }

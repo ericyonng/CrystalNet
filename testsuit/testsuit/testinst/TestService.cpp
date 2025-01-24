@@ -109,6 +109,20 @@ public:
                 msg->_hotfixKey = hotfix->_hotfixKey;
                 serviceProxy->PostMsg(serviceId, serviceMaxLevel, msg, 1);
             });
+
+            // 监听热更完成消息
+            hotfixMonitor->AddHotFixCompleteCallback([this, serviceId](const std::set<KERNEL_NS::LibString> &hotfixKeys)
+            {
+                auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
+                auto service = serviceProxy->GetService(serviceId);
+                if(UNLIKELY(!service))
+                    return;
+                                
+                auto serviceMaxLevel = service->GetMaxPriorityLevel();
+                auto msg = KERNEL_NS::HotfixShareLibraryCompleteEvent::New_HotfixShareLibraryCompleteEvent();
+                msg->_hotfixKeys = hotfixKeys;
+                serviceProxy->PostMsg(serviceId, serviceMaxLevel, msg, 1);
+            });
         }
         
         return Status::Success;
