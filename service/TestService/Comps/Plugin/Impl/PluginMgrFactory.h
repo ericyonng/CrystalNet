@@ -20,40 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-01-23 00:01:27
+// Date: 2025-02-02 22:02:43
 // Author: Eric Yonng
 // Description:
 
-#ifndef __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_PLUGIN_ENTRY_H__
-#define __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_PLUGIN_ENTRY_H__
 
 #pragma once
 
-#include <TestServicePlugin/test_plugin_export.h>
+#include <kernel/comp/CompObject/CompFactory.h>
+#include <service/common/macro.h>
 
-extern "C"
+SERVICE_BEGIN
+
+class PluginMgrFactory : public KERNEL_NS::CompFactory
 {
-    // 入口方法
-    typedef Int32 (*InitPluginPtr)();
-    // 插件集启动
-    typedef Int32 (*StartPluginPtr)();
-    // 插件集即将关闭
-    typedef void (*WillClosePluginPtr)();
-    // 插件集关闭
-    typedef void (*ClosePluginPtr)();
-    
-    // 初始化插件集
-    extern TEST_PLUGIN_EXPORT Int32 InitPlugin();
+    // 创建factory对象时候使用创建的方法类型
+public:
+    static constexpr KERNEL_NS::_Build::TL _buildType{};
 
-    // 启动插件集
-    extern TEST_PLUGIN_EXPORT Int32 StartPlugin();
+    static KERNEL_NS::CompFactory *FactoryCreate();
 
-    // 预关闭插件集
-    extern TEST_PLUGIN_EXPORT void WillClosePlugin();
+    virtual void Release() override;
 
-    // 释放插件集
-    extern TEST_PLUGIN_EXPORT void ClosePlugin();
-}
+public:
+    virtual KERNEL_NS::CompObject *Create() const override;
+};
 
-#endif
-
+SERVICE_END

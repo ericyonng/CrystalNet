@@ -195,6 +195,9 @@ void MyTestService::_OnServiceRegisterComps()
 
     // 系统日志模块
     RegisterComp<SystemLogGlobalFactory>();
+
+    // 插件集
+    RegisterComp<PluginMgrFactory>();
 }
 
 Int32 MyTestService::_OnServiceInit()

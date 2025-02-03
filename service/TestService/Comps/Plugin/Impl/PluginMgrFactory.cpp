@@ -20,40 +20,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-01-23 00:01:27
+// Date: 2025-02-02 22:02:52
 // Author: Eric Yonng
 // Description:
 
-#ifndef __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_PLUGIN_ENTRY_H__
-#define __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_PLUGIN_ENTRY_H__
+#include <pch.h>
+#include <kernel/kernel.h>
+#include <Comps/Plugin/Impl/PluginMgrFactory.h>
+#include <Comps/Plugin/Impl/PluginMgr.h>
 
-#pragma once
+SERVICE_BEGIN
 
-#include <TestServicePlugin/test_plugin_export.h>
-
-extern "C"
+KERNEL_NS::CompFactory *PluginMgrFactory::FactoryCreate()
 {
-    // 入口方法
-    typedef Int32 (*InitPluginPtr)();
-    // 插件集启动
-    typedef Int32 (*StartPluginPtr)();
-    // 插件集即将关闭
-    typedef void (*WillClosePluginPtr)();
-    // 插件集关闭
-    typedef void (*ClosePluginPtr)();
-    
-    // 初始化插件集
-    extern TEST_PLUGIN_EXPORT Int32 InitPlugin();
-
-    // 启动插件集
-    extern TEST_PLUGIN_EXPORT Int32 StartPlugin();
-
-    // 预关闭插件集
-    extern TEST_PLUGIN_EXPORT void WillClosePlugin();
-
-    // 释放插件集
-    extern TEST_PLUGIN_EXPORT void ClosePlugin();
+    return KERNEL_NS::ObjPoolWrap<PluginMgrFactory>::NewByAdapter(_buildType.V);
 }
 
-#endif
+void PluginMgrFactory::Release()
+{
+    KERNEL_NS::ObjPoolWrap<PluginMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
 
+KERNEL_NS::CompObject *PluginMgrFactory::Create() const
+{
+    CREATE_CRYSTAL_COMP(comp, PluginMgr);
+    return comp;
+}
+
+SERVICE_END

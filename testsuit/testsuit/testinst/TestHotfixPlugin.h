@@ -20,40 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-01-23 00:01:27
+// Date: 2025-02-02 22:02:28
 // Author: Eric Yonng
 // Description:
 
-#ifndef __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_PLUGIN_ENTRY_H__
-#define __CRYSTAL_NET_TEST_SERVICE_PLUGIN_TEST_SERVICE_PLUGIN_PLUGIN_ENTRY_H__
 
 #pragma once
 
-#include <TestServicePlugin/test_plugin_export.h>
-
-extern "C"
+class TestHotfixPlugin
 {
-    // 入口方法
-    typedef Int32 (*InitPluginPtr)();
-    // 插件集启动
-    typedef Int32 (*StartPluginPtr)();
-    // 插件集即将关闭
-    typedef void (*WillClosePluginPtr)();
-    // 插件集关闭
-    typedef void (*ClosePluginPtr)();
-    
-    // 初始化插件集
-    extern TEST_PLUGIN_EXPORT Int32 InitPlugin();
-
-    // 启动插件集
-    extern TEST_PLUGIN_EXPORT Int32 StartPlugin();
-
-    // 预关闭插件集
-    extern TEST_PLUGIN_EXPORT void WillClosePlugin();
-
-    // 释放插件集
-    extern TEST_PLUGIN_EXPORT void ClosePlugin();
-}
-
-#endif
-
+public:
+    static void Run();
+};
