@@ -50,10 +50,9 @@ do
   then
     # 使用 for 循环遍历 PID_LIST
     for pid in $PID_LIST; do
-        echo "hotfix run name:${RUN_NAME}, pid:${pid}, HOTFIX_KEY:${HOTFIX_KEY}, HOTFIX_MODULE_NAME:${HOTFIX_MODULE_NAME}"
         echo "FilePath:${RUN_PATH}/${HOTFIX_MODULE_NAME}" > ${RUN_PATH}/${RUN_NAME}.TestPlugin.hotfix_${pid}.tmp
         echo "HotfixKey:${HOTFIX_KEY}" >> ${RUN_PATH}/${RUN_NAME}.TestPlugin.hotfix_${pid}.tmp
-        cp -rf ${RUN_PATH}/${RUN_NAME}.TestPlugin.hotfix_${pid}.tmp ${RUN_PATH}/${RUN_NAME}.TestPlugin.hotfix_${pid}
+        mv -f ${RUN_PATH}/${RUN_NAME}.TestPlugin.hotfix_${pid}.tmp ${RUN_PATH}/${RUN_NAME}.TestPlugin.hotfix_${pid}
         echo "hotfix finish run name:${RUN_NAME}, pid:${pid}, HOTFIX_KEY:${HOTFIX_KEY}, HOTFIX_MODULE_NAME:${HOTFIX_MODULE_NAME}"
     done
 
