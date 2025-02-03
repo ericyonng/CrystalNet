@@ -161,17 +161,17 @@ requires requires(CallbackType cb)
 }
 ALWAYS_INLINE void ServiceProxy::BroadcastMsg(CallbackType &&cb)
 {
-    for(auto iter :_serviceIdRefRejectServiceStatus)
+    for(auto iter = _serviceIdRefRejectServiceStatus.begin(); iter != _serviceIdRefRejectServiceStatus.end(); ++iter)
     {
-        if(UNLIKELY(iter.second))
+        if(UNLIKELY(iter->second))
             continue;
         
-        auto service = _GetService(iter.first);
+        auto service = _GetService(iter->first);
         if(UNLIKELY(!service))
             continue;
         
         auto maxLevel = service->GetMaxPriorityLevel();
-        PostMsg(iter.first, maxLevel, cb(), 1);
+        PostMsg(iter->first, maxLevel, cb(), 1);
     }
 }
 
