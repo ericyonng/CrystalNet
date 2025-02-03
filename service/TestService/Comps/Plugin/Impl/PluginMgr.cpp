@@ -98,8 +98,21 @@ void PluginMgr::_OnHostBeforeCompsClose()
 
 Int32 PluginMgr::_OnGlobalSysInit()
 {
+    auto ini = GetApp()->GetIni();
+    KERNEL_NS::LibString hotfixKey;
+    if(UNLIKELY(!ini->ReadStr(GetService()->GetServiceName().c_str(), "PluginHotfixKey", hotfixKey)))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("have no ConfigDataPath please check service:%s"), GetService()->GetServiceName().c_str());
+        return Status::ConfigError;
+    }
+
+    _hotfixKey = hotfixKey;
+
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibrary, this, &PluginMgr::_OnHotfixPlubin);
     GetService()->GetPoller()->Subscribe(KERNEL_NS::PollerEventType::HotfixShareLibraryComplete, this, &PluginMgr::_OnHotfixPlubinComplete);
+
+    g_Log->Info(LOGFMT_OBJ_TAG("plugin mgr hotfix key:%s"), _hotfixKey.c_str());
+
     return Status::Success;
 }
 
@@ -111,7 +124,7 @@ void PluginMgr::_OnGlobalSysClose()
 void PluginMgr::_OnHotfixPlubin(KERNEL_NS::PollerEvent *ev)
 {
     auto hotfixEv = ev->CastTo<KERNEL_NS::HotfixShareLibraryEvent>();
-    if(!hotfixEv->_hotfixKey.Contain("TestPlugin"))
+    if(!hotfixEv->_hotfixKey.Contain(_hotfixKey))
         return;
 
     auto shareLoader = GetComp<KERNEL_NS::ShareLibraryLoader>();

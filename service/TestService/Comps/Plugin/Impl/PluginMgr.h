@@ -53,6 +53,9 @@ private:
     void _InitPluginModule();
     void _WillClosePlugin();
     void _ClosePlugin();
+
+private:
+    KERNEL_NS::LibString _hotfixKey;
 };
 
 SERVICE_END
