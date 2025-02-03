@@ -87,19 +87,15 @@ void LibraryHotfixMonitor::SetRootPath(const KERNEL_NS::LibString &rootPath)
         _currentRootPath.AppendFormat("/");
 }
 
-void LibraryHotfixMonitor::AddHotFixListener(const KERNEL_NS::LibString &hotfixKey, KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *cb)
+void LibraryHotfixMonitor::AddHotFixListener(KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *cb)
 {
     if(UNLIKELY(!cb))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("add a nil callback, hotfixkey:%s"), hotfixKey.c_str());
+        g_Log->Warn(LOGFMT_OBJ_TAG("add a nil callback"));
         return;
     }
     
-    auto iter = _hotfixKeyRefHotfixDeleg.find(hotfixKey);
-    if(iter == _hotfixKeyRefHotfixDeleg.end())
-        iter = _hotfixKeyRefHotfixDeleg.insert(std::make_pair(hotfixKey, std::vector<KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *>())).first;
-
-    iter->second.push_back(cb);
+    _hotfixDeleg.push_back(cb);
 }
 
 void LibraryHotfixMonitor::AddHotFixCompleteCallback(KERNEL_NS::IDelegate<void, const std::set<KERNEL_NS::LibString> &> *cb)
@@ -149,10 +145,7 @@ void LibraryHotfixMonitor::_Clear()
         _tick = NULL;
     }
 
-    KERNEL_NS::ContainerUtil::DelContainer(_hotfixKeyRefHotfixDeleg, [](std::vector<KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *> &container)
-    {
-        KERNEL_NS::ContainerUtil::DelContainer2(container);
-    });
+    KERNEL_NS::ContainerUtil::DelContainer2(_hotfixDeleg);
     KERNEL_NS::ContainerUtil::DelContainer2(_hotfixCompleteCallback);
 }
 
@@ -341,11 +334,7 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
         }
 
         // 为有关注该热更的Listener加载动态库
-        auto iter = _hotfixKeyRefHotfixDeleg.find(hotfixKey);
-        if(iter == _hotfixKeyRefHotfixDeleg.end())
-            continue;
-
-        auto &listeners = iter->second;
+        auto &listeners = _hotfixDeleg;
         const Int32 totalCount = static_cast<Int32>(listeners.size());
         auto iterCaches = hotfixKeyRefHotfixCaches.find(hotfixKey);
         if(iterCaches ==  hotfixKeyRefHotfixCaches.end())
@@ -425,14 +414,11 @@ void LibraryHotfixMonitor::_OnDetectionTimerOut(KERNEL_NS::LibTimer *timer)
     {
         auto &caches = iter.second;
         auto &hotfixKey = iter.first;
-        auto iterCb = _hotfixKeyRefHotfixDeleg.find(hotfixKey);
-        if(iterCb == _hotfixKeyRefHotfixDeleg.end())
-            continue;
 
         // 完成的热更键
         completeHotfixKeys.insert(hotfixKey);
 
-        auto &listeners = iterCb->second;
+        auto &listeners = _hotfixDeleg;
         const Int32 totalCount = static_cast<Int32>(listeners.size());
         for(Int32 offsetIdx = 0; offsetIdx < totalCount; ++offsetIdx)
         {

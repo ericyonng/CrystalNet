@@ -71,7 +71,7 @@ public:
 
         auto hotfixMonitor = GetComp<SERVICE_COMMON_NS::ILibraryHotfixMonitor>();
         // 设置检测文件
-        hotfixMonitor->SetDetectionFile(_path + KERNEL_NS::LibString().AppendFormat(".TestPlugin.hotfix_%d", _processId));
+        hotfixMonitor->SetDetectionFile(_path + KERNEL_NS::LibString().AppendFormat(".hotfix_%d", _processId));
         // 设置路径
         hotfixMonitor->SetRootPath(KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetAppPath()).strip());
 
@@ -96,7 +96,7 @@ public:
             auto serviceId = iter.first;
 
             // 监听 TestPlugin 热更
-            hotfixMonitor->AddHotFixListener("TestPlugin",  [this, serviceId](SERVICE_COMMON_NS::HotFixContainerElemType &hotfix)
+            hotfixMonitor->AddHotFixListener([this, serviceId](SERVICE_COMMON_NS::HotFixContainerElemType &hotfix)
             {
                 auto serviceProxy = GetComp<SERVICE_COMMON_NS::ServiceProxy>();
                 auto service = serviceProxy->GetService(serviceId);

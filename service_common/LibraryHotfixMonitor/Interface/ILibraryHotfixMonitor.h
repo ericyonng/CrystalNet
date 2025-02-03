@@ -62,7 +62,7 @@ public:
     // 添加热更监听者
     // @param(hotfixKey):关注的热更key
     // @param(cb):完成加载后回调
-    virtual void AddHotFixListener(const KERNEL_NS::LibString &hotfixKey, KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *cb) = 0;
+    virtual void AddHotFixListener(KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *cb) = 0;
 
     // cb 的参数是 HotFixContainerElemType &
     template<typename CallbackType>
@@ -70,7 +70,7 @@ public:
     {
         cb(container);
     }
-    void AddHotFixListener(const KERNEL_NS::LibString &hotfixKey, CallbackType &&cb);
+    void AddHotFixListener(CallbackType &&cb);
 
     // 热更完成回调
     // @param(cb):cb的参数是当次热更的所有hotfixKey
@@ -89,10 +89,10 @@ requires requires(CallbackType cb, HotFixContainerElemType &container)
 {
     cb(container);
 }
-ALWAYS_INLINE void ILibraryHotfixMonitor::AddHotFixListener(const KERNEL_NS::LibString &hotfixKey, CallbackType &&cb)
+ALWAYS_INLINE void ILibraryHotfixMonitor::AddHotFixListener(CallbackType &&cb)
 {
     auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, HotFixContainerElemType &);
-    AddHotFixListener(hotfixKey, deleg);
+    AddHotFixListener(deleg);
 }
 
 template<typename CallbackType>

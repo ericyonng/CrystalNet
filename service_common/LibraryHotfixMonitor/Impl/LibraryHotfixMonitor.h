@@ -55,7 +55,7 @@ public:
  virtual void SetDetectionTimeInterval(Int64 seconds) override;
  virtual void SetRootPath(const KERNEL_NS::LibString &rootPath) override;
  
- virtual void AddHotFixListener(const KERNEL_NS::LibString &hotfixKey, KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *cb) override;
+ virtual void AddHotFixListener(KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *cb) override;
  virtual void AddHotFixCompleteCallback(KERNEL_NS::IDelegate<void, const std::set<KERNEL_NS::LibString> &> *cb) override;
 
 protected:
@@ -77,7 +77,7 @@ private:
     KERNEL_NS::LibString _detectionFileNameWithoutDir;
     KERNEL_NS::LibString _currentRootPath;
 
-    std::map<KERNEL_NS::LibString, std::vector<KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *>> _hotfixKeyRefHotfixDeleg;
+    std::vector<KERNEL_NS::IDelegate<void, HotFixContainerElemType &> *> _hotfixDeleg;
     std::vector<KERNEL_NS::IDelegate<void, const std::set<KERNEL_NS::LibString> &> *> _hotfixCompleteCallback;
 };
 
