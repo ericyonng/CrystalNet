@@ -58,6 +58,7 @@ do
     done
 
     IS_START=1
+    exit 0
   else
      echo "${GREP_FLAG} process not exists"
      exit 1
