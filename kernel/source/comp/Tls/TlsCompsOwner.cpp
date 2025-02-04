@@ -66,8 +66,8 @@ void TlsCompsOwner::OnRegisterComps()
     // poller事件循环
     RegisterComp<PollerFactory>();
 
-    // 不依赖系统授时
-    RegisterComp<TimingFactory>();
+    // 不依赖系统授时 暂时不是用
+    // RegisterComp<TimingFactory>();
 
     // 内存清理
     RegisterComp<TlsMemoryCleanerCompFactory>();

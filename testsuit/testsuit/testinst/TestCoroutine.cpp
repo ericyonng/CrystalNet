@@ -121,7 +121,7 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent()
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
     
     KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
-    auto content = co_await TestCursionGetContent2().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10)).GetParam(param);
+    auto content = co_await TestCursionGetContent2().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(3600)).GetParam(param);
 
     currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
@@ -159,25 +159,32 @@ void TestCoroutine::Run()
     // });
     // timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
 
-    // 调用 hello_world 的时候, 会返回一个协程, 并抛给调度器去继续执行
-    KERNEL_NS::PostCaller([]() -> KERNEL_NS::CoTask<> 
+    KERNEL_NS::RunRightNow([]()->KERNEL_NS::CoTask<>
     {
-        auto currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
-
         co_await TestCursionTask().SetDisableSuspend(true);
-        currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
-        co_await KERNEL_NS::Waiting(KERNEL_NS::TimeSlice::FromSeconds(10));
-        currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
-  
-        // co_await test_hello_world2().SetDisableSuspend(true);
 
-        // KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
-        // co_await KERNEL_NS::Waiting().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10)).GetParam(params);
-        // g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestCoroutine, "co time out errCode:%d"), params->_params->_errCode);
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "run right now..."));
     });
+    
+    // 调用 hello_world 的时候, 会返回一个协程, 并抛给调度器去继续执行
+    // KERNEL_NS::PostCaller([]() -> KERNEL_NS::CoTask<> 
+    // {
+    //     auto currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+    //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
+    //
+    //     co_await TestCursionTask().SetDisableSuspend(true);
+    //     currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+    //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
+    //     co_await KERNEL_NS::Waiting(KERNEL_NS::TimeSlice::FromSeconds(10));
+    //     currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+    //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
+    //
+    //     // co_await test_hello_world2().SetDisableSuspend(true);
+    //
+    //     // KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
+    //     // co_await KERNEL_NS::Waiting().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10)).GetParam(params);
+    //     // g_Log->Warn(LOGFMT_NON_OBJ_TAG(TestCoroutine, "co time out errCode:%d"), params->_params->_errCode);
+    // });
 
     poller->SafeEventLoop();
 

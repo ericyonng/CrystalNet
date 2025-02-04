@@ -123,6 +123,8 @@ public:
     LibString ToString() const;
 
     // From接口
+    static TimeSlice FromHours(Int64 hours);
+    static TimeSlice FromMinutes(Int64 minutes);
     static TimeSlice FromSeconds(Int64 seconds);
     static TimeSlice FromMilliSeconds(Int64 milliseconds);
     static TimeSlice FromMicroSeconds(Int64 microseconds);

@@ -213,6 +213,16 @@ ALWAYS_INLINE TimeSlice::TimeSlice(const Int64 &slice)
 
 }
 
+ALWAYS_INLINE TimeSlice TimeSlice::FromHours(Int64 hours)
+{
+    return TimeSlice(TimeDefs::NANO_SECOND_PER_HOUR * hours);
+}
+
+ALWAYS_INLINE TimeSlice TimeSlice::FromMinutes(Int64 minutes)
+{
+    return TimeSlice(TimeDefs::NANO_SECOND_PER_MINUTE * minutes);
+}
+
 ALWAYS_INLINE TimeSlice TimeSlice::FromSeconds(Int64 seconds)
 {
     return TimeSlice(TimeDefs::NANO_SECOND_PER_SECOND * seconds);
