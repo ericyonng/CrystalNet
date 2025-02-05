@@ -360,13 +360,6 @@ project "testsuit"
         }       
     end
 
-    if not IS_WINDOWS then
-        build_cpp_modules("../../testsuit", false)
-    else
-        files {"../../testsuit/**.cppm"}
-        files {"../../service/TestService/**.cppm"}
-    end
-
     filter{ "system:windows"}		
         libdirs { 
             ROOT_DIR .. "3rd/"
@@ -404,6 +397,13 @@ project "testsuit"
     -- optimize
     set_optimize_opts()
 	
+    if not IS_WINDOWS then
+        build_cpp_modules("../../testsuit", false)
+    else
+        files {"../../testsuit/**.cppm"}
+        files {"../../service/TestService/**.cppm"}
+    end
+    
 	-- set post build commands.
     filter { "system:windows" }
         postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
