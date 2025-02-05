@@ -44,7 +44,7 @@ extern "C"
     // 插件集关闭
     typedef void (*ClosePluginPtr)();
     // 设置插件集对象
-    typedef void (*SetPluginMgrPtr)();
+    typedef void (*SetPluginMgrPtr)(void *);
     
     // 初始化插件集
     extern TEST_PLUGIN_EXPORT Int32 InitPlugin();
