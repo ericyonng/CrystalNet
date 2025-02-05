@@ -20,49 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // 
-// Date: 2025-01-23 00:01:58
+// Date: 2025-02-05 16:35:27
 // Author: Eric Yonng
 // Description:
 
-#include <pch.h>
-#include <TestServicePlugin/PluginEntry.h>
+#include "pch.h"
 #include <TestServicePlugin/ExternPluginMgr.h>
 
-extern "C"
-{
-    struct PluginWrap
-    {
-        
-    };
-    
-    // 初始化插件集
-    Int32 InitPlugin()
-    {
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin init success g_PluginMgr:%p."), g_PluginMgr);
-        return Status::Success;
-    }
-
-    // 启动插件集
-    Int32 StartPlugin()
-    {
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin start success."));
-        return Status::Success;
-    }
-
-    // 预关闭插件集
-    void WillClosePlugin()
-    {
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin will close ..."));
-    }
-
-    // 释放插件集
-    void ClosePlugin()
-    {
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin close success."));
-    }
-
-    void SetPluginMgr(void *pluginMgr)
-    {
-        g_PluginMgr = reinterpret_cast<SERVICE_NS::IPluginMgr *>(pluginMgr);
-    }
-}
+SERVICE_NS::IPluginMgr *g_PluginMgr = NULL;

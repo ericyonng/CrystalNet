@@ -31,6 +31,8 @@
 
 #include <TestServicePlugin/test_plugin_export.h>
 
+class IPluginMgr;
+
 extern "C"
 {
     // 入口方法
@@ -41,6 +43,8 @@ extern "C"
     typedef void (*WillClosePluginPtr)();
     // 插件集关闭
     typedef void (*ClosePluginPtr)();
+    // 设置插件集对象
+    typedef void (*SetPluginMgrPtr)();
     
     // 初始化插件集
     extern TEST_PLUGIN_EXPORT Int32 InitPlugin();
@@ -53,6 +57,9 @@ extern "C"
 
     // 释放插件集
     extern TEST_PLUGIN_EXPORT void ClosePlugin();
+
+    // 设置对象
+    extern TEST_PLUGIN_EXPORT void SetPluginMgr(void *pluginMgr);
 }
 
 #endif

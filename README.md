@@ -97,20 +97,63 @@
 # 特性
 
 - 采用iocp/epoll网络模型，跨windows/linux平台
+
 - 支持protobuf 3.21.9， 定制了protobuf协议生成器，自动生成c++/c#的协议代码， 支持基于protobuf的ORM，对protobuf生成的ormdata的数据修改会被自动标脏
+
 - 支持ipv4/ipv6 
+
 - 支持session级别的packet限速
+
 - 支持openssl md5/sha1/aes等加解密，签名验签
+
 - 支持ECS设计，轻松设计大型复杂系统
+
 - 支持任意对象对象池，内存池，可以很轻松的进行内存管理
+
 - 支持tinyxml
+
 - 支持对zip文档解压
+
 - 支持对xlsx解析
+
 - 强大的日志系统
+
 - 丰富的组件支持
+
 - 支持Mysql 8.0存储, 不需要自行建表建库,支持自动建库建表， 支持标脏持久化, 自动存库，数据类型与大小自适应
+
 - 支持C++20 协程
+
 - 集成Lua-5.4.7 静态库
+
+- linux下支持so级别的热更(原理是在运行时使用dlopen重新加载so, 见PlugingMgr模块, 并采用数据和逻辑分离，逻辑写在so中, 数据定义在可执行程序中, so例子见TestServicePlugin模块)，见热更原理介绍
+
+  
+
+
+
+# 热更原理
+
+* #### 组件构成
+
+  * ShareLibraryLoader： 动态库加载组件, 作为组件嵌入到PluginMgr中, 用于加载指定的动态库
+
+    LibraryHotfixMonitor: 动态库热更监控组件, 作为组件嵌入到Application中，用于监控是否有动态库需要热更, 
+
+    PluginMgr: 用于管理插件集, 作为组件嵌入到MyTestService中
+
+* 流程图
+
+   ![image-20250205162034744](.\resource\img\hotfix.png)
+
+* 插件集热更脚本
+
+  ```
+  # **.sh 可执行程序名 可执行程序编译版本 插件集HotfixKey 要热更的插件集so文件名
+  sh ./scripts/hotfix/hotfix.sh testsuit debug TestPlugin libTestPlugin2.so
+  ```
+
+  
 
 # 性能(见doc/压测/)
 

@@ -170,8 +170,12 @@ project "TestServicePlugin"
 		"../../protocols/cplusplus/",
 		"../../TestServicePlugin/",
 		"../../TestServicePlugin/TestServicePlugin_pch/",
+        "../../service/",
+        "../../service_common/",
+        "../../service/TestService/config/code/",
+		"../../service/TestService/",
     }
-	 
+    
     -- files
     files {
         -- "../../3rd/protobuf/include/**.h",

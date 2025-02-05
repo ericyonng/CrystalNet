@@ -178,6 +178,7 @@ void PluginMgr::_InitPluginModule()
 
     // Windows下
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    SetPluginMgr(this);
     auto ret = InitPlugin();
     
     g_Log->Info(LOGFMT_OBJ_TAG("init plugin ret:%d"), ret);
@@ -189,12 +190,16 @@ void PluginMgr::_InitPluginModule()
 #else
     auto initPtr = shareLibrary->LoadSym<InitPluginPtr>(KERNEL_NS::LibString("InitPlugin"));
     auto startPtr = shareLibrary->LoadSym<StartPluginPtr>(KERNEL_NS::LibString("StartPlugin"));
-    if((!initPtr) || (!startPtr))
+    auto setPluginMgrPtr = shareLibrary->LoadSym<SetPluginMgrPtr>(KERNEL_NS::LibString("SetPluginMgr"));
+
+    if((!initPtr) || (!startPtr) ||(!setPluginMgrPtr))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("load sym fail"));
         return;
     }
-    
+
+    // 设置PluginMgrPtr
+    (*setPluginMgrPtr)(this);
     auto pluginRet = (*initPtr)();
     g_Log->Info(LOGFMT_OBJ_TAG("init plugin:%d"), pluginRet);
     pluginRet = (*startPtr)();
