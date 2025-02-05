@@ -27,7 +27,10 @@
 */
 module;
 
-#include <pch.h>
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+ #include <pch.h>
+#endif
+
 #include <type_traits>  
 #include <concepts> 
 
