@@ -253,9 +253,10 @@ include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/json/includ
 -- 模块预编译规则（GCC/Clang）
 rule "module_interface"
     display "Precompiling %{file.name}"
+    local compile_exe = ISUSE_CLANG and "clang" or "g++"
     buildoutputs { "%{file.basename}.pcm" }
     buildcommands {
-        "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts" .. include_paths .. " --precompile %{file.relpath} -o %{file.basename}.pcm"
+        compile_exe .. " -std=c++20 -fmodules-ts" .. include_paths .. " --precompile %{file.relpath} -o %{file.basename}.pcm"
     }
 
 -- core library testsuite compile setting
