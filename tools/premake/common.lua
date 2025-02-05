@@ -298,7 +298,7 @@ end
 -- 构建pcm/ifc等缓存文件
 -- @param(module_impl_file_extension):.cppm/.ixx 
 -- @param(module_middle_file_extension):.pcm/.ifc
-function build_cpp_modules(is_windows)
+function build_cpp_modules(base_path, is_windows)
 
     local module_impl_file_extension = "cppm"
     local module_middle_file_extension = ""
@@ -309,7 +309,7 @@ function build_cpp_modules(is_windows)
     end
 
     -- 动态获取模块名称
-    local module_files = os.matchfiles("src/**"..module_impl_file_extension)  -- 获取所有 .cppm 文件
+    local module_files = os.matchfiles(base_path .. "/**" .. module_impl_file_extension)  -- 获取所有 .cppm 文件
     local modules = {}
     for _, file in ipairs(module_files) do
         local module_name = path.getbasename(file)  -- 提取模块名称（去掉路径和扩展名）
@@ -319,7 +319,7 @@ function build_cpp_modules(is_windows)
     -- 自定义规则：预编译模块接口文件（生成 .pcm 文件）
     -- 注意：此规则需要根据编译器调整参数（示例为 GCC/Clang）
     for _, module in ipairs(modules) do
-        local module_file = "src/" .. module .. module_impl_file_extension  -- 模块接口文件路径
+        local module_file = base_path .. "/" .. module .. module_impl_file_extension  -- 模块接口文件路径
         local pcm_file = module .. module_middle_file_extension  -- 生成的 .pcm/.ifc等中间文件 文件路径
 
         -- 定义预编译命令
@@ -327,7 +327,7 @@ function build_cpp_modules(is_windows)
             -- 定义预编译命令
             prebuildcommands {
                 -- 预编译模块接口文件（生成 .ifc）
-                "%{cfg.toolset.cxx} /std:c++latest /interface /c " .. module_file .. " /Fo" .. pcm_file
+                "%{cfg.toolset.cxx} /std:c++latest /interface /c " .. module_file .. " /Fo " .. pcm_file
             }
         else
             prebuildcommands {
@@ -362,7 +362,7 @@ function build_cpp_modules(is_windows)
     end
 
     -- 清理时删除生成的 .pcm 文件
-    postbuildcommands {
-        "{DELETE} *" .. module_middle_file_extension
-    }
+    -- postbuildcommands {
+    --     "{DELETE} *" .. module_middle_file_extension
+    -- }
 end

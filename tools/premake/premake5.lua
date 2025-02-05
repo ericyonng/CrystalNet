@@ -336,7 +336,6 @@ project "testsuit"
             "../../service_common/**.cpp",
             "../../testsuit/**.h",
             -- "../../testsuit/**.ixx",
-            "../../testsuit/**.cppm",
             "../../testsuit/**.cpp",
             "../../testsuit/**.lua",
             "../../service/TestService/config/code/**.h",
@@ -362,9 +361,10 @@ project "testsuit"
     end
 
     if not IS_WINDOWS then
-        build_cpp_modules(false)
+        build_cpp_modules("../../testsuit", false)
     else
-        build_cpp_modules(true)
+        files {"../../testsuit/**.cppm"}
+        files {"../../service/TestService/**.cppm"}
     end
 
     filter{ "system:windows"}		
