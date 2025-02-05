@@ -338,6 +338,8 @@ project "testsuit"
             -- "../../testsuit/**.ixx",
             "../../testsuit/**.cpp",
             "../../testsuit/**.lua",
+            "../../testsuit/**.cppm",
+            "../../service/TestService/**.cppm",
             "../../service/TestService/config/code/**.h",
             "../../service/TestService/config/code/**.cpp",
             "../../OptionComponent/OptionComp/**.h",
@@ -415,10 +417,7 @@ project "testsuit"
     include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/json/include/")
 
     if not IS_WINDOWS then
-        build_cpp_modules("../../testsuit", include_paths, false)
-    else
-        files {"../../testsuit/**.cppm"}
-        files {"../../service/TestService/**.cppm"}
+        build_cpp_modules2("../../testsuit", include_paths, false)
     end
 
 	-- set post build commands.

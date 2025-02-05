@@ -380,3 +380,55 @@ function build_cpp_modules(base_path, include_path,  is_windows)
     --     "{DELETE} *" .. module_middle_file_extension
     -- }
 end
+
+function build_cpp_modules2(base_path, include_path,  is_windows)
+    local compile_exe = ISUSE_CLANG and "clang" or "g++"
+
+    local module_impl_file_extension = ".cppm"
+    local module_middle_file_extension = ""
+    if is_windows then
+        module_middle_file_extension = ".ifc"
+    else
+        module_middle_file_extension = ".pcm"
+    end
+
+    -- 动态获取模块名称
+    local module_files = os.matchfiles(base_path .. "/**" .. module_impl_file_extension)  -- 获取所有 .cppm 文件
+    local modules = {}
+    for _, file in ipairs(module_files) do
+        local module_name = path.getbasename(file)  -- 提取模块名称（去掉路径和扩展名）
+        table.insert(modules, module_name)
+    end
+
+    -- 模块预编译规则（GCC/Clang）
+    rule "module_interface"
+        display "Precompiling %{file.name}"
+        buildoutputs { "%{file.basename}.pcm" }
+        buildcommands {
+            "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts" .. include_path .. " --precompile %{file.relpath} -o %{file.basename}.pcm"
+        }
+
+        -- 应用规则到 .cppm 文件
+        filter { "files:**.cppm" }
+            rules { "module_interface" }
+
+    if is_windows then
+        local options = {}
+        for _, module in ipairs(modules) do
+            table.insert(options, "/reference " .. module .. "=" .. module .. module_middle_file_extension)
+        end
+        -- 主程序编译时引用预编译模块
+        -- 动态添加 /reference <module>=<module>.ifc
+        filter { "files:**.cpp" }
+            buildoptions { options }
+    else
+        local options = {}
+        for _, module in ipairs(modules) do
+            table.insert(options, "-fmodule-file=" .. module .. "=" .. module .. module_middle_file_extension)
+        end
+        -- 主程序编译时引用预编译模块
+        -- 动态添加 -fmodule-file=<module>=<module>.pcm
+        filter { "files:**.cpp" }
+            buildoptions { options }
+    end
+end
