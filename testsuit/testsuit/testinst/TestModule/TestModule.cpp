@@ -29,11 +29,11 @@
 #include <pch.h>
 #include <testsuit/testinst/TestModule/TestModule.h>
 
-import HelloModule;
+// import HelloModule;
 
 void TestModule::Run()
 {
     // ModuleClassA<int> a;
     // a.a = 10;
-    HelloModuleSpace::PrintSelf();
+    // HelloModuleSpace::PrintSelf();
 }
