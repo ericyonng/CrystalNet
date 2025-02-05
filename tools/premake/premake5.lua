@@ -425,9 +425,9 @@ project "testsuit"
     -- optimize
     set_optimize_opts()
 	
-    if not IS_WINDOWS then
-        build_cpp_modules2("../../testsuit", "module_interface", include_paths, false)
-    end
+    -- if not IS_WINDOWS then
+    --     build_cpp_modules2("../../testsuit", "module_interface", include_paths, false)
+    -- end
 
 	-- set post build commands.
     filter { "system:windows" }
