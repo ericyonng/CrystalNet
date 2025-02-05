@@ -306,6 +306,8 @@ end
 -- @param(module_middle_file_extension):.pcm/.ifc
 function build_cpp_modules(base_path, is_windows)
 
+    local compile_exe = ISUSE_CLANG and "clang" or "g++"
+
     local module_impl_file_extension = ".cppm"
     local module_middle_file_extension = ""
     if is_windows then
@@ -340,7 +342,7 @@ function build_cpp_modules(base_path, is_windows)
         else
             prebuildcommands {
                 -- 预编译模块接口文件（生成 .pcm）
-                "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts --precompile " .. module_file .. " -o " .. pcm_file
+                compile_exe .. " -std=c++20 -fmodules-ts --precompile " .. module_file .. " -o " .. pcm_file
             }
         end
 
