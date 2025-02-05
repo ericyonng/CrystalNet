@@ -233,6 +233,31 @@ project "TestServicePlugin"
 
 -- ****************************************************************************
 
+-- 构造包含路径
+local include_paths = build_include_paths("", "../../")
+include_paths = build_include_paths(include_paths, "../../kernel/include/")
+include_paths = build_include_paths(include_paths, "../../testsuit/")
+include_paths = build_include_paths(include_paths, "../../testsuit/testsuit_pch/")
+include_paths = build_include_paths(include_paths, "../../service/TestService/config/code/")
+include_paths = build_include_paths(include_paths, "../../3rd/mysql/win/include/")
+include_paths = build_include_paths(include_paths, "../../OptionComponent/")
+include_paths = build_include_paths(include_paths, "../../protocols/cplusplus/")
+include_paths = build_include_paths(include_paths, "../../service/TestService/")
+include_paths = build_include_paths(include_paths, "../../TestServicePlugin/")
+include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/openssl/include/")
+include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/protobuf/include/")
+include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/miniz/include/")
+include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/uuid/include/")
+include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/json/include/")
+
+-- 模块预编译规则（GCC/Clang）
+rule "module_interface"
+    display "Precompiling %{file.name}"
+    buildoutputs { "%{file.basename}.pcm" }
+    buildcommands {
+        "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts" .. include_paths .. " --precompile %{file.relpath} -o %{file.basename}.pcm"
+    }
+
 -- core library testsuite compile setting
 project "testsuit"
     -- language, kind
@@ -399,31 +424,6 @@ project "testsuit"
     -- optimize
     set_optimize_opts()
 	
-    -- 构造包含路径
-    local include_paths = build_include_paths("", "../../")
-    include_paths = build_include_paths(include_paths, "../../kernel/include/")
-    include_paths = build_include_paths(include_paths, "../../testsuit/")
-    include_paths = build_include_paths(include_paths, "../../testsuit/testsuit_pch/")
-    include_paths = build_include_paths(include_paths, "../../service/TestService/config/code/")
-    include_paths = build_include_paths(include_paths, "../../3rd/mysql/win/include/")
-    include_paths = build_include_paths(include_paths, "../../OptionComponent/")
-    include_paths = build_include_paths(include_paths, "../../protocols/cplusplus/")
-    include_paths = build_include_paths(include_paths, "../../service/TestService/")
-    include_paths = build_include_paths(include_paths, "../../TestServicePlugin/")
-    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/openssl/include/")
-    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/protobuf/include/")
-    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/miniz/include/")
-    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/uuid/include/")
-    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/json/include/")
-
-    -- 模块预编译规则（GCC/Clang）
-    rule "module_interface"
-        display "Precompiling %{file.name}"
-        buildoutputs { "%{file.basename}.pcm" }
-        buildcommands {
-            "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts" .. include_paths .. " --precompile %{file.relpath} -o %{file.basename}.pcm"
-        }
-
     if not IS_WINDOWS then
         build_cpp_modules2("../../testsuit", "module_interface", include_paths, false)
     end
