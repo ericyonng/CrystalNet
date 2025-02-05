@@ -61,6 +61,11 @@ void PluginMgr::OnRegisterComps()
     RegisterComp<KERNEL_NS::ShareLibraryLoaderFactory>();
 }
 
+KERNEL_NS::LibString PluginMgr::ToString() const
+{
+    return KERNEL_NS::LibString().AppendFormat("plugin mgr, hotfix key:%s, %s", _hotfixKey.c_str(), KERNEL_NS::CompHostObject::ToString().c_str());
+}
+
 Int32 PluginMgr::_OnGlobalSysCompsCreated()
 {
     auto dirPath = KERNEL_NS::DirectoryUtil::GetFileDirInPath(GetService()->GetApp()->GetAppPath());

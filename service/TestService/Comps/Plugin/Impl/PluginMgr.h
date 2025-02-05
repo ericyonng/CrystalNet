@@ -38,6 +38,8 @@ public:
     void Release() override;
     void OnRegisterComps() override;
 
+    KERNEL_NS::LibString ToString() const override;
+
 private:
     virtual Int32 _OnGlobalSysCompsCreated() override;
     virtual Int32 _OnHostStart() override;
@@ -53,6 +55,7 @@ private:
     void _InitPluginModule();
     void _WillClosePlugin();
     void _ClosePlugin();
+
 
 private:
     KERNEL_NS::LibString _hotfixKey;
