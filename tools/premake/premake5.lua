@@ -416,6 +416,14 @@ project "testsuit"
     include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/uuid/include/")
     include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/json/include/")
 
+    -- 模块预编译规则（GCC/Clang）
+    rule "module_interface"
+        display "Precompiling %{file.name}"
+        buildoutputs { "%{file.basename}.pcm" }
+        buildcommands {
+            "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts" .. include_path .. " --precompile %{file.relpath} -o %{file.basename}.pcm"
+        }
+
     if not IS_WINDOWS then
         build_cpp_modules2("../../testsuit", include_paths, false)
     end

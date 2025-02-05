@@ -381,7 +381,7 @@ function build_cpp_modules(base_path, include_path,  is_windows)
     -- }
 end
 
-function build_cpp_modules2(base_path, include_path,  is_windows)
+function build_cpp_modules2(base_path, module_rule, include_path,  is_windows)
     local compile_exe = ISUSE_CLANG and "clang" or "g++"
 
     local module_impl_file_extension = ".cppm"
@@ -400,17 +400,9 @@ function build_cpp_modules2(base_path, include_path,  is_windows)
         table.insert(modules, module_name)
     end
 
-    -- 模块预编译规则（GCC/Clang）
-    rule "module_interface"
-        display "Precompiling %{file.name}"
-        buildoutputs { "%{file.basename}.pcm" }
-        buildcommands {
-            "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts" .. include_path .. " --precompile %{file.relpath} -o %{file.basename}.pcm"
-        }
-
-        -- 应用规则到 .cppm 文件
-        filter { "files:**.cppm" }
-            rules { "module_interface" }
+    -- 应用规则到 .cppm 文件
+    filter { "files:**.cppm" }
+        rules { module_rule }
 
     if is_windows then
         local options = {}
