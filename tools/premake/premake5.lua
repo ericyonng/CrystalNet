@@ -421,7 +421,7 @@ project "testsuit"
         display "Precompiling %{file.name}"
         buildoutputs { "%{file.basename}.pcm" }
         buildcommands {
-            "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts" .. include_path .. " --precompile %{file.relpath} -o %{file.basename}.pcm"
+            "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts" .. include_paths .. " --precompile %{file.relpath} -o %{file.basename}.pcm"
         }
 
     if not IS_WINDOWS then
