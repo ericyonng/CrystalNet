@@ -319,7 +319,6 @@ project "testsuit"
 	-- 设置通用选项
     set_common_options(nil, true)
 
-
     if ENABLE_TEST_SERVICE ~= 0 then
         -- files
         files {
@@ -360,6 +359,12 @@ project "testsuit"
             "../../OptionComponent/OptionComp/**.h",
             "../../OptionComponent/OptionComp/**.cpp",
         }       
+    end
+
+    if not IS_WINDOWS then
+        build_cpp_modules(false)
+    else
+        build_cpp_modules(true)
     end
 
     filter{ "system:windows"}		

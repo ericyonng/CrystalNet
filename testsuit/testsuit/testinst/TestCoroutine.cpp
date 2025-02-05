@@ -169,7 +169,7 @@ void TestCoroutine::Run()
     // 调用 hello_world 的时候, 会返回一个协程, 并抛给调度器去继续执行
     // KERNEL_NS::PostCaller([]() -> KERNEL_NS::CoTask<> 
     // {
-    //     auto currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
+    //     auto currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();                                                                                                                                                                                     
     //     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
     //
     //     co_await TestCursionTask().SetDisableSuspend(true);

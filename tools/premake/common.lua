@@ -294,3 +294,75 @@ function include_libfs(do_post_build, add_protobuflib)
     filter {}
     
 end
+
+-- 构建pcm/ifc等缓存文件
+-- @param(module_impl_file_extension):.cppm/.ixx 
+-- @param(module_middle_file_extension):.pcm/.ifc
+function build_cpp_modules(is_windows)
+
+    local module_impl_file_extension = "cppm"
+    local module_middle_file_extension = ""
+    if is_windows then
+        module_middle_file_extension = ".ifc"
+    else
+        module_middle_file_extension = ".pcm"
+    end
+
+    -- 动态获取模块名称
+    local module_files = os.matchfiles("src/**"..module_impl_file_extension)  -- 获取所有 .cppm 文件
+    local modules = {}
+    for _, file in ipairs(module_files) do
+        local module_name = path.getbasename(file)  -- 提取模块名称（去掉路径和扩展名）
+        table.insert(modules, module_name)
+    end
+
+    -- 自定义规则：预编译模块接口文件（生成 .pcm 文件）
+    -- 注意：此规则需要根据编译器调整参数（示例为 GCC/Clang）
+    for _, module in ipairs(modules) do
+        local module_file = "src/" .. module .. module_impl_file_extension  -- 模块接口文件路径
+        local pcm_file = module .. module_middle_file_extension  -- 生成的 .pcm/.ifc等中间文件 文件路径
+
+        -- 定义预编译命令
+        if is_windows then
+            -- 定义预编译命令
+            prebuildcommands {
+                -- 预编译模块接口文件（生成 .ifc）
+                "%{cfg.toolset.cxx} /std:c++latest /interface /c " .. module_file .. " /Fo" .. pcm_file
+            }
+        else
+            prebuildcommands {
+                -- 预编译模块接口文件（生成 .pcm）
+                "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts --precompile " .. module_file .. " -o " .. pcm_file
+            }
+        end
+
+
+        -- 将 .pcm 文件添加到构建输出
+        buildoutputs { pcm_file }
+    end
+
+    if is_windows then
+        local options = {}
+        for _, module in ipairs(modules) do
+            table.insert(options, "/reference " .. module .. "=" .. module .. module_middle_file_extension)
+        end
+        -- 主程序编译时引用预编译模块
+        -- 动态添加 /reference <module>=<module>.ifc
+        filter { "files:**.cpp" }
+            buildoptions { options }
+    else
+        local options = {}
+        for _, module in ipairs(modules) do
+            table.insert(options, "-fmodule-file=" .. module .. "=" .. module .. module_middle_file_extension)
+        end
+        -- 主程序编译时引用预编译模块
+        -- 动态添加 -fmodule-file=<module>=<module>.pcm
+        filter { "files:**.cpp" }
+            buildoptions { options }
+    end
+
+    -- 清理时删除生成的 .pcm 文件
+    postbuildcommands {
+        "{DELETE} *" .. module_middle_file_extension
+    }
+end
