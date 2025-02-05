@@ -31,6 +31,15 @@ module;
  #include <pch.h>
 #endif
 
+#include <kernel/common/macro.h>
+#include <kernel/common/os_libs.h>
+#include <kernel/common/statics.h>
+#include <kernel/common/status.h>
+
+#include <kernel/kernel.h>
+#include <service_common/ServiceCommon.h>
+#include <3rd/3rd.h>
+
 #include <type_traits>  
 #include <concepts> 
 
