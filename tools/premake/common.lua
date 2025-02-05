@@ -301,10 +301,15 @@ function get_directory(path)
     return dir or "."  -- 如果无分隔符，默认返回当前目录（.）
 end
 
+-- 构造包含路径
+function build_include_paths(include_path, new_include_path)
+    return include_path .. "-I" .. new_include_path .. " "
+end
+
 -- 构建pcm/ifc等缓存文件
 -- @param(module_impl_file_extension):.cppm/.ixx 
 -- @param(module_middle_file_extension):.pcm/.ifc
-function build_cpp_modules(base_path, is_windows)
+function build_cpp_modules(base_path, include_path,  is_windows)
 
     local compile_exe = ISUSE_CLANG and "clang" or "g++"
 
@@ -342,7 +347,7 @@ function build_cpp_modules(base_path, is_windows)
         else
             prebuildcommands {
                 -- 预编译模块接口文件（生成 .pcm）
-                compile_exe .. " -std=c++20 -fmodules-ts --precompile " .. module_file .. " -o " .. pcm_file
+                compile_exe .. " -std=c++20 -fmodules-ts " .. include_path .. " --precompile " .. module_file .. " -o " .. pcm_file
             }
         end
 

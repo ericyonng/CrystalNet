@@ -397,13 +397,30 @@ project "testsuit"
     -- optimize
     set_optimize_opts()
 	
+    -- 构造包含路径
+    local include_paths = build_include_paths("", "../../")
+    include_paths = build_include_paths(include_paths, "../../kernel/include/")
+    include_paths = build_include_paths(include_paths, "../../testsuit/")
+    include_paths = build_include_paths(include_paths, "../../testsuit/testsuit_pch/")
+    include_paths = build_include_paths(include_paths, "../../service/TestService/config/code/")
+    include_paths = build_include_paths(include_paths, "../../3rd/mysql/win/include/")
+    include_paths = build_include_paths(include_paths, "../../OptionComponent/")
+    include_paths = build_include_paths(include_paths, "../../protocols/cplusplus/")
+    include_paths = build_include_paths(include_paths, "../../service/TestService/")
+    include_paths = build_include_paths(include_paths, "../../TestServicePlugin/")
+    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/openssl/include/")
+    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/protobuf/include/")
+    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/miniz/include/")
+    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/uuid/include/")
+    include_paths = build_include_paths(include_paths, ROOT_DIR .. "/3rd/json/include/")
+
     if not IS_WINDOWS then
-        build_cpp_modules("../../testsuit", false)
+        build_cpp_modules("../../testsuit", include_paths, false)
     else
         files {"../../testsuit/**.cppm"}
         files {"../../service/TestService/**.cppm"}
     end
-    
+
 	-- set post build commands.
     filter { "system:windows" }
         postbuildcommands(string.format("start %srunfirstly_scripts.bat %s", SCRIPT_PATH, _ACTION))
