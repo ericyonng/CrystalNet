@@ -295,12 +295,18 @@ function include_libfs(do_post_build, add_protobuflib)
     
 end
 
+function get_directory(path)
+    -- 匹配最后一个路径分隔符（/ 或 \）之前的内容
+    local dir = path:match("(.*[/\\])") 
+    return dir or "."  -- 如果无分隔符，默认返回当前目录（.）
+end
+
 -- 构建pcm/ifc等缓存文件
 -- @param(module_impl_file_extension):.cppm/.ixx 
 -- @param(module_middle_file_extension):.pcm/.ifc
 function build_cpp_modules(base_path, is_windows)
 
-    local module_impl_file_extension = "cppm"
+    local module_impl_file_extension = ".cppm"
     local module_middle_file_extension = ""
     if is_windows then
         module_middle_file_extension = ".ifc"
@@ -318,9 +324,11 @@ function build_cpp_modules(base_path, is_windows)
 
     -- 自定义规则：预编译模块接口文件（生成 .pcm 文件）
     -- 注意：此规则需要根据编译器调整参数（示例为 GCC/Clang）
-    for _, module in ipairs(modules) do
-        local module_file = base_path .. "/" .. module .. module_impl_file_extension  -- 模块接口文件路径
-        local pcm_file = module .. module_middle_file_extension  -- 生成的 .pcm/.ifc等中间文件 文件路径
+    for _, file in ipairs(module_files) do
+        local module_name = path.getbasename(file)  -- 提取模块名称（去掉路径和扩展名）
+        local path = get_directory(file)
+        local module_file = path .. module_name .. module_impl_file_extension  -- 模块接口文件路径
+        local pcm_file = module_name .. module_middle_file_extension  -- 生成的 .pcm/.ifc等中间文件 文件路径
 
         -- 定义预编译命令
         if is_windows then
@@ -335,7 +343,6 @@ function build_cpp_modules(base_path, is_windows)
                 "%{cfg.toolset.cxx} -std=c++20 -fmodules-ts --precompile " .. module_file .. " -o " .. pcm_file
             }
         end
-
 
         -- 将 .pcm 文件添加到构建输出
         buildoutputs { pcm_file }
