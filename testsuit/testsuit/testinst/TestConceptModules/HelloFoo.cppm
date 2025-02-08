@@ -27,9 +27,7 @@
 */
 module;
 
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
- #include <pch.h>
-#endif
+#include <pch.h>
 
 #include <kernel/common/macro.h>
 #include <kernel/common/os_libs.h>
