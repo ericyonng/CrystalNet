@@ -766,6 +766,24 @@ bool LibString::IsEndsWith(const LibString &s) const
 		memcmp(sRaw.data(), _raw.data() + (_raw.size() - sRaw.size()) * sizeof(_Elem), sRaw.size() * sizeof(_Elem)) == 0);
 }
 
+LibString LibString::StartCut(const LibString &startStr) const
+{
+    auto pos = _raw.find(startStr._raw, 0);
+    if(pos == std::string::npos)
+        return "";
+
+    return _raw.substr(pos + startStr._raw.size());
+}
+
+LibString LibString::EndCut(const LibString &endStr) const
+{
+    auto pos = _raw.find(endStr._raw, 0);
+    if(pos == std::string::npos)
+        return "";
+
+    return _raw.substr(0, pos);
+}
+
 LibString LibString::tolower() const
 {
 	const _Elem *buf = _raw.data();

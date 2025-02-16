@@ -80,6 +80,9 @@ void TestString::Run()
     stringEx = std::string("big world");
     stringEx += std::string("5564");
     stringEx += std::string("123");
+
+    KERNEL_NS::LibString testCut = "PlayerId=12233 TemplateId=545 Type=FsmT] dafsadf";
+    auto startStr = testCut.StartCut("Type=").EndCut("]");
 }
 
 

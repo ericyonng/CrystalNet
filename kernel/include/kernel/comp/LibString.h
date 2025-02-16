@@ -667,6 +667,10 @@ public:
 
     bool IsEndsWith(const LibString &s) const;
 
+    // start/end cut
+    LibString StartCut(const LibString &startStr) const;
+    LibString EndCut(const LibString &endStr) const;
+
     // tolower/toupper operations. 请确保是英文字符串 isalpha
     LibString tolower() const;
 
