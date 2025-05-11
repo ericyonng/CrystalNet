@@ -42,5 +42,15 @@
 
 * 或者可以编辑.bash_profile 在末尾追加. ~/mongodb/mongodb_export.sh 来导出环境变量,如果这里用sh其实是给sh导出环境变量，所以这里必须要使用.
 
-* 
+  * ```shell
+    #!/usr/bin/env bash
+    # mongodb_export.sh
+    
+    export PATH=$PATH:/root/mongodb/mongodb-database-tools-rhel88-x86_64-100.11.0/bin
+    export PATH=$PATH:/root/mongodb/mongodb-linux-x86_64-rhel88-8.0.6/bin
+    export PATH=$PATH:/root/mongodb/mongosh-2.4.2-linux-x64/bin
+    
+    ```
+
+    
 
