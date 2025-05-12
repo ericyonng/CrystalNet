@@ -151,4 +151,4 @@ echo "add secondary success port:${DB3_PORT}..."
 
 mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.status()"
 
-echo "create mongo repliset success PRIMARY PORT:${DB1_PORT}, enjoy!"
+echo "create mongo repliset success PRIMARY PORT:${DB1_PORT}, path:${REPLISET_INSTALL_PATH}, enjoy!"

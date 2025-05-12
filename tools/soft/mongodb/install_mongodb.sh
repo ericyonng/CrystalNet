@@ -27,12 +27,13 @@ then
 fi
 
 # 安装路径必须是绝对路径
-TEST_INSTALL_PATH=/${INSTALL_PATH}
-if [ -d "${TEST_INSTALL_PATH}" ]; then
-    echo "will install path:${INSTALL_PATH}"
+if [ -d "${INSTALL_PATH}" ]; then
+    INSTALL_PATH="$(cd ${INSTALL_PATH}; pwd)"
+    echo "will install path:${INSTALL_PATH},  current path:$(pwd)"
 else
-    echo "install path must be a absolute path:${TEST_INSTALL_PATH}, please check!!!"
-    exit 1
+    mkdir ${INSTALL_PATH}
+    INSTALL_PATH="$(cd ${INSTALL_PATH}; pwd)"
+    echo "created install path:${INSTALL_PATH}, current path:$(pwd)"
 fi
 
 # 拼接包路径
