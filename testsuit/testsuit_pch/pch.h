@@ -30,6 +30,8 @@
 #ifndef __TESTSUIT_TESTSUIT_PCH_PCH_H__
 #define __TESTSUIT_TESTSUIT_PCH_PCH_H__
 
+#define BSONCXX_POLY_USE_STD 1
+
 #include <kernel/common/macro.h>
 #include <kernel/common/os_libs.h>
 #include <kernel/common/statics.h>
@@ -41,6 +43,13 @@
 #ifdef _WIN32
 #include "targetver.h"
 #include "windows.h"
+
+#ifdef max
+    #undef max  // 临时取消 max 宏定义
+#endif
+#ifdef min
+    #undef min  // 临时取消 max 宏定义
+#endif
 #endif
 
 #include <kernel/kernel.h>

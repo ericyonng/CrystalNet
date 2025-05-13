@@ -105,6 +105,7 @@
 #include "testinst/TestLua/TestLua.h"
 #include "testsuit/testinst/TestIdGenerator.h"
 #include <testsuit/testinst/TestLoadShareLibrary.h>
+#include <testsuit/testinst/TestMongo.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -231,7 +232,7 @@ void TestInst::Run(int argc, char const *argv[])
 
     // //TestGarbageCollector::Run();
     // TestLibString::Run();
-    TestString::Run();
+    // TestString::Run();
     // TestTime::Run();
     // //TestFileUtil::Run();
     // TestGuid::Run();
@@ -300,6 +301,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestJson::Run();
     // TestIdGenerator::Run();
     // TestLoadShareLibrary::Run();
+    TestMongo::Run();
     
     // write a large file
     // do

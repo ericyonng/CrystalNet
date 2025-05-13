@@ -284,7 +284,7 @@ project "testsuit"
     filter{}
 
     -- 导入内核接口 宏定义
-	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE"}
+	defines {"CRYSTAL_NET_CPP20", "CRYSTAL_NET_IMPORT_KERNEL_LIB", "SIMPLE_API_IMPORT_KERNEL_LIB", "CRYSTAL_STORAGE_ENABLE", "BSONCXX_POLY_USE_STD"}
 
 	enable_precompileheader("pch.h", ROOT_DIR .. "testsuit/testsuit_pch/pch.cpp")
 
@@ -299,6 +299,9 @@ project "testsuit"
 		"../../protocols/cplusplus/",
 		"../../service/TestService/",
 		"../../TestServicePlugin/",
+		"../../3rd/mongodb/MONGO_CXX_DRIVER/include/",
+		"../../3rd/mongodb/MONGO_CXX_DRIVER/include/mongocxx/v_noabi/",
+
     }
 
     -- mysql
@@ -309,10 +312,27 @@ project "testsuit"
 
         libdirs { 
             ROOT_DIR .. "3rd/mysql/win/lib/",
+            ROOT_DIR .. "3rd/mongodb/MONGO_CXX_DRIVER/lib/",
         }
 
         links {
             "libmysql",
+            "dnsapi",
+            "security",
+            "bson2",
+            "mongoc2",
+        }
+    filter {}
+        filter { "configurations:debug*", "language:c++", "system:windows" }
+        links {
+            "bsoncxx-static-dti-x64-v143-mdd",
+            "mongocxx-static-dti-x64-v143-mdd",
+        }
+    filter {}
+    filter { "configurations:release*", "language:c++", "system:windows" }
+        links {
+            "mongocxx-static-rti-x64-v143-md",
+            "bsoncxx-static-rti-x64-v143-md",
         }
     filter {}
     -- mysql
