@@ -51,7 +51,7 @@ void TestMongo::Run()
 
         auto test2 = client["test2"];
         auto fruit = test2["fruit"];
-        auto key = bsoncxx::builder::stream::document{} << "name" << "eric" << bsoncxx::builder::stream::finalize;
+        auto key = bsoncxx::builder::stream::document{} << "name" << "testmongo" << bsoncxx::builder::stream::finalize;
         auto result = fruit.find_one(key.view());
         if(result)
         {
