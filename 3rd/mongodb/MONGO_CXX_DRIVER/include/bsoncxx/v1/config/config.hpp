@@ -15,8 +15,7 @@
 #if !defined(BSONCXX_V1_CONFIG_CONFIG_HPP)
 #define BSONCXX_V1_CONFIG_CONFIG_HPP
 
-// #define BSONCXX_POLY_USE_IMPLS
-// /* #undef BSONCXX_POLY_USE_STD */
+/* #undef BSONCXX_POLY_USE_IMPLS */
 #define BSONCXX_POLY_USE_STD
 
 ///
@@ -26,9 +25,9 @@
 
 #if defined(BSONCXX_PRIVATE_DOXYGEN_PREPROCESSOR)
 
-// #if !defined(BSONCXX_POLY_USE_IMPLS)
-// #define BSONCXX_POLY_USE_IMPLS
-// #endif // !defined(BSONCXX_POLY_USE_IMPLS)
+#if !defined(BSONCXX_POLY_USE_IMPLS)
+#define BSONCXX_POLY_USE_IMPLS
+#endif // !defined(BSONCXX_POLY_USE_IMPLS)
 
 #if !defined(BSONCXX_POLY_USE_STD)
 #define BSONCXX_POLY_USE_STD

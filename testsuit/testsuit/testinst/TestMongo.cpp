@@ -45,7 +45,7 @@ void TestMongo::Run()
     try
     {
         // Start example code here
-        mongocxx::uri uri("mongodb://eric:JcL?23T$@101.32.15.49:28017,101.32.15.49:28018,101.32.15.49:28019/?authSource=admin&replicaSet=rs0");
+        mongocxx::uri uri("mongodb://eric:JcL%3F23T%24@101.32.15.49:28017,101.32.15.49:28018,101.32.15.49:28019/?authSource=admin&replicaSet=rs0");
         mongocxx::client client(uri);
         // End example code here
 

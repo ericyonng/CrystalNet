@@ -301,6 +301,7 @@ project "testsuit"
 		"../../TestServicePlugin/",
 		"../../3rd/mongodb/MONGO_CXX_DRIVER/include/",
 		"../../3rd/mongodb/MONGO_CXX_DRIVER/include/mongocxx/v_noabi/",
+        "../../3rd/mongodb/MONGO_CXX_DRIVER/include/bsoncxx/v_noabi/"
 
     }
 
@@ -320,19 +321,19 @@ project "testsuit"
             "dnsapi",
             "security",
             "bson2",
-            "mongoc2",
+            "mongoc2"
         }
     filter {}
         filter { "configurations:debug*", "language:c++", "system:windows" }
         links {
-            "bsoncxx-static-dti-x64-v143-mdd",
-            "mongocxx-static-dti-x64-v143-mdd",
+            "bsoncxx-static-dts-x64-v143-mdd",
+            "mongocxx-static-dts-x64-v143-mdd",
         }
     filter {}
     filter { "configurations:release*", "language:c++", "system:windows" }
         links {
-            "mongocxx-static-rti-x64-v143-md",
-            "bsoncxx-static-rti-x64-v143-md",
+            "mongocxx-static-rts-x64-v143-md",
+            "bsoncxx-static-rts-x64-v143-md",
         }
     filter {}
     -- mysql
