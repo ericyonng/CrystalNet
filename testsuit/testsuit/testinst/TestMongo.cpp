@@ -44,8 +44,8 @@ void TestMongo::Run()
 
     try
     {
-        // Start example code here
-        mongocxx::uri uri("mongodb://eric:JcL%3F23T%24@101.32.15.49:28017,101.32.15.49:28018,101.32.15.49:28019/?authSource=admin&replicaSet=rs0");
+        // Start example code here 密码特殊符号需要使用url编码
+        mongocxx::uri uri("mongodb://eric:abc%3F123%24@127.0.0.1:28017,127.0.0.1:28018,127.0.0.1:28019/?authSource=admin&replicaSet=rs0");
         mongocxx::client client(uri);
         // End example code here
 

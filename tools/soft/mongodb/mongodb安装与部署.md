@@ -52,5 +52,22 @@
     
     ```
 
+* 一键安装脚本（解压mongodb, mongosh, mongodb-tools等, 以及导出命令，使得命令可用）
+
+  * ```shell
+    source install_mongodb.sh /root/CrystalNet/CrystalNet/tools/soft/mongodb /root/mongodb_soft
     
+    ```
+
+    
+
+* 一键部署3节点单机复制集脚本
+
+  * ```shell
+    rm -rf /root/mongo_repliset
+    sh ./create_mongo_repliset.sh rs0 127.0.0.1 28017 xiaoming 123789 /root/mongo_repliset
+    
+    ```
+
+* 
 
