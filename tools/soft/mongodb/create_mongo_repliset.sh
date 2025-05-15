@@ -87,6 +87,18 @@ DB1_PORT=${PRIMARY_PORT}
 }
 echo "创建主节点db1实例成功"
 
+# 必须先初始化复制集否则会报不是主节点的错
+mongosh --host 127.0.0.1:${DB1_PORT} --eval "rs.initiate({_id: \"${RS_NAME}\", members: [{_id: 0, host: \"${IP_ADDR}:${DB1_PORT}\", priority: 2}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
+    echo "错误：初始化复制集失败" >&2
+    exit 1
+}
+
+# 等待选举完成
+echo "wait 选举完成..."
+sleep 5
+
+echo "创建权限用户:${TARGET_USER}..."
+
 # 创建用户并赋予权限
 mongosh 127.0.0.1:${PRIMARY_PORT}/admin --eval "db.createUser({user: \"${TARGET_USER}\", pwd: \"${TARGET_PWD}\", roles:[{role: \"userAdminAnyDatabase\", db: \"admin\"}, {role: \"readWriteAnyDatabase\", db: \"admin\"}, {role: \"clusterAdmin\", db: \"admin\"}]})" || {
     echo "错误：创建用户并赋予权限:${REPLISET_INSTALL_PATH}/db1！" >&2
@@ -101,7 +113,7 @@ mongod -f ${REPLISET_INSTALL_PATH}/db1/mongod.conf --shutdown || {
     exit 1
 }
 
-sleep 1
+sleep 5
 echo "关闭 mongod 成功..."
 
 DB2_PORT=$((${PRIMARY_PORT} + 1))
@@ -128,13 +140,20 @@ echo "启动 3 个实例完成, 端口:${DB1_PORT},${DB2_PORT},${DB3_PORT} ..."
 
 echo "开始从主节点添加两个从节点..."
 
-# 初始化复制集
-mongosh --host 127.0.0.1:${DB1_PORT} --eval "rs.initiate({_id: \"${RS_NAME}\", members: [{_id: 0, host: \"${IP_ADDR}:${DB1_PORT}\", priority: 2}, {_id: 1, host: \"${IP_ADDR}:${DB2_PORT}\", priority: 1, votes: 1}, {_id: 2, host: \"${IP_ADDR}:${DB3_PORT}\", priority: 1, hidden: false, secondaryDelaySecs: 0}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
+# 添加从节点2
+mongosh --host 127.0.0.1:${DB1_PORT} --eval "rs.add({_id: 1, host: \"${IP_ADDR}:${DB2_PORT}\", priority: 1, votes: 1})" || {
     echo "错误：初始化复制集失败" >&2
     exit 1
 }
 
-echo "initiate rs success..."
+sleep 2
+
+# 添加从节点3
+mongosh --host 127.0.0.1:${DB1_PORT} --eval "rs.add({_id: 2, host: \"${IP_ADDR}:${DB3_PORT}\", priority: 1, hidden: false, secondaryDelaySecs: 0})" || {
+    echo "错误：初始化复制集失败" >&2
+    exit 1
+}
+echo "add secondary success..."
 
 sleep 2
 
