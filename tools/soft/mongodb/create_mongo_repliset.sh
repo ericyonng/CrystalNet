@@ -141,7 +141,7 @@ echo "启动 3 个实例完成, 端口:${DB1_PORT},${DB2_PORT},${DB3_PORT} ..."
 echo "开始从主节点添加两个从节点..."
 
 # 添加从节点2
-mongosh --host 127.0.0.1:${DB1_PORT} --eval "rs.add({_id: 1, host: \"${IP_ADDR}:${DB2_PORT}\", priority: 1, votes: 1})" || {
+mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: 1, host: \"${IP_ADDR}:${DB2_PORT}\", priority: 1, votes: 1})" || {
     echo "错误：初始化复制集失败" >&2
     exit 1
 }
@@ -149,7 +149,7 @@ mongosh --host 127.0.0.1:${DB1_PORT} --eval "rs.add({_id: 1, host: \"${IP_ADDR}:
 sleep 2
 
 # 添加从节点3
-mongosh --host 127.0.0.1:${DB1_PORT} --eval "rs.add({_id: 2, host: \"${IP_ADDR}:${DB3_PORT}\", priority: 1, hidden: false, secondaryDelaySecs: 0})" || {
+mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: 2, host: \"${IP_ADDR}:${DB3_PORT}\", priority: 1, hidden: false, secondaryDelaySecs: 0})" || {
     echo "错误：初始化复制集失败" >&2
     exit 1
 }
