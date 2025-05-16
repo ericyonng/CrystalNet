@@ -159,8 +159,8 @@ function include_mongodb_driver_libs(root_dir)
 
         -- link libs
         links {
-            "bsoncxx-static:static",
             "mongocxx-static:static",
+            "bsoncxx-static:static",
             "mongoc2:static",
             "bson2:static",
             "resolv:static",
@@ -175,8 +175,8 @@ function include_mongodb_driver_libs(root_dir)
 
         -- link libs
         links {
-            "bsoncxx-static:static",
             "mongocxx-static:static",
+            "bsoncxx-static:static",
             "mongoc2:static",
             "bson2:static",
             "resolv:static",
