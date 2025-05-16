@@ -98,6 +98,69 @@ function set_common_options(optOption, use_dynamic)
     filter {}
 end
 
+-- mongodb driver
+function include_mongodb_driver_libs(root_dir)
+    -- windows
+    filter { "system:windows"}
+        -- include headers path
+        includedirs {
+            "../../3rd/mongodb/MONGO_CXX_DRIVER/include/",
+            "../../3rd/mongodb/MONGO_CXX_DRIVER/include/mongocxx/v_noabi/",
+            "../../3rd/mongodb/MONGO_CXX_DRIVER/include/bsoncxx/v_noabi/"
+        }
+
+        -- include libs path
+        libdirs { 
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER/lib/",
+        }
+
+        -- link libs
+        links {
+            "dnsapi",
+            "security",
+            "bson2",
+            "mongoc2"
+        }
+    filter {}
+    filter { "configurations:debug*", "language:c++", "system:windows" }
+        links {
+            "bsoncxx-static-dts-x64-v143-mdd",
+            "mongocxx-static-dts-x64-v143-mdd",
+        }
+    filter {}
+    filter { "configurations:release*", "language:c++", "system:windows" }
+        links {
+            "mongocxx-static-rts-x64-v143-md",
+            "bsoncxx-static-rts-x64-v143-md",
+        }
+    filter {}
+
+    -- linux
+    filter { "system:not windows"}
+        -- include headers path
+        includedirs {
+            "../../3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/",
+            "../../3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/mongocxx/v_noabi/",
+            "../../3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/bsoncxx/v_noabi/"
+        }
+
+        -- include libs path
+        libdirs { 
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER_LINUX/libs/$(Configuration)/",
+        }
+
+        -- link libs
+        links {
+            "dnsapi",
+            "security",
+            "bson2:static",
+            "mongoc2:static",
+            "bsoncxx-static:static",
+            "mongocxx-static:static",
+        }
+    filter {}
+end
+
 -- lib include实现
 function include_libfs(do_post_build, add_protobuflib)	
     -- includedirs
