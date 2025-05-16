@@ -23,6 +23,9 @@ sudo cp -rf  ${SCRIPT_PATH}/../../3rd/mysql/linux/lib/libmysqlclient.so ${OUTPUT
 rm -f ${OUTPUT_DIR}/libmysqlclient.so.21
 ln -sv ${OUTPUT_DIR}/libmysqlclient.so ${OUTPUT_DIR}/libmysqlclient.so.21
 
+# sasl2库
+sudo cp -rf  ${SCRIPT_PATH}/../../3rd/sasl2/libs/libsasl2.so ${OUTPUT_DIR}/
+
 # 动态库连接
 if [ -n "$1" ]
 then
