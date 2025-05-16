@@ -151,8 +151,6 @@ function include_mongodb_driver_libs(root_dir)
 
         -- link libs
         links {
-            "dnsapi",
-            "security",
             "bson2:static",
             "mongoc2:static",
             "bsoncxx-static:static",
