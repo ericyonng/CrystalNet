@@ -143,10 +143,26 @@ function include_mongodb_driver_libs(root_dir)
             "../../3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/mongocxx/v_noabi/",
             "../../3rd/mongodb/MONGO_CXX_DRIVER_LINUX/include/bsoncxx/v_noabi/"
         }
+    filter {}
 
+    filter { "system:not windows", "configurations:debug*" }
         -- include libs path
         libdirs { 
-            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER_LINUX/libs/$(Configuration)/",
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER_LINUX/libs/debug/",
+        }
+
+        -- link libs
+        links {
+            "bson2:static",
+            "mongoc2:static",
+            "bsoncxx-static:static",
+            "mongocxx-static:static",
+        }
+    filter {}
+    filter { "system:not windows", "configurations:release*" }
+        -- include libs path
+        libdirs { 
+            root_dir .. "3rd/mongodb/MONGO_CXX_DRIVER_LINUX/libs/release/",
         }
 
         -- link libs
