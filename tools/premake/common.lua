@@ -153,10 +153,10 @@ function include_mongodb_driver_libs(root_dir)
 
         -- link libs
         links {
-            "bson2:static",
-            "mongoc2:static",
             "bsoncxx-static:static",
+            "bson2:static",
             "mongocxx-static:static",
+            "mongoc2:static",
         }
     filter {}
     filter { "system:not windows", "configurations:release*" }
@@ -167,10 +167,10 @@ function include_mongodb_driver_libs(root_dir)
 
         -- link libs
         links {
-            "bson2:static",
-            "mongoc2:static",
             "bsoncxx-static:static",
+            "bson2:static",
             "mongocxx-static:static",
+            "mongoc2:static",
         }
     filter {}
 end
