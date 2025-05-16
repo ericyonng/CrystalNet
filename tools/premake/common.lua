@@ -147,6 +147,7 @@ function include_mongodb_driver_libs(root_dir)
         -- include libs path
         libdirs { 
             root_dir .. "3rd/Dns/libs/",
+            root_dir .. "3rd/sasl2/libs/",
         }
     filter {}
 
@@ -159,10 +160,11 @@ function include_mongodb_driver_libs(root_dir)
         -- link libs
         links {
             "bsoncxx-static:static",
-            "bson2:static",
             "mongocxx-static:static",
             "mongoc2:static",
+            "bson2:static",
             "resolv:static",
+            "sasl2",
         }
     filter {}
     filter { "system:not windows", "configurations:release*" }
@@ -174,10 +176,11 @@ function include_mongodb_driver_libs(root_dir)
         -- link libs
         links {
             "bsoncxx-static:static",
-            "bson2:static",
             "mongocxx-static:static",
             "mongoc2:static",
+            "bson2:static",
             "resolv:static",
+            "sasl2",
         }
     filter {}
 end
