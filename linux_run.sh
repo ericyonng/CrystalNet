@@ -47,10 +47,10 @@ IS_START=0
 
 echo "wait ${GREP_FLAG} start"
 
-if [ -n "$3" ]
+if [ -n "$4" ]
 then
-  echo "wait ($3)seconds ${GREP_FLAG} start"
-  sleep $3
+  echo "wait ($4)seconds ${GREP_FLAG} start"
+  sleep $4
 else
   echo "wait (5)seconds ${GREP_FLAG} start"
 
