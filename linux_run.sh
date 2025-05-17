@@ -32,6 +32,13 @@ fi
 
 echo "will run process:${RUN_NAME}"
 
+if [ -n "$3" ]; then
+  echo "run with blocking..."
+  . ${RUN_PATH}/${RUN_NAME}
+  echo "run finish..."
+  exit 0
+fi
+
 nohup ${RUN_PATH}/${RUN_NAME} > ${RUN_PATH}/${RUN_NAME}.nohup 2>&1 &
 
 GREP_FLAG="${RUN_NAME}"
