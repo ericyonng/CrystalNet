@@ -1,30 +1,45 @@
-/*!
- *  MIT License
- *  
- *  Copyright (c) 2020 ericyonng<120453674@qq.com>
- *  
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *  
- *  The above copyright notice and this permission notice shall be included in all
- *  copies or substantial portions of the Software.
- *  
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *  SOFTWARE.
- * 
- * Date: 2025-05-12 23:29:10
- * Author: Eric Yonng
- * Description: 
-*/
+# 版本
+
+* Driver: mongo-cxx-driver-r4.1.0.tar.gz
+* 数据库版本号：mongodb-linux-x86_64-rhel8-8.0.6.tgz
+
+# 官方开发文档
+
+https://www.mongodb.com/zh-cn/docs/drivers/
+
+driver api文档：https://mongocxx.org/api/mongocxx-4.1.0/
+
+# 设计
+
+* 通用数据包装
+
+  * 可以抽象一个文档通用块
+
+    message DocDataBlock
+
+    {
+
+      // 数据不超过 16 MB 存储BinData, 超过的存储GridFS, 并设置GridFsId
+
+      bytes BinData = 1;
+
+      string GridFsId = 2;
+
+    }
+
+    
+
+    通过DocDataBlock 来解析文档数据
+
+  
+
+
+
+# 测试用例
+
+测试用例见TestMongo.cpp
+
+```c++
 
 #include <pch.h>
 #include <testsuit/testinst/TestMongo.h>
@@ -40,7 +55,6 @@
 #include <iostream>
 
 #include <protocols/protocols.h>
-
 
 void TestMongo::Run()
 {
@@ -230,3 +244,53 @@ void TestMongo::Run()
         g_Log->Error(LOGFMT_NON_OBJ_TAG(TestMongo, "An exception occurred:%s"), e.what());
     }
 }
+```
+
+
+
+# 连接池
+
+* 必须使用连接池来控制连接数, 保证数据库不会过载, 默认连接池最小是0， 最大数量是100
+
+  * ```
+    #include <mongocxx/client.hpp>
+    #include <mongocxx/instance.hpp>
+    #include <mongocxx/pool.hpp>
+    
+    int main() {
+        // 1. 初始化驱动实例（整个进程只需一次）
+        mongocxx::instance instance{};
+    
+        // 2. 创建连接池，配置连接参数
+        mongocxx::uri uri("mongodb://localhost:27017/?minPoolSize=10&maxPoolSize=100");
+        mongocxx::pool pool{uri};
+    
+        // 3. 从池中获取连接
+        auto client = pool.acquire();  // 返回一个 pool::entry 对象
+    
+        // 4. 使用连接操作数据库
+        auto db = client->database("test");
+        auto coll = db.collection("users");
+        // 执行查询、插入等操作...
+    
+        // 5. 连接在 client 对象析构时自动归还到池中
+        return 0;
+    }
+    ```
+
+# 异常处理
+
+mongodb操作触发异常会抛异常, 所以需要catch
+
+
+
+# 注意
+
+* mongodb 单文档有大小上限，这是BSON设计所决定的，上限是16MB， 当超过的时候无法正确存储
+
+  * 一个方案是通过mongodb的GridFS，存储 + Player原表中创建GridFS的id引用, 当小于16MB的时候在Player的BinData直接存储，如果大于16MB的时候在GridFS中存，并引用id，不过需要关注一致性问题，因为毕竟存两个地方
+
+  * 还有一个方案是，Player表进行分片存储, Player数据中存分片id数组
+
+    
+

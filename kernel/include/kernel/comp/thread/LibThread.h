@@ -77,17 +77,23 @@ public:
     bool AddTask2(IDelegate<void, LibThread *, Variant *> *callback, Variant *params);
     template<typename ObjType>
     bool AddTask2(ObjType *obj, void (ObjType::*callback)(LibThread *, Variant *), Variant *params);
-    
+    template<typename LambdaType>
+    requires requires(LambdaType invoke, LibThread *thread, Variant *var)
+    {
+        invoke(thread, var);
+    }
+    bool AddTask2(LambdaType &&lamb, Variant *params = NULL, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
+
     // 是否销毁
-    bool IsDestroy();
+    bool IsDestroy() const;
     // 是否忙
-    bool IsBusy();
+    bool IsBusy() const;
     // 是否启动
-    bool IsStart();
+    bool IsStart() const;
     // 全局自增id
-    UInt64 GetId();
+    UInt64 GetId() const;
     // 线程id
-    UInt64 GetTheadId();
+    UInt64 GetTheadId() const;
     // 设置是否添加任务
     void SetEnableTask(bool enable);
 
@@ -95,7 +101,7 @@ public:
     void SetThreadName(const KERNEL_NS::LibString &name);
     const LibString &GetThreadName() const;
 
-    LibString ToString();
+    LibString ToString() const;
 
 private:
     // 线程处理函数
@@ -241,27 +247,46 @@ ALWAYS_INLINE bool LibThread::AddTask2(ObjType *obj, void (ObjType::*callback)(L
     return true;
 }
 
-ALWAYS_INLINE bool LibThread::IsDestroy()
+template<typename LambdaType>
+requires requires(LambdaType invoke, LibThread *thread, Variant *var)
+{
+    invoke(thread, var);
+}
+ALWAYS_INLINE bool LibThread::AddTask2(LambdaType &&lamb, Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, LibThread *, Variant *);
+    if(UNLIKELY(!AddTask2(delg, params, forceNewThread, numOfThreadToCreateIfNeed)))
+    {
+        CRYSTAL_RELEASE_SAFE(delg);
+        if(params)
+            Variant::Delete_Variant(params);
+        return false;
+    }
+
+    return true;
+}
+
+ALWAYS_INLINE bool LibThread::IsDestroy() const
 {
     return _isDestroy.load();
 }
 
-ALWAYS_INLINE bool LibThread::IsBusy()
+ALWAYS_INLINE bool LibThread::IsBusy() const
 {
     return _isBusy.load();
 }
 
-ALWAYS_INLINE bool LibThread::IsStart()
+ALWAYS_INLINE bool LibThread::IsStart() const
 {
     return _isStart.load();
 }
 
-ALWAYS_INLINE UInt64 LibThread::GetId()
+ALWAYS_INLINE UInt64 LibThread::GetId() const
 {
     return _id;
 }
 
-ALWAYS_INLINE UInt64 LibThread::GetTheadId()
+ALWAYS_INLINE UInt64 LibThread::GetTheadId() const
 {
     return _threadId.load();
 }

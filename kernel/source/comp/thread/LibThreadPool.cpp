@@ -35,9 +35,10 @@
 #include <kernel/comp/thread/LibThreadGlobalId.h>
 #include <kernel/comp/Task/Task.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/Log/log.h"
 
-LibThreadPool::LibThreadPool()
+KERNEL_BEGIN
+    LibThreadPool::LibThreadPool()
 :_minNum{0}
 ,_maxNum{0}
 ,_curTotalNum{0}
@@ -150,7 +151,7 @@ bool LibThreadPool::AddThreads(Int32 addNum)
     return true;
 }
 
-LibString LibThreadPool::ToString()
+LibString LibThreadPool::ToString() const
 {
     LibString info;
     const Int32 minNum = _minNum.load();
@@ -292,41 +293,48 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
 
     ThreadTool::OnStart();
 
-    bool isEmpty = false;
-    while(isWorking.load() || !isEmpty)
+    try
     {
-        taskLck.Lock();
-        if(LIKELY(!taskList.empty()))
+        bool isEmpty = false;
+        while(isWorking.load() || !isEmpty)
         {
-            auto task = taskList.front();
-            taskList.pop_front();
+            taskLck.Lock();
+            if(LIKELY(!taskList.empty()))
+            {
+                auto task = taskList.front();
+                taskList.pop_front();
+                taskLck.Unlock();
+
+                isEmpty = false;
+                task->Run();
+                if(LIKELY(!task->CanReDo() || !isEnableTask.load()))
+                    task->Release();
+                else
+                {
+                    taskLck.Lock();
+                    taskList.push_back(task);
+                    taskLck.Unlock();
+                }
+                continue;
+            }
             taskLck.Unlock();
 
-            isEmpty = false;
-            task->Run();
-            if(LIKELY(!task->CanReDo() || !isEnableTask.load()))
-                task->Release();
-            else
-            {
-                taskLck.Lock();
-                taskList.push_back(task);
-                taskLck.Unlock();
-            }
-            continue;
+            wakeupAndWaitLck.Lock();
+            ++waitNum;
+            wakeupAndWaitLck.Wait();
+            --waitNum;
+            wakeupAndWaitLck.Unlock();
+
+            taskLck.Lock();
+            isEmpty = taskList.empty();
+            taskLck.Unlock();
         }
-        taskLck.Unlock();
-
-        wakeupAndWaitLck.Lock();
-        ++waitNum;
-        wakeupAndWaitLck.Wait();
-        --waitNum;
-        wakeupAndWaitLck.Unlock();
-
-        taskLck.Lock();
-        isEmpty = taskList.empty();
-        taskLck.Unlock();
     }
-
+    catch (...)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(LibThreadPool, "thread pool exception..."));
+    }
+   
     // 释放线程局部存储资源
     ThreadTool::OnDestroy();
 

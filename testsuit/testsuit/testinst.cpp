@@ -345,6 +345,7 @@ void TestInst::Run(int argc, char const *argv[])
     
     printf("\ntest case finish.\n");
     KERNEL_NS::SystemUtil::ThreadSleep(5000);
+    getchar();
     // while(true)
     // {
     //     auto v = getchar();

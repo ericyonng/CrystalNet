@@ -36,6 +36,8 @@
 #include <kernel/comp/Task/DelegateTask.h>
 #include <kernel/comp/Task/DelegateWithParamsTask.h>
 
+#include <kernel/comp/Log/log.h>
+
 KERNEL_BEGIN
 
 LibThread::LibThread()
@@ -130,7 +132,7 @@ bool LibThread::AddTask2(IDelegate<void, LibThread *, Variant *> *callback, Vari
     return true;
 }
 
-LibString LibThread::ToString()
+LibString LibThread::ToString() const
 {
     LibString info;
     info.AppendFormat("id = %llu, thread name:%s, threadId = %llu, isStart = %d, isWorking = %d, \n"
@@ -169,42 +171,50 @@ void LibThread::LibThreadHandlerLogic(void *param)
 
     ThreadTool::OnStart();
 
-    bool isEmpty = false;
-    while(!isDestroy.load() || !isEmpty)
+    try
     {
-        taskLck.Lock();
-        if(LIKELY(!taskList.empty()))
+        bool isEmpty = false;
+        while(!isDestroy.load() || !isEmpty)
         {
-            isBusy = true;
-            auto task = taskList.front();
-            taskList.pop_front();
-            taskLck.Unlock();
+            taskLck.Lock();
+            if(LIKELY(!taskList.empty()))
+            {
+                isBusy = true;
+                auto task = taskList.front();
+                taskList.pop_front();
+                taskLck.Unlock();
 
-            isEmpty = false;
-            task->Run();
-            if(LIKELY(!task->CanReDo() || !enableAddTask))
-                task->Release();
+                isEmpty = false;
+                task->Run();
+                if(LIKELY(!task->CanReDo() || !enableAddTask))
+                    task->Release();
+                else
+                {
+                    taskLck.Lock();
+                    taskList.push_back(task);
+                    taskLck.Unlock();
+                }
+                continue;
+            }
             else
             {
-                taskLck.Lock();
-                taskList.push_back(task);
                 taskLck.Unlock();
             }
-            continue;
-        }
-        else
-        {
+
+            isBusy = false;
+            condLck.Lock();
+            condLck.Wait();
+            condLck.Unlock();
+
+            taskLck.Lock();
+            isEmpty = taskList.empty();
             taskLck.Unlock();
         }
 
-        isBusy = false;
-        condLck.Lock();
-        condLck.Wait();
-        condLck.Unlock();
-
-        taskLck.Lock();
-        isEmpty = taskList.empty();
-        taskLck.Unlock();
+    }
+    catch (...)
+    {
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(LibThread, "thread exception..."));
     }
 
     // 释放线程局部存储资源

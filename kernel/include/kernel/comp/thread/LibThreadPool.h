@@ -89,7 +89,7 @@ public:
     void AddMaxThreadNum(UInt32 addNum);
     // 给当前线程池新增工作线程 上限是max thread num
     bool AddThreads(Int32 addNum);
-    LibString ToString();
+    LibString ToString() const;
     bool IsDestroy() const;
 
     // 设置线程池名
@@ -112,6 +112,12 @@ public:
     bool AddTask2(IDelegate<void, LibThreadPool *, Variant *> *callback, Variant *params, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
     template<typename ObjType>
     bool AddTask2(ObjType *obj, void (ObjType::*callback)(LibThreadPool *, Variant *), Variant *params, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
+    template<typename LambdaType>
+    requires requires(LambdaType invoke, LibThreadPool * pool, Variant *var)
+    {
+        invoke(pool, var);
+    }
+    bool AddTask2(LambdaType &&lamb, Variant *params = NULL, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
     
     Int32 GetWorkThreadNum() const;
 
@@ -281,6 +287,25 @@ template<typename ObjType>
 ALWAYS_INLINE bool LibThreadPool::AddTask2(ObjType *obj, void (ObjType::*callback)(LibThreadPool *, Variant *), Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 {
     IDelegate<void, LibThreadPool *, Variant *> *deleg = DelegateFactory::Create(obj, callback);
+    if(UNLIKELY(!AddTask2(deleg, params, forceNewThread, numOfThreadToCreateIfNeed)))
+    {
+        CRYSTAL_RELEASE_SAFE(deleg);
+        if(params)
+            Variant::Delete_Variant(params);
+        return false;
+    }
+
+    return true;
+}
+
+template<typename LambdaType>
+requires requires(LambdaType invoke, LibThreadPool * pool, Variant *var)
+{
+    invoke(pool, var);
+}
+ALWAYS_INLINE bool LibThreadPool::AddTask2(LambdaType &&lamb, Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+{
+    auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, LibThreadPool *, Variant *);
     if(UNLIKELY(!AddTask2(deleg, params, forceNewThread, numOfThreadToCreateIfNeed)))
     {
         CRYSTAL_RELEASE_SAFE(deleg);
