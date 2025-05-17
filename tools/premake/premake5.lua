@@ -204,6 +204,12 @@ project "TestServicePlugin"
     libdirs { OUTPUT_DIR }	
 	include_libfs(true, true)
 
+    -- lua
+    include_lua()
+
+    -- mongodb driver
+    include_mongodb_driver_libs(ROOT_DIR)
+
     -- debug target suffix define
     filter { "configurations:debug*" }
         targetsuffix "_debug"
@@ -329,6 +335,9 @@ project "testsuit"
             "mysqlclient",
         }
     filter {}
+
+    -- lua
+    include_lua()
 
     -- mongodb
     include_mongodb_driver_libs(ROOT_DIR)

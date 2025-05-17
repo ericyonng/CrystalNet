@@ -38,7 +38,6 @@ project "CrystalKernel"
 		ROOT_DIR .. "/3rd/json/include/",
 		ROOT_DIR .. "/3rd/curl/include/",
 		ROOT_DIR .. "/3rd/idn2/include/",
-		ROOT_DIR .. "3rd/lua/include/",
      }
 	 
     -- files
@@ -60,7 +59,6 @@ project "CrystalKernel"
 		ROOT_DIR .. "3rd/miniz/libs/$(Configuration)/",
         ROOT_DIR .. "3rd/",
 		ROOT_DIR .. "3rd/curl/lib/$(Configuration)/",
-		ROOT_DIR .. "3rd/lua/",
     }
 
     -- openssl
@@ -79,7 +77,6 @@ project "CrystalKernel"
             "uuid_debug:static",
             "miniz:static",
             "idn2:static",
-            "lua:static",
         }
     filter {}
     filter { "system:linux", "configurations:release*"}
@@ -97,7 +94,6 @@ project "CrystalKernel"
             "uuid:static",
             "miniz:static",
             "idn2:static",
-            "lua:static",
         }
     filter {}
 	
@@ -134,7 +130,6 @@ project "CrystalKernel"
             "shlwapi",
             "Iphlpapi",
             "libcurl",
-            "lua5.4.7-static"
         }
 
     filter { "system:macosx" }
@@ -142,7 +137,9 @@ project "CrystalKernel"
             "iconv",
         }
     filter {}
-
+    
+    -- 嵌入lua
+    include_lua()
     -- flags 移除c++17标志
 --    filter { "system:not windows" }
 --        buildoptions {

@@ -185,6 +185,34 @@ function include_mongodb_driver_libs(root_dir)
     filter {}
 end
 
+-- 如果lua 有依赖其他库，其他库应在-llua之后
+function include_lua()
+    -- includedirs
+    includedirs {
+		ROOT_DIR .. "3rd/lua/include/",
+     }
+
+    libdirs { 
+		ROOT_DIR .. "3rd/lua/",
+    }
+    filter { "system:linux", "configurations:debug*"}
+        links {
+            "lua:static",
+        }
+    filter {}
+    filter { "system:linux", "configurations:release*"}
+        links {
+            "lua:static",
+        }
+    filter {}
+
+    filter { "system:windows" }
+        links {
+            "lua5.4.7-static"
+        }
+    filter {}
+end
+
 -- lib include实现
 function include_libfs(do_post_build, add_protobuflib)	
     -- includedirs
