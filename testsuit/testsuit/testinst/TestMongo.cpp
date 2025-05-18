@@ -84,8 +84,18 @@ void TestMongo::Run()
                 // 访问test2 数据库(不存在会在插入)
                 auto test2 = client["test2"];
                 auto collection = test2["new_collection"];
+
+                // 设置表的大多数写成功, 且journal写完成功才算成功
+                mongocxx::write_concern concern;
+                // 大多数节点成功后成功
+                concern.acknowledge_level(mongocxx::write_concern::level::k_majority);
+                // 写操作落盘后成功
+                concern.journal(true);
+                collection.write_concern(concern);
+                
                 auto ret = collection.insert_one(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("name", "testmongo")
                     , bsoncxx::builder::basic::kvp("sex", 1)));
+
 
                 auto newDb = client->database("new_mongodb");
                 auto player = newDb.create_collection("player4");
@@ -123,6 +133,28 @@ void TestMongo::Run()
                 auto playerId = generator->NewId();
                 auto key = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("PlayerId", (long long)playerId));
 
+                // 读数据配置
+                mongocxx::read_preference rp;
+                // // 从主节点上读数据
+                // rp.mode(mongocxx::read_preference::read_mode::k_primary);
+                // // 只从从节点读
+                // rp.mode(mongocxx::read_preference::read_mode::k_secondary);
+                // // 优先从从节点读，不可用时到主节点
+                // rp.mode(mongocxx::read_preference::read_mode::k_secondary_preferred);
+                // // 优先从主节点读，不可用时到从节点
+                // rp.mode(mongocxx::read_preference::read_mode::k_primary_preferred);
+                // // 从延迟最低的节点读取(就近路由)
+                // rp.mode(mongocxx::read_preference::read_mode::k_nearest);
+                // // 结合标签过滤节点(region标签为east的节点， tags可以在mongodb的mongod.conf中的replication:tags:region:east, 配置)
+                // rp.tags(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("region", "east")));
+                // // 设置读数据的节点
+                // player.read_preference(rp);
+
+                // 设置majority, 常用的隔离级别,相当于读已提交级别 解决事务的隔离性问题
+                mongocxx::read_concern rc;
+                rc.acknowledge_level(mongocxx::read_concern::level::k_majority);
+                player.read_concern(rc);
+                
                 auto findOne = player.find_one(key.view());
                 if(findOne)
                 {

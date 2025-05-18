@@ -48,6 +48,7 @@ echo "    port: ${TARGET_PORT}" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "replication:" >> ${MONGOD_CONF}
 echo "    replSetName: ${REPL_SET_NAME}" >> ${MONGOD_CONF}
+echo "    enableMajorityReadConcern: true" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "processManagement:" >> ${MONGOD_CONF}
 echo "    fork: true" >> ${MONGOD_CONF}

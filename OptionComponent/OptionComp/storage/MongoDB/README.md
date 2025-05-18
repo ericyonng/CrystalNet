@@ -293,4 +293,34 @@ mongodb操作触发异常会抛异常, 所以需要catch
   * 还有一个方案是，Player表进行分片存储, Player数据中存分片id数组
 
     
+    
+    
+    
+    
+    
+    
+    
+* 写操作必须要开启大多数写成功才算成功， 必须写操作落盘到journal后才算成功：
+      
 
+  ```
+  // 设置表的大多数写成功, 且journal写完成功才算成功
+    mongocxx::write_concern concern;
+    
+    // 大多数节点成功后成功
+    concern.acknowledge_level(mongocxx::write_concern::level::k_majority);
+    
+    // 写操作落盘后成功
+    concern.journal(true);
+    collection.write_concern(concern);
+  ```
+
+  
+
+* 读操作可以设置从节点读取, nearest读取等
+  * ![image-20250518180853553](./img/readPreference配置.png)
+
+
+
+* 比较严格的读隔离级别，线性化读
+  * ![image-20250518190650496](D:\workplace\Development\CrystalNet\CrystalNet\doc\mongodbimage\线性化读.png)
