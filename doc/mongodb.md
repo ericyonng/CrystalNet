@@ -14,6 +14,7 @@ mongodb 支持通用的二级索引，性能卓越，在其wiredtiger存储引�
 
 * 数据库名称不可大于64字节
 * 命名空间(数据库名.集合名)不可大于100字节
+* mongodb支持事务，但是由于是分布式数据库，所以不建议使用事务，因为事务就意味着锁，意味着开销
 
 
 
@@ -526,3 +527,79 @@ mongodb 支持通用的二级索引，性能卓越，在其wiredtiger存储引�
 快照：最高级别
 
 ![image-20250518191029994](./mongodbimage/最高隔离级别快照.png)
+
+# 事务
+
+* mongodb 支持事务，但不建议使用
+
+  ![image-20250518235224214](./mongodbimage/mongodb事务.png)
+
+* 多文档事务
+
+  * ![image-20250518235628538](./mongodbimage/事务.png)
+
+# mongo最佳实践
+
+* 连接
+
+  * 如果是复制集必须把所有节点都填上去，避免哪个节点不可用
+
+  * 连接到分片集，需要把mongos的地址都列上去
+
+  * ![image-20250519001747067](./mongodbimage/mongodb连接.png)
+
+  * 常见参数（在连接串上设置）
+
+    * MaxWaitTime:建议设置，自动杀掉太慢的查询
+    * WriteConcern: majority，这样所有的写操作都会保证majority
+    * ReadConcern: 对数据一致性要求高的场景使用, 所有的读操作都会按照这个要求
+    * ![image-20250519002125183](./mongodbimage/连接参数.png)
+
+  * 使用域名连接集群(mongodb srv协议)
+
+    * ![image-20250519002815857](./mongodbimage/mongodb srv域名解析协议.png)
+
+  * mongodb不建议使用负载均衡
+
+    ![image-20250519003047035](./mongodbimage/不建议使用负载均衡, mongodb自己会处理.png)
+
+  * 游标使用，记得关闭 默认情况下，游标在闲置 10 分钟后会被服务端自动销毁。（在find的数组结果是一个游标, 必须要主动关闭）
+
+    ![image-20250519003255434](./mongodbimage/游标的使用.png)
+
+  * 查询及索引
+
+    ![image-20250519003558823](./mongodbimage/查询及索引.png)
+
+  * 关于写入(使用update只更新部分数据，尽量使用批量插入, ttl自动过期日志类型数据)
+
+    ![image-20250519003919474](./mongodbimage/写入.png)
+
+  * 关于文档结构(字段名需要短小精悍, 数组不要嵌套太深)
+
+    ![image-20250519004210222](./mongodbimage/文档结构.png)
+
+  * 避免使用count, 它用不上索引，会导致mongodb变慢
+
+    ![image-20250519004436744](./mongodbimage/避免使用count.png)
+
+  * 巧分页
+
+    ![image-20250519004658387](./mongodbimage/巧分页.png)
+
+  * 事务（能避免则避免）
+
+    ![image-20250519005013872](./mongodbimage/事务避免.png)
+
+# 分片集群
+
+* 常见部署架构
+
+  ![image-20250519012707441](./mongodbimage/常见部署架构.png)
+
+* 为什么使用分片集群
+
+  ![image-20250519012841497](./mongodbimage/为什么使用分片集群.png)
+
+* 
+

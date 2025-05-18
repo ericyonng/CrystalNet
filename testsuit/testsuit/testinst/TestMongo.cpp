@@ -48,8 +48,10 @@ void TestMongo::Run()
 
     try
     {
-        // Start example code here 密码特殊符号需要使用url编码
-        mongocxx::uri uri("mongodb://testmongo:abc%5E159%40@127.0.0.1:28017,127.0.0.1:28018,127.0.0.1:28019/?authSource=admin&replicaSet=rs0");
+        // Start example code here 密码特殊符号需要使用url编码, 需要把所有的节点域名或者ip列出来避免某个节点不可用
+        // 写关注：w=majority, journal=true
+        // 读关注：&readConcernLevel=majority
+        mongocxx::uri uri("mongodb://testmongo:abc%5E159%40@127.0.0.1:28017,127.0.0.1:28018,127.0.0.1:28019/?authSource=admin&replicaSet=rs0&w=majority&journal=true&readConcernLevel=majority");
         mongocxx::client client(uri);
         // End example code here
 
@@ -124,7 +126,7 @@ void TestMongo::Run()
                     auto options = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("unique", true), bsoncxx::builder::basic::kvp("name", "PlayerIdIndex"));
                     player.create_index(key_index.view(), options.view());
                 }
-                
+
                 // 显示的创建表
                 auto member = newDb.create_collection("member");
 
@@ -154,8 +156,12 @@ void TestMongo::Run()
                 mongocxx::read_concern rc;
                 rc.acknowledge_level(mongocxx::read_concern::level::k_majority);
                 player.read_concern(rc);
-                
-                auto findOne = player.find_one(key.view());
+
+                // 设置查询的最大等待时间, 防止游标因网络问题长时间阻塞：
+                mongocxx::options::find opts{};
+                opts.max_await_time(std::chrono::seconds(10)); // 等待新批次最多 10 秒
+
+                auto findOne = player.find_one(key.view(), opts);
                 if(findOne)
                 {
                     // 更新
@@ -166,6 +172,7 @@ void TestMongo::Run()
 
                     // 删除
                     // player.delete_one(key.view());
+
                 }
                 else
                 {
