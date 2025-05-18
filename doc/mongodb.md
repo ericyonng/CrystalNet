@@ -6,7 +6,7 @@
 
 特点：易于使用（没有预定义模式，文档键值类型大小不固定，可以按需添加或删除字段），易于扩展（扩展包括纵向扩展（提高配置），横向扩展（将数据分布到更多机器上），纵向扩展缺点：大型机器比较昂贵，最后仍然会有天花板，横向扩展：便宜且容量可以无限，但是管理大量机器比管理1台机器困难得多，mongo采用横向扩展，面向文档数据模型使得跨堕胎服务器拆分数据更容易，mongo会自动平衡跨集群的数据和负载，自动重新分配文档，并将读写操作路由到正确的机器上）
 
-![image-20250219222226558](.\mongodbimage\网络拓扑.png)
+![image-20250219222226558](./mongodbimage/网络拓扑.png)
 
 mongodb 支持通用的二级索引，性能卓越，在其wiredtiger存储引擎中使用了机会锁，最大限度的提高并发和吞吐量，使用尽可能多的ram作为缓存
 
@@ -49,7 +49,7 @@ mongodb 支持通用的二级索引，性能卓越，在其wiredtiger存储引�
 * 3.x引入wiredtiger数据库引擎 性能提升10倍以上
 * OLTP(Online Transaction Processing)在线事务处理， OLAP: Offline 
 
-![image-20250226224908132](.\mongodbimage\mongodbvs关系型数据库.png)
+![image-20250226224908132](./mongodbimage/mongodbvs关系型数据库.png)
 
 
 
@@ -61,10 +61,10 @@ mongodb 支持通用的二级索引，性能卓越，在其wiredtiger存储引�
 
 * 高可用，横向处理能力
 
-  * ![image-20250226230128320](.\mongodbimage\高可用横向扩展能力.png)
+  * ![image-20250226230128320](./mongodbimage/高可用横向扩展能力.png)
   * 5个9高可用通过复制集实现，最佳实践：最少3个以上，且奇数，以便投票机制有多数票
   * 横向扩展：通过分片集群实现，每个分片一个复制集群
-    * ![image-20250226230547584](.\mongodbimage\横向扩展分片集群.png)
+    * ![image-20250226230547584](./mongodbimage/横向扩展分片集群.png)
 * 无下线滚动更新
 
 # 安装mongoddb
@@ -248,7 +248,7 @@ mongodb 支持通用的二级索引，性能卓越，在其wiredtiger存储引�
   
 * 数据复制
   * 当一个增删改操作到达主节点时它对数据的操作将被记录下来(oplog, 经过一些必要的转换)，从节点一个线程监控oplog的变动，通过在**主节点上打开的一个tailable游标不断获取新进入主节点的oplog，并在自己的数据上回放**，以此保持和主节点的数据一致
-  * ![image-20250405210558319](.\mongodbimage\secondary_copy_from_primary.png)
+  * ![image-20250405210558319](./mongodbimage/secondary_copy_from_primary.png)
   
 * 通过选举完成故障恢复
   * 具有投票权(通过配置配置节点的投票权)的节点之间亮亮互相发送心跳
@@ -344,7 +344,7 @@ mongodb 支持通用的二级索引，性能卓越，在其wiredtiger存储引�
 
 * Mongo全家桶工具介绍
 
-  * ![image-20250510235928894](.\mongodbimage\mongo全家桶.png)
+  * ![image-20250510235928894](./mongodbimage/mongo全家桶.png)
 
   * ```
     mongod: 数据库软件
@@ -466,3 +466,28 @@ mongodb 支持通用的二级索引，性能卓越，在其wiredtiger存储引�
 
   * 配置完mongodb认证后, 则可以在Advanced ConnectionOptions填写Authentication,用户名密码，并在General中勾选Directly Connection
 
+# 模型
+
+* 关系型数据库与文档型数据库的区别
+  * ![image-20250518161921328](./mongodbimage/关系模型vs文档模型.png)
+
+* 套用模式设计
+  * 分桶模式
+    * ![image-20250518164218594](./mongodbimage/分桶模式.png)
+  * 列转行并建立索引
+    * ![image-20250518164632382](./mongodbimage/列转行.png)
+  * 版本字段管理文档模型版本
+    * ![image-20250518164905834](./mongodbimage/版本号管理文档版本.png)
+  * 近似计算(延迟写入, 对于不重要的写操作来说)
+    * ![image-20250518165211516](./mongodbimage/近似计算.png)
+  * 对于重要的场景不能用近似计算，要用预聚合字段
+    * ![image-20250518165432386](./mongodbimage/预聚合.png)
+
+# 事务
+
+* writeConcern：决定一个写操作落到多少个节点才算成功
+  * ![image-20250518165959388](./mongodbimage/writeConcern写操作.png)
+  * 要设置绝大多数节点写入完成才能算成功, 避免丢数据
+  * 要设置journal 等写完日志才算成功, 避免丢数据（可以在mongod.conf 的storage中添加配置）
+    * ![image-20250518170800756](./mongodbimage/journal设置避免丢数据.png)
+* 

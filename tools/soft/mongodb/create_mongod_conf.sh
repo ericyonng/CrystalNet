@@ -41,8 +41,6 @@ echo "    logAppend: true" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo -e "storage:" >> ${MONGOD_CONF}
 echo "    dbPath: ${TARGET_DB_PATH}" >> ${MONGOD_CONF}
-echo "    journal:" >> ${MONGOD_CONF}
-echo "        enabled: true" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "net:" >> ${MONGOD_CONF}
 echo "    bindIp: 0.0.0.0" >> ${MONGOD_CONF}
