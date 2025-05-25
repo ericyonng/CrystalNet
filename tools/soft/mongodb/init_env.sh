@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # @author EricYonng<120453674@qq.com>
 # 给指定机器初始化mongodb 环境, 包括安装包, 环境变量等
+# sh ./init_env.sh machine_ip 目标机器工作路径 目标机器安装路径
 
 # 当前脚本路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
@@ -30,7 +31,7 @@ TGZ_FILE_NAME="mongodb.tar.gz"
 
 # 打包构建环境所需的文件
 rm -rf ${TMP_DIR}
-mkdir -f ${TMP_DIR}
+mkdir ${TMP_DIR}
 
 echo "打包需要的文件 => ${TMP_DIR} ..."
 tar -zcvf ${TMP_DIR}/${TGZ_FILE_NAME} ${TGZ_FILE_PATH}
@@ -41,11 +42,11 @@ MONGOSH_NAME=mongosh-2.4.2-linux-x64
 
 echo "${MACHINE_IP}: 创建目录: TARGET_MACHINE_WORK_PATH:${TARGET_MACHINE_WORK_PATH} ..."
 ssh root@${MACHINE_IP} "rm -rf ${TARGET_MACHINE_WORK_PATH}"
-ssh root@${MACHINE_IP} "mkdir -f ${TARGET_MACHINE_WORK_PATH}"
+ssh root@${MACHINE_IP} "mkdir -p ${TARGET_MACHINE_WORK_PATH}"
 
 echo "${MACHINE_IP}: 创建目录: INSTALL_PATH:${INSTALL_PATH} ..."
 ssh root@${MACHINE_IP} "rm -rf ${INSTALL_PATH}"
-ssh root@${MACHINE_IP} "mkdir -f ${INSTALL_PATH}"
+ssh root@${MACHINE_IP} "mkdir -p ${INSTALL_PATH}"
 
 echo "拷贝压缩文件 ${TMP_DIR}/${TGZ_FILE_NAME} =>  ${MACHINE_IP}:${TARGET_MACHINE_WORK_PATH} ..."
 scp -r ${TMP_DIR}/${TGZ_FILE_NAME} root@${MACHINE_IP}:${TARGET_MACHINE_WORK_PATH}
