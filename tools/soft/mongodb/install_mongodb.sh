@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# @author EricYonng<120453674@qq.com>
 # source install_mongodb.sh tgzs_path install_target_path 需要执行source, 否则环境变量不生效
 
 # 当前脚本路径

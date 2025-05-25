@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# @author EricYonng<120453674@qq.com>
 # 给指定机器初始化mongodb 环境, 包括安装包, 环境变量等
 
 # 当前脚本路径

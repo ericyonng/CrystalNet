@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# @author EricYonng<120453674@qq.com>
 
 # 创建conf文件
 # 目标db目录

@@ -1,23 +1,119 @@
 #!/usr/bin/env bash
+# @author EricYonng<120453674@qq.com>
 # 创建mongodb复制集
-# create_mongo_repliset.sh 复制集名 复制集公网ip 主节点端口号 用户名 密码 复制集安装目标路径
+# create_mongo_repliset.sh 复制集名 [复制集公网ip列表(带端口号)] 用户名 密码 复制集安装目标路径
 
 # 当前脚本路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 echo "SCRIPT_PATH:${SCRIPT_PATH}"
 
+# 是否可以联外网
+check_internet() {
+    HAS_WGET=1
+    if ! command -v wget &> /dev/null; then
+        echo "当前环境未安装wget正在安装 wget..."
+        if sudo yum install wget -y &> /dev/null; then
+            echo "wget 安装成功！"
+        else
+            echo "wget 安装失败！"
+            HAS_WGET=0
+        fi
+    fi
+
+    if [ ${HAS_WGET} = 1 ]; then
+        if wget -q --spider --timeout=3 https://www.baidu.com; then
+            echo "wget 外网连接正常"
+            return 0
+        else
+            echo "wget 连接 https://www.baidu.com 失败"
+        fi
+    fi
+
+    HAS_PING=1
+    if ! command -v ping &> /dev/null; then
+        echo "当前环境未安装ping正在安装 ping..."
+        if sudo yum install iputils -y &> /dev/null; then
+            echo "ping 安装成功！"
+        else
+            echo "ping 安装失败！"
+            HAS_PING=0
+        fi
+    fi
+    if [ ${HAS_PING} = 1 ]; then
+        if ping -c 1 -W 2 8.8.8.8 &> /dev/null; then
+            echo "ping 8.8.8.8 正常"
+            return 0
+        else
+            echo "ping 8.8.8.8 失败"
+        fi
+    fi
+
+    HAS_NS_LOOKUP=1
+    if ! command -v nslookup &> /dev/null; then
+        echo "当前环境未安装nslookup正在安装 nslookup..."
+        if sudo yum install bind-utils -y &> /dev/null; then
+            echo "nslookup 安装成功！"
+        else
+            echo "nslookup 安装失败！"
+            HAS_NS_LOOKUP=0
+        fi
+    fi
+    if [ ${HAS_NS_LOOKUP} = 1 ]; then
+        if nslookup baidu.com &> /dev/null; then
+            echo "nslookup baidu.com 正常"
+            return 0
+        else
+            echo "nslookup baidu.com 失败"
+        fi
+    fi
+
+    return 1
+}
+
 # 变量
 RS_NAME=$1
 IP_ADDR=$2
-PRIMARY_PORT=$3
-TARGET_USER=$4
-TARGET_PWD=$5
+# PRIMARY_PORT
+TARGET_USER=$3
+TARGET_PWD=$4
 REPLISET_INSTALL_PATH=$6
 
-if [ -z "${IP_ADDR}" ]; then
-    IP_ADDR="127.0.0.1"
+# 获取本机器的公网ip
+if check_internet; then
+MACHINE_PUBLIC_IP=$(wget -qO- https://api.ipify.org)
+    echo "外网连接正常 MACHINE_PUBLIC_IP:${MACHINE_PUBLIC_IP}"
+else
+MACHINE_PUBLIC_IP="127.0.0.1"
+    echo "无法连接外网 MACHINE_PUBLIC_IP:${MACHINE_PUBLIC_IP}"
 fi
+
+echo "RS_NAME:${RS_NAME}, IP_ADDR:${IP_ADDR}, TARGET_USER:${TARGET_USER}, TARGET_PWD:${TARGET_PWD}, REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH}, MACHINE_PUBLIC_IP:${MACHINE_PUBLIC_IP}"
+
+if [ -z "${IP_ADDR}" ]; then
+    IP_ADDR="[127.0.0.1:28017]"
+fi
+
+PRIMARY_IP="127.0.0.1"
+PRIMARY_PORT=28017
+
+# 遍历 IP_ADDR 获取primary信息
+IP_INFO_LIST=$(echo "${IP_ADDR}" | sed 's/[][]//g')
+echo "IP_INFO_LIST:${IP_INFO_LIST}"
+# 将节点列表按逗号分割成数组
+IFS=',' read -ra nodes <<< "${IP_INFO_LIST}"
+# 遍历每个节点并提取IP和端口
+LOOP_IP_LIST_INDEX=1
+for node in "${nodes[@]}"; do
+    IFS=: read ip port <<< "$node"
+    if [ ${LOOP_IP_LIST_INDEX} = 1 ]; then
+        PRIMARY_IP=${ip}
+        PRIMARY_PORT=${port}
+    fi
+    echo "IP: $ip, Port: $port"
+done
+
+echo "PRIMARY_IP:${PRIMARY_IP}, ${PRIMARY_PORT}"
 
 # 先切换到执行目录
 TEMP_DIR=${SCRIPT_PATH}/TEMP_DIR

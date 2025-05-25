@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# @author EricYonng<120453674@qq.com>
 
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
