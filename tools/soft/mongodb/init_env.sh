@@ -68,16 +68,16 @@ scp -r ${TMP_DIR}/${TGZ_FILE_NAME} root@${MACHINE_IP}:${TARGET_MACHINE_WORK_PATH
 }
 
 echo "解压  ${MACHINE_IP}:${TARGET_MACHINE_WORK_PATH}/${TGZ_FILE_NAME}..."
-ssh root@${MACHINE_IP} "tar -zxvf ${TARGET_MACHINE_WORK_PATH}/${TGZ_FILE_NAME}" || {
+ssh root@${MACHINE_IP} "tar -zxvf ${TARGET_MACHINE_WORK_PATH}/${TGZ_FILE_NAME} -C ${TARGET_MACHINE_WORK_PATH}" || {
     echo "错误： 解压 拷贝 ${TARGET_MACHINE_WORK_PATH}/${TGZ_FILE_NAME} 失败" >&2
     exit 1
 }
 
 # 安装
-echo "执行 source ${TARGET_MACHINE_WORK_PATH}/mongodb/install_mongodb.sh ${INSTALL_PATH}..."
-ssh root@${MACHINE_IP} "source ${TARGET_MACHINE_WORK_PATH}/mongodb/install_mongodb.sh ${INSTALL_PATH}" || {
-    echo "错误：${MACHINE_IP} 执行 source ${TARGET_MACHINE_WORK_PATH}/mongodb/install_mongodb.sh 失败" >&2
+echo "执行 source ${TARGET_MACHINE_WORK_PATH}/install_mongodb.sh ${INSTALL_PATH}..."
+ssh root@${MACHINE_IP} "source ${TARGET_MACHINE_WORK_PATH}/install_mongodb.sh ${INSTALL_PATH}" || {
+    echo "错误：${MACHINE_IP} 执行 source ${TARGET_MACHINE_WORK_PATH}/install_mongodb.sh 失败" >&2
     exit 1
 }
 
-echo "init env success, INSTALL_PATH:${INSTALL_PATH}@${MACHINE_IP} script path:${TARGET_MACHINE_WORK_PATH}/mongodb enjoy!!"
+echo "init env success, INSTALL_PATH:${INSTALL_PATH}@${MACHINE_IP} script path:${TARGET_MACHINE_WORK_PATH} enjoy!!"
