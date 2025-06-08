@@ -67,5 +67,6 @@
 #include <kernel/comp/Utils/SignalHandleUtil.h>
 #include <kernel/comp/Utils/AtomicUtil.h>
 #include <kernel/comp/Utils/TranscoderUtil.h>
+#include <kernel/comp/Utils/SortUtil.h>
 
 #endif

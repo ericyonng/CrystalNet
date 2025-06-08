@@ -106,6 +106,7 @@
 #include "testsuit/testinst/TestIdGenerator.h"
 #include <testsuit/testinst/TestLoadShareLibrary.h>
 #include <testsuit/testinst/TestMongo.h>
+#include <testsuit/testinst/TestSort.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -301,7 +302,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestJson::Run();
     // TestIdGenerator::Run();
     // TestLoadShareLibrary::Run();
-    TestMongo::Run();
+    // TestMongo::Run();
+    TestSort::Run();
     
     // write a large file
     // do
