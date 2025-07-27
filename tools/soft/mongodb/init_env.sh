@@ -7,16 +7,8 @@
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
 # 所有要安装的mongodb压缩文件, 以及脚本打包
-TGZ_FILE_PATH=${1}
-TARGET_MACHINE_WORK_PATH=${2}
-INSTALL_PATH=${3}
-
-if [ -e "${TGZ_FILE_PATH}" ]; then
-    echo "TGZ_FILE_PATH:${TGZ_FILE_PATH} exist!!!"
-else
-    echo "TGZ_FILE_PATH:${TGZ_FILE_PATH} not exist please check!!!"
-    exit 1
-fi
+TARGET_MACHINE_WORK_PATH=${1}
+INSTALL_PATH=${2}
 
 if [ -z "${TARGET_MACHINE_WORK_PATH}" ]; then
     echo "TARGET_MACHINE_WORK_PATH is empty please check!!!"
@@ -26,48 +18,6 @@ if [ -z "${INSTALL_PATH}" ]; then
     echo "INSTALL_PATH is empty please check!!!"
     exit 1
 fi
-
-# 压缩文件名
-TGZ_FILE_NAME=$(basename ${TGZ_FILE_PATH})
-
-MONGODB_NAME=mongodb-linux-x86_64-rhel8-8.0.6
-MONGODB_TOOLS_NAME=mongodb-database-tools-rhel88-x86_64-100.11.0
-MONGOSH_NAME=mongosh-2.4.2-linux-x64
-
-echo "创建目录: TARGET_MACHINE_WORK_PATH:${TARGET_MACHINE_WORK_PATH} ..."
-
-rm -rf ${TARGET_MACHINE_WORK_PATH} || {
-    echo "错误： 移除 ${TARGET_MACHINE_WORK_PATH} 失败" >&2
-    exit 1
-}
-
-mkdir -p ${TARGET_MACHINE_WORK_PATH} || {
-    echo "错误： 创建 ${TARGET_MACHINE_WORK_PATH} 失败" >&2
-    exit 1
-}
-
-echo "创建目录: INSTALL_PATH:${INSTALL_PATH} ..."
-rm -rf ${INSTALL_PATH} || {
-    echo "错误： 移除 ${INSTALL_PATH} 失败" >&2
-    exit 1
-}
-
-mkdir -p ${INSTALL_PATH} || {
-    echo "错误： 创建 ${INSTALL_PATH} 失败" >&2
-    exit 1
-}
-
-echo "拷贝压缩文件 ${TGZ_FILE_PATH} =>  ${TARGET_MACHINE_WORK_PATH} ..."
-cp -Rf -r ${TGZ_FILE_PATH} ${TARGET_MACHINE_WORK_PATH} || {
-    echo "错误： scp 拷贝 ${TGZ_FILE_PATH} => ${TARGET_MACHINE_WORK_PATH} 失败" >&2
-    exit 1
-}
-
-echo "解压  ${TARGET_MACHINE_WORK_PATH}/${TGZ_FILE_NAME}..."
-tar -zxvf ${TARGET_MACHINE_WORK_PATH}/${TGZ_FILE_NAME} -C ${TARGET_MACHINE_WORK_PATH} || {
-    echo "错误： 解压 拷贝 ${TARGET_MACHINE_WORK_PATH}/${TGZ_FILE_NAME} 失败" >&2
-    exit 1
-}
 
 # 安装
 echo "执行 source ${TARGET_MACHINE_WORK_PATH}/install_mongodb.sh ${INSTALL_PATH}..."

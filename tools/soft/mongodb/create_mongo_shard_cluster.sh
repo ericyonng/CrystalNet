@@ -88,15 +88,18 @@ for index in "${!IP_LIST_ARRAY[@]}"; do
 
     # 本地机器, 则不需要远程拷贝
     if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
-        if [ -z "${is_ip_init_dict[$ip]}" ] || [ "${is_ip_init_dict[$ip]}" -eq 1 ]; then
-            sh ${SCRIPT_PATH}/init_env.sh /root/build_mongo_temp/mongodb.tar.gz ${WORK_PATH} ${INSTALL_PATH} || {
+        echo "init_package ..."
+        sh ${SCRIPT_PATH}/init_package.sh /root/build_mongo_temp/mongodb.tar.gz ${WORK_PATH} ${INSTALL_PATH}
+
+        if [ -z "${is_ip_init_dict[$ip]}" ]; then
+            sh ${SCRIPT_PATH}/init_env.sh ${WORK_PATH} ${INSTALL_PATH} || {
                 echo "错误：本地:$ip ${TMP_DIR}/init_env.sh 失败" >&2
                 exit 1
             }
             is_ip_init_dict[$ip]=1
         fi
     else
-        if [ -z "${is_ip_init_dict[$ip]}" ] || [ "${is_ip_init_dict[$ip]}" -eq 1 ]; then
+        if [ -z "${is_ip_init_dict[$ip]}" ]; then
             echo "${ip}: 创建目录: TMP_DIR:${TMP_DIR} ..."
             ssh root@${ip} "rm -rf ${TMP_DIR}" || {
                 echo "错误： 移除 ${TMP_DIR} 失败" >&2
@@ -114,13 +117,17 @@ for index in "${!IP_LIST_ARRAY[@]}"; do
             }
 
             echo "拷贝init_env.sh =>  ${ip}:${TMP_DIR} ..."
-            scp -r ${SCRIPT_PATH}/init_env.sh root@${ip}:${TMP_DIR} || {
-                echo "错误： scp 拷贝 ${SCRIPT_PATH}/init_env.sh => ${ip}:${TMP_DIR} 失败" >&2
+            scp -r ${SCRIPT_PATH}/init_package.sh root@${ip}:${TMP_DIR} || {
+                echo "错误： scp 拷贝 ${SCRIPT_PATH}/init_package.sh => ${ip}:${TMP_DIR} 失败" >&2
                 exit 1
             }
-            echo "$ip 执行 init_env.sh => ..."
-            ssh root@${ip} "sh ${TMP_DIR}/init_env.sh ${TMP_DIR}/${TGZ_FILE_NAME} ${WORK_PATH} ${INSTALL_PATH}" || {
-                echo "错误：${ip} ${TMP_DIR}/init_env.sh 失败" >&2
+            echo "$ip 执行 init_package.sh => ..."
+            ssh root@${ip} "sh ${TMP_DIR}/init_package.sh ${TMP_DIR}/${TGZ_FILE_NAME} ${WORK_PATH} ${INSTALL_PATH}" || {
+                echo "错误：${ip} ${TMP_DIR}/init_package.sh 失败" >&2
+                exit 1
+            }
+            ssh root@${ip} "sh ${WORK_PATH}/init_env.sh ${WORK_PATH} ${INSTALL_PATH}" || {
+                echo "错误：${ip} ${WORK_PATH}/init_env.sh 失败" >&2
                 exit 1
             }
             is_ip_init_dict[$ip]=1
