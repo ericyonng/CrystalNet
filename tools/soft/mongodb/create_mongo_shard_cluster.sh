@@ -63,7 +63,7 @@ fi
 # 1.打包脚本
 TMP_DIR=/root/build_mongo_temp
 TGZ_FILE_NAME=mongodb.tar.gz
-sh ${SCRIPT_PATH}/pack_tar.sh ${TMP_DIR} ${TGZ_FILE_NAME} || {
+sh ${SCRIPT_PATH}/pack_tar.sh ${TMP_DIR} ${SCRIPT_PATH} ${TGZ_FILE_NAME} || {
     echo "错误： pack_tar.sh fail ${TMP_DIR} ${TGZ_FILE_NAME} 失败" >&2
     exit 1
 }
