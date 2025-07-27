@@ -68,11 +68,15 @@ sh ${SCRIPT_PATH}/pack_tar.sh ${TMP_DIR} ${SCRIPT_PATH} ${TGZ_FILE_NAME} || {
     exit 1
 }
 
+echo "pwd:$(pwd)"
+
 # 初始化环境
 declare -A is_ip_init_dict
 for index in "${!IP_LIST_ARRAY[@]}"; do
     # ip file 一行的数据: DATA ip
-    local elem=IP_LIST_ARRAY[$index]
+    elem="${IP_LIST_ARRAY[$index]}"
+    echo "elem:${elem}"
+    
     # 过滤空行
     if [ -z "${elem}" ] || [ "$elem" =~ ^[[:space:]]*$ ]; then
         continue

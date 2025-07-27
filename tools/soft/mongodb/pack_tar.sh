@@ -34,4 +34,4 @@ cd ${SRC_PATH} && tar -zcvf ${TMP_DIR}/${TGZ_FILE_NAME} ./* || {
     exit 1
 }
 
-echo "pack finish SRC_PATH:${SRC_PATH} ${TMP_DIR}/${TGZ_FILE_NAME}"
+echo "pack finish SRC_PATH:${SRC_PATH} ${TMP_DIR}/${TGZ_FILE_NAME} pwd:$(pwd)"
