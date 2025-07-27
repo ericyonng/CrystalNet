@@ -5,9 +5,6 @@
 
 FUNCS_SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
-# 加载公共定义
-. ${FUNCS_SCRIPT_PATH}/common_define.sh
-
 # 是否可以联外网
 check_internet() {
     HAS_WGET=1
@@ -72,7 +69,6 @@ check_internet() {
 }
 
 # 获取公网ip
-GET_PUBLIC_IP_HOST_ADDR=https://ifconfig.me
 get_public_ip(){
     HAS_NS_LOOKUP=1
     if ! command -v curl &> /dev/null; then
