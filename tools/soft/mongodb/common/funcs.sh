@@ -81,7 +81,7 @@ get_public_ip(){
         fi
     fi
     
-    if [ $HAS_NS_LOOKUP = 0 ] then
+    if [ $HAS_NS_LOOKUP = 0 ]; then
         return ""
     fi
 
