@@ -73,6 +73,7 @@ get_public_ip(){
     HAS_NS_LOOKUP=1
     if ! command -v curl &> /dev/null; then
         if sudo yum install curl -y &> /dev/null; then
+            HAS_NS_LOOKUP=1
         else
             HAS_NS_LOOKUP=0
         fi
