@@ -3,5 +3,3 @@
 # @brief 公共定义
 #!/usr/bin/env bash
 
-# 获取公网ip域名
-GET_PUBLIC_IP_HOST_ADDR=https://ifconfig.me
