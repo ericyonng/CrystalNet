@@ -6,70 +6,11 @@
 # 当前脚本路径
 SCRIPT_PATH="$(cd $(dirname $0); pwd)"
 
+# 加载函数
+source ${SCRIPT_PATH}/common/funcs.sh
+
 echo "SCRIPT_PATH:${SCRIPT_PATH}"
 
-# 是否可以联外网
-check_internet() {
-    HAS_WGET=1
-    if ! command -v wget &> /dev/null; then
-        echo "当前环境未安装wget正在安装 wget..."
-        if sudo yum install wget -y &> /dev/null; then
-            echo "wget 安装成功！"
-        else
-            echo "wget 安装失败！"
-            HAS_WGET=0
-        fi
-    fi
-
-    if [ ${HAS_WGET} = 1 ]; then
-        if wget -q --spider --timeout=3 https://www.baidu.com; then
-            echo "wget 外网连接正常"
-            return 0
-        else
-            echo "wget 连接 https://www.baidu.com 失败"
-        fi
-    fi
-
-    HAS_PING=1
-    if ! command -v ping &> /dev/null; then
-        echo "当前环境未安装ping正在安装 ping..."
-        if sudo yum install iputils -y &> /dev/null; then
-            echo "ping 安装成功！"
-        else
-            echo "ping 安装失败！"
-            HAS_PING=0
-        fi
-    fi
-    if [ ${HAS_PING} = 1 ]; then
-        if ping -c 1 -W 2 8.8.8.8 &> /dev/null; then
-            echo "ping 8.8.8.8 正常"
-            return 0
-        else
-            echo "ping 8.8.8.8 失败"
-        fi
-    fi
-
-    HAS_NS_LOOKUP=1
-    if ! command -v nslookup &> /dev/null; then
-        echo "当前环境未安装nslookup正在安装 nslookup..."
-        if sudo yum install bind-utils -y &> /dev/null; then
-            echo "nslookup 安装成功！"
-        else
-            echo "nslookup 安装失败！"
-            HAS_NS_LOOKUP=0
-        fi
-    fi
-    if [ ${HAS_NS_LOOKUP} = 1 ]; then
-        if nslookup baidu.com &> /dev/null; then
-            echo "nslookup baidu.com 正常"
-            return 0
-        else
-            echo "nslookup baidu.com 失败"
-        fi
-    fi
-
-    return 1
-}
 
 # 变量
 RS_NAME=$1
@@ -81,7 +22,7 @@ REPLISET_INSTALL_PATH=$6
 
 # 获取本机器的公网ip
 if check_internet; then
-MACHINE_PUBLIC_IP=$(wget -qO- https://api.ipify.org)
+MACHINE_PUBLIC_IP=$(get_public_ip)
     echo "外网连接正常 MACHINE_PUBLIC_IP:${MACHINE_PUBLIC_IP}"
 else
 MACHINE_PUBLIC_IP="127.0.0.1"
@@ -184,7 +125,7 @@ DB1_PORT=${PRIMARY_PORT}
 echo "创建主节点db1实例成功"
 
 # 必须先初始化复制集否则会报不是主节点的错
-mongosh --host 127.0.0.1:${DB1_PORT} --eval "rs.initiate({_id: \"${RS_NAME}\", members: [{_id: 0, host: \"${IP_ADDR}:${DB1_PORT}\", priority: 2}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
+mongosh --host 127.0.0.1:${DB1_PORT} --eval "rs.initiate({_id: \"${RS_NAME}\", members: [{_id: 0, host: \"${PRIMARY_IP}:${DB1_PORT}\", priority: 2}], settings: {heartbeatIntervalMillis: 2000, electionTimeoutMillis: 10000}})" || {
     echo "错误：初始化复制集失败" >&2
     exit 1
 }
@@ -237,7 +178,7 @@ echo "启动 3 个实例完成, 端口:${DB1_PORT},${DB2_PORT},${DB3_PORT} ..."
 echo "开始从主节点添加两个从节点..."
 
 # 添加从节点2
-mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: 1, host: \"${IP_ADDR}:${DB2_PORT}\", priority: 1, votes: 1})" || {
+mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: 1, host: \"${PRIMARY_IP}:${DB2_PORT}\", priority: 1, votes: 1})" || {
     echo "错误：初始化复制集失败" >&2
     exit 1
 }
@@ -245,7 +186,7 @@ mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --au
 sleep 2
 
 # 添加从节点3
-mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: 2, host: \"${IP_ADDR}:${DB3_PORT}\", priority: 1, hidden: false, secondaryDelaySecs: 0})" || {
+mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: 2, host: \"${PRIMARY_IP}:${DB3_PORT}\", priority: 1, hidden: false, secondaryDelaySecs: 0})" || {
     echo "错误：初始化复制集失败" >&2
     exit 1
 }
@@ -259,4 +200,4 @@ mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --au
 echo "复制集状态:"
 mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.status()"
 
-echo "create mongo repliset success PRIMARY: ${IP_ADDR}:${DB1_PORT}, path:${REPLISET_INSTALL_PATH}, enjoy!"
+echo "create mongo repliset success PRIMARY: ${PRIMARY_IP}:${DB1_PORT}, path:${REPLISET_INSTALL_PATH}, enjoy!"

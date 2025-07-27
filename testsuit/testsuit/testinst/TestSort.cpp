@@ -29,39 +29,6 @@
 #include <pch.h>
 #include <testsuit/testinst/TestSort.h>
 
-static int partition(std::vector<int>& arr, int low, int high) 
-{
-    auto random = KERNEL_NS::LibRandom<Int32, KERNEL_NS::_Build::TL>::GetInstance<(std::numeric_limits<Int32>::min)(), (std::numeric_limits<Int32>::max)()>();
-
-    // 随机选择基准
-    int randomIndex = low + random.Gen() % (high - low + 1);
-    std::swap(arr[randomIndex], arr[high]);
-
-    int pivot = arr[high];
-    int i = low - 1;
-    for (int j = low; j < high; j++) {
-        if (arr[j] < pivot) {
-            i++;
-            std::swap(arr[i], arr[j]);
-        }
-    }
-    std::swap(arr[i + 1], arr[high]);
-    return i + 1;
-}
-
-// 快速排序递归函数
-static void quickSort(std::vector<int>& arr, int low, int high) {
-    if (low < high) {
-        // 获取分区索引
-        int pivotIndex = partition(arr, low, high);
-
-        // 递归排序左半部分
-        quickSort(arr, low, pivotIndex - 1);
-        // 递归排序右半部分
-        quickSort(arr, pivotIndex + 1, high);
-    }
-}
-
 void TestSort::Run()
 {
     std::vector<int> arr;
