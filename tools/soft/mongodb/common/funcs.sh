@@ -68,25 +68,23 @@ check_internet() {
     return 1
 }
 
-# 获取公网ip
-GET_PUBLIC_IP_HOST_ADDR=https://ifconfig.me
+# 获取公网ip 要输出字符串 需要通过echo return 只能返回错误码
 get_public_ip(){
     HAS_NS_LOOKUP=1
     if ! command -v curl &> /dev/null; then
-        echo "当前环境未安装curl正在安装 curl..."
         if sudo yum install curl -y &> /dev/null; then
-            echo "curl 安装成功！"
         else
-            echo "curl 安装失败！"
             HAS_NS_LOOKUP=0
         fi
     fi
     
     if [ $HAS_NS_LOOKUP = 0 ]; then
-        return ""
+        return 1
     fi
 
-    return $(curl ${GET_PUBLIC_IP_HOST_ADDR})
+    local ip=$(curl -s ${GET_PUBLIC_IP_HOST_ADDR})
+    echo ${ip}
+    return 0
 }
 
 #!/bin/bash
