@@ -7,10 +7,8 @@
 TMP_DIR=$1
 TGZ_FILE_NAME="mongodb.tar.gz"
 
-if [ -e "${TMP_DIR}" ]; then
-    echo "TMP_DIR:${TMP_DIR} exists"
-else
-    echo "TMP_DIR:${TMP_DIR} not exists"
+if [ -z "${TMP_DIR}" ]; then
+    echo "TMP_DIR:${TMP_DIR} empty"
     exit 1
 fi
 
