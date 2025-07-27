@@ -88,7 +88,7 @@ for index in "${!IP_LIST_ARRAY[@]}"; do
 
     # 本地机器, 则不需要远程拷贝
     if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
-        if [ -z "is_ip_init_dict[$ip]" ] || [ is_ip_init_dict[$ip] -eq 1 ]; then
+        if [ -z "${is_ip_init_dict[$ip]}" ] || [ "${is_ip_init_dict[$ip]}" -eq 1 ]; then
             sh ${SCRIPT_PATH}/init_env.sh /root/build_mongo_temp/mongodb.tar.gz ${WORK_PATH} ${INSTALL_PATH} || {
                 echo "错误：本地:$ip ${TMP_DIR}/init_env.sh 失败" >&2
                 exit 1
@@ -96,7 +96,7 @@ for index in "${!IP_LIST_ARRAY[@]}"; do
             is_ip_init_dict[$ip]=1
         fi
     else
-        if [ -z "is_ip_init_dict[$ip]" ] || [ is_ip_init_dict[$ip] -eq 1 ]; then
+        if [ -z "${is_ip_init_dict[$ip]}" ] || [ "${is_ip_init_dict[$ip]}" -eq 1 ]; then
             echo "${ip}: 创建目录: TMP_DIR:${TMP_DIR} ..."
             ssh root@${ip} "rm -rf ${TMP_DIR}" || {
                 echo "错误： 移除 ${TMP_DIR} 失败" >&2
