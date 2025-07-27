@@ -76,9 +76,9 @@ for index in "${!IP_LIST_ARRAY[@]}"; do
     # ip file 一行的数据: DATA ip
     elem="${IP_LIST_ARRAY[$index]}"
     echo "elem:${elem}"
-    
+
     # 过滤空行
-    if [ -z "${elem}" ] || [ "$elem" =~ ^[[:space:]]*$ ]; then
+    if [ -z "${elem}" ] || [[ "$elem" =~ ^[[:space:]]*$ ]]; then
         continue
     fi
     fields=($(echo "${elem}" | awk '{print $1, $2}'))
