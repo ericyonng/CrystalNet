@@ -20,17 +20,12 @@ else
     echo "IP_LIST_FILE:${IP_LIST_FILE} not exist please check"
 fi
 
-if [ -e ${WORK_PATH} ]; then
-    echo "exist WORK_PATH:${WORK_PATH} ..."
-else
-    echo "WORK_PATH:${WORK_PATH} not exists..."
+if [ -z "${WORK_PATH}" ]; then
+    echo "WORK_PATH is empty please check!!!"
     exit 1
 fi
-
-if [ -e ${INSTALL_PATH} ]; then
-    echo "exist INSTALL_PATH:${INSTALL_PATH} ..."
-else
-    echo "INSTALL_PATH:${INSTALL_PATH} not exists..."
+if [ -z "${INSTALL_PATH}" ]; then
+    echo "INSTALL_PATH is empty please check!!!"
     exit 1
 fi
 
