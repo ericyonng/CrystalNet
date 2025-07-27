@@ -71,6 +71,8 @@ sh ${SCRIPT_PATH}/pack_tar.sh ${TMP_DIR} ${SCRIPT_PATH} ${TGZ_FILE_NAME} || {
 echo "pwd:$(pwd)"
 
 # 初始化环境
+NODE_CONFIG_ARR=()
+COUNT=0
 declare -A is_ip_init_dict
 for index in "${!IP_LIST_ARRAY[@]}"; do
     # ip file 一行的数据: DATA ip
@@ -83,8 +85,9 @@ for index in "${!IP_LIST_ARRAY[@]}"; do
     fi
     fields=($(echo "${elem}" | awk '{print $1, $2}'))
     ip="${fields[1]}"
-
-    echo "第 $index 个 IP 地址: elem:${elem}, $ip, $fields[0]"
+    NODE_CONFIG_ARR[$COUNT]="${fields[0]} ${fields[1]}"
+    echo "第 $index 个 IP 地址: elem:${elem}, $ip, $fields[0] COUNT:{$COUNT}, ${NODE_CONFIG_ARR[$COUNT]}"
+    COUNT=$(($COUNT + 1))
 
     # 本地机器, 则不需要远程拷贝
     if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
@@ -136,4 +139,19 @@ for index in "${!IP_LIST_ARRAY[@]}"; do
     fi
 done
 
-echo "create_mongo_shard_cluster success."
+echo "create_mongo_shard_cluster init env success."
+
+echo "create_mongo_shard_cluster create nodes..."
+
+for index in "${!NODE_CONFIG_ARR[@]}"; do
+    # ip file 一行的数据: DATA ip
+    elem="${IP_LIST_ARRAY[$index]}"
+    echo "NODE_CONFIG_ARR elem:${elem}"
+    fields=($(echo "${elem}" | awk '{print $1, $2}'))
+    ip="${fields[1]}"
+    echo "第 $index 个 IP 地址: elem:${elem}, $ip, $fields[0]"
+done
+
+echo "create_mongo_shard_cluster create nodes success."
+
+
