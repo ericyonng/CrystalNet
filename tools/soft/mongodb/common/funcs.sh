@@ -104,7 +104,6 @@ get_public_ip(){
 read_file_to_array() {
     local file_path="$1"
     local array_name="$2"
-    local filter="${3:-}"
 
     # 检查文件是否存在
     if [[ ! -f "$file_path" ]]; then
@@ -117,16 +116,12 @@ read_file_to_array() {
 
     # 逐行读取处理
     while IFS= read -r line || [[ -n "$line" ]]; do
-        if [ $filter = "skip_empty" ]; then
-            if [ -z "${line}" ]; then
-                continue
-            fi
-        fi
-        if [ $filter = "skip_blank" ]; then
-            if [[ "$STR" =~ ^[[:space:]]*$ ]]; then
-                continue
-            fi
-        fi
+        # if [ -z "${line}" ]; then
+        #     continue
+        # fi
+        # if [[ "$STR" =~ ^[[:space:]]*$ ]]; then
+        #     continue
+        # fi
         # 安全添加行到数组
         eval "$array_name+=(\"\$line\")"
     done < "$file_path"

@@ -72,10 +72,15 @@ sh ${SCRIPT_PATH}/pack_tar.sh ${TMP_DIR} ${TGZ_FILE_NAME} || {
 declare -A is_ip_init_dict
 for index in "${!IP_LIST_ARRAY[@]}"; do
     # ip file 一行的数据: DATA ip
-    fields=($(echo "${IP_LIST_ARRAY[$index]}" | awk '{print $1, $2}'))
+    local elem=IP_LIST_ARRAY[$index]
+    # 过滤空行
+    if [ -z "${elem}" ] || [ "$elem" =~ ^[[:space:]]*$ ]; then
+        continue
+    fi
+    fields=($(echo "${elem}" | awk '{print $1, $2}'))
     ip="${fields[1]}"
 
-    echo "第 $index 个 IP 地址: $ip, $fields[0]"
+    echo "第 $index 个 IP 地址: elem:${elem}, $ip, $fields[0]"
 
     # 本地机器, 则不需要远程拷贝
     if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
