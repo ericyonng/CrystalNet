@@ -69,6 +69,7 @@ check_internet() {
 }
 
 # 获取公网ip
+GET_PUBLIC_IP_HOST_ADDR=https://ifconfig.me
 get_public_ip(){
     HAS_NS_LOOKUP=1
     if ! command -v curl &> /dev/null; then
