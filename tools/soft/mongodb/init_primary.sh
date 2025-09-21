@@ -29,7 +29,7 @@ if [ -z "${TARGET_USER}" ] || [ -z "${TARGET_PWD}" ]; then
     exit 1
 fi
 
-# 校验参数
+# 校验参数0
 if [ -e "${REPLISET_INSTALL_PATH}" ]; then
     echo "REPLISET_INSTALL_PATH:${REPLISET_INSTALL_PATH} exists"
 else

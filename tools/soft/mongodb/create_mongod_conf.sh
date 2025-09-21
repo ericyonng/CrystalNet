@@ -10,6 +10,12 @@ TARGET_PORT=$2
 REPL_SET_NAME=$3
 # 配置文件名
 MONGOD_CONF_FILE_NAME=$4
+# mongodb缓存大小(GB)
+MONGOD_CACHE_SIZE=$5
+# 缺省默认1GB
+if [ -z "${MONGOD_CACHE_SIZE}" ]; then
+    MONGOD_CACHE_SIZE=1
+fi
 
 if [ -z "${TARGET_PORT}" ]; then
     echo "please specify a port!!!"
@@ -42,6 +48,9 @@ echo "    logAppend: true" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo -e "storage:" >> ${MONGOD_CONF}
 echo "    dbPath: ${TARGET_DB_PATH}" >> ${MONGOD_CONF}
+echo "    wiredTiger:" >> ${MONGOD_CONF}
+echo "        engineConfig:" >> ${MONGOD_CONF}
+echo "            cacheSizeGB: ${MONGOD_CACHE_SIZE}" >> ${MONGOD_CONF}
 echo -e "\n" >> ${MONGOD_CONF}
 echo "net:" >> ${MONGOD_CONF}
 echo "    bindIp: 0.0.0.0" >> ${MONGOD_CONF}

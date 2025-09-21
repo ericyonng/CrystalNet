@@ -56,7 +56,7 @@ else
     mkdir ${TARGET_DB_PATH}
 fi
 
-if [ -z = "${IS_MONGOS}" ]; then
+if [ -n = "${IS_MONGOS}" ]; then
     # 创建conf文件
     MONGOS_CONF=${TARGET_DB_PATH}/mongos.conf
     sh ${SCRIPT_PATH}/create_mongos_conf.sh ${TARGET_DB_PATH} ${TARGET_PORT} ${REPL_SET_NAME} mongos.conf ${MONGOS_CONFIG_ADDR}
