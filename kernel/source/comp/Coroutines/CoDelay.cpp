@@ -31,7 +31,7 @@
 
 KERNEL_BEGIN
 
-CoTask<> CoDelay(const KERNEL_NS::TimeSlice &delay) 
+CoTask<> CoDelay(KERNEL_NS::TimeSlice delay) 
 {
     co_await CoDelayAwaiter {delay};
 }

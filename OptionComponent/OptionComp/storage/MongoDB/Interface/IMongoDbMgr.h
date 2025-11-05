@@ -33,6 +33,9 @@
 
 #include <kernel/comp/CompObject/CompObjectInc.h>
 
+#include <mongocxx/uri.hpp>
+
+
 KERNEL_BEGIN
 
 class IMongoDbMgr : public CompHostObject
@@ -41,6 +44,14 @@ class IMongoDbMgr : public CompHostObject
 
 public:
     IMongoDbMgr(UInt64 typeId): CompHostObject(typeId) {}
+
+    virtual  void SetUri(mongocxx::uri &&uri) = 0;
+
+    // 查
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) = 0;
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) = 0;
+
+    // 增, 删, 改, 查
 };
 
 KERNEL_END

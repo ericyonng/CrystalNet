@@ -49,12 +49,20 @@ public:
     virtual void DefaultMaskReady(bool isReady) override {}
     virtual void OnRegisterComps() override;
 
+    void SetUri(mongocxx::uri &&uri) override;
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue) override;
+    virtual KERNEL_NS::CoTask<bool> Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue) override;
+    
 protected:
     virtual Int32 _OnHostInit() override;
     virtual Int32 _OnCompsCreated() override;
     virtual Int32 _OnHostStart() override;
     virtual void _OnHostBeforeCompsWillClose() override;
     virtual void _OnHostClose() override;
+
+    // 连接mongo
+    mongocxx::uri _uri;
+    KERNEL_NS::LibString _uriString;
 };
 
 KERNEL_END

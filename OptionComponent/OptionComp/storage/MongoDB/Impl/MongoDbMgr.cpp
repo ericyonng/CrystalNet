@@ -55,6 +55,26 @@ void MongoDbMgr::OnRegisterComps()
 
 }
 
+void MongoDbMgr::SetUri(mongocxx::uri &&uri)
+{
+    auto &&uriStr = uri.to_string();
+    if(_uriString == uriStr)
+        return;
+
+    _uriString = uriStr;
+    _uri = std::move(uri);
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, UInt64 keyValue)
+{
+    co_return false;
+}
+
+KERNEL_NS::CoTask<bool> MongoDbMgr::Query(KERNEL_NS::LibString dbName, KERNEL_NS::LibString collection, KERNEL_NS::LibString keyName, KERNEL_NS::LibString keyValue)
+{
+    co_return false;
+}
+
 Int32 MongoDbMgr::_OnHostInit()
 {
     return Status::Success;

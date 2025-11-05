@@ -31,7 +31,7 @@
 
 KERNEL_BEGIN
 
-CoTask<> Waiting(const KERNEL_NS::TimeSlice &slice)
+CoTask<> Waiting(KERNEL_NS::TimeSlice slice)
 {
  CoWaiter waiter;
  if(slice)
