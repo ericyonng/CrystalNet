@@ -52,6 +52,12 @@ public:
         // 空事件
         EmptyPollerEventType = 3,
 
+        // 对象事件
+        ObjectPollerEventType = 4,
+
+        // 存根事件
+        StubPollerEventType = 5,
+
         MAX_INTERNAL_TYPE,
     };
 };

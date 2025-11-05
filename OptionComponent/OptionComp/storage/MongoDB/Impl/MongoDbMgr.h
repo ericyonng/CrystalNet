@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,17 +21,42 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2025-05-17 16:26:12
+ * Date: 2025-10-14 14:15:00
  * Author: Eric Yonng
- * Description: 
+ * Description: mongodb数据库管理
 */
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGODB_MGR_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGODB_MGR_H__
 
 #pragma once
 
 #include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
-#include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
+
+KERNEL_BEGIN
+
+class MongoDbMgr : public IMongoDbMgr
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IMongoDbMgr, MongoDbMgr);
+
+public:
+    MongoDbMgr();
+    ~MongoDbMgr() override;
+
+    // 释放
+    virtual void Release() override;
+    // 需要手动设置ready
+    virtual void DefaultMaskReady(bool isReady) override {}
+    virtual void OnRegisterComps() override;
+
+protected:
+    virtual Int32 _OnHostInit() override;
+    virtual Int32 _OnCompsCreated() override;
+    virtual Int32 _OnHostStart() override;
+    virtual void _OnHostBeforeCompsWillClose() override;
+    virtual void _OnHostClose() override;
+};
+
+KERNEL_END
 
 #endif

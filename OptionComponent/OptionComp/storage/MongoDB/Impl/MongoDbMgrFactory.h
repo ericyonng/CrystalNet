@@ -21,17 +21,36 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2025-05-17 16:26:12
+ * Date: 2025-11-03 17:16:00
  * Author: Eric Yonng
- * Description: 
+ * Description:
 */
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGODB_MGR_FACTORY_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_IMPL_MONGODB_MGR_FACTORY_H__
 
 #pragma once
 
-#include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
-#include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
+#include <kernel/comp/CompObject/CompFactory.h>
+
+KERNEL_BEGIN
+
+class CompObject;
+
+class MongoDbMgrFactory : public KERNEL_NS::CompFactory
+{
+    // 创建factory对象时候使用创建的方法类型
+public:
+    static constexpr _Build::MT _buildType{};
+
+    static CompFactory *FactoryCreate();
+
+    virtual void Release() override;
+
+public:
+    virtual CompObject *Create() const override;
+};
+
+KERNEL_END
 
 #endif

@@ -34,24 +34,25 @@
 #include <kernel/kernel_export.h>
 #include <kernel/common/macro.h>
 
-#include <kernel/comp/Poller/PollerInc.h>
 #include <kernel/comp/Utils/TlsUtil.h>
 #include <kernel/comp/Coroutines/AsyncTask.h>
+#include "kernel/comp/Poller/PollerEvent.h"
 
 KERNEL_BEGIN
 
+void CoToolsPushPoller(KERNEL_NS::AsyncTaskPollerEvent *ev);
+    
 // AsyncTask事件
 template<typename CallerType>
 ALWAYS_INLINE void PostAsyncTask(CallerType &&cb)
 {
     // handler将在poller中执行
-    auto poller = KERNEL_NS::TlsUtil::GetPoller();
     auto ev = KERNEL_NS::AsyncTaskPollerEvent::New_AsyncTaskPollerEvent();
     auto task = AsyncTask::NewThreadLocal_AsyncTask();
     ev->_asyncTask = task;
     auto delg = KERNEL_NS::DelegateFactory::Create<decltype(cb), void>(std::forward<CallerType>(cb));
     task->_handler = delg;
-    poller->Push(poller->GetMaxPriorityLevel(), ev);
+    CoToolsPushPoller(ev);
 }
 
 KERNEL_END

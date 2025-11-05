@@ -44,9 +44,12 @@
 #include <kernel/comp/Lock/Impl/ConditionLocker.h>
 #include <kernel/comp/thread/ThreadDefs.h>
 
+#include "kernel/comp/Coroutines/CoTask.h"
+
 KERNEL_BEGIN
 
 class ITask;
+class Poller;
 
 class KERNEL_EXPORT LibThread
 {
@@ -78,12 +81,18 @@ public:
     template<typename ObjType>
     bool AddTask2(ObjType *obj, void (ObjType::*callback)(LibThread *, Variant *), Variant *params);
     template<typename LambdaType>
-    requires requires(LambdaType invoke, LibThread *thread, Variant *var)
+    requires requires(LambdaType &&invoke, LibThread *thread, Variant *var)
     {
         invoke(thread, var);
     }
-    bool AddTask2(LambdaType &&lamb, Variant *params = NULL, bool forceNewThread = false, Int32 numOfThreadToCreateIfNeed = 1);
-
+    bool AddTask2(LambdaType &&lamb, Variant *params);
+    template<typename LambdaType>
+    requires requires(LambdaType &&invoke, LibThread *thread, Variant *var)
+    {
+        invoke(thread, var);
+    }
+    bool AddTask2(LambdaType &&lamb);
+    
     // 是否销毁
     bool IsDestroy() const;
     // 是否忙
@@ -102,6 +111,9 @@ public:
     const LibString &GetThreadName() const;
 
     LibString ToString() const;
+
+    CoTask<const Poller *> GetPoller() const;
+    CoTask<Poller *> GetPoller();
 
 private:
     // 线程处理函数
@@ -137,6 +149,8 @@ private:
     ConditionLocker _quitLck;           // 等待退出线程
 
     LibString _threadName;
+
+    std::atomic<KERNEL_NS::Poller *> _poller;
 };
 
 // 启动
@@ -248,14 +262,14 @@ ALWAYS_INLINE bool LibThread::AddTask2(ObjType *obj, void (ObjType::*callback)(L
 }
 
 template<typename LambdaType>
-requires requires(LambdaType invoke, LibThread *thread, Variant *var)
+requires requires(LambdaType &&invoke, LibThread *thread, Variant *var)
 {
     invoke(thread, var);
 }
-ALWAYS_INLINE bool LibThread::AddTask2(LambdaType &&lamb, Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
+ALWAYS_INLINE bool LibThread::AddTask2(LambdaType &&lamb, Variant *params)
 {
     auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, LibThread *, Variant *);
-    if(UNLIKELY(!AddTask2(delg, params, forceNewThread, numOfThreadToCreateIfNeed)))
+    if(UNLIKELY(!AddTask2(delg, params)))
     {
         CRYSTAL_RELEASE_SAFE(delg);
         if(params)
@@ -264,6 +278,16 @@ ALWAYS_INLINE bool LibThread::AddTask2(LambdaType &&lamb, Variant *params, bool 
     }
 
     return true;
+}
+
+template<typename LambdaType>
+requires requires(LambdaType &&invoke, LibThread *thread, Variant *var)
+{
+    invoke(thread, var);
+}
+ALWAYS_INLINE bool LibThread::AddTask2(LambdaType &&lamb)
+{
+    return AddTask2(std::forward<LambdaType>(lamb), nullptr);
 }
 
 ALWAYS_INLINE bool LibThread::IsDestroy() const

@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,17 +21,28 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2025-05-17 16:26:12
+ * Date: 2025-10-14 14:15:00
  * Author: Eric Yonng
- * Description: 
+ * Description: mongodb数据库管理
 */
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
+#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_INTERFACE_IMONGODB_MGR_H__
+#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGODB_INTERFACE_IMONGODB_MGR_H__
 
 #pragma once
 
-#include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
-#include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
+#include <kernel/comp/CompObject/CompObjectInc.h>
+
+KERNEL_BEGIN
+
+class IMongoDbMgr : public CompHostObject
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(CompHostObject, IMongoDbMgr);
+
+public:
+    IMongoDbMgr(UInt64 typeId): CompHostObject(typeId) {}
+};
+
+KERNEL_END
 
 #endif

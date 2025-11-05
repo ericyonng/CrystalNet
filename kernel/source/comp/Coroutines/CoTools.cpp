@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,17 +21,22 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2025-05-17 16:26:12
+ * Date: 2025-11-05 16:53:13
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
+#include <pch.h>
+#include <kernel/comp/Coroutines/CoTools.h>
+#include <kernel/comp/Poller/PollerInc.h>
 
-#pragma once
+KERNEL_BEGIN
 
-#include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
-#include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
+void CoToolsPushPoller(KERNEL_NS::AsyncTaskPollerEvent *ev)
+{
+  auto poller = KERNEL_NS::TlsUtil::GetPoller();
+  poller->Push(poller->GetMaxPriorityLevel(), ev);
 
-#endif
+}
+
+KERNEL_END

@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,17 +21,64 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2025-05-17 16:26:12
+ * Date: 2025-10-14 14:15:00
  * Author: Eric Yonng
- * Description: 
+ * Description: mongodb数据库管理
 */
-
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
-
-#pragma once
-
-#include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
+#include <pch.h>
+#include <OptionComp/storage/MongoDB/Impl/MongoDbMgr.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
 
-#endif
+KERNEL_BEGIN
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(IMongoDbMgr);
+POOL_CREATE_OBJ_DEFAULT_IMPL(MongoDbMgr);
+
+MongoDbMgr::MongoDbMgr()
+ :IMongoDbMgr(KERNEL_NS::RttiUtil::GetTypeId<MongoDbMgr>())
+{
+ 
+}
+
+MongoDbMgr::~MongoDbMgr()
+{
+ 
+}
+
+void MongoDbMgr::Release()
+{
+    MongoDbMgr::DeleteByAdapter_MongoDbMgr(MongoDbMgrFactory::_buildType.V, this);
+}
+
+void MongoDbMgr::OnRegisterComps()
+{
+
+}
+
+Int32 MongoDbMgr::_OnHostInit()
+{
+    return Status::Success;
+}
+
+Int32 MongoDbMgr::_OnCompsCreated()
+{
+    return Status::Success;
+}
+
+Int32 MongoDbMgr::_OnHostStart()
+{
+    return Status::Success;
+}
+
+void MongoDbMgr::_OnHostBeforeCompsWillClose()
+{
+}
+
+void MongoDbMgr::_OnHostClose()
+{
+
+}
+
+
+KERNEL_END
+

@@ -454,64 +454,219 @@ static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
     }
 }
 
-void TestPoller::Run()
+class HelloCrossPollerRequest
 {
-    g_concurrentQueue = KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *>::New_ConcurrentPriorityQueue();
-    s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
-    s_Poller->SetMaxPriorityLevel(g_maxConcurrentLevel);
-    s_Poller->Subscribe(1, &_OnPollerEvent);
-    g_concurrentQueue->SetMaxLevel(g_maxConcurrentLevel);
-    g_concurrentQueue->Init();
+    POOL_CREATE_OBJ_DEFAULT(HelloCrossPollerRequest);
 
-    auto err = s_Poller->Init();
-    if(err != Status::Success)
+public:
+    HelloCrossPollerRequest()
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "init poller fail."));
-        return;
+        
+    }
+    ~HelloCrossPollerRequest()
+    {
+        
     }
 
-    err = s_Poller->Start();
-    if(err != Status::Success)
+    void Release()
     {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "start poller fail."));
-        return;
+        HelloCrossPollerRequest::Delete_HelloCrossPollerRequest(this);
+    }
+    KERNEL_NS::LibString ToString() const
+    {
+        return KERNEL_NS::LibString().AppendFormat("hello cross poller:%s", _info.c_str());
+    }
+    KERNEL_NS::LibString _info;
+};
+
+class HelloCrossPollerResponse
+{
+    POOL_CREATE_OBJ_DEFAULT(HelloCrossPollerResponse);
+
+public:
+    HelloCrossPollerResponse()
+    {
+        
+    }
+    ~HelloCrossPollerResponse()
+    {
+        
     }
 
-    KERNEL_NS::LibThread *pollerThread = new KERNEL_NS::LibThread;
-    pollerThread->AddTask(&_OnPoller);
-    pollerThread->Start();
-
-    KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool, KERNEL_NS::AutoDelMethods::Release> pool = new KERNEL_NS::LibThreadPool;
-    pool->Init(0, g_maxConcurrentLevel + 2);
-
-    pool->SetPoolName(KERNEL_NS::LibString().AppendFormat("TestPoller"));
-
-    for(Int32 idx=1; idx <=g_maxConcurrentLevel; ++idx)
+    void Release()
     {
-        KERNEL_NS::Variant *var=KERNEL_NS::Variant::New_Variant();
-        *var = idx;
-        pool->AddTask2(&_OnTask, var, false, 0);
+        HelloCrossPollerResponse::Delete_HelloCrossPollerResponse(this);
     }
+    KERNEL_NS::LibString ToString() const
+    {
+        return KERNEL_NS::LibString().AppendFormat("hello cross poller response:%s", _info.c_str());
+    }
+    KERNEL_NS::LibString _info;
+};
 
-    pool->AddTask2(&_OnMonitor, NULL, false, 0);
+POOL_CREATE_OBJ_DEFAULT_IMPL(HelloCrossPollerRequest);
+POOL_CREATE_OBJ_DEFAULT_IMPL(HelloCrossPollerResponse);
 
-    pool->Start(true, g_maxConcurrentLevel + 1);
 
+static void TestCrossPoller()
+{
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibThread> thread1 = new KERNEL_NS::LibThread();
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibThread> thread2 = new KERNEL_NS::LibThread();
+
+    std::atomic<CRYSTAL_NET::kernel::Poller *> _poller1 = {NULL};
+    std::atomic<CRYSTAL_NET::kernel::Poller *> _poller2 = {NULL};
+    thread1->AddTask2([&_poller1, &_poller2](KERNEL_NS::LibThread *t,  KERNEL_NS::Variant *) mutable  
+    {
+        auto poller = KERNEL_NS::TlsUtil::GetPoller();
+        if(!poller->PrepareLoop())
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "thread1 prepare loop fail."));
+            return;
+        }
+        
+        // poller 循环中执行
+        KERNEL_NS::PostCaller([&_poller1, &_poller2]() mutable -> KERNEL_NS::CoTask<> 
+        {
+            auto poller = KERNEL_NS::TlsUtil::GetPoller();
+
+            // 订阅 HelloCrossPollerRequest 消息
+            poller->SubscribeObjectEvent<HelloCrossPollerRequest>([&_poller2](KERNEL_NS::StubPollerEvent *ev) mutable 
+            {
+                while (_poller2.load() == NULL)
+                {
+                    KERNEL_NS::SystemUtil::ThreadSleep(10);
+                }
+        
+                // 返回包
+                auto stub = ev->_stub;
+                auto request = ev->CastTo<KERNEL_NS::ObjectPollerEvent<HelloCrossPollerRequest>>();
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "HelloCrossPollerRequest :%s"), request->ToString().c_str());
+                auto res = KERNEL_NS::ObjectPollerEvent<HelloCrossPollerResponse>::New_ObjectPollerEvent(stub, true);
+                res->_obj = HelloCrossPollerResponse::New_HelloCrossPollerResponse();
+                res->_obj->_info = request->_obj->_info;
+                _poller2.load()->Push(_poller2.load()->GetMaxPriorityLevel(), res);
+            });
+        
+            // 准备好了
+            _poller1 = poller;
+
+            co_return;
+        });
+        
+        // s_Poller->EventLoop();
+        poller->EventLoop();
+        poller->OnLoopEnd();
+    });
+    
+    thread2->AddTask2([&_poller1, &_poller2](KERNEL_NS::LibThread *t,  KERNEL_NS::Variant *) mutable  
+    {
+        auto poller = KERNEL_NS::TlsUtil::GetPoller();
+        if(!poller->PrepareLoop())
+        {
+            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "thread1 prepare loop fail."));
+            return;
+        }
+        
+        KERNEL_NS::PostCaller([&_poller1, poller]() mutable  ->KERNEL_NS::CoTask<>
+        {
+            while (_poller1.load() == NULL)
+            {
+                co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(10));
+            }
+        
+            // 发送消息
+            auto req = HelloCrossPollerRequest::New_HelloCrossPollerRequest();
+            req->_info = "hello cross-poller req";
+        
+            auto poller1 = _poller1.load();
+
+            // 跨线程发送异步消息
+            auto res = co_await poller->SendToAsync<HelloCrossPollerResponse, HelloCrossPollerRequest>(*poller1, req);
+            
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "res :%s"), res->ToString().c_str());
+        });
+        
+        _poller2 = poller;
+        poller->EventLoop();
+        poller->OnLoopEnd();
+    });
+
+    thread1->Start();
+    thread2->Start();
+    
     getchar();
 
-    pool->HalfClose();
-
-    s_Poller->QuitLoop();
-    pollerThread->HalfClose();
-
-    pool->FinishClose();
-    pollerThread->FinishClose();
-
-    s_Poller.Release();
-    g_concurrentQueue->Destroy();
-    KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *>::Delete_ConcurrentPriorityQueue(g_concurrentQueue);
-
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test poller finished."));
-
-    // 测试poller性能
+    thread1->HalfClose();
+    thread2->HalfClose();
+    
+    thread1->FinishClose();
+    thread2->FinishClose();
 }
+
+void TestPoller::Run()
+{
+    TestCrossPoller();
+}
+
+
+// void TestPoller::Run()
+// {
+//     g_concurrentQueue = KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *>::New_ConcurrentPriorityQueue();
+//     s_Poller = reinterpret_cast<KERNEL_NS::Poller *>(KERNEL_NS::PollerFactory::FactoryCreate()->Create());
+//     s_Poller->SetMaxPriorityLevel(g_maxConcurrentLevel);
+//     s_Poller->Subscribe(1, &_OnPollerEvent);
+//     g_concurrentQueue->SetMaxLevel(g_maxConcurrentLevel);
+//     g_concurrentQueue->Init();
+//
+//     auto err = s_Poller->Init();
+//     if(err != Status::Success)
+//     {
+//         g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "init poller fail."));
+//         return;
+//     }
+//
+//     err = s_Poller->Start();
+//     if(err != Status::Success)
+//     {
+//         g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "start poller fail."));
+//         return;
+//     }
+//
+//     KERNEL_NS::LibThread *pollerThread = new KERNEL_NS::LibThread;
+//     pollerThread->AddTask(&_OnPoller);
+//     pollerThread->Start();
+//
+//     KERNEL_NS::SmartPtr<KERNEL_NS::LibThreadPool, KERNEL_NS::AutoDelMethods::Release> pool = new KERNEL_NS::LibThreadPool;
+//     pool->Init(0, g_maxConcurrentLevel + 2);
+//
+//     pool->SetPoolName(KERNEL_NS::LibString().AppendFormat("TestPoller"));
+//
+//     for(Int32 idx=1; idx <=g_maxConcurrentLevel; ++idx)
+//     {
+//         KERNEL_NS::Variant *var=KERNEL_NS::Variant::New_Variant();
+//         *var = idx;
+//         pool->AddTask2(&_OnTask, var, false, 0);
+//     }
+//
+//     pool->AddTask2(&_OnMonitor, NULL, false, 0);
+//
+//     pool->Start(true, g_maxConcurrentLevel + 1);
+//
+//     getchar();
+//
+//     pool->HalfClose();
+//
+//     s_Poller->QuitLoop();
+//     pollerThread->HalfClose();
+//
+//     pool->FinishClose();
+//     pollerThread->FinishClose();
+//
+//     s_Poller.Release();
+//     g_concurrentQueue->Destroy();
+//     KERNEL_NS::ConcurrentPriorityQueue<KERNEL_NS::PollerEvent *>::Delete_ConcurrentPriorityQueue(g_concurrentQueue);
+//
+//     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test poller finished."));
+//
+//     // 测试poller性能
+// }

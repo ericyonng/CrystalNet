@@ -33,6 +33,7 @@
 
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
+#include <kernel/comp/Poller/PollerEventInternalType.h>
 
 KERNEL_BEGIN
 
@@ -108,6 +109,66 @@ struct KERNEL_EXPORT AsyncTaskPollerEvent : public PollerEvent
     AsyncTask *_asyncTask;
 };
 
+struct KERNEL_EXPORT StubPollerEvent : public PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, StubPollerEvent);
+
+    StubPollerEvent(Int32 type, UInt64 stub, UInt64 objTypeId);
+    ~StubPollerEvent();
+
+    virtual LibString ToString() const override;
+
+    UInt64 _stub;
+    bool _isResponse;
+    UInt64 _objTypeId;
+};
+
+// obj对象得有Release实现
+template<typename ObjType>
+requires requires(ObjType obj)
+{
+    obj.Release();
+}
+struct KERNEL_EXPORT ObjectPollerEvent : public StubPollerEvent
+{
+    POOL_CREATE_TEMPLATE_OBJ_DEFAULT_P1(StubPollerEvent, ObjectPollerEvent, ObjType)
+
+    ObjectPollerEvent(UInt64 stub, bool isResponse)
+        :StubPollerEvent(PollerEventInternalType::ObjectPollerEventType, stub, KERNEL_NS::RttiUtil::GetTypeId<ObjType>())
+    ,_obj(NULL)
+    {
+        _isResponse = isResponse;
+    }
+
+    ~ObjectPollerEvent()
+    {
+        CRYSTAL_RELEASE_SAFE(_obj);
+    }
+
+    void Release() override
+    {
+        ObjectPollerEvent<ObjType>::Delete_ObjectPollerEvent(this);
+    }
+
+    LibString ToString() const override
+    {
+        LibString info;
+        info.AppendFormat("ObjType:%s, %s, %s\n", KERNEL_NS::RttiUtil::GetByType<ObjType>().c_str(), (_obj ? _obj->ToString().c_str() : "")
+            , PollerEvent::ToString().c_str(), _stub, (_isResponse ? 1:0), _objTypeId);
+
+        return info;
+    }
+
+    // 会在ObjectPollerEvent中释放
+    ObjType *_obj;
+};
+
+template<typename ObjType>
+requires requires(ObjType obj)
+{
+    obj.Release();
+}
+POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(ObjectPollerEvent, ObjType);
 
 KERNEL_END
 

@@ -150,6 +150,8 @@ Int32 Poller::_OnInit()
 
     // AsyncTask消息
     Subscribe(PollerEventInternalType::AsyncTaskType, this, &Poller::_OnAsyncTaskEvent);
+    // 对象消息
+    Subscribe(PollerEventInternalType::ObjectPollerEventType, this, &Poller::_OnObjectEvent);
 
     g_Log->Debug(LOGFMT_OBJ_TAG("poller inited %s"), ToString().c_str());
     return Status::Success;
@@ -192,6 +194,20 @@ void Poller::_OnAsyncTaskEvent(PollerEvent *ev)
 
     if(asyncTaskEv->_asyncTask && asyncTaskEv->_asyncTask->_handler)
         asyncTaskEv->_asyncTask->_handler->Invoke();
+}
+
+void Poller::_OnObjectEvent(PollerEvent *ev)
+{
+    auto stubEv = ev->CastTo<StubPollerEvent>();
+
+    // 是个对象事件的返回消息
+    if (stubEv->_isResponse)
+    {
+        _OnObjectEventResponse(stubEv);
+        return;
+    }
+
+    _OnObjectEventRequest(stubEv);
 }
 
 void Poller::Clear()
@@ -804,8 +820,37 @@ void Poller::_Clear()
     ContainerUtil::DelContainer2(_pollerEventHandler);
 
     CRYSTAL_RELEASE_SAFE(_onTick);
+    
     g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
 }
 
+void Poller::_OnObjectEventResponse(StubPollerEvent *ev)
+{
+    auto iter = _stubRefCb.find(ev->_stub);
+    if (UNLIKELY(iter == _stubRefCb.end()))
+    {
+        if (g_Log->IsEnable(KERNEL_NS::LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("stub:%llu, not found, ev:%s"), ev->_stub, ev->ToString().c_str());
+        return;
+    }
+
+    iter->second->Invoke(ev);
+    iter->second->Release();
+    _stubRefCb.erase(iter);
+}
+
+// 事件请求处理
+void Poller::_OnObjectEventRequest(StubPollerEvent *ev)
+{
+    auto iter = _objTypeIdRefCallback.find(ev->_objTypeId);
+    if (iter == _objTypeIdRefCallback.end())
+    {
+        if (g_Log->IsEnable(KERNEL_NS::LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("objTypeId:%llu, have no request callback, ev:%s"), ev->_objTypeId, ev->ToString().c_str());
+        return;
+    }
+
+    iter->second->Invoke(ev);
+}
 
 KERNEL_END

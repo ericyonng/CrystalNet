@@ -28,7 +28,6 @@
 #include <pch.h>
 #include <kernel/comp/Poller/PollerEvent.h>
 #include <kernel/comp/Utils/RttiUtil.h>
-#include <kernel/comp/Poller/PollerEventInternalType.h>
 #include <kernel/comp/Coroutines/AsyncTask.h>
 
 KERNEL_BEGIN
@@ -104,5 +103,28 @@ void AsyncTaskPollerEvent::Release()
     AsyncTaskPollerEvent::Delete_AsyncTaskPollerEvent(this);
 }
 
+POOL_CREATE_OBJ_DEFAULT_IMPL(StubPollerEvent);
+
+StubPollerEvent::StubPollerEvent(Int32 type, UInt64 stub, UInt64 objTypeId)
+    :PollerEvent(type)
+    ,_stub(stub)
+    ,_isResponse(false)
+,_objTypeId(objTypeId)
+{
+    
+}
+
+StubPollerEvent::~StubPollerEvent()
+{
+    
+}
+
+LibString StubPollerEvent::ToString() const
+{
+    LibString info;
+    info.AppendFormat("%s, stub:%llu, _isResponse:%d, _objTypeId:%llu\n", PollerEvent::ToString().c_str(), _stub, (_isResponse ? 1:0), _objTypeId);
+
+    return info;
+}
 
 KERNEL_END

@@ -45,10 +45,14 @@
 
 #include <unordered_map>
 #include <atomic>
+#include <kernel/comp/Coroutines/CoTask.h>
+
+#include "kernel/comp/Coroutines/CoWaiter.h"
+#include <kernel/comp/SmartPtr.h>
+
 
 KERNEL_BEGIN
-
-struct PollerEvent;
+    struct PollerEvent;
 
 class TimerMgr;
 class TimeSlice;
@@ -126,6 +130,48 @@ public:
     void Subscribe(Int32 eventType, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *> *deleg);
     void UnSubscribe(Int32 eventType);
 
+    // 订阅对象消息（对象消息只能本进程, 因为对象id是本地生成, 如果要实现远程，必须使用字符串映射到本地的对象id）
+    template<typename ObjectType>
+    requires requires(ObjectType obj)
+    {
+        obj.Release();
+        obj.ToString();
+    }
+    void SubscribeObjectEvent(IDelegate<void, StubPollerEvent *> *cb);
+    template<typename ObjectType, typename ObjType>
+    requires requires(ObjectType obj)
+    {
+        obj.Release();
+        obj.ToString();
+    }
+    void SubscribeObjectEvent(ObjType *obj, void (ObjType::*handler)(KERNEL_NS::StubPollerEvent *));
+    template<typename ObjectType>
+    requires requires(ObjectType obj)
+    {
+        obj.Release();
+        obj.ToString();
+    }
+    void SubscribeObjectEvent(void (*handler)(KERNEL_NS::StubPollerEvent *));
+    template<typename ObjectType, typename  LambType>
+    requires requires(ObjectType obj, LambType lamb, KERNEL_NS::StubPollerEvent *ev)
+    {
+        obj.Release();
+        obj.ToString();
+        lamb(ev);
+    }
+    void SubscribeObjectEvent(LambType &&lamb);
+    void SubscribeObjectEvent(UInt64 objectTypeId, IDelegate<void, StubPollerEvent *> *cb);
+
+    // 取消订阅对象消息
+    template<typename ObjectType>
+    requires requires(ObjectType obj)
+    {
+        obj.Release();
+        obj.ToString();
+    }
+    void UnSubscribeObjectEvent();
+    void UnSubscribeObjectEvent(UInt64 objectTypeId);
+
     // 设置poller事件循环休眠时最大等待时长
     void SetMaxSleepMilliseconds(UInt64 maxMilliseconds);
 
@@ -176,6 +222,81 @@ public:
 
     void OnMonitor(PollerCompStatistics &statistics);
 
+    // 跨线程协程消息(otherPoller也可以是自己)
+    // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
+    // req/res 必须实现Release, ToString接口
+    template<typename ResType, typename ReqType>
+    requires requires(ReqType req, ResType res)
+    {
+        // req/res必须有Release接口
+        req.Release();
+        res.Release();
+    
+        // req/res必须有ToString接口
+        req.ToString();
+        res.ToString();
+    }
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendToAsync(Poller &otherPoller, ReqType *req)
+    {
+        // 1.ptr用来回传ResType
+        KERNEL_NS::SmartPtr<ResType *,  KERNEL_NS::AutoDelMethods::CustomDelete> ptr(KERNEL_NS::KernelCastTo<ResType *>(
+            kernel::KernelAllocMemory<KERNEL_NS::_Build::TL>(sizeof(ResType **))));
+        ptr.SetClosureDelegate([](void *p)
+        {
+            // 释放packet
+            auto castP = KERNEL_NS::KernelCastTo<ResType*>(p);
+            if(*castP)
+                (*castP)->Release();
+
+            KERNEL_NS::KernelFreeMemory<KERNEL_NS::_Build::TL>(castP);
+        });
+        *ptr = NULL;
+
+        // 设置stub => ResType的事件回调
+        UInt64 stub = ++_maxStub;
+        KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
+        SubscribeStubEvent(stub, [ptr, params](KERNEL_NS::StubPollerEvent *ev) mutable 
+        {
+            KERNEL_NS::ObjectPollerEvent<ResType> *finalEv = KernelCastTo<KERNEL_NS::ObjectPollerEvent<ResType>>(ev);
+            // 将结果带出去
+            *ptr = finalEv->_obj;
+            finalEv->_obj = NULL;
+            
+            // 唤醒Waiter
+            auto &coParam = params->_params;
+            if(coParam && coParam->_handle)
+                coParam->_handle->ForceAwake();
+        });
+
+        // 发送对象事件 ObjectPollerEvent到 other
+        auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(stub, false);
+        objEvent->_obj = req;
+        otherPoller.Push(otherPoller.GetMaxPriorityLevel(), objEvent);
+        
+        // 等待 ObjectPollerEvent 的返回消息唤醒
+        co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params);
+        if(params->_params)
+        {
+            auto &pa = params->_params; 
+            if(pa->_errCode != Status::Success)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("waiting err:%d, stub:%llu, req:%p")
+                    , pa->_errCode, stub, req);
+                
+                UnSubscribeStubEvent(stub);
+            }
+
+            // 销毁waiting协程
+            if(pa->_handle)
+                pa->_handle->DestroyHandle(pa->_errCode);
+        }
+        
+        // 3.将消息回调中的ResType引用设置成空
+        auto res = *ptr;
+        *ptr = NULL;
+        co_return KERNEL_NS::SmartPtr<ResType,  KERNEL_NS::AutoDelMethods::Release>(res);
+    }
+    
 protected:
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;
@@ -185,9 +306,32 @@ protected:
 protected:
     // 异步任务
     void _OnAsyncTaskEvent(PollerEvent *ev);
+    void _OnObjectEvent(PollerEvent *ev);
 
 private:
     void _Clear();
+
+    // 跨线程异步实现
+#pragma region
+
+private:
+    // 事件返回处理
+    void _OnObjectEventResponse(StubPollerEvent *ev);
+
+    // 事件请求处理
+    void _OnObjectEventRequest(StubPollerEvent *ev);
+
+    // 订阅Stub事件
+    template<typename LambType>
+    requires requires(LambType lam, StubPollerEvent * ev)
+    {
+        lam(ev);
+    }
+    void SubscribeStubEvent(UInt64 stub, LambType &&cb);
+
+    // 取消订阅回调
+    void UnSubscribeStubEvent(UInt64 stub);
+#pragma endregion 
 
 private:
   LibCpuSlice _maxPieceTime;                                 // 每个事务时间片
@@ -211,6 +355,18 @@ private:
 
   // poller event handler
   std::unordered_map<Int32, KERNEL_NS::IDelegate<void, KERNEL_NS::PollerEvent *> *> _pollerEventHandler;
+
+    // 跨线程异步实现
+#pragma region // async implement
+    UInt64 _maxStub;
+
+    // 订阅对象事件 stub => callback
+    std::map<UInt64, IDelegate<void, StubPollerEvent *> *> _stubRefCb;
+
+    // 订阅对象请求消息
+    std::map<UInt64, IDelegate<void, StubPollerEvent *> *> _objTypeIdRefCallback;
+#pragma endregion 
+
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -378,6 +534,134 @@ ALWAYS_INLINE void Poller::QuitLoop()
 {
     _isQuitLoop = true;
     WakeupEventLoop();
+}
+
+template<typename ObjectType>
+requires requires(ObjectType obj)
+{
+    obj.Release();
+    obj.ToString();
+}
+ALWAYS_INLINE void Poller::SubscribeObjectEvent(IDelegate<void, StubPollerEvent *> *cb)
+{
+    auto objectTypeId = KERNEL_NS::RttiUtil::GetTypeId<ObjectType>();
+    SubscribeObjectEvent(objectTypeId, cb);
+}
+
+template<typename ObjectType, typename ObjType>
+requires requires(ObjectType obj)
+{
+    obj.Release();
+    obj.ToString();
+}
+ALWAYS_INLINE void Poller::SubscribeObjectEvent(ObjType *obj, void (ObjType::*handler)(KERNEL_NS::StubPollerEvent *))
+{
+    auto delg = DelegateFactory::Create(obj, handler);
+    auto objectTypeId = KERNEL_NS::RttiUtil::GetTypeId<ObjectType>();
+    SubscribeObjectEvent(objectTypeId, delg);
+}
+
+template<typename ObjectType>
+requires requires(ObjectType obj)
+{
+    obj.Release();
+    obj.ToString();
+}
+ALWAYS_INLINE void Poller::SubscribeObjectEvent(void (*handler)(KERNEL_NS::StubPollerEvent *))
+{
+    auto delg = DelegateFactory::Create(handler);
+    auto objectTypeId = KERNEL_NS::RttiUtil::GetTypeId<ObjectType>();
+    SubscribeObjectEvent(objectTypeId, delg);
+}
+
+template<typename ObjectType, typename  LambType>
+requires requires(ObjectType obj, LambType lamb, KERNEL_NS::StubPollerEvent *ev)
+{
+    obj.Release();
+    obj.ToString();
+    lamb(ev);
+}
+ALWAYS_INLINE void Poller::SubscribeObjectEvent(LambType &&lamb)
+{
+    auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void, KERNEL_NS::StubPollerEvent *);
+    auto objectTypeId = KERNEL_NS::RttiUtil::GetTypeId<ObjectType>();
+    SubscribeObjectEvent(objectTypeId, delg);
+}
+
+ALWAYS_INLINE void Poller::SubscribeObjectEvent(UInt64 objectTypeId, IDelegate<void, StubPollerEvent *> *cb)
+{
+    auto iter = _objTypeIdRefCallback.find(objectTypeId);
+    if (iter != _objTypeIdRefCallback.end())
+    {
+        if (g_Log->IsEnable(LogLevel::Warn))
+            g_Log->Warn(LOGFMT_OBJ_TAG("repeat object event, object type id:%llu, older cb:%s, older cb owner:%s, new cb:%s, new cb owner:%s")
+                , objectTypeId, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str(), cb->GetCallbackRtti().c_str(), cb->GetOwnerRtti().c_str());
+
+        iter->second->Release();
+        _objTypeIdRefCallback.erase(iter);
+    }
+
+    _objTypeIdRefCallback.insert(std::make_pair(objectTypeId, cb));
+}
+
+template<typename ObjectType>
+requires requires(ObjectType obj)
+{
+    obj.Release();
+    obj.ToString();
+}
+ALWAYS_INLINE void Poller::UnSubscribeObjectEvent()
+{
+    auto objectTypeId = KERNEL_NS::RttiUtil::GetTypeId<ObjectType>();
+    UnSubscribeObjectEvent(objectTypeId);
+}
+
+ALWAYS_INLINE void Poller::UnSubscribeObjectEvent(UInt64 objectTypeId)
+{
+    auto iter = _objTypeIdRefCallback.find(objectTypeId);
+    if (iter == _objTypeIdRefCallback.end())
+        return;
+
+    if (g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("UnSubscribeObjectEvent objectTypeId:%llu => callback:(%s) owner:%s.")
+            , objectTypeId, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str());
+
+    iter->second->Release();
+    _objTypeIdRefCallback.erase(iter);
+}
+
+template<typename LambType>
+requires requires(LambType lam, StubPollerEvent * ev)
+{
+    lam(ev);
+}
+ALWAYS_INLINE void Poller::SubscribeStubEvent(UInt64 stub, LambType &&cb)
+{
+    auto iter = _stubRefCb.find(stub);
+    if (iter != _stubRefCb.end())
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("repeated stub:%llu => callback, and will release older cb:%s, older cb owner:%s.")
+            , stub, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str());
+            
+        iter->second->Release();
+        _stubRefCb.erase(iter);
+    }
+        
+    auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(cb, void, StubPollerEvent *);
+    _stubRefCb.insert(std::make_pair(stub, deleg));
+}
+
+ALWAYS_INLINE void Poller::UnSubscribeStubEvent(UInt64 stub)
+{
+    auto iter = _stubRefCb.find(stub);
+    if (iter == _stubRefCb.end())
+        return;
+
+    if (g_Log->IsEnable(KERNEL_NS::LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("unsubscribe stub:%llu => callback:(%s) owner:%s."), stub, iter->second->GetCallbackRtti().c_str(), iter->second->GetOwnerRtti().c_str());
+
+    iter->second->Release();
+    _stubRefCb.erase(iter);
 }
 
 KERNEL_END

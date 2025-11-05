@@ -12,6 +12,8 @@ cd %~dp0/tools/protogen/ && protogentool.exe --proto_path=../../protocols/proto 
 @REM     echo Exchange %%i To Javascript file successfully!
 @REM )
 
+
+pause
 if %errorlevel% equ 0 (
 	echo Sussess generate protobuf files all!
 	exit 1

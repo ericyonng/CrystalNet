@@ -239,7 +239,7 @@ fi
 
 echo "create_mongo_shard_cluster init primary nodes..."
 
-# 初始化组节点
+# 初始化Configsvr主节点
 if [ ${CONFIG_SVR_PRIMARY} = "127.0.0.1" ] || [ ${CONFIG_SVR_PRIMARY} = ${LOCAL_IP} ]; then
     echo "create_mongo_shard_cluster init local config primary..."
     sh ${SCRIPT_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${CONFIG_SVR_PRIMARY} ${CONFIG_SVR_PRIMARY_PORT} ${DB_NAME}_config_1 ${RS_NAME}_config ${KEYFILE_PATH} configsvr || {
@@ -259,7 +259,7 @@ else
     echo "create_mongo_shard_cluster init remote ${CONFIG_SVR_PRIMARY} config primary success."
 fi
 
-# 初始化组节点
+# 初始化数据主节点
 if [ ${MONGOD_SVR_PRIMARY} = "127.0.0.1" ] || [ ${MONGOD_SVR_PRIMARY} = ${LOCAL_IP} ]; then
     echo "create_mongo_shard_cluster init local mongod primary..."
     sh ${SCRIPT_PATH}/init_primary.sh ${TARGET_USER} ${TARGET_PWD} ${REPLISET_INSTALL_PATH} ${MONGOD_SVR_PRIMARY} ${MONGOD_SVR_PRIMARY_PORT} ${DB_NAME}_mongod_1 ${RS_NAME}_mongod ${KEYFILE_PATH} shardsvr || {
@@ -279,10 +279,90 @@ else
     echo "create_mongo_shard_cluster init remote ${MONGOD_SVR_PRIMARY} mongod primary success."
 fi
 
+# 启动节点函数
+start_nodes() {
+    local nodes_arr="$1"
+
+    echo "start_nodes..."
+
+    DB_INDEX=1
+    for index in "${!nodes_arr[@]}"; do
+        # ip file 一行的数据: DATA ip
+        elem="${nodes_arr[$index]}"
+        fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
+        node_type="${fields[0]}"
+        ip="${fields[1]}"
+        node_port="${fields[2]}"
+        echo "第 $index 个 IP 地址: elem:${elem}, $ip, ${node_type}, ${node_port}"
+        
+        # db_name
+        DB_INDEX=$(($DB_INDEX + $index))
+        FINAL_DB_NAME=${DB_NAME}_${DB_TYPE}_${DB_INDEX}
+
+        # 是不是本地地址
+        if [ ${ip} = "127.0.0.1" ] || [ ${ip} = ${LOCAL_IP} ]; then
+            . ${SCRIPT_PATH}/create_mongodb_inst.sh ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} "${RS_NAME}_${DB_TYPE}" ${KEYFILE_PATH} || {
+                echo "创建db1实例失败！" >&2
+                return 1
+            }  
+            echo "启动mongodb节点 IP 地址: elem:${elem}, $ip, ${node_port} 成功."
+
+        else
+            ssh root@${ip} "sh ${WORK_PATH}/create_mongodb_inst.sh ${REPLISET_INSTALL_PATH}/${FINAL_DB_NAME} ${node_port} \"${RS_NAME}_${DB_TYPE}\" ${KEYFILE_PATH}" || {
+                echo "错误：${ip} create_mongodb_inst fail ${WORK_PATH}/create_mongodb_inst.sh 失败" >&2
+                return 1
+            }
+
+            echo "启动mongodb节点 IP 地址: elem:${elem}, $ip, ${node_port} 成功."
+        fi
+    done
+
+    PRIMARY_ADDR=""
+    for index in "${!nodes_arr[@]}"; do
+        if [ $index -eq 0 ]; then
+            # ip file 一行的数据: DATA ip
+            elem="${nodes_arr[$index]}"
+            fields=($(echo "${elem}" | awk '{print $1, $2, $3}'))
+            ip="${fields[1]}"
+            node_port="${fields[2]}"
+            echo "第 $index 个 IP 地址: elem:${elem}, $ip, ${node_type}, ${node_port}"
+        
+            PRIMARY_ADDR=${ip}
+            
+        else
+        fi
+
+    done
+    # 添加节点
+    
+    # 添加从节点2
+mongosh --host 127.0.0.1:${DB1_PORT} -u "${TARGET_USER}" -p "${TARGET_PWD}" --authenticationDatabase admin --eval "rs.add({_id: 1, host: \"${PRIMARY_IP}:${DB2_PORT}\", priority: 1, votes: 1})" || {
+    echo "错误：初始化复制集失败" >&2
+    exit 1
+}
+
+sleep 2
+
+    return 0
+}
+
+# 启动配置集群
+start_nodes ${MONGO_CONFIG_SVR_ARRAY} || {
+    echo "错误： start_nodes 配置集群 fail 失败" >&2
+    exit 1
+}
+
+# 启动数据集群
+start_nodes ${MONGOD_SVR_ARRAY} || {
+    echo "错误： start_nodes 数据集群 fail 失败" >&2
+    exit 1
+}
+
 # 获取数组长度
 CONFIG_ADDR_LEN=${#MONGO_CONFIG_SVR_ARRAY[@]}
 CONFIG_ADDR_MAX_INDEX=$(($CONFIG_ADDR_LEN - 1))
 
+# mongos的配置服务器列表
 MONGO_CONFIG_SVR_ARRAY_STR=""
 for index in "${!MONGO_CONFIG_SVR_ARRAY[@]}"; do
     # ip file 一行的数据: DATA ip

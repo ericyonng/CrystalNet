@@ -21,17 +21,31 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2025-05-17 16:26:12
+ * Date: 2025-11-03 17:16:00
  * Author: Eric Yonng
- * Description: 
+ * Description:
 */
 
-#ifndef __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
-#define __CRYSTAL_NET_OPTION_COMPONENT_STORAGE_MONGO_DB_COMP_H__
-
-#pragma once
-
-#include <OptionComp/storage/MongoDB/Interface/IMongoDbMgr.h>
+#include <pch.h>
+#include <OptionComp/storage/MongoDB/Impl/MongoDbMgr.h>
 #include <OptionComp/storage/MongoDB/Impl/MongoDbMgrFactory.h>
 
-#endif
+KERNEL_BEGIN
+
+CompFactory *MongoDbMgrFactory::FactoryCreate()
+{
+    return KERNEL_NS::ObjPoolWrap<MongoDbMgrFactory>::NewByAdapter(_buildType.V);
+}
+
+void MongoDbMgrFactory::Release()
+{
+    ObjPoolWrap<MongoDbMgrFactory>::DeleteByAdapter(_buildType.V, this);
+}
+
+CompObject *MongoDbMgrFactory::Create() const
+{
+    return MongoDbMgr::NewByAdapter_MongoDbMgr(_buildType.V);
+}
+
+
+KERNEL_END

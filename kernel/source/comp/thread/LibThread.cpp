@@ -38,9 +38,10 @@
 
 #include <kernel/comp/Log/log.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/Coroutines/CoDelay.h"
 
-LibThread::LibThread()
+KERNEL_BEGIN
+    LibThread::LibThread()
     :_id(LibThreadGlobalId::GenId())
     , _threadId{0}
     , _isStart{false}
@@ -48,6 +49,7 @@ LibThread::LibThread()
     , _isDestroy{ false }
     ,_isBusy{false}
     ,_enableAddTask{true}
+    ,_poller{NULL}
 {
 
 }
@@ -92,6 +94,8 @@ void LibThread::FinishClose()
         (*iter)->Release();
         iter = _tasks.erase(iter);
     }
+
+    _poller = NULL;
 }
 
 bool LibThread::AddTask(IDelegate<void, LibThread *> *callback)
@@ -143,6 +147,44 @@ LibString LibThread::ToString() const
     return info;
 }
 
+CoTask<const Poller *> LibThread::GetPoller() const
+{
+    const Poller *poller = NULL;
+    if (_isDestroy)
+        co_return poller;
+
+    poller = _poller;
+    while (poller == NULL)
+    {
+        co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(10));
+        poller = _poller;
+    }
+
+    if (_isDestroy)
+        co_return NULL;
+
+    co_return poller;
+}
+
+CoTask<Poller *> LibThread::GetPoller()
+{
+    KERNEL_NS::Poller * poller = NULL;
+    if (_isDestroy)
+        co_return poller;
+
+    poller = _poller;
+    while (poller == NULL)
+    {
+        co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(10));
+        poller = _poller;
+    }
+
+    if (_isDestroy)
+        co_return NULL;
+
+    co_return poller;
+}
+
 void LibThread::LibThreadHandlerLogic(void *param)
 {
     LibThread *libThread = static_cast<LibThread *>(param);
@@ -170,6 +212,8 @@ void LibThread::LibThreadHandlerLogic(void *param)
     ThreadTool::OnInit(libThread, NULL, libThread->_threadId, libThread->GetId(), "lib thread local tls memorypool");
 
     ThreadTool::OnStart();
+
+    libThread->_poller = KERNEL_NS::TlsUtil::GetPoller();
 
     try
     {
@@ -217,12 +261,13 @@ void LibThread::LibThreadHandlerLogic(void *param)
         g_Log->Error(LOGFMT_NON_OBJ_TAG(LibThread, "thread exception..."));
     }
 
+    libThread->_poller = NULL;
+    
     // 释放线程局部存储资源
     ThreadTool::OnDestroy();
 
     try
     {
-
         quitLck.Lock();
 
         isWorking = false;

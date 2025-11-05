@@ -689,3 +689,4 @@ mongodb 支持通用的二级索引，性能卓越，在其wiredtiger存储引�
       2. 初始化shard1 复制集
       3. 初始化config复制集
       4. 启动mongos将configserver地址 加给mongos
+      5. mongos的权限是读取configdb的权限，所以必须先初始化好config和mongod复制集完成后才可以启动mongos集群并使用configDb上的用户权限进行配置
