@@ -39,9 +39,11 @@
 #include <kernel/comp/Log/log.h>
 
 #include "kernel/comp/Coroutines/CoDelay.h"
+#include <kernel/comp/thread/IThreadStartUp.h>
 
 KERNEL_BEGIN
-    LibThread::LibThread()
+
+LibThread::LibThread(IThreadStartUp *startUp)
     :_id(LibThreadGlobalId::GenId())
     , _threadId{0}
     , _isStart{false}
@@ -50,6 +52,7 @@ KERNEL_BEGIN
     ,_isBusy{false}
     ,_enableAddTask{true}
     ,_poller{NULL}
+    ,_threadStartUp{startUp}
 {
 
 }
@@ -96,6 +99,13 @@ void LibThread::FinishClose()
     }
 
     _poller = NULL;
+
+    // 释放
+    auto startUp = _threadStartUp.exchange(NULL);
+    if (LIKELY(startUp))
+    {
+        startUp->Release();
+    }
 }
 
 bool LibThread::AddTask(IDelegate<void, LibThread *> *callback)
@@ -214,6 +224,12 @@ void LibThread::LibThreadHandlerLogic(void *param)
     ThreadTool::OnStart();
 
     libThread->_poller = KERNEL_NS::TlsUtil::GetPoller();
+
+    // 调用startup
+    if (auto startUp = libThread->_threadStartUp.load())
+    {
+        startUp->Run();
+    } 
 
     try
     {

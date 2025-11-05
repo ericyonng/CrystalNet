@@ -507,14 +507,106 @@ public:
 POOL_CREATE_OBJ_DEFAULT_IMPL(HelloCrossPollerRequest);
 POOL_CREATE_OBJ_DEFAULT_IMPL(HelloCrossPollerResponse);
 
+class ThreadStartup : public KERNEL_NS::IThreadStartUp
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IThreadStartUp, ThreadStartup);
+
+public:
+    ThreadStartup(std::atomic<CRYSTAL_NET::kernel::Poller *> &otherPoller)
+        : _otherPoller(otherPoller)
+    {
+        
+    }
+
+private:
+    std::atomic<CRYSTAL_NET::kernel::Poller *> &_otherPoller;
+    
+public:
+    virtual void Run() override
+    {
+        KERNEL_NS::RunRightNow([this]() mutable -> KERNEL_NS::CoTask<> 
+        {
+            auto poller = KERNEL_NS::TlsUtil::GetPoller();
+
+            // 订阅 HelloCrossPollerRequest 消息
+            poller->SubscribeObjectEvent<HelloCrossPollerRequest>([this](KERNEL_NS::StubPollerEvent *ev) mutable 
+            {
+                while (_otherPoller.load() == NULL)
+                {
+                    KERNEL_NS::SystemUtil::ThreadSleep(10);
+                }
+        
+                auto stub = ev->_stub;
+                auto request = ev->CastTo<KERNEL_NS::ObjectPollerEvent<HelloCrossPollerRequest>>();
+                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "HelloCrossPollerRequest :%s"), request->ToString().c_str());
+
+                // 返回包
+                auto res = KERNEL_NS::ObjectPollerEvent<HelloCrossPollerResponse>::New_ObjectPollerEvent(stub, true);
+                res->_obj = HelloCrossPollerResponse::New_HelloCrossPollerResponse();
+                res->_obj->_info = request->_obj->_info;
+                _otherPoller.load()->Push(_otherPoller.load()->GetMaxPriorityLevel(), res);
+            });
+        
+            co_return;
+        });
+    }
+    
+    virtual void Release() override
+    {
+        ThreadStartup::Delete_ThreadStartup(this);
+    }
+};
+
+class ThreadStartup2 : public KERNEL_NS::IThreadStartUp
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IThreadStartUp, ThreadStartup2);
+
+public:
+    ThreadStartup2(std::atomic<CRYSTAL_NET::kernel::Poller *> &otherPoller)
+    : _otherPoller(otherPoller)
+    {
+        
+    }
+
+    virtual void Release() override
+    {
+        ThreadStartup2::Delete_ThreadStartup2(this);
+    }
+    virtual void Run() override
+    {
+        KERNEL_NS::PostCaller([this]() mutable  ->KERNEL_NS::CoTask<>
+        {
+            while (_otherPoller.load() == NULL)
+            {
+                co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(10));
+            }
+                
+            // 发送消息
+            auto req = HelloCrossPollerRequest::New_HelloCrossPollerRequest();
+            req->_info = "hello cross-poller req";
+                
+            // 跨线程发送异步消息
+            auto res = co_await KERNEL_NS::TlsUtil::GetPoller()->
+            SendToAsync<HelloCrossPollerResponse, HelloCrossPollerRequest>(*_otherPoller.load(), req);
+                    
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "res :%s"), res->ToString().c_str());
+        });
+    }
+
+private:
+    std::atomic<CRYSTAL_NET::kernel::Poller *> &_otherPoller;
+};
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(ThreadStartup);
 
 static void TestCrossPoller()
 {
-    KERNEL_NS::SmartPtr<KERNEL_NS::LibThread> thread1 = new KERNEL_NS::LibThread();
-    KERNEL_NS::SmartPtr<KERNEL_NS::LibThread> thread2 = new KERNEL_NS::LibThread();
-
     std::atomic<CRYSTAL_NET::kernel::Poller *> _poller1 = {NULL};
     std::atomic<CRYSTAL_NET::kernel::Poller *> _poller2 = {NULL};
+
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibThread> thread1 = new KERNEL_NS::LibThread(ThreadStartup::New_ThreadStartup(_poller2));
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibThread> thread2 = new KERNEL_NS::LibThread(ThreadStartup2::New_ThreadStartup2(_poller1));
+
     thread1->AddTask2([&_poller1, &_poller2](KERNEL_NS::LibThread *t,  KERNEL_NS::Variant *) mutable  
     {
         auto poller = KERNEL_NS::TlsUtil::GetPoller();
@@ -523,35 +615,8 @@ static void TestCrossPoller()
             g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "thread1 prepare loop fail."));
             return;
         }
-        
-        // poller 循环中执行
-        KERNEL_NS::PostCaller([&_poller1, &_poller2]() mutable -> KERNEL_NS::CoTask<> 
-        {
-            auto poller = KERNEL_NS::TlsUtil::GetPoller();
 
-            // 订阅 HelloCrossPollerRequest 消息
-            poller->SubscribeObjectEvent<HelloCrossPollerRequest>([&_poller2](KERNEL_NS::StubPollerEvent *ev) mutable 
-            {
-                while (_poller2.load() == NULL)
-                {
-                    KERNEL_NS::SystemUtil::ThreadSleep(10);
-                }
-        
-                // 返回包
-                auto stub = ev->_stub;
-                auto request = ev->CastTo<KERNEL_NS::ObjectPollerEvent<HelloCrossPollerRequest>>();
-                g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "HelloCrossPollerRequest :%s"), request->ToString().c_str());
-                auto res = KERNEL_NS::ObjectPollerEvent<HelloCrossPollerResponse>::New_ObjectPollerEvent(stub, true);
-                res->_obj = HelloCrossPollerResponse::New_HelloCrossPollerResponse();
-                res->_obj->_info = request->_obj->_info;
-                _poller2.load()->Push(_poller2.load()->GetMaxPriorityLevel(), res);
-            });
-        
-            // 准备好了
-            _poller1 = poller;
-
-            co_return;
-        });
+        _poller1 = poller;
         
         // s_Poller->EventLoop();
         poller->EventLoop();
@@ -566,26 +631,6 @@ static void TestCrossPoller()
             g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "thread1 prepare loop fail."));
             return;
         }
-        
-        KERNEL_NS::PostCaller([&_poller1, poller]() mutable  ->KERNEL_NS::CoTask<>
-        {
-            while (_poller1.load() == NULL)
-            {
-                co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(10));
-            }
-        
-            // 发送消息
-            auto req = HelloCrossPollerRequest::New_HelloCrossPollerRequest();
-            req->_info = "hello cross-poller req";
-        
-            auto poller1 = _poller1.load();
-
-            // 跨线程发送异步消息
-            auto res = co_await poller->SendToAsync<HelloCrossPollerResponse, HelloCrossPollerRequest>(*poller1, req);
-            
-            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "res :%s"), res->ToString().c_str());
-        });
-        
         _poller2 = poller;
         poller->EventLoop();
         poller->OnLoopEnd();

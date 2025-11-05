@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,22 +21,38 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2020-12-06 19:30:05
+ * Date: 2025-11-05 21:09:22
  * Author: Eric Yonng
  * Description: 
 */
 
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_THREAD_THREAD_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_THREAD_THREAD_H__
+#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_THREAD_ITHREAD_START_UP_H__
+#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_THREAD_ITHREAD_START_UP_H__
 
 #pragma once
 
-#include <kernel/comp/thread/ThreadDefs.h>
-#include <kernel/comp/thread//LibThreadGlobalId.h>
-#include <kernel/comp/thread/LibThread.h>
-#include <kernel/comp/thread/LibThreadPool.h>
-#include <kernel/comp/thread/CurrentThread.h>
-#include <kernel/comp/thread/ThreadTool.h>
-#include <kernel/comp/thread/IThreadStartUp.h>
+#include <kernel/kernel_export.h>
+#include <kernel/common/BaseMacro.h>
+#include <kernel/common/BaseType.h>
+
+#include "kernel/comp/memory/ObjPoolMacro.h"
+
+KERNEL_BEGIN
+
+ // 会在线程函数中线程设施初始化完成后调用
+class KERNEL_EXPORT IThreadStartUp
+{
+    POOL_CREATE_OBJ_DEFAULT(IThreadStartUp);
+ 
+public:
+ 
+ IThreadStartUp(){}
+ virtual ~IThreadStartUp() {}
+    
+ virtual void Run() = 0;
+ virtual void Release() = 0;
+};
+
+KERNEL_END
 
 #endif

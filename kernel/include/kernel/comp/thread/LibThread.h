@@ -50,11 +50,14 @@ KERNEL_BEGIN
 
 class ITask;
 class Poller;
+class IThreadStartUp;
+
+
 
 class KERNEL_EXPORT LibThread
 {
 public:
-    LibThread();
+    LibThread(IThreadStartUp *startUp = NULL);
     virtual ~LibThread();
     virtual void Release();
 
@@ -151,6 +154,7 @@ private:
     LibString _threadName;
 
     std::atomic<KERNEL_NS::Poller *> _poller;
+    std::atomic<IThreadStartUp *> _threadStartUp;
 };
 
 // 启动
