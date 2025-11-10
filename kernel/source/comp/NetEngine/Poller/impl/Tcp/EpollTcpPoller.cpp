@@ -538,7 +538,7 @@ void EpollTcpPoller::_OnPollerWillDestroy(Poller *poller)
 
         LibConnectPendingInfo::DeleteThreadLocal_LibConnectPendingInfo(pendingInfo);
         pendingInfo = NULL;
-        --_sessionPendingCount;
+        _sessionPendingCount.fetch_sub(1, std::memory_order_release);
     });
 }
 
@@ -1179,7 +1179,7 @@ void EpollTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
     _tcpPollerMgr->OnConnectRemoteSuc(newBuildSessionInfo);
 
     _sessionIdRefAsynConnectPendingInfo.erase(connectPendingInfo->_sessionId);
-    --_sessionPendingCount;
+    _sessionPendingCount.fetch_sub(1, std::memory_order_release);
 
     connectPendingInfo->_newSock = INVALID_SOCKET;
     connectPendingInfo->_sessionId = 0;
@@ -1189,7 +1189,7 @@ void EpollTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
 void EpollTcpPoller::_OnConnectPending(LibConnectPendingInfo *&connectPendingInfo)
 {
     _epoll->AddEvent(connectPendingInfo->_newSock, connectPendingInfo->_sessionId, EPOLLOUT | EPOLLET);
-    ++_sessionPendingCount;
+    _sessionPendingCount.fetch_add(1, std::memory_order_release);
     _sessionIdRefAsynConnectPendingInfo.insert(std::make_pair(connectPendingInfo->_sessionId, connectPendingInfo));
     if(g_Log->IsEnable(LogLevel::NetDebug))
         g_Log->NetDebug(LOGFMT_OBJ_TAG("connect pending add connect pending info event, pending info:%s"), connectPendingInfo->ToString().c_str());
@@ -1475,7 +1475,7 @@ void EpollTcpPoller::_DestroyConnect(LibConnectPendingInfo *&connectPendingInfo,
                 _epoll->DelEvent(connectPendingInfo->_newSock, connectPendingInfo->_sessionId, EPOLLOUT | EPOLLET);
             
             _sessionIdRefAsynConnectPendingInfo.erase(iter);
-            --_sessionPendingCount;
+            _sessionPendingCount.fetch_sub(1, std::memory_order_release);
         }
 
         if(LIKELY(SocketUtil::IsValidSock(connectPendingInfo->_newSock)))

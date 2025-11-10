@@ -60,7 +60,7 @@ void LibTraceId::UpdateMain()
         return;
     }
 
-    _mainTraceId = (1LLU << 63) | ++GetAtomicMaxId();
+    _mainTraceId = (1LLU << 63) | (GetAtomicMaxId().fetch_add(1, std::memory_order_release));
 }
 
 void LibTraceId::UpdateSub()
@@ -79,7 +79,7 @@ void LibTraceId::UpdateSub()
         return;
     }
 
-    _subTraceId = (1LLU << 63) | ++GetAtomicMaxId();
+    _subTraceId = (1LLU << 63) | (GetAtomicMaxId().fetch_add(1, std::memory_order_release));
 }
 
 std::atomic<UInt64> &LibTraceId::GetAtomicMaxId()

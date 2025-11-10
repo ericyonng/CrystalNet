@@ -117,10 +117,12 @@ void TimerMgr::Launch(IDelegate<void> *wakeupThreadCb)
 
 Int64 TimerMgr::Drive()
 {
+    if (_expireQueue.empty())
+        return 0;
+    
     Int64 handled = 0;
     _BeforeDrive();
 
-    if(!_expireQueue.empty())
     {
         #ifdef ENABLE_PERFORMANCE_RECORD
             KERNEL_NS::TimeData *timerData = NULL;

@@ -222,7 +222,7 @@ private:
 
 ALWAYS_INLINE Int32 IObject::GetErrCode() const
 {
-    return _errCode;
+    return _errCode.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE void IObject::SetInterfaceTypeId(UInt64 id)

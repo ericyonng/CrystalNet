@@ -51,10 +51,10 @@ public:
     bool SetMaxLevel(Int32 level);
     void Init()
     {
-        if(_isInit.exchange(true))
+        if(_isInit.exchange(true, std::memory_order_acq_rel))
             return;
             
-        _elemAmount = 0;
+        _elemAmount.store(0, std::memory_order_release);
         _guards.resize(_maxLevel + 1);
         for(Int32 idx = 0; idx <= _maxLevel; ++idx)
             _guards[idx] = CRYSTAL_NEW(LockType);
@@ -66,7 +66,7 @@ public:
 
     void Destroy()
     {
-        if(!_isInit.exchange(false))
+        if(!_isInit.exchange(false, std::memory_order_acq_rel))
             return;
 
         const Int32 guardSize = static_cast<Int32>(_guards.size());
@@ -88,7 +88,7 @@ public:
             _levelQueue.erase(_levelQueue.begin() + idx);
         }
 
-        _elemAmount = 0;
+        _elemAmount.store(0, std::memory_order_release);
     }
 
     // 线程安全接口
@@ -112,8 +112,8 @@ public:
         {
             _guards[idx]->Lock();
             auto queue = _levelQueue[idx];
-            _elemAmount -= queue->GetAmount();
-            _elemAmount += curNode->_data->GetAmount();
+            _elemAmount.fetch_sub(queue->GetAmount(), std::memory_order_release);
+            _elemAmount.fetch_add(curNode->_data->GetAmount(), std::memory_order_release);
             _levelQueue[idx] = curNode->_data;
             curNode->_data = queue;
             _guards[idx]->Unlock();
@@ -134,8 +134,8 @@ public:
         {
             _guards[idx]->Lock();
             auto queue = _levelQueue[idx];
-            _elemAmount -= queue->GetAmount();
-            _elemAmount += queuesOut[idx]->GetAmount();
+            _elemAmount.fetch_sub(queue->GetAmount(), std::memory_order_release);
+            _elemAmount.fetch_add(queuesOut[idx]->GetAmount(), std::memory_order_release);
             _levelQueue[idx] = queuesOut[idx];
             queuesOut[idx] = queue;
             _guards[idx]->Unlock();
@@ -157,7 +157,7 @@ public:
 
             _guards[idx]->Lock();
             auto queue = _levelQueue[idx];
-            _elemAmount -= queue->GetAmount();
+            _elemAmount.fetch_sub(queue->GetAmount(), std::memory_order_release);
             _levelQueue[idx] = queuesOut[idx];
             queuesOut[idx] = queue;
             _guards[idx]->Unlock();
@@ -179,7 +179,7 @@ public:
         {
             _guards[idx]->Lock();
             const auto queuAmount = _levelQueue[idx]->GetAmount();
-            _elemAmount -= queuAmount;
+            _elemAmount.fetch_sub(queuAmount, std::memory_order_release);
             mergeCount += queuAmount;
             curNode->_data->MergeTail(_levelQueue[idx]);
             _guards[idx]->Unlock();
@@ -203,7 +203,7 @@ public:
         {
             _guards[idx]->Lock();
             const auto queuAmount = _levelQueue[idx]->GetAmount();
-            _elemAmount -= queuAmount;
+            _elemAmount.fetch_sub(queuAmount, std::memory_order_release);
             mergeCount += queuAmount;
             queuesOut[idx]->MergeTail(_levelQueue[idx]);
             _guards[idx]->Unlock();
@@ -254,7 +254,7 @@ ALWAYS_INLINE bool ConcurrentPriorityQueue<Elem, BuildType, LockType>::SetMaxLev
 
     if(LIKELY(oldLevel != _maxLevel))
     {
-        _elemAmount = 0;
+        _elemAmount.store(0, std::memory_order_release);
         _guards.resize(_maxLevel + 1);
         for(Int32 idx = 0; idx <= _maxLevel; ++idx)
         {
@@ -281,9 +281,9 @@ template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::SwapQueue(Int32 level, LibList<Elem, BuildType> *&queueOut)
 {
     _guards[level]->Lock();
-    _elemAmount -= _levelQueue[level]->GetAmount();
+    _elemAmount.fetch_sub(_levelQueue[level]->GetAmount(), std::memory_order_release);
     LibList<Elem, BuildType> *other = queueOut;
-    _elemAmount += other->GetAmount();
+    _elemAmount.fetch_add(other->GetAmount(), std::memory_order_release);
     queueOut = _levelQueue[level];
     _levelQueue[level] = other;
     _guards[level]->Unlock();
@@ -293,7 +293,7 @@ template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::PushQueue(Int32 level, LibList<Elem, BuildType> *queue)
 {
     _guards[level]->Lock();
-    _elemAmount += queue->GetAmount();
+    _elemAmount.fetch_add(queue->GetAmount(), std::memory_order_release);
     _levelQueue[level]->MergeTail(queue);
     _guards[level]->Unlock();
 }
@@ -302,7 +302,7 @@ template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE void ConcurrentPriorityQueue<Elem, BuildType, LockType>::PushQueue(Int32 level, Elem e)
 {
     _guards[level]->Lock();
-    _elemAmount += 1;
+    _elemAmount.fetch_add(1, std::memory_order_release);
     _levelQueue[level]->PushBack(e);
     _guards[level]->Unlock();
 }
@@ -323,13 +323,13 @@ ALWAYS_INLINE Int32 ConcurrentPriorityQueue<Elem, BuildType, LockType>::GetMaxLe
 template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE UInt64 ConcurrentPriorityQueue<Elem, BuildType, LockType>::GetAmount() const
 {
-    return _elemAmount;
+    return _elemAmount.load(std::memory_order_acquire);
 }
 
 template<typename Elem, typename BuildType, typename LockType>
 ALWAYS_INLINE bool ConcurrentPriorityQueue<Elem, BuildType, LockType>::IsEmpty() const
 {
-    return _elemAmount == 0;  
+    return _elemAmount.load(std::memory_order_acquire) == 0;  
 }
 
 template<typename Elem, typename BuildType, typename LockType>

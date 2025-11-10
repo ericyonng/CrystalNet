@@ -172,7 +172,7 @@ Int32 LibCpuInfo::GetCpuCoreCnt()
         return 0;
 
     Int32 count = 1; // at least one
-    const auto num = _cpuCoreNum.load();
+    const auto num = _cpuCoreNum.load(std::memory_order_acquire);
     if(LIKELY(num))
         return num;
 
@@ -184,7 +184,7 @@ Int32 LibCpuInfo::GetCpuCoreCnt()
     count = sysconf(_SC_NPROCESSORS_CONF);
 #endif  
 
-    _cpuCoreNum = count;
+    _cpuCoreNum.store(count, std::memory_order_release);
     return count;
 }
 

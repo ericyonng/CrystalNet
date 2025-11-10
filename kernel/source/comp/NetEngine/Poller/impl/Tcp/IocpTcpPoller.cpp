@@ -961,7 +961,7 @@ void IocpTcpPoller::_OnPollerWillDestroy(Poller *poller)
 
         LibConnectPendingInfo::DeleteThreadLocal_LibConnectPendingInfo(pendingInfo);
         pendingInfo = NULL;
-        --_sessionPendingCount;
+        _sessionPendingCount.fetch_sub(1, std::memory_order_release);
     });
 }
 
@@ -1599,7 +1599,7 @@ void IocpTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
     newBuildSessionInfo->_failureIps = connectInfo->_failureIps;
 
     _sessionIdRefAsynConnectPendingInfo.erase(connectPendingInfo->_sessionId);
-    --_sessionPendingCount;
+    _sessionPendingCount.fetch_sub(1, std::memory_order_release);
     
     // windows下connect是在datatrasfer poller上
     PostNewSession(newBuildSessionInfo->_priorityLevel, newBuildSessionInfo);
@@ -1938,7 +1938,7 @@ void IocpTcpPoller::_DestroyConnect(LibConnectPendingInfo *&connectPendingInfo, 
         if(iter != _sessionIdRefAsynConnectPendingInfo.end())
         {            
             _sessionIdRefAsynConnectPendingInfo.erase(iter);
-            --_sessionPendingCount;
+            _sessionPendingCount.fetch_sub(1, std::memory_order_release);
         }
 
         if(LIKELY(SocketUtil::IsValidSock(connectPendingInfo->_newSock)))
@@ -2105,7 +2105,7 @@ Int32 IocpTcpPoller::_CheckConnect(LibConnectPendingInfo *&connectPendingInfo, b
         return errCode;
     }
 
-    ++_sessionPendingCount;
+    _sessionPendingCount.fetch_add(1, std::memory_order_release);
     _sessionIdRefAsynConnectPendingInfo.insert(std::make_pair(connectPendingInfo->_sessionId, connectPendingInfo));
 
     if(g_Log->IsEnable(LogLevel::NetInfo))

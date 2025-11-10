@@ -118,8 +118,8 @@ void CenterMemoryCollector::WaitClose()
         return;
 
     // 超过数量则自动关闭
-    ++_willQuitThreadCount;
-    if(_willQuitThreadCount >= _totalRegisterThreadCount)
+    _willQuitThreadCount.fetch_add(1, std::memory_order_release);
+    if(_willQuitThreadCount.load(std::memory_order_acquire) >= _totalRegisterThreadCount.load(std::memory_order_acquire))
         WillClose();
 
     while(IsWorking())
@@ -153,7 +153,7 @@ void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStac
         _threadIdRefThreadInfo.insert(std::make_pair(threadId, newInfo));
 
         if((_worker == NULL) || threadId != _worker->GetTheadId())
-            ++_totalRegisterThreadCount;
+            _totalRegisterThreadCount.fetch_add(1, std::memory_order_release);
     }
     _registerGuard.Unlock();
 }
@@ -171,10 +171,10 @@ void CenterMemoryCollector::PushBlock(UInt64 freeThreadId, MemoryBlock *block)
     }
 
     iter->second->PushBlock(block);
-    ++_currentPendingBlockTotalNum;
-    ++_historyPendingBlockTotalNum;
+    _currentPendingBlockTotalNum.fetch_add(1, std::memory_order_release);
+    _historyPendingBlockTotalNum.fetch_add(1, std::memory_order_release);
 
-    if(UNLIKELY(_currentPendingBlockTotalNum >= _blockNumForPurgeLimit))
+    if(UNLIKELY(_currentPendingBlockTotalNum.load(std::memory_order_acquire) >= _blockNumForPurgeLimit))
         _guard.Sinal();
 }
 
@@ -185,10 +185,10 @@ void CenterMemoryCollector::Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bu
     _headToSwap = bufferInfoListHead;
     _recycleGuard.Unlock();
 
-    _recycleMemoryBufferInfoCount += recycleNum;
-    _historyRecycleMemoryBufferInfoCount += recycleNum;
+    _recycleMemoryBufferInfoCount.fetch_add(recycleNum, std::memory_order_release);
+    _historyRecycleMemoryBufferInfoCount.fetch_add(recycleNum, std::memory_order_release);
 
-    if(UNLIKELY(_recycleMemoryBufferInfoCount >= _recycleForPurgeLimit))
+    if(UNLIKELY(_recycleMemoryBufferInfoCount.load(std::memory_order_acquire) >= _recycleForPurgeLimit))
         _guard.Sinal();
 }
 
@@ -197,10 +197,10 @@ LibString CenterMemoryCollector::ToString() const
     if(_isDestroy)
         return "";
 
-    const UInt64 pendingBlock = _currentPendingBlockTotalNum.load();
-    const UInt64 historyBlock = _historyPendingBlockTotalNum.load();
-    const UInt64 recycleBufferInfo = _recycleMemoryBufferInfoCount.load();
-    const UInt64 historyRecycleBufferInfo = _historyRecycleMemoryBufferInfoCount.load();
+    const UInt64 pendingBlock = _currentPendingBlockTotalNum.load(std::memory_order_acquire);
+    const UInt64 historyBlock = _historyPendingBlockTotalNum.load(std::memory_order_acquire);
+    const UInt64 recycleBufferInfo = _recycleMemoryBufferInfoCount.load(std::memory_order_acquire);
+    const UInt64 historyRecycleBufferInfo = _historyRecycleMemoryBufferInfoCount.load(std::memory_order_acquire);
 
     // 把排行榜换出来
     SmartPtr<BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp>> topn = new BinaryArray<SmartPtr<CenterMemoryTopnThreadInfo>, CenterMemoryTopnThreadInfoComp>;
@@ -270,7 +270,7 @@ void CenterMemoryCollector::_OnWorker(LibThread *thread)
 void CenterMemoryCollector::_DoWorker()
 {
     _recycleGuard.Lock();
-    _recycleMemoryBufferInfoCount = 0;
+    _recycleMemoryBufferInfoCount.store(0, std::memory_order_release);
     auto toSwap = _head;
     _head = _headToSwap;
     _headToSwap = toSwap;
@@ -303,7 +303,7 @@ void CenterMemoryCollector::_DoWorker()
         newInfo->_totalAllocBytes = info->GetAllocBytes();
         _threadAllocTopn->insert(newInfo);
 
-        _currentPendingBlockTotalNum -= mergedCount;
+        _currentPendingBlockTotalNum .fetch_sub(mergedCount, std::memory_order_release);
     }
 
     // 更新排行榜

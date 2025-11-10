@@ -255,7 +255,7 @@ void SignalHandleUtil::ClearSignoTrigger(Int32 signo)
 {
     auto exp = _signoTriggerFlags.load(std::memory_order_acquire);
     for(auto setValue = exp & (~(1LLU << UInt64(signo)));
-    !_signoTriggerFlags.compare_exchange_weak(exp, setValue);)
+    !_signoTriggerFlags.compare_exchange_weak(exp, setValue, std::memory_order_acq_rel);)
         setValue = exp & (~(1LLU << UInt64(signo)));
 }
 
@@ -263,7 +263,7 @@ void SignalHandleUtil::SetSignoTrigger(Int32 signo)
 {
     auto exp = _signoTriggerFlags.load(std::memory_order_acquire);
     for(UInt64 setValue = exp | (1LLU << UInt64(signo));
-        !_signoTriggerFlags.compare_exchange_weak(exp, setValue);)
+        !_signoTriggerFlags.compare_exchange_weak(exp, setValue, std::memory_order_acq_rel);)
         setValue = exp | (1LLU << UInt64(signo));
 }
 
@@ -272,7 +272,7 @@ bool SignalHandleUtil::ExchangeSignoTriggerFlag(Int32 signo, bool isTrigger)
     auto exp = _signoTriggerFlags.load(std::memory_order_acquire);
     bool oldTrigger = (exp & (1LLU << UInt64(signo))) != 0;
     for(UInt64 setValue = isTrigger ? (exp | (1LLU << UInt64(signo))) : (exp & (~(1LLU << UInt64(signo))));
-        !_signoTriggerFlags.compare_exchange_weak(exp, setValue);)
+        !_signoTriggerFlags.compare_exchange_weak(exp, setValue, std::memory_order_acq_rel);)
     {
         oldTrigger = (exp & (1LLU << UInt64(signo))) != 0;
         setValue = isTrigger ? (exp | (1LLU << UInt64(signo))) : (exp & (~(1LLU << UInt64(signo))));
@@ -286,14 +286,14 @@ bool SignalHandleUtil::IsIgnoreSigno(Int32 signo)
     if(signo > SignoList::MAX_SIGNO)
         return false;
 
-    return (_ignoreSignoList.load() & (1LLU << UInt64(signo))) != 0;
+    return (_ignoreSignoList.load(std::memory_order_acquire) & (1LLU << UInt64(signo))) != 0;
 }
 
 void SignalHandleUtil::SetSignoIgnore(Int32 signo)
 {
     auto exp = _ignoreSignoList.load(std::memory_order_acquire);
     for(UInt64 setValue = exp | (1LLU << UInt64(signo));
-        !_ignoreSignoList.compare_exchange_weak(exp, setValue);)
+        !_ignoreSignoList.compare_exchange_weak(exp, setValue, std::memory_order_acq_rel);)
         setValue = exp | (1LLU << UInt64(signo));
 
     if(g_Log->IsEnable(KERNEL_NS::LogLevel::Info))

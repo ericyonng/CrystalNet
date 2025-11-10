@@ -458,13 +458,14 @@ void LibLog::_WriteLog(const LogLevelCfg *levelCfg, LogData *logData)
     if(levelCfg->_printStackTraceBack)
         logData->_logInfo << "\nStack Traceback:\n" << BackTraceUtil::CrystalCaptureStackBackTrace() << "\n";
 
-    Int64 curAllBytes = _curCacheBytes += logData->CalcBytes();
+    auto calcBytes = static_cast<Int64>(logData->CalcBytes());
+    Int64 curAllBytes = _curCacheBytes.fetch_add(calcBytes, std::memory_order_release) + calcBytes;
     specifyLog->WriteLog(*levelCfg, logData);
 
     // 缓存超过阈值强制着盘
     if(UNLIKELY(curAllBytes >= _logConfigMgr->GetMaxLogCacheBytes()))
     {
-        _curCacheBytes = 0;
+        _curCacheBytes.store(0, std::memory_order_release);
         FlushAll();
     }
 }

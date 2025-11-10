@@ -160,7 +160,7 @@ private:
 // 启动
 ALWAYS_INLINE void LibThread::Start()
 {
-    if(_isStart.exchange(true))
+    if(_isStart.exchange(true, std::memory_order_acq_rel))
         return;
 
     _CreateThread();
@@ -178,13 +178,13 @@ ALWAYS_INLINE void LibThread::Close()
 ALWAYS_INLINE bool LibThread::HalfClose()
 {
     // 已经关闭则不需要重复关闭
-    if (!_isStart.exchange(false))
+    if (!_isStart.exchange(false, std::memory_order_acq_rel))
         return false;
 
     // 先停止添加任务
-    _enableAddTask.store(false);
+    _enableAddTask.store(false, std::memory_order_release);
     // 停止工作
-    _isDestroy.store(true);
+    _isDestroy.store(true, std::memory_order_release);
 
     return true;
 }
@@ -198,7 +198,7 @@ ALWAYS_INLINE void LibThread::Wakeup()
 
 ALWAYS_INLINE bool LibThread::AddTask(ITask *task)
 {
-    if(!_enableAddTask.load())
+    if(!_enableAddTask.load(std::memory_order_acquire))
         return false;
 
     _taskLck.Lock();
@@ -296,17 +296,17 @@ ALWAYS_INLINE bool LibThread::AddTask2(LambdaType &&lamb)
 
 ALWAYS_INLINE bool LibThread::IsDestroy() const
 {
-    return _isDestroy.load();
+    return _isDestroy.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE bool LibThread::IsBusy() const
 {
-    return _isBusy.load();
+    return _isBusy.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE bool LibThread::IsStart() const
 {
-    return _isStart.load();
+    return _isStart.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE UInt64 LibThread::GetId() const
@@ -316,12 +316,12 @@ ALWAYS_INLINE UInt64 LibThread::GetId() const
 
 ALWAYS_INLINE UInt64 LibThread::GetTheadId() const
 {
-    return _threadId.load();
+    return _threadId.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE void LibThread::SetEnableTask(bool enable)
 {
-    _enableAddTask = enable;
+    _enableAddTask.store(enable, std::memory_order_release);
 }
 
 ALWAYS_INLINE void LibThread::SetThreadName(const KERNEL_NS::LibString &name)

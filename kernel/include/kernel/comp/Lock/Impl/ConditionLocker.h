@@ -83,17 +83,17 @@ ALWAYS_INLINE Int32 ConditionLocker::TimeWait(Int64 second, Int64 microSec)
 
 ALWAYS_INLINE bool ConditionLocker::HasWaiter()
 {
-    return _waitNum > 0;
+    return _waitNum.load(std::memory_order_acquire) > 0;
 }
 
 ALWAYS_INLINE void ConditionLocker::ResetSinalFlag()
 {
-    _isSinal = false;
+    _isSinal.store(false, std::memory_order_release);
 }
 
 ALWAYS_INLINE bool ConditionLocker::IsSinal() const
 {
-    return _isSinal;
+    return _isSinal.load(std::memory_order_acquire);
 }
 KERNEL_END
 

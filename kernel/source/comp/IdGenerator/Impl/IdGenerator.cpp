@@ -106,13 +106,13 @@ bool IdGenerator::_DefaultOccupancyNumberSegmentMethod(UInt64 &segment, UInt64 &
     static std::atomic<UInt64> s_machineId {0};
 
     // 机器id
-    auto origin = s_machineId.load();
+    auto origin = s_machineId.load(std::memory_order_acquire);
     machineId = origin % MAX_MACHINE_ID + 1;
-    while (!s_machineId.compare_exchange_weak(origin, machineId))
+    while (!s_machineId.compare_exchange_weak(origin, machineId, std::memory_order_acq_rel))
         machineId = origin % MAX_MACHINE_ID + 1;
     
     // id段
-    segment = ++s_maxNumberSegment;
+    segment = s_maxNumberSegment.fetch_add(1, std::memory_order_release) + 1;
 
     return true;
 }

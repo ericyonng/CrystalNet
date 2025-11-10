@@ -94,7 +94,7 @@ void Application::OnRegisterComps()
 
 void Application::SinalFinish(Int32 err)
 {
-    _runErr = err;
+    _runErr.store(err, std::memory_order_release);
 
     auto ev = KERNEL_NS::QuitApplicationEvent::New_QuitApplicationEvent();
     _poller->Push(0, ev);

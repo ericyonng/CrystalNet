@@ -162,7 +162,7 @@ Int32 IObject::Start()
     DefaultMaskReady(true);
     _isStarted = true;
 
-    return _errCode;
+    return _errCode.load(std::memory_order_acquire);
 }
 
 void IObject::WillClose()
@@ -207,7 +207,7 @@ void IObject::SetErrCode(const IObject *obj, Int32 errCode)
 {
     Int32 oldCode = Status::Success;
     Int32 countLoop = 0;
-    while(!_errCode.compare_exchange_weak(oldCode, errCode))
+    while(!_errCode.compare_exchange_weak(oldCode, errCode, std::memory_order_acq_rel))
     {
         // 已经有错误了保留
         if(oldCode != Status::Success)
@@ -240,7 +240,7 @@ LibString IObject::ToString() const
     LibString info;
     info.AppendFormat("comp info: obj name:%s, id:%llu, type:%d, isInited:%s, isStarted:%s, isReady:%s, errCode:%d"
                     , _objName.c_str(), _id, _type, _isInited ? "true" : "false"
-                    , _isStarted ? "true" : "false", _isReady ? "true" : "false", _errCode.load());
+                    , _isStarted ? "true" : "false", _isReady ? "true" : "false", _errCode.load(std::memory_order_acquire));
 
     // 接口
     info.AppendFormat("focuse interface: ");
@@ -287,7 +287,7 @@ void IObject::DefaultMaskReady(bool isReady)
 UInt64 IObject::NewId()
 {
     static std::atomic<UInt64> s_maxId = {0};
-    return ++s_maxId;
+    return s_maxId.fetch_add(1, std::memory_order_release);
 }
 
 void IObject::SetFocus(Int32 focusEnum)

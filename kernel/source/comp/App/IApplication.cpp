@@ -80,9 +80,9 @@ void IApplication::WaitFinish(Int32 &err)
     // #else
     if(!_poller->PrepareLoop())
     {
-        err = _runErr;
+        err = _runErr.load(std::memory_order_acquire);
         g_Log->Error(LOGFMT_OBJ_TAG("application %s prepare loop fail run err:%d.")
-                    , _appName.c_str(), _runErr.load());
+                    , _appName.c_str(), _runErr.load(std::memory_order_acquire));
         return;
     }
 
@@ -92,7 +92,7 @@ void IApplication::WaitFinish(Int32 &err)
     // _lck.Wait();
     // _lck.Unlock();
 
-    err = _runErr;
+    err = _runErr.load(std::memory_order_acquire);
 
     // #endif
 }

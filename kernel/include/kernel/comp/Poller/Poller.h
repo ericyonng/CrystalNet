@@ -222,6 +222,25 @@ public:
 
     void OnMonitor(PollerCompStatistics &statistics);
 
+    // 调用者当前线程投递req给this
+    // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
+    // req/res 必须实现Release, ToString接口
+    template<typename ResType, typename ReqType>
+    requires requires(ReqType req, ResType res)
+    {
+        // req/res必须有Release接口
+        req.Release();
+        res.Release();
+    
+        // req/res必须有ToString接口
+        req.ToString();
+        res.ToString();
+    }
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(ReqType *req)
+    {
+        co_return KERNEL_NS::TlsUtil::GetPoller()->SendToAsync<ResType, ReqType>(*this, req);
+    }
+    
     // 跨线程协程消息(otherPoller也可以是自己)
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
     // req/res 必须实现Release, ToString接口
@@ -275,7 +294,7 @@ public:
         
         // 等待 ObjectPollerEvent 的返回消息唤醒
         co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params);
-        if(params->_params)
+        if(LIKELY(params->_params))
         {
             auto &pa = params->_params; 
             if(pa->_errCode != Status::Success)
@@ -381,7 +400,7 @@ ALWAYS_INLINE void Poller::Disable()
 
 ALWAYS_INLINE UInt64 Poller::GetWorkerThreadId() const
 {
-    return _workThreadId;
+    return _workThreadId.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE Int64 Poller::GetEventAmount() const
@@ -391,7 +410,7 @@ ALWAYS_INLINE Int64 Poller::GetEventAmount() const
 
 ALWAYS_INLINE Int64 Poller::GetAndResetConsumCount()
 {
-    return _consumEventCount.exchange(0, std::memory_order_release);
+    return _consumEventCount.exchange(0, std::memory_order_acq_rel);
 }
 
 ALWAYS_INLINE Int64 Poller::GetGenEventAmount() const
@@ -401,7 +420,7 @@ ALWAYS_INLINE Int64 Poller::GetGenEventAmount() const
 
 ALWAYS_INLINE Int64 Poller::GetAndResetGenCount()
 {
-    return _genEventAmount.exchange(0, std::memory_order_release);
+    return _genEventAmount.exchange(0, std::memory_order_acq_rel);
 }
 
 ALWAYS_INLINE LibDirtyHelper<void *, UInt32> *Poller::GetDirtyHelper()

@@ -58,17 +58,19 @@ void TimeUtil::SetTimeZone()
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
     tzset();
     time_t now = time(NULL);
-    __g_timezone = -1 * static_cast<Int32>(localtime(&now)->tm_gmtoff);         // linux下localtime(&now)->tm_gmtoff是个整数，但是本框架需要取得相反的数，如+8时区，这里需要输出-28800
+    // __g_timezone = -1 * static_cast<Int32>(localtime(&now)->tm_gmtoff);         // linux下localtime(&now)->tm_gmtoff是个整数，但是本框架需要取得相反的数，如+8时区，这里需要输出-28800
+
+    __g_timezone.store(-1 * static_cast<Int32>(localtime(&now)->tm_gmtoff), std::memory_order_release);
 #else // WIN32
     _tzset();
-    __g_timezone = _timezone;
+    __g_timezone.store(_timezone, std::memory_order_release);
 #endif // Non-WIN32
 }
 
 // TODO需要验证接口
 Int32 TimeUtil::GetTimeZone()
 {
-    return __g_timezone;
+    return __g_timezone.load(std::memory_order_acquire);
 }
 
 Int32 TimeUtil::GetMonthMaxDays(Int32 year, Int32 month)

@@ -111,8 +111,8 @@ void IService::OnMonitor(ServiceStatisticsInfo &info)
     if(pollerMgr && pollerMgr->IsStarted())
         pollerMgr->OnMonitor(info._pollerMgrStatisticsInfo);
 
-    info._recvPackets = _recvPackets.exchange(0, std::memory_order_acquire);
-    info._consumePackets = _consumePackets.exchange(0, std::memory_order_acquire);
+    info._recvPackets = _recvPackets.exchange(0, std::memory_order_acq_rel);
+    info._consumePackets = _consumePackets.exchange(0, std::memory_order_acq_rel);
     info._sessionAmount = GetSessionAmount();
     _poller->OnMonitor(info._servicePollerInfo);
 }

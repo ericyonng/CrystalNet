@@ -140,13 +140,13 @@ ALWAYS_INLINE void CenterMemoryThreadInfo::PushBlock(MemoryBlock *block)
     _headSwap = block;
     _lck.Unlock();
 
-    ++_pendingBlockCount;
-    ++_historyBlockCount;
+    _pendingBlockCount.fetch_add(1, std::memory_order_release);
+    _historyBlockCount.fetch_add(1, std::memory_order_release);
 }
 
 ALWAYS_INLINE bool CenterMemoryThreadInfo::IsEmpty() const
 {
-    auto ret = _pendingBlockCount == 0;
+    auto ret = _pendingBlockCount.load(std::memory_order_acquire) == 0;
 
     return ret || _memroyAlloctorRefInfo.empty();
 }

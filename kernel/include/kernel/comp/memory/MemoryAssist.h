@@ -258,7 +258,7 @@ struct MemoryAssistInfoByType
     }
     ~MemoryAssistInfoByType()
     {
-        _curVecSize = 0;
+        _curVecSize.store(0, std::memory_order_release);
         _objPosInfoList.clear();
         for(auto iter = _newObjPosRefActiveCountInfo.begin(); iter != _newObjPosRefActiveCountInfo.end();)
         {
@@ -304,8 +304,8 @@ public:
         const LibString objPosStr = LibString(fileName).AppendFormat(":%d", line);
 
         // 总数统计
-        ++_maInfo._totalNewCount;
-        ++_maInfo._activeObjCount;
+        _maInfo._totalNewCount.fetch_add(1, std::memory_order_release);
+        _maInfo._activeObjCount.fetch_add(1, std::memory_order_release);
 
         _lck.Lock();
 
@@ -331,7 +331,7 @@ public:
         {
             _maInfo._objPosInfoList.push_back(posActiveInfo);
             _maInfo._newObjPosRefVecIdx[objPosStr] = _maInfo._objPosInfoList.size() - 1;
-            ++_maInfo._curVecSize;
+            _maInfo._curVecSize.fetch_add(1, std::memory_order_release);
         }
 
         _lck.Unlock();
@@ -342,8 +342,8 @@ public:
     template<typename ObjBuildType>
     void WrapDelete(ObjType *obj)
     {
-        ++_maInfo._totalDeleteCount;
-        --_maInfo._activeObjCount;
+        _maInfo._totalDeleteCount.fetch_sub(1, std::memory_order_release);
+        _maInfo._activeObjCount.fetch_sub(1, std::memory_order_release);
 
         _lck.Lock();
 
@@ -434,10 +434,10 @@ ALWAYS_INLINE MemoryAssist<ObjType, BuildType, ParticleType> *MemoryAssist<ObjTy
 template<typename ObjType, typename BuildType, LockParticleType::ENUMS ParticleType>
 ALWAYS_INLINE UInt64 MemoryAssist<ObjType, BuildType, ParticleType>::_Collect(LibString &memoryInfo)
 {
-    const Int64 curVecSize = _maInfo._curVecSize;
-    const Int64 totalNewCount = _maInfo._totalNewCount;
-    const Int64 totalDeleteCount = _maInfo._totalDeleteCount;
-    const Int64 activeObjCount = _maInfo._activeObjCount;
+    const Int64 curVecSize = _maInfo._curVecSize.load(std::memory_order_acquire);
+    const Int64 totalNewCount = _maInfo._totalNewCount.load(std::memory_order_acquire);
+    const Int64 totalDeleteCount = _maInfo._totalDeleteCount.load(std::memory_order_acquire);
+    const Int64 activeObjCount = _maInfo._activeObjCount.load(std::memory_order_acquire);
 
     memoryInfo.AppendFormat("\n[MEMORY ASSIST RECORD BEGIN %s-%s]\n", _maInfo._type.c_str(), _maInfo._buildType.c_str());
     memoryInfo.AppendFormat("obj size:%llu, total new count:%lld, total new count:%lld, total active count:%lld, total create obj pos:%lld\n"

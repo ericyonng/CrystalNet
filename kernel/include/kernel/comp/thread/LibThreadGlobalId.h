@@ -44,10 +44,10 @@ public:
     static UInt64 GenId();
 };
 
-inline UInt64 LibThreadGlobalId::GenId()
+ALWAYS_INLINE UInt64 LibThreadGlobalId::GenId()
 {
     static std::atomic<UInt64> _curMaxId = {0};
-    UInt64 id = ++_curMaxId;
+    UInt64 id = _curMaxId.fetch_add(1, std::memory_order_release) + 1;
     return id;
 }
 

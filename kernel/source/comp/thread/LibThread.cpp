@@ -80,7 +80,7 @@ void LibThread::FinishClose()
         _quitLck.Lock();
         _quitLck.TimeWait(THREAD_POOL_WAIT_FOR_COMPLETED_TIME);
 
-        if (!_isWorking.load())
+        if (!_isWorking.load(std::memory_order_acquire))
         {
             _quitLck.Unlock();
             break;
@@ -98,10 +98,10 @@ void LibThread::FinishClose()
         iter = _tasks.erase(iter);
     }
 
-    _poller = NULL;
+    _poller.store(NULL, std::memory_order_release);
 
     // 释放
-    auto startUp = _threadStartUp.exchange(NULL);
+    auto startUp = _threadStartUp.exchange(NULL, std::memory_order_acq_rel);
     if (LIKELY(startUp))
     {
         startUp->Release();
@@ -110,7 +110,7 @@ void LibThread::FinishClose()
 
 bool LibThread::AddTask(IDelegate<void, LibThread *> *callback)
 {
-    if(!_enableAddTask.load())
+    if(!_enableAddTask.load(std::memory_order_acquire))
     {
         //CRYSTAL_RELEASE(callback);
         return false;
@@ -129,7 +129,7 @@ bool LibThread::AddTask(IDelegate<void, LibThread *> *callback)
 
 bool LibThread::AddTask2(IDelegate<void, LibThread *, Variant *> *callback, Variant *params)
 {
-    if(!_enableAddTask.load())
+    if(!_enableAddTask.load(std::memory_order_acquire))
     {
         //CRYSTAL_RELEASE(callback);
         return false;
@@ -151,8 +151,9 @@ LibString LibThread::ToString() const
     LibString info;
     info.AppendFormat("id = %llu, thread name:%s, threadId = %llu, isStart = %d, isWorking = %d, \n"
                     "isBusy = %d, enableAddTask = %d"
-                    , _id, _threadName.c_str(), _threadId.load(), _isStart.load(), _isWorking.load()
-                    , _isBusy.load(), _enableAddTask.load());
+                    , _id, _threadName.c_str(), _threadId.load(std::memory_order_acquire), _isStart.load(std::memory_order_acquire)
+                    , _isWorking.load(std::memory_order_acquire)
+                    , _isBusy.load(std::memory_order_acquire), _enableAddTask.load(std::memory_order_acquire));
 
     return info;
 }
@@ -160,17 +161,17 @@ LibString LibThread::ToString() const
 CoTask<const Poller *> LibThread::GetPoller() const
 {
     const Poller *poller = NULL;
-    if (_isDestroy)
+    if (_isDestroy.load(std::memory_order_acquire))
         co_return poller;
 
-    poller = _poller;
+    poller = _poller.load(std::memory_order_acquire);
     while (poller == NULL)
     {
         co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(10));
-        poller = _poller;
+        poller = _poller.load(std::memory_order_acquire);
     }
 
-    if (_isDestroy)
+    if (_isDestroy.load(std::memory_order_acquire))
         co_return NULL;
 
     co_return poller;
@@ -179,17 +180,17 @@ CoTask<const Poller *> LibThread::GetPoller() const
 CoTask<Poller *> LibThread::GetPoller()
 {
     KERNEL_NS::Poller * poller = NULL;
-    if (_isDestroy)
+    if (_isDestroy.load(std::memory_order_acquire))
         co_return poller;
 
-    poller = _poller;
+    poller = _poller.load(std::memory_order_acquire);
     while (poller == NULL)
     {
         co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(10));
-        poller = _poller;
+        poller = _poller.load(std::memory_order_acquire);
     }
 
-    if (_isDestroy)
+    if (_isDestroy.load(std::memory_order_acquire))
         co_return NULL;
 
     co_return poller;
@@ -206,7 +207,7 @@ void LibThread::LibThreadHandlerLogic(void *param)
     std::atomic_bool &isDestroy = libThread->_isDestroy;
     std::atomic_bool &enableAddTask = libThread->_enableAddTask;
     std::list<ITask *> &taskList = libThread->_tasks;
-    libThread->_threadId = SystemUtil::GetCurrentThreadId();
+    libThread->_threadId.store(SystemUtil::GetCurrentThreadId(), std::memory_order_release);
 
     if(!libThread->GetThreadName().empty())
     {
@@ -214,19 +215,19 @@ void LibThread::LibThreadHandlerLogic(void *param)
         if(!SystemUtil::SetCurrentThreadName(libThread->GetThreadName(), err))
         {
             CRYSTAL_TRACE("set current thread name fail thread id:%llu, name:%s, err:%s"
-            , libThread->_threadId.load(), libThread->GetThreadName().c_str(), err.c_str());
+            , libThread->_threadId.load(std::memory_order_acquire), libThread->GetThreadName().c_str(), err.c_str());
         }
     }
 
     // 初始化
-    ThreadTool::OnInit(libThread, NULL, libThread->_threadId, libThread->GetId(), "lib thread local tls memorypool");
+    ThreadTool::OnInit(libThread, NULL, libThread->_threadId.load(::std::memory_order_acquire), libThread->GetId(), "lib thread local tls memorypool");
 
     ThreadTool::OnStart();
 
-    libThread->_poller = KERNEL_NS::TlsUtil::GetPoller();
+    libThread->_poller.store(KERNEL_NS::TlsUtil::GetPoller(), std::memory_order_release);
 
     // 调用startup
-    if (auto startUp = libThread->_threadStartUp.load())
+    if (auto startUp = libThread->_threadStartUp.load(std::memory_order_acquire))
     {
         startUp->Run();
     } 
@@ -277,7 +278,7 @@ void LibThread::LibThreadHandlerLogic(void *param)
         g_Log->Error(LOGFMT_NON_OBJ_TAG(LibThread, "thread exception..."));
     }
 
-    libThread->_poller = NULL;
+    libThread->_poller.store(NULL, std::memory_order_release);
     
     // 释放线程局部存储资源
     ThreadTool::OnDestroy();
@@ -350,7 +351,7 @@ void LibThread::_CreateThread(UInt64 unixStackSize)
         }
 #endif
 
-        _isWorking = true;
+        _isWorking.store(true, std::memory_order_release);
 }
 
 

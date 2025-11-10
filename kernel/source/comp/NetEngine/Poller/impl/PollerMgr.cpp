@@ -244,13 +244,13 @@ void PollerMgr::OnMonitor(PollerMgrStatisticsInfo &statistics)
     statistics._packetSendBytesSpeed += _sendBytes.load(std::memory_order_acquire);
 
     // 帧清零
-    _recvPacketCount = 0;
-    _recvBytes = 0;
-    _sendPacketCount = 0;
-    _sendBytes = 0;
-    _sessionCount = 0;
-    _acceptedSessionCount = 0;
-    _connectedSessionCount = 0;
+    _recvPacketCount.store(0, std::memory_order_release);
+    _recvBytes.store(0, std::memory_order_release);
+    _sendPacketCount.store(0, std::memory_order_release);
+    _sendBytes.store(0, std::memory_order_release);
+    _sessionCount.store(0, std::memory_order_release);
+    _acceptedSessionCount.store(0, std::memory_order_release);
+    _connectedSessionCount.store(0, std::memory_order_release);
     
     // _recvPacketCount -= recvPacketPerFrame;
     // _recvBytes -= recvBytesPerFrame;
@@ -366,7 +366,7 @@ void PollerMgr::QuitAllSessions(UInt64 serviceId)
     // 等待所有session退出
     while(true)
     {
-        if(_onlineSessionCount == 0)
+        if(_onlineSessionCount.load(std::memory_order_acquire) == 0)
             break;
 
         SystemUtil::ThreadSleep(1);

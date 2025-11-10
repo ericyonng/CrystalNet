@@ -145,7 +145,7 @@ Int32 Poller::_OnInit()
     }
 
     _isQuitLoop = false;
-    _workThreadId = 0;
+    _workThreadId.store(0, std::memory_order_release);
     _eventsList->Init();
 
     // AsyncTask消息
@@ -222,9 +222,9 @@ LibString Poller::ToString() const
     info.AppendFormat("%s", CompObject::ToString().c_str());
 
     info.AppendFormat("_maxPieceTimeInMicroseconds:%llu, ", _maxPieceTime.GetTotalCount())
-        .AppendFormat("_workThreadId:%llu, ", _workThreadId.load())
-        .AppendFormat("_isEnable:%d, ", _isEnable.load())
-        .AppendFormat("_isClosed:%d, ", _isQuitLoop.load())
+        .AppendFormat("_workThreadId:%llu, ", _workThreadId.load(std::memory_order_acquire))
+        .AppendFormat("_isEnable:%d, ", _isEnable.load(std::memory_order_acquire))
+        .AppendFormat("_isClosed:%d, ", _isQuitLoop.load(std::memory_order_acquire))
         .AppendFormat("timer loaded:%llu, ", _timerMgr ? _timerMgr->GetTimerLoaded() : 0)
         .AppendFormat("dirty helper loaded:%llu, ", _dirtyHelper ? _dirtyHelper->GetLoaded() : 0)
         .AppendFormat("events count:%llu, ", _eventsList ? _eventsList->GetAmount() : 0)
@@ -272,7 +272,7 @@ const LibCpuSlice &Poller::GetMaxPieceTime() const
 
 bool Poller::PrepareLoop()
 {
-    _workThreadId = SystemUtil::GetCurrentThreadId();
+    _workThreadId.store(SystemUtil::GetCurrentThreadId(), std::memory_order_release);
     _timerMgr->Launch(DelegateFactory::Create(this, &Poller::WakeupEventLoop));
     if(LIKELY(_prepareEventWorkerHandler))
     {
@@ -308,7 +308,7 @@ void Poller::QuicklyLoop()
     const UInt64 pollerId = GetId();
     
     #if ENABLE_POLLER_PERFORMANCE
-    const UInt64 curThreadId = _workThreadId.load();
+    const UInt64 curThreadId = _workThreadId.load(std::memory_order_acquire);
     #endif
 
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
@@ -459,7 +459,7 @@ void Poller::SafeEventLoop()
     const UInt64 pollerId = GetId();
     
     #if ENABLE_POLLER_PERFORMANCE
-    const UInt64 curThreadId = _workThreadId.load();
+    const UInt64 curThreadId = _workThreadId.load(std::memory_order_acquire);
     #endif
 
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;

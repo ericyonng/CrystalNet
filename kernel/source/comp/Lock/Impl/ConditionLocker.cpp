@@ -108,28 +108,28 @@ Int32 ConditionLocker::Wait()
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     Int64 waitRet = WAIT_OBJECT_0;
     bool oldSinal = true;
-    while(!_isSinal)
+    while(!_isSinal.load(std::memory_order_acquire))
     {
         oldSinal = false;
-        ++_waitNum;
+        _waitNum.fetch_add(1, std::memory_order_release);
         Unlock();       
         waitRet = WaitForMultipleObjects(1, &_ev, true, INFINITE);
         Lock();
-        --_waitNum;
+        _waitNum.fetch_sub(1, std::memory_order_release);
 
         // 不论是否被唤醒都重置事件避免消耗
         ResetEvent(_ev);
 
         if(waitRet == WAIT_TIMEOUT)
         {// 无论是否被唤醒（因为唤醒的时机恰好是超时）超时被唤醒
-            _isSinal = false;
+            _isSinal.store(false, std::memory_order_release);
             return Status::WaitTimeOut;
         }
 
         // 出现错误则直接return
         if(!CRYSTAL_IS_EVENT_SINAL_WAKE_UP(waitRet))
         {
-            _isSinal = false;
+            _isSinal.store(false, std::memory_order_release);
             return Status::WaitFailure;
         }
     }
@@ -137,25 +137,25 @@ Int32 ConditionLocker::Wait()
     if(oldSinal)
         ResetEvent(_ev);
 
-    _isSinal = false;
+    _isSinal.store(false, std::memory_order_release);
     return Status::Success;
 #else
-    ++_waitNum;
-    if(!_isSinal.exchange(false))
+    _waitNum.fetch_add(1, std::memory_order_release);
+    if(!_isSinal.exchange(false, std::memory_order_acq_rel))
     {
         auto ret = pthread_cond_wait(&_ev, &_handle);
-        _isSinal = false;
+        _isSinal.store(false, std::memory_order_release);
         if(ret != 0)
         {
-            --_waitNum;
+            _waitNum.fetch_sub(1, std::memory_order_release);
             printf("\nret=%d\n", ret);
             perror("cConSync::WaitCon -error waitcon");
-            _isSinal = false;
+            _isSinal.store(false, std::memory_order_release);
             return Status::WaitFailure;
         }
     }
     
-    --_waitNum;
+    _waitNum.fetch_sub(1, std::memory_order_release);
     return Status::Success;
 #endif
 
@@ -167,28 +167,28 @@ Int32 ConditionLocker::TimeWait(UInt64 second, UInt64 microSec)
     Int64 waitRet = WAIT_OBJECT_0;
     bool oldSinal = true;
     DWORD waitTimeMs = static_cast<DWORD>(second*TimeDefs::MILLI_SECOND_PER_SECOND + microSec / TimeDefs::MICRO_SECOND_PER_MILLI_SECOND);
-    while(!_isSinal)
+    while(!_isSinal.load(std::memory_order_acquire))
     {
         oldSinal = false;
-        ++_waitNum;
+        _waitNum.fetch_add(1, std::memory_order_release);
         Unlock();
         waitRet = WaitForMultipleObjects(1, &_ev, true, waitTimeMs);
         Lock();
-        --_waitNum;
+        _waitNum.fetch_sub(1, std::memory_order_release);
 
         // 不论是否被唤醒都重置事件避免消耗
         ResetEvent(_ev);
 
         if(waitRet == WAIT_TIMEOUT)
         {// 无论是否被唤醒（因为唤醒的时机恰好是超时）超时被唤醒
-            _isSinal = false;
+            _isSinal.store(false, std::memory_order_release);
             return Status::WaitTimeOut;
         }
 
         // 出现错误则直接return
         if(!CRYSTAL_IS_EVENT_SINAL_WAKE_UP(waitRet))
         {
-            _isSinal = false;
+            _isSinal.store(false, std::memory_order_release);
             return Status::WaitFailure;
         }
     }
@@ -196,7 +196,7 @@ Int32 ConditionLocker::TimeWait(UInt64 second, UInt64 microSec)
     if(oldSinal)
         ResetEvent(_ev);
 
-    _isSinal = false;
+    _isSinal.store(false, std::memory_order_release);
     return Status::Success;
 #else
 
@@ -204,29 +204,29 @@ Int32 ConditionLocker::TimeWait(UInt64 second, UInt64 microSec)
     struct timespec abstime; // nsec是时刻中的纳秒部分，注意溢出
     FixAbsTime(second, microSec, abstime);
 
-    ++_waitNum;
-    if(!_isSinal.exchange(false))
+    _waitNum.fetch_add(1, std::memory_order_release);
+    if(!_isSinal.exchange(false, std::memory_order_acq_rel))
     {
         // CRYSTAL_TRACE("time wait second[%llu] microSec[%llu] %lld seconds %lld nano sec"
         // , second, microSec, abstime.tv_sec, abstime.tv_nsec);
         int ret = pthread_cond_timedwait(&_ev, &_handle, &abstime);
-        _isSinal = false;
+        _isSinal.store(false, std::memory_order_release);
         if(ret == ETIMEDOUT)
         {
-            --_waitNum;
+            _waitNum.fetch_sub(1, std::memory_order_release);
             return Status::WaitTimeOut;
         }
 
         if(ret != 0)
         {
-            --_waitNum;
+            _waitNum.fetch_sub(1, std::memory_order_release);
             printf("\nret=%d\n", ret);
             perror("pthread cond timewait error");
             return Status::WaitFailure;
         }
     }
 
-    --_waitNum;
+    _waitNum.fetch_sub(1, std::memory_order_release);
     return Status::Success;
 #endif
 }
@@ -236,28 +236,28 @@ Int32 ConditionLocker::TimeWait(UInt64 milliSecond)
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     Int64 waitRet = WAIT_OBJECT_0;
     bool oldSinal = true;
-    while(!_isSinal)
+    while(!_isSinal.load(std::memory_order_acquire))
     {
         oldSinal = false;
-        ++_waitNum;
+        _waitNum.fetch_add(1, std::memory_order_release);
         Unlock();
         waitRet = WaitForMultipleObjects(1, &_ev, true, static_cast<DWORD>(milliSecond));
         Lock();
-        --_waitNum;
+        _waitNum.fetch_sub(1, std::memory_order_release);
 
         // 不论是否被唤醒都重置事件避免消耗
         ResetEvent(_ev);
 
         if(waitRet == WAIT_TIMEOUT)
         {// 无论是否被唤醒（因为唤醒的时机恰好是超时）超时被唤醒
-            _isSinal = false;
+            _isSinal.store(false, std::memory_order_release);
             return Status::WaitTimeOut;
         }
 
         // 出现错误则直接return
         if(!CRYSTAL_IS_EVENT_SINAL_WAKE_UP(waitRet))
         {
-            _isSinal = false;
+            _isSinal.store(false, std::memory_order_release);
             return Status::WaitFailure;
         }
     }
@@ -265,35 +265,35 @@ Int32 ConditionLocker::TimeWait(UInt64 milliSecond)
     if(oldSinal)
         ResetEvent(_ev);
 
-    _isSinal = false;
+    _isSinal.store(false, std::memory_order_release);
     return Status::Success;
 #else
     // nsec是时刻中的纳秒部分，注意溢出
     struct timespec abstime; 
     FixAbsTime(milliSecond, abstime);
 
-    ++_waitNum;
-    if(!_isSinal.exchange(false))
+    _waitNum.fetch_add(1, std::memory_order_release);
+    if(!_isSinal.exchange(false, std::memory_order_acq_rel))
     {
         // CRYSTAL_TRACE("time wait milliSecond[%llu] %lld seconds %lld nano sec", milliSecond, abstime.tv_sec, abstime.tv_nsec);
         int ret = pthread_cond_timedwait(&_ev, &_handle, &abstime);
-        _isSinal = false;
+        _isSinal.store(false, std::memory_order_release);
         if(ret == ETIMEDOUT)
         {
-            --_waitNum;
+            _waitNum.fetch_sub(1, std::memory_order_release);
             return Status::WaitTimeOut;
         }
 
         if(ret != 0)
         {
-            --_waitNum;
+            _waitNum.fetch_sub(1, std::memory_order_release);
             printf("\nret=%d\n", ret);
             perror("pthread cond timewait error");
             return Status::WaitFailure;
         }
     }
 
-    --_waitNum;
+    _waitNum.fetch_sub(1, std::memory_order_release);
     return Status::Success;
 #endif
 }
@@ -302,25 +302,25 @@ Int32 ConditionLocker::TimeWait(UInt64 milliSecond)
 bool ConditionLocker::Sinal()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    if(!_isSinal.exchange(true))
+    if(!_isSinal.exchange(true, std::memory_order_acq_rel))
     {// 至少有一个waiter或者没有waiter
 
         // 保证不丢失信号
         Lock();
-        _isSinal = true;
-        if(_waitNum > 0)
+        _isSinal.store(true, std::memory_order_release);
+        if(_waitNum.load(std::memory_order_acquire) > 0)
             SetEvent(_ev);
         Unlock();
     }
 
-    return _isSinal.load();
+    return _isSinal.load(std::memory_order_acquire);
 #else
-    if(!_isSinal.exchange(true))
+    if(!_isSinal.exchange(true, std::memory_order_acq_rel))
     {// 保证只有一个Sinal调用者进入 , sinal 为false说明,wait那边把sinal置为false,或者没有waiter
 
         // 有waiter情况下 _waitNum必定大于0
         Lock();
-        if(LIKELY(_waitNum > 0))
+        if(LIKELY(_waitNum.load(std::memory_order_acquire) > 0))
         {
             int ret = pthread_cond_signal(&_ev);
             if(ret != 0)
@@ -334,7 +334,7 @@ bool ConditionLocker::Sinal()
         Unlock();
     }
 
-    return _isSinal.load();
+    return _isSinal.load(std::memory_order_acquire);
 #endif
 }
 
@@ -342,7 +342,7 @@ void ConditionLocker::Broadcast()
 {
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     bool isSinal = false;
-    while(_waitNum > 0)
+    while(_waitNum.load(std::memory_order_acquire) > 0)
         Sinal();
 
 //     if(LIKELY(isSinal))
@@ -352,7 +352,7 @@ void ConditionLocker::Broadcast()
 //     }
 #else
     Lock();
-    _isSinal = true;
+    _isSinal.store(true, std::memory_order_release);
     Unlock();
 
     int ret = pthread_cond_broadcast(&_ev);

@@ -60,8 +60,8 @@ CenterMemoryThreadInfo::~CenterMemoryThreadInfo()
 
 LibString CenterMemoryThreadInfo::ToString() const
 {
-    const UInt64 pendingCount = _pendingBlockCount.load();
-    const UInt64 historyCount = _historyBlockCount.load();
+    const UInt64 pendingCount = _pendingBlockCount.load(std::memory_order_acquire);
+    const UInt64 historyCount = _historyBlockCount.load(std::memory_order_acquire);
     LibString info;
 
     info.AppendFormat("thread id:%llu, history count:%llu pendingCount:%llu\n", _threadId, historyCount, pendingCount);
@@ -83,7 +83,7 @@ LibString CenterMemoryThreadInfo::ToString() const
 
 UInt64 CenterMemoryThreadInfo::MergeBlocks()
 {
-    if(LIKELY(_pendingBlockCount == 0))
+    if(LIKELY(_pendingBlockCount.load(std::memory_order_acquire) == 0))
         return 0;
 
     UInt64 blockCount = 0;
@@ -91,8 +91,7 @@ UInt64 CenterMemoryThreadInfo::MergeBlocks()
     auto toSwap = _head;
     _head = _headSwap;
     _headSwap = toSwap;
-    blockCount = _pendingBlockCount;
-    _pendingBlockCount = 0;
+    blockCount = _pendingBlockCount.exchange(0, std::memory_order_acq_rel);
     _lck.Unlock();
 
     // 丢进来的memoryalloctor 需要按照线程区分并丢给对应的线程TODO:
