@@ -169,11 +169,11 @@ ALWAYS_INLINE void LibThreadPool::Close()
 ALWAYS_INLINE bool LibThreadPool::HalfClose()
 {
     // 已经关闭
-    if(!_isWorking.exchange(false))
+    if(!_isWorking.exchange(false, std::memory_order_acq_rel))
         return false;
 
-    _isDestroy.store(true);
-    _isEnableTask.store(false);
+    _isDestroy.store(true, std::memory_order_release);
+    _isEnableTask.store(false, std::memory_order_release);
 
     CRYSTAL_TRACE("LibThreadPool HalfClose");
     return true;
@@ -182,7 +182,7 @@ ALWAYS_INLINE bool LibThreadPool::HalfClose()
 ALWAYS_INLINE void LibThreadPool::FinishClose()
 {
     // 线程数为0为止
-    while ( _curTotalNum.load() > 0)
+    while ( _curTotalNum.load(std::memory_order_acquire) > 0)
     {
         // 唤醒
         _wakeupAndWait.Sinal();
@@ -200,7 +200,7 @@ template<typename CbType>
 ALWAYS_INLINE void LibThreadPool::FinishClose(CbType &&cb)
 {
     // 线程数为0为止
-    while ( _curTotalNum.load() > 0)
+    while ( _curTotalNum.load(std::memory_order_acquire) > 0)
     {
         // 唤醒
         _wakeupAndWait.Sinal();
@@ -220,18 +220,18 @@ ALWAYS_INLINE void LibThreadPool::FinishClose(CbType &&cb)
 
 ALWAYS_INLINE void LibThreadPool::SetEnableTask(bool enable)
 {
-    _isEnableTask.exchange(enable);
+    _isEnableTask.exchange(enable, std::memory_order_acq_rel);
 }
 
 ALWAYS_INLINE void LibThreadPool::AddMaxThreadNum(UInt32 addNum)
 {
-    _maxNum += addNum;
+    _maxNum.fetch_add(static_cast<Int32>(addNum), std::memory_order_release);
 }
 
 
 ALWAYS_INLINE bool LibThreadPool::IsDestroy() const
 {
-    return _isDestroy.load();
+    return _isDestroy.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE void LibThreadPool::SetPoolName(const LibString &name)
@@ -319,7 +319,7 @@ ALWAYS_INLINE bool LibThreadPool::AddTask2(LambdaType &&lamb, Variant *params, b
 
 ALWAYS_INLINE Int32 LibThreadPool::GetWorkThreadNum() const
 {
-    return _curTotalNum.load();
+    return _curTotalNum.load(std::memory_order_acquire);
 }
 
 KERNEL_END

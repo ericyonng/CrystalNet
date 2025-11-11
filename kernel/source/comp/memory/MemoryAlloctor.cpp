@@ -158,7 +158,7 @@ ALWAYS_INLINE void MemoryAlloctor::_DoFreeBlock(MemoryBlock *block)
 
 ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks()
 {
-    if(LIKELY(_needMerge.load() == false))
+    if(LIKELY(_needMerge.load(std::memory_order_acquire) == false))
         return;
 
     // 先进行交换
@@ -166,7 +166,7 @@ ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks()
     auto toSwap = _mergeBufferList;
     _mergeBufferList = _mergeBufferListSwap;
     _mergeBufferListSwap = toSwap;
-    _needMerge = false;
+    _needMerge.store(false, std::memory_order_release);
     _bufferToMergeCount.store(0, std::memory_order_release);
     _toMergeLck.Unlock();
 
@@ -186,7 +186,7 @@ ALWAYS_INLINE void MemoryAlloctor::_MergeBlocks()
     _Recycle(count, bufferList, bufferListTail);
 
     // 没有需要合并的就把自己移除
-    if(LIKELY(!_needMerge))
+    if(LIKELY(!_needMerge.load(std::memory_order_acquire)))
         _RemoveSelfFromDurtyList();
 }
 
@@ -375,7 +375,7 @@ LibString MemoryAlloctor::UsingInfo() const
 
 void MemoryAlloctor::Init(bool isThreadLocalCreate, UInt64 initBlockNumPerBuffer, const std::string &source)
 {
-    if(_isInit.exchange(true))
+    if(_isInit.exchange(true, std::memory_order_acq_rel))
         return;
 
     _lck.Lock();
@@ -400,7 +400,7 @@ void MemoryAlloctor::Init(bool isThreadLocalCreate, UInt64 initBlockNumPerBuffer
 
 void MemoryAlloctor::Destroy()
 {
-    if(!_isInit.exchange(false))
+    if(!_isInit.exchange(false, std::memory_order_acq_rel))
         return;
     
     if(_isThreadLocalCreate)
@@ -433,7 +433,7 @@ void MemoryAlloctor::Destroy()
 void MemoryAlloctor::PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferInfo *head, MergeMemoryBufferInfo *tail)
 {
     _toMergeLck.Lock();
-    _needMerge = true;
+    _needMerge.store(true, std::memory_order_release);
     _bufferToMergeCount.fetch_add(memoryBuffMergeNum, std::memory_order_release);
 
     // 合并链表
@@ -442,7 +442,7 @@ void MemoryAlloctor::PushMergeList(UInt64 memoryBuffMergeNum, MergeMemoryBufferI
     _toMergeLck.Unlock();
 
     // 不在脏队列中则加入脏队列 放在tls中提供上层去处理合并事情
-    if(LIKELY(_needMerge))
+    if(LIKELY(_needMerge.load(std::memory_order_acquire)))
         _AddSelfToDurtyListIfNotIn();
 }
 

@@ -144,7 +144,7 @@ Int32 Poller::_OnInit()
         return ret;
     }
 
-    _isQuitLoop = false;
+    _isQuitLoop.store(false, std::memory_order_release);
     _workThreadId.store(0, std::memory_order_release);
     _eventsList->Init();
 
@@ -166,7 +166,7 @@ Int32 Poller::_OnStart()
         return ret;
     }
 
-    _isQuitLoop = false;
+    _isQuitLoop.store(false, std::memory_order_release);
     g_Log->Debug(LOGFMT_OBJ_TAG("poller started %s"), ToString().c_str());
     return Status::Success;
 }
@@ -175,7 +175,7 @@ void Poller::_OnWillClose()
 {
     g_Log->Debug(LOGFMT_OBJ_TAG("poller will close %s"), ToString().c_str());
 
-    _isQuitLoop = true;
+    _isQuitLoop.store(true, std::memory_order_release);
     WakeupEventLoop();
 
     CompObject::_OnWillClose();
@@ -320,7 +320,7 @@ void Poller::QuicklyLoop()
         if((_eventAmountLeft.load(std::memory_order_acquire) == 0) && !_dirtyHelper->HasDirty())
         {
             // quit仅考虑消息是否处理完,以及脏是否处理完,定时器不需要考虑,否则如果过期时间设置了0则无法退出
-            if(UNLIKELY(_isQuitLoop))
+            if(UNLIKELY(_isQuitLoop.load(std::memory_order_acquire)))
                 break;
 
             if(!_timerMgr->HasExpired())
@@ -478,7 +478,7 @@ void Poller::SafeEventLoop()
             if((_eventAmountLeft.load(std::memory_order_acquire) == 0) && !_dirtyHelper->HasDirty())
             {
                 // quit仅考虑消息是否处理完,以及脏是否处理完,定时器不需要考虑,否则如果过期时间设置了0则无法退出
-                if(UNLIKELY(_isQuitLoop))
+                if(UNLIKELY(_isQuitLoop.load(std::memory_order_acquire)))
                     break;
 
                 if(!_timerMgr->HasExpired())
@@ -693,7 +693,7 @@ bool Poller::CanQuit() const
 
 void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
 {
-    if(UNLIKELY(!_isEnable))
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, evList count:%llu")
                         , GetId(), evList->GetAmount());
@@ -716,7 +716,7 @@ void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
 
 void Poller::Push(Int32 level, IDelegate<void> *action)
 {
-    if(UNLIKELY(!_isEnable))
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying poller obj id:%llu"), GetId());
         action->Release();
@@ -733,7 +733,7 @@ void Poller::Push(Int32 level, IDelegate<void> *action)
 
 void Poller::Push(Int32 level, PollerEvent *ev)
 {
-    if(UNLIKELY(!_isEnable))
+    if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("poller is destroying obj id:%llu, ev:%s"), GetId(), ev->ToString().c_str());
         ev->Release();
@@ -758,8 +758,8 @@ Int32 Poller::GetMaxPriorityLevel() const
 
 void Poller::_Clear()
 {
-    _isEnable = false;
-    _isQuitLoop = false;
+    _isEnable.store(false, std::memory_order_release);
+    _isQuitLoop.store(false, std::memory_order_release);
 
     if(LIKELY(_timerMgr))
     {

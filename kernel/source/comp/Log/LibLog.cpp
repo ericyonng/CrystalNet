@@ -67,7 +67,7 @@ LibLog::~LibLog()
 
 bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, const LibString &logContent, const LibString &consoleConntent)
 {
-    if (_isInit.exchange(true))
+    if (_isInit.exchange(true, std::memory_order_acq_rel))
     {
         CRYSTAL_TRACE("already init log %s", logConfigFile);
         return true;
@@ -191,7 +191,7 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, const LibS
     for(Int32 idx = 0; idx < static_cast<Int32>(_isForceDiskFlag.size()); ++idx)
     {
         _isForceDiskFlag[idx] = new std::atomic_bool;
-        *_isForceDiskFlag[idx] = false;
+        _isForceDiskFlag[idx]->store(false, std::memory_order_release);
     }
 
     // // 异常信号处理任务 统一走kernel destroy
@@ -205,13 +205,13 @@ bool LibLog::Init(const Byte8 *logConfigFile, const Byte8 *logCfgDir, const LibS
 
 void LibLog::Start()
 {
-    if(UNLIKELY(!_isInit.load() || _isFinish.load()))
+    if(UNLIKELY(!_isInit.load(std::memory_order_acquire) || _isFinish.load(std::memory_order_acquire)))
     {
         CRYSTAL_TRACE("have no init cant start");
         return;
     }
 
-    if(_isStart.exchange(true))
+    if(_isStart.exchange(true, std::memory_order_acq_rel))
     {
         CRYSTAL_TRACE("LIB LOG has already start.");
         return;
@@ -250,11 +250,11 @@ void LibLog::Start()
 
 void LibLog::Close()
 {
-    if(_isFinish.exchange(true))
+    if(_isFinish.exchange(true, std::memory_order_acq_rel))
         return;
 
-    _isInit = false;
-    _isStart = false;
+    _isInit.store(false, std::memory_order_release);
+    _isStart.store(false, std::memory_order_release);
 
     // CRYSTAL_TRACE("Close log start");
 
@@ -324,16 +324,16 @@ void LibLog::FlushAll()
 
 void LibLog::ForceLogToDiskAll()
 {
-    _isForceLogDiskAll = false;
+    _isForceLogDiskAll.store(false, std::memory_order_release);
 
     for(Int32 idx = 0; idx <  static_cast<Int32>(_isForceDiskFlag.size()); ++idx)
     {
         if(_isForceDiskFlag[idx])
-            *_isForceDiskFlag[idx] = false;
+            _isForceDiskFlag[idx]->store(false, std::memory_order_release);
     }
 
     CRYSTAL_TRACE("will force log to disk all..");
-    _isForceLogDiskAll = true;
+    _isForceLogDiskAll.store(true, std::memory_order_release);
 
     FlushAll();
 
@@ -357,7 +357,7 @@ void LibLog::ForceLogToDiskAll()
                 }
                 else
                 {
-                    if(!_isForceDiskFlag[idx]->load())
+                    if(!_isForceDiskFlag[idx]->load(std::memory_order_acquire))
                         break;
                 }
 
@@ -379,7 +379,7 @@ void LibLog::ForceLogToDiskAll()
 
     CRYSTAL_TRACE("all log to disk finish currentThreadId:%llu", currentThreadId);
 
-    _isForceLogDiskAll = false;
+    _isForceLogDiskAll.store(false, std::memory_order_release);
 }
 
 const LibString &LibLog::GetLogRootPath() const
@@ -389,12 +389,12 @@ const LibString &LibLog::GetLogRootPath() const
 
 bool LibLog::IsStart() const
 {
-    return _isStart;
+    return _isStart.load(std::memory_order_acquire);
 }
 
 bool LibLog::IsLogOpen() const
 {
-    return (!_isFinish) && _logConfigMgr && _logConfigMgr->IsEnableLog();
+    return (!_isFinish.load(std::memory_order_acquire)) && _logConfigMgr && _logConfigMgr->IsEnableLog();
 }
 
 void LibLog::UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *delegate)
@@ -402,7 +402,7 @@ void LibLog::UnInstallAfterLogHookFunc(Int32 level, const IDelegate<void> *deleg
     if(UNLIKELY(!IsLogOpen()))
         return;
 
-    if(UNLIKELY(_isStart.load()))
+    if(UNLIKELY(_isStart.load(std::memory_order_acquire)))
     {
         CRYSTAL_TRACE("log has already start UnInstallAfterLogHookFunc");
         return;
@@ -419,7 +419,7 @@ void LibLog::UnInstallBeforeLogHookFunc(Int32 level, const IDelegate<void, LogDa
     if(UNLIKELY(!IsLogOpen()))
         return;
 
-    if(UNLIKELY(_isStart.load()))
+    if(UNLIKELY(_isStart.load(std::memory_order_acquire)))
     {
         CRYSTAL_TRACE("log has already start UnInstallBeforeLogHookFunc");
         return;
@@ -543,7 +543,7 @@ void LibLog::_OnLogFlush(std::vector<SpecifyLog *> &logs, Int32 threadRelationId
     }
 
     // 强制落盘
-    if(_isForceLogDiskAll)
+    if(_isForceLogDiskAll.load(std::memory_order_acquire))
     {
         for(Int32 i = 0; i < logCount; ++i)
         {
@@ -551,7 +551,7 @@ void LibLog::_OnLogFlush(std::vector<SpecifyLog *> &logs, Int32 threadRelationId
             log->ForceToDisk();
         }
 
-        *_isForceDiskFlag[threadRelationIdx] = true;
+        _isForceDiskFlag[threadRelationIdx]->store(true, std::memory_order_release);
     }
 
     // CRYSTAL_TRACE("_OnLogFlush logCount:[%d]", logCount);

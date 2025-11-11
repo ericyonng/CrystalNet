@@ -70,14 +70,14 @@ std::atomic_bool s_KernelDestroy{false};
 
 Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const Byte8 *iniPath, const LibString &logContent, const LibString &consoleContent, bool needSignalHandle, Int64 fileSoftLimit, Int64 fileHardLimit)
 {
-    if(g_KernelInit.exchange(true))
+    if(g_KernelInit.exchange(true, std::memory_order_acq_rel))
     {
         CRYSTAL_TRACE("kernel is init before logIniName:%s iniPath:%s", logIniName ? logIniName:"NONE", iniPath ? iniPath:"NONE");
         return Status::Success;
     }
 
-    s_KernelStart = false;
-    s_KernelDestroy = false;
+    s_KernelStart.store(false, std::memory_order_release);
+    s_KernelDestroy.store(false, std::memory_order_release);
 
     // 设置主线程名
     // const auto &processName = KERNEL_NS::SystemUtil::GetCurProgramNameWithoutExt();
@@ -285,7 +285,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
 
 void KernelUtil::Start()
 {
-    if(s_KernelStart.exchange(true))
+    if(s_KernelStart.exchange(true, std::memory_order_acq_rel))
     {
         CRYSTAL_TRACE("kernel start before.");
         return;
@@ -302,12 +302,12 @@ void KernelUtil::Start()
 
     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started."));
 
-    s_KernelDestroy = false;
+    s_KernelDestroy.store(false, std::memory_order_release);
 }
 
 void KernelUtil::Destroy()
 {
-    if(s_KernelDestroy.exchange(true))
+    if(s_KernelDestroy.exchange(true, std::memory_order_acq_rel))
     {
         CRYSTAL_TRACE("kernel destroy before.");
         return;
@@ -377,8 +377,8 @@ void KernelUtil::Destroy()
 
     KERNEL_NS::CenterMemoryCollector::GetInstance()->Close();
 
-    g_KernelInit = false;
-    s_KernelStart = false;
+    g_KernelInit.store(false, std::memory_order_release);
+    s_KernelStart.store(false, std::memory_order_release);
     
     // CRYSTAL_TRACE("kernel destroy finish.");
 }

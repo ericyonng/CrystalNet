@@ -100,7 +100,7 @@ AsyncTaskPollerEvent::~AsyncTaskPollerEvent()
 
 void AsyncTaskPollerEvent::Release()
 {
-    AsyncTaskPollerEvent::Delete_AsyncTaskPollerEvent(this);
+    AsyncTaskPollerEvent::DeleteThreadLocal_AsyncTaskPollerEvent(this);
 }
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(StubPollerEvent);

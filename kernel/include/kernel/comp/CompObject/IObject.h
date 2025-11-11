@@ -288,27 +288,27 @@ ALWAYS_INLINE const LibString &IObject::GetObjName() const
 
 ALWAYS_INLINE bool IObject::IsReady() const
 {
-    return _isReady;
+    return _isReady.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE bool IObject::IsInited() const
 {
-    return _isInited;
+    return _isInited.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE bool IObject::IsStarted() const
 {
-    return _isStarted;
+    return _isStarted.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE bool IObject::IsWillClose() const
 {
-    return _isWillClose;
+    return _isWillClose.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE bool IObject::IsClose() const
 {
-    return _isClose;
+    return _isClose.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE IObject *IObject::GetOwner()

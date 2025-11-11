@@ -58,7 +58,7 @@ SpecifyLog::~SpecifyLog()
 
 Int32 SpecifyLog::Init(const LibString &rootDirName, const LogConfig *cfg)
 {
-    if(_isInit.exchange(true))
+    if(_isInit.exchange(true, std::memory_order_acq_rel))
     {
         CRYSTAL_TRACE("already init log file name[%s]", cfg->_logFileName.c_str());
         return Status::Success;
@@ -105,13 +105,13 @@ Int32 SpecifyLog::Init(const LibString &rootDirName, const LogConfig *cfg)
 
 Int32 SpecifyLog::Start()
 {
-    if(_isStart.exchange(true))
+    if(_isStart.exchange(true, std::memory_order_acq_rel))
     {
         CRYSTAL_TRACE("already start SpecifyLog log file name[%s]", _config->_logFileName.c_str());
         return Status::Success;
     }
 
-    if(!_isInit.load())
+    if(!_isInit.load(std::memory_order_acquire))
     {
         CRYSTAL_TRACE("log not init");
         return Status::NotInit;
@@ -129,11 +129,11 @@ Int32 SpecifyLog::Start()
 
 void SpecifyLog::Close()
 {
-    if(_isClose.exchange(true))
+    if(_isClose.exchange(true, std::memory_order_acq_rel))
         return;
 
-    _isInit = false;
-    _isStart = false;
+    _isInit.store(false, std::memory_order_release);
+    _isStart.store(false, std::memory_order_release);
 
     // 着盘
     Flush();
@@ -206,7 +206,7 @@ void SpecifyLog::CloseAndReopen()
 void SpecifyLog::WriteLog(const LogLevelCfg &levelCfg, LogData *logData)
 {
     // 1.外部判断,按理来说不应该在日志线程即将关闭或者关闭时写日志
-    if(UNLIKELY(_isClose.load()))
+    if(UNLIKELY(_isClose.load(std::memory_order_acquire)))
     {
         LogData::Delete_LogData(logData);
         return;

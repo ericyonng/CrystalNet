@@ -64,7 +64,7 @@ MemoryMonitor *MemoryMonitor::GetInstance()
 
 Int32 MemoryMonitor::Init(Int64 milliSecInterval)
 {
-    if(_init.exchange(true))
+    if(_init.exchange(true, std::memory_order_acq_rel))
     {
         CRYSTAL_TRACE("MemoryMonitor has init before.");
         return Status::Success;
@@ -77,19 +77,19 @@ Int32 MemoryMonitor::Init(Int64 milliSecInterval)
 
 void MemoryMonitor::Start()
 {
-    if(!_init)
+    if(!_init.load(std::memory_order_acquire))
         return;
 
-    if(_isStart.exchange(true))
+    if(_isStart.exchange(true, std::memory_order_acq_rel))
         return;
 }
 
 void MemoryMonitor::Close()
 {
-    if(!_isStart.exchange(false))
+    if(!_isStart.exchange(false, std::memory_order_acq_rel))
         return;
     
-    _init = false;
+    _init.store(false, std::memory_order_release);
 }
 
 Statistics *MemoryMonitor::GetStatistics()

@@ -47,7 +47,7 @@ template<typename CallerType>
 ALWAYS_INLINE void PostAsyncTask(CallerType &&cb)
 {
     // handler将在poller中执行
-    auto ev = KERNEL_NS::AsyncTaskPollerEvent::New_AsyncTaskPollerEvent();
+    auto ev = KERNEL_NS::AsyncTaskPollerEvent::NewThreadLocal_AsyncTaskPollerEvent();
     auto task = AsyncTask::NewThreadLocal_AsyncTask();
     ev->_asyncTask = task;
     auto delg = KERNEL_NS::DelegateFactory::Create<decltype(cb), void>(std::forward<CallerType>(cb));

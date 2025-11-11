@@ -231,7 +231,7 @@ Int32 MysqlDB::Dump(const LibString &dumpFilePath)
 
 bool MysqlDB::PushRequest(MysqlRequest *req)
 {
-    if(UNLIKELY(!_isReady))
+    if(UNLIKELY(!_isReady.load(std::memory_order_acquire)))
     {
         g_Log->Warn2(LOGFMT_OBJ_TAG_NO_FMT(), KERNEL_NS::LibString().AppendFormat("mysql db is not ready mysql db:%s, req:", ToString().c_str()), req->Dump());
         return false;
@@ -292,7 +292,7 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
         reqList.resize(1);
         reqList[0] = LibList<MysqlRequest *>::New_LibList();
 
-        _isReady = true;
+        _isReady.store(true, std::memory_order_release);
 
         g_Log->Info(LOGFMT_OBJ_TAG("db is ready config:%s"), _cfg.ToString().c_str());
 
@@ -364,7 +364,7 @@ void MysqlDB::_OnWorker(LibThread *t, Variant *var)
 
     g_Log->Info(LOGFMT_OBJ_TAG("db is stop config:%s, workerBalance:%s"), _cfg.ToString().c_str(), workerBalance->ToString().c_str());
 
-    _isReady = false;
+    _isReady.store(false, std::memory_order_release);
 }
 
 void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &pingExpireTime)

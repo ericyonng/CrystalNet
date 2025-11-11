@@ -77,7 +77,7 @@ LibSession::~LibSession()
 
 Int32 LibSession::Init()
 {
-    if(_inited.exchange(true))
+    if(_inited.exchange(true, std::memory_order_acq_rel))
     {
         g_Log->NetWarn(LOGFMT_OBJ_TAG("inited before session info:%s."), ToString().c_str());
         return Status::Repeat;
@@ -142,7 +142,7 @@ LibSession &LibSession::CommitTransaction()
 
 void LibSession::_Destroy()
 {
-    if(!_inited.exchange(false))
+    if(!_inited.exchange(false, std::memory_order_acq_rel))
         return;
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("session destroy:%s"), ToString().c_str());

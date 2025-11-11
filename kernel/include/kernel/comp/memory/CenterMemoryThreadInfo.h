@@ -153,7 +153,7 @@ ALWAYS_INLINE bool CenterMemoryThreadInfo::IsEmpty() const
 
 ALWAYS_INLINE bool CenterMemoryThreadInfo::IsQuit() const
 {
-    return _isQuit;
+    return _isQuit.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE void CenterMemoryThreadInfo::SetTlsStack(TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)

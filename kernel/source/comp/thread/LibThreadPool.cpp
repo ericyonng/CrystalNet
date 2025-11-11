@@ -66,35 +66,35 @@ void LibThreadPool::Release()
 void LibThreadPool::Init(Int32 minNum, Int32 maxNum, UInt64 unixStackSize)
 {
     // 初始化过不可再修改 初始化前不可启动线程池
-    if(_isInit.exchange(true))
+    if(_isInit.exchange(true, std::memory_order_acq_rel))
         return;
 
-    _isDestroy = false;
-    _minNum = minNum;
-    _maxNum = maxNum;
-    _curTotalNum = 0;
-    _waitNum = 0;
-    _isEnableTask = true;
+    _isDestroy.store(false, std::memory_order_release);
+    _minNum.store(minNum, std::memory_order_release);
+    _maxNum.store(maxNum, std::memory_order_release);
+    _curTotalNum.store(0, std::memory_order_release);
+    _waitNum.store(0, std::memory_order_release);
+    _isEnableTask.store(true, std::memory_order_release);
     _unixStackSize = unixStackSize;
 }
 
 bool LibThreadPool::Start(bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 {
-    if(!_isInit.load())
+    if(!_isInit.load(std::memory_order_acquire))
     {
         CRYSTAL_TRACE("have no init before");
         return false;
     }
 
-    if(_isWorking.exchange(true))
+    if(_isWorking.exchange(true, std::memory_order_acq_rel))
         return true;
 
-    const auto minNum = _minNum.load();
+    const auto minNum = _minNum.load(std::memory_order_acquire);
     if(minNum)
       _CreateThread(minNum, _unixStackSize);
 
     // 唤醒
-    if(_waitNum.load() > 0 && !forceNewThread)
+    if(_waitNum.load(std::memory_order_acquire) > 0 && !forceNewThread)
     {
         _wakeupAndWait.Sinal();
         return true;
@@ -105,8 +105,8 @@ bool LibThreadPool::Start(bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
         return true;
 
     _wakeupAndWait.Lock();
-    const Int32 curTotalNum = _curTotalNum.load();
-    const Int32 maxNum = _maxNum.load();
+    const Int32 curTotalNum = _curTotalNum.load(std::memory_order_acquire);
+    const Int32 maxNum = _maxNum.load(std::memory_order_acquire);
     const Int32 diffNum = maxNum - curTotalNum;
     numOfThreadToCreateIfNeed = diffNum > numOfThreadToCreateIfNeed ? numOfThreadToCreateIfNeed : diffNum;
 
@@ -125,15 +125,15 @@ bool LibThreadPool::Start(bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 
 bool LibThreadPool::AddThreads(Int32 addNum)
 {
-    if(!_isInit.load() || _isDestroy.load())
+    if(!_isInit.load(std::memory_order_acquire) || _isDestroy.load(std::memory_order_acquire))
     {
         CRYSTAL_TRACE("POOL NOT INIT OR IS DESTROY WHEN AddThreads");
         return false;
     }
 
     _wakeupAndWait.Lock();
-    const Int32 curTotalNum = _curTotalNum.load();
-    const Int32 maxNum = _maxNum.load();
+    const Int32 curTotalNum = _curTotalNum.load(std::memory_order_acquire);
+    const Int32 maxNum = _maxNum.load(std::memory_order_acquire);
     const Int32 diffNum = maxNum - curTotalNum;
     addNum = diffNum > addNum ? addNum : diffNum;
 
@@ -154,14 +154,14 @@ bool LibThreadPool::AddThreads(Int32 addNum)
 LibString LibThreadPool::ToString() const
 {
     LibString info;
-    const Int32 minNum = _minNum.load();
-    const Int32 maxNum = _maxNum.load();
-    const Int32 curTotalNum = _curTotalNum.load();
-    const Int32 waitNum = _waitNum.load();
+    const Int32 minNum = _minNum.load(std::memory_order_acquire);
+    const Int32 maxNum = _maxNum.load(std::memory_order_acquire);
+    const Int32 curTotalNum = _curTotalNum.load(std::memory_order_acquire);
+    const Int32 waitNum = _waitNum.load(std::memory_order_acquire);
     const UInt64 unixStackSize = _unixStackSize;
-    const bool isInit = _isInit.load();
-    const bool isWorking = _isWorking.load();
-    const bool isEnableTask = _isEnableTask.load();
+    const bool isInit = _isInit.load(std::memory_order_acquire);
+    const bool isWorking = _isWorking.load(std::memory_order_acquire);
+    const bool isEnableTask = _isEnableTask.load(std::memory_order_acquire);
 
     info.AppendFormat("thread pool:%s status:minNum[%d], maxNum[%d], curTotalNum[%d], waitNum[%d]"
     ", unixStackSize[%llu], isInit[%d], isWorking[%d], isEnableTask[%d]"
@@ -186,7 +186,7 @@ bool LibThreadPool::AddTask(IDelegate<void, LibThreadPool *> *callback, bool for
 
 bool LibThreadPool::AddTask(ITask *task, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 {
-    if(UNLIKELY(!_isEnableTask.load() || _isDestroy.load()))
+    if(UNLIKELY(!_isEnableTask.load(std::memory_order_acquire) || _isDestroy.load(std::memory_order_acquire)))
         return false;
 
     _lck.Lock();
@@ -194,7 +194,7 @@ bool LibThreadPool::AddTask(ITask *task, bool forceNewThread, Int32 numOfThreadT
     _lck.Unlock();
 
     // 唤醒
-    if(_waitNum.load() > 0 && !forceNewThread)    // 
+    if(_waitNum.load(std::memory_order_acquire) > 0 && !forceNewThread)    // 
     {
         _wakeupAndWait.Sinal();
         return true;
@@ -205,8 +205,8 @@ bool LibThreadPool::AddTask(ITask *task, bool forceNewThread, Int32 numOfThreadT
         return true;
 
     _wakeupAndWait.Lock();
-    const Int32 curTotalNum = _curTotalNum.load();
-    const Int32 maxNum = _maxNum.load();
+    const Int32 curTotalNum = _curTotalNum.load(std::memory_order_acquire);
+    const Int32 maxNum = _maxNum.load(std::memory_order_acquire);
     const Int32 diffNum = maxNum - curTotalNum;
     numOfThreadToCreateIfNeed = diffNum > numOfThreadToCreateIfNeed ? numOfThreadToCreateIfNeed : diffNum;
 
@@ -225,7 +225,7 @@ bool LibThreadPool::AddTask(ITask *task, bool forceNewThread, Int32 numOfThreadT
 
 bool LibThreadPool::AddTask2(IDelegate<void, LibThreadPool *, Variant *> *callback, Variant *params, bool forceNewThread, Int32 numOfThreadToCreateIfNeed)
 {
-    if(UNLIKELY(!_isEnableTask.load() || _isDestroy.load()))
+    if(UNLIKELY(!_isEnableTask.load(std::memory_order_acquire) || _isDestroy.load(std::memory_order_acquire)))
         return false;
 
     DelegateWithParamsTask<LibThreadPool> *newTask = DelegateWithParamsTask<LibThreadPool>::New_DelegateWithParamsTask(this, callback, params);
@@ -234,7 +234,7 @@ bool LibThreadPool::AddTask2(IDelegate<void, LibThreadPool *, Variant *> *callba
     _lck.Unlock();
 
     // 唤醒
-    if(_waitNum.load() > 0 && !forceNewThread)    // 
+    if(_waitNum.load(std::memory_order_acquire) > 0 && !forceNewThread)    // 
     {
         _wakeupAndWait.Sinal();
         return true;
@@ -245,8 +245,8 @@ bool LibThreadPool::AddTask2(IDelegate<void, LibThreadPool *, Variant *> *callba
         return true;
 
     _wakeupAndWait.Lock();
-    const Int32 curTotalNum = _curTotalNum.load();
-    const Int32 maxNum = _maxNum.load();
+    const Int32 curTotalNum = _curTotalNum.load(std::memory_order_acquire);
+    const Int32 maxNum = _maxNum.load(std::memory_order_acquire);
     const Int32 diffNum = maxNum - curTotalNum;
     numOfThreadToCreateIfNeed = diffNum > numOfThreadToCreateIfNeed ? numOfThreadToCreateIfNeed : diffNum;
 
@@ -296,7 +296,7 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
     try
     {
         bool isEmpty = false;
-        while(isWorking.load() || !isEmpty)
+        while(isWorking.load(std::memory_order_acquire) || !isEmpty)
         {
             taskLck.Lock();
             if(LIKELY(!taskList.empty()))
@@ -307,7 +307,7 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
 
                 isEmpty = false;
                 task->Run();
-                if(LIKELY(!task->CanReDo() || !isEnableTask.load()))
+                if(LIKELY(!task->CanReDo() || !isEnableTask.load(std::memory_order_acquire)))
                     task->Release();
                 else
                 {
@@ -320,9 +320,9 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
             taskLck.Unlock();
 
             wakeupAndWaitLck.Lock();
-            ++waitNum;
+            waitNum.fetch_add(1, std::memory_order_release);
             wakeupAndWaitLck.Wait();
-            --waitNum;
+            waitNum.fetch_sub(1, std::memory_order_release);
             wakeupAndWaitLck.Unlock();
 
             taskLck.Lock();
@@ -340,7 +340,7 @@ void LibThreadPool::_LibThreadHandlerLogic(void *param)
 
     try
     {
-        const Int32 curNum = --curTotalNum;
+        const Int32 curNum = curTotalNum.fetch_sub(1, std::memory_order_release) - 1;
         if(!curNum)
         {
             quitLck.Sinal();
@@ -418,7 +418,7 @@ bool LibThreadPool::_CreateThread(Int32 numToCreate, UInt64 unixStackSize)
             break;
         }
 #endif
-        ++_curTotalNum;
+        _curTotalNum.fetch_add(1, std::memory_order_release);
     }
 
     return true;

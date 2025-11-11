@@ -235,19 +235,19 @@ void LibThread::LibThreadHandlerLogic(void *param)
     try
     {
         bool isEmpty = false;
-        while(!isDestroy.load() || !isEmpty)
+        while(!isDestroy.load(std::memory_order_acquire) || !isEmpty)
         {
             taskLck.Lock();
             if(LIKELY(!taskList.empty()))
             {
-                isBusy = true;
+                isBusy.store(true, std::memory_order_release);
                 auto task = taskList.front();
                 taskList.pop_front();
                 taskLck.Unlock();
 
                 isEmpty = false;
                 task->Run();
-                if(LIKELY(!task->CanReDo() || !enableAddTask))
+                if(LIKELY(!task->CanReDo() || !enableAddTask.load(std::memory_order_acquire)))
                     task->Release();
                 else
                 {
@@ -262,7 +262,7 @@ void LibThread::LibThreadHandlerLogic(void *param)
                 taskLck.Unlock();
             }
 
-            isBusy = false;
+            isBusy.store(false, std::memory_order_release);
             condLck.Lock();
             condLck.Wait();
             condLck.Unlock();
@@ -287,9 +287,9 @@ void LibThread::LibThreadHandlerLogic(void *param)
     {
         quitLck.Lock();
 
-        isWorking = false;
-        isBusy = false;
-        enableAddTask = false;
+        isWorking.store(false, std::memory_order_release);
+        isBusy.store(false, std::memory_order_release);
+        enableAddTask.store(false, std::memory_order_release);
         quitLck.Unlock();
 
         quitLck.Sinal();

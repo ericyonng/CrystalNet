@@ -117,7 +117,7 @@ ALWAYS_INLINE void SpecifyLog::ForceToDisk()
 
 ALWAYS_INLINE bool SpecifyLog::IsClose() const
 {
-    return _isClose.load();
+    return _isClose.load(std::memory_order_acquire);
 }
 
 KERNEL_END

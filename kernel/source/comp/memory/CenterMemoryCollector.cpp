@@ -90,7 +90,7 @@ CenterMemoryCollector *CenterMemoryCollector::GetInstance()
 
 void CenterMemoryCollector::Start()
 {
-    _isWorking = true;
+    _isWorking.store(true, std::memory_order_release);
     _worker = new LibThread();
     _worker->SetThreadName(KERNEL_NS::LibString().AppendFormat("CenterCollector"));
     _worker->AddTask(this, &CenterMemoryCollector::_OnWorker);
@@ -99,7 +99,7 @@ void CenterMemoryCollector::Start()
 
 void CenterMemoryCollector::WillClose()
 {
-    if(_isDestroy.exchange(true))
+    if(_isDestroy.exchange(true, std::memory_order_acq_rel))
         return;
 
     if(_worker && _worker->HalfClose())
@@ -140,7 +140,7 @@ void CenterMemoryCollector::OnThreadQuit(UInt64 threadId)
 
 void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStackSize::SIZE_1MB> *tlsStack)
 {
-    if(UNLIKELY(_isDestroy))
+    if(UNLIKELY(_isDestroy.load(std::memory_order_acquire)))
         return;
 
     _registerGuard.Lock();
@@ -160,7 +160,7 @@ void CenterMemoryCollector::RegisterThreadInfo(UInt64 threadId, TlsStack<TlsStac
 
 void CenterMemoryCollector::PushBlock(UInt64 freeThreadId, MemoryBlock *block)
 {
-    if(UNLIKELY(_isDestroy))
+    if(UNLIKELY(_isDestroy.load(std::memory_order_acquire)))
         return;
 
     auto iter = _threadIdRefThreadInfo.find(freeThreadId);
@@ -194,7 +194,7 @@ void CenterMemoryCollector::Recycle(UInt64 recycleNum, MergeMemoryBufferInfo *bu
 
 LibString CenterMemoryCollector::ToString() const
 {
-    if(_isDestroy)
+    if(_isDestroy.load(std::memory_order_acquire))
         return "";
 
     const UInt64 pendingBlock = _currentPendingBlockTotalNum.load(std::memory_order_acquire);
@@ -248,7 +248,7 @@ void CenterMemoryCollector::_OnWorker(LibThread *thread)
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     poller->PrepareLoop();
 
-    _isWorking = true;
+    _isWorking.store(true, std::memory_order_release);
     while(!thread->IsDestroy())
     {
         _guard.Lock();
@@ -264,7 +264,7 @@ void CenterMemoryCollector::_OnWorker(LibThread *thread)
 
     _OnThreadDown();
 
-    _isWorking = false;
+    _isWorking.store(false, std::memory_order_release);
 }
 
 void CenterMemoryCollector::_DoWorker()

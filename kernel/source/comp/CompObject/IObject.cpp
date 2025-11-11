@@ -71,7 +71,7 @@ IObject::~IObject()
 
 Int32 IObject::OnCreated()
 {
-    if(UNLIKELY(_isCreated.exchange(true)))
+    if(UNLIKELY(_isCreated.exchange(true, std::memory_order_acq_rel)))
         return Status::Success;
 
     _objName = RttiUtil::GetByObj(this);
@@ -116,7 +116,7 @@ Int32 IObject::OnCreated()
 
 Int32 IObject::Init()
 {
-    if(UNLIKELY(_isInited))
+    if(UNLIKELY(_isInited.load(std::memory_order_acquire)))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("repeat init"));
         return Status::Repeat;
@@ -136,9 +136,9 @@ Int32 IObject::Init()
         return st;
     }
 
-    _isInited = true;
-    _isStarted = false;
-    _isReady = false;
+    _isInited.store(true, std::memory_order_release);
+    _isStarted.store(false, std::memory_order_release);
+    _isReady.store(false, std::memory_order_release);
 
     g_Log->Debug(LOGFMT_OBJ_TAG("init obj success."));
     return Status::Success;
@@ -146,7 +146,7 @@ Int32 IObject::Init()
 
 Int32 IObject::Start()
 {
-    if(UNLIKELY(_isStarted))
+    if(UNLIKELY(_isStarted.load(std::memory_order_acquire)))
     {
         g_Log->Error(LOGFMT_OBJ_TAG("repeat start"));
         return Status::Repeat;
@@ -160,17 +160,17 @@ Int32 IObject::Start()
     }
 
     DefaultMaskReady(true);
-    _isStarted = true;
+    _isStarted.store(true, std::memory_order_release);
 
     return _errCode.load(std::memory_order_acquire);
 }
 
 void IObject::WillClose()
 {
-    if(_isWillClose.exchange(true))
+    if(_isWillClose.exchange(true, std::memory_order_acq_rel))
         return;
 
-    if(!_isStarted)
+    if(!_isStarted.load(std::memory_order_acquire))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("obj not started."));
         return;
@@ -185,10 +185,10 @@ void IObject::WillClose()
 
 void IObject::Close()
 {
-    if(_isClose.exchange(true))
+    if(_isClose.exchange(true, std::memory_order_acq_rel))
         return;
         
-    if(!_isStarted)
+    if(!_isStarted.load(std::memory_order_acquire))
     {
         g_Log->Warn(LOGFMT_OBJ_TAG("obj not started."));
         return;
@@ -196,9 +196,9 @@ void IObject::Close()
 
     _OnClose();
     _Clear();
-    _isStarted = false;
-    _isInited = false;
-    _isCreated = false;
+    _isStarted.store(false, std::memory_order_release);
+    _isInited.store(false, std::memory_order_release);
+    _isCreated.store(false, std::memory_order_release);
 
     g_Log->Debug(LOGFMT_OBJ_TAG("close object."));
 }
@@ -239,8 +239,8 @@ LibString IObject::ToString() const
 {
     LibString info;
     info.AppendFormat("comp info: obj name:%s, id:%llu, type:%d, isInited:%s, isStarted:%s, isReady:%s, errCode:%d"
-                    , _objName.c_str(), _id, _type, _isInited ? "true" : "false"
-                    , _isStarted ? "true" : "false", _isReady ? "true" : "false", _errCode.load(std::memory_order_acquire));
+                    , _objName.c_str(), _id, _type, _isInited.load(std::memory_order_acquire) ? "true" : "false"
+                    , _isStarted.load(std::memory_order_acquire) ? "true" : "false", _isReady.load(std::memory_order_acquire) ? "true" : "false", _errCode.load(std::memory_order_acquire));
 
     // 接口
     info.AppendFormat("focuse interface: ");
@@ -276,7 +276,7 @@ void IObject::Clear()
 
 void IObject::MaskReady(bool isReady)
 {
-    _isReady = isReady;
+    _isReady.store(isReady, std::memory_order_release);
 }
 
 void IObject::DefaultMaskReady(bool isReady)

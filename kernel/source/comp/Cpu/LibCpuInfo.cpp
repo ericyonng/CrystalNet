@@ -69,7 +69,7 @@ LibCpuInfo::LibCpuInfo()
 
 bool LibCpuInfo::Initialize()
 {
-    if(UNLIKELY(_isInit.exchange(true)))
+    if(UNLIKELY(_isInit.exchange(true, std::memory_order_acq_rel)))
         return true;
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -105,7 +105,7 @@ bool LibCpuInfo::Initialize()
 
 Int64 LibCpuInfo::GetUsage()
 {
-    if(UNLIKELY(!_isInit))
+    if(UNLIKELY(!_isInit.load(std::memory_order_acquire)))
         return 0;
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -168,7 +168,7 @@ Int64 LibCpuInfo::GetUsage()
 
 Int32 LibCpuInfo::GetCpuCoreCnt()
 {
-    if(UNLIKELY(!_isInit.load()))
+    if(UNLIKELY(!_isInit.load(std::memory_order_acquire)))
         return 0;
 
     Int32 count = 1; // at least one

@@ -134,13 +134,13 @@ ALWAYS_INLINE SpinLock::SpinLock()
 
 ALWAYS_INLINE void SpinLock::Unlock()
 {
-    _flag.store(false);
+    _flag.store(false, std::memory_order_release);
 }
 
 ALWAYS_INLINE bool SpinLock::TryLock()
 {
     bool exp = false;
-    if(!_flag.compare_exchange_weak(exp, true))
+    if(!_flag.compare_exchange_weak(exp, true, std::memory_order_acq_rel))
         return false;
 
     return true;

@@ -390,12 +390,12 @@ private:
 
 ALWAYS_INLINE bool Poller::IsEnable() const
 {
-    return _isEnable;
+    return _isEnable.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE void Poller::Disable()
 {
-    _isEnable = false;
+    _isEnable.store(false, std::memory_order_release);
 }
 
 ALWAYS_INLINE UInt64 Poller::GetWorkerThreadId() const
@@ -551,7 +551,7 @@ ALWAYS_INLINE void Poller::WakeupEventLoop()
 
 ALWAYS_INLINE void Poller::QuitLoop()
 {
-    _isQuitLoop = true;
+    _isQuitLoop.store(true, std::memory_order_release);
     WakeupEventLoop();
 }
 

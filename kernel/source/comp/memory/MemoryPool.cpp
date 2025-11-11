@@ -115,7 +115,7 @@ MemoryPool *MemoryPool::GetInstance(const InitMemoryPoolInfo &initInfo)
 Int32 MemoryPool::Init()
 {
     // exchange返回旧值
-    if(_isInit.exchange(true))
+    if(_isInit.exchange(true, std::memory_order_acq_rel))
         return Status::Success;
 
     // 池子内可分配的最大内存大小，其他的由系统分配
@@ -154,7 +154,7 @@ Int32 MemoryPool::Init()
 
 void MemoryPool::Destroy()
 {
-    if(!_isInit.exchange(false))
+    if(!_isInit.exchange(false, std::memory_order_acq_rel))
         return;
 
     _lck.Lock();
@@ -388,7 +388,7 @@ LibString MemoryPool::UsingInfo() const
 
     str << "threadId:" << _threadId << ";\n"
         << "reason:" << _reason << ";\n"
-        << "is init:" << (_isInit ? "true" : "false") << ";\n"
+        << "is init:" << (_isInit.load(std::memory_order_acquire) ? "true" : "false") << ";\n"
         << "mini allock block bytes:" << _miniAllockBlockBytes << ";\n"
         << "max allock block bytes:" << _maxAllockBlockBytes << ";\n"
         << "pool memory total occupy bytes:" << totalBytes << ";\n"

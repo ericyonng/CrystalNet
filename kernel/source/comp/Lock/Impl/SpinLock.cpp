@@ -64,7 +64,7 @@ void SpinLock::Lock(Int64 loop_cnt_to_yield)
 
     // test and wait 直到flag被clear
     bool exp = false;
-    while(!_flag.compare_exchange_weak(exp, true))
+    while(!_flag.compare_exchange_weak(exp, true, std::memory_order_acq_rel))
     {
         exp = false;
 

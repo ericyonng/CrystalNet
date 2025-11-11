@@ -145,7 +145,7 @@ private:
 
 ALWAYS_INLINE bool CenterMemoryCollector::IsWorking() const
 {
-    return _isWorking;
+    return _isWorking.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE void CenterMemoryCollector::SetWorkerIntervalMs(Int64 ms)

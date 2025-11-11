@@ -64,7 +64,7 @@ GarbageThread::~GarbageThread()
 
 void GarbageThread::Start()
 {
-    if(_isStart.exchange(true))
+    if(_isStart.exchange(true, std::memory_order_acq_rel))
     {
         CRYSTAL_TRACE("garbage thread already start");
         return;
@@ -81,7 +81,7 @@ void GarbageThread::Start()
 
 void GarbageThread::Close()
 {
-    if(!_isStart.exchange(false))
+    if(!_isStart.exchange(false, std::memory_order_acq_rel))
         return;
 
     // TODO:关闭线程

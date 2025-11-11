@@ -163,7 +163,7 @@ ALWAYS_INLINE void MysqlDB::SetEventType(Int32 evType)
 
 ALWAYS_INLINE bool MysqlDB::IsReady() const
 {
-    return _isReady;
+    return _isReady.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE Int32 MysqlDB::NewOperatorUid()

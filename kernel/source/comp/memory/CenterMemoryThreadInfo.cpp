@@ -162,7 +162,7 @@ void CenterMemoryThreadInfo::MergeToAlloctor()
 
 void CenterMemoryThreadInfo::OnThreadWillQuit()
 {
-    _isQuit = true;
+    _isQuit.store(true, std::memory_order_release);
 
     // tls资源由CenterCollector释放
 }
