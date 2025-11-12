@@ -42,6 +42,8 @@ class IDelegate;
 
 struct AsyncTask;
 
+class Poller;
+
 struct KERNEL_EXPORT PollerEvent
 {
     POOL_CREATE_OBJ_DEFAULT(PollerEvent);
@@ -113,7 +115,7 @@ struct KERNEL_EXPORT StubPollerEvent : public PollerEvent
 {
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, StubPollerEvent);
 
-    StubPollerEvent(Int32 type, UInt64 stub, UInt64 objTypeId);
+    StubPollerEvent(Int32 type, UInt64 stub, UInt64 objTypeId, Poller *poller);
     ~StubPollerEvent();
 
     virtual LibString ToString() const override;
@@ -121,6 +123,7 @@ struct KERNEL_EXPORT StubPollerEvent : public PollerEvent
     UInt64 _stub;
     bool _isResponse;
     UInt64 _objTypeId;
+    Poller *_srcPoller;
 };
 
 // obj对象得有Release实现
@@ -133,8 +136,8 @@ struct KERNEL_EXPORT ObjectPollerEvent : public StubPollerEvent
 {
     POOL_CREATE_TEMPLATE_OBJ_DEFAULT_P1(StubPollerEvent, ObjectPollerEvent, ObjType)
 
-    ObjectPollerEvent(UInt64 stub, bool isResponse)
-        :StubPollerEvent(PollerEventInternalType::ObjectPollerEventType, stub, KERNEL_NS::RttiUtil::GetTypeId<ObjType>())
+    ObjectPollerEvent(UInt64 stub, bool isResponse, Poller *poller)
+        :StubPollerEvent(PollerEventInternalType::ObjectPollerEventType, stub, KERNEL_NS::RttiUtil::GetTypeId<ObjType>(), poller)
     ,_obj(NULL)
     {
         _isResponse = isResponse;

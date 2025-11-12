@@ -1,5 +1,5 @@
 /*!
- *  MIT License
+*  MIT License
  *  
  *  Copyright (c) 2020 ericyonng<120453674@qq.com>
  *  
@@ -21,23 +21,19 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  * 
- * Date: 2020-12-06 19:30:05
+ * Date: 2025-11-12 18:04:29
  * Author: Eric Yonng
  * Description: 
 */
-
-#ifndef __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_THREAD_THREAD_H__
-#define __CRYSTAL_NET_KERNEL_INCLUDE_KERNEL_COMP_THREAD_THREAD_H__
+#ifndef __CRYSTAL_NET_TEST_SUIT_TEST_SUIT_TEST_INST_TEST_EVENT_LOOP_THREAD_H__
+#define __CRYSTAL_NET_TEST_SUIT_TEST_SUIT_TEST_INST_TEST_EVENT_LOOP_THREAD_H__
 
 #pragma once
 
-#include <kernel/comp/thread/ThreadDefs.h>
-#include <kernel/comp/thread//LibThreadGlobalId.h>
-#include <kernel/comp/thread/LibThread.h>
-#include <kernel/comp/thread/LibThreadPool.h>
-#include <kernel/comp/thread/CurrentThread.h>
-#include <kernel/comp/thread/ThreadTool.h>
-#include <kernel/comp/thread/IThreadStartUp.h>
-#include <kernel/comp/thread/LibEventLoopThread.h>
+class TestEventLoopThread
+{
+public:
+    static void Run();
+};
 
-#endif
+#endif 

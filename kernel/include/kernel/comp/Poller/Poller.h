@@ -52,7 +52,8 @@
 
 
 KERNEL_BEGIN
-    struct PollerEvent;
+
+struct PollerEvent;
 
 class TimerMgr;
 class TimeSlice;
@@ -172,6 +173,14 @@ public:
     void UnSubscribeObjectEvent();
     void UnSubscribeObjectEvent(UInt64 objectTypeId);
 
+    template<typename ResType>
+    requires requires(ResType obj)
+    {
+        obj.Release();
+        obj.ToString();
+    }
+    void SendResponse(UInt64 stub, ResType *res);
+
     // 设置poller事件循环休眠时最大等待时长
     void SetMaxSleepMilliseconds(UInt64 maxMilliseconds);
 
@@ -236,10 +245,35 @@ public:
         req.ToString();
         res.ToString();
     }
-    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(ReqType *req)
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(ReqType *req);
+
+    // 调用者当前线程投递req给this
+    // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
+    // req/res 必须实现Release, ToString接口
+    template<typename ReqType>
+    requires requires(ReqType req)
     {
-        co_return KERNEL_NS::TlsUtil::GetPoller()->SendToAsync<ResType, ReqType>(*this, req);
+        // req/res必须有Release接口
+        req.Release();
+    
+        // req/res必须有ToString接口
+        req.ToString();
     }
+    void Send(ReqType *req);
+
+    // 跨线程协程消息(otherPoller也可以是自己)
+    // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
+    // req/res 必须实现Release, ToString接口
+    template<typename ReqType>
+    requires requires(ReqType req)
+    {
+        // req/res必须有Release接口
+        req.Release();
+    
+        // req/res必须有ToString接口
+        req.ToString();
+    }
+    void SendTo(Poller &otherPoller, ReqType *req);
     
     // 跨线程协程消息(otherPoller也可以是自己)
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
@@ -288,7 +322,7 @@ public:
         });
 
         // 发送对象事件 ObjectPollerEvent到 other
-        auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(stub, false);
+        auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(stub, false, this);
         objEvent->_obj = req;
         otherPoller.Push(otherPoller.GetMaxPriorityLevel(), objEvent);
         
@@ -649,6 +683,19 @@ ALWAYS_INLINE void Poller::UnSubscribeObjectEvent(UInt64 objectTypeId)
     _objTypeIdRefCallback.erase(iter);
 }
 
+template<typename ResType>
+requires requires(ResType obj)
+{
+    obj.Release();
+    obj.ToString();
+}
+ALWAYS_INLINE void Poller::SendResponse(UInt64 stub, ResType *res)
+{
+    auto objectEvent = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub, true, this);
+    objectEvent->_obj = res;
+    Push(GetMaxPriorityLevel(), objectEvent);
+}
+
 template<typename LambType>
 requires requires(LambType lam, StubPollerEvent * ev)
 {
@@ -681,6 +728,59 @@ ALWAYS_INLINE void Poller::UnSubscribeStubEvent(UInt64 stub)
 
     iter->second->Release();
     _stubRefCb.erase(iter);
+}
+
+template<typename ResType, typename ReqType>
+requires requires(ReqType req, ResType res)
+{
+    // req/res必须有Release接口
+    req.Release();
+    res.Release();
+    
+    // req/res必须有ToString接口
+    req.ToString();
+    res.ToString();
+}
+ALWAYS_INLINE CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> Poller::SendAsync(ReqType *req)
+{
+    co_return co_await KERNEL_NS::TlsUtil::GetPoller()->SendToAsync<ResType, ReqType>(*this, req);
+}
+
+// 调用者当前线程投递req给this
+// req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
+// req/res 必须实现Release, ToString接口
+template<typename ReqType>
+requires requires(ReqType req)
+{
+    // req/res必须有Release接口
+    req.Release();
+    
+    // req/res必须有ToString接口
+    req.ToString();
+}
+ALWAYS_INLINE void Poller::Send(ReqType *req)
+{
+    SendTo<ReqType>(*this, req);
+}
+
+// 跨线程协程消息(otherPoller也可以是自己)
+// req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
+// req/res 必须实现Release, ToString接口
+template<typename ReqType>
+requires requires(ReqType req)
+{
+    // req/res必须有Release接口
+    req.Release();
+    
+    // req/res必须有ToString接口
+    req.ToString();
+}
+ALWAYS_INLINE void Poller::SendTo(Poller &otherPoller, ReqType *req)
+{
+    // 发送对象事件 ObjectPollerEvent到 other
+    auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(0, false, this);
+    objEvent->_obj = req;
+    otherPoller.Push(otherPoller.GetMaxPriorityLevel(), objEvent);
 }
 
 KERNEL_END

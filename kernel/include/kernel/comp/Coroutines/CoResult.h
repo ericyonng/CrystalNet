@@ -64,7 +64,7 @@ struct CoResult
     template<typename R>
     constexpr void return_value(R&& value) noexcept 
     {
-        SetValue(std::forward<T>(value));
+        SetValue(std::forward<R>(value));
     }
 
     // 有没有异常

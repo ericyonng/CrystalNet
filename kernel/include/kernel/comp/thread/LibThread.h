@@ -117,6 +117,8 @@ public:
 
     CoTask<const Poller *> GetPoller() const;
     CoTask<Poller *> GetPoller();
+    const Poller * GetPollerNoAsync() const;
+    Poller * GetPollerNoAsync();
 
 private:
     // 线程处理函数
@@ -332,6 +334,16 @@ ALWAYS_INLINE void LibThread::SetThreadName(const KERNEL_NS::LibString &name)
 ALWAYS_INLINE const LibString &LibThread::GetThreadName() const
 {
     return _threadName;
+}
+
+ALWAYS_INLINE const Poller * LibThread::GetPollerNoAsync() const
+{
+    return _poller.load(std::memory_order_acquire);
+}
+
+ALWAYS_INLINE Poller * LibThread::GetPollerNoAsync()
+{
+    return _poller.load(std::memory_order_acquire);
 }
 
 KERNEL_END

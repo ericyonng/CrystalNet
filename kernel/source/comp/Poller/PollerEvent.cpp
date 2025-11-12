@@ -105,11 +105,12 @@ void AsyncTaskPollerEvent::Release()
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(StubPollerEvent);
 
-StubPollerEvent::StubPollerEvent(Int32 type, UInt64 stub, UInt64 objTypeId)
+StubPollerEvent::StubPollerEvent(Int32 type, UInt64 stub, UInt64 objTypeId, Poller *poller)
     :PollerEvent(type)
     ,_stub(stub)
     ,_isResponse(false)
 ,_objTypeId(objTypeId)
+,_srcPoller(poller)
 {
     
 }
@@ -122,7 +123,7 @@ StubPollerEvent::~StubPollerEvent()
 LibString StubPollerEvent::ToString() const
 {
     LibString info;
-    info.AppendFormat("%s, stub:%llu, _isResponse:%d, _objTypeId:%llu\n", PollerEvent::ToString().c_str(), _stub, (_isResponse ? 1:0), _objTypeId);
+    info.AppendFormat("%s, stub:%llu, _isResponse:%d, _objTypeId:%llu, _srcPoller:%p\n", PollerEvent::ToString().c_str(), _stub, (_isResponse ? 1:0), _objTypeId, _srcPoller);
 
     return info;
 }

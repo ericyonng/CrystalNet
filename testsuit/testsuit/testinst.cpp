@@ -107,6 +107,7 @@
 #include <testsuit/testinst/TestLoadShareLibrary.h>
 #include <testsuit/testinst/TestMongo.h>
 #include <testsuit/testinst/TestSort.h>
+#include <testsuit/testinst/TestEventLoopThread.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -266,7 +267,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
-    TestPoller::Run();
+    // TestPoller::Run();
     // TestMemoryAssist::Run();
     // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
@@ -304,6 +305,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestLoadShareLibrary::Run();
     // TestMongo::Run();
     // TestSort::Run();
+    TestEventLoopThread::Run();
     
     // write a large file
     // do
