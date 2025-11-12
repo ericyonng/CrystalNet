@@ -153,6 +153,10 @@ Int32 Poller::_OnInit()
     // 对象消息
     Subscribe(PollerEventInternalType::ObjectPollerEventType, this, &Poller::_OnObjectEvent);
 
+    // TODO:测试是不是在Poller所在线程
+    _workThreadId.store(SystemUtil::GetCurrentThreadId(), std::memory_order_release);
+    _timerMgr->Launch(DelegateFactory::Create(this, &Poller::WakeupEventLoop));
+    
     g_Log->Debug(LOGFMT_OBJ_TAG("poller inited %s"), ToString().c_str());
     return Status::Success;
 }
@@ -272,8 +276,8 @@ const LibCpuSlice &Poller::GetMaxPieceTime() const
 
 bool Poller::PrepareLoop()
 {
-    _workThreadId.store(SystemUtil::GetCurrentThreadId(), std::memory_order_release);
-    _timerMgr->Launch(DelegateFactory::Create(this, &Poller::WakeupEventLoop));
+    // _workThreadId.store(SystemUtil::GetCurrentThreadId(), std::memory_order_release);
+    // _timerMgr->Launch(DelegateFactory::Create(this, &Poller::WakeupEventLoop));
     if(LIKELY(_prepareEventWorkerHandler))
     {
         if(!_prepareEventWorkerHandler->Invoke(this))

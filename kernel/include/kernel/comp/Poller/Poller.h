@@ -228,6 +228,7 @@ public:
     void WakeupEventLoop();
     void QuitLoop();
     bool CanQuit() const;
+    bool IsQuit() const;
 
     void OnMonitor(PollerCompStatistics &statistics);
 
@@ -587,6 +588,11 @@ ALWAYS_INLINE void Poller::QuitLoop()
 {
     _isQuitLoop.store(true, std::memory_order_release);
     WakeupEventLoop();
+}
+
+ALWAYS_INLINE bool Poller::IsQuit() const
+{
+    return _isQuitLoop.load(std::memory_order_acquire);
 }
 
 template<typename ObjectType>
