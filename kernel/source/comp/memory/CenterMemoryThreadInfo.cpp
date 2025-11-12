@@ -83,15 +83,14 @@ LibString CenterMemoryThreadInfo::ToString() const
 
 UInt64 CenterMemoryThreadInfo::MergeBlocks()
 {
-    if(LIKELY(_pendingBlockCount.load(std::memory_order_acquire) == 0))
+    UInt64 blockCount = _pendingBlockCount.exchange(0, std::memory_order_acq_rel);
+    if(LIKELY(blockCount == 0))
         return 0;
 
-    UInt64 blockCount = 0;
     _lck.Lock();
     auto toSwap = _head;
     _head = _headSwap;
     _headSwap = toSwap;
-    blockCount = _pendingBlockCount.exchange(0, std::memory_order_acq_rel);
     _lck.Unlock();
 
     // 丢进来的memoryalloctor 需要按照线程区分并丢给对应的线程TODO:

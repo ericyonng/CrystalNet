@@ -287,7 +287,7 @@ void IObject::DefaultMaskReady(bool isReady)
 UInt64 IObject::NewId()
 {
     static std::atomic<UInt64> s_maxId = {0};
-    return s_maxId.fetch_add(1, std::memory_order_release);
+    return s_maxId.fetch_add(1, std::memory_order_release) + 1;
 }
 
 void IObject::SetFocus(Int32 focusEnum)

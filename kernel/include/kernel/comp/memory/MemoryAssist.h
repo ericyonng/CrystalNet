@@ -342,7 +342,7 @@ public:
     template<typename ObjBuildType>
     void WrapDelete(ObjType *obj)
     {
-        _maInfo._totalDeleteCount.fetch_sub(1, std::memory_order_release);
+        _maInfo._totalDeleteCount.fetch_add(1, std::memory_order_release);
         _maInfo._activeObjCount.fetch_sub(1, std::memory_order_release);
 
         _lck.Lock();

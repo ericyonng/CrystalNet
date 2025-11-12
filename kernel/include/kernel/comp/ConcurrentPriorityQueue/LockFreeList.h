@@ -120,7 +120,7 @@ requires std::movable<Elem> && requires(BuildType build)
 ALWAYS_INLINE bool LockFreeList<Elem, BuildType>::TryPop(Elem &e)
 {
     auto oldCount = _count.fetch_sub(1, std::memory_order_release);
-    if (oldCount < 0)
+    if (oldCount <= 0)
     {
         _count.fetch_add(1, std::memory_order_release);
         return false;
