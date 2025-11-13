@@ -44,6 +44,8 @@ public:
     }
     
     char TestStr[256] = {'h','e','l','l','o','!'};
+
+    Int64 _version = 0;
 };
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(TestGenReq);
@@ -70,6 +72,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TestGenRes);
 
 static std::atomic<Int64> g_GenNum = 0;
 static std::atomic<Int64> g_ConsumeNum = 0;
+static KERNEL_NS::RingBuffer<TestGenReq *> *g_ReqList = NULL;
+static std::atomic<Int64> g_Version = {0};
 
 // 生产者
 class ThreadGeneratorStartup : public KERNEL_NS::IThreadStartUp
@@ -85,13 +89,15 @@ public:
         // 投递到事件循环中
         KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
         {
+            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(1));
+
             auto poller = KERNEL_NS::TlsUtil::GetPoller();
-            auto consumerPoller = co_await _consumer->GetPoller();
             while (!poller->IsQuit())
             {
                 auto req = TestGenReq::New_TestGenReq();
+                req->_version = g_Version.fetch_add(1, std::memory_order_release) + 1;
                 g_GenNum.fetch_add(1, std::memory_order_release);
-                consumerPoller->Send(req);
+                g_ReqList->Push( req);
             }
         });
     }
@@ -115,10 +121,36 @@ public:
     virtual void Run() override
     {
         auto poller = KERNEL_NS::TlsUtil::GetPoller();
-        poller->SubscribeObjectEvent<TestGenReq>([](KERNEL_NS::StubPollerEvent *ev)
+        KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<void>
         {
-            g_ConsumeNum.fetch_add(1, std::memory_order_release);
+           co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(1));
+            auto poller = KERNEL_NS::TlsUtil::GetPoller();
+
+            TestGenReq *data = NULL;
+           while (!poller->IsQuit())
+           {
+               data = NULL;
+               if (!g_ReqList->Pop(data))
+                   continue;
+
+               data->Release();
+               g_ConsumeNum.fetch_add(1, std::memory_order_release);
+
+               // while (head)
+               // {
+               //     auto tmp = head;
+               //     // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLockFree, "LockFree head:%p, version:%lld"), tmp, tmp->_data->_version);
+               //     head = head->_next;
+               //     tmp->_data->Release();
+               //     KERNEL_NS::LockFreeNode<TestGenReq *>::Delete_LockFreeNode(tmp);
+               // }
+           }
+            
         });
+        // poller->SubscribeObjectEvent<TestGenReq>([](KERNEL_NS::StubPollerEvent *ev)
+        // {
+        //     g_ConsumeNum.fetch_add(1, std::memory_order_release);
+        // });
     }
     virtual void Release() override
     {
@@ -129,7 +161,10 @@ public:
 
 void TestLockFree::Run()
 {
-    auto consumer = new KERNEL_NS::LibEventLoopThread("consumer", new ThreadConsumerStartup());
+    g_ReqList = KERNEL_NS::RingBuffer<TestGenReq *>::New_RingBuffer();
+    
+    auto consumer = new KERNEL_NS::LibEventLoopThread("consumer1", new ThreadConsumerStartup());
+    auto consumer2 = new KERNEL_NS::LibEventLoopThread("consumer2", new ThreadConsumerStartup());
 
     // 1. 构建生产者消费者模型
     auto genThread = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer));
@@ -138,6 +173,7 @@ void TestLockFree::Run()
     auto genThread4 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer));
 
     consumer->Start();
+    consumer2->Start();
     genThread->Start();
     // genThread2->Start();
     // genThread3->Start();
@@ -149,7 +185,7 @@ void TestLockFree::Run()
     {
         auto genNum = g_GenNum.exchange(0, std::memory_order_acq_rel);
         auto consume = g_ConsumeNum.exchange(0, std::memory_order_acq_rel);
-        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestLockFree, "genNum:%lld, consume:%lld"), genNum, consume);
+        g_Log->Custom("genNum:%lld, consume:%lld", genNum, consume);
     });
     timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
     
