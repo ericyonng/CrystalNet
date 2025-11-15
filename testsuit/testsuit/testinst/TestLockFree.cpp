@@ -72,7 +72,7 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TestGenRes);
 
 static std::atomic<Int64> g_GenNum = 0;
 static std::atomic<Int64> g_ConsumeNum = 0;
-static KERNEL_NS::RingBuffer<TestGenReq *> *g_ReqList = NULL;
+static KERNEL_NS::MPMCQueue<TestGenReq *> *g_ReqList = NULL;
 static std::atomic<Int64> g_Version = {0};
 
 // 生产者
@@ -97,7 +97,10 @@ public:
                 auto req = TestGenReq::New_TestGenReq();
                 req->_version = g_Version.fetch_add(1, std::memory_order_release) + 1;
                 g_GenNum.fetch_add(1, std::memory_order_release);
-                g_ReqList->Push( req);
+                // g_ReqList->Push( req);
+
+                // 失败重试
+                while (!g_ReqList->TryPush(req));
             }
         });
     }
@@ -129,10 +132,16 @@ public:
             TestGenReq *data = NULL;
            while (!poller->IsQuit())
            {
+               // co_await KERNEL_NS::Waiting();
+               
                data = NULL;
-               if (!g_ReqList->Pop(data))
-                   continue;
+               // if (!g_ReqList->Pop(data) || data == NULL || data == (void *)(0xcdcdcdcdcdcdcdcd))
+               //     continue;
 
+               // 失败重试
+               if (!g_ReqList->TryPop(data) || data == NULL || data == (void *)(0xcdcdcdcdcdcdcdcd))
+                   continue;
+               
                data->Release();
                g_ConsumeNum.fetch_add(1, std::memory_order_release);
 
@@ -161,10 +170,10 @@ public:
 
 void TestLockFree::Run()
 {
-    g_ReqList = KERNEL_NS::RingBuffer<TestGenReq *>::New_RingBuffer();
+    g_ReqList = KERNEL_NS::MPMCQueue<TestGenReq *>::New_MPMCQueue();
     
     auto consumer = new KERNEL_NS::LibEventLoopThread("consumer1", new ThreadConsumerStartup());
-    auto consumer2 = new KERNEL_NS::LibEventLoopThread("consumer2", new ThreadConsumerStartup());
+    // auto consumer2 = new KERNEL_NS::LibEventLoopThread("consumer2", new ThreadConsumerStartup());
 
     // 1. 构建生产者消费者模型
     auto genThread = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer));
@@ -173,7 +182,7 @@ void TestLockFree::Run()
     auto genThread4 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer));
 
     consumer->Start();
-    consumer2->Start();
+    // consumer2->Start();
     genThread->Start();
     // genThread2->Start();
     // genThread3->Start();

@@ -43,7 +43,7 @@ class KERNEL_EXPORT MathUtil
 public:
     // base:底数,trueNum:真数 采用乘法逼近 若能够整除则结果是准确的，不能够整除的只能取得近似整数值
     // return 对数
-    static UInt64 log(UInt64 base, UInt64 trueNum);
+    static constexpr UInt64 log(UInt64 base, UInt64 trueNum);
     // 最大公约数（欧几里得算法）
     static Int64 GetGcd(Int64 a, Int64 b);
     // 最小公倍数
@@ -52,15 +52,20 @@ public:
     static LibString ToFmtDataSize(Int64 bytes);
 };
 
-ALWAYS_INLINE UInt64 MathUtil::log(UInt64 base, UInt64 trueNum)
+// 为了能在编译期计算不能修改函数参数,constexpr 内的表达式都必须是常量表达式, 否则会阻止编译期计算
+ALWAYS_INLINE constexpr UInt64 MathUtil::log(UInt64 base, UInt64 trueNum)
 {
-    UInt64 result = 0;
-    const UInt64 multi = base;    
+    // 边界检查
+    if (base < 2 || trueNum == 0)
+        return 0;
+    
+    const UInt64 multi = base;
+    UInt64 count = 0;
     // 不能使用真数除法，因为不能整除会损失精度，只能用乘法逼近
-    for (base = 1; (base*=multi) <= trueNum; )
-        ++result;    
+    for (UInt64 result = 1; (result*=multi) <= trueNum; )
+        ++count;    
 
-    return result;
+    return count;
 }
 
 // 最大公约数（欧几里得算法）

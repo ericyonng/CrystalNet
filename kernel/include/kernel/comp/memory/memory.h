@@ -23,7 +23,7 @@
  * 
  * Date: 2020-11-15 16:02:57
  * Author: Eric Yonng
- * Description: 内存对齐规则：__MEMORY_ALIGN__(__MEMORY_ALIGN__(sizeof(MemoryBlock)) + bytes)
+ * Description: 内存对齐规则：__MEMORY_ALIGN__(sizeof(MemoryBlock) + bytes)
  * 1.垃圾回收线程只有一个,无论有多少个分配器
  * 2.内存管理模块包括：对象池,内存池
  * 3.对象池是特殊的内存池

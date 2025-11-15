@@ -34,7 +34,8 @@
 
 #include <kernel/common/compile.h>
 #include <kernel/common/func.h>
-#include <assert.h> 
+#include <assert.h>
+#include <new>
 
 #ifndef CRYSTAL_DEBUG_ENABLE
     #define CRYSTAL_DEBUG_ENABLE 1
@@ -247,8 +248,19 @@ private:                    \
 #undef MEM_ALIGN_END
 #define MEM_ALIGN_END       pack(pop)
 
+// 为了避免false sharing 要至少对齐一个缓存行
+#include <new> // std::hardware_destructive_interference_size
+#if defined(__cpp_lib_hardware_interference_size) && !defined(__APPLE__)
+static constexpr size_t SYSTEM_ALIGN_SIZE =
+    std::hardware_destructive_interference_size;
+#else
+static constexpr size_t SYSTEM_ALIGN_SIZE = 64;
+#endif
+
+
 #undef __MEMORY_ALIGN_BYTES__
-#define __MEMORY_ALIGN_BYTES__      (sizeof(void *)<<1)     // 默认16字节对齐 涉及跨cache line 开销
+// #define __MEMORY_ALIGN_BYTES__      (sizeof(void *)<<1)     // 默认16字节对齐 涉及跨cache line 开销
+#define __MEMORY_ALIGN_BYTES__      (SYSTEM_ALIGN_SIZE)     // 避免false sharing 涉及跨cache line 开销, false sharing会导致当1号线程改动数据, 如果1号线程改的数据所处的缓存行中有2号线程的数据会导致cache失效, 2号线程需要频繁加载缓存行
 
 // 面向__MEMORY_ALIGN_BYTES__字节内存对齐
 #undef __MEMORY_ALIGN__

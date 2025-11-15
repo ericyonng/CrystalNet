@@ -96,7 +96,7 @@ MemoryPool::MemoryPool(bool isThreadLocal, const InitMemoryPoolInfo &initInfo, c
 :_isInit{false}
 ,_miniAllockBlockBytes(initInfo.GetMin())
 ,_maxAllockBlockBytes(initInfo.GetMax())
-,_memoryBlockHeadSizeAfterAlign(__MEMORY_ALIGN__(sizeof(MemoryBlock)))
+,_memoryBlockHeadSizeAfterAlign(sizeof(MemoryBlock))
 ,_alloctorCfgs(initInfo.GetAlloctorCfgs())
 ,_monitorPrintDelg(NULL)
 ,_reason(reason)

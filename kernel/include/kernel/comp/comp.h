@@ -51,7 +51,7 @@
 #include <kernel/comp/BigNum.h>
 #include <kernel/comp/LibTraceId.h>
 #include <kernel/comp/KernelFinally/KernelFinally.h>
-#include <kernel/comp/ConcurrentPriorityQueue/RingBuffer.h>
+#include <kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h>
 
 // 简单组件
 #include <kernel/comp/Delegate/LibDelegate.h>
