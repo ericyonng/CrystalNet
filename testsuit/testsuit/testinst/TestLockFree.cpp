@@ -24,6 +24,7 @@
 // Author: Eric Yonng
 // Description:
 // 改之前：190w qps
+// MPMCQueue 单生产者单消费者情况下 400w qps（windows下）
 
 #include <pch.h>
 #include "TestLockFree.h"
@@ -79,8 +80,9 @@ static std::atomic<Int64> g_Version = {0};
 class ThreadGeneratorStartup : public KERNEL_NS::IThreadStartUp
 {
 public:
-    ThreadGeneratorStartup(KERNEL_NS::LibEventLoopThread *consumer)
+    ThreadGeneratorStartup(KERNEL_NS::LibEventLoopThread *consumer, int id)
         :_consumer(consumer)
+    ,_id(id)
     {
         
     }
@@ -97,10 +99,17 @@ public:
                 auto req = TestGenReq::New_TestGenReq();
                 req->_version = g_Version.fetch_add(1, std::memory_order_release) + 1;
                 g_GenNum.fetch_add(1, std::memory_order_release);
-                // g_ReqList->Push( req);
+                // g_ReqList->Push(req);
+                
+                while (!g_ReqList->TryPush( req))
+                {
+                    ;
+                }
+                
 
                 // 失败重试
-                while (!g_ReqList->TryPush(req));
+                // while (!g_ReqList->TryPush(req))
+                //     ;
             }
         });
     }
@@ -111,6 +120,7 @@ public:
 
 private:
     KERNEL_NS::LibEventLoopThread *_consumer;
+    int _id;
 };
 
 // 消费者
@@ -135,13 +145,14 @@ public:
                // co_await KERNEL_NS::Waiting();
                
                data = NULL;
-               // if (!g_ReqList->Pop(data) || data == NULL || data == (void *)(0xcdcdcdcdcdcdcdcd))
-               //     continue;
+               if (!g_ReqList->TryPop(data))
+                   continue;
 
                // 失败重试
-               if (!g_ReqList->TryPop(data) || data == NULL || data == (void *)(0xcdcdcdcdcdcdcdcd))
-                   continue;
-               
+               // if (!g_ReqList->TryPop(data) || data == NULL || data == (void *)(0xcdcdcdcdcdcdcdcd))
+               //     continue;
+
+               // g_Log->Info(LOGFMT_NON_OBJ_TAG(ThreadConsumerStartup, "data, ver:%lld"), data->_version);
                data->Release();
                g_ConsumeNum.fetch_add(1, std::memory_order_release);
 
@@ -173,13 +184,13 @@ void TestLockFree::Run()
     g_ReqList = KERNEL_NS::MPMCQueue<TestGenReq *>::New_MPMCQueue();
     
     auto consumer = new KERNEL_NS::LibEventLoopThread("consumer1", new ThreadConsumerStartup());
-    // auto consumer2 = new KERNEL_NS::LibEventLoopThread("consumer2", new ThreadConsumerStartup());
+    auto consumer2 = new KERNEL_NS::LibEventLoopThread("consumer2", new ThreadConsumerStartup());
 
     // 1. 构建生产者消费者模型
-    auto genThread = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer));
-    auto genThread2 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer));
-    auto genThread3 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer));
-    auto genThread4 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer));
+    auto genThread = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 1));
+    auto genThread2 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 2));
+    auto genThread3 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 3));
+    auto genThread4 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 4));
 
     consumer->Start();
     // consumer2->Start();

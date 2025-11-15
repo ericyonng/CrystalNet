@@ -137,10 +137,10 @@ public:
         // 超对齐( over-aligned types)需要验证 见:http://eel.is/c++draft/allocator.requirements#10
         // _slots的地址必须与alignof(QueueSlot<Elem>)对齐
         // 一定能在 [_memory, _memory + alignof(QueueSlot<Elem>]之间找到一个与alignof(QueueSlot<Elem>对齐的内存地址
-        void *endAddr = _memory + alignof(QueueSlot<Elem>);
-        for (void * addr = _memory; addr <= endAddr; ++addr)
+        Byte8 *endAddr = reinterpret_cast<Byte8 *>(_memory) + alignof(QueueSlot<Elem>);
+        for (Byte8 *addr = reinterpret_cast<Byte8 *>(_memory); addr <= endAddr; ++addr)
         {
-          if (addr % alignof(QueueSlot<Elem>) == 0)
+          if (size_t(addr) % alignof(QueueSlot<Elem>) == 0)
           {
               _slots = KERNEL_NS::KernelCastTo<QueueSlot<Elem>>(addr);
               break;
@@ -155,7 +155,7 @@ public:
 
           _memory = NULL;
           throw std::logic_error(KERNEL_NS::LibString().AppendFormat("_memory:%p cant find alignof(QueueSlot<%s>) = %lld"
-              ,addr, KERNEL_NS::RttiUtil::GetByType<Elem>().c_str(), static_cast<Int64>(alignof(QueueSlot<Elem>))));
+              ,addr, KERNEL_NS::RttiUtil::GetByType<Elem>().c_str(), static_cast<Int64>(alignof(QueueSlot<Elem>))).c_str());
         }
 
         // 初始化 _slots
@@ -193,27 +193,25 @@ public:
   MPMCQueue(const MPMCQueue &) = delete;
   MPMCQueue &operator=(const MPMCQueue &) = delete;
 
-  // 插入数据, 强制覆盖, 允许丢数据, 建议使用TryEmplace
+  // 会忙等待, 如果竞争比较激烈, 原理是通过递增_turn来保证线程安全, 如果_turn不满足条件则会忙等待, 直到满足条件
   template <typename... Args>
   void Emplace(Args &&...args) noexcept;
 
-  /// 队列满会退出, 否则会重试插入
+  /// 如果所有写线程无法推动_head说明消费不动了, 此时会退出，不必浪费时间
   template <typename... Args>
   bool TryEmplace(Args &&...args) noexcept;
 
-  // 强制插入,允许覆盖丢数据, 建议使用TryPush
   void Push(const Elem &v) noexcept;
   template <typename P>
   void Push(P &&v) noexcept;
 
-  // 不会丢数据
   bool TryPush(const Elem &v) noexcept;
   template <typename P>
   bool TryPush(P &&v) noexcept;
 
-  // 数据弹出, 推荐使用TryPop
+  // 如果生产过慢, 则会忙等待, 通过匹配_turn实现
   void Pop(Elem &v) noexcept;
-  // 数据弹出
+  // 如果生产过慢其他读线程也读不到数据就会return false,说明生产过慢, 没必要无意义的尝试
   bool TryPop(Elem &v) noexcept;
  
   /// 返回队列中元素的数量
@@ -273,6 +271,8 @@ ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Emplace(Args &&...args) noexce
 {
   auto const head = _head.fetch_add(1);
   auto &slot = _slots[_Mod(head)];
+
+    // 如果读过数据, 那么turn == _Turn(head) * 2, 没读过则一直忙等, 对于其他写线程, 也会等待其他写线程推动slot._turn递增或者读线程推动_turn递增, 通过_turn来保证多生产者, 多消费者线程安全, 如果不想忙等待, 可以使用TryEmplace接口
   while (_Turn(head) * 2 != slot._turn.load(std::memory_order_acquire))
     ;
   slot.Construct(std::forward<Args>(args)...);
@@ -317,16 +317,13 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryEmplace(Args &&...args) noe
     }
     else
     {
-      // 队列已满的处理
+        // 如果 prevHead仍然==head说明_turn不满足条件，可能没消费比较慢，此时退出, 避免无意义的忙等待，如果不相等, 说明是有其他线程改变了_head, 消费得动, 此时再尝试写入
       auto const prevHead = head;
       head = _head.load(std::memory_order_acquire);
-      // 确认队列确实已满退出
       if (head == prevHead)
       {
         return false;
       }
-
-      // 队列未满则重试
     }
   }
 }
@@ -420,6 +417,8 @@ ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Pop(Elem &v) noexcept
 {
   auto const tail = _tail.fetch_add(1);
   auto &slot = _slots[_Mod(tail)];
+
+    // 如果生产过慢, 则会忙等待
   while (_Turn(tail) * 2 + 1 != slot._turn.load(std::memory_order_acquire))
     ;
       
@@ -471,6 +470,7 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPop(Elem &v) noexcept
     }
     else
     {
+        // prevTail == tail说明所有读线程都没推动_tail改变, 说明生产不动了, 此时没必要尝试直接退出, 如果prevTail != tail说明其他读线程还可以读到数据, 说明还有机会读到数据，则继续尝试
       auto const prevTail = tail;
       tail = _tail.load(std::memory_order_acquire);
       if (tail == prevTail)
