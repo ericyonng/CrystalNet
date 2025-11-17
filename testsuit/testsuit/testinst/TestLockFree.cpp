@@ -178,6 +178,38 @@ public:
     }
 };
 
+class ThreadControlStartup : public KERNEL_NS::IThreadStartUp
+{
+public:
+    ThreadControlStartup(KERNEL_NS::Poller *control)
+        :_control(control)
+    {
+        
+    }
+
+    virtual void Run() override
+    {
+        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<void>
+        {
+            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+
+            getchar();
+
+            g_Log->Info(LOGFMT_OBJ_TAG("will quit controler: %s."), _control->ToString().c_str());
+
+            _control->QuitLoop();
+        });
+    }
+    virtual void Release() override
+    {
+        delete this;
+    }
+
+private:
+    KERNEL_NS::Poller *_control;
+};
+
+
 
 void TestLockFree::Run()
 {
@@ -192,6 +224,10 @@ void TestLockFree::Run()
     auto genThread3 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 3));
     auto genThread4 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 4));
 
+    auto controlMgrThread = new KERNEL_NS::LibEventLoopThread("control", new ThreadControlStartup(KERNEL_NS::TlsUtil::GetPoller()));
+
+    controlMgrThread->Start();
+    
     consumer->Start();
     // consumer2->Start();
     genThread->Start();
@@ -200,7 +236,11 @@ void TestLockFree::Run()
     // genThread4->Start();
 
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
-    auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    timer.SetClosureDelegate([](void *p)
+    {
+        KERNEL_NS::LibTimer::DeleteThreadLocal_LibTimer(KERNEL_NS::KernelCastTo<KERNEL_NS::LibTimer>(p));
+    });
     timer->SetTimeOutHandler([](KERNEL_NS::LibTimer *timer)
     {
         auto genNum = g_GenNum.exchange(0, std::memory_order_acq_rel);
@@ -212,5 +252,16 @@ void TestLockFree::Run()
     poller->PrepareLoop();
     poller->EventLoop();
     poller->OnLoopEnd();
+
+    genThread->HalfClose();
+    consumer->HalfClose();
+    controlMgrThread->HalfClose();
+
+    genThread->FinishClose();
+    consumer->FinishClose();
+    controlMgrThread->FinishClose();
+
+    KERNEL_NS::MPMCQueue<TestGenReq *>::Delete_MPMCQueue(g_ReqList);
+    g_ReqList = NULL;
 }
 
