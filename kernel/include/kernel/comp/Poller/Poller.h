@@ -49,9 +49,11 @@
 
 #include "kernel/comp/Coroutines/CoWaiter.h"
 #include <kernel/comp/SmartPtr.h>
-
+#include <kernel/comp/Poller/ApplyChannelResult.h>
 
 KERNEL_BEGIN
+
+class Channel;
 
 struct PollerEvent;
 
@@ -226,6 +228,7 @@ public:
     void SafeEventLoop();
     void OnLoopEnd();
     void WakeupEventLoop();
+    ConditionLocker &GetConditionLocker();
     void QuitLoop();
     bool CanQuit() const;
     bool IsQuit() const;
@@ -350,8 +353,16 @@ public:
         *ptr = NULL;
         co_return KERNEL_NS::SmartPtr<ResType,  KERNEL_NS::AutoDelMethods::Release>(res);
     }
+
+    // 申请创建channel
+
+    CoTask<UInt64> ApplyPollerChannel(Poller &targetPoller);
+    void SendByChannel(UInt64 channelId, PollerEvent *ev);
+    void SendByChannel(UInt64 channelId, LibList<PollerEvent *> *evs);
     
 protected:
+    CoTask<ApplyChannelResult> ApplyChannel();
+    
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;
     virtual void _OnWillClose() override;
@@ -361,6 +372,9 @@ protected:
     // 异步任务
     void _OnAsyncTaskEvent(PollerEvent *ev);
     void _OnObjectEvent(PollerEvent *ev);
+    void _OnBatchPollerEvent(PollerEvent *ev);
+    void _OnApplyChannelEvent(StubPollerEvent *ev);
+    void _OnDestroyChannelEvent(StubPollerEvent *ev);
 
 private:
     void _Clear();
@@ -402,6 +416,7 @@ private:
   IDelegate<void, Poller *> *_onEventWorkerCloseHandler;    // 事件处理线程结束销毁
   ConditionLocker _eventGuard;                              // 空闲挂起等待
   ConcurrentPriorityQueue<PollerEvent *> *_eventsList;      // 优先级事件队列
+    
   std::atomic<Int64> _eventAmountLeft;
   std::atomic<Int64> _genEventAmount;
   std::atomic<Int64> _consumEventCount;
@@ -419,8 +434,14 @@ private:
 
     // 订阅对象请求消息
     std::map<UInt64, IDelegate<void, StubPollerEvent *> *> _objTypeIdRefCallback;
-#pragma endregion 
+#pragma endregion
 
+    // 向target申请的channel
+    std::unordered_map<UInt64, Channel *> _idRefChannel;
+
+    // 申请channel而创建的消息队列
+    std::vector<SPSCQueue<PollerEvent *> *> _msgQueues;
+    std::unordered_map<UInt64, SPSCQueue<PollerEvent *> *> _channelIdRefQueue;
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -560,7 +581,7 @@ ALWAYS_INLINE const TimerMgr *Poller::GetTimerMgr() const
 // Debug情况下不使用try{}catch(){}让问题充分暴露
 ALWAYS_INLINE void Poller::EventLoop()
 {
-  QuicklyLoop();
+  SafeEventLoop();
 }
 
 #else
@@ -582,6 +603,11 @@ ALWAYS_INLINE void Poller::EventLoop()
 ALWAYS_INLINE void Poller::WakeupEventLoop()
 {
     _eventGuard.Sinal();
+}
+
+ALWAYS_INLINE ConditionLocker &Poller::GetConditionLocker()
+{
+    return _eventGuard;
 }
 
 ALWAYS_INLINE void Poller::QuitLoop()

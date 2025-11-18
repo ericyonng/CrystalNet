@@ -34,10 +34,11 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 #include <kernel/comp/LibString.h>
 #include <kernel/comp/Poller/PollerEventInternalType.h>
+#include <kernel/comp/LibList.h>
+#include <kernel/comp/Poller/ApplyChannelResult.h>
 
 KERNEL_BEGIN
-
-template <typename Rtn, typename... Args>
+    template <typename Rtn, typename... Args>
 class IDelegate;
 
 struct AsyncTask;
@@ -172,6 +173,86 @@ requires requires(ObjType obj)
     obj.Release();
 }
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(ObjectPollerEvent, ObjType);
+
+struct KERNEL_EXPORT BatchPollerEvent : public PollerEvent
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, BatchPollerEvent);
+
+    BatchPollerEvent();
+    ~BatchPollerEvent() override;
+
+    virtual void Release() override;
+    virtual LibString ToString() const override;
+    
+    LibList<PollerEvent *> *_events;
+};
+
+struct KERNEL_EXPORT ApplyChannelEvent 
+{
+    POOL_CREATE_OBJ_DEFAULT(ApplyChannelEvent);
+
+    ApplyChannelEvent(){}
+    ~ApplyChannelEvent(){}
+
+    virtual void Release()
+    {
+        ApplyChannelEvent::Delete_ApplyChannelEvent(this);
+    }
+    virtual LibString ToString() const
+    {
+        return "ApplyChannelEvent";
+    }
+};
+
+struct KERNEL_EXPORT ApplyChannelEventResponse
+{
+    POOL_CREATE_OBJ_DEFAULT(ApplyChannelEventResponse);
+
+    ApplyChannelEventResponse()
+    {
+        
+    }
+    
+    ~ApplyChannelEventResponse(){}
+
+    virtual void Release()
+    {
+        ApplyChannelEventResponse::Delete_ApplyChannelEventResponse(this);
+    }
+    
+    virtual LibString ToString() const
+    {
+        return KERNEL_NS::LibString().AppendFormat("ApplyChannelEventResponse.ChannelId:%d, Queue:%p", _result._channelId, _result._queue);
+    }
+
+    ApplyChannelResult _result;
+};
+
+struct KERNEL_EXPORT DestroyChannelEvent
+{
+    POOL_CREATE_OBJ_DEFAULT(DestroyChannelEvent);
+
+    DestroyChannelEvent()
+    :_channelId(0)
+    {
+        
+    }
+    
+    ~DestroyChannelEvent(){}
+
+    virtual void Release()
+    {
+        DestroyChannelEvent::Delete_DestroyChannelEvent(this);
+    }
+    
+    virtual LibString ToString() const
+    {
+        return KERNEL_NS::LibString().AppendFormat("DestroyChannelEvent.ChannelId:%d", _channelId);
+    }
+
+    UInt64 _channelId;
+};
+
 
 KERNEL_END
 

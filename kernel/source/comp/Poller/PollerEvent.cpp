@@ -30,9 +30,10 @@
 #include <kernel/comp/Utils/RttiUtil.h>
 #include <kernel/comp/Coroutines/AsyncTask.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/Utils/ContainerUtil.h"
 
-POOL_CREATE_OBJ_DEFAULT_IMPL(PollerEvent);
+KERNEL_BEGIN
+    POOL_CREATE_OBJ_DEFAULT_IMPL(PollerEvent);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ActionPollerEvent);
 POOL_CREATE_OBJ_DEFAULT_IMPL(EmptyPollerEvent);
 POOL_CREATE_OBJ_DEFAULT_IMPL(AsyncTaskPollerEvent);
@@ -127,5 +128,57 @@ LibString StubPollerEvent::ToString() const
 
     return info;
 }
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(BatchPollerEvent);
+
+BatchPollerEvent::BatchPollerEvent()
+    :PollerEvent(PollerEventInternalType::BatchPollerEventType)
+    ,_events(NULL)
+{
+    
+}
+
+BatchPollerEvent::~BatchPollerEvent()
+{
+    if(_events)
+    {
+        ContainerUtil::DelContainer(*_events, [](PollerEvent *ev)
+        {
+           ev->Release(); 
+        });
+
+        LibList<PollerEvent *>::Delete_LibList(_events);
+    }
+
+    _events = NULL;
+}
+
+void BatchPollerEvent::Release()
+{
+    BatchPollerEvent::Delete_BatchPollerEvent(this);
+}
+
+LibString BatchPollerEvent::ToString() const
+{
+    LibString info;
+    info.AppendFormat("batch poller event:%s, count:%lld, [", PollerEvent::ToString().c_str(), _events ? _events->GetAmount() : 0);
+
+    if(_events)
+    {
+        for(auto iter = _events->Begin(); iter; iter = iter->_next)
+        {
+            info.AppendFormat("%s\n", iter->_data->ToString().c_str());
+        }
+    }
+
+    info.AppendFormat("]");
+
+    return info;
+}
+
+POOL_CREATE_OBJ_DEFAULT_IMPL(ApplyChannelEvent);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ApplyChannelEventResponse);
+POOL_CREATE_OBJ_DEFAULT_IMPL(DestroyChannelEvent);
+POOL_CREATE_OBJ_DEFAULT_IMPL(ApplyChannelResult);
 
 KERNEL_END

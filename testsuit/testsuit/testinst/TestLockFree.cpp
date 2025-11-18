@@ -154,7 +154,7 @@ public:
                // if (!g_ReqList->TryPop(data) || data == NULL || data == (void *)(0xcdcdcdcdcdcdcdcd))
                //     continue;
 
-               g_Log->Info(LOGFMT_NON_OBJ_TAG(ThreadConsumerStartup, "data, ver:%lld"), data->_version);
+               // g_Log->Info(LOGFMT_NON_OBJ_TAG(ThreadConsumerStartup, "data, ver:%lld"), data->_version);
                data->Release();
                g_ConsumeNum.fetch_add(1, std::memory_order_release);
 
@@ -212,18 +212,96 @@ private:
 };
 
 
+#pragma region // test poller events with >= 200w qps
 
+
+// 消费者
+class ThreadPollerConsumerStartup : public KERNEL_NS::IThreadStartUp
+{
+public:
+    ThreadPollerConsumerStartup()
+    {
+        
+    }
+    virtual void Run() override
+    {
+        auto poller = KERNEL_NS::TlsUtil::GetPoller();
+        poller->SubscribeObjectEvent<TestGenReq>([](KERNEL_NS::StubPollerEvent *req)
+        {
+            g_ConsumeNum.fetch_add(1, std::memory_order_release);
+        });
+    }
+    virtual void Release() override
+    {
+        delete this;
+    }
+};
+
+
+// 生产者
+class ThreadPollerGeneratorStartup : public KERNEL_NS::IThreadStartUp
+{
+public:
+    ThreadPollerGeneratorStartup(KERNEL_NS::LibEventLoopThread *consumer, int id)
+        :_consumer(consumer)
+    ,_id(id)
+    {
+        
+    }
+    virtual void Run() override
+    {
+        // 投递到事件循环中
+        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+        {
+            auto consumerPoller = co_await _consumer->GetPoller();
+            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(1));
+
+            auto poller = KERNEL_NS::TlsUtil::GetPoller();
+            while (!poller->IsQuit())
+            {
+                auto req = TestGenReq::New_TestGenReq();
+                req->_version = g_Version.fetch_add(1, std::memory_order_release) + 1;
+                g_GenNum.fetch_add(1, std::memory_order_release);
+                consumerPoller->Send(req);
+                // g_ReqList->Push(req);
+                
+                // while (!g_ReqList->TryPush( req))
+                // {
+                //     ;
+                // }
+                
+
+                // 失败重试
+                // while (!g_ReqList->TryPush(req))
+                //     ;
+            }
+        });
+    }
+    virtual void Release() override
+    {
+        delete this;
+    }
+
+private:
+    KERNEL_NS::LibEventLoopThread *_consumer;
+    int _id;
+};
+
+#pragma endregion
 void TestLockFree::Run()
 {
     // g_ReqList = KERNEL_NS::MPMCQueue<TestGenReq *>::New_MPMCQueue();
     g_ReqList = KERNEL_NS::SPSCQueue<TestGenReq *>::New_SPSCQueue();
     
-    auto consumer = new KERNEL_NS::LibEventLoopThread("consumer1", new ThreadConsumerStartup());
+    // auto consumer = new KERNEL_NS::LibEventLoopThread("consumer1", new ThreadConsumerStartup());
+    auto consumer = new KERNEL_NS::LibEventLoopThread("poller_consumer1", new ThreadPollerConsumerStartup());
     auto consumer2 = new KERNEL_NS::LibEventLoopThread("consumer2", new ThreadConsumerStartup());
 
     // 1. 构建生产者消费者模型
-    auto genThread = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 1));
-    auto genThread2 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 2));
+    // auto genThread = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 1));
+    auto genThread = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 1));
+    auto genThread2 = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 2));
+    // auto genThread2 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 2));
     auto genThread3 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 3));
     auto genThread4 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 4));
 

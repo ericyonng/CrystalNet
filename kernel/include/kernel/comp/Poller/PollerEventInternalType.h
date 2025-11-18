@@ -58,6 +58,9 @@ public:
         // 存根事件
         StubPollerEventType = 5,
 
+        // 批量事件
+        BatchPollerEventType = 6,
+
         MAX_INTERNAL_TYPE,
     };
 };

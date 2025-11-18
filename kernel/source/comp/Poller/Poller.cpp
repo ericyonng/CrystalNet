@@ -43,6 +43,9 @@
 #include <kernel/comp/Poller/PollerCompStatistics.h>
 #include <kernel/comp/Coroutines/AsyncTask.h>
 
+#include "kernel/comp/Poller/Channel.h"
+#include "kernel/comp/Utils/StringUtil.h"
+
 // static ALWAYS_INLINE bool IsPriorityEvenetsQueueEmpty(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
 // {
 //     if(UNLIKELY(queue.empty()))
@@ -135,6 +138,67 @@ void Poller::Release()
     Poller::Delete_Poller(this);
 }
 
+CoTask<UInt64> Poller::ApplyPollerChannel(Poller &targetPoller)
+{
+    auto result = co_await targetPoller.ApplyChannel();
+    auto channel = Channel::NewThreadLocal_Channel(result._channelId, &targetPoller, result._queue);
+
+    _idRefChannel.insert(std::make_pair(channel->GetChannelId(), channel));
+
+    if(g_Log->IsEnable(LogLevel::Info))
+        g_Log->Info(LOGFMT_OBJ_TAG("new channel created src:%s => target:%s, channel id:%llu")
+            , ToString().c_str(), targetPoller.ToString().c_str(), channel->GetChannelId());
+
+    co_return channel->GetChannelId();
+}
+
+void Poller::SendByChannel(UInt64 channelId, PollerEvent *ev)
+{
+    auto iter = _idRefChannel.find(channelId);
+    if(UNLIKELY(iter == _idRefChannel.end()))
+    {
+        ev->Release();
+        if(UNLIKELY(g_Log->IsEnable(LogLevel::Debug)))
+            g_Log->Debug(LOGFMT_OBJ_TAG("channel not found:%llu, ev:%s, poller:%s"), channelId, ev->ToString().c_str(), ToString().c_str());
+        return;
+    }
+
+    iter->second->Send(ev);
+}
+
+void Poller::SendByChannel(UInt64 channelId, LibList<PollerEvent *> *evs)
+{
+    auto iter = _idRefChannel.find(channelId);
+    if(UNLIKELY(iter == _idRefChannel.end()))
+    {
+        KERNEL_NS::LibString info;
+        for(auto node = evs->Begin(); node; node = node->_next)
+        {
+            info.AppendFormat("%s\n", node->_data->ToString().c_str());
+        }
+        
+        if(UNLIKELY(g_Log->IsEnable(LogLevel::Debug)))
+            g_Log->Debug(LOGFMT_OBJ_TAG("channel not found:%llu, ev:%s, poller:%s"), channelId, info.c_str(), ToString().c_str());
+        
+        ContainerUtil::DelContainer(*evs, [](PollerEvent *ev)
+        {
+            ev->Release();
+        });
+        LibList<PollerEvent *>::Delete_LibList(evs);
+        return;
+    }
+
+    iter->second->Send(evs);
+}
+
+CoTask<ApplyChannelResult> Poller::ApplyChannel()
+{
+    auto req = ApplyChannelEvent::New_ApplyChannelEvent();
+    auto res = co_await SendAsync<ApplyChannelEventResponse, ApplyChannelEvent>(req);
+
+    co_return res->_result;
+}
+
 Int32 Poller::_OnInit()
 {
     Int32 ret = CompObject::_OnInit();
@@ -152,7 +216,13 @@ Int32 Poller::_OnInit()
     Subscribe(PollerEventInternalType::AsyncTaskType, this, &Poller::_OnAsyncTaskEvent);
     // 对象消息
     Subscribe(PollerEventInternalType::ObjectPollerEventType, this, &Poller::_OnObjectEvent);
-
+    // 批量消息
+    Subscribe(PollerEventInternalType::BatchPollerEventType, this, &Poller::_OnBatchPollerEvent);
+    // 订阅创建Channel消息
+    SubscribeObjectEvent<ApplyChannelEvent>(this, &Poller::_OnApplyChannelEvent);
+    // 订阅销毁Channel消息
+    SubscribeObjectEvent<DestroyChannelEvent>(this, &Poller::_OnDestroyChannelEvent);
+    
     // TODO:测试是不是在Poller所在线程
     _workThreadId.store(SystemUtil::GetCurrentThreadId(), std::memory_order_release);
     _timerMgr->Launch(DelegateFactory::Create(this, &Poller::WakeupEventLoop));
@@ -187,6 +257,7 @@ void Poller::_OnWillClose()
 
 void Poller::_OnClose()
 {
+    // TODO:销毁channel src channel/target spsc queue
     g_Log->Debug(LOGFMT_OBJ_TAG("poller close %s"), ToString().c_str());
     // _Clear();
     CompObject::_OnClose();
@@ -212,6 +283,82 @@ void Poller::_OnObjectEvent(PollerEvent *ev)
     }
 
     _OnObjectEventRequest(stubEv);
+}
+
+void Poller::_OnBatchPollerEvent(PollerEvent *ev)
+{
+    auto batchEv = ev->CastTo<BatchPollerEvent>();
+
+    if(LIKELY(batchEv->_events))
+    {
+        for(auto node = batchEv->_events->Begin(); node; )
+        {
+            auto subEv = node->_data;
+            node = batchEv->_events->Erase(node);
+
+#if _DEBUG
+            // 事件处理
+            try
+            {
+                auto iter = _pollerEventHandler.find(subEv->_type);
+                if(LIKELY(iter != _pollerEventHandler.end()))
+                    iter->second->Invoke(subEv);
+            }
+            catch(const std::exception& e)
+            {
+                if(g_Log->IsEnable(LogLevel::Error))
+                    g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), subEv->ToString().c_str(), ToString().c_str());
+            }
+            catch(...)
+            {
+                if(g_Log->IsEnable(LogLevel::Error))
+                    g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), subEv->ToString().c_str(), ToString().c_str());
+            }
+#else
+            // 事件处理
+            auto iter = _pollerEventHandler.find(subEv->_type);
+            if(LIKELY(iter != _pollerEventHandler.end()))
+                iter->second->Invoke(subEv);
+#endif
+
+            subEv->Release();
+        }
+    }
+}
+
+void Poller::_OnApplyChannelEvent(StubPollerEvent *ev)
+{
+    auto applyEv = ev->CastTo<ObjectPollerEvent<ApplyChannelEvent>>();
+
+    auto queue = SPSCQueue<PollerEvent *>::NewThreadLocal_SPSCQueue();
+    auto channelId = Channel::GenChannelId();
+    _channelIdRefQueue.insert(std::make_pair(channelId, queue));
+    _msgQueues.push_back(queue);
+
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("apply channel applyEv: %s, channelId:%llu, src poller:%s => target poller:%s,")
+            , applyEv->ToString().c_str(), channelId, applyEv->_srcPoller->ToString().c_str(), ToString().c_str());
+
+    // 返回包
+    auto res = ApplyChannelEventResponse::New_ApplyChannelEventResponse();
+    res->_channelId = channelId;
+    res->_queue = queue;
+    applyEv->_srcPoller->SendResponse(ev->_stub, res);
+}
+
+void Poller::_OnDestroyChannelEvent(StubPollerEvent *ev)
+{
+    auto destroyEv = ev->CastTo<ObjectPollerEvent<DestroyChannelEvent>>();
+
+    auto iter = _idRefChannel.find(destroyEv->_obj->_channelId);
+    if(UNLIKELY(iter == _idRefChannel.end()))
+        return;
+
+    if(g_Log->IsEnable(LogLevel::Debug))
+        g_Log->Debug(LOGFMT_OBJ_TAG("destroy channel id:%llu"), iter->first);
+    
+    Channel::DeleteThreadLocal_Channel(iter->second);
+    _idRefChannel.erase(iter);
 }
 
 void Poller::Clear()
@@ -818,7 +965,16 @@ void Poller::_Clear()
     ContainerUtil::DelContainer2(_pollerEventHandler);
 
     CRYSTAL_RELEASE_SAFE(_onTick);
-    
+
+    ContainerUtil::DelContainer(_idRefChannel, [](Channel *channel)
+    {
+        Channel::DeleteThreadLocal_Channel(channel);
+    });
+    ContainerUtil::DelContainer(_msgQueues, [](SPSCQueue<PollerEvent *> *queue)
+    {
+        SPSCQueue<PollerEvent *>::Delete_SPSCQueue(queue);
+    });
+    _channelIdRefQueue.clear();
     g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
 }
 

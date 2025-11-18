@@ -46,9 +46,10 @@
 #include <concepts>
 #include <ranges>
 
-KERNEL_BEGIN
+#include "kernel/comp/LibList.h"
 
-class LibTime;
+KERNEL_BEGIN
+    class LibTime;
 
 class KERNEL_EXPORT StringUtil
 {
