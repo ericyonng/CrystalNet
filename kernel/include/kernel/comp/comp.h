@@ -52,6 +52,7 @@
 #include <kernel/comp/LibTraceId.h>
 #include <kernel/comp/KernelFinally/KernelFinally.h>
 #include <kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h>
+#include <kernel/comp/ConcurrentPriorityQueue/SPSCQueue.h>
 
 // 简单组件
 #include <kernel/comp/Delegate/LibDelegate.h>

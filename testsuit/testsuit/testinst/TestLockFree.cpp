@@ -25,6 +25,7 @@
 // Description:
 // 改之前：190w qps
 // MPMCQueue 单生产者单消费者情况下 400w qps（windows下）
+// SPSCQueue 单生产者单消费者 >= 500w qps (windows)
 
 #include <pch.h>
 #include "TestLockFree.h"
@@ -73,7 +74,8 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TestGenRes);
 
 static std::atomic<Int64> g_GenNum = 0;
 static std::atomic<Int64> g_ConsumeNum = 0;
-static KERNEL_NS::MPMCQueue<TestGenReq *> *g_ReqList = NULL;
+// static KERNEL_NS::MPMCQueue<TestGenReq *> *g_ReqList = NULL;
+static KERNEL_NS::SPSCQueue<TestGenReq *> *g_ReqList = NULL;
 static std::atomic<Int64> g_Version = {0};
 
 // 生产者
@@ -152,7 +154,7 @@ public:
                // if (!g_ReqList->TryPop(data) || data == NULL || data == (void *)(0xcdcdcdcdcdcdcdcd))
                //     continue;
 
-               // g_Log->Info(LOGFMT_NON_OBJ_TAG(ThreadConsumerStartup, "data, ver:%lld"), data->_version);
+               g_Log->Info(LOGFMT_NON_OBJ_TAG(ThreadConsumerStartup, "data, ver:%lld"), data->_version);
                data->Release();
                g_ConsumeNum.fetch_add(1, std::memory_order_release);
 
@@ -213,7 +215,8 @@ private:
 
 void TestLockFree::Run()
 {
-    g_ReqList = KERNEL_NS::MPMCQueue<TestGenReq *>::New_MPMCQueue();
+    // g_ReqList = KERNEL_NS::MPMCQueue<TestGenReq *>::New_MPMCQueue();
+    g_ReqList = KERNEL_NS::SPSCQueue<TestGenReq *>::New_SPSCQueue();
     
     auto consumer = new KERNEL_NS::LibEventLoopThread("consumer1", new ThreadConsumerStartup());
     auto consumer2 = new KERNEL_NS::LibEventLoopThread("consumer2", new ThreadConsumerStartup());
@@ -261,7 +264,7 @@ void TestLockFree::Run()
     consumer->FinishClose();
     controlMgrThread->FinishClose();
 
-    KERNEL_NS::MPMCQueue<TestGenReq *>::Delete_MPMCQueue(g_ReqList);
+    KERNEL_NS::SPSCQueue<TestGenReq *>::Delete_SPSCQueue(g_ReqList);
     g_ReqList = NULL;
 }
 
