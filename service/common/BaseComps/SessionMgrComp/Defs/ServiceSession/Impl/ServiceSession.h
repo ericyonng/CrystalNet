@@ -29,7 +29,6 @@
 #pragma once
 
 #include <service/common/SessionType.h>
-#include <service/common/PriorityLevelDefine.h>
 #include <service/common/ServiceConfig.h>
 #include <service/common/BaseComps/Event/Event.h>
 #include <service/common/BaseComps/GlobalSys/GlobalSys.h>

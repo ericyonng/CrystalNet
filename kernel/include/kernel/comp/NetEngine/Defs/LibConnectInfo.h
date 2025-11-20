@@ -61,7 +61,6 @@ struct KERNEL_EXPORT LibConnectInfo
     UInt16 _targetPort;     // 目标端口
     UInt16 _family;         // 协议族 AF_INET/AF_INET6
     Int32 _protocolType;    // 协议类型（udp/tcp/quic等）ProtocolType
-    UInt32 _priorityLevel;  // 优先级级别 
     UInt64 _pollerId;       // pollerid，若指定了pollerid则使用指定的pollerid投递(此时priorityLevel, _protocolType, 可以不填)
 
     Int32 _retryTimes;      // 超时重试次数

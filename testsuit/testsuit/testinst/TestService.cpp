@@ -103,11 +103,10 @@ public:
                 if(UNLIKELY(!service))
                     return;
                 
-                auto serviceMaxLevel = service->GetMaxPriorityLevel();
                 auto msg = KERNEL_NS::HotfixShareLibraryEvent::New_HotfixShareLibraryEvent();
                 msg->_shareLib = std::move(hotfix->_shareLib);
                 msg->_hotfixKey = hotfix->_hotfixKey;
-                serviceProxy->PostMsg(serviceId, serviceMaxLevel, msg, 1);
+                serviceProxy->PostMsg(serviceId, msg, 1);
             });
 
             // 监听热更完成消息
@@ -118,10 +117,9 @@ public:
                 if(UNLIKELY(!service))
                     return;
                                 
-                auto serviceMaxLevel = service->GetMaxPriorityLevel();
                 auto msg = KERNEL_NS::HotfixShareLibraryCompleteEvent::New_HotfixShareLibraryCompleteEvent();
                 msg->_hotfixKeys = hotfixKeys;
-                serviceProxy->PostMsg(serviceId, serviceMaxLevel, msg, 1);
+                serviceProxy->PostMsg(serviceId, msg, 1);
             });
         }
         

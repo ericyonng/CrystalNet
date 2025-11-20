@@ -91,15 +91,15 @@ public:
 
     // 异步事件投递
 public:
-    void PostSend(Int32 level, UInt64 sessionId, LibPacket *packet);
-    void PostSend(Int32 level, UInt64 sessionId, LibList<LibPacket *> *packets);
-    void PostNewSession(Int32 level, BuildSessionInfo *buildSessionInfo);
-    void PostAddlisten(Int32 level, LibListenInfo *listenInfo);
-    void PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList);
-    void PostConnect(Int32 level, LibConnectInfo *connectInfo);
-    void PostCloseSession(UInt64 fromServiceId, Int32 level, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
-    void PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList);
-    void PostQuitServiceSessionsEvent(UInt64 serviceId, Int32 level = 0);
+    void PostSend(UInt64 sessionId, LibPacket *packet);
+    void PostSend(UInt64 sessionId, LibList<LibPacket *> *packets);
+    void PostNewSession(BuildSessionInfo *buildSessionInfo);
+    void PostAddlisten(LibListenInfo *listenInfo);
+    void PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList);
+    void PostConnect(LibConnectInfo *connectInfo);
+    void PostCloseSession(UInt64 fromServiceId, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
+    void PostIpControl(const std::list<IpControlInfo *> &controlList);
+    void PostQuitServiceSessionsEvent(UInt64 serviceId);
 
 private:
     EpollTcpSession *_GetSession(UInt64 sessionId);
@@ -182,7 +182,7 @@ private:
     TcpPollerMgr *_tcpPollerMgr;
     IPollerMgr *_pollerMgr;
     IServiceProxy *_serviceProxy;
-    Poller *_poller;
+    std::atomic<Poller *> _poller;
 
     const TcpPollerInstConfig *_cfg;
     std::map<UInt64, EpollTcpSession *> _sessionIdRefSession;
@@ -198,7 +198,6 @@ private:
 
     LibThread *_monitor;                    // 监听线程
     LibThread *_eventLoopThread;            // 事件循环线程
-    Int32 _pollerInstMonitorPriorityLevel;  // 监听线程的消息优先级
 
 };
 

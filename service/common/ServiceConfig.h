@@ -74,7 +74,7 @@ struct AddrConfig
         info.AppendFormat("local addr:%s:%hu, remote addr:%s:%hu, af:%d, session type:%d, priority level:%u"
                             ,_localIp._ip.c_str(), _localPort
                             ,  _remoteIp._ip.c_str(), _remotePort
-                            , _af, _sessionType, _priorityLevel);
+                            , _af, _sessionType);
 
         return info;
     }
@@ -94,7 +94,6 @@ public:
 
     Int32 _af = AF_INET;            // ipv4/ipv6
     Int32 _sessionType = 0;         // 配置的会话类型
-    UInt32 _priorityLevel = 0;      // 消息优先级
     Int32 _protocolStackType = 0;   // 通信使用的协议栈类型
     Int32 _listenSessionCount = 1;
 };

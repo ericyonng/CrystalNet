@@ -95,12 +95,12 @@ public:
 
 public:
     void PostConnect(LibConnectInfo *connectInfo);
-    void PostAddlisten(Int32 level, LibListenInfo *listenInfo);
-    void PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList);
-    void PostSend(UInt64 pollerId, Int32 level, UInt64 sessionId, LibPacket *packet);
-    void PostSend(UInt64 pollerId, Int32 level, UInt64 sessionId, LibList<LibPacket *> *packets);
-    void PostCloseSession(UInt64 pollerId, UInt64 fromeService, Int32 level, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
-    void PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList);
+    void PostAddlisten(LibListenInfo *listenInfo);
+    void PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList);
+    void PostSend(UInt64 pollerId, UInt64 sessionId, LibPacket *packet);
+    void PostSend(UInt64 pollerId, UInt64 sessionId, LibList<LibPacket *> *packets);
+    void PostCloseSession(UInt64 pollerId, UInt64 fromeService, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite);
+    void PostIpControl(const std::list<IpControlInfo *> &controlList);
 
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         void OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo);

@@ -83,7 +83,6 @@ public:
     const MysqlConfig &GetConfig() const;
 
     void SetTargetPoller(Poller *poller);
-    void SetDbMsgLevel(Int32 level);
     void SetEventType(Int32 evType);
 
     bool IsReady() const;
@@ -129,7 +128,6 @@ private:
     // ConditionLocker _eventGuard;   
 
     Poller *_targetPoller;  // db 返回消息的poller
-    Int32 _msgLevel;   // 消息管道的优先级  
     Int32 _eventType;   // 事件类型   
     
     typedef void (MysqlDB::*MsgHandler)(MysqlConnect *conn, MysqlRequest *, Int64 &);
@@ -149,11 +147,6 @@ ALWAYS_INLINE const MysqlConfig &MysqlDB::GetConfig() const
 ALWAYS_INLINE void MysqlDB::SetTargetPoller(Poller *poller)
 {
     _targetPoller = poller;
-}
-
-ALWAYS_INLINE void MysqlDB::SetDbMsgLevel(Int32 level)
-{
-    _msgLevel = level;
 }
 
 ALWAYS_INLINE void MysqlDB::SetEventType(Int32 evType)

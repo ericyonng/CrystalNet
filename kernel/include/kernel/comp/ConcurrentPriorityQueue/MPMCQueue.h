@@ -47,6 +47,7 @@
 #include <kernel/comp/memory/ObjPoolMacro.h>
 
 #include "kernel/comp/Utils/MathUtil.h"
+#include <kernel/common/AlignedStorage.h>
 
 KERNEL_BEGIN
 

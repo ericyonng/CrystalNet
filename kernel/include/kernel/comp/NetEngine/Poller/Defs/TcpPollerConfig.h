@@ -58,8 +58,6 @@ struct KERNEL_EXPORT TcpPollerInstConfig
     UInt64 _handleAcceptPerFrameLimit;      // 单帧最大处理连接数
     UInt64 _maxPieceTimeInMicroseconds;     // 最大时间片
     UInt64 _maxSleepMilliseconds;           // poller扫描时间间隔
-    Int32 _maxPriorityLevel;                // 优先级从0开始最大等级
-    Int32 _pollerInstMonitorPriorityLevel;  // 指定PollerMonotor事件的poller优先级，-1表示会取_maxPriorityLevel
     UInt64 _bufferCapacity;                 // session缓冲大小
     UInt64 _sessionRecvPacketSpeedLimit;  // session每毫秒限速
     UInt64 _sessionRecvPacketSpeedTimeUnitMs;       // 收包限速时间单位毫秒数

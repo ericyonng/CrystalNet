@@ -359,10 +359,10 @@ void TcpPollerMgr::PostConnect(LibConnectInfo *connectInfo)
         return;
     }
 
-    poller->PostConnect(connectInfo->_priorityLevel, connectInfo);
+    poller->PostConnect(connectInfo);
 }
 
-void TcpPollerMgr::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
+void TcpPollerMgr::PostAddlisten(LibListenInfo *listenInfo)
 {
     auto pollerCluster = _GetPollerCluster(_linkerFeatureId);
     if(UNLIKELY(!pollerCluster))
@@ -392,13 +392,13 @@ void TcpPollerMgr::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
         auto newListenInfo = LibListenInfo::New_LibListenInfo();
         *newListenInfo = *listenInfo;
         excludes.insert(poller);
-        poller->PostAddlisten(level, newListenInfo);
+        poller->PostAddlisten(newListenInfo);
     }
 
     LibListenInfo::Delete_LibListenInfo(listenInfo);
 }
 
-void TcpPollerMgr::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList)
+void TcpPollerMgr::PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList)
 {
     auto pollerCluster = _GetPollerCluster(_linkerFeatureId);
     if(UNLIKELY(!pollerCluster))
@@ -428,12 +428,12 @@ void TcpPollerMgr::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &
             }
 
             excludes.insert(poller);
-            poller->PostAddlisten(level, listenInfo);
+            poller->PostAddlisten(listenInfo);
         }
     }
 }
 
-void TcpPollerMgr::PostSend(UInt64 pollerId, Int32 level, UInt64 sessionId, LibPacket *packet)
+void TcpPollerMgr::PostSend(UInt64 pollerId, UInt64 sessionId, LibPacket *packet)
 {
     auto poller = GetPoller(pollerId);
     if(UNLIKELY(!poller))
@@ -443,10 +443,10 @@ void TcpPollerMgr::PostSend(UInt64 pollerId, Int32 level, UInt64 sessionId, LibP
         return;
     }
 
-    poller->PostSend(level, sessionId, packet);
+    poller->PostSend(sessionId, packet);
 }
 
-void TcpPollerMgr::PostSend(UInt64 pollerId, Int32 level, UInt64 sessionId, LibList<LibPacket *> *packets)
+void TcpPollerMgr::PostSend(UInt64 pollerId, UInt64 sessionId, LibList<LibPacket *> *packets)
 {
     auto poller = GetPoller(pollerId);
     if(UNLIKELY(!poller))
@@ -464,10 +464,10 @@ void TcpPollerMgr::PostSend(UInt64 pollerId, Int32 level, UInt64 sessionId, LibL
         return;
     }
 
-    poller->PostSend(level, sessionId, packets);
+    poller->PostSend(sessionId, packets);
 }
 
-void TcpPollerMgr::PostCloseSession(UInt64 pollerId, UInt64 fromeService, Int32 level, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
+void TcpPollerMgr::PostCloseSession(UInt64 pollerId, UInt64 fromeService, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
 {
     auto poller = GetPoller(pollerId);
     if(UNLIKELY(!poller))
@@ -477,13 +477,13 @@ void TcpPollerMgr::PostCloseSession(UInt64 pollerId, UInt64 fromeService, Int32 
         return;
     }
 
-    poller->PostCloseSession(fromeService, level, sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
+    poller->PostCloseSession(fromeService, sessionId, closeMillisecondTimeDelay, forbidRead, forbidWrite);
 }
 
-void TcpPollerMgr::PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList)
+void TcpPollerMgr::PostIpControl(const std::list<IpControlInfo *> &controlList)
 {
     for(auto iter : _idRefPoller)
-        iter.second->PostIpControl(level, controlList);
+        iter.second->PostIpControl(controlList);
 }
 
 #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
@@ -515,7 +515,7 @@ void TcpPollerMgr::OnConnectRemoteSuc(BuildSessionInfo *newSessionInfo)
     if(g_Log->IsEnable(LogLevel::NetInfo))
         g_Log->NetInfo(LOGFMT_OBJ_TAG("connect remote suc new session info:%s"), newSessionInfo->ToString().c_str());
     
-    poller->PostNewSession(newSessionInfo->_priorityLevel, newSessionInfo);
+    poller->PostNewSession(newSessionInfo);
 }
 #endif
 
@@ -544,7 +544,7 @@ void TcpPollerMgr::OnAcceptedSuc(BuildSessionInfo *newSessionInfo)
 
     if(g_Log->IsEnable(LogLevel::NetInfo))
         g_Log->NetInfo(LOGFMT_OBJ_TAG("accepted new link in suc new session info:%s"), newSessionInfo->ToString().c_str());
-    poller->PostNewSession(newSessionInfo->_priorityLevel, newSessionInfo);
+    poller->PostNewSession(newSessionInfo);
 }
 
 void TcpPollerMgr::QuitAllSessions(UInt64 serviceId)

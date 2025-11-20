@@ -43,7 +43,6 @@ MysqlDBMgr::MysqlDBMgr()
 ,_ini(NULL)
 ,_maxSeqId(0)
 ,_msgBackpoller(NULL)
-,_msgLevel(0)
 ,_dbEventType(0)
 ,_closeMysqlTimer(NULL)
 {
@@ -565,7 +564,6 @@ void MysqlDBMgr::_CreateDb()
     {
         auto newDb = MysqlDB::New_MysqlDB(this);
         newDb->SetConfig(iter.second);
-        newDb->SetDbMsgLevel(_msgLevel);
         newDb->SetTargetPoller(_msgBackpoller);
         newDb->SetEventType(_dbEventType);
 

@@ -45,7 +45,6 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(LibSession);
 LibSession::LibSession(UInt64 sessionId, bool isLinker, bool isConnectToRemote)
 :_inited{false}
 ,_id(sessionId)
-,_priorityLevel(0)
 ,_protocolType(0)
 ,_bufferCapacity(0)
 ,_serviceId(0)
@@ -106,7 +105,7 @@ LibString LibSession::ToString() const
             , _id, _sock ? _sock->ToString().c_str() : "no socket", _serviceId, _pollerId, _protocolType, ProtocolType::ToString(_protocolType))
         .AppendFormat(" session option:%s, \n", _option.ToString().c_str())
         .AppendFormat(" is linker:%s, \n", _isLinker ? "true" : "false")
-        .AppendFormat(" _priorityLevel:%d, _bufferCapacity:%llu, \n", _priorityLevel, _bufferCapacity)
+        .AppendFormat(" _bufferCapacity:%llu, \n", _bufferCapacity)
         .AppendFormat(" recvHandleBytes:%llu, recvBytesPerFrameLimit:%llu, \n", _curFrameRecvHandleBytes, _handleRecvBytesPerFrameLimit)
         .AppendFormat(" sendHandleBytes:%llu, sendBytesPerFrameLimit:%llu, \n", _curFrameSendHandleBytes, _handleSendBytesPerFrameLimit)
         .AppendFormat(" acceptCount:%llu, accpetPerFrameLimit:%llu, \n", _curFrameAcceptCount, _handleAcceptCountPerFrameLimit)

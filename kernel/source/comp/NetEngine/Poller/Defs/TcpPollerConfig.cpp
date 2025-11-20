@@ -41,8 +41,6 @@ TcpPollerInstConfig::TcpPollerInstConfig(const TcpPollerFeatureConfig *owner, UI
 ,_handleAcceptPerFrameLimit(0)
 ,_maxPieceTimeInMicroseconds(0)
 ,_maxSleepMilliseconds(0)
-,_maxPriorityLevel(0)
-,_pollerInstMonitorPriorityLevel(-1)
 ,_bufferCapacity(0)
 ,_sessionRecvPacketSpeedLimit(0)
 ,_sessionRecvPacketSpeedTimeUnitMs(0)
@@ -62,8 +60,6 @@ LibString TcpPollerInstConfig::ToString() const
         .AppendFormat("accept number per frame limit:%llu, ", _handleAcceptPerFrameLimit)
         .AppendFormat("max piece time in microseconds limit:%llu, ", _maxPieceTimeInMicroseconds)
         .AppendFormat("max sleep milliseconds limit:%llu, ", _maxSleepMilliseconds)
-        .AppendFormat("max priority level:%d, ", _maxPriorityLevel)
-        .AppendFormat("poller inst monitor priority level:%d, ", _pollerInstMonitorPriorityLevel)
         .AppendFormat("buffer capacity:%llu, ", _bufferCapacity)
         .AppendFormat("session recv packet speed:%llu, ", _sessionRecvPacketSpeedLimit)
         .AppendFormat("session recv packet speed time unit ms:%llu, ", _sessionRecvPacketSpeedTimeUnitMs)
@@ -80,8 +76,6 @@ void TcpPollerInstConfig::Copy(const TcpPollerInstConfig &cfg)
     _handleAcceptPerFrameLimit = cfg._handleAcceptPerFrameLimit;
     _maxPieceTimeInMicroseconds = cfg._maxPieceTimeInMicroseconds;
     _maxSleepMilliseconds = cfg._maxSleepMilliseconds;
-    _maxPriorityLevel = cfg._maxPriorityLevel;
-    _pollerInstMonitorPriorityLevel = cfg._pollerInstMonitorPriorityLevel;
     _bufferCapacity = cfg._bufferCapacity;
 }
 

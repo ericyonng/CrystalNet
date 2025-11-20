@@ -84,8 +84,6 @@ public:
 
     // poller 的时间片 默认1秒
     void SetMaxPieceTimeInMicroseconds(Int64 maxPieceTimeInMicroseconds);
-    // 最大优先级 默认0
-    void SetMaxPriorityLevel(Int32 maxPriorityLevel);
     // 扫描时间间隔 默认1秒
     void SetMaxSleepMilliseconds(UInt64 maxSleepMilliseconds);
 
@@ -132,7 +130,6 @@ protected:
 
     Poller *_poller;
     Int64 _maxPieceTimeInMicroseconds;  // poller的时间片
-    Int32 _maxPriorityLevel;            // poller的最大优先级别, 默认是0, 也就是一个优先级队列
     UInt64 _maxSleepMilliseconds;       // poller 的扫描时间间隔
 
     LockWrap<_Build::MT, LockParticleType::Heavy> _lck;
@@ -184,11 +181,6 @@ ALWAYS_INLINE const std::vector<KERNEL_NS::LibString> &IApplication::GetAppArgs(
 ALWAYS_INLINE void IApplication::SetMaxPieceTimeInMicroseconds(Int64 maxPieceTimeInMicroseconds)
 {
     _maxPieceTimeInMicroseconds = maxPieceTimeInMicroseconds;
-}
-
-ALWAYS_INLINE void IApplication::SetMaxPriorityLevel(Int32 maxPriorityLevel)
-{
-    _maxPriorityLevel = maxPriorityLevel;
 }
 
 ALWAYS_INLINE void IApplication::SetMaxSleepMilliseconds(UInt64 maxSleepMilliseconds)

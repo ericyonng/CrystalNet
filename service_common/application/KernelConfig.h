@@ -49,7 +49,6 @@ struct KernelConfig
     UInt64 _maxAcceptCountPerFrame = 0;             // 单帧最大处理连接数
     UInt64 _maxPieceTimeInMicroSecPerFrame = 0;     // 最大帧时间片
     UInt64 _maxPollerScanMilliseconds = 0;          // 最大poller扫描时间间隔
-    Int32 _maxPollerMsgPriorityLevel = 0;           // 最大消息优先级等级
     Int32 _pollerMonitorEventPriorityLevel = 0;     // 指定poller monitor事件的消息优先级等级
     UInt64 _sessionBufferCapicity = 0;               // session缓冲大小设置
     UInt64 _sessionRecvPacketSpeedLimit = 0;            // 收包限速

@@ -44,7 +44,6 @@ IService::IService(UInt64 objTypeId)
 ,_poller(NULL)
 ,_serviceProxy(NULL)
 ,_maxPieceTimeInMicroseconds(0)
-,_maxPriorityLevel(0)
 ,_maxSleepMilliseconds(0)
 ,_recvPackets{0}
 ,_consumePackets{0}
@@ -235,14 +234,14 @@ bool IService::PrepareLoop()
     return true;
 }
 
-void IService::Push(Int32 level, KERNEL_NS::PollerEvent *ev)
+void IService::Push(KERNEL_NS::PollerEvent *ev)
 {
-    _poller->Push(level, ev);
+    _poller->Push(ev);
 }
 
-void IService::Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList)
+void IService::Push(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList)
 {
-    _poller->Push(level, evList);
+    _poller->Push(evList);
 }
 
 Int32 IService::_OnHostInit()
@@ -269,7 +268,6 @@ Int32 IService::_OnPriorityLevelCompsCreated()
 
     // poller 设置
     KERNEL_NS::TimeSlice span(0, 0, _maxPieceTimeInMicroseconds);
-    _poller->SetMaxPriorityLevel(_maxPriorityLevel);
     _poller->SetMaxPieceTime(span);
     _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
     _poller->SetPepareEventWorkerHandler(this, &IService::_OnPollerPrepare);

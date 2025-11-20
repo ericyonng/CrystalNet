@@ -61,7 +61,7 @@ void SysLogicMgr::Release()
 Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
 , UInt64 &stub, KERNEL_NS::IDelegate<void, UInt64, Int32, const KERNEL_NS::Variant *, bool &> *delg
 , Int32 sessionCount
-, UInt32 priorityLevel, Int32 sessionType, Int32 family, Int32 protocolStackType) const
+, Int32 sessionType, Int32 family, Int32 protocolStackType) const
 {
     // 1.校验ip
     if(!ip._ip.empty())
@@ -78,8 +78,8 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     stub = stubHandleMgr->NewStub();
     if(stubHandleMgr->HasStub(stub))
     {
-        g_Log->Warn(LOGFMT_OBJ_TAG("stub callback is already existes please check stub:%llu, ip:%s, port:%hu, priorityLevel:%u, sessionType:%d, family:%d")
-                    , stub, ip.ToString().c_str(), port, priorityLevel, sessionType, family);
+        g_Log->Warn(LOGFMT_OBJ_TAG("stub callback is already existes please check stub:%llu, ip:%s, port:%hu, sessionType:%d, family:%d")
+                    , stub, ip.ToString().c_str(), port, sessionType, family);
 
         return Status::Repeat;
     }
@@ -144,7 +144,6 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     listenInfo->_family = family;
     listenInfo->_serviceId = service->GetServiceId();
     listenInfo->_stub = stub;
-    listenInfo->_priorityLevel = priorityLevel;
     listenInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
 
     // windows下同一个端口只能一个session
@@ -156,14 +155,14 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     listenInfo->_sessionOption = option;
     g_Log->Info(LOGFMT_OBJ_TAG("add listen info:%s"), listenInfo->ToString().c_str());
     auto tcpPollerMgr = service->GetTcpPollerMgr();
-    tcpPollerMgr->PostAddlisten(priorityLevel, listenInfo);
+    tcpPollerMgr->PostAddlisten(listenInfo);
 
     // 回调
     if(delg)
         stubHandleMgr->NewHandle(stub, delg);
 
     g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, priorityLevel:%u, sessionType:%d, family:%d, stub:%llu")
-                , ip.ToString().c_str(), port, priorityLevel, sessionType, family, stub);
+                , ip.ToString().c_str(), port, sessionType, family, stub);
 
 
     return Status::Success;
@@ -176,7 +175,6 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes    /* 超时重试次数 */
 , Int64 periodMs  /* 超时时间 */
-, UInt32 priorityLevel /* 消息队列优先级 */
 , Int32 sessionType /* 会话类型 */
 , Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
 , Int32 protocolStackType
@@ -264,7 +262,6 @@ Int32 SysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &remoteIp, UInt1
     connectInfo->_targetPort = remotePort;
     connectInfo->_family = family;
     connectInfo->_protocolType = KERNEL_NS::ProtocolType::TCP;
-    connectInfo->_priorityLevel = priorityLevel;
     connectInfo->_pollerId = 0;
     connectInfo->_retryTimes = retryTimes;
     connectInfo->_periodMs = periodMs;
@@ -307,7 +304,6 @@ Int32 SysLogicMgr::_OnHostStart()
                                 , this
                                 , &SysLogicMgr::_OnAddListenRes
                                 , addrInfo->_listenSessionCount
-                                , addrInfo->_priorityLevel
                                 , addrInfo->_sessionType
                                 , addrInfo->_af
                                 ,addrInfo->_protocolStackType
@@ -344,7 +340,6 @@ Int32 SysLogicMgr::_OnHostStart()
         , NULL
         , 3
         , 12000
-        ,  PriorityLevelDefine::INNER
         ,  SessionType::INNER
         , centerAddr->_remoteIp.GetAf()
         , centerAddr->_protocolStackType);
@@ -376,7 +371,6 @@ Int32 SysLogicMgr::_OnHostStart()
         , NULL
         , 0
         , 0
-        ,  addr->_priorityLevel
         ,  addr->_sessionType
         , addr->_remoteIp.GetAf()
         , addr->_protocolStackType);
@@ -510,7 +504,6 @@ void SysLogicMgr::_OnConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS::Var
         , NULL
         , 0
         , 0
-        ,  PriorityLevelDefine::INNER
         ,  SessionType::INNER
         , af
         , addr->_protocolStackType);

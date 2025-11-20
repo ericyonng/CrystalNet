@@ -1044,10 +1044,6 @@ Int32 MysqlMgr::_OnGlobalSysCompsCreated()
     auto dbMgr = GetComp<KERNEL_NS::MysqlDBMgr>();
     dbMgr->SetMsgBackPoller(service->GetPoller());
 
-    const Int32 dbLevel = static_cast<Int32>(PriorityLevelDefine::DB);
-    auto level = service->GetMaxPriorityLevel() > dbLevel ? dbLevel : service->GetMaxPriorityLevel();
-    dbMgr->SetMsgLevel(level);
-
     dbMgr->SetDbEventType(ServicePollerEvent::MysqlDbEvent);
 
     dbMgr->SetIniFile(ini);

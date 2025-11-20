@@ -196,7 +196,6 @@ CloseSessionEvent::CloseSessionEvent()
 :PollerEvent(PollerEventType::CloseSession)
 ,_sessionId(0)
 ,_fromServiceId(0)
-,_priorityLevel(0)
 ,_closeMillisecondTime(0)
 ,_stub(0)
 ,_forbidRead(false)
@@ -216,7 +215,6 @@ LibString CloseSessionEvent::ToString() const
     info.AppendFormat("event type:%d, CloseSessionEvent:", _type)
         .AppendFormat("_sessionId:%llu, ", _sessionId)
         .AppendFormat("_fromServiceId:%llu, ", _fromServiceId)
-        .AppendFormat("_priorityLevel:%u, ", _priorityLevel)
         .AppendFormat("_closeMillisecondTime:%lld, ", _closeMillisecondTime)
         .AppendFormat("_stub:%llu, ", _stub)
         .AppendFormat("_forbidRead:%s, ", _forbidRead ? "true" : "false")
@@ -230,7 +228,6 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(QuitServiceSessionsEvent);
 QuitServiceSessionsEvent::QuitServiceSessionsEvent()
 :PollerEvent(PollerEventType::QuitServiceSessionsEvent)
 ,_fromServiceId(0)
-,_priorityLevel(0)
 {
 
 }
@@ -243,8 +240,8 @@ void QuitServiceSessionsEvent::Release()
 LibString QuitServiceSessionsEvent::ToString() const 
 {
     LibString info;
-    info.AppendFormat("event type:%d, QuitServiceSessionsEvent: _fromServiceId:%llu, _priorityLevel:%u"
-                    , _type, _fromServiceId, _priorityLevel);
+    info.AppendFormat("event type:%d, QuitServiceSessionsEvent: _fromServiceId:%llu"
+                    , _type, _fromServiceId);
 
     return info;
 }
@@ -317,7 +314,6 @@ SessionCreatedEvent::SessionCreatedEvent()
 ,_targetAddr(true)
 ,_family(0)
 ,_protocolType(0)
-,_priorityLevel(0)
 ,_sessionType(0)
 ,_sessionPollerId(0)
 ,_belongServiceId(0)
@@ -343,7 +339,6 @@ LibString SessionCreatedEvent::ToString() const
         .AppendFormat("_targetAddr:%s, \n", _targetAddr.ToString().c_str())
         .AppendFormat("_family:%hu, \n", _family)
         .AppendFormat("_protocolType:%d, \n", _protocolType)
-        .AppendFormat("_priorityLevel:%u, \n", _priorityLevel)
         .AppendFormat("_sessionType:%d, \n", _sessionType)
         .AppendFormat("_sessionPollerId:%llu, \n", _sessionPollerId)
         .AppendFormat("_belongServiceId:%llu, \n", _belongServiceId)
@@ -367,7 +362,6 @@ AsynConnectResEvent::AsynConnectResEvent()
 ,_targetAddr(true)
 ,_family(0)
 ,_protocolType(0)
-,_priorityLevel(0)
 ,_sessionPollerId(0)
 ,_fromServiceId(0)
 ,_stub(0)
@@ -390,7 +384,6 @@ LibString AsynConnectResEvent::ToString() const
         .AppendFormat("_targetAddr:%s, \n", _targetAddr.ToString().c_str())
         .AppendFormat("_family:%hu, \n", _family)
         .AppendFormat("_protocolType:%d, \n", _protocolType)
-        .AppendFormat("_priorityLevel:%u, \n", _priorityLevel)
         .AppendFormat("_sessionPollerId:%llu, \n", _sessionPollerId)
         .AppendFormat("_fromServiceId:%llu, \n", _fromServiceId)
         .AppendFormat("_stub:%llu, \n", _stub)
@@ -411,7 +404,6 @@ AddListenResEvent::AddListenResEvent()
 ,_family(0)
 ,_serviceId(0)
 ,_stub(0)
-,_priorityLevel(0)
 ,_protocolType(0)
 ,_sessionId(0)
 {
@@ -432,7 +424,6 @@ LibString AddListenResEvent::ToString() const
         .AppendFormat("_family:%hu, \n", _family)
         .AppendFormat("_serviceId:%llu, \n", _serviceId)
         .AppendFormat("_stub:%llu, \n", _stub)
-        .AppendFormat("_priorityLevel:%u, \n", _priorityLevel)
         .AppendFormat("_protocolType:%d, \n", _protocolType)
         .AppendFormat("_sessionId:%llu, \n", _sessionId)
         ;
@@ -447,7 +438,6 @@ SessionDestroyEvent::SessionDestroyEvent()
 ,_closeReason(0)
 ,_sessionId(0)
 ,_serviceId(0)
-,_priorityLevel(0)
 ,_stub(0)
 {
 
@@ -465,7 +455,6 @@ LibString SessionDestroyEvent::ToString() const
         .AppendFormat("_closeReason:%d, %s \n", _closeReason, CloseSessionInfo::GetCloseReason(_closeReason))
         .AppendFormat("_sessionId:%llu, \n", _sessionId)
         .AppendFormat("_serviceId:%llu, \n", _serviceId)
-        .AppendFormat("_priorityLevel:%u, \n", _priorityLevel)
         .AppendFormat("_stub:%llu, \n", _stub)
         ;
 
@@ -478,7 +467,6 @@ RecvMsgEvent::RecvMsgEvent()
 :PollerEvent(PollerEventType::RecvMsg)
 ,_sessionId(0)
 ,_serviceId(0)
-,_priorityLevel(0)
 ,_packets(NULL)
 {
 
@@ -509,7 +497,6 @@ LibString RecvMsgEvent::ToString() const
     info.AppendFormat("event type:%d, RecvMsgEvent:", _type)
         .AppendFormat("_sessionId:%llu, \n", _sessionId)
         .AppendFormat("_serviceId:%llu, \n", _serviceId)
-        .AppendFormat("_priorityLevel:%u, \n", _priorityLevel)
         .AppendFormat("packets amount:%llu, \n", _packets ? _packets->GetAmount() : 0)
         ;
 

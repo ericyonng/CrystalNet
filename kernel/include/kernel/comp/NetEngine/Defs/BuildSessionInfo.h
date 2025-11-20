@@ -60,7 +60,6 @@ struct KERNEL_EXPORT BuildSessionInfo
     SOCKET _sock;               // 套接字
     UInt64 _serviceId;          // 监听者可以不必绑定serviceid,连入时只需要广播即可,connect 可能需要,因为连接成功后可能会需要回调 为0表示需要广播
     UInt64 _stub;               // 对于连接远程来说可能需要stub
-    UInt32 _priorityLevel;      // 优先级
     bool _isFromConnect;        // connect需要connectres
     IProtocolStack *_protocolStack; // 协议栈
     bool _isLinker;                 // 是否监听者

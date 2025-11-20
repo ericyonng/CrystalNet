@@ -187,11 +187,6 @@ Int32 MyTestService::_OnServiceInit()
             _maxPieceTimeInMicroseconds = cache;
         }
 
-        {// 消息的最大优先级
-
-            _maxPriorityLevel = application->GetKernelConfig()._maxPollerMsgPriorityLevel;
-        }
-
         {// poller最大扫描时间间隔
             UInt64 cache = 0;
             if(!ini->CheckReadNumber(GetServiceName().c_str(), "PollerMaxSleepMilliseconds", cache))
@@ -358,7 +353,6 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
         ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
         ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
         ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-        ev->SetParam(Params::PRIORITY_LEVEL, sessionCreatedEv->_priorityLevel);
         ev->SetParam(Params::SESSION_TYPE, sessionCreatedEv->_sessionType);
         ev->SetParam(Params::PROTOCOL_STACK, sessionCreatedEv->_protocolStackType);
         ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
@@ -377,7 +371,6 @@ void MyTestService::_OnSessionCreated(KERNEL_NS::PollerEvent *msg)
     ev->SetParam(Params::LOCAL_ADDR, &sessionCreatedEv->_localAddr);
     ev->SetParam(Params::REMOTE_ADDR, &sessionCreatedEv->_targetAddr);
     ev->SetParam(Params::PROTOCOL_TYPE, sessionCreatedEv->_protocolType);
-    ev->SetParam(Params::PRIORITY_LEVEL, sessionCreatedEv->_priorityLevel);
     ev->SetParam(Params::SESSION_TYPE, sessionCreatedEv->_sessionType);
     ev->SetParam(Params::PROTOCOL_STACK, sessionCreatedEv->_protocolStackType);
     ev->SetParam(Params::SESSION_POLLER_ID, sessionCreatedEv->_sessionPollerId);
@@ -400,7 +393,6 @@ void MyTestService::_OnSessionDestroy(KERNEL_NS::PollerEvent *msg)
         ev->SetParam(Params::SESSION_ID, destroyEv->_sessionId);
         ev->SetParam(Params::SESSION_CLOSE_REASON, destroyEv->_closeReason);
         ev->SetParam(Params::SERVICE_ID, destroyEv->_serviceId);
-        ev->SetParam(Params::PRIORITY_LEVEL, destroyEv->_priorityLevel);
         ev->SetParam(Params::STUB, destroyEv->_stub);
 
         _eventMgr->FireEvent(ev);
@@ -411,7 +403,6 @@ void MyTestService::_OnSessionDestroy(KERNEL_NS::PollerEvent *msg)
     ev->SetParam(Params::SESSION_ID, destroyEv->_sessionId);
     ev->SetParam(Params::SESSION_CLOSE_REASON, destroyEv->_closeReason);
     ev->SetParam(Params::SERVICE_ID, destroyEv->_serviceId);
-    ev->SetParam(Params::PRIORITY_LEVEL, destroyEv->_priorityLevel);
     ev->SetParam(Params::STUB, destroyEv->_stub);
 
     _eventMgr->FireEvent(ev);
@@ -429,7 +420,6 @@ void MyTestService::_OnAsynConnectRes(KERNEL_NS::PollerEvent *msg)
     ev->SetParam(Params::REMOTE_ADDR, &connectRes->_targetAddr);
     ev->SetParam(Params::FAMILY, connectRes->_family);
     ev->SetParam(Params::PROTOCOL_TYPE, connectRes->_protocolType);
-    ev->SetParam(Params::PRIORITY_LEVEL, connectRes->_priorityLevel);
     ev->SetParam(Params::SESSION_POLLER_ID, connectRes->_sessionPollerId);
     ev->SetParam(Params::SERVICE_ID, connectRes->_fromServiceId);
     ev->SetParam(Params::STUB, connectRes->_stub);
@@ -450,7 +440,6 @@ void MyTestService::_OnAddListenRes(KERNEL_NS::PollerEvent *msg)
     ev->SetParam(Params::FAMILY, addListenEv->_family);
     ev->SetParam(Params::SERVICE_ID, addListenEv->_serviceId);
     ev->SetParam(Params::STUB, addListenEv->_stub);
-    ev->SetParam(Params::PRIORITY_LEVEL, addListenEv->_priorityLevel);
     ev->SetParam(Params::PROTOCOL_TYPE, addListenEv->_protocolType);
     ev->SetParam(Params::SESSION_ID, addListenEv->_sessionId);
     _eventMgr->FireEvent(ev);
@@ -475,8 +464,8 @@ void MyTestService::_OnRecvMsg(KERNEL_NS::PollerEvent *msg)
 
         if(UNLIKELY(!packet))
         {
-            g_Log->Error(LOGFMT_OBJ_TAG("packet cant be null session id:%llu, service id:%llu, priority level:%u.")
-                        , event->_sessionId, event->_serviceId, event->_priorityLevel);
+            g_Log->Error(LOGFMT_OBJ_TAG("packet cant be null session id:%llu, service id:%llu")
+                        , event->_sessionId, event->_serviceId);
             continue;
         }
 

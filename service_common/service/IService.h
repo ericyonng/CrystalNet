@@ -144,8 +144,8 @@ public:
     bool PrepareLoop();
     void EventLoop();
     void OnLoopEnd();
-    void Push(Int32 level, KERNEL_NS::PollerEvent *ev);
-    void Push(Int32 level, KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList);
+    void Push(KERNEL_NS::PollerEvent *ev);
+    void Push(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *> *evList);
     void AddRecvPackets(Int64 recvPackets);
     void AddConsumePackets(Int64 recvPackets);
 
@@ -202,9 +202,6 @@ public:
 
     const std::set<const KERNEL_NS::CompObject *> &GetALlFocusServiceModule() const;
     std::set<const KERNEL_NS::CompObject *> &GetALlFocusServiceModule();
-
-    // 获得消息优先级
-    Int32 GetMaxPriorityLevel() const;
 
     // 获取pollermgr
     KERNEL_NS::IPollerMgr *GetPollerMgr();
@@ -284,7 +281,6 @@ protected:
 
     KERNEL_NS::LibString _serviceName;
     UInt64 _maxPieceTimeInMicroseconds;
-    Int32 _maxPriorityLevel;
     UInt64 _maxSleepMilliseconds;
 
     std::atomic<Int64> _recvPackets;
@@ -371,11 +367,6 @@ ALWAYS_INLINE const std::set<const KERNEL_NS::CompObject *> &IService::GetALlFoc
 ALWAYS_INLINE std::set<const KERNEL_NS::CompObject *> &IService::GetALlFocusServiceModule()
 {
     return _forcusComps;
-}
-
-ALWAYS_INLINE Int32 IService::GetMaxPriorityLevel() const
-{
-    return _maxPriorityLevel;
 }
 
 // 获取pollermgr

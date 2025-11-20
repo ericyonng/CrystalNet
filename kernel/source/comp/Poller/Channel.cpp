@@ -46,6 +46,40 @@ UInt64 Channel::GenChannelId()
     return s_channelId.fetch_add(1, std::memory_order_release) + 1;
 }
 
+void Channel::Send(PollerEvent *ev)
+{
+    // TODO:send的调用不能再与_poller目标线程同一个线程, 否则卡主线程, 如果在同一个线程, 应该调用Poller的Push
+    auto curThreadId = SystemUtil::GetCurrentThreadId();
+    auto targetThreadId = _target->GetWorkerThreadId();
+    if (UNLIKELY(curThreadId == targetThreadId))
+    {
+        _target->_PushLocal(ev);
+        _wakeupTarget->Sinal();
+        return;
+    }
+    
+    _events->Push(ev);
+    _wakeupTarget->Sinal();
+}
+
+void Channel::Send(LibList<PollerEvent *> *evs)
+{
+    auto batchEv = BatchPollerEvent::New_BatchPollerEvent();
+    batchEv->_events = evs;
+
+    // TODO:send的调用不能再与_poller目标线程同一个线程, 否则卡主线程, 如果在同一个线程, 应该调用Poller的Push
+    auto curThreadId = SystemUtil::GetCurrentThreadId();
+    auto targetThreadId = _target->GetWorkerThreadId();
+    if (UNLIKELY(curThreadId == targetThreadId))
+    {
+        _target->_PushLocal(batchEv);
+        _wakeupTarget->Sinal();
+        return;
+    }
+    
+    _events->Push(batchEv);
+    _wakeupTarget->Sinal();
+}
 
 
 KERNEL_END

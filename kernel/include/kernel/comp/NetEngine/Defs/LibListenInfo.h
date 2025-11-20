@@ -50,7 +50,6 @@ struct KERNEL_EXPORT LibListenInfo
     Int32 _family;          // ipv6/ipv4
     UInt64 _serviceId;      // 主服务id
     UInt64 _stub;           // 业务层生成并会原样返回
-    UInt32 _priorityLevel;  // 优先级别
     Int32 _protocolType;    // ProtocolType
     Int32 _sessionCount;    // 监听同一个端口创建多少个会话
 

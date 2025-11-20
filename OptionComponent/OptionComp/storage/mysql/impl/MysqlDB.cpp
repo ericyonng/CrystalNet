@@ -80,7 +80,6 @@ MysqlDB::MysqlDB(MysqlDBMgr *owner)
 ,_maxId(0)
 ,_curMaxOperatorUid(0)
 ,_targetPoller(NULL)
-,_msgLevel(0)
 ,_eventType(0)
 {
 
@@ -572,7 +571,7 @@ void MysqlDB::_StmtHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 &ping
     {
         auto dbEvent = DbEvent::New_DbEvent(_eventType);
         dbEvent->_res = res.AsSelf();
-        _targetPoller->Push(_msgLevel, dbEvent);
+        _targetPoller->Push(dbEvent);
         res.pop();
     }
 }
@@ -784,7 +783,7 @@ void MysqlDB::_NormalSqlHandler(MysqlConnect *curConn, MysqlRequest *req, Int64 
     {
         auto dbEvent = DbEvent::New_DbEvent(_eventType);
         dbEvent->_res = res.AsSelf();
-        _targetPoller->Push(_msgLevel, dbEvent);
+        _targetPoller->Push(dbEvent);
 
         res.pop();
     }
@@ -921,7 +920,7 @@ void MysqlDB::_SqlWithTransActionSqlHandler(MysqlConnect *curConn, MysqlRequest 
     {
         auto dbEvent = DbEvent::New_DbEvent(_eventType);
         dbEvent->_res = res.AsSelf();
-        _targetPoller->Push(_msgLevel, dbEvent);
+        _targetPoller->Push(dbEvent);
 
         res.pop();
     }

@@ -51,9 +51,10 @@
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Poller/ApplyChannelResult.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h"
 
-class Channel;
+KERNEL_BEGIN
+    class Channel;
 
 struct PollerEvent;
 
@@ -96,7 +97,7 @@ public:
     void Disable();
 
     // worker线程id
-    UInt64 GetWorkerThreadId() const;
+    UInt64 GetWorkerThreadId(std::memory_order order = std::memory_order_relaxed) const;
 
     // 消息队列数量
     Int64 GetEventAmount() const;
@@ -190,10 +191,6 @@ public:
     void SetMaxPieceTime(const TimeSlice &piece);
     const LibCpuSlice &GetMaxPieceTime() const;
 
-    // 设置事件优先级队列最大等级
-    void SetMaxPriorityLevel(Int32 level);
-    Int32 GetMaxPriorityLevel() const;
-
     // n次循环检查一次超时
     void SetLoopDetectTimeout(Int32 loopCount);
     Int32 GetLoopDetectTimeout() const;
@@ -203,19 +200,19 @@ public:
     const TimerMgr *GetTimerMgr() const;
 
     // 投递事件
-    void Push(Int32 level, PollerEvent *ev);
-    void Push(Int32 level, LibList<PollerEvent *> *evList);
-    void Push(Int32 level, IDelegate<void> *action);
+    void Push(PollerEvent *ev);
+    void Push(LibList<PollerEvent *> *evList);
+    void Push(IDelegate<void> *action);
 
     template<typename LamvadaType>
     requires requires (LamvadaType lam) 
     {
         {lam()} -> std::convertible_to<void>;
     }
-    ALWAYS_INLINE void Push(Int32 level, LamvadaType &&lambdaType)
+    ALWAYS_INLINE void Push(LamvadaType &&lambdaType)
     {
         IDelegate<void> *delg = KERNEL_NS::DelegateFactory::Create<decltype(lambdaType), void>(lambdaType);
-        Push(level, delg);
+        Push(delg);
     }
 
     // 事件循环接口
@@ -328,7 +325,7 @@ public:
         // 发送对象事件 ObjectPollerEvent到 other
         auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(stub, false, this);
         objEvent->_obj = req;
-        otherPoller.Push(otherPoller.GetMaxPriorityLevel(), objEvent);
+        otherPoller.Push(objEvent);
         
         // 等待 ObjectPollerEvent 的返回消息唤醒
         co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params);
@@ -354,11 +351,17 @@ public:
         co_return KERNEL_NS::SmartPtr<ResType,  KERNEL_NS::AutoDelMethods::Release>(res);
     }
 
-    // 申请创建channel
-
+    // 申请创建channel(不能本地线程自己申请自己的Channel, 因为SPSC.Push的时候如果没有可写的(因为同一个线程所以此时poller不会读消息)会一直阻塞卡住整个线程)
     CoTask<UInt64> ApplyPollerChannel(Poller &targetPoller);
     void SendByChannel(UInt64 channelId, PollerEvent *ev);
     void SendByChannel(UInt64 channelId, LibList<PollerEvent *> *evs);
+    Channel *GetChannel(UInt64 channelId);
+    const Channel *GetChannel(UInt64 channelId) const;
+
+    // 只能给自己Poller使用, 其他poller调用会返回NULL
+    Channel *GetToSelfChannel();
+    // 只能给自己Poller使用, 其他poller调用会返回NULL
+    const Channel *GetToSelfChannel() const;
     
 protected:
     CoTask<ApplyChannelResult> ApplyChannel();
@@ -399,8 +402,14 @@ private:
 
     // 取消订阅回调
     void UnSubscribeStubEvent(UInt64 stub);
-#pragma endregion 
+#pragma endregion
 
+    void _CreateToSelfMsg();
+
+    void _Push(PollerEvent *ev);
+    void _PushLocal(PollerEvent *ev);
+
+    friend class Channel;
 private:
   LibCpuSlice _maxPieceTime;                                 // 每个事务时间片
   std::atomic<UInt64> _workThreadId;                        // 事件处理线程id
@@ -415,11 +424,11 @@ private:
   IDelegate<bool, Poller *> *_prepareEventWorkerHandler;    // 事件处理线程初始准备
   IDelegate<void, Poller *> *_onEventWorkerCloseHandler;    // 事件处理线程结束销毁
   ConditionLocker _eventGuard;                              // 空闲挂起等待
-  ConcurrentPriorityQueue<PollerEvent *> *_eventsList;      // 优先级事件队列
     
   std::atomic<Int64> _eventAmountLeft;
   std::atomic<Int64> _genEventAmount;
   std::atomic<Int64> _consumEventCount;
+    // TODO:干掉
   IDelegate<void> *_onTick;                                 // 帧末执行
 
   // poller event handler
@@ -436,12 +445,19 @@ private:
     std::map<UInt64, IDelegate<void, StubPollerEvent *> *> _objTypeIdRefCallback;
 #pragma endregion
 
+    Channel *_toSelfChannel;
     // 向target申请的channel
     std::unordered_map<UInt64, Channel *> _idRefChannel;
 
     // 申请channel而创建的消息队列
     std::vector<SPSCQueue<PollerEvent *> *> _msgQueues;
     std::unordered_map<UInt64, SPSCQueue<PollerEvent *> *> _channelIdRefQueue;
+
+    // 公共的消息队列, 10MB的队列, 除非达到800wqps, 否则不会出现等待, 空间换时间
+    MPMCQueue<PollerEvent *, 1024 * 1024 * 8> *_commonEvents;
+
+    // 本地消息
+    LibList<PollerEvent *, KERNEL_NS::_Build::TL> *_localEvents;
 };
 
 ALWAYS_INLINE bool Poller::IsEnable() const
@@ -454,9 +470,9 @@ ALWAYS_INLINE void Poller::Disable()
     _isEnable.store(false, std::memory_order_release);
 }
 
-ALWAYS_INLINE UInt64 Poller::GetWorkerThreadId() const
+ALWAYS_INLINE UInt64 Poller::GetWorkerThreadId(std::memory_order order) const
 {
-    return _workThreadId.load(std::memory_order_acquire);
+    return _workThreadId.load(order);
 }
 
 ALWAYS_INLINE Int64 Poller::GetEventAmount() const
@@ -725,7 +741,7 @@ ALWAYS_INLINE void Poller::SendResponse(UInt64 stub, ResType *res)
 {
     auto objectEvent = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub, true, this);
     objectEvent->_obj = res;
-    Push(GetMaxPriorityLevel(), objectEvent);
+    Push(objectEvent);
 }
 
 template<typename LambType>
@@ -812,9 +828,68 @@ ALWAYS_INLINE void Poller::SendTo(Poller &otherPoller, ReqType *req)
     // 发送对象事件 ObjectPollerEvent到 other
     auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(0, false, this);
     objEvent->_obj = req;
-    otherPoller.Push(otherPoller.GetMaxPriorityLevel(), objEvent);
+    otherPoller.Push(objEvent);
 }
 
+ALWAYS_INLINE Channel *Poller::GetChannel(UInt64 channelId)
+{
+    auto iter = _idRefChannel.find(channelId);
+    return iter == _idRefChannel.end() ? NULL : iter->second;
+}
+
+ALWAYS_INLINE const Channel *Poller::GetChannel(UInt64 channelId) const
+{
+    auto iter = _idRefChannel.find(channelId);
+    return iter == _idRefChannel.end() ? NULL : iter->second;
+}
+
+ALWAYS_INLINE Channel *Poller::GetToSelfChannel()
+{
+    assert(_workThreadId.load(std::memory_order_acquire) != 0);
+    assert(_toSelfChannel != NULL);
+
+    DEF_STATIC_THREAD_LOCAL_DECLEAR UInt64 curThreadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
+    if (UNLIKELY(curThreadId != _workThreadId.load(std::memory_order_acquire)))
+        return NULL;
+    
+    return _toSelfChannel;
+}
+
+ALWAYS_INLINE const Channel *Poller::GetToSelfChannel() const
+{
+    assert(_workThreadId.load(std::memory_order_acquire) != 0);
+    assert(_toSelfChannel != NULL);
+
+    DEF_STATIC_THREAD_LOCAL_DECLEAR UInt64 curThreadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
+    
+    if (UNLIKELY(curThreadId != _workThreadId.load(std::memory_order_acquire)))
+        return NULL;
+    
+    return _toSelfChannel;
+}
+
+ALWAYS_INLINE void Poller::_Push(PollerEvent *ev)
+{
+    assert(_workThreadId.load(std::memory_order_acquire) != 0);
+    
+    // 本地线程直接放 _localEvents
+    auto curThreadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
+    if (curThreadId == _workThreadId.load(std::memory_order_relaxed))
+    {
+        _localEvents->PushBack(ev);
+    }
+    else
+    {
+        // 除非达到整体达到800w qps否则不会出现等待, 能达到800wqps产生等待也认了, 如果写绕了一个周期在等待读, 也认了, 此时必须等待,因为说明包量很大,如果不等待内存会受不了
+        _commonEvents->Push(ev);
+    }
+    WakeupEventLoop();
+}
+
+ALWAYS_INLINE void Poller::_PushLocal(PollerEvent *ev)
+{
+    _localEvents->PushBack(ev);
+}
 KERNEL_END
 
 #endif

@@ -114,11 +114,14 @@ Poller::Poller()
 ,_dirtyHelper(LibDirtyHelper<void *, UInt32>::New_LibDirtyHelper())
 ,_prepareEventWorkerHandler(NULL)
 ,_onEventWorkerCloseHandler(NULL)
-,_eventsList(ConcurrentPriorityQueue<PollerEvent *>::New_ConcurrentPriorityQueue())
 ,_eventAmountLeft{0}
 ,_genEventAmount{0}
 ,_consumEventCount{0}
 ,_onTick(NULL)
+,_maxStub(0)
+,_toSelfChannel(NULL)
+,_commonEvents(MPMCQueue<PollerEvent *, 1024 * 1024 * 8>::NewThreadLocal_MPMCQueue())
+,_localEvents(LibList<PollerEvent *, KERNEL_NS::_Build::TL>::NewThreadLocal_LibList())
 {
     // auto defObj = TlsUtil::GetDefTls();
     // if(UNLIKELY(defObj->_poller))
@@ -140,6 +143,15 @@ void Poller::Release()
 
 CoTask<UInt64> Poller::ApplyPollerChannel(Poller &targetPoller)
 {
+    auto curThreadId = SystemUtil::GetCurrentThreadId();
+    assert(curThreadId != _workThreadId.load(std::memory_order_relaxed));
+    
+    if (UNLIKELY(curThreadId == _workThreadId.load(std::memory_order_relaxed)))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("cant apply channel from same poller"));
+        co_return 0;
+    }
+    
     auto result = co_await targetPoller.ApplyChannel();
     auto channel = Channel::NewThreadLocal_Channel(result._channelId, &targetPoller, result._queue);
 
@@ -193,6 +205,14 @@ void Poller::SendByChannel(UInt64 channelId, LibList<PollerEvent *> *evs)
 
 CoTask<ApplyChannelResult> Poller::ApplyChannel()
 {
+    auto curThreadId = SystemUtil::GetCurrentThreadId();
+    assert(curThreadId != _workThreadId.load(std::memory_order_relaxed));
+    if (UNLIKELY(curThreadId == _workThreadId.load(std::memory_order_relaxed)))
+    {
+        g_Log->Error(LOGFMT_OBJ_TAG("cant apply channel from same poller"));
+        co_return ApplyChannelResult();
+    }
+    
     auto req = ApplyChannelEvent::New_ApplyChannelEvent();
     auto res = co_await SendAsync<ApplyChannelEventResponse, ApplyChannelEvent>(req);
 
@@ -210,7 +230,6 @@ Int32 Poller::_OnInit()
 
     _isQuitLoop.store(false, std::memory_order_release);
     _workThreadId.store(0, std::memory_order_release);
-    _eventsList->Init();
 
     // AsyncTask消息
     Subscribe(PollerEventInternalType::AsyncTaskType, this, &Poller::_OnAsyncTaskEvent);
@@ -341,8 +360,8 @@ void Poller::_OnApplyChannelEvent(StubPollerEvent *ev)
 
     // 返回包
     auto res = ApplyChannelEventResponse::New_ApplyChannelEventResponse();
-    res->_channelId = channelId;
-    res->_queue = queue;
+    res->_result._channelId = channelId;
+    res->_result._queue = queue;
     applyEv->_srcPoller->SendResponse(ev->_stub, res);
 }
 
@@ -378,7 +397,8 @@ LibString Poller::ToString() const
         .AppendFormat("_isClosed:%d, ", _isQuitLoop.load(std::memory_order_acquire))
         .AppendFormat("timer loaded:%llu, ", _timerMgr ? _timerMgr->GetTimerLoaded() : 0)
         .AppendFormat("dirty helper loaded:%llu, ", _dirtyHelper ? _dirtyHelper->GetLoaded() : 0)
-        .AppendFormat("events count:%llu, ", _eventsList ? _eventsList->GetAmount() : 0)
+        .AppendFormat("common events count:%llu, ", _commonEvents ? _commonEvents->Size() : 0)
+        .AppendFormat("_eventAmountLeft:%llu, ", _eventAmountLeft.load(std::memory_order_acquire))
         ;
 
     return info;
@@ -442,19 +462,10 @@ bool Poller::PrepareLoop()
 
 void Poller::QuicklyLoop()
 {
-    LibList<LibList<PollerEvent *, _Build::MT> *> *priorityEvents = LibList<LibList<PollerEvent *, _Build::MT> *>::New_LibList();
-    const Int64 priorityQueueSize = static_cast<Int64>(_eventsList->GetMaxLevel() + 1);
-    for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
-        priorityEvents->PushBack(LibList<PollerEvent *, _Build::MT>::New_LibList());
-
     // 部分数据准备
     LibString errLog;
 
     g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
-
-    LibCpuCounter deadline;
-    LibCpuCounter nowCounter;
-    LibCpuCounter performaceStart;
 
     const UInt64 pollerId = GetId();
     
@@ -463,8 +474,8 @@ void Poller::QuicklyLoop()
     #endif
 
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
-    Int64 mergeNumber = 0;
 
+    PollerEvent *ev = NULL;
     for(;;)
     {
         // 没有事件且没有脏处理则等待
@@ -482,61 +493,58 @@ void Poller::QuicklyLoop()
             }
         }
 
-        performaceStart = deadline.Update();
-        deadline += _maxPieceTime;
-
-        // 队列有消息就合并
-        if(LIKELY(_eventAmountLeft.load(std::memory_order_acquire) != 0))
-            mergeNumber += static_cast<Int64>(_eventsList->MergeTailAllTo(priorityEvents));
-
-        // 处理事件
-        #if ENABLE_POLLER_PERFORMANCE
-        UInt64 curConsumeEventsCount = 0;
-        #endif
-
-        Int32 detectTimeoutLoopCount = _loopDetectTimeout;
-
-        for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber > 0);)
+        // 处理公共消息
+        ev = NULL;
+        if (_commonEvents->TryPop(ev))
         {
-            // 切换不同优先级消息队列
-            auto node = listNode->_data->Begin();
-            if(LIKELY(node))
-            {
-                auto data = node->_data;
-                listNode->_data->Erase(node);
+            _eventAmountLeft.fetch_sub(1, std::memory_order_release);
+            _consumEventCount.fetch_add(1, std::memory_order_release);
 
-                --mergeNumber;
+            // 事件处理
+            auto iter = _pollerEventHandler.find(ev->_type);
+            if(LIKELY(iter != _pollerEventHandler.end()))
+                iter->second->Invoke(ev);
+
+            ev->Release();
+        }
+
+        // 处理每个poller的消息
+        const Int32 queueCount = static_cast<Int32>(_msgQueues.size());
+        for (Int32 idx = 0; idx < queueCount; ++idx)
+        {
+            auto queue = _msgQueues[idx];
+            ev = NULL;
+            if (queue->TryPop(ev))
+            {
                 _eventAmountLeft.fetch_sub(1, std::memory_order_release);
                 _consumEventCount.fetch_add(1, std::memory_order_release);
 
-                #if ENABLE_POLLER_PERFORMANCE
-                ++curConsumeEventsCount;
-                #endif
-
                 // 事件处理
-                auto iter = _pollerEventHandler.find(data->_type);
+                auto iter = _pollerEventHandler.find(ev->_type);
                 if(LIKELY(iter != _pollerEventHandler.end()))
-                    iter->second->Invoke(data);
+                    iter->second->Invoke(ev);
 
-                data->Release();
-            }
-
-            listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
-            
-            // 片超时
-            if(UNLIKELY(--detectTimeoutLoopCount <= 0))
-            {
-                detectTimeoutLoopCount = _loopDetectTimeout;
-
-                if(UNLIKELY(nowCounter.Update() >=  deadline))
-                    break;
+                ev->Release();
             }
         }
 
-        // 脏处理
-        #if ENABLE_POLLER_PERFORMANCE
-        Int64 dirtyHandled = 0;
-        #endif
+        auto curSize = _localEvents->GetAmount();
+        for (UInt64 idx = 0; idx < curSize; ++idx)
+        {
+            auto iter = _localEvents->Begin();
+            ev = iter->_data;
+            _localEvents->Erase(iter);
+
+            _eventAmountLeft.fetch_sub(1, std::memory_order_release);
+            _consumEventCount.fetch_add(1, std::memory_order_release);
+
+            // 事件处理
+            auto iterHandler = _pollerEventHandler.find(ev->_type);
+            if(LIKELY(iterHandler != _pollerEventHandler.end()))
+                iterHandler->second->Invoke(ev);
+
+            ev->Release();
+        }
 
         if(UNLIKELY(_dirtyHelper->HasDirty()))
         {
@@ -559,53 +567,19 @@ void Poller::QuicklyLoop()
         _timerMgr->Drive();
         #endif
 
-        if(_onTick)
-            _onTick->Invoke();
-        
-        // 当前帧性能信息记录
-        #ifdef ENABLE_POLLER_PERFORMANCE
-            const auto &elapseTime = nowCounter.Update() - performaceStart;
-            if(UNLIKELY(elapseTime >= _maxPieceTime))
-            {
-                if(g_Log->IsEnable(LogLevel::NetInfo))
-                    g_Log->Info(LOGFMT_OBJ_TAG("[poller performance] poller id:%llu thread id:%llu, use time over max piece time, use time:%llu(ms), max piece time:%llu(ms), consume event count:%llu, time out handled count:%lld, dirty handled count:%lld")
-                , pollerId, curThreadId, elapseTime.GetTotalMilliseconds(), _maxPieceTime.GetTotalMilliseconds(), curConsumeEventsCount, handled, dirtyHandled);
-            }
-        #endif
+        // if(_onTick)
+        //     _onTick->Invoke();
     }
-
-    const auto leftElemCount = GetPriorityEvenetsQueueElemCount(*priorityEvents);
-    if(leftElemCount != 0)
-        g_Log->Warn(LOGFMT_OBJ_TAG("has unhandled events left:%llu, poller info:%s"), leftElemCount, ToString().c_str());
-    
-    ContainerUtil::DelContainer(*priorityEvents, [](LibList<PollerEvent *, _Build::MT> *evList){
-        ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
-            g_Log->Warn(LOGFMT_NON_OBJ_TAG(Poller, "event type:%d, not handled when poller will closed."), ev->_type);
-            ev->Release();
-        });
-        LibList<PollerEvent *, _Build::MT>::Delete_LibList(evList);
-    });
-    LibList<LibList<PollerEvent *, _Build::MT> *>::Delete_LibList(priorityEvents);
-    priorityEvents = NULL;
 
     g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
 }
 
 void Poller::SafeEventLoop()
 {
-  LibList<LibList<PollerEvent *, _Build::MT> *> *priorityEvents = LibList<LibList<PollerEvent *, _Build::MT> *>::New_LibList();
-    const Int64 priorityQueueSize = static_cast<Int64>(_eventsList->GetMaxLevel() + 1);
-    for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
-        priorityEvents->PushBack(LibList<PollerEvent *, _Build::MT>::New_LibList());
-
     // 部分数据准备
     LibString errLog;
 
     g_Log->Debug(LOGFMT_OBJ_TAG("poller event worker ready poller info:%s"), ToString().c_str());
-
-    LibCpuCounter deadline;
-    LibCpuCounter nowCounter;
-    LibCpuCounter performaceStart;
 
     const UInt64 pollerId = GetId();
     
@@ -614,7 +588,7 @@ void Poller::SafeEventLoop()
     #endif
 
     const UInt64 maxSleepMilliseconds = _maxSleepMilliseconds;
-    Int64 mergeNumber = 0;
+    PollerEvent *ev = NULL;
 
     EVENTLOOP_BEGIN:
 
@@ -640,70 +614,100 @@ void Poller::SafeEventLoop()
                 }
             }
 
-            performaceStart = deadline.Update();
-            deadline += _maxPieceTime;
-
-            // 队列有消息就合并
-            if(LIKELY(_eventAmountLeft.load(std::memory_order_acquire) != 0))
-                mergeNumber += static_cast<Int64>(_eventsList->MergeTailAllTo(priorityEvents));
-
-            // 处理事件
-            #if ENABLE_POLLER_PERFORMANCE
-            UInt64 curConsumeEventsCount = 0;
-            #endif
-
-            Int32 detectTimeoutLoopCount = _loopDetectTimeout;
-
-            for (auto listNode = priorityEvents->Begin(); LIKELY(mergeNumber > 0);)
+            
+            // 处理公共消息
+            ev = NULL;
+            if (_commonEvents->TryPop(ev))
             {
-                // 切换不同优先级消息队列
-                auto node = listNode->_data->Begin();
-                if(LIKELY(node))
-                {
-                    auto data = node->_data;
-                    listNode->_data->Erase(node);
+                _eventAmountLeft.fetch_sub(1, std::memory_order_release);
+                _consumEventCount.fetch_add(1, std::memory_order_release);
 
-                    --mergeNumber;
+                try
+                {
+                    // 事件处理
+                    auto iter = _pollerEventHandler.find(ev->_type);
+                    if(LIKELY(iter != _pollerEventHandler.end()))
+                        iter->second->Invoke(ev);
+                }
+                catch(const std::exception& e)
+                {
+                    if(g_Log->IsEnable(LogLevel::Error))
+                        g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), ev->ToString().c_str(), ToString().c_str());
+                }
+                catch(...)
+                {
+                    if(g_Log->IsEnable(LogLevel::Error))
+                        g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), ev->ToString().c_str(), ToString().c_str());
+                }
+
+                ev->Release();
+            }
+
+            // 处理每个poller的消息
+            const Int32 queueCount = static_cast<Int32>(_msgQueues.size());
+            for (Int32 idx = 0; idx < queueCount; ++idx)
+            {
+                auto queue = _msgQueues[idx];
+                ev = NULL;
+                if (queue->TryPop(ev))
+                {
                     _eventAmountLeft.fetch_sub(1, std::memory_order_release);
                     _consumEventCount.fetch_add(1, std::memory_order_release);
 
-                    #if ENABLE_POLLER_PERFORMANCE
-                    ++curConsumeEventsCount;
-                    #endif
-
-                    // 事件处理
                     try
                     {
-                        auto iter = _pollerEventHandler.find(data->_type);
+                        // 事件处理
+                        auto iter = _pollerEventHandler.find(ev->_type);
                         if(LIKELY(iter != _pollerEventHandler.end()))
-                            iter->second->Invoke(data);
+                            iter->second->Invoke(ev);
                     }
                     catch(const std::exception& e)
                     {
                         if(g_Log->IsEnable(LogLevel::Error))
-                            g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), data->ToString().c_str(), ToString().c_str());
+                            g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), ev->ToString().c_str(), ToString().c_str());
                     }
                     catch(...)
                     {
                         if(g_Log->IsEnable(LogLevel::Error))
-                            g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), data->ToString().c_str(), ToString().c_str());
+                            g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), ev->ToString().c_str(), ToString().c_str());
                     }
 
-                    data->Release();
-                }
-
-                listNode = (listNode->_next != NULL) ? listNode->_next : priorityEvents->Begin();
-                
-                // 片超时
-                if(UNLIKELY(--detectTimeoutLoopCount <= 0))
-                {
-                    detectTimeoutLoopCount = _loopDetectTimeout;
-
-                    if(UNLIKELY(nowCounter.Update() >=  deadline))
-                        break;
+                    ev->Release();
                 }
             }
 
+            // 只处理有限个消息
+            auto curSize = _localEvents->GetAmount();
+            for (UInt64 idx = 0; idx < curSize; ++idx)
+            {
+                auto iter = _localEvents->Begin();
+                ev = iter->_data;
+                _localEvents->Erase(iter);
+
+                _eventAmountLeft.fetch_sub(1, std::memory_order_release);
+                _consumEventCount.fetch_add(1, std::memory_order_release);
+
+                // 事件处理
+                try
+                {
+                    auto iterHandler = _pollerEventHandler.find(ev->_type);
+                    if(LIKELY(iterHandler != _pollerEventHandler.end()))
+                        iterHandler->second->Invoke(ev);
+                }
+                catch(const std::exception& e)
+                {
+                    if(g_Log->IsEnable(LogLevel::Error))
+                        g_Log->Error(LOGFMT_OBJ_TAG("Poller handler err:%s, data:%s, poller:%s"), e.what(), ev->ToString().c_str(), ToString().c_str());
+                }
+                catch(...)
+                {
+                    if(g_Log->IsEnable(LogLevel::Error))
+                        g_Log->Error(LOGFMT_OBJ_TAG("Poller handler unknown err, data:%s, poller:%s"), ev->ToString().c_str(), ToString().c_str());
+                }
+
+                ev->Release();
+            }
+            
             // 脏处理
             #if ENABLE_POLLER_PERFORMANCE
             Int64 dirtyHandled = 0;
@@ -745,8 +749,8 @@ void Poller::SafeEventLoop()
                 _timerMgr->Drive();
                 #endif
 
-                if(_onTick)
-                    _onTick->Invoke();
+                // if(_onTick)
+                //     _onTick->Invoke();
             }
             catch(const std::exception& e)
             {
@@ -785,20 +789,6 @@ void Poller::SafeEventLoop()
     }
     // #endif
     
-    const auto leftElemCount = GetPriorityEvenetsQueueElemCount(*priorityEvents);
-    if(leftElemCount != 0)
-        g_Log->Warn(LOGFMT_OBJ_TAG("has unhandled events left:%llu, poller info:%s"), leftElemCount, ToString().c_str());
-    
-    ContainerUtil::DelContainer(*priorityEvents, [](LibList<PollerEvent *, _Build::MT> *evList){
-        ContainerUtil::DelContainer(*evList, [](PollerEvent *ev){
-            g_Log->Warn(LOGFMT_NON_OBJ_TAG(Poller, "event type:%d, not handled when poller will closed."), ev->_type);
-            ev->Release();
-        });
-        LibList<PollerEvent *, _Build::MT>::Delete_LibList(evList);
-    });
-    LibList<LibList<PollerEvent *, _Build::MT> *>::Delete_LibList(priorityEvents);
-    priorityEvents = NULL;
-
     g_Log->Debug(LOGFMT_OBJ_TAG("poller worker down poller info:%s"), ToString().c_str());
 }
 
@@ -836,7 +826,7 @@ bool Poller::CanQuit() const
     return true;
 }
 
-void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
+void Poller::Push(LibList<PollerEvent *> *evList)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
@@ -850,16 +840,18 @@ void Poller::Push(Int32 level, LibList<PollerEvent *> *evList)
         return;
     }
 
+
     const auto amount = static_cast<Int64>(evList->GetAmount());
     _eventAmountLeft.fetch_add(amount, std::memory_order_release);
     _genEventAmount.fetch_add(amount, std::memory_order_release);
 
-    _eventsList->PushQueue(level, evList);
-    LibList<PollerEvent *>::Delete_LibList(evList);
-    WakeupEventLoop();
+    auto batchEv = BatchPollerEvent::New_BatchPollerEvent();
+    batchEv->_events = evList;
+
+    _Push(batchEv);
 }
 
-void Poller::Push(Int32 level, IDelegate<void> *action)
+void Poller::Push(IDelegate<void> *action)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
@@ -872,11 +864,10 @@ void Poller::Push(Int32 level, IDelegate<void> *action)
     ev->_action = action;
     _eventAmountLeft.fetch_add(1, std::memory_order_release);
     _genEventAmount.fetch_add(1, std::memory_order_release);
-    _eventsList->PushQueue(level, ev);
-    WakeupEventLoop();
+    _Push(ev);
 }
 
-void Poller::Push(Int32 level, PollerEvent *ev)
+void Poller::Push(PollerEvent *ev)
 {
     if(UNLIKELY(!_isEnable.load(std::memory_order_acquire)))
     {
@@ -887,18 +878,7 @@ void Poller::Push(Int32 level, PollerEvent *ev)
     
     _eventAmountLeft.fetch_add(1, std::memory_order_release);
     _genEventAmount.fetch_add(1, std::memory_order_release);
-    _eventsList->PushQueue(level, ev);
-    WakeupEventLoop();
-}
-
-void Poller::SetMaxPriorityLevel(Int32 level)
-{
-    _eventsList->SetMaxLevel(level);
-}
-
-Int32 Poller::GetMaxPriorityLevel() const
-{
-    return _eventsList->GetMaxLevel();
+    _Push(ev);
 }
 
 void Poller::_Clear()
@@ -923,45 +903,6 @@ void Poller::_Clear()
 
     g_Log->Info(LOGFMT_OBJ_TAG("will destroy poller events list %s"), ToString().c_str());
 
-    if(LIKELY(_eventsList))
-    {
-        if(UNLIKELY(_eventsList->GetAmount() != 0))
-        {
-            g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled events amount:%llu, poller info:%s"), _eventsList->GetAmount(), ToString().c_str());
-
-            // 释放内存
-            std::vector<LibList<PollerEvent *> *> allList;
-            allList.resize(_eventsList->GetMaxLevel() + 1);
-            for(Int32 idx = 0; idx < static_cast<Int32>(allList.size()); ++idx)
-                allList[idx] = LibList<PollerEvent *>::New_LibList();
-            
-            g_Log->Info(LOGFMT_OBJ_TAG("event list swap all... %s"), ToString().c_str());
-
-            _eventsList->SwapAll(allList);
-            for(Int32 idx = 0; idx < static_cast<Int32>(allList.size()); ++idx)
-            {
-                auto eventList = allList[idx];
-                for(auto node = eventList->Begin(); node;)
-                {
-                    node->_data->Release();
-                    node = eventList->Erase(node);
-                }
-            }
-
-            g_Log->Info(LOGFMT_OBJ_TAG("event list swap all end... %s"), ToString().c_str());
-        }
-
-        g_Log->Info(LOGFMT_OBJ_TAG("event list destroy... %s"), ToString().c_str());
-        _eventsList->Destroy();
-
-        g_Log->Info(LOGFMT_OBJ_TAG("event will delete... %s"), ToString().c_str());
-
-        ConcurrentPriorityQueue<PollerEvent *>::Delete_ConcurrentPriorityQueue(_eventsList);
-        _eventsList = NULL;
-
-        g_Log->Info(LOGFMT_OBJ_TAG("event list deleted... %s"), ToString().c_str());
-    }
-
     ContainerUtil::DelContainer2(_pollerEventHandler);
 
     CRYSTAL_RELEASE_SAFE(_onTick);
@@ -970,11 +911,58 @@ void Poller::_Clear()
     {
         Channel::DeleteThreadLocal_Channel(channel);
     });
-    ContainerUtil::DelContainer(_msgQueues, [](SPSCQueue<PollerEvent *> *queue)
+    ContainerUtil::DelContainer(_msgQueues, [this](SPSCQueue<PollerEvent *> *queue)
     {
+        g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled events amount:%llu, poller info:%s"), queue->Size(), ToString().c_str());
+
+        while (auto elem = queue->Front())
+        {
+            g_Log->Info(LOGFMT_OBJ_TAG("event:%s, PollerId:%d"), (*elem)->ToString().c_str(), GetId());
+            queue->Pop();
+        }
+        
         SPSCQueue<PollerEvent *>::Delete_SPSCQueue(queue);
     });
     _channelIdRefQueue.clear();
+
+    if (LIKELY(_commonEvents))
+    {
+        if (!_commonEvents->Empty())
+        {
+            g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled mpmc events amount:%llu, poller info:%s"), _commonEvents->Size(), ToString().c_str());
+
+            while (!_commonEvents->Empty())
+            {
+                PollerEvent *ev = NULL;
+                if (_commonEvents->TryPop(ev))
+                {
+                    g_Log->Info(LOGFMT_OBJ_TAG("mpmc event:%s, PollerId:%d"), ev->ToString().c_str(), GetId());
+                }
+            }
+        }
+
+        MPMCQueue<PollerEvent *, 1024 * 1024 * 8>::DeleteThreadLocal_MPMCQueue(_commonEvents);
+    }
+    _commonEvents = NULL;
+
+    if (_localEvents)
+    {
+        g_Log->Warn(LOGFMT_OBJ_TAG("have some unhandled local events amount:%llu, poller info:%s"), _localEvents->GetAmount(), ToString().c_str());
+
+        for (auto iter = _localEvents->Begin(); iter; )
+        {
+            auto data = iter->_data;
+            iter = _localEvents->Erase(iter);
+
+            g_Log->Info(LOGFMT_OBJ_TAG("local event:%s, PollerId:%d"), data->ToString().c_str(), GetId());
+
+            data->Release();
+        }
+
+        LibList<PollerEvent *, KERNEL_NS::_Build::TL>::DeleteThreadLocal_LibList(_localEvents);
+    }
+    _localEvents = NULL;
+    
     g_Log->Info(LOGFMT_OBJ_TAG("destroyed poller events list %s"), ToString().c_str());
 }
 

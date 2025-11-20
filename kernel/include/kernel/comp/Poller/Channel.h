@@ -35,10 +35,10 @@
 #include "kernel/comp/ConcurrentPriorityQueue/SPSCQueue.h"
 #include "kernel/comp/Poller//PollerEvent.h"
 #include "kernel/comp/Lock/Impl/ConditionLocker.h"
+#include "kernel/comp/Utils/SystemUtil.h"
 
 KERNEL_BEGIN
-
-struct PollerEvent;
+    struct PollerEvent;
 class ConditionLocker;
 
 // Poller释放前要通知Channel移除, 所以要关注创建和移除Channel
@@ -69,19 +69,6 @@ ALWAYS_INLINE UInt64 Channel::GetChannelId() const
     return _channelId;
 }
 
-ALWAYS_INLINE void Channel::Send(PollerEvent *ev)
-{
-    _events->Push(ev);
-    _wakeupTarget->Sinal();
-}
-
-ALWAYS_INLINE void Channel::Send(LibList<PollerEvent *> *evs)
-{
-    auto batchEv = BatchPollerEvent::New_BatchPollerEvent();
-    batchEv->_events = evs;
-    _events->Push(batchEv);
-    _wakeupTarget->Sinal();
-}
 KERNEL_END
 
 #endif

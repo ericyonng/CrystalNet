@@ -50,7 +50,6 @@ struct ServiceSessionInfo
     :_serviceId(0)
     ,_sessionId(0)
     ,_pollerId(0)
-    ,_priorityLevel(0)
     ,_sessionType(0)
     ,_sessionSendBytesLimit(0)
     ,_localAddr(true)
@@ -69,8 +68,8 @@ struct ServiceSessionInfo
     KERNEL_NS::LibString ToString() const
     {
         KERNEL_NS::LibString info;
-        info.AppendFormat("service id:%llu, sessionId:%llu, pollerId:%llu, priorityLevel:%u, sessionType:%d, localAddr:%s, remoteAddr:%s,origin:%s, from linker:%s"
-                        , _serviceId, _sessionId, _pollerId, _priorityLevel, _sessionType, _localAddr.ToString().c_str(), _remoteAddr.ToString().c_str()
+        info.AppendFormat("service id:%llu, sessionId:%llu, pollerId:%llu, sessionType:%d, localAddr:%s, remoteAddr:%s,origin:%s, from linker:%s"
+                        , _serviceId, _sessionId, _pollerId, _sessionType, _localAddr.ToString().c_str(), _remoteAddr.ToString().c_str()
                         , _remoteOriginAddr.ToString().c_str(), _isFromLinker ? "true" : "false");
 
         return info;
@@ -79,7 +78,6 @@ struct ServiceSessionInfo
     UInt64 _serviceId;      // 服务id
     UInt64 _sessionId;      // 会话id
     UInt64 _pollerId;       // poller
-    UInt32 _priorityLevel;  // 优先级
     Int32 _sessionType;     // 会话类型 SessionType
     UInt64 _sessionSendBytesLimit;  // 发送消息长度限制 0表示无限制
     UInt64 _sessionRecvBytesLimit;  // 接收消息长度限制 0表示无限制

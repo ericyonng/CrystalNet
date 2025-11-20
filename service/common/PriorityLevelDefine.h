@@ -33,29 +33,29 @@
 
 SERVICE_BEGIN
 
-class PriorityLevelDefine
-{
-public:
-    enum ENUMS : UInt32
-    {
-        INNER = 0,      // 内部节点
-        DB = 1,         // db节点
-
-        // 3个外部可以负载均衡
-        OUTER_LEVEL_BEGIN = 2,  // 外部
-        OUTER1 = 2,       // 外部1 
-        OUTER2 = 3,       // 外部2
-        OUTER3 = 4,       // 外部3
-        OUTER_LEVEL_END = 4,    // 外部
-    };
-
-    enum TYPE_ENUMS
-    {
-        INNER_TYPE = 0,      // 内部类型
-        DB_TYPE,            // 数据库类型
-        OUTER_TYPE,         // 面向外部类型
-    };
-};
+// class PriorityLevelDefine
+// {
+// public:
+//     enum ENUMS : UInt32
+//     {
+//         INNER = 0,      // 内部节点
+//         DB = 1,         // db节点
+//
+//         // 3个外部可以负载均衡
+//         OUTER_LEVEL_BEGIN = 2,  // 外部
+//         OUTER1 = 2,       // 外部1 
+//         OUTER2 = 3,       // 外部2
+//         OUTER3 = 4,       // 外部3
+//         OUTER_LEVEL_END = 4,    // 外部
+//     };
+//
+//     enum TYPE_ENUMS
+//     {
+//         INNER_TYPE = 0,      // 内部类型
+//         DB_TYPE,            // 数据库类型
+//         OUTER_TYPE,         // 面向外部类型
+//     };
+// };
 
 SERVICE_END
 

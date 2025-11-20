@@ -35,7 +35,6 @@
 #include <service/common/status.h>
 #include <service/common/Params.h>
 #include <service/common/AppAlias.h>
-#include <service/common/PriorityLevelDefine.h>
 #include <service/common/VarErrInfo.h>
 
 #include <service/common/ServiceConfig.h>

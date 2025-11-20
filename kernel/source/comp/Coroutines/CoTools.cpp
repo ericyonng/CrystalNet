@@ -30,13 +30,15 @@
 #include <kernel/comp/Coroutines/CoTools.h>
 #include <kernel/comp/Poller/PollerInc.h>
 
+#include "kernel/comp/Poller/Channel.h"
+
 KERNEL_BEGIN
 
 void CoToolsPushPoller(KERNEL_NS::AsyncTaskPollerEvent *ev)
 {
-  auto poller = KERNEL_NS::TlsUtil::GetPoller();
-  poller->Push(poller->GetMaxPriorityLevel(), ev);
-
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    // TODO:需要考虑失败情况
+    poller->Push(ev);
 }
 
 KERNEL_END

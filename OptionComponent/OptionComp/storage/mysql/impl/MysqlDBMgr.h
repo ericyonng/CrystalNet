@@ -72,9 +72,6 @@ public:
     // 设置消息接收的poller
     void SetMsgBackPoller(Poller *poller);
 
-    // 设置消息接收的消息等级
-    void SetMsgLevel(Int32 level);
-
     // 设置需要监听的db事件类型
     void SetDbEventType(Int32 dbEventType);
 
@@ -144,8 +141,6 @@ private:
     UInt64 _maxSeqId;
     // mysql处理完后消息的接收者poller
     Poller *_msgBackpoller;
-    // 消息优先级
-    Int32 _msgLevel;
     // db事件类型
     Int32 _dbEventType;
     // 配置表中db的段名列表
@@ -172,11 +167,6 @@ ALWAYS_INLINE void MysqlDBMgr::RemovePendingSeqId(UInt64 seqId)
 ALWAYS_INLINE void MysqlDBMgr::SetMsgBackPoller(Poller *poller)
 {
     _msgBackpoller = poller;
-}
-
-ALWAYS_INLINE void MysqlDBMgr::SetMsgLevel(Int32 level)
-{
-    _msgLevel = level;
 }
 
 ALWAYS_INLINE void MysqlDBMgr::SetDbEventType(Int32 dbEventType)

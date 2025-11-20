@@ -29,7 +29,6 @@
 #include <pch.h>
 #include <kernel/kernel.h>
 #include <service/common/ServiceConfig.h>
-#include <service/common/PriorityLevelDefine.h>
 #include <service/common/SessionType.h>
 #include <service_common/protocol/protocol.h>
 #include <service_common/common/Configs.h>
@@ -75,7 +74,6 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent)
     // 解析会话信息
     {
         _sessionType = SessionType::INNER;
-        _priorityLevel = PriorityLevelDefine::INNER;
         _protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL;
         _listenSessionCount = 1;
 
@@ -135,8 +133,6 @@ bool AddrConfig::Parse(const KERNEL_NS::LibString &configContent)
                             , part.c_str(), sessionConfigContent.c_str(), configContent.c_str());
                         return false;
                     }
-
-                    _priorityLevel = KERNEL_NS::StringUtil::StringToUInt32(part.c_str());
                 }
             }
 
@@ -584,26 +580,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
             }
         }
 
-        Int64 maxPollerMsgPriorityLevel = 0;
-        {// 最大消息优先级等级
-            if(!ini->CheckReadInt(seg.c_str(), "MaxPollerMsgPriorityLevel", maxPollerMsgPriorityLevel))
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
-                            , seg.c_str(), "MaxPollerMsgPriorityLevel");
-                return false;
-            }
-        }
-
-        Int64 pollerMonitorEventPriorityLevel = 0;
-        {// 指定poller monitor事件的消息优先级等级
-            if(!ini->CheckReadInt(seg.c_str(), "PollerMonitorEventPriorityLevel", pollerMonitorEventPriorityLevel))
-            {
-                g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s")
-                            , seg.c_str(), "PollerMonitorEventPriorityLevel");
-                return false;
-            }
-        }
-
         UInt64 sessionBufferCapicity = 0;
         {// session缓冲大小设置
             if(!ini->CheckReadUInt(seg.c_str(), "SessionBufferCapicity", sessionBufferCapicity))
@@ -757,8 +733,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
                 newInstConfig->_handleAcceptPerFrameLimit = maxAcceptCountPerFrame;
                 newInstConfig->_maxPieceTimeInMicroseconds = maxPieceTimeInMicroSecPerFrame;
                 newInstConfig->_maxSleepMilliseconds = maxPollerScanMilliseconds;
-                newInstConfig->_maxPriorityLevel = static_cast<Int32>(maxPollerMsgPriorityLevel);
-                newInstConfig->_pollerInstMonitorPriorityLevel = static_cast<Int32>(pollerMonitorEventPriorityLevel);
                 newInstConfig->_bufferCapacity = sessionBufferCapicity;
                 newInstConfig->_sessionRecvPacketSpeedLimit = sessionRecvPacketSpeedLimit;
                 newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = sessionRecvPacketSpeedTimeUnitMs;
@@ -799,8 +773,6 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
                 newInstConfig->_handleAcceptPerFrameLimit = maxAcceptCountPerFrame;
                 newInstConfig->_maxPieceTimeInMicroseconds = maxPieceTimeInMicroSecPerFrame;
                 newInstConfig->_maxSleepMilliseconds = maxPollerScanMilliseconds;
-                newInstConfig->_maxPriorityLevel = static_cast<Int32>(maxPollerMsgPriorityLevel);
-                newInstConfig->_pollerInstMonitorPriorityLevel = static_cast<Int32>(pollerMonitorEventPriorityLevel);
                 newInstConfig->_bufferCapacity = sessionBufferCapicity;
                 newInstConfig->_sessionRecvPacketSpeedLimit = sessionRecvPacketSpeedLimit;
                 newInstConfig->_sessionRecvPacketSpeedTimeUnitMs = sessionRecvPacketSpeedTimeUnitMs;

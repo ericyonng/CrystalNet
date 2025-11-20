@@ -343,7 +343,6 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
     , NULL
     , 0
     , 0
-    ,  _targetAddrConfig->_priorityLevel
     ,  _targetAddrConfig->_sessionType
     , _targetAddrConfig->_af
     , _targetAddrConfig->_protocolStackType);
@@ -376,7 +375,6 @@ void TestMgr::_OnCommonSessionReady(KERNEL_NS::LibEvent *ev)
         , NULL
         , 0
         , 0
-        ,  _targetAddrConfig->_priorityLevel
         ,  _targetAddrConfig->_sessionType
         , _targetAddrConfig->_af
         , _targetAddrConfig->_protocolStackType);

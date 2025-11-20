@@ -29,7 +29,6 @@
 #pragma once
 
 #include <service/common/SessionType.h>
-#include <service/common/PriorityLevelDefine.h>
 #include <service/common/BaseComps/LogicSys/LogicSys.h>
 #include <kernel/comp/Delegate/LibDelegate.h>
 #include <service/common/status.h>
@@ -166,15 +165,15 @@ public:
     /*
     * ip 黑白名单控制
     */
-    void AddWhite(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
-    void AddBlack(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
-    void EraseWhite(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
-    void EraseBlack(const KERNEL_NS::LibString &ip, Int32 level = PriorityLevelDefine::INNER);
-    void AddWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
-    void AddBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
-    void EraseWhite(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
-    void EraseBlack(const std::list<KERNEL_NS::LibString> &ips, Int32 level = PriorityLevelDefine::INNER);
-    void ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList, Int32 level = PriorityLevelDefine::INNER);
+    void AddWhite(const KERNEL_NS::LibString &ip);
+    void AddBlack(const KERNEL_NS::LibString &ip);
+    void EraseWhite(const KERNEL_NS::LibString &ip);
+    void EraseBlack(const KERNEL_NS::LibString &ip);
+    void AddWhite(const std::list<KERNEL_NS::LibString> &ips);
+    void AddBlack(const std::list<KERNEL_NS::LibString> &ips);
+    void EraseWhite(const std::list<KERNEL_NS::LibString> &ips);
+    void EraseBlack(const std::list<KERNEL_NS::LibString> &ips);
+    void ControlIpPipline(const std::list<KERNEL_NS::IpControlInfo *> &controlInfoList);
 
     template<typename ObjType>
     void Subscribe(Int32 opcodeId, ObjType *obj, void (ObjType::*Handler)(KERNEL_NS::LibPacket *&));

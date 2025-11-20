@@ -172,7 +172,6 @@ void StubHandleMgr::_OnAddListenResEvent(KERNEL_NS::LibEvent *ev)
     auto family = ev->GetParam(Params::FAMILY).AsUInt16();
     auto serviceId = ev->GetParam(Params::SERVICE_ID).AsUInt64();
     auto stub = ev->GetParam(Params::STUB).AsUInt64();
-    auto priorityLevel = ev->GetParam(Params::PRIORITY_LEVEL).AsUInt32();
     auto protocolType = ev->GetParam(Params::PROTOCOL_TYPE).AsInt32();
     auto sessionId = ev->GetParam(Params::SESSION_ID).AsUInt64();
 
@@ -183,7 +182,6 @@ void StubHandleMgr::_OnAddListenResEvent(KERNEL_NS::LibEvent *ev)
     (*var)[Params::FAMILY] = family;
     (*var)[Params::SERVICE_ID] = serviceId;
     (*var)[Params::STUB] = stub;
-    (*var)[Params::PRIORITY_LEVEL] = priorityLevel;
     (*var)[Params::PROTOCOL_TYPE] = protocolType;
     (*var)[Params::SESSION_ID] = sessionId;
     
@@ -200,7 +198,6 @@ void StubHandleMgr::_OnAsynConnectResEvent(KERNEL_NS::LibEvent *ev)
     (*var)[Params::REMOTE_ADDR] = ev->GetParam(Params::REMOTE_ADDR).AsPtr<KERNEL_NS::BriefAddrInfo>();
     (*var)[Params::FAMILY] = ev->GetParam(Params::FAMILY).AsUInt16();
     (*var)[Params::PROTOCOL_TYPE] = ev->GetParam(Params::PROTOCOL_TYPE).AsInt32();
-    (*var)[Params::PRIORITY_LEVEL] = ev->GetParam(Params::PRIORITY_LEVEL).AsUInt32();
     (*var)[Params::SESSION_POLLER_ID] = ev->GetParam(Params::SESSION_POLLER_ID).AsUInt64();
     (*var)[Params::SERVICE_ID] = ev->GetParam(Params::SERVICE_ID).AsUInt64();
     (*var)[Params::STUB] = ev->GetParam(Params::STUB).AsUInt64();

@@ -55,7 +55,6 @@ IApplication::IApplication(UInt64 objTypeId)
     ,_cpuCoreAmount(0)
     ,_poller(NULL)
     ,_maxPieceTimeInMicroseconds(TimeDefs::MICRO_SECOND_PER_SECOND) // 默认1秒扫描间隔
-    ,_maxPriorityLevel(0)
     ,_maxSleepMilliseconds(TimeDefs::MILLI_SECOND_PER_SECOND)   // 默认1秒
     ,_memoryLogSigno(KERNEL_NS::SignoList::MEMORY_LOG_SIGNO)
 {
@@ -182,7 +181,6 @@ Int32 IApplication::_OnPriorityLevelCompsCreated()
 
     // poller 设置
     KERNEL_NS::TimeSlice span(0, 0, _maxPieceTimeInMicroseconds);
-    _poller->SetMaxPriorityLevel(_maxPriorityLevel);
     _poller->SetMaxPieceTime(span);
     _poller->SetMaxSleepMilliseconds(_maxSleepMilliseconds);
     // _poller->SetPepareEventWorkerHandler(this, &IApplication::_OnPollerPrepare);

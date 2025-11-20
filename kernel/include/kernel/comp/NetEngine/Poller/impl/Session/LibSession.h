@@ -101,7 +101,6 @@ public:
     void SetPollerId(UInt64 pollerId);
     void SetBufferCapacity(UInt64 bufferCapacity);
     void SetProtocolStack(IProtocolStack *protocolStack);
-    void SetPriorityLevel(Int32 level);
     void SetRecvHandleBytesLimit(UInt64 value);
     void SetSendHandleBytesLimit(UInt64 value);
     void SetAcceptHandleCountLimit(UInt64 value);
@@ -127,7 +126,6 @@ public:
     UInt64 GetServiceId() const;
     UInt64 GetPollerId() const;
     UInt64 GetMaxPacketSize() const;
-    UInt32 GetPriorityLevel() const;
     Int32 GetProtocolType() const;
     const SessionOption &GetOption() const;
     Int32 GetSessionType() const;
@@ -166,7 +164,6 @@ private:
 protected:
     std::atomic_bool _inited;               // 初始化
     const UInt64 _id;                       // session id
-    Int32 _priorityLevel;                   // 优先级
     Int32 _protocolType;                    // 协议类型
     UInt64 _bufferCapacity;                 // 单个缓冲大小
     UInt64 _serviceId;                      // session所在service
@@ -230,11 +227,6 @@ ALWAYS_INLINE void LibSession::SetBufferCapacity(UInt64 bufferCapacity)
 ALWAYS_INLINE void LibSession::SetProtocolStack(IProtocolStack *protocolStack)
 {
     _protocolStack = protocolStack;
-}
-
-ALWAYS_INLINE void LibSession::SetPriorityLevel(Int32 level)
-{
-    _priorityLevel = level;
 }
 
 ALWAYS_INLINE void LibSession::SetRecvHandleBytesLimit(UInt64 value)
@@ -330,11 +322,6 @@ ALWAYS_INLINE UInt64 LibSession::GetPollerId() const
 ALWAYS_INLINE UInt64 LibSession::GetMaxPacketSize() const
 {
     return _maxPacketSize;
-}
-
-ALWAYS_INLINE UInt32 LibSession::GetPriorityLevel() const
-{
-    return _priorityLevel;
 }
 
 ALWAYS_INLINE Int32 LibSession::GetProtocolType() const

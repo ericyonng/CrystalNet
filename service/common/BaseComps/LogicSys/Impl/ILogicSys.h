@@ -29,7 +29,6 @@
 #pragma once
 
 #include <service/common/SessionType.h>
-#include <service/common/PriorityLevelDefine.h>
 #include <kernel/comp/CompObject/CompHostObject.h>
 #include <service_common/common/common.h>
 #include <kernel/comp/LibStream.h>

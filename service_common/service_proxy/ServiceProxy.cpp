@@ -57,7 +57,7 @@ void ServiceProxy::Release()
     ServiceProxy::DeleteByAdapter_ServiceProxy(ServiceProxyFactory::_buildType.V, this);
 }
 
-void ServiceProxy::PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::PollerEvent *msg, Int64 packetsCount)
+void ServiceProxy::PostMsg(UInt64 serviceId, KERNEL_NS::PollerEvent *msg, Int64 packetsCount)
 {
     auto iter = _serviceIdRefRejectServiceStatus.find(serviceId);
     if(UNLIKELY(iter->second))
@@ -77,19 +77,19 @@ void ServiceProxy::PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::Po
         return;
     }
         
-    service->Push(priorityLevel, msg);
+    service->Push(msg);
 
     if(packetsCount > 0)
         service->AddRecvPackets(packetsCount);
 }
 
-void ServiceProxy::PostQuitService(UInt32 priorityLevel)
+void ServiceProxy::PostQuitService()
 {
     _guard.Lock();
     for(auto iter : _idRefService)
     {
         auto ev = KERNEL_NS::QuitServiceEvent::New_QuitServiceEvent();
-        PostMsg(iter.second->GetServiceId(), priorityLevel, ev);
+        PostMsg(iter.second->GetServiceId(), ev);
     }
     _guard.Unlock();
 }

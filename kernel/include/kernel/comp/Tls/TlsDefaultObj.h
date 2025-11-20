@@ -46,6 +46,7 @@ class MemoryAlloctor;
 class SpinLock;
 class TimerWheel;
 class TlsCompsOwner;
+struct PollerEvent;
 
 class KERNEL_EXPORT TlsDefaultObj : public ITlsObj
 {

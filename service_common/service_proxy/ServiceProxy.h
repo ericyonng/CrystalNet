@@ -79,8 +79,8 @@ public:
 
 public:
     // kernel => service
-    virtual void PostMsg(UInt64 serviceId, UInt32 priorityLevel, KERNEL_NS::PollerEvent *msg, Int64 packetsCount = 0) final;
-    virtual void PostQuitService(UInt32 priorityLevel = 0) final;
+    virtual void PostMsg(UInt64 serviceId, KERNEL_NS::PollerEvent *msg, Int64 packetsCount = 0) final;
+    virtual void PostQuitService() final;
     virtual KERNEL_NS::IProtocolStack *GetProtocolStack(KERNEL_NS::LibSession *session) final;
 
     template<typename CallbackType>
@@ -170,8 +170,7 @@ ALWAYS_INLINE void ServiceProxy::BroadcastMsg(CallbackType &&cb)
         if(UNLIKELY(!service))
             continue;
         
-        auto maxLevel = service->GetMaxPriorityLevel();
-        PostMsg(iter->first, maxLevel, cb(), 1);
+        PostMsg(iter->first, cb(), 1);
     }
 }
 

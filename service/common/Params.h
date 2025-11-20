@@ -42,7 +42,6 @@ namespace Params
         LOCAL_ADDR,     // 本地地址 BriefSockAddr ptr
         REMOTE_ADDR,     // 远程地址 BriefSockAddr ptr
         PROTOCOL_TYPE,   // 协议类型（udp/tcp/quic等）ProtocolType Int32
-        PRIORITY_LEVEL,  // 会话优先级级别 UInt32
         SESSION_POLLER_ID,  // 会话最终所在poller UInt64
         SERVICE_ID,         // 所属服务id UInt64
         STUB,               // 存根 UInt64

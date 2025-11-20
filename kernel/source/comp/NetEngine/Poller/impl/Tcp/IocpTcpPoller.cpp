@@ -81,7 +81,7 @@ IocpTcpPoller::IocpTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const Tcp
 ,_tcpPollerMgr(pollerMgr)
 ,_pollerMgr(NULL)
 ,_serviceProxy(NULL)
-,_poller(NULL)
+,_poller{NULL}
 ,_cfg(cfg)
 ,_sessionCount{0}
 ,_sessionPendingCount{0}
@@ -90,7 +90,6 @@ IocpTcpPoller::IocpTcpPoller(TcpPollerMgr *pollerMgr, UInt64 pollerId, const Tcp
 ,_quitIocpWorker(NULL)
 ,_monitor(NULL)
 ,_eventLoopThread(NULL)
-,_pollerInstMonitorPriorityLevel(-1)
 {
 
 }
@@ -109,8 +108,6 @@ void IocpTcpPoller::OnRegisterComps()
 {
     // 注册ip规则组件
     RegisterComp<IpRuleMgrFactory>();
-    // 注册poller组件
-    RegisterComp<PollerFactory>();
 }
 
 void IocpTcpPoller::Clear()
@@ -137,18 +134,18 @@ LibString IocpTcpPoller::ToString() const
 
 UInt64 IocpTcpPoller::CalcLoadScore() const
 {
-    return _poller->CalcLoadScore() + _sessionCount.load(std::memory_order_acquire) + _sessionPendingCount.load(std::memory_order_acquire);
+    return _poller.load(std::memory_order_acquire)->CalcLoadScore() + _sessionCount.load(std::memory_order_acquire) + _sessionPendingCount.load(std::memory_order_acquire);
 }
 
-void IocpTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibPacket *packet)
+void IocpTcpPoller::PostSend(UInt64 sessionId, LibPacket *packet)
 {
     auto ev = AsynSendEvent::New_AsynSendEvent();
     ev->_sessionId = sessionId;
     ev->_packets = LibList<LibPacket *>::New_LibList();
     ev->_packets->PushBack(packet);
 
-    if(LIKELY(_poller->IsEnable()))
-        _poller->Push(level, ev);
+    if(LIKELY(_poller.load(std::memory_order_acquire)->IsEnable()))
+        _poller.load(std::memory_order_acquire)->Push(ev);
     else
     {
         ContainerUtil::DelContainer(*ev->_packets, [](LibPacket *ptr){
@@ -161,14 +158,14 @@ void IocpTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibPacket *packet)
     }
 }
 
-void IocpTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibList<LibPacket *> *packets)
+void IocpTcpPoller::PostSend(UInt64 sessionId, LibList<LibPacket *> *packets)
 {
     auto ev = AsynSendEvent::New_AsynSendEvent();
     ev->_sessionId = sessionId;
     ev->_packets = packets;
 
-    if(LIKELY(_poller->IsEnable()))
-        _poller->Push(level, ev);
+    if(LIKELY(_poller.load(std::memory_order_acquire)->IsEnable()))
+        _poller.load(std::memory_order_acquire)->Push(ev);
     else
     {
         ContainerUtil::DelContainer(*ev->_packets, [](LibPacket *ptr){
@@ -181,9 +178,9 @@ void IocpTcpPoller::PostSend(Int32 level, UInt64 sessionId, LibList<LibPacket *>
     }
 }
 
-void IocpTcpPoller::PostNewSession(Int32 level, BuildSessionInfo *buildSessionInfo)
+void IocpTcpPoller::PostNewSession(BuildSessionInfo *buildSessionInfo)
 {
-    if(UNLIKELY(!_poller->IsEnable()))
+    if(UNLIKELY(!_poller.load(std::memory_order_acquire)->IsEnable()))
     {
         if(g_Log->IsEnable(LogLevel::Warn))
             g_Log->Warn(LOGFMT_OBJ_TAG("poller disable build session:%s"),  buildSessionInfo->ToString().c_str());
@@ -193,12 +190,12 @@ void IocpTcpPoller::PostNewSession(Int32 level, BuildSessionInfo *buildSessionIn
 
     auto newSessionEv = NewSessionEvent::New_NewSessionEvent();
     newSessionEv->_buildInfo = buildSessionInfo;
-    _poller->Push(level, newSessionEv);
+    _poller.load(std::memory_order_acquire)->Push(newSessionEv);
 }
 
-void IocpTcpPoller::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
+void IocpTcpPoller::PostAddlisten(LibListenInfo *listenInfo)
 {
-    if(UNLIKELY(!_poller->IsEnable()))
+    if(UNLIKELY(!_poller.load(std::memory_order_acquire)->IsEnable()))
     {
         if(g_Log->IsEnable(LogLevel::Warn))
             g_Log->Warn(LOGFMT_OBJ_TAG("poller disable listenInfo:%s"),  listenInfo->ToString().c_str());
@@ -208,12 +205,12 @@ void IocpTcpPoller::PostAddlisten(Int32 level, LibListenInfo *listenInfo)
 
     auto ev = AddListenEvent::New_AddListenEvent();
     ev->_addListenInfoList.push_back(listenInfo);
-    _poller->Push(level, ev);
+    _poller.load(std::memory_order_acquire)->Push(ev);
 }
 
-void IocpTcpPoller::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> &listenInfoList)
+void IocpTcpPoller::PostAddlistenList(std::vector<LibListenInfo *> &listenInfoList)
 {
-    if(UNLIKELY(!_poller->IsEnable()))
+    if(UNLIKELY(!_poller.load(std::memory_order_acquire)->IsEnable()))
     {
         if(g_Log->IsEnable(LogLevel::Warn))
         {
@@ -238,10 +235,10 @@ void IocpTcpPoller::PostAddlistenList(Int32 level, std::vector<LibListenInfo *> 
     auto ev = AddListenEvent::New_AddListenEvent();
     ev->_addListenInfoList.swap(listenInfoList);
 
-    _poller->Push(level, ev);
+    _poller.load(std::memory_order_acquire)->Push(ev);
 }
 
-void IocpTcpPoller::PostConnect(Int32 level, LibConnectInfo *connectInfo)
+void IocpTcpPoller::PostConnect(LibConnectInfo *connectInfo)
 {
     // 必须指定service id
     if(UNLIKELY(connectInfo->_fromServiceId == 0))
@@ -253,10 +250,10 @@ void IocpTcpPoller::PostConnect(Int32 level, LibConnectInfo *connectInfo)
 
     auto ev = AsynConnectEvent::New_AsynConnectEvent();
     ev->_connectInfo = connectInfo;
-    _poller->Push(level, ev);
+    _poller.load(std::memory_order_acquire)->Push(ev);
 }
 
-void IocpTcpPoller::PostCloseSession(UInt64 fromServiceId, Int32 level,  UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
+void IocpTcpPoller::PostCloseSession(UInt64 fromServiceId, UInt64 sessionId, Int64 closeMillisecondTimeDelay, bool forbidRead, bool forbidWrite)
 {
     auto closeEv = CloseSessionEvent::New_CloseSessionEvent();
     closeEv->_sessionId = sessionId;
@@ -264,23 +261,21 @@ void IocpTcpPoller::PostCloseSession(UInt64 fromServiceId, Int32 level,  UInt64 
     closeEv->_forbidRead = forbidRead;
     closeEv->_forbidWrite = forbidWrite;
     closeEv->_fromServiceId = fromServiceId;
-    closeEv->_priorityLevel = level;
-    _poller->Push(level, closeEv);
+    _poller.load(std::memory_order_acquire)->Push(closeEv);
 }
 
-void IocpTcpPoller::PostIpControl(Int32 level, const std::list<IpControlInfo *> &controlList)
+void IocpTcpPoller::PostIpControl(const std::list<IpControlInfo *> &controlList)
 {
     auto ev = IpRuleControlEvent::New_IpRuleControlEvent();
     ev->_ipControlList = controlList;
-    _poller->Push(level, ev);
+    _poller.load(std::memory_order_acquire)->Push(ev);
 }
 
-void IocpTcpPoller::PostQuitServiceSessionsEvent(UInt64 serviceId, Int32 level)
+void IocpTcpPoller::PostQuitServiceSessionsEvent(UInt64 serviceId)
 {
     auto ev = QuitServiceSessionsEvent::New_QuitServiceSessionsEvent();
     ev->_fromServiceId = serviceId;
-    ev->_priorityLevel = level;
-    _poller->Push(level, ev);
+    _poller.load(std::memory_order_acquire)->Push(ev);
 }
 
 IocpTcpSession *IocpTcpPoller::_GetSession(UInt64 sessionId)
@@ -340,10 +335,9 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(BuildSessionInfo *sessionInfo)
     newSession->SetRecvHandleBytesLimit(_cfg->_handleRecvBytesPerFrameLimit);
     newSession->SetSendHandleBytesLimit(_cfg->_handleSendBytesPerFrameLimit);
     newSession->SetBufferCapacity(_cfg->_bufferCapacity);
-    newSession->SetDirtyHelper(_poller->GetDirtyHelper());
+    newSession->SetDirtyHelper(_poller.load(std::memory_order_acquire)->GetDirtyHelper());
     newSession->SetServiceProxy(_serviceProxy);
     newSession->SetPollerMgr(_pollerMgr);
-    newSession->SetPriorityLevel(sessionInfo->_priorityLevel);
     newSession->SetProtocolStack(sessionInfo->_protocolStack);
     newSession->SetServiceId(sessionInfo->_serviceId);
     newSession->SetPollerId(GetPollerId());
@@ -530,10 +524,9 @@ IocpTcpSession *IocpTcpPoller::_CreateSession(LibListenInfo *listenInfo)
     newSession->SetRecvHandleBytesLimit(_cfg->_handleRecvBytesPerFrameLimit);
     newSession->SetSendHandleBytesLimit(_cfg->_handleSendBytesPerFrameLimit);
     newSession->SetBufferCapacity(_cfg->_bufferCapacity);
-    newSession->SetDirtyHelper(_poller->GetDirtyHelper());
+    newSession->SetDirtyHelper(_poller.load(std::memory_order_acquire)->GetDirtyHelper());
     newSession->SetServiceProxy(_serviceProxy);
     newSession->SetPollerMgr(_pollerMgr);
-    newSession->SetPriorityLevel(listenInfo->_priorityLevel);
     newSession->SetServiceId(listenInfo->_serviceId);
     newSession->SetPollerId(GetPollerId());
     newSession->SetMaxPacketSize(sessionOption._maxPacketSize);
@@ -588,16 +581,15 @@ void IocpTcpPoller::_CloseSession(IocpTcpSession *session, Int32 closeReasonEnum
         g_Log->NetInfo(LOGFMT_OBJ_TAG("poller id:%llu, closeReasonEnum:%d,%s, stub:%llu, close session :%s")
                 , GetPollerId(), closeReasonEnum, CloseSessionInfo::GetCloseReason(closeReasonEnum), stub, session->ToString().c_str());
     
-    _poller->GetDirtyHelper()->Clear(session);
+    _poller.load(std::memory_order_acquire)->GetDirtyHelper()->Clear(session);
 
     // session关闭的消息
     auto sessionDestroyEv = SessionDestroyEvent::New_SessionDestroyEvent();
     sessionDestroyEv->_closeReason = closeReasonEnum;
     sessionDestroyEv->_sessionId = session->GetId();
     sessionDestroyEv->_serviceId = session->GetServiceId();
-    sessionDestroyEv->_priorityLevel = session->GetPriorityLevel();
     sessionDestroyEv->_stub = stub;
-    _serviceProxy->PostMsg(sessionDestroyEv->_serviceId, sessionDestroyEv->_priorityLevel, sessionDestroyEv);
+    _serviceProxy->PostMsg(sessionDestroyEv->_serviceId, sessionDestroyEv);
 
     // 从ip字典中移除
     if(LIKELY(!session->IsLinker()))
@@ -658,7 +650,7 @@ void IocpTcpPoller::_TryCloseSession(IocpTcpSession *session, Int32 closeReasonE
     if(session->CanRecv() || session->CanSend())
     {
         session->MaskClose(closeReasonEnum);
-        auto var = _poller->GetDirtyHelper()->MaskDirty(session, PollerDirty::CLOSE, true);
+        auto var = _poller.load(std::memory_order_acquire)->GetDirtyHelper()->MaskDirty(session, PollerDirty::CLOSE, true);
         auto &varDict = var->BecomeDict();
         varDict[1] = closeReasonEnum;
         varDict[2] = stub;
@@ -699,8 +691,8 @@ void IocpTcpPoller::_ControlCloseSession(IocpTcpSession *session, Int32 closeRea
     const auto sessionId = session->GetId();
     if(closeMillisecondTime)
     {
-        auto newTimer = LibTimer::NewThreadLocal_LibTimer(_poller->GetTimerMgr());
-        _poller->GetTimerMgr()->TakeOverLifeTime(newTimer, [](LibTimer *t){
+        auto newTimer = LibTimer::NewThreadLocal_LibTimer(_poller.load(std::memory_order_acquire)->GetTimerMgr());
+        _poller.load(std::memory_order_acquire)->GetTimerMgr()->TakeOverLifeTime(newTimer, [](LibTimer *t){
             LibTimer::DeleteThreadLocal_LibTimer(t);
         });
         
@@ -787,7 +779,11 @@ Int32 IocpTcpPoller::_OnHostInit()
     _eventLoopThread->AddTask(this, &IocpTcpPoller::_OnPollEventLoop);
     _eventLoopThread->SetThreadName(LibString().AppendFormat("Poller%lluLoop", _pollerId));
 
-    _pollerInstMonitorPriorityLevel = _cfg->_pollerInstMonitorPriorityLevel < 0 ? _cfg->_maxPriorityLevel : _cfg->_pollerInstMonitorPriorityLevel;
+    _eventLoopThread->Start();
+    while (_poller.load(std::memory_order_acquire) == NULL)
+    {
+        g_Log->Info(LOGFMT_OBJ_TAG("wait for poller ready... %s"), ToString().c_str());
+    }
 
     if(g_Log->IsEnable(LogLevel::NetInfo))
         g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller inited."));
@@ -798,37 +794,6 @@ Int32 IocpTcpPoller::_OnHostInit()
 
 Int32 IocpTcpPoller::_OnPriorityLevelCompsCreated()
 {
-    _poller = GetComp<Poller>();
-
-    TimeSlice span(0, 0, _cfg->_maxPieceTimeInMicroseconds);
-    _poller->SetMaxPriorityLevel(_cfg->_maxPriorityLevel);
-    _poller->SetMaxPieceTime(span);
-    _poller->SetMaxSleepMilliseconds(_cfg->_maxSleepMilliseconds);
-    _poller->SetPepareEventWorkerHandler(this, &IocpTcpPoller::_OnPollerPrepare);
-    _poller->SetEventWorkerCloseHandler(this, &IocpTcpPoller::_OnPollerWillDestroy);
-
-    _poller->Subscribe(PollerEventType::Write, this, &IocpTcpPoller::_OnWrite);
-    _poller->Subscribe(PollerEventType::AsynConnect, this, &IocpTcpPoller::_OnAsynConnect);
-    _poller->Subscribe(PollerEventType::NewSession, this, &IocpTcpPoller::_OnNewSession);
-    _poller->Subscribe(PollerEventType::Monitor, this, &IocpTcpPoller::_OnMonitor);
-    _poller->Subscribe(PollerEventType::CloseSession, this, &IocpTcpPoller::_OnCloseSession);
-    _poller->Subscribe(PollerEventType::AddListen, this, &IocpTcpPoller::_OnAddListen);
-    _poller->Subscribe(PollerEventType::IpRuleControl, this, &IocpTcpPoller::_OnIpRuleControl);
-    _poller->Subscribe(PollerEventType::QuitServiceSessionsEvent, this, &IocpTcpPoller::_OnQuitServiceSessionsEvent);
-    _poller->Subscribe(PollerEventType::RealDoQuitServiceSessionEvent, this, &IocpTcpPoller::_OnRealDoQuitServiceSessionEvent);
-
-    // 脏回调
-    auto dirtyHelper = _poller->GetDirtyHelper();
-    dirtyHelper->Init(PollerDirty::END);
-    auto deleg = DelegateFactory::Create(this, &IocpTcpPoller::_OnDirtySessionRead);
-    dirtyHelper->SetHandler(PollerDirty::READ, deleg);
-    deleg = DelegateFactory::Create(this, &IocpTcpPoller::_OnDirtySessionWrite);
-    dirtyHelper->SetHandler(PollerDirty::WRITE, deleg);
-    deleg = DelegateFactory::Create(this, &IocpTcpPoller::_OnDirtySessionClose);
-    dirtyHelper->SetHandler(PollerDirty::CLOSE, deleg);
-    deleg = DelegateFactory::Create(this, &IocpTcpPoller::_OnDirtySessionAccept);
-    dirtyHelper->SetHandler(PollerDirty::ACCEPT, deleg);
-
     return Status::Success;
 }
 
@@ -858,7 +823,8 @@ Int32 IocpTcpPoller::_OnHostWillStart()
 Int32 IocpTcpPoller::_OnHostStart()
 {
     _monitor->Start();
-    _eventLoopThread->Start();
+
+    MaskReady(true);
     g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller start."));
     return Status::Success;
 }
@@ -877,8 +843,8 @@ void IocpTcpPoller::_OnHostBeforeCompsWillClose()
         _monitor->FinishClose();
     }
 
-    if(_poller)
-        _poller->QuitLoop();
+    if(_poller.load(std::memory_order_acquire))
+        _poller.load(std::memory_order_acquire)->QuitLoop();
     if(_eventLoopThread)
         _eventLoopThread->Close();
 }
@@ -1052,7 +1018,7 @@ void IocpTcpPoller::_OnAsynConnect(PollerEvent *ev)
         
         {
             auto connectInfoCache = connectInfo.pop();
-            newPending->_reconnectTimer = LibTimer::NewThreadLocal_LibTimer(_poller->GetTimerMgr());
+            newPending->_reconnectTimer = LibTimer::NewThreadLocal_LibTimer(_poller.load(std::memory_order_acquire)->GetTimerMgr());
             auto __tryAgainTimeOut = [connectInfoCache, this](LibTimer *timer) mutable -> void 
             {
                 // pending
@@ -1172,14 +1138,13 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
                 connectRes->_targetAddr = buildSessionInfo->_remoteAddr;
                 connectRes->_family = buildSessionInfo->_family;
                 connectRes->_protocolType = buildSessionInfo->_protocolType;
-                connectRes->_priorityLevel = buildSessionInfo->_priorityLevel;
                 connectRes->_sessionPollerId = GetPollerId();
                 connectRes->_fromServiceId = buildSessionInfo->_serviceId;
                 connectRes->_stub = buildSessionInfo->_stub;
                 connectRes->_sessionId = buildSessionInfo->_sessionId;
                 connectRes->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
                 connectRes->_failureIps = buildSessionInfo->_failureIps;
-                _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes->_priorityLevel, connectRes);
+                _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
             }
             else if(buildSessionInfo->_isLinker)
             {// TODO:
@@ -1189,10 +1154,9 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
                 listenRes->_family = buildSessionInfo->_family;
                 listenRes->_serviceId = buildSessionInfo->_serviceId;
                 listenRes->_stub = buildSessionInfo->_stub;
-                listenRes->_priorityLevel = buildSessionInfo->_priorityLevel;
                 listenRes->_protocolType = buildSessionInfo->_protocolType;
                 listenRes->_sessionId = buildSessionInfo->_sessionId;
-                _serviceProxy->PostMsg(listenRes->_serviceId, listenRes->_priorityLevel, listenRes);
+                _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
             }
         }
         
@@ -1207,7 +1171,6 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
     sessionCreatedEv->_targetAddr = buildSessionInfo->_remoteAddr;
     sessionCreatedEv->_family = buildSessionInfo->_family;
     sessionCreatedEv->_protocolType = buildSessionInfo->_protocolType;
-    sessionCreatedEv->_priorityLevel = buildSessionInfo->_priorityLevel;
     sessionCreatedEv->_sessionType = buildSessionInfo->_sessionOption._sessionType;
     sessionCreatedEv->_sessionPollerId = GetPollerId();
     sessionCreatedEv->_belongServiceId = buildSessionInfo->_serviceId;
@@ -1218,7 +1181,7 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
     sessionCreatedEv->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
     sessionCreatedEv->_failureIps = buildSessionInfo->_failureIps;
 
-    _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv->_priorityLevel, sessionCreatedEv);
+    _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv);
 
     // 有存根才需要回包
     if(buildSessionInfo->_stub)
@@ -1231,14 +1194,13 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
             connectRes->_targetAddr = buildSessionInfo->_remoteAddr;
             connectRes->_family = buildSessionInfo->_family;
             connectRes->_protocolType = buildSessionInfo->_protocolType;
-            connectRes->_priorityLevel = buildSessionInfo->_priorityLevel;
             connectRes->_sessionPollerId = GetPollerId();
             connectRes->_fromServiceId = buildSessionInfo->_serviceId;
             connectRes->_stub = buildSessionInfo->_stub;
             connectRes->_sessionId = buildSessionInfo->_sessionId;
             connectRes->_targetConfig = buildSessionInfo->_remoteOriginIpConfig;
             connectRes->_failureIps = buildSessionInfo->_failureIps;
-            _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes->_priorityLevel, connectRes);
+            _serviceProxy->PostMsg(connectRes->_fromServiceId, connectRes);
         }
         else if(buildSessionInfo->_isLinker)
         {// TODO:
@@ -1249,9 +1211,8 @@ void IocpTcpPoller::_OnNewSession(PollerEvent *ev)
             listenRes->_family = buildSessionInfo->_family;
             listenRes->_serviceId = buildSessionInfo->_serviceId;
             listenRes->_stub = buildSessionInfo->_stub;
-            listenRes->_priorityLevel = buildSessionInfo->_priorityLevel;
             listenRes->_protocolType = buildSessionInfo->_protocolType;
-            _serviceProxy->PostMsg(listenRes->_serviceId, listenRes->_priorityLevel, listenRes);
+            _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
         }
     }
 
@@ -1355,9 +1316,8 @@ void IocpTcpPoller::_OnCloseSession(PollerEvent *ev)
             sessionDestroyEv->_closeReason = CloseSessionInfo::CLOSED_BEFORE;
             sessionDestroyEv->_sessionId = closeSessionEv->_sessionId;
             sessionDestroyEv->_serviceId = closeSessionEv->_fromServiceId;
-            sessionDestroyEv->_priorityLevel = closeSessionEv->_priorityLevel;
             sessionDestroyEv->_stub = closeSessionEv->_stub;
-            _serviceProxy->PostMsg(closeSessionEv->_fromServiceId, closeSessionEv->_priorityLevel, sessionDestroyEv);
+            _serviceProxy->PostMsg(closeSessionEv->_fromServiceId, sessionDestroyEv);
         }
 
         return;
@@ -1383,9 +1343,8 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
                 listenRes->_family = listenInfo->_family;
                 listenRes->_serviceId = listenInfo->_serviceId;
                 listenRes->_stub = listenInfo->_stub;
-                listenRes->_priorityLevel = listenInfo->_priorityLevel;
                 listenRes->_protocolType = listenInfo->_protocolType;
-                _serviceProxy->PostMsg(listenRes->_serviceId, listenRes->_priorityLevel, listenRes);
+                _serviceProxy->PostMsg(listenRes->_serviceId,  listenRes);
             }
 
             continue;
@@ -1403,9 +1362,8 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
                 listenRes->_family = listenInfo->_family;
                 listenRes->_serviceId = listenInfo->_serviceId;
                 listenRes->_stub = listenInfo->_stub;
-                listenRes->_priorityLevel = listenInfo->_priorityLevel;
                 listenRes->_protocolType = listenInfo->_protocolType;
-                _serviceProxy->PostMsg(listenRes->_serviceId, listenRes->_priorityLevel, listenRes);
+                _serviceProxy->PostMsg(listenRes->_serviceId, listenRes);
             }
             continue;
         }
@@ -1419,7 +1377,6 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
         sessionCreatedEv->_targetAddr = addr->GetRemoteBriefAddr();
         sessionCreatedEv->_family = sock->GetFamily();
         sessionCreatedEv->_protocolType = listenInfo->_protocolType;
-        sessionCreatedEv->_priorityLevel = listenInfo->_priorityLevel;
         sessionCreatedEv->_sessionType = listenInfo->_sessionOption._sessionType;
         sessionCreatedEv->_sessionPollerId = GetPollerId();
         sessionCreatedEv->_belongServiceId = listenInfo->_serviceId;
@@ -1428,7 +1385,7 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
         sessionCreatedEv->_isLinker = true;
         sessionCreatedEv->_protocolStackType = listenInfo->_sessionOption._protocolStackType;
 
-        _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId, sessionCreatedEv->_priorityLevel, sessionCreatedEv);
+        _serviceProxy->PostMsg(sessionCreatedEv->_belongServiceId,  sessionCreatedEv);
 
         // listenres
         if(listenInfo->_stub)
@@ -1439,10 +1396,9 @@ void IocpTcpPoller::_OnAddListen(PollerEvent *ev)
             listenRes->_family = sock->GetFamily();
             listenRes->_serviceId = listenInfo->_serviceId;
             listenRes->_stub = listenInfo->_stub;
-            listenRes->_priorityLevel = listenInfo->_priorityLevel;
             listenRes->_protocolType = listenInfo->_protocolType;
             listenRes->_sessionId = newSession->GetId();
-            _serviceProxy->PostMsg(listenRes->_serviceId, listenRes->_priorityLevel, listenRes);
+            _serviceProxy->PostMsg(listenRes->_serviceId,  listenRes);
         }
 
         if(g_Log->IsEnable(LogLevel::NetInfo))
@@ -1507,43 +1463,30 @@ void IocpTcpPoller::_OnIpRuleControl(PollerEvent *ev)
 void IocpTcpPoller::_OnQuitServiceSessionsEvent(PollerEvent *ev)
 {
     auto quiteSessionEv = ev->CastTo<QuitServiceSessionsEvent>();
-    std::map<UInt32, std::set<UInt64>> sessions;
+    std::set<UInt64> sessions;
     for(auto iter : _sessionIdRefSession)
     {
         if(iter.second->GetServiceId() == quiteSessionEv->_fromServiceId)
         {
-            auto session = iter.second;
-            auto iterSessions = sessions.find(session->GetPriorityLevel());
-            if(iterSessions == sessions.end())
-                iterSessions = sessions.insert(std::make_pair(session->GetPriorityLevel(), std::set<UInt64>())).first;
-
-            auto &sessionSet = iterSessions->second;
-            sessionSet.insert(session->GetId());
+            sessions.insert(iter.second->GetId());
         }
     }
 
     if(g_Log->IsEnable(LogLevel::NetInfo))
-        g_Log->NetInfo(LOGFMT_OBJ_TAG("will quit service session service id:%llu priorityLevel count:%llu, current poller id:%llu")
+        g_Log->NetInfo(LOGFMT_OBJ_TAG("will quit service session service id:%llu session count:%llu, current poller id:%llu")
             , quiteSessionEv->_fromServiceId, static_cast<UInt64>(sessions.size()), GetPollerId());
 
-    for(auto iter : sessions)
+    auto newEv = RealDoQuitServiceSessionEvent::New_RealDoQuitServiceSessionEvent();
+    newEv->_fromServiceId = quiteSessionEv->_fromServiceId;
+
+    for(auto sessionId : sessions)
     {
-        auto level = iter.first;
-        auto &sessionIds = iter.second;
-
-        auto newEv = RealDoQuitServiceSessionEvent::New_RealDoQuitServiceSessionEvent();
-        newEv->_fromServiceId = quiteSessionEv->_fromServiceId;
-
-        for(auto sessionId : sessionIds)
-        {
-            auto quitSessionInfo = QuitSessionInfo::New_QuitSessionInfo();
-            quitSessionInfo->_sessionId = sessionId;
-            quitSessionInfo->_priorityLevel = level;
-            newEv->_quitSessionInfo->PushBack(quitSessionInfo);
-        }
-
-        _poller->Push(level, newEv);
+        auto quitSessionInfo = QuitSessionInfo::New_QuitSessionInfo();
+        quitSessionInfo->_sessionId = sessionId;
+        newEv->_quitSessionInfo->PushBack(quitSessionInfo);
     }
+
+    _poller.load(std::memory_order_acquire)->Push(newEv);
 }
 
 void IocpTcpPoller::_OnRealDoQuitServiceSessionEvent(PollerEvent *ev)
@@ -1591,7 +1534,6 @@ void IocpTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
     newBuildSessionInfo->_sock = connectPendingInfo->_newSock;
     newBuildSessionInfo->_serviceId = connectInfo->_fromServiceId;
     newBuildSessionInfo->_stub = connectInfo->_stub;
-    newBuildSessionInfo->_priorityLevel = connectInfo->_priorityLevel;
     newBuildSessionInfo->_isFromConnect = true;
     newBuildSessionInfo->_protocolStack = connectInfo->_stack;
     newBuildSessionInfo->_sessionOption = connectInfo->_sessionOption;
@@ -1602,7 +1544,7 @@ void IocpTcpPoller::_OnConnectSuc(LibConnectPendingInfo *&connectPendingInfo)
     _sessionPendingCount.fetch_sub(1, std::memory_order_release);
     
     // windows下connect是在datatrasfer poller上
-    PostNewSession(newBuildSessionInfo->_priorityLevel, newBuildSessionInfo);
+    PostNewSession(newBuildSessionInfo);
 
     connectPendingInfo->_newSock = INVALID_SOCKET;
     connectPendingInfo->_sessionId = 0;
@@ -1621,7 +1563,6 @@ void IocpTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPen
         res->_errCode = errCode;
         res->_family = connectInfo->_family;
         res->_protocolType = connectInfo->_protocolType;
-        res->_priorityLevel = connectInfo->_priorityLevel;
         res->_fromServiceId = connectInfo->_fromServiceId;
         res->_stub = connectInfo->_stub;
 
@@ -1636,7 +1577,7 @@ void IocpTcpPoller::_OnConnectFailure(LibConnectInfo *connectInfo, LibConnectPen
         res->_targetConfig = connectInfo->_targetIp;
         res->_failureIps = connectInfo->_failureIps;
 
-        _serviceProxy->PostMsg(res->_fromServiceId, res->_priorityLevel, res);
+        _serviceProxy->PostMsg(res->_fromServiceId, res);
     }
 
     if(LIKELY(connectPending))
@@ -1771,7 +1712,6 @@ void IocpTcpPoller::_OnAccept(IocpTcpSession *session, IoEvent &io)
     newBuildSessionInfo->_sock = newSock;
     newBuildSessionInfo->_serviceId = session->GetServiceId();
     newBuildSessionInfo->_stub = 0;
-    newBuildSessionInfo->_priorityLevel = session->GetPriorityLevel();
     newBuildSessionInfo->_isFromConnect = false;
     newBuildSessionInfo->_protocolStack = NULL;
     newBuildSessionInfo->_sessionOption = session->GetOption();
@@ -1879,7 +1819,7 @@ void IocpTcpPoller::_OnMonitorThread(LibThread *t)
         auto ev = MonitorPollerEvent::New_MonitorPollerEvent();
         ev->_io = io;
         ev->_errCode = errCode;
-        _poller->Push(_pollerInstMonitorPriorityLevel, ev);
+        _poller.load(std::memory_order_acquire)->Push(ev);
     }
 
     poller->OnLoopEnd();
@@ -1889,13 +1829,37 @@ void IocpTcpPoller::_OnMonitorThread(LibThread *t)
 bool IocpTcpPoller::_OnThreadStart()
 {
     // 用 EpollTcpPoller 的poller 替换当前线程的poller组件
-    auto defObj = TlsUtil::GetDefTls();
-    if(!defObj->_tlsComps->AttachComp(_poller))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("AttachComp fail comp:%s, current epoll tcp poller:%s."), _poller->ToString().c_str(), ToString().c_str());
-        return false;
-    }
+    auto poller = TlsUtil::GetPoller();
+    
+    TimeSlice span(0, 0, _cfg->_maxPieceTimeInMicroseconds);
+    poller->SetMaxPieceTime(span);
+    poller->SetMaxSleepMilliseconds(_cfg->_maxSleepMilliseconds);
+    poller->SetPepareEventWorkerHandler(this, &IocpTcpPoller::_OnPollerPrepare);
+    poller->SetEventWorkerCloseHandler(this, &IocpTcpPoller::_OnPollerWillDestroy);
 
+    poller->Subscribe(PollerEventType::Write, this, &IocpTcpPoller::_OnWrite);
+    poller->Subscribe(PollerEventType::AsynConnect, this, &IocpTcpPoller::_OnAsynConnect);
+    poller->Subscribe(PollerEventType::NewSession, this, &IocpTcpPoller::_OnNewSession);
+    poller->Subscribe(PollerEventType::Monitor, this, &IocpTcpPoller::_OnMonitor);
+    poller->Subscribe(PollerEventType::CloseSession, this, &IocpTcpPoller::_OnCloseSession);
+    poller->Subscribe(PollerEventType::AddListen, this, &IocpTcpPoller::_OnAddListen);
+    poller->Subscribe(PollerEventType::IpRuleControl, this, &IocpTcpPoller::_OnIpRuleControl);
+    poller->Subscribe(PollerEventType::QuitServiceSessionsEvent, this, &IocpTcpPoller::_OnQuitServiceSessionsEvent);
+    poller->Subscribe(PollerEventType::RealDoQuitServiceSessionEvent, this, &IocpTcpPoller::_OnRealDoQuitServiceSessionEvent);
+
+    // 脏回调
+    auto dirtyHelper = poller->GetDirtyHelper();
+    dirtyHelper->Init(PollerDirty::END);
+    auto deleg = DelegateFactory::Create(this, &IocpTcpPoller::_OnDirtySessionRead);
+    dirtyHelper->SetHandler(PollerDirty::READ, deleg);
+    deleg = DelegateFactory::Create(this, &IocpTcpPoller::_OnDirtySessionWrite);
+    dirtyHelper->SetHandler(PollerDirty::WRITE, deleg);
+    deleg = DelegateFactory::Create(this, &IocpTcpPoller::_OnDirtySessionClose);
+    dirtyHelper->SetHandler(PollerDirty::CLOSE, deleg);
+    deleg = DelegateFactory::Create(this, &IocpTcpPoller::_OnDirtySessionAccept);
+    dirtyHelper->SetHandler(PollerDirty::ACCEPT, deleg);
+
+    _poller.store(poller, std::memory_order_release);
     g_Log->Info(LOGFMT_OBJ_TAG("thread started thread id:%llu."), SystemUtil::GetCurrentThreadId());
 
     return true;
@@ -1911,18 +1875,20 @@ void IocpTcpPoller::_OnPollEventLoop(LibThread *t)
 
     g_Log->NetInfo(LOGFMT_OBJ_TAG("iocp tcp poller event loop start."));
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop prepare loop..."));
-    if(!_poller->PrepareLoop())
+    auto poller = TlsUtil::GetPoller();
+
+    if(!poller->PrepareLoop())
     {
         g_Log->Error(LOGFMT_OBJ_TAG("prepare poller loop fail please check."));
         return;
     }
 
-    MaskReady(true);
+    // MaskReady(true);
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop start loop."));
     // 保证网络层高效
-    _poller->QuicklyLoop();
+    poller->QuicklyLoop();
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop on loop end..."));
-    _poller->OnLoopEnd();
+    poller->OnLoopEnd();
     g_Log->NetInfo(LOGFMT_OBJ_TAG("epoll tcp poller event loop finish."));
     MaskReady(false);
 }

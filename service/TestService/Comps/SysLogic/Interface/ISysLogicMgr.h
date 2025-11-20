@@ -58,7 +58,6 @@ public:
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
   , Int64 periodMs = 0  /* 超时时间 */
-  , UInt32 priorityLevel = PriorityLevelDefine::INNER /* 消息队列优先级 */
   , Int32 sessionType = SessionType::INNER /* 会话类型 */
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
@@ -72,7 +71,6 @@ public:
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
   , Int64 periodMs = 0  /* 超时时间 */
-  , UInt32 priorityLevel = PriorityLevelDefine::INNER /* 消息队列优先级 */
   , Int32 sessionType = SessionType::INNER /* 会话类型 */
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
@@ -84,7 +82,6 @@ public:
   , KERNEL_NS::IProtocolStack *stack = NULL /* 指定协议栈 */
   , Int32 retryTimes = 0    /* 超时重试次数 */
   , Int64 periodMs = 0  /* 超时时间 */
-  , UInt32 priorityLevel = PriorityLevelDefine::INNER /* 消息队列优先级 */
   , Int32 sessionType = SessionType::INNER /* 会话类型 */
   , Int32 family = AF_INET /* AF_INET:ipv4, AF_INET6:ipv6 */
   , Int32 protocolStackType = SERVICE_COMMON_NS::CrystalProtocolStackType::CRYSTAL_PROTOCOL
@@ -102,14 +99,13 @@ ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes   /* 超时重试次数 */
 , Int64 periodMs  /* 超时时间 */
-, UInt32 priorityLevel /* 消息队列优先级 */
 , Int32 sessionType /* 会话类型 */
 , Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
 , Int32 protocolStackType
 ) const
 {
     auto deleg = KERNEL_NS::DelegateFactory::Create(obj, handler);
-    auto st = AsynTcpConnect(remoteIp, remotePort, stub, deleg, localIp, localPort, stack, retryTimes, periodMs, priorityLevel, sessionType, family, protocolStackType);
+    auto st = AsynTcpConnect(remoteIp, remotePort, stub, deleg, localIp, localPort, stack, retryTimes, periodMs, sessionType, family, protocolStackType);
     if(st != Status::Success)
     {
         g_Log->Error(LOGFMT_OBJ_TAG("connect fail remote ip:%s, remote port:%hu"), remoteIp.ToString().c_str(), remotePort);
@@ -126,13 +122,12 @@ ALWAYS_INLINE Int32 ISysLogicMgr::AsynTcpConnect(const KERNEL_NS::AddrIpConfig &
 , KERNEL_NS::IProtocolStack *stack /* 指定协议栈 */
 , Int32 retryTimes    /* 超时重试次数 */
 , Int64 periodMs   /* 超时时间 */
-, UInt32 priorityLevel /* 消息队列优先级 */
 , Int32 sessionType /* 会话类型 */
 , Int32 family /* AF_INET:ipv4, AF_INET6:ipv6 */
 , Int32 protocolStackType
 ) const
 {
-    return AsynTcpConnect(remoteIp, remotePort, stub, NULL, localIp, localPort, stack, retryTimes, periodMs, priorityLevel, sessionType, family, protocolStackType);
+    return AsynTcpConnect(remoteIp, remotePort, stub, NULL, localIp, localPort, stack, retryTimes, periodMs, sessionType, family, protocolStackType);
 }
 
 SERVICE_END

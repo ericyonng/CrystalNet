@@ -100,7 +100,6 @@ protected:
     virtual Int32 _OnPriorityLevelCompsCreated() override
     {
         auto poller = GetComp<KERNEL_NS::Poller>();
-        poller->SetMaxPriorityLevel(8);
         poller->SetPepareEventWorkerHandler(this, &HostObj::_OnPollerPrepare);
         poller->SetEventWorkerCloseHandler(this, &HostObj::_OnPollerWillDestroy);
         poller->Subscribe(1, this, &HostObj::_OnHelloWorldEv);
@@ -420,7 +419,7 @@ static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
     {
         auto ev = AcEvent::NewThreadLocal_AcEvent();
         ++g_genNum;
-        poller->Push(idx, ev);
+        poller->Push(ev);
 
         timerMgr->Drive();
 
@@ -544,7 +543,7 @@ public:
                 auto res = KERNEL_NS::ObjectPollerEvent<HelloCrossPollerResponse>::New_ObjectPollerEvent(stub, true, KERNEL_NS::TlsUtil::GetPoller());
                 res->_obj = HelloCrossPollerResponse::New_HelloCrossPollerResponse();
                 res->_obj->_info = request->_obj->_info;
-                _otherPoller.load()->Push(_otherPoller.load()->GetMaxPriorityLevel(), res);
+                _otherPoller.load()->Push(res);
             });
         
             co_return;

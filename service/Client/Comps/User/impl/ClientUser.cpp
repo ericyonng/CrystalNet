@@ -283,7 +283,7 @@ Int32 ClientUser::Login(Int32 stackType)
     localIp._isHostName = false;
     localIp._ip = "127.0.0.1";
 
-    auto err = sysMgr->AsynTcpConnect(remoteIp, _loginInfo.port(), stub, this, &ClientUser::_OnLoginConnectRes, localIp, 0, NULL, 3, 30,  PriorityLevelDefine::OUTER1, SessionType::OUTER
+    auto err = sysMgr->AsynTcpConnect(remoteIp, _loginInfo.port(), stub, this, &ClientUser::_OnLoginConnectRes, localIp, 0, NULL, 3, 30,  SessionType::OUTER
     , KERNEL_NS::SocketUtil::IsIpv4(_loginInfo.targetip()) ? AF_INET : AF_INET6, stackType);
 
     if(err != Status::Success)

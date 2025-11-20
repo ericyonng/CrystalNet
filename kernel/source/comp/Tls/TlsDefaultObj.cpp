@@ -32,9 +32,13 @@
 #include <kernel/comp/Lock/Impl/SpinLock.h>
 #include <kernel/comp/Tls/TlsCompsOwner.h>
 
-KERNEL_BEGIN
+#include "kernel/comp/Utils/ContainerUtil.h"
+#include <kernel/comp/Poller/PollerEvent.h>
 
-TlsDefaultObj::TlsDefaultObj()
+#include "kernel/comp/Log/ILog.h"
+
+KERNEL_BEGIN
+    TlsDefaultObj::TlsDefaultObj()
     :_objTypeName("TlsDefaultObj")
     ,rtti{0}
     ,stackArray{NULL}

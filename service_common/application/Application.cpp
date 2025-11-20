@@ -97,7 +97,7 @@ void Application::SinalFinish(Int32 err)
     _runErr.store(err, std::memory_order_release);
 
     auto ev = KERNEL_NS::QuitApplicationEvent::New_QuitApplicationEvent();
-    _poller->Push(0, ev);
+    _poller->Push(ev);
 
     // _lck.Sinal();
 }
@@ -482,21 +482,7 @@ Int32 Application::_ReadBaseConfigs()
             }
             _kernelConfig._maxPollerScanMilliseconds = cache;
         }
-        {// 最大消息优先级等级
-            Int64 cache = 0;
-            if(!_configIni->CheckReadInt(APPLICATION_KERNEL_CONFIG_SEG, MAX_POLLER_MSG_PRIORITY_LEVEL_KEY, cache))
-            {
-                cache = MAX_POLLER_MSG_PRIORITY_LEVEL_DEFAULT_VALUE;
-                const auto &value = KERNEL_NS::StringUtil::Num2Str(cache);
-                if(UNLIKELY(!_configIni->WriteStr(APPLICATION_KERNEL_CONFIG_SEG, MAX_POLLER_MSG_PRIORITY_LEVEL_KEY, value.c_str())))
-                {
-                    g_Log->Error(LOGFMT_OBJ_TAG("write str ini fail seg:%s, key:%s, value:%s")
-                                , APPLICATION_KERNEL_CONFIG_SEG, MAX_POLLER_MSG_PRIORITY_LEVEL_KEY, value.c_str());
-                    return Status::ConfigError;
-                }
-            }
-            _kernelConfig._maxPollerMsgPriorityLevel = static_cast<Int32>(cache);
-        }
+
         {// 指定poller monitor事件的消息优先级等级
             Int64 cache = 0;
             if(!_configIni->CheckReadInt(APPLICATION_KERNEL_CONFIG_SEG, POLLER_MONITOR_EVENT_PRIORITY_LEVEL_KEY, cache))

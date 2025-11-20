@@ -92,7 +92,6 @@ struct KERNEL_EXPORT SessionCreatedEvent : public PollerEvent
     BriefSockAddr _targetAddr;  // 远程ip地址信息
     UInt16 _family;             // 协议族 AF_INET/AF_INET6
     Int32 _protocolType;        // 协议类型（udp/tcp/quic等）ProtocolType
-    UInt32 _priorityLevel;      // 会话优先级级别 
     Int32 _sessionType;         // 会话类型 
     UInt64 _sessionPollerId;    // 会话最终所在poller
     UInt64 _belongServiceId;    // 会话所属的服务,连接时会指定服务id
@@ -119,7 +118,6 @@ struct KERNEL_EXPORT AsynConnectResEvent : public PollerEvent
     BriefSockAddr _targetAddr;
     UInt16 _family;             // 协议族 AF_INET/AF_INET6
     Int32 _protocolType;        // 协议类型（udp/tcp/quic等）ProtocolType
-    UInt32 _priorityLevel;      // 会话优先级级别 
     UInt64 _sessionPollerId;    // 会话最终所在poller
     UInt64 _fromServiceId;      // 发起连接的serviceid
     UInt64 _stub;               // 回传的存根
@@ -144,7 +142,6 @@ struct KERNEL_EXPORT AddListenResEvent : public PollerEvent
     UInt16 _family;             // 协议族 AF_INET/AF_INET6
     UInt64 _serviceId;          // 服务id
     UInt64 _stub;               // 存根透传
-    UInt32 _priorityLevel;      // 消息优先级 会决定连入的session 的消息优先级
     Int32 _protocolType;       // 协议类型流还是报文等
     UInt64 _sessionId;          // 会话id
 };
@@ -162,7 +159,6 @@ struct KERNEL_EXPORT SessionDestroyEvent : public PollerEvent
     Int32 _closeReason;
     UInt64 _sessionId;
     UInt64 _serviceId;
-    UInt32 _priorityLevel;
     UInt64 _stub;
 };
 
@@ -179,7 +175,6 @@ struct KERNEL_EXPORT RecvMsgEvent : public PollerEvent
 
     UInt64 _sessionId;
     UInt64 _serviceId;
-    UInt32 _priorityLevel;
     LibList<LibPacket *> *_packets;
 };
 

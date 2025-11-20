@@ -42,7 +42,6 @@ LibConnectInfo::LibConnectInfo()
 ,_targetPort(0)
 ,_family(0)
 ,_protocolType(0)
-,_priorityLevel(0)
 ,_pollerId(0)
 ,_retryTimes(0)
 ,_periodMs(0)
@@ -58,10 +57,10 @@ LibString LibConnectInfo::ToString() const
 {
     LibString info;
     info.AppendFormat("protocol type:[%d,%s] family:[%hu,%s], from local ip:[%s:%hu], to target ip:[%s:%hu] success ip:%s\n failure ips:%s,"
-                      "message priority level[%d] poller id:[%llu], retry times[%d], period ms:[%lld], stub:[%llu], from service id:[%llu], _sessionOption:%s, _currentSwitchTargetIpLeft:%d"
+                      "message poller id:[%llu], retry times[%d], period ms:[%lld], stub:[%llu], from service id:[%llu], _sessionOption:%s, _currentSwitchTargetIpLeft:%d"
     , _protocolType, ProtocolType::ToString(_protocolType), _family, FamilyType::ToString(_family), _localIp._ip.c_str(), _localPort, _targetIp._ip.c_str(), _targetPort
     , _successIp.c_str(), KERNEL_NS::StringUtil::ToString(_failureIps, ',').c_str()
-    , _priorityLevel, _pollerId, _retryTimes, _periodMs, _stub, _fromServiceId, _sessionOption.ToString().c_str(), _currentSwitchTargetIpLeft);
+    , _pollerId, _retryTimes, _periodMs, _stub, _fromServiceId, _sessionOption.ToString().c_str(), _currentSwitchTargetIpLeft);
 
     return info;
 }
