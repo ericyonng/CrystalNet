@@ -93,7 +93,14 @@ class EventLoopThreadStartup : public KERNEL_NS::IThreadStartUp
 
             // 返回消息
             auto res = new TestEventLoopDataRes();
-            ev->_srcPoller->SendResponse(ev->_stub, res);
+            if(LIKELY(ev->_srcChannel))
+            {
+                ev->_srcChannel->SendResponse(ev->_stub, KERNEL_NS::TlsUtil::GetPoller(), res);
+            }
+            else
+            {
+                ev->_srcPoller->SendResponse(ev->_stub, res);
+            }
         });
 
         poller->SubscribeObjectEvent<TestEventLoopDataPush>([](KERNEL_NS::StubPollerEvent *ev) mutable 

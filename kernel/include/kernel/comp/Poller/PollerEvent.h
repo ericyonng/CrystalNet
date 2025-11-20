@@ -38,12 +38,14 @@
 #include <kernel/comp/Poller/ApplyChannelResult.h>
 
 KERNEL_BEGIN
-    template <typename Rtn, typename... Args>
+
+template <typename Rtn, typename... Args>
 class IDelegate;
 
 struct AsyncTask;
 
 class Poller;
+class Channel;
 
 struct KERNEL_EXPORT PollerEvent
 {
@@ -116,7 +118,7 @@ struct KERNEL_EXPORT StubPollerEvent : public PollerEvent
 {
     POOL_CREATE_OBJ_DEFAULT_P1(PollerEvent, StubPollerEvent);
 
-    StubPollerEvent(Int32 type, UInt64 stub, UInt64 objTypeId, Poller *poller);
+    StubPollerEvent(Int32 type, UInt64 stub, UInt64 objTypeId, Poller *poller, Channel *srcChannel);
     ~StubPollerEvent();
 
     virtual LibString ToString() const override;
@@ -125,6 +127,7 @@ struct KERNEL_EXPORT StubPollerEvent : public PollerEvent
     bool _isResponse;
     UInt64 _objTypeId;
     Poller *_srcPoller;
+    Channel *_srcChannel;
 };
 
 // obj对象得有Release实现
@@ -137,8 +140,8 @@ struct KERNEL_EXPORT ObjectPollerEvent : public StubPollerEvent
 {
     POOL_CREATE_TEMPLATE_OBJ_DEFAULT_P1(StubPollerEvent, ObjectPollerEvent, ObjType)
 
-    ObjectPollerEvent(UInt64 stub, bool isResponse, Poller *poller)
-        :StubPollerEvent(PollerEventInternalType::ObjectPollerEventType, stub, KERNEL_NS::RttiUtil::GetTypeId<ObjType>(), poller)
+    ObjectPollerEvent(UInt64 stub, bool isResponse, Poller *poller, Channel *srcChannel)
+        :StubPollerEvent(PollerEventInternalType::ObjectPollerEventType, stub, KERNEL_NS::RttiUtil::GetTypeId<ObjType>(), poller, srcChannel)
     ,_obj(NULL)
     {
         _isResponse = isResponse;

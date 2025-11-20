@@ -540,7 +540,8 @@ public:
                 g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "HelloCrossPollerRequest :%s"), request->ToString().c_str());
 
                 // 返回包
-                auto res = KERNEL_NS::ObjectPollerEvent<HelloCrossPollerResponse>::New_ObjectPollerEvent(stub, true, KERNEL_NS::TlsUtil::GetPoller());
+                auto res = KERNEL_NS::ObjectPollerEvent<HelloCrossPollerResponse>::New_ObjectPollerEvent(stub
+                    , true, KERNEL_NS::TlsUtil::GetPoller(), ev->_srcChannel);
                 res->_obj = HelloCrossPollerResponse::New_HelloCrossPollerResponse();
                 res->_obj->_info = request->_obj->_info;
                 _otherPoller.load()->Push(res);

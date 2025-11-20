@@ -119,8 +119,7 @@ Poller::Poller()
 ,_consumEventCount{0}
 ,_onTick(NULL)
 ,_maxStub(0)
-,_toSelfChannel(NULL)
-,_commonEvents(MPMCQueue<PollerEvent *, 1024 * 1024 * 8>::NewThreadLocal_MPMCQueue())
+,_commonEvents(MPMCQueue<PollerEvent *, 16*16*2*1024>::NewThreadLocal_MPMCQueue())
 ,_localEvents(LibList<PollerEvent *, KERNEL_NS::_Build::TL>::NewThreadLocal_LibList())
 {
     // auto defObj = TlsUtil::GetDefTls();
@@ -141,27 +140,30 @@ void Poller::Release()
     Poller::Delete_Poller(this);
 }
 
-CoTask<UInt64> Poller::ApplyPollerChannel(Poller &targetPoller)
+CoTask<Channel *> Poller::ApplyChannel()
 {
-    auto curThreadId = SystemUtil::GetCurrentThreadId();
-    assert(curThreadId != _workThreadId.load(std::memory_order_relaxed));
-    
-    if (UNLIKELY(curThreadId == _workThreadId.load(std::memory_order_relaxed)))
+    // 如果已经存在了不需要再申请直接返回
+    auto myPoller = TlsUtil::GetPoller();
+    auto iter = myPoller->_targetPollerRefChannel.find(this);
+    if(UNLIKELY(iter != myPoller->_targetPollerRefChannel.end()))
     {
-        g_Log->Error(LOGFMT_OBJ_TAG("cant apply channel from same poller"));
-        co_return 0;
+        co_return iter->second;
     }
-    
-    auto result = co_await targetPoller.ApplyChannel();
-    auto channel = Channel::NewThreadLocal_Channel(result._channelId, &targetPoller, result._queue);
 
-    _idRefChannel.insert(std::make_pair(channel->GetChannelId(), channel));
+    // 向target poller 申请spsc消息队列和channel id, 并创建给TlsUtil::Poller
+    auto req = ApplyChannelEvent::New_ApplyChannelEvent();
+    auto res = co_await SendAsync<ApplyChannelEventResponse, ApplyChannelEvent>(req);
+
+    // 给当前线程创建通向target poller的channel
+    auto channel = Channel::NewThreadLocal_Channel(res->_result._channelId, this, res->_result._queue);
+    myPoller->_idRefChannel.insert(std::make_pair(channel->GetChannelId(), channel));
+    myPoller->_targetPollerRefChannel.insert(std::make_pair(this, channel));
 
     if(g_Log->IsEnable(LogLevel::Info))
         g_Log->Info(LOGFMT_OBJ_TAG("new channel created src:%s => target:%s, channel id:%llu")
-            , ToString().c_str(), targetPoller.ToString().c_str(), channel->GetChannelId());
+            , myPoller->ToString().c_str(), ToString().c_str(), channel->GetChannelId());
 
-    co_return channel->GetChannelId();
+    co_return channel;
 }
 
 void Poller::SendByChannel(UInt64 channelId, PollerEvent *ev)
@@ -201,22 +203,6 @@ void Poller::SendByChannel(UInt64 channelId, LibList<PollerEvent *> *evs)
     }
 
     iter->second->Send(evs);
-}
-
-CoTask<ApplyChannelResult> Poller::ApplyChannel()
-{
-    auto curThreadId = SystemUtil::GetCurrentThreadId();
-    assert(curThreadId != _workThreadId.load(std::memory_order_relaxed));
-    if (UNLIKELY(curThreadId == _workThreadId.load(std::memory_order_relaxed)))
-    {
-        g_Log->Error(LOGFMT_OBJ_TAG("cant apply channel from same poller"));
-        co_return ApplyChannelResult();
-    }
-    
-    auto req = ApplyChannelEvent::New_ApplyChannelEvent();
-    auto res = co_await SendAsync<ApplyChannelEventResponse, ApplyChannelEvent>(req);
-
-    co_return res->_result;
 }
 
 Int32 Poller::_OnInit()
@@ -375,7 +361,8 @@ void Poller::_OnDestroyChannelEvent(StubPollerEvent *ev)
 
     if(g_Log->IsEnable(LogLevel::Debug))
         g_Log->Debug(LOGFMT_OBJ_TAG("destroy channel id:%llu"), iter->first);
-    
+
+    _targetPollerRefChannel.erase(iter->second->GetTarget());
     Channel::DeleteThreadLocal_Channel(iter->second);
     _idRefChannel.erase(iter);
 }
@@ -841,10 +828,6 @@ void Poller::Push(LibList<PollerEvent *> *evList)
     }
 
 
-    const auto amount = static_cast<Int64>(evList->GetAmount());
-    _eventAmountLeft.fetch_add(amount, std::memory_order_release);
-    _genEventAmount.fetch_add(amount, std::memory_order_release);
-
     auto batchEv = BatchPollerEvent::New_BatchPollerEvent();
     batchEv->_events = evList;
 
@@ -862,8 +845,6 @@ void Poller::Push(IDelegate<void> *action)
 
     auto ev = ActionPollerEvent::New_ActionPollerEvent();
     ev->_action = action;
-    _eventAmountLeft.fetch_add(1, std::memory_order_release);
-    _genEventAmount.fetch_add(1, std::memory_order_release);
     _Push(ev);
 }
 
@@ -875,9 +856,7 @@ void Poller::Push(PollerEvent *ev)
         ev->Release();
         return;
     }
-    
-    _eventAmountLeft.fetch_add(1, std::memory_order_release);
-    _genEventAmount.fetch_add(1, std::memory_order_release);
+
     _Push(ev);
 }
 
@@ -907,6 +886,7 @@ void Poller::_Clear()
 
     CRYSTAL_RELEASE_SAFE(_onTick);
 
+    _targetPollerRefChannel.clear();
     ContainerUtil::DelContainer(_idRefChannel, [](Channel *channel)
     {
         Channel::DeleteThreadLocal_Channel(channel);
@@ -941,7 +921,7 @@ void Poller::_Clear()
             }
         }
 
-        MPMCQueue<PollerEvent *, 1024 * 1024 * 8>::DeleteThreadLocal_MPMCQueue(_commonEvents);
+        MPMCQueue<PollerEvent *, 16*16*2*1024>::DeleteThreadLocal_MPMCQueue(_commonEvents);
     }
     _commonEvents = NULL;
 

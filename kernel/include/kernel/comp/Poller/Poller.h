@@ -51,6 +51,7 @@
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Poller/ApplyChannelResult.h>
 
+#include "Channel.h"
 #include "kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h"
 
 KERNEL_BEGIN
@@ -176,6 +177,7 @@ public:
     void UnSubscribeObjectEvent();
     void UnSubscribeObjectEvent(UInt64 objectTypeId);
 
+    // 内部会调用通用接口Push
     template<typename ResType>
     requires requires(ResType obj)
     {
@@ -262,7 +264,7 @@ public:
     }
     void Send(ReqType *req);
 
-    // 跨线程协程消息(otherPoller也可以是自己)
+    // 跨线程协程消息(otherPoller也可以是自己) 不需要返回
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
     // req/res 必须实现Release, ToString接口
     template<typename ReqType>
@@ -321,11 +323,21 @@ public:
             if(coParam && coParam->_handle)
                 coParam->_handle->ForceAwake();
         });
-
+        
         // 发送对象事件 ObjectPollerEvent到 other
-        auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(stub, false, this);
-        objEvent->_obj = req;
-        otherPoller.Push(objEvent);
+        auto iterChannel = _targetPollerRefChannel.find(&otherPoller);
+        if(LIKELY(iterChannel != _targetPollerRefChannel.end()))
+        {
+            auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(stub, false, this, iterChannel->second);
+            objEvent->_obj = req;
+            iterChannel->second->Send(objEvent);
+        }
+        else
+        {
+            auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(stub, false, this, NULL);
+            objEvent->_obj = req;
+            otherPoller.Push(objEvent);
+        }
         
         // 等待 ObjectPollerEvent 的返回消息唤醒
         co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params);
@@ -352,19 +364,13 @@ public:
     }
 
     // 申请创建channel(不能本地线程自己申请自己的Channel, 因为SPSC.Push的时候如果没有可写的(因为同一个线程所以此时poller不会读消息)会一直阻塞卡住整个线程)
-    CoTask<UInt64> ApplyPollerChannel(Poller &targetPoller);
+    CoTask<Channel *> ApplyChannel();
     void SendByChannel(UInt64 channelId, PollerEvent *ev);
     void SendByChannel(UInt64 channelId, LibList<PollerEvent *> *evs);
     Channel *GetChannel(UInt64 channelId);
     const Channel *GetChannel(UInt64 channelId) const;
 
-    // 只能给自己Poller使用, 其他poller调用会返回NULL
-    Channel *GetToSelfChannel();
-    // 只能给自己Poller使用, 其他poller调用会返回NULL
-    const Channel *GetToSelfChannel() const;
-    
 protected:
-    CoTask<ApplyChannelResult> ApplyChannel();
     
     virtual Int32 _OnInit() override;
     virtual Int32 _OnStart() override;
@@ -403,8 +409,6 @@ private:
     // 取消订阅回调
     void UnSubscribeStubEvent(UInt64 stub);
 #pragma endregion
-
-    void _CreateToSelfMsg();
 
     void _Push(PollerEvent *ev);
     void _PushLocal(PollerEvent *ev);
@@ -445,16 +449,16 @@ private:
     std::map<UInt64, IDelegate<void, StubPollerEvent *> *> _objTypeIdRefCallback;
 #pragma endregion
 
-    Channel *_toSelfChannel;
     // 向target申请的channel
     std::unordered_map<UInt64, Channel *> _idRefChannel;
+    std::unordered_map<Poller *, Channel *> _targetPollerRefChannel;
 
     // 申请channel而创建的消息队列
     std::vector<SPSCQueue<PollerEvent *> *> _msgQueues;
     std::unordered_map<UInt64, SPSCQueue<PollerEvent *> *> _channelIdRefQueue;
 
     // 公共的消息队列, 10MB的队列, 除非达到800wqps, 否则不会出现等待, 空间换时间
-    MPMCQueue<PollerEvent *, 1024 * 1024 * 8> *_commonEvents;
+    MPMCQueue<PollerEvent *, 16*16*2*1024> *_commonEvents;
 
     // 本地消息
     LibList<PollerEvent *, KERNEL_NS::_Build::TL> *_localEvents;
@@ -597,7 +601,7 @@ ALWAYS_INLINE const TimerMgr *Poller::GetTimerMgr() const
 // Debug情况下不使用try{}catch(){}让问题充分暴露
 ALWAYS_INLINE void Poller::EventLoop()
 {
-  SafeEventLoop();
+  QuicklyLoop();
 }
 
 #else
@@ -739,7 +743,9 @@ requires requires(ResType obj)
 }
 ALWAYS_INLINE void Poller::SendResponse(UInt64 stub, ResType *res)
 {
-    auto objectEvent = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub, true, this);
+    auto fromPoller = TlsUtil::GetPoller();
+    auto iter = _targetPollerRefChannel.find(fromPoller);
+    auto objectEvent = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub, true, fromPoller, iter == _targetPollerRefChannel.end() ? NULL : iter->second);
     objectEvent->_obj = res;
     Push(objectEvent);
 }
@@ -826,9 +832,19 @@ requires requires(ReqType req)
 ALWAYS_INLINE void Poller::SendTo(Poller &otherPoller, ReqType *req)
 {
     // 发送对象事件 ObjectPollerEvent到 other
-    auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(0, false, this);
-    objEvent->_obj = req;
-    otherPoller.Push(objEvent);
+    auto iterChannel = _targetPollerRefChannel.find(&otherPoller);
+    if(LIKELY(iterChannel != _targetPollerRefChannel.end()))
+    {
+        auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(0, false, this, iterChannel->second);
+        objEvent->_obj = req;
+        iterChannel->second->Send(objEvent);
+    }
+    else
+    {
+        auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(0, false, this, NULL);
+        objEvent->_obj = req;
+        otherPoller.Push(objEvent);
+    }
 }
 
 ALWAYS_INLINE Channel *Poller::GetChannel(UInt64 channelId)
@@ -843,34 +859,12 @@ ALWAYS_INLINE const Channel *Poller::GetChannel(UInt64 channelId) const
     return iter == _idRefChannel.end() ? NULL : iter->second;
 }
 
-ALWAYS_INLINE Channel *Poller::GetToSelfChannel()
-{
-    assert(_workThreadId.load(std::memory_order_acquire) != 0);
-    assert(_toSelfChannel != NULL);
-
-    DEF_STATIC_THREAD_LOCAL_DECLEAR UInt64 curThreadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-    if (UNLIKELY(curThreadId != _workThreadId.load(std::memory_order_acquire)))
-        return NULL;
-    
-    return _toSelfChannel;
-}
-
-ALWAYS_INLINE const Channel *Poller::GetToSelfChannel() const
-{
-    assert(_workThreadId.load(std::memory_order_acquire) != 0);
-    assert(_toSelfChannel != NULL);
-
-    DEF_STATIC_THREAD_LOCAL_DECLEAR UInt64 curThreadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
-    
-    if (UNLIKELY(curThreadId != _workThreadId.load(std::memory_order_acquire)))
-        return NULL;
-    
-    return _toSelfChannel;
-}
-
 ALWAYS_INLINE void Poller::_Push(PollerEvent *ev)
 {
     assert(_workThreadId.load(std::memory_order_acquire) != 0);
+
+    _eventAmountLeft.fetch_add(1, std::memory_order_release);
+    _genEventAmount.fetch_add(1, std::memory_order_release);
     
     // 本地线程直接放 _localEvents
     auto curThreadId = KERNEL_NS::SystemUtil::GetCurrentThreadId();
@@ -889,6 +883,8 @@ ALWAYS_INLINE void Poller::_Push(PollerEvent *ev)
 ALWAYS_INLINE void Poller::_PushLocal(PollerEvent *ev)
 {
     _localEvents->PushBack(ev);
+    _eventAmountLeft.fetch_add(1, std::memory_order_release);
+    _genEventAmount.fetch_add(1, std::memory_order_release);
 }
 KERNEL_END
 

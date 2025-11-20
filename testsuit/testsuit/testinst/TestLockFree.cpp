@@ -26,6 +26,8 @@
 // 改之前：190w qps
 // MPMCQueue 单生产者单消费者情况下 400w qps（windows下）
 // SPSCQueue 单生产者单消费者 >= 500w qps (windows)
+// poller MPMCQueue/SPSCQueue优化后, 如果使用Send qps:300w qps(单生产者单消费者情况), 2个生产者1个消费者情况下 200w qps
+// 如果使用channel进一步优化：单生产者单消费者下 290wqps, 2个个生产者单消费者情况下238wqps,4生产者1个消费者情况下200w qps
 
 #include <pch.h>
 #include "TestLockFree.h"
@@ -253,16 +255,23 @@ public:
         // 投递到事件循环中
         KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
         {
+            auto poller = KERNEL_NS::TlsUtil::GetPoller();
+
             auto consumerPoller = co_await _consumer->GetPoller();
+            auto channel = co_await consumerPoller->ApplyChannel();
+            auto toSelfChannel = co_await poller->ApplyChannel();
             co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(1));
 
-            auto poller = KERNEL_NS::TlsUtil::GetPoller();
             while (!poller->IsQuit())
             {
+                //co_await KERNEL_NS::Waiting();
+                
                 auto req = TestGenReq::New_TestGenReq();
                 req->_version = g_Version.fetch_add(1, std::memory_order_release) + 1;
                 g_GenNum.fetch_add(1, std::memory_order_release);
-                consumerPoller->Send(req);
+                channel->Send(poller, req);
+                
+                // consumerPoller->Send(req);
                 // g_ReqList->Push(req);
                 
                 // while (!g_ReqList->TryPush( req))
@@ -301,9 +310,11 @@ void TestLockFree::Run()
     // auto genThread = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 1));
     auto genThread = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 1));
     auto genThread2 = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 2));
+    auto genThread3 = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 3));
+    auto genThread4 = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 4));
     // auto genThread2 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 2));
-    auto genThread3 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 3));
-    auto genThread4 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 4));
+    // auto genThread3 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 3));
+    // auto genThread4 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 4));
 
     auto controlMgrThread = new KERNEL_NS::LibEventLoopThread("control", new ThreadControlStartup(KERNEL_NS::TlsUtil::GetPoller()));
 
@@ -312,9 +323,9 @@ void TestLockFree::Run()
     consumer->Start();
     // consumer2->Start();
     genThread->Start();
-    // genThread2->Start();
-    // genThread3->Start();
-    // genThread4->Start();
+    genThread2->Start();
+    genThread3->Start();
+    genThread4->Start();
 
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
@@ -329,6 +340,14 @@ void TestLockFree::Run()
         g_Log->Custom("genNum:%lld, consume:%lld", genNum, consume);
     });
     timer->Schedule(KERNEL_NS::TimeSlice::FromSeconds(1));
+
+    auto worker = g_MemoryMonitor->MakeWorkTask();
+    auto workerTimer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
+    workerTimer->SetTimeOutHandler([worker](KERNEL_NS::LibTimer *timer)
+    {
+        worker->Invoke();
+    });
+    workerTimer->Schedule(KERNEL_NS::TimeSlice::FromMinutes(1));
     
     poller->PrepareLoop();
     poller->EventLoop();

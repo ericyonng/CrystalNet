@@ -36,10 +36,13 @@
 #include "kernel/comp/Poller//PollerEvent.h"
 #include "kernel/comp/Lock/Impl/ConditionLocker.h"
 #include "kernel/comp/Utils/SystemUtil.h"
+#include <kernel/comp/Poller/PollerEvent.h>
 
 KERNEL_BEGIN
-    struct PollerEvent;
+
+struct PollerEvent;
 class ConditionLocker;
+class Poller;
 
 // Poller释放前要通知Channel移除, 所以要关注创建和移除Channel
 class KERNEL_EXPORT Channel
@@ -55,6 +58,25 @@ public:
 
     void Send(PollerEvent *ev);
     void Send(LibList<PollerEvent *> *evs);
+
+    Poller *GetTarget();
+    const Poller *GetTarget() const;
+
+    template<typename ObjType>
+    requires requires(ObjType obj)
+    {
+        obj.Release();
+        obj.ToString();
+    }
+    void Send(Poller *srcPoller, ObjType *o);
+
+    template<typename ResType>
+    requires requires(ResType obj)
+    {
+        obj.Release();
+        obj.ToString();
+    }
+    void SendResponse(UInt64 stub, Poller *srcPoller, ResType *res);
     
 private:
     // 以下都是attach模式
@@ -67,6 +89,43 @@ private:
 ALWAYS_INLINE UInt64 Channel::GetChannelId() const
 {
     return _channelId;
+}
+
+ALWAYS_INLINE Poller *Channel::GetTarget()
+{
+    return _target;
+}
+
+ALWAYS_INLINE const Poller *Channel::GetTarget() const
+{
+    return _target;
+}
+
+template<typename ResType>
+requires requires(ResType obj)
+{
+    obj.Release();
+    obj.ToString();
+}
+ALWAYS_INLINE void Channel::SendResponse(UInt64 stub, Poller *srcPoller, ResType *res)
+{
+    auto objectEvent = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub, true, srcPoller, this);
+    objectEvent->_obj = res;
+    Send(objectEvent);
+}
+
+template<typename ObjType>
+requires requires(ObjType obj)
+{
+    obj.Release();
+    obj.ToString();
+}
+ALWAYS_INLINE void Channel::Send(Poller *srcPoller, ObjType *o)
+{
+    // 不需要返回包
+    KERNEL_NS::ObjectPollerEvent<ObjType> *objectEvent = KERNEL_NS::ObjectPollerEvent<ObjType>::New_ObjectPollerEvent(0, false, srcPoller, this);
+    objectEvent->_obj = o;
+    Send(objectEvent);
 }
 
 KERNEL_END

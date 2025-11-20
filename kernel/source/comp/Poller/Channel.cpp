@@ -57,7 +57,9 @@ void Channel::Send(PollerEvent *ev)
         _wakeupTarget->Sinal();
         return;
     }
-    
+
+    _target->_eventAmountLeft.fetch_add(1, std::memory_order_release);
+    _target->_genEventAmount.fetch_add(1, std::memory_order_release);
     _events->Push(ev);
     _wakeupTarget->Sinal();
 }
