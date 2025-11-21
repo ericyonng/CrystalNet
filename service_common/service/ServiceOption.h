@@ -44,7 +44,6 @@ struct ServiceOption
 
     UInt64 _maxPieceTimeInMicroseconds = 0;     // 最大时间片
     UInt64 _maxSleepMilliseconds;               // poller扫描时间间隔
-    Int32 _maxPriorityLevel = 0;                // 优先级从0开始最大等级
 };
 
 SERVICE_COMMON_END
