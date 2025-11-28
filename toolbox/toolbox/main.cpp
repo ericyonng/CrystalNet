@@ -30,8 +30,6 @@
 #include <pch.h>
 #include <toolbox/ToolboxIni.h>
 
-#include <toolbox/scan_reason/ScanReason.h>
-#include <toolbox/scan_player_count/ScanPlayerCount.h>
 
 class LibTestLog : public KERNEL_NS::LibLog
 {
@@ -71,9 +69,7 @@ int main(int argc, char const *argv[])
     KERNEL_NS::KernelUtil::Start();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil, "kernel started."));
 
-    // ScanReason::Run(argc, argv);
-    ScanPlayerCount::Run(argc, argv);
-
+    // TODO
     getchar();
 
     KERNEL_NS::KernelUtil::Destroy();
