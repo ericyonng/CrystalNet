@@ -150,7 +150,7 @@
 
 * 流程图
 
-   ![image-20250205162034744](.\resource\img\hotfix.png)
+   ![image-20250205162034744](./resource/img/hotfix.png)
 
 * 插件集热更脚本
 
