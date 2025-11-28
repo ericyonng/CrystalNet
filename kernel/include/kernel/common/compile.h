@@ -319,6 +319,15 @@
  #define CRYSTAL_COMP_PATCH_LEVEL  0
  #endif
 
+/**
+ * The LLBC_RdTsc() support macro define.
+ */
+#if (CRYSTAL_TARGET_PROCESSOR_X86_64 || CRYSTAL_TARGET_PROCESSOR_X86)
+ #define CRYSTAL_SUPPORT_RDTSC 1
+#else // Non x86 and x86_64
+ #define CRYSTAL_SUPPORT_RDTSC 0
+#endif // x86 or x86_64
+
 // 临时选项
 #include <kernel/common/tempcompile.h>
 

@@ -43,7 +43,7 @@ ClientUser::ClientUser(IClientUserMgr *userMgr)
 ,_clientInfo(CRYSTAL_NEW(ClientUserInfo))
 ,_activedSessionId(0)
 ,_serverTime(KERNEL_NS::LibTime::NowMilliTimestamp())
-,_lastCpuBegin(static_cast<Int64>(KERNEL_NS::CrystalNativeRdTsc()))
+,_lastCpuBegin(static_cast<Int64>(KERNEL_NS::CrystalRdTsc()))
 ,_heartbeatExpireTime(KERNEL_NS::LibTime::NowMilliTimestamp())
 ,_maxPacketId(0)
 {
@@ -69,12 +69,12 @@ Int64 ClientUser::GetNowServerTime() const
 {
     #if CRYSTAL_TARGET_PLATFORM_NON_WINDOWS
         // linux精度到nanosecond
-        const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
-        const auto cpuSlice = static_cast<Int64>((nowCpu - static_cast<UInt64>(_lastCpuBegin)) / KERNEL_NS::LibCpuFrequency::_countPerMillisecond);
+        const auto nowCpu = KERNEL_NS::CrystalRdTsc();
+        const auto cpuSlice = static_cast<Int64>((nowCpu - static_cast<UInt64>(_lastCpuBegin)) * KERNEL_NS::TimeDefs::MILLI_SECOND_PER_SECOND / KERNEL_NS::LibCpuFrequency::_countPerSecond);
         return _serverTime + cpuSlice;
     #else
-        const auto nowCpu = KERNEL_NS::CrystalNativeRdTsc();
-        const auto cpuSlice = static_cast<Int64>((nowCpu - static_cast<UInt64>(_lastCpuBegin)) / KERNEL_NS::LibCpuFrequency::_countPerMillisecond);
+        const auto nowCpu = KERNEL_NS::CrystalRdTsc();
+        const auto cpuSlice = static_cast<Int64>((nowCpu - static_cast<UInt64>(_lastCpuBegin)) * KERNEL_NS::TimeDefs::MILLI_SECOND_PER_SECOND / KERNEL_NS::LibCpuFrequency::_countPerSecond);
         return _serverTime + cpuSlice;
     #endif
 }
@@ -82,7 +82,7 @@ Int64 ClientUser::GetNowServerTime() const
 void ClientUser::SetServerTime(Int64 serverTime)
 {
     _serverTime = serverTime;
-    _lastCpuBegin = static_cast<Int64>(KERNEL_NS::CrystalNativeRdTsc());
+    _lastCpuBegin = static_cast<Int64>(KERNEL_NS::CrystalRdTsc());
 }
 
 IClientUserMgr *ClientUser::GetUserMgr()

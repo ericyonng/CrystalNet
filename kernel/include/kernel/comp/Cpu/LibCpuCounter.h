@@ -50,9 +50,6 @@ public:
     static void InitFrequancy();
 
     static UInt64 _countPerSecond;
-    static UInt64 _countPerMillisecond;
-    static UInt64 _countPerMicroSecond;
-    static UInt64 _countPerNanoSecond;
 };
 
 
@@ -103,17 +100,21 @@ ALWAYS_INLINE UInt64 LibCpuSlice::GetTotalCount() const
 
 ALWAYS_INLINE UInt64 LibCpuSlice::GetTotalNanoseconds() const
 {
-    return _count / LibCpuFrequency::_countPerNanoSecond;
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+    return _count * TimeDefs::NANO_SECOND_PER_SECOND / LibCpuFrequency::_countPerSecond;
+#else
+    return _count * TimeDefs::MICRO_SECOND_PER_SECOND / LibCpuFrequency::_countPerSecond / 1000;
+#endif // CRYSTAL_TARGET_PLATFORM_LINUX
 }
 
 ALWAYS_INLINE UInt64 LibCpuSlice::GetTotalMicroseconds() const
 {
-    return _count / LibCpuFrequency::_countPerMicroSecond;
+    return _count * TimeDefs::MICRO_SECOND_PER_SECOND / LibCpuFrequency::_countPerSecond;
 }
 
 ALWAYS_INLINE UInt64 LibCpuSlice::GetTotalMilliseconds() const
 {
-    return _count / LibCpuFrequency::_countPerMillisecond;
+    return _count * TimeDefs::MILLI_SECOND_PER_SECOND / LibCpuFrequency::_countPerSecond;
 }
 
 ALWAYS_INLINE UInt64 LibCpuSlice::GetTotalSeconds() const
@@ -128,17 +129,22 @@ ALWAYS_INLINE LibCpuSlice LibCpuSlice::FromSeconds(UInt64 seconds)
 
 ALWAYS_INLINE LibCpuSlice LibCpuSlice::FromMilliseconds(UInt64 milliseconds)
 {
-    return LibCpuSlice(milliseconds * LibCpuFrequency::_countPerMillisecond);
+    return LibCpuSlice(milliseconds * LibCpuFrequency::_countPerSecond / TimeDefs::MILLI_SECOND_PER_SECOND);
 }
 
 ALWAYS_INLINE LibCpuSlice LibCpuSlice::FromMicroseconds(UInt64 microseconds)
 {
-    return LibCpuSlice(microseconds * LibCpuFrequency::_countPerMicroSecond);
+    return LibCpuSlice(microseconds * LibCpuFrequency::_countPerSecond / TimeDefs::MICRO_SECOND_PER_SECOND);
 }
 
 ALWAYS_INLINE LibCpuSlice LibCpuSlice::FromNanoseconds(UInt64 nanoseconds)
 {
-    return LibCpuSlice(nanoseconds * LibCpuFrequency::_countPerNanoSecond);
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+    return LibCpuSlice(nanoseconds * LibCpuFrequency::_countPerSecond / TimeDefs::NANO_SECOND_PER_SECOND);
+#else
+    return LibCpuSlice(nanoseconds * LibCpuFrequency::_countPerSecond * 1000 / TimeDefs::MICRO_SECOND_PER_SECOND);
+#endif // CRYSTAL_TARGET_PLATFORM_LINUX
+    
 }
 
 ALWAYS_INLINE LibCpuSlice &LibCpuSlice::SetSeconds(UInt64 seconds)
@@ -149,21 +155,25 @@ ALWAYS_INLINE LibCpuSlice &LibCpuSlice::SetSeconds(UInt64 seconds)
 
 ALWAYS_INLINE LibCpuSlice &LibCpuSlice::SetMilliseconds(UInt64 milliseconds)
 {
-    _count = milliseconds * LibCpuFrequency::_countPerMillisecond;
+    _count = milliseconds * LibCpuFrequency::_countPerSecond / TimeDefs::MILLI_SECOND_PER_SECOND;
 
     return *this;
 }
 
 ALWAYS_INLINE LibCpuSlice &LibCpuSlice::SetMicroseconds(UInt64 microseconds)
 {
-    _count = microseconds * LibCpuFrequency::_countPerMicroSecond;
+    _count = microseconds * LibCpuFrequency::_countPerSecond / TimeDefs::MICRO_SECOND_PER_SECOND;
 
     return *this;
 }
 
 ALWAYS_INLINE LibCpuSlice &LibCpuSlice::SetNanoseconds(UInt64 nanoseconds)
 {
-    _count = nanoseconds * LibCpuFrequency::_countPerNanoSecond;
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+    _count = nanoseconds * LibCpuFrequency::_countPerSecond / TimeDefs::NANO_SECOND_PER_SECOND;
+#else
+    _count = nanoseconds * 1000 * LibCpuFrequency::_countPerSecond / TimeDefs::MICRO_SECOND_PER_SECOND;
+#endif // CRYSTAL_TARGET_PLATFORM_LINUX
 
     return *this;
 }
@@ -270,7 +280,7 @@ ALWAYS_INLINE LibCpuCounter LibCpuCounter::Current()
 ALWAYS_INLINE LibCpuCounter &LibCpuCounter::Update()
 {
     #if CRYSTAL_TARGET_PLATFORM_LINUX
-        _count = KERNEL_NS::CrystalNativeRdTsc();
+        _count = KERNEL_NS::CrystalRdTsc();
     #endif
 
     #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -285,26 +295,23 @@ ALWAYS_INLINE UInt64 LibCpuCounter::ElapseCount(const LibCpuCounter &start) cons
     return _count - start._count;
 }
 
+ALWAYS_INLINE UInt64 LibCpuCounter::ElapseNanoseconds(const LibCpuCounter &start) const
+{
 #if CRYSTAL_TARGET_PLATFORM_LINUX
-ALWAYS_INLINE UInt64 LibCpuCounter::ElapseNanoseconds(const LibCpuCounter &start) const
-{
-    return (_count - start._count) / LibCpuFrequency::_countPerNanoSecond;
-}
+    return (_count - start._count) * TimeDefs::NANO_SECOND_PER_SECOND / LibCpuFrequency::_countPerSecond;
 #else
-ALWAYS_INLINE UInt64 LibCpuCounter::ElapseNanoseconds(const LibCpuCounter &start) const
-{
-    return (_count - start._count) / LibCpuFrequency::_countPerNanoSecond;
-}
+    return (_count - start._count) * 1000 * TimeDefs::MICRO_SECOND_PER_SECOND / LibCpuFrequency::_countPerSecond;
 #endif // CRYSTAL_TARGET_PLATFORM_LINUX
+}
 
 ALWAYS_INLINE UInt64 LibCpuCounter::ElapseMicroseconds(const LibCpuCounter &start) const
 {
-    return (_count - start._count) / LibCpuFrequency::_countPerMicroSecond;
+    return (_count - start._count) * TimeDefs::MICRO_SECOND_PER_SECOND / LibCpuFrequency::_countPerSecond;
 }
 
 ALWAYS_INLINE UInt64 LibCpuCounter::ElapseMilliseconds(const LibCpuCounter &start) const
 {
-    return (_count - start._count) / LibCpuFrequency::_countPerMillisecond;
+    return (_count - start._count) * TimeDefs::MILLI_SECOND_PER_SECOND / LibCpuFrequency::_countPerSecond;
 }
 
 ALWAYS_INLINE UInt64 LibCpuCounter::ElapseSeconds(const LibCpuCounter &start) const

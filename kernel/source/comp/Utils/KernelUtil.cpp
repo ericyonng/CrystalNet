@@ -52,6 +52,7 @@
 #include <kernel/comp/memory/GarbageThread.h>
 #include <kernel/comp/Utils/ContainerUtil.h>
 #include <curl/curl.h>
+#include <kernel/common/rdtsc.h>
 
 KERNEL_NS::LibCpuInfo *g_cpu = NULL;
 // KERNEL_NS::CpuFeature *g_cpuFeature = NULL;
@@ -180,6 +181,7 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     const auto mainThreadId = SystemUtil::GetCurrentThreadId();
 
         // cpu frequancy
+    InitTSCSupportFlags();
     LibCpuFrequency::InitFrequancy();
 
     // 初始化系统高性能时间
@@ -277,8 +279,8 @@ Int32 KernelUtil::Init(ILogFactory *logFactory, const Byte8 *logIniName, const B
     const auto &slice = KERNEL_NS::TimeSlice::FromNanoSeconds(std::abs(nowFastTime - nowTimeBySystem));
     
     g_Log->Sys(LOGFMT_NON_OBJ_TAG(KERNEL_NS::KernelUtil
-    , "kernel inited root path:%s, old file soft limit:%lld, old file hard limit:%lld, new file soft limit:%lld, new file hard limit:%lld system time nanostamp:%lld, fast time nanostamp:%lld diff:%s.")
-                , rootDir.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit, nowTimeBySystem, nowFastTime, slice.ToString().c_str());
+    , "kernel inited root path:%s, old file soft limit:%lld, old file hard limit:%lld, new file soft limit:%lld, new file hard limit:%lld system time nanostamp:%lld, fast time nanostamp:%lld diff:%s, IsSurpportRdtscp:%d, TscFreq:%llu, IsInVariantTsc:%d.")
+                , rootDir.c_str(), oldSoftLimit, oldHardLimit, fileSoftLimit, fileHardLimit, nowTimeBySystem, nowFastTime, slice.ToString().c_str(), IsSurportRdtscp, KERNEL_NS::CrystalGetCpuCounterFrequancy(), IsCurrentEnvSupportInvariantRdtsc());
 
     return Status::Success;
 }

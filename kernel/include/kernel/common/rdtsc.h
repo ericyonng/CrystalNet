@@ -35,32 +35,102 @@
 #include <kernel/common/macro.h>
 #include <kernel/common/BaseType.h>
 
+
 KERNEL_BEGIN
+
+/**
+ * The rdtscp support flag.
+ */
+#if CRYSTAL_SUPPORT_RDTSC
+    #ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
+        KERNEL_EXPORT bool IsSurportRdtscp;
+    #else
+     extern bool IsSurportRdtscp;
+    #endif
+#endif // IsSurportRdtscp
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
  KERNEL_EXPORT UInt64 WindowsCrystalRdTsc();
  KERNEL_EXPORT UInt64 WindowsCrystalGetCpuCounterFrequancy();
 #endif
 
+// rdtsc方法
+#ifndef CRYSTAL_NET_STATIC_KERNEL_LIB
+ KERNEL_EXPORT UInt64 (*RdtscFunction)();
+#else
+ extern UInt64 (*RdtscFunction)();
+#endif
+
+KERNEL_EXPORT void InitTSCSupportFlags();
+
+// 当前环境rdtsc是否可靠时钟源
+KERNEL_EXPORT bool IsCurrentEnvSupportInvariantRdtsc();
+
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+
+KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 LinuxRdtscp()
+{
+    UInt32 lo = 0, hi = 0;
+    __asm__ volatile ("rdtscp" : "=a" (lo), "=d" (hi) :: "rcx");
+    return (static_cast<UInt64>(hi) << 32) | lo;
+}
+
+KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 LinuxRdtsc()
+{
+    UInt32 lo = 0, hi = 0;
+    __asm__ volatile ("lfence\n\t"
+                      "rdtsc\n\t"
+                      "mov %%edx, %1;"
+                      "mov %%eax, %0;"
+                      "lfence\n\t":"=r"(lo), "=r"(hi)
+                      ::"%eax", "%edx");
+    return (static_cast<UInt64>(hi) << 32) | lo;
+}
+#endif
+
+
 // 序列化的rdtsc
 KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalRdTsc()
 {
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-    UInt64 var;
-    __asm__ volatile ("lfence\n\t"
-                    "rdtsc\n\t"  
-                    "shl $32,%%rdx;"
-                    "or %%rdx,%%rax;"
-                    "mov %%rax, %0;"
-                    "lfence\n\t":"=r"(var)
-                    ::"%rax", "%rbx", "%rcx", "%rdx");
-
-    return var;
-#endif
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    return WindowsCrystalRdTsc();
-#endif
+// #if CRYSTAL_TARGET_PLATFORM_LINUX
+//     UInt64 var;
+//     __asm__ volatile ("lfence\n\t"
+//                     "rdtsc\n\t"  
+//                     "shl $32,%%rdx;"
+//                     "or %%rdx,%%rax;"
+//                     "mov %%rax, %0;"
+//                     "lfence\n\t":"=r"(var)
+//                     ::"%rax", "%rbx", "%rcx", "%rdx");
+//
+//     return var;
+// #endif
+//
+// #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+//     return WindowsCrystalRdTsc();
+// #endif
+//
+    return RdtscFunction();
+//     
+// // #if CRYSTAL_SUPPORT_RDTSC
+// #if CRYSTAL_TARGET_PLATFORM_WINDOWS
+//     return WindowsCrystalRdTsc();
+// #else // Non-win32
+//     uint32 lo = 0, hi = 0;
+//     if (__LLBC_supportedRdtscp)
+//         __asm__ volatile ("rdtscp" : "=a" (lo), "=d" (hi) :: "rcx");
+//     else
+//         __asm__ volatile ("lfence\n\t"
+//                           "rdtsc\n\t"
+//                           "mov %%edx, %1;"
+//                           "mov %%eax, %0;"
+//                           "lfence\n\t":"=r"(lo), "=r"(hi)
+//                           ::"%eax", "%ebx", "%ecx", "%edx");
+//     return (static_cast<uint64>(hi) << 32) | lo;
+// #endif // LLBC_TARGET_PLATFORM_WIN32
+// #else
+//     return LLBC_GetMicroseconds();
+// #endif // LLBC_SUPPORT_RDTSC
 }
 
 // 序列化的rdtsc 10ns级别
@@ -79,39 +149,7 @@ KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalNativeRdTsc()
 }
 
 // 获取rdtsc frequancy 一个程序只需要get一次即可
-KERNEL_EXPORT CRYSTAL_FORCE_INLINE UInt64 CrystalGetCpuCounterFrequancy()
-{
-// 只有在x86下才有rdtsc
-#if CRYSTAL_TARGET_PROCESSOR_X86_64 ||  CRYSTAL_TARGET_PROCESSOR_X86
-    // windows下只需要使用api不需要使用tsc
-    #if CRYSTAL_TARGET_PLATFORM_WINDOWS
-        return WindowsCrystalGetCpuCounterFrequancy();
-    #else
-        // params
-        // struct timespec tpStart, tpEnd;
-        UInt64 tscStart, tscEnd;
-
-        // start calculate using clock_gettime CLOCK_MONOTONIC nanoseconds since system boot
-        // UInt64 startNano = ::clock_gettime(CLOCK_MONOTONIC, &tpStart);    // start time
-        tscStart = CrystalRdTsc();   
-        ::sleep(1);
-        tscEnd = CrystalRdTsc();
-        //::clock_gettime(CLOCK_MONOTONIC, &tpEnd);
-
-        // calculate elapsed
-        // const UInt64 nanoEndTime = ((tpEnd.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND) + tpEnd.tv_nsec);
-        // const UInt64 nanoStartTime = (tpStart.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tpStart.tv_nsec);
-        // const UInt64 nanosecElapsed = nanoEndTime - nanoStartTime;
-        // const UInt64 tscElapsed = tscEnd - tscStart;
-
-        // calculate tsc frequancy = elapsedTsc * nanoSecondPerSecond / elapsedNanoSecond;
-        // return tscElapsed * TimeDefs::NANO_SECOND_PER_SECOND / nanosecElapsed;
-        return tscEnd - tscStart;
-    #endif
-#else
-    return CRYSTAL_INFINITE;
-#endif
-}
+KERNEL_EXPORT UInt64 CrystalGetCpuCounterFrequancy();
 
 KERNEL_END
 

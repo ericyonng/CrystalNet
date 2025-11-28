@@ -99,7 +99,7 @@ ALWAYS_INLINE bool TimeUtil::IsLeapYear(Int32 year)
 
 ALWAYS_INLINE UInt64 TimeUtil::RdTscTickNum()
 {
-    return KERNEL_NS::CrystalNativeRdTsc();
+    return KERNEL_NS::CrystalRdTsc();
 }
 
 ALWAYS_INLINE UInt64 TimeUtil::GetCpuCounterFrequancy()
@@ -109,13 +109,13 @@ ALWAYS_INLINE UInt64 TimeUtil::GetCpuCounterFrequancy()
 
 ALWAYS_INLINE void TimeUtil::InitFastTime()
 {
-    _cpuBegin = KERNEL_NS::CrystalNativeRdTsc();
+    _cpuBegin = KERNEL_NS::CrystalRdTsc();
     _systemTimeBegin = TimeUtil::GetNanoTimestamp();
 }
 
 ALWAYS_INLINE void TimeUtil::ResetFastTime(Int64 nowTimeNanoseconds)
 {
-    _cpuBegin = KERNEL_NS::CrystalNativeRdTsc();
+    _cpuBegin = KERNEL_NS::CrystalRdTsc();
     _systemTimeBegin = nowTimeNanoseconds;
 }
 

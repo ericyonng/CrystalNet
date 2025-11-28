@@ -38,21 +38,18 @@
 KERNEL_BEGIN
 
 UInt64 LibCpuFrequency::_countPerSecond = 0; 
-UInt64 LibCpuFrequency::_countPerMillisecond = 0; 
-UInt64 LibCpuFrequency::_countPerMicroSecond = 0; 
-UInt64 LibCpuFrequency::_countPerNanoSecond = 0; 
 
 void LibCpuFrequency::InitFrequancy()
 {
     _countPerSecond = KERNEL_NS::CrystalGetCpuCounterFrequancy();
-    _countPerMillisecond = std::max<UInt64>(_countPerSecond / TimeDefs::MILLI_SECOND_PER_SECOND, 1);
-    _countPerMicroSecond = std::max<UInt64>(_countPerSecond / TimeDefs::MICRO_SECOND_PER_SECOND, 1);
-
-#if CRYSTAL_TARGET_PLATFORM_LINUX
-    _countPerNanoSecond = std::max<UInt64>(_countPerSecond / TimeDefs::NANO_SECOND_PER_SECOND, 1);
-#else
-    _countPerNanoSecond = _countPerMicroSecond * 1000;
-#endif // CRYSTAL_TARGET_PLATFORM_LINUX
+//     _countPerMillisecond = std::max<UInt64>(_countPerSecond / TimeDefs::MILLI_SECOND_PER_SECOND, 1);
+//     _countPerMicroSecond = std::max<UInt64>(_countPerSecond / TimeDefs::MICRO_SECOND_PER_SECOND, 1);
+//
+// #if CRYSTAL_TARGET_PLATFORM_LINUX
+//     _countPerNanoSecond = std::max<UInt64>(_countPerSecond / TimeDefs::NANO_SECOND_PER_SECOND, 1);
+// #else
+//     _countPerNanoSecond = _countPerMicroSecond * 1000;
+// #endif // CRYSTAL_TARGET_PLATFORM_LINUX
 }
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(LibCpuSlice);
