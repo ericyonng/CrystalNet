@@ -251,10 +251,10 @@ private:                    \
 // 为了避免false sharing 要至少对齐一个缓存行
 #include <new> // std::hardware_destructive_interference_size
 #if defined(__cpp_lib_hardware_interference_size) && !defined(__APPLE__)
-static constexpr size_t SYSTEM_ALIGN_SIZE =
+static constexpr UInt64 SYSTEM_ALIGN_SIZE =
     std::hardware_destructive_interference_size;
 #else
-static constexpr size_t SYSTEM_ALIGN_SIZE = 64;
+static constexpr UInt64 SYSTEM_ALIGN_SIZE = 64;
 #endif
 
 

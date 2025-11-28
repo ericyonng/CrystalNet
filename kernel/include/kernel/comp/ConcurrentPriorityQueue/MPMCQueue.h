@@ -80,7 +80,7 @@ struct QueueSlot
   Elem &&Move() noexcept;
 
   // Align to avoid false sharing between adjacent slots
-  alignas(SYSTEM_ALIGN_SIZE) std::atomic<size_t> _turn  = {0};
+  alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> _turn  = {0};
   typename AlignedStorage<sizeof(Elem), alignof(Elem)>::Type _storage;
 };
 
@@ -111,7 +111,7 @@ ALWAYS_INLINE Elem &&QueueSlot<Elem>::Move() noexcept
 }
 
 /// 多生产者多消费者无锁队列, mpmcqueue 初始化的时候会初始化slots，如果CapacitySize比较大那么会比较耗时,默认16KB个slots
-template <typename Elem, size_t CapacitySize = 16 * 1024>
+template <typename Elem, UInt64 CapacitySize = 16 * 1024>
 requires std::movable<Elem> && requires
 {
     // 2的整数倍
@@ -141,7 +141,7 @@ public:
         Byte8 *endAddr = reinterpret_cast<Byte8 *>(_memory) + alignof(QueueSlot<Elem>);
         for (Byte8 *addr = reinterpret_cast<Byte8 *>(_memory); addr <= endAddr; ++addr)
         {
-          if (size_t(addr) % alignof(QueueSlot<Elem>) == 0)
+          if (UInt64(addr) % alignof(QueueSlot<Elem>) == 0)
           {
               _slots = KERNEL_NS::KernelCastTo<QueueSlot<Elem>>(addr);
               break;
@@ -160,7 +160,7 @@ public:
         }
 
         // 初始化 _slots
-        for (size_t i = 0; i < CapacitySize; ++i)
+        for (UInt64 i = 0; i < CapacitySize; ++i)
           new (&_slots[i]) QueueSlot<Elem>();
 
           // Queue大小必须与SYSTEM_ALIGN_SIZE对齐, 保证Queue之间避免false sharing 队列大小必须是缓存行大小的整数倍，以防止相邻队列间的伪共享
@@ -178,7 +178,7 @@ public:
     // 只有类类型才需要销毁
     if constexpr (LibTraitsDataType<Elem>::value == LibDataType::CLASS_TYPE)
     {
-      for (size_t i = 0; i < CapacitySize; ++i)
+      for (UInt64 i = 0; i < CapacitySize; ++i)
       {
         _slots[i].~QueueSlot();
       }
@@ -225,23 +225,23 @@ public:
 
 private:
   // 取模, 计算索引
-  ALWAYS_INLINE constexpr size_t _Mod(size_t i) const noexcept { return i & (CapacitySize - 1); }
+  ALWAYS_INLINE constexpr UInt64 _Mod(UInt64 i) const noexcept { return i & (CapacitySize - 1); }
   // i除以Capacity 等价于右移log2 capacity, 计算轮次, 第几轮
-  ALWAYS_INLINE constexpr size_t _Turn(size_t i) const noexcept { return i >> Log2OfCapacity; }
+  ALWAYS_INLINE constexpr UInt64 _Turn(UInt64 i) const noexcept { return i >> Log2OfCapacity; }
 
 private:
     // 编译期计算CapacitySize 对数
-    static constexpr size_t Log2OfCapacity = MathUtil::log(2, CapacitySize);
+    static constexpr UInt64 Log2OfCapacity = MathUtil::log(2, CapacitySize);
 
     QueueSlot<Elem> *_slots;
     void *_memory;
     
     // 内存对齐避免, 在_head 与 _tail之间false sharing
-    alignas(SYSTEM_ALIGN_SIZE) std::atomic<size_t> _head;
-    alignas(SYSTEM_ALIGN_SIZE) std::atomic<size_t> _tail;
+    alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> _head;
+    alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> _tail;
 };
 
-template <typename Elem, size_t CapacitySize = 16 * 1024>
+template <typename Elem, UInt64 CapacitySize = 16 * 1024>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -255,7 +255,7 @@ requires std::movable<Elem> && requires
 }
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(MPMCQueue, Elem, CapacitySize);
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -281,7 +281,7 @@ ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Emplace(Args &&...args) noexce
 }
 
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -330,7 +330,7 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryEmplace(Args &&...args) noe
 }
 
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -347,7 +347,7 @@ ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Push(const Elem &v) noexcept
   Emplace(v);
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -365,7 +365,7 @@ ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Push(P &&v) noexcept
   Emplace(std::forward<P>(v));
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -383,7 +383,7 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPush(const Elem &v) noexcep
 }
 
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -402,7 +402,7 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPush(P &&v) noexcept
 }
 
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -435,7 +435,7 @@ ALWAYS_INLINE void MPMCQueue<Elem, CapacitySize>::Pop(Elem &v) noexcept
 }
 
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -483,7 +483,7 @@ ALWAYS_INLINE bool MPMCQueue<Elem, CapacitySize>::TryPop(Elem &v) noexcept
 }
 
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
@@ -501,7 +501,7 @@ ALWAYS_INLINE Int64 MPMCQueue<Elem, CapacitySize>::Size() const noexcept
                                 _tail.load(std::memory_order_relaxed));
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍

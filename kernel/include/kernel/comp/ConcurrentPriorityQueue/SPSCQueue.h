@@ -36,7 +36,7 @@
 KERNEL_BEGIN
 
 
-template <typename Elem, size_t CapacitySize = 16 * 1024>
+template <typename Elem, UInt64 CapacitySize = 16 * 1024>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -45,12 +45,12 @@ requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requi
 class SPSCQueue
 {
   // 至少冗余一个元素
-  static constexpr size_t CapacityCount = CapacitySize + 1;
-  // static constexpr size_t kPadding = (SYSTEM_ALIGN_SIZE - 1) / sizeof(T) + 1;
+  static constexpr UInt64 CapacityCount = CapacitySize + 1;
+  // static constexpr UInt64 kPadding = (SYSTEM_ALIGN_SIZE - 1) / sizeof(T) + 1;
   // 一个元素经过内存对齐后的内存大小, 防止元素间false sharing(伪共享)
-  static constexpr size_t ELEM_BLOCK_SIZE = sizeof(Elem) / SYSTEM_ALIGN_SIZE * SYSTEM_ALIGN_SIZE + ((sizeof(Elem) % SYSTEM_ALIGN_SIZE) ? SYSTEM_ALIGN_SIZE :0);
+  static constexpr UInt64 ELEM_BLOCK_SIZE = sizeof(Elem) / SYSTEM_ALIGN_SIZE * SYSTEM_ALIGN_SIZE + ((sizeof(Elem) % SYSTEM_ALIGN_SIZE) ? SYSTEM_ALIGN_SIZE :0);
   // padding ELEM_BLOCK_SIZE换算成T的倍数, 方便移动指针(扣除自身T之后剩余的padding)
-  static constexpr size_t ALIGN_PADDING_COUNT = (ELEM_BLOCK_SIZE - 1) / sizeof(Elem) + 1;
+  static constexpr UInt64 ALIGN_PADDING_COUNT = (ELEM_BLOCK_SIZE - 1) / sizeof(Elem) + 1;
 
   POOL_CREATE_TEMPLATE_OBJ_DEFAULT(SPSCQueue, Elem, CapacitySize)
 
@@ -67,7 +67,7 @@ public:
     // 起始的位置必须间隔一个ELEM_BLOCK_SIZE, 避免与其他queue false sharing
     for (Byte8 *addr = reinterpret_cast<Byte8 *>(_memory) + ELEM_BLOCK_SIZE; addr <= endAddr; ++addr)
     {
-      if (size_t(addr) % ELEM_BLOCK_SIZE == 0)
+      if (UInt64(addr) % ELEM_BLOCK_SIZE == 0)
       {
         _slots = KERNEL_NS::KernelCastTo<Elem>(addr);
         break;
@@ -135,23 +135,23 @@ public:
   void Pop() noexcept;
  
 
-  size_t Size() const noexcept;
+  UInt64 Size() const noexcept;
   bool IsEmpty() const noexcept;
 
-  static constexpr size_t Capacity() noexcept;
+  static constexpr UInt64 Capacity() noexcept;
 
 private:
   Elem *_slots;
   void *_memory;
 
   // 对齐到缓存行大小以避免伪共享, 使用 readIdxCache_ 和 writeIdxCache_ 来降低缓存一致性流量(先缓存, 当cache与writeIndex/readIndex相等的时候重新更新cache, 减少竞争)
-  alignas(SYSTEM_ALIGN_SIZE) std::atomic<size_t> _writeIdx = {0};
-  alignas(SYSTEM_ALIGN_SIZE) size_t _readIdxCache = 0;
-  alignas(SYSTEM_ALIGN_SIZE) std::atomic<size_t> _readIdx = {0};
-  alignas(SYSTEM_ALIGN_SIZE) size_t _writeIdxCache = 0;
+  alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> _writeIdx = {0};
+  alignas(SYSTEM_ALIGN_SIZE) UInt64 _readIdxCache = 0;
+  alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> _readIdx = {0};
+  alignas(SYSTEM_ALIGN_SIZE) UInt64 _writeIdxCache = 0;
 };
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -159,7 +159,7 @@ requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requi
 }
 POOL_CREATE_TEMPLATE_OBJ_DEFAULT_IMPL(SPSCQueue, Elem, CapacitySize);
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -187,7 +187,7 @@ ALWAYS_INLINE void SPSCQueue<Elem, CapacitySize>::Emplace(Args &&...args) noexce
   _writeIdx.store(nextWriteIdx, std::memory_order_release);
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -215,7 +215,7 @@ ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryEmplace(Args &&...args) noe
   return true;
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -226,7 +226,7 @@ ALWAYS_INLINE void SPSCQueue<Elem, CapacitySize>::Push(const Elem &v) noexcept
   Emplace(v);
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -239,7 +239,7 @@ ALWAYS_INLINE void  SPSCQueue<Elem, CapacitySize>::Push(P &&v) noexcept
   Emplace(std::forward<P>(v));
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -250,7 +250,7 @@ ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryPush(const Elem &v) noexcep
   return TryEmplace(v);
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -264,7 +264,7 @@ ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryPush(P &&v) noexcept
 }
 
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -305,7 +305,7 @@ ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::TryPop(Elem &elem)
   return true;
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -327,7 +327,7 @@ ALWAYS_INLINE Elem *SPSCQueue<Elem, CapacitySize>::Front() noexcept
   return &_slots[readIdx + ALIGN_PADDING_COUNT];
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -352,13 +352,13 @@ ALWAYS_INLINE void SPSCQueue<Elem, CapacitySize>::Pop() noexcept
   _readIdx.store(nextReadIdx, std::memory_order_release);
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
-ALWAYS_INLINE size_t SPSCQueue<Elem, CapacitySize>::Size() const noexcept
+ALWAYS_INLINE UInt64 SPSCQueue<Elem, CapacitySize>::Size() const noexcept
 {
   Int64 diff = _writeIdx.load(std::memory_order_acquire) -
                         _readIdx.load(std::memory_order_acquire);
@@ -366,10 +366,10 @@ ALWAYS_INLINE size_t SPSCQueue<Elem, CapacitySize>::Size() const noexcept
   {
     diff += CapacityCount;
   }
-  return static_cast<size_t>(diff);
+  return static_cast<UInt64>(diff);
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
@@ -381,13 +381,13 @@ ALWAYS_INLINE bool SPSCQueue<Elem, CapacitySize>::IsEmpty() const noexcept
          _readIdx.load(std::memory_order_acquire);
 }
 
-template <typename Elem, size_t CapacitySize>
+template <typename Elem, UInt64 CapacitySize>
 requires std::is_copy_constructible<Elem>::value && std::movable<Elem> &&  requires
 {
   // 需要至少一个元素, 避免溢出
   requires CapacitySize >= 1 && (CapacitySize <= (SIZE_MAX -1 ));
 }
-ALWAYS_INLINE constexpr  size_t SPSCQueue<Elem, CapacitySize>::Capacity() noexcept
+ALWAYS_INLINE constexpr  UInt64 SPSCQueue<Elem, CapacitySize>::Capacity() noexcept
 {
   return CapacityCount - 1;
 }
