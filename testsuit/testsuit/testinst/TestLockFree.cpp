@@ -324,8 +324,8 @@ void TestLockFree::Run()
     // consumer2->Start();
     genThread->Start();
     genThread2->Start();
-    genThread3->Start();
-    genThread4->Start();
+    // genThread3->Start();
+    // genThread4->Start();
 
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
     KERNEL_NS::SmartPtr<KERNEL_NS::LibTimer, KERNEL_NS::AutoDelMethods::CustomDelete> timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
@@ -354,10 +354,12 @@ void TestLockFree::Run()
     poller->OnLoopEnd();
 
     genThread->HalfClose();
+    genThread2->HalfClose();
     consumer->HalfClose();
     controlMgrThread->HalfClose();
 
     genThread->FinishClose();
+    genThread2->FinishClose();
     consumer->FinishClose();
     controlMgrThread->FinishClose();
 

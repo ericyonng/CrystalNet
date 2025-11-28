@@ -286,6 +286,14 @@ public:
                     CoTaskParam::SetCurrentCoParam(NULL);
                 }
 
+                if (_params->_releaseSource)
+                {
+                    auto releaseSource = _params->_releaseSource;
+                    _params->_releaseSource = NULL;
+                    releaseSource->Invoke();
+                    releaseSource->Release();
+                }
+
                 _params->_handle = NULL;
             }
         }
@@ -318,10 +326,39 @@ public:
             {
                 // 当前协程结束了
                 CoTaskParam::SetCurrentCoParam(NULL);
+
+                // 销毁子协程资源如果子协程还没结束
+                auto &curProm = h.promise();
+                auto child = curProm._child;
+                if (child)
+                {
+                    child->DestroyHandle(Status::CoTaskFinishDestroyChild);
+                }
+                // auto lastChild = child;
+                // while (child)
+                // {
+                //     child = child->GetChild();
+                //     if (child)
+                //         lastChild = child;
+                // }
+                // while (lastChild)
+                // {
+                //     auto parent = lastChild->GetParent();
+                //     lastChild->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
+                //
+                //     if (parent)
+                //         parent->PopChild();
+                //
+                //     // 销毁协程
+                //     lastChild->GetCoHandle().destroy();
+                //     lastChild = parent;
+                // }
                 
                 // 当前h结束了, 那么接着下一个(其实就是包裹着h的那个协程)
                 if (auto cont = h.promise()._parent) 
                 {
+                    // 如果有Child则销毁并释放资源
+                    
                     cont->PopChild();
                     // TODO:cout资源释放的问题需要考虑
                     cont->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
@@ -654,6 +691,21 @@ public:
         }
 
         paramRef->_params = _params;
+
+        return *this;
+    }
+
+    CoTask<R> &SetRelease(IDelegate<void> *releaseSource)
+    {
+        if(UNLIKELY(!_params))
+        {
+            _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+        }
+
+        if (UNLIKELY(_params->_releaseSource))
+            _params->_releaseSource->Release();
+        
+        _params->_releaseSource = releaseSource;
 
         return *this;
     }

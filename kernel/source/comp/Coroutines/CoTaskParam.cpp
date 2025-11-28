@@ -59,6 +59,12 @@ CoTaskParam::~CoTaskParam()
         LibTraceId::DeleteThreadLocal_LibTraceId(_trace);
         _trace = NULL;
     }
+
+    if (_releaseSource)
+    {
+        _releaseSource->Invoke();
+    }
+    CRYSTAL_RELEASE_SAFE(_releaseSource);
 }
 
 void CoTaskParam::Release()

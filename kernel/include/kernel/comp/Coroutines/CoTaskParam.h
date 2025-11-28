@@ -74,6 +74,9 @@ struct KERNEL_EXPORT CoTaskParam
     static CoTaskParam *GetCurrentCoParam();
     // 挂起的时候先设置空, 恢复的时候设置当前
     static void SetCurrentCoParam(CoTaskParam *param);
+
+    // 协程销毁时同时释放资源
+    IDelegate<void> *_releaseSource = NULL;
 };
 
 struct KERNEL_EXPORT CoCurrentTaskParam

@@ -268,7 +268,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestECS::Run();
     // TestCpu::Run();
     // TestDelegate::Run();
-    // TestPoller::Run();
+    TestPoller::Run();
     // TestMemoryAssist::Run();
     // TestService::Run(argc, argv);
     // TestInlineStatic::Run();
@@ -307,7 +307,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestMongo::Run();
     // TestSort::Run();
     // TestEventLoopThread::Run();
-    TestLockFree::Run();
+    // TestLockFree::Run();
     
     // write a large file
     // do

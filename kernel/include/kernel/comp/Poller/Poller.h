@@ -340,7 +340,14 @@ public:
         }
         
         // 等待 ObjectPollerEvent 的返回消息唤醒
-        co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params);
+        auto poller = this;
+        // 外部如果协程销毁兜底销毁资源
+        auto releaseFun = [stub, poller]()
+        {
+            poller->UnSubscribeStubEvent(stub);
+        };
+        auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(releaseFun, void);
+        co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params).SetRelease(delg);
         if(LIKELY(params->_params))
         {
             auto &pa = params->_params; 

@@ -245,6 +245,21 @@ public:
 
 };
 
+struct HelloWorldRes
+{
+    POOL_CREATE_OBJ_DEFAULT(HelloWorldRes);
+
+    void Release()
+    {
+        HelloWorldRes::Delete_HelloWorldRes(this);
+    }
+
+    virtual KERNEL_NS::LibString ToString() const
+    {
+        return "HelloWorldRes";
+    }
+};
+POOL_CREATE_OBJ_DEFAULT_IMPL(HelloWorldRes);
 
 struct  HelloWorldReq : public KERNEL_NS::PollerEvent
 {
@@ -599,6 +614,64 @@ private:
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ThreadStartup);
 
+class TestTimeoutStartup : public KERNEL_NS::IThreadStartUp
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IThreadStartUp, TestTimeoutStartup);
+
+public:
+    TestTimeoutStartup(KERNEL_NS::LibEventLoopThread * target)
+    : _target(target)
+    {
+        
+    }
+
+    virtual void Run() override
+    {
+        KERNEL_NS::PostCaller([this]() mutable  -> KERNEL_NS::CoTask<>
+        {
+            auto targetPoller = co_await _target->GetPoller();
+
+            auto req = HelloWorldReq::New_HelloWorldReq();
+            auto res = co_await targetPoller->SendAsync<HelloWorldRes, HelloWorldReq>(req).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(5));
+
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestTimeoutStartup, "res return"));
+        });
+    }
+    
+    virtual void Release() override
+    {
+        TestTimeoutStartup::Delete_TestTimeoutStartup(this);
+    }
+
+    KERNEL_NS::LibEventLoopThread * _target;
+};
+
+
+class TestTimeoutStartup2 : public KERNEL_NS::IThreadStartUp
+{
+    POOL_CREATE_OBJ_DEFAULT_P1(IThreadStartUp, TestTimeoutStartup2);
+
+public:
+    TestTimeoutStartup2()
+    {
+        
+    }
+
+    virtual void Run() override
+    {
+        auto poller = KERNEL_NS::TlsUtil::GetPoller();
+        poller->SubscribeObjectEvent<HelloWorldReq>([](KERNEL_NS::StubPollerEvent *req)
+        {
+            auto objEvent = req->CastTo<KERNEL_NS::ObjectPollerEvent<HelloWorldReq>>();
+        });
+    }
+    
+    virtual void Release() override
+    {
+        TestTimeoutStartup2::Delete_TestTimeoutStartup2(this);
+    }
+};
+
 static void TestCrossPoller()
 {
     std::atomic<CRYSTAL_NET::kernel::Poller *> _poller1 = {NULL};
@@ -606,46 +679,57 @@ static void TestCrossPoller()
 
     KERNEL_NS::SmartPtr<KERNEL_NS::LibThread> thread1 = new KERNEL_NS::LibThread(ThreadStartup::New_ThreadStartup(_poller2));
     KERNEL_NS::SmartPtr<KERNEL_NS::LibThread> thread2 = new KERNEL_NS::LibThread(ThreadStartup2::New_ThreadStartup2(_poller1));
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibEventLoopThread> thread3 = new KERNEL_NS::LibEventLoopThread("host", TestTimeoutStartup2::New_TestTimeoutStartup2());
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibEventLoopThread> thread4 = new KERNEL_NS::LibEventLoopThread("test timeout", TestTimeoutStartup::New_TestTimeoutStartup(thread3));
 
-    thread1->AddTask2([&_poller1, &_poller2](KERNEL_NS::LibThread *t,  KERNEL_NS::Variant *) mutable  
-    {
-        auto poller = KERNEL_NS::TlsUtil::GetPoller();
-        if(!poller->PrepareLoop())
-        {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "thread1 prepare loop fail."));
-            return;
-        }
-
-        _poller1 = poller;
-        
-        // s_Poller->EventLoop();
-        poller->EventLoop();
-        poller->OnLoopEnd();
-    });
-    
-    thread2->AddTask2([&_poller1, &_poller2](KERNEL_NS::LibThread *t,  KERNEL_NS::Variant *) mutable  
-    {
-        auto poller = KERNEL_NS::TlsUtil::GetPoller();
-        if(!poller->PrepareLoop())
-        {
-            g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "thread1 prepare loop fail."));
-            return;
-        }
-        _poller2 = poller;
-        poller->EventLoop();
-        poller->OnLoopEnd();
-    });
-
-    thread1->Start();
-    thread2->Start();
+    thread3->Start();
+    thread4->Start();
+    //
+    // thread1->AddTask2([&_poller1, &_poller2](KERNEL_NS::LibThread *t,  KERNEL_NS::Variant *) mutable  
+    // {
+    //     auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    //     if(!poller->PrepareLoop())
+    //     {
+    //         g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "thread1 prepare loop fail."));
+    //         return;
+    //     }
+    //
+    //     _poller1 = poller;
+    //     
+    //     // s_Poller->EventLoop();
+    //     poller->EventLoop();
+    //     poller->OnLoopEnd();
+    // });
+    //
+    // thread2->AddTask2([&_poller1, &_poller2](KERNEL_NS::LibThread *t,  KERNEL_NS::Variant *) mutable  
+    // {
+    //     auto poller = KERNEL_NS::TlsUtil::GetPoller();
+    //     if(!poller->PrepareLoop())
+    //     {
+    //         g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "thread1 prepare loop fail."));
+    //         return;
+    //     }
+    //     _poller2 = poller;
+    //     poller->EventLoop();
+    //     poller->OnLoopEnd();
+    // });
+    //
+    // thread1->Start();
+    // thread2->Start();
     
     getchar();
 
-    thread1->HalfClose();
-    thread2->HalfClose();
+    thread3->HalfClose();
+    thread4->HalfClose();
     
-    thread1->FinishClose();
-    thread2->FinishClose();
+    // thread1->HalfClose();
+    // thread2->HalfClose();
+    //
+    // thread1->FinishClose();
+    // thread2->FinishClose();
+
+    thread3->FinishClose();
+    thread4->FinishClose();
 }
 
 void TestPoller::Run()
