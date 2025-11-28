@@ -128,6 +128,8 @@
 
 - linux下支持so级别的热更(原理是在运行时使用dlopen重新加载so, 见PlugingMgr模块, 并采用数据和逻辑分离，逻辑写在so中, 数据定义在可执行程序中, so例子见TestServicePlugin模块)，见热更原理介绍
 
+- 消息支持无锁队列(SPSC与MPMC), 跨线程消息投递高效
+
   
 
 
