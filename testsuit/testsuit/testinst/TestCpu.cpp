@@ -52,7 +52,7 @@ void TestCpu::Run()
         KERNEL_NS::CrystalRdTsc();
     }
     auto endTime = KERNEL_NS::TimeUtil::GetMicroTimestamp();
-    auto escape = (endTime - beginTime) / 1000000;
+    auto escape = (endTime - beginTime);
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCpu, "elapseMicroseconds:%llu, slice:%llu, counter start:%llu, counter end:%llu, endCounter2 == counter:%d, tsc:%llu, escape:%lld")
         , elapseMicroseconds, slice.GetTotalMicroseconds(), counter.GetCurCount(), endCounter.GetCurCount(), endCounter2 == counter, KERNEL_NS::CrystalRdTsc(), escape);
 
