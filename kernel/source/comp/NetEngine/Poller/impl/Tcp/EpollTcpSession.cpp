@@ -514,9 +514,8 @@ void EpollTcpSession::_OnRecved()
             auto msg = RecvMsgEvent::New_RecvMsgEvent();
             msg->_sessionId = GetId();
             msg->_serviceId = GetServiceId();
-            msg->_priorityLevel = GetPriorityLevel();
             msg->_packets = node->_data;
-            _serviceProxy->PostMsg(msg->_serviceId, msg->_priorityLevel, msg, static_cast<Int64>(msg->_packets->GetAmount()));
+            _serviceProxy->PostMsg(msg->_serviceId, msg, static_cast<Int64>(msg->_packets->GetAmount()));
 
             node = recvPacketsBatch->Erase(node);
         }

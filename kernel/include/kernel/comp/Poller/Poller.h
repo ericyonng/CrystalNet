@@ -791,6 +791,12 @@ ALWAYS_INLINE void Poller::UnSubscribeStubEvent(UInt64 stub)
     _stubRefCb.erase(iter);
 }
 
+// 忽略告警
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Walways-inline-coroutine"
+#endif
+
 template<typename ResType, typename ReqType>
 requires requires(ReqType req, ResType res)
 {
@@ -806,6 +812,10 @@ ALWAYS_INLINE CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> Poll
 {
     co_return co_await KERNEL_NS::TlsUtil::GetPoller()->SendToAsync<ResType, ReqType>(*this, req);
 }
+
+#if CRYSTAL_TARGET_PLATFORM_LINUX
+#pragma GCC diagnostic pop
+#endif
 
 // 调用者当前线程投递req给this
 // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
