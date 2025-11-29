@@ -249,6 +249,11 @@ struct HelloWorldRes
 {
     POOL_CREATE_OBJ_DEFAULT(HelloWorldRes);
 
+    virtual ~HelloWorldRes()
+    {
+        
+    }
+
     void Release()
     {
         HelloWorldRes::Delete_HelloWorldRes(this);
@@ -271,7 +276,7 @@ struct  HelloWorldReq : public KERNEL_NS::PollerEvent
 
     }
 
-    ~HelloWorldReq()
+    virtual  ~HelloWorldReq()
     {
 
     }
@@ -350,16 +355,16 @@ static std::atomic<Int64> g_consumNum{0};
 
 static const Int32 g_maxConcurrentLevel = 1;
 
-static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
-{
-    // g_Log->Debug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::Poller, "recv event:%s"), ev->ToString().c_str());
-    // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test crash..........."));
-    // KERNEL_NS::SystemUtil::ThreadSleep(5000);
-
-    ++g_consumNum;
-    // int b = 0;
-    // int a = 1 / b;
-}
+// static void _OnPollerEvent(KERNEL_NS::PollerEvent *ev)
+// {
+//     // g_Log->Debug(LOGFMT_NON_OBJ_TAG(KERNEL_NS::Poller, "recv event:%s"), ev->ToString().c_str());
+//     // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "test crash..........."));
+//     // KERNEL_NS::SystemUtil::ThreadSleep(5000);
+//
+//     ++g_consumNum;
+//     // int b = 0;
+//     // int a = 1 / b;
+// }
 
 struct AcEvent : public KERNEL_NS::PollerEvent
 {
@@ -381,92 +386,94 @@ struct AcEvent : public KERNEL_NS::PollerEvent
 };
 
 POOL_CREATE_OBJ_IMPL(1, 1024, AcEvent);
-
-static void _OnPoller(KERNEL_NS::LibThread *t)
-{
-    // std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> priorityEvents;
-    // const Int64 priorityQueueSize = static_cast<Int64>(g_concurrentQueue->GetMaxLevel() + 1);
-    // for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
-    //     priorityEvents.push_back(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList());
-    // TODO:
-    if(!s_Poller->PrepareLoop())
-    {
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "prepare loop fail."));
-        return;
-    }
-
-    // s_Poller->EventLoop();
-    s_Poller->EventLoop();
-    s_Poller->OnLoopEnd();
-
-    // while(!t->IsDestroy())
-    // {
-    //     g_concurrentQueue->MergeTailAllTo(priorityEvents);
-    //     for(auto list:priorityEvents)
-    //     {
-    //         if(!list || list->IsEmpty())
-    //             continue;
-
-    //         for(auto node = list->Begin(); node;)
-    //         {
-    //             auto data = node->_data;
-    //             ++g_consumNum;
-
-    //             data->Release();
-    //             node = list->Erase(node);
-    //         }
-    //     }
-    // }
-}
-
-static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
-{
-    Int32 idx = param->AsInt32();
-    KERNEL_NS::Poller *poller = s_Poller.AsSelf();
-
-    // 10秒清理一次
-    auto timerMgr = KERNEL_NS::TlsUtil::GetPoller()->GetTimerMgr();
-    auto tlsOwner = KERNEL_NS::TlsUtil::GetTlsCompsOwner();
-    auto memoryCleaner = tlsOwner->GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
-    memoryCleaner->SetIntervalMs(10 * 1000);
-
-    while (!t->IsDestroy())
-    {
-        auto ev = AcEvent::NewThreadLocal_AcEvent();
-        ++g_genNum;
-        poller->Push(ev);
-
-        timerMgr->Drive();
-
-        // g_concurrentQueue->PushQueue(idx, &((new KERNEL_NS::LibString())->AppendFormat("hello idx:%d", idx)));
-        // g_concurrentQueue->PushQueue(idx, new AcEvent());
-        // ++g_genNum;
-        // KERNEL_NS::SystemUtil::ThreadSleep(5000);
-    }
-
-    memoryCleaner->WillClose();
-    memoryCleaner->Close();
-} 
-
-static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
-{
-    KERNEL_NS::Poller *poller = s_Poller.AsSelf();
-
-    KERNEL_NS::LibString err, threadName;
-    KERNEL_NS::SystemUtil::GetCurrentThreadName(threadName, err);
-
-    while (!t->IsDestroy())
-    {
-        KERNEL_NS::SystemUtil::ThreadSleep(1000);
-        const Int64 genNum = g_genNum;
-        const Int64 comsumNum = g_consumNum;
-        const Int64 backlogNum = static_cast<Int64>(poller->GetEventAmount());
-        g_genNum -= genNum;
-        g_consumNum -= comsumNum;
-
-        g_Log->Monitor("thread name:%s,Monitor:[gen:%lld, consum:%lld, backlog:%lld]", threadName.c_str(), genNum, comsumNum, backlogNum);
-    }
-}
+//
+// static void _OnPoller(KERNEL_NS::LibThread *t)
+// {
+//     UNUSED(g_concurrentQueue);
+//     UNUSED(g_maxConcurrentLevel);
+//     // std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> priorityEvents;
+//     // const Int64 priorityQueueSize = static_cast<Int64>(g_concurrentQueue->GetMaxLevel() + 1);
+//     // for(Int64 idx = 0; idx < priorityQueueSize; ++idx)
+//     //     priorityEvents.push_back(KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT>::New_LibList());
+//     // TODO:
+//     if(!s_Poller->PrepareLoop())
+//     {
+//         g_Log->Error(LOGFMT_NON_OBJ_TAG(TestPoller, "prepare loop fail."));
+//         return;
+//     }
+//
+//     // s_Poller->EventLoop();
+//     s_Poller->EventLoop();
+//     s_Poller->OnLoopEnd();
+//
+//     // while(!t->IsDestroy())
+//     // {
+//     //     g_concurrentQueue->MergeTailAllTo(priorityEvents);
+//     //     for(auto list:priorityEvents)
+//     //     {
+//     //         if(!list || list->IsEmpty())
+//     //             continue;
+//
+//     //         for(auto node = list->Begin(); node;)
+//     //         {
+//     //             auto data = node->_data;
+//     //             ++g_consumNum;
+//
+//     //             data->Release();
+//     //             node = list->Erase(node);
+//     //         }
+//     //     }
+//     // }
+// }
+//
+// static void _OnTask(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
+// {
+//     // Int32 idx = param->AsInt32();
+//     KERNEL_NS::Poller *poller = s_Poller.AsSelf();
+//
+//     // 10秒清理一次
+//     auto timerMgr = KERNEL_NS::TlsUtil::GetPoller()->GetTimerMgr();
+//     auto tlsOwner = KERNEL_NS::TlsUtil::GetTlsCompsOwner();
+//     auto memoryCleaner = tlsOwner->GetComp<KERNEL_NS::TlsMemoryCleanerComp>();
+//     memoryCleaner->SetIntervalMs(10 * 1000);
+//
+//     while (!t->IsDestroy())
+//     {
+//         auto ev = AcEvent::NewThreadLocal_AcEvent();
+//         ++g_genNum;
+//         poller->Push(ev);
+//
+//         timerMgr->Drive();
+//
+//         // g_concurrentQueue->PushQueue(idx, &((new KERNEL_NS::LibString())->AppendFormat("hello idx:%d", idx)));
+//         // g_concurrentQueue->PushQueue(idx, new AcEvent());
+//         // ++g_genNum;
+//         // KERNEL_NS::SystemUtil::ThreadSleep(5000);
+//     }
+//
+//     memoryCleaner->WillClose();
+//     memoryCleaner->Close();
+// } 
+//
+// static void _OnMonitor(KERNEL_NS::LibThreadPool *t, KERNEL_NS::Variant *param)
+// {
+//     KERNEL_NS::Poller *poller = s_Poller.AsSelf();
+//
+//     KERNEL_NS::LibString err, threadName;
+//     KERNEL_NS::SystemUtil::GetCurrentThreadName(threadName, err);
+//
+//     while (!t->IsDestroy())
+//     {
+//         KERNEL_NS::SystemUtil::ThreadSleep(1000);
+//         const Int64 genNum = g_genNum;
+//         const Int64 comsumNum = g_consumNum;
+//         const Int64 backlogNum = static_cast<Int64>(poller->GetEventAmount());
+//         g_genNum -= genNum;
+//         g_consumNum -= comsumNum;
+//
+//         g_Log->Monitor("thread name:%s,Monitor:[gen:%lld, consum:%lld, backlog:%lld]", threadName.c_str(), genNum, comsumNum, backlogNum);
+//     }
+// }
 
 class HelloCrossPollerRequest
 {
@@ -663,6 +670,7 @@ public:
         poller->SubscribeObjectEvent<HelloWorldReq>([](KERNEL_NS::StubPollerEvent *req)
         {
             auto objEvent = req->CastTo<KERNEL_NS::ObjectPollerEvent<HelloWorldReq>>();
+            UNUSED(objEvent);
         });
     }
     
@@ -734,6 +742,8 @@ static void TestCrossPoller()
 
 void TestPoller::Run()
 {
+    UNUSED(g_concurrentQueue);
+    UNUSED(g_maxConcurrentLevel);
     TestCrossPoller();
 }
 
