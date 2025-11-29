@@ -195,7 +195,7 @@ struct KERNEL_EXPORT ApplyChannelEvent
     POOL_CREATE_OBJ_DEFAULT(ApplyChannelEvent);
 
     ApplyChannelEvent(){}
-    ~ApplyChannelEvent(){}
+    virtual ~ApplyChannelEvent(){}
 
     virtual void Release()
     {
@@ -216,7 +216,7 @@ struct KERNEL_EXPORT ApplyChannelEventResponse
         
     }
     
-    ~ApplyChannelEventResponse(){}
+    virtual ~ApplyChannelEventResponse(){}
 
     virtual void Release()
     {
@@ -225,7 +225,7 @@ struct KERNEL_EXPORT ApplyChannelEventResponse
     
     virtual LibString ToString() const
     {
-        return KERNEL_NS::LibString().AppendFormat("ApplyChannelEventResponse.ChannelId:%d, Queue:%p", _result._channelId, _result._queue);
+        return KERNEL_NS::LibString().AppendFormat("ApplyChannelEventResponse.ChannelId:%llu, Queue:%p", _result._channelId, _result._queue);
     }
 
     ApplyChannelResult _result;
@@ -241,7 +241,7 @@ struct KERNEL_EXPORT DestroyChannelEvent
         
     }
     
-    ~DestroyChannelEvent(){}
+    virtual ~DestroyChannelEvent(){}
 
     virtual void Release()
     {
@@ -250,7 +250,7 @@ struct KERNEL_EXPORT DestroyChannelEvent
     
     virtual LibString ToString() const
     {
-        return KERNEL_NS::LibString().AppendFormat("DestroyChannelEvent.ChannelId:%d", _channelId);
+        return KERNEL_NS::LibString().AppendFormat("DestroyChannelEvent.ChannelId:%llu", _channelId);
     }
 
     UInt64 _channelId;

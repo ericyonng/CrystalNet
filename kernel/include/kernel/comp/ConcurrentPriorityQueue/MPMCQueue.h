@@ -241,7 +241,7 @@ private:
     alignas(SYSTEM_ALIGN_SIZE) std::atomic<UInt64> _tail;
 };
 
-template <typename Elem, UInt64 CapacitySize = 16 * 1024>
+template <typename Elem, UInt64 CapacitySize>
 requires std::movable<Elem> && requires
 {
   // 2的整数倍
