@@ -323,7 +323,7 @@ void TestLockFree::Run()
     consumer->Start();
     // consumer2->Start();
     genThread->Start();
-    genThread2->Start();
+    // genThread2->Start();
     // genThread3->Start();
     // genThread4->Start();
 
