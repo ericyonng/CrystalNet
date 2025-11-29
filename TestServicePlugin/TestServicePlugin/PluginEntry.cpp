@@ -38,6 +38,8 @@ extern "C"
     // 初始化插件集
     Int32 InitPlugin()
     {
+        PluginWrap pluginWrap;
+        UNUSED(pluginWrap);
         g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin init success g_PluginMgr:%p %s."), g_PluginMgr, g_PluginMgr->ToString().c_str());
         return Status::Success;
     }

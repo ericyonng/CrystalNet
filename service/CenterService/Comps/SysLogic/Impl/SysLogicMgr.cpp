@@ -161,7 +161,7 @@ Int32 SysLogicMgr::AddTcpListen(const KERNEL_NS::AddrIpConfig &ip, UInt16 port
     if(delg)
         stubHandleMgr->NewHandle(stub, delg);
 
-    g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, priorityLevel:%u, sessionType:%d, family:%d, stub:%llu")
+    g_Log->Info(LOGFMT_OBJ_TAG("post a new listen ip:%s, port:%hu, sessionType:%d, family:%d, stub:%llu")
                 , ip.ToString().c_str(), port, sessionType, family, stub);
 
 
