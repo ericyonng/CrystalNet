@@ -45,7 +45,15 @@ void TestCpu::Run()
     endCounter2 -= slice;
 
     const auto elapseMicroseconds = endCounter.ElapseMicroseconds(counter);
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCpu, "elapseMicroseconds:%llu, slice:%llu, counter start:%llu, counter end:%llu, endCounter2 == counter:%d")
-        , elapseMicroseconds, slice.GetTotalMicroseconds(), counter.GetCurCount(), endCounter.GetCurCount(), endCounter2 == counter);
+
+    auto beginTime = KERNEL_NS::TimeUtil::GetMicroTimestamp();
+    for (Int32 idx = 0; idx < 100000; idx++)
+    {
+        KERNEL_NS::CrystalRdTsc();
+    }
+    auto endTime = KERNEL_NS::TimeUtil::GetMicroTimestamp();
+    auto escape = (endTime - beginTime) / 1000000;
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCpu, "elapseMicroseconds:%llu, slice:%llu, counter start:%llu, counter end:%llu, endCounter2 == counter:%d, tsc:%llu, escape:%lld")
+        , elapseMicroseconds, slice.GetTotalMicroseconds(), counter.GetCurCount(), endCounter.GetCurCount(), endCounter2 == counter, KERNEL_NS::CrystalRdTsc(), escape);
 
 }
