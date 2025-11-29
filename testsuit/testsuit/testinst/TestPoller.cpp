@@ -632,7 +632,7 @@ public:
             auto targetPoller = co_await _target->GetPoller();
 
             auto req = HelloWorldReq::New_HelloWorldReq();
-            auto res = co_await targetPoller->SendAsync<HelloWorldRes, HelloWorldReq>(req).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(5));
+            auto res = co_await targetPoller->template SendAsync<HelloWorldRes, HelloWorldReq>(req).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(5));
 
             g_Log->Info(LOGFMT_NON_OBJ_TAG(TestTimeoutStartup, "res return"));
         });

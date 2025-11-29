@@ -85,7 +85,7 @@ class KERNEL_EXPORT LibEventLoopThread
  CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(ReqType *req)
  {
    auto poller = co_await GetPoller().SetDisableSuspend();
-   co_return co_await poller->SendAsync<ResType, ReqType>(req);
+   co_return co_await poller->template SendAsync<ResType, ReqType>(req);
  }
 
  // 调用者当前线程投递req给this
