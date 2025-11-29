@@ -168,7 +168,7 @@ void TestMongo::Run()
                     player.update_one(key.view(), bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("$set", bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("name", "bba")))));
 
                     // 替换
-                    player.replace_one(key.view(), bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("PlayerId", (long long)playerId)));
+                    player.replace_one(key.view(), bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("PlayerId", static_cast<std::int64_t>(playerId))));
 
                     // 删除
                     // player.delete_one(key.view());
@@ -176,7 +176,7 @@ void TestMongo::Run()
                 }
                 else
                 {
-                    player.insert_one(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("PlayerId", (long long)playerId)
+                    player.insert_one(bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("PlayerId", static_cast<std::int64_t>(playerId))
                     , bsoncxx::builder::basic::kvp("name", "xiaoming")));
                 }
 

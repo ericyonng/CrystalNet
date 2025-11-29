@@ -248,7 +248,7 @@ public:
         :_consumer(consumer)
     ,_id(id)
     {
-        
+        UNUSED(_id);
     }
     virtual void Run() override
     {
