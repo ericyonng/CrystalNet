@@ -28,6 +28,8 @@
 
 #include <pch.h>
 #include <kernel/common/rdtsc.h>
+#include <kernel/comp/Utils/TimeUtil.h>
+#include <kernel/common/timedefs.h>
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
     #include <WinSock2.h>
@@ -131,31 +133,35 @@ UInt64 CrystalGetCpuCounterFrequancy()
 #else
 
     // 返回MHz
-    UInt32 eax = 0, ebx = 0, ecx = 0, edx = 0;
-    __get_cpuid(0x15, &eax, &ebx, &ecx, &edx);
-    return (UInt64)(eax) * 1000000;
+    // UInt32 eax = 0, ebx = 0, ecx = 0, edx = 0;
+    // __get_cpuid(0x15, &eax, &ebx, &ecx, &edx);
+    // return (UInt64)(eax) * 1000000;
     
-    //
-    // // params
-    // // struct timespec tpStart, tpEnd;
-    // UInt64 tscStart, tscEnd;
-    //
-    // // start calculate using clock_gettime CLOCK_MONOTONIC nanoseconds since system boot
-    // // UInt64 startNano = ::clock_gettime(CLOCK_MONOTONIC, &tpStart);    // start time
-    // tscStart = CrystalRdTsc();   
-    // ::sleep(1);
-    // tscEnd = CrystalRdTsc();
-    // //::clock_gettime(CLOCK_MONOTONIC, &tpEnd);
-    //
-    // // calculate elapsed
-    // // const UInt64 nanoEndTime = ((tpEnd.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND) + tpEnd.tv_nsec);
-    // // const UInt64 nanoStartTime = (tpStart.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tpStart.tv_nsec);
-    // // const UInt64 nanosecElapsed = nanoEndTime - nanoStartTime;
-    // // const UInt64 tscElapsed = tscEnd - tscStart;
-    //
-    // // calculate tsc frequancy = elapsedTsc * nanoSecondPerSecond / elapsedNanoSecond;
-    // // return tscElapsed * TimeDefs::NANO_SECOND_PER_SECOND / nanosecElapsed;
-    // return tscEnd - tscStart;
+    
+    // params
+    // struct timespec tpStart, tpEnd;
+    UInt64 tscStart, tscEnd;
+    auto startTime = KERNEL_NS::TimeUtil::GetMicroTimestamp();
+    
+    // start calculate using clock_gettime CLOCK_MONOTONIC nanoseconds since system boot
+    // UInt64 startNano = ::clock_gettime(CLOCK_MONOTONIC, &tpStart);    // start time
+    tscStart = CrystalRdTsc();   
+    ::sleep(2);
+    tscEnd = CrystalRdTsc();
+
+    auto endTime = KERNEL_NS::TimeUtil::GetMicroTimestamp();
+
+    //::clock_gettime(CLOCK_MONOTONIC, &tpEnd);
+    
+    // calculate elapsed
+    // const UInt64 nanoEndTime = ((tpEnd.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND) + tpEnd.tv_nsec);
+    // const UInt64 nanoStartTime = (tpStart.tv_sec * TimeDefs::NANO_SECOND_PER_SECOND + tpStart.tv_nsec);
+    // const UInt64 nanosecElapsed = nanoEndTime - nanoStartTime;
+    // const UInt64 tscElapsed = tscEnd - tscStart;
+    
+    // calculate tsc frequancy = elapsedTsc * nanoSecondPerSecond / elapsedNanoSecond;
+    // return tscElapsed * TimeDefs::NANO_SECOND_PER_SECOND / nanosecElapsed;
+    return (tscEnd - tscStart) * KERNEL_NS::TimeDefs::MICRO_SECOND_PER_SECOND / (endTime - startTime);
 #endif
 #else
     return CRYSTAL_INFINITE;
