@@ -47,13 +47,14 @@ void TestCpu::Run()
     const auto elapseMicroseconds = endCounter.ElapseMicroseconds(counter);
 
     auto beginTime = KERNEL_NS::TimeUtil::GetMicroTimestamp();
+    UInt64 finalRdtsc = 0;
     for (Int32 idx = 0; idx < 100000; idx++)
     {
-        KERNEL_NS::CrystalRdTsc();
+        finalRdtsc = KERNEL_NS::CrystalRdTsc();
     }
     auto endTime = KERNEL_NS::TimeUtil::GetMicroTimestamp();
     auto escape = (endTime - beginTime);
-    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCpu, "elapseMicroseconds:%llu, slice:%llu, counter start:%llu, counter end:%llu, endCounter2 == counter:%d, tsc:%llu, escape:%lld")
-        , elapseMicroseconds, slice.GetTotalMicroseconds(), counter.GetCurCount(), endCounter.GetCurCount(), endCounter2 == counter, KERNEL_NS::CrystalRdTsc(), escape);
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCpu, "elapseMicroseconds:%llu, slice:%llu, counter start:%llu, counter end:%llu, endCounter2 == counter:%d, tsc:%llu, escape:%lld, finalRdtsc:%llu")
+        , elapseMicroseconds, slice.GetTotalMicroseconds(), counter.GetCurCount(), endCounter.GetCurCount(), endCounter2 == counter, KERNEL_NS::CrystalRdTsc(), escape, finalRdtsc);
 
 }
