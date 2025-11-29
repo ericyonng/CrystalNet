@@ -266,7 +266,7 @@ void TestInst::Run(int argc, char const *argv[])
     // CRYSTAL_TRACE("test inst finish.");
     // TestBlackWhiteList::Run();
     // TestECS::Run();
-    TestCpu::Run();
+    // TestCpu::Run();
     // TestDelegate::Run();
     // TestPoller::Run();
     // TestMemoryAssist::Run();
@@ -307,7 +307,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestMongo::Run();
     // TestSort::Run();
     // TestEventLoopThread::Run();
-    // TestLockFree::Run();
+    TestLockFree::Run();
     
     // write a large file
     // do

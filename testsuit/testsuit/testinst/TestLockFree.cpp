@@ -195,7 +195,7 @@ public:
     {
         KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<void>
         {
-            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromSeconds(1));
+            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMinutes(5));
 
             getchar();
 
