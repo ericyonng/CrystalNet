@@ -32,7 +32,7 @@ extern "C"
 {
     struct PluginWrap
     {
-        
+        Int32 _id = 0;
     };
     
     // 初始化插件集
@@ -40,6 +40,8 @@ extern "C"
     {
         PluginWrap pluginWrap;
         UNUSED(pluginWrap);
+        UNUSED(pluginWrap._id);
+        
         g_Log->Info(LOGFMT_NON_OBJ_TAG(PluginWrap, "Plugin init success g_PluginMgr:%p %s."), g_PluginMgr, g_PluginMgr->ToString().c_str());
         return Status::Success;
     }
