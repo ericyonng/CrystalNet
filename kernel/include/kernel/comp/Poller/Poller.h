@@ -858,7 +858,7 @@ ALWAYS_INLINE void Poller::SendTo(Poller &otherPoller, ReqType *req)
     }
     else
     {
-        auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(0, false, this, NULL);
+        auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(0, false, this, nullptr);
         objEvent->_obj = req;
         otherPoller.Push(objEvent);
     }

@@ -71,7 +71,7 @@ struct AddrConfig
     KERNEL_NS::LibString ToString() const
     { 
         KERNEL_NS::LibString info;
-        info.AppendFormat("local addr:%s:%hu, remote addr:%s:%hu, af:%d, session type:%d, priority level:%u"
+        info.AppendFormat("local addr:%s:%hu, remote addr:%s:%hu, af:%d, session type:%d"
                             ,_localIp._ip.c_str(), _localPort
                             ,  _remoteIp._ip.c_str(), _remotePort
                             , _af, _sessionType);
