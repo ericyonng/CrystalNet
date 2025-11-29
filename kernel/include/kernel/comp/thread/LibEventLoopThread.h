@@ -51,7 +51,7 @@ class KERNEL_EXPORT LibEventLoopThread
 {
  public:
  LibEventLoopThread(const LibString &threadName = "", IThreadStartUp *startUp = NULL);
- ~LibEventLoopThread();
+ virtual  ~LibEventLoopThread();
  virtual void Release();
 
  // 启动

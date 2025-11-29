@@ -60,17 +60,17 @@
 //     return true;
 // }
 
-static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
-{
-    if(UNLIKELY(queue.IsEmpty()))
-        return 0;
-
-    UInt64 count = 0;
-    for(auto node = queue.Begin(); node; node = node->_next)
-        count += node->_data->GetAmount();
-
-    return count;
-}
+// static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const KERNEL_NS::LibList<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
+// {
+//     if(UNLIKELY(queue.IsEmpty()))
+//         return 0;
+//
+//     UInt64 count = 0;
+//     for(auto node = queue.Begin(); node; node = node->_next)
+//         count += node->_data->GetAmount();
+//
+//     return count;
+// }
 
 // static ALWAYS_INLINE UInt64 GetPriorityEvenetsQueueElemCount(const std::vector<KERNEL_NS::LibList<KERNEL_NS::PollerEvent *, KERNEL_NS::_Build::MT> *> &queue)
 // {
@@ -934,7 +934,7 @@ void Poller::_Clear()
             auto data = iter->_data;
             iter = _localEvents->Erase(iter);
 
-            g_Log->Info(LOGFMT_OBJ_TAG("local event:%s, PollerId:%d"), data->ToString().c_str(), GetId());
+            g_Log->Info(LOGFMT_OBJ_TAG("local event:%s, PollerId:%llu"), data->ToString().c_str(), GetId());
 
             data->Release();
         }

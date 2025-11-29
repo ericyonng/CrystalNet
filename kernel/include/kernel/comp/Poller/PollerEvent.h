@@ -160,7 +160,7 @@ struct KERNEL_EXPORT ObjectPollerEvent : public StubPollerEvent
     LibString ToString() const override
     {
         LibString info;
-        info.AppendFormat("ObjType:%s, %s, %s\n", KERNEL_NS::RttiUtil::GetByType<ObjType>().c_str(), (_obj ? _obj->ToString().c_str() : "")
+        info.AppendFormat("ObjType:%s, %s, %s stub:%llu, isResponse:%d, objTypeId:%llu\n", KERNEL_NS::RttiUtil::GetByType<ObjType>().c_str(), (_obj ? _obj->ToString().c_str() : "")
             , PollerEvent::ToString().c_str(), _stub, (_isResponse ? 1:0), _objTypeId);
 
         return info;

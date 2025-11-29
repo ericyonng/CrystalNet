@@ -172,7 +172,7 @@ CoTask<const Poller *> LibThread::GetPoller() const
     }
 
     if (_isDestroy.load(std::memory_order_acquire))
-        co_return NULL;
+        co_return nullptr;
 
     co_return poller;
 }
@@ -191,7 +191,7 @@ CoTask<Poller *> LibThread::GetPoller()
     }
 
     if (_isDestroy.load(std::memory_order_acquire))
-        co_return NULL;
+        co_return nullptr;
 
     co_return poller;
 }
