@@ -727,17 +727,18 @@ static void TestCrossPoller()
     
     getchar();
 
-    thread3->HalfClose();
-    thread4->HalfClose();
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestPoller, "will finish test poller"));
     
+    thread4->HalfClose();
+    thread4->FinishClose();
+
     // thread1->HalfClose();
     // thread2->HalfClose();
     //
     // thread1->FinishClose();
     // thread2->FinishClose();
-
+    thread3->HalfClose();
     thread3->FinishClose();
-    thread4->FinishClose();
 }
 
 void TestPoller::Run()
