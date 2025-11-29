@@ -744,6 +744,8 @@ void TestPoller::Run()
 {
     UNUSED(g_concurrentQueue);
     UNUSED(g_maxConcurrentLevel);
+    UNUSED(g_genNum);
+    UNUSED(g_consumNum);
     TestCrossPoller();
 }
 
