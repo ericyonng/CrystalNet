@@ -334,7 +334,7 @@ public:
         }
         else
         {
-            auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(stub, false, this, NULL);
+            auto objEvent = ObjectPollerEvent<ReqType>::New_ObjectPollerEvent(stub, false, this, nullptr);
             objEvent->_obj = req;
             otherPoller.Push(objEvent);
         }
@@ -752,7 +752,7 @@ ALWAYS_INLINE void Poller::SendResponse(UInt64 stub, ResType *res)
 {
     auto fromPoller = TlsUtil::GetPoller();
     auto iter = _targetPollerRefChannel.find(fromPoller);
-    auto objectEvent = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub, true, fromPoller, iter == _targetPollerRefChannel.end() ? NULL : iter->second);
+    auto objectEvent = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub, true, fromPoller, iter == _targetPollerRefChannel.end() ? nullptr : iter->second);
     objectEvent->_obj = res;
     Push(objectEvent);
 }

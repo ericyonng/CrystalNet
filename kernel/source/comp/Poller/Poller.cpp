@@ -897,7 +897,7 @@ void Poller::_Clear()
 
         while (auto elem = queue->Front())
         {
-            g_Log->Info(LOGFMT_OBJ_TAG("event:%s, PollerId:%d"), (*elem)->ToString().c_str(), GetId());
+            g_Log->Info(LOGFMT_OBJ_TAG("event:%s, PollerId:%llu"), (*elem)->ToString().c_str(), GetId());
             queue->Pop();
         }
         
@@ -916,7 +916,7 @@ void Poller::_Clear()
                 PollerEvent *ev = NULL;
                 if (_commonEvents->TryPop(ev))
                 {
-                    g_Log->Info(LOGFMT_OBJ_TAG("mpmc event:%s, PollerId:%d"), ev->ToString().c_str(), GetId());
+                    g_Log->Info(LOGFMT_OBJ_TAG("mpmc event:%s, PollerId:%llu"), ev->ToString().c_str(), GetId());
                 }
             }
         }
