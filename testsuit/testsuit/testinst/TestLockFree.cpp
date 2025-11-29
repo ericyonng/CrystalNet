@@ -28,6 +28,7 @@
 // SPSCQueue 单生产者单消费者 >= 500w qps (windows)
 // poller MPMCQueue/SPSCQueue优化后, 如果使用Send qps:300w qps(单生产者单消费者情况), 2个生产者1个消费者情况下 200w qps
 // 如果使用channel进一步优化：单生产者单消费者下 290wqps, 2个个生产者单消费者情况下238wqps,4生产者1个消费者情况下200w qps
+// linux 下2生产者1消费者 >=150w qps, 单生产者单消费者: 300w qps
 
 #include <pch.h>
 #include "TestLockFree.h"
