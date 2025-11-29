@@ -39,7 +39,7 @@ struct PollerEvent;
 
 struct KERNEL_EXPORT ApplyChannelResult
 {
-    POOL_CREATE_OBJ_DEFAULT(ApplyChannelResult);
+    POOL_CREATE_OBJ_DEFAULT(ApplyChannelResult)
 
     ApplyChannelResult()
     :_channelId(0)

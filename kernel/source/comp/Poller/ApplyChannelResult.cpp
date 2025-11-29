@@ -28,6 +28,7 @@
 #include <kernel/comp/Poller/ApplyChannelResult.h>
 
 KERNEL_BEGIN
+
 POOL_CREATE_OBJ_DEFAULT_IMPL(ApplyChannelResult);
 
 KERNEL_END

@@ -181,6 +181,5 @@ LibString BatchPollerEvent::ToString() const
 POOL_CREATE_OBJ_DEFAULT_IMPL(ApplyChannelEvent);
 POOL_CREATE_OBJ_DEFAULT_IMPL(ApplyChannelEventResponse);
 POOL_CREATE_OBJ_DEFAULT_IMPL(DestroyChannelEvent);
-POOL_CREATE_OBJ_DEFAULT_IMPL(ApplyChannelResult);
 
 KERNEL_END
