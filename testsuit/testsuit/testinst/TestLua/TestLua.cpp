@@ -107,10 +107,10 @@ static void LuaReg(lua_State* ls)
                 .Def(&Dumy, "Dumy");                //! 注册静态函数
 }
 
-static  void RetLuaFail(Int32 a)
-{
-    
-}
+// static  void RetLuaFail(Int32 a)
+// {
+//     
+// }
 
 void TestLua::Run()
 {

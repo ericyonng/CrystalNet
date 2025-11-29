@@ -133,7 +133,7 @@ void TestMongo::Run()
                 auto generator = KERNEL_NS::TlsUtil::GetIdGenerator();
 
                 auto playerId = generator->NewId();
-                auto key = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("PlayerId", (long long)playerId));
+                auto key = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("PlayerId", static_cast<std::int64_t>(playerId)));
 
                 // 读数据配置
                 mongocxx::read_preference rp;
@@ -229,7 +229,7 @@ void TestMongo::Run()
                 }
 
                 auto downloader = bucket.open_download_stream(resultId);
-                auto chunkSize = 16 * 1024 *1024;
+                // auto chunkSize = 16 * 1024 *1024;
                 auto buffer = KERNEL_NS::KernelAllocMemory<KERNEL_NS::_Build::TL>(1024);
                 KERNEL_NS::LibString parseData;
                 while(auto chunk = downloader.read((std::uint8_t*)buffer, 1024))

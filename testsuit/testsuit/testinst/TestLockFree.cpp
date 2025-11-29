@@ -88,12 +88,13 @@ public:
         :_consumer(consumer)
     ,_id(id)
     {
-        
+        UNUSED(_consumer);
+        UNUSED(_id);
     }
     virtual void Run() override
     {
         // 投递到事件循环中
-        KERNEL_NS::PostCaller([this]()->KERNEL_NS::CoTask<>
+        KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<>
         {
             co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(1));
 
@@ -137,7 +138,6 @@ public:
     }
     virtual void Run() override
     {
-        auto poller = KERNEL_NS::TlsUtil::GetPoller();
         KERNEL_NS::PostCaller([]()->KERNEL_NS::CoTask<void>
         {
            co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(1));
@@ -259,7 +259,7 @@ public:
 
             auto consumerPoller = co_await _consumer->GetPoller();
             auto channel = co_await consumerPoller->ApplyChannel();
-            auto toSelfChannel = co_await poller->ApplyChannel();
+            // auto toSelfChannel = co_await poller->ApplyChannel();
             co_await KERNEL_NS::CoDelay(KERNEL_NS::TimeSlice::FromMilliSeconds(1));
 
             while (!poller->IsQuit())
@@ -304,14 +304,14 @@ void TestLockFree::Run()
     
     // auto consumer = new KERNEL_NS::LibEventLoopThread("consumer1", new ThreadConsumerStartup());
     auto consumer = new KERNEL_NS::LibEventLoopThread("poller_consumer1", new ThreadPollerConsumerStartup());
-    auto consumer2 = new KERNEL_NS::LibEventLoopThread("consumer2", new ThreadConsumerStartup());
+    // auto consumer2 = new KERNEL_NS::LibEventLoopThread("consumer2", new ThreadConsumerStartup());
 
     // 1. 构建生产者消费者模型
     // auto genThread = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 1));
     auto genThread = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 1));
     auto genThread2 = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 2));
-    auto genThread3 = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 3));
-    auto genThread4 = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 4));
+    // auto genThread3 = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 3));
+    // auto genThread4 = new KERNEL_NS::LibEventLoopThread("poller_gen", new ThreadPollerGeneratorStartup(consumer, 4));
     // auto genThread2 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 2));
     // auto genThread3 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 3));
     // auto genThread4 = new KERNEL_NS::LibEventLoopThread("gen", new ThreadGeneratorStartup(consumer, 4));
