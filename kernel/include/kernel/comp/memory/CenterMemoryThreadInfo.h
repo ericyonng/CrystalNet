@@ -53,7 +53,7 @@ class CenterMemoryCollector;
 template<TlsStackSize::SizeType TlsSizeType>
 class TlsStack;
 
-struct MergeMemoryAlloctorInfo
+struct KERNEL_EXPORT MergeMemoryAlloctorInfo
 {
     UInt64 _alloctorCreateThreadId; // 分配器创建时所在线程id
 
@@ -64,7 +64,7 @@ struct MergeMemoryAlloctorInfo
     std::map<MemoryBuffer *, MergeMemoryBufferInfo *> _memoryBufferRefMergeInfo;
 };
 
-class CenterMemoryThreadInfo
+class KERNEL_EXPORT CenterMemoryThreadInfo
 {
 public:
     CenterMemoryThreadInfo(UInt64 threadId, CenterMemoryCollector *collector);

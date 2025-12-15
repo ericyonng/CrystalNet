@@ -35,13 +35,13 @@
 
 KERNEL_BEGIN
 
-struct CenterMemoryTopnThreadInfo
+struct KERNEL_EXPORT CenterMemoryTopnThreadInfo
 {
     UInt64 _threadId = 0;
     UInt64 _totalAllocBytes = 0;
 };
 
-class CenterMemoryTopnThreadInfoComp
+class KERNEL_EXPORT CenterMemoryTopnThreadInfoComp
 {
 public:
     bool operator()(const SmartPtr<CenterMemoryTopnThreadInfo> &l, const SmartPtr<CenterMemoryTopnThreadInfo> &r) const;

@@ -41,7 +41,7 @@ KERNEL_BEGIN
 
 class MemoryBuffer;
 
-class GarbageCollector
+class KERNEL_EXPORT GarbageCollector
 {
 public:
     GarbageCollector();

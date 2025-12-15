@@ -38,7 +38,7 @@
 
 KERNEL_BEGIN
 
-class EmptyBufferLimitType
+class KERNEL_EXPORT EmptyBufferLimitType
 {
 public:
     EmptyBufferLimitType(){}

@@ -42,7 +42,7 @@ class ConditionLocker;
 template <typename Rtn, typename... Args>
 class IDelegate;
 
-class GarbageThreadTask : public ITask
+class KERNEL_EXPORT GarbageThreadTask : public ITask
 {
     POOL_CREATE_OBJ_DEFAULT_P1(ITask, GarbageThreadTask);
     

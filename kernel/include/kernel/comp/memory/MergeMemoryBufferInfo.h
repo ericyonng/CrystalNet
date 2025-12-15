@@ -40,7 +40,7 @@ KERNEL_BEGIN
 class MemoryBuffer;
 struct MemoryBlock;
 
-struct MergeMemoryBufferInfo
+struct KERNEL_EXPORT MergeMemoryBufferInfo
 {
     MergeMemoryBufferInfo *_next = NULL;    // 合并的链表
     MemoryBuffer *_buffer = NULL;

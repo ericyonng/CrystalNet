@@ -43,7 +43,7 @@ KERNEL_BEGIN
 class MemoryBuffer;
 class MemoryAlloctor;
 
-class  MemoryBuffer
+class KERNEL_EXPORT MemoryBuffer
 {
 public:
     // 内存大小 = blockSize * blockCnt

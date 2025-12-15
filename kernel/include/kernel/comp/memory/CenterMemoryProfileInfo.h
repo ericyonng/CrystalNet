@@ -37,7 +37,7 @@
 
 KERNEL_BEGIN
 
-struct CenterMemoryProfileInfo
+struct KERNEL_EXPORT CenterMemoryProfileInfo
 {
     UInt64 _historyBlockCount = 0;
     UInt64 _currentPendingCount = 0;

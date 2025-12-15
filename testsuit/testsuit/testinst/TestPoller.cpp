@@ -621,6 +621,27 @@ private:
 
 POOL_CREATE_OBJ_DEFAULT_IMPL(ThreadStartup);
 
+// 可以使用策略来实现编译期多态
+// CRTP技术：奇异递归模板模式，C++的编译期多态技术，核心是，一个类派生自以自身作为模版参数的模板基类
+template<typename T>
+class CrtpBase
+{
+public:
+    void Draw()
+    {
+        static_cast<T *>(this)->Draw();
+    }
+};
+
+class CrtpDog : public CrtpBase<CrtpDog>
+{
+public:
+    void Draw()
+    {
+
+    }
+};
+
 class TestTimeoutStartup : public KERNEL_NS::IThreadStartUp
 {
     POOL_CREATE_OBJ_DEFAULT_P1(IThreadStartUp, TestTimeoutStartup);
