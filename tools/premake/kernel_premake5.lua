@@ -38,6 +38,7 @@ project "CrystalKernel"
 		ROOT_DIR .. "/3rd/json/include/",
 		ROOT_DIR .. "/3rd/curl/include/",
 		ROOT_DIR .. "/3rd/idn2/include/",
+		ROOT_DIR .. "/3rd/yaml/include/",
      }
 	 
     -- files
@@ -53,6 +54,7 @@ project "CrystalKernel"
     -- 使用curl静态库 linux 下没有$(Configuration)替换, 只有windows才有
 	defines { "CURL_STATICLIB" }
 	defines { "CRYSTAL_NET_CPP20"}
+	defines { "YAML_CPP_STATIC_DEFINE" }
 
     libdirs { 
         ROOT_DIR .. "3rd/openssL/staticlib/$(Configuration)/lib/",
@@ -69,6 +71,7 @@ project "CrystalKernel"
 		    ROOT_DIR .. "3rd/miniz/libs/debug/",
     		ROOT_DIR .. "3rd/curl/lib/debug/",
     		ROOT_DIR .. "3rd/idn2/lib/",
+    		ROOT_DIR .. "3rd/yaml/libs/debug/",
         }
         links {
             "curl:static",
@@ -77,6 +80,7 @@ project "CrystalKernel"
             "uuid_debug:static",
             "miniz:static",
             "idn2:static",
+            "yaml-cppd:static",
         }
     filter {}
     filter { "system:linux", "configurations:release*"}
@@ -86,6 +90,7 @@ project "CrystalKernel"
 		    ROOT_DIR .. "3rd/miniz/libs/release/",
     		ROOT_DIR .. "3rd/curl/lib/release/",
     		ROOT_DIR .. "3rd/idn2/lib/",
+    		ROOT_DIR .. "3rd/yaml/libs/release/",
         }
         links {
             "curl:static",
@@ -94,9 +99,28 @@ project "CrystalKernel"
             "uuid:static",
             "miniz:static",
             "idn2:static",
+            "yaml-cpp:static",
         }
     filter {}
-	
+
+	-- yaml库
+    filter { "system:windows", "configurations:debug*"}
+        libdirs {
+		    ROOT_DIR .. "3rd/yaml/libs/debug/",
+        }
+        links {
+            "yaml-cppd",
+        }
+    filter {}
+    filter { "system:windows", "configurations:release*"}
+        libdirs {
+		    ROOT_DIR .. "3rd/yaml/libs/release/",
+        }
+        links {
+            "yaml-cpp",
+        }
+    filter {}
+
 	-- macos需要额外添加
     filter { "system:macosx" }
     files {

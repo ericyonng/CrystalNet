@@ -226,6 +226,7 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "/3rd/json/include/",
 		ROOT_DIR .. "/3rd/curl/include/",
 		ROOT_DIR .. "3rd/lua/include/",
+		ROOT_DIR .. "/3rd/yaml/include/",
     }
 
 	libdirs { 
@@ -239,8 +240,8 @@ function include_libfs(do_post_build, add_protobuflib)
 		ROOT_DIR .. "3rd/lua/",
 	}
 
-    -- 使用curl静态库
-	defines { "CURL_STATICLIB" }
+    -- 使用curl,yaml 静态库
+	defines { "CURL_STATICLIB", "YAML_CPP_STATIC_DEFINE" }
 
     -- files
     -- files {
@@ -357,6 +358,40 @@ function include_libfs(do_post_build, add_protobuflib)
         links {
             -- "ws2_32",
             "libcurl"
+        }
+    filter {}
+
+    -- yaml库
+    filter { "system:windows", "configurations:debug*"}
+        libdirs {
+		    ROOT_DIR .. "3rd/yaml/libs/debug/",
+        }
+        links {
+            "yaml-cppd",
+        }
+    filter {}
+    filter { "system:windows", "configurations:release*"}
+        libdirs {
+		    ROOT_DIR .. "3rd/yaml/libs/release/",
+        }
+        links {
+            "yaml-cpp",
+        }
+    filter {}
+    filter { "system:linux", "configurations:debug*"}
+        libdirs { 
+            ROOT_DIR .. "/3rd/yaml/libs/debug/",
+        }
+        links {
+            "yaml-cppd:static",
+        }
+    filter {}
+    filter { "system:linux", "configurations:release*"}
+        libdirs { 
+            ROOT_DIR .. "/3rd/yaml/libs/release/",
+        }
+        links {
+            "yaml-cpp:static",
         }
     filter {}
 

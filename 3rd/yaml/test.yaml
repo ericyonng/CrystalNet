@@ -1,0 +1,7 @@
+# 服务器配置
+GameServer: 
+  Bind: 0.0.0.0
+  BindPort: 2500
+  HostStr: https://127.0.0.1
+  Arr: [1, 5, 8]
+  

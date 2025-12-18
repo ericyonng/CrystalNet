@@ -109,6 +109,7 @@
 #include <testsuit/testinst/TestSort.h>
 #include <testsuit/testinst/TestEventLoopThread.h>
 #include <testsuit/testinst/TestLockFree.h>
+#include <testsuit/testinst/TestYaml.h>
 
 // void *operator new(size_t bytes)
 // {
@@ -307,7 +308,8 @@ void TestInst::Run(int argc, char const *argv[])
     // TestMongo::Run();
     // TestSort::Run();
     // TestEventLoopThread::Run();
-    TestLockFree::Run();
+    // TestLockFree::Run();
+    TestYaml::Run();
     
     // write a large file
     // do
