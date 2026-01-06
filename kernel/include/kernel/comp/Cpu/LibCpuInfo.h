@@ -54,7 +54,7 @@ public:
     bool Initialize();
     // 获取万分数 linux下不准
     Int64 GetUsage();
-    Int32 GetCpuCoreCnt();
+    Int32 GetCpuCoreCnt() const;
 
 private:
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -63,6 +63,8 @@ private:
     Int64 _GetTotalCpuTime() const;
     Int64 _GetProcCpuTime(UInt64 pid) const;
 #endif
+
+    void _InitCorNumber();
 
 private:
     std::atomic_bool _isInit;
@@ -79,6 +81,11 @@ private:
 #endif
 
 };
+
+ALWAYS_INLINE Int32 LibCpuInfo::GetCpuCoreCnt() const
+{
+    return _cpuCoreNum.load(std::memory_order_relaxed);
+}
 
 KERNEL_END
 

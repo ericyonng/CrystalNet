@@ -114,6 +114,7 @@ Poller::Poller()
 ,_dirtyHelper(LibDirtyHelper<void *, UInt32>::New_LibDirtyHelper())
 ,_prepareEventWorkerHandler(NULL)
 ,_onEventWorkerCloseHandler(NULL)
+,_isWaiting{true}
 ,_eventAmountLeft{0}
 ,_genEventAmount{0}
 ,_consumEventCount{0}
@@ -225,8 +226,8 @@ Int32 Poller::_OnInit()
     Subscribe(PollerEventInternalType::BatchPollerEventType, this, &Poller::_OnBatchPollerEvent);
     // 订阅创建Channel消息
     SubscribeObjectEvent<ApplyChannelEvent>(this, &Poller::_OnApplyChannelEvent);
-    // 订阅销毁Channel消息
-    SubscribeObjectEvent<DestroyChannelEvent>(this, &Poller::_OnDestroyChannelEvent);
+    // 订阅销毁Channel消息（废弃）
+    // SubscribeObjectEvent<DestroyChannelEvent>(this, &Poller::_OnDestroyChannelEvent);
     
     // TODO:测试是不是在Poller所在线程
     _workThreadId.store(SystemUtil::GetCurrentThreadId(), std::memory_order_release);
@@ -350,22 +351,22 @@ void Poller::_OnApplyChannelEvent(StubPollerEvent *ev)
     res->_result._queue = queue;
     applyEv->_srcPoller->SendResponse(ev->_stub, res);
 }
-
-void Poller::_OnDestroyChannelEvent(StubPollerEvent *ev)
-{
-    auto destroyEv = ev->CastTo<ObjectPollerEvent<DestroyChannelEvent>>();
-
-    auto iter = _idRefChannel.find(destroyEv->_obj->_channelId);
-    if(UNLIKELY(iter == _idRefChannel.end()))
-        return;
-
-    if(g_Log->IsEnable(LogLevel::Debug))
-        g_Log->Debug(LOGFMT_OBJ_TAG("destroy channel id:%llu"), iter->first);
-
-    _targetPollerRefChannel.erase(iter->second->GetTarget());
-    Channel::DeleteThreadLocal_Channel(iter->second);
-    _idRefChannel.erase(iter);
-}
+//
+// void Poller::_OnDestroyChannelEvent(StubPollerEvent *ev)
+// {
+//     auto destroyEv = ev->CastTo<ObjectPollerEvent<DestroyChannelEvent>>();
+//
+//     auto iter = _idRefChannel.find(destroyEv->_obj->_channelId);
+//     if(UNLIKELY(iter == _idRefChannel.end()))
+//         return;
+//
+//     if(g_Log->IsEnable(LogLevel::Debug))
+//         g_Log->Debug(LOGFMT_OBJ_TAG("destroy channel id:%llu"), iter->first);
+//
+//     _targetPollerRefChannel.erase(iter->second->GetTarget());
+//     Channel::DeleteThreadLocal_Channel(iter->second);
+//     _idRefChannel.erase(iter);
+// }
 
 void Poller::Clear()
 {
@@ -596,7 +597,9 @@ void Poller::SafeEventLoop()
                 if(!_timerMgr->HasExpired())
                 {
                     _eventGuard.Lock();
+                    _isWaiting.store(true, std::memory_order_release);
                     _eventGuard.TimeWait(maxSleepMilliseconds);
+                    _isWaiting.store(false, std::memory_order_release);
                     _eventGuard.Unlock();
                 }
             }

@@ -97,6 +97,8 @@ public:
     bool IsEnable() const;
     void Disable();
 
+    bool IsWaiting() const;
+
     // worker线程id
     UInt64 GetWorkerThreadId(std::memory_order order = std::memory_order_relaxed) const;
 
@@ -390,7 +392,7 @@ protected:
     void _OnObjectEvent(PollerEvent *ev);
     void _OnBatchPollerEvent(PollerEvent *ev);
     void _OnApplyChannelEvent(StubPollerEvent *ev);
-    void _OnDestroyChannelEvent(StubPollerEvent *ev);
+    // void _OnDestroyChannelEvent(StubPollerEvent *ev);
 
 private:
     void _Clear();
@@ -435,7 +437,8 @@ private:
   IDelegate<bool, Poller *> *_prepareEventWorkerHandler;    // 事件处理线程初始准备
   IDelegate<void, Poller *> *_onEventWorkerCloseHandler;    // 事件处理线程结束销毁
   ConditionLocker _eventGuard;                              // 空闲挂起等待
-    
+
+  std::atomic<bool> _isWaiting;
   std::atomic<Int64> _eventAmountLeft;
   std::atomic<Int64> _genEventAmount;
   std::atomic<Int64> _consumEventCount;
@@ -456,7 +459,7 @@ private:
     std::map<UInt64, IDelegate<void, StubPollerEvent *> *> _objTypeIdRefCallback;
 #pragma endregion
 
-    // 向target申请的channel
+    // 向target申请的channel, 在释放的时候target应该在生产者都停止生产后才释放
     std::unordered_map<UInt64, Channel *> _idRefChannel;
     std::unordered_map<Poller *, Channel *> _targetPollerRefChannel;
 
@@ -479,6 +482,11 @@ ALWAYS_INLINE bool Poller::IsEnable() const
 ALWAYS_INLINE void Poller::Disable()
 {
     _isEnable.store(false, std::memory_order_release);
+}
+
+ALWAYS_INLINE bool Poller::IsWaiting() const
+{
+    return _isWaiting.load(std::memory_order_acquire);
 }
 
 ALWAYS_INLINE UInt64 Poller::GetWorkerThreadId(std::memory_order order) const

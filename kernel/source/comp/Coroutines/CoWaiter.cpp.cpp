@@ -39,4 +39,10 @@ CoTask<> Waiting(KERNEL_NS::TimeSlice slice)
  co_await waiter;
 }
 
+CoTask<> CoCompleted()
+{
+    co_return;
+}
+
+
 KERNEL_END

@@ -127,6 +127,8 @@ struct KERNEL_EXPORT StubPollerEvent : public PollerEvent
     bool _isResponse;
     UInt64 _objTypeId;
     Poller *_srcPoller;
+
+    // channel 只有在ApplyChannel后才有（channel的通信是spsc模型, 性能会高）
     Channel *_srcChannel;
 };
 

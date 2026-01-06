@@ -100,6 +100,8 @@ bool LibCpuInfo::Initialize()
 
 #endif
 
+    _InitCorNumber();
+    
     return true;
 }
 
@@ -164,28 +166,6 @@ Int64 LibCpuInfo::GetUsage()
     return 0;
 
 #endif
-}
-
-Int32 LibCpuInfo::GetCpuCoreCnt()
-{
-    if(UNLIKELY(!_isInit.load(std::memory_order_acquire)))
-        return 0;
-
-    Int32 count = 1; // at least one
-    const auto num = _cpuCoreNum.load(std::memory_order_acquire);
-    if(LIKELY(num))
-        return num;
-
-#if CRYSTAL_TARGET_PLATFORM_WINDOWS
-    SYSTEM_INFO si;
-    GetSystemInfo(&si);
-    count = si.dwNumberOfProcessors;
-#else
-    count = sysconf(_SC_NPROCESSORS_CONF);
-#endif  
-
-    _cpuCoreNum.store(count, std::memory_order_release);
-    return count;
 }
 
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
@@ -263,5 +243,23 @@ Int64 LibCpuInfo::_GetProcCpuTime(UInt64 pid) const
 }
 
 #endif
+
+void LibCpuInfo::_InitCorNumber()
+{
+    Int32 count = 1; // at least one
+
+#if CRYSTAL_TARGET_PLATFORM_WINDOWS
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    count = si.dwNumberOfProcessors;
+#else
+    count = sysconf(_SC_NPROCESSORS_CONF);
+#endif  
+
+    if(count < 1)
+        count = 1;
+    
+    _cpuCoreNum.store(count, std::memory_order_release);
+}
 
 KERNEL_END

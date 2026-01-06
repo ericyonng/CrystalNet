@@ -39,5 +39,6 @@
 #include <kernel/comp/thread/ThreadTool.h>
 #include <kernel/comp/thread/IThreadStartUp.h>
 #include <kernel/comp/thread/LibEventLoopThread.h>
+#include <kernel/comp/thread/LibEventLoopThreadPool.h>
 
 #endif
