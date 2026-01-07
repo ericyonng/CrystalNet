@@ -85,7 +85,7 @@ public:
     }
     CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(ReqType *req)
     {
-        auto poller = co_await GetPoller().SetDisableSuspend();
+        auto poller = co_await GetPoller();
         co_return co_await poller->template SendAsync<ResType, ReqType>(req);
     }
 
@@ -103,7 +103,7 @@ public:
     }
     CoTask<> SendAsync2(ReqType *req)
     {
-        auto poller = co_await GetPoller().SetDisableSuspend();
+        auto poller = co_await GetPoller();
         poller->template Send<ReqType>(req);
     }
 
@@ -139,7 +139,7 @@ public:
     }
     CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(LambdaType &&lamb)
     {
-         auto poller = co_await GetPoller().SetDisableSuspend();
+         auto poller = co_await GetPoller();
          co_return co_await poller->template SendAsync<ResType, LambdaType>(std::forward<LambdaType>(lamb));
     }
     

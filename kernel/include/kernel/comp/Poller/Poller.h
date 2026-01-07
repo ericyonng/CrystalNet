@@ -357,7 +357,7 @@ public:
             poller->UnSubscribeStubEvent(stub);
         };
         auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(releaseFun, void);
-        co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params).SetRelease(delg);
+        co_await KERNEL_NS::Waiting().GetParam(params).SetRelease(delg);
         if(LIKELY(params->_params))
         {
             auto &pa = params->_params; 
@@ -477,7 +477,7 @@ public:
             poller->UnSubscribeStubEvent(stub);
         };
         auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(releaseFun, void);
-        co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params).SetRelease(delg);
+        co_await KERNEL_NS::Waiting().GetParam(params).SetRelease(delg);
         if(LIKELY(params->_params))
         {
             auto &pa = params->_params; 

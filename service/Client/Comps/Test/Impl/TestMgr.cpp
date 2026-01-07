@@ -442,7 +442,7 @@ KERNEL_NS::CoTask<> TestMgr::_TestRpc()
     KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
     auto packet = co_await SendCo(session->GetSessionId(), Opcodes::OpcodeConst::OPCODE_TestRpcReq, 
     req, -1 * NewPacketId(session->GetSessionId()))
-    .SetDisableSuspend().GetParam(param)
+    .GetParam(param)
     .SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(10));
 
     if(param->_errCode == Status::Success)

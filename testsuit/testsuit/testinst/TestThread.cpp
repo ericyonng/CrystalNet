@@ -257,7 +257,12 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TestThreadTPoolask3);
 //             pool.FinishClose();
 //     }
 // }
+static  KERNEL_NS::CoTask<KERNEL_NS::LibString> GetStr()
+{
+    auto str = KERNEL_NS::LibString("ni hao");
 
+    co_return str;
+}
 void TestThread::Run()
 {
     auto poller = KERNEL_NS::TlsUtil::GetPoller();
@@ -266,7 +271,14 @@ void TestThread::Run()
     pool->Start();
 
     KERNEL_NS::PostCaller([poller, pool]() mutable ->KERNEL_NS::CoTask<>
-    {        
+    {
+        KERNEL_NS::LibString info = "nihao ha";
+        KERNEL_NS::RunRightNow([]()-> KERNEL_NS::CoTask<>
+        {
+            auto str = co_await GetStr();
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "hello run right now str:%s"), str.c_str());
+        });
+        
         pool->Send([]()
         {
             g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "hello thread pool thread id:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
@@ -303,6 +315,8 @@ void TestThread::Run()
         {
             g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "hello thread pool thread id 4:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
         });
+
+        info = "buhaole ba";
         
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "current thread id:%llu, pool result:%s"), KERNEL_NS::SystemUtil::GetCurrentThreadId(), poolRes->c_str());
     });

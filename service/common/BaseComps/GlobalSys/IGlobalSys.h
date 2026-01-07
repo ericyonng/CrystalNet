@@ -132,7 +132,7 @@ public:
         });
 
         // 等待Waiter
-        co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params);
+        co_await KERNEL_NS::Waiting().GetParam(params);
 
         if(params->_params)
         {

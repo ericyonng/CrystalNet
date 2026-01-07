@@ -82,7 +82,7 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> GetContent()
 
 KERNEL_NS::CoTask<> test_hello_world2() 
 {
-    auto content = co_await GetContent().SetDisableSuspend(true);
+    auto content = co_await GetContent();
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "GetContent: %s"), content.c_str());
 }
@@ -90,7 +90,7 @@ KERNEL_NS::CoTask<> test_hello_world2()
 KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent3() 
 {
     // co_await KERNEL_NS::Waiting().SetDisableSuspend(true);
-    auto content = co_await GetContent().SetDisableSuspend(true);
+    auto content = co_await GetContent();
 
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "TestCursionGetContent3: %s"), content.c_str());
 
@@ -100,7 +100,7 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent3()
 KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent2() 
 {
     KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
-    auto content = co_await TestCursionGetContent3().SetDisableSuspend(true).GetParam(param);
+    auto content = co_await TestCursionGetContent3().GetParam(param);
 
     if(param->_errCode != Status::Success)
     {
@@ -121,7 +121,7 @@ KERNEL_NS::CoTask<KERNEL_NS::LibString> TestCursionGetContent()
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
     
     KERNEL_NS::SmartPtr<KERNEL_NS::CoTaskParam, KERNEL_NS::AutoDelMethods::Release> param;
-    auto content = co_await TestCursionGetContent2().SetDisableSuspend(true).SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(3600)).GetParam(param);
+    auto content = co_await TestCursionGetContent2().SetTimeout(KERNEL_NS::TimeSlice::FromSeconds(3600)).GetParam(param);
 
     currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
@@ -142,7 +142,7 @@ KERNEL_NS::CoTask<> TestCursionTask()
 {
     auto currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
-    co_await TestCursionGetContent().SetDisableSuspend(true);
+    co_await TestCursionGetContent();
     currentCoParam = KERNEL_NS::CoTaskParam::GetCurrentCoParam();
     g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "currentCoParam:%p"), currentCoParam);
 }
@@ -161,7 +161,7 @@ void TestCoroutine::Run()
 
     KERNEL_NS::RunRightNow([]()->KERNEL_NS::CoTask<>
     {
-        co_await TestCursionTask().SetDisableSuspend(true);
+        co_await TestCursionTask();
 
         g_Log->Info(LOGFMT_NON_OBJ_TAG(TestCoroutine, "run right now..."));
     });

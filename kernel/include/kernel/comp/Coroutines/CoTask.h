@@ -71,21 +71,18 @@ public:
 
     explicit CoTask(coro_handle h) noexcept
     : _handle(h)
-    ,_disableSuspend(false) 
     ,_params(CoTaskParam::NewThreadLocal_CoTaskParam())
     {
     }
 
     CoTask(coro_handle h, SmartPtr<CoTaskParam, AutoDelMethods::Release> &param) noexcept
     : _handle(h)
-    ,_disableSuspend(false) 
     ,_params(param)
     {
     }
 
     CoTask(CoTask&& t) noexcept
         : _handle(std::exchange(t._handle, {}))
-        ,_disableSuspend(std::exchange(t._disableSuspend, false))
         ,_params(std::move(t._params))
         {
 
@@ -96,7 +93,6 @@ public:
         Destroy();
 
         _handle = std::exchange(other._handle, {});
-        _disableSuspend = std::exchange(other._disableSuspend, false);
         _params = std::move(other._params);
         return *this;
     }
@@ -157,12 +153,12 @@ public:
             callerPromise._child = &selfPromise;
 
             // trace继承
-            *selfPromise.GetParam()->_trace = *(callerPromise._params->_trace);
+            auto selfParam = selfPromise.GetParam();
+            *(selfParam->_trace) = *(callerPromise._params->_trace);
 
             auto selfCoHandleId = _selfCoro.promise().GetHandleId();
 
             // 超时唤醒并销毁协程
-            auto selfParam = _selfCoro.promise().GetParam();
             if(selfParam->_endTime)
             {
                 auto timer = KERNEL_NS::LibTimer::NewThreadLocal_LibTimer();
@@ -195,19 +191,32 @@ public:
                 timer->Schedule(now > selfParam->_endTime ? KERNEL_NS::TimeSlice::FromSeconds(0) : (selfParam->_endTime - now));
                 selfParam->_timeout = timer;
             }
-            
-            if(_disableSuspend)
+
+            // 投递到poller中异步执行
+            if(UNLIKELY(_params->_enableSuspend))
             {
-                _selfCoro.promise().SetState(KernelHandle::SCHEDULED);
-                _selfCoro.promise().Run(KernelHandle::UNSCHEDULED);
+                _selfCoro.promise().Schedule();
                 return;
             }
             
-            _selfCoro.promise().Schedule();
+            // 不挂起唤醒执行
+            _selfCoro.promise().SetState(KernelHandle::SCHEDULED);
+            _selfCoro.promise().Run(KernelHandle::UNSCHEDULED);
+
+            // 投递到poller中异步执行
+            // if(_enableSuspend)
+            // {
+            //     // 不挂起唤醒执行
+            //     _selfCoro.promise().SetState(KernelHandle::SCHEDULED);
+            //     _selfCoro.promise().Run(KernelHandle::UNSCHEDULED);
+            //     
+            //     return;
+            // }
+            //
+            // _selfCoro.promise().Schedule();
         }
 
         coro_handle _selfCoro {};
-        bool _disableSuspend = false;
         SmartPtr<CoTaskParam, AutoDelMethods::Release> _params;
     };
     
@@ -226,7 +235,7 @@ public:
             }
         };
 
-        return Awaiter {_handle, _disableSuspend, _params};
+        return Awaiter {_handle, _params};
     }
 
     auto operator co_await() const && noexcept 
@@ -244,7 +253,7 @@ public:
             }
         };
 
-        return Awaiter {_handle, _disableSuspend, _params};
+        return Awaiter {_handle, _params};
     }
 
     struct promise_type: CoHandle, CoResult<R> 
@@ -363,14 +372,23 @@ public:
                     // TODO:cout资源释放的问题需要考虑
                     cont->SetState(KERNEL_NS::KernelHandle::SCHEDULED);
                     auto handleId = cont->GetHandleId();
-                    KERNEL_NS::PostAsyncTask([handleId]()mutable 
+                    if(UNLIKELY(cont->GetParam()->_enableSuspend))
+                    {
+                        KERNEL_NS::PostAsyncTask([handleId]()mutable 
+                        {
+                            auto handle = KERNEL_NS::TlsUtil::GetTlsCoDict()->GetHandle(handleId);
+                            if(UNLIKELY(!handle))
+                                return;
+                                                
+                            handle->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
+                        });
+                    }
+                    else
                     {
                         auto handle = KERNEL_NS::TlsUtil::GetTlsCoDict()->GetHandle(handleId);
-                        if(UNLIKELY(!handle))
-                            return;
-                        
-                        handle->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
-                    });
+                        if(LIKELY(handle))
+                            handle->Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
+                    }
                 }
                 else
                 {
@@ -661,14 +679,17 @@ public:
     }
 
     // 当前的CoTask不挂起直接进入协程体执行
-    CoTask<R> &SetDisableSuspend(bool disableSuspend = true)
+    CoTask<R> &SetEnableSuspend(bool enableSuspend = true)
     {
-        _disableSuspend = disableSuspend;
+        if(UNLIKELY(!_params))
+            _params = CoTaskParam::NewThreadLocal_CoTaskParam();
+
+        _params->_enableSuspend = enableSuspend;
 
         return *this;
     }
 
-    bool IsDisableSuspend() const { return _disableSuspend; }
+    bool IsEnableSuspend() const { return _params ? _params->_enableSuspend : false; }
 
     // 外部获取协程的一些状态
     CoTask<R> &GetParam(SmartPtr<CoTaskParam, AutoDelMethods::Release> &param)
@@ -738,7 +759,6 @@ private:
 private:
     // 为了能在PostRun 中使用，破例用mutable
     mutable coro_handle _handle;
-    mutable bool _disableSuspend = false;
     mutable SmartPtr<CoTaskParam, AutoDelMethods::Release> _params;
 };
 

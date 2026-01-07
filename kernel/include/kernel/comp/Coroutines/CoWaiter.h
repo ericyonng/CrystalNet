@@ -125,7 +125,7 @@ CoTask<> CoCompleted();
 // 空协程
 #ifndef CRYSTAL_CO_COMPLETED
  // 空协程
- #define CRYSTAL_CO_COMPLETED() co_await CoCompleted().SetDisableSuspend()
+ #define CRYSTAL_CO_COMPLETED() co_await KERNEL_NS::CoCompleted()
 #endif
 
 KERNEL_END

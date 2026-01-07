@@ -77,6 +77,9 @@ struct KERNEL_EXPORT CoTaskParam
 
     // 协程销毁时同时释放资源
     IDelegate<void> *_releaseSource = NULL;
+
+    // 是否需要抛到Poller执行
+    bool _enableSuspend = false;
 };
 
 struct KERNEL_EXPORT CoCurrentTaskParam

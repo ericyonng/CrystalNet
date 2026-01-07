@@ -960,7 +960,8 @@ void Poller::_Clear()
 
 void Poller::_OnObjectEventResponse(StubPollerEvent *ev)
 {
-    auto iter = _stubRefCb.find(ev->_stub);
+    auto stub = ev->_stub;
+    auto iter = _stubRefCb.find(stub);
     if (UNLIKELY(iter == _stubRefCb.end()))
     {
         if (g_Log->IsEnable(KERNEL_NS::LogLevel::Warn))
@@ -969,8 +970,15 @@ void Poller::_OnObjectEventResponse(StubPollerEvent *ev)
     }
 
     iter->second->Invoke(ev);
-    iter->second->Release();
-    _stubRefCb.erase(iter);
+
+    // 在Invoke中可能被移除
+    iter = _stubRefCb.find(stub);
+    if(iter != _stubRefCb.end())
+    {
+        iter->second->Release();
+        _stubRefCb.erase(iter);
+    }
+
 }
 
 // 事件请求处理

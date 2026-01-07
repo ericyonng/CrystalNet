@@ -136,7 +136,7 @@ void TestEventLoopThread::Run()
         auto res = co_await eventLoopThread->SendAsync<TestEventLoopDataRes, TestEventLoopDataReq>(req);
 
         auto push = new TestEventLoopDataPush();
-        co_await eventLoopThread->SendAsync2<TestEventLoopDataPush>(push).SetDisableSuspend();
+        co_await eventLoopThread->SendAsync2<TestEventLoopDataPush>(push);
 
         // g_Log->Info(LOGFMT_NON_OBJ_TAG(TestEventLoopThread, "waiting quit loop res:%s..."), res->ToString().c_str());
 

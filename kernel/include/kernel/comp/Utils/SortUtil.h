@@ -70,7 +70,7 @@ requires requires(T t1, T t2)
 }
 ALWAYS_INLINE void SortUtil::QuickSort(std::vector<T> &arr)
 {
-    _QuickSort(arr, 0, arr.size() - 1);
+    _QuickSort(arr, 0, static_cast<Int32>(arr.size()) - 1);
 }
 
 template<typename T>

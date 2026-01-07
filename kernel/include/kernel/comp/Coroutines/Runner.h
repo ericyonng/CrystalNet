@@ -50,7 +50,6 @@ ALWAYS_INLINE void PostRun(Fut&& task)
     if (task.Valid() && ! task.Done()) 
     {
         task.GetHandle().promise().SetState(KERNEL_NS::KernelHandle::SCHEDULED);
-        task.SetDisableSuspend(true);
 
         // handler将在poller中执行(lambda 绑定移动语义)
         KERNEL_NS::SmartPtr<Fut> moveTask(new Fut(std::forward<Fut>(task)));
@@ -71,7 +70,6 @@ ALWAYS_INLINE void _RunRightNow(Fut&& task)
     {
         auto &promise = task.GetHandle().promise();
         promise.SetState(KERNEL_NS::KernelHandle::SCHEDULED);
-        task.SetDisableSuspend(true);
         promise.Run(KERNEL_NS::KernelHandle::UNSCHEDULED);
     }
 }
@@ -84,7 +82,7 @@ ALWAYS_INLINE void PostCaller(T &&t, Args... args)
     auto &&lamb = [](T targetLambda, Args... argsLamb)->CoTask<> 
     {        
         // 此处不进入到Poller去异步调度, 保证与当前栈帧同步
-        co_await targetLambda(argsLamb...).SetDisableSuspend(true);
+        co_await targetLambda(argsLamb...);
     };
     PostRun(lamb(t, args...));
 }
@@ -97,7 +95,7 @@ ALWAYS_INLINE void RunRightNow(T &&t, Args... args)
     auto &&lamb = [](T targetLambda, Args... argsLamb)->CoTask<> 
     {        
         // 此处不进入到Poller去异步调度, 保证与当前栈帧同步
-        co_await targetLambda(argsLamb...).SetDisableSuspend(true);
+        co_await targetLambda(argsLamb...);
     };
     _RunRightNow(lamb(t, args...));
 }
