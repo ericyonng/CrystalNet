@@ -125,6 +125,23 @@ public:
         co_return co_await poller->template SendAsync<ResType, ReqType>(req);
     }
 
+    // 线程池执行行为
+    template<typename LambdaType>
+    requires requires (LambdaType lam) 
+    {
+        {lam()} -> std::convertible_to<void>;
+    }
+    void Send(LambdaType &&lambda)
+    {
+        if(UNLIKELY(_disablePost.load(std::memory_order_acquire)))
+        {
+            return;
+        }
+        
+        auto poller = _SelectPoller();
+        poller->Push(std::forward<LambdaType>(lambda));
+    }
+    
     Int32 GetWorkerNum() const;
     Int32 GetMaxWorkerNum() const;
     Int32 GetRRIndex() const;

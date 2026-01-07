@@ -105,6 +105,20 @@ class KERNEL_EXPORT LibEventLoopThread
    auto poller = co_await GetPoller().SetDisableSuspend();
    poller->template Send<ReqType>(req);
  }
+
+ template<typename LambdaType>
+ requires requires (LambdaType lam) 
+ {
+  {lam()} -> std::convertible_to<void>;
+ }
+ void Send(LambdaType &&lambda)
+ {
+  auto poller = GetPollerNoAsync();
+  while (UNLIKELY(!poller))
+   poller = GetPollerNoAsync();
+
+  poller->Push(std::forward<LambdaType>(lambda));
+ }
  
 private:
  LibThread *_thread;

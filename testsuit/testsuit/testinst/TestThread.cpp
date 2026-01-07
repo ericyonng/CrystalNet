@@ -186,74 +186,80 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TestThreadTPoolask3);
 //     KERNEL_NS::SystemUtil::OutputToConsole(info);
 //     KERNEL_NS::SystemUtil::UnlockConsole();
 // }
+//
+// void TestThread::Run()
+// {
+//     KERNEL_NS::LibThread libThead;
+//     KERNEL_NS::LibThread libThead2;
+//     KERNEL_NS::LibThread libThead3;
+//     KERNEL_NS::LibThread libThead4;
+//     TestThreadTask testTask;
+//     libThead.AddTask(&testTask, &TestThreadTask::Run);
+//
+//     libThead2.AddTask(KERNEL_NS::DelegateFactory::Create(&TestThreadTask2::Run));
+//     libThead3.AddTask(KERNEL_NS::DelegateFactory::Create(&TestThreadTask2::Run));
+//     libThead4.AddTask(KERNEL_NS::DelegateFactory::Create(&TestThreadTask2::Run));
+//
+//     KERNEL_NS::LibThread thread5;
+//     TestThreadTask3 *task3 = TestThreadTask3::New_TestThreadTask3();
+//     thread5.AddTask(task3);
+//
+//
+//     // libThead.Start();
+//     // libThead2.Start();
+//     // libThead3.Start();
+//     // libThead4.Start();
+//     thread5.Start();
+//
+//     getchar();
+//     libThead.HalfClose();
+//     libThead2.HalfClose();
+//     libThead3.HalfClose();
+//     libThead4.HalfClose();
+//     thread5.HalfClose();
+//     libThead.FinishClose();
+//     libThead2.FinishClose();
+//     libThead3.FinishClose();
+//     libThead4.FinishClose();
+//     thread5.FinishClose();
+//     std::cout << "end thread test" << std::endl;
+//
+//     // 线程池
+//     {
+//         KERNEL_NS::LibThreadPool pool;
+//
+//         // 此时不会启动线程
+//         pool.Init(0, 12);
+//         pool.Start();
+//
+//         // ThreadPoolTask1 *task1 = new ThreadPoolTask1;
+//         TestThreadTPoolask3 *task2 = TestThreadTPoolask3::New_TestThreadTPoolask3();
+//
+//         // 只添加任务不启动线程工作 队列是有序的
+//         // pool.AddTask(task1, true, 0);
+//         // pool.AddTask(&ThreadPoolRun2, true, 0);
+//         // pool.AddTask(&ThreadPoolRun3, true, 0);
+//         // pool.AddTask(&ThreadPoolRun4, true, 0);
+//         // pool.AddTask(&ThreadPoolRun5, true, 0);
+//         pool.AddTask(task2);
+//
+//         // 添加5个工作线程 多线程是乱序执行的,所以打印的顺序不能保证
+//         pool.AddThreads(5);
+//
+//         // 只唤醒
+//         // pool.AddTask(&ThreadPoolRun2, false, 0);
+//         // pool.AddTask(&ThreadPoolRun3, false, 0);
+//         // pool.AddTask(&ThreadPoolRun4, false, 0);
+//         // pool.AddTask(&ThreadPoolRun5, false, 0);
+//         getchar();
+//
+//         if(pool.HalfClose())
+//             pool.FinishClose();
+//     }
+// }
 
 void TestThread::Run()
 {
-    KERNEL_NS::LibThread libThead;
-    KERNEL_NS::LibThread libThead2;
-    KERNEL_NS::LibThread libThead3;
-    KERNEL_NS::LibThread libThead4;
-    TestThreadTask testTask;
-    libThead.AddTask(&testTask, &TestThreadTask::Run);
-
-    libThead2.AddTask(KERNEL_NS::DelegateFactory::Create(&TestThreadTask2::Run));
-    libThead3.AddTask(KERNEL_NS::DelegateFactory::Create(&TestThreadTask2::Run));
-    libThead4.AddTask(KERNEL_NS::DelegateFactory::Create(&TestThreadTask2::Run));
-
-    KERNEL_NS::LibThread thread5;
-    TestThreadTask3 *task3 = TestThreadTask3::New_TestThreadTask3();
-    thread5.AddTask(task3);
-
-
-    // libThead.Start();
-    // libThead2.Start();
-    // libThead3.Start();
-    // libThead4.Start();
-    thread5.Start();
-
-    getchar();
-    libThead.HalfClose();
-    libThead2.HalfClose();
-    libThead3.HalfClose();
-    libThead4.HalfClose();
-    thread5.HalfClose();
-    libThead.FinishClose();
-    libThead2.FinishClose();
-    libThead3.FinishClose();
-    libThead4.FinishClose();
-    thread5.FinishClose();
-    std::cout << "end thread test" << std::endl;
-
-    // 线程池
-    {
-        KERNEL_NS::LibThreadPool pool;
-
-        // 此时不会启动线程
-        pool.Init(0, 12);
-        pool.Start();
-
-        // ThreadPoolTask1 *task1 = new ThreadPoolTask1;
-        TestThreadTPoolask3 *task2 = TestThreadTPoolask3::New_TestThreadTPoolask3();
-
-        // 只添加任务不启动线程工作 队列是有序的
-        // pool.AddTask(task1, true, 0);
-        // pool.AddTask(&ThreadPoolRun2, true, 0);
-        // pool.AddTask(&ThreadPoolRun3, true, 0);
-        // pool.AddTask(&ThreadPoolRun4, true, 0);
-        // pool.AddTask(&ThreadPoolRun5, true, 0);
-        pool.AddTask(task2);
-
-        // 添加5个工作线程 多线程是乱序执行的,所以打印的顺序不能保证
-        pool.AddThreads(5);
-
-        // 只唤醒
-        // pool.AddTask(&ThreadPoolRun2, false, 0);
-        // pool.AddTask(&ThreadPoolRun3, false, 0);
-        // pool.AddTask(&ThreadPoolRun4, false, 0);
-        // pool.AddTask(&ThreadPoolRun5, false, 0);
-        getchar();
-
-        if(pool.HalfClose())
-            pool.FinishClose();
-    }
+    auto pool = new KERNEL_NS::LibEventLoopThreadPool(1, 16);
+    
 }
