@@ -48,82 +48,16 @@ public:
     LibEventLoopThreadPool();
     LibEventLoopThreadPool(Int32 minNum, Int32 maxNum);
     ~LibEventLoopThreadPool();
+    
+    void Release() const
+    {
+        delete this;
+    }
 
     void Start();
     void Close();
     void HalfClose();
     void FinishClose();
-
-    // 调用者当前线程投递req给this
-    // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
-    // req/res 必须实现Release, ToString接口
-    template<typename ReqType>
-    requires requires(ReqType req)
-    {
-        // req/res必须有Release接口
-        req.Release();
-    
-        // req/res必须有ToString接口
-        req.ToString();
-    }
-    void Send(ReqType *req)
-    {
-        if(UNLIKELY(_disablePost.load(std::memory_order_acquire)))
-        {
-            req->Release();
-            return;
-        }
-        
-        auto poller = _SelectPoller();
-        poller->Send(req);
-    }
-
-    template<typename ReqType>
-    requires requires(ReqType req)
-    {
-        // req/res必须有Release接口
-        req.Release();
-    
-        // req/res必须有ToString接口
-        req.ToString();
-    }
-    CoTask<> SendAsync(ReqType *req)
-    {
-        if(UNLIKELY(_disablePost.load(std::memory_order_acquire)))
-        {
-            req->Release();
-            co_return;
-        }
-        
-        CRYSTAL_CO_COMPLETED();
-        
-        auto poller = _SelectPoller();
-        poller->Send(req);
-    }
-    
-    template<typename ResType, typename ReqType>
-    requires requires(ReqType req, ResType res)
-    {
-        // req/res必须有Release接口
-        req.Release();
-        res.Release();
-    
-        // req/res必须有ToString接口
-        req.ToString();
-        res.ToString();
-    }
-    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync2(ReqType *req)
-    {
-        // 不允许发送了
-        if(UNLIKELY(_disablePost.load(std::memory_order_acquire)))
-        {
-            req->Release();
-            co_return KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>(NULL);
-        }
-        
-        auto poller = _SelectPoller();
-        co_return co_await poller->template SendAsync<ResType, ReqType>(req);
-    }
 
     // 线程池执行行为
     template<typename LambdaType>
@@ -131,15 +65,42 @@ public:
     {
         {lam()} -> std::convertible_to<void>;
     }
-    void Send(LambdaType &&lambda)
+    void Send(LambdaType &&lambda, bool priorityToUsingNewThread = false)
     {
         if(UNLIKELY(_disablePost.load(std::memory_order_acquire)))
         {
             return;
         }
         
-        auto poller = _SelectPoller();
+        auto poller = _SelectPoller(priorityToUsingNewThread);
         poller->Push(std::forward<LambdaType>(lambda));
+    }
+
+    // 线程池中执行lambda行为并返回结果到调用线程
+    template<typename ResType, typename LambdaType>
+    requires requires(LambdaType lambda, ResType res)
+    {
+        // 可移动
+        requires std::move_constructible<ResType>;
+        
+        {lambda()} -> std::convertible_to<ResType>;
+
+        // res必须有Release接口
+        res.Release();
+    
+        // res必须有ToString接口
+        res.ToString();
+    }
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(LambdaType &&lamb, bool priorityToUsingNewThread = false)
+    {
+        if(UNLIKELY(_disablePost.load(std::memory_order_acquire)))
+        {
+            co_return KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>();
+        }
+
+        auto poller = _SelectPoller(priorityToUsingNewThread);
+
+        co_return co_await poller->template SendAsync<ResType, LambdaType>(std::forward<LambdaType>(lamb));
     }
     
     Int32 GetWorkerNum() const;
@@ -149,8 +110,10 @@ public:
 
     LibString ToString() const;
 
+    Poller *SelectPoller(bool priorityToUsingNewThread = false);
+
 private:
-    Poller *_SelectPoller();
+    Poller *_SelectPoller(bool priorityToUsingNewThread = false);
     
 private:
     const Int32 _minNum;
@@ -192,6 +155,12 @@ ALWAYS_INLINE LibString LibEventLoopThreadPool::ToString() const
     return LibString().AppendFormat("%s: workingNum:%d, maxNum:%d, rrIndex:%d, IsDisable:%d",
         _poolName.c_str(), GetWorkerNum(), GetMaxWorkerNum(), GetRRIndex(), IsDisablePost() ? 1 : 0);
 }
+
+ALWAYS_INLINE Poller *LibEventLoopThreadPool::SelectPoller(bool priorityToUsingNewThread)
+{
+    return _SelectPoller(priorityToUsingNewThread);
+}
+
 
 KERNEL_END                                      
 

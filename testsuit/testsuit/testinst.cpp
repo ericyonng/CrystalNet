@@ -232,7 +232,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestMemoryAlloctor::Run();
     // TestMemoryPool::Run();
     // TestObjAlloctor::Run();
-    // TestThread::Run();
+    TestThread::Run();
 
     // //TestGarbageCollector::Run();
     // TestLibString::Run();
@@ -309,7 +309,7 @@ void TestInst::Run(int argc, char const *argv[])
     // TestSort::Run();
     // TestEventLoopThread::Run();
     // TestLockFree::Run();
-    TestYaml::Run();
+    // TestYaml::Run();
     
     // write a large file
     // do

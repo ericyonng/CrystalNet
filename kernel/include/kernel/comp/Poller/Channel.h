@@ -37,6 +37,7 @@
 #include "kernel/comp/Lock/Impl/ConditionLocker.h"
 #include "kernel/comp/Utils/SystemUtil.h"
 #include <kernel/comp/Poller/PollerEvent.h>
+#include <kernel/comp/Delegate/LibDelegate.h>
 
 KERNEL_BEGIN
 
@@ -58,6 +59,20 @@ public:
 
     void Send(PollerEvent *ev);
     void Send(LibList<PollerEvent *> *evs);
+
+    // 执行行为
+    template<typename LambdaType>
+    requires requires(LambdaType lamb)
+    {
+        {lamb()} -> std::convertible_to<void>;
+    }
+    void Send(LambdaType &&lamb)
+    {
+        auto deleg = KERNEL_CREATE_CLOSURE_DELEGATE(lamb, void);
+        auto ev = ActionPollerEvent::New_ActionPollerEvent();
+        ev->_action = deleg;
+        Send(ev);
+    }
 
     Poller *GetTarget();
     const Poller *GetTarget() const;

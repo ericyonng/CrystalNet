@@ -116,6 +116,12 @@ public:
 
     }
 
+    // 销毁自己
+    void Release() const
+    {
+        delete this;
+    }
+
     LibString(LibString &&other)
     {
         _raw.swap(other._raw);
@@ -166,6 +172,11 @@ public:
     LibString &operator = (const LibString &other)
     {
         _raw = other._raw;
+        return *this;
+    }
+    LibString &operator = (LibString &&other)
+    {
+        _raw.swap(other._raw);
         return *this;
     }
 
@@ -489,6 +500,7 @@ public:
     bool Contain(const LibString &piece) const;
 
     LibString ToHexString() const;    
+    LibString ToString() const;    
 
     void ToHexString(LibString &target) const;
 
@@ -788,7 +800,13 @@ ALWAYS_INLINE LibString LibString::ToHexString() const
     LibString info;
     ToHexString(info);
     return info;
-}              
+}
+
+ALWAYS_INLINE LibString LibString::ToString() const
+{
+    return *this;
+}
+
     
 ALWAYS_INLINE LibString &LibString::AppendData(const Byte8 *bitData, Int64 dataSize)
 {

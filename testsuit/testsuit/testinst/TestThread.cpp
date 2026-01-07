@@ -260,6 +260,57 @@ POOL_CREATE_OBJ_DEFAULT_IMPL(TestThreadTPoolask3);
 
 void TestThread::Run()
 {
-    auto pool = new KERNEL_NS::LibEventLoopThreadPool(1, 16);
-    
+    auto poller = KERNEL_NS::TlsUtil::GetPoller();
+
+    KERNEL_NS::SmartPtr<KERNEL_NS::LibEventLoopThreadPool, KERNEL_NS::AutoDelMethods::Release> pool = new KERNEL_NS::LibEventLoopThreadPool(1, 16);
+    pool->Start();
+
+    KERNEL_NS::PostCaller([poller, pool]() mutable ->KERNEL_NS::CoTask<>
+    {        
+        pool->Send([]()
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "hello thread pool thread id:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+        });
+
+        pool->Send([]()
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "hello thread pool thread id:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+        });
+
+        // 监听退出
+        pool->Send([poller]()
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "app listen quit signal..."));
+            getchar();
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "will quit app"));
+        
+            poller->QuitLoop();
+        }, true);
+
+        auto poolRes = co_await pool->SendAsync<KERNEL_NS::LibString>([]()->KERNEL_NS::LibString
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "pool excute lambda and will return result thread id:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+
+            return KERNEL_NS::LibString().AppendFormat("pool excute result thread id:%llu", KERNEL_NS::SystemUtil::GetCurrentThreadId());
+        });
+
+        pool->Send([]()
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "hello thread pool thread id 3:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+        });
+
+        pool->Send([]()
+        {
+            g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "hello thread pool thread id 4:%llu"), KERNEL_NS::SystemUtil::GetCurrentThreadId());
+        });
+        
+        g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "current thread id:%llu, pool result:%s"), KERNEL_NS::SystemUtil::GetCurrentThreadId(), poolRes->c_str());
+    });
+
+    poller->PrepareLoop();
+    poller->EventLoop();
+    poller->OnLoopEnd();
+
+    pool->Close();
+    g_Log->Info(LOGFMT_NON_OBJ_TAG(TestThread, "TestThread finish."));
 }

@@ -153,22 +153,25 @@ ALWAYS_INLINE static bool _IsThreadIdle(LibEventLoopThread *thread)
     return poller->IsWaiting();
 }
 
-Poller *LibEventLoopThreadPool::_SelectPoller()
+Poller *LibEventLoopThreadPool::_SelectPoller(bool priorityToUsingNewThread)
 {
     auto workingNum = _workingNum.load(std::memory_order_acquire);
     // 1. 先寻找空闲的线程
     LibEventLoopThread *thread = NULL;
-    for(Int32 idx = 0; idx < workingNum; ++idx)
+    if(LIKELY(!priorityToUsingNewThread))
     {
-        auto t = _threads[idx];
-        if(UNLIKELY(!t))
-            continue;
+        for(Int32 idx = 0; idx < workingNum; ++idx)
+        {
+            auto t = _threads[idx];
+            if(UNLIKELY(!t))
+                continue;
 
-        if(!_IsThreadIdle(t))
-            continue;
+            if(!_IsThreadIdle(t))
+                continue;
 
-        thread = t;
-        break;
+            thread = t;
+            break;
+        }
     }
 
     // 2.如果线程都繁忙则创建新的线程
@@ -211,12 +214,10 @@ Poller *LibEventLoopThreadPool::_SelectPoller()
     {
         workingNum = _workingNum.load(std::memory_order_acquire);
         auto rrIndex = _rrIndex.load(std::memory_order_acquire);
-        auto middleIndex = rrIndex;
-        auto newIndex = (middleIndex++) % workingNum;
-        while (!_rrIndex.compare_exchange_weak(rrIndex, newIndex, std::memory_order_acq_rel))
+        auto newIndex = rrIndex % workingNum;
+        while (!_rrIndex.compare_exchange_weak(rrIndex, (newIndex + 1) % workingNum, std::memory_order_acq_rel))
         {
-            middleIndex = rrIndex;
-            newIndex = (middleIndex++) % workingNum;
+            newIndex = rrIndex % workingNum;
         }
 
         thread = _threads[newIndex];

@@ -224,6 +224,8 @@ Int32 Poller::_OnInit()
     Subscribe(PollerEventInternalType::ObjectPollerEventType, this, &Poller::_OnObjectEvent);
     // 批量消息
     Subscribe(PollerEventInternalType::BatchPollerEventType, this, &Poller::_OnBatchPollerEvent);
+    // action
+    Subscribe(PollerEventInternalType::ActionPollerEventType, this, &Poller::_OnActionPollerEvent);
     // 订阅创建Channel消息
     SubscribeObjectEvent<ApplyChannelEvent>(this, &Poller::_OnApplyChannelEvent);
     // 订阅销毁Channel消息（废弃）
@@ -330,6 +332,13 @@ void Poller::_OnBatchPollerEvent(PollerEvent *ev)
             subEv->Release();
         }
     }
+}
+
+void Poller::_OnActionPollerEvent(PollerEvent *ev)
+{
+    auto actionEv = ev->CastTo<ActionPollerEvent>();
+    if(LIKELY(actionEv->_action))
+        actionEv->_action->Invoke();
 }
 
 void Poller::_OnApplyChannelEvent(StubPollerEvent *ev)

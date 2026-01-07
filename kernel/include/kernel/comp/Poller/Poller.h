@@ -51,8 +51,9 @@
 #include <kernel/comp/SmartPtr.h>
 #include <kernel/comp/Poller/ApplyChannelResult.h>
 
-#include "Channel.h"
+#include <kernel/comp/Poller/Channel.h>
 #include "kernel/comp/ConcurrentPriorityQueue/MPMCQueue.h"
+#include <concepts>
 
 KERNEL_BEGIN
     class Channel;
@@ -239,6 +240,7 @@ public:
     // 调用者当前线程投递req给this
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
     // req/res 必须实现Release, ToString接口
+    // 从调用的当前线程向this线程发送, 最后结果返回当前线程
     template<typename ResType, typename ReqType>
     requires requires(ReqType req, ResType res)
     {
@@ -251,6 +253,132 @@ public:
         res.ToString();
     }
     CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(ReqType *req);
+
+    // 当前线程发送一个行为到this线程执行, 执行完返回值返回给调用线程
+    template<typename ResType, typename LambdaType>
+    requires requires(LambdaType lambda, ResType res)
+    {
+        // 可移动
+        requires std::move_constructible<ResType>;
+        
+        {lambda()} -> std::convertible_to<ResType>;
+
+        // res必须有Release接口
+        res.Release();
+    
+        // res必须有ToString接口
+        res.ToString();
+    }
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(LambdaType &&lamb);
+
+    // 当前线程发送一个行为到this线程执行, 执行完返回值返回给调用线程
+    template<typename ResType, typename LambdaType>
+    requires requires(LambdaType lambda, ResType res)
+    {
+        // 可移动
+        requires std::move_constructible<ResType>;
+        
+        {lambda()} -> std::convertible_to<ResType>;
+
+        // res必须有Release接口
+        res.Release();
+    
+        // res必须有ToString接口
+        res.ToString();
+    }
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendToAsync(Poller &otherPoller, LambdaType &&lamb)
+    {
+        auto poller = this;
+
+        // 1.ptr用来回传ResType
+        KERNEL_NS::SmartPtr<ResType *,  KERNEL_NS::AutoDelMethods::CustomDelete> ptr(KERNEL_NS::KernelCastTo<ResType *>(
+            kernel::KernelAllocMemory<KERNEL_NS::_Build::TL>(sizeof(ResType **))));
+        ptr.SetClosureDelegate([](void *p)
+        {
+            // 释放packet
+            auto castP = KERNEL_NS::KernelCastTo<ResType*>(p);
+            if(*castP)
+                (*castP)->Release();
+
+            KERNEL_NS::KernelFreeMemory<KERNEL_NS::_Build::TL>(castP);
+        });
+        *ptr = NULL;
+
+        // 设置stub => ResType的事件回调
+        UInt64 stub = ++_maxStub;
+        KERNEL_NS::SmartPtr<KERNEL_NS::TaskParamRefWrapper, KERNEL_NS::AutoDelMethods::Release> params = KERNEL_NS::TaskParamRefWrapper::NewThreadLocal_TaskParamRefWrapper();
+        SubscribeStubEvent(stub, [ptr, params](KERNEL_NS::StubPollerEvent *ev) mutable 
+        {
+            KERNEL_NS::ObjectPollerEvent<ResType> *finalEv = KernelCastTo<KERNEL_NS::ObjectPollerEvent<ResType>>(ev);
+            // 将结果带出去
+            *ptr = finalEv->_obj;
+            finalEv->_obj = NULL;
+            
+            // 唤醒Waiter
+            auto &coParam = params->_params;
+            if(coParam && coParam->_handle)
+                coParam->_handle->ForceAwake();
+        });
+    
+        // 发送对象事件 ObjectPollerEvent到 other
+        auto iterChannel = _targetPollerRefChannel.find(&otherPoller);
+        if(LIKELY(iterChannel != _targetPollerRefChannel.end()))
+        {
+            auto srcChannel = iterChannel->second;
+            srcChannel->Send([srcPoller = poller, srcChannel, stub, lamb]()
+            {
+                // 返回包
+                auto resEv = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub
+                    , true, KERNEL_NS::TlsUtil::GetPoller(), srcChannel);
+                resEv->_obj = new ResType();
+                
+                *(resEv->_obj) = std::move(lamb());
+                srcPoller->Push(resEv);
+            });
+        }
+        else
+        {
+            otherPoller.Push([srcPoller = poller, stub, lamb]()
+            {
+                // 返回包
+                auto resEv = KERNEL_NS::ObjectPollerEvent<ResType>::New_ObjectPollerEvent(stub
+                    , true, KERNEL_NS::TlsUtil::GetPoller(), NULL);
+                resEv->_obj = new ResType();
+                            
+                *(resEv->_obj) = std::move(lamb());
+                srcPoller->Push(resEv);
+            });
+        }
+        
+        // 等待 ObjectPollerEvent 的返回消息唤醒
+        // 外部如果协程销毁兜底销毁资源
+        auto releaseFun = [stub, poller]()
+        {
+            poller->UnSubscribeStubEvent(stub);
+        };
+        auto delg = KERNEL_CREATE_CLOSURE_DELEGATE(releaseFun, void);
+        co_await KERNEL_NS::Waiting().SetDisableSuspend().GetParam(params).SetRelease(delg);
+        if(LIKELY(params->_params))
+        {
+            auto &pa = params->_params; 
+            if(pa->_errCode != Status::Success)
+            {
+                g_Log->Warn(LOGFMT_OBJ_TAG("waiting err:%d, stub:%llu, lambda:%s")
+                    , pa->_errCode, stub, KERNEL_NS::RttiUtil::GetByObj(&lamb).c_str());
+                
+                UnSubscribeStubEvent(stub);
+            }
+
+            // 销毁waiting协程
+            if(pa->_handle)
+                pa->_handle->DestroyHandle(pa->_errCode);
+        }
+    
+        // 3.将消息回调中的ResType引用设置成空
+        auto res = *ptr;
+        *ptr = NULL;
+        co_return KERNEL_NS::SmartPtr<ResType,  KERNEL_NS::AutoDelMethods::Release>(res);
+    }
 
     // 调用者当前线程投递req给this
     // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
@@ -392,6 +520,8 @@ protected:
     void _OnObjectEvent(PollerEvent *ev);
     void _OnBatchPollerEvent(PollerEvent *ev);
     void _OnApplyChannelEvent(StubPollerEvent *ev);
+    void _OnActionPollerEvent(PollerEvent *ev);
+
     // void _OnDestroyChannelEvent(StubPollerEvent *ev);
 
 private:
@@ -818,7 +948,29 @@ requires requires(ReqType req, ResType res)
 }
 ALWAYS_INLINE CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> Poller::SendAsync(ReqType *req)
 {
+    // 从调用的当前线程向this线程发送, 最后结果返回当前线程
     co_return co_await KERNEL_NS::TlsUtil::GetPoller()->SendToAsync<ResType, ReqType>(*this, req);
+}
+
+// 当前线程发送一个行为到this线程执行, 执行完返回值返回给调用线程
+template<typename ResType, typename LambdaType>
+requires requires(LambdaType lambda, ResType res)
+{
+    // 可移动
+    requires std::move_constructible<ResType>;
+        
+    {lambda()} -> std::convertible_to<ResType>;
+
+    // res必须有Release接口
+    res.Release();
+    
+    // res必须有ToString接口
+    res.ToString();
+}
+ALWAYS_INLINE CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> Poller::SendAsync(LambdaType &&lamb)
+{
+    // 从调用的当前线程向this线程发送, 最后结果返回当前线程
+    co_return co_await KERNEL_NS::TlsUtil::GetPoller()->SendToAsync<ResType>(*this, std::forward<LambdaType>(lamb));
 }
 
 #if CRYSTAL_TARGET_PLATFORM_LINUX

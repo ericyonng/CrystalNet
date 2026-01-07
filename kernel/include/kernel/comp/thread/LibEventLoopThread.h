@@ -49,79 +49,102 @@ class IThreadStartUp;
 
 class KERNEL_EXPORT LibEventLoopThread
 {
- public:
- LibEventLoopThread(const LibString &threadName = "", IThreadStartUp *startUp = NULL);
- virtual  ~LibEventLoopThread();
- virtual void Release();
 
- // 启动
- void Start();
- // 关闭 = HalfClose + WaitDestroy合并
- void Close();
- // 半关闭 返回值表示可否执行WaitDestroy
- bool HalfClose();
- // 等待退出
- void FinishClose();
+public:
+     LibEventLoopThread(const LibString &threadName = "", IThreadStartUp *startUp = NULL);
+     virtual  ~LibEventLoopThread();
+     virtual void Release();
 
- CoTask<const Poller *> GetPoller() const;
- CoTask<Poller *> GetPoller();
- const Poller * GetPollerNoAsync() const;
- Poller * GetPollerNoAsync();
+     // 启动
+     void Start();
+     // 关闭 = HalfClose + WaitDestroy合并
+     void Close();
+     // 半关闭 返回值表示可否执行WaitDestroy
+     bool HalfClose();
+     // 等待退出
+     void FinishClose();
+
+     CoTask<const Poller *> GetPoller() const;
+     CoTask<Poller *> GetPoller();
+     const Poller * GetPollerNoAsync() const;
+     Poller * GetPollerNoAsync();
  
- // 调用者当前线程投递req给this
- // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
- // req/res 必须实现Release, ToString接口
- template<typename ResType, typename ReqType>
- requires requires(ReqType req, ResType res)
- {
-  // req/res必须有Release接口
-  req.Release();
-  res.Release();
+    // 调用者当前线程投递req给this
+    // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
+    // req/res 必须实现Release, ToString接口
+    template<typename ResType, typename ReqType>
+    requires requires(ReqType req, ResType res)
+    {
+        // req/res必须有Release接口
+        req.Release();
+        res.Release();
+
+        // req/res必须有ToString接口
+        req.ToString();
+        res.ToString();
+    }
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(ReqType *req)
+    {
+        auto poller = co_await GetPoller().SetDisableSuspend();
+        co_return co_await poller->template SendAsync<ResType, ReqType>(req);
+    }
+
+    // 调用者当前线程投递req给this
+    // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
+    // req/res 必须实现Release, ToString接口
+    template<typename ReqType>
+    requires requires(ReqType req)
+    {
+        // req/res必须有Release接口
+        req.Release();
+
+        // req/res必须有ToString接口
+        req.ToString();
+    }
+    CoTask<> SendAsync2(ReqType *req)
+    {
+        auto poller = co_await GetPoller().SetDisableSuspend();
+        poller->template Send<ReqType>(req);
+    }
+
+    // 线程中执行行为
+    template<typename LambdaType>
+    requires requires (LambdaType lam) 
+    {
+        {lam()} -> std::convertible_to<void>;
+    }
+    void Send(LambdaType &&lambda)
+    {
+        auto poller = GetPollerNoAsync();
+        while (UNLIKELY(!poller))
+        poller = GetPollerNoAsync();
+
+        poller->Push(std::forward<LambdaType>(lambda));
+    }
     
-  // req/res必须有ToString接口
-  req.ToString();
-  res.ToString();
- }
- CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(ReqType *req)
- {
-   auto poller = co_await GetPoller().SetDisableSuspend();
-   co_return co_await poller->template SendAsync<ResType, ReqType>(req);
- }
+    // 线程中执行lambda行为并返回结果到调用线程
+    template<typename ResType, typename LambdaType>
+    requires requires(LambdaType lambda, ResType res)
+    {
+         // 可移动
+         requires std::move_constructible<ResType>;
+            
+         {lambda()} -> std::convertible_to<ResType>;
 
- // 调用者当前线程投递req给this
- // req暂时只能传指针，而且会在otherChannel（可能不同线程）释放
- // req/res 必须实现Release, ToString接口
- template<typename ReqType>
- requires requires(ReqType req)
- {
-  // req/res必须有Release接口
-  req.Release();
+         // res必须有Release接口
+         res.Release();
+
+         // res必须有ToString接口
+         res.ToString();
+    }
+    CoTask<KERNEL_NS::SmartPtr<ResType, AutoDelMethods::Release>> SendAsync(LambdaType &&lamb)
+    {
+         auto poller = co_await GetPoller().SetDisableSuspend();
+         co_return co_await poller->template SendAsync<ResType, LambdaType>(std::forward<LambdaType>(lamb));
+    }
     
-  // req/res必须有ToString接口
-  req.ToString();
- }
- CoTask<> SendAsync2(ReqType *req)
- {
-   auto poller = co_await GetPoller().SetDisableSuspend();
-   poller->template Send<ReqType>(req);
- }
-
- template<typename LambdaType>
- requires requires (LambdaType lam) 
- {
-  {lam()} -> std::convertible_to<void>;
- }
- void Send(LambdaType &&lambda)
- {
-  auto poller = GetPollerNoAsync();
-  while (UNLIKELY(!poller))
-   poller = GetPollerNoAsync();
-
-  poller->Push(std::forward<LambdaType>(lambda));
- }
- 
 private:
- LibThread *_thread;
+    LibThread *_thread;
 };
 
 KERNEL_END
