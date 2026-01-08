@@ -56,8 +56,11 @@ void TestFileUtil::Run()
 
     // 读取一行UTF8字符串
     {
-        const KERNEL_NS::LibString utf8File = "./utf8Text.txt";
+        const KERNEL_NS::LibString utf8File = "./utf8Text3.txt";
         auto fp = KERNEL_NS::FileUtil::OpenFile(utf8File.c_str(), true);
+
+        auto writeBytes = KERNEL_NS::FileUtil::WriteFile(*fp, "hello world...");
+        KERNEL_NS::FileUtil::ResetFileCursor(*fp);
         UInt64 utf8Count = 0;
         KERNEL_NS::LibString utf8Line;
         auto lineBytes = KERNEL_NS::FileUtil::ReadUtf8OneLine(*fp, utf8Line, &utf8Count);
@@ -72,6 +75,8 @@ void TestFileUtil::Run()
         std::cout << "utf8 line:" << utf8Line << std::endl;
         std::cout << "lineBytes:" << lineBytes << std::endl;
         std::cout << "utf8Count:" << utf8Count << std::endl;
+
+        
     }
 
 }

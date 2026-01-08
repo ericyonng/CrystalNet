@@ -232,13 +232,13 @@ void TestInst::Run(int argc, char const *argv[])
     // TestMemoryAlloctor::Run();
     // TestMemoryPool::Run();
     // TestObjAlloctor::Run();
-    TestThread::Run();
+    // TestThread::Run();
 
     // //TestGarbageCollector::Run();
     // TestLibString::Run();
     // TestString::Run();
     // TestTime::Run();
-    // //TestFileUtil::Run();
+    TestFileUtil::Run();
     // TestGuid::Run();
     // // TestTemplateObjPool::Run();
     // // TestBinaryArray::Run();

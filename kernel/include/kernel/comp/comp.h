@@ -95,5 +95,6 @@
 #include <kernel/comp/TlsMemoryCleanerComp.h>
 #include <kernel/comp/Lua/Lua.h>
 #include <kernel/comp/IdGenerator/IdGenerator.h>
+#include <kernel/comp/FileMonitor/FileMonitor.h>
 
 #endif
