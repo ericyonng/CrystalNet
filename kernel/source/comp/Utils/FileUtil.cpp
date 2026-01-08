@@ -279,13 +279,14 @@ Int64 FileUtil::WriteFile(FILE &fp, const Byte8 *buffer, Int64 dataLenToWrite)
 //         return 0;
 
     clearerr(&fp);
-    auto handle = static_cast<Int64>(::fwrite(buffer, dataLenToWrite, 1, &fp));
-    if(LIKELY(handle != 1))
+    auto handle = static_cast<Int64>(::fwrite(buffer, 1, dataLenToWrite, &fp));
+    if(LIKELY(handle != dataLenToWrite))
     {
         const auto err = SystemUtil::GetErrNo();
         const auto &errStr = SystemUtil::GetErrString(err);
-        g_Log->Error(LOGFMT_NON_OBJ_TAG(FileUtil, "write file fail buffer:%p, dataLenToWrite:%lld, errno:%d, err:%s"), buffer, dataLenToWrite, err, errStr.c_str());
-        return 0;
+        g_Log->Error(LOGFMT_NON_OBJ_TAG(FileUtil, "write file fail buffer:%p, dataLenToWrite:%lld, errno:%d, err:%s, handle:%lld")
+            , buffer, dataLenToWrite, err, errStr.c_str(), handle);
+        return handle;
     }
 
 //     if(dataLenToWrite != cnt)
