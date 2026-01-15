@@ -716,12 +716,12 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
                 newPollerFeatureConfig = iterPollerFeatureConfig->second;
             }
 
-            if(static_cast<Int32>(newPollerFeatureConfig->_pollerInstConfigs.size()) < linkInOutPollerAmount)
+            if(static_cast<UInt64>(newPollerFeatureConfig->_pollerInstConfigs.size()) < linkInOutPollerAmount)
                 newPollerFeatureConfig->_pollerInstConfigs.resize(static_cast<size_t>(linkInOutPollerAmount));
 
             // 创建配置
             auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
-            for(Int32 idx = 0; idx < linkInOutPollerAmount; ++idx)
+            for(Int32 idx = 0; idx < static_cast<Int32>(linkInOutPollerAmount); ++idx)
             {
                 auto newInstConfig = pollerInstConfigs[idx];
                 if(newInstConfig)
@@ -756,12 +756,12 @@ bool ServiceConfig::_ParsePoller(const KERNEL_NS::LibString &seg, const KERNEL_N
                 newPollerFeatureConfig = iterPollerFeatureConfig->second;
             }
 
-            if(static_cast<Int32>(newPollerFeatureConfig->_pollerInstConfigs.size()) < dataTransferPollerAmount)
+            if(static_cast<UInt64>(newPollerFeatureConfig->_pollerInstConfigs.size()) < dataTransferPollerAmount)
                 newPollerFeatureConfig->_pollerInstConfigs.resize(static_cast<size_t>(dataTransferPollerAmount));
 
             // 创建配置
             auto &pollerInstConfigs = newPollerFeatureConfig->_pollerInstConfigs;
-            for(Int32 idx = 0; idx < dataTransferPollerAmount; ++idx)
+            for(Int32 idx = 0; idx < static_cast<Int32>(dataTransferPollerAmount); ++idx)
             {
                 auto newInstConfig = pollerInstConfigs[idx];
                 if(newInstConfig)

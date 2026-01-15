@@ -449,7 +449,7 @@ void ClientUser::_OnLoginConnectRes(UInt64 stub, Int32 errCode, const KERNEL_NS:
     // 发起登录
     LoginReq req;
     *req.mutable_loginuserinfo() = _loginInfo;
-    auto newPacektId = Send(Opcodes::OpcodeConst::OPCODE_LoginReq, req);
+    Send(Opcodes::OpcodeConst::OPCODE_LoginReq, req);
     // if(newPacektId < 0)
     // {
     //     _clientInfo->set_clientstatus(ClientUserStatus::UNLOGIN);
