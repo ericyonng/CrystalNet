@@ -40,7 +40,7 @@
 #if CRYSTAL_TARGET_PLATFORM_WINDOWS
 #include <intrin.h>
 #elif CRYSTAL_TARGET_PLATFORM_LINUX
-#include <cpuid.h>
+// #include <cpuid.h>
 #endif
 
 KERNEL_BEGIN
